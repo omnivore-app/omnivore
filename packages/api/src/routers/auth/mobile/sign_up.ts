@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import UserModel from '../../../datalayer/user'
+import { createUser } from '../../../services/create_user'
+import { hashPassword } from '../../../utils/auth'
+import { logger } from '../../../utils/logger'
 import { decodeAppleToken } from '../apple_auth'
-import { decodeGoogleToken } from '../google_auth'
+import { isValidSignupRequest } from '../auth_router'
 import {
+  AuthProvider,
   DecodeTokenResult,
   JsonResponsePayload,
-  AuthProvider,
   PendingUserTokenPayload,
 } from '../auth_types'
+import { decodeGoogleToken } from '../google_auth'
 import { createPendingUserToken, suggestedUsername } from '../jwt_helpers'
-import UserModel from '../../../datalayer/user'
-import { hashPassword } from '../../../utils/auth'
-import { createUser } from '../../../services/create_user'
-import { isValidSignupRequest } from '../auth_router'
 import express from 'express'
 
 export async function createMobileSignUpResponse(
@@ -41,7 +42,7 @@ export async function createMobileSignUpResponse(
 
     throw new Error(`Missing or unsupported provider ${provider}`)
   } catch (e) {
-    console.log('createMobileSignUpResponse error', e)
+    logger.info('createMobileSignUpResponse error', e)
     return signUpFailedPayload
   }
 }
@@ -74,7 +75,7 @@ export async function createMobileEmailSignUpResponse(
       json: {},
     }
   } catch (e) {
-    console.log('error creating mobile email sign up response', e)
+    logger.info('error creating mobile email sign up response', e)
     return signUpFailedPayload
   }
 }
@@ -132,7 +133,7 @@ async function createSignUpResponsePayload(
       json: { pendingUserToken, pendingUserProfile },
     }
   } catch (e) {
-    console.log('createSignUpResponsePayload error', e)
+    logger.info('createSignUpResponsePayload error', e)
     return signUpFailedPayload
   }
 }

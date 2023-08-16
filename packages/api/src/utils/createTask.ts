@@ -15,13 +15,19 @@ import {
 import { signFeatureToken } from '../services/features'
 import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
-import { buildLogger } from './logger'
+import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-
-const logger = buildLogger('app.dispatch')
 
 // Instantiates a client.
 const client = new CloudTasksClient()
+
+const logError = (error: any): void => {
+  if (axios.isAxiosError(error)) {
+    logger.error(error.response)
+  } else {
+    logger.error(error)
+  }
+}
 
 const createHttpTaskWithToken = async ({
   project = process.env.GOOGLE_CLOUD_PROJECT,
@@ -96,7 +102,12 @@ const createHttpTaskWithToken = async ({
       : null,
   }
 
-  return client.createTask({ parent, task })
+  try {
+    return client.createTask({ parent, task })
+  } catch (error) {
+    logError(error)
+    return null
+  }
 }
 
 export const createAppEngineTask = async ({
@@ -218,6 +229,8 @@ export const enqueueParseRequest = async ({
   labels,
   locale,
   timezone,
+  savedAt,
+  publishedAt,
 }: {
   url: string
   userId: string
@@ -228,6 +241,8 @@ export const enqueueParseRequest = async ({
   labels?: CreateLabelInput[]
   locale?: string
   timezone?: string
+  savedAt?: number // unix timestamp
+  publishedAt?: number // unix timestamp
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -238,6 +253,8 @@ export const enqueueParseRequest = async ({
     labels,
     locale,
     timezone,
+    savedAt,
+    publishedAt,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -245,8 +262,8 @@ export const enqueueParseRequest = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
-        console.error(error)
-        console.error(
+        logError(error)
+        logger.warning(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
         )
       })
@@ -399,7 +416,7 @@ export const enqueueTextToSpeech = async ({
     // Calling the handler function directly.
     setTimeout(() => {
       axios.post(taskHandlerUrl, payload).catch((error) => {
-        console.error(error)
+        logError(error)
       })
     }, 0)
     return ''
@@ -450,7 +467,7 @@ export const enqueueRecommendation = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return ''
@@ -494,7 +511,7 @@ export const enqueueImportFromIntegration = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return nanoid()
@@ -520,14 +537,12 @@ export const enqueueImportFromIntegration = async (
 
 export const enqueueThumbnailTask = async (
   userId: string,
-  slug: string,
-  content: string
+  slug: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
     slug,
-    content,
   }
 
   const headers = {
@@ -543,7 +558,7 @@ export const enqueueThumbnailTask = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return ''
@@ -590,7 +605,7 @@ export const enqueueRssFeedFetch = async (
           headers,
         })
         .catch((error) => {
-          console.error(error)
+          logError(error)
         })
     }, 0)
     return nanoid()

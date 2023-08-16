@@ -1,8 +1,7 @@
 import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
-import { buildLogger } from '../utils/logger'
 import { SortBy, SortOrder, SortParams } from '../utils/search'
-import { client, INDEX_ALIAS } from './index'
+import { client, INDEX_ALIAS, logger } from './index'
 import {
   Highlight,
   Page,
@@ -11,8 +10,6 @@ import {
   SearchItem,
   SearchResponse,
 } from './types'
-
-const logger = buildLogger('elasticsearch')
 
 export const addHighlightToPage = async (
   id: string,
@@ -226,7 +223,7 @@ export const searchHighlights = async (
       ],
     }
 
-    logger.info('searching highlights in elastic', JSON.stringify(searchBody))
+    logger.info('searching highlights in elastic', searchBody)
 
     const response = await client.search<SearchResponse<Page>>({
       index: INDEX_ALIAS,

@@ -16,12 +16,10 @@ import { shouldSynthesize } from '../services/speech'
 import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueTextToSpeech } from '../utils/createTask'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 
 const DEFAULT_VOICE = 'Larry'
 const DEFAULT_COMPLIMENTARY_VOICE = 'Evelyn'
-
-const logger = buildLogger('app.dispatch')
 
 export function textToSpeechRouter() {
   const router = express.Router()

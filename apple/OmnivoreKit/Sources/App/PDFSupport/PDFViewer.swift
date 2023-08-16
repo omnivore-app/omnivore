@@ -173,15 +173,6 @@ import Utils
             let highlights = annotations?.compactMap { $0 as? HighlightAnnotation }
             let shortId = highlights.flatMap { coordinator.shortHighlightIds($0).first }
 
-            if let shortId = shortId, FeatureFlag.enableShareButton {
-              let share = MenuItem(title: "Share", block: {
-                if let shareURL = viewModel.highlightShareURL(dataService: dataService, shortId: shortId) {
-                  shareLink = ShareLink(id: UUID(), url: shareURL)
-                }
-              })
-              result.append(share)
-            }
-
             return result
           })
           .fullScreenCover(isPresented: $readerView, content: {
@@ -270,7 +261,7 @@ import Utils
             if let customHighlight = annotation.customData?["omnivoreHighlight"] as? [String: String] {
               if customHighlight["id"]?.lowercased() == highlightId {
                 if !document.remove(annotations: [annotation]) {
-                  Snackbar.show(message: "Error removing highlight")
+                  viewModel.snackbar(message: "Error removing highlight")
                 }
               }
             }

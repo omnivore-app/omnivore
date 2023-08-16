@@ -1,6 +1,9 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { Subscription } from '../queries/useGetSubscriptionsQuery'
+import {
+  Subscription,
+  SubscriptionStatus,
+} from '../queries/useGetSubscriptionsQuery'
 
 interface UpdateSubscriptionResult {
   updateSubscription: UpdateSubscription
@@ -22,6 +25,7 @@ interface UpdateSubscriptionInput {
   lastFetchedAt?: Date
   name?: string
   description?: string
+  status?: SubscriptionStatus
 }
 
 export async function updateSubscriptionMutation(

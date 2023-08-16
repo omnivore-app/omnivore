@@ -12,15 +12,13 @@ import { updateReceivedEmail } from '../../services/received_emails'
 import { analytics } from '../../utils/analytics'
 import { getClaimsByToken } from '../../utils/auth'
 import { generateSlug } from '../../utils/helpers'
-import { buildLogger } from '../../utils/logger'
+import { logger } from '../../utils/logger'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getStorageFileDetails,
   makeStorageFilePublic,
 } from '../../utils/uploads'
-
-const logger = buildLogger('app.dispatch')
 
 export function emailAttachmentRouter() {
   const router = express.Router()

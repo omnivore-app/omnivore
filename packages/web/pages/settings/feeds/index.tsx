@@ -8,15 +8,16 @@ import { ConfirmationModal } from '../../../components/patterns/ConfirmationModa
 import {
   EmptySettingsRow,
   SettingsTable,
-  SettingsTableRow,
+  SettingsTableRow
 } from '../../../components/templates/settings/SettingsTable'
 import { theme } from '../../../components/tokens/stitches.config'
 import { formattedDateTime } from '../../../lib/dateFormatting'
 import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
 import { updateSubscriptionMutation } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
+  SubscriptionStatus,
   SubscriptionType,
-  useGetSubscriptionsQuery,
+  useGetSubscriptionsQuery
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
@@ -30,6 +31,8 @@ export default function Rss(): JSX.Element {
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [onEditId, setOnEditId] = useState('')
   const [onEditName, setOnEditName] = useState('')
+  const [onPauseId, setOnPauseId] = useState('')
+  const [onEditStatus, setOnEditStatus] = useState<SubscriptionStatus>()
 
   async function updateSubscription(): Promise<void> {
     const result = await updateSubscriptionMutation({
@@ -47,16 +50,37 @@ export default function Rss(): JSX.Element {
       return
     }
 
-    showSuccessToast('RSS feed updated', { position: 'bottom-right' })
+    showSuccessToast('Feed updated', { position: 'bottom-right' })
     revalidate()
   }
 
   async function onDelete(id: string): Promise<void> {
     const result = await unsubscribeMutation('', id)
     if (result) {
-      showSuccessToast('RSS feed unsubscribed', { position: 'bottom-right' })
+      showSuccessToast('Feed unsubscribed', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
+    }
+    revalidate()
+  }
+
+  async function onPause(
+    id: string,
+    status: SubscriptionStatus = 'UNSUBSCRIBED'
+  ): Promise<void> {
+    const result = await updateSubscriptionMutation({
+      id,
+      status,
+    })
+
+    const action = status == 'UNSUBSCRIBED' ? 'pause' : 'resume'
+
+    if (result) {
+      showSuccessToast(`Feed ${action}d`, {
+        position: 'bottom-right',
+      })
+    } else {
+      showErrorToast(`Failed to ${action}`, { position: 'bottom-right' })
     }
     revalidate()
   }
@@ -65,17 +89,17 @@ export default function Rss(): JSX.Element {
 
   return (
     <SettingsTable
-      pageId={'rss'}
-      pageInfoLink={''} // TODO: https://docs.omnivore.app/integrations/rss.html
-      headerTitle={'Subscribed RSS feeds'}
-      createTitle={'Add RSS feed'}
+      pageId={'feeds'}
+      pageInfoLink={''} // TODO: https://docs.omnivore.app/settings/feeds.html
+      headerTitle={'Subscribed feeds'}
+      createTitle={'Add feed'}
       createAction={() => {
-        router.push('/settings/rss/add')
+        router.push('/settings/feeds/add')
       }}
     >
       {subscriptions.length === 0 ? (
         <EmptySettingsRow
-          text={isValidating ? '-' : 'No RSS feeds subscribed'}
+          text={isValidating ? '-' : 'No feeds subscribed'}
         />
       ) : (
         subscriptions.map((subscription, i) => {
@@ -152,7 +176,14 @@ export default function Rss(): JSX.Element {
                 console.log('onDelete triggered: ', subscription.id)
                 setOnDeleteId(subscription.id)
               }}
+              onEdit={() => {
+                setOnEditStatus(
+                  subscription.status == 'ACTIVE' ? 'UNSUBSCRIBED' : 'ACTIVE'
+                )
+                setOnPauseId(subscription.id)
+              }}
               deleteTitle="Delete"
+              editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
                 <StyledText
                   css={{
@@ -169,8 +200,17 @@ export default function Rss(): JSX.Element {
                 </StyledText>
               }
               onClick={() => {
-                router.push(`/home?q=rss:"${subscription.url}"`)
+                router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
               }}
+              extraElement={
+                <StyledText
+                  css={{
+                    fontSize: '12px',
+                  }}
+                >
+                  {subscription.status === 'ACTIVE' ? 'Active' : 'Paused'}
+                </StyledText>
+              }
             />
           )
         })
@@ -179,13 +219,32 @@ export default function Rss(): JSX.Element {
       {onDeleteId && (
         <ConfirmationModal
           message={
-            'RSS feed will be unsubscribed. This action cannot be undone.'
+            'Feed will be unsubscribed. This action cannot be undone.'
           }
           onAccept={async () => {
             await onDelete(onDeleteId)
             setOnDeleteId('')
           }}
           onOpenChange={() => setOnDeleteId('')}
+        />
+      )}
+
+      {onPauseId && (
+        <ConfirmationModal
+          message={`Feed will be ${
+            onEditStatus === 'UNSUBSCRIBED' ? 'paused' : 'resumed'
+          }. You can ${
+            onEditStatus === 'UNSUBSCRIBED' ? 'resume' : 'pause'
+          } it at any time.`}
+          onAccept={async () => {
+            await onPause(onPauseId, onEditStatus)
+            setOnPauseId('')
+            setOnEditStatus(undefined)
+          }}
+          onOpenChange={() => {
+            setOnPauseId('')
+            setOnEditStatus(undefined)
+          }}
         />
       )}
     </SettingsTable>

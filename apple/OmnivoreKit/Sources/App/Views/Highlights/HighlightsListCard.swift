@@ -35,7 +35,7 @@
               pasteBoard.writeObjects([highlightParams.quote as NSString])
             #endif
 
-            Snackbar.show(message: "Highlight copied")
+            // Snackbar.show(message: "Highlight copied")
           },
           label: { Label("Copy", systemImage: "doc.on.doc") }
         )

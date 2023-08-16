@@ -33,7 +33,7 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/functions-framework": "3.1.2",
-    "@google-cloud/storage": "^6.4.1",
+    "@google-cloud/storage": "^7.0.1",
     "@sentry/serverless": "^6.16.1",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
@@ -41,7 +41,7 @@
     "html-to-text": "^8.2.1",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.12",
-    "microsoft-cognitiveservices-speech-sdk": "^1.22.0",
+    "microsoft-cognitiveservices-speech-sdk": "1.30",
     "natural": "^6.2.0",
     "redis": "^4.3.1",
     "underscore": "^1.13.4"

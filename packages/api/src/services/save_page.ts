@@ -22,17 +22,16 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
-
-const logger = buildLogger('app.dispatch')
 
 type SaveContext = {
   pubsub: PubsubClient
   models: DataModels
   uid: string
+  refresh?: boolean
 }
 
 type SaverUserData = {
@@ -143,6 +142,17 @@ export const savePage = async (
       url: articleToSave.url,
     })
     if (existingPage) {
+      // we don't want to update an rss feed page if rss-feeder is tring to re-save it
+      if (
+        existingPage.rssFeedUrl &&
+        existingPage.rssFeedUrl === input.rssFeedUrl
+      ) {
+        return {
+          clientRequestId: pageId,
+          url: `${homePageURL()}/${saver.username}/${slug}`,
+        }
+      }
+
       pageId = existingPage.id
       slug = existingPage.slug
       if (
@@ -177,12 +187,8 @@ export const savePage = async (
 
   // create a task to update thumbnail and pre-cache all images
   try {
-    const taskId = await enqueueThumbnailTask(
-      saver.userId,
-      slug,
-      articleToSave.content
-    )
-    logger.info('Created thumbnail task', taskId)
+    const taskId = await enqueueThumbnailTask(saver.userId, slug)
+    logger.info('Created thumbnail task', { taskId })
   } catch (e) {
     logger.error('Failed to create thumbnail task', e)
   }

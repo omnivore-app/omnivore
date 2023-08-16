@@ -188,10 +188,11 @@ public struct ShareExtensionView: View {
               action: { labelsViewModel.showCreateLabelModal = true },
               label: {
                 HStack {
+                  let trimmedLabelName = labelsViewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
                   Image(systemName: "tag").foregroundColor(.blue)
                   Text(
                     labelsViewModel.labelSearchFilter.count > 0 ?
-                      "Create: \"\(labelsViewModel.labelSearchFilter)\" label" :
+                      "Create: \"\(trimmedLabelName)\" label" :
                       LocalText.createLabelMessage
                   ).foregroundColor(.blue)
                     .font(Font.system(size: 14))

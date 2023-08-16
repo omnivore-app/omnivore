@@ -41,7 +41,7 @@ export const savePageResolver = authorized<
   }
 
   return savePage(
-    { ...ctx, uid },
+    { ...ctx, uid, refresh: true },
     { userId: user.id, username: user.profile.username },
     input
   )

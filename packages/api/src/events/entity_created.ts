@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { PubSub } from '@google-cloud/pubsub'
-
 import {
   BaseEntity,
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
 } from 'typeorm'
-
 import { env } from '../env'
+import { logger } from '../utils/logger'
 
 const TOPIC_NAME = 'EntityCreated'
 
@@ -24,7 +23,7 @@ export class PublishEntitySubscriber implements EntitySubscriberInterface {
     })
 
     if (env.dev.isLocal) {
-      console.log('PublishEntitySubscriber', msg)
+      logger.info('PublishEntitySubscriber', msg)
       return
     }
 
@@ -32,7 +31,7 @@ export class PublishEntitySubscriber implements EntitySubscriberInterface {
       .topic(TOPIC_NAME)
       .publish(Buffer.from(msg))
       .catch((err) => {
-        console.error('PublishEntitySubscriber error publishing event', err)
+        logger.error('PublishEntitySubscriber error publishing event', err)
       })
   }
 }

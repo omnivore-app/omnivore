@@ -3,7 +3,6 @@ import { BuiltQuery, ESBuilder, esBuilder } from 'elastic-ts'
 import { EntityType } from '../datalayer/pubsub'
 import { BulkActionType } from '../generated/graphql'
 import { wordsCount } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
 import {
   DateFilter,
   FieldFilter,
@@ -16,7 +15,7 @@ import {
   SortBy,
   SortOrder,
 } from '../utils/search'
-import { client, INDEX_ALIAS } from './index'
+import { client, INDEX_ALIAS, logger } from './index'
 import {
   ArticleSavingRequestStatus,
   Label,
@@ -28,7 +27,8 @@ import {
   SearchResponse,
 } from './types'
 
-const logger = buildLogger('elasticsearch')
+const MAX_CONTENT_LENGTH = 5 * 1024 * 1024 // 5MB and 10MB for both content and originalHtml
+const CONTENT_LENGTH_ERROR = 'Your page content is too large to be saved.'
 
 const appendQuery = (builder: ESBuilder, query: string): ESBuilder => {
   interface Field {
@@ -407,13 +407,22 @@ export const createPage = async (
   ctx: PageContext
 ): Promise<string | undefined> => {
   try {
+    if (page.content.length > MAX_CONTENT_LENGTH) {
+      logger.info('page content is too large', {
+        pageId: page.id,
+        contentLength: page.content.length,
+      })
+
+      page.content = CONTENT_LENGTH_ERROR
+    }
+
     const { body } = await client.index({
       id: page.id || undefined,
       index: INDEX_ALIAS,
       body: {
         ...page,
         updatedAt: new Date(),
-        savedAt: new Date(),
+        savedAt: page.savedAt || new Date(),
         wordsCount: page.wordsCount ?? wordsCount(page.content),
       },
       refresh: 'wait_for', // wait for the index to be refreshed before returning
@@ -424,7 +433,7 @@ export const createPage = async (
 
     return page.id
   } catch (e) {
-    logger.error('failed to create a page in elastic', JSON.stringify(e))
+    logger.error('failed to create a page in elastic', e)
     return undefined
   }
 }
@@ -435,6 +444,15 @@ export const updatePage = async (
   ctx: PageContext
 ): Promise<boolean> => {
   try {
+    if (page.content && page.content.length > MAX_CONTENT_LENGTH) {
+      logger.info('page content is too large', {
+        pageId: page.id,
+        contentLength: page.content.length,
+      })
+
+      page.content = CONTENT_LENGTH_ERROR
+    }
+
     await client.update({
       index: INDEX_ALIAS,
       id,
@@ -522,6 +540,7 @@ export const getPageByParam = async <K extends keyof ParamSet>(
     const { body } = await client.search<SearchResponse<Page>>({
       index: INDEX_ALIAS,
       body: builder.build(),
+      track_total_hits: true,
     })
 
     if (body.hits.total.value === 0) {
@@ -668,7 +687,7 @@ export const searchPages = async (
       })
       .build()
 
-    logger.info('searching pages in elastic', JSON.stringify(body))
+    logger.info('searching pages in elastic', body)
     const response = await client.search<SearchResponse<Page>, BuiltQuery>({
       index: INDEX_ALIAS,
       body,
@@ -907,7 +926,7 @@ export const updatePages = async (
     .rawOption('script', updatedScript)
     .build()
 
-  logger.info('updating pages in elastic', JSON.stringify(searchBody))
+  logger.info('updating pages in elastic', searchBody)
 
   try {
     const { body } = await client.updateByQuery({

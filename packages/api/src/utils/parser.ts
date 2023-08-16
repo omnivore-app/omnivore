@@ -454,8 +454,12 @@ export const parseUrlMetadata = async (
   try {
     const res = await axios.get(url)
     return parsePageMetadata(res.data)
-  } catch (e) {
-    logger.info('failed to get:', url, e)
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      logger.error(error.response)
+    } else {
+      logger.error(error)
+    }
     return undefined
   }
 }
@@ -500,7 +504,11 @@ export const fetchFavicon = async (
     const domain = new URL(realUrl).hostname
     return `https://api.faviconkit.com/${domain}/128`
   } catch (e) {
-    console.log('Error fetching favicon', e)
+    if (axios.isAxiosError(e)) {
+      logger.info('failed to get favicon', e.response)
+    } else {
+      logger.info('failed to get favicon', e)
+    }
     return undefined
   }
 }
@@ -689,8 +697,12 @@ export const getDistillerResult = async (
       timeout: 5000,
     })
     return response.data
-  } catch (e) {
-    logger.info('Error parsing by distiller', e)
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      logger.error(error.response)
+    } else {
+      logger.error(error)
+    }
     return undefined
   }
 }

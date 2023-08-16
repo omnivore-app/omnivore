@@ -16,7 +16,7 @@ import { getClaimsByToken } from '../utils/auth'
 import { isSiteBlockedForParse } from '../utils/blocked'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueTextToSpeech } from '../utils/createTask'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { generateDownloadSignedUrl } from '../utils/uploads'
 
 interface SpeechInput {
@@ -26,7 +26,6 @@ interface SpeechInput {
   language?: string
 }
 const outputFormats = ['mp3', 'speech-marks', 'speech']
-const logger = buildLogger('app.dispatch')
 
 export function articleRouter() {
   const router = express.Router()

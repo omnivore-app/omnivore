@@ -10,9 +10,9 @@
   }
 
   struct SelfHostSettingsView: View {
-    @State var apiServerAddress = ""
-    @State var webServerAddress = ""
-    @State var ttsServerAddress = ""
+    @State var apiServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.serverBaseURL.rawValue) ?? ""
+    @State var webServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue) ?? ""
+    @State var ttsServerAddress = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue) ?? ""
 
     @State var showConfirmAlert = false
 
@@ -39,16 +39,22 @@
         Section("API Server Base URL") {
           TextField("URL", text: $apiServerAddress, prompt: Text("https://api-prod.omnivore.app"))
             .keyboardType(.URL)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
         }
 
         Section("Web Server URL") {
           TextField("URL", text: $webServerAddress, prompt: Text("https://omnivore.app"))
             .keyboardType(.URL)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
         }
 
         Section("Text-to-speech Server URL") {
           TextField("URL", text: $ttsServerAddress, prompt: Text("https://tts.omnivore.app"))
             .keyboardType(.URL)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
         }
 
         Section {

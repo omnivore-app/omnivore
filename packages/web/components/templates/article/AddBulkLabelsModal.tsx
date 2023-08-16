@@ -130,8 +130,9 @@ export function AddBulkLabelsModal(
 
   const selectOrCreateLabel = useCallback(
     (value: string) => {
+      const trimmedValue = value.trim()
       const current = selectedLabels.labels ?? []
-      const lowerCasedValue = value.toLowerCase()
+      const lowerCasedValue = trimmedValue.toLowerCase()
       const existing = availableLabels.labels.find(
         (l) => l.name.toLowerCase() == lowerCasedValue
       )
@@ -148,12 +149,12 @@ export function AddBulkLabelsModal(
           dispatchLabels({ type: 'SAVE', labels: [...current, existing] })
           clearInputState()
         } else {
-          showMessage(`label ${value} already added.`, 5000)
+          showMessage(`label ${trimmedValue} already added.`, 5000)
         }
       } else {
         const tempLabel = {
           id: uuidv4(),
-          name: value,
+          name: trimmedValue,
           color: randomLabelColorHex(),
           description: '',
           createdAt: new Date(),

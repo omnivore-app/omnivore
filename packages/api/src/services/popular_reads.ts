@@ -6,6 +6,7 @@ import { createPage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageContext } from '../elastic/types'
 import { PageType } from '../generated/graphql'
 import { generateSlug, stringToHash } from '../utils/helpers'
+import { logger } from '../utils/logger'
 
 type PopularRead = {
   url: string
@@ -51,7 +52,7 @@ const popularRead = (key: string): PopularRead | undefined => {
       originalHtml,
     }
   } catch (e) {
-    console.log('error adding popular read', e)
+    logger.info('error adding popular read', e)
     return undefined
   }
 }

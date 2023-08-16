@@ -155,7 +155,7 @@
         Spacer(minLength: 120)
           .listRowSeparator(.hidden, edges: .all)
       }.sheet(item: $setLabelsHighlight) { highlight in
-        ApplyLabelsView(mode: .highlight(highlight), isSearchFocused: false, onSave: { selectedLabels in
+        ApplyLabelsView(mode: .highlight(highlight), onSave: { selectedLabels in
           hasHighlightMutations = true
 
           viewModel.setLabelsForHighlight(highlightID: highlight.unwrappedID,

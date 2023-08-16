@@ -1,10 +1,11 @@
+import * as cookie from 'cookie'
 import * as jwt from 'jsonwebtoken'
 import { promisify } from 'util'
-import * as cookie from 'cookie'
 import { env } from '../../env'
+import { logger } from '../../utils/logger'
 import {
-  PendingUserTokenPayload,
   isPendingUserTokenPayload,
+  PendingUserTokenPayload,
 } from './auth_types'
 
 const signToken = promisify(jwt.sign)
@@ -45,7 +46,7 @@ export async function createPendingUserToken(
 ): Promise<string | undefined> {
   try {
     const authToken = await signToken(payload, env.server.jwtSecret)
-    console.log('creating pending user auth token', payload)
+    logger.info('creating pending user auth token', payload)
     if (typeof authToken === 'string') {
       return authToken
     } else {

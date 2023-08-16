@@ -1,14 +1,12 @@
 import axios from 'axios'
 import { ArticleSavingRequestStatus } from '../../elastic/types'
 import { env } from '../../env'
-import { buildLogger } from '../../utils/logger'
+import { logger } from '../../utils/logger'
 import {
   IntegrationService,
   RetrievedResult,
   RetrieveRequest,
 } from './integration'
-
-const logger = buildLogger('app.dispatch')
 
 interface PocketResponse {
   status: number // 1 if success
@@ -72,11 +70,16 @@ export class PocketIntegration extends IntegrationService {
         },
         {
           headers: this.headers,
+          timeout: 5000, // 5 seconds
         }
       )
       return response.data.access_token
     } catch (error) {
-      logger.error('error validating pocket token', error)
+      if (axios.isAxiosError(error)) {
+        logger.error(error.response)
+      } else {
+        logger.error(error)
+      }
       return null
     }
   }
@@ -86,7 +89,7 @@ export class PocketIntegration extends IntegrationService {
     since: number, // unix timestamp in seconds
     count = 100,
     offset = 0
-  ): Promise<PocketResponse> => {
+  ): Promise<PocketResponse | null> => {
     const url = `${this.POCKET_API_URL}/get`
     try {
       const response = await axios.post<PocketResponse>(
@@ -103,13 +106,19 @@ export class PocketIntegration extends IntegrationService {
         },
         {
           headers: this.headers,
+          timeout: 10000, // 10 seconds
         }
       )
 
       return response.data
     } catch (error) {
-      logger.error('error retrieving pocket data', error)
-      throw new Error('Error retrieving pocket data')
+      if (axios.isAxiosError(error)) {
+        logger.error(error.response)
+      } else {
+        logger.error(error)
+      }
+
+      return null
     }
   }
 
@@ -125,6 +134,10 @@ export class PocketIntegration extends IntegrationService {
       count,
       offset
     )
+    if (!pocketData) {
+      throw new Error('Error retrieving pocket data')
+    }
+
     const pocketItems = Object.values(pocketData.list)
     const statusToState: Record<string, ArticleSavingRequestStatus> = {
       '0': ArticleSavingRequestStatus.Succeeded,

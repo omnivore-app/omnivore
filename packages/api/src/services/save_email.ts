@@ -9,14 +9,12 @@ import {
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import {
   FAKE_URL_PREFIX,
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-
-const logger = buildLogger('app.dispatch')
 
 export type SaveContext = {
   pubsub: PubsubClient
@@ -108,12 +106,8 @@ export const saveEmail = async (
 
   // create a task to update thumbnail and pre-cache all images
   try {
-    const taskId = await enqueueThumbnailTask(
-      ctx.uid,
-      slug,
-      articleToSave.content
-    )
-    logger.info('Created thumbnail task', taskId)
+    const taskId = await enqueueThumbnailTask(ctx.uid, slug)
+    logger.info('Created thumbnail task', { taskId })
   } catch (e) {
     logger.error('Failed to create thumbnail task', e)
   }

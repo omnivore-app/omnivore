@@ -1,26 +1,24 @@
-import { authorized } from '../../utils/helpers'
+import { DateTime } from 'luxon'
+import { v4 as uuidv4 } from 'uuid'
+import { User } from '../../entity/user'
+import { getRepository } from '../../entity/utils'
+import { env } from '../../env'
 import {
-  UploadImportFileErrorCode,
   MutationUploadImportFileArgs,
   UploadImportFileError,
+  UploadImportFileErrorCode,
   UploadImportFileSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { DateTime } from 'luxon'
+import { authorized } from '../../utils/helpers'
+import { logger } from '../../utils/logger'
 import {
   countOfFilesWithPrefix,
   generateUploadSignedUrl,
 } from '../../utils/uploads'
-import { v4 as uuidv4 } from 'uuid'
-import { buildLogger } from '../../utils/logger'
 
 const MAX_DAILY_UPLOADS = 4
 const VALID_CONTENT_TYPES = ['text/csv', 'application/zip']
-
-const logger = buildLogger('app.dispatch')
 
 const extensionForContentType = (contentType: string) => {
   switch (contentType) {

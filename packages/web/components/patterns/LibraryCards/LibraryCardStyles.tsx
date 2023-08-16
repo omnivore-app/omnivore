@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo } from 'react'
+import { ChangeEvent, useMemo } from 'react'
 import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { Box, SpanBox } from '../../elements/LayoutPrimitives'
+import { Box, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 
 dayjs.extend(relativeTime)
 
@@ -24,17 +24,22 @@ export const MenuStyle = {
 
 export const MetaStyle = {
   width: '100%',
-  color: '$thTextSubtle3',
-  fontSize: '13px',
-  fontWeight: '400',
+  color: '$thTextSubtle2',
+  fontSize: '12px',
+  fontWeight: '500',
   fontFamily: '$display',
+  maxLines: 1,
+  textOverflow: 'ellipsis',
+  wordBreak: 'break-word',
+  lineHeight: 1.25,
 }
 
 export const TitleStyle = {
   color: '$thTextContrast2',
   fontSize: '16px',
   fontWeight: '700',
-  lineHeight: '1.25',
+  maxLines: 2,
+  lineHeight: 1.25,
   fontFamily: '$display',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -44,34 +49,18 @@ export const TitleStyle = {
   '-webkit-box-orient': 'vertical',
 }
 
-export const DescriptionStyle = {
-  color: '$thTextSubtle',
-  pt: '10px',
-  fontSize: '13px',
-  fontWeight: '400',
-  lineHeight: '140%',
-  fontFamily: '$display',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  display: '-webkit-box',
-  '-webkit-line-clamp': '2',
-  '-webkit-box-orient': 'vertical',
-  height: '45px',
-  alignItems: 'start',
-  maxWidth: '-webkit-fill-available',
-}
-
 export const AuthorInfoStyle = {
   maxLines: '1',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
   maxWidth: '240px',
-  overflow: 'hidden',
-  height: '21px',
-  color: '$thTextSubtle3',
-  fontSize: '13px',
+  color: '$thNotebookSubtle',
+  fontSize: '12px',
   fontWeight: '400',
   fontFamily: '$display',
+  lineHeight: 1.25,
+  wordWrap: 'break-word',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 }
 
 export const timeAgo = (date: string | undefined): string => {
@@ -134,14 +123,6 @@ export function LibraryItemMetadata(
             Math.round((props.item.wordsCount ?? 0) / 235)
           )} min read`
         : null}
-      {(props.showProgress && props.item.readingProgressPercent) ?? 0 > 0 ? (
-        <>
-          {`  • `}
-          <SpanBox css={{ color: '#55B938' }}>
-            {`${Math.round(props.item.readingProgressPercent)}%`}
-          </SpanBox>
-        </>
-      ) : null}
       {highlightCount > 0
         ? `  • ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`
         : null}
@@ -156,10 +137,20 @@ type CardCheckBoxProps = {
 
 export function CardCheckbox(props: CardCheckBoxProps): JSX.Element {
   return (
-    <input
-      type="checkbox"
-      checked={props.isChecked}
-      onChange={props.handleChanged}
-    ></input>
+    <form
+      // This prevents us from propogating up the the <a element on cards
+      onClick={(event) => {
+        event.stopPropagation()
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={props.isChecked}
+        onChange={(event) => {
+          props.handleChanged()
+          event.stopPropagation()
+        }}
+      ></input>
+    </form>
   )
 }

@@ -3,7 +3,7 @@ import fs from 'fs'
 import 'mocha'
 import nock from 'nock'
 import path from 'path'
-import { findThumbnail } from '../src'
+import { fetchAllImageSizes, findThumbnail } from '../src'
 
 describe('findThumbnail', () => {
   it('finds the largest and squarest image', async () => {
@@ -20,7 +20,8 @@ describe('findThumbnail', () => {
       'utf8'
     )
     // find thumbnail
-    const thumbnail = await findThumbnail(content)
+    const imageSizes = await fetchAllImageSizes(content)
+    const thumbnail = findThumbnail(imageSizes)
 
     expect(thumbnail).to.eql('https://omnivore.app/large_and_square.png')
   })

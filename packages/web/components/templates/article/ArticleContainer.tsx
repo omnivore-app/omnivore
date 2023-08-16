@@ -348,7 +348,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     default: styles.maxWidthPercentage
       ? `${styles.maxWidthPercentage}%`
       : 1024 - styles.margin,
-    small: styles.maxWidthPercentage ? `${styles.maxWidthPercentage}%` : `${120 - Math.round((styles.margin * 10) / 100)}%`,
+    small: styles.maxWidthPercentage
+      ? `${styles.maxWidthPercentage}%`
+      : `${120 - Math.round((styles.margin * 10) / 100)}%`,
   }
 
   const recommendationsWithNotes = useMemo(() => {
@@ -396,7 +398,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <VStack alignment="start" distribution="start">
           <ReaderSavedInfo
             rawDisplayDate={
-              props.article.publishedAt ?? props.article.createdAt
+              props.article.publishedAt ??
+              props.article.savedAt ??
+              props.article.createdAt
             }
             wordsCount={props.article.wordsCount}
           />
@@ -448,6 +452,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
+          isAppleAppEmbed={props.isAppleAppEmbed}
         />
         <Button
           style="ghost"

@@ -4,9 +4,7 @@ import express from 'express'
 import { env } from '../env'
 import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
-import { buildLogger } from '../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from '../utils/logger'
 
 export function integrationRouter() {
   const router = express.Router()
@@ -45,8 +43,13 @@ export function integrationRouter() {
         res.redirect(
           `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}?pocketToken=${code}`
         )
-      } catch (e) {
-        logger.info('pocket/request-token exception:', e)
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          logger.error(error.response)
+        } else {
+          logger.error('pocket/request-token exception:', error)
+        }
+
         res.redirect(
           `${env.client.url}/settings/integrations?errorCodes=UNKNOWN`
         )

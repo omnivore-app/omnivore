@@ -27,13 +27,11 @@ import {
   titleForFilePath,
   validateUuid,
 } from '../utils/helpers'
-import { buildLogger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
 } from '../utils/uploads'
-
-const logger = buildLogger('app.dispatch')
 
 export function pageRouter() {
   const router = express.Router()

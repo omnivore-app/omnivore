@@ -16,6 +16,7 @@ import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
+import { ListViewIcon } from '../elements/icons/ListViewIcon'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -316,7 +317,8 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
                   props.updateLayout && props.updateLayout('LIST_LAYOUT')
                 }}
               >
-                <ListLayoutIcon
+                <ListViewIcon
+                  size={30}
                   color={theme.colors.thTextContrast2.toString()}
                 />
               </StyledToggleButton>

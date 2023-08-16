@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import axios, { Method } from 'axios'
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
 import { getRepository } from '../../entity/utils'
 import { Webhook } from '../../entity/webhook'
-import axios, { Method } from 'axios'
-import { buildLogger } from '../../utils/logger'
-
-const logger = buildLogger('app.dispatch')
+import { logger } from '../../utils/logger'
 
 export function webhooksServiceRouter() {
   const router = express.Router()
@@ -30,7 +28,7 @@ export function webhooksServiceRouter() {
 
     try {
       const data = JSON.parse(msgStr)
-      const { userId, type } = data
+      const { userId, type } = data as { userId: string; type: string }
       if (!userId || !type) {
         logger.info('No userId or type found in message')
         res.status(400).send('Bad Request')
@@ -38,7 +36,7 @@ export function webhooksServiceRouter() {
       }
 
       // example: PAGE_CREATED
-      const eventType = `${type as string}_${req.params.action}`.toUpperCase()
+      const eventType = `${type}_${req.params.action}`.toUpperCase()
       const webhooks = await getRepository(Webhook)
         .createQueryBuilder()
         .where('user_id = :userId', { userId })
@@ -48,39 +46,54 @@ export function webhooksServiceRouter() {
 
       if (webhooks.length <= 0) {
         logger.info(
-          'No active webhook found for user',
-          userId,
-          'and eventType',
-          eventType
+          'No active webhook found for user ' +
+            userId +
+            ' and eventType ' +
+            eventType
         )
         res.status(200).send('No webhook found')
         return
       }
 
       // trigger webhooks
-      for (const webhook of webhooks) {
-        const url = webhook.url
-        const method = webhook.method as Method
-        const body = JSON.stringify({
-          action: req.params.action,
-          userId,
-          [type]: data,
-        })
+      await Promise.all(
+        webhooks.map((webhook) => {
+          const url = webhook.url
+          const method = webhook.method as Method
+          const body = {
+            action: req.params.action,
+            userId,
+            [type]: data,
+          }
 
-        logger.info('triggering webhook', url)
-        await axios.request({
-          url,
-          method,
-          headers: {
-            'Content-Type': webhook.contentType,
-          },
-          data: body,
+          logger.info('triggering webhook', { url, method })
+
+          return axios
+            .request({
+              url,
+              method,
+              headers: {
+                'Content-Type': webhook.contentType,
+              },
+              data: body,
+              timeout: 10000, // 10s
+            })
+            .then((response) => {
+              logger.info('webhook triggered', response.data)
+            })
+            .catch((error) => {
+              if (axios.isAxiosError(error)) {
+                logger.info('webhook failed', error.response)
+              } else {
+                logger.info('webhook failed', error)
+              }
+            })
         })
-      }
+      )
 
       res.status(200).send('OK')
     } catch (err) {
-      logger.info('trigger webhook failed', err)
+      logger.error('trigger webhook failed', err)
       res.status(500).send(err)
     }
   })

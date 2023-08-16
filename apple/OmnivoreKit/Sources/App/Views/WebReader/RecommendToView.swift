@@ -95,7 +95,7 @@
         return AnyView(Button(action: {
           Task {
             if await viewModel.recommend(dataService: dataService) {
-              Snackbar.show(message: "Recommendation sent")
+              // Snackbar.show(message: "Recommendation sent")
               dismiss()
             }
           }

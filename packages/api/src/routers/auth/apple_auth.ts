@@ -3,16 +3,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
+import UserModel from '../../datalayer/user'
+import { env, homePageURL } from '../../env'
+import { LoginErrorCode } from '../../generated/graphql'
+import { logger } from '../../utils/logger'
+import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { DecodeTokenResult } from './auth_types'
 import {
-  createWebAuthToken,
   createPendingUserToken,
+  createWebAuthToken,
   suggestedUsername,
 } from './jwt_helpers'
-import { env, homePageURL } from '../../env'
-import UserModel from '../../datalayer/user'
-import { LoginErrorCode } from '../../generated/graphql'
-import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 
 const appleBaseURL = 'https://appleid.apple.com'
 const audienceName = 'app.omnivore.app'
@@ -35,7 +36,7 @@ async function fetchApplePublicKey(kid: string): Promise<string | null> {
     })
     return key.getPublicKey()
   } catch (e) {
-    console.log('fetchApplePublicKey error', e)
+    logger.error('fetchApplePublicKey error', e)
     return null
   }
 }
@@ -67,7 +68,7 @@ export async function decodeAppleToken(
       }
     }
   } catch (e) {
-    console.log('decodeAppleToken error', e)
+    logger.error('decodeAppleToken error', e)
     return { errorCode: 500 }
   }
 }
@@ -152,7 +153,7 @@ export async function handleAppleWebAuth(
       return { redirectURL: authFailedRedirect }
     }
   } catch (e) {
-    console.log('handleAppleWebAuth error', e)
+    logger.info('handleAppleWebAuth error', e)
     return { redirectURL: authFailedRedirect }
   }
 }

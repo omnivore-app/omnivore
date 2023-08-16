@@ -5,7 +5,7 @@ import DataModel, { DataModelError, MAX_RECORDS_LIMIT } from '../model'
 import { CreateSet, HighlightData, keys as modelKeys, UpdateSet } from './model'
 import { Table } from '../../utils/dictionary'
 import { Knex } from 'knex'
-import { ENABLE_DB_REQUEST_LOGGING, globalCounter } from '../helpers'
+import { ENABLE_DB_REQUEST_LOGGING, globalCounter, logger } from '../helpers'
 import DataLoader from 'dataloader'
 
 class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
@@ -40,11 +40,11 @@ class HighlightModel extends DataModel<HighlightData, CreateSet, UpdateSet> {
           }
           const result = keys.map((key) => keyMap[key])
           if (result.length !== keys.length) {
-            console.error('DataModel error: count mismatch ', keys, result)
+            logger.error('DataModel error: count mismatch ', keys, result)
           }
           return result
         } catch (e) {
-          console.error('DataModel error ', e)
+          logger.error('DataModel error ', e)
           throw e
         }
       },

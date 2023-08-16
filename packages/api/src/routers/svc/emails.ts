@@ -1,27 +1,27 @@
+import cors from 'cors'
 import express from 'express'
 import {
   createPubSubClient,
   readPushSubscription,
 } from '../../datalayer/pubsub'
-import { sendEmail } from '../../utils/sendEmail'
-import { analytics } from '../../utils/analytics'
-import { getNewsletterEmail } from '../../services/newsletters'
 import { env } from '../../env'
+import { getNewsletterEmail } from '../../services/newsletters'
+import {
+  saveReceivedEmail,
+  updateReceivedEmail,
+} from '../../services/received_emails'
+import { saveEmail } from '../../services/save_email'
+import { analytics } from '../../utils/analytics'
+import { getClaimsByToken } from '../../utils/auth'
+import { corsConfig } from '../../utils/corsConfig'
+import { logger } from '../../utils/logger'
 import {
   generateUniqueUrl,
   getTitleFromEmailSubject,
   isProbablyArticle,
   parseEmailAddress,
 } from '../../utils/parser'
-import { saveEmail } from '../../services/save_email'
-import { buildLogger } from '../../utils/logger'
-import {
-  saveReceivedEmail,
-  updateReceivedEmail,
-} from '../../services/received_emails'
-import cors from 'cors'
-import { corsConfig } from '../../utils/corsConfig'
-import { getClaimsByToken } from '../../utils/auth'
+import { sendEmail } from '../../utils/sendEmail'
 
 interface EmailMessage {
   from: string
@@ -38,8 +38,6 @@ interface EmailMessage {
 function isEmailMessage(data: any): data is EmailMessage {
   return 'from' in data && 'to' in data
 }
-
-const logger = buildLogger('app.dispatch')
 
 export function emailsServiceRouter() {
   const router = express.Router()

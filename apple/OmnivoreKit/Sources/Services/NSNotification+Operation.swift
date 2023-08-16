@@ -5,7 +5,8 @@ import Models
 public extension NSNotification {
   static let PushJSONArticle = Notification.Name("PushJSONArticle")
   static let PushReaderItem = Notification.Name("PushReaderItem")
-  static let OperationSuccess = Notification.Name("OperationSuccess")
+  static let LibrarySnackBar = Notification.Name("LibrarySnackBar")
+  static let ReaderSnackBar = Notification.Name("ReaderSnackBar")
   static let OperationFailure = Notification.Name("OperationFailure")
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
   static let SpeakingReaderItem = Notification.Name("SpeakingReaderItem")
@@ -20,8 +21,12 @@ public extension NSNotification {
     NotificationCenter.default.publisher(for: PushReaderItem)
   }
 
-  static var operationSuccessPublisher: NotificationCenter.Publisher {
-    NotificationCenter.default.publisher(for: OperationSuccess)
+  static var readerSnackBarPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: ReaderSnackBar)
+  }
+
+  static var librarySnackBarPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: LibrarySnackBar)
   }
 
   static var operationFailedPublisher: NotificationCenter.Publisher {
@@ -67,8 +72,8 @@ public extension NSNotification {
     )
   }
 
-  static func operationSuccess(message: String, undoAction: (() -> Void)?) {
-    NotificationCenter.default.post(name: NSNotification.OperationSuccess,
+  static func librarySnackBar(message: String, undoAction: (() -> Void)?) {
+    NotificationCenter.default.post(name: NSNotification.LibrarySnackBar,
                                     object: nil,
                                     userInfo: ["message": message, "undoAction": undoAction as Any])
   }

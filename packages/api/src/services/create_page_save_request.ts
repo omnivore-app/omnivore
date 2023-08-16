@@ -20,6 +20,7 @@ import {
   generateSlug,
   pageToArticleSavingRequest,
 } from '../utils/helpers'
+import { logger } from '../utils/logger'
 
 interface PageSaveRequest {
   userId: string
@@ -32,6 +33,8 @@ interface PageSaveRequest {
   user?: User | null
   locale?: string
   timezone?: string
+  savedAt?: Date
+  publishedAt?: Date
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -85,11 +88,13 @@ export const createPageSaveRequest = async ({
   user,
   locale,
   timezone,
+  savedAt,
+  publishedAt,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
   } catch (error) {
-    console.log('invalid url', url, error)
+    logger.info('invalid url', url, error)
     return Promise.reject({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
@@ -100,7 +105,7 @@ export const createPageSaveRequest = async ({
       id: userId,
     })
     if (!user) {
-      console.log('User not found', userId)
+      logger.info('User not found', userId)
       return Promise.reject({
         errorCode: CreateArticleSavingRequestErrorCode.BadData,
       })
@@ -123,7 +128,7 @@ export const createPageSaveRequest = async ({
     url,
   })
   if (!page) {
-    console.log('Page not exists', url)
+    logger.info('Page not exists', url)
     page = {
       id: articleSavingRequestId,
       userId,
@@ -137,7 +142,8 @@ export const createPageSaveRequest = async ({
       url,
       state: ArticleSavingRequestStatus.Processing,
       createdAt: new Date(),
-      savedAt: new Date(),
+      savedAt: savedAt || new Date(),
+      publishedAt,
       archivedAt,
       labels,
     }
@@ -145,7 +151,7 @@ export const createPageSaveRequest = async ({
     // create processing page
     const pageId = await createPage(page, ctx)
     if (!pageId) {
-      console.log('Failed to create page', url)
+      logger.info('Failed to create page', url)
       return Promise.reject({
         errorCode: CreateArticleSavingRequestErrorCode.BadData,
       })
@@ -176,6 +182,9 @@ export const createPageSaveRequest = async ({
     labels: labelsInput,
     locale,
     timezone,
+    // unix timestamp
+    savedAt: savedAt?.getTime(),
+    publishedAt: publishedAt?.getTime(),
   })
 
   return pageToArticleSavingRequest(user, page)

@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { LoggingWinston } from '@google-cloud/logging-winston'
+import jsonStringify from 'fast-safe-stringify'
 import { cloneDeep, isArray, isObject, isString, truncate } from 'lodash'
 import { DateTime } from 'luxon'
+import {
+  AdvancedConsoleLogger,
+  Logger as TypeOrmLogger,
+  LoggerOptions as TypeOrmLoggerOptions,
+  QueryRunner,
+} from 'typeorm'
 import {
   config,
   format,
@@ -14,6 +21,34 @@ import {
 import TransportStream from 'winston-transport'
 import { ConsoleTransportOptions } from 'winston/lib/winston/transports'
 import { env } from '../env'
+
+export class CustomTypeOrmLogger
+  extends AdvancedConsoleLogger
+  implements TypeOrmLogger
+{
+  private logger: Logger
+
+  constructor(options?: TypeOrmLoggerOptions) {
+    super(options)
+    this.logger = buildLogger('typeorm')
+  }
+
+  logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
+    this.logger.info(
+      `query: ${query} -- PARAMETERS: ${super.stringifyParams(
+        parameters || []
+      )}`
+    )
+  }
+
+  log(
+    level: 'log' | 'info' | 'warn',
+    message: any,
+    queryRunner?: QueryRunner
+  ): void {
+    this.logger.log(level, message)
+  }
+}
 
 const colors = {
   emerg: 'inverse underline magenta',
@@ -49,7 +84,9 @@ function localConfig(id: string): ConsoleTransportOptions {
         const { timestamp, message, level, ...meta } = info
 
         return `[${id}@${info.timestamp}] ${info.message}${
-          Object.keys(meta).length ? '\n' + JSON.stringify(meta, null, 4) : ''
+          Object.keys(meta).length
+            ? '\n' + jsonStringify(meta, undefined, 4)
+            : ''
         }`
       })
     ),
@@ -60,18 +97,23 @@ function localConfig(id: string): ConsoleTransportOptions {
 const truncateObjectDeep = (object: any, length: number): any => {
   const copyObj = cloneDeep(object) as never
 
-  const truncateDeep = (obj: any): any => {
+  const truncateDeep = (obj: any, level: number): any => {
+    // reach maximum call stack size
+    if (level >= 5) {
+      return obj
+    }
+
     if (isString(obj) && obj.length > length) {
       return `${truncate(obj, { length })} [truncated]`
     }
 
     if (isArray(obj)) {
-      return obj.map((i) => truncateDeep(i) as never)
+      return obj.map((i) => truncateDeep(i, level + 1) as never)
     }
 
     if (isObject(obj)) {
       Object.entries(obj).forEach(([key, value]) => {
-        obj[key as keyof typeof obj] = truncateDeep(value) as never
+        obj[key as keyof typeof obj] = truncateDeep(value, level + 1) as never
       })
 
       return obj
@@ -81,15 +123,13 @@ const truncateObjectDeep = (object: any, length: number): any => {
     return obj
   }
 
-  return truncateDeep(copyObj)
+  return truncateDeep(copyObj, 1)
 }
 
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
-    const sizeInfo = JSON.stringify(info).length
+    const sizeInfo = jsonStringify(info).length
     if (sizeInfo > 250000) {
-      // add a console.trace to help debug
-      console.trace('GCP Logging API payload too large', sizeInfo)
       info = truncateObjectDeep(info, 5000) as never // the max length for string values is 5000
     }
     super.log(info, callback)
@@ -126,5 +166,7 @@ export interface LogRecord {
   }
   [key: string]: any
 }
+
+export const logger = buildLogger('app')
 
 export default {}

@@ -1,10 +1,7 @@
 import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
-import { buildLogger } from '../utils/logger'
-import { client, INDEX_ALIAS } from './index'
+import { client, INDEX_ALIAS, logger } from './index'
 import { Label, PageContext } from './types'
-
-const logger = buildLogger('elasticsearch')
 
 export const addLabelInPage = async (
   pageId: string,
