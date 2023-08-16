@@ -1,27 +1,59 @@
 import { styled } from '../tokens/stitches.config'
-import { useState } from 'react'
-import Checkbox from './Checkbox'
+import { ChangeEventHandler } from 'react'
 import { HStack, VStack } from './LayoutPrimitives'
-import { Label } from '@radix-ui/react-dropdown-menu'
+import type { CSS } from '@stitches/react/types/css-util'
+import Checkbox from './Checkbox'
+import { CheckboxProps } from '@radix-ui/react-checkbox'
+import { WebhookEvent } from '../../lib/networking/queries/useGetWebhooksQuery'
 
-interface FormInputPropsOption {
+interface SelectOptionProps {
   label: string
   value: string
 }
 
-export interface FormInputProps {
+export interface MultiCheckboxOption extends CheckboxProps {
+  label: string
+  value: WebhookEvent
+  defaultChecked: boolean
+}
+
+interface BaseInputProps extends React.HTMLProps<HTMLInputElement> {
   name: string
   label: string
-  value?: any
-  onChange?: (value: any) => void
-  type?: string
+  type: 'checkbox' | 'select' | 'text'
   placeholder?: string
   disabled?: boolean
   hidden?: boolean
   required?: boolean
-  css?: any
-  options?: string[] | FormInputPropsOption[]
-  min?: any
+  css?: CSS
+  value?: HTMLInputElement['value']
+  onChange?: ChangeEventHandler<HTMLInputElement>
+}
+
+export interface SelectProps extends Omit<BaseInputProps, 'onChange'> {
+  type: 'select'
+  options?: SelectOptionProps[]
+  onChange?: ChangeEventHandler<HTMLSelectElement>
+}
+
+export interface MultiCheckboxProps
+  extends Omit<BaseInputProps, 'value' | 'checked' | 'type' | 'onChange'> {
+  // To render a checkbox for each value provided under a single common label.
+  // The common label value for all checkboxes is rendered through the `label` prop provided to MultiCheckbox
+  type: 'multi-checkbox'
+  options: MultiCheckboxOption[]
+}
+
+export type FormInputProps = SelectProps | BaseInputProps | MultiCheckboxProps
+
+function isSelectProps(props: FormInputProps): props is SelectProps {
+  return props.type === 'select'
+}
+
+function isMultiCheckboxProps(
+  props: FormInputProps
+): props is MultiCheckboxProps {
+  return props.type === 'multi-checkbox'
 }
 
 export const FormInput = styled('input', {
@@ -66,10 +98,8 @@ export const BorderedFormInput = styled(FormInput, {
 })
 
 export function GeneralFormInput(props: FormInputProps): JSX.Element {
-  const [input, setInput] = useState<FormInputProps>(props)
-
-  if (props.type === 'checkbox') {
-    const StyledLabel = styled(Label, {
+  if (isMultiCheckboxProps(props)) {
+    const StyledLabel = styled('label', {
       color: '$grayTextContrast',
       fontSize: 13,
       padding: '5px 10px',
@@ -78,55 +108,29 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
 
     return (
       <VStack>
-        {input.options?.map((option, index) => {
-          if (typeof option === 'string') {
-            return (
-              <HStack key={index} alignment="center">
-                <Checkbox
-                  key={index}
-                  checked={input.value[index]}
-                  setChecked={(arg) => {
-                    input.value[index] = arg
-                    setInput(input)
-                    props.onChange &&
-                      props.onChange(
-                        (input.options as string[]).filter(
-                          (_, i) => input.value[i]
-                        )
-                      )
-                  }}
-                ></Checkbox>
-                <StyledLabel>{option}</StyledLabel>
-              </HStack>
-            )
-          } else {
-            return (
-              <HStack key={index} alignment="center">
-                <Checkbox
-                  key={index}
-                  checked={input.value[index]}
-                  setChecked={(arg) => {
-                    input.value[index] = arg
-                    setInput(input)
-                    props.onChange &&
-                      props.onChange(
-                        (input.options as FormInputPropsOption[])
-                          .filter((_, i) => input.value[i])
-                          .map((option) => option.value)
-                      )
-                  }}
-                ></Checkbox>
-                <StyledLabel>{option.label}</StyledLabel>
-              </HStack>
-            )
-          }
+        {props.options?.map((checkboxOptions, index) => {
+          const checkboxId = `${checkboxOptions.label}-${checkboxOptions.value}-${index}`
+          return (
+            <HStack key={index} alignment="center">
+              <Checkbox
+                {...checkboxOptions}
+                value={checkboxOptions.value}
+                name={checkboxOptions.label}
+                defaultChecked={checkboxOptions.defaultChecked}
+                id={checkboxId}
+              />
+              <StyledLabel htmlFor={checkboxId}>
+                {checkboxOptions.label}
+              </StyledLabel>
+            </HStack>
+          )
         })}
       </VStack>
     )
-  } else if (props.type === 'select') {
+  } else if (isSelectProps(props)) {
     return (
       <select
-        onChange={input.onChange}
+        onChange={props.onChange}
         defaultValue={props.value}
         style={{
           padding: '8px',
@@ -135,7 +139,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
           minWidth: '196px',
         }}
       >
-        {input.options?.map((option, index) => {
+        {props.options?.map((option, index) => {
           if (typeof option === 'string') {
             return (
               <option key={index} value={option}>
@@ -155,19 +159,18 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
   } else {
     return (
       <FormInput
-        key={input.name}
-        type={input.type || 'text'}
-        value={input.value}
-        placeholder={input.placeholder}
+        key={props.name}
+        type={props.type || 'text'}
+        defaultValue={props.value}
+        placeholder={props.placeholder}
         onChange={(event) => {
-          if (input.onChange) {
-            setInput({ ...input, value: event.target.value })
-            input.onChange(event.target.value)
+          if (props.onChange) {
+            props.onChange(event)
           }
         }}
-        disabled={input.disabled}
-        hidden={input.hidden}
-        required={input.required}
+        disabled={props.disabled}
+        hidden={props.hidden}
+        required={props.required}
         css={{
           border: '1px solid $textNonessential',
           borderRadius: '8px',
@@ -183,8 +186,8 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
             boxShadow: '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
           },
         }}
-        name={input.name}
-        min={input.min}
+        name={props.name}
+        min={props.min}
       />
     )
   }

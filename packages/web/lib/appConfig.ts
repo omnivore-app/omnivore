@@ -30,7 +30,7 @@ const baseURLRecords: BaseURLRecords = {
 
 function serverBaseURL(env: AppEnvironment): string {
   const value = baseURLRecords[appEnv].serverBaseURL
-  if (value.length == 0) {
+  if (value.length === 0) {
     throw new Error(
       `Couldn't find environment variable for server base url in ${env} environment`
     )
@@ -40,7 +40,7 @@ function serverBaseURL(env: AppEnvironment): string {
 
 function webURL(env: AppEnvironment): string {
   const value = baseURLRecords[appEnv].webBaseURL
-  if (value.length == 0) {
+  if (value.length === 0) {
     throw new Error(
       `Couldn't find environment variable for web base url in ${env} environment`
     )
@@ -59,12 +59,12 @@ export const pspdfKitKey = process.env.NEXT_PUBLIC_PSPDFKIT_LICENSE_KEY
 export const ssoJwtSecret = process.env.SSO_JWT_SECRET
 
 export const gauthRedirectURI =
-  appEnv == 'local'
+  appEnv === 'local'
     ? `${baseURLRecords[appEnv].serverBaseURL}/api/auth/gauth-redirect-localhost`
     : `${baseURLRecords[appEnv].serverBaseURL}/api/auth/vercel/gauth-redirect`
 
 export const appleAuthRedirectURI =
-  appEnv == 'local'
+  appEnv === 'local'
     ? `${baseURLRecords[appEnv].serverBaseURL}/api/auth/apple-redirect-localhost`
     : `${baseURLRecords[appEnv].serverBaseURL}/api/auth/vercel/apple-redirect`
 
@@ -73,7 +73,7 @@ export const intercomAppID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID
 export const segmentApiKey = process.env.NEXT_PUBLIC_SEGMENT_API_KEY
 
 export const googleID =
-  appEnv == 'prod'
+  appEnv === 'prod'
     ? process.env.NEXT_PUBLIC_GOOGLE_ID
     : process.env.NEXT_PUBLIC_DEV_GOOGLE_ID
 

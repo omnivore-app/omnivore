@@ -54,14 +54,20 @@ import {
 import { createWebAuthToken } from './jwt_helpers'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 
-export interface SignupRequest {
-  email: string
-  password: string
-  name: string
-  username: string
-  bio?: string
-  pictureUrl?: string
+export interface SignupRequestBody extends Omit<UserData, 'profile'> {
+  email: NonNullable<UserData['email']>
+  password: NonNullable<UserData['password']>
+  name: NonNullable<UserData['name']>
+  username: UserData['profile']['username']
+  bio?: NonNullable<UserData['profile']['bio']>
+  pictureUrl?: NonNullable<UserData['profile']['picture_url']>
 }
+
+export type SignupRequest = Request<
+  Record<string, unknown>,
+  Record<string, unknown>,
+  SignupRequestBody
+>
 
 const logger = buildLogger('app.dispatch')
 const signToken = promisify(jwt.sign)
@@ -71,20 +77,22 @@ const cookieParams = {
   maxAge: 365 * 24 * 60 * 60 * 1000,
 }
 
-export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
+export const isValidSignupRequest = (
+  reqBody: express.Request['body']
+): reqBody is SignupRequestBody => {
   return (
-    'email' in obj &&
-    obj.email.trim().length > 0 &&
-    obj.email.trim().length < 512 && // email must not be empty
-    'password' in obj &&
-    obj.password.length >= 8 &&
-    obj.password.trim().length < 512 && // password must be at least 8 characters
-    'name' in obj &&
-    obj.name.trim().length > 0 &&
-    obj.name.trim().length < 512 && // name must not be empty
-    'username' in obj &&
-    obj.username.trim().length > 0 &&
-    obj.username.trim().length < 512 // username must not be empty
+    'email' in reqBody &&
+    reqBody.email.trim().length > 0 &&
+    reqBody.email.trim().length < 512 && // email must not be empty
+    'password' in reqBody &&
+    reqBody.password.length >= 8 &&
+    reqBody.password.trim().length < 512 && // password must be at least 8 characters
+    'name' in reqBody &&
+    reqBody.name.trim().length > 0 &&
+    reqBody.name.trim().length < 512 && // name must not be empty
+    'username' in reqBody &&
+    reqBody.username.trim().length > 0 &&
+    reqBody.username.trim().length < 512 // username must not be empty
   )
 }
 
@@ -403,12 +411,14 @@ export function authRouter() {
         email: string
         password: string
       }
-      function isValidLoginRequest(obj: any): obj is LoginRequest {
+      function isValidLoginRequest(
+        reqBody: express.Request['body']
+      ): reqBody is LoginRequest {
         return (
-          'email' in obj &&
-          obj.email.trim().length > 0 && // email must not be empty
-          'password' in obj &&
-          obj.password.length >= 8 // password must be at least 8 characters
+          'email' in reqBody &&
+          reqBody.email.trim().length > 0 && // email must not be empty
+          'password' in reqBody &&
+          reqBody.password.length >= 8 // password must be at least 8 characters
         )
       }
       if (!isValidLoginRequest(req.body)) {

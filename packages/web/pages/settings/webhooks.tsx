@@ -6,7 +6,7 @@ import {
   useGetWebhooksQuery,
   WebhookEvent,
 } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebhookMutation'
@@ -14,6 +14,12 @@ import { FormModal } from '../../components/patterns/FormModal'
 import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
 import { FormInputProps } from '../../components/elements/FormElements'
 import { Box } from '../../components/elements/LayoutPrimitives'
+import { CheckedState } from '@radix-ui/react-checkbox'
+
+const DEFAULT_SELECTED_EVENTS: WebhookEvent[] = [
+  'PAGE_CREATED',
+  'HIGHLIGHT_CREATED',
+]
 
 interface Webhook {
   id?: string
@@ -26,35 +32,73 @@ interface Webhook {
   updatedAt?: Date
 }
 
-interface EventTypeOption {
-  label: string
-  value: WebhookEvent
-}
-
 export default function Webhooks(): JSX.Element {
   const { webhooks, revalidate } = useGetWebhooksQuery()
   const [onDeleteId, setOnDeleteId] = useState<string | null>(null)
-  const [addModelOpen, setAddModelOpen] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [onEditWebhook, setOnEditWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState('')
-  const eventTypeOptions: EventTypeOption[] = [
-    { label: 'PAGE_CREATED', value: 'PAGE_CREATED' },
-    { label: 'HIGHLIGHT_CREATED', value: 'HIGHLIGHT_CREATED' },
-    { label: 'LABEL_ADDED', value: 'LABEL_CREATED' },
-  ]
-  const [eventTypes, setEventTypes] = useState<WebhookEvent[]>([])
-  const [contentType, setContentType] = useState('application/json')
-  const [method, setMethod] = useState('POST')
+  const [eventTypes, setEventTypes] = useState<Set<WebhookEvent>>(
+    new Set(DEFAULT_SELECTED_EVENTS)
+  )
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
-
   const headers = ['URL', 'Event Types', 'Method', 'Content Type']
+
+  const onCheckedChange = useCallback(
+    (event: WebhookEvent, checked: CheckedState) => {
+      if (checked === true) {
+        setEventTypes((eventTypes) => {
+          const updatedEventTypes = new Set(eventTypes)
+          updatedEventTypes.add(event)
+          return updatedEventTypes
+        })
+      } else if (checked === false) {
+        setEventTypes((eventTypes) => {
+          const updatedEventTypes = new Set(eventTypes)
+          updatedEventTypes.delete(event)
+          return updatedEventTypes
+        })
+      }
+    },
+    []
+  )
+
+  const getEventTypeInputOptions = useCallback(
+    (eventTypes: Set<WebhookEvent>) => [
+      {
+        label: 'PAGE_CREATED',
+        value: 'PAGE_CREATED' as WebhookEvent,
+        defaultChecked: eventTypes.has('PAGE_CREATED'),
+        onCheckedChange: (checked: CheckedState) =>
+          onCheckedChange('PAGE_CREATED', checked),
+      },
+      {
+        label: 'HIGHLIGHT_CREATED',
+        value: 'HIGHLIGHT_CREATED' as WebhookEvent,
+        defaultChecked: eventTypes.has('HIGHLIGHT_CREATED'),
+        onCheckedChange: (checked: CheckedState) =>
+          onCheckedChange('HIGHLIGHT_CREATED', checked),
+      },
+      {
+        label: 'LABEL_CREATED',
+        value: 'LABEL_CREATED' as WebhookEvent,
+        defaultChecked: eventTypes.has('LABEL_CREATED'),
+        onCheckedChange: (checked: CheckedState) =>
+          onCheckedChange('LABEL_CREATED', checked),
+      },
+    ],
+    [onCheckedChange]
+  )
+
   const rows = useMemo(() => {
     const rows = new Map<string, Webhook>()
     webhooks.forEach((webhook) =>
       rows.set(webhook.id, {
         url: webhook.url,
-        eventTypes: eventTypeOptions
-          .filter((option) => webhook.eventTypes.includes(option.value))
+        eventTypes: getEventTypeInputOptions(eventTypes)
+          .filter((option) =>
+            webhook.eventTypes.includes(option.value as WebhookEvent)
+          )
           .map((option) => option.label)
           .join(', '),
         method: webhook.method,
@@ -62,12 +106,12 @@ export default function Webhooks(): JSX.Element {
       })
     )
     return rows
-  }, [webhooks])
+  }, [eventTypes, getEventTypeInputOptions, webhooks])
 
   applyStoredTheme(false)
 
-  function validateEventTypes(eventTypes: WebhookEvent[]): boolean {
-    if (eventTypes.length > 0) return true
+  function validateEventTypes(eventTypes: Set<WebhookEvent>): boolean {
+    if (eventTypes.size > 0) return true
     showErrorToast('Please select at least one event type', {
       position: 'bottom-right',
     })
@@ -86,7 +130,10 @@ export default function Webhooks(): JSX.Element {
 
   async function onCreate(): Promise<void> {
     if (!validateEventTypes(eventTypes)) return
-    const result = await setWebhookMutation({ url, eventTypes })
+    const result = await setWebhookMutation({
+      url,
+      eventTypes: Array.from(eventTypes),
+    })
     if (result) {
       showSuccessToast('Webhook created', { position: 'bottom-right' })
     } else {
@@ -100,7 +147,7 @@ export default function Webhooks(): JSX.Element {
     const result = await setWebhookMutation({
       id: onEditWebhook?.id,
       url,
-      eventTypes,
+      eventTypes: Array.from(eventTypes),
     })
     if (result) {
       showSuccessToast('Webhook updated', { position: 'bottom-right' })
@@ -118,11 +165,11 @@ export default function Webhooks(): JSX.Element {
         }}
       />
 
-      {addModelOpen && (
+      {isAddModalOpen && (
         <FormModal
           title={'Add webhook'}
           onSubmit={onCreate}
-          onOpenChange={setAddModelOpen}
+          onOpenChange={setIsAddModalOpen}
           inputs={formInputs}
           acceptButtonLabel={'Add'}
         />
@@ -156,10 +203,16 @@ export default function Webhooks(): JSX.Element {
         rows={rows}
         onDelete={setOnDeleteId}
         onAdd={() => {
+          setUrl('')
+          setEventTypes(new Set(DEFAULT_SELECTED_EVENTS))
+          setIsAddModalOpen(true)
           setFormInputs([
             {
+              type: 'text',
               label: 'URL',
-              onChange: setUrl,
+              onChange: (event) => {
+                setUrl(event.target.value)
+              },
               name: 'url',
               placeholder: 'https://example.com/webhook',
               required: true,
@@ -167,63 +220,63 @@ export default function Webhooks(): JSX.Element {
             {
               label: 'Event Types',
               name: 'eventTypes',
-              value: [true, true],
-              onChange: setEventTypes,
-              options: eventTypeOptions,
-              type: 'checkbox',
+              options: getEventTypeInputOptions(
+                new Set(DEFAULT_SELECTED_EVENTS)
+              ),
+              type: 'multi-checkbox',
             },
             {
+              type: 'text',
               label: 'Method',
               name: 'method',
-              value: method,
+              value: 'POST',
               disabled: true,
             },
             {
               label: 'Content Type',
               name: 'contentType',
-              value: contentType,
+              value: 'application/json',
               disabled: true,
+              type: 'text',
             },
           ])
-          setUrl('')
-          setEventTypes(['PAGE_CREATED', 'HIGHLIGHT_CREATED'])
-          setAddModelOpen(true)
         }}
         onEdit={(webhook) => {
+          setUrl(webhook?.url)
+          setEventTypes(new Set(webhook?.eventTypes.split(', ')))
+          setOnEditWebhook(webhook)
           setFormInputs([
             {
               label: 'URL',
-              onChange: setUrl,
+              onChange: (event) => setUrl(event.target.value),
               name: 'url',
               value: webhook?.url,
               required: true,
+              type: 'text',
             },
             {
               label: 'Event Types',
               name: 'eventTypes',
-              value: eventTypeOptions.map((option) =>
-                webhook?.eventTypes.includes(option.label)
+              options: getEventTypeInputOptions(
+                new Set(webhook?.eventTypes.split(', '))
               ),
-              onChange: setEventTypes,
-              options: eventTypeOptions,
-              type: 'checkbox',
+              type: 'multi-checkbox',
             },
             {
+              type: 'text',
               label: 'Method',
               name: 'method',
-              value: method,
+              value: 'POST',
               disabled: true,
             },
             {
+              type: 'text',
               label: 'Content Type',
               name: 'contentType',
-              value: contentType,
+              value: 'application/json',
               disabled: true,
             },
           ])
-          setUrl(webhook?.url)
-          setEventTypes(webhook?.eventTypes)
-          setOnEditWebhook(webhook)
         }}
       />
       <Box css={{ height: '120px' }} />

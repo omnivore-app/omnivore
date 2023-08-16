@@ -12,6 +12,7 @@ import UserModel from '../../../datalayer/user'
 import { hashPassword } from '../../../utils/auth'
 import { createUser } from '../../../services/create_user'
 import { isValidSignupRequest } from '../auth_router'
+import express from 'express'
 
 export async function createMobileSignUpResponse(
   isAndroid: boolean,
@@ -46,7 +47,7 @@ export async function createMobileSignUpResponse(
 }
 
 export async function createMobileEmailSignUpResponse(
-  requestBody: any
+  requestBody: express.Request
 ): Promise<JsonResponsePayload> {
   try {
     if (!isValidSignupRequest(requestBody)) {

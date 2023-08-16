@@ -7,7 +7,6 @@ import {
 } from '../elements/ModalPrimitives'
 import { Box, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
-import { useState } from 'react'
 import { FormInputProps, GeneralFormInput } from '../elements/FormElements'
 
 export interface FormModalProps {
@@ -19,8 +18,6 @@ export interface FormModalProps {
 }
 
 export function FormModal(props: FormModalProps): JSX.Element {
-  const [inputs, setInputs] = useState<FormInputProps[]>(props.inputs || [])
-
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
@@ -44,7 +41,7 @@ export function FormModal(props: FormModalProps): JSX.Element {
                 props.onOpenChange(false)
               }}
             >
-              {inputs.map((input, index) => (
+              {props.inputs?.map((input, index) => (
                 <VStack key={index}>
                   <StyledText
                     style={'menuTitle'}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { ChangeEvent, useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
@@ -16,12 +16,19 @@ import {
 import { StyledText } from '../../components/elements/StyledText'
 import { formattedShortDate } from '../../lib/dateFormatting'
 
+const KeyExpiryOptions = [
+  { value: 'in 7 days', label: 'in 7 days' },
+  { value: 'in 30 days', label: 'in 30 days' },
+  { value: 'in 90 days', label: 'in 90 days' },
+  { value: 'in 1 year', label: 'in 1 year' },
+  { value: 'Never', label: 'Never' },
+]
+
 export default function Api(): JSX.Element {
   const { apiKeys, revalidate, isValidating } = useGetApiKeysQuery()
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [name, setName] = useState<string>('')
-  const [value, setValue] = useState<string>('')
   const [expiresAt, setExpiresAt] = useState<Date>(new Date())
   const [formInputs, setFormInputs] = useState<FormInputProps[]>([])
   const [apiKeyGenerated, setApiKeyGenerated] = useState('')
@@ -55,32 +62,34 @@ export default function Api(): JSX.Element {
     return setFormInputs([
       {
         label: 'Name',
-        onChange: setName,
+        onChange: (event) => {
+          setName(event.target.value)
+        },
         name: 'name',
-        value: value,
+        value: '',
         required: true,
+        type: 'text',
       },
       {
         label: 'Expires',
         name: 'expiredAt',
         required: true,
-        onChange: (e) => {
-          console.log('onChange: ', e)
+        onChange: (event: ChangeEvent<HTMLSelectElement>) => {
           let additionalDays = 0
-          switch (e.target.value) {
-            case 'in 7 days':
+          switch (event.target.value) {
+            case `${KeyExpiryOptions[0].value}`:
               additionalDays = 7
               break
-            case 'in 30 days':
+            case `${KeyExpiryOptions[1].value}`:
               additionalDays = 30
               break
-            case 'in 90 days':
+            case `${KeyExpiryOptions[2].value}`:
               additionalDays = 90
               break
-            case 'in 1 year':
+            case `${KeyExpiryOptions[3].value}`:
               additionalDays = 365
               break
-            case 'Never':
+            case `${KeyExpiryOptions[4].value}`:
               break
           }
           const newExpires = additionalDays ? new Date() : neverExpiresDate
@@ -90,13 +99,7 @@ export default function Api(): JSX.Element {
           setExpiresAt(newExpires)
         },
         type: 'select',
-        options: [
-          'in 7 days',
-          'in 30 days',
-          'in 90 days',
-          'in 1 year',
-          'Never',
-        ],
+        options: KeyExpiryOptions,
         value: defaultExpiresAt,
       },
     ])
