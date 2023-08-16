@@ -120,20 +120,21 @@ function Readability(doc, options) {
       return `<${node.localName} ${attrPairs}>`;
     };
     this.log = function () {
-      if (typeof dump !== "undefined") {
-        var msg = Array.prototype.map.call(arguments, function(x) {
-          return (x && x.nodeName) ? logNode(x) : x;
-        }).join(" ");
-        dump("Reader: (Readability) " + msg + "\n");
-      } else if (typeof console !== "undefined") {
+      if (typeof console !== "undefined") {
         let args = Array.from(arguments, arg => {
-          if (arg && arg.nodeType === this.ELEMENT_NODE) {
+          if (arg && arg.nodeType == this.ELEMENT_NODE) {
             return logNode(arg);
           }
           return arg;
         });
         args.unshift("Reader: (Readability)");
         console.log.apply(console, args);
+      } else if (typeof dump !== "undefined") {
+        /* global dump */
+        var msg = Array.prototype.map.call(arguments, function(x) {
+          return (x && x.nodeName) ? logNode(x) : x;
+        }).join(" ");
+        dump("Reader: (Readability) " + msg + "\n");
       }
     };
   } else {
@@ -174,7 +175,7 @@ Readability.prototype = {
     unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar|tl_article_header|mvp(-post)*-(add-story|soc(-mob)*-wrap)|w-condition-invisible|rich-text-block main w-richtext|rich-text-block_ataglance at-a-glance test w-richtext|PostsPage-commentsSection/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
-      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection|QuestionHeader`, 'i')
+      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection`, 'i')
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners|player|commentOnSelection/i,
@@ -1176,6 +1177,12 @@ Readability.prototype = {
           continue;
         }
 
+        // User is not able to see elements applied with both "aria-modal = true" and "role = dialog"
+        if (node.getAttribute("aria-modal") == "true" && node.getAttribute("role") == "dialog") {
+          node = this._removeAndGetNext(node);
+          continue;
+        }
+
         // Check to see if this node is a byline or published, and remove it if it is.
         if (this._checkByline(node, matchString) || this._checkPublishedDate(node, matchString)) {
           node = this._removeAndGetNext(node);
@@ -1773,7 +1780,22 @@ Readability.prototype = {
           this.log(`Parsed after: `, {parsed: parsedArticleInfo})
         }
 
-        if (typeof parsedArticleInfo.name === "string") {
+        if (typeof parsedArticleInfo.name === "string" && typeof parsedArticleInfo.headline === "string" && parsedArticleInfo.name !== parsedArticleInfo.headline) {
+          // we have both name and headline element in the JSON-LD. They should both be the same but some websites like aktualne.cz
+          // put their own name into "name" and the article title to "headline" which confuses Readability. So we try to check if either
+          // "name" or "headline" closely matches the html title, and if so, use that one. If not, then we use "name" by default.
+
+          var title = this._getArticleTitle();
+          var nameMatches = this._textSimilarity(parsedArticleInfo.name, title) > 0.75;
+          var headlineMatches = this._textSimilarity(parsedArticleInfo.headline, title) > 0.75;
+
+          if (headlineMatches && !nameMatches) {
+            metadata.title = parsedArticleInfo.headline;
+          } else {
+            metadata.title = parsedArticleInfo.name;
+          }
+
+        } else if (typeof parsedArticleInfo.name === "string") {
           metadata.title = parsedArticleInfo.name.trim();
         } else if (typeof parsedArticleInfo.headline === "string") {
           metadata.title = parsedArticleInfo.headline.trim();
@@ -2117,12 +2139,7 @@ Readability.prototype = {
    * @param Element
    **/
   _removeScripts: function (doc) {
-    this._removeNodes(this._getAllNodesWithTag(doc, ["script"]), function (scriptNode) {
-      scriptNode.nodeValue = "";
-      scriptNode.removeAttribute("src");
-      return true;
-    });
-    this._removeNodes(this._getAllNodesWithTag(doc, ["noscript"]));
+    this._removeNodes(this._getAllNodesWithTag(doc, ["script", "noscript"]));
   },
 
   /**
