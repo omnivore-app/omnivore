@@ -118,6 +118,8 @@ export const savePage = async (
     ? await createLabels(ctx, input.labels)
     : undefined
 
+  const isImported = input.source === 'csv-importer'
+
   // always parse in backend if the url is in the force puppeteer list
   if (shouldParseInBackend(input)) {
     try {
@@ -175,10 +177,9 @@ export const savePage = async (
       }
     } else {
       // do not publish a pubsub event if the page is imported
-      const shouldPublish = input.source !== 'csv-importer'
       const newPageId = await createPage(articleToSave, {
         ...ctx,
-        shouldPublish,
+        shouldPublish: !isImported,
       })
       if (!newPageId) {
         return {
@@ -190,10 +191,10 @@ export const savePage = async (
     }
   }
 
-  // create a task to update thumbnail and pre-cache all images
-  if (input.source !== 'csv-importer') {
-    // we don't want to create thumbnail for imported pages
+  // we don't want to create thumbnail for imported pages
+  if (!isImported) {
     try {
+      // create a task to update thumbnail and pre-cache all images
       const taskId = await enqueueThumbnailTask(saver.userId, slug)
       logger.info('Created thumbnail task', { taskId })
     } catch (e) {

@@ -430,8 +430,9 @@ export const createPage = async (
 
     page.id = body._id as string
 
+    const shouldPublish = ctx.shouldPublish ?? true
     // only publish a pubsub event if we should
-    if (ctx.shouldPublish) {
+    if (shouldPublish) {
       await ctx.pubsub?.entityCreated<Page>(EntityType.PAGE, page, ctx.uid)
     }
 
