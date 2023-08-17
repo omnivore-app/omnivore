@@ -208,6 +208,7 @@ export interface PageContext {
   pubsub: PubsubClient
   refresh?: boolean
   uid: string
+  shouldPublish?: boolean
 }
 
 export interface PageSearchArgs {

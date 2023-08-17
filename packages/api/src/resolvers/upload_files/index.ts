@@ -40,7 +40,7 @@ export const uploadFileRequestResolver: ResolverFn<
   WithDataSourcesContext,
   MutationUploadFileRequestArgs
 > = async (_obj, { input }, ctx) => {
-  const { models, kx, claims, log } = ctx
+  const { models, authTrx, claims, log } = ctx
   let uploadFileData: { id: string | null } = {
     id: null,
   }
@@ -98,8 +98,9 @@ export const uploadFileRequestResolver: ResolverFn<
   })
 
   if (uploadFileData.id) {
+    const uploadFileId = uploadFileData.id
     const uploadFilePathName = generateUploadFilePathName(
-      uploadFileData.id,
+      uploadFileId,
       fileName
     )
     const uploadSignedUrl = await generateUploadSignedUrl(
@@ -111,9 +112,15 @@ export const uploadFileRequestResolver: ResolverFn<
 
     // If this is a file URL, we swap in the GCS public URL
     if (isFileUrl(input.url)) {
-      await models.uploadFile.update(uploadFileData.id, {
-        url: publicUrl,
-        status: UploadFileStatus.Initialized,
+      await authTrx(async (tx) => {
+        await models.uploadFile.update(
+          uploadFileId,
+          {
+            url: publicUrl,
+            status: UploadFileStatus.Initialized,
+          },
+          tx
+        )
       })
     }
 
