@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader'
 import { In } from 'typeorm'
 import { addLabelInPage } from '../elastic/labels'
-import { PageContext } from '../elastic/types'
+import { Context } from '../elastic/types'
 import { Label } from '../entity/label'
 import { Link } from '../entity/link'
 import { User } from '../entity/user'
@@ -37,7 +37,7 @@ const batchGetLabelsFromLinkIds = async (
 export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
 
 export const addLabelToPage = async (
-  ctx: PageContext,
+  ctx: Context,
   pageId: string,
   label: {
     name: string
@@ -114,7 +114,7 @@ export const createLabel = async (
 }
 
 export const createLabels = async (
-  ctx: PageContext,
+  ctx: Context,
   labels: CreateLabelInput[]
 ): Promise<Label[]> => {
   const user = await getRepository(User).findOneBy({

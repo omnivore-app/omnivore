@@ -18,9 +18,9 @@ import {
 import { client, INDEX_ALIAS, logger } from './index'
 import {
   ArticleSavingRequestStatus,
+  Context,
   Label,
   Page,
-  PageContext,
   PageSearchArgs,
   PageType,
   ParamSet,
@@ -404,7 +404,7 @@ const appendSiteNameFilter = (
 
 export const createPage = async (
   page: Page,
-  ctx: PageContext
+  ctx: Context
 ): Promise<string | undefined> => {
   try {
     if (page.content.length > MAX_CONTENT_LENGTH) {
@@ -429,7 +429,11 @@ export const createPage = async (
     })
 
     page.id = body._id as string
-    await ctx.pubsub.entityCreated<Page>(EntityType.PAGE, page, ctx.uid)
+
+    // only publish a pubsub event if we should
+    if (ctx.shouldPublish) {
+      await ctx.pubsub?.entityCreated<Page>(EntityType.PAGE, page, ctx.uid)
+    }
 
     return page.id
   } catch (e) {
@@ -441,7 +445,7 @@ export const createPage = async (
 export const updatePage = async (
   id: string,
   page: Partial<Page>,
-  ctx: PageContext
+  ctx: Context
 ): Promise<boolean> => {
   try {
     if (page.content && page.content.length > MAX_CONTENT_LENGTH) {
@@ -492,7 +496,7 @@ export const updatePage = async (
 
 export const deletePage = async (
   id: string,
-  ctx: PageContext
+  ctx: Context
 ): Promise<boolean> => {
   try {
     const { body } = await client.delete({
@@ -755,7 +759,7 @@ export const countByCreatedAt = async (
 
 export const deletePagesByParam = async <K extends keyof ParamSet>(
   param: Record<K, ParamSet[K]>,
-  ctx: PageContext
+  ctx: Context
 ): Promise<boolean> => {
   try {
     const params = {
@@ -852,7 +856,7 @@ export const searchAsYouType = async (
 }
 
 export const updatePages = async (
-  ctx: PageContext,
+  ctx: Context,
   action: BulkActionType,
   args: PageSearchArgs,
   maxDocs: number,

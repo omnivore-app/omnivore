@@ -174,7 +174,12 @@ export const savePage = async (
         }
       }
     } else {
-      const newPageId = await createPage(articleToSave, ctx)
+      // do not publish a pubsub event if the page is imported
+      const shouldPublish = input.source !== 'csv-importer'
+      const newPageId = await createPage(articleToSave, {
+        ...ctx,
+        shouldPublish,
+      })
       if (!newPageId) {
         return {
           errorCodes: [SaveErrorCode.Unknown],

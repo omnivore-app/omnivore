@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import path from 'path'
 import { createPubSubClient } from '../datalayer/pubsub'
 import { createPage } from '../elastic/pages'
-import { ArticleSavingRequestStatus, Page, PageContext } from '../elastic/types'
+import { ArticleSavingRequestStatus, Context, Page } from '../elastic/types'
 import { PageType } from '../generated/graphql'
 import { generateSlug, stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -61,7 +61,7 @@ export const addPopularRead = async (
   userId: string,
   name: string
 ): Promise<string | undefined> => {
-  const ctx: PageContext = {
+  const ctx: Context = {
     pubsub: createPubSubClient(),
     refresh: true,
     uid: userId,

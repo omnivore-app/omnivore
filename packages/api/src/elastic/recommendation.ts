@@ -2,13 +2,13 @@ import { logger } from '.'
 import { createPage, getPageByParam, updatePage } from './pages'
 import {
   ArticleSavingRequestStatus,
+  Context,
   Page,
-  PageContext,
   Recommendation,
 } from './types'
 
 export const addRecommendation = async (
-  ctx: PageContext,
+  ctx: Context,
   page: Page,
   recommendation: Recommendation,
   highlightIds?: string[]

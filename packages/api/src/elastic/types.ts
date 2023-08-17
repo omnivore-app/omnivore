@@ -204,10 +204,11 @@ const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
 
-export interface PageContext {
+export interface Context {
   pubsub: PubsubClient
   refresh?: boolean
   uid: string
+  shouldPublish?: boolean
 }
 
 export interface PageSearchArgs {
