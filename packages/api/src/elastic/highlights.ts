@@ -3,9 +3,9 @@ import { EntityType } from '../datalayer/pubsub'
 import { SortBy, SortOrder, SortParams } from '../utils/search'
 import { client, INDEX_ALIAS, logger } from './index'
 import {
-  Context,
   Highlight,
   Page,
+  PageContext,
   PageType,
   SearchItem,
   SearchResponse,
@@ -14,7 +14,7 @@ import {
 export const addHighlightToPage = async (
   id: string,
   highlight: Highlight,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.update({
@@ -97,7 +97,7 @@ export const getHighlightById = async (
 
 export const deleteHighlight = async (
   highlightId: string,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.updateByQuery({
@@ -256,7 +256,7 @@ export const searchHighlights = async (
 
 export const updateHighlight = async (
   highlight: Highlight,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.updateByQuery({

@@ -18,9 +18,9 @@ import {
 import { client, INDEX_ALIAS, logger } from './index'
 import {
   ArticleSavingRequestStatus,
-  Context,
   Label,
   Page,
+  PageContext,
   PageSearchArgs,
   PageType,
   ParamSet,
@@ -404,7 +404,7 @@ const appendSiteNameFilter = (
 
 export const createPage = async (
   page: Page,
-  ctx: Context
+  ctx: PageContext
 ): Promise<string | undefined> => {
   try {
     if (page.content.length > MAX_CONTENT_LENGTH) {
@@ -446,7 +446,7 @@ export const createPage = async (
 export const updatePage = async (
   id: string,
   page: Partial<Page>,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     if (page.content && page.content.length > MAX_CONTENT_LENGTH) {
@@ -497,7 +497,7 @@ export const updatePage = async (
 
 export const deletePage = async (
   id: string,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.delete({
@@ -760,7 +760,7 @@ export const countByCreatedAt = async (
 
 export const deletePagesByParam = async <K extends keyof ParamSet>(
   param: Record<K, ParamSet[K]>,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const params = {
@@ -857,7 +857,7 @@ export const searchAsYouType = async (
 }
 
 export const updatePages = async (
-  ctx: Context,
+  ctx: PageContext,
   action: BulkActionType,
   args: PageSearchArgs,
   maxDocs: number,

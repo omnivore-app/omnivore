@@ -1,12 +1,12 @@
 import { errors } from '@elastic/elasticsearch'
 import { EntityType } from '../datalayer/pubsub'
 import { client, INDEX_ALIAS, logger } from './index'
-import { Context, Label } from './types'
+import { Label, PageContext } from './types'
 
 export const addLabelInPage = async (
   pageId: string,
   label: Label,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.update({
@@ -57,7 +57,7 @@ export const addLabelInPage = async (
 export const updateLabelsInPage = async (
   pageId: string,
   labels: Label[],
-  ctx: Context,
+  ctx: PageContext,
   labelsToAdd?: Label[]
 ): Promise<boolean> => {
   try {
@@ -105,7 +105,7 @@ export const updateLabelsInPage = async (
 
 export const deleteLabel = async (
   label: string,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.updateByQuery({
@@ -181,7 +181,7 @@ export const deleteLabel = async (
 
 export const updateLabel = async (
   label: Label,
-  ctx: Context
+  ctx: PageContext
 ): Promise<boolean> => {
   try {
     const { body } = await client.updateByQuery({
@@ -273,7 +273,7 @@ export const updateLabel = async (
 export const setLabelsForHighlight = async (
   highlightId: string,
   labels: Label[],
-  ctx: Context,
+  ctx: PageContext,
   labelsToAdd?: Label[]
 ): Promise<boolean> => {
   try {

@@ -204,7 +204,7 @@ const keys = ['_id', 'url', 'slug', 'userId', 'uploadFileId', 'state'] as const
 
 export type ParamSet = PickTuple<Page, typeof keys>
 
-export interface Context {
+export interface PageContext {
   pubsub: PubsubClient
   refresh?: boolean
   uid: string
