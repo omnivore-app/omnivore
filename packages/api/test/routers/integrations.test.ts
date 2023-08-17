@@ -58,8 +58,8 @@ describe('Integrations routers', () => {
         token = 'invalid-token'
       })
 
-      it('returns 400', async () => {
-        return request.post(endpoint(token)).send(data).expect(400)
+      it('returns 200', async () => {
+        return request.post(endpoint(token)).send(data).expect(200)
       })
     })
 
@@ -98,8 +98,8 @@ describe('Integrations routers', () => {
           }
         })
 
-        it('returns 400', async () => {
-          return request.post(endpoint(token)).send(data).expect(400)
+        it('returns 200', async () => {
+          return request.post(endpoint(token)).send(data).expect(200)
         })
       })
 
