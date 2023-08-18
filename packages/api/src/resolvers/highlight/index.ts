@@ -182,6 +182,7 @@ export const mergeHighlightResolver = authorized<
         mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
       type: HighlightType.Highlight,
       labels: mergedLabels,
+      color: newHighlightInput.color || pageHighlights[0].color, // use new color or the color of the first highlight
     }
 
     const merged = await updatePage(
@@ -253,6 +254,7 @@ export const updateHighlightResolver = authorized<
     annotation,
     quote,
     updatedAt: new Date(),
+    color: input.color,
   }
 
   log.info('Updating a highlight', {
