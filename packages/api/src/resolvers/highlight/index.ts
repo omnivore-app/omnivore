@@ -148,6 +148,7 @@ export const mergeHighlightResolver = authorized<
   /* Compute merged annotation form the order of highlights appearing on page */
   const mergedAnnotations: string[] = []
   const mergedLabels: Label[] = []
+  const mergedColors: string[] = []
   const pageHighlights = page.highlights.filter((highlight) => {
     // filter out highlights that are in the overlap list
     // and are of type highlight (not annotation or note)
@@ -168,10 +169,15 @@ export const mergeHighlightResolver = authorized<
           }
         })
       }
+      // collect colors of overlap highlights
+      highlight.color && mergedColors.push(highlight.color)
+
       return false
     }
     return true
   })
+  // use new color or the color of the last overlap highlight
+  const color = newHighlightInput.color || mergedColors[mergedColors.length - 1]
   try {
     const highlight: HighlightData = {
       ...newHighlightInput,
@@ -182,7 +188,7 @@ export const mergeHighlightResolver = authorized<
         mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
       type: HighlightType.Highlight,
       labels: mergedLabels,
-      color: newHighlightInput.color || pageHighlights[0].color, // use new color or the color of the first highlight
+      color,
     }
 
     const merged = await updatePage(
