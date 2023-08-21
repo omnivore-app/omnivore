@@ -10,6 +10,8 @@ CREATE TYPE library_item_state AS ENUM ('SUCCEEDED', 'FAILED', 'PROCESSING', 'AR
 
 CREATE TYPE content_reader_type AS ENUM ('WEB', 'PDF', 'EPUB');
 
+CREATE TYPE library_item_type AS ENUM ('ARTICLE', 'BOOK', 'FILE', 'PROFILE', 'WEBSITE', 'TWEET', 'VIDEO', 'IMAGE', 'UNKNOWN');
+
 CREATE TABLE omnivore.library_item (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     user_id uuid NOT NULL REFERENCES omnivore.user ON DELETE CASCADE,
@@ -27,7 +29,7 @@ CREATE TABLE omnivore.library_item (
     deleted_at timestamptz,
     read_at timestamptz,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
-    language text,
+    item_language text,
     words_count integer,
     site_name text,
     site_icon text,
@@ -37,7 +39,7 @@ CREATE TABLE omnivore.library_item (
     reading_progress_top_percent real,
     reading_progress_bottom_percent real,
     thumbnail text,
-    page_type text,
+    item_type library_item_type,
     upload_file_id uuid REFERENCES omnivore.upload_files ON DELETE CASCADE,
     content_reader content_reader_type,
     original_content text,
