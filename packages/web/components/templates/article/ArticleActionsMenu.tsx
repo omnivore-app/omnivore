@@ -60,10 +60,6 @@ export function ArticleActionsMenu(
           title="Display Settings"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('editDisplaySettings')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
         >
           <ReaderSettingsIcon
             size={25}
@@ -72,19 +68,6 @@ export function ArticleActionsMenu(
         </Button>
 
         <MenuSeparator layout={props.layout} />
-
-        <Button
-          title="Edit labels (l)"
-          style="articleActionIcon"
-          onClick={() => props.readerSettings.setShowSetLabelsModal(true)}
-        >
-          <SpanBox ref={displaySettingsButtonRef}>
-            <LabelIcon
-              size={24}
-              color={theme.colors.thNotebookSubtle.toString()}
-            />
-          </SpanBox>
-        </Button>
 
         <Button
           title="Edit labels (l)"
@@ -101,10 +84,6 @@ export function ArticleActionsMenu(
           title="View notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showNotebook')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
         >
           <NotebookIcon
             size={24}
@@ -138,10 +117,6 @@ export function ArticleActionsMenu(
           onClick={() => {
             props.articleActionHandler('delete')
           }}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
         >
           <TrashIcon
             size={24}
@@ -154,10 +129,6 @@ export function ArticleActionsMenu(
             title="Archive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('archive')}
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
           >
             <ArchiveIcon
               size={24}

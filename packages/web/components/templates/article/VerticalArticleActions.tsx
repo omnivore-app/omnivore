@@ -38,19 +38,15 @@ export function VerticalArticleActionsMenu(
         css={{
           width: '100%',
           gap: '5px',
+          '@mdDown': {
+            gap: '15px',
+          },
         }}
       >
         <Button
           title="Edit labels (l)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('setLabels')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            '@media (max-width: 300px)': {
-              display: 'none',
-            },
-          }}
         >
           <LabelIcon
             size={25}
@@ -80,13 +76,6 @@ export function VerticalArticleActionsMenu(
           title="Edit info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            '@mdDown': {
-              display: 'none',
-            },
-          }}
         >
           <EditInfoIcon
             size={25}
@@ -100,13 +89,6 @@ export function VerticalArticleActionsMenu(
           onClick={() => {
             props.articleActionHandler('delete')
           }}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            '@mdDown': {
-              display: 'none',
-            },
-          }}
         >
           <TrashIcon
             size={25}
@@ -119,13 +101,6 @@ export function VerticalArticleActionsMenu(
             title="Archive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('archive')}
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              '@media (max-width: 300px)': {
-                display: 'none',
-              },
-            }}
           >
             <ArchiveIcon
               size={25}
@@ -137,13 +112,6 @@ export function VerticalArticleActionsMenu(
             title="Unarchive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('unarchive')}
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              '@media (max-width: 300px)': {
-                display: 'none',
-              },
-            }}
           >
             <UnarchiveIcon
               size={25}
@@ -156,10 +124,6 @@ export function VerticalArticleActionsMenu(
             title="Display Settings (d)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('editDisplaySettings')}
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
           >
             <ReaderSettingsIcon
               size={24}
@@ -200,7 +164,9 @@ export function VerticalArticleActionsMenu(
               props.openInspector(undefined)
               event.preventDefault()
             }}
-            css={{ ml: '30px' }}
+            css={{
+              ml: '30px',
+            }}
           >
             <LeftPanelToggleIcon
               size={25}
