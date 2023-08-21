@@ -149,13 +149,13 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <CloseButton close={handleClose} />
           </HStack>
         </HStack>
-        <NotebookView
+        {/* <NotebookView
           {...props}
           viewInReader={viewInReader}
           onAnnotationsChanged={handleAnnotationsChange}
           showConfirmDeleteNote={showConfirmDeleteNote}
           setShowConfirmDeleteNote={setShowConfirmDeleteNote}
-        />
+        /> */}
       </ModalContent>
     </ModalRoot>
   )

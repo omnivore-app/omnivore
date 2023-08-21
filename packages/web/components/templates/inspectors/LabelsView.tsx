@@ -1,7 +1,6 @@
 import { LabelAction } from '../../../lib/hooks/useSetPageLabels'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { EditLabelChipStack } from '../../elements/EditLabelChipStack'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { LabelsPicker } from '../../elements/LabelsPicker'
 import { Box, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
@@ -9,7 +8,7 @@ import { CaretDownIcon } from '../../elements/icons/CaretDownIcon'
 import { theme } from '../../tokens/stitches.config'
 
 type LabelsViewProps = {
-  item: LibraryItemNode
+  item: ReadableItem
 }
 
 export const LabelsView = (props: LabelsViewProps): JSX.Element => {

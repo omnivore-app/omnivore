@@ -22,7 +22,7 @@ import { HighlightViewItem } from '../article/HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
 import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
@@ -34,7 +34,7 @@ import { ColoredStack } from '../../elements/EditLabelChipStack'
 type NotebookViewProps = {
   viewer: UserBasicData
 
-  item: LibraryItemNode
+  item: ReadableItem
 
   viewInReader: (highlightId: string) => void
 
@@ -226,7 +226,7 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
   }, [mutate])
 
   const pluralStr = (str: string, count: number | undefined) => {
-    let useCount = count ?? 0
+    const useCount = count ?? 0
     if (count === 1) {
       return `${useCount} ${str}`
     }

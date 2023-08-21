@@ -618,7 +618,7 @@ export default function PdfArticleContainer(
         //   await instance.getDocumentOutline()
         // ).toJS()) as OutlineElement[]
 
-        var current: OutlineElement | undefined = root
+        let current: OutlineElement | undefined = root
         while (position.length > 0) {
           const positionBefore = position
           const top = position.shift()

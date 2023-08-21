@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { FormInput } from '../../elements/FormElements'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
@@ -10,7 +10,7 @@ import { Button } from '../../elements/Button'
 import { TreeRightIcon } from '../../elements/icons/TreeRightIcon'
 
 type OutlineViewProps = {
-  item: LibraryItemNode
+  item: ReadableItem
   outline: OutlineItem | undefined
 }
 

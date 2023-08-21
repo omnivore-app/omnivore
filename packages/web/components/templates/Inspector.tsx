@@ -25,8 +25,8 @@ export type InspectorView = 'notebook' | 'outline' | 'info' | 'labels'
 
 type InspectorProps = {
   viewer: UserBasicData
-  item: LibraryItemNode
-  outline: OutlineItem
+  item: ReadableItem
+  outline: OutlineItem | undefined
 
   currentView: InspectorView
   setCurrentView: (view: InspectorView) => void
@@ -36,7 +36,7 @@ type InspectorProps = {
   viewInReader: (highlightId: string) => void
 }
 
-type HeaderProps = {} & InspectorProps
+type HeaderProps = InspectorProps
 
 const Header = (props: HeaderProps): JSX.Element => {
   const toggleColor = useCallback(

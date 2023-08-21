@@ -1,11 +1,11 @@
 import dayjs from 'dayjs'
-import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { FormInput } from '../../elements/FormElements'
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 
 type EditInfoProps = {
-  item: LibraryItemNode
+  item: ReadableItem
 }
 
 export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {

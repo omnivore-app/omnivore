@@ -19,10 +19,19 @@ import { updatePageMutation } from '../mutations/updatePageMutation'
 export interface ReadableItem {
   id: string
   title: string
+  author?: string
+  description?: string
+
   slug: string
   url: string
   siteName?: string
   originalArticleUrl: string
+
+  savedAt?: string
+  publishedAt?: string
+
+  labels?: Label[]
+  highlights?: Highlight[]
 }
 
 export type LibraryItemsQueryInput = {

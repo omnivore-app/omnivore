@@ -39,7 +39,7 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
           item={props.item}
           setShowNotebook={props.setOpen}
         />
-        <NotebookView
+        {/* <NotebookView
           viewer={props.viewer}
           item={props.item}
           viewInReader={(highlightId) => {
@@ -62,7 +62,7 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
               }
             )
           }}
-        />
+        /> */}
       </>
     </SlidingPane>
   )
