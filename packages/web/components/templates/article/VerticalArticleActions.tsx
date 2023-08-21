@@ -119,6 +119,20 @@ export function VerticalArticleActionsMenu(
             />
           </Button>
         )}
+
+        <Button
+          title="Remove (#)"
+          style="articleActionIcon"
+          onClick={() => {
+            props.articleActionHandler('delete')
+          }}
+        >
+          <TrashIcon
+            size={25}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
+        </Button>
+
         {props.showReaderDisplaySettings && (
           <Button
             title="Display Settings (d)"
@@ -146,16 +160,6 @@ export function VerticalArticleActionsMenu(
           />
         </Button>
 
-        <ReaderDropdownMenu
-          triggerElement={
-            <CircleUtilityMenuIcon
-              size={25}
-              color={theme.colors.thNotebookSubtle.toString()}
-            />
-          }
-          articleActionHandler={props.articleActionHandler}
-        />
-
         {props.showInspectorToggle && (
           <Button
             title="Toggle Inspector"
@@ -166,6 +170,9 @@ export function VerticalArticleActionsMenu(
             }}
             css={{
               ml: '30px',
+              '@mdDown': {
+                ml: 'unset',
+              },
             }}
           >
             <LeftPanelToggleIcon
