@@ -16,7 +16,6 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         height: 'calc(100% - 56px);',
         p: '20px',
         gap: '20px',
-        overflowY: 'scroll',
       }}
       distribution="start"
     >

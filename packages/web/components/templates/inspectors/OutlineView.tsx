@@ -24,12 +24,12 @@ export type OutlineItem = {
 export const OutlineView = (props: OutlineViewProps): JSX.Element => {
   return (
     <VStack
-      css={{
-        width: '100%',
-        height: 'calc(100% - 56px);',
-        gap: '20px',
-      }}
+      tabIndex={-1}
       distribution="start"
+      css={{
+        height: 'calc(100% - 56px)',
+        width: '100%',
+      }}
     >
       <StyledText
         css={{
@@ -39,8 +39,7 @@ export const OutlineView = (props: OutlineViewProps): JSX.Element => {
           fontStyle: 'normal',
           fontWeight: '600',
           lineHeight: '150%',
-          m: '0px',
-          p: '20px',
+          px: '20px',
         }}
       >
         {props.item.title}

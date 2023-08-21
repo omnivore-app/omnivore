@@ -76,6 +76,7 @@ const Header = (props: HeaderProps): JSX.Element => {
         width: '100%',
         top: '0px',
         height: '60px',
+        minHeight: '60px',
         overflow: 'clip',
         bg: '$thNotebookBackground',
         zIndex: 3,
@@ -180,15 +181,25 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
       css={{
         height: '100%',
         width: '100%',
-        overflowY: 'auto',
         bg: '$thNotebookBackground',
       }}
     >
-      <Header {...props} />
-      {props.currentView == 'notebook' && <NotebookView {...props} />}
-      {props.currentView == 'labels' && <LabelsView {...props} />}
-      {props.currentView == 'info' && <EditItemInfoView {...props} />}
-      {props.currentView == 'outline' && <OutlineView {...props} />}
+      <Header {...props} />{' '}
+      <VStack
+        tabIndex={-1}
+        distribution="start"
+        css={{
+          height: '100%',
+          width: '100%',
+          overflowY: 'auto',
+          bg: '$thNotebookBackground',
+        }}
+      >
+        {props.currentView == 'notebook' && <NotebookView {...props} />}
+        {props.currentView == 'labels' && <LabelsView {...props} />}
+        {props.currentView == 'info' && <EditItemInfoView {...props} />}
+        {props.currentView == 'outline' && <OutlineView {...props} />}
+      </VStack>
     </VStack>
   )
 }

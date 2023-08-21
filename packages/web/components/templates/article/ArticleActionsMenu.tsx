@@ -90,13 +90,6 @@ export function ArticleActionsMenu(
           title="Edit labels (l)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('setLabels')}
-          css={{
-            display: 'none',
-            '@mdDown': {
-              display: 'flex',
-              alignItems: 'center',
-            },
-          }}
         >
           <LabelIcon
             size={24}
@@ -148,9 +141,6 @@ export function ArticleActionsMenu(
           css={{
             display: 'flex',
             alignItems: 'center',
-            '@mdDown': {
-              display: 'none',
-            },
           }}
         >
           <TrashIcon

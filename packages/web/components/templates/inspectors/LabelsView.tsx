@@ -19,7 +19,6 @@ export const LabelsView = (props: LabelsViewProps): JSX.Element => {
       css={{
         height: 'calc(100% - 56px)',
         width: '100%',
-        overflowY: 'auto',
         px: '20px',
       }}
     >

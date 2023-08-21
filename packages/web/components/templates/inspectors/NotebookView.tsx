@@ -240,7 +240,6 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
       css={{
         height: 'calc(100% - 56px)',
         width: '100%',
-        overflowY: 'auto',
       }}
     >
       <StyledText
