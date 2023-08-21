@@ -343,7 +343,7 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
       <ItemSeparator></ItemSeparator>
 
       <VStack
-        css={{ mt: '25px', gap: '25px', px: '25px' }}
+        css={{ width: '100%', mt: '25px', gap: '25px', px: '25px' }}
         id="highlights-container"
       >
         {sortedHighlights.map((highlight) => (
@@ -361,23 +361,15 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
           />
         ))}
         {sortedHighlights.length === 0 && (
-          <Box
-            css={{
-              p: '10px',
-              mt: '15px',
-              width: '100%',
-              fontSize: '13px',
-              color: '$thTextSubtle',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: '100px',
-              bg: isDark ? '#3D3D3D' : '$thBackground',
-              borderRadius: '6px',
-              boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
-            }}
+          <VStack
+            alignment="center"
+            distribution="center"
+            css={{ width: '100%' }}
           >
-            You have not added any highlights to this document.
-          </Box>
+            <StyledText style="emptyListMessage">
+              You have not added any highlights to this document.
+            </StyledText>
+          </VStack>
         )}
         <Box
           css={{

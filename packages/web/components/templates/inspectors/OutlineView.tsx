@@ -44,9 +44,21 @@ export const OutlineView = (props: OutlineViewProps): JSX.Element => {
       >
         {props.item.title}
       </StyledText>
-      {props.outline?.children.map((child) => {
-        return <RecursiveList key={child.anchor} item={child} />
-      })}
+      {props.outline?.children.length ?? 0 > 0 ? (
+        props.outline?.children.map((child) => {
+          return <RecursiveList key={child.anchor} item={child} />
+        })
+      ) : (
+        <VStack
+          alignment="center"
+          distribution="center"
+          css={{ width: '100%' }}
+        >
+          <StyledText style="emptyListMessage">
+            There is no outline for this page.
+          </StyledText>
+        </VStack>
+      )}
     </VStack>
   )
 }

@@ -198,6 +198,20 @@ const textVariants = {
       fontSize: '$2',
       lineHeight: '1.25',
     },
+    emptyListMessage: {
+      p: '10px',
+      mt: '15px',
+      width: '100%',
+      fontSize: '13px',
+      fontFamily: '$inter',
+      color: '$thTextSubtle',
+      alignItems: 'center',
+      justifyContent: 'center',
+      mb: '100px',
+      bg: '$thBackground2', // isDark ? '#3D3D3D' : '$thBackground',
+      borderRadius: '6px',
+      boxShadow: '0px 4px 4px rgba(33, 33, 33, 0.1)',
+    },
   },
 }
 
