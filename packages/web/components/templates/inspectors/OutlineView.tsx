@@ -52,7 +52,7 @@ export const OutlineView = (props: OutlineViewProps): JSX.Element => {
         <VStack
           alignment="center"
           distribution="center"
-          css={{ width: '100%' }}
+          css={{ width: '100%', px: '20px' }}
         >
           <StyledText style="emptyListMessage">
             There is no outline for this page.
