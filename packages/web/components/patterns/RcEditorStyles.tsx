@@ -27,6 +27,7 @@ export const RcEditorStyles = (isDark: boolean, shadow: boolean) => {
       backgroundColor: isDark ? '#2A2A2A' : 'white',
       resize: 'vertical',
       minHeight: '42px',
+      height: '110px',
     },
     '.rc-md-editor .drop-wrap': {
       border: '1px solid transparent',
