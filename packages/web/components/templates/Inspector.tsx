@@ -6,7 +6,7 @@ import {
 } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { Button } from '../elements/Button'
-import { HStack, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { EditInfoIcon } from '../elements/icons/EditInfoIcon'
 import { LeftPanelToggleIcon } from '../elements/icons/LeftPanelToggleIcon'
 import { NotebookIcon } from '../elements/icons/NotebookIcon'
@@ -189,6 +189,7 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
       {props.currentView == 'labels' && <LabelsView {...props} />}
       {props.currentView == 'info' && <EditItemInfoView {...props} />}
       {props.currentView == 'outline' && <OutlineView {...props} />}
+      <Box css={{ flexGrow: 1, height: '100px' }} />
     </VStack>
   )
 }
