@@ -521,6 +521,8 @@ export default function Reader(): JSX.Element {
       stack.push(item)
     })
 
+    console.log('outline: ', root)
+
     setOutline(root)
   }, [setOutline])
 
