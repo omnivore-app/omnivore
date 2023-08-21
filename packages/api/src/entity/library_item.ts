@@ -3,10 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { Label } from './label'
+import { Subscription } from './subscription'
 import { UploadFile } from './upload_file'
 import { User } from './user'
 
@@ -34,6 +38,11 @@ export enum ContentReaderType {
   WEB = 'WEB',
   PDF = 'PDF',
   EPUB = 'EPUB',
+}
+
+export enum DirectionalityType {
+  LTR = 'LTR',
+  RTL = 'RTL',
 }
 
 @Entity({ name: 'library_item' })
@@ -166,4 +175,15 @@ export class LibraryItem {
 
   @Column('text', { nullable: true })
   gcsArchiveId?: string
+
+  @OneToOne(() => Subscription, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'subscription_id' })
+  subscription?: Subscription
+
+  @ManyToMany(() => Label, (label) => label.libraryItems)
+  @JoinTable()
+  labels?: Label[]
+
+  @Column('enum', { enum: DirectionalityType, default: DirectionalityType.LTR })
+  directionality?: DirectionalityType
 }

@@ -7,10 +7,9 @@ BEGIN;
 CREATE EXTENSION vector;
 
 CREATE TYPE library_item_state AS ENUM ('SUCCEEDED', 'FAILED', 'PROCESSING', 'ARCHIVED', 'DELETED');
-
 CREATE TYPE content_reader_type AS ENUM ('WEB', 'PDF', 'EPUB');
-
 CREATE TYPE library_item_type AS ENUM ('ARTICLE', 'BOOK', 'FILE', 'PROFILE', 'WEBSITE', 'TWEET', 'VIDEO', 'IMAGE', 'UNKNOWN');
+CREATE TYPE directionality_type AS ENUM ('LTR', 'RTL');
 
 CREATE TABLE omnivore.library_item (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
@@ -53,7 +52,10 @@ CREATE TABLE omnivore.library_item (
     model_name text,
     embedding vector(768),
     text_content_hash text,
-    gcs_archive_id text
+    gcs_archive_id text,
+    directionality directionality_type NOT NULL DEFAULT 'LTR',
+    subscription_id uuid REFERENCES omnivore.subscriptions ON DELETE CASCADE,
+    UNIQUE (user_id, original_url)
 );
 
 CREATE TRIGGER update_library_item_modtime BEFORE UPDATE ON omnivore.library_item FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
