@@ -71,9 +71,9 @@ const Header = (props: HeaderProps): JSX.Element => {
       distribution="center"
       alignment="center"
       css={{
+        position: 'sticky',
         px: '15px',
         width: '100%',
-        position: 'sticky',
         top: '0px',
         height: '60px',
         overflow: 'clip',
@@ -189,7 +189,6 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
       {props.currentView == 'labels' && <LabelsView {...props} />}
       {props.currentView == 'info' && <EditItemInfoView {...props} />}
       {props.currentView == 'outline' && <OutlineView {...props} />}
-      <Box css={{ flexGrow: 1, height: '100px' }} />
     </VStack>
   )
 }
