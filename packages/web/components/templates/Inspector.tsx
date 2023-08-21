@@ -147,7 +147,6 @@ const Header = (props: HeaderProps): JSX.Element => {
               exportHighlights()
               event.preventDefault()
             }}
-            css={{ pb: '2px' }}
           >
             <ExportIcon
               size={25}
@@ -191,7 +190,6 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
         css={{
           height: '100%',
           width: '100%',
-          overflowY: 'auto',
           bg: '$thNotebookBackground',
         }}
       >

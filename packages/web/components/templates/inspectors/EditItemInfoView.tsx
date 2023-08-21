@@ -12,10 +12,11 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
   return (
     <VStack
       css={{
-        width: '100%',
-        height: 'calc(100% - 56px);',
         p: '20px',
         gap: '20px',
+        width: '100%',
+        height: '100%',
+        overflowY: 'scroll',
       }}
       distribution="start"
     >
@@ -108,6 +109,7 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
           }}
           maxLength={4000}
         /> */}
+      <Box css={{ height: '320px' }}></Box>
     </VStack>
   )
 }

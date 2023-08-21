@@ -57,8 +57,6 @@ type NoteState = {
 }
 
 export function NotebookView(props: NotebookViewProps): JSX.Element {
-  const isDark = isDarkTheme()
-
   const { articleData, mutate } = useGetArticleQuery({
     slug: props.item.slug,
     username: props.viewer.profile.username,
@@ -238,8 +236,9 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
       tabIndex={-1}
       distribution="start"
       css={{
-        height: 'calc(100% - 56px)',
         width: '100%',
+        height: '100%',
+        overflowY: 'scroll',
       }}
     >
       <StyledText
@@ -371,12 +370,7 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
             </StyledText>
           </VStack>
         )}
-        <Box
-          css={{
-            width: '100%',
-            height: '320px',
-          }}
-        ></Box>
+        <Box css={{ height: '320px' }}></Box>
       </VStack>
 
       {showConfirmDeleteHighlightId && (

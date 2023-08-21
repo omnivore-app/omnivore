@@ -27,8 +27,9 @@ export const OutlineView = (props: OutlineViewProps): JSX.Element => {
       tabIndex={-1}
       distribution="start"
       css={{
-        height: 'calc(100% - 56px)',
         width: '100%',
+        height: '100%',
+        overflowY: 'scroll',
       }}
     >
       <StyledText
@@ -59,6 +60,7 @@ export const OutlineView = (props: OutlineViewProps): JSX.Element => {
           </StyledText>
         </VStack>
       )}
+      <Box css={{ height: '320px' }}></Box>
     </VStack>
   )
 }

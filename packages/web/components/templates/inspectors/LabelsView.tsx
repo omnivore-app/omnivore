@@ -17,13 +17,17 @@ export const LabelsView = (props: LabelsViewProps): JSX.Element => {
       tabIndex={-1}
       distribution="start"
       css={{
-        height: 'calc(100% - 56px)',
+        p: '20px',
+        gap: '20px',
         width: '100%',
-        px: '20px',
+        height: '100%',
+        overflowY: 'scroll',
       }}
     >
       <StyledText
         css={{
+          p: '0px',
+          m: '0px',
           color: '$thTextContrast2',
           fontFamily: '$inter',
           fontSize: '18px',
