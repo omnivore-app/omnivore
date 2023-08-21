@@ -4,7 +4,7 @@
 
 BEGIN;
 
-DROP TRIGGER update_library_item_preview_modtime;
+DROP TRIGGER update_library_item_preview_modtime ON omnivore.library_item_preview;
 
 DROP TABLE omnivore.library_item_preview;
 

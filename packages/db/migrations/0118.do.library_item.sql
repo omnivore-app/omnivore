@@ -30,7 +30,7 @@ CREATE TABLE omnivore.library_item (
     read_at timestamptz,
     updated_at timestamptz NOT NULL DEFAULT current_timestamp,
     item_language text,
-    words_count integer,
+    word_count integer,
     site_name text,
     site_icon text,
     metadata JSON,
@@ -39,9 +39,9 @@ CREATE TABLE omnivore.library_item (
     reading_progress_top_percent real,
     reading_progress_bottom_percent real,
     thumbnail text,
-    item_type library_item_type,
+    item_type library_item_type NOT NULL DEFAULT 'UNKNOWN',
     upload_file_id uuid REFERENCES omnivore.upload_files ON DELETE CASCADE,
-    content_reader content_reader_type,
+    content_reader content_reader_type NOT NULL DEFAULT 'WEB',
     original_content text,
     readable_content text,
     content_tsv tsvector,
@@ -57,5 +57,36 @@ CREATE TABLE omnivore.library_item (
 );
 
 CREATE TRIGGER update_library_item_modtime BEFORE UPDATE ON omnivore.library_item FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+CREATE INDEX library_item_content_tsv_idx ON omnivore.library_item USING GIN (content_tsv);
+CREATE INDEX library_item_site_tsv_idx ON omnivore.library_item USING GIN (site_tsv);
+CREATE INDEX library_item_title_tsv_idx ON omnivore.library_item USING GIN (title_tsv);
+CREATE INDEX library_item_author_tsv_idx ON omnivore.library_item USING GIN (author_tsv);
+CREATE INDEX library_item_description_tsv_idx ON omnivore.library_item USING GIN (description_tsv);
+CREATE INDEX library_item_search_tsv_idx ON omnivore.library_item USING GIN (search_tsv);
+
+CREATE OR REPLACE FUNCTION update_library_item_tsv() RETURNS trigger AS $$
+begin
+    new.content_tsv := to_tsvector('pg_catalog.english', coalesce(new.readable_content, ''));
+    new.site_tsv := to_tsvector('pg_catalog.english', coalesce(new.site_name, ''));
+    new.title_tsv := to_tsvector('pg_catalog.english', coalesce(new.title, ''));
+    new.author_tsv := to_tsvector('pg_catalog.english', coalesce(new.author, ''));
+    new.description_tsv := to_tsvector('pg_catalog.english', coalesce(new.description, ''));
+    new.search_tsv := 
+        setweight(new.title_tsv, 'A') || 
+        setweight(new.author_tsv, 'A') || 
+        setweight(new.site_tsv, 'A') || 
+        setweight(new.description_tsv, 'A') || 
+        -- full hostname (eg www.omnivore.app)
+        setweight(to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.url, '^((http[s]?):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$', '\3'), '')), 'A') || 
+        -- secondary hostname (eg omnivore)
+        setweight(to_tsvector('pg_catalog.english', coalesce(regexp_replace(new.url, '^((http[s]?):\/)?\/?(.*\.)?([^:\/\s]+)(\..*)((\/+)*\/)?([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$', '\4'), '')), 'A') || 
+        setweight(new.content_tsv, 'B');
+    return new;
+end
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER library_item_tsv_update BEFORE INSERT OR UPDATE
+    ON omnivore.library_item FOR EACH ROW EXECUTE PROCEDURE update_library_item_tsv();
 
 COMMIT;

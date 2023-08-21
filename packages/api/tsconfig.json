@@ -4,7 +4,9 @@
     "files": true
   },
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "include": ["src", "test"],
   "exclude": ["./src/generated", "./test"]
