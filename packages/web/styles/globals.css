@@ -458,11 +458,11 @@ button {
   }
 }
 
-/* .menuPane,
+.menuPane,
 .inspectorPane {
-  transition: all 0.05s ease-in-out;
+  transition: left 0.1s ease-in-out;
   will-change: auto;
-} */
+}
 .splitViewContainer:global(.split-view-sash-dragging) .menuPane,
 .splitViewContainer:global(.split-view-sash-dragging) .inspectorPane {
   /* disable animation while sash dragging */
