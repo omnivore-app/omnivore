@@ -45,7 +45,7 @@ export const useInspector = () => {
   }, [setInspectorVisible])
 
   const inspectorMinSize = useMemo(() => {
-    return undefined
+    return 300
   }, [])
 
   const inspectorMaxSize = useMemo(() => {

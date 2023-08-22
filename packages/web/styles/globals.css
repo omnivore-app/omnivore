@@ -458,13 +458,13 @@ button {
   }
 }
 
+/* Styles for VisibleWithAnimation demo */
 .menuPane,
 .inspectorPane {
-  transition: left 0.1s ease-in-out;
-  will-change: auto;
+  transition: left 0.15s, right 0.15s;
+  will-change: left right;
 }
-.splitViewContainer:global(.split-view-sash-dragging) .menuPane,
-.splitViewContainer:global(.split-view-sash-dragging) .inspectorPane {
-  /* disable animation while sash dragging */
+.split-view-sash-dragging .menuPane,
+.split-view-sash-dragging .inspectorPane {
   transition: none;
 }
