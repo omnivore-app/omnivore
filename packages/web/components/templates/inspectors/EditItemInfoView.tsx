@@ -16,7 +16,7 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         gap: '20px',
         width: '100%',
         height: '100%',
-        overflowY: 'scroll',
+        minHeight: '100%',
       }}
       distribution="start"
     >
@@ -133,6 +133,7 @@ const DateTimeRow = (props: DateTimeRowProps): JSX.Element => {
           fontSize: '13px',
           color: '#898989',
           marginRight: 'auto',
+          minWidth: '60px',
         }}
       >
         {props.title}

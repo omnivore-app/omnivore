@@ -238,7 +238,7 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
       css={{
         width: '100%',
         height: '100%',
-        overflowY: 'scroll',
+        minHeight: '100%',
       }}
     >
       <StyledText

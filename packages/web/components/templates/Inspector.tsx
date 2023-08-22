@@ -180,6 +180,7 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
       css={{
         height: '100%',
         width: '100%',
+        overflowY: 'scroll',
         bg: '$thNotebookBackground',
       }}
     >
