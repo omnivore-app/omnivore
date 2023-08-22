@@ -1,8 +1,9 @@
 import dayjs from 'dayjs'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { FormInput } from '../../elements/FormElements'
-import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
+import { styled } from '@stitches/react'
 
 type EditInfoProps = {
   item: ReadableItem
@@ -34,11 +35,18 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         Edit item info
       </StyledText>
       <VStack
-        css={{ width: '100%', gap: '5px', my: '10px' }}
+        css={{ width: '100%', gap: '10px', mt: '5px', mb: '20px' }}
         distribution="start"
       >
         <DateTimeRow title="Saved" date={props.item.savedAt} />
         <DateTimeRow title="Published" date={props.item.publishedAt} />
+        <NumberSelectRow
+          title="Reading Progress"
+          type="number"
+          value={'25'}
+          min={0}
+          max={100}
+        />
       </VStack>
 
       <FullRowText
@@ -69,47 +77,6 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         placeholder="Edit site"
         value={props.item.siteName}
       />
-
-      {/* <StyledText css={titleStyle}>TITLE</StyledText>
-        <FormInput
-          type="text"
-          value={title}
-          autoFocus
-          placeholder="Edit Title"
-          onChange={(event) => setTitle(event.target.value)}
-          onFocus={(event) => {
-            event.target.select()
-          }}
-          css={inputStyle}
-        />
-        <StyledText css={titleStyle}>AUTHOR</StyledText>
-        <FormInput
-          type="author"
-          value={author}
-          placeholder="Edit Author"
-          onChange={(event) => setAuthor(event.target.value)}
-          onFocus={(event) => {
-            event.target.select()
-          }}
-          css={inputStyle}
-        />
-        <StyledText css={titleStyle}>DESCRIPTION</StyledText>
-        <StyledTextArea
-          css={{
-            ...inputStyle,
-            mt: '2px',
-            width: '100%',
-            height: '120px',
-          }}
-          placeholder="Edit Description"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          onFocus={(event) => {
-            event.target.select()
-          }}
-          maxLength={4000}
-        /> */}
-      <Box css={{ height: '320px' }}></Box>
     </VStack>
   )
 }
@@ -128,6 +95,8 @@ const DateTimeRow = (props: DateTimeRowProps): JSX.Element => {
     >
       <StyledText
         css={{
+          p: '0px',
+          m: '0px',
           fontFamily: '$inter',
           fontWeight: '600',
           fontSize: '13px',
@@ -155,7 +124,7 @@ const DateTimeRow = (props: DateTimeRowProps): JSX.Element => {
           padding: '8px 10px',
           alignItems: 'center',
           borderRadius: '5px',
-          width: '128px',
+          width: '148px',
           height: '35px',
         }}
       />
@@ -175,7 +144,7 @@ const DateTimeRow = (props: DateTimeRowProps): JSX.Element => {
           padding: '8px 10px',
           alignItems: 'center',
           borderRadius: '5px',
-          width: '128px',
+          width: '98px',
           height: '35px',
         }}
       />
@@ -197,7 +166,7 @@ const FullRowText = (props: FullRowTextProps): JSX.Element => {
         css={{
           fontFamily: '$inter',
           fontWeight: '600',
-          fontSize: '16px',
+          fontSize: '13px',
           color: '#898989',
           marginRight: 'auto',
           m: '0px',
@@ -255,5 +224,62 @@ const FullRowText = (props: FullRowTextProps): JSX.Element => {
         />
       )}
     </VStack>
+  )
+}
+
+type NumberSelectRowProps = {
+  title: string
+  type: string
+  value: string | undefined
+  max: number
+}
+
+const StyledSelect = styled('select', {
+  display: 'inline-flex',
+  background: '$thBackground2',
+  color: '$thTextSubtle',
+  fontFamily: '$inter',
+  fontSize: '16px',
+  fontWeight: '500',
+  padding: '8px 10px',
+  alignItems: 'center',
+  borderRadius: '5px',
+  width: '98px',
+  height: '35px',
+  border: 'unset',
+})
+
+const NumberSelectRow = (props: NumberSelectRowProps): JSX.Element => {
+  const values = []
+  for (let i = 0; i <= props.max; i++) {
+    values.push(i)
+  }
+
+  return (
+    <HStack
+      css={{ width: '100%', gap: '15px' }}
+      distribution="end"
+      alignment="center"
+    >
+      <StyledText
+        css={{
+          p: '0px',
+          m: '0px',
+          fontFamily: '$inter',
+          fontWeight: '600',
+          fontSize: '13px',
+          color: '#898989',
+          marginRight: 'auto',
+          minWidth: '60px',
+        }}
+      >
+        {props.title}
+      </StyledText>
+      <StyledSelect value={props.value} onChange={(event) => {}}>
+        {values.map((value) => {
+          return <option value={value}>{value}</option>
+        })}
+      </StyledSelect>
+    </HStack>
   )
 }
