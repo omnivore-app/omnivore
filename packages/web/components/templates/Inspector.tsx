@@ -175,6 +175,7 @@ const Header = (props: HeaderProps): JSX.Element => {
 export const Inspector = (props: InspectorProps): JSX.Element => {
   return (
     <VStack
+      key={props.currentView}
       tabIndex={-1}
       distribution="start"
       css={{
@@ -198,6 +199,8 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
         {props.currentView == 'labels' && <LabelsView {...props} />}
         {props.currentView == 'info' && <EditItemInfoView {...props} />}
         {props.currentView == 'outline' && <OutlineView {...props} />}
+
+        <Box css={{ height: '320px' }}></Box>
       </VStack>
     </VStack>
   )

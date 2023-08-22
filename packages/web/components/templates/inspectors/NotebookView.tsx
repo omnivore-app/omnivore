@@ -313,7 +313,6 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
             mt: '5px',
             px: '20px',
             color: '$thTextSubtle',
-            flexGrow: 1,
           }}
           alignment="start"
           distribution="start"
@@ -370,7 +369,6 @@ export function NotebookView(props: NotebookViewProps): JSX.Element {
             </StyledText>
           </VStack>
         )}
-        <Box css={{ height: '320px' }}></Box>
       </VStack>
 
       {showConfirmDeleteHighlightId && (
