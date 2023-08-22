@@ -274,9 +274,13 @@ const NumberSelectRow = (props: NumberSelectRowProps): JSX.Element => {
       >
         {props.title}
       </StyledText>
-      <StyledSelect value={props.value} onChange={(event) => {}}>
+      <StyledSelect value={props.value}>
         {values.map((value) => {
-          return <option value={value}>{value}</option>
+          return (
+            <option key={`option-${value}`} value={value}>
+              {value}
+            </option>
+          )
         })}
       </StyledSelect>
     </HStack>
