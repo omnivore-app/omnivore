@@ -357,6 +357,12 @@
 
     public var currentVoicePair: VoicePair? {
       let voice = currentVoice
+      if Voices.isUltraRealisticVoice(currentVoice) {
+        let ultraPair = Voices.UltraPairs.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
+        if let ultraPair = ultraPair {
+          return ultraPair
+        }
+      }
       return Voices.Pairs.first(where: { $0.firstKey == voice || $0.secondKey == voice })
     }
 
@@ -456,8 +462,7 @@
     }
 
     public var secondaryVoice: String {
-      let pair = Voices.Pairs.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
-      if let pair = pair {
+      if let pair = currentVoicePair {
         if pair.firstKey == currentVoice {
           return pair.secondKey
         }
