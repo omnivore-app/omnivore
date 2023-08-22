@@ -199,7 +199,7 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
         {props.currentView == 'info' && <EditItemInfoView {...props} />}
         {props.currentView == 'outline' && <OutlineView {...props} />}
       </VStack>
-      <Box css={{ minHeight: '320px' }}></Box>
+      <Box css={{ minHeight: '180px' }}></Box>
     </VStack>
   )
 }
