@@ -43,8 +43,7 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         <NumberSelectRow
           title="Reading Progress"
           type="number"
-          value={'25'}
-          min={0}
+          value={props.item.readingProgressPercent.toString()}
           max={100}
         />
       </VStack>

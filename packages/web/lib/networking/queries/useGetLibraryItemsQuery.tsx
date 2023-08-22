@@ -27,6 +27,8 @@ export interface ReadableItem {
   siteName?: string
   originalArticleUrl: string
 
+  readingProgressPercent: number
+
   savedAt?: string
   publishedAt?: string
 
