@@ -292,7 +292,7 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
           paddingBottom: '0px',
         },
         width: '100%',
-        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        height: '100%',
       }}
     >
       <Box

@@ -85,8 +85,8 @@ export function SplitPageLayout(props: PrimaryLayoutProps): JSX.Element {
       ) : null}
       <Box
         css={{
-          height: '100vh',
-          width: '100vw',
+          height: '100%',
+          width: '100%',
           bg: '$readerBg',
         }}
       >

@@ -669,7 +669,7 @@ export default function PdfArticleContainer(
       id="article-wrapper"
       css={{
         width: '100%',
-        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        height: '100%',
       }}
     >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />

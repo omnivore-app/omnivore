@@ -1,4 +1,3 @@
-import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { LoadingView } from '../../../components/patterns/LoadingView'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import {
@@ -39,7 +38,6 @@ import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLink
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
-import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
 import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
@@ -47,15 +45,9 @@ import { State } from '../../../lib/networking/fragments/articleFragment'
 import { posthog } from 'posthog-js'
 import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
 import { SplitPageLayout } from '../../../components/templates/SplitPageLayout'
-import { NotebookHeader } from '../../../components/templates/article/NotebookHeader'
-import { NotebookView } from '../../../components/templates/inspectors/NotebookView'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { Allotment, LayoutPriority } from 'allotment'
 import 'allotment/dist/style.css'
-import {
-  Inspector,
-  InspectorView,
-} from '../../../components/templates/Inspector'
+import { Inspector } from '../../../components/templates/Inspector'
 import { OutlineItem } from '../../../components/templates/inspectors/OutlineView'
 import { useInspector } from '../../../lib/hooks/useInspector'
 
