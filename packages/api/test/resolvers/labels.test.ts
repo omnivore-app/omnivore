@@ -20,7 +20,7 @@ import {
   Page,
   PageContext,
 } from '../../src/elastic/types'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 import { deletePage, getPageById } from '../../src/elastic/pages'
 import { createPubSubClient } from '../../src/datalayer/pubsub'
 import {

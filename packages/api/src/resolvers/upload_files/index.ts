@@ -3,24 +3,25 @@ import normalizeUrl from 'normalize-url'
 import path from 'path'
 import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
 import { PageType } from '../../elastic/types'
+import { uploadFileRepository } from '../../entity'
+import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import {
   ArticleSavingRequestStatus,
   MutationUploadFileRequestArgs,
-  ResolverFn,
+  UploadFileRequestError,
   UploadFileRequestErrorCode,
-  UploadFileRequestResult,
+  UploadFileRequestSuccess,
   UploadFileStatus,
 } from '../../generated/graphql'
 import { validateUrl } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
-import { generateSlug } from '../../utils/helpers'
+import { authorized, generateSlug } from '../../utils/helpers'
 import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getFilePublicUrl,
 } from '../../utils/uploads'
-import { WithDataSourcesContext } from '../types'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
@@ -34,23 +35,18 @@ export const pageTypeForContentType = (contentType: string): PageType => {
   return PageType.File
 }
 
-export const uploadFileRequestResolver: ResolverFn<
-  UploadFileRequestResult,
-  unknown,
-  WithDataSourcesContext,
+export const uploadFileRequestResolver = authorized<
+  UploadFileRequestSuccess,
+  UploadFileRequestError,
   MutationUploadFileRequestArgs
-> = async (_obj, { input }, ctx) => {
-  const { models, authTrx, claims, log } = ctx
+>(async (_, { input }, ctx) => {
+  const { authTrx, uid, log } = ctx
   let uploadFileData: { id: string | null } = {
     id: null,
   }
 
-  if (!claims?.uid) {
-    return { errorCodes: [UploadFileRequestErrorCode.Unauthorized] }
-  }
-
   analytics.track({
-    userId: claims.uid,
+    userId: uid,
     event: 'file_upload_request',
     properties: {
       url: input.url,
@@ -89,10 +85,10 @@ export const uploadFileRequestResolver: ResolverFn<
     return { errorCodes: [UploadFileRequestErrorCode.BadInput] }
   }
 
-  uploadFileData = await models.uploadFile.create({
+  uploadFileData = await uploadFileRepository.save({
     url: input.url,
-    userId: claims.uid,
-    fileName: fileName,
+    userId: uid,
+    fileName,
     status: UploadFileStatus.Initialized,
     contentType: input.contentType,
   })
@@ -113,14 +109,10 @@ export const uploadFileRequestResolver: ResolverFn<
     // If this is a file URL, we swap in the GCS public URL
     if (isFileUrl(input.url)) {
       await authTrx(async (tx) => {
-        await models.uploadFile.update(
-          uploadFileId,
-          {
-            url: publicUrl,
-            status: UploadFileStatus.Initialized,
-          },
-          tx
-        )
+        await tx.getRepository(UploadFile).update(uploadFileId, {
+          url: publicUrl,
+          status: UploadFileStatus.Initialized,
+        })
       })
     }
 
@@ -131,7 +123,7 @@ export const uploadFileRequestResolver: ResolverFn<
       // new item.
       const page = isFileUrl(input.url)
         ? await getPageByParam({
-            userId: claims.uid,
+            userId: uid,
             url: input.url,
           })
         : undefined
@@ -155,7 +147,7 @@ export const uploadFileRequestResolver: ResolverFn<
           {
             url: isFileUrl(input.url) ? publicUrl : input.url,
             id: input.clientRequestId || '',
-            userId: claims.uid,
+            userId: uid,
             title: title,
             hash: uploadFilePathName,
             content: '',
@@ -185,4 +177,4 @@ export const uploadFileRequestResolver: ResolverFn<
   } else {
     return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
   }
-}
+})

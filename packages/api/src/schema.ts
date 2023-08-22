@@ -2604,24 +2604,24 @@ const schema = gql`
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
     updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
     deleteHighlight(highlightId: ID!): DeleteHighlightResult!
-    createHighlightReply(
-      input: CreateHighlightReplyInput!
-    ): CreateHighlightReplyResult!
-    updateHighlightReply(
-      input: UpdateHighlightReplyInput!
-    ): UpdateHighlightReplyResult!
-    deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
-    createReaction(input: CreateReactionInput!): CreateReactionResult!
-    deleteReaction(id: ID!): DeleteReactionResult!
+    # createHighlightReply(
+    #   input: CreateHighlightReplyInput!
+    # ): CreateHighlightReplyResult!
+    # updateHighlightReply(
+    #   input: UpdateHighlightReplyInput!
+    # ): UpdateHighlightReplyResult!
+    # deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
+    # createReaction(input: CreateReactionInput!): CreateReactionResult!
+    # deleteReaction(id: ID!): DeleteReactionResult!
     uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
     saveArticleReadingProgress(
       input: SaveArticleReadingProgressInput!
     ): SaveArticleReadingProgressResult!
-    setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
-    updateSharedComment(
-      input: UpdateSharedCommentInput!
-    ): UpdateSharedCommentResult!
-    setFollow(input: SetFollowInput!): SetFollowResult!
+    # setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
+    # updateSharedComment(
+    #   input: UpdateSharedCommentInput!
+    # ): UpdateSharedCommentResult!
+    # setFollow(input: SetFollowInput!): SetFollowResult!
     setBookmarkArticle(
       input: SetBookmarkArticleInput!
     ): SetBookmarkArticleResult!
@@ -2631,11 +2631,11 @@ const schema = gql`
     createArticleSavingRequest(
       input: CreateArticleSavingRequestInput!
     ): CreateArticleSavingRequestResult!
-    setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
+    # setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
     reportItem(input: ReportItemInput!): ReportItemResult!
-    updateLinkShareInfo(
-      input: UpdateLinkShareInfoInput!
-    ): UpdateLinkShareInfoResult!
+    # updateLinkShareInfo(
+    #   input: UpdateLinkShareInfoInput!
+    # ): UpdateLinkShareInfoResult!
     setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
     createNewsletterEmail: CreateNewsletterEmailResult!
     deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
@@ -2643,9 +2643,9 @@ const schema = gql`
     savePage(input: SavePageInput!): SaveResult!
     updatePage(input: UpdatePageInput!): UpdatePageResult!
     saveFile(input: SaveFileInput!): SaveResult!
-    createReminder(input: CreateReminderInput!): CreateReminderResult!
-    updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
-    deleteReminder(id: ID!): DeleteReminderResult!
+    # createReminder(input: CreateReminderInput!): CreateReminderResult!
+    # updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
+    # deleteReminder(id: ID!): DeleteReminderResult!
     setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
     createLabel(input: CreateLabelInput!): CreateLabelResult!
     updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -2710,25 +2710,25 @@ const schema = gql`
       includePending: Boolean
     ): ArticlesResult!
     article(username: String!, slug: String!, format: String): ArticleResult!
-    sharedArticle(
-      username: String!
-      slug: String!
-      selectedHighlightId: String
-    ): SharedArticleResult!
-    feedArticles(
-      after: String
-      first: Int
-      sort: SortParams
-      sharedByUser: ID
-    ): FeedArticlesResult!
+    # sharedArticle(
+    #   username: String!
+    #   slug: String!
+    #   selectedHighlightId: String
+    # ): SharedArticleResult!
+    # feedArticles(
+    #   after: String
+    #   first: Int
+    #   sort: SortParams
+    #   sharedByUser: ID
+    # ): FeedArticlesResult!
     users: UsersResult!
     validateUsername(username: String!): Boolean!
-    getFollowers(userId: ID): GetFollowersResult!
-    getFollowing(userId: ID): GetFollowingResult!
+    # getFollowers(userId: ID): GetFollowersResult!
+    # getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
     articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
-    reminder(linkId: ID!): ReminderResult!
+    # reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
     search(
       after: String

@@ -1,7 +1,7 @@
 import axios from 'axios'
+import { getRepository } from '../entity'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
-import { getRepository } from '../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
 import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'

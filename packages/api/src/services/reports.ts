@@ -1,7 +1,7 @@
 import { getPageById } from '../elastic/pages'
+import { getRepository } from '../entity'
 import { AbuseReport } from '../entity/reports/abuse_report'
 import { ContentDisplayReport } from '../entity/reports/content_display_report'
-import { getRepository } from '../entity/utils'
 import { ReportItemInput, ReportType } from '../generated/graphql'
 import { logger } from '../utils/logger'
 

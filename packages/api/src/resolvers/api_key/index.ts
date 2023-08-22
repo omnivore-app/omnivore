@@ -1,6 +1,6 @@
+import { getRepository } from '../../entity'
 import { ApiKey } from '../../entity/api_key'
 import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   ApiKeysError,

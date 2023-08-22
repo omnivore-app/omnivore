@@ -8,9 +8,9 @@ import {
   updateLabelsInPage,
 } from '../../elastic/labels'
 import { getPageById } from '../../elastic/pages'
+import { getRepository, setClaims } from '../../entity'
 import { Label } from '../../entity/label'
 import { User } from '../../entity/user'
-import { getRepository, setClaims } from '../../entity/utils'
 import { env } from '../../env'
 import {
   CreateLabelError,

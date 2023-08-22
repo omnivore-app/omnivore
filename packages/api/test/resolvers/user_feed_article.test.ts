@@ -11,7 +11,7 @@ import { Page } from '../../src/entity/page'
 import { Link } from '../../src/entity/link'
 import { Highlight } from '../../src/entity/highlight'
 import 'mocha'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 import { User } from '../../src/entity/user'
 
 describe('User feed article API', () => {

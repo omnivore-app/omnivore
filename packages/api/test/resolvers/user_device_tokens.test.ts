@@ -11,7 +11,7 @@ import { UserDeviceToken } from '../../src/entity/user_device_tokens'
 import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 
 describe('Device tokens API', () => {
   let authToken: string

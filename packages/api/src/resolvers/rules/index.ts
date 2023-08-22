@@ -1,4 +1,6 @@
-import { authorized } from '../../utils/helpers'
+import { getRepository } from '../../entity'
+import { Rule } from '../../entity/rule'
+import { User } from '../../entity/user'
 import {
   DeleteRuleError,
   DeleteRuleErrorCode,
@@ -13,9 +15,7 @@ import {
   SetRuleErrorCode,
   SetRuleSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { Rule } from '../../entity/rule'
+import { authorized } from '../../utils/helpers'
 
 export const setRuleResolver = authorized<
   SetRuleSuccess,

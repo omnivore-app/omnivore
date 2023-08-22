@@ -1,4 +1,7 @@
-import { authorized } from '../../utils/helpers'
+import { getRepository } from '../../entity'
+import { User } from '../../entity/user'
+import { Webhook } from '../../entity/webhook'
+import { env } from '../../env'
 import {
   DeleteWebhookError,
   DeleteWebhookErrorCode,
@@ -18,11 +21,8 @@ import {
   WebhooksSuccess,
   WebhookSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { Webhook } from '../../entity/webhook'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
+import { authorized } from '../../utils/helpers'
 
 export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
   async (_obj, _params, { claims: { uid }, log }) => {

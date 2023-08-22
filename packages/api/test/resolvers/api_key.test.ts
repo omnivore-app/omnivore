@@ -3,7 +3,7 @@ import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import supertest from 'supertest'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 import { ApiKey } from '../../src/entity/api_key'
 
 const testAPIKey = (apiKey: string): supertest.Test => {

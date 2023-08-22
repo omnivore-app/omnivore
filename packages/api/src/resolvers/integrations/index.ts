@@ -1,6 +1,6 @@
+import { getRepository } from '../../entity'
 import { Integration, IntegrationType } from '../../entity/integration'
 import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   DeleteIntegrationError,

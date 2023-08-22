@@ -2,16 +2,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { setClaims } from '../../datalayer/helpers'
-import { kx } from '../../datalayer/knex_config'
 import {
   createPubSubClient,
   readPushSubscription,
 } from '../../datalayer/pubsub'
 import { getPageByParam, updatePage } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
+import { setClaims } from '../../entity'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
-import { initModels } from '../../server'
+import { AppDataSource } from '../../server'
+import { setFileUploadComplete } from '../../services/save_file'
 import { logger } from '../../utils/logger'
 
 interface UpdateContentMessage {
@@ -76,10 +76,9 @@ export function contentServiceRouter() {
     pageToUpdate.state = ArticleSavingRequestStatus.Succeeded
 
     try {
-      const models = initModels(kx, false)
-      const uploadFileData = await kx.transaction(async (tx) => {
+      const uploadFileData = await AppDataSource.transaction(async (tx) => {
         await setClaims(tx, page.userId)
-        return models.uploadFile.setFileUploadComplete(fileId, tx)
+        return setFileUploadComplete(fileId, tx)
       })
       logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {

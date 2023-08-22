@@ -1,6 +1,6 @@
+import { getRepository } from '../../entity'
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   CreateNewsletterEmailError,

@@ -22,9 +22,9 @@ import {
   PageContext,
   PageType,
 } from '../../src/elastic/types'
+import { getRepository } from '../../src/entity'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity/utils'
 import {
   BulkActionType,
   SyncUpdatedItemEdge,

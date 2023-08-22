@@ -5,7 +5,7 @@ import sinonChai from 'sinon-chai'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 import {
   SubscriptionStatus,
   SubscriptionType,

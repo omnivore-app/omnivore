@@ -5,7 +5,7 @@ import { createTestElasticPage, graphqlRequest, request } from '../util'
 import { ReportType } from '../../src/generated/graphql'
 import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
 import { expect } from 'chai'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 
 describe('Report API', () => {
   let user: User

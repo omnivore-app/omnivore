@@ -8,8 +8,8 @@ import {
   updatePage,
 } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
+import { getRepository } from '../entity'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,

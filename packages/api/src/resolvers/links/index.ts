@@ -1,4 +1,3 @@
-import { createOrUpdateLinkShareInfo } from '../../datalayer/links/share_info'
 import { updatePage } from '../../elastic/pages'
 import { env } from '../../env'
 import {
@@ -6,52 +5,48 @@ import {
   ArchiveLinkErrorCode,
   ArchiveLinkSuccess,
   MutationSetLinkArchivedArgs,
-  MutationUpdateLinkShareInfoArgs,
-  UpdateLinkShareInfoError,
-  UpdateLinkShareInfoErrorCode,
-  UpdateLinkShareInfoSuccess,
 } from '../../generated/graphql'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
-export const updateLinkShareInfoResolver = authorized<
-  UpdateLinkShareInfoSuccess,
-  UpdateLinkShareInfoError,
-  MutationUpdateLinkShareInfoArgs
->(async (_obj, args, { models, claims, authTrx, log }) => {
-  const { title, description } = args.input
+// export const updateLinkShareInfoResolver = authorized<
+//   UpdateLinkShareInfoSuccess,
+//   UpdateLinkShareInfoError,
+//   MutationUpdateLinkShareInfoArgs
+// >(async (_obj, args, { models, claims, authTrx, log }) => {
+//   const { title, description } = args.input
 
-  log.info('updateLinkShareInfoResolver', args.input.linkId, title, description)
+//   log.info('updateLinkShareInfoResolver', args.input.linkId, title, description)
 
-  // TEMP: because the old API uses articles instead of Links, we are actually
-  // getting an article ID here and need to map it to a link ID. When the API
-  // is updated to use Links instead of Articles this will be removed.
-  const link = await authTrx((tx) =>
-    models.userArticle.getByArticleId(claims.uid, args.input.linkId, tx)
-  )
+//   // TEMP: because the old API uses articles instead of Links, we are actually
+//   // getting an article ID here and need to map it to a link ID. When the API
+//   // is updated to use Links instead of Articles this will be removed.
+//   const link = await authTrx((tx) =>
+//     models.userArticle.getByArticleId(claims.uid, args.input.linkId, tx)
+//   )
 
-  if (!link?.id) {
-    return {
-      __typename: 'UpdateLinkShareInfoError',
-      errorCodes: [UpdateLinkShareInfoErrorCode.Unauthorized],
-    }
-  }
+//   if (!link?.id) {
+//     return {
+//       __typename: 'UpdateLinkShareInfoError',
+//       errorCodes: [UpdateLinkShareInfoErrorCode.Unauthorized],
+//     }
+//   }
 
-  const result = await authTrx((tx) =>
-    createOrUpdateLinkShareInfo(tx, link.id, title, description)
-  )
-  if (!result) {
-    return {
-      __typename: 'UpdateLinkShareInfoError',
-      errorCodes: [UpdateLinkShareInfoErrorCode.BadRequest],
-    }
-  }
+//   const result = await authTrx((tx) =>
+//     createOrUpdateLinkShareInfo(tx, link.id, title, description)
+//   )
+//   if (!result) {
+//     return {
+//       __typename: 'UpdateLinkShareInfoError',
+//       errorCodes: [UpdateLinkShareInfoErrorCode.BadRequest],
+//     }
+//   }
 
-  return {
-    __typename: 'UpdateLinkShareInfoSuccess',
-    message: 'Updated Share Information',
-  }
-})
+//   return {
+//     __typename: 'UpdateLinkShareInfoSuccess',
+//     message: 'Updated Share Information',
+//   }
+// })
 
 export const setLinkArchivedResolver = authorized<
   ArchiveLinkSuccess,

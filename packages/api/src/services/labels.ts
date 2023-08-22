@@ -2,10 +2,10 @@ import DataLoader from 'dataloader'
 import { In } from 'typeorm'
 import { addLabelInPage } from '../elastic/labels'
 import { PageContext } from '../elastic/types'
+import { getRepository } from '../entity'
 import { Label } from '../entity/label'
 import { Link } from '../entity/link'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import { CreateLabelInput } from '../generated/graphql'
 import { generateRandomColor } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -117,18 +117,10 @@ export const createLabels = async (
   ctx: PageContext,
   labels: CreateLabelInput[]
 ): Promise<Label[]> => {
-  const user = await getRepository(User).findOneBy({
-    id: ctx.uid,
-  })
-  if (!user) {
-    logger.error('user not found')
-    return []
-  }
-
   const labelEntities = await getRepository(Label)
     .createQueryBuilder()
     .where({
-      user: { id: user.id },
+      user: { id: ctx.uid },
     })
     .andWhere('LOWER(name) IN (:...names)', {
       names: labels.map((l) => l.name.toLowerCase()),
@@ -148,7 +140,7 @@ export const createLabels = async (
       description: l.description,
       color: l.color || generateRandomColor(),
       internal: isLabelInternal(l.name),
-      user,
+      user: { id: ctx.uid },
     }))
   )
   return [...labelEntities, ...newLabelEntities]

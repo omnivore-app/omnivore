@@ -5,11 +5,11 @@
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { kx } from '../datalayer/knex_config'
 import { createPubSubClient } from '../datalayer/pubsub'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { addRecommendation } from '../elastic/recommendation'
 import { Recommendation } from '../elastic/types'
+import { uploadFileRepository } from '../entity'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -17,7 +17,6 @@ import {
   UploadFileStatus,
 } from '../generated/graphql'
 import { Claims } from '../resolvers/types'
-import { initModels } from '../server'
 import { getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import {
@@ -76,7 +75,6 @@ export function pageRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const models = initModels(kx, false)
     const ctx = {
       uid: claims.uid,
       pubsub: createPubSubClient(),
@@ -84,10 +82,10 @@ export function pageRouter() {
 
     const title = titleForFilePath(url)
     const fileName = fileNameForFilePath(url)
-    const uploadFileData = await models.uploadFile.create({
-      url: url,
+    const uploadFileData = await uploadFileRepository.save({
+      url,
       userId: claims.uid,
-      fileName: fileName,
+      fileName,
       status: UploadFileStatus.Initialized,
       contentType: 'application/pdf',
     })

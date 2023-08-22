@@ -4,7 +4,7 @@
 import axios, { Method } from 'axios'
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
-import { getRepository } from '../../entity/utils'
+import { getRepository } from '../../entity'
 import { Webhook } from '../../entity/webhook'
 import { logger } from '../../utils/logger'
 

@@ -14,7 +14,7 @@ import {
   SubscriptionStatus,
 } from '../../src/generated/graphql'
 import 'mocha'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 
 describe('Newsletters API', () => {
   let user: User

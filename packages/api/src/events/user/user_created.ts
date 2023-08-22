@@ -26,7 +26,7 @@ export class CreateIntercomAccount
       email: profile.user.email,
       externalId: profile.user.id,
       name: profile.user.name,
-      avatar: profile.pictureUrl,
+      avatar: profile.pictureUrl || undefined,
       customAttributes: customAttributes,
       signedUpAt: Math.floor(Date.now() / 1000),
     })

@@ -1,10 +1,10 @@
-import { EntityManager } from 'typeorm'
+import { EntityManager, In } from 'typeorm'
 import { StatusType } from '../datalayer/user/model'
+import { getRepository, userRepository } from '../entity'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
 import { Profile } from '../entity/profile'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import { SignupErrorCode } from '../generated/graphql'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { AppDataSource } from '../server'
@@ -14,6 +14,18 @@ import { sendConfirmationEmail } from './send_emails'
 import { Filter } from '../entity/filter'
 import { analytics } from '../utils/analytics'
 import { env } from '../env'
+
+const TOP_USERS = [
+  'jacksonh',
+  'nat',
+  'luis',
+  'satindar',
+  'malandrina',
+  'patrick',
+  'alexgutjahr',
+  'hongbowu',
+]
+export const MAX_RECORDS_LIMIT = 1000
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -166,9 +178,19 @@ const validateInvite = async (
 }
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return getRepository(User)
+  return userRepository
     .createQueryBuilder('user')
     .leftJoinAndSelect('user.profile', 'profile')
     .where('LOWER(email) = LOWER(:email)', { email }) // case insensitive
     .getOne()
+}
+
+export const getTopUsers = async (): Promise<User[]> => {
+  return userRepository
+    .createQueryBuilder()
+    .where({
+      profile: { username: In(TOP_USERS) },
+    })
+    .limit(MAX_RECORDS_LIMIT)
+    .getMany()
 }

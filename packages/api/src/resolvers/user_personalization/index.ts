@@ -1,3 +1,5 @@
+import { getRepository, setClaims } from '../../entity'
+import { UserPersonalization } from '../../entity/user_personalization'
 import {
   GetUserPersonalizationError,
   GetUserPersonalizationResult,
@@ -7,10 +9,8 @@ import {
   SetUserPersonalizationSuccess,
   SortOrder,
 } from '../../generated/graphql'
-import { authorized } from '../../utils/helpers'
-import { UserPersonalization } from '../../entity/user_personalization'
 import { AppDataSource } from '../../server'
-import { getRepository, setClaims } from '../../entity/utils'
+import { authorized } from '../../utils/helpers'
 
 export const setUserPersonalizationResolver = authorized<
   SetUserPersonalizationSuccess,
@@ -58,8 +58,12 @@ export const setUserPersonalizationResolver = authorized<
 export const getUserPersonalizationResolver = authorized<
   GetUserPersonalizationResult,
   GetUserPersonalizationError
->(async (_parent, _args, { models, claims: { uid } }) => {
-  const userPersonalization = await models.userPersonalization.getByUserId(uid)
+>(async (_parent, _args, { uid }) => {
+  const userPersonalization = await getRepository(
+    UserPersonalization
+  ).findOneBy({
+    user: { id: uid },
+  })
 
   // Cast SortOrder from string to enum
   const librarySortOrder = userPersonalization?.librarySortOrder as

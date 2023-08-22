@@ -21,8 +21,8 @@ import {
   StatusType,
   UserData,
 } from '../../datalayer/user/model'
+import { getRepository, setClaims } from '../../entity'
 import { User } from '../../entity/user'
-import { getRepository, setClaims } from '../../entity/utils'
 import { env } from '../../env'
 import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
 import { isErrorWithCode } from '../../resolvers'

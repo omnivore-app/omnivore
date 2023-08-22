@@ -1,20 +1,12 @@
-import express from 'express'
 import { MulticastMessage } from 'firebase-admin/messaging'
-import { setClaims } from '../../datalayer/helpers'
-import { kx } from '../../datalayer/knex_config'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { updatePage } from '../../elastic/pages'
+import { setClaims } from '../../entity'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
-import { env, homePageURL } from '../../env'
+import { homePageURL } from '../../env'
 import { ContentReader } from '../../generated/graphql'
-import { DataModels } from '../../resolvers/types'
-import { initModels } from '../../server'
-import { getPagesWithReminder, PageReminder } from '../../services/reminders'
-import { getDeviceTokensByUserId } from '../../services/user_device_tokens'
-import { analytics } from '../../utils/analytics'
-import { logger } from '../../utils/logger'
-import { sendEmail } from '../../utils/sendEmail'
-import { sendMulticastPushNotifications } from '../../utils/sendNotification'
+import { AppDataSource } from '../../server'
+import { PageReminder, setRemindersComplete } from '../../services/reminders'
 
 interface PageToNotify {
   title: string
@@ -24,116 +16,116 @@ interface PageToNotify {
   image: string | undefined | null
 }
 
-export function remindersServiceRouter() {
-  const router = express.Router()
+// export function remindersServiceRouter() {
+//   const router = express.Router()
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  router.post('/trigger', async (req, res) => {
-    logger.info('reminders/trigger')
+//   // eslint-disable-next-line @typescript-eslint/no-misused-promises
+//   router.post('/trigger', async (req, res) => {
+//     logger.info('reminders/trigger')
 
-    const { userId, scheduleTime } = req.body as {
-      userId?: string
-      scheduleTime?: number
-    }
+//     const { userId, scheduleTime } = req.body as {
+//       userId?: string
+//       scheduleTime?: number
+//     }
 
-    analytics.track({
-      userId: userId,
-      event: 'reminder_triggered',
-      properties: {
-        env: env.server.apiEnv,
-      },
-    })
+//     analytics.track({
+//       userId: userId,
+//       event: 'reminder_triggered',
+//       properties: {
+//         env: env.server.apiEnv,
+//       },
+//     })
 
-    if (!userId || !scheduleTime) {
-      res.status(400).send('Bad Request')
-      return
-    }
+//     if (!userId || !scheduleTime) {
+//       res.status(400).send('Bad Request')
+//       return
+//     }
 
-    try {
-      const remindAt = new Date(scheduleTime)
+//     try {
+//       const remindAt = new Date(scheduleTime)
 
-      // get all reminders by userid and scheduled time
-      const models = initModels(kx, false)
+//       // get all reminders by userid and scheduled time
+//       const models = initModels(kx, false)
 
-      const user = await models.user.get(userId)
-      if (!user || !user.email) {
-        logger.info('user not found', userId)
-        res.status(400).send('User Not Found')
-        return
-      }
+//       const user = await models.user.get(userId)
+//       if (!user || !user.email) {
+//         logger.info('user not found', userId)
+//         res.status(400).send('User Not Found')
+//         return
+//       }
 
-      const pageReminders = await getPagesWithReminder(userId, remindAt)
+//       const pageReminders = await getPagesWithReminder(userId, remindAt)
 
-      if (!pageReminders) {
-        logger.info('pages with reminders not found', userId, scheduleTime)
-        res.status(200).send('Reminders Not Found')
-        return
-      }
+//       if (!pageReminders) {
+//         logger.info('pages with reminders not found', userId, scheduleTime)
+//         res.status(200).send('Reminders Not Found')
+//         return
+//       }
 
-      logger.info('page with reminders:', pageReminders)
+//       logger.info('page with reminders:', pageReminders)
 
-      const [pagesToNotify, pagesToUnarchive] = getPagesToNotifyAndUnarchive(
-        pageReminders,
-        user.profile.username
-      )
+//       const [pagesToNotify, pagesToUnarchive] = getPagesToNotifyAndUnarchive(
+//         pageReminders,
+//         user.profile.username
+//       )
 
-      // If none of the fetch reminders have sendNotification
-      // set to true, then we should not send an email or notification
-      if (pagesToNotify.length > 0) {
-        // we have configured Sendgrid to send a template
-        if (!process.env.SENDGRID_REMINDER_TEMPLATE_ID) {
-          logger.info('Sendgrid reminder email template_id not set')
+//       // If none of the fetch reminders have sendNotification
+//       // set to true, then we should not send an email or notification
+//       if (pagesToNotify.length > 0) {
+//         // we have configured Sendgrid to send a template
+//         if (!process.env.SENDGRID_REMINDER_TEMPLATE_ID) {
+//           logger.info('Sendgrid reminder email template_id not set')
 
-          await updateRemindersStatus(
-            models,
-            userId,
-            pagesToUnarchive,
-            remindAt
-          )
-          res.status(200).send('Template Id Not Found')
-          return
-        }
+//           await updateRemindersStatus(
+//             models,
+//             userId,
+//             pagesToUnarchive,
+//             remindAt
+//           )
+//           res.status(200).send('Template Id Not Found')
+//           return
+//         }
 
-        const dynamicTemplateData = {
-          subject: `Omnivore Reminder Service`,
-          title: `Hey ${user.name}, you have ${pagesToNotify.length} article(s) to read on Omnivore`,
-          articles: pagesToNotify,
-        }
+//         const dynamicTemplateData = {
+//           subject: `Omnivore Reminder Service`,
+//           title: `Hey ${user.name}, you have ${pagesToNotify.length} article(s) to read on Omnivore`,
+//           articles: pagesToNotify,
+//         }
 
-        logger.info('dynamic template data:', dynamicTemplateData)
+//         logger.info('dynamic template data:', dynamicTemplateData)
 
-        await sendEmail({
-          from: env.sender.message,
-          dynamicTemplateData: dynamicTemplateData,
-          templateId: env.sendgrid.reminderTemplateId,
-          to: user.email,
-        })
+//         await sendEmail({
+//           from: env.sender.message,
+//           dynamicTemplateData: dynamicTemplateData,
+//           templateId: env.sendgrid.reminderTemplateId,
+//           to: user.email,
+//         })
 
-        // send push notifications
-        const deviceTokens = await getDeviceTokensByUserId(userId)
-        if (deviceTokens && deviceTokens.length > 0) {
-          const message = messageForPages(pageReminders, deviceTokens)
-          await sendMulticastPushNotifications(userId, message, 'reminder')
-        }
+//         // send push notifications
+//         const deviceTokens = await getDeviceTokensByUserId(userId)
+//         if (deviceTokens && deviceTokens.length > 0) {
+//           const message = messageForPages(pageReminders, deviceTokens)
+//           await sendMulticastPushNotifications(userId, message, 'reminder')
+//         }
 
-        if (!deviceTokens) {
-          logger.info('Device tokens not set:', userId)
+//         if (!deviceTokens) {
+//           logger.info('Device tokens not set:', userId)
 
-          res.status(400).send('Device token Not Found')
-          return
-        }
-      }
+//           res.status(400).send('Device token Not Found')
+//           return
+//         }
+//       }
 
-      await updateRemindersStatus(models, userId, pagesToUnarchive, remindAt)
-      res.status(200).send('Reminders triggered')
-    } catch (e) {
-      logger.info(e)
-      res.status(500).send(e)
-    }
-  })
+//       await updateRemindersStatus(models, userId, pagesToUnarchive, remindAt)
+//       res.status(200).send('Reminders triggered')
+//     } catch (e) {
+//       logger.info(e)
+//       res.status(500).send(e)
+//     }
+//   })
 
-  return router
-}
+//   return router
+// }
 
 const getPagesToNotifyAndUnarchive = (
   pageReminders: PageReminder[],
@@ -221,7 +213,6 @@ const messageForPages = (
 }
 
 const updateRemindersStatus = async (
-  models: DataModels,
   userId: string,
   pagesToUnarchive: string[],
   remindAt: Date
@@ -243,8 +234,8 @@ const updateRemindersStatus = async (
   }
 
   // db update
-  await kx.transaction(async (tx) => {
+  await AppDataSource.transaction(async (tx) => {
     await setClaims(tx, userId)
-    await models.reminder.setRemindersComplete(userId, remindAt, tx)
+    await setRemindersComplete(tx, userId, remindAt)
   })
 }

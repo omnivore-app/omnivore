@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
 import { readPushSubscription } from '../../datalayer/pubsub'
+import { getRepository } from '../../entity'
 import { Subscription } from '../../entity/subscription'
-import { getRepository } from '../../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../../generated/graphql'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { logger } from '../../utils/logger'

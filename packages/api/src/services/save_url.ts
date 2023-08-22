@@ -1,7 +1,7 @@
 import { PubsubClient } from '../datalayer/pubsub'
 import { ArticleSavingRequestStatus } from '../elastic/types'
+import { getRepository } from '../entity'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
 import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
 import { logger } from '../utils/logger'
@@ -24,7 +24,7 @@ export const saveUrl = async (
       input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
     // add labels to page
     const labels = input.labels
-      ? await createLabels({ ...ctx, uid: ctx.uid }, input.labels)
+      ? await createLabels(ctx, input.labels)
       : undefined
 
     const pageSaveRequest = await createPageSaveRequest({

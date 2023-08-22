@@ -11,7 +11,6 @@ import {
   getUserFollowers,
   getUserFollowing,
 } from '../../src/services/followers'
-import { StatusType } from '../../src/datalayer/user/model'
 import sinonChai from 'sinon-chai'
 import sinon from 'sinon'
 import * as util from '../../src/utils/sendEmail'
@@ -19,6 +18,7 @@ import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
 import { Filter } from "../../src/entity/filter"
+import { getRepository } from '../../src/entity'
 
 chai.use(sinonChai)
 

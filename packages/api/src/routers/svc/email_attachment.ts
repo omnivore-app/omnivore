@@ -1,14 +1,14 @@
 import express from 'express'
-import { setClaims } from '../../datalayer/helpers'
-import { kx } from '../../datalayer/knex_config'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { createPage } from '../../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
+import { setClaims, uploadFileRepository } from '../../entity'
 import { env } from '../../env'
 import { PageType, UploadFileStatus } from '../../generated/graphql'
-import { initModels } from '../../server'
+import { AppDataSource } from '../../server'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
+import { setFileUploadComplete } from '../../services/save_file'
 import { analytics } from '../../utils/analytics'
 import { getClaimsByToken } from '../../utils/auth'
 import { generateSlug } from '../../utils/helpers'
@@ -54,8 +54,7 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const models = initModels(kx, false)
-      const uploadFileData = await models.uploadFile.create({
+      const uploadFileData = await uploadFileRepository.save({
         url: '',
         userId: user.id,
         fileName: fileName,
@@ -117,10 +116,9 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const models = initModels(kx, false)
-      const uploadFile = await models.uploadFile.getWhere({
+      const uploadFile = await uploadFileRepository.findOneBy({
         id: uploadFileId,
-        userId: user.id,
+        user: { id: user.id },
       })
       if (!uploadFile) {
         return res.status(400).send('BAD REQUEST')
@@ -131,9 +129,9 @@ export function emailAttachmentRouter() {
         uploadFile.fileName
       )
 
-      const uploadFileData = await kx.transaction(async (tx) => {
+      const uploadFileData = await AppDataSource.transaction(async (tx) => {
         await setClaims(tx, user.id)
-        return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
+        return setFileUploadComplete(uploadFileId, tx)
       })
       if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
         return res.status(400).send('BAD REQUEST')

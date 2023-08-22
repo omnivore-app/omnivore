@@ -1,7 +1,7 @@
-import { Knex } from 'knex'
-import { PubsubClient } from '../datalayer/pubsub'
 import { UserData } from '../datalayer/user/model'
 import { updatePage } from '../elastic/pages'
+import { getRepository } from '../entity'
+import { UploadFile } from '../entity/upload_file'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -9,33 +9,30 @@ import {
   SaveFileInput,
   SaveResult,
 } from '../generated/graphql'
-import { DataModels } from '../resolvers/types'
+import { WithDataSourcesContext } from '../resolvers/types'
+import { AppDataSource } from '../server'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
 import { createLabels } from './labels'
 
-type SaveContext = {
-  pubsub: PubsubClient
-  models: DataModels
-  authTrx: <TResult>(
-    cb: (tx: Knex.Transaction) => TResult,
-    userRole?: string
-  ) => Promise<TResult>
-  uid: string
+export const setFileUploadComplete = async (
+  id: string,
+  em = AppDataSource.createEntityManager()
+): Promise<UploadFile | null> => {
+  return em.getRepository(UploadFile).save({ id, status: 'COMPLETED' })
 }
 
 export const saveFile = async (
-  ctx: SaveContext,
-  saver: UserData,
+  ctx: WithDataSourcesContext,
+  user: UserData,
   input: SaveFileInput
 ): Promise<SaveResult> => {
   logger.info('saving file with input', input)
   const pageId = input.clientRequestId
-  const uploadFile = await ctx.models.uploadFile.getWhere({
+  const uploadFile = await getRepository(UploadFile).findOneBy({
     id: input.uploadFileId,
-    userId: saver.id,
+    user: { id: ctx.uid },
   })
-
   if (!uploadFile) {
     return {
       errorCodes: [SaveErrorCode.Unauthorized],
@@ -45,7 +42,7 @@ export const saveFile = async (
   await getStorageFileDetails(input.uploadFileId, uploadFile.fileName)
 
   const uploadFileData = await ctx.authTrx(async (tx) => {
-    return ctx.models.uploadFile.setFileUploadComplete(input.uploadFileId, tx)
+    return setFileUploadComplete(input.uploadFileId, tx)
   })
 
   if (!uploadFileData) {
@@ -59,7 +56,7 @@ export const saveFile = async (
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
   const labels = input.labels
-    ? await createLabels({ ...ctx, uid: saver.id }, input.labels)
+    ? await createLabels(ctx, input.labels)
     : undefined
   if (input.state || input.labels) {
     const updated = await updatePage(
@@ -80,7 +77,7 @@ export const saveFile = async (
 
   return {
     clientRequestId: input.clientRequestId,
-    url: `${homePageURL()}/${saver.profile.username}/links/${
+    url: `${homePageURL()}/${user.profile.username}/links/${
       input.clientRequestId
     }`,
   }

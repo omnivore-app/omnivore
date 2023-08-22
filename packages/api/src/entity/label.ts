@@ -3,12 +3,9 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
-import { LibraryItem } from './library_item'
 import { User } from './user'
 
 @Entity({ name: 'labels' })
@@ -37,8 +34,4 @@ export class Label {
 
   @Column('boolean', { default: false })
   internal!: boolean
-
-  @ManyToMany(() => LibraryItem, (libraryItem) => libraryItem.labels)
-  @JoinTable()
-  libraryItems?: LibraryItem[]
 }

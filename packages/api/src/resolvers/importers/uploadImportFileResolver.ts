@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
+import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   MutationUploadImportFileArgs,

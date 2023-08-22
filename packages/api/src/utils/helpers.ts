@@ -5,10 +5,9 @@ import path from 'path'
 import _ from 'underscore'
 import slugify from 'voca/slugify'
 import wordsCounter from 'word-counting'
-import { RegistrationType, UserData } from '../datalayer/user/model'
 import { updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
-import { User } from '../entity/user'
+import { RegistrationType, User } from '../entity/user'
 import {
   ArticleSavingRequest,
   CreateArticleError,
@@ -116,7 +115,7 @@ export const findDelimiter = (
 // FIXME: Remove this Date stub after nullable types will be fixed
 export const userDataToUser = (
   user: Merge<
-    UserData,
+    User,
     {
       isFriend?: boolean
       followersCount?: number
@@ -156,15 +155,11 @@ export const userDataToUser = (
   followersCount: user.followersCount || 0,
   isFullUser: true,
   viewerIsFollowing: user.viewerIsFollowing || user.isFriend || false,
-  picture: user.profile.picture_url,
+  picture: user.profile.pictureUrl,
   sharedArticles: [],
   sharedArticlesCount: user.sharedArticlesCount || 0,
   sharedHighlightsCount: user.sharedHighlightsCount || 0,
   sharedNotesCount: user.sharedNotesCount || 0,
-  profile: {
-    ...user.profile,
-    pictureUrl: user.profile.picture_url,
-  },
 })
 
 export const generateSlug = (title: string): string => {

@@ -3,23 +3,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { getShareInfoForArticle } from '../datalayer/links/share_info'
 import { getPageByParam } from '../elastic/pages'
+import { getRepository } from '../entity'
 import { Subscription } from '../entity/subscription'
+import { UploadFile } from '../entity/upload_file'
+import { User } from '../entity/user'
 import {
   Article,
   ArticleHighlightsInput,
   Highlight,
   HighlightType,
-  LinkShareInfo,
   PageType,
-  Reaction,
   SearchItem,
-  User,
 } from '../generated/graphql'
 import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
-import { logger } from '../utils/logger'
 import {
   contentReaderForPage,
   generateDownloadSignedUrl,
@@ -38,14 +36,14 @@ import {
   createHighlightResolver,
   createLabelResolver,
   createNewsletterEmailResolver,
-  createReminderResolver,
+  // createReminderResolver,
   deleteAccountResolver,
   deleteFilterResolver,
   deleteHighlightResolver,
   deleteIntegrationResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
-  deleteReminderResolver,
+  // deleteReminderResolver,
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
@@ -54,11 +52,11 @@ import {
   getAllUsersResolver,
   getArticleResolver,
   getArticlesResolver,
-  getFollowersResolver,
-  getFollowingResolver,
+  // getFollowersResolver,
+  // getFollowingResolver,
   getMeUserResolver,
-  getSharedArticleResolver,
-  getUserFeedArticlesResolver,
+  // getSharedArticleResolver,
+  // getUserFeedArticlesResolver,
   getUserPersonalizationResolver,
   getUserResolver,
   googleLoginResolver,
@@ -76,7 +74,7 @@ import {
   newsletterEmailsResolver,
   recommendHighlightsResolver,
   recommendResolver,
-  reminderResolver,
+  // reminderResolver,
   reportItemResolver,
   revokeApiKeyResolver,
   rulesResolver,
@@ -90,13 +88,13 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFavoriteArticleResolver,
-  setFollowResolver,
+  // setFollowResolver,
   setIntegrationResolver,
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
   setRuleResolver,
-  setShareArticleResolver,
+  // setShareArticleResolver,
   setShareHighlightResolver,
   setUserPersonalizationResolver,
   setWebhookResolver,
@@ -107,10 +105,10 @@ import {
   updateFilterResolver,
   updateHighlightResolver,
   updateLabelResolver,
-  updateLinkShareInfoResolver,
+  // updateLinkShareInfoResolver,
   updatePageResolver,
-  updateReminderResolver,
-  updateSharedCommentResolver,
+  // updateReminderResolver,
+  // updateSharedCommentResolver,
   updatesSinceResolver,
   updateSubscriptionResolver,
   updateUserProfileResolver,
@@ -120,7 +118,6 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { Claims, WithDataSourcesContext } from './types'
@@ -154,30 +151,30 @@ export const functionResolvers = {
     updateUserProfile: updateUserProfileResolver,
     createArticle: createArticleResolver,
     createHighlight: createHighlightResolver,
-    createReaction: createReactionResolver,
-    deleteReaction: deleteReactionResolver,
+    // createReaction: createReactionResolver,
+    // deleteReaction: deleteReactionResolver,
     mergeHighlight: mergeHighlightResolver,
     updateHighlight: updateHighlightResolver,
     deleteHighlight: deleteHighlightResolver,
     uploadFileRequest: uploadFileRequestResolver,
-    setShareArticle: setShareArticleResolver,
-    updateSharedComment: updateSharedCommentResolver,
-    setFollow: setFollowResolver,
+    // setShareArticle: setShareArticleResolver,
+    // updateSharedComment: updateSharedCommentResolver,
+    // setFollow: setFollowResolver,
     setBookmarkArticle: setBookmarkArticleResolver,
     setUserPersonalization: setUserPersonalizationResolver,
     createArticleSavingRequest: createArticleSavingRequestResolver,
     setShareHighlight: setShareHighlightResolver,
     reportItem: reportItemResolver,
-    updateLinkShareInfo: updateLinkShareInfoResolver,
+    // updateLinkShareInfo: updateLinkShareInfoResolver,
     setLinkArchived: setLinkArchivedResolver,
     createNewsletterEmail: createNewsletterEmailResolver,
     deleteNewsletterEmail: deleteNewsletterEmailResolver,
     saveUrl: saveUrlResolver,
     savePage: savePageResolver,
     saveFile: saveFileResolver,
-    createReminder: createReminderResolver,
-    updateReminder: updateReminderResolver,
-    deleteReminder: deleteReminderResolver,
+    // createReminder: createReminderResolver,
+    // updateReminder: updateReminderResolver,
+    // deleteReminder: deleteReminderResolver,
     setDeviceToken: setDeviceTokenResolver,
     createLabel: createLabelResolver,
     updateLabel: updateLabelResolver,
@@ -221,15 +218,15 @@ export const functionResolvers = {
     users: getAllUsersResolver,
     validateUsername: validateUsernameResolver,
     article: getArticleResolver,
-    sharedArticle: getSharedArticleResolver,
+    // sharedArticle: getSharedArticleResolver,
     articles: getArticlesResolver,
-    feedArticles: getUserFeedArticlesResolver,
-    getFollowers: getFollowersResolver,
-    getFollowing: getFollowingResolver,
+    // feedArticles: getUserFeedArticlesResolver,
+    // getFollowers: getFollowersResolver,
+    // getFollowing: getFollowingResolver,
     getUserPersonalization: getUserPersonalizationResolver,
     articleSavingRequest: articleSavingRequestResolver,
     newsletterEmails: newsletterEmailsResolver,
-    reminder: reminderResolver,
+    // reminder: reminderResolver,
     labels: labelsResolver,
     search: searchResolver,
     subscriptions: subscriptionsResolver,
@@ -247,141 +244,141 @@ export const functionResolvers = {
     groups: groupsResolver,
     recentEmails: recentEmailsResolver,
   },
-  User: {
-    async sharedArticles(
-      user: User,
-      __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
-    ) {
-      return ctx.models.userArticle.getUserSharedArticles(user.id, ctx.kx)
-    },
-    async sharedArticlesCount(
-      user: { id: string; sharedArticlesCount?: number },
-      __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
-    ) {
-      if (user.sharedArticlesCount) return user.sharedArticlesCount
-      return ctx.models.userArticle.getSharedArticlesCount(user.id, ctx.kx)
-    },
-    async sharedHighlightsCount(
-      user: { id: string; sharedHighlightsCount?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      // #TODO: restructure highlightStats and sharedArticlesCount in order to get it within a single query
-      if (user.sharedHighlightsCount) return user.sharedHighlightsCount
-      const { sharedHighlightsCount } =
-        await ctx.models.user.getSharedHighlightsStats(user.id)
-      return sharedHighlightsCount
-    },
-    async sharedNotesCount(
-      user: User,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (user.sharedNotesCount) return user.sharedNotesCount
-      const { sharedNotesCount } =
-        await ctx.models.user.getSharedHighlightsStats(user.id)
-      return sharedNotesCount
-    },
-  },
-  FeedArticle: {
-    async article(
-      feedArticle: { articleId: string; userId: string; article?: Article },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.article) return feedArticle.article
+  // User: {
+  //   async sharedArticles(
+  //     user: User,
+  //     __: Record<string, unknown>,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     return ctx.models.userArticle.getUserSharedArticles(user.id, ctx.kx)
+  //   },
+  //   async sharedArticlesCount(
+  //     user: { id: string; sharedArticlesCount?: number },
+  //     __: Record<string, unknown>,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (user.sharedArticlesCount) return user.sharedArticlesCount
+  //     return ctx.models.userArticle.getSharedArticlesCount(user.id, ctx.kx)
+  //   },
+  //   async sharedHighlightsCount(
+  //     user: { id: string; sharedHighlightsCount?: number },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     // #TODO: restructure highlightStats and sharedArticlesCount in order to get it within a single query
+  //     if (user.sharedHighlightsCount) return user.sharedHighlightsCount
+  //     const { sharedHighlightsCount } =
+  //       await ctx.models.user.getSharedHighlightsStats(user.id)
+  //     return sharedHighlightsCount
+  //   },
+  //   async sharedNotesCount(
+  //     user: User,
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (user.sharedNotesCount) return user.sharedNotesCount
+  //     const { sharedNotesCount } =
+  //       await ctx.models.user.getSharedHighlightsStats(user.id)
+  //     return sharedNotesCount
+  //   },
+  // },
+  // FeedArticle: {
+  //   async article(
+  //     feedArticle: { articleId: string; userId: string; article?: Article },
+  //     __: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.article) return feedArticle.article
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let a: any
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     let a: any
 
-      const savedArticle =
-        ctx.claims?.uid &&
-        (await ctx.models.userArticle.getForUser(
-          ctx.claims?.uid,
-          feedArticle.articleId,
-          ctx.kx
-        ))
+  //     const savedArticle =
+  //       ctx.claims?.uid &&
+  //       (await ctx.models.userArticle.getForUser(
+  //         ctx.claims?.uid,
+  //         feedArticle.articleId,
+  //         ctx.kx
+  //       ))
 
-      if (savedArticle) {
-        // If user has saved the article, use his version (slug) then
-        a = {
-          ...savedArticle,
-          savedByViewer: true,
-          postedByViewer: !!savedArticle.sharedAt,
-        }
-      } else {
-        a = await ctx.models.userArticle.getForUser(
-          feedArticle.userId,
-          feedArticle.articleId,
-          ctx.kx
-        )
-      }
+  //     if (savedArticle) {
+  //       // If user has saved the article, use his version (slug) then
+  //       a = {
+  //         ...savedArticle,
+  //         savedByViewer: true,
+  //         postedByViewer: !!savedArticle.sharedAt,
+  //       }
+  //     } else {
+  //       a = await ctx.models.userArticle.getForUser(
+  //         feedArticle.userId,
+  //         feedArticle.articleId,
+  //         ctx.kx
+  //       )
+  //     }
 
-      if (a && a.image) {
-        a.image = createImageProxyUrl(a.image, 0, 180)
-      } else {
-        logger.info(
-          'error getting article for feedItem',
-          feedArticle.userId,
-          feedArticle.articleId
-        )
-      }
+  //     if (a && a.image) {
+  //       a.image = createImageProxyUrl(a.image, 0, 180)
+  //     } else {
+  //       logger.info(
+  //         'error getting article for feedItem',
+  //         feedArticle.userId,
+  //         feedArticle.articleId
+  //       )
+  //     }
 
-      return a
-    },
-    async sharedBy(
-      feedArticle: { userId: string; sharedBy?: User },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.sharedBy) return feedArticle.sharedBy
-      return userDataToUser(await ctx.models.user.get(feedArticle.userId))
-    },
-    async highlight(
-      feedArticle: { highlightId?: string; highlight?: Highlight },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.highlight) return feedArticle.highlight
-      return feedArticle.highlightId
-        ? await ctx.models.highlight.get(feedArticle.highlightId)
-        : null
-    },
-    async reactions(
-      feedArticle: { id: string; reactions?: Reaction[] },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const { reactions, id } = feedArticle
-      if (reactions) return reactions
+  //     return a
+  //   },
+  //   async sharedBy(
+  //     feedArticle: { userId: string; sharedBy?: User },
+  //     __: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.sharedBy) return feedArticle.sharedBy
+  //     return userDataToUser(await ctx.models.user.get(feedArticle.userId))
+  //   },
+  //   async highlight(
+  //     feedArticle: { highlightId?: string; highlight?: Highlight },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.highlight) return feedArticle.highlight
+  //     return feedArticle.highlightId
+  //       ? await ctx.models.highlight.get(feedArticle.highlightId)
+  //       : null
+  //   },
+  //   async reactions(
+  //     feedArticle: { id: string; reactions?: Reaction[] },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     const { reactions, id } = feedArticle
+  //     if (reactions) return reactions
 
-      return await ctx.models.reaction.batchGetFromArticle(id)
-    },
-    async highlightsCount(
-      feedArticle: { id: string; highlightsCount?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.highlightsCount) return feedArticle.highlightsCount
-      const { highlightsCount } = await ctx.models.userArticle.getStats(
-        feedArticle.id
-      )
-      return highlightsCount
-    },
-    async annotationsCount(
-      feedArticle: { id: string; annotationsCount?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.annotationsCount) return feedArticle.annotationsCount
-      const { annotationsCount } = await ctx.models.userArticle.getStats(
-        feedArticle.id
-      )
-      return annotationsCount
-    },
-  },
+  //     return await ctx.models.reaction.batchGetFromArticle(id)
+  //   },
+  //   async highlightsCount(
+  //     feedArticle: { id: string; highlightsCount?: number },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.highlightsCount) return feedArticle.highlightsCount
+  //     const { highlightsCount } = await ctx.models.userArticle.getStats(
+  //       feedArticle.id
+  //     )
+  //     return highlightsCount
+  //   },
+  //   async annotationsCount(
+  //     feedArticle: { id: string; annotationsCount?: number },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.annotationsCount) return feedArticle.annotationsCount
+  //     const { annotationsCount } = await ctx.models.userArticle.getStats(
+  //       feedArticle.id
+  //     )
+  //     return annotationsCount
+  //   },
+  // },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
       if (
@@ -390,7 +387,9 @@ export const functionResolvers = {
         ctx.claims &&
         article.uploadFileId
       ) {
-        const upload = await ctx.models.uploadFile.get(article.uploadFileId)
+        const upload = await getRepository(UploadFile).findOneBy({
+          id: article.uploadFileId,
+        })
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -490,20 +489,20 @@ export const functionResolvers = {
     ) {
       return article.highlights || []
     },
-    async shareInfo(
-      article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ): Promise<LinkShareInfo | undefined> {
-      if (article.shareInfo) return article.shareInfo
-      if (!ctx.claims?.uid) return undefined
-      return getShareInfoForArticle(
-        ctx.kx,
-        ctx.claims?.uid,
-        article.id,
-        ctx.models
-      )
-    },
+    // async shareInfo(
+    //   article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
+    //   __: unknown,
+    //   ctx: WithDataSourcesContext
+    // ): Promise<LinkShareInfo | undefined> {
+    //   if (article.shareInfo) return article.shareInfo
+    //   if (!ctx.claims?.uid) return undefined
+    //   return getShareInfoForArticle(
+    //     ctx.kx,
+    //     ctx.claims?.uid,
+    //     article.id,
+    //     ctx.models
+    //   )
+    // },
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 320, 320)
     },
@@ -528,18 +527,23 @@ export const functionResolvers = {
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return userDataToUser(await ctx.models.user.get(highlight.userId))
-    },
-    async reactions(
-      highlight: { id: string; reactions?: Reaction[] },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const { reactions, id } = highlight
-      if (reactions) return reactions
+      const userData = await getRepository(User).findOneBy({
+        id: highlight.userId,
+      })
+      if (!userData) return null
 
-      return await ctx.models.reaction.batchGetFromHighlight(id)
+      return userDataToUser(userData)
     },
+    // async reactions(
+    //   highlight: { id: string; reactions?: Reaction[] },
+    //   _: unknown,
+    //   ctx: WithDataSourcesContext
+    // ) {
+    //   const { reactions, id } = highlight
+    //   if (reactions) return reactions
+
+    //   return await ctx.models.reaction.batchGetFromHighlight(id)
+    // },
     async createdByMe(
       highlight: { userId: string; createdByMe?: boolean },
       __: unknown,
@@ -551,15 +555,15 @@ export const functionResolvers = {
       return highlight.type || HighlightType.Highlight
     },
   },
-  Reaction: {
-    async user(
-      reaction: { userId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      return userDataToUser(await ctx.models.user.get(reaction.userId))
-    },
-  },
+  // Reaction: {
+  //   async user(
+  //     reaction: { userId: string },
+  //     __: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     return userDataToUser(await ctx.models.user.get(reaction.userId))
+  //   },
+  // },
   SearchItem: {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       if (
@@ -567,7 +571,9 @@ export const functionResolvers = {
         ctx.claims &&
         item.uploadFileId
       ) {
-        const upload = await ctx.models.uploadFile.get(item.uploadFileId)
+        const upload = await getRepository(UploadFile).findOneBy({
+          id: item.uploadFileId,
+        })
         if (!upload || !upload.fileName) {
           return undefined
         }

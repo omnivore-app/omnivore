@@ -5,7 +5,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { WebhookEvent } from '../../src/generated/graphql'
 import { Webhook } from '../../src/entity/webhook'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 
 describe('Webhooks API', () => {
   let user: User

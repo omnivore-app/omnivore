@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { graphqlRequest, request } from '../util'
 import { User } from '../../src/entity/user'
 import { createTestUser, deleteTestUser } from '../db'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
 
 describe('Rules Resolver', () => {

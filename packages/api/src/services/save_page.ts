@@ -1,8 +1,8 @@
 import { Readability } from '@omnivore/readability'
-import { PubsubClient } from '../datalayer/pubsub'
 import { addHighlightToPage } from '../elastic/highlights'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
+import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
   HighlightType,
@@ -12,7 +12,7 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
-import { DataModels } from '../resolvers/types'
+import { WithDataSourcesContext } from '../resolvers/types'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   cleanUrl,
@@ -26,18 +26,6 @@ import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
-
-type SaveContext = {
-  pubsub: PubsubClient
-  models: DataModels
-  uid: string
-  refresh?: boolean
-}
-
-type SaverUserData = {
-  userId: string
-  username: string
-}
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -65,19 +53,9 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
   )
 }
 
-export const createSavingRequest = (
-  ctx: SaveContext,
-  clientRequestId: string
-) => {
-  return ctx.models.articleSavingRequest.create({
-    userId: ctx.uid,
-    id: clientRequestId,
-  })
-}
-
 export const savePage = async (
-  ctx: SaveContext,
-  saver: SaverUserData,
+  ctx: WithDataSourcesContext,
+  user: User,
   input: SavePageInput
 ): Promise<SaveResult> => {
   const parseResult = await parsePreparedContent(
@@ -97,7 +75,7 @@ export const savePage = async (
   const articleToSave = parsedContentToPage({
     url: input.url,
     title: input.title,
-    userId: saver.userId,
+    userId: user.id,
     pageId,
     slug,
     croppedPathname,
@@ -124,7 +102,7 @@ export const savePage = async (
   if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest({
-        userId: saver.userId,
+        userId: user.id,
         url: articleToSave.url,
         pubsub: ctx.pubsub,
         articleSavingRequestId: input.clientRequestId,
@@ -140,7 +118,7 @@ export const savePage = async (
   } else {
     // check if the page already exists
     const existingPage = await getPageByParam({
-      userId: saver.userId,
+      userId: user.id,
       url: articleToSave.url,
     })
     if (existingPage) {
@@ -151,7 +129,7 @@ export const savePage = async (
       ) {
         return {
           clientRequestId: pageId,
-          url: `${homePageURL()}/${saver.username}/${slug}`,
+          url: `${homePageURL()}/${user.profile.username}/${slug}`,
         }
       }
 
@@ -195,7 +173,7 @@ export const savePage = async (
   if (!isImported) {
     try {
       // create a task to update thumbnail and pre-cache all images
-      const taskId = await enqueueThumbnailTask(saver.userId, slug)
+      const taskId = await enqueueThumbnailTask(user.id, slug)
       logger.info('Created thumbnail task', { taskId })
     } catch (e) {
       logger.error('Failed to create thumbnail task', e)
@@ -222,7 +200,7 @@ export const savePage = async (
 
   return {
     clientRequestId: pageId,
-    url: `${homePageURL()}/${saver.username}/${slug}`,
+    url: `${homePageURL()}/${user.profile.username}/${slug}`,
   }
 }
 

@@ -64,7 +64,7 @@ export class LibraryItem {
   originalUrl!: string
 
   @Column('text', { nullable: true })
-  downloadUrl?: string
+  downloadUrl?: string | null
 
   @Column('text')
   slug!: string
@@ -73,10 +73,10 @@ export class LibraryItem {
   title!: string
 
   @Column('text', { nullable: true })
-  author?: string
+  author?: string | null
 
   @Column('text', { nullable: true })
-  description?: string
+  description?: string | null
 
   @Column('timestamptz')
   savedAt?: Date
@@ -85,49 +85,49 @@ export class LibraryItem {
   createdAt?: Date
 
   @Column('timestamptz', { nullable: true })
-  publishedAt?: Date
+  publishedAt?: Date | null
 
   @Column('timestamptz')
-  archivedAt?: Date
+  archivedAt?: Date | null
 
   @Column('timestamptz')
-  deletedAt?: Date
+  deletedAt?: Date | null
 
   @Column('timestamptz')
-  readAt?: Date
+  readAt?: Date | null
 
   @UpdateDateColumn()
   updatedAt?: Date
 
   @Column('text', { nullable: true })
-  itemLanguage?: string
+  itemLanguage?: string | null
 
   @Column('integer', { nullable: true })
-  wordCount?: number
+  wordCount?: number | null
 
   @Column('text', { nullable: true })
-  siteName?: string
+  siteName?: string | null
 
   @Column('text', { nullable: true })
-  siteIcon?: string
+  siteIcon?: string | null
 
   @Column('json', { nullable: true })
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> | null
 
   @Column('integer', { nullable: true })
-  readingProgressLastReadAnchor?: number
+  readingProgressLastReadAnchor?: number | null
 
   @Column('integer', { nullable: true })
-  readingProgressHighestReadAnchor?: number
+  readingProgressHighestReadAnchor?: number | null
 
   @Column('real', { nullable: true })
-  readingProgressTopPercent?: number
+  readingProgressTopPercent?: number | null
 
   @Column('real', { nullable: true })
-  readingProgressBottomPercent?: number
+  readingProgressBottomPercent?: number | null
 
   @Column('text', { nullable: true })
-  thumbnail?: string
+  thumbnail?: string | null
 
   @Column('enum', { enum: LibraryItemType, default: LibraryItemType.Unknown })
   itemType?: LibraryItemType
@@ -140,47 +140,29 @@ export class LibraryItem {
   contentReader?: ContentReaderType
 
   @Column('text', { nullable: true })
-  originalContent?: string
+  originalContent?: string | null
 
   @Column('text', { nullable: true })
-  readableContent?: string
-
-  @Column('tsvector', { nullable: true })
-  contentTsv?: string
-
-  @Column('tsvector', { nullable: true })
-  siteTsv?: string
-
-  @Column('tsvector', { nullable: true })
-  titleTsv?: string
-
-  @Column('tsvector', { nullable: true })
-  authorTsv?: string
-
-  @Column('tsvector', { nullable: true })
-  descriptionTsv?: string
-
-  @Column('tsvector', { nullable: true })
-  searchTsv?: string
+  readableContent?: string | null
 
   @Column('text', { nullable: true })
-  modelName?: string
+  modelName?: string | null
 
   // NOT SUPPORTED IN TYPEORM
   // @Column('vector', { nullable: true })
   // embedding?: number[]
 
   @Column('text', { nullable: true })
-  textContentHash?: string
+  textContentHash?: string | null
 
   @Column('text', { nullable: true })
-  gcsArchiveId?: string
+  gcsArchiveId?: string | null
 
   @OneToOne(() => Subscription, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'subscription_id' })
   subscription?: Subscription
 
-  @ManyToMany(() => Label, (label) => label.libraryItems)
+  @ManyToMany(() => Label)
   @JoinTable()
   labels?: Label[]
 

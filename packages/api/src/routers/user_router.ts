@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import cors from 'cors'
 import express from 'express'
+import { getRepository } from '../entity'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import { env } from '../env'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'

@@ -11,24 +11,12 @@ import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
-import { Knex } from 'knex'
 import { DataSource } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
-import ArticleModel from './datalayer/article'
-import ArticleSavingRequestModel from './datalayer/article_saving_request'
-import HighlightModel from './datalayer/highlight'
-import UserArticleModel from './datalayer/links'
-import ReactionModel from './datalayer/reaction'
-import ReminderModel from './datalayer/reminders'
-import UploadFileDataModel from './datalayer/upload_files'
-import UserModel from './datalayer/user'
-import UserFriendModel from './datalayer/user_friends'
-import UserPersonalizationModel from './datalayer/user_personalization'
 import { initElasticsearch } from './elastic'
 import { env } from './env'
-import { DataModels } from './resolvers/types'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -42,7 +30,7 @@ import { emailAttachmentRouter } from './routers/svc/email_attachment'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
-import { remindersServiceRouter } from './routers/svc/reminders'
+// import { remindersServiceRouter } from './routers/svc/reminders'
 import { rssFeedRouter } from './routers/svc/rss_feed'
 import { uploadServiceRouter } from './routers/svc/upload'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
@@ -59,19 +47,6 @@ import {
 
 const PORT = process.env.PORT || 4000
 
-export const initModels = (kx: Knex, cache = true): DataModels => ({
-  user: new UserModel(kx, cache),
-  article: new ArticleModel(kx, cache),
-  userArticle: new UserArticleModel(kx, cache),
-  userFriends: new UserFriendModel(kx, cache),
-  userPersonalization: new UserPersonalizationModel(kx, cache),
-  articleSavingRequest: new ArticleSavingRequestModel(kx, cache),
-  uploadFile: new UploadFileDataModel(kx, cache),
-  highlight: new HighlightModel(kx, cache),
-  reaction: new ReactionModel(kx, cache),
-  reminder: new ReminderModel(kx, cache),
-})
-
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: env.pg.host,
@@ -85,6 +60,9 @@ export const AppDataSource = new DataSource({
   subscribers: [__dirname + '/events/**/*{.js,.ts}'],
   namingStrategy: new SnakeNamingStrategy(),
   logger: new CustomTypeOrmLogger(),
+  cache: true,
+  connectTimeoutMS: 60000, // 60 seconds
+  maxQueryExecutionTime: 60000, // 60 seconds
 })
 
 export const createApp = (): {
@@ -164,7 +142,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/pubsub/rss-feed', rssFeedRouter())
-  app.use('/svc/reminders', remindersServiceRouter())
+  // app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
 
   if (env.dev.isLocal) {

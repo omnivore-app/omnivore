@@ -1,10 +1,10 @@
-import { UserDeviceToken } from '../entity/user_device_tokens'
+import { getRepository, setClaims } from '../entity'
 import { User } from '../entity/user'
-import { SetDeviceTokenErrorCode } from '../generated/graphql'
-import { getRepository, setClaims } from '../entity/utils'
-import { analytics } from '../utils/analytics'
+import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
+import { SetDeviceTokenErrorCode } from '../generated/graphql'
 import { AppDataSource } from '../server'
+import { analytics } from '../utils/analytics'
 
 export const getDeviceToken = async (
   id: string

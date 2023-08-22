@@ -1,5 +1,5 @@
+import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   MutationSaveFileArgs,
@@ -13,19 +13,15 @@ import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
 import { analytics } from '../../utils/analytics'
-import { authorized, userDataToUser } from '../../utils/helpers'
+import { authorized } from '../../utils/helpers'
 
 export const savePageResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSavePageArgs
 >(async (_, { input }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
   analytics.track({
-    userId: uid,
+    userId: ctx.uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -35,16 +31,14 @@ export const savePageResolver = authorized<
     },
   })
 
-  const user = userDataToUser(await models.user.get(uid))
+  const user = await getRepository(User).findOneBy({
+    id: ctx.uid,
+  })
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return savePage(
-    { ...ctx, uid, refresh: true },
-    { userId: user.id, username: user.profile.username },
-    input
-  )
+  return savePage(ctx, user, input)
 })
 
 export const saveUrlResolver = authorized<
@@ -74,7 +68,7 @@ export const saveUrlResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return (await saveUrl({ ...ctx, uid }, user, input)) as SaveSuccess
+  return saveUrl(ctx, user, input)
 })
 
 export const saveFileResolver = authorized<
@@ -82,13 +76,8 @@ export const saveFileResolver = authorized<
   SaveError,
   MutationSaveFileArgs
 >(async (_, { input }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
-
   analytics.track({
-    userId: uid,
+    userId: ctx.uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -98,10 +87,12 @@ export const saveFileResolver = authorized<
     },
   })
 
-  const user = userDataToUser(await models.user.get(uid))
+  const user = await getRepository(User).findOneBy({
+    id: ctx.uid,
+  })
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return (await saveFile({ ...ctx, uid }, user, input)) as SaveSuccess
+  return saveFile(ctx, user, input)
 })

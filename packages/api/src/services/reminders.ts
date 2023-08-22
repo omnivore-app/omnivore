@@ -1,7 +1,7 @@
-import { IsNull, Not } from 'typeorm'
+import { EntityManager, IsNull, Not } from 'typeorm'
 import { getPageById } from '../elastic/pages'
+import { getRepository } from '../entity'
 import { Reminder } from '../entity/reminder'
-import { getRepository } from '../entity/utils'
 import { logger } from '../utils/logger'
 
 export interface PageReminder {
@@ -51,4 +51,24 @@ export const getPagesWithReminder = async (
   }
 
   return results
+}
+
+export const setRemindersComplete = async (
+  tx: EntityManager,
+  userId: string,
+  remindAt: Date
+): Promise<Reminder | null> => {
+  const updateResult = await tx
+    .createQueryBuilder()
+    .where({ userId, remindAt })
+    .update(Reminder)
+    .set({ status: 'COMPLETED' })
+    .returning('*')
+    .execute()
+
+  if (updateResult.generatedMaps.length === 0) {
+    return null
+  }
+
+  return updateResult.generatedMaps[0] as Reminder
 }

@@ -11,7 +11,7 @@ import { request } from '../util'
 import * as parser from '../../src/utils/parser'
 import * as sendNotification from '../../src/utils/sendNotification'
 import * as sendEmail from '../../src/utils/sendEmail'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/entity'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import * as jwt from 'jsonwebtoken'
 

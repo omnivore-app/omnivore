@@ -1,7 +1,7 @@
 import { ILike } from 'typeorm'
+import { getRepository } from '../../entity'
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { ReceivedEmail } from '../../entity/received_email'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   MarkEmailAsItemError,

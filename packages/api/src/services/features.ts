@@ -1,7 +1,7 @@
 import * as jwt from 'jsonwebtoken'
 import { IsNull, Not } from 'typeorm'
+import { getRepository } from '../entity'
 import { Feature } from '../entity/feature'
-import { getRepository } from '../entity/utils'
 import { env } from '../env'
 import { AppDataSource } from '../server'
 import { logger } from '../utils/logger'

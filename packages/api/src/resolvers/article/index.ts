@@ -20,6 +20,9 @@ import {
   PageType,
   SearchItem as SearchItemData,
 } from '../../elastic/types'
+import { getRepository } from '../../entity'
+import { UploadFile } from '../../entity/upload_file'
+import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   Article,
@@ -42,7 +45,6 @@ import {
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetFavoriteArticleArgs,
-  MutationSetShareArticleArgs,
   PageInfo,
   QueryArticleArgs,
   QueryArticlesArgs,
@@ -63,8 +65,6 @@ import {
   SetFavoriteArticleError,
   SetFavoriteArticleErrorCode,
   SetFavoriteArticleSuccess,
-  SetShareArticleError,
-  SetShareArticleErrorCode,
   SetShareArticleSuccess,
   SortParams,
   TypeaheadSearchError,
@@ -82,6 +82,7 @@ import {
   createLabels,
   getLabelsByIds,
 } from '../../services/labels'
+import { setFileUploadComplete } from '../../services/save_file'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
@@ -167,12 +168,7 @@ export const createArticleResolver = authorized<
     },
     ctx
   ) => {
-    const {
-      models,
-      authTrx,
-      claims: { uid },
-      log,
-    } = ctx
+    const { authTrx, log, uid } = ctx
 
     analytics.track({
       userId: uid,
@@ -184,7 +180,18 @@ export const createArticleResolver = authorized<
       },
     })
 
-    const user = userDataToUser(await models.user.get(uid))
+    const userData = await getRepository(User).findOneBy({ id: uid })
+    if (!userData) {
+      return pageError(
+        {
+          errorCodes: [CreateArticleErrorCode.Unauthorized],
+        },
+        ctx,
+        pageId
+      )
+    }
+    const user = userDataToUser(userData)
+
     try {
       if (isSiteBlockedForParse(url)) {
         return pageError(
@@ -235,14 +242,17 @@ export const createArticleResolver = authorized<
         },
       }
       // save state
-      let archivedAt =
+      const archivedAt =
         state === ArticleSavingRequestStatus.Archived ? new Date() : null
-      if (pageId) {
-        const reminder = await models.reminder.getByRequestId(uid, pageId)
-        if (reminder && reminder.archiveUntil) {
-          archivedAt = new Date()
-        }
-      }
+      // if (pageId) {
+      //   const reminder = await getRepository(Reminder).findOneBy({
+      //     articleSavingRequest: pageId,
+      //     user: { id: uid },
+      //   })
+      //   if (reminder && reminder.archiveUntil) {
+      //     archivedAt = new Date()
+      //   }
+      // }
       // add labels to page
       const labels = inputLabels
         ? await createLabels(ctx, inputLabels)
@@ -252,9 +262,9 @@ export const createArticleResolver = authorized<
         /* We do not trust the values from client, lookup upload file by querying
          * with filtering on user ID and URL to verify client's uploadFileId is valid.
          */
-        const uploadFile = await models.uploadFile.getWhere({
+        const uploadFile = await getRepository(UploadFile).findOneBy({
           id: uploadFileId,
-          userId: uid,
+          user: { id: uid },
         })
         if (!uploadFile) {
           return pageError(
@@ -330,7 +340,7 @@ export const createArticleResolver = authorized<
 
       if (uploadFileId) {
         const uploadFileData = await authTrx(async (tx) => {
-          return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
+          return setFileUploadComplete(uploadFileId, tx)
         })
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
           return pageError(
@@ -579,64 +589,65 @@ export type SetShareArticleSuccessPartial = Merge<
   }
 >
 
-export const setShareArticleResolver = authorized<
-  SetShareArticleSuccessPartial,
-  SetShareArticleError,
-  MutationSetShareArticleArgs
->(
-  async (
-    _,
-    { input: { articleID, share, sharedComment, sharedWithHighlights } },
-    { models, authTrx, claims: { uid }, log }
-  ) => {
-    const article = await models.article.get(articleID)
-    if (!article) {
-      return { errorCodes: [SetShareArticleErrorCode.NotFound] }
-    }
+// TODO: not implemented yet
+// export const setShareArticleResolver = authorized<
+//   SetShareArticleSuccessPartial,
+//   SetShareArticleError,
+//   MutationSetShareArticleArgs
+// >(
+//   async (
+//     _,
+//     { input: { articleID, share, sharedComment, sharedWithHighlights } },
+//     { models, authTrx, claims: { uid }, log }
+//   ) => {
+//     const article = await models.article.get(articleID)
+//     if (!article) {
+//       return { errorCodes: [SetShareArticleErrorCode.NotFound] }
+//     }
 
-    const sharedAt = share ? new Date() : null
+//     const sharedAt = share ? new Date() : null
 
-    log.info(`${share ? 'S' : 'Uns'}haring an article`, {
-      article: Object.assign({}, article, {
-        content: undefined,
-        originalHtml: undefined,
-        sharedAt,
-      }),
-      labels: {
-        source: 'resolver',
-        resolver: 'setShareArticleResolver',
-        articleId: article.id,
-        userId: uid,
-      },
-    })
+//     log.info(`${share ? 'S' : 'Uns'}haring an article`, {
+//       article: Object.assign({}, article, {
+//         content: undefined,
+//         originalHtml: undefined,
+//         sharedAt,
+//       }),
+//       labels: {
+//         source: 'resolver',
+//         resolver: 'setShareArticleResolver',
+//         articleId: article.id,
+//         userId: uid,
+//       },
+//     })
 
-    const result = await authTrx((tx) =>
-      models.userArticle.updateByArticleId(
-        uid,
-        articleID,
-        { sharedAt, sharedComment, sharedWithHighlights },
-        tx
-      )
-    )
+//     const result = await authTrx((tx) =>
+//       models.userArticle.updateByArticleId(
+//         uid,
+//         articleID,
+//         { sharedAt, sharedComment, sharedWithHighlights },
+//         tx
+//       )
+//     )
 
-    if (!result) {
-      return { errorCodes: [SetShareArticleErrorCode.NotFound] }
-    }
+//     if (!result) {
+//       return { errorCodes: [SetShareArticleErrorCode.NotFound] }
+//     }
 
-    // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
-    const updatedArticle = {
-      ...result,
-      ...article,
-      postedByViewer: !!sharedAt,
-    }
-    const updatedFeedArticle = sharedAt ? { ...result, sharedAt } : undefined
-    return {
-      updatedFeedArticleId: result.id,
-      updatedFeedArticle,
-      updatedArticle,
-    }
-  }
-)
+//     // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
+//     const updatedArticle = {
+//       ...result,
+//       ...article,
+//       postedByViewer: !!sharedAt,
+//     }
+//     const updatedFeedArticle = sharedAt ? { ...result, sharedAt } : undefined
+//     return {
+//       updatedFeedArticleId: result.id,
+//       updatedFeedArticle,
+//       updatedArticle,
+//     }
+//   }
+// )
 
 export type SetBookmarkArticleSuccessPartial = Merge<
   SetBookmarkArticleSuccess,

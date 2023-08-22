@@ -1,8 +1,8 @@
 import { In } from 'typeorm'
 import { getPageByParam } from '../../elastic/pages'
+import { getRepository } from '../../entity'
 import { Group } from '../../entity/groups/group'
 import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   CreateGroupError,

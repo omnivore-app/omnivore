@@ -1,4 +1,8 @@
-import { authorized } from '../../utils/helpers'
+import { Between } from 'typeorm'
+import { getRepository, setClaims } from '../../entity'
+import { Filter } from '../../entity/filter'
+import { User } from '../../entity/user'
+import { env } from '../../env'
 import {
   DeleteFilterError,
   DeleteFilterErrorCode,
@@ -20,14 +24,11 @@ import {
   UpdateFilterSuccess,
   UpdateFilterErrorCode,
 } from '../../generated/graphql'
-import { Filter } from '../../entity/filter'
-import { getRepository, setClaims } from '../../entity/utils'
-import { User } from '../../entity/user'
 import { AppDataSource } from '../../server'
-import { Between } from 'typeorm'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { isNil, mergeWith } from 'lodash'
+import { authorized } from '../../utils/helpers'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,
