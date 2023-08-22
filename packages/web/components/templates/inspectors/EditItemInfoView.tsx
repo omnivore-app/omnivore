@@ -175,7 +175,6 @@ const FullRowText = (props: FullRowTextProps): JSX.Element => {
       </StyledText>
       {props.multiline ? (
         <textarea
-          rows={5}
           value={props.value}
           placeholder={props.placeholder}
           onChange={(event) => {
@@ -187,13 +186,12 @@ const FullRowText = (props: FullRowTextProps): JSX.Element => {
             color: 'var(--colors-thTextSubtle)',
             fontFamily: 'var(--fonts-inter)',
             fontSize: '16px',
-            // fontWeight: '500',
             lineHeight: '160%',
             padding: '8px 10px',
             alignItems: 'center',
             borderRadius: '5px',
             width: '100%',
-            height: '73px',
+            height: '160px',
             border: 'unset',
             resize: 'vertical',
           }}
