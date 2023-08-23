@@ -25,11 +25,6 @@ MdEditor.use(Plugins.TabInsert, {
   tabMapValue: 1, // note that 1 means a '\t' instead of ' '.
 })
 
-MdEditor.use(Plugins.AutoResize, {
-  min: 200,
-  max: 800,
-})
-
 MdEditor.use(SavePlugin)
 
 type NoteSectionProps = {

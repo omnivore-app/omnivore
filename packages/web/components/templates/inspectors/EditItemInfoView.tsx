@@ -16,8 +16,6 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         p: '20px',
         gap: '20px',
         width: '100%',
-        height: '100%',
-        minHeight: '100%',
       }}
       distribution="start"
     >
