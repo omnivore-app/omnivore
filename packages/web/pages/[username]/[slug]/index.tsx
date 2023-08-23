@@ -515,7 +515,7 @@ export default function Reader(): JSX.Element {
       stack.push(item)
     })
 
-    console.log('outline: ', root)
+    console.log('outline: ', root, 'headers', headers)
 
     setOutline(root)
   }, [setOutline])
