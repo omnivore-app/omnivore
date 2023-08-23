@@ -90,7 +90,6 @@ export function Article(props: ArticleProps): JSX.Element {
         const bottomProgress =
           (target.scrollTop + target.clientHeight) / target.scrollHeight
 
-        console.log('bottom progress: ', bottomProgress)
         setReadingProgress(bottomProgress * 100)
       } else if (window && window.document.scrollingElement) {
         const bottomProgress =

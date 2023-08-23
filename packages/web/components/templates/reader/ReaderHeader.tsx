@@ -5,7 +5,6 @@ import { MutableRefObject, ReactNode } from 'react'
 import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 import { LeftPanelToggleIcon } from '../../elements/icons/LeftPanelToggleIcon'
-import { useScrollDirection } from '../../../lib/hooks/useScrollDirection'
 
 type ReaderHeaderProps = {
   alwaysDisplayToolbar: boolean
@@ -20,10 +19,6 @@ type ReaderHeaderProps = {
 }
 
 export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
-  const scrollDirection = useScrollDirection(props.containerRef)
-
-  console.log('scroll direction: ', scrollDirection)
-
   return (
     <>
       <VStack
