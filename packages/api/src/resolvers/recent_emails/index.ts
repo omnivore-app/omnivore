@@ -1,5 +1,4 @@
 import { ILike } from 'typeorm'
-import { getRepository } from '../../entity'
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { ReceivedEmail } from '../../entity/received_email'
 import { env } from '../../env'
@@ -12,6 +11,7 @@ import {
   RecentEmailsErrorCode,
   RecentEmailsSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { updateReceivedEmail } from '../../services/received_emails'
 import { saveNewsletterEmail } from '../../services/save_newsletter_email'
 import { authorized } from '../../utils/helpers'

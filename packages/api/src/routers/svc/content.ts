@@ -2,15 +2,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
+import { AppDataSource } from '../../data-source'
 import {
   createPubSubClient,
   readPushSubscription,
 } from '../../datalayer/pubsub'
 import { getPageByParam, updatePage } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
-import { setClaims } from '../../entity'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { setClaims } from '../../repository'
 import { setFileUploadComplete } from '../../services/save_file'
 import { logger } from '../../utils/logger'
 

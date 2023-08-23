@@ -1,9 +1,9 @@
 import * as jwt from 'jsonwebtoken'
 import { IsNull, Not } from 'typeorm'
-import { getRepository } from '../entity'
+import { AppDataSource } from '../data-source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
-import { AppDataSource } from '../server'
+import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {

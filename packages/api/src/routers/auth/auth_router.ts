@@ -14,6 +14,7 @@ import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
 import { promisify } from 'util'
+import { AppDataSource } from '../../data-source'
 import { kx } from '../../datalayer/knex_config'
 import UserModel from '../../datalayer/user'
 import {
@@ -21,12 +22,11 @@ import {
   StatusType,
   UserData,
 } from '../../datalayer/user/model'
-import { getRepository, setClaims } from '../../entity'
 import { User } from '../../entity/user'
 import { env } from '../../env'
 import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
+import { getRepository, setClaims } from '../../repository'
 import { isErrorWithCode } from '../../resolvers'
-import { AppDataSource } from '../../server'
 import { createUser, getUserByEmail } from '../../services/create_user'
 import {
   sendConfirmationEmail,

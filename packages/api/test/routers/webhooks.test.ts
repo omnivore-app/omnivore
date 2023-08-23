@@ -1,11 +1,11 @@
+import { expect } from 'chai'
+import 'mocha'
+import nock from 'nock'
+import { User } from '../../src/entity/user'
+import { Webhook } from '../../src/entity/webhook'
+import { getRepository } from '../../src/repository'
 import { createTestUser, deleteTestUser } from '../db'
 import { request } from '../util'
-import { User } from '../../src/entity/user'
-import 'mocha'
-import { getRepository } from '../../src/entity'
-import { Webhook } from '../../src/entity/webhook'
-import { expect } from 'chai'
-import nock from 'nock'
 
 describe('Webhooks Router', () => {
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''

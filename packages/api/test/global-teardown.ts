@@ -1,4 +1,4 @@
-import { AppDataSource } from '../src/server'
+import { AppDataSource } from '../src/data-source'
 import { stopApolloServer } from './util'
 import { kx } from '../src/datalayer/knex_config'
 

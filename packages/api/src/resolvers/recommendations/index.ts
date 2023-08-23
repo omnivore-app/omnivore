@@ -1,6 +1,5 @@
 import { In } from 'typeorm'
 import { getPageByParam } from '../../elastic/pages'
-import { getRepository } from '../../entity'
 import { Group } from '../../entity/groups/group'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -29,6 +28,7 @@ import {
   RecommendHighlightsSuccess,
   RecommendSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import {
   createGroup,
   createLabelAndRuleForGroup,

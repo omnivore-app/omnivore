@@ -11,10 +11,9 @@ import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
-import { DataSource } from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
+import { AppDataSource } from './data-source'
 import { initElasticsearch } from './elastic'
 import { env } from './env'
 import { articleRouter } from './routers/article_router'
@@ -39,31 +38,9 @@ import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { getClaimsByToken, getTokenByRequest } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
-import {
-  buildLogger,
-  buildLoggerTransport,
-  CustomTypeOrmLogger,
-} from './utils/logger'
+import { buildLogger, buildLoggerTransport } from './utils/logger'
 
 const PORT = process.env.PORT || 4000
-
-export const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: env.pg.host,
-  port: env.pg.port,
-  schema: 'omnivore',
-  username: env.pg.userName,
-  password: env.pg.password,
-  database: env.pg.dbName,
-  logging: ['query', 'info'],
-  entities: [__dirname + '/entity/**/*{.js,.ts}'],
-  subscribers: [__dirname + '/events/**/*{.js,.ts}'],
-  namingStrategy: new SnakeNamingStrategy(),
-  logger: new CustomTypeOrmLogger(),
-  cache: true,
-  connectTimeoutMS: 60000, // 60 seconds
-  maxQueryExecutionTime: 60000, // 60 seconds
-})
 
 export const createApp = (): {
   app: Express

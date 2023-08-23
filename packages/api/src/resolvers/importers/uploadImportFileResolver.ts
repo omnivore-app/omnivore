@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
@@ -9,6 +8,7 @@ import {
   UploadImportFileErrorCode,
   UploadImportFileSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 import { logger } from '../../utils/logger'

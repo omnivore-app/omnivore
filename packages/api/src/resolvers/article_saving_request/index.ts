@@ -1,6 +1,5 @@
 /* eslint-disable prefer-const */
 import { getPageByParam } from '../../elastic/pages'
-import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
@@ -14,6 +13,7 @@ import {
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
 import {

@@ -1,4 +1,3 @@
-import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
 import { Webhook } from '../../entity/webhook'
 import { env } from '../../env'
@@ -21,6 +20,7 @@ import {
   WebhooksSuccess,
   WebhookSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 

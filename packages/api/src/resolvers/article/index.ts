@@ -20,7 +20,7 @@ import {
   PageType,
   SearchItem as SearchItemData,
 } from '../../elastic/types'
-import { getRepository } from '../../entity'
+import { getRepository } from '../../repository'
 import { UploadFile } from '../../entity/upload_file'
 import { User } from '../../entity/user'
 import { env } from '../../env'

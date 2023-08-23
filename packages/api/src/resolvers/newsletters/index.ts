@@ -1,4 +1,3 @@
-import { getRepository } from '../../entity'
 import { NewsletterEmail } from '../../entity/newsletter_email'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -14,6 +13,7 @@ import {
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,

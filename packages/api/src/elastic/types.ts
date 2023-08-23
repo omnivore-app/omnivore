@@ -114,7 +114,7 @@ export interface RecommendingUser {
   userId: string
   name: string
   username: string
-  profileImageURL: string | null
+  profileImageURL?: string | null
 }
 
 export interface Recommendation {

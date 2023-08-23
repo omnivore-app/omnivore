@@ -1,6 +1,6 @@
-import { setClaims } from '../entity'
+import { AppDataSource } from '../data-source'
 import { Link } from '../entity/link'
-import { AppDataSource } from '../server'
+import { setClaims } from '../repository'
 
 export const setLinkArchived = async (
   userId: string,

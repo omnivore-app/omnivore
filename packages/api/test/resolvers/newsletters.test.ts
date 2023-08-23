@@ -1,3 +1,12 @@
+import { expect } from 'chai'
+import 'mocha'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import { User } from '../../src/entity/user'
+import {
+  DeleteNewsletterEmailErrorCode,
+  SubscriptionStatus,
+} from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
 import {
   createTestNewsletterEmail,
   createTestSubscription,
@@ -6,15 +15,6 @@ import {
   getNewsletterEmail,
 } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { NewsletterEmail } from '../../src/entity/newsletter_email'
-import { User } from '../../src/entity/user'
-import { expect } from 'chai'
-import {
-  DeleteNewsletterEmailErrorCode,
-  SubscriptionStatus,
-} from '../../src/generated/graphql'
-import 'mocha'
-import { getRepository } from '../../src/entity'
 
 describe('Newsletters API', () => {
   let user: User

@@ -1,4 +1,3 @@
-import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
@@ -6,6 +5,7 @@ import {
   RecentSearchesErrorCode,
   RecentSearchesSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { getRecentSearches } from '../../services/search_history'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'

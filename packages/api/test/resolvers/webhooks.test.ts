@@ -1,11 +1,11 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { WebhookEvent } from '../../src/generated/graphql'
 import { Webhook } from '../../src/entity/webhook'
-import { getRepository } from '../../src/entity'
+import { WebhookEvent } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
+import { createTestUser, deleteTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Webhooks API', () => {
   let user: User

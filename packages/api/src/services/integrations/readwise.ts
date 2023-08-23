@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { HighlightType, Page } from '../../elastic/types'
-import { getRepository } from '../../entity'
+import { getRepository } from '../../repository'
 import { Integration } from '../../entity/integration'
 import { env } from '../../env'
 import { wait } from '../../utils/helpers'

@@ -1,7 +1,7 @@
 import Postgrator from 'postgrator'
 import { FindOptionsWhere } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
-import { getRepository, setClaims } from '../src/entity'
+import { getRepository, setClaims, userRepository } from '../src/repository'
 import { Integration } from '../src/entity/integration'
 import { Label } from '../src/entity/label'
 import { Link } from '../src/entity/link'
@@ -13,7 +13,7 @@ import { Subscription } from '../src/entity/subscription'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
 import { SubscriptionStatus, SubscriptionType } from '../src/generated/graphql'
-import { AppDataSource } from '../src/server'
+import { AppDataSource } from '../src/data-source'
 import { createUser } from '../src/services/create_user'
 import { Filter } from "../src/entity/filter"
 
@@ -189,7 +189,7 @@ export const getDeviceToken = async (
 }
 
 export const getUser = async (id: string): Promise<User | null> => {
-  return getRepository(User).findOneBy({ id })
+  return userRepository.findOneBy({ id })
 }
 
 export const getLink = async (id: string): Promise<Link | null> => {

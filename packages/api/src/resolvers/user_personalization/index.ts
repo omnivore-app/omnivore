@@ -1,4 +1,4 @@
-import { getRepository, setClaims } from '../../entity'
+import { AppDataSource } from '../../data-source'
 import { UserPersonalization } from '../../entity/user_personalization'
 import {
   GetUserPersonalizationError,
@@ -9,7 +9,7 @@ import {
   SetUserPersonalizationSuccess,
   SortOrder,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { getRepository, setClaims } from '../../repository'
 import { authorized } from '../../utils/helpers'
 
 export const setUserPersonalizationResolver = authorized<

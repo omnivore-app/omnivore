@@ -1,24 +1,19 @@
+import { env } from '../../env'
 import {
-  MutationAddPopularReadArgs,
   AddPopularReadError,
   AddPopularReadErrorCode,
   AddPopularReadSuccess,
+  MutationAddPopularReadArgs,
 } from '../../generated/graphql'
-
-import { authorized, userDataToUser } from '../../utils/helpers'
-import { analytics } from '../../utils/analytics'
+import { userRepository } from '../../repository'
 import { addPopularRead } from '../../services/popular_reads'
-import { env } from '../../env'
-
+import { analytics } from '../../utils/analytics'
+import { authorized } from '../../utils/helpers'
 export const addPopularReadResolver = authorized<
   AddPopularReadSuccess,
   AddPopularReadError,
   MutationAddPopularReadArgs
->(async (_, { name }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
+>(async (_, { name }, { uid }) => {
   analytics.track({
     userId: uid,
     event: 'popular_read_added',
@@ -28,7 +23,9 @@ export const addPopularReadResolver = authorized<
     },
   })
 
-  const user = userDataToUser(await models.user.get(uid))
+  const user = await userRepository.findOneBy({
+    id: uid,
+  })
   if (!user) {
     return { errorCodes: [AddPopularReadErrorCode.Unauthorized] }
   }

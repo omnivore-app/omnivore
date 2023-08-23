@@ -6,8 +6,9 @@ import {
   UpdatePageErrorCode,
   UpdatePageSuccess,
 } from '../../generated/graphql'
+import { userRepository } from '../../repository'
 import { Merge } from '../../util'
-import { authorized, userDataToUser } from '../../utils/helpers'
+import { authorized } from '../../utils/helpers'
 
 export type UpdatePageSuccessPartial = Merge<
   UpdatePageSuccess,
@@ -19,21 +20,21 @@ export const updatePageResolver = authorized<
   UpdatePageError,
   MutationUpdatePageArgs
 >(async (_, { input }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
-
-  const user = userDataToUser(await models.user.get(uid))
+  const { pubsub, uid } = ctx
+  const user = await userRepository.findOneBy({ id: uid })
   if (!user) {
     return { errorCodes: [UpdatePageErrorCode.Unauthorized] }
   }
 
   const page = await getPageById(input.pageId)
 
-  if (!page) return { errorCodes: [UpdatePageErrorCode.NotFound] }
-  else if (page.userId !== user.id)
+  if (!page) {
+    return { errorCodes: [UpdatePageErrorCode.NotFound] }
+  }
+
+  if (page.userId !== user.id) {
     return { errorCodes: [UpdatePageErrorCode.Unauthorized] }
+  }
 
   const pageData = {
     id: input.pageId,
@@ -47,7 +48,7 @@ export const updatePageResolver = authorized<
   }
 
   const updateResult = await updatePage(input.pageId, pageData, {
-    pubsub: ctx.pubsub,
+    pubsub: pubsub,
     uid,
     refresh: true,
   })

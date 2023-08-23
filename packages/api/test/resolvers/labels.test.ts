@@ -1,3 +1,21 @@
+import { expect } from 'chai'
+import 'mocha'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { refreshIndex } from '../../src/elastic'
+import {
+  addHighlightToPage,
+  getHighlightById,
+} from '../../src/elastic/highlights'
+import { deletePage, getPageById } from '../../src/elastic/pages'
+import {
+  Highlight,
+  HighlightType,
+  Page,
+  PageContext,
+} from '../../src/elastic/types'
+import { Label } from '../../src/entity/label'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
 import {
   createTestLabel,
   createTestUser,
@@ -10,24 +28,6 @@ import {
   graphqlRequest,
   request,
 } from '../util'
-import { Label } from '../../src/entity/label'
-import { expect } from 'chai'
-import 'mocha'
-import { User } from '../../src/entity/user'
-import {
-  Highlight,
-  HighlightType,
-  Page,
-  PageContext,
-} from '../../src/elastic/types'
-import { getRepository } from '../../src/entity'
-import { deletePage, getPageById } from '../../src/elastic/pages'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import {
-  addHighlightToPage,
-  getHighlightById,
-} from '../../src/elastic/highlights'
-import { refreshIndex } from '../../src/elastic'
 
 describe('Labels API', () => {
   let user: User

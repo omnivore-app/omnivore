@@ -1,4 +1,3 @@
-import { getRepository } from '../../entity'
 import { Integration, IntegrationType } from '../../entity/integration'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -19,6 +18,7 @@ import {
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { getIntegrationService } from '../../services/integrations'
 import { analytics } from '../../utils/analytics'
 import {

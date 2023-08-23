@@ -3,7 +3,6 @@ import normalizeUrl from 'normalize-url'
 import path from 'path'
 import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
 import { PageType } from '../../elastic/types'
-import { uploadFileRepository } from '../../entity'
 import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import {
@@ -14,6 +13,7 @@ import {
   UploadFileRequestSuccess,
   UploadFileStatus,
 } from '../../generated/graphql'
+import { uploadFileRepository } from '../../repository'
 import { validateUrl } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
 import { authorized, generateSlug } from '../../utils/helpers'

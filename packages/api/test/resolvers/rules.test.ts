@@ -1,10 +1,10 @@
-import 'mocha'
 import { expect } from 'chai'
-import { graphqlRequest, request } from '../util'
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { getRepository } from '../../src/entity'
+import 'mocha'
 import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import { createTestUser, deleteTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Rules Resolver', () => {
   const username = 'fakeUser'

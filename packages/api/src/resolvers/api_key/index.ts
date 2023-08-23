@@ -1,6 +1,4 @@
-import { getRepository } from '../../entity'
 import { ApiKey } from '../../entity/api_key'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   ApiKeysError,
@@ -15,6 +13,7 @@ import {
   RevokeApiKeyErrorCode,
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
+import { getRepository, userRepository } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
 import { authorized } from '../../utils/helpers'
@@ -24,7 +23,7 @@ export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
     log.info('apiKeysResolver')
 
     try {
-      const user = await getRepository(User).findOneBy({ id: uid })
+      const user = await userRepository.findOneBy({ id: uid })
       if (!user) {
         return {
           errorCodes: [ApiKeysErrorCode.Unauthorized],
@@ -60,7 +59,7 @@ export const generateApiKeyResolver = authorized<
 >(async (_, { input: { name, expiresAt } }, { claims: { uid }, log }) => {
   try {
     log.info('generateApiKeyResolver')
-    const user = await getRepository(User).findOneBy({ id: uid })
+    const user = await userRepository.findOneBy({ id: uid })
     if (!user) {
       return {
         errorCodes: [GenerateApiKeyErrorCode.Unauthorized],
@@ -117,7 +116,7 @@ export const revokeApiKeyResolver = authorized<
   log.info('RevokeApiKeyResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
+    const user = await userRepository.findOneBy({ id: uid })
     if (!user) {
       return {
         errorCodes: [RevokeApiKeyErrorCode.Unauthorized],

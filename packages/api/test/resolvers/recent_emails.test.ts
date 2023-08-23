@@ -1,13 +1,13 @@
-import 'mocha'
 import { expect } from 'chai'
+import 'mocha'
+import sinon from 'sinon'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
-import { getRepository } from '../../src/entity'
-import { ReceivedEmail } from '../../src/entity/received_email'
-import { NewsletterEmail } from '../../src/entity/newsletter_email'
-import sinon from 'sinon'
-import * as sendEmail from '../../src/utils/sendEmail'
 
 describe('Recent Emails Resolver', () => {
   const recentEmailsQuery = `

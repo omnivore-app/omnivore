@@ -1,6 +1,6 @@
+import { AppDataSource } from '../data-source'
 import { UserData } from '../datalayer/user/model'
 import { updatePage } from '../elastic/pages'
-import { getRepository } from '../entity'
 import { UploadFile } from '../entity/upload_file'
 import { homePageURL } from '../env'
 import {
@@ -9,8 +9,8 @@ import {
   SaveFileInput,
   SaveResult,
 } from '../generated/graphql'
+import { getRepository } from '../repository'
 import { WithDataSourcesContext } from '../resolvers/types'
-import { AppDataSource } from '../server'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
 import { createLabels } from './labels'

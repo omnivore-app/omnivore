@@ -1,5 +1,11 @@
-import 'mocha'
 import { expect } from 'chai'
+import 'mocha'
+import { Label } from '../../src/entity/label'
+import { Link } from '../../src/entity/link'
+import { LinkLabel } from '../../src/entity/link_label'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import { labelsLoader } from '../../src/services/labels'
 import {
   createTestLabel,
   createTestLink,
@@ -7,12 +13,6 @@ import {
   createTestUser,
   deleteTestUser,
 } from '../db'
-import { LinkLabel } from '../../src/entity/link_label'
-import { Label } from '../../src/entity/label'
-import { Link } from '../../src/entity/link'
-import { labelsLoader } from '../../src/services/labels'
-import { getRepository } from '../../src/entity'
-import { User } from '../../src/entity/user'
 
 describe('batch get labels from linkIds', () => {
   let user: User

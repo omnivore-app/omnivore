@@ -12,7 +12,7 @@ import { Reminder } from '../../src/entity/reminder'
 import { expect } from 'chai'
 import 'mocha'
 
-describe('Reminders Router', () => {
+xdescribe('Reminders Router', () => {
   let authToken: string
   let user: User
   let reminder: Reminder

@@ -1,14 +1,14 @@
+import chai, { expect } from 'chai'
 import 'mocha'
+import nock from 'nock'
+import sinonChai from 'sinon-chai'
+import { Integration } from '../../src/entity/integration'
 import { User } from '../../src/entity/user'
+import { SetIntegrationErrorCode } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
+import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { SetIntegrationErrorCode } from '../../src/generated/graphql'
-import chai, { expect } from 'chai'
-import { getRepository } from '../../src/entity'
-import { Integration } from '../../src/entity/integration'
-import nock from 'nock'
-import { READWISE_API_URL } from '../../src/services/integrations/readwise'
-import sinonChai from 'sinon-chai'
 
 chai.use(sinonChai)
 

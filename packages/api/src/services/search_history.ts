@@ -1,5 +1,5 @@
-import { getRepository } from '../entity'
 import { SearchHistory } from '../entity/search_history'
+import { getRepository } from '../repository'
 
 export const getRecentSearches = async (
   userId: string

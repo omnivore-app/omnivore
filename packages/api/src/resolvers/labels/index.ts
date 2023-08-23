@@ -1,4 +1,5 @@
 import { Between } from 'typeorm'
+import { AppDataSource } from '../../data-source'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { getHighlightById } from '../../elastic/highlights'
 import {
@@ -8,7 +9,6 @@ import {
   updateLabelsInPage,
 } from '../../elastic/labels'
 import { getPageById } from '../../elastic/pages'
-import { getRepository, setClaims } from '../../entity'
 import { Label } from '../../entity/label'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -38,7 +38,7 @@ import {
   UpdateLabelErrorCode,
   UpdateLabelSuccess,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { getRepository, setClaims } from '../../repository'
 import {
   createLabel,
   createLabels,

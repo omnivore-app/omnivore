@@ -1,8 +1,8 @@
 import { EntityManager, EntityTarget, Repository } from 'typeorm'
-import { AppDataSource } from '../server'
-import { Reminder } from './reminder'
-import { UploadFile } from './upload_file'
-import { User } from './user'
+import { AppDataSource } from '../data-source'
+import { Reminder } from '../entity/reminder'
+import { UploadFile } from '../entity/upload_file'
+import { User } from '../entity/user'
 
 export const setClaims = async (
   t: EntityManager,

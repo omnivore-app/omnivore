@@ -1,6 +1,6 @@
 import { ILike } from 'typeorm'
-import { getRepository } from '../entity'
 import { Rule, RuleAction } from '../entity/rule'
+import { getRepository } from '../repository'
 
 export const createRule = async (
   userId: string,

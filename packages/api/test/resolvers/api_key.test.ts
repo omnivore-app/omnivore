@@ -1,10 +1,10 @@
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import supertest from 'supertest'
-import { getRepository } from '../../src/entity'
 import { ApiKey } from '../../src/entity/api_key'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import { createTestUser, deleteTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 const testAPIKey = (apiKey: string): supertest.Test => {
   const query = `

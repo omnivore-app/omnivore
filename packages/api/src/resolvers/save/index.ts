@@ -1,4 +1,3 @@
-import { getRepository } from '../../entity'
 import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
@@ -9,6 +8,7 @@ import {
   SaveErrorCode,
   SaveSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'

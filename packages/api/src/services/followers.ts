@@ -1,6 +1,6 @@
-import { getRepository } from '../entity'
 import { Follower } from '../entity/follower'
 import { User } from '../entity/user'
+import { getRepository } from '../repository'
 
 export const getUserFollowers = async (
   user: User,

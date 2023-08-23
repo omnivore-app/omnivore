@@ -1,3 +1,9 @@
+import { expect } from 'chai'
+import 'mocha'
+import { User } from '../../src/entity/user'
+import { UserDeviceToken } from '../../src/entity/user_device_tokens'
+import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
 import {
   createTestDeviceToken,
   createTestUser,
@@ -6,12 +12,6 @@ import {
   getDeviceToken,
 } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { expect } from 'chai'
-import { UserDeviceToken } from '../../src/entity/user_device_tokens'
-import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
-import 'mocha'
-import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity'
 
 describe('Device tokens API', () => {
   let authToken: string

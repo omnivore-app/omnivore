@@ -1,12 +1,12 @@
-import 'mocha'
 import { expect } from 'chai'
-import { User } from '../../src/entity/user'
+import 'mocha'
+import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { PageContext } from '../../src/elastic/types'
+import { SearchHistory } from '../../src/entity/search_history'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getRepository } from '../../src/entity'
-import { SearchHistory } from '../../src/entity/search_history'
 
 describe('recent_searches resolver', () => {
   let user: User

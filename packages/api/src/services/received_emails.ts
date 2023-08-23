@@ -1,5 +1,5 @@
-import { getRepository } from '../entity'
 import { ReceivedEmail } from '../entity/received_email'
+import { getRepository } from '../repository'
 
 export const saveReceivedEmail = async (
   from: string,

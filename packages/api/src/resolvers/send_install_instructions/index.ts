@@ -5,7 +5,7 @@ import {
   SendInstallInstructionsErrorCode,
   SendInstallInstructionsSuccess,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { AppDataSource } from '../../data-source'
 import { authorized } from '../../utils/helpers'
 import { sendEmail } from '../../utils/sendEmail'
 

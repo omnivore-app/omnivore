@@ -1,9 +1,9 @@
-import { getRepository, setClaims } from '../entity'
+import { AppDataSource } from '../data-source'
 import { User } from '../entity/user'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { SetDeviceTokenErrorCode } from '../generated/graphql'
-import { AppDataSource } from '../server'
+import { getRepository, setClaims } from '../repository'
 import { analytics } from '../utils/analytics'
 
 export const getDeviceToken = async (

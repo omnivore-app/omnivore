@@ -1,11 +1,11 @@
-import { User } from '../../src/entity/user'
+import { expect } from 'chai'
 import { Page } from '../../src/elastic/types'
+import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
+import { User } from '../../src/entity/user'
+import { ReportType } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
 import { createTestUser, deleteTestUser } from '../db'
 import { createTestElasticPage, graphqlRequest, request } from '../util'
-import { ReportType } from '../../src/generated/graphql'
-import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
-import { expect } from 'chai'
-import { getRepository } from '../../src/entity'
 
 describe('Report API', () => {
   let user: User

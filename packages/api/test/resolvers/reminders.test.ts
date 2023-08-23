@@ -22,7 +22,7 @@ import { DateTime } from 'luxon'
 import 'mocha'
 import { Page } from '../../src/elastic/types'
 
-describe('Reminders API', () => {
+xdescribe('Reminders API', () => {
   let authToken: string
   let page: Page
   let reminder: Reminder

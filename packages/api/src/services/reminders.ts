@@ -1,7 +1,7 @@
 import { EntityManager, IsNull, Not } from 'typeorm'
 import { getPageById } from '../elastic/pages'
-import { getRepository } from '../entity'
 import { Reminder } from '../entity/reminder'
+import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export interface PageReminder {

@@ -8,12 +8,12 @@ import {
   updatePage,
 } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
-import { getRepository } from '../entity'
 import { User } from '../entity/user'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
+import { getRepository } from '../repository'
 import { enqueueParseRequest } from '../utils/createTask'
 import {
   cleanUrl,

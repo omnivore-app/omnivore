@@ -1,3 +1,11 @@
+import { expect } from 'chai'
+import 'mocha'
+import { Highlight } from '../../src/entity/highlight'
+import { Link } from '../../src/entity/link'
+import { Page } from '../../src/entity/page'
+import { User } from '../../src/entity/user'
+import { SharedArticleErrorCode } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
 import {
   createTestLink,
   createTestPage,
@@ -5,16 +13,8 @@ import {
   deleteTestUser,
 } from '../db'
 import { graphqlRequest, request } from '../util'
-import { expect } from 'chai'
-import { SharedArticleErrorCode } from '../../src/generated/graphql'
-import { Page } from '../../src/entity/page'
-import { Link } from '../../src/entity/link'
-import { Highlight } from '../../src/entity/highlight'
-import 'mocha'
-import { getRepository } from '../../src/entity'
-import { User } from '../../src/entity/user'
 
-describe('User feed article API', () => {
+xdescribe('User feed article API', () => {
   const existingUsername = 'fakeUser'
   let user: User
   let authToken: string

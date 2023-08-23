@@ -148,7 +148,6 @@ export const userDataToUser = (
   profile: Profile
 } => ({
   ...user,
-  name: user.name,
   source: user.source as RegistrationType,
   createdAt: user.createdAt || new Date(),
   friendsCount: user.friendsCount || 0,

@@ -9,7 +9,7 @@ import { createPubSubClient } from '../datalayer/pubsub'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { addRecommendation } from '../elastic/recommendation'
 import { Recommendation } from '../elastic/types'
-import { uploadFileRepository } from '../entity'
+import { uploadFileRepository } from '../repository'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,

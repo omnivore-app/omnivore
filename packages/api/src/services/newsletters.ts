@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid'
-import { getRepository } from '../entity'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { User } from '../entity/user'
 import { env } from '../env'
@@ -7,6 +6,7 @@ import {
   CreateNewsletterEmailErrorCode,
   SubscriptionStatus,
 } from '../generated/graphql'
+import { getRepository } from '../repository'
 import addressparser = require('nodemailer/lib/addressparser')
 
 const parsedAddress = (emailAddress: string): string | undefined => {

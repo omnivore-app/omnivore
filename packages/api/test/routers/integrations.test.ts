@@ -16,10 +16,10 @@ import {
   Page,
   PageContext,
 } from '../../src/elastic/types'
-import { getRepository } from '../../src/entity'
 import { Integration, IntegrationType } from '../../src/entity/integration'
 import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
+import { getRepository } from '../../src/repository'
 import { getHighlightUrl } from '../../src/services/highlights'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'

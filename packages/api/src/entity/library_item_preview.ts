@@ -19,7 +19,7 @@ export class LibraryItemPreview {
   @JoinColumn({ name: 'sender_id' })
   sender!: User
 
-  @Column('array', { name: 'recipient_ids' })
+  @Column('text', { name: 'recipient_ids', array: true })
   recipientIds!: string[]
 
   @OneToOne(() => LibraryItem, { onDelete: 'CASCADE' })

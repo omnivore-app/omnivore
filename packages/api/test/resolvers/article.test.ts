@@ -22,7 +22,6 @@ import {
   PageContext,
   PageType,
 } from '../../src/elastic/types'
-import { getRepository } from '../../src/entity'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
 import {
@@ -31,6 +30,7 @@ import {
   UpdateReason,
   UploadFileStatus,
 } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
 import { createTestUser, deleteTestUser } from '../db'

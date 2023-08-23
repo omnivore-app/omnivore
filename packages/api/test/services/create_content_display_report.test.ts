@@ -1,14 +1,14 @@
-import 'mocha'
 import chai, { expect } from 'chai'
-import { createTestUser, deleteTestUser } from '../db'
+import 'mocha'
 import sinonChai from 'sinon-chai'
-import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity'
-import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
-import { saveContentDisplayReport } from '../../src/services/reports'
-import { ReportType } from '../../src/generated/graphql'
-import { createTestElasticPage } from '../util'
 import { Page } from '../../src/elastic/types'
+import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
+import { User } from '../../src/entity/user'
+import { ReportType } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
+import { saveContentDisplayReport } from '../../src/services/reports'
+import { createTestUser, deleteTestUser } from '../db'
+import { createTestElasticPage } from '../util'
 
 chai.use(sinonChai)
 

@@ -1,19 +1,19 @@
+import { expect } from 'chai'
+import * as jwt from 'jsonwebtoken'
+import 'mocha'
+import sinon from 'sinon'
+import { ReceivedEmail } from '../../src/entity/received_email'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import * as parser from '../../src/utils/parser'
+import * as sendEmail from '../../src/utils/sendEmail'
+import * as sendNotification from '../../src/utils/sendNotification'
 import {
   createTestNewsletterEmail,
   createTestUser,
   deleteTestUser,
 } from '../db'
-import { User } from '../../src/entity/user'
-import 'mocha'
-import sinon from 'sinon'
-import { expect } from 'chai'
 import { request } from '../util'
-import * as parser from '../../src/utils/parser'
-import * as sendNotification from '../../src/utils/sendNotification'
-import * as sendEmail from '../../src/utils/sendEmail'
-import { getRepository } from '../../src/entity'
-import { ReceivedEmail } from '../../src/entity/received_email'
-import * as jwt from 'jsonwebtoken'
 
 describe('Emails Router', () => {
   const newsletterEmail = 'fakeUser@omnivore.app'

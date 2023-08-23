@@ -1,6 +1,6 @@
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
-import { getRepository } from '../../entity'
+import { AppDataSource } from '../../data-source'
 import { Subscription } from '../../entity/subscription'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -26,7 +26,7 @@ import {
   UpdateSubscriptionErrorCode,
   UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { getRepository } from '../../repository'
 import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
