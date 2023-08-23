@@ -278,8 +278,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       )
       element?.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
+        block: 'center',
+        inline: 'center',
       })
     }
 
