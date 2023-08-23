@@ -181,16 +181,16 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
       css={{
         width: '100%',
         height: '100%',
-        overflowY: 'scroll',
         bg: '$thNotebookBackground',
       }}
     >
       <Header {...props} />{' '}
       <VStack
-        tabIndex={-1}
         distribution="start"
         css={{
           width: '100%',
+          height: '100%',
+          overflowY: 'scroll',
           bg: '$thNotebookBackground',
         }}
       >
@@ -198,8 +198,8 @@ export const Inspector = (props: InspectorProps): JSX.Element => {
         {props.currentView == 'labels' && <LabelsView {...props} />}
         {props.currentView == 'info' && <EditItemInfoView {...props} />}
         {props.currentView == 'outline' && <OutlineView {...props} />}
+        <Box css={{ minHeight: '180px' }}></Box>
       </VStack>
-      <Box css={{ minHeight: '180px' }}></Box>
     </VStack>
   )
 }
