@@ -10,7 +10,7 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { HighlightType, PageContext } from '../../src/elastic/types'
 import { deletePage, updatePage } from '../../src/elastic/pages'
 

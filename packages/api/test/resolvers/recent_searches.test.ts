@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'mocha'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { PageContext } from '../../src/elastic/types'
 import { SearchHistory } from '../../src/entity/search_history'
 import { User } from '../../src/entity/user'

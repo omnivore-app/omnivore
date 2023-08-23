@@ -3,7 +3,6 @@ import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
 import sinon from 'sinon'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
 import { refreshIndex } from '../../src/elastic'
 import { addHighlightToPage } from '../../src/elastic/highlights'
 import {
@@ -30,6 +29,7 @@ import {
   UpdateReason,
   UploadFileStatus,
 } from '../../src/generated/graphql'
+import { createPubSubClient } from '../../src/pubsub'
 import { getRepository } from '../../src/repository'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'

@@ -15,17 +15,10 @@ import * as jwt from 'jsonwebtoken'
 import url from 'url'
 import { promisify } from 'util'
 import { AppDataSource } from '../../data-source'
-import { kx } from '../../datalayer/knex_config'
-import UserModel from '../../datalayer/user'
-import {
-  RegistrationType,
-  StatusType,
-  UserData,
-} from '../../datalayer/user/model'
-import { User } from '../../entity/user'
+import { RegistrationType, StatusType, User } from '../../entity/user'
 import { env } from '../../env'
 import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
-import { getRepository, setClaims } from '../../repository'
+import { getRepository, setClaims, userRepository } from '../../repository'
 import { isErrorWithCode } from '../../resolvers'
 import { createUser, getUserByEmail } from '../../services/create_user'
 import {
@@ -247,8 +240,7 @@ export function authRouter() {
       return { errorCodes: [SignupErrorCode.GoogleAuthError] }
     }
 
-    const model = new UserModel(kx)
-    const user = await model.getWhere({ email: userData.email })
+    const user = await userRepository.findOneBy({ email: userData.email })
 
     // eslint-disable-next @typescript-eslint/ban-ts-comment
     const secret = (await signToken(
@@ -343,7 +335,7 @@ export function authRouter() {
   async function handleSuccessfulLogin(
     req: express.Request,
     res: express.Response,
-    user: UserData | User,
+    user: User,
     newUser: boolean
   ): Promise<void> {
     try {

@@ -1,11 +1,11 @@
-import { createApp } from '../src/server'
 import supertest from 'supertest'
 import { v4 } from 'uuid'
-import { corsConfig } from '../src/utils/corsConfig'
+import { createPage } from '../src/elastic/pages'
 import { ArticleSavingRequestStatus, Label, Page } from '../src/elastic/types'
 import { PageType } from '../src/generated/graphql'
-import { createPubSubClient } from '../src/datalayer/pubsub'
-import { createPage } from '../src/elastic/pages'
+import { createPubSubClient } from '../src/pubsub'
+import { createApp } from '../src/server'
+import { corsConfig } from '../src/utils/corsConfig'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)

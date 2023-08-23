@@ -1,10 +1,10 @@
 import * as httpContext from 'express-http-context2'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { createPubSubClient } from '../datalayer/pubsub'
 import { createPage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page, PageContext } from '../elastic/types'
 import { PageType } from '../generated/graphql'
+import { createPubSubClient } from '../pubsub'
 import { generateSlug, stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
 

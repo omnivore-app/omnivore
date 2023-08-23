@@ -1,7 +1,7 @@
 import { AppDataSource } from '../data-source'
-import { UserData } from '../datalayer/user/model'
 import { updatePage } from '../elastic/pages'
 import { UploadFile } from '../entity/upload_file'
+import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -24,7 +24,7 @@ export const setFileUploadComplete = async (
 
 export const saveFile = async (
   ctx: WithDataSourcesContext,
-  user: UserData,
+  user: User,
   input: SaveFileInput
 ): Promise<SaveResult> => {
   logger.info('saving file with input', input)

@@ -1,8 +1,8 @@
 import { PubSub } from '@google-cloud/pubsub'
-import { env } from '../env'
-import { ReportType } from '../generated/graphql'
 import express from 'express'
-import { buildLogger } from '../utils/logger'
+import { env } from './env'
+import { ReportType } from './generated/graphql'
+import { buildLogger } from './utils/logger'
 
 const logger = buildLogger('pubsub')
 

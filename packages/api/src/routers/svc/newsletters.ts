@@ -1,9 +1,6 @@
 import express from 'express'
-import {
-  createPubSubClient,
-  readPushSubscription,
-} from '../../datalayer/pubsub'
 import { SubscriptionStatus } from '../../generated/graphql'
+import { createPubSubClient, readPushSubscription } from '../../pubsub'
 import {
   getNewsletterEmail,
   updateConfirmationCode,

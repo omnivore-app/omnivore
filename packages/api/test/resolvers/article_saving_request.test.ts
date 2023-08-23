@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import 'mocha'
 import sinon from 'sinon'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { deletePagesByParam, getPageByParam } from '../../src/elastic/pages'
 import {
   ArticleSavingRequestStatus,

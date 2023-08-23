@@ -1,6 +1,5 @@
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
-import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
 import {
   countByCreatedAt,
   createPage,
@@ -13,6 +12,7 @@ import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
 } from '../generated/graphql'
+import { createPubSubClient, PubsubClient } from '../pubsub'
 import { getRepository } from '../repository'
 import { enqueueParseRequest } from '../utils/createTask'
 import {

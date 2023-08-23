@@ -7,7 +7,7 @@ import {
   PageContext,
   PageType,
 } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import {
   countByCreatedAt,
   createPage,

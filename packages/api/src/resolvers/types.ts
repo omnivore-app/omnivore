@@ -4,7 +4,7 @@ import { Context as ApolloContext } from 'apollo-server-core'
 import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
 import winston from 'winston'
-import { PubsubClient } from '../datalayer/pubsub'
+import { PubsubClient } from '../pubsub'
 
 export interface Claims {
   uid: string

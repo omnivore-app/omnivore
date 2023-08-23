@@ -4,8 +4,8 @@
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { readPushSubscription } from '../../datalayer/pubsub'
 import { env } from '../../env'
+import { readPushSubscription } from '../../pubsub'
 import { logger } from '../../utils/logger'
 import { uploadToBucket } from '../../utils/uploads'
 

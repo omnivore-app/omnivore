@@ -1,10 +1,10 @@
 import { MulticastMessage } from 'firebase-admin/messaging'
 import { AppDataSource } from '../../data-source'
-import { createPubSubClient } from '../../datalayer/pubsub'
 import { updatePage } from '../../elastic/pages'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { homePageURL } from '../../env'
 import { ContentReader } from '../../generated/graphql'
+import { createPubSubClient } from '../../pubsub'
 import { setClaims } from '../../repository'
 import { PageReminder, setRemindersComplete } from '../../services/reminders'
 

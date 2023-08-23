@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import UserModel from '../../../datalayer/user'
-import { StatusType } from '../../../datalayer/user/model'
+import { StatusType } from '../../../entity/user'
+import { userRepository } from '../../../repository'
 import { getUserByEmail } from '../../../services/create_user'
 import { sendConfirmationEmail } from '../../../services/send_emails'
 import { comparePassword } from '../../../utils/auth'
@@ -97,8 +97,7 @@ async function createAuthResponsePayload(
   }
 
   try {
-    const model = new UserModel()
-    const user = await model.getWhere({
+    const user = await userRepository.findOneBy({
       email: decodedTokenResult.email,
       source: authProvider,
     })

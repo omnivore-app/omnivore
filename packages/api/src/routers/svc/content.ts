@@ -3,13 +3,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
 import { AppDataSource } from '../../data-source'
-import {
-  createPubSubClient,
-  readPushSubscription,
-} from '../../datalayer/pubsub'
 import { getPageByParam, updatePage } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
+import { createPubSubClient, readPushSubscription } from '../../pubsub'
 import { setClaims } from '../../repository'
 import { setFileUploadComplete } from '../../services/save_file'
 import { logger } from '../../utils/logger'

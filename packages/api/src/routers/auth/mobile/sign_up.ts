@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import UserModel from '../../../datalayer/user'
+import { userRepository } from '../../../repository'
 import { createUser } from '../../../services/create_user'
 import { hashPassword } from '../../../utils/auth'
 import { logger } from '../../../utils/logger'
@@ -97,8 +97,7 @@ async function createSignUpResponsePayload(
     }
 
     // check if user exists
-    const userModel = new UserModel()
-    const existingUser = await userModel.getWhere({ email })
+    const existingUser = await userRepository.findOneBy({ email })
 
     if (existingUser) {
       return {

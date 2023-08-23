@@ -7,7 +7,7 @@ import sinon from 'sinon'
 import {
   createPubSubClient,
   PubSubRequestBody,
-} from '../../src/datalayer/pubsub'
+} from '../../src/pubsub'
 import { addHighlightToPage } from '../../src/elastic/highlights'
 import { deletePage } from '../../src/elastic/pages'
 import {

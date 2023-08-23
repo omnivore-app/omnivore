@@ -3,8 +3,9 @@ import {
   EventSubscriber,
   InsertEvent,
 } from 'typeorm'
-import { createPubSubClient } from '../../datalayer/pubsub'
 import { Profile } from '../../entity/profile'
+import { env } from '../../env'
+import { createPubSubClient } from '../../pubsub'
 import { addPopularReadsForNewUser } from '../../services/popular_reads'
 import { IntercomClient } from '../../utils/intercom'
 

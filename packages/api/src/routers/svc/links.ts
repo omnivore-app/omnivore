@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
+import { readPushSubscription } from '../../pubsub'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { logger } from '../../utils/logger'
 

@@ -1,7 +1,7 @@
 import { errors } from '@elastic/elasticsearch'
 import { BuiltQuery, ESBuilder, esBuilder } from 'elastic-ts'
-import { EntityType } from '../datalayer/pubsub'
 import { BulkActionType } from '../generated/graphql'
+import { EntityType } from '../pubsub'
 import { wordsCount } from '../utils/helpers'
 import {
   DateFilter,

@@ -9,7 +9,7 @@ import {
   PageContext,
   PageType,
 } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { createPage, deletePage, getPageById } from '../../src/elastic/pages'
 import { addLabelInPage, setLabelsForHighlight } from '../../src/elastic/labels'
 import { addHighlightToPage } from '../../src/elastic/highlights'

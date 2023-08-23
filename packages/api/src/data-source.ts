@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
   subscribers: [__dirname + '/events/**/*{.js,.ts}'],
   namingStrategy: new SnakeNamingStrategy(),
   logger: new CustomTypeOrmLogger(),
-  // cache: true,
-  connectTimeoutMS: 60000, // 60 seconds
-  maxQueryExecutionTime: 60000, // 60 seconds
+  cache: true,
+  connectTimeoutMS: 40000, // 40 seconds
+  maxQueryExecutionTime: 10000, // 10 seconds
 })

@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import axios, { Method } from 'axios'
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
 import { Webhook } from '../../entity/webhook'
+import { readPushSubscription } from '../../pubsub'
 import { getRepository } from '../../repository'
 import { logger } from '../../utils/logger'
 

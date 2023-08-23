@@ -1,10 +1,7 @@
 import cors from 'cors'
 import express from 'express'
-import {
-  createPubSubClient,
-  readPushSubscription,
-} from '../../datalayer/pubsub'
 import { env } from '../../env'
+import { createPubSubClient, readPushSubscription } from '../../pubsub'
 import { getNewsletterEmail } from '../../services/newsletters'
 import {
   saveReceivedEmail,

@@ -1,5 +1,5 @@
 // Define the type of the body for the Search request
-import { PubsubClient } from '../datalayer/pubsub'
+import { PubsubClient } from '../pubsub'
 import { PickTuple } from '../util'
 import {
   DateFilter,

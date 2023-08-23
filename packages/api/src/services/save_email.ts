@@ -1,6 +1,6 @@
-import { PubsubClient } from '../datalayer/pubsub'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
+import { PubsubClient } from '../pubsub'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   cleanUrl,

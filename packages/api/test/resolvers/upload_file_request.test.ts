@@ -6,7 +6,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { PageContext } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { deletePage, getPageById } from '../../src/elastic/pages'
 
 chai.use(chaiString)

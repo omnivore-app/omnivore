@@ -6,7 +6,7 @@ import {
   Page,
   PageContext,
 } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { deletePage } from '../../src/elastic/pages'
 import {
   addHighlightToPage,

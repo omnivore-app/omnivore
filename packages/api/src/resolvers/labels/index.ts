@@ -1,6 +1,5 @@
 import { Between } from 'typeorm'
 import { AppDataSource } from '../../data-source'
-import { createPubSubClient } from '../../datalayer/pubsub'
 import { getHighlightById } from '../../elastic/highlights'
 import {
   deleteLabel,
@@ -38,6 +37,7 @@ import {
   UpdateLabelErrorCode,
   UpdateLabelSuccess,
 } from '../../generated/graphql'
+import { createPubSubClient } from '../../pubsub'
 import { getRepository, setClaims } from '../../repository'
 import {
   createLabel,

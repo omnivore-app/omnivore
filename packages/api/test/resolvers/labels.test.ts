@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import 'mocha'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { refreshIndex } from '../../src/elastic'
 import {
   addHighlightToPage,

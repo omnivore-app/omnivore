@@ -1,5 +1,5 @@
 import { errors } from '@elastic/elasticsearch'
-import { EntityType } from '../datalayer/pubsub'
+import { EntityType } from '../pubsub'
 import { client, INDEX_ALIAS, logger } from './index'
 import { Label, PageContext } from './types'
 

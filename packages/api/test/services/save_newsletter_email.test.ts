@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import 'mocha'
 import nock from 'nock'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
+import { createPubSubClient } from '../../src/pubsub'
 import { getPageByParam } from '../../src/elastic/pages'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'

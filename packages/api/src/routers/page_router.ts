@@ -5,17 +5,17 @@
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { createPubSubClient } from '../datalayer/pubsub'
 import { createPage, getPageByParam, updatePage } from '../elastic/pages'
 import { addRecommendation } from '../elastic/recommendation'
 import { Recommendation } from '../elastic/types'
-import { uploadFileRepository } from '../repository'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
   PageType,
   UploadFileStatus,
 } from '../generated/graphql'
+import { createPubSubClient } from '../pubsub'
+import { uploadFileRepository } from '../repository'
 import { Claims } from '../resolvers/types'
 import { getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
