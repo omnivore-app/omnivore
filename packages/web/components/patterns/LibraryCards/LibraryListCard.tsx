@@ -33,6 +33,7 @@ import { theme } from '../../tokens/stitches.config'
 import { FallbackImage } from './FallbackImage'
 import { useRouter } from 'next/router'
 import { LoadingBar } from '../../elements/LoadingBar'
+import { useWindowSize } from '../../../lib/hooks/useWindowSize'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const router = useRouter()
@@ -191,13 +192,54 @@ type ListImageProps = {
   title?: string
   readingProgress?: number
   isLoading?: boolean
+  isChecked: boolean
+  handleCheckChanged: () => void
 }
 
 const ListImage = (props: ListImageProps): JSX.Element => {
+  const windowSize = useWindowSize()
   const [displayFallback, setDisplayFallback] = useState(props.src == undefined)
 
   return (
-    <>
+    <Box
+      css={{
+        position: 'relative',
+        '@mdDown': {
+          ml: '2.5px',
+          cursor: 'pointer',
+        },
+      }}
+      onClick={(event) => {
+        if (windowSize.width < 768) {
+          props.handleCheckChanged()
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }}
+    >
+      <SpanBox
+        css={{
+          position: 'absolute',
+          top: '2px',
+          left: '2px',
+
+          zIndex: '3',
+          lineHeight: '1',
+          '> input': {
+            p: '0px',
+            m: '0px',
+          },
+          '@md': {
+            display: 'none',
+          },
+        }}
+      >
+        <CardCheckbox
+          isChecked={props.isChecked}
+          handleChanged={props.handleCheckChanged}
+        />
+      </SpanBox>
+
       {props.isLoading && (
         <LoadingBarOverlay
           width="55px"
@@ -236,7 +278,7 @@ const ListImage = (props: ListImageProps): JSX.Element => {
           }}
         />
       )}
-    </>
+    </Box>
   )
 }
 
@@ -265,6 +307,9 @@ export function LibraryListCardContent(
             p: '0px',
             m: '0px',
           },
+          '@mdDown': {
+            display: 'none',
+          },
         }}
       >
         <CardCheckbox
@@ -278,6 +323,8 @@ export function LibraryListCardContent(
           title={props.item.title}
           readingProgress={item.readingProgressPercent}
           isLoading={props.isLoading}
+          isChecked={props.isChecked}
+          handleCheckChanged={handleCheckChanged}
         />
       </Box>
       <VStack
