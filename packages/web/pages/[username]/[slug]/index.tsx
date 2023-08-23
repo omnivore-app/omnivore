@@ -458,68 +458,6 @@ export default function Reader(): JSX.Element {
 
   const [outline, setOutline] = useState<OutlineItem | undefined>(undefined)
 
-  useEffect(() => {
-    const headers = document
-      .getElementById('article-container')
-      ?.querySelectorAll('h1, h2, h3, h4')
-
-    const headerLevel = (node: Element) => {
-      switch (node.nodeName) {
-        case 'H1':
-          return 1
-        case 'H2':
-          return 2
-        case 'H3':
-          return 3
-        case 'H4':
-          return 4
-        case 'H5':
-          return 5
-        case 'H6':
-          return 6
-      }
-      return undefined
-    }
-
-    const root: OutlineItem = {
-      text: '',
-      level: 0,
-      anchor: '',
-      children: [],
-    }
-
-    const stack: OutlineItem[] = [root]
-
-    headers?.forEach((header) => {
-      const level = headerLevel(header)
-      if (!level) {
-        return
-      }
-
-      const item: OutlineItem = {
-        level,
-        text: header.textContent?.trim() ?? '',
-        anchor: header.getAttribute('data-omnivore-anchor-idx') ?? '',
-        children: [],
-      }
-
-      while (stack.length > level) {
-        stack.pop()
-      }
-
-      if (!stack[stack.length - 1].children) {
-        stack[stack.length - 1].children = []
-      }
-
-      stack[stack.length - 1].children.push(item)
-      stack.push(item)
-    })
-
-    console.log('outline: ', root, 'headers', headers)
-
-    setOutline(root)
-  }, [setOutline])
-
   if (articleFetchError && articleFetchError.indexOf('NOT_FOUND') > -1) {
     router.push('/404')
     return <LoadingView />
@@ -637,6 +575,7 @@ export default function Reader(): JSX.Element {
                   highContrastText={
                     readerSettings.highContrastText ?? undefined
                   }
+                  setOutline={setOutline}
                   articleMutations={{
                     createHighlightMutation,
                     deleteHighlightMutation,
