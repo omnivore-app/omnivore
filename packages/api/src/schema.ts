@@ -711,6 +711,7 @@ const schema = gql`
     labels: [Label!]
     type: HighlightType!
     html: String
+    color: String
   }
 
   input CreateHighlightInput {
@@ -727,6 +728,7 @@ const schema = gql`
     highlightPositionAnchorIndex: Int
     type: HighlightType
     html: String
+    color: String
   }
 
   type CreateHighlightSuccess {
@@ -760,6 +762,7 @@ const schema = gql`
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
     html: String
+    color: String
   }
 
   type MergeHighlightSuccess {
@@ -787,6 +790,7 @@ const schema = gql`
     sharedAt: Date
     quote: String @sanitize(maxLength: 12000, minLength: 1)
     html: String
+    color: String
   }
 
   type UpdateHighlightSuccess {
@@ -1584,6 +1588,7 @@ const schema = gql`
     shortId: String
     quote: String
     annotation: String
+    color: String
     labels: [Label!]
     subscription: String
     unsubMailTo: String

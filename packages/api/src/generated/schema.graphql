@@ -303,6 +303,7 @@ enum CreateHighlightErrorCode {
 input CreateHighlightInput {
   annotation: String
   articleId: ID!
+  color: String
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
   html: String
@@ -805,6 +806,7 @@ type GroupsSuccess {
 
 type Highlight {
   annotation: String
+  color: String
   createdAt: Date!
   createdByMe: Boolean!
   highlightPositionAnchorIndex: Int
@@ -1034,6 +1036,7 @@ enum MergeHighlightErrorCode {
 input MergeHighlightInput {
   annotation: String
   articleId: ID!
+  color: String
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
   html: String
@@ -1685,6 +1688,7 @@ type SearchItem {
   annotation: String
   archivedAt: Date
   author: String
+  color: String
   content: String
   contentReader: ContentReader!
   createdAt: Date!
@@ -2183,6 +2187,7 @@ enum UpdateHighlightErrorCode {
 
 input UpdateHighlightInput {
   annotation: String
+  color: String
   highlightId: ID!
   html: String
   quote: String

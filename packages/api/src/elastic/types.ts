@@ -107,6 +107,7 @@ export interface Highlight {
   highlightPositionAnchorIndex?: number | null
   type: HighlightType
   html?: string | null
+  color?: string | null
 }
 
 export interface RecommendingUser {
