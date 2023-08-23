@@ -1,10 +1,11 @@
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { LogoBox } from '../../elements/LogoBox'
-import { ReactNode } from 'react'
+import { MutableRefObject, ReactNode } from 'react'
 import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 import { LeftPanelToggleIcon } from '../../elements/icons/LeftPanelToggleIcon'
+import { useScrollDirection } from '../../../lib/hooks/useScrollDirection'
 
 type ReaderHeaderProps = {
   alwaysDisplayToolbar: boolean
@@ -13,26 +14,29 @@ type ReaderHeaderProps = {
   showInspectorToggle: boolean
   inspectorToggleClicked: (event: React.MouseEvent<HTMLElement>) => void
 
+  containerRef?: MutableRefObject<HTMLDivElement | null>
+
   children?: ReactNode
 }
 
 export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
+  const scrollDirection = useScrollDirection(props.containerRef)
+
+  console.log('scroll direction: ', scrollDirection)
+
   return (
     <>
       <VStack
         alignment="center"
         distribution="start"
         css={{
-          top: '0',
-          left: '0',
-          zIndex: 1,
-          pt: '0px',
-          position: 'relative',
+          position: 'sticky',
+          top: `0px`, // scrollDirection == 'down' ? `-${HEADER_HEIGHT}` : `0px`,
           width: '100%',
-          height: HEADER_HEIGHT,
+          minHeight: HEADER_HEIGHT,
+
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
           pointerEvents: props.alwaysDisplayToolbar ? 'unset' : 'none',
-          // borderBottom: '1px solid transparent',
           '@xlgDown': {
             bg: '$readerBg',
             pointerEvents: 'unset',

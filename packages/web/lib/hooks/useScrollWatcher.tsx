@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, MutableRefObject } from 'react'
 
 type ScrollOffset = {
   x: number
@@ -12,7 +12,11 @@ export type ScrollOffsetChangeset = {
 
 type Effect = (offset: ScrollOffsetChangeset) => void
 
-export function useScrollWatcher(effect: Effect, delay: number): void {
+export function useScrollWatcher(
+  containerRef: MutableRefObject<HTMLDivElement | null> | undefined,
+  effect: Effect,
+  delay: number
+): void {
   const throttleTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
   const [currentOffset, setCurrentOffset] = useState<ScrollOffset>({
     x: 0,
@@ -20,11 +24,21 @@ export function useScrollWatcher(effect: Effect, delay: number): void {
   })
 
   useEffect(() => {
+    const target = containerRef?.current ?? window
     const callback = () => {
       const newOffset = {
-        x: window.document.documentElement.scrollLeft ?? window?.scrollX ?? 0,
-        y: window.document.documentElement.scrollTop ?? window?.scrollY ?? 0,
+        x:
+          containerRef?.current?.scrollLeft ??
+          window.document.documentElement.scrollLeft ??
+          window?.scrollX ??
+          0,
+        y:
+          containerRef?.current?.scrollTop ??
+          window.document.documentElement.scrollTop ??
+          window?.scrollY ??
+          0,
       }
+
       effect({ current: newOffset, previous: currentOffset })
       setCurrentOffset(newOffset)
       throttleTimeout.current = undefined
@@ -36,13 +50,13 @@ export function useScrollWatcher(effect: Effect, delay: number): void {
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
+    target.addEventListener('scroll', handleScroll)
     return () => {
       if (throttleTimeout.current) {
         clearTimeout(throttleTimeout.current)
         throttleTimeout.current = undefined
       }
-      window.removeEventListener('scroll', handleScroll)
+      target.removeEventListener('scroll', handleScroll)
     }
   }, [currentOffset, delay, effect])
 }

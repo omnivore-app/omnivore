@@ -3,10 +3,7 @@ import {
   getTopOmnivoreAnchorElement,
   parseDomTree,
 } from '../../../lib/anchorElements'
-import {
-  ScrollOffsetChangeset,
-  useScrollWatcher,
-} from '../../../lib/hooks/useScrollWatcher'
+import { useScrollWatcher } from '../../../lib/hooks/useScrollWatcher'
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
@@ -28,6 +25,7 @@ export type ArticleProps = {
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
   isAppleAppEmbed: boolean
+  containerRef?: MutableRefObject<HTMLDivElement | null>
 }
 
 export function Article(props: ArticleProps): JSX.Element {
@@ -84,15 +82,26 @@ export function Article(props: ArticleProps): JSX.Element {
     }
   }, [readingProgress])
 
-  useScrollWatcher((changeset: ScrollOffsetChangeset) => {
-    if (window && window.document.scrollingElement) {
-      const bottomProgress =
-        (window.scrollY + window.document.scrollingElement.clientHeight) /
-        window.document.scrollingElement.scrollHeight
+  useScrollWatcher(
+    props.containerRef,
+    () => {
+      if (props.containerRef?.current) {
+        const target = props.containerRef?.current
+        const bottomProgress =
+          (target.scrollTop + target.clientHeight) / target.scrollHeight
 
-      setReadingProgress(bottomProgress * 100)
-    }
-  }, 2500)
+        console.log('bottom progress: ', bottomProgress)
+        setReadingProgress(bottomProgress * 100)
+      } else if (window && window.document.scrollingElement) {
+        const bottomProgress =
+          (window.scrollY + window.document.scrollingElement.clientHeight) /
+          window.document.scrollingElement.scrollHeight
+
+        setReadingProgress(bottomProgress * 100)
+      }
+    },
+    2500
+  )
 
   // Scroll to initial anchor position
   useEffect(() => {

@@ -11,7 +11,7 @@ import {
   UpdateTitleEvent,
 } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { Toaster } from 'react-hot-toast'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
@@ -63,6 +63,7 @@ const EpubContainerNoSSR = dynamic<EpubContainerProps>(
 
 export default function Reader(): JSX.Element {
   const router = useRouter()
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const { cache, mutate } = useSWRConfig()
   const [showEditModal, setShowEditModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
@@ -492,107 +493,115 @@ export default function Reader(): JSX.Element {
 
       <Allotment>
         <Allotment.Pane visible={inspector.mainAreaVisible}>
-          <ReaderHeader
-            showDisplaySettingsModal={
-              readerSettings.setShowEditDisplaySettingsModal
-            }
-            alwaysDisplayToolbar={article?.contentReader == 'PDF'}
-            showInspectorToggle={!inspector.inspectorVisible}
-            inspectorToggleClicked={(event) => {
-              inspector.toggleInspector()
-              event.preventDefault()
-            }}
-          >
-            <VerticalArticleActionsMenu
-              article={article}
-              layout="top"
-              showReaderDisplaySettings={article?.contentReader != 'PDF'}
-              articleActionHandler={actionHandler}
-              showInspectorToggle={!inspector.inspectorVisible}
-              openInspector={inspector.openInspector}
-            />
-          </ReaderHeader>
-
           <VStack
-            distribution="between"
-            alignment="center"
-            css={{
-              position: 'fixed',
-              flexDirection: 'row-reverse',
-              left: 8,
-              height: '100%',
-              width: '35px',
-              '@lgDown': {
-                display: 'none',
-              },
-            }}
+            ref={containerRef}
+            css={{ width: '100%', height: '100%', overflow: 'scroll' }}
+            alignment="start"
+            distribution="start"
           >
-            {article?.contentReader !== 'PDF' ? (
-              <ArticleActionsMenu
+            <ReaderHeader
+              containerRef={containerRef}
+              showDisplaySettingsModal={
+                readerSettings.setShowEditDisplaySettingsModal
+              }
+              alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+              showInspectorToggle={!inspector.inspectorVisible}
+              inspectorToggleClicked={(event) => {
+                inspector.toggleInspector()
+                event.preventDefault()
+              }}
+            >
+              <VerticalArticleActionsMenu
                 article={article}
-                layout="side"
-                readerSettings={readerSettings}
-                showReaderDisplaySettings={true}
+                layout="top"
+                showReaderDisplaySettings={article?.contentReader != 'PDF'}
                 articleActionHandler={actionHandler}
+                showInspectorToggle={!inspector.inspectorVisible}
+                openInspector={inspector.openInspector}
               />
-            ) : null}
-          </VStack>
-          {article && viewerData?.me && article.contentReader == 'PDF' && (
-            <PdfArticleContainerNoSSR
-              article={article}
-              viewer={viewerData.me}
-              setOutline={setOutline}
-            />
-          )}
-          {article && viewerData?.me && article.contentReader == 'WEB' && (
+            </ReaderHeader>
+
             <VStack
-              id="article-wrapper"
+              distribution="between"
               alignment="center"
-              distribution="start"
-              className="disable-webkit-callout"
               css={{
-                width: '100%',
+                position: 'fixed',
+                flexDirection: 'row-reverse',
+                left: 8,
                 height: '100%',
-                background: '$readerBg',
-                overflow: 'scroll',
-                '@media print': {
-                  paddingTop: '0px',
+                width: '35px',
+                '@lgDown': {
+                  display: 'none',
                 },
               }}
             >
-              {article && viewerData?.me ? (
-                <ArticleContainer
-                  viewer={viewerData.me}
+              {article?.contentReader !== 'PDF' ? (
+                <ArticleActionsMenu
                   article={article}
-                  isAppleAppEmbed={false}
-                  highlightBarDisabled={false}
-                  fontSize={readerSettings.fontSize}
-                  margin={readerSettings.marginWidth}
-                  lineHeight={readerSettings.lineHeight}
-                  fontFamily={readerSettings.fontFamily}
-                  labels={labels.labels}
-                  justifyText={readerSettings.justifyText ?? undefined}
-                  highContrastText={
-                    readerSettings.highContrastText ?? undefined
-                  }
-                  setOutline={setOutline}
-                  articleMutations={{
-                    createHighlightMutation,
-                    deleteHighlightMutation,
-                    mergeHighlightMutation,
-                    updateHighlightMutation,
-                    articleReadingProgressMutation,
-                  }}
+                  layout="side"
+                  readerSettings={readerSettings}
+                  showReaderDisplaySettings={true}
+                  articleActionHandler={actionHandler}
                 />
-              ) : (
-                <SkeletonArticleContainer
-                  margin={readerSettings.marginWidth}
-                  lineHeight={readerSettings.lineHeight}
-                  fontSize={readerSettings.fontSize}
-                />
-              )}
+              ) : null}
             </VStack>
-          )}
+            {article && viewerData?.me && article.contentReader == 'PDF' && (
+              <PdfArticleContainerNoSSR
+                article={article}
+                viewer={viewerData.me}
+                setOutline={setOutline}
+              />
+            )}
+            {article && viewerData?.me && article.contentReader == 'WEB' && (
+              <VStack
+                id="article-wrapper"
+                alignment="center"
+                distribution="start"
+                className="disable-webkit-callout"
+                css={{
+                  width: '100%',
+                  height: '100%',
+                  background: '$readerBg',
+                  '@media print': {
+                    paddingTop: '0px',
+                  },
+                }}
+              >
+                {article && viewerData?.me ? (
+                  <ArticleContainer
+                    viewer={viewerData.me}
+                    article={article}
+                    isAppleAppEmbed={false}
+                    highlightBarDisabled={false}
+                    fontSize={readerSettings.fontSize}
+                    margin={readerSettings.marginWidth}
+                    lineHeight={readerSettings.lineHeight}
+                    fontFamily={readerSettings.fontFamily}
+                    labels={labels.labels}
+                    justifyText={readerSettings.justifyText ?? undefined}
+                    highContrastText={
+                      readerSettings.highContrastText ?? undefined
+                    }
+                    setOutline={setOutline}
+                    containerRef={containerRef}
+                    articleMutations={{
+                      createHighlightMutation,
+                      deleteHighlightMutation,
+                      mergeHighlightMutation,
+                      updateHighlightMutation,
+                      articleReadingProgressMutation,
+                    }}
+                  />
+                ) : (
+                  <SkeletonArticleContainer
+                    margin={readerSettings.marginWidth}
+                    lineHeight={readerSettings.lineHeight}
+                    fontSize={readerSettings.fontSize}
+                  />
+                )}
+              </VStack>
+            )}
+          </VStack>
         </Allotment.Pane>
 
         <Allotment.Pane

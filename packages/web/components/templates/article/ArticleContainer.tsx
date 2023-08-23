@@ -9,7 +9,14 @@ import {
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  MutableRefObject,
+} from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
@@ -37,6 +44,7 @@ type ArticleContainerProps = {
   highlightOnRelease?: boolean
   justifyText?: boolean
   setOutline?: (outline: OutlineItem) => void
+  containerRef?: MutableRefObject<HTMLDivElement | null>
 }
 
 type RecommendationCommentsProps = {
@@ -278,8 +286,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       )
       element?.scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
-        inline: 'center',
+        block: 'nearest',
+        inline: 'nearest',
       })
     }
 
@@ -534,6 +542,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           articleId={props.article.id}
           content={props.article.content}
           highlightHref={highlightHref}
+          containerRef={props.containerRef}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
