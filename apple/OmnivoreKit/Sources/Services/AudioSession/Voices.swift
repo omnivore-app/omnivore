@@ -105,10 +105,9 @@ public enum Voices {
   ]
 
   public static let UltraPairs = [
-    VoicePair(firstKey: "Antoni", secondKey: "Serena", firstName: "Antoni", secondName: "Serena", language: "en-US", category: .enUS)
-    VoicePair(firstKey: "Daniel", secondKey: "Dorothy", firstName: "Daniel", secondName: "Dorothy", language: "en-GB", category: .enUK)
-    VoicePair(firstKey: "Michael", secondKey: "Matilda", firstName: "Michael", secondName: "Matilda", language: "en-US", category: .enUS)
-
+    VoicePair(firstKey: "Antoni", secondKey: "Serena", firstName: "Antoni", secondName: "Serena", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Daniel", secondKey: "Dorothy", firstName: "Daniel", secondName: "Dorothy", language: "en-GB", category: .enUK),
+    VoicePair(firstKey: "Michael", secondKey: "Matilda", firstName: "Michael", secondName: "Matilda", language: "en-US", category: .enUS),
     VoicePair(firstKey: "Josh", secondKey: "Bella", firstName: "Josh", secondName: "Bella", language: "en-US", category: .enUS)
   ]
 }
