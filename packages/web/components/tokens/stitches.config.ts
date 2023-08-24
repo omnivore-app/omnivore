@@ -1,6 +1,5 @@
 import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
-import { highlightColor } from '../../lib/themeUpdater'
 
 export enum ThemeId {
   Light = 'Light',
