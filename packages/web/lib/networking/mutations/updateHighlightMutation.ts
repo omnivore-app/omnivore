@@ -5,6 +5,7 @@ export type UpdateHighlightInput = {
   highlightId: string
   annotation?: string
   sharedAt?: string
+  color?: string
 }
 
 type UpdateHighlightOutput = {

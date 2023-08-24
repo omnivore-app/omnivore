@@ -40,6 +40,7 @@ export function HighlightNoteModal(
       const result = await updateHighlightMutation({
         highlightId: props.highlight?.id,
         annotation: noteContent,
+        color: props.highlight?.color,
       })
 
       if (result) {
@@ -48,6 +49,7 @@ export function HighlightNoteModal(
       } else {
         showErrorToast('Error updating your note', { position: 'bottom-right' })
       }
+      document.dispatchEvent(new Event('highlightsUpdated'))
     }
     if (!props.highlight && props.createHighlightForNote) {
       const result = await props.createHighlightForNote(noteContent)

@@ -20,6 +20,7 @@ import { LabelIcon } from '../elements/icons/LabelIcon'
 import { NotebookIcon } from '../elements/icons/NotebookIcon'
 import { highlightColor, highlightColors } from '../../lib/themeUpdater'
 import { useState } from 'react'
+import { CopyIcon } from '../elements/icons/CopyIcon'
 
 type PageCoordinates = {
   pageX: number
@@ -87,6 +88,7 @@ const Separator = styled('div', {
 
 function BarContent(props: HighlightBarProps): JSX.Element {
   const [hovered, setHovered] = useState<string | undefined>(undefined)
+  const size = props.displayAtBottom ? 35 : 25
 
   return (
     <HStack
@@ -94,8 +96,8 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       alignment="center"
       css={{
         display: 'flex',
-        padding: '5px 10px',
-        gap: '5px',
+        padding: props.displayAtBottom ? '10px 15px' : '5px 10px',
+        gap: props.displayAtBottom ? '15px' : '5px',
         width: props.displayAtBottom ? '100%' : 'auto',
       }}
     >
@@ -127,16 +129,16 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             {props.isNewHighlight || props.highlightColor != color ? (
               <Circle
                 key={color}
-                width={25}
-                height={25}
+                width={size}
+                height={size}
                 color={highlightColor(color)}
                 weight="fill"
               />
             ) : (
               <CheckCircle
                 key={color}
-                width={25}
-                height={25}
+                width={size}
+                height={size}
                 color={highlightColor(color)}
                 weight="fill"
               />
@@ -159,7 +161,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
             }}
           >
             <LabelIcon
-              size={25}
+              size={size}
               color={
                 hovered == 'labels'
                   ? theme.colors.thTextContrast.toString()
@@ -182,7 +184,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
         }}
       >
         <NotebookIcon
-          size={25}
+          size={size}
           color={
             hovered == 'note'
               ? theme.colors.thTextContrast.toString()
@@ -201,9 +203,8 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           setHovered(undefined)
         }}
       >
-        <CopySimple
-          width={25}
-          height={25}
+        <CopyIcon
+          size={size}
           color={
             hovered == 'copy'
               ? theme.colors.thTextContrast.toString()

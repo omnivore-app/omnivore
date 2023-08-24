@@ -215,6 +215,27 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [highlights, highlightLocations]
   )
 
+  const updateHighlightColor = useCallback(
+    (highlight: Highlight, color: string) => {
+      const initial = highlight.color
+      highlight.color = color
+      updateHighlightsCallback(highlight)
+      ;(async () => {
+        const update = await props.articleMutations.updateHighlightMutation({
+          highlightId: highlight.id,
+          color: color,
+        })
+        if (!update) {
+          highlight.color = initial
+          updateHighlightsCallback(highlight)
+          showErrorToast('Error updating highlight color')
+        }
+        document.dispatchEvent(new Event('highlightsUpdated'))
+      })()
+    },
+    [props, highlights, highlightLocations, updateHighlightsCallback]
+  )
+
   const openNoteModal = useCallback(
     (inputs: HighlightActionProps) => {
       // First try to send a signal to the ios app
@@ -242,6 +263,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         }
         setHighlightModalAction(inputs)
       }
+      document.dispatchEvent(new Event('highlightsUpdated'))
     },
     [props.highlightBarDisabled, createHighlightFromSelection]
   )
@@ -462,9 +484,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           })
           break
         case 'updateColor':
-          if (focusedHighlight) {
-            focusedHighlight.color = param
-            await updateHighlightsCallback(focusedHighlight)
+          if (focusedHighlight && param) {
+            updateHighlightColor(focusedHighlight, param)
+          } else {
+            showErrorToast('Error updating color')
           }
           break
         case 'comment':
@@ -540,6 +563,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       removeHighlightCallback,
       selectionData,
       setSelectionData,
+      updateHighlightColor,
       confirmDeleteHighlightWithNoteId,
     ]
   )
@@ -709,6 +733,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           dispatchHighlightError('saveAnnotation', error)
         }
       }
+      document.dispatchEvent(new Event('highlightsUpdated'))
     }
 
     document.addEventListener('annotate', annotate)
