@@ -246,6 +246,18 @@ export const Button = styled('button', {
         },
         '&:focus': { outline: 'none' },
       },
+      highlightBarIcon: {
+        p: '0px',
+        lineHeight: '0px',
+        bg: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        '&:hover': {
+          opacity: 0.5,
+        },
+
+        '&:focus': { outline: 'none' },
+      },
       articleActionIcon: {
         bg: 'transparent',
         border: 'none',

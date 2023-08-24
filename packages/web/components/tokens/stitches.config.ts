@@ -1,5 +1,6 @@
 import type * as Stitches from '@stitches/react'
 import { createStitches, createTheme } from '@stitches/react'
+import { highlightColor } from '../../lib/themeUpdater'
 
 export enum ThemeId {
   Light = 'Light',
@@ -198,6 +199,16 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thProgressFg: '#FFD234',
 
         thHighContrast: '#3D3D3D',
+        thHighlightBar: '#D9D9D9',
+
+        highlightBackgroundGreen: '85, 198, 137',
+        highlightBackgroundBlue: '106, 177, 255',
+        highlightBackgroundOrange: '254, 181, 109',
+        highlightBackgroundYellow: '255, 210, 52',
+        highlightBackgroundRed: '251, 154, 154',
+
+        highlightBackgroundAlpha: '0.2',
+        highlightUnderlineAlpha: '1',
       },
     },
     media: {
@@ -298,6 +309,10 @@ const darkThemeSpec = {
     thProgressFg: '#FFD234',
 
     thHighContrast: '#D9D9D9',
+
+    thHighlightBar: '#6A6968',
+    highlightUnderlineAlpha: '0.5',
+    highlightBackgroundAlpha: '0.35',
   },
   shadows: {
     cardBoxShadow:

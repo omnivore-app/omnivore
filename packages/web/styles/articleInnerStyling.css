@@ -19,12 +19,29 @@
   cursor: pointer;
 }
 
-.highlight_with_note {
-  color: var(--colors-highlightText);
-  background-color: rgba(var(--colors-highlightBackground), 0.35);
-  border-bottom: 2px rgb(var(--colors-highlightBackground)) solid;
-  border-radius: 2px;
-  cursor: pointer;
+.highlight_green {
+  background-color: rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightUnderlineAlpha)) solid;
+}
+
+.highlight_red {
+  background-color: rgba(var(--colors-highlightBackgroundRed), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px rgba(var(--colors-highlightBackgroundRed), var(--colors-highlightUnderlineAlpha)) solid;
+}
+
+.highlight_blue {
+  background-color: rgba(var(--colors-highlightBackgroundBlue), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px rgba(var(--colors-highlightBackgroundBlue), var(--colors-highlightUnderlineAlpha)) solid;
+}
+
+.highlight_yellow {
+  background-color: rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightUnderlineAlpha)) solid;
+}
+
+.highlight_orange {
+  background-color: rgba(var(--colors-highlightBackgroundOrange), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px rgba(var(--colors-highlightBackgroundOrange), var(--colors-highlightUnderlineAlpha)) solid;
 }
 
 .article-inner-css {

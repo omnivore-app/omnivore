@@ -102,6 +102,8 @@ export function makeApolloServer(): ApolloServer {
   const apollo = new ApolloServer({
     schema: schema,
     context: contextFunc,
+    cache: 'bounded',
+    persistedQueries: false,
     formatError: (err) => {
       logger.info('server error', err)
       Sentry.captureException(err)

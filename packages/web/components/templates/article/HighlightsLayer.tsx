@@ -30,6 +30,7 @@ import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -88,20 +89,26 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     undefined
   )
 
+  const [
+    confirmDeleteHighlightWithNoteId,
+    setConfirmDeleteHighlightWithNoteId,
+  ] = useState<string | undefined>(undefined)
+
   const windowDimensions = useGetWindowDimensions()
 
   const createHighlightFromSelection = useCallback(
     async (
       selection: SelectionAttributes,
-      note?: string
+      options: { annotation?: string; color?: string } | undefined
     ): Promise<Highlight | undefined> => {
       const result = await createHighlight(
         {
           selection: selection,
           articleId: props.articleId,
           existingHighlights: highlights,
+          color: options?.color,
           highlightStartEndOffsets: highlightLocations,
-          annotation: note,
+          annotation: options?.annotation,
           highlightPositionPercent: selectionPercentPos(selection.selection),
           highlightPositionAnchorIndex: selectionAnchorIndex(
             selection.selection
@@ -190,8 +197,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setHighlights(highlights.filter(($0) => $0.id !== highlightId))
         setFocusedHighlight(undefined)
         document.dispatchEvent(new Event('highlightsUpdated'))
+        showSuccessToast('Highlight removed')
       } else {
         console.error('Failed to delete highlight')
+        showErrorToast('Error removing highlight')
       }
     },
     [focusedHighlight, highlights, highlightLocations, props.articleMutations]
@@ -271,14 +280,14 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   }
 
   const createHighlightCallback = useCallback(
-    async (annotation?: string) => {
+    async (options: { annotation?: string; color?: string } | undefined) => {
       if (!selectionData) {
         return
       }
       try {
         const result = await createHighlightFromSelection(
           selectionData,
-          annotation
+          options
         )
         if (!result) {
           showErrorToast('Error saving highlight', { position: 'bottom-right' })
@@ -436,13 +445,25 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   }, [handleSingleClick, handleDoubleClick])
 
   const handleAction = useCallback(
-    async (action: HighlightAction) => {
+    async (action: HighlightAction, param?: string) => {
       switch (action) {
         case 'delete':
-          await removeHighlightCallback()
+          if (focusedHighlight?.annotation == undefined) {
+            await removeHighlightCallback()
+          } else {
+            setConfirmDeleteHighlightWithNoteId(focusedHighlight?.id)
+          }
           break
         case 'create':
-          await createHighlightCallback()
+          await createHighlightCallback({
+            color: param,
+          })
+          break
+        case 'updateColor':
+          if (focusedHighlight) {
+            focusedHighlight.color = param
+            await updateHighlightsCallback(focusedHighlight)
+          }
           break
         case 'comment':
           if (props.highlightBarDisabled || focusedHighlight) {
@@ -517,6 +538,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       removeHighlightCallback,
       selectionData,
       setSelectionData,
+      confirmDeleteHighlightWithNoteId,
     ]
   )
 
@@ -751,6 +773,20 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           onOpenChange={() => setLabelsTarget(undefined)}
         />
       )}
+      {confirmDeleteHighlightWithNoteId && (
+        <ConfirmationModal
+          message="Are you sure you want to delete this highlight? The note associated with it will also be deleted."
+          onAccept={() => {
+            ;(async () => {
+              await removeHighlightCallback(confirmDeleteHighlightWithNoteId)
+              setConfirmDeleteHighlightWithNoteId(undefined)
+            })()
+          }}
+          onOpenChange={() => {
+            setConfirmDeleteHighlightWithNoteId(undefined)
+          }}
+        />
+      )}
       {/* // Display the button bar if we are not in the native app and there // is
       a focused highlight or selection data */}
       {!props.highlightBarDisabled && (focusedHighlight || selectionData) && (
@@ -761,6 +797,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             handleButtonClick={handleAction}
             isSharedToFeed={focusedHighlight?.sharedAt != undefined}
             displayAtBottom={isTouchScreenDevice()}
+            highlightColor={focusedHighlight?.color ?? 'yellow'}
           />
         </>
       )}
