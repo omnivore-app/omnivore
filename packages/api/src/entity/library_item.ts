@@ -165,7 +165,11 @@ export class LibraryItem {
   subscription?: Subscription
 
   @ManyToMany(() => Label, { eager: true })
-  @JoinTable()
+  @JoinTable({
+    name: 'entity_labels',
+    joinColumn: { name: 'library_item_id' },
+    inverseJoinColumn: { name: 'label_id' },
+  })
   labels?: Label[]
 
   @Column('enum', { enum: DirectionalityType, default: DirectionalityType.LTR })

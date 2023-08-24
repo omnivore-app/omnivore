@@ -3,12 +3,21 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { User } from './user'
+import { Label } from './label'
 import { Page } from './page'
+import { User } from './user'
+
+export enum HighlightType {
+  Highlight = 'HIGHLIGHT',
+  Redaction = 'REDACTION', // allowing people to remove text from the page
+  Note = 'NOTE', // allowing people to add a note at the document level
+}
 
 @Entity({ name: 'highlight' })
 export class Highlight {
@@ -52,4 +61,30 @@ export class Highlight {
 
   @Column('timestamp')
   sharedAt?: Date
+
+  @Column('real')
+  highlightPositionPercent!: number
+
+  @Column('integer')
+  highlightPositionAnchorIndex!: number
+
+  @Column('enum', {
+    enum: HighlightType,
+    default: HighlightType.Highlight,
+  })
+  highlightType!: HighlightType
+
+  @Column('text', { nullable: true })
+  html?: string | null
+
+  @Column('text', { nullable: true })
+  color?: string | null
+
+  @ManyToMany(() => Label, { eager: true })
+  @JoinTable({
+    name: 'entity_labels',
+    joinColumn: { name: 'highlight_id' },
+    inverseJoinColumn: { name: 'label_id' },
+  })
+  labels?: Label[]
 }
