@@ -19,6 +19,7 @@
   cursor: pointer;
 }
 
+
 .highlight_green {
   background-color: rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightBackgroundAlpha));
   border-bottom: 2px solid rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightUnderlineAlpha));
@@ -37,11 +38,6 @@
 .highlight_yellow {
   background-color: rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightBackgroundAlpha));
   border-bottom: 2px solid rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightUnderlineAlpha));
-}
-
-.highlight_orange {
-  background-color: rgba(var(--colors-highlightBackgroundOrange), var(--colors-highlightBackgroundAlpha));
-  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundOrange), var(--colors-highlightUnderlineAlpha));
 }
 
 .article-inner-css {
