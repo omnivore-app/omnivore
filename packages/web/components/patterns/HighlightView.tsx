@@ -116,7 +116,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
               '> *': {
                 display: 'inline',
                 padding: '3px',
-                backgroundColor: `rgba(${highlightColor}, var(--colors-highlightBackgroundAlpha))`,
+                backgroundColor: `rgba(${highlightColor}, var(--colors-highlight_background_alpha))`,
                 boxDecorationBreak: 'clone',
                 borderRadius: '2px',
               },

@@ -147,7 +147,7 @@ export function makeHighlightNodeAttributes(
         }
 
         if (customColor) {
-          newHighlightSpan.className = `${newHighlightSpan.className} highlight_${customColor}`
+          newHighlightSpan.className = `${newHighlightSpan.className} highlight__${customColor}`
         }
 
         newHighlightSpan.setAttribute(highlightIdAttribute, id)
