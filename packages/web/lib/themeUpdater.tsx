@@ -133,15 +133,15 @@ export const highlightColor = (name: string | undefined) => {
 export const highlightColorVar = (name: string | undefined) => {
   switch (name) {
     case 'green':
-      return 'var(--colors-highlightBackgroundGreen)'
+      return 'var(--colors-highlight_background_green)'
     case 'blue':
-      return 'var(--colors-highlightBackgroundBlue)'
+      return 'var(--colors-highlight_background_blue)'
     case 'yellow':
-      return 'var(--colors-highlightBackgroundYellow)'
+      return 'var(--colors-highlight_background_yellow)'
     case 'orange':
-      return 'var(--colors-highlightBackgroundOrange)'
+      return 'var(--colors-highlight_background_orange)'
     case 'red':
-      return 'var(--colors-highlightBackgroundRed)'
+      return 'var(--colors-highlight_background_red)'
   }
   return 'var(--colors-highlightBackground)'
 }

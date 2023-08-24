@@ -21,23 +21,23 @@
 
 
 .highlight__green {
-  background-color: rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightBackgroundAlpha));
-  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightUnderlineAlpha));
+  background-color: rgba(var(--colors-highlight_background_green), var(--colors-highlight_background_alpha));
+  border-bottom: 2px solid rgba(var(--colors-highlight_background_green), var(--colors-highlight_underline_alpha));
 }
 
 .highlight__red {
-  background-color: rgba(var(--colors-highlightBackgroundRed), var(--colors-highlightBackgroundAlpha));
-  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundRed), var(--colors-highlightUnderlineAlpha));
+  background-color: rgba(var(--colors-highlight_background_red), var(--colors-highlight_background_alpha));
+  border-bottom: 2px solid rgba(var(--colors-highlight_background_red), var(--colors-highlight_underline_alpha));
 }
 
 .highlight__blue {
-  background-color: rgba(var(--colors-highlightBackgroundBlue), var(--colors-highlightBackgroundAlpha));
-  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundBlue), var(--colors-highlightUnderlineAlpha));
+  background-color: rgba(var(--colors-highlight_background_blue), var(--colors-highlight_background_alpha));
+  border-bottom: 2px solid rgba(var(--colors-highlight_background_blue), var(--colors-highlight_underline_alpha));
 }
 
 .highlight__yellow {
-  background-color: rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightBackgroundAlpha));
-  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightUnderlineAlpha));
+  background-color: rgba(var(--colors-highlight_background_yellow), var(--colors-highlight_background_alpha));
+  border-bottom: 2px solid rgba(var(--colors-highlight_background_yellow), var(--colors-highlight_underline_alpha));
 }
 
 .article-inner-css {
