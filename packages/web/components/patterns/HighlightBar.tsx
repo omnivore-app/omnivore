@@ -6,9 +6,21 @@ import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
 import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
-import { Note, Tag, Trash, Copy } from 'phosphor-react'
+import {
+  Note,
+  Tag,
+  Trash,
+  Copy,
+  Circle,
+  CopySimple,
+  CheckCircle,
+} from 'phosphor-react'
 import { TrashIcon } from '../elements/icons/TrashIcon'
 import { LabelIcon } from '../elements/icons/LabelIcon'
+import { NotebookIcon } from '../elements/icons/NotebookIcon'
+import { highlightColor, highlightColors } from '../../lib/themeUpdater'
+import { useState } from 'react'
+import { CopyIcon } from '../elements/icons/CopyIcon'
 
 type PageCoordinates = {
   pageX: number
@@ -24,27 +36,29 @@ export type HighlightAction =
   | 'unshare'
   | 'setHighlightLabels'
   | 'copy'
+  | 'updateColor'
 
 type HighlightBarProps = {
   anchorCoordinates: PageCoordinates
   isNewHighlight: boolean
   isSharedToFeed: boolean
   displayAtBottom: boolean
-  handleButtonClick: (action: HighlightAction) => void
+  highlightColor?: string
+  handleButtonClick: (action: HighlightAction, param?: string) => void
 }
 
 export function HighlightBar(props: HighlightBarProps): JSX.Element {
   return (
     <Box
       css={{
-        width: '100%',
-        maxWidth: props.isNewHighlight ? '330px' : '380px',
-        height: '48px',
+        // width: '295px',
+        // height: '50px',
         position: props.displayAtBottom ? 'fixed' : 'absolute',
-        background: '$grayBg',
-        borderRadius: '4px',
-        border: '1px solid $grayBorder',
-        boxShadow: theme.shadows.cardBoxShadow.toString(),
+        background: '$thBackground2',
+        borderRadius: '5px',
+        border: '1px solid $thHighlightBar',
+        boxShadow: `0px 4px 4px 0px rgba(0, 0, 0, 0.15)`,
+
         ...(props.displayAtBottom && {
           bottom: 'calc(38px + env(safe-area-inset-bottom, 40px))',
         }),
@@ -65,113 +79,140 @@ export function HighlightBar(props: HighlightBarProps): JSX.Element {
   )
 }
 
-type BarButtonProps = {
-  title: string
-  onClick: VoidFunction
-  iconElement: JSX.Element
-  text: string
-}
-
-function BarButton({ text, title, iconElement, onClick }: BarButtonProps) {
-  return (
-    <Button
-      style="plainIcon"
-      title={title}
-      onClick={onClick}
-      css={{
-        flexDirection: 'column',
-        height: '100%',
-        m: 0,
-        p: 0,
-        alignItems: 'baseline',
-      }}
-    >
-      <HStack css={{ height: '100%', alignItems: 'center' }}>
-        {iconElement}
-        <StyledText
-          style="body"
-          css={{
-            pl: '4px',
-            m: '0px',
-            color: '$readerFont',
-            fontWeight: '400',
-            fontSize: '16px',
-          }}
-        >
-          {text}
-        </StyledText>
-      </HStack>
-    </Button>
-  )
-}
+const Separator = styled('div', {
+  width: '1px',
+  height: '20px',
+  mx: '5px',
+  background: '$thHighlightBar',
+})
 
 function BarContent(props: HighlightBarProps): JSX.Element {
-  const Separator = styled('div', {
-    width: '1px',
-    maxWidth: '1px',
-    height: '100%',
-    background: '$grayBorder',
-  })
+  const [hovered, setHovered] = useState<string | undefined>(undefined)
+  const size = props.displayAtBottom ? 35 : 25
 
   return (
     <HStack
-      distribution="evenly"
+      distribution="start"
       alignment="center"
       css={{
-        height: '100%',
-        alignItems: 'center',
+        display: 'flex',
+        gap: '5px',
+        maxWidth: '100%',
         width: props.displayAtBottom ? '100%' : 'auto',
+        padding: props.displayAtBottom ? '10px 15px' : '5px 10px',
       }}
     >
-      {props.isNewHighlight ? (
-        <BarButton
-          text="Highlight"
-          title="Create Highlight"
-          iconElement={<PenWithColorIcon />}
-          onClick={() => props.handleButtonClick('create')}
-        />
-      ) : (
-        <>
-          <BarButton
-            text="Delete"
-            title="Remove Highlight"
-            iconElement={
-              <TrashIcon
-                size={20}
-                color={theme.colors.omnivoreRed.toString()}
+      {highlightColors.map((color) => {
+        return (
+          <Button
+            key={`color-${color}`}
+            style="highlightBarIcon"
+            title={`Create Highlight (${color})`}
+            onClick={() => {
+              if (!props.isNewHighlight && props.highlightColor != color) {
+                props.handleButtonClick('updateColor', color)
+              } else if (
+                !props.isNewHighlight &&
+                props.highlightColor == color
+              ) {
+                props.handleButtonClick('delete')
+              } else {
+                props.handleButtonClick('create', color)
+              }
+            }}
+            onMouseEnter={() => {
+              setHovered(color)
+            }}
+            onMouseLeave={() => {
+              setHovered(undefined)
+            }}
+          >
+            {props.isNewHighlight || props.highlightColor != color ? (
+              <Circle
+                key={color}
+                width={size}
+                height={size}
+                color={highlightColor(color)}
+                weight="fill"
               />
-            }
-            onClick={() => props.handleButtonClick('delete')}
-          />
-          <Separator />
-          <BarButton
-            text="Labels"
-            title="Set Labels"
-            iconElement={
-              <LabelIcon size={20} color={theme.colors.readerFont.toString()} />
-            }
+            ) : (
+              <CheckCircle
+                key={color}
+                width={size}
+                height={size}
+                color={highlightColor(color)}
+                weight="fill"
+              />
+            )}
+          </Button>
+        )
+      })}
+      <Separator />
+      {!props.isNewHighlight && (
+        <>
+          <Button
+            title={`Set Labels`}
+            style="highlightBarIcon"
             onClick={() => props.handleButtonClick('setHighlightLabels')}
-          />
+            onMouseEnter={() => {
+              setHovered('labels')
+            }}
+            onMouseLeave={() => {
+              setHovered(undefined)
+            }}
+          >
+            <LabelIcon
+              size={size}
+              color={
+                hovered == 'labels'
+                  ? theme.colors.thTextContrast.toString()
+                  : theme.colors.thHighlightBar.toString()
+              }
+            />
+          </Button>
         </>
       )}
-      <Separator />
-      <BarButton
-        text="Note"
-        title="Add Note to Highlight"
-        iconElement={
-          <Note size={20} color={theme.colors.readerFont.toString()} />
-        }
+
+      <Button
+        title={props.isNewHighlight ? `Create Highlight w/note` : 'Add Note'}
+        style="highlightBarIcon"
         onClick={() => props.handleButtonClick('comment')}
-      />
-      <Separator />
-      <BarButton
-        text="Copy"
-        title="Copy Text to Clipboard"
-        iconElement={
-          <Copy size={20} color={theme.colors.readerFont.toString()} />
-        }
+        onMouseEnter={() => {
+          setHovered('note')
+        }}
+        onMouseLeave={() => {
+          setHovered(undefined)
+        }}
+      >
+        <NotebookIcon
+          size={size}
+          color={
+            hovered == 'note'
+              ? theme.colors.thTextContrast.toString()
+              : theme.colors.thHighlightBar.toString()
+          }
+        />
+      </Button>
+      <Button
+        title={`Copy`}
+        style="highlightBarIcon"
         onClick={() => props.handleButtonClick('copy')}
-      />
+        onMouseEnter={() => {
+          setHovered('copy')
+        }}
+        onMouseLeave={() => {
+          setHovered(undefined)
+        }}
+      >
+        <CopyIcon
+          size={size}
+          color={
+            hovered == 'copy'
+              ? theme.colors.thTextContrast.toString()
+              : theme.colors.thHighlightBar.toString()
+          }
+        />
+      </Button>
     </HStack>
   )
 }

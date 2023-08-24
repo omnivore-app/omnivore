@@ -17,6 +17,7 @@ type CreateHighlightInput = {
   selection: SelectionAttributes
   articleId: string
   annotation?: string
+  color?: string
   existingHighlights: Highlight[]
   highlightStartEndOffsets: HighlightLocation[]
   highlightPositionPercent?: number
@@ -94,7 +95,8 @@ export async function createHighlight(
   const highlightAttributes = makeHighlightNodeAttributes(
     patch,
     id,
-    annotations.length > 0
+    annotations.length > 0,
+    input.color
   )
 
   const newHighlightAttributes = {
@@ -102,6 +104,7 @@ export async function createHighlight(
     shortId: nanoid(8),
     patch,
 
+    color: input.color,
     prefix: highlightAttributes.prefix,
     suffix: highlightAttributes.suffix,
     quote: htmlToMarkdown(container.innerHTML),

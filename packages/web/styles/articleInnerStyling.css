@@ -19,12 +19,25 @@
   cursor: pointer;
 }
 
-.highlight_with_note {
-  color: var(--colors-highlightText);
-  background-color: rgba(var(--colors-highlightBackground), 0.35);
-  border-bottom: 2px rgb(var(--colors-highlightBackground)) solid;
-  border-radius: 2px;
-  cursor: pointer;
+
+.highlight_green {
+  background-color: rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundGreen), var(--colors-highlightUnderlineAlpha));
+}
+
+.highlight_red {
+  background-color: rgba(var(--colors-highlightBackgroundRed), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundRed), var(--colors-highlightUnderlineAlpha));
+}
+
+.highlight_blue {
+  background-color: rgba(var(--colors-highlightBackgroundBlue), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundBlue), var(--colors-highlightUnderlineAlpha));
+}
+
+.highlight_yellow {
+  background-color: rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightBackgroundAlpha));
+  border-bottom: 2px solid rgba(var(--colors-highlightBackgroundYellow), var(--colors-highlightUnderlineAlpha));
 }
 
 .article-inner-css {
