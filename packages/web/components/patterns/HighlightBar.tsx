@@ -96,9 +96,10 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       alignment="center"
       css={{
         display: 'flex',
-        padding: props.displayAtBottom ? '10px 15px' : '5px 10px',
-        gap: props.displayAtBottom ? '15px' : '5px',
+        gap: '5px',
+        maxWidth: '100%',
         width: props.displayAtBottom ? '100%' : 'auto',
+        padding: props.displayAtBottom ? '10px 15px' : '5px 10px',
       }}
     >
       {highlightColors.map((color) => {
