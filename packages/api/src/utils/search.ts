@@ -65,18 +65,18 @@ export interface DateFilter {
 }
 
 export enum SortBy {
-  SAVED = 'savedAt',
-  UPDATED = 'updatedAt',
+  SAVED = 'saved_at',
+  UPDATED = 'updated_at',
   SCORE = '_score',
-  PUBLISHED = 'publishedAt',
-  READ = 'readAt',
-  LISTENED = 'listenedAt',
-  WORDS_COUNT = 'wordsCount',
+  PUBLISHED = 'published_at',
+  READ = 'read_at',
+  LISTENED = 'listened_at',
+  WORDS_COUNT = 'word_count',
 }
 
 export enum SortOrder {
-  ASCENDING = 'asc',
-  DESCENDING = 'desc',
+  ASCENDING = 'ASC',
+  DESCENDING = 'DESC',
 }
 
 export interface SortParams {
