@@ -1,5 +1,6 @@
 import { EntityManager, EntityTarget, Repository } from 'typeorm'
 import { AppDataSource } from '../data-source'
+import { LibraryItem } from '../entity/library_item'
 import { Reminder } from '../entity/reminder'
 import { UploadFile } from '../entity/upload_file'
 import { User } from '../entity/user'
@@ -15,9 +16,12 @@ export const setClaims = async (
 }
 
 export const getRepository = <T>(entity: EntityTarget<T>): Repository<T> => {
-  return AppDataSource.getRepository(entity)
+  return entityManager.getRepository(entity)
 }
+
+export const entityManager = AppDataSource.createEntityManager()
 
 export const userRepository = getRepository(User)
 export const uploadFileRepository = getRepository(UploadFile)
 export const reminderRepository = getRepository(Reminder)
+export const libraryItemRepository = getRepository(LibraryItem)

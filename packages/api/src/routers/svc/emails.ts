@@ -1,13 +1,10 @@
 import cors from 'cors'
 import express from 'express'
 import { env } from '../../env'
-import { createPubSubClient, readPushSubscription } from '../../pubsub'
+import { readPushSubscription } from '../../pubsub'
 import { getNewsletterEmail } from '../../services/newsletters'
-import {
-  saveReceivedEmail,
-  updateReceivedEmail,
-} from '../../services/received_emails'
-import { saveEmail } from '../../services/save_email'
+import { saveReceivedEmail } from '../../services/received_emails'
+import { saveNewsletter } from '../../services/save_newsletter_email'
 import { analytics } from '../../utils/analytics'
 import { getClaimsByToken } from '../../utils/auth'
 import { corsConfig } from '../../utils/corsConfig'
@@ -73,7 +70,6 @@ export function emailsServiceRouter() {
         return
       }
       const user = newsletterEmail.user
-      const ctx = { pubsub: createPubSubClient(), uid: user.id }
       const parsedFrom = parseEmailAddress(data.from)
 
       if (
@@ -83,15 +79,21 @@ export function emailsServiceRouter() {
         )
       ) {
         logger.info('handling as article')
-        await saveEmail(ctx, {
-          title: getTitleFromEmailSubject(data.subject),
-          author: parsedFrom.name,
-          url: generateUniqueUrl(),
-          originalContent: data.html || data.text,
-        })
-
-        // update received email type
-        await updateReceivedEmail(data.receivedEmailId, 'article')
+        const savedNewsletter = await saveNewsletter(
+          {
+            title: getTitleFromEmailSubject(data.subject),
+            author: parsedFrom.name,
+            url: generateUniqueUrl(),
+            content: data.html || data.text,
+            receivedEmailId: data.receivedEmailId,
+            email: newsletterEmail.address,
+          },
+          newsletterEmail
+        )
+        if (!savedNewsletter) {
+          logger.info('Failed to save email')
+          return res.status(500).send('Failed to save email')
+        }
 
         res.status(200).send('Article')
         return

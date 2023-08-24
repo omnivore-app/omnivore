@@ -13,7 +13,7 @@ import {
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
 import { updateReceivedEmail } from '../../services/received_emails'
-import { saveNewsletterEmail } from '../../services/save_newsletter_email'
+import { saveNewsletter } from '../../services/save_newsletter_email'
 import { authorized } from '../../utils/helpers'
 import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
 import { sendEmail } from '../../utils/sendEmail'
@@ -103,7 +103,7 @@ export const markEmailAsItemResolver = authorized<
       }
     }
 
-    const success = await saveNewsletterEmail(
+    const success = await saveNewsletter(
       {
         from: recentEmail.from,
         email: recentEmail.to,

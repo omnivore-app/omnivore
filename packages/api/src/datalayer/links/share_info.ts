@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Knex } from 'knex'
 import { LinkShareInfo } from '../../generated/graphql'
-import { DataModels } from '../../resolvers/types'
 import { getPageByParam } from '../../elastic/pages'
 
 // once we have links setup properly in the API we will remove this method
@@ -10,8 +9,7 @@ import { getPageByParam } from '../../elastic/pages'
 export const getShareInfoForArticle = async (
   kx: Knex,
   userId: string,
-  articleId: string,
-  models: DataModels
+  articleId: string
 ): Promise<LinkShareInfo | undefined> => {
   // TEMP: because the old API uses articles instead of Links, we are actually
   // getting an article ID here and need to map it to a link ID. When the API

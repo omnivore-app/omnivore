@@ -46,7 +46,7 @@ export class Subscription {
   unsubscribeHttpUrl?: string
 
   @Column('text', { nullable: true })
-  icon?: string
+  icon?: string | null
 
   @Column('enum', {
     enum: SubscriptionType,

@@ -1,11 +1,10 @@
-import 'mocha'
 import { expect } from 'chai'
-import { createTestUser, deleteTestUser } from '../db'
-import { SaveContext, saveEmail } from '../../src/services/save_email'
-import { createPubSubClient } from '../../src/pubsub'
-import { getPageByParam } from '../../src/elastic/pages'
+import 'mocha'
 import nock from 'nock'
+import { getPageByParam } from '../../src/elastic/pages'
 import { User } from '../../src/entity/user'
+import { saveEmail } from '../../src/services/save_email'
+import { createTestUser, deleteTestUser } from '../db'
 
 describe('saveEmail', () => {
   const fakeContent = 'fake content'
@@ -30,26 +29,25 @@ describe('saveEmail', () => {
     const url = 'https://blog.omnivore.app/fake-url'
     const title = 'fake title'
     const author = 'fake author'
-    const ctx: SaveContext = {
-      pubsub: createPubSubClient(),
-      uid: user.id,
-      refresh: true,
-    }
 
-    await saveEmail(ctx, {
+    await saveEmail({
       originalContent: `<html><body>${fakeContent}</body></html>`,
       url,
       title,
       author,
+      userId: user.id,
+      receivedEmailId: 'fakeId',
     })
 
     // This ensures row level security doesnt prevent
     // saving the same URL
-    const secondResult = await saveEmail(ctx, {
+    const secondResult = await saveEmail({
       originalContent: `<html><body>${fakeContent}</body></html>`,
       url,
       title,
       author,
+      userId: user.id,
+      receivedEmailId: 'fakeId',
     })
     expect(secondResult).to.not.be.undefined
 

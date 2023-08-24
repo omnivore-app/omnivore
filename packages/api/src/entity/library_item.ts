@@ -7,6 +7,7 @@ import {
   ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { Label } from './label'
@@ -45,10 +46,11 @@ export enum DirectionalityType {
   RTL = 'RTL',
 }
 
+@Unique('library_item_user_original_url', ['user', 'originalUrl'])
 @Entity({ name: 'library_item' })
 export class LibraryItem {
   @PrimaryGeneratedColumn('uuid')
-  id?: string
+  id!: string
 
   @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
@@ -58,7 +60,7 @@ export class LibraryItem {
     enum: LibraryItemState,
     default: LibraryItemState.Succeeded,
   })
-  state?: LibraryItemState
+  state!: LibraryItemState
 
   @Column('text')
   originalUrl!: string
@@ -114,36 +116,36 @@ export class LibraryItem {
   @Column('json', { nullable: true })
   metadata?: Record<string, unknown> | null
 
-  @Column('integer', { nullable: true })
-  readingProgressLastReadAnchor?: number | null
+  @Column('integer')
+  readingProgressLastReadAnchor!: number
 
-  @Column('integer', { nullable: true })
-  readingProgressHighestReadAnchor?: number | null
+  @Column('integer')
+  readingProgressHighestReadAnchor!: number
 
-  @Column('real', { nullable: true })
-  readingProgressTopPercent?: number | null
+  @Column('real')
+  readingProgressTopPercent!: number
 
-  @Column('real', { nullable: true })
-  readingProgressBottomPercent?: number | null
+  @Column('real')
+  readingProgressBottomPercent!: number
 
   @Column('text', { nullable: true })
   thumbnail?: string | null
 
   @Column('enum', { enum: LibraryItemType, default: LibraryItemType.Unknown })
-  itemType?: LibraryItemType
+  itemType!: LibraryItemType
 
   @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'upload_file_id' })
   uploadFile?: UploadFile
 
   @Column('enum', { enum: ContentReaderType, default: ContentReaderType.WEB })
-  contentReader?: ContentReaderType
+  contentReader!: ContentReaderType
 
   @Column('text', { nullable: true })
   originalContent?: string | null
 
-  @Column('text', { nullable: true })
-  readableContent?: string | null
+  @Column('text')
+  readableContent!: string
 
   @Column('text', { nullable: true })
   modelName?: string | null
@@ -158,11 +160,11 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   gcsArchiveId?: string | null
 
-  @OneToOne(() => Subscription, { onDelete: 'CASCADE' })
+  @OneToOne(() => Subscription, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'subscription_id' })
   subscription?: Subscription
 
-  @ManyToMany(() => Label)
+  @ManyToMany(() => Label, { eager: true })
   @JoinTable()
   labels?: Label[]
 

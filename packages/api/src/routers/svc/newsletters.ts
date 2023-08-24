@@ -8,7 +8,7 @@ import {
 import { updateReceivedEmail } from '../../services/received_emails'
 import {
   NewsletterMessage,
-  saveNewsletterEmail,
+  saveNewsletter,
 } from '../../services/save_newsletter_email'
 import { saveUrlFromEmail } from '../../services/save_url'
 import { getSubscriptionByNameAndUserId } from '../../services/subscriptions'
@@ -137,7 +137,7 @@ export function newsletterServiceRouter() {
         }
 
         // save newsletter instead
-        const result = await saveNewsletterEmail(data, newsletterEmail, saveCtx)
+        const result = await saveNewsletter(data, newsletterEmail)
         if (!result) {
           logger.info('Error creating newsletter link from data', data)
 

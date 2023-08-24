@@ -1,5 +1,5 @@
 import { ReceivedEmail } from '../entity/received_email'
-import { getRepository } from '../repository'
+import { entityManager, getRepository } from '../repository'
 
 export const saveReceivedEmail = async (
   from: string,
@@ -23,7 +23,8 @@ export const saveReceivedEmail = async (
 
 export const updateReceivedEmail = async (
   id: string,
-  type: 'article' | 'non-article'
+  type: 'article' | 'non-article',
+  em = entityManager
 ) => {
-  await getRepository(ReceivedEmail).update(id, { type })
+  await em.getRepository(ReceivedEmail).update(id, { type })
 }

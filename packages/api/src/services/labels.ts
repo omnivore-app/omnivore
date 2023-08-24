@@ -10,15 +10,22 @@ import { getRepository } from '../repository'
 import { generateRandomColor } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
-const INTERNAL_LABELS_IN_LOWERCASE = [
-  'newsletters',
-  'favorites',
-  'rss',
-  'library',
-]
+const INTERNAL_LABELS_WITH_COLOR = new Map<
+  string,
+  { name: string; color: string }
+>([
+  ['favorites', { name: 'Favorites', color: '#FFD700' }],
+  ['library', { name: 'Library', color: '#584C42' }],
+  ['rss', { name: 'RSS', color: '#F26522' }],
+  ['newsletter', { name: 'Newsletter', color: '#07D2D1' }],
+])
+
+export const getInternalLabelWithColor = (name: string) => {
+  return INTERNAL_LABELS_WITH_COLOR.get(name.toLowerCase())
+}
 
 const isLabelInternal = (name: string): boolean => {
-  return INTERNAL_LABELS_IN_LOWERCASE.includes(name.toLowerCase())
+  return INTERNAL_LABELS_WITH_COLOR.has(name.toLowerCase())
 }
 
 const batchGetLabelsFromLinkIds = async (
