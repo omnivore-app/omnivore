@@ -701,7 +701,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         dispatchHighlightMessage('noteCreated')
       } else {
         try {
-          await createHighlightCallback(event.annotation)
+          await createHighlightCallback({
+            annotation: event.annotation,
+          })
           dispatchHighlightMessage('noteCreated')
         } catch (error) {
           dispatchHighlightError('saveAnnotation', error)
