@@ -5,12 +5,15 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { Label } from './label'
+import { Recommendation } from './recommendation'
 import { Subscription } from './subscription'
 import { UploadFile } from './upload_file'
 import { User } from './user'
@@ -52,7 +55,7 @@ export class LibraryItem {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @OneToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User
 
@@ -160,11 +163,11 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   gcsArchiveId?: string | null
 
-  @OneToOne(() => Subscription, { onDelete: 'CASCADE', eager: true })
+  @OneToOne(() => Subscription, { cascade: true })
   @JoinColumn({ name: 'subscription_id' })
   subscription?: Subscription
 
-  @ManyToMany(() => Label, { eager: true })
+  @ManyToMany(() => Label, { cascade: true })
   @JoinTable({
     name: 'entity_labels',
     joinColumn: { name: 'library_item_id' },
@@ -172,6 +175,17 @@ export class LibraryItem {
   })
   labels?: Label[]
 
+  @OneToMany(
+    () => Recommendation,
+    (recommendation) => recommendation.libraryItem
+  )
+  @JoinTable({
+    name: 'recommendation',
+    joinColumn: { name: 'library_item_id' },
+    inverseJoinColumn: { name: 'id' },
+  })
+  recommendations?: Recommendation[]
+
   @Column('enum', { enum: DirectionalityType, default: DirectionalityType.LTR })
-  directionality?: DirectionalityType
+  directionality!: DirectionalityType
 }

@@ -5,12 +5,12 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
 import { Label } from './label'
-import { Page } from './page'
+import { LibraryItem } from './library_item'
 import { User } from './user'
 
 export enum HighlightType {
@@ -27,13 +27,13 @@ export class Highlight {
   @Column({ type: 'varchar', length: 14 })
   shortId!: string
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @OneToOne(() => Page)
-  @JoinColumn({ name: 'article_id' })
-  page!: Page
+  @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'library_item_id' })
+  libraryItem!: LibraryItem
 
   @Column('text')
   quote!: string
@@ -80,7 +80,7 @@ export class Highlight {
   @Column('text', { nullable: true })
   color?: string | null
 
-  @ManyToMany(() => Label, { eager: true })
+  @ManyToMany(() => Label)
   @JoinTable({
     name: 'entity_labels',
     joinColumn: { name: 'highlight_id' },
