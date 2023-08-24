@@ -236,7 +236,9 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           if (!inputs.selectionData) {
             return undefined
           }
-          return await createHighlightFromSelection(inputs.selectionData, note)
+          return await createHighlightFromSelection(inputs.selectionData, {
+            annotation: note,
+          })
         }
         setHighlightModalAction(inputs)
       }
