@@ -208,7 +208,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         highlightBackgroundRed: '251, 154, 154',
 
         highlightBackgroundAlpha: '0.2',
-        highlightUnderlineAlpha: '1',
+        highlightUnderlineAlpha: '1.0',
       },
     },
     media: {
