@@ -262,7 +262,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                 m: '0px',
               },
               '&:hover': {
-                bg: '#2A2A2A',
+                bg: '$thBackground',
               },
             }}
             onClick={() => props.setEditMode('edit')}
