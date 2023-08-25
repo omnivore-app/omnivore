@@ -331,7 +331,7 @@ class LibraryViewModel @Inject constructor(
 
         val allLabels = syncedLabels + createdLabels
 
-        val input = SetLabelsInput(labelIds = allLabels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val input = SetLabelsInput(labelIds =  Optional.presentIfNotNull(allLabels.map { it.savedItemLabelId }), pageId = savedItemID)
         val networkResult = networker.updateLabelsForSavedItem(input)
 
         val crossRefs = allLabels.map {

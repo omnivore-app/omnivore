@@ -13,7 +13,7 @@ import app.omnivore.omnivore.persistence.entities.*
     SavedItemAndSavedItemLabelCrossRef::class,
     SavedItemAndHighlightCrossRef::class
   ],
-  version = 8
+  version = 9
 )
 abstract class AppDatabase : RoomDatabase() {
   abstract fun viewerDao(): ViewerDao

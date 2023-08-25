@@ -5,7 +5,7 @@ public struct Subscription {
   public let description: String?
   public let subscriptionID: String
   public let name: String
-  public let newsletterEmailAddress: String
+  public let newsletterEmailAddress: String?
   public let status: SubscriptionStatus
   public let unsubscribeHttpUrl: String?
   public let unsubscribeMailTo: String?
@@ -18,7 +18,7 @@ public struct Subscription {
     description: String?,
     subscriptionID: String,
     name: String,
-    newsletterEmailAddress: String,
+    newsletterEmailAddress: String?,
     status: SubscriptionStatus,
     unsubscribeHttpUrl: String?,
     unsubscribeMailTo: String?,

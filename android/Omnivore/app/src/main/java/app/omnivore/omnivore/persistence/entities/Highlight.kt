@@ -21,7 +21,8 @@ data class Highlight(
   var serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
   var shortId: String,
   val suffix: String?,
-  val updatedAt: String?
+  val updatedAt: String?,
+  val color: String?
 )
 
 @Entity(

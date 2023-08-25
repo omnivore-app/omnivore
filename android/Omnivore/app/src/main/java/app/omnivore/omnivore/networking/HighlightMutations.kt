@@ -150,7 +150,8 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         annotation = createdHighlight.highlightFields.annotation,
         createdAt =  createdHighlight.highlightFields.createdAt.toString(),
         updatedAt = createdHighlight.highlightFields.updatedAt.toString(),
-        createdByMe = createdHighlight.highlightFields.createdByMe
+        createdByMe = createdHighlight.highlightFields.createdByMe,
+        color = createdHighlight.highlightFields.color
       )
     } else {
       return null

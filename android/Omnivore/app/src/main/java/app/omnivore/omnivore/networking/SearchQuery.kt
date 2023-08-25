@@ -82,6 +82,7 @@ suspend fun Networker.search(
             suffix  = highlight.highlightFields.suffix,
             updatedAt = highlight.highlightFields.updatedAt as String?,
             createdAt = highlight.highlightFields.createdAt as String?,
+            color = highlight.highlightFields.color
           )
         }
       )
