@@ -93,7 +93,7 @@ export function newsletterServiceRouter() {
     try {
       const { message, expired } = readPushSubscription(req)
       if (!message) {
-        return res.status(400).send('Bad Request')
+        return res.status(200).send('Bad Request')
       }
 
       if (expired) {
@@ -104,7 +104,7 @@ export function newsletterServiceRouter() {
       const data = JSON.parse(message) as unknown
       if (!isNewsletterMessage(data)) {
         logger.error('invalid newsletter message', { data })
-        return res.status(400).send('Bad Request')
+        return res.status(200).send('Invalid Message')
       }
 
       // get user from newsletter email
@@ -150,17 +150,17 @@ export function newsletterServiceRouter() {
 
       // update received email type
       await updateReceivedEmail(data.receivedEmailId, 'article')
-
-      res.status(200).send('newsletter created')
     } catch (e) {
       logger.error(e)
       if (e instanceof SyntaxError) {
         // when message is not a valid json string
-        res.status(400).send(e)
-      } else {
-        res.status(500).send(e)
+        return res.status(400).send(e)
       }
+
+      return res.status(500).send(e)
     }
+
+    res.status(200).send('newsletter created')
   })
 
   return router

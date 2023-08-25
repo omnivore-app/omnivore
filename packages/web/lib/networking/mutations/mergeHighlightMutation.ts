@@ -40,6 +40,7 @@ export async function mergeHighlightMutation(
             prefix
             suffix
             patch
+            color
             createdAt
             updatedAt
             annotation

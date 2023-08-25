@@ -13,25 +13,26 @@ export function webhooksServiceRouter() {
 
   router.post('/trigger/:action', async (req, res) => {
     logger.info('trigger webhook of action', req.params.action)
-    const { message: msgStr, expired } = readPushSubscription(req)
-
-    if (!msgStr) {
-      res.status(400).send('Bad Request')
-      return
-    }
-
-    if (expired) {
-      logger.info('discarding expired message')
-      res.status(200).send('Expired')
-      return
-    }
 
     try {
+      const { message: msgStr, expired } = readPushSubscription(req)
+
+      if (!msgStr) {
+        res.status(200).send('Bad Request')
+        return
+      }
+
+      if (expired) {
+        logger.info('discarding expired message')
+        res.status(200).send('Expired')
+        return
+      }
+
       const data = JSON.parse(msgStr)
       const { userId, type } = data as { userId: string; type: string }
       if (!userId || !type) {
         logger.info('No userId or type found in message')
-        res.status(400).send('Bad Request')
+        res.status(200).send('Bad Request')
         return
       }
 
@@ -90,12 +91,12 @@ export function webhooksServiceRouter() {
             })
         })
       )
-
-      res.status(200).send('OK')
     } catch (err) {
       logger.error('trigger webhook failed', err)
-      res.status(500).send(err)
+      return res.status(500).send(err)
     }
+
+    res.send('OK')
   })
 
   return router

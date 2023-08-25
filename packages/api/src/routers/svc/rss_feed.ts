@@ -13,15 +13,15 @@ export function rssFeedRouter() {
   router.post('/fetchAll', async (req, res) => {
     logger.info('fetch all rss feeds')
 
-    const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', msgStr, 'has expired', expired)
-
-    if (expired) {
-      logger.info('discarding expired message')
-      return res.status(200).send('Expired')
-    }
-
     try {
+      const { message: msgStr, expired } = readPushSubscription(req)
+      logger.info('read pubsub message', msgStr, 'has expired', expired)
+
+      if (expired) {
+        logger.info('discarding expired message')
+        return res.status(200).send('Expired')
+      }
+
       // get all active rss feed subscriptions
       const subscriptions = await getRepository(Subscription).find({
         select: ['id', 'url', 'user', 'lastFetchedAt'],
@@ -42,12 +42,12 @@ export function rssFeedRouter() {
           }
         })
       )
-
-      res.send('OK')
     } catch (error) {
       logger.info('error fetching rss feeds', error)
-      res.status(500).send('Internal Server Error')
+      return res.status(500).send('Internal Server Error')
     }
+
+    res.send('OK')
   })
 
   return router

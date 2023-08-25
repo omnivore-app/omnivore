@@ -198,6 +198,16 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thProgressFg: '#FFD234',
 
         thHighContrast: '#3D3D3D',
+        thHighlightBar: '#D9D9D9',
+
+        highlight_background_green: '85, 198, 137',
+        highlight_background_blue: '106, 177, 255',
+        highlight_background_orange: '254, 181, 109',
+        highlight_background_yellow: '255, 210, 52',
+        highlight_background_red: '251, 154, 154',
+
+        highlight_background_alpha: '0.2',
+        highlight_underline_alpha: '1.0',
       },
     },
     media: {
@@ -298,6 +308,10 @@ const darkThemeSpec = {
     thProgressFg: '#FFD234',
 
     thHighContrast: '#D9D9D9',
+
+    thHighlightBar: '#6A6968',
+    highlight_underline_alpha: '0.5',
+    highlight_background_alpha: '0.35',
   },
   shadows: {
     cardBoxShadow:

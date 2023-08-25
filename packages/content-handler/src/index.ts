@@ -22,6 +22,7 @@ import { MorningBrewHandler } from './newsletters/morning-brew-handler'
 import { RevueHandler } from './newsletters/revue-handler'
 import { SubstackHandler } from './newsletters/substack-handler'
 import { AppleNewsHandler } from './websites/apple-news-handler'
+import { ArsTechnicaHandler } from './websites/ars-technica-handler'
 import { BloombergHandler } from './websites/bloomberg-handler'
 import { DerstandardHandler } from './websites/derstandard-handler'
 import { GitHubHandler } from './websites/github-handler'
@@ -33,11 +34,11 @@ import { PipedVideoHandler } from './websites/piped-video-handler'
 import { ScrapingBeeHandler } from './websites/scrapingBee-handler'
 import { StackOverflowHandler } from './websites/stack-overflow-handler'
 import { TDotCoHandler } from './websites/t-dot-co-handler'
+import { TheAtlanticHandler } from './websites/the-atlantic-handler'
 import { WeixinQqHandler } from './websites/weixin-qq-handler'
 import { WikipediaHandler } from './websites/wikipedia-handler'
 import { YoutubeHandler } from './websites/youtube-handler'
-import { TheAtlanticHandler } from './websites/the-atlantic-handler'
-import { ArsTechnicaHandler } from './websites/ars-technica-handler'
+import { ZhihuHandler } from './websites/zhihu-handler'
 
 const validateUrlString = (url: string): boolean => {
   const u = new URL(url)
@@ -81,6 +82,7 @@ const contentHandlers: ContentHandler[] = [
   new PipedVideoHandler(),
   new WeixinQqHandler(),
   new NitterHandler(),
+  new ZhihuHandler(),
 ]
 
 const newsletterHandlers: ContentHandler[] = [

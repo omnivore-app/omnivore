@@ -129,7 +129,7 @@ export const uploadToBucket = async (
   await storage
     .bucket(selectedBucket || bucketName)
     .file(filePath)
-    .save(data, options)
+    .save(data, { ...options, timeout: 30000 })
 }
 
 export const createGCSFile = (filename: string): File => {

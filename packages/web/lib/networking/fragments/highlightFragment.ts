@@ -10,6 +10,7 @@ export const highlightFragment = gql`
     prefix
     suffix
     patch
+    color
     annotation
     createdByMe
     createdAt
@@ -41,6 +42,7 @@ export type Highlight = {
   updatedAt: string
   sharedAt: string
   labels?: Label[]
+  color?: string
   highlightPositionPercent?: number
   highlightPositionAnchorIndex?: number
 }

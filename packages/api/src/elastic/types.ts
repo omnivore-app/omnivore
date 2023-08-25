@@ -107,6 +107,7 @@ export interface Highlight {
   highlightPositionAnchorIndex?: number | null
   type: HighlightType
   html?: string | null
+  color?: string | null
 }
 
 export interface RecommendingUser {
@@ -208,6 +209,7 @@ export interface PageContext {
   pubsub: PubsubClient
   refresh?: boolean
   uid: string
+  shouldPublish?: boolean
 }
 
 export interface PageSearchArgs {

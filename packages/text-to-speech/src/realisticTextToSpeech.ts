@@ -9,6 +9,30 @@ import { stripEmojis } from './htmlToSsml'
 const getRealisticVoiceId = (name: string | undefined) => {
   const voiceList = [
     {
+      voiceId: 'ErXwobaYiN019PkySvjV',
+      name: 'Antoni',
+    },
+    {
+      voiceId: 'pMsXgVXv3BLzUgSXRplE',
+      name: 'Serena',
+    },
+    {
+      voiceId: 'onwK4e9ZLuTAKqWW03F9',
+      name: 'Daniel',
+    },
+    {
+      voiceId: 'ThT5KcBeYPX3keUQqHPh',
+      name: 'Dorothy',
+    },
+    {
+      voiceId: 'flq6f7yk4E4fJM5XTYuZ',
+      name: 'Michael',
+    },
+    {
+      voiceId: 'XrExE9yKIg1WjnnlVkGX',
+      name: 'Matilda',
+    },
+    {
       voiceId: '21m00Tcm4TlvDq8ikWAM',
       name: 'Rachel',
     },

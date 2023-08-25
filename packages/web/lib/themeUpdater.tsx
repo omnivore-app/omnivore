@@ -111,3 +111,37 @@ export function isDarkTheme(): boolean {
     currentTheme == 'Black'
   )
 }
+
+export const highlightColors = ['yellow', 'red', 'green', 'blue']
+
+export const highlightColor = (name: string | undefined) => {
+  switch (name) {
+    case 'green':
+      return '#55C689'
+    case 'blue':
+      return '#6AB1FF'
+    case 'yellow':
+      return '#FFD234'
+    case 'orange':
+      return '#FEB56D'
+    case 'red':
+      return '#FB9A9A'
+  }
+  return '#FFD234'
+}
+
+export const highlightColorVar = (name: string | undefined) => {
+  switch (name) {
+    case 'green':
+      return 'var(--colors-highlight_background_green)'
+    case 'blue':
+      return 'var(--colors-highlight_background_blue)'
+    case 'yellow':
+      return 'var(--colors-highlight_background_yellow)'
+    case 'orange':
+      return 'var(--colors-highlight_background_orange)'
+    case 'red':
+      return 'var(--colors-highlight_background_red)'
+  }
+  return 'var(--colors-highlightBackground)'
+}

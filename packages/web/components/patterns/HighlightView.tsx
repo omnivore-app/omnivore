@@ -13,7 +13,11 @@ import { styled, theme } from '../tokens/stitches.config'
 import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { isDarkTheme } from '../../lib/themeUpdater'
+import {
+  highlightColor,
+  highlightColorVar,
+  isDarkTheme,
+} from '../../lib/themeUpdater'
 import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import {
@@ -70,7 +74,7 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
   const hover = useHover(context)
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
-  const highlightAlpha = isDark ? 0.5 : 0.35
+  const highlightColor = highlightColorVar(props.highlight.color)
 
   return (
     <VStack
@@ -111,9 +115,8 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
             css={{
               '> *': {
                 display: 'inline',
-                padding: '2px',
-                backgroundColor: `rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
-                boxShadow: `3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha}), -3px 0 0 rgba(var(--colors-highlightBackground), ${highlightAlpha})`,
+                padding: '3px',
+                backgroundColor: `rgba(${highlightColor}, var(--colors-highlight_background_alpha))`,
                 boxDecorationBreak: 'clone',
                 borderRadius: '2px',
               },
