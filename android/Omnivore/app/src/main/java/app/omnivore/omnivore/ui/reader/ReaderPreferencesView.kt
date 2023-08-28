@@ -115,7 +115,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         webReaderViewModel.setFontSize(it.toInt())
       },
       steps = 10,
-      valueRange = 8f..28f,
+      valueRange = 10f..48f,
     )
 
     Text("Margin", style = TextStyle(

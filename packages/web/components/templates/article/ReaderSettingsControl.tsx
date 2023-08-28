@@ -355,7 +355,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
         </Button>
         <TickedRangeSlider
           min={10}
-          max={34}
+          max={48}
           step={2}
           value={props.readerSettings.fontSize}
           onChange={handleFontSizeChange}

@@ -1,9 +1,4 @@
-directive @sanitize(
-  allowedTags: [String]
-  maxLength: Int
-  minLength: Int
-  pattern: String
-) on INPUT_FIELD_DEFINITION
+directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
@@ -155,9 +150,7 @@ enum ArticleSavingRequestErrorCode {
   UNAUTHORIZED
 }
 
-union ArticleSavingRequestResult =
-    ArticleSavingRequestError
-  | ArticleSavingRequestSuccess
+union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequestSuccess
 
 enum ArticleSavingRequestStatus {
   ARCHIVED
@@ -195,6 +188,7 @@ type BulkActionError {
 }
 
 enum BulkActionErrorCode {
+  BAD_REQUEST
   UNAUTHORIZED
 }
 
@@ -205,8 +199,10 @@ type BulkActionSuccess {
 }
 
 enum BulkActionType {
+  ADD_LABELS
   ARCHIVE
   DELETE
+  MARK_AS_READ
 }
 
 enum ContentReader {
@@ -255,9 +251,7 @@ input CreateArticleSavingRequestInput {
   url: String!
 }
 
-union CreateArticleSavingRequestResult =
-    CreateArticleSavingRequestError
-  | CreateArticleSavingRequestSuccess
+union CreateArticleSavingRequestResult = CreateArticleSavingRequestError | CreateArticleSavingRequestSuccess
 
 type CreateArticleSavingRequestSuccess {
   articleSavingRequest: ArticleSavingRequest!
@@ -309,6 +303,7 @@ enum CreateHighlightErrorCode {
 input CreateHighlightInput {
   annotation: String
   articleId: ID!
+  color: String
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
   html: String
@@ -338,9 +333,7 @@ input CreateHighlightReplyInput {
   text: String!
 }
 
-union CreateHighlightReplyResult =
-    CreateHighlightReplyError
-  | CreateHighlightReplySuccess
+union CreateHighlightReplyResult = CreateHighlightReplyError | CreateHighlightReplySuccess
 
 type CreateHighlightReplySuccess {
   highlightReply: HighlightReply!
@@ -384,9 +377,7 @@ enum CreateNewsletterEmailErrorCode {
   UNAUTHORIZED
 }
 
-union CreateNewsletterEmailResult =
-    CreateNewsletterEmailError
-  | CreateNewsletterEmailSuccess
+union CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess
 
 type CreateNewsletterEmailSuccess {
   newsletterEmail: NewsletterEmail!
@@ -494,9 +485,7 @@ enum DeleteHighlightReplyErrorCode {
   UNAUTHORIZED
 }
 
-union DeleteHighlightReplyResult =
-    DeleteHighlightReplyError
-  | DeleteHighlightReplySuccess
+union DeleteHighlightReplyResult = DeleteHighlightReplyError | DeleteHighlightReplySuccess
 
 type DeleteHighlightReplySuccess {
   highlightReply: HighlightReply!
@@ -518,9 +507,7 @@ enum DeleteIntegrationErrorCode {
   UNAUTHORIZED
 }
 
-union DeleteIntegrationResult =
-    DeleteIntegrationError
-  | DeleteIntegrationSuccess
+union DeleteIntegrationResult = DeleteIntegrationError | DeleteIntegrationSuccess
 
 type DeleteIntegrationSuccess {
   integration: Integration!
@@ -532,6 +519,7 @@ type DeleteLabelError {
 
 enum DeleteLabelErrorCode {
   BAD_REQUEST
+  FORBIDDEN
   NOT_FOUND
   UNAUTHORIZED
 }
@@ -552,9 +540,7 @@ enum DeleteNewsletterEmailErrorCode {
   UNAUTHORIZED
 }
 
-union DeleteNewsletterEmailResult =
-    DeleteNewsletterEmailError
-  | DeleteNewsletterEmailSuccess
+union DeleteNewsletterEmailResult = DeleteNewsletterEmailError | DeleteNewsletterEmailSuccess
 
 type DeleteNewsletterEmailSuccess {
   newsletterEmail: NewsletterEmail!
@@ -689,6 +675,7 @@ type FeedArticlesSuccess {
 }
 
 type Filter {
+  category: String!
   createdAt: Date!
   description: String
   filter: String!
@@ -771,9 +758,7 @@ enum GetUserPersonalizationErrorCode {
   UNAUTHORIZED
 }
 
-union GetUserPersonalizationResult =
-    GetUserPersonalizationError
-  | GetUserPersonalizationSuccess
+union GetUserPersonalizationResult = GetUserPersonalizationError | GetUserPersonalizationSuccess
 
 type GetUserPersonalizationSuccess {
   userPersonalization: UserPersonalization
@@ -821,6 +806,7 @@ type GroupsSuccess {
 
 type Highlight {
   annotation: String
+  color: String
   createdAt: Date!
   createdByMe: Boolean!
   highlightPositionAnchorIndex: Int
@@ -869,9 +855,7 @@ enum ImportFromIntegrationErrorCode {
   UNAUTHORIZED
 }
 
-union ImportFromIntegrationResult =
-    ImportFromIntegrationError
-  | ImportFromIntegrationSuccess
+union ImportFromIntegrationResult = ImportFromIntegrationError | ImportFromIntegrationSuccess
 
 type ImportFromIntegrationSuccess {
   success: Boolean!
@@ -882,6 +866,7 @@ type Integration {
   enabled: Boolean!
   id: ID!
   name: String!
+  taskName: String
   token: String!
   type: IntegrationType!
   updatedAt: Date!
@@ -928,6 +913,7 @@ type Label {
   createdAt: Date
   description: String
   id: ID!
+  internal: Boolean
   name: String!
   position: Int
 }
@@ -1050,6 +1036,7 @@ enum MergeHighlightErrorCode {
 input MergeHighlightInput {
   annotation: String
   articleId: ID!
+  color: String
   highlightPositionAnchorIndex: Int
   highlightPositionPercent: Float
   html: String
@@ -1113,16 +1100,12 @@ type MoveLabelSuccess {
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
-  bulkAction(action: BulkActionType!, query: String): BulkActionResult!
+  bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
-  createArticleSavingRequest(
-    input: CreateArticleSavingRequestInput!
-  ): CreateArticleSavingRequestResult!
+  createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
-  createHighlightReply(
-    input: CreateHighlightReplyInput!
-  ): CreateHighlightReplyResult!
+  createHighlightReply(input: CreateHighlightReplyInput!): CreateHighlightReplyResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
   createNewsletterEmail: CreateNewsletterEmailResult!
   createReaction(input: CreateReactionInput!): CreateReactionResult!
@@ -1151,20 +1134,17 @@ type Mutation {
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
-  recommendHighlights(
-    input: RecommendHighlightsInput!
-  ): RecommendHighlightsResult!
+  recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
-  saveArticleReadingProgress(
-    input: SaveArticleReadingProgressInput!
-  ): SaveArticleReadingProgressResult!
+  saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
   saveFilter(input: SaveFilterInput!): SaveFilterResult!
   savePage(input: SavePageInput!): SaveResult!
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
   setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
+  setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
   setFollow(input: SetFollowInput!): SetFollowResult!
   setIntegration(input: SetIntegrationInput!): SetIntegrationResult!
   setLabels(input: SetLabelsInput!): SetLabelsResult!
@@ -1173,32 +1153,22 @@ type Mutation {
   setRule(input: SetRuleInput!): SetRuleResult!
   setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
   setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
-  setUserPersonalization(
-    input: SetUserPersonalizationInput!
-  ): SetUserPersonalizationResult!
+  setUserPersonalization(input: SetUserPersonalizationInput!): SetUserPersonalizationResult!
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
-  subscribe(name: String!): SubscribeResult!
-  unsubscribe(name: String!): UnsubscribeResult!
+  subscribe(input: SubscribeInput!): SubscribeResult!
+  unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
-  updateHighlightReply(
-    input: UpdateHighlightReplyInput!
-  ): UpdateHighlightReplyResult!
+  updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
-  updateLinkShareInfo(
-    input: UpdateLinkShareInfoInput!
-  ): UpdateLinkShareInfoResult!
+  updateLinkShareInfo(input: UpdateLinkShareInfoInput!): UpdateLinkShareInfoResult!
   updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
-  updateSharedComment(
-    input: UpdateSharedCommentInput!
-  ): UpdateSharedCommentResult!
+  updateSharedComment(input: UpdateSharedCommentInput!): UpdateSharedCommentResult!
+  updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
   updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
   uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
-  uploadImportFile(
-    contentType: String!
-    type: UploadImportFileType!
-  ): UploadImportFileResult!
+  uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
 type NewsletterEmail {
@@ -1323,21 +1293,9 @@ type Query {
   apiKeys: ApiKeysResult!
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
-  articles(
-    after: String
-    first: Int
-    includePending: Boolean
-    query: String
-    sharedOnly: Boolean
-    sort: SortParams
-  ): ArticlesResult!
+  articles(after: String, first: Int, includePending: Boolean, query: String, sharedOnly: Boolean, sort: SortParams): ArticlesResult!
   deviceTokens: DeviceTokensResult!
-  feedArticles(
-    after: String
-    first: Int
-    sharedByUser: ID
-    sort: SortParams
-  ): FeedArticlesResult!
+  feedArticles(after: String, first: Int, sharedByUser: ID, sort: SortParams): FeedArticlesResult!
   filters: FiltersResult!
   getFollowers(userId: ID): GetFollowersResult!
   getFollowing(userId: ID): GetFollowingResult!
@@ -1352,27 +1310,12 @@ type Query {
   recentSearches: RecentSearchesResult!
   reminder(linkId: ID!): ReminderResult!
   rules(enabled: Boolean): RulesResult!
-  search(
-    after: String
-    first: Int
-    format: String
-    includeContent: Boolean
-    query: String
-  ): SearchResult!
+  search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
-  sharedArticle(
-    selectedHighlightId: String
-    slug: String!
-    username: String!
-  ): SharedArticleResult!
-  subscriptions(sort: SortParams): SubscriptionsResult!
+  sharedArticle(selectedHighlightId: String, slug: String!, username: String!): SharedArticleResult!
+  subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
-  updatesSince(
-    after: String
-    first: Int
-    since: Date!
-    sort: SortParams
-  ): UpdatesSinceResult!
+  updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1478,9 +1421,7 @@ input RecommendHighlightsInput {
   pageId: ID!
 }
 
-union RecommendHighlightsResult =
-    RecommendHighlightsError
-  | RecommendHighlightsSuccess
+union RecommendHighlightsResult = RecommendHighlightsError | RecommendHighlightsSuccess
 
 type RecommendHighlightsSuccess {
   success: Boolean!
@@ -1590,6 +1531,7 @@ type Rule {
   actions: [RuleAction!]!
   createdAt: Date!
   enabled: Boolean!
+  eventTypes: [RuleEventType!]!
   filter: String!
   id: ID!
   name: String!
@@ -1611,6 +1553,11 @@ enum RuleActionType {
   ARCHIVE
   MARK_AS_READ
   SEND_NOTIFICATION
+}
+
+enum RuleEventType {
+  PAGE_CREATED
+  PAGE_UPDATED
 }
 
 type RulesError {
@@ -1645,9 +1592,7 @@ input SaveArticleReadingProgressInput {
   readingProgressTopPercent: Float
 }
 
-union SaveArticleReadingProgressResult =
-    SaveArticleReadingProgressError
-  | SaveArticleReadingProgressSuccess
+union SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveArticleReadingProgressSuccess
 
 type SaveArticleReadingProgressSuccess {
   updatedArticle: Article!
@@ -1684,6 +1629,7 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
+  category: String!
   description: String
   filter: String!
   id: ID
@@ -1701,6 +1647,9 @@ input SavePageInput {
   labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
+  publishedAt: Date
+  rssFeedUrl: String
+  savedAt: Date
   source: String!
   state: ArticleSavingRequestStatus
   title: String
@@ -1717,11 +1666,13 @@ type SaveSuccess {
 input SaveUrlInput {
   clientRequestId: ID!
   labels: [CreateLabelInput!]
+  locale: String
+  publishedAt: Date
+  savedAt: Date
   source: String!
   state: ArticleSavingRequestStatus
-  url: String!
   timezone: String
-  locale: String
+  url: String!
 }
 
 type SearchError {
@@ -1735,7 +1686,9 @@ enum SearchErrorCode {
 
 type SearchItem {
   annotation: String
+  archivedAt: Date
   author: String
+  color: String
   content: String
   contentReader: ContentReader!
   createdAt: Date!
@@ -1796,9 +1749,7 @@ enum SendInstallInstructionsErrorCode {
   UNAUTHORIZED
 }
 
-union SendInstallInstructionsResult =
-    SendInstallInstructionsError
-  | SendInstallInstructionsSuccess
+union SendInstallInstructionsResult = SendInstallInstructionsError | SendInstallInstructionsSuccess
 
 type SendInstallInstructionsSuccess {
   sent: Boolean!
@@ -1818,9 +1769,7 @@ input SetBookmarkArticleInput {
   bookmark: Boolean!
 }
 
-union SetBookmarkArticleResult =
-    SetBookmarkArticleError
-  | SetBookmarkArticleSuccess
+union SetBookmarkArticleResult = SetBookmarkArticleError | SetBookmarkArticleSuccess
 
 type SetBookmarkArticleSuccess {
   bookmarkedArticle: Article!
@@ -1845,6 +1794,23 @@ union SetDeviceTokenResult = SetDeviceTokenError | SetDeviceTokenSuccess
 
 type SetDeviceTokenSuccess {
   deviceToken: DeviceToken!
+}
+
+type SetFavoriteArticleError {
+  errorCodes: [SetFavoriteArticleErrorCode!]!
+}
+
+enum SetFavoriteArticleErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArticleSuccess
+
+type SetFavoriteArticleSuccess {
+  favoriteArticle: Article!
 }
 
 type SetFollowError {
@@ -1905,11 +1871,13 @@ enum SetLabelsErrorCode {
 
 input SetLabelsForHighlightInput {
   highlightId: ID!
-  labelIds: [ID!]!
+  labelIds: [ID!]
+  labels: [CreateLabelInput!]
 }
 
 input SetLabelsInput {
-  labelIds: [ID!]!
+  labelIds: [ID!]
+  labels: [CreateLabelInput!]
   pageId: ID!
 }
 
@@ -1933,6 +1901,7 @@ input SetRuleInput {
   actions: [RuleActionInput!]!
   description: String
   enabled: Boolean!
+  eventTypes: [RuleEventType!]!
   filter: String!
   id: ID
   name: String!
@@ -1983,9 +1952,7 @@ input SetShareHighlightInput {
   share: Boolean!
 }
 
-union SetShareHighlightResult =
-    SetShareHighlightError
-  | SetShareHighlightSuccess
+union SetShareHighlightResult = SetShareHighlightError | SetShareHighlightSuccess
 
 type SetShareHighlightSuccess {
   highlight: Highlight!
@@ -2013,9 +1980,7 @@ input SetUserPersonalizationInput {
   theme: String
 }
 
-union SetUserPersonalizationResult =
-    SetUserPersonalizationError
-  | SetUserPersonalizationSuccess
+union SetUserPersonalizationResult = SetUserPersonalizationError | SetUserPersonalizationSuccess
 
 type SetUserPersonalizationSuccess {
   updatedUserPersonalization: UserPersonalization!
@@ -2102,8 +2067,15 @@ type SubscribeError {
 enum SubscribeErrorCode {
   ALREADY_SUBSCRIBED
   BAD_REQUEST
+  EXCEEDED_MAX_SUBSCRIPTIONS
   NOT_FOUND
   UNAUTHORIZED
+}
+
+input SubscribeInput {
+  name: String
+  subscriptionType: SubscriptionType
+  url: String
 }
 
 union SubscribeResult = SubscribeError | SubscribeSuccess
@@ -2113,13 +2085,16 @@ type SubscribeSuccess {
 }
 
 type Subscription {
+  count: Int!
   createdAt: Date!
   description: String
   icon: String
   id: ID!
+  lastFetchedAt: Date
   name: String!
-  newsletterEmail: String!
+  newsletterEmail: String
   status: SubscriptionStatus!
+  type: SubscriptionType!
   unsubscribeHttpUrl: String
   unsubscribeMailTo: String
   updatedAt: Date!
@@ -2130,6 +2105,11 @@ enum SubscriptionStatus {
   ACTIVE
   DELETED
   UNSUBSCRIBED
+}
+
+enum SubscriptionType {
+  NEWSLETTER
+  RSS
 }
 
 type SubscriptionsError {
@@ -2163,6 +2143,7 @@ enum TypeaheadSearchErrorCode {
 }
 
 type TypeaheadSearchItem {
+  contentReader: ContentReader!
   id: ID!
   siteName: String
   slug: String!
@@ -2206,6 +2187,7 @@ enum UpdateHighlightErrorCode {
 
 input UpdateHighlightInput {
   annotation: String
+  color: String
   highlightId: ID!
   html: String
   quote: String
@@ -2227,9 +2209,7 @@ input UpdateHighlightReplyInput {
   text: String!
 }
 
-union UpdateHighlightReplyResult =
-    UpdateHighlightReplyError
-  | UpdateHighlightReplySuccess
+union UpdateHighlightReplyResult = UpdateHighlightReplyError | UpdateHighlightReplySuccess
 
 type UpdateHighlightReplySuccess {
   highlightReply: HighlightReply!
@@ -2280,9 +2260,7 @@ input UpdateLinkShareInfoInput {
   title: String!
 }
 
-union UpdateLinkShareInfoResult =
-    UpdateLinkShareInfoError
-  | UpdateLinkShareInfoSuccess
+union UpdateLinkShareInfoResult = UpdateLinkShareInfoError | UpdateLinkShareInfoSuccess
 
 type UpdateLinkShareInfoSuccess {
   message: String!
@@ -2304,8 +2282,10 @@ input UpdatePageInput {
   byline: String
   description: String
   pageId: ID!
+  previewImage: String
   publishedAt: Date
   savedAt: Date
+  state: ArticleSavingRequestStatus
   title: String
 }
 
@@ -2358,13 +2338,35 @@ input UpdateSharedCommentInput {
   sharedComment: String!
 }
 
-union UpdateSharedCommentResult =
-    UpdateSharedCommentError
-  | UpdateSharedCommentSuccess
+union UpdateSharedCommentResult = UpdateSharedCommentError | UpdateSharedCommentSuccess
 
 type UpdateSharedCommentSuccess {
   articleID: ID!
   sharedComment: String!
+}
+
+type UpdateSubscriptionError {
+  errorCodes: [UpdateSubscriptionErrorCode!]!
+}
+
+enum UpdateSubscriptionErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateSubscriptionInput {
+  description: String
+  id: ID!
+  lastFetchedAt: Date
+  name: String
+  status: SubscriptionStatus
+}
+
+union UpdateSubscriptionResult = UpdateSubscriptionError | UpdateSubscriptionSuccess
+
+type UpdateSubscriptionSuccess {
+  subscription: Subscription!
 }
 
 type UpdateUserError {
@@ -2402,9 +2404,7 @@ input UpdateUserProfileInput {
   username: String
 }
 
-union UpdateUserProfileResult =
-    UpdateUserProfileError
-  | UpdateUserProfileSuccess
+union UpdateUserProfileResult = UpdateUserProfileError | UpdateUserProfileSuccess
 
 type UpdateUserProfileSuccess {
   user: User!
@@ -2448,9 +2448,7 @@ input UploadFileRequestInput {
   url: String!
 }
 
-union UploadFileRequestResult =
-    UploadFileRequestError
-  | UploadFileRequestSuccess
+union UploadFileRequestResult = UploadFileRequestError | UploadFileRequestSuccess
 
 type UploadFileRequestSuccess {
   createdPageId: String
@@ -2490,8 +2488,7 @@ type User {
   followersCount: Int
   friendsCount: Int
   id: ID!
-  isFriend: Boolean
-    @deprecated(reason: "isFriend has been replaced with viewerIsFollowing")
+  isFriend: Boolean @deprecated(reason: "isFriend has been replaced with viewerIsFollowing")
   isFullUser: Boolean
   name: String!
   picture: String
