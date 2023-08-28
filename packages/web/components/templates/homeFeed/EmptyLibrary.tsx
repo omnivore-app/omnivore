@@ -38,8 +38,10 @@ const HelpMessage = (props: HelpMessageProps) => {
       return (
         <>
           You can subscribe to RSS feeds using the{' '}
-          <a href="/settings/feeds">feeds page</a>. Learn more about feeds at
-          &apos;s{' '}
+          <Link href="/settings/feeds" passHref>
+            feeds page
+          </Link>
+          . Learn more about feeds at &apos;s{' '}
           <a
             href="https://docs.omnivore.app/using/feeds.html"
             target="_blank"
@@ -54,8 +56,11 @@ const HelpMessage = (props: HelpMessageProps) => {
       return (
         <>
           Create email addresses that can be used to subscribe to newsletters on
-          the <a href="/settings/feeds">emails page</a>. Learn more about
-          reading newsletters in Omnivore at &apos;s{' '}
+          the{' '}
+          <Link href="/settings/emails" passHref>
+            emails page
+          </Link>
+          . Learn more about reading newsletters in Omnivore at &apos;s{' '}
           <a
             href="https://docs.omnivore.app/using/inbox.html"
             target="_blank"
