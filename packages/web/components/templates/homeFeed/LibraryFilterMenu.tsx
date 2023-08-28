@@ -170,10 +170,6 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
     [subscriptions]
   )
 
-  if (!subscriptions || subscriptions.length < 1) {
-    return <></>
-  }
-
   return (
     <MenuPanel
       title="Subscriptions"
@@ -181,24 +177,33 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
       editFunc={() => {
         window.location.href = '/settings/subscriptions'
       }}
+      viewAll={() => {
+        setViewAll(true)
+      }}
     >
-      <FilterButton filterTerm={`label:RSS`} text="Feeds" {...props} />
-      <FilterButton
-        filterTerm={`label:Newsletter`}
-        text="Newsletters"
-        {...props}
-      />
-      {(subscriptions ?? []).slice(0, viewAll ? undefined : 4).map((item) => {
-        return (
+      {viewAll ? (
+        <>
+          <FilterButton filterTerm={`label:RSS`} text="Feeds" {...props} />
           <FilterButton
-            key={item.id}
-            filterTerm={`subscription:\"${item.name}\"`}
-            text={item.name}
+            filterTerm={`label:Newsletter`}
+            text="Newsletters"
             {...props}
           />
-        )
-      })}
-      <ViewAllButton state={viewAll} setState={setViewAll} />
+          {(subscriptions ?? []).map((item) => {
+            return (
+              <FilterButton
+                key={item.id}
+                filterTerm={`subscription:\"${item.name}\"`}
+                text={item.name}
+                {...props}
+              />
+            )
+          })}
+          <ViewAllButton state={viewAll} setState={setViewAll} />
+        </>
+      ) : (
+        <SpanBox css={{ mb: '10px' }} />
+      )}
     </MenuPanel>
   )
 }
@@ -239,6 +244,7 @@ type MenuPanelProps = {
   editFunc?: () => void
   editTitle?: string
   hideBottomBorder?: boolean
+  viewAll?: () => void
 }
 
 function MenuPanel(props: MenuPanelProps): JSX.Element {
@@ -303,6 +309,16 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
                 </Box>
               }
             >
+              {props.viewAll && (
+                <DropdownOption
+                  title="View All"
+                  onSelect={() => {
+                    if (props.viewAll) {
+                      props.viewAll()
+                    }
+                  }}
+                />
+              )}
               <DropdownOption
                 title={props.editTitle}
                 onSelect={() => {
