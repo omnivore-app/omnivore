@@ -1,13 +1,5 @@
-import 'mocha'
 import { expect } from 'chai'
-import { InFilter, ReadFilter } from '../../src/utils/search'
-import {
-  ArticleSavingRequestStatus,
-  Page,
-  PageContext,
-  PageType,
-} from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/pubsub'
+import 'mocha'
 import {
   countByCreatedAt,
   createPage,
@@ -16,9 +8,17 @@ import {
   getPageById,
   getPageByParam,
   searchAsYouType,
-  searchPages,
+  searchLibraryItems,
   updatePage,
 } from '../../src/elastic/pages'
+import {
+  ArticleSavingRequestStatus,
+  Page,
+  PageContext,
+  PageType,
+} from '../../src/elastic/types'
+import { createPubSubClient } from '../../src/pubsub'
+import { InFilter, ReadFilter } from '../../src/utils/search'
 import { createTestElasticPage } from '../util'
 
 describe('pages in elastic', () => {
@@ -126,7 +126,7 @@ describe('pages in elastic', () => {
     })
   })
 
-  describe('searchPages', () => {
+  describe('searchLibraryItems', () => {
     let page: Page
 
     before(async () => {
@@ -140,7 +140,7 @@ describe('pages in elastic', () => {
     })
 
     it('searches pages', async () => {
-      const searchResults = await searchPages(
+      const searchResults = await searchLibraryItems(
         {
           dateFilters: [],
           hasFilters: [],

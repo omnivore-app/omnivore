@@ -108,17 +108,18 @@ export const createLibraryItem = async (
 
 const buildWhereClause = (
   queryBuilder: SelectQueryBuilder<LibraryItem>,
-  userId: string,
   args: PageSearchArgs
 ) => {
   if (args.query) {
-    queryBuilder.andWhere(`tsv @@ websearch_to_tsquery(:query)`, {
-      query: args.query,
-    })
+    queryBuilder
+      .addSelect('ts_rank_cd(library_item.search_tsv, query)', 'rank')
+      .addFrom("websearch_to_tsquery('english', ':query')", 'query')
+      .andWhere('query @@ library_item.search_tsv')
+      .setParameter('query', args.query)
   }
 
   if (args.typeFilter) {
-    queryBuilder.andWhere(`library_item.item_type = :typeFilter`, {
+    queryBuilder.andWhere('library_item.item_type = :typeFilter', {
       typeFilter: args.typeFilter,
     })
   }
@@ -126,18 +127,15 @@ const buildWhereClause = (
   if (args.inFilter !== InFilter.ALL) {
     switch (args.inFilter) {
       case InFilter.INBOX:
-        queryBuilder.andWhere(`library_item.archived_at IS NULL`)
+        queryBuilder.andWhere('library_item.archived_at IS NULL')
         break
       case InFilter.ARCHIVE:
-        queryBuilder.andWhere(`library_item.archived_at IS NOT NULL`)
+        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
         break
       case InFilter.TRASH:
         // return only deleted pages within 14 days
         queryBuilder.andWhere(
-          `library_item.state = :state AND deleted_at >= now() - interval '14 days'`,
-          {
-            state: LibraryItemState.Deleted,
-          }
+          "library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days'"
         )
         break
     }
@@ -158,7 +156,12 @@ const buildWhereClause = (
     args.hasFilters.forEach((filter) => {
       switch (filter) {
         case HasFilter.HIGHLIGHTS:
-          queryBuilder.andWhere(`library_item.highlights IS NOT NULL`)
+          queryBuilder.andWhere(
+            'library_item.highlight_annotations IS NOT NULL'
+          )
+          break
+        case HasFilter.LABELS:
+          queryBuilder.andWhere('library_item.label_names IS NOT NULL')
           break
       }
     })
@@ -173,17 +176,19 @@ const buildWhereClause = (
     )
 
     if (includeLabels && includeLabels.length > 0) {
-      queryBuilder.andWhere(
-        `library_item.id IN (SELECT library_item_id FROM library_item_label WHERE name IN (:...includeLabels))`,
-        {
-          includeLabels,
-        }
-      )
+      includeLabels.forEach((includeLabel) => {
+        queryBuilder.andWhere(
+          'library_item.label_names @> ARRAY[:...includeLabels]::text[] OR library_item.highlight_labels @> ARRAY[:...includeLabels]::text[]',
+          {
+            includeLabels: includeLabel.labels,
+          }
+        )
+      })
     }
 
     if (excludeLabels && excludeLabels.length > 0) {
       queryBuilder.andWhere(
-        `library_item.id NOT IN (SELECT library_item_id FROM library_item_label WHERE name IN (:...excludeLabels))`,
+        'NOT library_item.label_names && ARRAY[:...excludeLabels]::text[] AND NOT library_item.highlight_labels && ARRAY[:...excludeLabels]::text[]',
         {
           excludeLabels,
         }
@@ -210,6 +215,39 @@ const buildWhereClause = (
       })
     })
   }
+
+  if (args.matchFilters && args.matchFilters.length > 0) {
+    args.matchFilters.forEach((filter) => {
+      queryBuilder.andWhere(
+        `websearch_to_tsquery('english', ':query') @@ library_item.${filter.field}_tsv`,
+        {
+          query: filter.value,
+        }
+      )
+    })
+  }
+
+  if (args.ids && args.ids.length > 0) {
+    queryBuilder.andWhere('library_item.id IN (:...ids)', { ids: args.ids })
+  }
+
+  if (!args.includePending) {
+    queryBuilder.andWhere('library_item.state != :state', {
+      state: LibraryItemState.Processing,
+    })
+  }
+
+  if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
+    queryBuilder.andWhere('library_item.state != :state', {
+      state: LibraryItemState.Deleted,
+    })
+  }
+
+  if (args.noFilters) {
+    args.noFilters.forEach((filter) => {
+      queryBuilder.andWhere(`library_item.${filter.field} IS NULL`)
+    })
+  }
 }
 
 export const searchLibraryItems = async (
@@ -225,15 +263,16 @@ export const searchLibraryItems = async (
 
   const queryBuilder = entityManager
     .createQueryBuilder(LibraryItem, 'library_item')
-    .select('library_item.*')
+    .leftJoinAndSelect('library_item.labels', 'labels')
+    .leftJoinAndSelect('library_item.highlights', 'highlights')
     .where('library_item.user_id = :userId', { userId })
 
   // build the where clause
-  buildWhereClause(queryBuilder, userId, args)
+  buildWhereClause(queryBuilder, args)
 
   // add pagination and sorting
   const libraryItems = await queryBuilder
-    .orderBy(`omnivore.library_item.${sortField}`, sortOrder)
+    .orderBy(`library_item.${sortField}`, sortOrder)
     .offset(from)
     .limit(size)
     .getMany()
@@ -242,3 +281,9 @@ export const searchLibraryItems = async (
 
   return [libraryItems, count]
 }
+
+export const libraryItemToSearchItem = (
+  libraryItem: LibraryItem,
+  userId: string
+): SearchItem => {
+  

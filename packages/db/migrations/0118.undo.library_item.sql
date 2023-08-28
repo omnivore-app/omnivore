@@ -7,6 +7,7 @@ BEGIN;
 DROP TRIGGER library_item_tsv_update ON omnivore.library_item;
 DROP FUNCTION update_library_item_tsv();
 
+DROP INDEX omnivore.library_item_note_tsv_idx;
 DROP INDEX omnivore.library_item_search_tsv_idx;
 DROP INDEX omnivore.library_item_description_tsv_idx;
 DROP INDEX omnivore.library_item_author_tsv_idx;

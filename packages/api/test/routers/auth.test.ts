@@ -3,7 +3,7 @@ import chai, { expect } from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
-import { searchPages } from '../../src/elastic/pages'
+import { searchLibraryItems } from '../../src/elastic/pages'
 import { StatusType, User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
 import { AuthProvider } from '../../src/routers/auth/auth_types'
@@ -605,10 +605,10 @@ describe('auth router', () => {
           'web'
         ).expect(200)
         const user = await getRepository(User).findOneBy({ name })
-        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
-          [],
-          0,
-        ]
+        const [popularReads, count] = (await searchLibraryItems(
+          {},
+          user?.id!
+        )) || [[], 0]
 
         expect(count).to.eql(3)
       })
@@ -629,10 +629,10 @@ describe('auth router', () => {
           'ios'
         ).expect(200)
         const user = await getRepository(User).findOneBy({ name })
-        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
-          [],
-          0,
-        ]
+        const [popularReads, count] = (await searchLibraryItems(
+          {},
+          user?.id!
+        )) || [[], 0]
 
         expect(count).to.eql(4)
       })

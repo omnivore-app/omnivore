@@ -2,7 +2,7 @@
 import normalizeUrl from 'normalize-url'
 import path from 'path'
 import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
-import { PageType } from '../../elastic/types'
+import { LibraryItemType } from '../../entity/library_item'
 import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import {
@@ -28,11 +28,13 @@ const isFileUrl = (url: string): boolean => {
   return parsedUrl.protocol == 'file:'
 }
 
-export const pageTypeForContentType = (contentType: string): PageType => {
+export const itemTypeForContentType = (
+  contentType: string
+): LibraryItemType => {
   if (contentType == 'application/epub+zip') {
-    return PageType.Book
+    return LibraryItemType.Book
   }
-  return PageType.File
+  return LibraryItemType.File
 }
 
 export const uploadFileRequestResolver = authorized<
@@ -151,7 +153,7 @@ export const uploadFileRequestResolver = authorized<
             title: title,
             hash: uploadFilePathName,
             content: '',
-            pageType: pageTypeForContentType(input.contentType),
+            pageType: itemTypeForContentType(input.contentType),
             uploadFileId: uploadFileData.id,
             slug: generateSlug(uploadFilePathName),
             createdAt: new Date(),

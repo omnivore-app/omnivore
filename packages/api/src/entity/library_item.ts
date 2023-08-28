@@ -12,6 +12,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm'
+import { Highlight } from './highlight'
 import { Label } from './label'
 import { Recommendation } from './recommendation'
 import { Subscription } from './subscription'
@@ -188,4 +189,12 @@ export class LibraryItem {
 
   @Column('enum', { enum: DirectionalityType, default: DirectionalityType.LTR })
   directionality!: DirectionalityType
+
+  @OneToMany(() => Highlight, (highlight) => highlight.libraryItem)
+  @JoinTable({
+    name: 'highlight',
+    joinColumn: { name: 'library_item_id' },
+    inverseJoinColumn: { name: 'id' },
+  })
+  highlights?: Highlight[]
 }

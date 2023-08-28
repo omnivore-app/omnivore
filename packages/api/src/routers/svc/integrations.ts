@@ -5,7 +5,7 @@ import { stringify } from 'csv-stringify'
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { getPageById, searchPages } from '../../elastic/pages'
+import { getPageById, searchLibraryItems } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { Integration, IntegrationType } from '../../entity/integration'
 import { EntityType, readPushSubscription } from '../../pubsub'
@@ -133,7 +133,7 @@ export function integrationsServiceRouter() {
           const dateFilters: DateFilter[] = []
           syncedAt &&
             dateFilters.push({ field: 'updatedAt', startDate: syncedAt })
-          ;[pages, count] = (await searchPages(
+          ;[pages, count] = (await searchLibraryItems(
             { from: after, size, dateFilters },
             userId
           )) as [Page[], number]

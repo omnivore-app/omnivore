@@ -5,22 +5,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { searchHighlights } from '../../elastic/highlights'
-import {
-  createPage,
-  getPageByParam,
-  searchAsYouType,
-  searchPages,
-  updatePage,
-  updatePages,
-} from '../../elastic/pages'
-import {
-  ArticleSavingRequestStatus,
-  Page,
-  PageType,
-  SearchItem as SearchItemData,
-} from '../../elastic/types'
-import { getRepository } from '../../repository'
+import { LibraryItemType } from '../../entity/library_item'
 import { UploadFile } from '../../entity/upload_file'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -28,6 +13,7 @@ import {
   Article,
   ArticleError,
   ArticleErrorCode,
+  ArticleSavingRequestStatus,
   ArticlesError,
   ArticleSuccess,
   BulkActionError,
@@ -57,7 +43,6 @@ import {
   SaveArticleReadingProgressSuccess,
   SearchError,
   SearchErrorCode,
-  SearchItem,
   SearchSuccess,
   SetBookmarkArticleError,
   SetBookmarkArticleErrorCode,
@@ -76,12 +61,14 @@ import {
   UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import {
   addLabelToPage,
   createLabels,
   getLabelsByIds,
 } from '../../services/labels'
+import { searchLibraryItems } from '../../services/library_item'
 import { setFileUploadComplete } from '../../services/save_file'
 import { parsedContentToPage } from '../../services/save_page'
 import { traceAs } from '../../tracing'
@@ -115,7 +102,7 @@ import {
   makeStorageFilePublic,
 } from '../../utils/uploads'
 import { WithDataSourcesContext } from '../types'
-import { pageTypeForContentType } from '../upload_files'
+import { itemTypeForContentType } from '../upload_files'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
@@ -220,7 +207,7 @@ export const createArticleResolver = authorized<
       let userArticleUrl: string | null = null
       let uploadFileHash = null
       let domContent = null
-      let pageType = PageType.Unknown
+      let pageType = LibraryItemType.Unknown
 
       const DUMMY_RESPONSE = {
         user,
@@ -233,7 +220,7 @@ export const createArticleResolver = authorized<
           content: '',
           description: '',
           title: '',
-          pageType: PageType.Unknown,
+          pageType: LibraryItemType.Unknown,
           contentReader: ContentReader.Web,
           author: '',
           url,
@@ -280,7 +267,7 @@ export const createArticleResolver = authorized<
         uploadFileHash = uploadFileDetails.md5Hash
         userArticleUrl = uploadFileDetails.fileUrl
         canonicalUrl = uploadFile.url
-        pageType = pageTypeForContentType(uploadFile.contentType)
+        pageType = itemTypeForContentType(uploadFile.contentType)
         title = titleForFilePath(uploadFile.url)
       } else if (
         source !== 'puppeteer-parse' &&
@@ -298,7 +285,7 @@ export const createArticleResolver = authorized<
         parsedContent = parseResults.parsedContent
         canonicalUrl = parseResults.canonicalUrl
         domContent = parseResults.domContent
-        pageType = parseResults.pageType
+        pageType = parseResults.pageType as unknown as LibraryItemType
       } else if (!preparedDocument?.document) {
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
@@ -520,7 +507,7 @@ export const getArticlesResolver = authorized<
     },
   })
 
-  const [pages, totalCount] = (await searchPages(
+  const [pages, totalCount] = (await searchLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
@@ -551,13 +538,9 @@ export const getArticlesResolver = authorized<
     pages.pop()
   }
 
-  const edges = pages.map((a) => {
+  const edges = pages.map((node) => {
     return {
-      node: {
-        ...a,
-        image: a.image && createImageProxyUrl(a.image, 320, 320),
-        isArchived: !!a.archivedAt,
-      },
+      node,
       cursor: endCursor,
     }
   })
@@ -589,7 +572,6 @@ export type SetShareArticleSuccessPartial = Merge<
   }
 >
 
-// TODO: not implemented yet
 // export const setShareArticleResolver = authorized<
 //   SetShareArticleSuccessPartial,
 //   SetShareArticleError,
@@ -916,7 +898,7 @@ export const searchResolver = authorized<
     )) || [[], 0]
   } else {
     // otherwise, search pages
-    ;[results, totalCount] = (await searchPages(
+    ;[results, totalCount] = (await searchLibraryItems(
       {
         from: Number(startCursor),
         size: first + 1, // fetch one more item to get next cursor
@@ -1031,7 +1013,7 @@ export const updatesSinceResolver = authorized<
     const startCursor = after || ''
     const size = first || 10
     const startDate = new Date(since)
-    const [pages, totalCount] = (await searchPages(
+    const [pages, totalCount] = (await searchLibraryItems(
       {
         from: Number(startCursor),
         size: size + 1, // fetch one more item to get next cursor

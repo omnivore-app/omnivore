@@ -226,8 +226,15 @@ const appendHasFilters = (
           },
         })
         break
-      case HasFilter.SHARED_AT:
-        builder = builder.query('exists', { field: 'sharedAt' })
+      case HasFilter.LABELS:
+        builder = builder.query('nested', {
+          path: 'labels',
+          query: {
+            exists: {
+              field: 'labels',
+            },
+          },
+        })
         break
     }
   })

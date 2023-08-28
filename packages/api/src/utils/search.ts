@@ -9,7 +9,7 @@ import {
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
 } from 'search-query-parser'
-import { PageType } from '../generated/graphql'
+import { LibraryItemType } from '../entity/library_item'
 
 export enum ReadFilter {
   ALL,
@@ -30,7 +30,7 @@ export interface SearchFilter {
   query: string | undefined
   inFilter: InFilter
   readFilter: ReadFilter
-  typeFilter?: PageType
+  typeFilter?: LibraryItemType
   labelFilters: LabelFilter[]
   sortParams?: SortParams
   hasFilters: HasFilter[]
@@ -55,7 +55,7 @@ export type LabelFilter = {
 
 export enum HasFilter {
   HIGHLIGHTS,
-  SHARED_AT,
+  LABELS,
 }
 
 export interface DateFilter {
@@ -134,27 +134,27 @@ const parseInFilter = (
   return query ? InFilter.ALL : InFilter.INBOX
 }
 
-const parseTypeFilter = (str: string | undefined): PageType | undefined => {
+const parseTypeFilter = (
+  str: string | undefined
+): LibraryItemType | undefined => {
   if (str === undefined) {
     return undefined
   }
 
   switch (str.toLowerCase()) {
     case 'article':
-      return PageType.Article
+      return LibraryItemType.Article
     case 'book':
-      return PageType.Book
+      return LibraryItemType.Book
     case 'pdf':
     case 'file':
-      return PageType.File
+      return LibraryItemType.File
     case 'profile':
-      return PageType.Profile
+      return LibraryItemType.Profile
     case 'website':
-      return PageType.Website
+      return LibraryItemType.Website
     case 'unknown':
-      return PageType.Unknown
-    case 'highlights':
-      return PageType.Highlights
+      return LibraryItemType.Unknown
   }
   return undefined
 }
@@ -230,6 +230,8 @@ const parseHasFilter = (str?: string): HasFilter | undefined => {
   switch (str.toUpperCase()) {
     case 'HIGHLIGHTS':
       return HasFilter.HIGHLIGHTS
+    case 'LABELS':
+      return HasFilter.LABELS
   }
 }
 
