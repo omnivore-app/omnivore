@@ -47,61 +47,60 @@ export const subscriptionsResolver = authorized<
   SubscriptionsSuccessPartial,
   SubscriptionsError,
   QuerySubscriptionsArgs
->(
-  async (
-    _obj,
-    { sort, type = SubscriptionType.Newsletter }, // default to newsletter
-    { claims: { uid }, log }
-  ) => {
-    log.info('subscriptionsResolver')
+>(async (_obj, { sort, type }, { claims: { uid }, log }) => {
+  log.info('subscriptionsResolver')
 
-    analytics.track({
-      userId: uid,
-      event: 'subscriptions',
-      properties: {
-        env: env.server.apiEnv,
-      },
-    })
+  analytics.track({
+    userId: uid,
+    event: 'subscriptions',
+    properties: {
+      env: env.server.apiEnv,
+    },
+  })
 
-    try {
-      const sortBy =
-        sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
-      const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
-      const user = await getRepository(User).findOneBy({ id: uid })
-      if (!user) {
-        return {
-          errorCodes: [SubscriptionsErrorCode.Unauthorized],
-        }
-      }
-
-      const queryBuilder = getRepository(Subscription)
-        .createQueryBuilder('subscription')
-        .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
-        .where({
-          user: { id: uid },
-          type,
-        })
-
-      // only return active subscriptions for newsletter
-      if (type === SubscriptionType.Newsletter) {
-        queryBuilder.andWhere({ status: SubscriptionStatus.Active })
-      }
-
-      const subscriptions = await queryBuilder
-        .orderBy('subscription.' + sortBy, sortOrder)
-        .getMany()
-
+  try {
+    const sortBy =
+      sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
+    const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
       return {
-        subscriptions,
-      }
-    } catch (error) {
-      log.error(error)
-      return {
-        errorCodes: [SubscriptionsErrorCode.BadRequest],
+        errorCodes: [SubscriptionsErrorCode.Unauthorized],
       }
     }
+
+    const queryBuilder = getRepository(Subscription)
+      .createQueryBuilder('subscription')
+      .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
+      .where({
+        user: { id: uid },
+      })
+
+    if (type) {
+      queryBuilder.where({
+        type,
+      })
+    }
+
+    // only return active subscriptions for newsletter
+    if (type === SubscriptionType.Newsletter) {
+      queryBuilder.andWhere({ status: SubscriptionStatus.Active })
+    }
+
+    const subscriptions = await queryBuilder
+      .orderBy('subscription.' + sortBy, sortOrder)
+      .getMany()
+
+    return {
+      subscriptions,
+    }
+  } catch (error) {
+    log.error(error)
+    return {
+      errorCodes: [SubscriptionsErrorCode.BadRequest],
+    }
   }
-)
+})
 
 export type UnsubscribeSuccessPartial = Merge<
   UnsubscribeSuccess,
