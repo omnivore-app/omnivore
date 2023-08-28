@@ -102,7 +102,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             width: '100%',
             transition: 'visibility 0s, top 150ms',
           },
-          zIndex: 3,
+          zIndex: 4,
         }}
       >
         <Box
