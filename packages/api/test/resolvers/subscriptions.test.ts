@@ -88,6 +88,10 @@ describe('Subscriptions API', () => {
 
     it('should return subscriptions', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
+      console.log(
+        'test subscriptions: ',
+        res.body.data.subscriptions.subscriptions
+      )
 
       expect(res.body.data.subscriptions.subscriptions).to.eql(
         subscriptions.map((sub) => ({
