@@ -86,7 +86,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
   const helpTitle = useMemo(() => {
     switch (type) {
       case 'feed':
-        return 'You do not have any feed items.'
+        return 'You do not have any feed items matching this query.'
       case 'newsletter':
         return 'You do not have any newsletter items.'
     }

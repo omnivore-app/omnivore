@@ -92,7 +92,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
       term: 'in:inbox sort:read-desc is:unread',
     },
     {
-      name: 'Read Later',
+      name: 'Non-Feed Items',
       term: 'in:library',
     },
     {
@@ -182,7 +182,13 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
         window.location.href = '/settings/subscriptions'
       }}
     >
-      {subscriptions.slice(0, viewAll ? undefined : 4).map((item) => {
+      <FilterButton filterTerm={`label:RSS`} text="Feeds" {...props} />
+      <FilterButton
+        filterTerm={`label:Newsletter`}
+        text="Newsletters"
+        {...props}
+      />
+      {(subscriptions ?? []).slice(0, viewAll ? undefined : 4).map((item) => {
         return (
           <FilterButton
             key={item.id}
@@ -258,14 +264,15 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
             lineHeight: '125%',
             color: '$thLibraryMenuPrimary',
             pl: '10px',
-            my: '20px',
+            mt: '20px',
+            mb: '10px',
           }}
         >
           {props.title}
         </StyledText>
         <SpanBox
           css={{
-            my: '15px',
+            mt: '15px',
             marginLeft: 'auto',
             height: '100%',
             verticalAlign: 'middle',
