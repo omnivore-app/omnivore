@@ -1066,6 +1066,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         >
           {!props.isValidating && props.items.length == 0 ? (
             <EmptyLibrary
+              layoutType={props.layout}
               searchTerm={props.searchTerm}
               onAddLinkClicked={() => {
                 props.setShowAddLinkModal(true)

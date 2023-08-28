@@ -1,15 +1,20 @@
 import Link from 'next/link'
 import { Book } from 'phosphor-react'
 import { Button } from '../../elements/Button'
-import { VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import { useMemo } from 'react'
 import { searchQuery } from '../../../lib/networking/queries/search'
+import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
+import { LayoutType } from './HomeFeedContainer'
+import { ArrowRightIcon } from '../../elements/icons/ArrowRightIcon'
 
 type EmptyLibraryProps = {
   searchTerm: string | undefined
   onAddLinkClicked: () => void
+
+  layoutType: LayoutType
 }
 
 type MessageType = 'feed' | 'newsletter' | 'library'
@@ -75,6 +80,108 @@ const HelpMessage = (props: HelpMessageProps) => {
   return <></>
 }
 
+export const ErrorBox = (props: HelpMessageProps) => {
+  const errorTitle = useMemo(() => {
+    switch (props.type) {
+      case 'feed':
+        return 'You do not have any feed items matching this query.'
+      case 'newsletter':
+        return 'You do not have any newsletter item matching this query.'
+    }
+    return 'No results found for this query.'
+  }, [props.type])
+
+  return (
+    <Box
+      css={{
+        width: 'fit-content',
+        borderRadius: '5px',
+        background: 'rgba(255, 59, 48, 0.3)',
+        fontSize: '15px',
+        fontFamily: '$inter',
+        fontWeight: '500',
+        color: '$thTextContrast',
+        padding: '10px',
+        '@smDown': {
+          width: '100%',
+        },
+        '@xlgDown': {
+          justifyContent: 'flex-start',
+        },
+      }}
+    >
+      {errorTitle}
+    </Box>
+  )
+}
+
+export const SuggestionBox = (props: HelpMessageProps) => {
+  const helpMessage = useMemo(() => {
+    switch (props.type) {
+      case 'feed':
+        return 'Want to add an RSS or Atom Subscription?'
+      case 'newsletter':
+        return 'Create an Omnivore email address and subscribe to newsletters.'
+    }
+    return "Add a link or read more about Omnivore's Advanced Search."
+  }, [props.type])
+
+  const helpTarget = useMemo(() => {
+    switch (props.type) {
+      case 'feed':
+        return '/settings/feeds'
+      case 'newsletter':
+        return '/settings/emails'
+    }
+    return 'https://docs.omnivore.app/'
+  }, [props.type])
+
+  return (
+    <HStack
+      css={{
+        gap: '10px',
+        width: 'fit-content',
+        borderRadius: '5px',
+        background: '$thBackground3',
+        fontSize: '15px',
+        fontFamily: '$inter',
+        fontWeight: '500',
+        color: '$thTextContrast',
+        padding: '10px',
+        justifyContent: 'flex-start',
+        '@smDown': {
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+        },
+      }}
+    >
+      {helpMessage}
+      <SpanBox css={{ cursor: 'pointer' }}>
+        <Link href={helpTarget} passHref>
+          <SpanBox
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+              color: '$omnivoreCtaYellow',
+              gap: '2px',
+              '&:hover': {
+                textDecoration: 'underline',
+              },
+            }}
+          >
+            <>Click Here</>
+            <ArrowRightIcon
+              size={25}
+              color={theme.colors.omnivoreCtaYellow.toString()}
+            />
+          </SpanBox>
+        </Link>
+      </SpanBox>
+    </HStack>
+  )
+}
+
 export const EmptyLibrary = (props: EmptyLibraryProps) => {
   const type = useMemo<MessageType>(() => {
     if (props.searchTerm) {
@@ -88,35 +195,43 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
     return 'library'
   }, [props])
 
-  const helpTitle = useMemo(() => {
-    switch (type) {
-      case 'feed':
-        return 'You do not have any feed items matching this query.'
-      case 'newsletter':
-        return 'You do not have any newsletter items.'
-    }
-    return 'No results found.'
-  }, [type])
-
   return (
-    <VStack
-      alignment="center"
-      distribution="center"
+    <Box
       css={{
+        display: 'inline-flex',
         color: '$grayTextContrast',
-        textAlign: 'center',
-        paddingTop: '88px',
-        flex: '1',
+        gap: '10px',
+        pl: '0px',
+
+        width: '100%',
+        '@media (max-width: 1300px)': {
+          flexDirection: 'column',
+        },
+
+        '@media (max-width: 768px)': {
+          p: '15px',
+        },
+
+        '@media (min-width: 768px)': {
+          pl: '15px',
+          width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
+        },
+        '@media (min-width: 930px)': {
+          pl: '0px',
+          width: props.layoutType == 'GRID_LAYOUT' ? '660px' : '640px',
+        },
+        '@media (min-width: 1280px)': {
+          pl: '0px',
+          width: '1000px',
+        },
+        '@media (min-width: 1600px)': {
+          pl: '0px',
+          width: '1340px',
+        },
       }}
     >
-      <Book size={44} color={theme.colors.grayTextContrast.toString()} />
-      <StyledText style="fixedHeadline" css={{ color: '$grayTextContrast' }}>
-        {helpTitle}
-      </StyledText>
-
-      <StyledText style="footnote" css={{ color: '$grayTextContrast' }}>
-        <HelpMessage type={type} />
-      </StyledText>
-    </VStack>
+      <ErrorBox type={type} />
+      <SuggestionBox type={type} />
+    </Box>
   )
 }
