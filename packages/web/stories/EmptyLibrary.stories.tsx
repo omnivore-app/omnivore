@@ -12,10 +12,16 @@ export default {
   },
 } as ComponentMeta<typeof EmptyLibrary>
 
-export const EmptyLibraryStory: ComponentStory<typeof EmptyLibrary> = (args: any) => {
+export const EmptyLibraryStory: ComponentStory<typeof EmptyLibrary> = (
+  args: any
+) => {
   return (
-    <EmptyLibrary onAddLinkClicked={() => {
-      console.log('onAddLinkClicked')
-    }} />
+    <EmptyLibrary
+      layoutType="GRID_LAYOUT"
+      searchTerm=""
+      onAddLinkClicked={() => {
+        console.log('onAddLinkClicked')
+      }}
+    />
   )
 }
