@@ -280,7 +280,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       alignment="start"
       distribution="start"
     >
-      <HStack css={{ width: '100%' }} distribution="start" alignment="start">
+      <HStack css={{ width: '100%' }} distribution="start" alignment="center">
         <StyledText
           css={{
             fontFamily: 'Inter',
@@ -297,10 +297,10 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
         </StyledText>
         <SpanBox
           css={{
-            mt: '17px',
-            mr: '-2px',
-            marginLeft: 'auto',
+            display: 'flex',
             height: '100%',
+            mt: '10px',
+            marginLeft: 'auto',
             verticalAlign: 'middle',
           }}
         >
