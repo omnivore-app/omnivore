@@ -77,22 +77,27 @@ export const subscriptionsResolver = authorized<
         user: { id: uid },
       })
 
-    if (type) {
+    if (type && type == SubscriptionType.Newsletter) {
       queryBuilder.andWhere({
         type,
+        status: SubscriptionStatus.Active,
       })
-    }
-
-    queryBuilder.andWhere(
-      new Brackets((qb) => {
-        qb.where({
-          type: SubscriptionType.Newsletter,
-          status: SubscriptionStatus.Active,
-        }).orWhere({
-          type: SubscriptionType.Rss,
+    } else if (type && type == SubscriptionType.Rss) {
+      queryBuilder.where({
+        type,
+      })
+    } else {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where({
+            type: SubscriptionType.Newsletter,
+            status: SubscriptionStatus.Active,
+          }).orWhere({
+            type: SubscriptionType.Rss,
+          })
         })
-      })
-    )
+      )
+    }
 
     const subscriptions = await queryBuilder
       .orderBy('subscription.' + sortBy, sortOrder)
