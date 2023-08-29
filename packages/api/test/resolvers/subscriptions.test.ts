@@ -126,9 +126,9 @@ describe('Subscriptions API', () => {
     })
 
     it('should not return inactive newsletters but should return inactive RSS', async () => {
-      await createTestSubscription(
+      const sub5 = await createTestSubscription(
         user,
-        'sub_4',
+        'sub_5',
         undefined,
         SubscriptionStatus.Unsubscribed,
         undefined,
@@ -136,7 +136,7 @@ describe('Subscriptions API', () => {
       )
       await createTestSubscription(
         user,
-        'sub_4',
+        'sub_6',
         undefined,
         SubscriptionStatus.Unsubscribed,
         undefined,
