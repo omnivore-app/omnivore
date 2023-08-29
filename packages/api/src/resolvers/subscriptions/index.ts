@@ -78,7 +78,7 @@ export const subscriptionsResolver = authorized<
 
     // Show all RSS, but only active newsletters
     queryBuilder
-      .where({
+      .andWhere({
         type: SubscriptionType.Newsletter,
         status: SubscriptionStatus.Active,
       })
