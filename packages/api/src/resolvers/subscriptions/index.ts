@@ -81,18 +81,18 @@ export const subscriptionsResolver = authorized<
       queryBuilder.andWhere({
         type,
       })
-    } else {
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.where({
-            type: SubscriptionType.Newsletter,
-            status: SubscriptionStatus.Active,
-          }).orWhere({
-            type: SubscriptionType.Rss,
-          })
-        })
-      )
     }
+
+    queryBuilder.andWhere(
+      new Brackets((qb) => {
+        qb.where({
+          type: SubscriptionType.Newsletter,
+          status: SubscriptionStatus.Active,
+        }).orWhere({
+          type: SubscriptionType.Rss,
+        })
+      })
+    )
 
     const subscriptions = await queryBuilder
       .orderBy('subscription.' + sortBy, sortOrder)
