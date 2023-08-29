@@ -153,6 +153,27 @@ describe('Subscriptions API', () => {
       )
     })
 
+    it('should not return other users subscriptions', async () => {
+      // create test user and login
+      const user2 = await createTestUser('fakeUser')
+      await createTestSubscription(
+        user2,
+        'sub_other',
+        undefined,
+        SubscriptionStatus.Unsubscribed,
+        undefined,
+        SubscriptionType.Rss
+      )
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.subscriptions.subscriptions).to.eql(
+        subscriptions.map((sub) => ({
+          id: sub.id,
+          name: sub.name,
+        }))
+      )
+    })
+
     it('responds status code 400 when invalid query', async () => {
       const invalidQuery = `
         query {
