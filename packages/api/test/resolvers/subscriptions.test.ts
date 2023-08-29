@@ -125,6 +125,34 @@ describe('Subscriptions API', () => {
       )
     })
 
+    it('should not return inactive newsletters but should return inactive RSS', async () => {
+      await createTestSubscription(
+        user,
+        'sub_4',
+        undefined,
+        SubscriptionStatus.Unsubscribed,
+        undefined,
+        SubscriptionType.Rss
+      )
+      await createTestSubscription(
+        user,
+        'sub_4',
+        undefined,
+        SubscriptionStatus.Unsubscribed,
+        undefined,
+        SubscriptionType.Newsletter
+      )
+      const allSubscriptions = [sub5, ...subscriptions]
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.subscriptions.subscriptions).to.eql(
+        allSubscriptions.map((sub) => ({
+          id: sub.id,
+          name: sub.name,
+        }))
+      )
+    })
+
     it('responds status code 400 when invalid query', async () => {
       const invalidQuery = `
         query {
