@@ -12,6 +12,7 @@ export enum SubscriptionType {
 export type Subscription = {
   id: string
   name: string
+  type: SubscriptionType
   newsletterEmail?: string
 
   url?: string
@@ -38,16 +39,16 @@ type SubscriptionsData = {
 }
 
 export function useGetSubscriptionsQuery(
-  subscriptionType = SubscriptionType.NEWSLETTER,
   sortBy = 'UPDATED_TIME'
 ): SubscriptionsQueryResponse {
   const query = gql`
     query GetSubscriptions {
-      subscriptions(sort: { by: ${sortBy} }, type: ${subscriptionType}) {
+      subscriptions(sort: { by: ${sortBy} }) {
         ... on SubscriptionsSuccess {
           subscriptions {
             id
             name
+            type
             newsletterEmail
             url
             description
