@@ -49,7 +49,7 @@ describe('Subscriptions API', () => {
       SubscriptionStatus.Unsubscribed
     )
     // create an rss feed subscription
-    await createTestSubscription(
+    const sub4 = await createTestSubscription(
       user,
       'sub_4',
       undefined,
@@ -57,7 +57,7 @@ describe('Subscriptions API', () => {
       undefined,
       SubscriptionType.Rss
     )
-    subscriptions = [sub2, sub1]
+    subscriptions = [sub4, sub2, sub1]
   })
 
   after(async () => {
