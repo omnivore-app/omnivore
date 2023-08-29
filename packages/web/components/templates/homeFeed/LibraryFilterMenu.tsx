@@ -14,6 +14,7 @@ import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import { ToggleCaretLeftIcon } from '../../elements/icons/ToggleCaretLeftIcon'
 import Link from 'next/link'
 import { ArrowRightIcon } from '../../elements/icons/ArrowRightIcon'
+import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -105,6 +106,10 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     {
       name: 'Unlabeled',
       term: 'no:label',
+    },
+    {
+      name: 'Oldest First',
+      term: 'sort:saved-desc',
     },
     {
       name: 'Files',
@@ -307,7 +312,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
             }}
           >
             {props.collapsed ? (
-              <ToggleCaretLeftIcon
+              <ToggleCaretRightIcon
                 size={15}
                 color={theme.colors.thLibraryMenuPrimary.toString()}
               />
