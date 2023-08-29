@@ -17,6 +17,7 @@ export const EmptyLibraryStory: ComponentStory<typeof EmptyLibrary> = (
 ) => {
   return (
     <EmptyLibrary
+      layoutType="GRID_LAYOUT"
       searchTerm=""
       onAddLinkClicked={() => {
         console.log('onAddLinkClicked')
