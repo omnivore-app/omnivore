@@ -166,7 +166,6 @@ describe('Subscriptions API', () => {
           SubscriptionType.Rss
         )
         const res = await graphqlRequest(query, authToken).expect(200)
-
         expect(res.body.data.subscriptions.subscriptions).to.eql(
           subscriptions.map((sub) => ({
             id: sub.id,

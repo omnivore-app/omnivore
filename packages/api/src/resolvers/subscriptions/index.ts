@@ -31,6 +31,7 @@ import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
+import { Brackets } from 'typeorm'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -76,20 +77,21 @@ export const subscriptionsResolver = authorized<
         user: { id: uid },
       })
 
-    // Show all RSS, but only active newsletters
-    queryBuilder
-      .andWhere({
-        type: SubscriptionType.Newsletter,
-        status: SubscriptionStatus.Active,
-      })
-      .orWhere({
-        type: SubscriptionType.Rss,
-      })
-
     if (type) {
       queryBuilder.andWhere({
         type,
       })
+    } else {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where({
+            type: SubscriptionType.Newsletter,
+            status: SubscriptionStatus.Active,
+          }).orWhere({
+            type: SubscriptionType.Rss,
+          })
+        })
+      )
     }
 
     const subscriptions = await queryBuilder
