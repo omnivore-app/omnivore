@@ -74,17 +74,13 @@ export const subscriptionsResolver = authorized<
       .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
       .where({
         user: { id: uid },
+        status: SubscriptionStatus.Active,
       })
 
     if (type) {
       queryBuilder.andWhere({
         type,
       })
-    }
-
-    // only return active subscriptions for newsletter
-    if (type === SubscriptionType.Newsletter) {
-      queryBuilder.andWhere({ status: SubscriptionStatus.Active })
     }
 
     const subscriptions = await queryBuilder
