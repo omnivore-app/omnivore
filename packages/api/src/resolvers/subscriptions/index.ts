@@ -74,7 +74,16 @@ export const subscriptionsResolver = authorized<
       .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
       .where({
         user: { id: uid },
+      })
+
+    // Show all RSS, but only active newsletters
+    queryBuilder
+      .where({
+        type: SubscriptionType.Newsletter,
         status: SubscriptionStatus.Active,
+      })
+      .orWhere({
+        type: SubscriptionType.Rss,
       })
 
     if (type) {

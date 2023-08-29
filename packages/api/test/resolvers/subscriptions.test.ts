@@ -88,13 +88,37 @@ describe('Subscriptions API', () => {
 
     it('should return subscriptions', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
-      console.log(
-        'test subscriptions: ',
-        res.body.data.subscriptions.subscriptions
-      )
-
       expect(res.body.data.subscriptions.subscriptions).to.eql(
         subscriptions.map((sub) => ({
+          id: sub.id,
+          name: sub.name,
+        }))
+      )
+    })
+
+    it('should return only newsletters when type newsletter supplied', async () => {
+      query = `
+        query {
+          subscriptions(type: NEWSLETTER) {
+            ... on SubscriptionsSuccess {
+              subscriptions {
+                id
+                name
+              }
+            }
+            ... on SubscriptionsError {
+              errorCodes
+            }
+          }
+        }
+      `
+      const newsletters = subscriptions.filter(
+        (s) => s.type == SubscriptionType.Newsletter
+      )
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.subscriptions.subscriptions).to.eql(
+        newsletters.map((sub) => ({
           id: sub.id,
           name: sub.name,
         }))
