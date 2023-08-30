@@ -10,7 +10,10 @@ import {
   SubscriptionStatus,
   SubscriptionType,
 } from '../../src/generated/graphql'
-import { UNSUBSCRIBE_EMAIL_TEXT } from '../../src/services/subscriptions'
+import {
+  UNSUBSCRIBE_EMAIL_TEXT,
+  unsubscribe,
+} from '../../src/services/subscriptions'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestSubscription, createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
@@ -49,7 +52,7 @@ describe('Subscriptions API', () => {
       SubscriptionStatus.Unsubscribed
     )
     // create an rss feed subscription
-    await createTestSubscription(
+    const sub4 = await createTestSubscription(
       user,
       'sub_4',
       undefined,
@@ -57,7 +60,7 @@ describe('Subscriptions API', () => {
       undefined,
       SubscriptionType.Rss
     )
-    subscriptions = [sub2, sub1]
+    subscriptions = [sub4, sub2, sub1]
   })
 
   after(async () => {
@@ -88,13 +91,180 @@ describe('Subscriptions API', () => {
 
     it('should return subscriptions', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
-
       expect(res.body.data.subscriptions.subscriptions).to.eql(
         subscriptions.map((sub) => ({
           id: sub.id,
           name: sub.name,
         }))
       )
+    })
+
+    it('should return only newsletters when type newsletter supplied', async () => {
+      query = `
+        query {
+          subscriptions(type: NEWSLETTER) {
+            ... on SubscriptionsSuccess {
+              subscriptions {
+                id
+                name
+              }
+            }
+            ... on SubscriptionsError {
+              errorCodes
+            }
+          }
+        }
+      `
+      const newsletters = subscriptions.filter(
+        (s) => s.type == SubscriptionType.Newsletter
+      )
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.subscriptions.subscriptions).to.eql(
+        newsletters.map((sub) => ({
+          id: sub.id,
+          name: sub.name,
+        }))
+      )
+    })
+
+    it('should not return inactive newsletters but should return inactive RSS', async () => {
+      const sub5 = await createTestSubscription(
+        user,
+        'sub_5',
+        undefined,
+        SubscriptionStatus.Unsubscribed,
+        undefined,
+        SubscriptionType.Rss
+      )
+
+      try {
+        await createTestSubscription(
+          user,
+          'sub_6',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Newsletter
+        )
+        const allSubscriptions = [sub5, ...subscriptions]
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          allSubscriptions.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        unsubscribe(sub5)
+      }
+    })
+
+    it('should not return other users subscriptions', async () => {
+      // create test user and login
+      const user2 = await createTestUser('fakeUser2')
+      try {
+        await createTestSubscription(
+          user2,
+          'sub_other',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Rss
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          subscriptions.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        deleteTestUser(user2.id)
+      }
+    })
+
+    it('should not return other users subscriptions when type is set to RSS', async () => {
+      query = `
+      query {
+        subscriptions(type: RSS) {
+          ... on SubscriptionsSuccess {
+            subscriptions {
+              id
+              name
+            }
+          }
+          ... on SubscriptionsError {
+            errorCodes
+          }
+        }
+      }
+    `
+      const user2 = await createTestUser('fakeUser2')
+      try {
+        await createTestSubscription(
+          user2,
+          'sub_other',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Rss
+        )
+        const rssItems = subscriptions.filter(
+          (s) => s.type == SubscriptionType.Rss
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          rssItems.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        deleteTestUser(user2.id)
+      }
+    })
+
+    it('should not return other users subscriptions when type is set to NEWSLETTER', async () => {
+      query = `
+      query {
+        subscriptions(type: NEWSLETTER) {
+          ... on SubscriptionsSuccess {
+            subscriptions {
+              id
+              name
+            }
+          }
+          ... on SubscriptionsError {
+            errorCodes
+          }
+        }
+      }
+    `
+      const user2 = await createTestUser('fakeUser2')
+      try {
+        await createTestSubscription(
+          user2,
+          'sub_other',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Rss
+        )
+        const newsletters = subscriptions.filter(
+          (s) => s.type == SubscriptionType.Newsletter
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          newsletters.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        deleteTestUser(user2.id)
+      }
     })
 
     it('responds status code 400 when invalid query', async () => {

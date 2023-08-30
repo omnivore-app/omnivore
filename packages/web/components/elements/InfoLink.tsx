@@ -23,6 +23,8 @@ export function InfoLink(props: InfoLinkProps): JSX.Element {
       <a
         href={props.href}
         style={{ textDecoration: 'none', width: '24px', height: '24px' }}
+        target="_blank"
+        rel="noreferrer"
       >
         <TooltipWrapped
           tooltipContent="Learn More"

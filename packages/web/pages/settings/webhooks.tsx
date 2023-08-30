@@ -39,6 +39,7 @@ export default function Webhooks(): JSX.Element {
   const [url, setUrl] = useState('')
   const eventTypeOptions: EventTypeOption[] = [
     { label: 'PAGE_CREATED', value: 'PAGE_CREATED' },
+    { label: 'PAGE_UPDATED', value: 'PAGE_UPDATED' },
     { label: 'HIGHLIGHT_CREATED', value: 'HIGHLIGHT_CREATED' },
     { label: 'LABEL_ADDED', value: 'LABEL_CREATED' },
   ]

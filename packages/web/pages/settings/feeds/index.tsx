@@ -8,7 +8,7 @@ import { ConfirmationModal } from '../../../components/patterns/ConfirmationModa
 import {
   EmptySettingsRow,
   SettingsTable,
-  SettingsTableRow
+  SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { theme } from '../../../components/tokens/stitches.config'
 import { formattedDateTime } from '../../../lib/dateFormatting'
@@ -17,7 +17,7 @@ import { updateSubscriptionMutation } from '../../../lib/networking/mutations/up
 import {
   SubscriptionStatus,
   SubscriptionType,
-  useGetSubscriptionsQuery
+  useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
@@ -90,17 +90,15 @@ export default function Rss(): JSX.Element {
   return (
     <SettingsTable
       pageId={'feeds'}
-      pageInfoLink={''} // TODO: https://docs.omnivore.app/settings/feeds.html
-      headerTitle={'Subscribed feeds'}
-      createTitle={'Add feed'}
+      pageInfoLink="https://docs.omnivore.app/settings/feeds.html"
+      headerTitle="Subscribed feeds"
+      createTitle="Add feed"
       createAction={() => {
         router.push('/settings/feeds/add')
       }}
     >
       {subscriptions.length === 0 ? (
-        <EmptySettingsRow
-          text={isValidating ? '-' : 'No feeds subscribed'}
-        />
+        <EmptySettingsRow text={isValidating ? '-' : 'No feeds subscribed'} />
       ) : (
         subscriptions.map((subscription, i) => {
           return (
@@ -218,9 +216,7 @@ export default function Rss(): JSX.Element {
 
       {onDeleteId && (
         <ConfirmationModal
-          message={
-            'Feed will be unsubscribed. This action cannot be undone.'
-          }
+          message={'Feed will be unsubscribed. This action cannot be undone.'}
           onAccept={async () => {
             await onDelete(onDeleteId)
             setOnDeleteId('')
