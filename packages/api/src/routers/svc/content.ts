@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { AppDataSource } from '../../data-source'
+import { appDataSource } from '../../data_source'
 import { getPageByParam, updatePage } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
@@ -73,7 +73,7 @@ export function contentServiceRouter() {
     pageToUpdate.state = ArticleSavingRequestStatus.Succeeded
 
     try {
-      const uploadFileData = await AppDataSource.transaction(async (tx) => {
+      const uploadFileData = await appDataSource.transaction(async (tx) => {
         await setClaims(tx, page.userId)
         return setFileUploadComplete(fileId, tx)
       })

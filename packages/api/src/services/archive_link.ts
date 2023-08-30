@@ -1,4 +1,4 @@
-import { AppDataSource } from '../data-source'
+import { appDataSource } from '../data_source'
 import { Link } from '../entity/link'
 import { setClaims } from '../repository'
 
@@ -7,7 +7,7 @@ export const setLinkArchived = async (
   linkId: string,
   archived: boolean
 ): Promise<void> => {
-  await AppDataSource.transaction(async (t) => {
+  await appDataSource.transaction(async (t) => {
     await setClaims(t, userId)
     await t.getRepository(Link).update(
       {

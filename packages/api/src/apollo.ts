@@ -12,10 +12,10 @@ import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
 import { promisify } from 'util'
-import { AppDataSource } from './data-source'
 import { sanitizeDirectiveTransformer } from './directives'
 import { env } from './env'
 import { createPubSubClient } from './pubsub'
+import { entityManager } from './repository'
 import { functionResolvers } from './resolvers/function_resolvers'
 import { ClaimsToSet, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
@@ -76,9 +76,9 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
       cb: (em: EntityManager) => TResult,
       userRole?: string
     ): Promise<TResult> =>
-      AppDataSource.transaction(async (em) => {
-        await setClaims(em, undefined, userRole)
-        return cb(em)
+      entityManager.transaction(async (tx) => {
+        await setClaims(tx, undefined, userRole)
+        return cb(tx)
       }),
     tracingSpan: tracer.startSpan('apollo.request'),
   }

@@ -14,16 +14,6 @@ export const recentSearchesResolver = authorized<
   RecentSearchesSuccess,
   RecentSearchesError
 >(async (_obj, _params, { claims: { uid }, log }) => {
-  log.info('recentSearches')
-
-  analytics.track({
-    userId: uid,
-    event: 'recentSearches',
-    properties: {
-      env: env.server.apiEnv,
-    },
-  })
-
   const user = await getRepository(User).findOneBy({ id: uid })
   if (!user) {
     return { errorCodes: [RecentSearchesErrorCode.Unauthorized] }

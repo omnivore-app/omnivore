@@ -13,37 +13,28 @@ import {
   RevokeApiKeyErrorCode,
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
-import { getRepository, userRepository } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
 import { authorized } from '../../utils/helpers'
 
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
-  async (_, __, { claims: { uid }, log }) => {
-    log.info('apiKeysResolver')
-
+  async (_, __, { log, authTrx }) => {
     try {
-      const user = await userRepository.findOneBy({ id: uid })
-      if (!user) {
-        return {
-          errorCodes: [ApiKeysErrorCode.Unauthorized],
-        }
-      }
-
-      const apiKeys = await getRepository(ApiKey).find({
-        select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
-        where: { user: { id: uid } },
-        order: {
-          usedAt: { direction: 'DESC', nulls: 'last' },
-          createdAt: 'DESC',
-        },
+      const apiKeys = await authTrx<Promise<ApiKey[]>>(async (em) => {
+        return em.getRepository(ApiKey).find({
+          select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
+          order: {
+            usedAt: { direction: 'DESC', nulls: 'last' },
+            createdAt: 'DESC',
+          },
+        })
       })
 
       return {
         apiKeys,
       }
     } catch (e) {
-      log.error(e)
+      log.error('apiKeysResolver error', e)
 
       return {
         errorCodes: [ApiKeysErrorCode.BadRequest],
@@ -56,33 +47,17 @@ export const generateApiKeyResolver = authorized<
   GenerateApiKeySuccess,
   GenerateApiKeyError,
   MutationGenerateApiKeyArgs
->(async (_, { input: { name, expiresAt } }, { claims: { uid }, log }) => {
+>(async (_, { input: { name, expiresAt } }, { authTrx, log, uid }) => {
   try {
-    log.info('generateApiKeyResolver')
-    const user = await userRepository.findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [GenerateApiKeyErrorCode.Unauthorized],
-      }
-    }
-
-    const existingApiKey = await getRepository(ApiKey).findOneBy({
-      user: { id: uid },
-      name,
-    })
-    if (existingApiKey) {
-      return {
-        errorCodes: [GenerateApiKeyErrorCode.AlreadyExists],
-      }
-    }
-
     const exp = new Date(expiresAt)
-    const apiKey = generateApiKey()
-    const apiKeyData = await getRepository(ApiKey).save({
-      user: { id: uid },
-      name,
-      key: hashApiKey(apiKey),
-      expiresAt: exp,
+    const originalKey = generateApiKey()
+    const apiKeyCreated = await authTrx<Promise<ApiKey>>(async (em) => {
+      return em.getRepository(ApiKey).save({
+        user: { id: uid },
+        name,
+        key: hashApiKey(originalKey),
+        expiresAt: exp,
+      })
     })
 
     analytics.track({
@@ -97,12 +72,12 @@ export const generateApiKeyResolver = authorized<
 
     return {
       apiKey: {
-        ...apiKeyData,
-        key: apiKey,
+        ...apiKeyCreated,
+        key: originalKey,
       },
     }
   } catch (error) {
-    log.error(error)
+    log.error('generateApiKeyResolver', error)
 
     return { errorCodes: [GenerateApiKeyErrorCode.BadRequest] }
   }
@@ -112,34 +87,32 @@ export const revokeApiKeyResolver = authorized<
   RevokeApiKeySuccess,
   RevokeApiKeyError,
   MutationRevokeApiKeyArgs
->(async (_, { id }, { claims: { uid }, log }) => {
-  log.info('RevokeApiKeyResolver')
-
+>(async (_, { id }, { claims: { uid }, log, authTrx }) => {
   try {
-    const user = await userRepository.findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [RevokeApiKeyErrorCode.Unauthorized],
+    const deletedApiKey = await authTrx<Promise<ApiKey | null>>(async (em) => {
+      const apiKeyRepository = em.getRepository(ApiKey)
+      const apiKey = await apiKeyRepository.findOneBy({ id })
+      if (!apiKey) {
+        return null
       }
-    }
 
-    const apiKey = await getRepository(ApiKey).findOne({
-      where: { id },
-      relations: ['user'],
+      return apiKeyRepository.remove(apiKey)
     })
-    if (!apiKey) {
+
+    if (!deletedApiKey) {
       return {
         errorCodes: [RevokeApiKeyErrorCode.NotFound],
       }
     }
 
-    if (apiKey.user.id !== uid) {
-      return {
-        errorCodes: [RevokeApiKeyErrorCode.Unauthorized],
-      }
-    }
-
-    const deletedApiKey = await getRepository(ApiKey).remove(apiKey)
+    analytics.track({
+      userId: uid,
+      event: 'api_key_revoked',
+      properties: {
+        id,
+        env: env.server.apiEnv,
+      },
+    })
 
     return {
       apiKey: {
@@ -149,7 +122,7 @@ export const revokeApiKeyResolver = authorized<
       },
     }
   } catch (e) {
-    log.error(e)
+    log.error('revokeApiKeyResolver error', e)
 
     return {
       errorCodes: [RevokeApiKeyErrorCode.BadRequest],

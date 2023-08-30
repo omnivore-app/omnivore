@@ -80,7 +80,7 @@ export class HighlightSubscriber
         await this.pubsubClient.entityCreated<Label>(
           EntityType.LABEL,
           event.entity.labels,
-          event.entity.libraryItem.user.id
+          event.databaseEntity.libraryItem.user.id
         )
       }
     }

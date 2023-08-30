@@ -65,10 +65,11 @@ export class LibraryItemSubscriber
 
       // publish label added event if a label was added
       if (event.entity.labels) {
+        const labels = event.entity.labels as Label[]
         await event.manager
           .getRepository(LibraryItem)
           .update(event.databaseEntity.id, {
-            labelNames: event.entity.labels,
+            labelNames: labels.map((label) => label.name.toLowerCase()),
           })
 
         await this.pubsubClient.entityCreated<Label>(

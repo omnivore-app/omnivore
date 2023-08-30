@@ -1,4 +1,4 @@
-import { AppDataSource } from '../../data-source'
+import { appDataSource } from '../../data_source'
 import { UserPersonalization } from '../../entity/user_personalization'
 import {
   GetUserPersonalizationError,
@@ -19,7 +19,7 @@ export const setUserPersonalizationResolver = authorized<
 >(async (_, { input }, { claims: { uid }, log }) => {
   log.info('setUserPersonalizationResolver', { uid, input })
 
-  const result = await AppDataSource.transaction(async (entityManager) => {
+  const result = await appDataSource.transaction(async (entityManager) => {
     await setClaims(entityManager, uid)
 
     return entityManager.getRepository(UserPersonalization).upsert(

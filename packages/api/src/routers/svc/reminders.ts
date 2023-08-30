@@ -1,5 +1,5 @@
 import { MulticastMessage } from 'firebase-admin/messaging'
-import { AppDataSource } from '../../data-source'
+import { appDataSource } from '../../data_source'
 import { updatePage } from '../../elastic/pages'
 import { UserDeviceToken } from '../../entity/user_device_tokens'
 import { homePageURL } from '../../env'
@@ -234,7 +234,7 @@ const updateRemindersStatus = async (
   }
 
   // db update
-  await AppDataSource.transaction(async (tx) => {
+  await appDataSource.transaction(async (tx) => {
     await setClaims(tx, userId)
     await setRemindersComplete(tx, userId, remindAt)
   })

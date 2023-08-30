@@ -1,5 +1,4 @@
 import { Between } from 'typeorm'
-import { AppDataSource } from '../../data-source'
 import { Filter } from '../../entity/filter'
 import { User } from '../../entity/user'
 import { env } from '../../env'
@@ -24,7 +23,7 @@ import {
   UpdateFilterSuccess,
   UpdateFilterErrorCode,
 } from '../../generated/graphql'
-import { getRepository, setClaims } from '../../repository'
+import { entityManager, getRepository, setClaims } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { isNil, mergeWith } from 'lodash'

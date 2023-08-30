@@ -1,4 +1,4 @@
-import { AppDataSource } from '../data-source'
+import { appDataSource } from '../data_source'
 import { User } from '../entity/user'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
@@ -70,7 +70,7 @@ export const deleteDeviceToken = async (
     },
   })
 
-  return AppDataSource.transaction(async (t) => {
+  return appDataSource.transaction(async (t) => {
     await setClaims(t, userId)
     const result = await t.getRepository(UserDeviceToken).delete(id)
 

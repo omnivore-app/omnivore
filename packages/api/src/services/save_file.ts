@@ -1,4 +1,3 @@
-import { AppDataSource } from '../data-source'
 import { updatePage } from '../elastic/pages'
 import { UploadFile } from '../entity/upload_file'
 import { User } from '../entity/user'
@@ -9,7 +8,7 @@ import {
   SaveFileInput,
   SaveResult,
 } from '../generated/graphql'
-import { getRepository } from '../repository'
+import { entityManager, getRepository } from '../repository'
 import { WithDataSourcesContext } from '../resolvers/types'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
@@ -17,7 +16,7 @@ import { createLabels } from './labels'
 
 export const setFileUploadComplete = async (
   id: string,
-  em = AppDataSource.createEntityManager()
+  em = entityManager
 ): Promise<UploadFile | null> => {
   return em.getRepository(UploadFile).save({ id, status: 'COMPLETED' })
 }

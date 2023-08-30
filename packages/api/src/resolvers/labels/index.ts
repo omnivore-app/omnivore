@@ -1,5 +1,5 @@
 import { Between } from 'typeorm'
-import { AppDataSource } from '../../data-source'
+import { appDataSource } from '../../data_source'
 import { getHighlightById } from '../../elastic/highlights'
 import {
   deleteLabel,
@@ -50,8 +50,6 @@ import { authorized } from '../../utils/helpers'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
-    log.info('labelsResolver')
-
     try {
       const user = await getRepository(User).findOne({
         where: { id: uid },
@@ -170,7 +168,7 @@ export const deleteLabelResolver = authorized<
       }
     }
 
-    const result = await AppDataSource.transaction(async (t) => {
+    const result = await appDataSource.transaction(async (t) => {
       await setClaims(t, uid)
       return t.getRepository(Label).delete(labelId)
     })
@@ -344,7 +342,7 @@ export const updateLabelResolver = authorized<
       },
     })
 
-    const result = await AppDataSource.transaction(async (t) => {
+    const result = await appDataSource.transaction(async (t) => {
       await setClaims(t, uid)
       label.name = name
       label.color = color
@@ -532,7 +530,7 @@ export const moveLabelResolver = authorized<
     const moveUp = newPosition < oldPosition
 
     // move label to the new position
-    const updated = await AppDataSource.transaction(async (t) => {
+    const updated = await appDataSource.transaction(async (t) => {
       await setClaims(t, uid)
 
       // update the position of the other labels

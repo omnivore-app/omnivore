@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken'
 import { IsNull, Not } from 'typeorm'
-import { AppDataSource } from '../data-source'
+import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
 import { getRepository } from '../repository'
@@ -42,7 +42,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const optedInFeatures = (await AppDataSource.query(
+  const optedInFeatures = (await appDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 

@@ -1,6 +1,5 @@
 import { EntityManager, EntityTarget, Repository } from 'typeorm'
-import { AppDataSource } from '../data-source'
-import { ApiKey } from '../entity/api_key'
+import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { Filter } from '../entity/filter'
 import { Follower } from '../entity/follower'
@@ -21,17 +20,16 @@ import { ContentDisplayReport } from '../entity/reports/content_display_report'
 import { Rule } from '../entity/rule'
 import { Subscription } from '../entity/subscription'
 import { UploadFile } from '../entity/upload_file'
-import { User } from '../entity/user'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { UserPersonalization } from '../entity/user_personalization'
 import { Webhook } from '../entity/webhook'
 
 export const setClaims = async (
-  t: EntityManager,
+  manager: EntityManager,
   uid: string
 ): Promise<void> => {
   const dbRole = 'omnivore_user'
-  return t
+  return manager
     .query('SELECT * from omnivore.set_claims($1, $2)', [uid, dbRole])
     .then()
 }
@@ -40,9 +38,8 @@ export const getRepository = <T>(entity: EntityTarget<T>): Repository<T> => {
   return entityManager.getRepository(entity)
 }
 
-export const entityManager = AppDataSource.manager
+export const entityManager = appDataSource.manager
 
-export const userRepository = getRepository(User)
 export const uploadFileRepository = getRepository(UploadFile)
 export const reminderRepository = getRepository(Reminder)
 export const libraryItemRepository = getRepository(LibraryItem)
@@ -52,7 +49,6 @@ export const inviteRepository = getRepository(Invite)
 export const abuseReportRepository = getRepository(AbuseReport)
 export const contentDisplayReportRepository =
   getRepository(ContentDisplayReport)
-export const apiKeyRepository = getRepository(ApiKey)
 export const featureRepository = getRepository(Feature)
 export const filterRepository = getRepository(Filter)
 export const followerRepository = getRepository(Follower)

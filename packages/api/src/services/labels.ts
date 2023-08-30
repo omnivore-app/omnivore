@@ -6,7 +6,7 @@ import { Label } from '../entity/label'
 import { Link } from '../entity/link'
 import { User } from '../entity/user'
 import { CreateLabelInput } from '../generated/graphql'
-import { getRepository } from '../repository'
+import { getRepository, labelRepository } from '../repository'
 import { generateRandomColor } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
@@ -124,7 +124,7 @@ export const createLabels = async (
   ctx: PageContext,
   labels: CreateLabelInput[]
 ): Promise<Label[]> => {
-  const labelEntities = await getRepository(Label)
+  const labelEntities = await labelRepository
     .createQueryBuilder()
     .where({
       user: { id: ctx.uid },
@@ -141,7 +141,7 @@ export const createLabels = async (
     (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
   )
   // create new labels
-  const newLabelEntities = await getRepository(Label).save(
+  const newLabelEntities = await labelRepository.save(
     newLabels.map((l) => ({
       name: l.name,
       description: l.description,

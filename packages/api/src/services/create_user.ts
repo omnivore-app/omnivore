@@ -1,11 +1,12 @@
-import { EntityManager, In } from 'typeorm'
-import { AppDataSource } from '../data-source'
+import { EntityManager } from 'typeorm'
+import { appDataSource } from '../data_source'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
 import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { SignupErrorCode } from '../generated/graphql'
-import { getRepository, userRepository } from '../repository'
+import { getRepository } from '../repository'
+import { getUserByEmail } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
@@ -71,7 +72,7 @@ export const createUser = async (input: {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }
 
-  const [user, profile] = await AppDataSource.transaction<[User, Profile]>(
+  const [user, profile] = await appDataSource.transaction<[User, Profile]>(
     async (t) => {
       let hasInvite = false
       let invite: Invite | null = null
@@ -158,7 +159,7 @@ const createDefaultFiltersForUser =
     return t.getRepository(Filter).save(defaultFilters)
   }
 
-// TODO: Maybe this should be moved into a service
+// Maybe this should be moved into a service
 const validateInvite = async (
   entityManager: EntityManager,
   invite: Invite
@@ -174,26 +175,4 @@ const validateInvite = async (
     return false
   }
   return true
-}
-
-export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return userRepository
-    .createQueryBuilder('user')
-    .leftJoinAndSelect('user.profile', 'profile')
-    .where('LOWER(email) = LOWER(:email)', { email }) // case insensitive
-    .getOne()
-}
-
-export const getTopUsers = async (): Promise<User[]> => {
-  return userRepository
-    .createQueryBuilder()
-    .where({
-      profile: { username: In(TOP_USERS) },
-    })
-    .limit(MAX_RECORDS_LIMIT)
-    .getMany()
-}
-
-export const getUserById = async (id: string): Promise<User | null> => {
-  return userRepository.findOneBy({ id })
 }

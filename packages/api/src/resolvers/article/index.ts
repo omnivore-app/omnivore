@@ -6,8 +6,6 @@
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
 import { LibraryItemType } from '../../entity/library_item'
-import { UploadFile } from '../../entity/upload_file'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   Article,
@@ -61,7 +59,9 @@ import {
   UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
+import { uploadFileRepository } from '../../repository'
+import { getLibraryItemByUrl } from '../../repository/library_item'
+import { getUserById, userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import {
   addLabelToPage,
@@ -167,7 +167,7 @@ export const createArticleResolver = authorized<
       },
     })
 
-    const userData = await getRepository(User).findOneBy({ id: uid })
+    const userData = await userRepository.findById(uid)
     if (!userData) {
       return pageError(
         {
@@ -207,7 +207,7 @@ export const createArticleResolver = authorized<
       let userArticleUrl: string | null = null
       let uploadFileHash = null
       let domContent = null
-      let pageType = LibraryItemType.Unknown
+      let itemType = LibraryItemType.Unknown
 
       const DUMMY_RESPONSE = {
         user,
@@ -249,7 +249,7 @@ export const createArticleResolver = authorized<
         /* We do not trust the values from client, lookup upload file by querying
          * with filtering on user ID and URL to verify client's uploadFileId is valid.
          */
-        const uploadFile = await getRepository(UploadFile).findOneBy({
+        const uploadFile = await uploadFileRepository.findOneBy({
           id: uploadFileId,
           user: { id: uid },
         })
@@ -267,7 +267,7 @@ export const createArticleResolver = authorized<
         uploadFileHash = uploadFileDetails.md5Hash
         userArticleUrl = uploadFileDetails.fileUrl
         canonicalUrl = uploadFile.url
-        pageType = itemTypeForContentType(uploadFile.contentType)
+        itemType = itemTypeForContentType(uploadFile.contentType)
         title = titleForFilePath(uploadFile.url)
       } else if (
         source !== 'puppeteer-parse' &&
@@ -285,7 +285,7 @@ export const createArticleResolver = authorized<
         parsedContent = parseResults.parsedContent
         canonicalUrl = parseResults.canonicalUrl
         domContent = parseResults.domContent
-        pageType = parseResults.pageType as unknown as LibraryItemType
+        itemType = parseResults.pageType as unknown as LibraryItemType
       } else if (!preparedDocument?.document) {
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
@@ -304,7 +304,7 @@ export const createArticleResolver = authorized<
         slug,
         croppedPathname,
         originalHtml: domContent,
-        pageType,
+        itemType,
         preparedDocument,
         uploadFileHash,
         canonicalUrl,
@@ -343,15 +343,13 @@ export const createArticleResolver = authorized<
       // save page's state and labels
       articleToSave.archivedAt = archivedAt
       articleToSave.labels = labels
-      if (
-        pageId ||
-        (pageId = (
-          await getPageByParam({
-            userId: uid,
-            url: articleToSave.url,
-          })
-        )?.id)
-      ) {
+
+      const existingLibraryItem = await getLibraryItemByUrl(
+        articleToSave.originalUrl!,
+        uid
+      )
+      pageId = existingLibraryItem?.id || pageId
+      if (pageId || existingLibraryItem) {
         // update existing page's state from processing to succeeded
         const updated = await updatePage(pageId, articleToSave, {
           ...ctx,
@@ -497,15 +495,6 @@ export const getArticlesResolver = authorized<
   const first = params.first || 10
 
   const searchQuery = parseSearchQuery(params.query || undefined)
-
-  analytics.track({
-    userId: claims.uid,
-    event: 'get_articles',
-    properties: {
-      env: env.server.apiEnv,
-      ...searchQuery,
-    },
-  })
 
   const [pages, totalCount] = (await searchLibraryItems(
     {
@@ -974,17 +963,6 @@ export const typeaheadSearchResolver = authorized<
   if (!claims?.uid) {
     return { errorCodes: [TypeaheadSearchErrorCode.Unauthorized] }
   }
-
-  analytics.track({
-    userId: claims.uid,
-    event: 'typeahead',
-    properties: {
-      env: env.server.apiEnv,
-      query,
-      first,
-    },
-  })
-
   const results = await searchAsYouType(claims.uid, query, first || undefined)
   const items: TypeaheadSearchItem[] = results.map((r) => ({
     ...r,

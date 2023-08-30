@@ -1,5 +1,5 @@
 import express from 'express'
-import { AppDataSource } from '../../data-source'
+import { appDataSource } from '../../data_source'
 import { createPage } from '../../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
 import { env } from '../../env'
@@ -129,7 +129,7 @@ export function emailAttachmentRouter() {
         uploadFile.fileName
       )
 
-      const uploadFileData = await AppDataSource.transaction(async (tx) => {
+      const uploadFileData = await appDataSource.transaction(async (tx) => {
         await setClaims(tx, user.id)
         return setFileUploadComplete(uploadFileId, tx)
       })

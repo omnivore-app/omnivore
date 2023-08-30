@@ -3,7 +3,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { env } from './env'
 import { CustomTypeOrmLogger } from './utils/logger'
 
-export const AppDataSource = new DataSource({
+export const appDataSource = new DataSource({
   type: 'postgres',
   host: env.pg.host,
   port: env.pg.port,

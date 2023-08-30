@@ -1,4 +1,3 @@
-import { env } from '../../env'
 import {
   AddPopularReadError,
   AddPopularReadErrorCode,
@@ -7,22 +6,12 @@ import {
 } from '../../generated/graphql'
 import { userRepository } from '../../repository'
 import { addPopularRead } from '../../services/popular_reads'
-import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 export const addPopularReadResolver = authorized<
   AddPopularReadSuccess,
   AddPopularReadError,
   MutationAddPopularReadArgs
 >(async (_, { name }, { uid }) => {
-  analytics.track({
-    userId: uid,
-    event: 'popular_read_added',
-    properties: {
-      name: name,
-      env: env.server.apiEnv,
-    },
-  })
-
   const user = await userRepository.findOneBy({
     id: uid,
   })

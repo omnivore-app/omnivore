@@ -4,7 +4,7 @@
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 import cors from 'cors'
 import express from 'express'
-import { AppDataSource } from '../data-source'
+import { appDataSource } from '../data_source'
 import { getPageById } from '../elastic/pages'
 import { ArticleSavingRequestStatus } from '../elastic/types'
 import { Speech, SpeechState } from '../entity/speech'
@@ -151,7 +151,7 @@ export function textToSpeechRouter() {
     }
 
     // set state to completed
-    await AppDataSource.transaction(async (t) => {
+    await appDataSource.transaction(async (t) => {
       await setClaims(t, userId)
       await t.getRepository(Speech).update(speechId, {
         audioFileName: audioFileName,

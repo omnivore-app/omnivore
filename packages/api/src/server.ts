@@ -13,8 +13,7 @@ import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
-import { AppDataSource } from './data-source'
-import { initElasticsearch } from './elastic'
+import { appDataSource } from './data_source'
 import { env } from './env'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
@@ -144,9 +143,7 @@ const main = async (): Promise<void> => {
   // If creating the DB entities fails, we want this to throw
   // so the container will be restarted and not come online
   // as healthy.
-  await AppDataSource.initialize()
-
-  await initElasticsearch()
+  await appDataSource.initialize()
 
   const { app, apollo, httpServer } = createApp()
 
