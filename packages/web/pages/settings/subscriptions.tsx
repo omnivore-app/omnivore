@@ -44,7 +44,7 @@ export default function SubscriptionsPage(): JSX.Element {
   return (
     <SettingsTable
       pageId="settings-subscriptions-tag"
-      pageInfoLink="/help/newsletters"
+      pageInfoLink="https://docs.omnivore.app/using/inbox.html"
       headerTitle="Subscriptions"
     >
       <>
