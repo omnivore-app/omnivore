@@ -62,6 +62,7 @@ export default function SubscriptionsPage(): JSX.Element {
                     css={{
                       my: '5px',
                       fontSize: '11px',
+
                       a: {
                         color: '$omnivoreCtaYellow',
                       },
@@ -69,14 +70,25 @@ export default function SubscriptionsPage(): JSX.Element {
                   >
                     {`Last received ${formattedShortDate(
                       subscription.updatedAt
-                    )} at `}
+                    )}`}
                     {subscription.newsletterEmail && (
-                      <Link
-                        href={`/settings/emails?address=${subscription.newsletterEmail}`}
-                      >
-                        {subscription.newsletterEmail}
-                      </Link>
+                      <>
+                        {' '}
+                        at{' '}
+                        <Link
+                          href={`/settings/emails?address=${subscription.newsletterEmail}`}
+                        >
+                          {subscription.newsletterEmail}
+                        </Link>
+                      </>
                     )}
+                    {subscription.type == SubscriptionType.RSS &&
+                      subscription.url && (
+                        <>
+                          {' '}
+                          via <Link href={subscription.url}>RSS</Link>
+                        </>
+                      )}
                   </StyledText>
                 }
               />
