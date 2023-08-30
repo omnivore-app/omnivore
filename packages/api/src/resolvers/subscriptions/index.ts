@@ -83,7 +83,7 @@ export const subscriptionsResolver = authorized<
         status: SubscriptionStatus.Active,
       })
     } else if (type && type == SubscriptionType.Rss) {
-      queryBuilder.where({
+      queryBuilder.andWhere({
         type,
       })
     } else {
