@@ -80,7 +80,7 @@ export class Highlight {
   @Column('text', { nullable: true })
   color?: string | null
 
-  @ManyToMany(() => Label)
+  @ManyToMany(() => Label, { cascade: true })
   @JoinTable({
     name: 'entity_labels',
     joinColumn: { name: 'highlight_id' },

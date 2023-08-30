@@ -197,4 +197,16 @@ export class LibraryItem {
     inverseJoinColumn: { name: 'id' },
   })
   highlights?: Highlight[]
+
+  @Column('text', { nullable: true })
+  labelNames?: string[] | null
+
+  @Column('text', { nullable: true })
+  highlightLabels?: string[] | null
+
+  @Column('text', { nullable: true })
+  highlightAnnotations?: string[] | null
+
+  @Column('text', { nullable: true })
+  note?: string | null
 }

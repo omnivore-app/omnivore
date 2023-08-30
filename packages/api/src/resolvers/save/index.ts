@@ -8,7 +8,7 @@ import {
   SaveErrorCode,
   SaveSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
+import { getRepository, userRepository } from '../../repository'
 import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
@@ -31,7 +31,7 @@ export const savePageResolver = authorized<
     },
   })
 
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     id: ctx.uid,
   })
   if (!user) {
@@ -61,7 +61,7 @@ export const saveUrlResolver = authorized<
     },
   })
 
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     id: uid,
   })
   if (!user) {
@@ -87,7 +87,7 @@ export const saveFileResolver = authorized<
     },
   })
 
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     id: ctx.uid,
   })
   if (!user) {

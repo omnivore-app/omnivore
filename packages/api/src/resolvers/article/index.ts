@@ -70,7 +70,7 @@ import {
 } from '../../services/labels'
 import { searchLibraryItems } from '../../services/library_item'
 import { setFileUploadComplete } from '../../services/save_file'
-import { parsedContentToPage } from '../../services/save_page'
+import { parsedContentToLibraryItem } from '../../services/save_page'
 import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -295,7 +295,7 @@ export const createArticleResolver = authorized<
 
       const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      const articleToSave = parsedContentToPage({
+      const articleToSave = parsedContentToLibraryItem({
         url,
         title,
         parsedContent,

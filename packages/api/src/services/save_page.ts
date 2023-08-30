@@ -1,10 +1,14 @@
 import { Readability } from '@omnivore/readability'
-import { addHighlightToPage } from '../elastic/highlights'
-import { createPage, getPageByParam, updatePage } from '../elastic/pages'
-import { ArticleSavingRequestStatus, Page, PageType } from '../elastic/types'
+import { DeepPartial } from 'typeorm'
+import {
+  LibraryItem,
+  LibraryItemState,
+  LibraryItemType,
+} from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
+  ArticleSavingRequestStatus,
   HighlightType,
   Maybe,
   PreparedDocumentInput,
@@ -12,6 +16,7 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
+import { libraryItemRepository } from '../repository'
 import { WithDataSourcesContext } from '../resolvers/types'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
@@ -26,6 +31,7 @@ import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createLabels } from './labels'
+import { createLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -72,7 +78,7 @@ export const savePage = async (
   const [newSlug, croppedPathname] = createSlug(input.url, input.title)
   let slug = newSlug
   let pageId = input.clientRequestId
-  const articleToSave = parsedContentToPage({
+  const itemToSave = parsedContentToLibraryItem({
     url: input.url,
     title: input.title,
     userId: user.id,
@@ -80,7 +86,7 @@ export const savePage = async (
     slug,
     croppedPathname,
     parsedContent: parseResult.parsedContent,
-    pageType: parseResult.pageType,
+    itemType: parseResult.pageType as unknown as LibraryItemType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
     rssFeedUrl: input.rssFeedUrl,
@@ -89,10 +95,10 @@ export const savePage = async (
   })
 
   // save state
-  articleToSave.archivedAt =
+  const archivedAt =
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
-  articleToSave.labels = input.labels
+  const labels = input.labels
     ? await createLabels(ctx, input.labels)
     : undefined
 
@@ -103,11 +109,11 @@ export const savePage = async (
     try {
       await createPageSaveRequest({
         userId: user.id,
-        url: articleToSave.url,
+        url: itemToSave.originalUrl!,
         pubsub: ctx.pubsub,
         articleSavingRequestId: input.clientRequestId,
-        archivedAt: articleToSave.archivedAt,
-        labels: articleToSave.labels,
+        archivedAt,
+        labels,
       })
     } catch (e) {
       return {
@@ -117,15 +123,15 @@ export const savePage = async (
     }
   } else {
     // check if the page already exists
-    const existingPage = await getPageByParam({
-      userId: user.id,
-      url: articleToSave.url,
+    const existingLibraryItem = await libraryItemRepository.findOne({
+      where: { user: { id: user.id }, originalUrl: itemToSave.originalUrl },
+      relations: ['subscriptions'],
     })
-    if (existingPage) {
+    if (existingLibraryItem) {
       // we don't want to update an rss feed page if rss-feeder is tring to re-save it
       if (
-        existingPage.rssFeedUrl &&
-        existingPage.rssFeedUrl === input.rssFeedUrl
+        existingLibraryItem.subscription &&
+        existingLibraryItem.subscription.url === input.rssFeedUrl
       ) {
         return {
           clientRequestId: pageId,
@@ -133,21 +139,9 @@ export const savePage = async (
         }
       }
 
-      pageId = existingPage.id
-      slug = existingPage.slug
-      if (
-        !(await updatePage(
-          existingPage.id,
-          {
-            // update the page with the new content
-            ...articleToSave,
-            id: pageId, // we don't want to update the id
-            slug, // we don't want to update the slug
-            createdAt: existingPage.createdAt, // we don't want to update the createdAt
-          },
-          ctx
-        ))
-      ) {
+      pageId = existingLibraryItem.id
+      slug = existingLibraryItem.slug
+      if (!(await libraryItemRepository.save(itemToSave))) {
         return {
           errorCodes: [SaveErrorCode.Unknown],
           message: 'Failed to update existing page',
@@ -155,10 +149,7 @@ export const savePage = async (
       }
     } else {
       // do not publish a pubsub event if the page is imported
-      const newPageId = await createPage(articleToSave, {
-        ...ctx,
-        shouldPublish: !isImported,
-      })
+      const newPageId = await createLibraryItem(itemToSave)
       if (!newPageId) {
         return {
           errorCodes: [SaveErrorCode.Unknown],
@@ -204,8 +195,8 @@ export const savePage = async (
   }
 }
 
-// convert parsed content to an elastic page
-export const parsedContentToPage = ({
+// convert parsed content to an library item
+export const parsedContentToLibraryItem = ({
   url,
   userId,
   originalHtml,
@@ -216,7 +207,7 @@ export const parsedContentToPage = ({
   title,
   preparedDocument,
   canonicalUrl,
-  pageType,
+  itemType,
   uploadFileHash,
   uploadFileId,
   saveTime,
@@ -227,7 +218,7 @@ export const parsedContentToPage = ({
   userId: string
   slug: string
   croppedPathname: string
-  pageType: PageType
+  itemType: LibraryItemType
   parsedContent: Readability.ParseResult | null
   originalHtml?: string | null
   pageId?: string | null
@@ -239,13 +230,13 @@ export const parsedContentToPage = ({
   saveTime?: Date
   rssFeedUrl?: string | null
   publishedAt?: Date | null
-}): Page => {
+}): DeepPartial<LibraryItem> => {
   return {
-    id: pageId || '',
+    id: pageId ?? undefined,
     slug,
-    userId,
-    originalHtml,
-    content: parsedContent?.content || '',
+    user: { id: userId },
+    originalContent: originalHtml,
+    readableContent: parsedContent?.content || '',
     description: parsedContent?.excerpt,
     title:
       title ||
@@ -254,24 +245,24 @@ export const parsedContentToPage = ({
       croppedPathname ||
       parsedContent?.siteName ||
       url,
-    author: parsedContent?.byline ?? undefined,
-    url: cleanUrl(canonicalUrl || url),
-    pageType,
-    hash: uploadFileHash || stringToHash(parsedContent?.content || url),
-    image: parsedContent?.previewImage ?? undefined,
+    author: parsedContent?.byline,
+    originalUrl: cleanUrl(canonicalUrl || url),
+    itemType,
+    textContentHash:
+      uploadFileHash || stringToHash(parsedContent?.content || url),
+    thumbnail: parsedContent?.previewImage ?? undefined,
     publishedAt: validatedDate(
       publishedAt || parsedContent?.publishedDate || undefined
     ),
-    uploadFileId,
-    readingProgressPercent: 0,
-    readingProgressAnchorIndex: 0,
-    state: ArticleSavingRequestStatus.Succeeded,
-    createdAt: validatedDate(saveTime) || new Date(),
-    savedAt: validatedDate(saveTime) || new Date(),
-    siteName: parsedContent?.siteName ?? undefined,
-    language: parsedContent?.language ?? undefined,
-    siteIcon: parsedContent?.siteIcon ?? undefined,
-    wordsCount: wordsCount(parsedContent?.textContent || ''),
-    rssFeedUrl: rssFeedUrl || undefined,
+    uploadFile: { id: uploadFileId ?? undefined },
+    readingProgressTopPercent: 0,
+    readingProgressHighestReadAnchor: 0,
+    state: LibraryItemState.Succeeded,
+    createdAt: validatedDate(saveTime),
+    savedAt: validatedDate(saveTime),
+    siteName: parsedContent?.siteName,
+    itemLanguage: parsedContent?.language,
+    siteIcon: parsedContent?.siteIcon,
+    wordCount: wordsCount(parsedContent?.textContent || ''),
   }
 }

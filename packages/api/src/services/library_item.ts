@@ -281,9 +281,3 @@ export const searchLibraryItems = async (
 
   return [libraryItems, count]
 }
-
-export const libraryItemToSearchItem = (
-  libraryItem: LibraryItem,
-  userId: string
-): SearchItem => {
-  

@@ -193,3 +193,7 @@ export const getTopUsers = async (): Promise<User[]> => {
     .limit(MAX_RECORDS_LIMIT)
     .getMany()
 }
+
+export const getUserById = async (id: string): Promise<User | null> => {
+  return userRepository.findOneBy({ id })
+}
