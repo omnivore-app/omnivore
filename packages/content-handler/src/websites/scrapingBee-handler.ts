@@ -10,7 +10,7 @@ export class ScrapingBeeHandler extends ContentHandler {
 
   shouldPreHandle(url: string): boolean {
     const u = new URL(url)
-    const hostnames = ['nytimes.com', 'news.google.com']
+    const hostnames = ['nytimes.com', 'news.google.com', 'fool.ca']
 
     return hostnames.some((h) => u.hostname.endsWith(h))
   }
