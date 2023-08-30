@@ -472,7 +472,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     async (action: HighlightAction, param?: string) => {
       switch (action) {
         case 'delete':
-          if (focusedHighlight?.annotation == undefined) {
+          if ((focusedHighlight?.annotation ?? '').length === 0) {
             await removeHighlightCallback()
           } else {
             setConfirmDeleteHighlightWithNoteId(focusedHighlight?.id)
