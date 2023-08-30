@@ -1,9 +1,9 @@
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { Button } from '../../elements/Button'
-import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
+import { CaretRight, Circle, DotsThree } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -11,6 +11,8 @@ import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { useGetSavedSearchQuery} from '../../../lib/networking/queries/useGetSavedSearchQuery'
+import { SavedSearch } from "../../../lib/networking/fragments/savedSearchFragment"
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -82,39 +84,16 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
 }
 
 function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
-  const items = [
-    {
-      name: 'Inbox',
-      term: 'in:inbox',
-    },
-    {
-      name: 'Continue Reading',
-      term: 'in:inbox sort:read-desc is:unread',
-    },
-    {
-      name: 'Read Later',
-      term: 'in:library',
-    },
-    {
-      name: 'Highlights',
-      term: 'has:highlights mode:highlights',
-    },
-    {
-      name: 'Unlabeled',
-      term: 'no:label',
-    },
-    {
-      name: 'Files',
-      term: 'type:file',
-    },
-    {
-      name: 'Archived',
-      term: 'in:archive',
-    },
-  ]
+  const { savedSearches, isLoading } = useGetSavedSearchQuery();
+
+    const sortedSearches = useMemo(() => {
+        return savedSearches?.filter(it => it.visible)?.sort((left: SavedSearch, right: SavedSearch) =>
+            left.position - right.position
+        )
+    }, [savedSearches])
 
   useRegisterActions(
-    items.map((item, idx) => {
+    (sortedSearches ?? []).map((item, idx) => {
       const key = String(idx + 1)
       return {
         id: `saved_search_${key}`,
@@ -123,20 +102,22 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
         section: 'Saved Searches',
         keywords: '?' + item.name,
         perform: () => {
-          props.applySearchQuery(item.term)
+          props.applySearchQuery(item.filter)
         },
       }
     }),
-    []
+    [isLoading]
   )
 
   return (
-    <MenuPanel title="Saved Searches">
-      {items.map((item) => (
+    <MenuPanel title="Saved Searches" editTitle="Edit Saved Searches" editFunc={() => {
+      window.location.href = '/settings/saved-searches'
+    }}>
+      {sortedSearches && sortedSearches?.map((item) => (
         <FilterButton
           key={item.name}
           text={item.name}
-          filterTerm={item.term}
+          filterTerm={item.filter}
           {...props}
         />
       ))}

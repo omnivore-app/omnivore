@@ -2165,11 +2165,11 @@ const schema = gql`
   }
 
   input SaveFilterInput {
-    id: ID
     name: String!
     filter: String!
-    category: String!
+    category: String
     description: String
+    position: Int
   }
 
   union SaveFilterResult = SaveFilterSuccess | SaveFilterError
@@ -2187,6 +2187,8 @@ const schema = gql`
     description: String
     createdAt: Date!
     updatedAt: Date!
+    defaultFilter: Boolean
+    visible: Boolean
   }
 
   type SaveFilterError {
@@ -2228,6 +2230,32 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+  }
+
+  input UpdateFilterInput {
+    id: String!
+    name: String
+    filter: String
+    position: Int
+    category: String
+    description: String
+    visible: Boolean
+  }
+
+  enum UpdateFilterErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union UpdateFilterResult = UpdateFilterSuccess | UpdateFilterError
+
+  type UpdateFilterSuccess {
+    filter: Filter!
+  }
+
+  type UpdateFilterError {
+    errorCodes: [UpdateFilterErrorCode!]!
   }
 
   input MoveFilterInput {
@@ -2616,6 +2644,7 @@ const schema = gql`
     saveFilter(input: SaveFilterInput!): SaveFilterResult!
     deleteFilter(id: ID!): DeleteFilterResult!
     moveFilter(input: MoveFilterInput!): MoveFilterResult!
+    updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
     createGroup(input: CreateGroupInput!): CreateGroupResult!
     recommend(input: RecommendInput!): RecommendResult!
     joinGroup(inviteCode: String!): JoinGroupResult!

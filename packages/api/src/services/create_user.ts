@@ -11,6 +11,7 @@ import { AppDataSource } from '../server'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
 import { sendConfirmationEmail } from './send_emails'
+import { Filter } from '../entity/filter'
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -85,6 +86,9 @@ export const createUser = async (input: {
           group: invite.group,
         })
       }
+
+      await createDefaultFiltersForUser(t)(user.id)
+
       return [user, profile]
     }
   )
@@ -97,6 +101,27 @@ export const createUser = async (input: {
 
   return [user, profile]
 }
+
+const createDefaultFiltersForUser =
+  (t: EntityManager) =>
+  async (userId: string): Promise<Filter[]> => {
+    const defaultFilters = [
+      { name: 'Inbox', filter: 'in:inbox' },
+      { name: 'Continue Reading', filter: 'in:inbox sort:read-desc is:unread' },
+      { name: 'Read Later', filter: 'in:library' },
+      { name: 'Highlights', filter: 'has:highlights mode:highlights' },
+      { name: 'Unlabelled', filter: 'no:label' },
+      { name: 'Archived', filter: 'in:archive' },
+    ].map((it, position) => ({
+      ...it,
+      user: { id: userId },
+      position,
+      defaultFilter: true,
+      category: 'Search',
+    }))
+
+    return t.getRepository(Filter).save(defaultFilters)
+  }
 
 // TODO: Maybe this should be moved into a service
 const validateInvite = async (

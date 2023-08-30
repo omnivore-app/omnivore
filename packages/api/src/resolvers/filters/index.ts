@@ -12,9 +12,13 @@ import {
   MutationDeleteFilterArgs,
   MutationMoveFilterArgs,
   MutationSaveFilterArgs,
+  MutationUpdateFilterArgs,
   SaveFilterError,
   SaveFilterErrorCode,
   SaveFilterSuccess,
+  UpdateFilterError,
+  UpdateFilterSuccess,
+  UpdateFilterErrorCode,
 } from '../../generated/graphql'
 import { Filter } from '../../entity/filter'
 import { getRepository, setClaims } from '../../entity/utils'
@@ -23,23 +27,24 @@ import { AppDataSource } from '../../server'
 import { Between } from 'typeorm'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
+import { isNil, mergeWith } from 'lodash'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,
   SaveFilterError,
   MutationSaveFilterArgs
->(async (_, { input }, { claims, log }) => {
+>(async (_, { input }, { claims: { uid }, log }) => {
   log.info('Saving filters', {
     input,
     labels: {
       source: 'resolver',
       resolver: 'saveFilterResolver',
-      uid: claims.uid,
+      uid,
     },
   })
 
   try {
-    const user = await getRepository(User).findOneBy({ id: claims.uid })
+    const user = await getRepository(User).findOneBy({ id: uid })
     if (!user) {
       return {
         errorCodes: [SaveFilterErrorCode.Unauthorized],
@@ -47,9 +52,14 @@ export const saveFilterResolver = authorized<
     }
 
     const filter = await getRepository(Filter).save({
-      ...input,
-      id: input.id ?? undefined,
-      user: { id: claims.uid },
+      user: { id: uid },
+      name: input.name,
+      category: 'Search',
+      description: '',
+      position: input.position ?? 0,
+      filter: input.filter,
+      defaultFilter: false,
+      visible: true,
     })
 
     return {
@@ -61,7 +71,7 @@ export const saveFilterResolver = authorized<
       labels: {
         source: 'resolver',
         resolver: 'saveFilterResolver',
-        uid: claims.uid,
+        uid,
       },
     })
 
@@ -166,6 +176,113 @@ export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
     }
   }
 )
+const updatePosition = async (
+  uid: string,
+  filter: Filter,
+  newPosition: number
+) => {
+  const { position } = filter
+  const moveUp = newPosition < position
+
+  // move filter to the new position
+  const updated = await AppDataSource.transaction(async (t) => {
+    await setClaims(t, uid)
+
+    // update the position of the other filters
+    const updated = await t.getRepository(Filter).update(
+      {
+        user: { id: uid },
+        position: Between(
+          Math.min(newPosition, position),
+          Math.max(newPosition, position)
+        ),
+      },
+      {
+        position: () => `position + ${moveUp ? 1 : -1}`,
+      }
+    )
+
+    if (!updated.affected) {
+      return null
+    }
+
+    // update the position of the filter
+    return t.getRepository(Filter).save({
+      ...filter,
+      position: newPosition,
+    })
+  })
+
+  if (!updated) {
+    throw new Error('unable to update')
+  }
+
+  return updated
+}
+
+export const updateFilterResolver = authorized<
+  UpdateFilterSuccess,
+  UpdateFilterError,
+  MutationUpdateFilterArgs
+>(async (_, { input }, { claims: { uid }, log }) => {
+  const repo = getRepository(Filter)
+  const { id } = input
+
+  try {
+    const user = await getRepository(User).findOneBy({ id: uid })
+    if (!user) {
+      return {
+        errorCodes: [UpdateFilterErrorCode.Unauthorized],
+      }
+    }
+
+    const filter = await getRepository(Filter).findOne({
+      where: { id },
+      relations: ['user'],
+    })
+    if (!filter) {
+      return {
+        __typename: 'UpdateFilterError',
+        errorCodes: [UpdateFilterErrorCode.NotFound],
+      }
+    }
+    if (filter.user.id !== uid) {
+      return {
+        __typename: 'UpdateFilterError',
+        errorCodes: [UpdateFilterErrorCode.Unauthorized],
+      }
+    }
+
+    if (input.position && filter.position != input.position) {
+      await updatePosition(uid, filter, input.position)
+    }
+
+    const updated = await repo.save({
+      ...mergeWith({}, filter, input, (a: unknown, b: unknown) =>
+        isNil(b) ? a : undefined
+      ),
+    })
+
+    return {
+      __typename: 'UpdateFilterSuccess',
+      filter: updated,
+    }
+  } catch (error) {
+    log.error('Error Updating filters', {
+      error,
+      labels: {
+        source: 'resolver',
+        resolver: 'UpdateFilterResolver',
+        uid,
+      },
+    })
+
+    return {
+      __typename: 'UpdateFilterError',
+      errorCodes: [UpdateFilterErrorCode.BadRequest],
+    }
+  }
+})
 
 export const moveFilterResolver = authorized<
   MoveFilterSuccess,
