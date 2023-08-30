@@ -211,9 +211,12 @@ describe('Subscriptions API', () => {
           undefined,
           SubscriptionType.Rss
         )
+        const rssItems = subscriptions.filter(
+          (s) => s.type == SubscriptionType.Rss
+        )
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.subscriptions.subscriptions).to.eql(
-          subscriptions.map((sub) => ({
+          rssItems.map((sub) => ({
             id: sub.id,
             name: sub.name,
           }))
@@ -249,9 +252,12 @@ describe('Subscriptions API', () => {
           undefined,
           SubscriptionType.Rss
         )
+        const newsletters = subscriptions.filter(
+          (s) => s.type == SubscriptionType.Newsletter
+        )
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.subscriptions.subscriptions).to.eql(
-          subscriptions.map((sub) => ({
+          newsletters.map((sub) => ({
             id: sub.id,
             name: sub.name,
           }))
