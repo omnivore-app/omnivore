@@ -280,7 +280,7 @@ export default function LabelsPage(): JSX.Element {
               <Box>
                 <StyledText style="fixedHeadline">Labels </StyledText>
               </Box>
-              <InfoLink href="/help/labels" />
+              <InfoLink href="https://docs.omnivore.app/using/organizing.html#labels" />
               <Box
                 css={{
                   display: 'flex',
