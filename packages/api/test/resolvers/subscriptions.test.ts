@@ -185,6 +185,88 @@ describe('Subscriptions API', () => {
       }
     })
 
+    it('should not return other users subscriptions when type is set to RSS', async () => {
+      query = `
+      query {
+        subscriptions(type: RSS) {
+          ... on SubscriptionsSuccess {
+            subscriptions {
+              id
+              name
+            }
+          }
+          ... on SubscriptionsError {
+            errorCodes
+          }
+        }
+      }
+    `
+      const user2 = await createTestUser('fakeUser2')
+      try {
+        await createTestSubscription(
+          user2,
+          'sub_other',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Rss
+        )
+        const rssItems = subscriptions.filter(
+          (s) => s.type == SubscriptionType.Rss
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          rssItems.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        deleteTestUser(user2.id)
+      }
+    })
+
+    it('should not return other users subscriptions when type is set to NEWSLETTER', async () => {
+      query = `
+      query {
+        subscriptions(type: NEWSLETTER) {
+          ... on SubscriptionsSuccess {
+            subscriptions {
+              id
+              name
+            }
+          }
+          ... on SubscriptionsError {
+            errorCodes
+          }
+        }
+      }
+    `
+      const user2 = await createTestUser('fakeUser2')
+      try {
+        await createTestSubscription(
+          user2,
+          'sub_other',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Rss
+        )
+        const newsletters = subscriptions.filter(
+          (s) => s.type == SubscriptionType.Newsletter
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          newsletters.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        deleteTestUser(user2.id)
+      }
+    })
+
     it('responds status code 400 when invalid query', async () => {
       const invalidQuery = `
         query {
