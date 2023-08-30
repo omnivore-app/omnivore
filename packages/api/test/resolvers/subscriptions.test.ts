@@ -10,7 +10,10 @@ import {
   SubscriptionStatus,
   SubscriptionType,
 } from '../../src/generated/graphql'
-import { UNSUBSCRIBE_EMAIL_TEXT } from '../../src/services/subscriptions'
+import {
+  UNSUBSCRIBE_EMAIL_TEXT,
+  unsubscribe,
+} from '../../src/services/subscriptions'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestSubscription, createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
@@ -134,44 +137,52 @@ describe('Subscriptions API', () => {
         undefined,
         SubscriptionType.Rss
       )
-      await createTestSubscription(
-        user,
-        'sub_6',
-        undefined,
-        SubscriptionStatus.Unsubscribed,
-        undefined,
-        SubscriptionType.Newsletter
-      )
-      const allSubscriptions = [sub5, ...subscriptions]
-      const res = await graphqlRequest(query, authToken).expect(200)
 
-      expect(res.body.data.subscriptions.subscriptions).to.eql(
-        allSubscriptions.map((sub) => ({
-          id: sub.id,
-          name: sub.name,
-        }))
-      )
+      try {
+        await createTestSubscription(
+          user,
+          'sub_6',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Newsletter
+        )
+        const allSubscriptions = [sub5, ...subscriptions]
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          allSubscriptions.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        unsubscribe(sub5)
+      }
     })
 
     it('should not return other users subscriptions', async () => {
       // create test user and login
-      const user2 = await createTestUser('fakeUser')
-      await createTestSubscription(
-        user2,
-        'sub_other',
-        undefined,
-        SubscriptionStatus.Unsubscribed,
-        undefined,
-        SubscriptionType.Rss
-      )
-      const res = await graphqlRequest(query, authToken).expect(200)
-
-      expect(res.body.data.subscriptions.subscriptions).to.eql(
-        subscriptions.map((sub) => ({
-          id: sub.id,
-          name: sub.name,
-        }))
-      )
+      const user2 = await createTestUser('fakeUser2')
+      try {
+        await createTestSubscription(
+          user2,
+          'sub_other',
+          undefined,
+          SubscriptionStatus.Unsubscribed,
+          undefined,
+          SubscriptionType.Rss
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.subscriptions.subscriptions).to.eql(
+          subscriptions.map((sub) => ({
+            id: sub.id,
+            name: sub.name,
+          }))
+        )
+      } finally {
+        deleteTestUser(user2.id)
+      }
     })
 
     it('responds status code 400 when invalid query', async () => {
