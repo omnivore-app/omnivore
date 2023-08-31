@@ -20,8 +20,8 @@ import { authorized } from '../../utils/helpers'
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
   async (_, __, { log, authTrx }) => {
     try {
-      const apiKeys = await authTrx<Promise<ApiKey[]>>(async (em) => {
-        return em.getRepository(ApiKey).find({
+      const apiKeys = await authTrx<Promise<ApiKey[]>>(async (tx) => {
+        return tx.find(ApiKey, {
           select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
           order: {
             usedAt: { direction: 'DESC', nulls: 'last' },
@@ -51,8 +51,8 @@ export const generateApiKeyResolver = authorized<
   try {
     const exp = new Date(expiresAt)
     const originalKey = generateApiKey()
-    const apiKeyCreated = await authTrx<Promise<ApiKey>>(async (em) => {
-      return em.getRepository(ApiKey).save({
+    const apiKeyCreated = await authTrx<Promise<ApiKey>>(async (tx) => {
+      return tx.save(ApiKey, {
         user: { id: uid },
         name,
         key: hashApiKey(originalKey),
@@ -89,14 +89,13 @@ export const revokeApiKeyResolver = authorized<
   MutationRevokeApiKeyArgs
 >(async (_, { id }, { claims: { uid }, log, authTrx }) => {
   try {
-    const deletedApiKey = await authTrx<Promise<ApiKey | null>>(async (em) => {
-      const apiKeyRepository = em.getRepository(ApiKey)
-      const apiKey = await apiKeyRepository.findOneBy({ id })
+    const deletedApiKey = await authTrx<Promise<ApiKey | null>>(async (tx) => {
+      const apiKey = await tx.findOneBy(ApiKey, { id })
       if (!apiKey) {
         return null
       }
 
-      return apiKeyRepository.remove(apiKey)
+      return tx.remove(ApiKey, apiKey)
     })
 
     if (!deletedApiKey) {

@@ -6,7 +6,7 @@ import { PubsubClient } from '../pubsub'
 import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { createPageSaveRequest } from './create_page_save_request'
-import { createLabels } from './labels'
+import { getLabelsAndCreateIfNotExist } from './labels'
 
 interface SaveContext {
   pubsub: PubsubClient
@@ -24,7 +24,7 @@ export const saveUrl = async (
       input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
     // add labels to page
     const labels = input.labels
-      ? await createLabels(ctx, input.labels)
+      ? await getLabelsAndCreateIfNotExist(ctx, input.labels)
       : undefined
 
     const pageSaveRequest = await createPageSaveRequest({

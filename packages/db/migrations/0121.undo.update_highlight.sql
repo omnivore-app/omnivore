@@ -4,6 +4,9 @@
 
 BEGIN;
 
+DROP TRIGGER IF EXISTS library_item_highlight_annotations_update ON omnivore.highlight;
+DROP FUNCTION IF EXISTS update_library_item_highlight_annotations();
+
 ALTER TABLE omnivore.highlight 
     ADD COLUMN article_id uuid,
     ADD COLUMN elastic_page_id uuid,

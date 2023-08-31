@@ -41,8 +41,8 @@ import { createPubSubClient } from '../../pubsub'
 import { getRepository, setClaims } from '../../repository'
 import {
   createLabel,
-  createLabels,
   getLabelByName,
+  getLabelsAndCreateIfNotExist,
   getLabelsByIds,
 } from '../../services/labels'
 import { analytics } from '../../utils/analytics'
@@ -252,7 +252,7 @@ export const setLabelsResolver = authorized<
     if (labels && labels.length > 0) {
       // for new clients that send label names
       // create labels if they don't exist
-      labelsSet = await createLabels(ctx, labels)
+      labelsSet = await getLabelsAndCreateIfNotExist(ctx, labels)
     } else if (labelIds && labelIds.length > 0) {
       // for old clients that send labelIds
       labelsSet = await getLabelsByIds(uid, labelIds)
@@ -419,7 +419,7 @@ export const setLabelsForHighlightResolver = authorized<
     if (labels && labels.length > 0) {
       // for new clients that send label names
       // create labels if they don't exist
-      labelsSet = await createLabels(ctx, labels)
+      labelsSet = await getLabelsAndCreateIfNotExist(ctx, labels)
     } else if (labelIds && labelIds.length > 0) {
       // for old clients that send labelIds
       labelsSet = await getLabelsByIds(uid, labelIds)

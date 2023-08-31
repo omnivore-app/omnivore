@@ -30,7 +30,7 @@ import {
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
-import { createLabels } from './labels'
+import { getLabelsAndCreateIfNotExist } from './labels'
 import { createLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
@@ -99,7 +99,7 @@ export const savePage = async (
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
   const labels = input.labels
-    ? await createLabels(ctx, input.labels)
+    ? await getLabelsAndCreateIfNotExist(ctx, input.labels)
     : undefined
 
   const isImported = input.source === 'csv-importer'

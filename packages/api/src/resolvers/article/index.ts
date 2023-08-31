@@ -5,7 +5,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
+import { Label } from '../../entity/label'
 import { LibraryItemType } from '../../entity/library_item'
+import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import {
   Article,
@@ -57,16 +59,15 @@ import {
   UpdateReason,
   UpdatesSinceError,
   UpdatesSinceErrorCode,
-  UpdatesSinceSuccess,
+  UpdatesSinceSuccess
 } from '../../generated/graphql'
-import { uploadFileRepository } from '../../repository'
 import { getLibraryItemByUrl } from '../../repository/library_item'
-import { getUserById, userRepository } from '../../repository/user'
+import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import {
   addLabelToPage,
-  createLabels,
-  getLabelsByIds,
+  getLabelsAndCreateIfNotExist,
+  getLabelsByIds
 } from '../../services/labels'
 import { searchLibraryItems } from '../../services/library_item'
 import { setFileUploadComplete } from '../../services/save_file'
@@ -75,7 +76,6 @@ import { traceAs } from '../../tracing'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
-import { ContentParseError } from '../../utils/errors'
 import {
   authorized,
   cleanUrl,
@@ -85,7 +85,7 @@ import {
   pageError,
   titleForFilePath,
   userDataToUser,
-  validatedDate,
+  validatedDate
 } from '../../utils/helpers'
 import { createImageProxyUrl } from '../../utils/imageproxy'
 import {
@@ -93,13 +93,13 @@ import {
   getDistillerResult,
   htmlToMarkdown,
   ParsedContentPuppeteer,
-  parsePreparedContent,
+  parsePreparedContent
 } from '../../utils/parser'
 import { parseSearchQuery, SortBy, SortOrder } from '../../utils/search'
 import {
   contentReaderForPage,
   getStorageFileDetails,
-  makeStorageFilePublic,
+  makeStorageFilePublic
 } from '../../utils/uploads'
 import { WithDataSourcesContext } from '../types'
 import { itemTypeForContentType } from '../upload_files'
@@ -231,28 +231,21 @@ export const createArticleResolver = authorized<
       // save state
       const archivedAt =
         state === ArticleSavingRequestStatus.Archived ? new Date() : null
-      // if (pageId) {
-      //   const reminder = await getRepository(Reminder).findOneBy({
-      //     articleSavingRequest: pageId,
-      //     user: { id: uid },
-      //   })
-      //   if (reminder && reminder.archiveUntil) {
-      //     archivedAt = new Date()
-      //   }
-      // }
-      // add labels to page
-      const labels = inputLabels
-        ? await createLabels(ctx, inputLabels)
-        : undefined
+      // save labels
+      let labels: Label[] | undefined = undefined
+      if (inputLabels) {
+        labels = await getLabelsAndCreateIfNotExist(inputLabels, uid)
+      }
 
       if (uploadFileId) {
         /* We do not trust the values from client, lookup upload file by querying
          * with filtering on user ID and URL to verify client's uploadFileId is valid.
          */
-        const uploadFile = await uploadFileRepository.findOneBy({
-          id: uploadFileId,
-          user: { id: uid },
-        })
+        const uploadFile = await authTrx((tx) =>
+          tx.findOneBy(UploadFile, {
+           id: uploadFileId,
+          })
+        )
         if (!uploadFile) {
           return pageError(
             { errorCodes: [CreateArticleErrorCode.UploadFileMissing] },
@@ -293,9 +286,8 @@ export const createArticleResolver = authorized<
         return DUMMY_RESPONSE
       }
 
-      const saveTime = new Date()
       const slug = generateSlug(parsedContent?.title || croppedPathname)
-      const articleToSave = parsedContentToLibraryItem({
+      const libraryItemToSave = parsedContentToLibraryItem({
         url,
         title,
         parsedContent,
@@ -309,11 +301,10 @@ export const createArticleResolver = authorized<
         uploadFileHash,
         canonicalUrl,
         uploadFileId,
-        saveTime,
       })
 
       log.info('New article saving', {
-        parsedArticle: Object.assign({}, articleToSave, {
+        parsedArticle: Object.assign({}, libraryItemToSave, {
           content: undefined,
           originalHtml: undefined,
         }),
@@ -341,17 +332,17 @@ export const createArticleResolver = authorized<
         await makeStorageFilePublic(uploadFileData.id, uploadFileData.fileName)
       }
       // save page's state and labels
-      articleToSave.archivedAt = archivedAt
-      articleToSave.labels = labels
+      libraryItemToSave.archivedAt = archivedAt
+      libraryItemToSave.labels = labels
 
       const existingLibraryItem = await getLibraryItemByUrl(
-        articleToSave.originalUrl!,
+        libraryItemToSave.originalUrl!,
         uid
       )
       pageId = existingLibraryItem?.id || pageId
       if (pageId || existingLibraryItem) {
         // update existing page's state from processing to succeeded
-        const updated = await updatePage(pageId, articleToSave, {
+        const updated = await updatePage(pageId, libraryItemToSave, {
           ...ctx,
           uid,
         })
@@ -367,7 +358,7 @@ export const createArticleResolver = authorized<
         }
       } else {
         // create new page in elastic
-        const newPageId = await createPage(articleToSave, { ...ctx, uid })
+        const newPageId = await createPage(libraryItemToSave, { ...ctx, uid })
         if (!newPageId) {
           return pageError(
             {
@@ -377,39 +368,26 @@ export const createArticleResolver = authorized<
             pageId
           )
         }
-        articleToSave.id = newPageId
+        libraryItemToSave.id = newPageId
       }
       log.info(
         'page created in elastic',
-        articleToSave.id,
-        articleToSave.url,
-        articleToSave.slug,
-        articleToSave.title
+        libraryItemToSave.id,
+        libraryItemToSave.url,
+        libraryItemToSave.slug,
+        libraryItemToSave.title
       )
 
       const createdArticle: PartialArticle = {
-        ...articleToSave,
-        isArchived: !!articleToSave.archivedAt,
+        ...libraryItemToSave,
+        isArchived: !!libraryItemToSave.archivedAt,
       }
       return {
         user,
         created: false,
         createdArticle: createdArticle,
       }
-    } catch (error) {
-      if (
-        error instanceof ContentParseError &&
-        error.message === 'UNABLE_TO_PARSE'
-      ) {
-        return pageError(
-          { errorCodes: [CreateArticleErrorCode.UnableToParse] },
-          ctx,
-          pageId
-        )
-      }
-      throw error
-    }
-  }
+    }  }
 )
 
 export type ArticleSuccessPartial = Merge<

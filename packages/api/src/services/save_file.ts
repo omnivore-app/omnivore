@@ -12,7 +12,7 @@ import { entityManager, getRepository } from '../repository'
 import { WithDataSourcesContext } from '../resolvers/types'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
-import { createLabels } from './labels'
+import { getLabelsAndCreateIfNotExist } from './labels'
 
 export const setFileUploadComplete = async (
   id: string,
@@ -55,7 +55,7 @@ export const saveFile = async (
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
   const labels = input.labels
-    ? await createLabels(ctx, input.labels)
+    ? await getLabelsAndCreateIfNotExist(ctx, input.labels)
     : undefined
   if (input.state || input.labels) {
     const updated = await updatePage(

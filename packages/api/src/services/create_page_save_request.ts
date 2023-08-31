@@ -94,7 +94,7 @@ export const createPageSaveRequest = async ({
   try {
     validateUrl(url)
   } catch (error) {
-    logger.info('invalid url', url, error)
+    logger.error('invalid url', { url, error })
     return Promise.reject({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })

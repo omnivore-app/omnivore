@@ -6,7 +6,8 @@ import { Label } from '../entity/label'
 import { Link } from '../entity/link'
 import { User } from '../entity/user'
 import { CreateLabelInput } from '../generated/graphql'
-import { getRepository, labelRepository } from '../repository'
+import { entityManager, getRepository, setClaims } from '../repository'
+import { labelRepository } from '../repository/label'
 import { generateRandomColor } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
@@ -120,35 +121,30 @@ export const createLabel = async (
   })
 }
 
-export const createLabels = async (
-  ctx: PageContext,
-  labels: CreateLabelInput[]
+export const getLabelsAndCreateIfNotExist = async (
+  labels: CreateLabelInput[],
+  userId: string
 ): Promise<Label[]> => {
-  const labelEntities = await labelRepository
-    .createQueryBuilder()
-    .where({
-      user: { id: ctx.uid },
-    })
-    .andWhere('LOWER(name) IN (:...names)', {
-      names: labels.map((l) => l.name.toLowerCase()),
-    })
-    .getMany()
+  return entityManager.transaction(async (tx) => {
+    await setClaims(tx, userId)
 
-  const existingLabelsInLowerCase = labelEntities.map((l) =>
-    l.name.toLowerCase()
-  )
-  const newLabels = labels.filter(
-    (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
-  )
-  // create new labels
-  const newLabelEntities = await labelRepository.save(
-    newLabels.map((l) => ({
-      name: l.name,
-      description: l.description,
-      color: l.color || generateRandomColor(),
-      internal: isLabelInternal(l.name),
-      user: { id: ctx.uid },
-    }))
-  )
-  return [...labelEntities, ...newLabelEntities]
+    const labelRepo = tx.withRepository(labelRepository)
+    // find existing labels
+    const labelEntities = await labelRepo.findByNames(labels.map((l) => l.name))
+
+    const existingLabelsInLowerCase = labelEntities.map((l) =>
+      l.name.toLowerCase()
+    )
+    const newLabels = labels.filter(
+      (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
+    )
+    if (newLabels.length === 0) {
+      return labelEntities
+    }
+
+    // create new labels
+    const newLabelEntities = await labelRepo.createLabels(newLabels, userId)
+
+    return [...labelEntities, ...newLabelEntities]
+  })
 }
