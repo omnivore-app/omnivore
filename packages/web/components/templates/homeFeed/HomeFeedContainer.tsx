@@ -938,7 +938,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
   const [layout, setLayout] = usePersistedState<LayoutType>({
     key: 'libraryLayout',
-    initialValue: 'GRID_LAYOUT',
+    initialValue: 'LIST_LAYOUT',
   })
 
   const updateLayout = useCallback(
