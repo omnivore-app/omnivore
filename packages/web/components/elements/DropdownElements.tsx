@@ -53,7 +53,7 @@ export const DropdownContent = styled(Content, {
   borderRadius: '6px',
   outline: '1px solid #323232',
   border: '1px solid $grayBorder',
-  boxShadow: '$cardBoxShadow',
+  boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
   '--arrow-visibility': '',
   '&[data-side="top"]': {
     '--arrow-visibility': 'collapse',

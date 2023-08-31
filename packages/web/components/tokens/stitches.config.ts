@@ -103,8 +103,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderWidths: {},
       borderStyles: {},
       shadows: {
-        panelShadow: '0px 4px 18px rgba(120, 123, 134, 0.12)',
-        cardBoxShadow: '0px 16px 25px 16px rgba(32, 31, 29, 0.1)',
+        cardBoxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
       },
       zIndices: {},
       transitions: {},
