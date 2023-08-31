@@ -17,6 +17,7 @@ struct InternalHighlight: Encodable {
   let createdBy: InternalUserProfile?
   let positionPercent: Double?
   let positionAnchorIndex: Int?
+  let color: String?
   var labels: [InternalLinkedItemLabel]
 
   func asManagedObject(context: NSManagedObjectContext) -> Highlight {
@@ -39,6 +40,7 @@ struct InternalHighlight: Encodable {
     highlight.createdAt = createdAt
     highlight.updatedAt = updatedAt
     highlight.createdByMe = createdByMe
+    highlight.color = color
     highlight.positionPercent = positionPercent ?? -1.0
     if let positionAnchorIndex = positionAnchorIndex {
       highlight.positionAnchorIndex = Int64(positionAnchorIndex)
@@ -75,6 +77,7 @@ struct InternalHighlight: Encodable {
       createdBy: InternalUserProfile.makeSingle(highlight.createdBy),
       positionPercent: highlight.positionPercent,
       positionAnchorIndex: Int(highlight.positionAnchorIndex),
+      color: highlight.color,
       labels: InternalLinkedItemLabel.make(highlight.labels)
     )
   }

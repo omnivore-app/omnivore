@@ -159,8 +159,8 @@ public struct GridCard: View {
             // .onTapGesture { tapHandler() }
           }
 
-          if let status = item.serverSyncStatus, status != ServerSyncStatus.isNSync.rawValue {
-            SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(status)) ?? ServerSyncStatus.isNSync)
+          if item.serverSyncStatus != ServerSyncStatus.isNSync.rawValue {
+            SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) ?? ServerSyncStatus.isNSync)
           }
         }
         .padding(.horizontal, 0)

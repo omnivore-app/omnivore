@@ -87,12 +87,12 @@ export const useReaderSettings = (): ReaderSettings => {
       switch (action) {
         case 'setFontSize':
           const value = Number(arg)
-          if (value >= 10 && value <= 34) {
+          if (value >= 10 && value <= 48) {
             updateFontSize(value)
           }
           break
         case 'incrementFontSize':
-          updateFontSize(Math.min(fontSize + 2, 34))
+          updateFontSize(Math.min(fontSize + 2, 48))
           break
         case 'decrementFontSize':
           updateFontSize(Math.max(fontSize - 2, 10))

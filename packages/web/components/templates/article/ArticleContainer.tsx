@@ -208,7 +208,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleFontSizeChange = async (event: UpdateFontSizeEvent) => {
       const newFontSize = event.fontSize ?? 18
-      if (newFontSize >= 10 && newFontSize <= 28) {
+      if (newFontSize >= 10 && newFontSize <= 48) {
         updateFontSize(newFontSize)
       }
     }

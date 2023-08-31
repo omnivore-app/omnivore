@@ -89,7 +89,8 @@ public struct FeedCard: View {
         #endif
       }
 
-      if let recs = Recommendation.notViewers(viewer: viewer, item.recommendations), recs.count > 0 {
+      let recs = Recommendation.notViewers(viewer: viewer, item.recommendations)
+      if recs.count > 0 {
         let byStr = Recommendation.byline(recs)
         let inStr = Recommendation.groupsLine(recs)
         HStack {

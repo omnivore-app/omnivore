@@ -22,6 +22,7 @@ import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCros
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelSwatchHelper
 import app.omnivore.omnivore.ui.library.SavedItemAction
+import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -467,7 +468,7 @@ class WebReaderViewModel @Inject constructor(
           }
         }
 
-        val input = SetLabelsInput(labelIds = namedLabels.map { it.savedItemLabelId }, pageId = savedItemID)
+        val input = SetLabelsInput(labelIds = Optional.presentIfNotNull(namedLabels.map { it.savedItemLabelId }), pageId = savedItemID)
         val networkResult = networker.updateLabelsForSavedItem(input)
 
         // TODO: assign a server sync status to these

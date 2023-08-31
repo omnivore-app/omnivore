@@ -27,7 +27,8 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
       annotation = createHighlightInput.annotation.getOrNull(),
       createdAt = null,
       updatedAt = null,
-      createdByMe = false
+      createdByMe = false,
+      color = null,
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -64,7 +65,8 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
       annotation = note,
       createdAt = null,
       updatedAt = null,
-      createdByMe = true
+      createdByMe = true,
+      color = null
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue

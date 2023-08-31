@@ -30,6 +30,7 @@ extension DataService {
       createdBy: nil,
       positionPercent: positionPercent,
       positionAnchorIndex: positionAnchorIndex,
+      color: nil,
       labels: []
     )
 

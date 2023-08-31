@@ -1,9 +1,8 @@
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { Button } from '../../elements/Button'
-import { CaretRight, Circle, DotsThree, Plus } from 'phosphor-react'
+import { CaretRight, Circle } from 'phosphor-react'
 import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
@@ -11,6 +10,11 @@ import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
+import { ToggleCaretLeftIcon } from '../../elements/icons/ToggleCaretLeftIcon'
+import Link from 'next/link'
+import { ArrowRightIcon } from '../../elements/icons/ArrowRightIcon'
+import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -92,7 +96,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
       term: 'in:inbox sort:read-desc is:unread',
     },
     {
-      name: 'Read Later',
+      name: 'Non-Feed Items',
       term: 'in:library',
     },
     {
@@ -102,6 +106,10 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     {
       name: 'Unlabeled',
       term: 'no:label',
+    },
+    {
+      name: 'Oldest First',
+      term: 'sort:saved-desc',
     },
     {
       name: 'Files',
@@ -130,16 +138,26 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     []
   )
 
+  const [collapsed, setCollapsed] = usePersistedState<boolean>({
+    key: `--saved-searches-collapsed`,
+    initialValue: false,
+  })
+
   return (
-    <MenuPanel title="Saved Searches">
-      {items.map((item) => (
-        <FilterButton
-          key={item.name}
-          text={item.name}
-          filterTerm={item.term}
-          {...props}
-        />
-      ))}
+    <MenuPanel
+      title="Saved Searches"
+      collapsed={collapsed}
+      setCollapsed={setCollapsed}
+    >
+      {!collapsed &&
+        items.map((item) => (
+          <FilterButton
+            key={item.name}
+            text={item.name}
+            filterTerm={item.term}
+            {...props}
+          />
+        ))}
 
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>
@@ -148,8 +166,8 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
 
 function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
   const { subscriptions } = useGetSubscriptionsQuery()
-  const [viewAll, setViewAll] = usePersistedState<boolean>({
-    key: `--subscriptions-view-all`,
+  const [collapsed, setCollapsed] = usePersistedState<boolean>({
+    key: `--subscriptions-collapsed`,
     initialValue: false,
   })
 
@@ -170,37 +188,46 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
     [subscriptions]
   )
 
-  if (!subscriptions || subscriptions.length < 1) {
-    return <></>
-  }
-
   return (
     <MenuPanel
       title="Subscriptions"
-      editTitle="Edit Subscriptions"
-      editFunc={() => {
-        window.location.href = '/settings/subscriptions'
-      }}
+      collapsed={collapsed}
+      setCollapsed={setCollapsed}
     >
-      {subscriptions.slice(0, viewAll ? undefined : 4).map((item) => {
-        return (
+      {!collapsed ? (
+        <>
+          <FilterButton filterTerm={`label:RSS`} text="Feeds" {...props} />
           <FilterButton
-            key={item.id}
-            filterTerm={`subscription:\"${item.name}\"`}
-            text={item.name}
+            filterTerm={`label:Newsletter`}
+            text="Newsletters"
             {...props}
           />
-        )
-      })}
-      <ViewAllButton state={viewAll} setState={setViewAll} />
+          {(subscriptions ?? []).map((item) => {
+            return (
+              <FilterButton
+                key={item.id}
+                filterTerm={`subscription:\"${item.name}\"`}
+                text={item.name}
+                {...props}
+              />
+            )
+          })}
+          <EditButton
+            title="Edit Subscriptions"
+            destination="/settings/subscriptions"
+          />
+        </>
+      ) : (
+        <SpanBox css={{ mb: '10px' }} />
+      )}
     </MenuPanel>
   )
 }
 
 function Labels(props: LibraryFilterMenuProps): JSX.Element {
   const { labels } = useGetLabelsQuery()
-  const [viewAll, setViewAll] = usePersistedState<boolean>({
-    key: `--labels-view-all`,
+  const [collapsed, setCollapsed] = usePersistedState<boolean>({
+    key: `--labels-collapsed`,
     initialValue: false,
   })
 
@@ -213,16 +240,18 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
   return (
     <MenuPanel
       title="Labels"
-      editTitle="Edit Labels"
       hideBottomBorder={true}
-      editFunc={() => {
-        window.location.href = '/settings/labels'
-      }}
+      collapsed={collapsed}
+      setCollapsed={setCollapsed}
     >
-      {sortedLabels.slice(0, viewAll ? undefined : 4).map((item) => {
-        return <LabelButton key={item.id} label={item} {...props} />
-      })}
-      <ViewAllButton state={viewAll} setState={setViewAll} />
+      {!collapsed && (
+        <>
+          {sortedLabels.map((item) => {
+            return <LabelButton key={item.id} label={item} {...props} />
+          })}
+          <EditButton title="Edit Labels" destination="/settings/labels" />
+        </>
+      )}
     </MenuPanel>
   )
 }
@@ -230,9 +259,11 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
 type MenuPanelProps = {
   title: string
   children: ReactNode
-  editFunc?: () => void
-  editTitle?: string
+
   hideBottomBorder?: boolean
+
+  collapsed: boolean
+  setCollapsed: (collapsed: boolean) => void
 }
 
 function MenuPanel(props: MenuPanelProps): JSX.Element {
@@ -249,7 +280,7 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       alignment="start"
       distribution="start"
     >
-      <HStack css={{ width: '100%' }} distribution="start" alignment="start">
+      <HStack css={{ width: '100%' }} distribution="start" alignment="center">
         <StyledText
           css={{
             fontFamily: 'Inter',
@@ -258,54 +289,40 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
             lineHeight: '125%',
             color: '$thLibraryMenuPrimary',
             pl: '10px',
-            my: '20px',
+            mt: '20px',
+            mb: '10px',
           }}
         >
           {props.title}
         </StyledText>
         <SpanBox
           css={{
-            my: '15px',
-            marginLeft: 'auto',
+            display: 'flex',
             height: '100%',
+            mt: '10px',
+            marginLeft: 'auto',
             verticalAlign: 'middle',
           }}
         >
-          {props.editTitle && props.editFunc && (
-            <Dropdown
-              triggerElement={
-                <Box
-                  css={{
-                    display: 'flex',
-                    height: '30px',
-                    width: '30px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderRadius: '1000px',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      bg: '$thBackground4',
-                    },
-                  }}
-                >
-                  <DotsThree
-                    size={25}
-                    weight="bold"
-                    color={theme.colors.thTextSubtle2.toString()}
-                  />
-                </Box>
-              }
-            >
-              <DropdownOption
-                title={props.editTitle}
-                onSelect={() => {
-                  if (props.editFunc) {
-                    props.editFunc()
-                  }
-                }}
+          <Button
+            style="articleActionIcon"
+            onClick={(event) => {
+              props.setCollapsed(!props.collapsed)
+              event.preventDefault()
+            }}
+          >
+            {props.collapsed ? (
+              <ToggleCaretRightIcon
+                size={15}
+                color={theme.colors.thLibraryMenuPrimary.toString()}
               />
-            </Dropdown>
-          )}
+            ) : (
+              <ToggleCaretDownIcon
+                size={15}
+                color={theme.colors.thLibraryMenuPrimary.toString()}
+              />
+            )}
+          </Button>
         </SpanBox>
       </HStack>
       {props.children}
@@ -469,34 +486,43 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
   )
 }
 
-type ViewAllButtonProps = {
-  state: boolean
-  setState: (state: boolean) => void
+type EditButtonProps = {
+  title: string
+  destination: string
 }
 
-function ViewAllButton(props: ViewAllButtonProps): JSX.Element {
+function EditButton(props: EditButtonProps): JSX.Element {
   return (
-    <Button
-      style="ghost"
-      css={{
-        display: 'flex',
-        pl: '10px',
-        color: '#898989',
-        fontWeight: '600',
-        fontSize: '12px',
-        py: '20px',
-        gap: '2px',
-        alignItems: 'center',
-      }}
-      onClick={(e) => {
-        props.setState(!props.state)
-        e.preventDefault()
-      }}
-    >
-      {props.state ? 'Hide' : 'View All'}
-      {props.state ? null : (
-        <CaretRight size={12} color="#898989" weight="bold" />
-      )}
-    </Button>
+    <Link href={props.destination} passHref>
+      <SpanBox
+        css={{
+          ml: '10px',
+          mb: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '2px',
+          '&:hover': {
+            textDecoration: 'underline',
+          },
+
+          width: '100%',
+          maxWidth: '100%',
+          height: '32px',
+
+          fontSize: '14px',
+          fontWeight: 'regular',
+          fontFamily: '$display',
+          color: '$thLibraryMenuUnselected',
+          verticalAlign: 'middle',
+          borderRadius: '3px',
+          cursor: 'pointer',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {props.title}
+      </SpanBox>
+    </Link>
   )
 }

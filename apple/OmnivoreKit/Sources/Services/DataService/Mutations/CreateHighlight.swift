@@ -13,7 +13,8 @@ public extension DataService {
     articleId: String,
     positionPercent: Double?,
     positionAnchorIndex: Int?,
-    annotation: String? = nil
+    annotation: String? = nil,
+    color: String? = nil
   ) -> [String: Any]? {
     let internalHighlight = InternalHighlight(
       id: highlightID,
@@ -29,6 +30,7 @@ public extension DataService {
       createdBy: nil,
       positionPercent: positionPercent,
       positionAnchorIndex: positionAnchorIndex,
+      color: color,
       labels: []
     )
 
@@ -60,6 +62,7 @@ public extension DataService {
       createdBy: nil,
       positionPercent: nil,
       positionAnchorIndex: nil,
+      color: nil,
       labels: []
     )
 
