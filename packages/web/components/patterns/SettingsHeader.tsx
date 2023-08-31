@@ -30,16 +30,6 @@ export function SettingsHeader(props: HeaderProps): JSX.Element {
         }}
       >
         <LogoBox />
-        {/* <Box
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            paddingRight: '10px',
-          }}
-        >
-          <OmnivoreNameLogo href={props.user ? '/home' : '/login'} />
-        </Box> */}
-
         <HStack css={{ ml: 'auto' }}>
           <PrimaryDropdown showThemeSection={true} />
         </HStack>
