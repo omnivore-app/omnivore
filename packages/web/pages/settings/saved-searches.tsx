@@ -238,7 +238,7 @@ export default function SavedSearchesPage(): JSX.Element {
   }
 
   async function updatePositionOnMouseUp(y: number): Promise<string | undefined> {
-    const idx = Math.floor(((y - 25) - TOP_SETTINGS_PANEL) / HEIGHT_SETTING_CARD)
+    const idx = Math.floor(((y + window.scrollY - 25) - TOP_SETTINGS_PANEL) / HEIGHT_SETTING_CARD)
     const correctedIdx = Math.min(Math.max(idx, 0), sortedSavedSearch?.length - 1)
     const currentElement = sortedSavedSearch?.find(({ id }) => id == draggedElementId);
     const moveUp = correctedIdx < currentElement?.position
@@ -425,7 +425,7 @@ export default function SavedSearchesPage(): JSX.Element {
                 setDraggedElementId,
                 onEditPress,
                 setDraggedElementPosition,
-                isSwappedCard: draggedElementId != savedSearch.id && (draggedElementPosition?.y + HEIGHT_SETTING_CARD)> positionY && draggedElementPosition?.y + HEIGHT_SETTING_CARD < positionY + HEIGHT_SETTING_CARD,
+                isSwappedCard: draggedElementId != savedSearch.id && (draggedElementPosition?.y + window.scrollY + HEIGHT_SETTING_CARD)> positionY && draggedElementPosition?.y + window.scrollY + HEIGHT_SETTING_CARD < positionY + HEIGHT_SETTING_CARD,
                 updatePositionOnMouseUp
               }
               if (editingId == savedSearch.id) {
@@ -581,16 +581,18 @@ function GenericTableCard(
   }
 
   const onMouseUp = async (e: MouseEvent) => {
-    const updatePosition = updatePositionOnMouseUp(e.clientY)
-    setDraggedElementId(null);
-    setStyle(DEFAULT_STYLE);
-    setDraggedElementPosition(null);
-    await updatePosition;
+    if (draggedElementId != null && draggedElementId == savedSearch?.id) {
+      const updatePosition = updatePositionOnMouseUp(e.clientY)
+      setDraggedElementId(null);
+      setStyle(DEFAULT_STYLE);
+      setDraggedElementPosition(null);
+      await updatePosition;
+    }
   }
 
   const onMouseMove = (e: MouseEvent) => {
     if (draggedElementId != null && draggedElementId == savedSearch?.id) {
-      setStyle({ position: "absolute", top: `${e.clientY - 25}px`, left: `${e.clientX - 25}px`, maxWidth: '865px' });
+      setStyle({ position: "absolute", top: `${e.clientY - 25 + window.scrollY}px`, left: `${e.clientX - 25 + window.scrollX}px`, maxWidth: '865px' });
       setDraggedElementPosition({ y: e.clientY - 25, x: e.clientX - 25});
     }
   }
@@ -625,11 +627,12 @@ function GenericTableCard(
     >
 
       <TableCardBox
+        onMouseUp={onMouseUp}
         css={{
           display: 'grid',
           width: '100%',
           gridGap: '$1',
-          gridTemplateColumns: '1fr 2fr',
+          gridTemplateColumns: '4% 3% 80% 1fr 1fr 1fr 1fr',
           height: editingId == savedSearch?.id ? '120px' : '56px',
           '.showHidden': {
             display: 'none',
@@ -655,7 +658,7 @@ function GenericTableCard(
                   padding: '0 5px',
               }}
           >
-          <ArrowsDownUp size={28} style={{  cursor: 'grab' }} onMouseDown={onMouseDown} onMouseUp={onMouseUp} />
+          <ArrowsDownUp size={28} style={{  cursor: 'grab' }} onMouseDown={onMouseDown} />
       </HStack>
         <HStack
             distribution="start"
@@ -803,9 +806,10 @@ function GenericTableCard(
               <Button
                 style="ctaDarkYellow"
                 css={{ my: '0px', mr: '$1' }}
+                disabled={!nameInputText && !queryInputText}
                 onClick={() => (savedSearch ? handleEdit() : createSavedSearch())}
               >
-                Save
+                Saved
               </Button>
             </>
           ) : (
@@ -905,6 +909,7 @@ function MobileEditCard(props: EditCardProps) {
           <Button
             style="ctaDarkYellow"
             css={{ mr: '$1' }}
+            disabled={!nameInputText && !queryInputText}
             onClick={() => (savedSearch ? handleEdit() : createSavedSearch())}
           >
             Save
@@ -986,6 +991,7 @@ function DesktopEditCard(props: EditCardProps) {
             <Button
               style="ctaDarkYellow"
               css={{}}
+              disabled={!nameInputText && !queryInputText}
               onClick={() => (savedSearch ? handleEdit() : createSavedSearch())}
             >
               Save

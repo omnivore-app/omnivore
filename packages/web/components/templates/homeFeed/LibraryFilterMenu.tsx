@@ -120,8 +120,6 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
 
   return (
     <MenuPanel title="Saved Searches"
-               editTitle="Edit Saved Searches"
-               editFunc={() => window.location.href = '/settings/saved-searches' }
                collapsed={collapsed}
                setCollapsed={setCollapsed}
     >
@@ -133,6 +131,11 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
           {...props}
         />
       ))}
+      {!collapsed && (
+      <EditButton
+        title="Edit Saved Searches"
+        destination="/settings/saved-searches"
+      />)}
 
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>

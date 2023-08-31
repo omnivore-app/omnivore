@@ -108,7 +108,7 @@ const createDefaultFiltersForUser =
     const defaultFilters = [
       { name: 'Inbox', filter: 'in:inbox' },
       { name: 'Continue Reading', filter: 'in:inbox sort:read-desc is:unread' },
-      { name: 'Read Later', filter: 'in:library' },
+      { name: 'Non-Feed Items', filter: 'in:library' },
       { name: 'Highlights', filter: 'has:highlights mode:highlights' },
       { name: 'Unlabelled', filter: 'no:label' },
       { name: 'Archived', filter: 'in:archive' },

@@ -37,7 +37,7 @@ FROM omnivore.user
 ON CONFLICT DO NOTHING;
 
 INSERT INTO omnivore.filters (user_id, category, name,  filter, position, default_filter)
-SELECT id, 'Search', 'Read Later', 'in:library', 2, true
+SELECT id, 'Search', 'Non-Feed Items', 'in:library', 2, true
 FROM omnivore.user
 ON CONFLICT DO NOTHING;
 

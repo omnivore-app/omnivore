@@ -253,7 +253,7 @@ export const updateFilterResolver = authorized<
       }
     }
 
-    if (input.position && filter.position != input.position) {
+    if (!isNil(input.position) && filter.position != input.position) {
       await updatePosition(uid, filter, input.position)
     }
 
@@ -328,9 +328,8 @@ export const moveFilterResolver = authorized<
       return { filter }
     }
 
-    const oldPosition = filter.position
     // if afterFilterId is not provided, move to the top
-    let newPosition = 1
+    let newPosition = 0
     if (afterFilterId) {
       const afterFilter = await getRepository(Filter).findOne({
         where: { id: afterFilterId },
@@ -348,35 +347,7 @@ export const moveFilterResolver = authorized<
       }
       newPosition = afterFilter.position
     }
-    const moveUp = newPosition < oldPosition
-
-    // move filter to the new position
-    const updated = await AppDataSource.transaction(async (t) => {
-      await setClaims(t, uid)
-
-      // update the position of the other filters
-      const updated = await t.getRepository(Filter).update(
-        {
-          user: { id: uid },
-          position: Between(
-            Math.min(newPosition, oldPosition),
-            Math.max(newPosition, oldPosition)
-          ),
-        },
-        {
-          position: () => `position + ${moveUp ? 1 : -1}`,
-        }
-      )
-      if (!updated.affected) {
-        return null
-      }
-
-      // update the position of the filter
-      return t.getRepository(Filter).save({
-        ...filter,
-        position: newPosition,
-      })
-    })
+    const updated = await updatePosition(uid, filter, newPosition)
 
     if (!updated) {
       return {
