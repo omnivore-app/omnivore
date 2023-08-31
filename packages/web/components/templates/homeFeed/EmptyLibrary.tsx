@@ -101,7 +101,8 @@ export const ErrorBox = (props: HelpMessageProps) => {
         fontFamily: '$inter',
         fontWeight: '500',
         color: '$thTextContrast',
-        padding: '10px',
+        py: '10px',
+        px: '15px',
         '@smDown': {
           width: '100%',
         },
