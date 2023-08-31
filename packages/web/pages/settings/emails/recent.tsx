@@ -168,9 +168,14 @@ export default function RecentEmails(): JSX.Element {
 
   return (
     <SettingsTable
-      pageId="api-keys"
+      pageId="recent-emails"
       pageInfoLink="https://docs.omnivore.app/using/inbox.html"
       headerTitle="Recently Received Emails"
+      suggestionInfo={{
+        text: 'View all the original content of emails that have been recently received in your Omnivore inbox. If an email was not correctly classified as an article you can mark it as an article.',
+        docs: 'https://docs.omnivore.app/using/inbox.html',
+        key: '--settings-recent-emails-show-help',
+      }}
     >
       {sortedRecentEmails.length > 0 ? (
         sortedRecentEmails.map((recentEmail: RecentEmail, i) => {

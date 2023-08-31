@@ -35,6 +35,8 @@ import {
 import { LabelChip } from '../../components/elements/LabelChip'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
+import { SuggestionBox } from '../../components/elements/SuggestionBox'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -153,6 +155,10 @@ export default function LabelsPage(): JSX.Element {
   const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
     string | null
   >(null)
+  const [showLabelPageHelp, setShowLabelPageHelp] = usePersistedState<boolean>({
+    key: `--settings-labels-show-help`,
+    initialValue: true,
+  })
   const breakpoint = 768
 
   applyStoredTheme(false)
@@ -270,6 +276,21 @@ export default function LabelsPage(): JSX.Element {
               onOpenChange={() => setConfirmRemoveLabelId(null)}
             />
           ) : null}
+          {showLabelPageHelp && (
+            <Box css={{ mt: '40px' }}>
+              <SuggestionBox
+                helpMessage="Use this page to view and edit all your labels. Labels can be attached to individual library items, or your highlights, and are used to keep your library organized."
+                helpCTAText={'Read the Docs'}
+                helpTarget="https://docs.omnivore.app/using/organizing.html"
+                size={'large'}
+                background="$thBackground5"
+                dismissible={true}
+                onDismiss={() => {
+                  setShowLabelPageHelp(false)
+                }}
+              />
+            </Box>
+          )}
           <HeaderWrapper>
             <Box
               style={{

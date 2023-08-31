@@ -22,6 +22,7 @@ import {
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
+import { SuggestionBox } from '../../../components/elements/SuggestionBox'
 
 enum TextType {
   EmailAddress,
@@ -121,6 +122,11 @@ export default function EmailsPage(): JSX.Element {
         headerTitle="Address"
         createTitle="Create a new email address"
         createAction={createEmail}
+        suggestionInfo={{
+          text: 'Create an Omnivore email address and use it to subscribe to newsletters. The newsletters will be automatically added to your library.',
+          docs: 'https://docs.omnivore.app/using/inbox.html',
+          key: '--settings-emails-show-help',
+        }}
       >
         {sortedEmailAddresses.length > 0 ? (
           sortedEmailAddresses.map((email, i) => {

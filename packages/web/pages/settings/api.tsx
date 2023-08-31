@@ -121,6 +121,11 @@ export default function Api(): JSX.Element {
         setExpiresAt(neverExpiresDate)
         setAddModalOpen(true)
       }}
+      suggestionInfo={{
+        text: 'Create API keys to connect Omnivore to other apps such as Logseq and Obsidian or to query the API. Check out the integrations page for more info on connecting to Omnivore via the API.',
+        docs: 'https://docs.omnivore.app/integrations/api.html',
+        key: '--settings-apikeys-show-help',
+      }}
     >
       {sortedApiKeys.length > 0 ? (
         sortedApiKeys.map((apiKey, i) => {

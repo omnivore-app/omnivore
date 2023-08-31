@@ -8,6 +8,8 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import { SettingsLayout } from '../SettingsLayout'
+import { SuggestionBox } from '../../elements/SuggestionBox'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 type SettingsTableProps = {
   pageId: string
@@ -16,6 +18,8 @@ type SettingsTableProps = {
 
   createTitle?: string
   createAction?: () => void
+
+  suggestionInfo: SuggestionInfo
 
   children: React.ReactNode
 }
@@ -50,6 +54,12 @@ type MoreOptionsProps = {
   dropdownItems?: JSX.Element
   editTitle?: string
   onEdit?: () => void
+}
+
+type SuggestionInfo = {
+  text: string
+  docs: string
+  key: string
 }
 
 const MoreOptions = (props: MoreOptionsProps) => (
@@ -273,6 +283,11 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 }
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
+  const [showSuggestion, setShowSuggestion] = usePersistedState<boolean>({
+    key: props.suggestionInfo.key,
+    initialValue: !!props.suggestionInfo,
+  })
+
   return (
     <SettingsLayout>
       <Toaster
@@ -299,6 +314,21 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
             },
           }}
         >
+          {props.suggestionInfo && showSuggestion && (
+            <Box css={{ my: '40px', width: '100%' }}>
+              <SuggestionBox
+                helpMessage={props.suggestionInfo.text}
+                helpCTAText={'Read the Docs'}
+                helpTarget={props.suggestionInfo.docs}
+                size={'large'}
+                background="$thBackground5"
+                dismissible={true}
+                onDismiss={() => {
+                  setShowSuggestion(false)
+                }}
+              />
+            </Box>
+          )}
           <Box
             css={{
               width: '100%',

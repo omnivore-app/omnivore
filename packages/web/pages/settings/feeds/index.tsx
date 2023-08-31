@@ -96,6 +96,11 @@ export default function Rss(): JSX.Element {
       createAction={() => {
         router.push('/settings/feeds/add')
       }}
+      suggestionInfo={{
+        text: 'Add RSS and Atom feeds to your Omnivore account. When you add a new feed the last 24hrs of items, or at least one item will be added to your account.',
+        docs: 'https://docs.omnivore.app/using/feeds.html',
+        key: '--settings-feeds-show-help',
+      }}
     >
       {subscriptions.length === 0 ? (
         <EmptySettingsRow text={isValidating ? '-' : 'No feeds subscribed'} />
