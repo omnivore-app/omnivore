@@ -68,14 +68,15 @@ export function useGetSubscriptionsQuery(
     }
   `
 
+  const variables = {
+    type,
+    sort: {
+      by: sortBy,
+    },
+  }
   const { data, mutate, isValidating } = useSWR(
-    query,
-    makeGqlFetcher({
-      type,
-      sort: {
-        by: sortBy,
-      },
-    })
+    [query, variables],
+    makeGqlFetcher(variables)
   )
 
   try {
