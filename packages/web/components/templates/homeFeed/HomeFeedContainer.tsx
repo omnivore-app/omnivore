@@ -224,7 +224,7 @@ export function HomeFeedContainer(): JSX.Element {
 
           if (link && link.state != 'PROCESSING') {
             const updatedArticle = { ...item }
-            updatedArticle.node = { ...item.node, ...link }
+            updatedArticle.node = { ...item.node, ...link, image: "https://cdn.arstechnica.net/wp-content/uploads/2023/09/cpglitch-800x450.jpg" }
             updatedArticle.isLoading = false
             console.log(`Updating Metadata of ${item.node.slug}.`)
             performActionOnItem('update-item', updatedArticle)
@@ -1229,7 +1229,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
           data-testid="linkedItemCard"
           id={linkedItem.node.id}
           tabIndex={0}
-          key={linkedItem.node.id}
+          key={linkedItem.node.id + linkedItem.node.image}
           css={{
             width: '100%',
             '&:focus-visible': {
