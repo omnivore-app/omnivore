@@ -201,10 +201,10 @@ describe('Subscriptions API', () => {
         }
       }
     `
-      const user2 = await createTestUser('fakeUser2')
+      const user3 = await createTestUser('fakeUser3')
       try {
         await createTestSubscription(
-          user2,
+          user3,
           'sub_other',
           undefined,
           SubscriptionStatus.Unsubscribed,
@@ -222,7 +222,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteTestUser(user2.id)
+        deleteTestUser(user3.id)
       }
     })
 
