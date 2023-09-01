@@ -79,8 +79,6 @@ export default function Home(): JSX.Element {
     })
   }, [articleData?.article.article])
 
-  useKeyboardShortcuts(navigationCommands(router))
-
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
       switch (action) {
