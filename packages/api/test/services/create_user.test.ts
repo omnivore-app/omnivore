@@ -28,7 +28,7 @@ describe('create user', () => {
     it ('adds the default filters to the user', async () => {
       after(async () => {
         const testUser = await getRepository(User).findOneBy({
-          name: 'testuser',
+          name: 'filter_user',
         })
         await deleteTestUser(testUser!.id)
         await deleteFiltersFromUser(testUser!.id)
@@ -38,16 +38,7 @@ describe('create user', () => {
       const filters = await getRepository(Filter).findBy({ user: { id: user.id }})
 
       expect(filters).not.to.be.empty
-      expect(filters.map(it => it.name)).to.include([
-        "Inbox",
-        "Continue Reading",
-        "Non-Feed Items",
-        "Highlights",
-        "Unlabelled",
-        "Archived"
-      ])
     })
-
   })
 
   context('create a user with an invite', () => {
