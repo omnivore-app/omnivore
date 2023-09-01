@@ -107,7 +107,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
     },
     {
       name: 'Oldest First',
-      term: 'sort:saved-desc',
+      term: 'sort:saved-asc',
     },
     {
       name: 'Files',

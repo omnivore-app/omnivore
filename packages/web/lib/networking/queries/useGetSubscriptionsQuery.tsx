@@ -39,7 +39,7 @@ type SubscriptionsData = {
 }
 
 export function useGetSubscriptionsQuery(
-  type: SubscriptionType | undefined,
+  type: SubscriptionType | undefined = undefined,
   sortBy = 'UPDATED_TIME'
 ): SubscriptionsQueryResponse {
   const query = gql`
