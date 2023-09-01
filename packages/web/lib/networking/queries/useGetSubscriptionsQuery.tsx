@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { gqlFetcher, makeGqlFetcher, publicGqlFetcher } from '../networkHelpers'
+import { makeGqlFetcher } from '../networkHelpers'
 
 export type SubscriptionStatus = 'ACTIVE' | 'DELETED' | 'UNSUBSCRIBED'
 
@@ -68,17 +68,17 @@ export function useGetSubscriptionsQuery(
     }
   `
 
-  try {
-    const { data, mutate, isValidating } = useSWR(
-      query,
-      makeGqlFetcher({
-        type,
-        sort: {
-          by: sortBy,
-        },
-      })
-    )
+  const { data, mutate, isValidating } = useSWR(
+    query,
+    makeGqlFetcher({
+      type,
+      sort: {
+        by: sortBy,
+      },
+    })
+  )
 
+  try {
     if (data) {
       const result = data as SubscriptionsResponseData
       const subscriptions = result.subscriptions.subscriptions as Subscription[]
