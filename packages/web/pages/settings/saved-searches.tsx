@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { Dispatch, MouseEventHandler, SetStateAction, useCallback, useEffect, useState } from "react"
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Button } from '../../components/elements/Button'
-import { styled } from '../../components/tokens/stitches.config'
+import { styled, theme } from '../../components/tokens/stitches.config'
 import {
   Box,
   SpanBox,
@@ -219,16 +219,18 @@ export default function SavedSearchesPage(): JSX.Element {
   }
 
   async function onDeleteSavedSearch(id: string): Promise<void> {
-    await deleteFilterMutation(id)
     const currentElement = sortedSavedSearch?.find((it) => it.id == id);
+    if (currentElement) {
+      await deleteFilterMutation(id)
 
-    setSortedSavedSearch(
-      sortedSavedSearch
-      .filter(it => it.id !== id)
-      .map(it => {
-        return { ...it, position: currentElement?.position > it.position ? it.position : it.position - 1}
-      })
-    )
+      setSortedSavedSearch(
+        sortedSavedSearch
+          .filter(it => it.id !== id)
+          .map(it => {
+            return { ...it, position: currentElement.position > it.position ? it.position : it.position - 1 }
+          })
+      )
+    }
 
     return
   }
@@ -238,18 +240,18 @@ export default function SavedSearchesPage(): JSX.Element {
   }
 
   async function updatePositionOnMouseUp(y: number): Promise<string | undefined> {
-    const idx = Math.floor(((y + window.scrollY - 25) - TOP_SETTINGS_PANEL) / HEIGHT_SETTING_CARD)
-    const correctedIdx = Math.min(Math.max(idx, 0), sortedSavedSearch?.length - 1)
     const currentElement = sortedSavedSearch?.find(({ id }) => id == draggedElementId);
-    const moveUp = correctedIdx < currentElement?.position
+    if (currentElement) {
+      const idx = Math.floor(((y + window.scrollY - 25) - TOP_SETTINGS_PANEL) / HEIGHT_SETTING_CARD)
+      const correctedIdx = Math.min(Math.max(idx, 0), sortedSavedSearch?.length - 1)
+      const moveUp = correctedIdx < currentElement.position
 
-    if (correctedIdx != currentElement?.position) {
-      const newlyOrdered = sortedSavedSearch
+      if (correctedIdx != currentElement.position) {
+        const newlyOrdered = sortedSavedSearch
           ?.map((search) => {
             let pos = search.position;
             if (inRange(pos, Math.min(correctedIdx, currentElement.position), Math.max(correctedIdx, currentElement.position)) || search.position == correctedIdx) {
               pos = search.position + (moveUp ? +1 : -1)
-              console.log(pos)
             }
             if (draggedElementId == search?.id) {
               pos = correctedIdx
@@ -260,9 +262,9 @@ export default function SavedSearchesPage(): JSX.Element {
             }
           })
           ?.sort((l, r) => l.position - r.position);
-      setSortedSavedSearch(newlyOrdered)
-      console.log(newlyOrdered)
-      return updateFilterMutation({ ...currentElement, position: correctedIdx })
+        setSortedSavedSearch(newlyOrdered)
+        return updateFilterMutation({ ...currentElement, position: correctedIdx })
+      }
     }
 
     return
@@ -289,8 +291,8 @@ export default function SavedSearchesPage(): JSX.Element {
               message={
                 'Are you sure?'
               }
-              onAccept={() => {
-                onDeleteSavedSearch(confirmRemoveSavedSearchId)
+              onAccept={async () => {
+                await onDeleteSavedSearch(confirmRemoveSavedSearchId)
                 setConfirmRemoveSavedSearchId(null)
               }}
               onOpenChange={() => setConfirmRemoveSavedSearchId(null)}
@@ -425,7 +427,7 @@ export default function SavedSearchesPage(): JSX.Element {
                 setDraggedElementId,
                 onEditPress,
                 setDraggedElementPosition,
-                isSwappedCard: draggedElementId != savedSearch.id && (draggedElementPosition?.y + window.scrollY + HEIGHT_SETTING_CARD)> positionY && draggedElementPosition?.y + window.scrollY + HEIGHT_SETTING_CARD < positionY + HEIGHT_SETTING_CARD,
+                isSwappedCard: (draggedElementPosition && draggedElementId != savedSearch.id && (draggedElementPosition.y + window.scrollY + HEIGHT_SETTING_CARD)> positionY && draggedElementPosition?.y + window.scrollY + HEIGHT_SETTING_CARD < positionY + HEIGHT_SETTING_CARD) || undefined,
                 updatePositionOnMouseUp
               }
               if (editingId == savedSearch.id) {
@@ -472,8 +474,8 @@ type EditCardProps = {
   draggedElementId: string | null
   setDraggedElementId: Dispatch<SetStateAction<string | null>>
   setDraggedElementPosition: Dispatch<SetStateAction<{ x: number, y: number } | null>>
-  isSwappedCard: boolean,
-  updatePositionOnMouseUp: (y: number) => Promise<void>
+  isSwappedCard?: boolean,
+  updatePositionOnMouseUp?: (y: number) => Promise<string | undefined>
 }
 
 function GenericTableCard(
@@ -508,7 +510,7 @@ function GenericTableCard(
   const showInput = editingId === savedSearch?.id || (isCreateMode && !savedSearch)
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
   const DEFAULT_STYLE = { position: null };
-  const [style, setStyle] = useState<Partial<{ position: string | null, top: string, left: string }>>(DEFAULT_STYLE)
+  const [style, setStyle] = useState<Partial<{ position: string | null, top: string, left: string, maxWidth: string }>>(DEFAULT_STYLE)
   const handleEdit = () => {
     editingId && updateSavedSearch(editingId)
     setEditingId(null)
@@ -581,7 +583,7 @@ function GenericTableCard(
   }
 
   const onMouseUp = async (e: MouseEvent) => {
-    if (draggedElementId != null && draggedElementId == savedSearch?.id) {
+    if (draggedElementId != null && draggedElementId == savedSearch?.id && updatePositionOnMouseUp) {
       const updatePosition = updatePositionOnMouseUp(e.clientY)
       setDraggedElementId(null);
       setStyle(DEFAULT_STYLE);
@@ -590,22 +592,22 @@ function GenericTableCard(
     }
   }
 
-  const onMouseMove = (e: MouseEvent) => {
+  const onMouseMove = useCallback((e: MouseEvent) => {
     if (draggedElementId != null && draggedElementId == savedSearch?.id) {
       setStyle({ position: "absolute", top: `${e.clientY - 25 + window.scrollY}px`, left: `${e.clientX - 25 + window.scrollX}px`, maxWidth: '865px' });
       setDraggedElementPosition({ y: e.clientY - 25, x: e.clientX - 25});
     }
-  }
+  }, [draggedElementId, savedSearch, setDraggedElementPosition])
 
   useEffect(() => {
     window.addEventListener('mousemove', onMouseMove)
     return () => {
       window.removeEventListener('mousemove', onMouseMove)
     }
-  }, [draggedElementId])
+  }, [draggedElementId, onMouseMove])
 
-  const setVisibility = () => {
-    updateFilterMutation({ ...savedSearch, visible: !isVisible} )
+  const setVisibility = async () => {
+    await updateFilterMutation({ ...savedSearch, visible: !isVisible} )
     setIsVisible(!isVisible);
   }
 
@@ -614,20 +616,19 @@ function GenericTableCard(
       className={"tableCard"}
       css={{
         ...style,
-        background: 'white',
         '&:hover': {
           background: 'rgba(255, 234, 159, 0.12)',
         },
-        borderTop: isSwappedCard ? "56px solid white" : undefined,
+        borderTop: isSwappedCard ? `56px solid ${theme.colors.thBackground}` : undefined,
         borderTopLeftRadius: isFirstChild ? '5px' : '',
         borderTopRightRadius: isFirstChild ? '5px' : '',
         borderBottomLeftRadius: isLastChild ? '5px' : '',
         borderBottomRightRadius: isLastChild ? '5px' : '',
-      }}
+      } as never}
     >
 
       <TableCardBox
-        onMouseUp={onMouseUp}
+        onMouseUp={onMouseUp as unknown as MouseEventHandler}
         css={{
           display: 'grid',
           width: '100%',
@@ -658,7 +659,7 @@ function GenericTableCard(
                   padding: '0 5px',
               }}
           >
-          <ArrowsDownUp size={28} style={{  cursor: 'grab' }} onMouseDown={onMouseDown} />
+          <ArrowsDownUp size={28} style={{  cursor: 'grab' }} onMouseDown={onMouseDown as unknown as MouseEventHandler} />
       </HStack>
         <HStack
             distribution="start"
@@ -852,14 +853,12 @@ function MobileEditCard(props: EditCardProps) {
     savedSearch,
     editingId,
     setEditingId,
-    isCreateMode,
     nameInputText,
     setNameInputText,
     queryInputText,
     setQueryInputText,
     createSavedSearch,
     resetState,
-    updateSavedSearch,
     isFirstChild,
     isLastChild,
   } = props

@@ -2,10 +2,10 @@ import 'mocha'
 import chai, { expect } from 'chai'
 import {
   createTestUser,
-  createUserWithoutProfile,
+  createUserWithoutProfile, deleteFiltersFromUser,
   deleteTestUser,
-  getProfile,
-} from '../db'
+  getProfile
+} from "../db"
 import { createGroup } from '../../src/services/groups'
 import {
   getUserFollowers,
@@ -18,10 +18,38 @@ import * as util from '../../src/utils/sendEmail'
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/entity/utils'
+import { Filter } from "../../src/entity/filter"
 
 chai.use(sinonChai)
 
 describe('create user', () => {
+
+  context('creates a user through manual sign up', () => {
+    it ('adds the default filters to the user', async () => {
+      after(async () => {
+        const testUser = await getRepository(User).findOneBy({
+          name: 'testuser',
+        })
+        await deleteTestUser(testUser!.id)
+        await deleteFiltersFromUser(testUser!.id)
+      })
+
+      const user = await createTestUser('filter_user');
+      const filters = await getRepository(Filter).findBy({ user: { id: user.id }})
+
+      expect(filters).not.to.be.empty
+      expect(filters.map(it => it.name)).to.include([
+        "Inbox",
+        "Continue Reading",
+        "Non-Feed Items",
+        "Highlights",
+        "Unlabelled",
+        "Archived"
+      ])
+    })
+
+  })
+
   context('create a user with an invite', () => {
     it('follows the other user in the group', async () => {
       after(async () => {
