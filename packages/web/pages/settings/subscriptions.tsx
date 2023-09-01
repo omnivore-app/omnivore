@@ -96,7 +96,7 @@ export default function SubscriptionsPage(): JSX.Element {
           })
         ) : (
           <EmptySettingsRow
-            text={isValidating ? '-' : 'No Email Subscriptions Found'}
+            text={isValidating ? '-' : 'No Subscriptions Found'}
           />
         )}
 

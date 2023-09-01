@@ -142,7 +142,7 @@ const GridImage = (props: GridImageProps): JSX.Element => {
       {props.isLoading && (
         <LoadingBarOverlay
           width="100%"
-          top={95}
+          top={145}
           bottomRadius={'0px'}
           fillColor={'rgba(60, 179, 113, 1)'}
         />
@@ -150,7 +150,7 @@ const GridImage = (props: GridImageProps): JSX.Element => {
       {(props.readingProgress ?? 0) > 0 && !props.isLoading && (
         <ProgressBarOverlay
           width="100%"
-          top={95}
+          top={145}
           value={props.readingProgress ?? 0}
           bottomRadius={'0px'}
         />
@@ -159,14 +159,14 @@ const GridImage = (props: GridImageProps): JSX.Element => {
         <FallbackImage
           title={props.title ?? 'Omnivore Fallback'}
           width="100%"
-          height="100px"
+          height="150px"
           fontSize="128px"
         />
       ) : (
         <CoverImage
           src={props.src}
           width="100%"
-          height={100}
+          height="150px"
           css={{
             bg: '$thBackground',
           }}
@@ -191,7 +191,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
 
   return (
     <VStack css={{ p: '0px', m: '0px', width: '100%' }}>
-      <Box css={{ position: 'relative', width: '100%', height: '100px' }}>
+      <Box css={{ position: 'relative', width: '100%', height: '150px' }}>
         <GridImage
           src={props.item.image}
           title={props.item.title}
@@ -256,7 +256,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <Box
           css={{
             ...TitleStyle,
-            mt: '10px',
+            mt: '5px',
           }}
         >
           {props.item.title}
@@ -265,7 +265,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
           css={{
             ...AuthorInfoStyle,
             mt: '5px',
-            mb: '20px',
+            mb: '15px',
           }}
         >
           {props.item.author}
@@ -276,13 +276,13 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
         <HStack
           distribution="start"
           alignment="start"
-          css={{ width: '100%', minHeight: '50px', pb: '10px' }}
+          css={{ width: '100%', minHeight: '50px', pb: '15px' }}
         >
           <HStack
             css={{
               display: 'block',
               minHeight: '35px',
-              marginLeft: '-2px', // offset because the chips have margin
+              marginLeft: '-4px', // offset because the chips have margin
             }}
           >
             {sortedLabels(props.item.labels).map(({ name, color }, index) => (
