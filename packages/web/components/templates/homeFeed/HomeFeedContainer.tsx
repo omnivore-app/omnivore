@@ -224,7 +224,7 @@ export function HomeFeedContainer(): JSX.Element {
 
           if (link && link.state != 'PROCESSING') {
             const updatedArticle = { ...item }
-            updatedArticle.node = { ...item.node, ...link, image: "https://cdn.arstechnica.net/wp-content/uploads/2023/09/cpglitch-800x450.jpg" }
+            updatedArticle.node = { ...item.node, ...link }
             updatedArticle.isLoading = false
             console.log(`Updating Metadata of ${item.node.slug}.`)
             performActionOnItem('update-item', updatedArticle)
