@@ -759,7 +759,7 @@ const schema = gql`
     quote: String! @sanitize(maxLength: 12000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
-    annotation: String @sanitize(maxLength: 8000)
+    annotation: String @sanitize(maxLength: 4000)
     overlapHighlightIdList: [String!]!
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int

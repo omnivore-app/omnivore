@@ -85,10 +85,10 @@ export class LibraryItem {
   description?: string | null
 
   @Column('timestamptz')
-  savedAt?: Date
+  savedAt!: Date
 
   @CreateDateColumn()
-  createdAt?: Date
+  createdAt!: Date
 
   @Column('timestamptz', { nullable: true })
   publishedAt?: Date | null
@@ -103,7 +103,7 @@ export class LibraryItem {
   readAt?: Date | null
 
   @UpdateDateColumn()
-  updatedAt?: Date
+  updatedAt!: Date
 
   @Column('text', { nullable: true })
   itemLanguage?: string | null

@@ -241,8 +241,8 @@ export const enqueueParseRequest = async ({
   labels?: CreateLabelInput[]
   locale?: string
   timezone?: string
-  savedAt?: number // unix timestamp
-  publishedAt?: number // unix timestamp
+  savedAt?: Date
+  publishedAt?: Date
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {

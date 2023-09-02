@@ -1,4 +1,3 @@
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   MutationSaveFileArgs,
@@ -8,7 +7,7 @@ import {
   SaveErrorCode,
   SaveSuccess,
 } from '../../generated/graphql'
-import { getRepository, userRepository } from '../../repository'
+import { userRepository } from '../../repository/user'
 import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'

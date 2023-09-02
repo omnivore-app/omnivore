@@ -7,6 +7,7 @@ import slugify from 'voca/slugify'
 import wordsCounter from 'word-counting'
 import { updatePage } from '../elastic/pages'
 import { ArticleSavingRequestStatus, Page } from '../elastic/types'
+import { LibraryItem } from '../entity/library_item'
 import { RegistrationType, User } from '../entity/user'
 import {
   ArticleSavingRequest,
@@ -149,7 +150,7 @@ export const userDataToUser = (
 } => ({
   ...user,
   source: user.source as RegistrationType,
-  createdAt: user.createdAt || new Date(),
+  createdAt: user.createdAt,
   friendsCount: user.friendsCount || 0,
   followersCount: user.followersCount || 0,
   isFullUser: true,
@@ -187,12 +188,13 @@ export const pageError = async (
 
 export const pageToArticleSavingRequest = (
   user: User,
-  page: Page
+  item: LibraryItem
 ): ArticleSavingRequest => ({
-  ...page,
+  ...item,
   user: userDataToUser(user),
-  status: page.state,
-  updatedAt: page.updatedAt || new Date(),
+  status: item.state as unknown as ArticleSavingRequestStatus,
+  url: item.originalUrl,
+  userId: user.id,
 })
 
 export const isParsingTimeout = (page: Page): boolean => {

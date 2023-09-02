@@ -1,33 +1,14 @@
 import DataLoader from 'dataloader'
 import { In } from 'typeorm'
-import { addLabelInPage } from '../elastic/labels'
-import { PageContext } from '../elastic/types'
+import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
+import { LibraryItem } from '../entity/library_item'
 import { Link } from '../entity/link'
-import { User } from '../entity/user'
-import { CreateLabelInput } from '../generated/graphql'
-import { entityManager, getRepository, setClaims } from '../repository'
-import { labelRepository } from '../repository/label'
-import { generateRandomColor } from '../utils/helpers'
-import { logger } from '../utils/logger'
-
-const INTERNAL_LABELS_WITH_COLOR = new Map<
-  string,
-  { name: string; color: string }
->([
-  ['favorites', { name: 'Favorites', color: '#FFD700' }],
-  ['library', { name: 'Library', color: '#584C42' }],
-  ['rss', { name: 'RSS', color: '#F26522' }],
-  ['newsletter', { name: 'Newsletter', color: '#07D2D1' }],
-])
-
-export const getInternalLabelWithColor = (name: string) => {
-  return INTERNAL_LABELS_WITH_COLOR.get(name.toLowerCase())
-}
-
-const isLabelInternal = (name: string): boolean => {
-  return INTERNAL_LABELS_WITH_COLOR.has(name.toLowerCase())
-}
+import { EntityType, PubsubClient } from '../pubsub'
+import { authTrx, getRepository } from '../repository'
+import { highlightRepository } from '../repository/highlight'
+import { CreateLabelInput, labelRepository } from '../repository/label'
+import { libraryItemRepository } from '../repository/library_item'
 
 const batchGetLabelsFromLinkIds = async (
   linkIds: readonly string[]
@@ -44,90 +25,11 @@ const batchGetLabelsFromLinkIds = async (
 
 export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
 
-export const addLabelToPage = async (
-  ctx: PageContext,
-  pageId: string,
-  label: {
-    name: string
-    color: string
-    description?: string
-  }
-): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
-    id: ctx.uid,
-  })
-  if (!user) {
-    return false
-  }
-
-  let labelEntity = await getLabelByName(user.id, label.name)
-
-  if (!labelEntity) {
-    logger.info('creating new label', label.name)
-
-    labelEntity = await createLabel(user.id, label)
-  }
-
-  logger.info('adding label to page', label.name, pageId)
-
-  return addLabelInPage(
-    pageId,
-    {
-      id: labelEntity.id,
-      name: labelEntity.name,
-      color: labelEntity.color,
-      description: labelEntity.description,
-      createdAt: labelEntity.createdAt,
-    },
-    ctx
-  )
-}
-
-export const getLabelsByIds = async (
-  userId: string,
-  labelIds: string[]
-): Promise<Label[]> => {
-  return getRepository(Label).find({
-    where: { id: In(labelIds), user: { id: userId } },
-    select: ['id', 'name', 'color', 'description', 'createdAt'],
-  })
-}
-
-export const getLabelByName = async (
-  userId: string,
-  name: string
-): Promise<Label | null> => {
-  return getRepository(Label)
-    .createQueryBuilder()
-    .where({ user: { id: userId } })
-    .andWhere('LOWER(name) = LOWER(:name)', { name })
-    .getOne()
-}
-
-export const createLabel = async (
-  userId: string,
-  label: {
-    name: string
-    color?: string | null
-    description?: string | null
-  }
-): Promise<Label> => {
-  return getRepository(Label).save({
-    user: { id: userId },
-    name: label.name,
-    color: label.color || generateRandomColor(), // assign a random color if not provided
-    description: label.description,
-    internal: isLabelInternal(label.name),
-  })
-}
-
 export const getLabelsAndCreateIfNotExist = async (
   labels: CreateLabelInput[],
   userId: string
 ): Promise<Label[]> => {
-  return entityManager.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  return authTrx(async (tx) => {
     const labelRepo = tx.withRepository(labelRepository)
     // find existing labels
     const labelEntities = await labelRepo.findByNames(labels.map((l) => l.name))
@@ -147,4 +49,73 @@ export const getLabelsAndCreateIfNotExist = async (
 
     return [...labelEntities, ...newLabelEntities]
   })
+}
+
+export const saveLabelsInLibraryItem = async (
+  labels: Label[],
+  libraryItemId: string,
+  userId: string,
+  pubsub: PubsubClient
+) => {
+  await authTrx(async (tx) => {
+    await tx
+      .withRepository(libraryItemRepository)
+      .createQueryBuilder()
+      .relation(LibraryItem, 'labels')
+      .of(libraryItemId)
+      .set(labels)
+  })
+
+  // create pubsub event
+  await pubsub.entityCreated<(Label & { pageId: string })[]>(
+    EntityType.LABEL,
+    labels.map((l) => ({ ...l, pageId: libraryItemId })),
+    userId
+  )
+}
+
+export const addLabelsToLibraryItem = async (
+  labels: Label[],
+  libraryItemId: string,
+  userId: string,
+  pubsub: PubsubClient
+) => {
+  await authTrx(async (tx) => {
+    await tx
+      .withRepository(libraryItemRepository)
+      .createQueryBuilder()
+      .relation(LibraryItem, 'labels')
+      .of(libraryItemId)
+      .add(labels)
+  })
+
+  // create pubsub event
+  await pubsub.entityCreated<(Label & { pageId: string })[]>(
+    EntityType.LABEL,
+    labels.map((l) => ({ ...l, pageId: libraryItemId })),
+    userId
+  )
+}
+
+export const saveLabelsInHighlight = async (
+  labels: Label[],
+  highlightId: string,
+  userId: string,
+  pubsub: PubsubClient
+) => {
+  await authTrx(async (tx) => {
+    await tx
+      .withRepository(highlightRepository)
+      .createQueryBuilder()
+      .relation(Highlight, 'labels')
+      .of(highlightId)
+      .set(labels)
+  })
+
+  // create pubsub event
+  await pubsub.entityCreated<(Label & { highlightId: string })[]>(
+    EntityType.LABEL,
+    labels.map((l) => ({ ...l, highlightId })),
+    userId
+  )
 }

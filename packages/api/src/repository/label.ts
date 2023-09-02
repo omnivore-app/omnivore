@@ -1,7 +1,14 @@
 import { In } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { entityManager } from '.'
 import { Label } from '../entity/label'
 import { generateRandomColor } from '../utils/helpers'
+
+export interface CreateLabelInput {
+  name: string
+  color?: string | null
+  description?: string | null
+}
 
 const INTERNAL_LABELS_WITH_COLOR = new Map<
   string,
@@ -21,14 +28,7 @@ const isLabelInternal = (name: string): boolean => {
   return INTERNAL_LABELS_WITH_COLOR.has(name.toLowerCase())
 }
 
-const toPartialLabel = (
-  label: {
-    name: string
-    color?: string | null
-    description?: string | null
-  },
-  userId: string
-) => {
+const convertToLabel = (label: CreateLabelInput, userId: string) => {
   return {
     user: { id: userId },
     name: label.name,
@@ -64,25 +64,20 @@ export const labelRepository = entityManager.getRepository(Label).extend({
     })
   },
 
-  createLabel(
-    label: {
-      name: string
-      color?: string | null
-      description?: string | null
-    },
-    userId: string
-  ) {
-    return this.save(toPartialLabel(label, userId))
+  createLabel(label: CreateLabelInput, userId: string) {
+    return this.save(convertToLabel(label, userId))
   },
 
-  createLabels(
-    labels: {
-      name: string
-      color?: string | null
-      description?: string | null
-    }[],
-    userId: string
-  ) {
-    return this.save(labels.map((l) => toPartialLabel(l, userId)))
+  createLabels(labels: CreateLabelInput[], userId: string) {
+    return this.save(labels.map((l) => convertToLabel(l, userId)))
+  },
+
+  deleteById(id: string) {
+    return this.delete({ id, internal: false })
+  },
+
+  updateLabel(id: string, label: QueryDeepPartialEntity<Label>) {
+    // internal labels should not be updated
+    return this.update({ id, internal: false }, label)
   },
 })

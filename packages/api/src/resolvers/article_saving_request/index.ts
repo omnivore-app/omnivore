@@ -28,9 +28,9 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
->(async (_, { input: { url } }, { claims, pubsub, log }) => {
+>(async (_, { input: { url } }, { uid, pubsub, log }) => {
   analytics.track({
-    userId: claims.uid,
+    userId: uid,
     event: 'link_saved',
     properties: {
       url: url,
@@ -40,16 +40,16 @@ export const createArticleSavingRequestResolver = authorized<
   })
 
   try {
-    const request = await createPageSaveRequest({
-      userId: claims.uid,
+    const articleSavingRequest = await createPageSaveRequest({
+      userId: uid,
       url,
       pubsub,
     })
     return {
-      articleSavingRequest: request,
+      articleSavingRequest,
     }
   } catch (err) {
-    log.error('error saving article', err)
+    log.error('createArticleSavingRequestResolver error', err)
     if (isErrorWithCode(err)) {
       return {
         errorCodes: [err.errorCode as CreateArticleSavingRequestErrorCode],

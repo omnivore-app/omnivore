@@ -22,7 +22,7 @@ export enum HighlightType {
 @Entity({ name: 'highlight' })
 export class Highlight {
   @PrimaryGeneratedColumn('uuid')
-  id?: string
+  id!: string
 
   @Column({ type: 'varchar', length: 14 })
   shortId!: string
@@ -36,37 +36,37 @@ export class Highlight {
   libraryItem!: LibraryItem
 
   @Column('text')
-  quote!: string
+  quote?: string | null
 
   @Column({ type: 'varchar', length: 5000 })
-  prefix?: string
+  prefix?: string | null
 
   @Column({ type: 'varchar', length: 5000 })
-  suffix?: string
+  suffix?: string | null
 
   @Column('text')
-  patch!: string
+  patch?: string | null
 
   @Column('text')
-  annotation?: string
+  annotation?: string | null
 
   @Column('boolean')
   deleted?: boolean
 
   @CreateDateColumn()
-  createdAt?: Date
+  createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt?: Date
+  updatedAt!: Date
 
   @Column('timestamp')
   sharedAt?: Date
 
   @Column('real')
-  highlightPositionPercent!: number
+  highlightPositionPercent?: number | null
 
   @Column('integer')
-  highlightPositionAnchorIndex!: number
+  highlightPositionAnchorIndex?: number | null
 
   @Column('enum', {
     enum: HighlightType,

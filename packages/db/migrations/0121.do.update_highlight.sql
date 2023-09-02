@@ -17,8 +17,24 @@ ALTER TABLE omnivore.highlight
     ADD COLUMN highlight_type highlight_type NOT NULL DEFAULT 'HIGHLIGHT',
     ADD COLUMN color text,
     ADD COLUMN html text,
+    ALTER COLUMN quote DROP NOT NULL,
+    ALTER COLUMN patch DROP NOT NULL,
+    ALTER COLUMN highlight_position_percent DROP NOT NULL,
+    ALTER COLUMN highlight_position_anchor_index DROP NOT NULL,
     DROP COLUMN article_id,
     DROP COLUMN elastic_page_id;
+
+ALTER POLICY read_highlight on omnivore.highlight
+  USING (user_id = omnivore.get_current_user_id());
+
+ALTER POLICY create_highlight on omnivore.highlight
+  WITH CHECK (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY delete_highlight on omnivore.highlight
+  FOR DELETE TO omnivore_user
+  USING (user_id = omnivore.get_current_user_id());
+
+GRANT DELETE ON omnivore.highlight TO omnivore_user;
 
 CREATE OR REPLACE FUNCTION update_library_item_highlight_annotations()
 RETURNS TRIGGER AS $$

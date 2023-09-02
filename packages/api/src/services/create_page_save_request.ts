@@ -1,24 +1,22 @@
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  countByCreatedAt,
-  createPage,
-  getPageByParam,
-  updatePage,
-} from '../elastic/pages'
-import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
+import { countByCreatedAt, createPage, updatePage } from '../elastic/pages'
+import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
+import { LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
+  CreateLabelInput
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
-import { getRepository } from '../repository'
+import { libraryItemRepository } from '../repository/library_item'
+import { userRepository } from '../repository/user'
 import { enqueueParseRequest } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
-  pageToArticleSavingRequest,
+  pageToArticleSavingRequest
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
 
@@ -28,7 +26,7 @@ interface PageSaveRequest {
   pubsub?: PubsubClient
   articleSavingRequestId?: string
   archivedAt?: Date | null
-  labels?: Label[]
+  labels?: CreateLabelInput[]
   priority?: 'low' | 'high'
   user?: User | null
   locale?: string
@@ -101,9 +99,7 @@ export const createPageSaveRequest = async ({
   }
   // if user is not specified, get it from the database
   if (!user) {
-    user = await getRepository(User).findOneBy({
-      id: userId,
-    })
+    user = await userRepository.findById(userId)
     if (!user) {
       logger.info('User not found', userId)
       return Promise.reject({
@@ -112,26 +108,14 @@ export const createPageSaveRequest = async ({
     }
   }
 
-  // get priority by checking rate limit if not specified
-  priority = priority || (await getPriorityByRateLimit(userId))
-
-  // look for existing page
   url = cleanUrl(url)
-
-  const ctx = {
-    pubsub,
-    uid: userId,
-    refresh: true,
-  }
-  let page = await getPageByParam({
-    userId,
-    url,
-  })
-  if (!page) {
-    logger.info('Page not exists', url)
-    page = {
+  // look for existing library item
+  const existingLibraryItem = await libraryItemRepository.findByUrl(url)
+  if (!existingLibraryItem) {
+    logger.info('libraryItem does not exist', { url })
+    libraryItem = {
       id: articleSavingRequestId,
-      userId,
+      user: { id: userId },
       content: SAVING_CONTENT,
       hash: '',
       pageType: PageType.Unknown,
@@ -140,12 +124,11 @@ export const createPageSaveRequest = async ({
       slug: generateSlug(url),
       title: url,
       url,
-      state: ArticleSavingRequestStatus.Processing,
+      state: LibraryItemState.Processing,
       createdAt: new Date(),
       savedAt: savedAt || new Date(),
       publishedAt,
       archivedAt,
-      labels,
     }
 
     // create processing page
@@ -158,7 +141,7 @@ export const createPageSaveRequest = async ({
     }
   }
   // reset state to processing
-  if (page.state !== ArticleSavingRequestStatus.Processing) {
+  if (existingLibraryItem.state !== ArticleSavingRequestStatus.Processing) {
     await updatePage(
       page.id,
       {
@@ -167,24 +150,22 @@ export const createPageSaveRequest = async ({
       ctx
     )
   }
-  const labelsInput = labels?.map((label) => ({
-    name: label.name,
-    color: label.color,
-    description: label.description,
-  }))
+
+  // get priority by checking rate limit if not specified
+  priority = priority || (await getPriorityByRateLimit(userId))
+
   // enqueue task to parse page
   await enqueueParseRequest({
     url,
     userId,
-    saveRequestId: page.id,
+    saveRequestId: articleSavingRequestId,
     priority,
     state: archivedAt ? ArticleSavingRequestStatus.Archived : undefined,
-    labels: labelsInput,
+    labels,
     locale,
     timezone,
-    // unix timestamp
-    savedAt: savedAt?.getTime(),
-    publishedAt: publishedAt?.getTime(),
+    savedAt,
+    publishedAt,
   })
 
   return pageToArticleSavingRequest(user, page)

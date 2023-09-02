@@ -1,15 +1,5 @@
 import { Between } from 'typeorm'
-import { appDataSource } from '../../data_source'
-import { getHighlightById } from '../../elastic/highlights'
-import {
-  deleteLabel,
-  setLabelsForHighlight,
-  updateLabel,
-  updateLabelsInPage,
-} from '../../elastic/labels'
-import { getPageById } from '../../elastic/pages'
 import { Label } from '../../entity/label'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   CreateLabelError,
@@ -37,34 +27,25 @@ import {
   UpdateLabelErrorCode,
   UpdateLabelSuccess,
 } from '../../generated/graphql'
-import { createPubSubClient } from '../../pubsub'
-import { getRepository, setClaims } from '../../repository'
+import { labelRepository } from '../../repository/label'
 import {
-  createLabel,
-  getLabelByName,
   getLabelsAndCreateIfNotExist,
-  getLabelsByIds,
+  saveLabelsInHighlight,
+  saveLabelsInLibraryItem,
 } from '../../services/labels'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
-  async (_obj, _params, { claims: { uid }, log }) => {
+  async (_obj, _params, { log, authTrx }) => {
     try {
-      const user = await getRepository(User).findOne({
-        where: { id: uid },
-        relations: ['labels'],
-        order: {
-          labels: {
+      const labels = await authTrx(async (tx) => {
+        return tx.find(Label, {
+          order: {
             position: 'ASC',
           },
-        },
+        })
       })
-      if (!user) {
-        return {
-          errorCodes: [LabelsErrorCode.Unauthorized],
-        }
-      }
 
       analytics.track({
         userId: uid,
@@ -79,10 +60,10 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
       })
 
       return {
-        labels: user.labels || [],
+        labels,
       }
     } catch (error) {
-      log.error(error)
+      log.error('labelsResolver', error)
       return {
         errorCodes: [LabelsErrorCode.BadRequest],
       }
@@ -94,26 +75,11 @@ export const createLabelResolver = authorized<
   CreateLabelSuccess,
   CreateLabelError,
   MutationCreateLabelArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('createLabelResolver')
-
+>(async (_, { input }, { authTrx, log, uid }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [CreateLabelErrorCode.Unauthorized],
-      }
-    }
-
-    // Check if label already exists ignoring case of name
-    const existingLabel = await getLabelByName(uid, input.name)
-    if (existingLabel) {
-      return {
-        errorCodes: [CreateLabelErrorCode.LabelAlreadyExists],
-      }
-    }
-
-    const label = await createLabel(uid, input)
+    const label = await authTrx(async (tx) => {
+      return tx.withRepository(labelRepository).createLabel(input, uid)
+    })
 
     analytics.track({
       userId: uid,
@@ -128,7 +94,7 @@ export const createLabelResolver = authorized<
       label,
     }
   } catch (error) {
-    log.error(error)
+    log.error('createLabelResolver', error)
     return {
       errorCodes: [CreateLabelErrorCode.BadRequest],
     }
@@ -139,52 +105,17 @@ export const deleteLabelResolver = authorized<
   DeleteLabelSuccess,
   DeleteLabelError,
   MutationDeleteLabelArgs
->(async (_, { id: labelId }, { claims: { uid }, log }) => {
-  log.info('deleteLabelResolver')
-
+>(async (_, { id: labelId }, { authTrx, log, uid }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [DeleteLabelErrorCode.Unauthorized],
-      }
-    }
-
-    const label = await getRepository(Label).findOne({
-      where: { id: labelId, user: { id: uid } },
-      relations: ['user'],
+    const deleteResult = await authTrx(async (tx) => {
+      return tx.withRepository(labelRepository).deleteById(labelId)
     })
-    if (!label) {
+
+    if (!deleteResult.affected) {
       return {
         errorCodes: [DeleteLabelErrorCode.NotFound],
       }
     }
-
-    // internal labels cannot be deleted
-    if (label.internal) {
-      log.info('internal labels cannot be deleted')
-      return {
-        errorCodes: [DeleteLabelErrorCode.Forbidden],
-      }
-    }
-
-    const result = await appDataSource.transaction(async (t) => {
-      await setClaims(t, uid)
-      return t.getRepository(Label).delete(labelId)
-    })
-    if (!result.affected) {
-      log.error('Failed to delete label', labelId)
-      return {
-        errorCodes: [DeleteLabelErrorCode.BadRequest],
-      }
-    }
-
-    // delete label in elastic pages and highlights
-    await deleteLabel(label.name, {
-      pubsub: createPubSubClient(),
-      uid,
-      refresh: true,
-    })
 
     analytics.track({
       userId: uid,
@@ -196,7 +127,7 @@ export const deleteLabelResolver = authorized<
     })
 
     return {
-      label,
+      label: deleteResult.raw as Label,
     }
   } catch (error) {
     log.error('error deleting label', error)
@@ -210,177 +141,110 @@ export const setLabelsResolver = authorized<
   SetLabelsSuccess,
   SetLabelsError,
   MutationSetLabelsArgs
->(async (_, { input }, { claims: { uid }, log, pubsub }) => {
-  log.info('setLabelsResolver')
-
-  const { pageId, labelIds, labels } = input
-
-  if (!labelIds && !labels) {
-    log.info('labelIds or labels must be provided')
-    return {
-      errorCodes: [SetLabelsErrorCode.BadRequest],
-    }
-  }
-
-  try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
+>(
+  async (
+    _,
+    { input: { pageId, labelIds, labels } },
+    { uid, log, authTrx, pubsub }
+  ) => {
+    if (!labelIds && !labels) {
+      log.error('labelIds or labels must be provided')
       return {
-        errorCodes: [SetLabelsErrorCode.Unauthorized],
+        errorCodes: [SetLabelsErrorCode.BadRequest],
       }
     }
 
-    const page = await getPageById(pageId)
-    if (!page) {
-      return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
-      }
-    }
-    if (page.userId !== uid) {
-      return {
-        errorCodes: [SetLabelsErrorCode.Unauthorized],
-      }
-    }
+    try {
+      let labelsSet: Label[] = []
 
-    const ctx = {
-      uid,
-      pubsub,
-      refresh: true,
-    }
-    let labelsSet: Label[] = []
-
-    if (labels && labels.length > 0) {
-      // for new clients that send label names
-      // create labels if they don't exist
-      labelsSet = await getLabelsAndCreateIfNotExist(ctx, labels)
-    } else if (labelIds && labelIds.length > 0) {
-      // for old clients that send labelIds
-      labelsSet = await getLabelsByIds(uid, labelIds)
-      if (labelsSet.length !== labelIds.length) {
-        return {
-          errorCodes: [SetLabelsErrorCode.NotFound],
+      if (labels && labels.length > 0) {
+        // for new clients that send label names
+        // create labels if they don't exist
+        labelsSet = await getLabelsAndCreateIfNotExist(labels, uid)
+      } else if (labelIds && labelIds.length > 0) {
+        // for old clients that send labelIds
+        labelsSet = await authTrx(async (tx) => {
+          return tx.withRepository(labelRepository).findByIds(labelIds)
+        })
+        if (labelsSet.length !== labelIds.length) {
+          return {
+            errorCodes: [SetLabelsErrorCode.NotFound],
+          }
         }
       }
-    }
-    // filter out labels that are already set
-    const labelsToAdd = labelsSet.filter(
-      (label) => !page.labels?.some((pageLabel) => pageLabel.id === label.id)
-    )
-    // update labels in the page
-    const updated = await updateLabelsInPage(
-      pageId,
-      labelsSet,
-      ctx,
-      labelsToAdd
-    )
-    if (!updated) {
+      // save labels in the library item
+      await saveLabelsInLibraryItem(labelsSet, pageId, uid, pubsub)
+
+      analytics.track({
+        userId: uid,
+        event: 'labels_set',
+        properties: {
+          pageId,
+          labelIds,
+          env: env.server.apiEnv,
+        },
+      })
+
       return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
+        labels: labelsSet,
+      }
+    } catch (error) {
+      log.error('setLabelsResolver error', error)
+      return {
+        errorCodes: [SetLabelsErrorCode.BadRequest],
       }
     }
-
-    analytics.track({
-      userId: uid,
-      event: 'labels_set',
-      properties: {
-        pageId,
-        labelIds,
-        env: env.server.apiEnv,
-      },
-    })
-
-    return {
-      labels: labelsSet,
-    }
-  } catch (error) {
-    log.error(error)
-    return {
-      errorCodes: [SetLabelsErrorCode.BadRequest],
-    }
   }
-})
+)
 
 export const updateLabelResolver = authorized<
   UpdateLabelSuccess,
   UpdateLabelError,
   MutationUpdateLabelArgs
->(async (_, { input }, { claims: { uid }, log, pubsub }) => {
-  log.info('updateLabelResolver')
+>(
+  async (
+    _,
+    { input: { name, color, description, labelId } },
+    { authTrx, log }
+  ) => {
+    try {
+      log.info('Updating a label', {
+        labels: {
+          source: 'resolver',
+          resolver: 'updateLabelResolver',
+        },
+      })
 
-  try {
-    const { name, color, description, labelId } = input
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UpdateLabelErrorCode.Unauthorized],
+      const result = await authTrx(async (tx) => {
+        return tx.withRepository(labelRepository).updateLabel(labelId, {
+          name,
+          color,
+          description,
+        })
+      })
+
+      if (!result.affected) {
+        log.error('failed to update')
+        return {
+          errorCodes: [UpdateLabelErrorCode.BadRequest],
+        }
       }
-    }
 
-    const label = await getRepository(Label).findOne({
-      where: { id: labelId, user: { id: uid } },
-      select: ['id', 'name', 'color', 'description', 'createdAt'],
-    })
-    if (!label) {
-      return {
-        errorCodes: [UpdateLabelErrorCode.NotFound],
-      }
-    }
-
-    // internal labels cannot be updated
-    if (label.internal && label.name.toLowerCase() !== name.toLowerCase()) {
-      log.info('internal labels cannot be updated')
-
-      return {
-        errorCodes: [UpdateLabelErrorCode.Forbidden],
-      }
-    }
-
-    log.info('Updating a label', {
-      labels: {
-        source: 'resolver',
-        resolver: 'updateLabelResolver',
-      },
-    })
-
-    const result = await appDataSource.transaction(async (t) => {
-      await setClaims(t, uid)
-      label.name = name
-      label.color = color
-      label.description = description || undefined
-      label.createdAt = new Date()
-
-      return t.getRepository(Label).update({ id: labelId }, label)
-    })
-
-    if (!result.affected) {
-      log.error('failed to update')
+      return { label: result.raw as Label }
+    } catch (error) {
+      log.error('error updating label', error)
       return {
         errorCodes: [UpdateLabelErrorCode.BadRequest],
       }
     }
-
-    await updateLabel(label, {
-      pubsub,
-      uid,
-      refresh: true,
-    })
-
-    return { label }
-  } catch (error) {
-    log.error('error updating label', error)
-    return {
-      errorCodes: [UpdateLabelErrorCode.BadRequest],
-    }
   }
-})
+)
 
 export const setLabelsForHighlightResolver = authorized<
   SetLabelsSuccess,
   SetLabelsError,
   MutationSetLabelsForHighlightArgs
->(async (_, { input }, { claims: { uid }, log, pubsub }) => {
-  log.info('setLabelsForHighlightResolver')
-
+>(async (_, { input }, { uid, log, pubsub, authTrx }) => {
   const { highlightId, labelIds, labels } = input
 
   if (!labelIds && !labels) {
@@ -391,63 +255,25 @@ export const setLabelsForHighlightResolver = authorized<
   }
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SetLabelsErrorCode.Unauthorized],
-      }
-    }
-
-    const highlight = await getHighlightById(highlightId)
-    if (!highlight) {
-      return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
-      }
-    }
-    if (highlight.userId !== uid) {
-      return {
-        errorCodes: [SetLabelsErrorCode.Unauthorized],
-      }
-    }
-
-    const ctx = {
-      uid,
-      pubsub,
-      refresh: true,
-    }
     let labelsSet: Label[] = []
+
     if (labels && labels.length > 0) {
       // for new clients that send label names
       // create labels if they don't exist
-      labelsSet = await getLabelsAndCreateIfNotExist(ctx, labels)
+      labelsSet = await getLabelsAndCreateIfNotExist(labels, uid)
     } else if (labelIds && labelIds.length > 0) {
       // for old clients that send labelIds
-      labelsSet = await getLabelsByIds(uid, labelIds)
+      labelsSet = await authTrx(async (tx) => {
+        return tx.withRepository(labelRepository).findByIds(labelIds)
+      })
       if (labelsSet.length !== labelIds.length) {
         return {
           errorCodes: [SetLabelsErrorCode.NotFound],
         }
       }
     }
-    // filter out labels that are already set
-    const labelsToAdd = labelsSet.filter(
-      (label) =>
-        !highlight.labels?.some(
-          (highlightLabel) => highlightLabel.id === label.id
-        )
-    )
-    // set labels in the highlights
-    const updated = await setLabelsForHighlight(
-      highlightId,
-      labelsSet,
-      ctx,
-      labelsToAdd
-    )
-    if (!updated) {
-      return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
-      }
-    }
+    // save labels in the library item
+    await saveLabelsInHighlight(labelsSet, input.highlightId, uid, pubsub)
 
     analytics.track({
       userId: uid,
@@ -474,31 +300,16 @@ export const moveLabelResolver = authorized<
   MoveLabelSuccess,
   MoveLabelError,
   MutationMoveLabelArgs
->(async (_, { input }, { claims: { uid }, log, pubsub }) => {
-  log.info('moveLabelResolver')
-
+>(async (_, { input }, { authTrx, log, uid }) => {
   const { labelId, afterLabelId } = input
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [MoveLabelErrorCode.Unauthorized],
-      }
-    }
-
-    const label = await getRepository(Label).findOne({
-      where: { id: labelId },
-      relations: ['user'],
+    const label = await authTrx(async (tx) => {
+      return tx.withRepository(labelRepository).findById(labelId)
     })
     if (!label) {
       return {
         errorCodes: [MoveLabelErrorCode.NotFound],
-      }
-    }
-    if (label.user.id !== uid) {
-      return {
-        errorCodes: [MoveLabelErrorCode.Unauthorized],
       }
     }
 
@@ -511,32 +322,25 @@ export const moveLabelResolver = authorized<
     // if afterLabelId is not provided, move to the top
     let newPosition = 1
     if (afterLabelId) {
-      const afterLabel = await getRepository(Label).findOne({
-        where: { id: afterLabelId },
-        relations: ['user'],
+      const afterLabel = await authTrx(async (tx) => {
+        return tx.withRepository(labelRepository).findById(labelId)
       })
       if (!afterLabel) {
         return {
           errorCodes: [MoveLabelErrorCode.NotFound],
         }
       }
-      if (afterLabel.user.id !== uid) {
-        return {
-          errorCodes: [MoveLabelErrorCode.Unauthorized],
-        }
-      }
+
       newPosition = afterLabel.position
     }
     const moveUp = newPosition < oldPosition
 
     // move label to the new position
-    const updated = await appDataSource.transaction(async (t) => {
-      await setClaims(t, uid)
-
+    const updated = await authTrx(async (tx) => {
+      const labelRepo = tx.withRepository(labelRepository)
       // update the position of the other labels
-      const updated = await t.getRepository(Label).update(
+      const updated = await labelRepo.update(
         {
-          user: { id: uid },
           position: Between(
             Math.min(newPosition, oldPosition),
             Math.max(newPosition, oldPosition)
@@ -551,7 +355,7 @@ export const moveLabelResolver = authorized<
       }
 
       // update the position of the label
-      return t.getRepository(Label).save({
+      return labelRepo.save({
         ...label,
         position: newPosition,
       })

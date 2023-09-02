@@ -13,7 +13,7 @@ import {
   UploadFileRequestSuccess,
   UploadFileStatus,
 } from '../../generated/graphql'
-import { uploadFileRepository } from '../../repository'
+import { uploadFileRepository } from '../../repository/upload_file'
 import { validateUrl } from '../../services/create_page_save_request'
 import { analytics } from '../../utils/analytics'
 import { authorized, generateSlug } from '../../utils/helpers'

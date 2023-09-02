@@ -6,7 +6,6 @@ import {
   UpdatePageErrorCode,
   UpdatePageSuccess,
 } from '../../generated/graphql'
-import { userRepository } from '../../repository'
 import { Merge } from '../../util'
 import { authorized } from '../../utils/helpers'
 
@@ -21,19 +20,11 @@ export const updatePageResolver = authorized<
   MutationUpdatePageArgs
 >(async (_, { input }, ctx) => {
   const { pubsub, uid } = ctx
-  const user = await userRepository.findOneBy({ id: uid })
-  if (!user) {
-    return { errorCodes: [UpdatePageErrorCode.Unauthorized] }
-  }
 
   const page = await getPageById(input.pageId)
 
   if (!page) {
     return { errorCodes: [UpdatePageErrorCode.NotFound] }
-  }
-
-  if (page.userId !== user.id) {
-    return { errorCodes: [UpdatePageErrorCode.Unauthorized] }
   }
 
   const pageData = {

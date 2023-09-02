@@ -6,8 +6,9 @@ import {
   LibraryItemState,
   LibraryItemType,
 } from '../entity/library_item'
+import { createPubSubClient, EntityType } from '../pubsub'
 import { entityManager } from '../repository'
-import { wordsCount } from '../utils/helpers'
+import { libraryItemRepository } from '../repository/library_item'
 import { logger } from '../utils/logger'
 import {
   DateFilter,
@@ -84,13 +85,13 @@ export interface SearchItem {
 
 export const createLibraryItem = async (
   libraryItem: DeepPartial<LibraryItem>,
-  em = entityManager
+  pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
   if (
     libraryItem.readableContent &&
     libraryItem.readableContent.length > MAX_CONTENT_LENGTH
   ) {
-    logger.info('page content is too large', {
+    logger.warn('page content is too large', {
       url: libraryItem.originalUrl,
       contentLength: libraryItem.readableContent.length,
     })
@@ -98,12 +99,15 @@ export const createLibraryItem = async (
     libraryItem.readableContent = CONTENT_LENGTH_ERROR
   }
 
-  return em.getRepository(LibraryItem).save({
-    ...libraryItem,
-    savedAt: libraryItem.savedAt || new Date(),
-    wordCount:
-      libraryItem.wordCount ?? wordsCount(libraryItem.readableContent ?? ''),
-  })
+  const newItem = await libraryItemRepository.save(libraryItem)
+
+  await pubsub.entityCreated<LibraryItem>(
+    EntityType.PAGE,
+    newItem,
+    newItem.user.id
+  )
+
+  return newItem
 }
 
 const buildWhereClause = (
