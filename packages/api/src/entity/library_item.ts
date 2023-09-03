@@ -178,7 +178,8 @@ export class LibraryItem {
 
   @OneToMany(
     () => Recommendation,
-    (recommendation) => recommendation.libraryItem
+    (recommendation) => recommendation.libraryItem,
+    { cascade: true }
   )
   @JoinTable({
     name: 'recommendation',
@@ -190,7 +191,9 @@ export class LibraryItem {
   @Column('enum', { enum: DirectionalityType, default: DirectionalityType.LTR })
   directionality!: DirectionalityType
 
-  @OneToMany(() => Highlight, (highlight) => highlight.libraryItem)
+  @OneToMany(() => Highlight, (highlight) => highlight.libraryItem, {
+    cascade: true,
+  })
   @JoinTable({
     name: 'highlight',
     joinColumn: { name: 'library_item_id' },

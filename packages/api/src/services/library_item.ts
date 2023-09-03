@@ -7,9 +7,8 @@ import {
   LibraryItemType,
 } from '../entity/library_item'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { entityManager } from '../repository'
+import { entityManager, setClaims } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { logger } from '../utils/logger'
 import {
   DateFilter,
   FieldFilter,
@@ -21,16 +20,13 @@ import {
   ReadFilter,
   SortBy,
   SortOrder,
-  SortParams,
+  Sort,
 } from '../utils/search'
 
-const MAX_CONTENT_LENGTH = 10 * 1024 * 1024 // 10MB for readable content
-const CONTENT_LENGTH_ERROR = 'Your page content is too large to be saved.'
-
-export interface PageSearchArgs {
+export interface SearchArgs {
   from?: number
   size?: number
-  sort?: SortParams
+  sort?: Sort
   query?: string
   inFilter?: InFilter
   readFilter?: ReadFilter
@@ -49,7 +45,7 @@ export interface PageSearchArgs {
   siteName?: string
 }
 
-export interface SearchItem {
+export interface SearchResultItem {
   annotation?: string | null
   author?: string | null
   createdAt: Date
@@ -83,36 +79,9 @@ export interface SearchItem {
   content?: string
 }
 
-export const createLibraryItem = async (
-  libraryItem: DeepPartial<LibraryItem>,
-  pubsub = createPubSubClient()
-): Promise<LibraryItem> => {
-  if (
-    libraryItem.readableContent &&
-    libraryItem.readableContent.length > MAX_CONTENT_LENGTH
-  ) {
-    logger.warn('page content is too large', {
-      url: libraryItem.originalUrl,
-      contentLength: libraryItem.readableContent.length,
-    })
-
-    libraryItem.readableContent = CONTENT_LENGTH_ERROR
-  }
-
-  const newItem = await libraryItemRepository.save(libraryItem)
-
-  await pubsub.entityCreated<LibraryItem>(
-    EntityType.PAGE,
-    newItem,
-    newItem.user.id
-  )
-
-  return newItem
-}
-
 const buildWhereClause = (
   queryBuilder: SelectQueryBuilder<LibraryItem>,
-  args: PageSearchArgs
+  args: SearchArgs
 ) => {
   if (args.query) {
     queryBuilder
@@ -255,9 +224,10 @@ const buildWhereClause = (
 }
 
 export const searchLibraryItems = async (
-  args: PageSearchArgs,
-  userId: string
-): Promise<[LibraryItem[], number] | null> => {
+  args: SearchArgs,
+  userId: string,
+  em = entityManager
+): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
   const { from = 0, size = 10, sort } = args
 
   // default order is descending
@@ -265,23 +235,124 @@ export const searchLibraryItems = async (
   // default sort by saved_at
   const sortField = sort?.by || SortBy.SAVED
 
-  const queryBuilder = entityManager
-    .createQueryBuilder(LibraryItem, 'library_item')
-    .leftJoinAndSelect('library_item.labels', 'labels')
-    .leftJoinAndSelect('library_item.highlights', 'highlights')
-    .where('library_item.user_id = :userId', { userId })
-
-  // build the where clause
-  buildWhereClause(queryBuilder, args)
-
   // add pagination and sorting
-  const libraryItems = await queryBuilder
-    .orderBy(`library_item.${sortField}`, sortOrder)
-    .offset(from)
-    .limit(size)
-    .getMany()
+  return em.transaction(async (tx) => {
+    await setClaims(tx, userId)
 
-  const count = await queryBuilder.getCount()
+    const queryBuilder = tx
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .leftJoinAndSelect('library_item.labels', 'labels')
+      .leftJoinAndSelect('library_item.highlights', 'highlights')
+      .where('library_item.user_id = :userId', { userId })
 
-  return [libraryItems, count]
+    // build the where clause
+    buildWhereClause(queryBuilder, args)
+
+    const libraryItems = await queryBuilder
+      .orderBy(`library_item.${sortField}`, sortOrder)
+      .offset(from)
+      .limit(size)
+      .getMany()
+
+    const count = await queryBuilder.getCount()
+
+    return { libraryItems, count }
+  })
+}
+
+export const findLibraryItemById = async (
+  id: string,
+  userId: string,
+  em = entityManager
+): Promise<LibraryItem | null> => {
+  return em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    return tx
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .leftJoinAndSelect('library_item.labels', 'labels')
+      .leftJoinAndSelect('library_item.highlights', 'highlights')
+      .where('library_item.user_id = :userId', { userId })
+      .andWhere('library_item.id = :id', { id })
+      .getOne()
+  })
+}
+
+export const findLibraryItemByUrl = async (
+  url: string,
+  userId: string,
+  em = entityManager
+): Promise<LibraryItem | null> => {
+  return em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    return tx
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .leftJoinAndSelect('library_item.labels', 'labels')
+      .leftJoinAndSelect('library_item.highlights', 'highlights')
+      .where('library_item.user_id = :userId', { userId })
+      .andWhere('library_item.url = :url', { url })
+      .getOne()
+  })
+}
+
+export const updateLibraryItem = async (
+  id: string,
+  libraryItem: DeepPartial<LibraryItem>,
+  userId: string,
+  pubsub = createPubSubClient(),
+  em = entityManager
+): Promise<LibraryItem> => {
+  const updatedLibraryItem = await em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    return tx.withRepository(libraryItemRepository).save({ id, ...libraryItem })
+  })
+
+  await pubsub.entityUpdated<DeepPartial<LibraryItem>>(
+    EntityType.PAGE,
+    libraryItem,
+    userId
+  )
+
+  return updatedLibraryItem
+}
+
+export const createLibraryItem = async (
+  libraryItem: DeepPartial<LibraryItem>,
+  userId: string,
+  pubsub = createPubSubClient(),
+  em = entityManager
+): Promise<LibraryItem> => {
+  const newLibraryItem = await em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    return tx.withRepository(libraryItemRepository).save(libraryItem)
+  })
+
+  await pubsub.entityCreated<LibraryItem>(
+    EntityType.PAGE,
+    newLibraryItem,
+    userId
+  )
+
+  return newLibraryItem
+}
+
+export const findLibraryItemsByPrefix = async (
+  prefix: string,
+  userId: string,
+  limit = 5,
+  em = entityManager
+): Promise<LibraryItem[]> => {
+  return em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    return tx
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .where('library_item.title ILIKE :prefix', { prefix: `${prefix}%` })
+      .orWhere('library_item.site_name ILIKE :prefix', { prefix: `${prefix}%` })
+      .limit(limit)
+      .getMany()
+  })
 }

@@ -5,7 +5,7 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import { Recommendation } from '../elastic/types'
+import { Recommendation } from '../entity/recommendation'
 import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import {

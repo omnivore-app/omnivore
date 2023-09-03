@@ -4,22 +4,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { getPageByParam } from '../elastic/pages'
-import { getRepository } from '../repository'
 import { Subscription } from '../entity/subscription'
-import { UploadFile } from '../entity/upload_file'
-import { User } from '../entity/user'
-import {
-  Article,
-  ArticleHighlightsInput,
-  Highlight,
-  HighlightType,
-  PageType,
-  SearchItem,
-} from '../generated/graphql'
-import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
+import { Article, PageType, SearchItem } from '../generated/graphql'
+import { findUploadFileById } from '../services/upload_file'
+import { validatedDate, wordsCount } from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
 import {
-  contentReaderForPage,
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
@@ -51,7 +41,6 @@ import {
   generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
-  getArticlesResolver,
   // getFollowersResolver,
   // getFollowingResolver,
   getMeUserResolver,
@@ -219,7 +208,6 @@ export const functionResolvers = {
     validateUsername: validateUsernameResolver,
     article: getArticleResolver,
     // sharedArticle: getSharedArticleResolver,
-    articles: getArticlesResolver,
     // feedArticles: getUserFeedArticlesResolver,
     // getFollowers: getFollowersResolver,
     // getFollowing: getFollowingResolver,
@@ -387,9 +375,10 @@ export const functionResolvers = {
         ctx.claims &&
         article.uploadFileId
       ) {
-        const upload = await getRepository(UploadFile).findOneBy({
-          id: article.uploadFileId,
-        })
+        const upload = await findUploadFileById(
+          article.uploadFileId,
+          ctx.claims.uid
+        )
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -431,24 +420,6 @@ export const functionResolvers = {
       })
       return !!page?.sharedAt
     },
-    async savedAt(
-      article: { id: string; savedAt?: Date; createdAt?: Date },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if (!ctx.claims?.uid) return new Date()
-      if (article.savedAt) return article.savedAt
-      return (
-        (
-          await getPageByParam({
-            userId: ctx.claims.uid,
-            _id: article.id,
-          })
-        )?.savedAt ||
-        article.createdAt ||
-        new Date()
-      )
-    },
     hasContent(article: {
       content: string | null
       originalHtml: string | null
@@ -457,37 +428,6 @@ export const functionResolvers = {
     },
     publishedAt(article: { publishedAt: Date }) {
       return validatedDate(article.publishedAt)
-    },
-    async isArchived(
-      article: {
-        id: string
-        isArchived?: boolean | null
-        archivedAt?: Date | undefined
-      },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if ('isArchived' in article) return article.isArchived
-      if ('archivedAt' in article) return !!article.archivedAt
-      if (!ctx.claims?.uid) return false
-      const page = await getPageByParam({
-        userId: ctx.claims.uid,
-        _id: article.id,
-      })
-      return !!page?.archivedAt || false
-    },
-    contentReader(article: {
-      pageType: PageType
-      uploadFileId: string | undefined
-    }) {
-      return contentReaderForPage(article.pageType, article.uploadFileId)
-    },
-    highlights(
-      article: { id: string; userId?: string; highlights?: Highlight[] },
-      _: { input: ArticleHighlightsInput },
-      ctx: WithDataSourcesContext
-    ) {
-      return article.highlights || []
     },
     // async shareInfo(
     //   article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
@@ -511,29 +451,7 @@ export const functionResolvers = {
       return article.content ? wordsCount(article.content) : undefined
     },
   },
-  ArticleSavingRequest: {
-    async article(request: { userId: string; articleId: string }, __: unknown) {
-      if (!request.userId || !request.articleId) return undefined
-
-      return getPageByParam({
-        userId: request.userId,
-        _id: request.articleId,
-      })
-    },
-  },
   Highlight: {
-    async user(
-      highlight: { userId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const userData = await getRepository(User).findOneBy({
-        id: highlight.userId,
-      })
-      if (!userData) return null
-
-      return userDataToUser(userData)
-    },
     // async reactions(
     //   highlight: { id: string; reactions?: Reaction[] },
     //   _: unknown,
@@ -549,10 +467,7 @@ export const functionResolvers = {
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return highlight.createdByMe ?? highlight.userId === ctx.claims?.uid
-    },
-    type(highlight: { type: HighlightType }) {
-      return highlight.type || HighlightType.Highlight
+      return highlight.createdByMe ?? highlight.userId === ctx.uid
     },
   },
   // Reaction: {
@@ -568,12 +483,10 @@ export const functionResolvers = {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       if (
         (item.pageType == PageType.File || item.pageType == PageType.Book) &&
-        ctx.claims &&
+        ctx.uid &&
         item.uploadFileId
       ) {
-        const upload = await getRepository(UploadFile).findOneBy({
-          id: item.uploadFileId,
-        })
+        const upload = await findUploadFileById(item.uploadFileId, ctx.uid)
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -582,8 +495,8 @@ export const functionResolvers = {
       }
       return item.url
     },
-    pageType(item: SearchItem) {
-      return item.pageType || PageType.Unknown
+    image(item: SearchItem) {
+      return item.image && createImageProxyUrl(item.image, 320, 320)
     },
   },
   Subscription: {

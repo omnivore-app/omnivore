@@ -1,35 +1,35 @@
-import DataLoader from 'dataloader'
 import { In } from 'typeorm'
-import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem } from '../entity/library_item'
-import { Link } from '../entity/link'
-import { EntityType, PubsubClient } from '../pubsub'
-import { authTrx, getRepository } from '../repository'
+import { createPubSubClient, EntityType } from '../pubsub'
+import { entityManager, setClaims } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { libraryItemRepository } from '../repository/library_item'
 
-const batchGetLabelsFromLinkIds = async (
-  linkIds: readonly string[]
-): Promise<Label[][]> => {
-  const links = await getRepository(Link).find({
-    where: { id: In(linkIds as string[]) },
-    relations: ['labels'],
-  })
+// const batchGetLabelsFromLinkIds = async (
+//   linkIds: readonly string[]
+// ): Promise<Label[][]> => {
+//   const links = await getRepository(Link).find({
+//     where: { id: In(linkIds as string[]) },
+//     relations: ['labels'],
+//   })
 
-  return linkIds.map(
-    (linkId) => links.find((link) => link.id === linkId)?.labels || []
-  )
-}
+//   return linkIds.map(
+//     (linkId) => links.find((link) => link.id === linkId)?.labels || []
+//   )
+// }
 
-export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
+// export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
 
 export const getLabelsAndCreateIfNotExist = async (
   labels: CreateLabelInput[],
-  userId: string
+  userId: string,
+  em = entityManager
 ): Promise<Label[]> => {
-  return authTrx(async (tx) => {
+  return em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
     const labelRepo = tx.withRepository(labelRepository)
     // find existing labels
     const labelEntities = await labelRepo.findByNames(labels.map((l) => l.name))
@@ -55,15 +55,14 @@ export const saveLabelsInLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub: PubsubClient
+  pubsub = createPubSubClient(),
+  em = entityManager
 ) => {
-  await authTrx(async (tx) => {
+  await em.transaction(async (tx) => {
+    await setClaims(tx, userId)
     await tx
       .withRepository(libraryItemRepository)
-      .createQueryBuilder()
-      .relation(LibraryItem, 'labels')
-      .of(libraryItemId)
-      .set(labels)
+      .update(libraryItemId, { labels })
   })
 
   // create pubsub event
@@ -78,9 +77,11 @@ export const addLabelsToLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub: PubsubClient
+  pubsub = createPubSubClient(),
+  em = entityManager
 ) => {
-  await authTrx(async (tx) => {
+  await em.transaction(async (tx) => {
+    await setClaims(tx, userId)
     await tx
       .withRepository(libraryItemRepository)
       .createQueryBuilder()
@@ -101,15 +102,13 @@ export const saveLabelsInHighlight = async (
   labels: Label[],
   highlightId: string,
   userId: string,
-  pubsub: PubsubClient
+  pubsub = createPubSubClient(),
+  em = entityManager
 ) => {
-  await authTrx(async (tx) => {
-    await tx
-      .withRepository(highlightRepository)
-      .createQueryBuilder()
-      .relation(Highlight, 'labels')
-      .of(highlightId)
-      .set(labels)
+  await em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    await tx.withRepository(highlightRepository).update(highlightId, { labels })
   })
 
   // create pubsub event
@@ -118,4 +117,18 @@ export const saveLabelsInHighlight = async (
     labels.map((l) => ({ ...l, highlightId })),
     userId
   )
+}
+
+export const findLabelsByIds = async (
+  ids: string[],
+  userId: string,
+  em = entityManager
+): Promise<Label[]> => {
+  return em.transaction(async (tx) => {
+    await setClaims(tx, userId)
+
+    return tx.withRepository(labelRepository).findBy({
+      id: In(ids),
+    })
+  })
 }

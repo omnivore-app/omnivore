@@ -1,4 +1,3 @@
-import { ApiKey } from '../../entity/api_key'
 import { env } from '../../env'
 import {
   ApiKeysError,
@@ -13,6 +12,7 @@ import {
   RevokeApiKeyErrorCode,
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
+import { apiKeyRepository } from '../../repository/api_key'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
 import { authorized } from '../../utils/helpers'
@@ -20,8 +20,8 @@ import { authorized } from '../../utils/helpers'
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
   async (_, __, { log, authTrx }) => {
     try {
-      const apiKeys = await authTrx<Promise<ApiKey[]>>(async (tx) => {
-        return tx.find(ApiKey, {
+      const apiKeys = await authTrx(async (tx) => {
+        return tx.withRepository(apiKeyRepository).find({
           select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
           order: {
             usedAt: { direction: 'DESC', nulls: 'last' },
@@ -51,8 +51,8 @@ export const generateApiKeyResolver = authorized<
   try {
     const exp = new Date(expiresAt)
     const originalKey = generateApiKey()
-    const apiKeyCreated = await authTrx<Promise<ApiKey>>(async (tx) => {
-      return tx.save(ApiKey, {
+    const apiKeyCreated = await authTrx(async (tx) => {
+      return tx.withRepository(apiKeyRepository).save({
         user: { id: uid },
         name,
         key: hashApiKey(originalKey),
@@ -89,13 +89,14 @@ export const revokeApiKeyResolver = authorized<
   MutationRevokeApiKeyArgs
 >(async (_, { id }, { claims: { uid }, log, authTrx }) => {
   try {
-    const deletedApiKey = await authTrx<Promise<ApiKey | null>>(async (tx) => {
-      const apiKey = await tx.findOneBy(ApiKey, { id })
+    const deletedApiKey = await authTrx(async (tx) => {
+      const apiRepo = tx.withRepository(apiKeyRepository)
+      const apiKey = await apiRepo.findOneBy({ id })
       if (!apiKey) {
         return null
       }
 
-      return tx.remove(ApiKey, apiKey)
+      return apiRepo.remove(apiKey)
     })
 
     if (!deletedApiKey) {

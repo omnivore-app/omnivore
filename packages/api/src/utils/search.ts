@@ -10,6 +10,7 @@ import {
   SearchParserTextOffset,
 } from 'search-query-parser'
 import { LibraryItemType } from '../entity/library_item'
+import { InputMaybe, SortParams } from '../generated/graphql'
 
 export enum ReadFilter {
   ALL,
@@ -32,7 +33,7 @@ export interface SearchFilter {
   readFilter: ReadFilter
   typeFilter?: LibraryItemType
   labelFilters: LabelFilter[]
-  sortParams?: SortParams
+  sort?: Sort
   hasFilters: HasFilter[]
   dateFilters: DateFilter[]
   termFilters: FieldFilter[]
@@ -67,7 +68,6 @@ export interface DateFilter {
 export enum SortBy {
   SAVED = 'saved_at',
   UPDATED = 'updated_at',
-  SCORE = '_score',
   PUBLISHED = 'published_at',
   READ = 'read_at',
   LISTENED = 'listened_at',
@@ -79,7 +79,7 @@ export enum SortOrder {
   DESCENDING = 'DESC',
 }
 
-export interface SortParams {
+export interface Sort {
   by: SortBy
   order?: SortOrder
 }
@@ -179,7 +179,7 @@ const parseLabelFilter = (
   }
 }
 
-const parseSortParams = (str?: string): SortParams | undefined => {
+const parseSort = (str?: string): Sort | undefined => {
   if (str === undefined) {
     return undefined
   }
@@ -198,11 +198,6 @@ const parseSortParams = (str?: string): SortParams | undefined => {
       return {
         by: SortBy.SAVED,
         order: sortOrder,
-      }
-    case 'SCORE':
-      // sort by score does not need an order
-      return {
-        by: SortBy.SCORE,
       }
     case 'PUBLISHED':
       return {
@@ -417,7 +412,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         }
         case 'sort':
-          result.sortParams = parseSortParams(keyword.value)
+          result.sort = parseSort(keyword.value)
           break
         case 'has': {
           const hasFilter = parseHasFilter(keyword.value)
@@ -475,4 +470,27 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   }
 
   return result
+}
+
+export const sortParamsToSort = (
+  sortParams: InputMaybe<SortParams> | undefined
+) => {
+  const sort = { by: SortBy.UPDATED, order: SortOrder.DESCENDING }
+
+  if (sortParams) {
+    sortParams.order === 'ASCENDING' && (sort.order = SortOrder.ASCENDING)
+    switch (sortParams.by) {
+      case 'UPDATED_TIME':
+        sort.by = SortBy.UPDATED
+        break
+      case 'PUBLISHED_AT':
+        sort.by = SortBy.PUBLISHED
+        break
+      case 'SAVED_AT':
+        sort.by = SortBy.SAVED
+        break
+    }
+  }
+
+  return sort
 }

@@ -5,20 +5,29 @@ import path from 'path'
 import _ from 'underscore'
 import slugify from 'voca/slugify'
 import wordsCounter from 'word-counting'
-import { updatePage } from '../elastic/pages'
-import { ArticleSavingRequestStatus, Page } from '../elastic/types'
-import { LibraryItem } from '../entity/library_item'
+import { Highlight as HighlightData } from '../entity/highlight'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { Recommendation as RecommendationData } from '../entity/recommendation'
 import { RegistrationType, User } from '../entity/user'
 import {
   ArticleSavingRequest,
+  ArticleSavingRequestStatus,
+  ContentReader,
   CreateArticleError,
   FeedArticle,
+  Highlight,
+  HighlightType,
+  PageType,
   Profile,
+  Recommendation,
   ResolverFn,
+  SearchItem,
 } from '../generated/graphql'
-import { CreateArticlesSuccessPartial } from '../resolvers'
+import { createPubSubClient } from '../pubsub'
+import { CreateArticlesSuccessPartial, PartialArticle } from '../resolvers'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { validateUrl } from '../services/create_page_save_request'
+import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
 import { logger } from './logger'
 interface InputObject {
@@ -170,23 +179,42 @@ export const MAX_CONTENT_LENGTH = 5e7 //50MB
 
 export const pageError = async (
   result: CreateArticleError,
-  ctx: WithDataSourcesContext,
-  pageId?: string | null
+  userId: string,
+  pageId?: string | null,
+  pubsub = createPubSubClient()
 ): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
   if (!pageId) return result
 
-  await updatePage(
+  await updateLibraryItem(
     pageId,
     {
-      state: ArticleSavingRequestStatus.Failed,
+      state: LibraryItemState.Failed,
     },
-    ctx
+    userId,
+    pubsub
   )
 
   return result
 }
 
-export const pageToArticleSavingRequest = (
+const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
+  ...highlight,
+  createdByMe: true,
+  reactions: [],
+  replies: [],
+  type: highlight.highlightType as unknown as HighlightType,
+  user: userDataToUser(highlight.user),
+})
+
+const recommandationDataToRecommendation = (
+  recommendation: RecommendationData
+): Recommendation => ({
+  ...recommendation,
+  name: recommendation.recommender.name,
+  recommendedAt: recommendation.createdAt,
+})
+
+export const libraryItemToArticleSavingRequest = (
   user: User,
   item: LibraryItem
 ): ArticleSavingRequest => ({
@@ -197,11 +225,45 @@ export const pageToArticleSavingRequest = (
   userId: user.id,
 })
 
-export const isParsingTimeout = (page: Page): boolean => {
+export const libraryItemToPartialArticle = (
+  item: LibraryItem
+): PartialArticle => ({
+  ...item,
+  url: item.originalUrl,
+  state: item.state as unknown as ArticleSavingRequestStatus,
+  content: item.readableContent,
+  hash: item.textContentHash || '',
+  isArchived: item.state === LibraryItemState.Archived,
+  recommendations: item.recommendations?.map(
+    recommandationDataToRecommendation
+  ),
+  subscription: item.subscription?.name,
+  image: item.thumbnail,
+})
+
+export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
+  ...item,
+  url: item.originalUrl,
+  state: item.state as unknown as ArticleSavingRequestStatus,
+  content: item.readableContent,
+  isArchived: item.state === LibraryItemState.Archived,
+  pageType: item.itemType as unknown as PageType,
+  readingProgressPercent: item.readingProgressTopPercent,
+  contentReader: item.contentReader as unknown as ContentReader,
+  readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
+  subscription: item.subscription?.name,
+  recommendations: item.recommendations?.map(
+    recommandationDataToRecommendation
+  ),
+  image: item.thumbnail,
+  highlights: item.highlights?.map(highlightDataToHighlight),
+})
+
+export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {
   return (
     // page processed more than 30 seconds ago
-    page.state === ArticleSavingRequestStatus.Processing &&
-    new Date(page.savedAt).getTime() < new Date().getTime() - 1000 * 30
+    libraryItem.state === LibraryItemState.Processing &&
+    libraryItem.savedAt.getTime() < new Date().getTime() - 1000 * 30
   )
 }
 

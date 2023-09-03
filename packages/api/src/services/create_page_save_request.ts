@@ -1,34 +1,36 @@
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
-import { countByCreatedAt, createPage, updatePage } from '../elastic/pages'
+import { countByCreatedAt } from '../elastic/pages'
 import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
-import { LibraryItemState } from '../entity/library_item'
-import { User } from '../entity/user'
+import { LibraryItemState, LibraryItemType } from '../entity/library_item'
 import {
   ArticleSavingRequest,
   CreateArticleSavingRequestErrorCode,
-  CreateLabelInput
+  CreateLabelInput,
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
-import { libraryItemRepository } from '../repository/library_item'
 import { userRepository } from '../repository/user'
 import { enqueueParseRequest } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
-  pageToArticleSavingRequest
+  libraryItemToArticleSavingRequest,
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
+import {
+  createLibraryItem,
+  findLibraryItemByUrl,
+  updateLibraryItem,
+} from './library_item'
 
 interface PageSaveRequest {
   userId: string
   url: string
   pubsub?: PubsubClient
   articleSavingRequestId?: string
-  archivedAt?: Date | null
+  state?: ArticleSavingRequestStatus
   labels?: CreateLabelInput[]
   priority?: 'low' | 'high'
-  user?: User | null
   locale?: string
   timezone?: string
   savedAt?: Date
@@ -80,10 +82,9 @@ export const createPageSaveRequest = async ({
   url,
   pubsub = createPubSubClient(),
   articleSavingRequestId = uuidv4(),
-  archivedAt,
+  state,
   priority,
   labels,
-  user,
   locale,
   timezone,
   savedAt,
@@ -92,62 +93,52 @@ export const createPageSaveRequest = async ({
   try {
     validateUrl(url)
   } catch (error) {
-    logger.error('invalid url', { url, error })
+    logger.info('invalid url', { url, error })
     return Promise.reject({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
   }
   // if user is not specified, get it from the database
+  const user = await userRepository.findById(userId)
   if (!user) {
-    user = await userRepository.findById(userId)
-    if (!user) {
-      logger.info('User not found', userId)
-      return Promise.reject({
-        errorCode: CreateArticleSavingRequestErrorCode.BadData,
-      })
-    }
+    logger.info('User not found', userId)
+    return Promise.reject({
+      errorCode: CreateArticleSavingRequestErrorCode.BadData,
+    })
   }
 
   url = cleanUrl(url)
   // look for existing library item
-  const existingLibraryItem = await libraryItemRepository.findByUrl(url)
-  if (!existingLibraryItem) {
+  let libraryItem = await findLibraryItemByUrl(url, userId)
+  if (!libraryItem) {
     logger.info('libraryItem does not exist', { url })
-    libraryItem = {
-      id: articleSavingRequestId,
-      user: { id: userId },
-      content: SAVING_CONTENT,
-      hash: '',
-      pageType: PageType.Unknown,
-      readingProgressAnchorIndex: 0,
-      readingProgressPercent: 0,
-      slug: generateSlug(url),
-      title: url,
-      url,
-      state: LibraryItemState.Processing,
-      createdAt: new Date(),
-      savedAt: savedAt || new Date(),
-      publishedAt,
-      archivedAt,
-    }
 
     // create processing page
-    const pageId = await createPage(page, ctx)
-    if (!pageId) {
-      logger.info('Failed to create page', url)
-      return Promise.reject({
-        errorCode: CreateArticleSavingRequestErrorCode.BadData,
-      })
-    }
+    libraryItem = await createLibraryItem(
+      {
+        id: articleSavingRequestId,
+        user: { id: userId },
+        readableContent: SAVING_CONTENT,
+        itemType: LibraryItemType.Unknown,
+        slug: generateSlug(url),
+        title: url,
+        originalUrl: url,
+        state: LibraryItemState.Processing,
+        publishedAt,
+      },
+      userId,
+      pubsub
+    )
   }
   // reset state to processing
-  if (existingLibraryItem.state !== ArticleSavingRequestStatus.Processing) {
-    await updatePage(
-      page.id,
+  if (libraryItem.state !== LibraryItemState.Processing) {
+    libraryItem = await updateLibraryItem(
+      libraryItem.id,
       {
-        state: ArticleSavingRequestStatus.Processing,
+        state: LibraryItemState.Processing,
       },
-      ctx
+      userId,
+      pubsub
     )
   }
 
@@ -160,7 +151,7 @@ export const createPageSaveRequest = async ({
     userId,
     saveRequestId: articleSavingRequestId,
     priority,
-    state: archivedAt ? ArticleSavingRequestStatus.Archived : undefined,
+    state,
     labels,
     locale,
     timezone,
@@ -168,5 +159,5 @@ export const createPageSaveRequest = async ({
     publishedAt,
   })
 
-  return pageToArticleSavingRequest(user, page)
+  return libraryItemToArticleSavingRequest(user, libraryItem)
 }

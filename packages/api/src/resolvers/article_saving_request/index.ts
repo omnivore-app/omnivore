@@ -1,11 +1,9 @@
 /* eslint-disable prefer-const */
-import { getPageByParam } from '../../elastic/pages'
-import { User } from '../../entity/user'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArticleSavingRequestError,
   ArticleSavingRequestErrorCode,
-  ArticleSavingRequestStatus,
   ArticleSavingRequestSuccess,
   CreateArticleSavingRequestError,
   CreateArticleSavingRequestErrorCode,
@@ -13,14 +11,18 @@ import {
   MutationCreateArticleSavingRequestArgs,
   QueryArticleSavingRequestArgs,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
+import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import {
+  findLibraryItemById,
+  findLibraryItemByUrl,
+} from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import {
   authorized,
   cleanUrl,
   isParsingTimeout,
-  pageToArticleSavingRequest,
+  libraryItemToArticleSavingRequest,
 } from '../../utils/helpers'
 import { isErrorWithCode } from '../user'
 
@@ -63,35 +65,37 @@ export const articleSavingRequestResolver = authorized<
   ArticleSavingRequestSuccess,
   ArticleSavingRequestError,
   QueryArticleSavingRequestArgs
->(async (_, { id, url }, { claims }) => {
-  if (!id && !url) {
-    return { errorCodes: [ArticleSavingRequestErrorCode.BadData] }
-  }
-  const user = await getRepository(User).findOne({
-    where: { id: claims.uid },
-    relations: ['profile'],
-  })
-  if (!user) {
+>(async (_, { id, url }, { uid, log }) => {
+  try {
+    if (!id && !url) {
+      return { errorCodes: [ArticleSavingRequestErrorCode.BadData] }
+    }
+    const user = await userRepository.findById(uid)
+    if (!user) {
+      return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
+    }
+
+    let libraryItem: LibraryItem | null = null
+    if (id) {
+      libraryItem = await findLibraryItemById(id, uid)
+    } else if (url) {
+      libraryItem = await findLibraryItemByUrl(cleanUrl(url), uid)
+    }
+
+    if (!libraryItem) {
+      return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
+    }
+    if (isParsingTimeout(libraryItem)) {
+      libraryItem.state = LibraryItemState.Succeeded
+    }
+    return {
+      articleSavingRequest: libraryItemToArticleSavingRequest(
+        user,
+        libraryItem
+      ),
+    }
+  } catch (error) {
+    log.error('articleSavingRequestResolver error', error)
     return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
   }
-
-  const normalizedUrl = url ? cleanUrl(url) : undefined
-
-  const params = {
-    _id: id || undefined,
-    url: normalizedUrl,
-    userId: claims.uid,
-    state: [
-      ArticleSavingRequestStatus.Succeeded,
-      ArticleSavingRequestStatus.Processing,
-    ],
-  }
-  const page = await getPageByParam(params)
-  if (!page) {
-    return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
-  }
-  if (isParsingTimeout(page)) {
-    page.state = ArticleSavingRequestStatus.Succeeded
-  }
-  return { articleSavingRequest: pageToArticleSavingRequest(user, page) }
 })

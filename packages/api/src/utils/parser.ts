@@ -15,11 +15,10 @@ import { ElementNode } from 'node-html-markdown/dist/nodes'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
-import { Highlight } from '../elastic/types'
-import { getRepository } from '../repository'
-import { User } from '../entity/user'
+import { Highlight } from '../entity/highlight'
 import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
+import { userRepository } from '../repository/user'
 import { ArticleFormat } from '../resolvers/article'
 import {
   EmbeddedHighlightData,
@@ -469,7 +468,7 @@ export const isProbablyArticle = async (
   email: string,
   subject: string
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     email: ILike(email),
   })
   return !!user || subject.includes(ARTICLE_PREFIX)
@@ -655,7 +654,7 @@ export const htmlToHighlightedMarkdown = (
 
   // wrap highlights in special tags
   highlights
-    .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
+    .filter((h) => h.highlightType == 'HIGHLIGHT' && h.patch)
     .forEach((highlight) => {
       try {
         makeHighlightNodeAttributes(

@@ -2701,14 +2701,6 @@ const schema = gql`
     hello: String
     me: User
     user(userId: ID, username: String): UserResult!
-    articles(
-      sharedOnly: Boolean
-      sort: SortParams
-      after: String
-      first: Int
-      query: String
-      includePending: Boolean
-    ): ArticlesResult!
     article(username: String!, slug: String!, format: String): ArticleResult!
     # sharedArticle(
     #   username: String!

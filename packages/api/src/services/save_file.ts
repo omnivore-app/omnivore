@@ -1,4 +1,3 @@
-import { updatePage } from '../elastic/pages'
 import { UploadFile } from '../entity/upload_file'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
@@ -13,13 +12,6 @@ import { WithDataSourcesContext } from '../resolvers/types'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
 import { getLabelsAndCreateIfNotExist } from './labels'
-
-export const setFileUploadComplete = async (
-  id: string,
-  em = entityManager
-): Promise<UploadFile | null> => {
-  return em.getRepository(UploadFile).save({ id, status: 'COMPLETED' })
-}
 
 export const saveFile = async (
   ctx: WithDataSourcesContext,
@@ -55,7 +47,7 @@ export const saveFile = async (
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
   const labels = input.labels
-    ? await getLabelsAndCreateIfNotExist(ctx, input.labels)
+    ? await getLabelsAndCreateIfNotExist(input.labels, user.id)
     : undefined
   if (input.state || input.labels) {
     const updated = await updatePage(

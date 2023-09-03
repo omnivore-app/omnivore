@@ -6,7 +6,7 @@ import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { SignupErrorCode } from '../generated/graphql'
 import { getRepository } from '../repository'
-import { getUserByEmail } from '../repository/user'
+import { userRepository } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
@@ -41,7 +41,7 @@ export const createUser = async (input: {
   pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
   const trimmedEmail = input.email.trim()
-  const existingUser = await getUserByEmail(trimmedEmail)
+  const existingUser = await userRepository.findByEmail(trimmedEmail)
   if (existingUser) {
     if (existingUser.profile) {
       return Promise.reject({ errorCode: SignupErrorCode.UserExists })

@@ -109,7 +109,7 @@ export const savePage = async (
     try {
       await createPageSaveRequest({
         userId: user.id,
-        url: itemToSave.originalUrl!,
+        url: itemToSave.originalUrl,
         pubsub: ctx.pubsub,
         articleSavingRequestId: input.clientRequestId,
         archivedAt,
@@ -230,7 +230,7 @@ export const parsedContentToLibraryItem = ({
   saveTime?: Date
   rssFeedUrl?: string | null
   publishedAt?: Date | null
-}): DeepPartial<LibraryItem> => {
+}): DeepPartial<LibraryItem> & { originalUrl: string } => {
   return {
     id: pageId ?? undefined,
     slug,
