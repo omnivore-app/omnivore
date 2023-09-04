@@ -1,5 +1,6 @@
+'use client'
+
 import { HStack, SpanBox, VStack } from './LayoutPrimitives'
-import { ArrowRightIcon } from './icons/ArrowRightIcon'
 import { theme } from '../tokens/stitches.config'
 import { Button } from './Button'
 import { CloseIcon } from './icons/CloseIcon'
