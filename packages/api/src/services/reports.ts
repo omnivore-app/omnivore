@@ -4,14 +4,13 @@ import { ContentDisplayReport } from '../entity/reports/content_display_report'
 import { ReportItemInput, ReportType } from '../generated/graphql'
 import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
+import { findLibraryItemById } from './library_item'
 
 export const saveContentDisplayReport = async (
   uid: string,
   input: ReportItemInput
 ): Promise<boolean> => {
-  const repo = getRepository(ContentDisplayReport)
-
-  const page = await getPageById(input.pageId)
+  const page = await findLibraryItemById(input.pageId)
 
   if (!page) {
     logger.info('unable to submit report, page not found', input)
@@ -23,7 +22,6 @@ export const saveContentDisplayReport = async (
   // what the user saw.
   const result = await repo.save({
     user: { id: uid },
-    elasticPageId: input.pageId,
     content: page.content,
     originalHtml: page.originalHtml || undefined,
     originalUrl: page.url,

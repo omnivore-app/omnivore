@@ -12,6 +12,7 @@ import { WithDataSourcesContext } from '../resolvers/types'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
 import { getLabelsAndCreateIfNotExist } from './labels'
+import { setFileUploadComplete } from './upload_file'
 
 export const saveFile = async (
   ctx: WithDataSourcesContext,
@@ -32,9 +33,7 @@ export const saveFile = async (
 
   await getStorageFileDetails(input.uploadFileId, uploadFile.fileName)
 
-  const uploadFileData = await ctx.authTrx(async (tx) => {
-    return setFileUploadComplete(input.uploadFileId, tx)
-  })
+  const uploadFileData = await setFileUploadComplete(input.uploadFileId)
 
   if (!uploadFileData) {
     return {

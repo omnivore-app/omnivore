@@ -2,7 +2,7 @@ import { In } from 'typeorm'
 import { Label } from '../entity/label'
 import { LibraryItem } from '../entity/library_item'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { entityManager, setClaims } from '../repository'
+import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { libraryItemRepository } from '../repository/library_item'
@@ -24,12 +24,9 @@ import { libraryItemRepository } from '../repository/library_item'
 
 export const getLabelsAndCreateIfNotExist = async (
   labels: CreateLabelInput[],
-  userId: string,
-  em = entityManager
+  userId: string
 ): Promise<Label[]> => {
-  return em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  return authTrx(async (tx) => {
     const labelRepo = tx.withRepository(labelRepository)
     // find existing labels
     const labelEntities = await labelRepo.findByNames(labels.map((l) => l.name))
@@ -55,11 +52,9 @@ export const saveLabelsInLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ) => {
-  await em.transaction(async (tx) => {
-    await setClaims(tx, userId)
+  await authTrx(async (tx) => {
     await tx
       .withRepository(libraryItemRepository)
       .update(libraryItemId, { labels })
@@ -77,11 +72,9 @@ export const addLabelsToLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ) => {
-  await em.transaction(async (tx) => {
-    await setClaims(tx, userId)
+  await authTrx(async (tx) => {
     await tx
       .withRepository(libraryItemRepository)
       .createQueryBuilder()
@@ -102,12 +95,9 @@ export const saveLabelsInHighlight = async (
   labels: Label[],
   highlightId: string,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ) => {
-  await em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  await authTrx(async (tx) => {
     await tx.withRepository(highlightRepository).update(highlightId, { labels })
   })
 
@@ -119,14 +109,8 @@ export const saveLabelsInHighlight = async (
   )
 }
 
-export const findLabelsByIds = async (
-  ids: string[],
-  userId: string,
-  em = entityManager
-): Promise<Label[]> => {
-  return em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+export const findLabelsByIds = async (ids: string[]): Promise<Label[]> => {
+  return authTrx(async (tx) => {
     return tx.withRepository(labelRepository).findBy({
       id: In(ids),
     })

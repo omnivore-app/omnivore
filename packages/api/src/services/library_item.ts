@@ -7,7 +7,7 @@ import {
   LibraryItemType,
 } from '../entity/library_item'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { entityManager, setClaims } from '../repository'
+import { authTrx, setClaims } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import {
   DateFilter,
@@ -18,9 +18,9 @@ import {
   LabelFilterType,
   NoFilter,
   ReadFilter,
+  Sort,
   SortBy,
   SortOrder,
-  Sort,
 } from '../utils/search'
 
 export interface SearchArgs {
@@ -225,8 +225,7 @@ const buildWhereClause = (
 
 export const searchLibraryItems = async (
   args: SearchArgs,
-  userId: string,
-  em = entityManager
+  userId: string
 ): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
   const { from = 0, size = 10, sort } = args
 
@@ -236,9 +235,7 @@ export const searchLibraryItems = async (
   const sortField = sort?.by || SortBy.SAVED
 
   // add pagination and sorting
-  return em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  return authTrx(async (tx) => {
     const queryBuilder = tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .leftJoinAndSelect('library_item.labels', 'labels')
@@ -262,12 +259,9 @@ export const searchLibraryItems = async (
 
 export const findLibraryItemById = async (
   id: string,
-  userId: string,
-  em = entityManager
+  userId: string
 ): Promise<LibraryItem | null> => {
-  return em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  return authTrx(async (tx) => {
     return tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .leftJoinAndSelect('library_item.labels', 'labels')
@@ -280,12 +274,9 @@ export const findLibraryItemById = async (
 
 export const findLibraryItemByUrl = async (
   url: string,
-  userId: string,
-  em = entityManager
+  userId: string
 ): Promise<LibraryItem | null> => {
-  return em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  return authTrx(async (tx) => {
     return tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .leftJoinAndSelect('library_item.labels', 'labels')
@@ -300,12 +291,9 @@ export const updateLibraryItem = async (
   id: string,
   libraryItem: DeepPartial<LibraryItem>,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
-  const updatedLibraryItem = await em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  const updatedLibraryItem = await authTrx(async (tx) => {
     return tx.withRepository(libraryItemRepository).save({ id, ...libraryItem })
   })
 
@@ -321,10 +309,9 @@ export const updateLibraryItem = async (
 export const createLibraryItem = async (
   libraryItem: DeepPartial<LibraryItem>,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
-  const newLibraryItem = await em.transaction(async (tx) => {
+  const newLibraryItem = await authTrx(async (tx) => {
     await setClaims(tx, userId)
 
     return tx.withRepository(libraryItemRepository).save(libraryItem)
@@ -341,13 +328,9 @@ export const createLibraryItem = async (
 
 export const findLibraryItemsByPrefix = async (
   prefix: string,
-  userId: string,
-  limit = 5,
-  em = entityManager
+  limit = 5
 ): Promise<LibraryItem[]> => {
-  return em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  return authTrx(async (tx) => {
     return tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.title ILIKE :prefix', { prefix: `${prefix}%` })

@@ -7,7 +7,8 @@ import { RuleActionType } from '../entity/rule'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
-import { getRepository } from '../repository'
+import { authTrx } from '../repository'
+import { groupRepository } from '../repository/group'
 import { userDataToUser } from '../utils/helpers'
 import { createLabel, getLabelByName } from './labels'
 import { createRule } from './rules'
@@ -26,7 +27,7 @@ export const createGroup = async (input: {
     async (t) => {
       // Max number of groups a user can create
       const maxGroups = 3
-      const groupCount = await getRepository(Group).countBy({
+      const groupCount = await t.getRepository(Group).countBy({
         createdBy: { id: input.admin.id },
       })
       if (groupCount >= maxGroups) {
@@ -71,10 +72,12 @@ export const createGroup = async (input: {
 export const getRecommendationGroups = async (
   user: User
 ): Promise<RecommendationGroup[]> => {
-  const groupMembers = await getRepository(GroupMembership).find({
-    where: { user: { id: user.id } },
-    relations: ['invite', 'group.members.user.profile'],
-  })
+  const groupMembers = await authTrx((t) =>
+    t.getRepository(GroupMembership).find({
+      where: { user: { id: user.id } },
+      relations: ['invite', 'group.members.user.profile'],
+    })
+  )
 
   return groupMembers.map((gm) => {
     const admins: GraphqlUser[] = []
@@ -144,7 +147,7 @@ having count(*) < $4`,
     return invite
   })
 
-  const group = await getRepository(Group).findOneOrFail({
+  const group = await groupRepository.findOneOrFail({
     where: { id: invite.group.id },
     relations: ['members', 'members.user.profile'],
   })
@@ -175,7 +178,7 @@ export const leaveGroup = async (
   user: User,
   groupId: string
 ): Promise<boolean> => {
-  return appDataSource.transaction(async (t) => {
+  return authTrx(async (t) => {
     const group = await t
       .getRepository(Group)
       .createQueryBuilder('group')
@@ -275,7 +278,7 @@ export const getGroupsWhereUserCanPost = async (
   userId: string,
   groupIds: string[]
 ): Promise<Group[]> => {
-  return getRepository(Group)
+  return groupRepository
     .createQueryBuilder('group')
     .innerJoin('group.members', 'members1')
     .whereInIds(groupIds)

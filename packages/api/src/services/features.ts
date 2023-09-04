@@ -1,9 +1,8 @@
 import * as jwt from 'jsonwebtoken'
 import { IsNull, Not } from 'typeorm'
-import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
-import { getRepository } from '../repository'
+import { authTrx, entityManager } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
@@ -26,14 +25,15 @@ export const optInFeature = async (
 }
 
 const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
-  const feature = await getRepository(Feature).findOne({
-    where: {
-      user: { id: uid },
-      name: FeatureName.UltraRealisticVoice,
-      grantedAt: Not(IsNull()),
-    },
-    relations: ['user'],
-  })
+  const feature = await authTrx((t) =>
+    t.getRepository(Feature).findOne({
+      where: {
+        name: FeatureName.UltraRealisticVoice,
+        grantedAt: Not(IsNull()),
+      },
+      relations: ['user'],
+    })
+  )
   if (feature) {
     // already opted in
     logger.info('already opted in')
@@ -42,7 +42,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const optedInFeatures = (await appDataSource.query(
+  const optedInFeatures = (await entityManager.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 
@@ -63,10 +63,9 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
       name: FeatureName.UltraRealisticVoice,
       grantedAt: null,
     }
-    const result = await getRepository(Feature).upsert(optInRecord, [
-      'user',
-      'name',
-    ])
+    const result = await authTrx((t) =>
+      t.getRepository(Feature).upsert(optInRecord, ['user', 'name'])
+    )
     if (result.generatedMaps.length === 0) {
       throw new Error('failed to update opt-in record')
     }
@@ -100,25 +99,23 @@ export const signFeatureToken = (
   )
 }
 
-export const isOptedIn = async (
-  name: FeatureName,
-  uid: string
-): Promise<boolean> => {
-  const feature = await getRepository(Feature).findOneBy({
-    user: { id: uid },
-    name,
-    grantedAt: Not(IsNull()),
-  })
+export const isOptedIn = async (name: FeatureName): Promise<boolean> => {
+  const feature = await authTrx((t) =>
+    t.getRepository(Feature).findOneBy({
+      name,
+      grantedAt: Not(IsNull()),
+    })
+  )
 
   return !!feature
 }
 
 export const getFeature = async (
-  name: FeatureName,
-  uid: string
+  name: FeatureName
 ): Promise<Feature | null> => {
-  return getRepository(Feature).findOneBy({
-    user: { id: uid },
-    name,
-  })
+  return authTrx((t) =>
+    t.getRepository(Feature).findOneBy({
+      name,
+    })
+  )
 }

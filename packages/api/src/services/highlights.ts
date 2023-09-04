@@ -3,7 +3,7 @@ import { DeepPartial } from 'typeorm'
 import { Highlight } from '../entity/highlight'
 import { homePageURL } from '../env'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { entityManager, setClaims } from '../repository'
+import { authTrx, setClaims } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 
 type HighlightEvent = Highlight & { pageId: string }
@@ -20,10 +20,9 @@ export const getHighlightUrl = (slug: string, highlightId: string): string =>
 export const saveHighlight = async (
   highlight: DeepPartial<Highlight>,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ) => {
-  const newHighlight = await em.transaction(async (tx) => {
+  const newHighlight = await authTrx(async (tx) => {
     await setClaims(tx, userId)
 
     return tx
@@ -44,12 +43,9 @@ export const mergeHighlights = async (
   highlightsToRemove: string[],
   highlightToAdd: DeepPartial<Highlight>,
   userId: string,
-  pubsub = createPubSubClient(),
-  em = entityManager
+  pubsub = createPubSubClient()
 ) => {
-  const newHighlight = await em.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+  const newHighlight = await authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
 
     await highlightRepo.delete(highlightsToRemove)
@@ -66,13 +62,8 @@ export const mergeHighlights = async (
   return newHighlight
 }
 
-export const deleteHighlightById = async (
-  highlightId: string,
-  userId: string
-) => {
-  return entityManager.transaction(async (tx) => {
-    await setClaims(tx, userId)
-
+export const deleteHighlightById = async (highlightId: string) => {
+  return authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
     const highlight = await highlightRepo.findById(highlightId)
     if (!highlight) {

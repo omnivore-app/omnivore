@@ -23,7 +23,6 @@ import {
   UpdateFilterSuccess,
   UpdateFilterErrorCode,
 } from '../../generated/graphql'
-import { entityManager, getRepository, setClaims } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { env } from '../../env'
 import { isNil, mergeWith } from 'lodash'
@@ -44,36 +43,24 @@ export const saveFilterResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SaveFilterErrorCode.Unauthorized],
-      }
-    }
-
-    const filter = await getRepository(Filter).save({
-      user: { id: uid },
-      name: input.name,
-      category: 'Search',
-      description: '',
-      position: input.position ?? 0,
-      filter: input.filter,
-      defaultFilter: false,
-      visible: true,
+    const filter = await authTrx(async (t) => {
+      return t.withRepository(filterRepository).save({
+        user: { id: uid },
+        name: input.name,
+        category: 'Search',
+        description: '',
+        position: input.position ?? 0,
+        filter: input.filter,
+        defaultFilter: false,
+        visible: true,
+      })
     })
 
     return {
       filter,
     }
   } catch (error) {
-    log.error('Error saving filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'saveFilterResolver',
-        uid,
-      },
-    })
+    log.error('Error saving filters', error)
 
     return {
       errorCodes: [SaveFilterErrorCode.BadRequest],
@@ -85,7 +72,7 @@ export const deleteFilterResolver = authorized<
   DeleteFilterSuccess,
   DeleteFilterError,
   MutationDeleteFilterArgs
->(async (_, { id }, { claims, log }) => {
+>(async (_, { id }, { authTrx, uid, log }) => {
   log.info('Deleting filters', {
     id,
     labels: {
@@ -96,37 +83,16 @@ export const deleteFilterResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOneBy({ id: claims.uid })
-    if (!user) {
-      return {
-        errorCodes: [DeleteFilterErrorCode.Unauthorized],
-      }
-    }
-
-    const filter = await getRepository(Filter).findOneBy({
-      id,
-      user: { id: claims.uid },
-    })
-    if (!filter) {
-      return {
-        errorCodes: [DeleteFilterErrorCode.NotFound],
-      }
-    }
-
-    await getRepository(Filter).delete({ id })
+    const filter = await authTrx(async (t) => {
+      const filter = await t.withRepository(filterRepository).findOne({
 
     return {
       filter,
     }
   } catch (error) {
-    log.error('Error deleting filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'deleteFilterResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error deleting filters',
+      error
+    )
 
     return {
       errorCodes: [DeleteFilterErrorCode.BadRequest],

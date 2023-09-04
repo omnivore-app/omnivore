@@ -206,4 +206,55 @@ CREATE POLICY delete_webhooks on omnivore.webhooks
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.webhooks TO omnivore_user;
 
+ALTER POLICY read_user_device_tokens on omnivore.user_device_tokens
+    FOR SELECT TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
+
+ALTER POLICY create_user_device_tokens on omnivore.user_device_tokens
+    FOR INSERT TO omnivore_user
+    WITH CHECK (user_id = omnivore.get_current_user_id());
+
+ALTER TABLE omnivore.search_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY read_search_history on omnivore.search_history
+  FOR SELECT TO omnivore_user
+  USING (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY create_search_history on omnivore.search_history
+    FOR INSERT TO omnivore_user
+    WITH CHECK (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY update_search_history on omnivore.search_history
+    FOR UPDATE TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY delete_search_history on omnivore.search_history
+    FOR DELETE TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
+
+ALTER TABLE omnivore.group_membership ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY read_group_membership on omnivore.group_membership
+  FOR SELECT TO omnivore_user
+  USING (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY create_group_membership on omnivore.group_membership
+    FOR INSERT TO omnivore_user
+    WITH CHECK (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY update_group_membership on omnivore.group_membership
+    FOR UPDATE TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
+
+CREATE POLICY delete_group_membership on omnivore.group_membership
+    FOR DELETE TO omnivore_user
+    USING (user_id = omnivore.get_current_user_id());
+
+ALTER TABLE omnivore.abuse_report 
+    ALTER COLUMN elastic_page_id RENAME TO library_item_id,
+    DROP COLUMN page_id;
+ALTER TABLE omnivore.content_display_report 
+    ALTER COLUMN elastic_page_id RENAME TO library_item_id,
+    DROP COLUMN page_id;
+
 COMMIT;

@@ -9,6 +9,7 @@ import * as Sentry from '@sentry/node'
 import { ContextFunction } from 'apollo-server-core'
 import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
+import * as httpContext from 'express-http-context2'
 import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
 import { promisify } from 'util'
@@ -44,6 +45,8 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
 
   const token = req?.cookies?.auth || req?.headers?.authorization
   const claims = await getClaimsByToken(token)
+
+  httpContext.set('claims', claims)
 
   async function setClaims(
     em: EntityManager,

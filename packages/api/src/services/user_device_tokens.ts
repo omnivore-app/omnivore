@@ -1,42 +1,34 @@
-import { appDataSource } from '../data_source'
-import { User } from '../entity/user'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
-import { SetDeviceTokenErrorCode } from '../generated/graphql'
-import { getRepository, setClaims } from '../repository'
+import { authTrx } from '../repository'
 import { analytics } from '../utils/analytics'
 
 export const getDeviceToken = async (
   id: string
 ): Promise<UserDeviceToken | null> => {
-  return getRepository(UserDeviceToken).findOneBy({ id })
+  return authTrx((t) => t.getRepository(UserDeviceToken).findOneBy({ id }))
 }
 
 export const getDeviceTokenByToken = async (
   token: string
 ): Promise<UserDeviceToken | null> => {
-  return getRepository(UserDeviceToken).findOneBy({ token })
+  return authTrx((t) => t.getRepository(UserDeviceToken).findOneBy({ token }))
 }
 
 export const getDeviceTokensByUserId = async (
   userId: string
 ): Promise<UserDeviceToken[]> => {
-  return getRepository(UserDeviceToken).find({
-    where: { user: { id: userId } },
-  })
+  return authTrx((t) =>
+    t.getRepository(UserDeviceToken).findBy({
+      user: { id: userId },
+    })
+  )
 }
 
 export const createDeviceToken = async (
   userId: string,
   token: string
 ): Promise<UserDeviceToken> => {
-  const user = await getRepository(User).findOneBy({ id: userId })
-  if (!user) {
-    return Promise.reject({
-      errorCode: SetDeviceTokenErrorCode.Unauthorized,
-    })
-  }
-
   analytics.track({
     userId: userId,
     event: 'device_token_created',
@@ -45,23 +37,18 @@ export const createDeviceToken = async (
     },
   })
 
-  return getRepository(UserDeviceToken).save({
-    token: token,
-    user: user,
-  })
+  return authTrx((t) =>
+    t.getRepository(UserDeviceToken).save({
+      token,
+      user: { id: userId },
+    })
+  )
 }
 
 export const deleteDeviceToken = async (
   id: string,
   userId: string
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({ id: userId })
-  if (!user) {
-    return Promise.reject({
-      errorCode: SetDeviceTokenErrorCode.Unauthorized,
-    })
-  }
-
   analytics.track({
     userId: userId,
     event: 'device_token_deleted',
@@ -70,8 +57,7 @@ export const deleteDeviceToken = async (
     },
   })
 
-  return appDataSource.transaction(async (t) => {
-    await setClaims(t, userId)
+  return authTrx(async (t) => {
     const result = await t.getRepository(UserDeviceToken).delete(id)
 
     return !!result.affected

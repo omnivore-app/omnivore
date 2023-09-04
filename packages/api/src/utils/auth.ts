@@ -4,9 +4,9 @@ import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
+import { ApiKey } from '../entity/api_key'
 import { env } from '../env'
 import { authTrx } from '../repository'
-import { apiKeyRepository } from '../repository/api_key'
 import { Claims, ClaimsToSet } from '../resolvers/types'
 import { logger } from './logger'
 
@@ -33,34 +33,39 @@ export const hashApiKey = (apiKey: string) => {
 
 export const claimsFromApiKey = async (key: string): Promise<Claims> => {
   const hashedKey = hashApiKey(key)
-  return authTrx(async (tx) => {
-    const apiKeyRepo = tx.withRepository(apiKeyRepository)
+  return authTrx(
+    async (tx) => {
+      const apiKeyRepo = tx.getRepository(ApiKey)
 
-    const apiKey = await apiKeyRepo.findOne({
-      where: {
-        key: hashedKey,
-      },
-      relations: ['user'],
-    })
-    if (!apiKey) {
-      throw new Error('api key not found')
-    }
+      const apiKey = await apiKeyRepo.findOne({
+        where: {
+          key: hashedKey,
+        },
+        relations: ['user'],
+      })
+      if (!apiKey) {
+        throw new Error('api key not found')
+      }
 
-    const iat = Math.floor(Date.now() / 1000)
-    const exp = Math.floor(new Date(apiKey.expiresAt).getTime() / 1000)
-    if (exp < iat) {
-      throw new Error('api key expired')
-    }
+      const iat = Math.floor(Date.now() / 1000)
+      const exp = Math.floor(new Date(apiKey.expiresAt).getTime() / 1000)
+      if (exp < iat) {
+        throw new Error('api key expired')
+      }
 
-    // update last used
-    await apiKeyRepo.update(apiKey.id, { usedAt: new Date() })
+      // update last used
+      await apiKeyRepo.update(apiKey.id, { usedAt: new Date() })
 
-    return {
-      uid: apiKey.user.id,
-      iat,
-      exp,
-    }
-  })
+      return {
+        uid: apiKey.user.id,
+        iat,
+        exp,
+      }
+    },
+    undefined,
+    undefined,
+    'omnivore_admin'
+  )
 }
 
 // verify jwt token first

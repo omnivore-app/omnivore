@@ -1,11 +1,11 @@
 import { EntityManager } from 'typeorm'
-import { appDataSource } from '../data_source'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
 import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { SignupErrorCode } from '../generated/graphql'
-import { getRepository } from '../repository'
+import { authTrx, entityManager } from '../repository'
+import { profileRepository } from '../repository/profile'
 import { userRepository } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { logger } from '../utils/logger'
@@ -48,7 +48,7 @@ export const createUser = async (input: {
     }
 
     // create profile if user exists but profile does not exist
-    const profile = await getRepository(Profile).save({
+    const profile = await profileRepository.save({
       username: input.username,
       pictureUrl: input.pictureUrl,
       bio: input.bio,
@@ -72,7 +72,7 @@ export const createUser = async (input: {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }
 
-  const [user, profile] = await appDataSource.transaction<[User, Profile]>(
+  const [user, profile] = await entityManager.transaction<[User, Profile]>(
     async (t) => {
       let hasInvite = false
       let invite: Invite | null = null
@@ -168,8 +168,11 @@ const validateInvite = async (
     logger.info('rejecting invite, expired', invite)
     return false
   }
-  const membershipRepo = entityManager.getRepository(GroupMembership)
-  const numMembers = await membershipRepo.countBy({ invite: { id: invite.id } })
+  const numMembers = await authTrx(
+    (t) =>
+      t.getRepository(GroupMembership).countBy({ invite: { id: invite.id } }),
+    entityManager
+  )
   if (numMembers >= invite.maxMembers) {
     logger.info('rejecting invite, too many users', invite, numMembers)
     return false

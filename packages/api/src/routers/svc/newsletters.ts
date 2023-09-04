@@ -11,7 +11,7 @@ import {
   saveNewsletter,
 } from '../../services/save_newsletter_email'
 import { saveUrlFromEmail } from '../../services/save_url'
-import { getSubscriptionByNameAndUserId } from '../../services/subscriptions'
+import { getSubscriptionByName } from '../../services/subscriptions'
 import { isUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 
@@ -127,7 +127,7 @@ export function newsletterServiceRouter() {
         }
       } else {
         // do not subscribe if subscription already exists and is unsubscribed
-        const existingSubscription = await getSubscriptionByNameAndUserId(
+        const existingSubscription = await getSubscriptionByName(
           data.author,
           newsletterEmail.user.id
         )
