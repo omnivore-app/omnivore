@@ -25,7 +25,6 @@ export async function markEmailAsItemMutation(
     }`
 
   const data = await gqlFetcher(mutation, { recentEmailId })
-  console.log('recentEmailId: ', data)
   const output = data as MarkEmailAsItemDataResponseData | undefined
   const error = output?.markEmailAsItem?.errorCodes?.find(() => true)
   console.log('error: ', error)

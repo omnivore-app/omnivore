@@ -38,10 +38,7 @@ export async function joinGroupMutation(
     }
   `
 
-  console.log('JoinGroupMutation', mutation)
-
   const response = await gqlFetcher(mutation, { inviteCode })
-  console.log(' -- response', response)
   const data = response as JoinGroupResponse | undefined
   const error = data?.errorCodes?.find(() => true)
   if (error) {

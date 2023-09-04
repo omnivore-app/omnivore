@@ -31,18 +31,10 @@ export async function setLabelsForHighlight(
     ${labelFragment}
   `
 
-  console.log(
-    'setting label for highlight id: ',
-    highlightId,
-    'labelIds',
-    labelIds
-  )
-
   try {
     const data = (await gqlFetcher(mutation, {
       input: { highlightId, labelIds },
     })) as SetLabelsForHighlightResult
-    console.log(' -- errorCodes', data.setLabelsForHighlight.errorCodes)
 
     return data.setLabelsForHighlight.errorCodes
       ? undefined

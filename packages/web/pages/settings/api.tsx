@@ -65,7 +65,6 @@ export default function Api(): JSX.Element {
         name: 'expiredAt',
         required: true,
         onChange: (e) => {
-          console.log('onChange: ', e)
           let additionalDays = 0
           switch (e.target.value) {
             case 'in 7 days':
