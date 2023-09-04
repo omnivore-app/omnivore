@@ -13,7 +13,6 @@ type ErrorLayoutProps = {
 
 export function ErrorLayout(props: ErrorLayoutProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
-  console.log(viewerData?.me)
 
   return (
     <VStack alignment="center" distribution="start" css={{ height: '100%' }}>

@@ -32,10 +32,8 @@ export async function uploadImportFileRequestMutation(
     }`
 
   const data = await gqlFetcher(mutation, { type, contentType })
-  console.log('UploadImportFile: ', data)
   const output = data as UploadImportFileResponseData | undefined
   const error = output?.uploadImportFile?.errorCodes?.find(() => true)
-  console.log('error: ', error)
   if (error) {
     throw error
   }

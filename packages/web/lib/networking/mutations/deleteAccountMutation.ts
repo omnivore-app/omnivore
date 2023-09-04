@@ -26,8 +26,6 @@ export async function deleteAccountMutation(
     }
   `
 
-  console.log('deleteAccountMutation', mutation)
-
   try {
     const response = await gqlFetcher(mutation, { userId })
     console.log('response', response)

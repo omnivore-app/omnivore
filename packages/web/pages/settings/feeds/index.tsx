@@ -92,9 +92,20 @@ export default function Rss(): JSX.Element {
       pageId={'feeds'}
       pageInfoLink="https://docs.omnivore.app/using/feeds.html"
       headerTitle="Subscribed feeds"
-      createTitle="Add feed"
+      createTitle="Add a feed"
       createAction={() => {
         router.push('/settings/feeds/add')
+      }}
+      suggestionInfo={{
+        title: 'Add RSS and Atom feeds to your Omnivore account',
+        message:
+          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every hour, and new items will be added to your library.',
+        docs: 'https://docs.omnivore.app/using/feeds.html',
+        key: '--settings-feeds-show-help',
+        CTAText: 'Add a feed',
+        onClickCTA: () => {
+          router.push('/settings/feeds/add')
+        },
       }}
     >
       {subscriptions.length === 0 ? (

@@ -3,6 +3,7 @@ import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { PrimaryDropdown } from '../templates/PrimaryDropdown'
 import { HEADER_HEIGHT } from '../templates/homeFeed/HeaderSpacer'
+import { LogoBox } from '../elements/LogoBox'
 
 type HeaderProps = {
   user?: UserBasicData
@@ -21,25 +22,14 @@ export function SettingsHeader(props: HeaderProps): JSX.Element {
           display: 'flex',
           position: 'fixed',
           width: '100%',
-          px: '25px',
+          pr: '25px',
           height: HEADER_HEIGHT,
-          bg: '$thBackground3',
-          borderBottom: '1px solid $thBorderColor',
           '@mdDown': {
-            px: '15px',
+            pr: '15px',
           },
         }}
       >
-        <Box
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            paddingRight: '10px',
-          }}
-        >
-          <OmnivoreNameLogo href={props.user ? '/home' : '/login'} />
-        </Box>
-
+        <LogoBox />
         <HStack css={{ ml: 'auto' }}>
           <PrimaryDropdown showThemeSection={true} />
         </HStack>
