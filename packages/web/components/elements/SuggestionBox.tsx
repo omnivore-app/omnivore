@@ -4,7 +4,7 @@ import { ArrowRightIcon } from './icons/ArrowRightIcon'
 import { theme } from '../tokens/stitches.config'
 import { ReactNode } from 'react'
 import { Button } from './Button'
-import { CloseIcon } from './images/CloseIcon'
+import { CloseIcon } from './icons/CloseIcon'
 
 type SuggestionBoxProps = {
   helpMessage: string
@@ -60,8 +60,8 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
         fontFamily: '$inter',
         fontWeight: '500',
         color: '$thTextContrast',
-        py: '10px',
         px: '15px',
+        py: props.size == 'large' ? '15px' : '10px',
         justifyContent: 'flex-start',
         '@smDown': {
           flexDirection: 'column',
@@ -75,6 +75,7 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
           <SpanBox
             css={{
               marginLeft: 'auto',
+              lineHeight: '2',
             }}
           >
             <Button
@@ -84,7 +85,7 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
                 fontWeight: '600',
               }}
             >
-              Dismiss
+              <CloseIcon size={25} color="white" />
             </Button>
           </SpanBox>
         )}
@@ -96,6 +97,7 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
                 display: 'flex',
                 alignItems: 'center',
                 color: '$omnivoreCtaYellow',
+                pt: '15px',
                 gap: '2px',
                 '&:hover': {
                   textDecoration: 'underline',
