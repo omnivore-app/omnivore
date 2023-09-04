@@ -1229,7 +1229,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
           data-testid="linkedItemCard"
           id={linkedItem.node.id}
           tabIndex={0}
-          key={linkedItem.node.id}
+          key={linkedItem.node.id + linkedItem.node.image}
           css={{
             width: '100%',
             '&:focus-visible': {
