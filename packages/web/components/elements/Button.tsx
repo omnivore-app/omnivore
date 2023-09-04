@@ -20,7 +20,7 @@ export const Button = styled('button', {
       },
       ctaDarkYellow: {
         border: '1px solid transparent',
-        fontSize: '13px',
+        fontSize: '14px',
         fontWeight: 500,
         fontFamily: 'Inter',
         borderRadius: '5px',
@@ -77,8 +77,8 @@ export const Button = styled('button', {
         fontFamily: 'Inter',
         borderRadius: '8px',
         cursor: 'pointer',
-        color: 'white',
         p: '10px 12px',
+        color: '$thTextContrast2',
         bg: 'rgb(125, 125, 125, 0.3)',
         '&:hover': {
           bg: 'rgb(47, 47, 47, 0.1)',

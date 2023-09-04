@@ -85,7 +85,7 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
                 fontWeight: '600',
               }}
             >
-              <CloseIcon size={25} color="white" />
+              <CloseIcon size={2} color="white" />
             </Button>
           </SpanBox>
         )}

@@ -47,7 +47,9 @@ export default function SubscriptionsPage(): JSX.Element {
       pageInfoLink="https://docs.omnivore.app/using/feeds.html"
       headerTitle="Subscriptions"
       suggestionInfo={{
-        text: 'View and manage all your Feed and Newsletter subscriptions. You can add RSS or Atom subscriptions on the Feeds page and create emails to subscribe to newsletters',
+        title: 'View and manage all your Feed and Newsletter subscriptions',
+        message:
+          'Use this page to view and manage all the Feeds (RSS & Atom) and Newsletters you have subscribed to.',
         docs: 'https://docs.omnivore.app/using/inbox.html',
         key: '--settings-recent-subscriptions-show-help',
       }}

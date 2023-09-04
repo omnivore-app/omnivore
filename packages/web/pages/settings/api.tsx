@@ -114,7 +114,7 @@ export default function Api(): JSX.Element {
       pageId="api-keys"
       pageInfoLink="https://docs.omnivore.app/integrations/api.html"
       headerTitle="API Keys"
-      createTitle="Generate API Key"
+      createTitle="Create an API Key"
       createAction={() => {
         onAdd()
         setName('')
@@ -122,9 +122,19 @@ export default function Api(): JSX.Element {
         setAddModalOpen(true)
       }}
       suggestionInfo={{
-        text: 'Create API keys to connect Omnivore to other apps such as Logseq and Obsidian or to query the API. Check out the integrations page for more info on connecting to Omnivore via the API.',
+        title:
+          'Use API keys to Integrate Omnivore with other apps and services',
+        message:
+          'Create API keys to connect Omnivore to other apps such as Logseq and Obsidian or to query the API. Check out the integrations page for more info on connecting to Omnivore via the API.',
         docs: 'https://docs.omnivore.app/integrations/api.html',
         key: '--settings-apikeys-show-help',
+        CTAText: 'Create an API Key',
+        onClickCTA: () => {
+          onAdd()
+          setName('')
+          setExpiresAt(neverExpiresDate)
+          setAddModalOpen(true)
+        },
       }}
     >
       {sortedApiKeys.length > 0 ? (
@@ -168,7 +178,7 @@ export default function Api(): JSX.Element {
 
       {addModalOpen && (
         <FormModal
-          title={'Generate API Key'}
+          title={'Create an API Key'}
           onSubmit={onCreate}
           onOpenChange={setAddModalOpen}
           inputs={formInputs}

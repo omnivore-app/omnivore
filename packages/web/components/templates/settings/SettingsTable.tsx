@@ -10,6 +10,7 @@ import { theme } from '../../tokens/stitches.config'
 import { SettingsLayout } from '../SettingsLayout'
 import { SuggestionBox } from '../../elements/SuggestionBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { FeatureHelpBox } from '../../elements/FeatureHelpBox'
 
 type SettingsTableProps = {
   pageId: string
@@ -57,9 +58,13 @@ type MoreOptionsProps = {
 }
 
 type SuggestionInfo = {
-  text: string
+  title: string
+  message: string
   docs: string
   key: string
+
+  CTAText?: string
+  onClickCTA?: () => void
 }
 
 const MoreOptions = (props: MoreOptionsProps) => (
@@ -315,19 +320,17 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
           }}
         >
           {props.suggestionInfo && showSuggestion && (
-            <Box css={{ my: '40px', width: '100%' }}>
-              <SuggestionBox
-                helpMessage={props.suggestionInfo.text}
-                helpCTAText={'Read the Docs'}
-                helpTarget={props.suggestionInfo.docs}
-                size={'large'}
-                background="$thBackground5"
-                dismissible={true}
-                onDismiss={() => {
-                  setShowSuggestion(false)
-                }}
-              />
-            </Box>
+            <FeatureHelpBox
+              helpTitle={props.suggestionInfo.title}
+              helpMessage={props.suggestionInfo.message}
+              docsMessage={'Read the Docs'}
+              docsDestination={props.suggestionInfo.docs}
+              onDismiss={() => {
+                setShowSuggestion(false)
+              }}
+              helpCTAText={props.suggestionInfo.CTAText}
+              onClickCTA={props.suggestionInfo.onClickCTA}
+            />
           )}
           <Box
             css={{
