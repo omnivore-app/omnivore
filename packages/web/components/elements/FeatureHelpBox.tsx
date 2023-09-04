@@ -35,16 +35,18 @@ export const FeatureHelpBox = (props: FeatureHelpBoxProps) => {
         color: '$grayText',
         px: '20px',
         py: '20px',
-        justifyContent: 'flex-start',
-        '@smDown': {
-          flexDirection: 'column',
-          alignItems: 'center',
-          width: '100%',
-        },
       }}
+      alignment="start"
+      distribution="start"
     >
       <HStack css={{ gap: '30px' }}>
-        <SpanBox css={{ pt: '7px', alignSelf: 'center' }}>
+        <SpanBox
+          css={{
+            pt: '7px',
+            alignSelf: 'center',
+            '@smDown': { display: 'none' },
+          }}
+        >
           <HelpfulOwlImage width={254} height={333} />
         </SpanBox>
         <HelpSection {...props} />
@@ -92,6 +94,7 @@ const HelpSection = (props: FeatureHelpBoxProps) => {
                 event.preventDefault()
               }
             }}
+            css={{ '@smDown': { display: 'none' } }}
           >
             {props.helpCTAText}
           </Button>
