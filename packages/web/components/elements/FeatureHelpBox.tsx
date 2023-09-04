@@ -1,11 +1,10 @@
-'use client'
-
 import { HStack, SpanBox, VStack } from './LayoutPrimitives'
 import { theme } from '../tokens/stitches.config'
 import { Button } from './Button'
 import { CloseIcon } from './icons/CloseIcon'
 import { HelpfulOwlImage } from './images/HelpfulOwlImage'
 import { ArrowSquareOut } from 'phosphor-react'
+import { useEffect, useState } from 'react'
 
 type FeatureHelpBoxProps = {
   helpTitle: string
@@ -21,6 +20,12 @@ type FeatureHelpBoxProps = {
 }
 
 export const FeatureHelpBox = (props: FeatureHelpBoxProps) => {
+  const [display, setDisplay] = useState(false)
+
+  useEffect(() => {
+    setDisplay(true)
+  }, [])
+
   return (
     <HStack
       css={{
