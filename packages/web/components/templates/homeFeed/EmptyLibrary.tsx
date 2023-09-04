@@ -1,15 +1,8 @@
-import Link from 'next/link'
-import { Book } from 'phosphor-react'
-import { Button } from '../../elements/Button'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { StyledText } from '../../elements/StyledText'
-import { theme } from '../../tokens/stitches.config'
+import { Box } from '../../elements/LayoutPrimitives'
 import { useMemo } from 'react'
-import { searchQuery } from '../../../lib/networking/queries/search'
 import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
 import { LayoutType } from './HomeFeedContainer'
-import { ArrowRightIcon } from '../../elements/icons/ArrowRightIcon'
-import { SuggestionBox } from '../../elements/SuggestionBox'
+import { SuggestionBox, SuggestionAction } from '../../elements/SuggestionBox'
 
 type EmptyLibraryProps = {
   searchTerm: string | undefined
@@ -20,9 +13,14 @@ type EmptyLibraryProps = {
 
 type MessageType =
   | 'inbox'
+  | 'continue'
+  | 'non-feed'
+  | 'highlight'
+  | 'unlabeled'
   | 'files'
   | 'archive'
   | 'feed'
+  | 'subscription'
   | 'newsletter'
   | 'library'
 
@@ -30,76 +28,29 @@ type HelpMessageProps = {
   type: MessageType
 }
 
-const HelpMessage = (props: HelpMessageProps) => {
-  switch (props.type) {
-    case 'library':
-      return (
-        <>
-          You can add a link or read more about Omnivore&apos;s{' '}
-          <a
-            href="https://docs.omnivore.app/using/search.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            advanced search
-          </a>
-          .
-        </>
-      )
-    case 'feed':
-      return (
-        <>
-          You can subscribe to RSS feeds using the{' '}
-          <Link href="/settings/feeds" passHref>
-            feeds page
-          </Link>
-          . Learn more about feeds at &apos;s{' '}
-          <a
-            href="https://docs.omnivore.app/using/feeds.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            docs.omnivore.app/using/feeds.html
-          </a>
-          .
-        </>
-      )
-    case 'newsletter':
-      return (
-        <>
-          Create email addresses that can be used to subscribe to newsletters on
-          the{' '}
-          <Link href="/settings/emails" passHref>
-            emails page
-          </Link>
-          . Learn more about reading newsletters in Omnivore at &apos;s{' '}
-          <a
-            href="https://docs.omnivore.app/using/inbox.html"
-            target="_blank"
-            rel="noreferrer"
-          >
-            docs.omnivore.app/using/inbox.html
-          </a>
-          .
-        </>
-      )
-  }
-  return <></>
-}
-
 export const ErrorBox = (props: HelpMessageProps) => {
   const errorTitle = useMemo(() => {
     switch (props.type) {
       case 'inbox':
-        return 'Your inbox is empty.'
+        return 'Your inbox is empty. The inbox will contain all your non-archived saved items.'
+      case 'continue':
+        return "No continue reading items. Continue Reading items are items you have started but haven't finished reading."
+      case 'non-feed':
+        return "No non-feed items found. Non-feed items are items you've add to the library using the mobile apps, browser extensions, or Add Link button. Not newsletter or feed items."
+      case 'highlight':
+        return 'No highlights found. Add highlights to your library by highlighting text in the reader view.'
+      case 'unlabeled':
+        return 'No unlabeled items found. Items without labels can be found here. Use this query to easily triage your library.'
       case 'archive':
         return 'You do not have any archived items.'
       case 'files':
         return 'No files found.'
       case 'feed':
         return 'You do not have any feed items matching this query.'
+      case 'subscription':
+        return 'You do not have any subscriptions.'
       case 'newsletter':
-        return 'You do not have any newsletter item matching this query.'
+        return 'You do not have any newsletter items matching this query.'
     }
     return 'No results found for this query.'
   }, [props.type])
@@ -129,65 +80,79 @@ export const ErrorBox = (props: HelpMessageProps) => {
   )
 }
 
+type SuggestionMessage = {
+  message: string
+  actions: SuggestionAction[]
+}
+
 export const Suggestion = (props: HelpMessageProps) => {
-  const helpMessage = useMemo(() => {
+  const helpMessage = useMemo<SuggestionMessage>(() => {
     switch (props.type) {
       case 'feed':
-        return ['Want to add an RSS or Atom Subscription?', 'Click Here']
+        return {
+          message: 'Want to add an RSS or Atom Subscription?',
+          actions: [
+            { text: 'Add an RSS or Atom feed', url: '/settings/feeds' },
+          ],
+        }
       case 'archive':
-        return [
-          'When you are done reading something archive it and it will be saved in Omnivore forever.',
-          'Read the Docs',
-        ]
+        return {
+          message:
+            'When you are done reading something archive it and it will be saved in Omnivore forever.',
+          actions: [
+            {
+              text: 'Read the docs',
+              url: 'https://docs.omnivore.app/using/saving',
+            },
+          ],
+        }
       case 'files':
-        return [
-          'Drag PDFs into the library to add them to your Omnivore account.',
-          undefined,
-        ]
+        return {
+          message:
+            'Drag PDFs into the library to add them to your Omnivore account.',
+          actions: [],
+        }
       case 'newsletter':
-        return [
-          'Create an Omnivore email address and subscribe to newsletters.',
-          'Click Here',
-        ]
+        return {
+          message:
+            'Create an Omnivore email address and subscribe to newsletters.',
+          actions: [
+            {
+              text: 'Create an email address for newsletters',
+              url: '/settings/emails',
+            },
+          ],
+        }
+      case 'subscription':
+        return {
+          message:
+            'Create an Omnivore email address and subscribe to newsletters or add a feed from the Feeds page.',
+          actions: [
+            { text: 'Add an RSS or Atom feed', url: '/settings/feeds' },
+            {
+              text: 'Create an email address for newsletters',
+              url: '/settings/emails',
+            },
+          ],
+        }
     }
-    return [
-      "Add a link or read more about Omnivore's Advanced Search.",
-      'Read the Docs',
-    ]
-  }, [props.type])
-
-  const helpTarget = useMemo(() => {
-    switch (props.type) {
-      case 'feed':
-        return '/settings/feeds'
-      case 'archive':
-      case 'files':
-        return undefined
-      case 'archive':
-      case 'inbox':
-        return 'https://docs.omnivore.app/using/saving'
-      case 'newsletter':
-        return '/settings/emails'
+    return {
+      message: "Add a link or read more about Omnivore's Advanced Search.",
+      actions: [
+        {
+          text: 'Read the Docs',
+          url: 'https://docs.omnivore.app/using/search.html',
+        },
+      ],
     }
-    return 'https://docs.omnivore.app/'
-  }, [props.type])
-
-  const helpTargetWindow = useMemo(() => {
-    switch (props.type) {
-      case 'archive':
-      case 'inbox':
-        return '_blank'
-    }
-    return undefined
   }, [props.type])
 
   return (
     <>
-      {helpMessage[0] ? (
+      {helpMessage ? (
         <SuggestionBox
-          helpMessage={helpMessage[0]}
-          helpCTAText={helpMessage[1]}
-          helpTarget={helpTarget}
+          helpMessage={helpMessage.message}
+          suggestions={helpMessage.actions}
         />
       ) : (
         <></>
@@ -200,14 +165,24 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
   const type = useMemo<MessageType>(() => {
     if (props.searchTerm) {
       switch (props.searchTerm) {
-        case 'in:archive':
-          return 'archive'
         case 'in:inbox':
           return 'inbox'
+        case 'in:inbox sort:read-desc is:unread':
+          return 'continue'
+        case 'in:library':
+          return 'non-feed'
+        case 'has:highlights mode:highlights':
+          return 'highlight'
+        case 'no:label':
+          return 'unlabeled'
         case 'type:file':
           return 'files'
+        case 'in:archive':
+          return 'archive'
         case 'label:RSS':
           return 'feed'
+        case 'in:subscription':
+          return 'subscription'
         case 'label:Newsletter':
           return 'newsletter'
       }

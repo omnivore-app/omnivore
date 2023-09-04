@@ -153,7 +153,7 @@ const popularReads = [
     author: 'The Omnivore Team',
     description: 'Get the most out of Omnivore by learning how to use it.',
     previewImage:
-      'https://proxy-prod.omnivore-image-cache.app/88x88,sBp_gMyIp8Y4Mje8lzL39vzrBQg5m9KbprssrGjCbbHw/https://substackcdn.com/image/fetch/w_1200,h_600,c_limit,f_jpg,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F658efff4-341a-4720-8cf6-9b2bdbedfaa7_800x668.gif',
+      'https://proxy-prod.omnivore-image-cache.app/320x320,sxQnqya1QNApB7ZAGPj9K20AU6sw0UAnjmAIy2ub8hUU/https://substackcdn.com/image/fetch/w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F658efff4-341a-4720-8cf6-9b2bdbedfaa7_800x668.gif',
     publishedAt: new Date('2021-10-13'),
     siteName: 'Omnivore Blog',
   },
@@ -164,7 +164,7 @@ const popularReads = [
     author: 'Omnivore',
     description: 'Learn how to save articles on iOS.',
     previewImage:
-      'https://proxy-prod.omnivore-image-cache.app/260x260,suM2fz_-6_1PDsQDursGPD2bQqnpgGH9Ymj-IVb5dUR4/https://substackcdn.com/image/youtube/w_728,c_limit/k6RkIqepAig',
+      'https://proxy-prod.omnivore-image-cache.app/320x320,sWDfv7sARTIdAlx6Rw_6t-QwL3T9aniEJRa1-jVaglNg/https://substackcdn.com/image/youtube/w_728,c_limit/k6RkIqepAig',
     publishedAt: new Date('2021-10-19'),
     siteName: 'Omnivore Blog',
   },
@@ -175,7 +175,7 @@ const popularReads = [
     author: 'The Omnivore Team',
     description: 'Use labels to organize your Omnivore library.',
     previewImage:
-      'https://proxy-prod.omnivore-image-cache.app/88x88,sSLRtT7zJbaNFEUbqDe9jbr3nloPsdjaqQXUqISk_x7E/https://substackcdn.com/image/fetch/w_1200,h_600,c_limit,f_jpg,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fa4ec9f3c-baef-464b-8d3a-0b8a384874d3_960x711.gif',
+      'https://proxy-prod.omnivore-image-cache.app/320x320,sTgJ5Q0XIg_EHdmPWcxtXFmkjn8T6hkJt7S9ziClagYo/https://substackcdn.com/image/fetch/w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fdaf07af7-5cdb-4ecc-aace-1a46de3e9c58_1827x1090.png',
     publishedAt: new Date('2022-04-18'),
     siteName: 'Omnivore Blog',
   },
@@ -199,7 +199,7 @@ const popularReads = [
     description:
       'At the end of 2014 I received an email informing me that I had read over a million words in the ‘read it later’ app Pocket',
     previewImage:
-      'https://proxy-prod.omnivore-image-cache.app/88x88,sVITWrJo3Wdi5LY3qSXX9aGytwKKteF8bth4z1MNz-PI/https://i0.wp.com/fortelabs.co/wp-content/uploads/2015/11/1rPXwIczUJRCE54v8FfAHGw.jpeg?fit=2000%2C844&ssl=1',
+      'https://proxy-prod.omnivore-image-cache.app/320x320,sGN5R34M5z068QMXDZD32CQD6mCbxc47hWXm__JVUePE/https://fortelabs.com/wp-content/uploads/2015/11/1rPXwIczUJRCE54v8FfAHGw.jpeg',
     publishedAt: new Date('2022-01-24'),
     siteName: 'Forte Labs',
   },

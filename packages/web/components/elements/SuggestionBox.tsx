@@ -6,10 +6,14 @@ import { ReactNode } from 'react'
 import { Button } from './Button'
 import { CloseIcon } from './icons/CloseIcon'
 
+export type SuggestionAction = {
+  url: string
+  text: string
+}
+
 type SuggestionBoxProps = {
   helpMessage: string
-  helpCTAText: string | undefined
-  helpTarget: string | undefined
+  suggestions: SuggestionAction[]
 
   size?: 'large' | 'small'
   background?: string
@@ -90,28 +94,33 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
           </SpanBox>
         )}
         {props.helpMessage}
-        {props.helpTarget && (
-          <InternalOrExternalLink link={props.helpTarget}>
-            <SpanBox
-              css={{
-                display: 'flex',
-                alignItems: 'center',
-                color: '$omnivoreCtaYellow',
-                pt: '15px',
-                gap: '2px',
-                '&:hover': {
-                  textDecoration: 'underline',
-                },
-              }}
+        {props.suggestions.map((suggestion, idx) => {
+          return (
+            <InternalOrExternalLink
+              key={`suggestions-${idx}`}
+              link={suggestion.url}
             >
-              <>{props.helpCTAText}</>
-              <ArrowRightIcon
-                size={25}
-                color={theme.colors.omnivoreCtaYellow.toString()}
-              />
-            </SpanBox>
-          </InternalOrExternalLink>
-        )}
+              <SpanBox
+                css={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '$omnivoreCtaYellow',
+                  pt: '15px',
+                  gap: '2px',
+                  '&:hover': {
+                    textDecoration: 'underline',
+                  },
+                }}
+              >
+                <>{suggestion.text}</>
+                <ArrowRightIcon
+                  size={25}
+                  color={theme.colors.omnivoreCtaYellow.toString()}
+                />
+              </SpanBox>
+            </InternalOrExternalLink>
+          )
+        })}
       </VStack>
     </HStack>
   )
