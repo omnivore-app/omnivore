@@ -26,11 +26,8 @@ export async function addPopularReadMutation(
     }
   `
 
-  console.log('addPopularReadMutation', mutation)
-
   try {
     const response = await gqlFetcher(mutation, { readName })
-    console.log('response', response)
     const data = response as AddPopularReadResponse | undefined
     return data?.addPopularRead?.pageId
   } catch (error) {

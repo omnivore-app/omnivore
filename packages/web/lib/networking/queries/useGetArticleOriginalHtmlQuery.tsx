@@ -53,8 +53,6 @@ export function useGetArticleOriginalHtmlQuery({
   )
 
   const resultData: ArticleData | undefined = data as ArticleData
-  console.log('RESULT', JSON.stringify(data))
-
   return resultData?.article.article.originalHtml
 }
 

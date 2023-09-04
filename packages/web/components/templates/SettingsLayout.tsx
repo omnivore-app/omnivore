@@ -49,7 +49,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
         <Box
           css={{
             height: HEADER_HEIGHT,
-            bg: '$grayBase',
           }}
         ></Box>
         {props.children}

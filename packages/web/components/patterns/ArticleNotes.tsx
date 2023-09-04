@@ -25,7 +25,6 @@ MdEditor.use(Plugins.TabInsert, {
   tabMapValue: 1, // note that 1 means a '\t' instead of ' '.
 })
 
-console.log()
 MdEditor.use(Counter)
 
 type NoteSectionProps = {

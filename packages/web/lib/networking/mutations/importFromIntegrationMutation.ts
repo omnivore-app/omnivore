@@ -25,7 +25,6 @@ export async function importFromIntegrationMutation(
     }`
 
   const data = await gqlFetcher(mutation, { integrationId })
-  console.log('integrationId: ', data)
   const output = data as ImportFromIntegrationDataResponseData | undefined
   const error = output?.importFromIntegration?.errorCodes?.find(() => true)
   console.log('error: ', error)
