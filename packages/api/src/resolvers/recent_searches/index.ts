@@ -1,25 +1,15 @@
-import { User } from '../../entity/user'
-import { env } from '../../env'
 import {
   RecentSearchesError,
-  RecentSearchesErrorCode,
   RecentSearchesSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
 import { getRecentSearches } from '../../services/search_history'
-import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
 export const recentSearchesResolver = authorized<
   RecentSearchesSuccess,
   RecentSearchesError
->(async (_obj, _params, { claims: { uid }, log }) => {
-  const user = await getRepository(User).findOneBy({ id: uid })
-  if (!user) {
-    return { errorCodes: [RecentSearchesErrorCode.Unauthorized] }
-  }
-
-  const searches = await getRecentSearches(uid)
+>(async (_obj, _params) => {
+  const searches = await getRecentSearches()
   return {
     searches,
   }

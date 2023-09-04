@@ -11,7 +11,6 @@ import {
   RecentEmailsErrorCode,
   RecentEmailsSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
 import { updateReceivedEmail } from '../../services/received_emails'
 import { saveNewsletter } from '../../services/save_newsletter_email'
 import { authorized } from '../../utils/helpers'

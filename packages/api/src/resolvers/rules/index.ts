@@ -14,7 +14,6 @@ import {
   SetRuleErrorCode,
   SetRuleSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
 import { authorized } from '../../utils/helpers'
 
 export const setRuleResolver = authorized<

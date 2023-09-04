@@ -1,12 +1,10 @@
-import { ArticleSavingRequestStatus } from '../elastic/types'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
 import { PubsubClient } from '../pubsub'
-import { getRepository } from '../repository'
+import { userRepository } from '../repository/user'
 import { logger } from '../utils/logger'
 import { createPageSaveRequest } from './create_page_save_request'
-import { getLabelsAndCreateIfNotExist } from './labels'
 
 interface SaveContext {
   pubsub: PubsubClient
@@ -19,22 +17,13 @@ export const saveUrl = async (
   input: SaveUrlInput
 ): Promise<SaveResult> => {
   try {
-    // save state
-    const archivedAt =
-      input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
-    // add labels to page
-    const labels = input.labels
-      ? await getLabelsAndCreateIfNotExist(ctx, input.labels)
-      : undefined
-
     const pageSaveRequest = await createPageSaveRequest({
       ...input,
       userId: ctx.uid,
       pubsub: ctx.pubsub,
       articleSavingRequestId: input.clientRequestId,
-      archivedAt,
-      labels,
-      user,
+      state: input.state || undefined,
+      labels: input.labels || undefined,
       locale: input.locale || undefined,
       timezone: input.timezone || undefined,
       savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
@@ -61,7 +50,7 @@ export const saveUrlFromEmail = async (
   url: string,
   clientRequestId: string
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     id: ctx.uid,
   })
   if (!user) {

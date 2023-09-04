@@ -143,13 +143,13 @@ export const createArticleResolver = authorized<
   CreateArticleError,
   MutationCreateArticleArgs
 >(
-  ;async (
+  async (
     _,
     {
       input: {
         url,
         preparedDocument,
-        articleSavingRequestId: pageId,
+        articleSavingRequestId,
         uploadFileId,
         skipParsing,
         source,
@@ -176,7 +176,7 @@ export const createArticleResolver = authorized<
           errorCodes: [CreateArticleErrorCode.Unauthorized],
         },
         uid,
-        pageId,
+        articleSavingRequestId,
         pubsub
       )
     }
@@ -189,7 +189,7 @@ export const createArticleResolver = authorized<
             errorCodes: [CreateArticleErrorCode.NotAllowedToParse],
           },
           uid,
-          pageId,
+          articleSavingRequestId,
           pubsub
         )
       }
@@ -237,12 +237,12 @@ export const createArticleResolver = authorized<
         /* We do not trust the values from client, lookup upload file by querying
          * with filtering on user ID and URL to verify client's uploadFileId is valid.
          */
-        const uploadFile = await findUploadFileById(uploadFileId, uid)
+        const uploadFile = await findUploadFileById(uploadFileId)
         if (!uploadFile) {
           return pageError(
             { errorCodes: [CreateArticleErrorCode.UploadFileMissing] },
             uid,
-            pageId,
+            articleSavingRequestId,
             pubsub
           )
         }
@@ -295,7 +295,7 @@ export const createArticleResolver = authorized<
         title,
         parsedContent,
         userId: uid,
-        pageId,
+        itemId: articleSavingRequestId,
         slug,
         croppedPathname,
         originalHtml: domContent,
@@ -320,14 +320,14 @@ export const createArticleResolver = authorized<
       })
 
       if (uploadFileId) {
-        const uploadFileData = await setFileUploadComplete(uploadFileId, uid)
+        const uploadFileData = await setFileUploadComplete(uploadFileId)
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
           return pageError(
             {
               errorCodes: [CreateArticleErrorCode.UploadFileMissing],
             },
             uid,
-            pageId,
+            articleSavingRequestId,
             pubsub
           )
         }
@@ -350,11 +350,11 @@ export const createArticleResolver = authorized<
         libraryItemToSave.originalUrl,
         uid
       )
-      pageId = existingLibraryItem?.id || pageId
-      if (pageId) {
+      articleSavingRequestId = existingLibraryItem?.id || articleSavingRequestId
+      if (articleSavingRequestId) {
         // update existing page's state from processing to succeeded
         libraryItemToReturn = await updateLibraryItem(
-          pageId,
+          articleSavingRequestId,
           libraryItemToSave,
           uid,
           pubsub
@@ -388,7 +388,7 @@ export const createArticleResolver = authorized<
           errorCodes: [CreateArticleErrorCode.ElasticError],
         },
         uid,
-        pageId,
+        articleSavingRequestId,
         pubsub
       )
     }
@@ -654,92 +654,88 @@ export const saveArticleReadingProgressResolver = authorized<
   }
 )
 
-export const searchResolver = authorized<SearchSuccess, SearchError, QuerySearchArgs>(
-  async (_obj, params, { uid, log }) => {
-    const startCursor = params.after || ''
-    const first = params.first || 10
+export const searchResolver = authorized<
+  SearchSuccess,
+  SearchError,
+  QuerySearchArgs
+>(async (_obj, params, { uid, log }) => {
+  const startCursor = params.after || ''
+  const first = params.first || 10
 
-    // the query size is limited to 255 characters
-    if (params.query && params.query.length > 255) {
-      return { errorCodes: [SearchErrorCode.QueryTooLong] }
+  // the query size is limited to 255 characters
+  if (params.query && params.query.length > 255) {
+    return { errorCodes: [SearchErrorCode.QueryTooLong] }
+  }
+
+  const searchQuery = parseSearchQuery(params.query || undefined)
+
+  const { libraryItems, count } = await searchLibraryItems(
+    {
+      from: Number(startCursor),
+      size: first + 1, // fetch one more item to get next cursor
+      sort: searchQuery.sort,
+      includePending: true,
+      includeContent: params.includeContent ?? false,
+      ...searchQuery,
+    },
+    uid
+  )
+
+  const start =
+    startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+  const hasNextPage = libraryItems.length > first
+  const endCursor = String(start + libraryItems.length - (hasNextPage ? 1 : 0))
+
+  if (hasNextPage) {
+    // remove an extra if exists
+    libraryItems.pop()
+  }
+
+  const edges = libraryItems.map((libraryItem) => {
+    if (libraryItem.siteIcon && !isBase64Image(libraryItem.siteIcon)) {
+      libraryItem.siteIcon = createImageProxyUrl(libraryItem.siteIcon, 128, 128)
     }
-
-    const searchQuery = parseSearchQuery(params.query || undefined)
-
-    const { libraryItems, count } = await searchLibraryItems(
-      {
-        from: Number(startCursor),
-        size: first + 1, // fetch one more item to get next cursor
-        sort: searchQuery.sort,
-        includePending: true,
-        includeContent: params.includeContent ?? false,
-        ...searchQuery,
-      },
-      uid
-    )
-
-    const start =
-      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
-    const hasNextPage = libraryItems.length > first
-    const endCursor = String(
-      start + libraryItems.length - (hasNextPage ? 1 : 0)
-    )
-
-    if (hasNextPage) {
-      // remove an extra if exists
-      libraryItems.pop()
-    }
-
-    const edges = libraryItems.map((libraryItem) => {
-      if (libraryItem.siteIcon && !isBase64Image(libraryItem.siteIcon)) {
-        libraryItem.siteIcon = createImageProxyUrl(
-          libraryItem.siteIcon,
-          128,
-          128
-        )
-      }
-      if (params.includeContent && libraryItem.readableContent) {
-        // convert html to the requested format
-        const format = params.format || ArticleFormat.Html
-        try {
-          const converter = contentConverter(format)
-          if (converter) {
-            libraryItem.readableContent = converter(
-              libraryItem.readableContent,
-              libraryItem.highlights
-            )
-          }
-        } catch (error) {
-          log.error('Error converting content', error)
+    if (params.includeContent && libraryItem.readableContent) {
+      // convert html to the requested format
+      const format = params.format || ArticleFormat.Html
+      try {
+        const converter = contentConverter(format)
+        if (converter) {
+          libraryItem.readableContent = converter(
+            libraryItem.readableContent,
+            libraryItem.highlights
+          )
         }
+      } catch (error) {
+        log.error('Error converting content', error)
       }
-
-      return {
-        node: libraryItemToSearchItem(libraryItem),
-        cursor: endCursor,
-      }
-    })
+    }
 
     return {
-      edges,
-      pageInfo: {
-        hasPreviousPage: false,
-        startCursor,
-        hasNextPage: hasNextPage,
-        endCursor,
-        totalCount: count,
-      },
+      node: libraryItemToSearchItem(libraryItem),
+      cursor: endCursor,
     }
+  })
+
+  return {
+    edges,
+    pageInfo: {
+      hasPreviousPage: false,
+      startCursor,
+      hasNextPage: hasNextPage,
+      endCursor,
+      totalCount: count,
+    },
   }
-)
+})
 
 export const typeaheadSearchResolver = authorized<
   TypeaheadSearchSuccess,
   TypeaheadSearchError,
   QueryTypeaheadSearchArgs
->(async (_obj, { query, first }, { uid, log }) => {
+>(async (_obj, { query, first }, { log }) => {
   try {
-    const items = await findLibraryItemsByPrefix(query, uid, first || undefined)
+    const items = await findLibraryItemsByPrefix(query, first || undefined)
 
     return {
       items: items.map((item) => ({

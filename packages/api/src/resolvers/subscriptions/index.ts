@@ -26,8 +26,7 @@ import {
   UpdateSubscriptionErrorCode,
   UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
-import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
+import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'

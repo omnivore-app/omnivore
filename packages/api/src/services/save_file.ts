@@ -1,4 +1,3 @@
-import { UploadFile } from '../entity/upload_file'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
@@ -7,24 +6,19 @@ import {
   SaveFileInput,
   SaveResult,
 } from '../generated/graphql'
-import { entityManager, getRepository } from '../repository'
-import { WithDataSourcesContext } from '../resolvers/types'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
 import { getLabelsAndCreateIfNotExist } from './labels'
-import { setFileUploadComplete } from './upload_file'
+import { updateLibraryItem } from './library_item'
+import { findUploadFileById, setFileUploadComplete } from './upload_file'
 
 export const saveFile = async (
-  ctx: WithDataSourcesContext,
-  user: User,
-  input: SaveFileInput
+  input: SaveFileInput,
+  user: User
 ): Promise<SaveResult> => {
   logger.info('saving file with input', input)
   const pageId = input.clientRequestId
-  const uploadFile = await getRepository(UploadFile).findOneBy({
-    id: input.uploadFileId,
-    user: { id: ctx.uid },
-  })
+  const uploadFile = await findUploadFileById(input.uploadFileId)
   if (!uploadFile) {
     return {
       errorCodes: [SaveErrorCode.Unauthorized],
@@ -49,13 +43,13 @@ export const saveFile = async (
     ? await getLabelsAndCreateIfNotExist(input.labels, user.id)
     : undefined
   if (input.state || input.labels) {
-    const updated = await updatePage(
+    const updated = await updateLibraryItem(
       pageId,
       {
         archivedAt,
         labels,
       },
-      ctx
+      user.id
     )
     if (!updated) {
       logger.info('error updating page', pageId)

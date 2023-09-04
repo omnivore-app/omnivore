@@ -3,7 +3,9 @@ import {
   LibraryItemState,
   LibraryItemType,
 } from '../entity/library_item'
-import { entityManager, libraryItemRepository } from '../repository'
+import { authTrx } from '../repository'
+import { getInternalLabelWithColor } from '../repository/label'
+import { libraryItemRepository } from '../repository/library_item'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   cleanUrl,
@@ -20,7 +22,6 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-import { getInternalLabelWithColor } from './labels'
 import { createLibraryItem } from './library_item'
 import { updateReceivedEmail } from './received_emails'
 
@@ -66,11 +67,12 @@ export const saveEmail = async (
     siteIcon = await fetchFavicon(url)
   }
 
-  const existingLibraryItem = await libraryItemRepository.findOneBy({
-    user: { id: input.userId },
-    originalUrl: cleanedUrl,
-    state: LibraryItemState.Succeeded,
-  })
+  const existingLibraryItem = await authTrx((t) =>
+    t.withRepository(libraryItemRepository).findOneBy({
+      originalUrl: cleanedUrl,
+      state: LibraryItemState.Succeeded,
+    })
+  )
   if (existingLibraryItem) {
     const updatedLibraryItem = await libraryItemRepository.save({
       ...existingLibraryItem,
@@ -84,55 +86,50 @@ export const saveEmail = async (
   const newsletterLabel = getInternalLabelWithColor('newsletter')
 
   // start a transaction to create the library item and update the received email
-  const newLibraryItem = await entityManager.transaction(async (tx) => {
-    const newLibraryItem = await createLibraryItem(
-      {
+  const newLibraryItem = await createLibraryItem(
+    {
+      user: { id: input.userId },
+      slug,
+      readableContent: content,
+      originalContent: input.originalContent,
+      description: metadata?.description || parseResult.parsedContent?.excerpt,
+      title: input.title,
+      author: input.author,
+      originalUrl: cleanedUrl,
+      itemType: parseResult.pageType as unknown as LibraryItemType,
+      textContentHash: stringToHash(content),
+      thumbnail:
+        metadata?.previewImage ||
+        parseResult.parsedContent?.previewImage ||
+        undefined,
+      publishedAt: validatedDate(
+        parseResult.parsedContent?.publishedDate ?? undefined
+      ),
+      subscription: {
+        name: input.author,
+        unsubscribeMailTo: input.unsubMailTo,
+        unsubscribeHttpUrl: input.unsubHttpUrl,
         user: { id: input.userId },
-        slug,
-        readableContent: content,
-        originalContent: input.originalContent,
-        description:
-          metadata?.description || parseResult.parsedContent?.excerpt,
-        title: input.title,
-        author: input.author,
-        originalUrl: cleanedUrl,
-        itemType: parseResult.pageType as unknown as LibraryItemType,
-        textContentHash: stringToHash(content),
-        thumbnail:
-          metadata?.previewImage ||
-          parseResult.parsedContent?.previewImage ||
-          undefined,
-        publishedAt: validatedDate(
-          parseResult.parsedContent?.publishedDate ?? undefined
-        ),
-        subscription: {
-          name: input.author,
-          unsubscribeMailTo: input.unsubMailTo,
-          unsubscribeHttpUrl: input.unsubHttpUrl,
-          user: { id: input.userId },
-          newsletterEmail: { id: input.newsletterEmailId },
-          icon: siteIcon,
-          lastFetchedAt: new Date(),
-        },
-        state: LibraryItemState.Succeeded,
-        siteIcon,
-        siteName: parseResult.parsedContent?.siteName ?? undefined,
-        wordCount: wordsCount(content),
-        labels: [
-          {
-            ...newsletterLabel,
-            internal: true,
-            user: { id: input.userId },
-          },
-        ],
+        newsletterEmail: { id: input.newsletterEmailId },
+        icon: siteIcon,
+        lastFetchedAt: new Date(),
       },
-      tx
-    )
+      state: LibraryItemState.Succeeded,
+      siteIcon,
+      siteName: parseResult.parsedContent?.siteName ?? undefined,
+      wordCount: wordsCount(content),
+      labels: [
+        {
+          ...newsletterLabel,
+          internal: true,
+          user: { id: input.userId },
+        },
+      ],
+    },
+    input.userId
+  )
 
-    await updateReceivedEmail(input.receivedEmailId, 'article', tx)
-
-    return newLibraryItem
-  })
+  await updateReceivedEmail(input.receivedEmailId, 'article')
 
   // create a task to update thumbnail and pre-cache all images
   try {

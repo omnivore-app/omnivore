@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ArticleSavingRequestStatus } from '../../elastic/types'
+import { LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import {
@@ -139,10 +139,10 @@ export class PocketIntegration extends IntegrationService {
     }
 
     const pocketItems = Object.values(pocketData.list)
-    const statusToState: Record<string, ArticleSavingRequestStatus> = {
-      '0': ArticleSavingRequestStatus.Succeeded,
-      '1': ArticleSavingRequestStatus.Archived,
-      '2': ArticleSavingRequestStatus.Deleted,
+    const statusToState: Record<string, LibraryItemState> = {
+      '0': LibraryItemState.Succeeded,
+      '1': LibraryItemState.Archived,
+      '2': LibraryItemState.Deleted,
     }
     const data = pocketItems.map((item) => ({
       url: item.given_url,

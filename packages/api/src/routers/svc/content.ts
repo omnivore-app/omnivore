@@ -2,13 +2,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { appDataSource } from '../../data_source'
 import { getPageByParam, updatePage } from '../../elastic/pages'
 import { Page } from '../../elastic/types'
 import { ArticleSavingRequestStatus } from '../../generated/graphql'
 import { createPubSubClient, readPushSubscription } from '../../pubsub'
-import { setClaims } from '../../repository'
-import { setFileUploadComplete } from '../../services/save_file'
+import { authTrx } from '../../repository'
+import { setFileUploadComplete } from '../../services/upload_file'
 import { logger } from '../../utils/logger'
 
 interface UpdateContentMessage {
@@ -73,10 +72,9 @@ export function contentServiceRouter() {
     pageToUpdate.state = ArticleSavingRequestStatus.Succeeded
 
     try {
-      const uploadFileData = await appDataSource.transaction(async (tx) => {
-        await setClaims(tx, page.userId)
-        return setFileUploadComplete(fileId, tx)
-      })
+      const uploadFileData = await authTrx(async (t) =>
+        setFileUploadComplete(fileId)
+      )
       logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {
       logger.info('error marking file upload as completed', error)

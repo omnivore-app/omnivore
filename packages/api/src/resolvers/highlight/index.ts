@@ -177,9 +177,9 @@ export const deleteHighlightResolver = authorized<
   DeleteHighlightSuccess,
   DeleteHighlightError,
   MutationDeleteHighlightArgs
->(async (_, { highlightId }, { uid, log }) => {
+>(async (_, { highlightId }, { log }) => {
   try {
-    const deletedHighlight = await deleteHighlightById(highlightId, uid)
+    const deletedHighlight = await deleteHighlightById(highlightId)
 
     if (!deletedHighlight) {
       return {

@@ -7,7 +7,7 @@ import {
   LibraryItemType,
 } from '../entity/library_item'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx, setClaims } from '../repository'
+import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import {
   DateFilter,
@@ -261,30 +261,30 @@ export const findLibraryItemById = async (
   id: string,
   userId: string
 ): Promise<LibraryItem | null> => {
-  return authTrx(async (tx) => {
-    return tx
+  return authTrx(async (tx) =>
+    tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .leftJoinAndSelect('library_item.labels', 'labels')
       .leftJoinAndSelect('library_item.highlights', 'highlights')
       .where('library_item.user_id = :userId', { userId })
       .andWhere('library_item.id = :id', { id })
       .getOne()
-  })
+  )
 }
 
 export const findLibraryItemByUrl = async (
   url: string,
   userId: string
 ): Promise<LibraryItem | null> => {
-  return authTrx(async (tx) => {
-    return tx
+  return authTrx(async (tx) =>
+    tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .leftJoinAndSelect('library_item.labels', 'labels')
       .leftJoinAndSelect('library_item.highlights', 'highlights')
       .where('library_item.user_id = :userId', { userId })
       .andWhere('library_item.url = :url', { url })
       .getOne()
-  })
+  )
 }
 
 export const updateLibraryItem = async (
@@ -293,9 +293,9 @@ export const updateLibraryItem = async (
   userId: string,
   pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
-  const updatedLibraryItem = await authTrx(async (tx) => {
-    return tx.withRepository(libraryItemRepository).save({ id, ...libraryItem })
-  })
+  const updatedLibraryItem = await authTrx(async (tx) =>
+    tx.withRepository(libraryItemRepository).save({ id, ...libraryItem })
+  )
 
   await pubsub.entityUpdated<DeepPartial<LibraryItem>>(
     EntityType.PAGE,
@@ -311,11 +311,9 @@ export const createLibraryItem = async (
   userId: string,
   pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
-  const newLibraryItem = await authTrx(async (tx) => {
-    await setClaims(tx, userId)
-
-    return tx.withRepository(libraryItemRepository).save(libraryItem)
-  })
+  const newLibraryItem = await authTrx(async (tx) =>
+    tx.withRepository(libraryItemRepository).save(libraryItem)
+  )
 
   await pubsub.entityCreated<LibraryItem>(
     EntityType.PAGE,
@@ -330,12 +328,12 @@ export const findLibraryItemsByPrefix = async (
   prefix: string,
   limit = 5
 ): Promise<LibraryItem[]> => {
-  return authTrx(async (tx) => {
-    return tx
+  return authTrx(async (tx) =>
+    tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.title ILIKE :prefix', { prefix: `${prefix}%` })
       .orWhere('library_item.site_name ILIKE :prefix', { prefix: `${prefix}%` })
       .limit(limit)
       .getMany()
-  })
+  )
 }

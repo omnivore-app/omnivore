@@ -13,7 +13,6 @@ import {
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,
@@ -57,20 +56,10 @@ export const createNewsletterEmailResolver = authorized<
 export const newsletterEmailsResolver = authorized<
   NewsletterEmailsSuccess,
   NewsletterEmailsError
->(async (_parent, _args, { claims, log }) => {
-  log.info('newsletterEmailsResolver')
+>(async (_parent, _args, { uid, log }) => {
 
   try {
-    const user = await getRepository(User).findOneBy({
-      id: claims.uid,
-    })
-    if (!user) {
-      return Promise.reject({
-        errorCode: NewsletterEmailsErrorCode.Unauthorized,
-      })
-    }
-
-    const newsletterEmails = await getNewsletterEmails(user.id)
+    const newsletterEmails = await getNewsletterEmails(uid)
 
     return {
       newsletterEmails: newsletterEmails.map((newsletterEmail) => ({

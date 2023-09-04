@@ -1,3 +1,4 @@
+import { ApiKey } from '../../entity/api_key'
 import { env } from '../../env'
 import {
   ApiKeysError,
@@ -12,7 +13,6 @@ import {
   RevokeApiKeyErrorCode,
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
-import { apiKeyRepository } from '../../repository/api_key'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
 import { authorized } from '../../utils/helpers'
@@ -21,7 +21,7 @@ export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
   async (_, __, { log, authTrx }) => {
     try {
       const apiKeys = await authTrx(async (tx) => {
-        return tx.withRepository(apiKeyRepository).find({
+        return tx.getRepository(ApiKey).find({
           select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
           order: {
             usedAt: { direction: 'DESC', nulls: 'last' },
@@ -52,7 +52,7 @@ export const generateApiKeyResolver = authorized<
     const exp = new Date(expiresAt)
     const originalKey = generateApiKey()
     const apiKeyCreated = await authTrx(async (tx) => {
-      return tx.withRepository(apiKeyRepository).save({
+      return tx.getRepository(ApiKey).save({
         user: { id: uid },
         name,
         key: hashApiKey(originalKey),
@@ -90,7 +90,7 @@ export const revokeApiKeyResolver = authorized<
 >(async (_, { id }, { claims: { uid }, log, authTrx }) => {
   try {
     const deletedApiKey = await authTrx(async (tx) => {
-      const apiRepo = tx.withRepository(apiKeyRepository)
+      const apiRepo = tx.getRepository(ApiKey)
       const apiKey = await apiRepo.findOneBy({ id })
       if (!apiKey) {
         return null

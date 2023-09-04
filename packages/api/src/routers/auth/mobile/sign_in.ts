@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { StatusType } from '../../../entity/user'
-import { userRepository } from '../../../repository'
 import { getUserByEmail } from '../../../services/create_user'
 import { sendConfirmationEmail } from '../../../services/send_emails'
 import { comparePassword } from '../../../utils/auth'

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import { userRepository } from '../../../repository'
+import { userRepository } from '../../../repository/user'
 import { createUser } from '../../../services/create_user'
 import { hashPassword } from '../../../utils/auth'
 import { logger } from '../../../utils/logger'

@@ -37,7 +37,7 @@ export const savePageResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return savePage(ctx, user, input)
+  return savePage(input, user)
 })
 
 export const saveUrlResolver = authorized<
@@ -93,5 +93,5 @@ export const saveFileResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return saveFile(ctx, user, input)
+  return saveFile(input, user)
 })

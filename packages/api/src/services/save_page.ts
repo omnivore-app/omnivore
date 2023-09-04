@@ -16,8 +16,7 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
-import { libraryItemRepository } from '../repository'
-import { WithDataSourcesContext } from '../resolvers/types'
+import { authTrx } from '../repository'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   cleanUrl,
@@ -30,8 +29,9 @@ import {
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
+import { saveHighlight } from './highlights'
 import { getLabelsAndCreateIfNotExist } from './labels'
-import { createLibraryItem } from './library_item'
+import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -60,9 +60,8 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 }
 
 export const savePage = async (
-  ctx: WithDataSourcesContext,
-  user: User,
-  input: SavePageInput
+  input: SavePageInput,
+  user: User
 ): Promise<SaveResult> => {
   const parseResult = await parsePreparedContent(
     input.url,
@@ -77,31 +76,23 @@ export const savePage = async (
   )
   const [newSlug, croppedPathname] = createSlug(input.url, input.title)
   let slug = newSlug
-  let pageId = input.clientRequestId
+  let clientRequestId = input.clientRequestId
+
   const itemToSave = parsedContentToLibraryItem({
     url: input.url,
     title: input.title,
     userId: user.id,
-    pageId,
+    itemId: clientRequestId,
     slug,
     croppedPathname,
     parsedContent: parseResult.parsedContent,
     itemType: parseResult.pageType as unknown as LibraryItemType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
-    rssFeedUrl: input.rssFeedUrl,
     saveTime: input.savedAt ? new Date(input.savedAt) : undefined,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+    state: input.state || undefined,
   })
-
-  // save state
-  const archivedAt =
-    input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
-  // add labels to page
-  const labels = input.labels
-    ? await getLabelsAndCreateIfNotExist(ctx, input.labels)
-    : undefined
-
   const isImported = input.source === 'csv-importer'
 
   // always parse in backend if the url is in the force puppeteer list
@@ -110,10 +101,9 @@ export const savePage = async (
       await createPageSaveRequest({
         userId: user.id,
         url: itemToSave.originalUrl,
-        pubsub: ctx.pubsub,
-        articleSavingRequestId: input.clientRequestId,
-        archivedAt,
-        labels,
+        articleSavingRequestId: clientRequestId,
+        state: input.state || undefined,
+        labels: input.labels || undefined,
       })
     } catch (e) {
       return {
@@ -122,11 +112,21 @@ export const savePage = async (
       }
     }
   } else {
+    // save state
+    itemToSave.archivedAt =
+      input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
+    // add labels to page
+    itemToSave.labels = input.labels
+      ? await getLabelsAndCreateIfNotExist(input.labels, user.id)
+      : undefined
+
     // check if the page already exists
-    const existingLibraryItem = await libraryItemRepository.findOne({
-      where: { user: { id: user.id }, originalUrl: itemToSave.originalUrl },
-      relations: ['subscriptions'],
-    })
+    const existingLibraryItem = await authTrx((t) =>
+      t.getRepository(LibraryItem).findOne({
+        where: { user: { id: user.id }, originalUrl: itemToSave.originalUrl },
+        relations: ['subscriptions'],
+      })
+    )
     if (existingLibraryItem) {
       // we don't want to update an rss feed page if rss-feeder is tring to re-save it
       if (
@@ -134,14 +134,14 @@ export const savePage = async (
         existingLibraryItem.subscription.url === input.rssFeedUrl
       ) {
         return {
-          clientRequestId: pageId,
+          clientRequestId,
           url: `${homePageURL()}/${user.profile.username}/${slug}`,
         }
       }
 
-      pageId = existingLibraryItem.id
+      clientRequestId = existingLibraryItem.id
       slug = existingLibraryItem.slug
-      if (!(await libraryItemRepository.save(itemToSave))) {
+      if (!(await updateLibraryItem(clientRequestId, itemToSave, user.id))) {
         return {
           errorCodes: [SaveErrorCode.Unknown],
           message: 'Failed to update existing page',
@@ -149,14 +149,8 @@ export const savePage = async (
       }
     } else {
       // do not publish a pubsub event if the page is imported
-      const newPageId = await createLibraryItem(itemToSave)
-      if (!newPageId) {
-        return {
-          errorCodes: [SaveErrorCode.Unknown],
-          message: 'Failed to create new page',
-        }
-      }
-      pageId = newPageId
+      const newItem = await createLibraryItem(itemToSave, user.id)
+      clientRequestId = newItem.id
     }
   }
 
@@ -175,13 +169,12 @@ export const savePage = async (
     const highlight = {
       updatedAt: new Date(),
       createdAt: new Date(),
-      userId: ctx.uid,
-      elasticPageId: pageId,
+      userId: user.id,
       ...parseResult.highlightData,
       type: HighlightType.Highlight,
     }
 
-    if (!(await addHighlightToPage(pageId, highlight, ctx))) {
+    if (!(await saveHighlight(highlight, user.id))) {
       return {
         errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
         message: 'Failed to save highlight',
@@ -190,7 +183,7 @@ export const savePage = async (
   }
 
   return {
-    clientRequestId: pageId,
+    clientRequestId,
     url: `${homePageURL()}/${user.profile.username}/${slug}`,
   }
 }
@@ -200,7 +193,7 @@ export const parsedContentToLibraryItem = ({
   url,
   userId,
   originalHtml,
-  pageId,
+  itemId,
   parsedContent,
   slug,
   croppedPathname,
@@ -211,8 +204,8 @@ export const parsedContentToLibraryItem = ({
   uploadFileHash,
   uploadFileId,
   saveTime,
-  rssFeedUrl,
   publishedAt,
+  state,
 }: {
   url: string
   userId: string
@@ -221,18 +214,18 @@ export const parsedContentToLibraryItem = ({
   itemType: LibraryItemType
   parsedContent: Readability.ParseResult | null
   originalHtml?: string | null
-  pageId?: string | null
+  itemId?: string | null
   title?: string | null
   preparedDocument?: PreparedDocumentInput | null
   canonicalUrl?: string | null
   uploadFileHash?: string | null
   uploadFileId?: string | null
   saveTime?: Date
-  rssFeedUrl?: string | null
   publishedAt?: Date | null
+  state?: ArticleSavingRequestStatus | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   return {
-    id: pageId ?? undefined,
+    id: itemId || undefined,
     slug,
     user: { id: userId },
     originalContent: originalHtml,
@@ -257,7 +250,9 @@ export const parsedContentToLibraryItem = ({
     uploadFile: { id: uploadFileId ?? undefined },
     readingProgressTopPercent: 0,
     readingProgressHighestReadAnchor: 0,
-    state: LibraryItemState.Succeeded,
+    state: state
+      ? (state as unknown as LibraryItemState)
+      : LibraryItemState.Succeeded,
     createdAt: validatedDate(saveTime),
     savedAt: validatedDate(saveTime),
     siteName: parsedContent?.siteName,

@@ -33,15 +33,6 @@ export const saveFilterResolver = authorized<
   SaveFilterError,
   MutationSaveFilterArgs
 >(async (_, { input }, { authTrx, uid, log }) => {
-  log.info('Saving filters', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'saveFilterResolver',
-      uid,
-    },
-  })
-
   try {
     const filter = await authTrx(async (t) => {
       return t.withRepository(filterRepository).save({
@@ -72,27 +63,24 @@ export const deleteFilterResolver = authorized<
   DeleteFilterSuccess,
   DeleteFilterError,
   MutationDeleteFilterArgs
->(async (_, { id }, { authTrx, uid, log }) => {
-  log.info('Deleting filters', {
-    id,
-    labels: {
-      source: 'resolver',
-      resolver: 'deleteFilterResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, { id }, { authTrx, log }) => {
   try {
     const filter = await authTrx(async (t) => {
-      const filter = await t.withRepository(filterRepository).findOne({
+      const filter = await t.getRepository(Filter).findOneBy({
+        id,
+      })
+      if (!filter) {
+        throw new Error('Filter not found')
+      }
+
+      return t.getRepository(Filter).remove(filter)
+    })
 
     return {
       filter,
     }
   } catch (error) {
-    log.error('Error deleting filters',
-      error
-    )
+    log.error('Error deleting filters', error)
 
     return {
       errorCodes: [DeleteFilterErrorCode.BadRequest],

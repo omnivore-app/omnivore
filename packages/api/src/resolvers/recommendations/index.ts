@@ -28,7 +28,7 @@ import {
   RecommendHighlightsSuccess,
   RecommendSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
+import { userRepository } from '../../repository/user'
 import {
   createGroup,
   createLabelAndRuleForGroup,
@@ -57,7 +57,7 @@ export const createGroupResolver = authorized<
   })
 
   try {
-    const userData = await getRepository(User).findOne({
+    const userData = await userRepository.findOne({
       where: { id: uid },
       relations: ['profile'],
     })
@@ -132,7 +132,7 @@ export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
     })
 
     try {
-      const user = await getRepository(User).findOneBy({
+      const user = await userRepository.findOneBy({
         id: uid,
       })
       if (!user) {
@@ -178,7 +178,7 @@ export const recommendResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOne({
+    const user = await userRepository.findOne({
       where: { id: uid },
       relations: ['profile'],
     })
@@ -272,7 +272,7 @@ export const joinGroupResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOne({
+    const user = await userRepository.findOne({
       where: { id: uid },
       relations: ['profile'],
     })
@@ -329,7 +329,7 @@ export const recommendHighlightsResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOne({
+    const user = await userRepository.findOne({
       where: { id: uid },
       relations: ['profile'],
     })
@@ -421,7 +421,7 @@ export const leaveGroupResolver = authorized<
   })
 
   try {
-    const user = await getRepository(User).findOneBy({
+    const user = await userRepository.findOneBy({
       id: uid,
     })
     if (!user) {

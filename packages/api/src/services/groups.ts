@@ -10,7 +10,7 @@ import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
 import { authTrx } from '../repository'
 import { groupRepository } from '../repository/group'
 import { userDataToUser } from '../utils/helpers'
-import { createLabel, getLabelByName } from './labels'
+import { getLabelsAndCreateIfNotExist } from './labels'
 import { createRule } from './rules'
 
 export const createGroup = async (input: {
@@ -135,12 +135,11 @@ export const joinGroup = async (
 
     // Check if exceeded max members considering concurrent requests
     await t.query(
-      `
-insert into omnivore.group_membership (user_id, group_id, invite_id)
-select $1, $2, $3
-from omnivore.group_membership
-where group_id = $2
-having count(*) < $4`,
+      `insert into omnivore.group_membership (user_id, group_id, invite_id)
+        select $1, $2, $3
+        from omnivore.group_membership
+        where group_id = $2
+        having count(*) < $4`,
       [user.id, invite.group.id, invite.id, invite.maxMembers]
     )
 
@@ -231,11 +230,10 @@ export const createLabelAndRuleForGroup = async (
   userId: string,
   groupName: string
 ) => {
-  let label = await getLabelByName(userId, groupName)
-  if (!label) {
-    // create a new label for the group
-    label = await createLabel(userId, { name: groupName })
-  }
+  const labels = await getLabelsAndCreateIfNotExist(
+    [{ name: groupName }],
+    userId
+  )
 
   // create a rule to add the label to all pages in the group
   const addLabelPromise = createRule(userId, {
@@ -243,7 +241,7 @@ export const createLabelAndRuleForGroup = async (
     actions: [
       {
         type: RuleActionType.AddLabel,
-        params: [label.id],
+        params: [labels[0].id],
       },
     ],
     // always add the label to pages in the group

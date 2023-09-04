@@ -1,6 +1,5 @@
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   MutationUploadImportFileArgs,
@@ -8,7 +7,7 @@ import {
   UploadImportFileErrorCode,
   UploadImportFileSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
+import { userRepository } from '../../repository/user'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
@@ -35,15 +34,13 @@ export const uploadImportFileResolver = authorized<
   UploadImportFileError,
   MutationUploadImportFileArgs
 >(async (_, { type, contentType }, { claims: { uid }, log }) => {
-  log.info('uploadImportFileResolver')
-
   if (!VALID_CONTENT_TYPES.includes(contentType)) {
     return {
       errorCodes: [UploadImportFileErrorCode.BadRequest],
     }
   }
 
-  const user = await getRepository(User).findOneBy({ id: uid })
+  const user = await userRepository.findOneBy({ id: uid })
   if (!user) {
     return {
       errorCodes: [UploadImportFileErrorCode.Unauthorized],
