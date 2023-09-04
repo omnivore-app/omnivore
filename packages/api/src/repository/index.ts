@@ -1,5 +1,5 @@
 import * as httpContext from 'express-http-context2'
-import { EntityManager } from 'typeorm'
+import { EntityManager, EntityTarget } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 
@@ -31,6 +31,10 @@ export const authTrx = async <T>(
     await setClaims(tx, uid, userRole)
     return fn(tx)
   })
+}
+
+export const getRepository = <T>(entity: EntityTarget<T>) => {
+  return entityManager.getRepository(entity)
 }
 
 export const entityManager = appDataSource.manager

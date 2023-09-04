@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { StatusType } from '../../../entity/user'
-import { getUserByEmail } from '../../../services/create_user'
+import { userRepository } from '../../../repository/user'
 import { sendConfirmationEmail } from '../../../services/send_emails'
 import { comparePassword } from '../../../utils/auth'
 import { logger } from '../../../utils/logger'
@@ -45,7 +45,7 @@ export async function createMobileEmailSignInResponse(
       throw new Error('Missing username or password')
     }
 
-    const user = await getUserByEmail(email.trim())
+    const user = await userRepository.findByEmail(email.trim())
     if (!user?.id || !user?.password) {
       throw new Error('user not found')
     }

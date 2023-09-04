@@ -18,9 +18,10 @@ import { appDataSource } from '../../data_source'
 import { RegistrationType, StatusType, User } from '../../entity/user'
 import { env } from '../../env'
 import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
-import { getRepository, setClaims, userRepository } from '../../repository'
+import { getRepository, setClaims } from '../../repository'
+import { userRepository } from '../../repository/user'
 import { isErrorWithCode } from '../../resolvers'
-import { createUser, getUserByEmail } from '../../services/create_user'
+import { createUser } from '../../services/create_user'
 import {
   sendConfirmationEmail,
   sendPasswordResetEmail,
@@ -419,7 +420,7 @@ export function authRouter() {
       }
       const { email, password } = req.body
       try {
-        const user = await getUserByEmail(email.trim())
+        const user = await userRepository.findByEmail(email.trim())
         if (!user?.id) {
           return res.redirect(
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
@@ -608,7 +609,7 @@ export function authRouter() {
       }
 
       try {
-        const user = await getUserByEmail(email)
+        const user = await userRepository.findByEmail(email)
         if (!user) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)
         }

@@ -6,7 +6,6 @@ import { homePageURL } from '../../env'
 import { ContentReader } from '../../generated/graphql'
 import { createPubSubClient } from '../../pubsub'
 import { setClaims } from '../../repository'
-import { PageReminder, setRemindersComplete } from '../../services/reminders'
 
 interface PageToNotify {
   title: string
@@ -127,115 +126,115 @@ interface PageToNotify {
 //   return router
 // }
 
-const getPagesToNotifyAndUnarchive = (
-  pageReminders: PageReminder[],
-  username: string
-): [pages: PageToNotify[], linkIds: string[]] => {
-  const pageIds: string[] = []
-  const pages: PageToNotify[] = []
-  pageReminders.forEach((pageReminder) => {
-    pageIds.push(pageReminder.pageId)
+// const getPagesToNotifyAndUnarchive = (
+//   pageReminders: PageReminder[],
+//   username: string
+// ): [pages: PageToNotify[], linkIds: string[]] => {
+//   const pageIds: string[] = []
+//   const pages: PageToNotify[] = []
+//   pageReminders.forEach((pageReminder) => {
+//     pageIds.push(pageReminder.pageId)
 
-    pageReminder.sendNotification &&
-      pages.push({
-        url: `${homePageURL()}/${username}/${pageReminder.slug}`,
-        title: pageReminder.title,
-        description: pageReminder.description,
-        byline: pageReminder.author,
-        image: pageReminder.image,
-      })
-  })
+//     pageReminder.sendNotification &&
+//       pages.push({
+//         url: `${homePageURL()}/${username}/${pageReminder.slug}`,
+//         title: pageReminder.title,
+//         description: pageReminder.description,
+//         byline: pageReminder.author,
+//         image: pageReminder.image,
+//       })
+//   })
 
-  return [pages, pageIds]
-}
+//   return [pages, pageIds]
+// }
 
-const messageForPages = (
-  pageReminders: PageReminder[],
-  deviceTokens: UserDeviceToken[]
-): MulticastMessage => {
-  const pages = pageReminders.filter((reminder) => reminder.sendNotification)
+// const messageForPages = (
+//   pageReminders: PageReminder[],
+//   deviceTokens: UserDeviceToken[]
+// ): MulticastMessage => {
+//   const pages = pageReminders.filter((reminder) => reminder.sendNotification)
 
-  // If the user only has one reminder triggered we send a deep
-  // link to that link.
-  if (pages.length === 1) {
-    const page = pages[0]
-    let title = 'Snoozed: You have one snoozed article to read on Omnivore'
+//   // If the user only has one reminder triggered we send a deep
+//   // link to that link.
+//   if (pages.length === 1) {
+//     const page = pages[0]
+//     let title = 'Snoozed: You have one snoozed article to read on Omnivore'
 
-    if (page.author) {
-      title = `'Snoozed: From ${page.author}`
-    }
+//     if (page.author) {
+//       title = `'Snoozed: From ${page.author}`
+//     }
 
-    const pushData = !page
-      ? undefined
-      : {
-          link: Buffer.from(
-            JSON.stringify({
-              id: page.pageId,
-              url: page.url,
-              slug: page.slug,
-              title: page.title,
-              image: page.image,
-              author: page.author,
-              isArchived: false,
-              contentReader: ContentReader.Web,
-              readingProgressPercent: 0,
-              readingProgressAnchorIndex: 0,
-            })
-          ).toString('base64'),
-        }
+//     const pushData = !page
+//       ? undefined
+//       : {
+//           link: Buffer.from(
+//             JSON.stringify({
+//               id: page.pageId,
+//               url: page.url,
+//               slug: page.slug,
+//               title: page.title,
+//               image: page.image,
+//               author: page.author,
+//               isArchived: false,
+//               contentReader: ContentReader.Web,
+//               readingProgressPercent: 0,
+//               readingProgressAnchorIndex: 0,
+//             })
+//           ).toString('base64'),
+//         }
 
-    return {
-      notification: {
-        title,
-        body: page.title,
-        imageUrl: page.image || undefined,
-      },
-      data: pushData,
-      tokens: deviceTokens.map((token) => token.token),
-    }
-  }
+//     return {
+//       notification: {
+//         title,
+//         body: page.title,
+//         imageUrl: page.image || undefined,
+//       },
+//       data: pushData,
+//       tokens: deviceTokens.map((token) => token.token),
+//     }
+//   }
 
-  const title = `Snoozed: You have ${pages.length} articles to read.`
-  let description = 'Read them now.'
-  const allBylines = pages.map((page) => page.author).filter((byline) => byline)
-  const bylines = [...new Set(allBylines)].splice(0, 5)
-  if (bylines.length > 0) {
-    description = 'From ' + bylines.map((byline) => byline).join(', ')
-  }
+//   const title = `Snoozed: You have ${pages.length} articles to read.`
+//   let description = 'Read them now.'
+//   const allBylines = pages.map((page) => page.author).filter((byline) => byline)
+//   const bylines = [...new Set(allBylines)].splice(0, 5)
+//   if (bylines.length > 0) {
+//     description = 'From ' + bylines.map((byline) => byline).join(', ')
+//   }
 
-  return {
-    notification: {
-      title: title,
-      body: description,
-    },
-    tokens: deviceTokens.map((token) => token.token),
-  }
-}
+//   return {
+//     notification: {
+//       title: title,
+//       body: description,
+//     },
+//     tokens: deviceTokens.map((token) => token.token),
+//   }
+// }
 
-const updateRemindersStatus = async (
-  userId: string,
-  pagesToUnarchive: string[],
-  remindAt: Date
-): Promise<void> => {
-  // Unarchive all the links and updated saved_at to now, so they
-  // appear at the top of the user's list.
-  for (const pageId of pagesToUnarchive) {
-    await updatePage(
-      pageId,
-      {
-        savedAt: new Date(),
-        archivedAt: null,
-      },
-      {
-        pubsub: createPubSubClient(),
-        uid: userId,
-      }
-    )
-  }
+// const updateRemindersStatus = async (
+//   userId: string,
+//   pagesToUnarchive: string[],
+//   remindAt: Date
+// ): Promise<void> => {
+//   // Unarchive all the links and updated saved_at to now, so they
+//   // appear at the top of the user's list.
+//   for (const pageId of pagesToUnarchive) {
+//     await updatePage(
+//       pageId,
+//       {
+//         savedAt: new Date(),
+//         archivedAt: null,
+//       },
+//       {
+//         pubsub: createPubSubClient(),
+//         uid: userId,
+//       }
+//     )
+//   }
 
-  // db update
-  await appDataSource.transaction(async (tx) => {
-    await setClaims(tx, userId)
-    await setRemindersComplete(tx, userId, remindAt)
-  })
-}
+//   // db update
+//   await appDataSource.transaction(async (tx) => {
+//     await setClaims(tx, userId)
+//     await setRemindersComplete(tx, userId, remindAt)
+//   })
+// }

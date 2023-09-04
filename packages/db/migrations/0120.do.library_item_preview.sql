@@ -16,6 +16,8 @@ CREATE TABLE omnivore.library_item_preview (
     updated_at timestamptz NOT NULL DEFAULT current_timestamp
 );
 
+GRANT SELECT, INSERT ON omnivore.library_item_preview TO omnivore_user;
+
 CREATE TRIGGER update_library_item_preview_modtime BEFORE UPDATE ON omnivore.library_item_preview FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 COMMIT;

@@ -5,13 +5,16 @@ import { stringify } from 'csv-stringify'
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { getPageById, searchLibraryItems } from '../../elastic/pages'
-import { Page } from '../../elastic/types'
 import { Integration, IntegrationType } from '../../entity/integration'
+import { LibraryItem } from '../../entity/library_item'
 import { EntityType, readPushSubscription } from '../../pubsub'
 import { getRepository } from '../../repository'
 import { Claims } from '../../resolvers/types'
 import { getIntegrationService } from '../../services/integrations'
+import {
+  findLibraryItemById,
+  searchLibraryItems,
+} from '../../services/library_item'
 import { getClaimsByToken } from '../../utils/auth'
 import { logger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
@@ -95,13 +98,13 @@ export function integrationsServiceRouter() {
           res.status(200).send('Bad Request')
           return
         }
-        const page = await getPageById(id)
+        const page = await findLibraryItemById(id, userId)
         if (!page) {
           logger.info('No page found for id', { id })
           res.status(200).send('No page found')
           return
         }
-        if (page.userId !== userId) {
+        if (page.user.id !== userId) {
           logger.info('Page does not belong to user', { id, userId })
           return res.status(200).send('Page does not belong to user')
         }
@@ -124,7 +127,10 @@ export function integrationsServiceRouter() {
         const size = 50
 
         for (
-          let hasNextPage = true, count = 0, after = 0, pages: Page[] = [];
+          let hasNextPage = true,
+            count = 0,
+            after = 0,
+            pages: LibraryItem[] = [];
           hasNextPage;
           after += size, hasNextPage = count > after
         ) {
@@ -133,10 +139,11 @@ export function integrationsServiceRouter() {
           const dateFilters: DateFilter[] = []
           syncedAt &&
             dateFilters.push({ field: 'updatedAt', startDate: syncedAt })
-          ;[pages, count] = (await searchLibraryItems(
+          const { libraryItems } = await searchLibraryItems(
             { from: after, size, dateFilters },
             userId
-          )) as [Page[], number]
+          )
+          pages = libraryItems
           const pageIds = pages.map((p) => p.id)
 
           logger.info('syncing pages', { pageIds })

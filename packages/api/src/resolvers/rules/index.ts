@@ -1,5 +1,4 @@
 import { Rule } from '../../entity/rule'
-import { User } from '../../entity/user'
 import {
   DeleteRuleError,
   DeleteRuleErrorCode,
@@ -14,48 +13,28 @@ import {
   SetRuleErrorCode,
   SetRuleSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { authorized } from '../../utils/helpers'
 
 export const setRuleResolver = authorized<
   SetRuleSuccess,
   SetRuleError,
   MutationSetRuleArgs
->(async (_, { input }, { claims, log }) => {
-  log.info('Setting rules', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'setRulesResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, { input }, { authTrx, uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: claims.uid })
-    if (!user) {
-      return {
-        errorCodes: [SetRuleErrorCode.Unauthorized],
-      }
-    }
-
-    const rule = await getRepository(Rule).save({
-      ...input,
-      id: input.id || undefined,
-      user: { id: claims.uid },
-    })
+    const rule = await authTrx((t) =>
+      t.getRepository(Rule).save({
+        ...input,
+        id: input.id || undefined,
+        user: { id: uid },
+      })
+    )
 
     return {
       rule,
     }
   } catch (error) {
-    log.error('Error setting rules', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'setRulesResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error setting rules', error)
 
     return {
       errorCodes: [SetRuleErrorCode.BadRequest],
@@ -68,23 +47,7 @@ export const rulesResolver = authorized<
   RulesError,
   QueryRulesArgs
 >(async (_, { enabled }, { claims, log }) => {
-  log.info('Getting rules', {
-    enabled,
-    labels: {
-      source: 'resolver',
-      resolver: 'rulesResolver',
-      uid: claims.uid,
-    },
-  })
-
   try {
-    const user = await getRepository(User).findOneBy({ id: claims.uid })
-    if (!user) {
-      return {
-        errorCodes: [RulesErrorCode.Unauthorized],
-      }
-    }
-
     const rules = await getRepository(Rule).findBy({
       user: { id: claims.uid },
       enabled: enabled === null ? undefined : enabled,

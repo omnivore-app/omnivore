@@ -1,9 +1,5 @@
-import { MulticastMessage } from 'firebase-admin/messaging'
-import { Page } from '../elastic/types'
 import { NewsletterEmail } from '../entity/newsletter_email'
-import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
-import { ContentReader } from '../generated/graphql'
 import { analytics } from '../utils/analytics'
 import { logger } from '../utils/logger'
 import { saveEmail, SaveEmailInput } from './save_email'
@@ -77,42 +73,42 @@ export const saveNewsletter = async (
   return true
 }
 
-const messageForLink = (
-  link: Page,
-  deviceTokens: UserDeviceToken[]
-): MulticastMessage => {
-  let title = '📫 - An article was added to your Omnivore Inbox'
+// const messageForLink = (
+//   link: Page,
+//   deviceTokens: UserDeviceToken[]
+// ): MulticastMessage => {
+//   let title = '📫 - An article was added to your Omnivore Inbox'
 
-  if (link.author) {
-    title = `📫 - ${link.author} has published a new article`
-  }
+//   if (link.author) {
+//     title = `📫 - ${link.author} has published a new article`
+//   }
 
-  const pushData = !link
-    ? undefined
-    : {
-        link: Buffer.from(
-          JSON.stringify({
-            id: link.id,
-            url: link.url,
-            slug: link.slug,
-            title: link.title,
-            image: link.image,
-            author: link.author,
-            isArchived: !!link.archivedAt,
-            contentReader: ContentReader.Web,
-            readingProgressPercent: link.readingProgressPercent,
-            readingProgressAnchorIndex: link.readingProgressAnchorIndex,
-          })
-        ).toString('base64'),
-      }
+//   const pushData = !link
+//     ? undefined
+//     : {
+//         link: Buffer.from(
+//           JSON.stringify({
+//             id: link.id,
+//             url: link.url,
+//             slug: link.slug,
+//             title: link.title,
+//             image: link.image,
+//             author: link.author,
+//             isArchived: !!link.archivedAt,
+//             contentReader: ContentReader.Web,
+//             readingProgressPercent: link.readingProgressPercent,
+//             readingProgressAnchorIndex: link.readingProgressAnchorIndex,
+//           })
+//         ).toString('base64'),
+//       }
 
-  return {
-    notification: {
-      title: title,
-      body: link.title,
-      imageUrl: link.image || undefined,
-    },
-    data: pushData,
-    tokens: deviceTokens.map((token) => token.token),
-  }
-}
+//   return {
+//     notification: {
+//       title: title,
+//       body: link.title,
+//       imageUrl: link.image || undefined,
+//     },
+//     data: pushData,
+//     tokens: deviceTokens.map((token) => token.token),
+//   }
+// }

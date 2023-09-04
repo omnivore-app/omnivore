@@ -19,8 +19,6 @@ ALTER TABLE omnivore.highlight
     ADD COLUMN html text,
     ALTER COLUMN quote DROP NOT NULL,
     ALTER COLUMN patch DROP NOT NULL,
-    ALTER COLUMN highlight_position_percent DROP NOT NULL,
-    ALTER COLUMN highlight_position_anchor_index DROP NOT NULL,
     DROP COLUMN article_id,
     DROP COLUMN elastic_page_id;
 

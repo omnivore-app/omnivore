@@ -1,12 +1,12 @@
 import * as httpContext from 'express-http-context2'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { createPage } from '../elastic/pages'
-import { ArticleSavingRequestStatus, Page, PageContext } from '../elastic/types'
-import { PageType } from '../generated/graphql'
-import { createPubSubClient } from '../pubsub'
+import { DeepPartial } from 'typeorm'
+import { LibraryItem, LibraryItemType } from '../entity/library_item'
+import { ArticleSavingRequestStatus } from '../generated/graphql'
 import { generateSlug, stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
+import { createLibraryItem } from './library_item'
 
 type PopularRead = {
   url: string
@@ -61,12 +61,6 @@ export const addPopularRead = async (
   userId: string,
   name: string
 ): Promise<string | undefined> => {
-  const ctx: PageContext = {
-    pubsub: createPubSubClient(),
-    refresh: true,
-    uid: userId,
-  }
-
   const pr = popularRead(name)
   if (!pr) {
     return undefined
@@ -75,30 +69,25 @@ export const addPopularRead = async (
   const saveTime = new Date()
   const slug = generateSlug(pr.title)
 
-  const articleToSave: Page = {
-    id: '',
+  const articleToSave: DeepPartial<LibraryItem> = {
     slug: slug,
-    userId: userId,
-    content: pr.content,
-    originalHtml: pr.originalHtml,
+    readableContent: pr.content,
+    originalContent: pr.originalHtml,
     description: pr.description,
     title: pr.title,
     author: pr.author,
-    url: pr.url,
-    pageType: PageType.Article,
-    hash: stringToHash(pr.content),
-    image: pr.previewImage,
+    originalUrl: pr.url,
+    itemType: LibraryItemType.Article,
+    textContentHash: stringToHash(pr.content),
+    thumbnail: pr.previewImage,
     publishedAt: pr.publishedAt,
     savedAt: saveTime,
     createdAt: saveTime,
     siteName: pr.siteName,
-    readingProgressPercent: 0,
-    readingProgressAnchorIndex: 0,
-    state: ArticleSavingRequestStatus.Succeeded,
   }
 
-  const pageId = await createPage(articleToSave, ctx)
-  return pageId
+  const item = await createLibraryItem(articleToSave, userId)
+  return item.id
 }
 
 const addPopularReads = async (

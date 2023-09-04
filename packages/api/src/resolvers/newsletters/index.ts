@@ -13,6 +13,7 @@ import {
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,
@@ -57,7 +58,6 @@ export const newsletterEmailsResolver = authorized<
   NewsletterEmailsSuccess,
   NewsletterEmailsError
 >(async (_parent, _args, { uid, log }) => {
-
   try {
     const newsletterEmails = await getNewsletterEmails(uid)
 

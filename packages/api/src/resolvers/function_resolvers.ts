@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { getPageByParam } from '../elastic/pages'
 import { Subscription } from '../entity/subscription'
 import { Article, PageType, SearchItem } from '../generated/graphql'
 import { findUploadFileById } from '../services/upload_file'
@@ -109,7 +108,7 @@ import {
 } from './index'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
-import { Claims, WithDataSourcesContext } from './types'
+import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -386,36 +385,6 @@ export const functionResolvers = {
     },
     async originalArticleUrl(article: { url: string }) {
       return article.url
-    },
-    async savedByViewer(
-      article: { id: string; savedByViewer?: boolean },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if (article.savedByViewer) {
-        return article.savedByViewer
-      }
-      if (!ctx.claims?.uid) return undefined
-      const page = await getPageByParam({
-        userId: ctx.claims.uid,
-        _id: article.id,
-      })
-      return !!page
-    },
-    async postedByViewer(
-      article: { id: string; postedByViewer?: boolean },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if (article.postedByViewer) {
-        return article.postedByViewer
-      }
-      if (!ctx.claims?.uid) return false
-      const page = await getPageByParam({
-        userId: ctx.claims.uid,
-        _id: article.id,
-      })
-      return !!page?.sharedAt
     },
     hasContent(article: {
       content: string | null

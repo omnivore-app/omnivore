@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid'
-import { appDataSource } from '../data_source'
 import { Group } from '../entity/groups/group'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
@@ -7,8 +6,7 @@ import { RuleActionType } from '../entity/rule'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
-import { authTrx } from '../repository'
-import { groupRepository } from '../repository/group'
+import { entityManager, getRepository } from '../repository'
 import { userDataToUser } from '../utils/helpers'
 import { getLabelsAndCreateIfNotExist } from './labels'
 import { createRule } from './rules'
@@ -23,7 +21,7 @@ export const createGroup = async (input: {
   onlyAdminCanPost?: boolean | null
   onlyAdminCanSeeMembers?: boolean | null
 }): Promise<[Group, Invite]> => {
-  const [group, invite] = await appDataSource.transaction<[Group, Invite]>(
+  const [group, invite] = await entityManager.transaction<[Group, Invite]>(
     async (t) => {
       // Max number of groups a user can create
       const maxGroups = 3
@@ -72,12 +70,10 @@ export const createGroup = async (input: {
 export const getRecommendationGroups = async (
   user: User
 ): Promise<RecommendationGroup[]> => {
-  const groupMembers = await authTrx((t) =>
-    t.getRepository(GroupMembership).find({
-      where: { user: { id: user.id } },
-      relations: ['invite', 'group.members.user.profile'],
-    })
-  )
+  const groupMembers = await getRepository(GroupMembership).find({
+    where: { user: { id: user.id } },
+    relations: ['invite', 'group.members.user.profile'],
+  })
 
   return groupMembers.map((gm) => {
     const admins: GraphqlUser[] = []
@@ -117,7 +113,7 @@ export const joinGroup = async (
   user: User,
   inviteCode: string
 ): Promise<RecommendationGroup> => {
-  const invite = await appDataSource.transaction<Invite>(async (t) => {
+  const invite = await entityManager.transaction<Invite>(async (t) => {
     // Check if the invite exists
     const invite = await t
       .getRepository(Invite)
@@ -146,7 +142,7 @@ export const joinGroup = async (
     return invite
   })
 
-  const group = await groupRepository.findOneOrFail({
+  const group = await getRepository(Group).findOneOrFail({
     where: { id: invite.group.id },
     relations: ['members', 'members.user.profile'],
   })
@@ -177,7 +173,7 @@ export const leaveGroup = async (
   user: User,
   groupId: string
 ): Promise<boolean> => {
-  return authTrx(async (t) => {
+  return entityManager.transaction(async (t) => {
     const group = await t
       .getRepository(Group)
       .createQueryBuilder('group')
@@ -276,7 +272,7 @@ export const getGroupsWhereUserCanPost = async (
   userId: string,
   groupIds: string[]
 ): Promise<Group[]> => {
-  return groupRepository
+  return getRepository(Group)
     .createQueryBuilder('group')
     .innerJoin('group.members', 'members1')
     .whereInIds(groupIds)

@@ -1,10 +1,9 @@
 import * as privateIpLib from 'private-ip'
 import { v4 as uuidv4 } from 'uuid'
-import { countByCreatedAt } from '../elastic/pages'
-import { ArticleSavingRequestStatus, PageType } from '../elastic/types'
 import { LibraryItemState, LibraryItemType } from '../entity/library_item'
 import {
   ArticleSavingRequest,
+  ArticleSavingRequestStatus,
   CreateArticleSavingRequestErrorCode,
   CreateLabelInput,
 } from '../generated/graphql'
@@ -18,6 +17,7 @@ import {
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import {
+  countByCreatedAt,
   createLibraryItem,
   findLibraryItemByUrl,
   updateLibraryItem,
@@ -46,7 +46,7 @@ const isPrivateIP = privateIpLib.default
 const getPriorityByRateLimit = async (
   userId: string
 ): Promise<'low' | 'high'> => {
-  const count = await countByCreatedAt(userId, Date.now() - 60 * 1000)
+  const count = await countByCreatedAt(new Date(Date.now() - 60 * 1000))
   return count >= 5 ? 'low' : 'high'
 }
 

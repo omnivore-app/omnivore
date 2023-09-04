@@ -2,11 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { getPageByParam, updatePage } from '../../elastic/pages'
-import { Page } from '../../elastic/types'
-import { ArticleSavingRequestStatus } from '../../generated/graphql'
-import { createPubSubClient, readPushSubscription } from '../../pubsub'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import { readPushSubscription } from '../../pubsub'
 import { authTrx } from '../../repository'
+import { libraryItemRepository } from '../../repository/library_item'
+import { updateLibraryItem } from '../../services/library_item'
 import { setFileUploadComplete } from '../../services/upload_file'
 import { logger } from '../../utils/logger'
 
@@ -27,7 +27,7 @@ export function contentServiceRouter() {
     logger.info('read pubsub message', msgStr, 'has expired', expired)
 
     if (!msgStr) {
-      res.status(400).send('Bad Request')
+      res.status(200).send('Bad Request')
       return
     }
 
@@ -40,7 +40,7 @@ export function contentServiceRouter() {
     const data = JSON.parse(msgStr)
     if (!('fileId' in data) || !('content' in data)) {
       logger.info('No file id or content found in message')
-      res.status(400).send('Bad Request')
+      res.status(200).send('Bad Request')
       return
     }
     const msg = data as UpdateContentMessage
@@ -50,43 +50,53 @@ export function contentServiceRouter() {
     const fileId = parts && parts.length > 1 ? parts[1] : undefined
     if (!fileId) {
       logger.info('No file id found in message')
-      res.status(400).send('Bad Request')
+      res.status(200).send('Bad Request')
       return
     }
 
-    const page = await getPageByParam({ uploadFileId: fileId })
-    if (!page) {
+    const libraryItem = await authTrx(async (tx) =>
+      tx
+        .withRepository(libraryItemRepository)
+        .createQueryBuilder('item')
+        .innerJoinAndSelect('item.user', 'user')
+        .innerJoinAndSelect('item.uploadFile', 'file')
+        .where('item.fileId = :fileId', { fileId })
+        .getOne()
+    )
+    if (!libraryItem) {
       logger.info('No upload file found for id:', fileId)
       res.status(400).send('Bad Request')
       return
     }
 
-    const pageToUpdate: Partial<Page> = { content: msg.content }
-    if (msg.title) pageToUpdate.title = msg.title
-    if (msg.author) pageToUpdate.author = msg.author
-    if (msg.description) pageToUpdate.description = msg.description
+    const itemToUpdate: Partial<LibraryItem> = { originalContent: msg.content }
+    if (msg.title) itemToUpdate.title = msg.title
+    if (msg.author) itemToUpdate.author = msg.author
+    if (msg.description) itemToUpdate.description = msg.description
 
     // This event is fired after the file is fully uploaded,
-    // so along with upadting content, we mark it as
+    // so along with updateing content, we mark it as
     // succeeded.
-    pageToUpdate.state = ArticleSavingRequestStatus.Succeeded
+    itemToUpdate.state = LibraryItemState.Succeeded
 
     try {
-      const uploadFileData = await authTrx(async (t) =>
-        setFileUploadComplete(fileId)
+      const uploadFileData = await setFileUploadComplete(
+        fileId,
+        libraryItem.user.id
       )
       logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {
       logger.info('error marking file upload as completed', error)
     }
 
-    const result = await updatePage(page.id, pageToUpdate, {
-      pubsub: createPubSubClient(),
-      uid: page.userId,
-    })
+    const result = await updateLibraryItem(
+      libraryItem.id,
+      itemToUpdate,
+      libraryItem.user.id
+    )
     logger.info(
-      'Updating article text',
-      page.id,
+      'Updating library item text',
+      libraryItem.id,
       result,
       msg.content.substring(0, 20)
     )

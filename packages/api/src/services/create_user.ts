@@ -4,8 +4,7 @@ import { Invite } from '../entity/groups/invite'
 import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { SignupErrorCode } from '../generated/graphql'
-import { authTrx, entityManager } from '../repository'
-import { profileRepository } from '../repository/profile'
+import { authTrx, entityManager, getRepository } from '../repository'
 import { userRepository } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { logger } from '../utils/logger'
@@ -48,7 +47,7 @@ export const createUser = async (input: {
     }
 
     // create profile if user exists but profile does not exist
-    const profile = await profileRepository.save({
+    const profile = await getRepository(Profile).save({
       username: input.username,
       pictureUrl: input.pictureUrl,
       bio: input.bio,

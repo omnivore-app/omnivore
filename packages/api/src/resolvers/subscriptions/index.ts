@@ -1,8 +1,6 @@
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
-import { appDataSource } from '../../data_source'
 import { Subscription } from '../../entity/subscription'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   MutationSubscribeArgs,
@@ -120,24 +118,28 @@ export const unsubscribeResolver = authorized<
   UnsubscribeSuccessPartial,
   UnsubscribeError,
   MutationUnsubscribeArgs
->(async (_, { name, subscriptionId }, { claims: { uid }, log }) => {
+>(async (_, { name, subscriptionId }, { authTrx, uid, log }) => {
   log.info('unsubscribeResolver')
 
   try {
-    const queryBuilder = getRepository(Subscription)
-      .createQueryBuilder('subscription')
-      .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
-      .where({ user: { id: uid } })
+    const subscription = await authTrx(async (t) => {
+      const queryBuilder = t
+        .getRepository(Subscription)
+        .createQueryBuilder('subscription')
+        .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
+        .where({ user: { id: uid } })
 
-    if (subscriptionId) {
-      // if subscriptionId is provided, ignore name
-      queryBuilder.andWhere({ id: subscriptionId })
-    } else {
-      // if subscriptionId is not provided, use name for old clients
-      queryBuilder.andWhere({ name })
-    }
+      if (subscriptionId) {
+        // if subscriptionId is provided, ignore name
+        queryBuilder.andWhere({ id: subscriptionId })
+      } else {
+        // if subscriptionId is not provided, use name for old clients
+        queryBuilder.andWhere({ name })
+      }
 
-    const subscription = await queryBuilder.getOne()
+      return queryBuilder.getOne()
+    })
+
     if (!subscription) {
       return {
         errorCodes: [UnsubscribeErrorCode.NotFound],
@@ -189,25 +191,20 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { authTrx, uid, log }) => {
   log.info('subscribeResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SubscribeErrorCode.Unauthorized],
-      }
-    }
-
     // find existing subscription
-    const subscription = await getRepository(Subscription).findOneBy({
-      url: input.url || undefined,
-      name: input.name || undefined,
-      user: { id: uid },
-      status: SubscriptionStatus.Active,
-      type: input.subscriptionType || SubscriptionType.Rss, // default to rss
-    })
+    const subscription = await authTrx((t) =>
+      t.getRepository(Subscription).findOneBy({
+        url: input.url || undefined,
+        name: input.name || undefined,
+        user: { id: uid },
+        status: SubscriptionStatus.Active,
+        type: input.subscriptionType || SubscriptionType.Rss, // default to rss
+      })
+    )
     if (subscription) {
       return {
         errorCodes: [SubscribeErrorCode.AlreadySubscribed],
@@ -223,30 +220,6 @@ export const subscribeResolver = authorized<
       },
     })
 
-    // create new newsletter subscription
-    if (input.name && input.subscriptionType === SubscriptionType.Newsletter) {
-      const subscribeHandler = getSubscribeHandler(input.name)
-      if (!subscribeHandler) {
-        return {
-          errorCodes: [SubscribeErrorCode.NotFound],
-        }
-      }
-
-      const newSubscriptions = await subscribeHandler.handleSubscribe(
-        uid,
-        input.name
-      )
-      if (!newSubscriptions) {
-        return {
-          errorCodes: [SubscribeErrorCode.BadRequest],
-        }
-      }
-
-      return {
-        subscriptions: newSubscriptions,
-      }
-    }
-
     // create new rss subscription
     if (input.url) {
       const MAX_RSS_SUBSCRIPTIONS = 150
@@ -254,21 +227,23 @@ export const subscribeResolver = authorized<
       const feed = await parser.parseURL(input.url)
 
       // limit number of rss subscriptions to 50
-      const newSubscriptions = (await appDataSource.query(
-        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
+      const newSubscriptions = (await authTrx((t) =>
+        t.query(
+          `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
         select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
         where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
         having count(*) < $7 
         returning *;`,
-        [
-          feed.title,
-          input.url,
-          feed.description || null,
-          SubscriptionType.Rss,
-          uid,
-          feed.image?.url || null,
-          MAX_RSS_SUBSCRIPTIONS,
-        ]
+          [
+            feed.title,
+            input.url,
+            feed.description || null,
+            SubscriptionType.Rss,
+            uid,
+            feed.image?.url || null,
+            MAX_RSS_SUBSCRIPTIONS,
+          ]
+        )
       )) as Subscription[]
 
       if (newSubscriptions.length === 0) {

@@ -11,6 +11,8 @@ CREATE TABLE omnivore.entity_labels (
     label_id uuid NOT NULL REFERENCES omnivore.labels(id) ON DELETE CASCADE
 );
 
+GRANT SELECT, INSERT, DELETE ON omnivore.entity_labels TO omnivore_user;
+
 CREATE OR REPLACE FUNCTION update_library_item_labels()
 RETURNS trigger AS $$
 DECLARE

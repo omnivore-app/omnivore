@@ -1,14 +1,21 @@
 import express from 'express'
-import { appDataSource } from '../../data_source'
-import { createPage } from '../../elastic/pages'
-import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
+import { DeepPartial } from 'typeorm'
+import {
+  LibraryItem,
+  LibraryItemState,
+  LibraryItemType,
+} from '../../entity/library_item'
+import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
-import { PageType, UploadFileStatus } from '../../generated/graphql'
-import { createPubSubClient } from '../../pubsub'
-import { setClaims, uploadFileRepository } from '../../repository'
+import { UploadFileStatus } from '../../generated/graphql'
+import { authTrx } from '../../repository'
+import { createLibraryItem } from '../../services/library_item'
 import { getNewsletterEmail } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
-import { setFileUploadComplete } from '../../services/save_file'
+import {
+  findUploadFileById,
+  setFileUploadComplete,
+} from '../../services/upload_file'
 import { analytics } from '../../utils/analytics'
 import { getClaimsByToken } from '../../utils/auth'
 import { generateSlug } from '../../utils/helpers'
@@ -54,13 +61,15 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const uploadFileData = await uploadFileRepository.save({
-        url: '',
-        userId: user.id,
-        fileName: fileName,
-        status: UploadFileStatus.Initialized,
-        contentType: contentType,
-      })
+      const uploadFileData = await authTrx((tx) =>
+        tx.getRepository(UploadFile).save({
+          url: '',
+          userId: user.id,
+          fileName: fileName,
+          status: UploadFileStatus.Initialized,
+          contentType: contentType,
+        })
+      )
 
       if (uploadFileData.id) {
         const uploadFilePathName = generateUploadFilePathName(
@@ -116,10 +125,7 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const uploadFile = await uploadFileRepository.findOneBy({
-        id: uploadFileId,
-        user: { id: user.id },
-      })
+      const uploadFile = await findUploadFileById(uploadFileId)
       if (!uploadFile) {
         return res.status(400).send('BAD REQUEST')
       }
@@ -129,10 +135,7 @@ export function emailAttachmentRouter() {
         uploadFile.fileName
       )
 
-      const uploadFileData = await appDataSource.transaction(async (tx) => {
-        await setClaims(tx, user.id)
-        return setFileUploadComplete(uploadFileId, tx)
-      })
+      const uploadFileData = await setFileUploadComplete(uploadFileId, user.id)
       if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
         return res.status(400).send('BAD REQUEST')
       }
@@ -143,32 +146,23 @@ export function emailAttachmentRouter() {
       )
 
       const uploadFileHash = uploadFileDetails.md5Hash
-      const pageType =
+      const itemType =
         uploadFile.contentType === 'application/pdf'
-          ? PageType.File
-          : PageType.Book
+          ? LibraryItemType.File
+          : LibraryItemType.Book
       const title = subject || uploadFileData.fileName
-      const articleToSave: Page = {
-        id: '',
-        url: uploadFileUrlOverride,
-        pageType,
-        hash: uploadFileHash,
-        uploadFileId,
+      const articleToSave: DeepPartial<LibraryItem> = {
+        originalUrl: uploadFileUrlOverride,
+        itemType,
+        textContentHash: uploadFileHash,
+        uploadFile: { id: uploadFileData.id },
         title,
-        content: '',
-        userId: user.id,
+        readableContent: '',
         slug: generateSlug(title),
-        createdAt: new Date(),
-        savedAt: new Date(),
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        state: ArticleSavingRequestStatus.Succeeded,
+        state: LibraryItemState.Succeeded,
       }
 
-      const pageId = await createPage(articleToSave, {
-        pubsub: createPubSubClient(),
-        uid: user.id,
-      })
+      const pageId = await createLibraryItem(articleToSave, user.id)
 
       // update received email type
       await updateReceivedEmail(receivedEmailId, 'article')

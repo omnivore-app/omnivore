@@ -13,21 +13,21 @@ import {
   RevokeApiKeyErrorCode,
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
 import { authorized } from '../../utils/helpers'
 
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
-  async (_, __, { log, authTrx }) => {
+  async (_, __, { log, uid }) => {
     try {
-      const apiKeys = await authTrx(async (tx) => {
-        return tx.getRepository(ApiKey).find({
-          select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
-          order: {
-            usedAt: { direction: 'DESC', nulls: 'last' },
-            createdAt: 'DESC',
-          },
-        })
+      const apiKeys = await getRepository(ApiKey).find({
+        select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
+        where: { user: { id: uid } },
+        order: {
+          usedAt: { direction: 'DESC', nulls: 'last' },
+          createdAt: 'DESC',
+        },
       })
 
       return {
@@ -47,17 +47,15 @@ export const generateApiKeyResolver = authorized<
   GenerateApiKeySuccess,
   GenerateApiKeyError,
   MutationGenerateApiKeyArgs
->(async (_, { input: { name, expiresAt } }, { authTrx, log, uid }) => {
+>(async (_, { input: { name, expiresAt } }, { log, uid }) => {
   try {
     const exp = new Date(expiresAt)
     const originalKey = generateApiKey()
-    const apiKeyCreated = await authTrx(async (tx) => {
-      return tx.getRepository(ApiKey).save({
-        user: { id: uid },
-        name,
-        key: hashApiKey(originalKey),
-        expiresAt: exp,
-      })
+    const apiKeyCreated = await getRepository(ApiKey).save({
+      user: { id: uid },
+      name,
+      key: hashApiKey(originalKey),
+      expiresAt: exp,
     })
 
     analytics.track({
@@ -89,21 +87,16 @@ export const revokeApiKeyResolver = authorized<
   MutationRevokeApiKeyArgs
 >(async (_, { id }, { claims: { uid }, log, authTrx }) => {
   try {
-    const deletedApiKey = await authTrx(async (tx) => {
-      const apiRepo = tx.getRepository(ApiKey)
-      const apiKey = await apiRepo.findOneBy({ id })
-      if (!apiKey) {
-        return null
-      }
+    const apiRepo = getRepository(ApiKey)
 
-      return apiRepo.remove(apiKey)
-    })
-
-    if (!deletedApiKey) {
+    const apiKey = await apiRepo.findOneBy({ id, user: { id: uid } })
+    if (!apiKey) {
       return {
         errorCodes: [RevokeApiKeyErrorCode.NotFound],
       }
     }
+
+    const deletedApiKey = await apiRepo.remove(apiKey)
 
     analytics.track({
       userId: uid,

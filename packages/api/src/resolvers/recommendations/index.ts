@@ -1,7 +1,5 @@
 import { In } from 'typeorm'
-import { getPageByParam } from '../../elastic/pages'
 import { Group } from '../../entity/groups/group'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   CreateGroupError,
@@ -28,6 +26,7 @@ import {
   RecommendHighlightsSuccess,
   RecommendSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import { userRepository } from '../../repository/user'
 import {
   createGroup,
@@ -38,6 +37,7 @@ import {
   joinGroup,
   leaveGroup,
 } from '../../services/groups'
+import { findLibraryItemById } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { enqueueRecommendation } from '../../utils/createTask'
 import { authorized, userDataToUser } from '../../utils/helpers'
@@ -167,7 +167,7 @@ export const recommendResolver = authorized<
   RecommendSuccess,
   RecommendError,
   MutationRecommendArgs
->(async (_, { input }, { claims: { uid }, log, signToken }) => {
+>(async (_, { input }, { uid, log, signToken }) => {
   log.info('Recommend', {
     input,
     labels: {
@@ -178,18 +178,8 @@ export const recommendResolver = authorized<
   })
 
   try {
-    const user = await userRepository.findOne({
-      where: { id: uid },
-      relations: ['profile'],
-    })
-    if (!user) {
-      return {
-        errorCodes: [RecommendErrorCode.Unauthorized],
-      }
-    }
-
-    const page = await getPageByParam({ _id: input.pageId, userId: uid })
-    if (!page) {
+    const item = await findLibraryItemById(input.pageId, uid)
+    if (!item) {
       return {
         errorCodes: [RecommendErrorCode.NotFound],
       }
@@ -205,7 +195,7 @@ export const recommendResolver = authorized<
 
     // only recommend highlights created by the user
     const recommendedHighlightIds = input.recommendedWithHighlights
-      ? page.highlights?.filter((h) => h.userId === uid)?.map((h) => h.id)
+      ? item.highlights?.filter((h) => h.user.id === uid)?.map((h) => h.id)
       : undefined
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
@@ -216,18 +206,13 @@ export const recommendResolver = authorized<
           group.members.map((member) =>
             enqueueRecommendation(
               member.user.id,
-              page.id,
+              item.id,
               {
                 id: group.id,
-                name: group.name,
                 note: input.note ?? null,
-                user: {
-                  userId: user.id,
-                  name: user.name,
-                  username: user.profile.username,
-                  profileImageURL: user.profile.pictureUrl,
-                },
-                recommendedAt: new Date(),
+                recommender: item.user,
+                createdAt: new Date(),
+                libraryItem: item,
               },
               auth,
               recommendedHighlightIds
@@ -318,7 +303,7 @@ export const recommendHighlightsResolver = authorized<
   RecommendHighlightsSuccess,
   RecommendHighlightsError,
   MutationRecommendHighlightsArgs
->(async (_, { input }, { claims: { uid }, log, signToken }) => {
+>(async (_, { input }, { uid, log, signToken }) => {
   log.info('Recommend highlights', {
     input,
     labels: {
@@ -349,8 +334,8 @@ export const recommendHighlightsResolver = authorized<
       }
     }
 
-    const page = await getPageByParam({ _id: input.pageId, userId: uid })
-    if (!page) {
+    const item = await findLibraryItemById(input.pageId, uid)
+    if (!item) {
       return {
         errorCodes: [RecommendHighlightsErrorCode.NotFound],
       }
@@ -366,18 +351,13 @@ export const recommendHighlightsResolver = authorized<
             .map((member) =>
               enqueueRecommendation(
                 member.user.id,
-                page.id,
+                item.id,
                 {
                   id: group.id,
-                  name: group.name,
                   note: input.note,
-                  user: {
-                    userId: user.id,
-                    name: user.name,
-                    username: user.profile.username,
-                    profileImageURL: user.profile.pictureUrl,
-                  },
-                  recommendedAt: new Date(),
+                  recommender: user,
+                  createdAt: new Date(),
+                  libraryItem: item,
                 },
                 auth,
                 input.highlightIds

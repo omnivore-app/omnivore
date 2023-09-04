@@ -102,10 +102,9 @@ CREATE TRIGGER library_item_tsv_update BEFORE INSERT OR UPDATE
 
 ALTER TABLE omnivore.library_item ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY select_library_item ON omnivore.library_item FOR SELECT USING (user_id = omnivore.get_current_user_id());
-CREATE POLICY insert_library_item ON omnivore.library_item FOR INSERT WITH CHECK (user_id = omnivore.get_current_user_id());
-CREATE POLICY update_library_item ON omnivore.library_item FOR UPDATE USING (user_id = omnivore.get_current_user_id());
-CREATE POLICY delete_library_item ON omnivore.library_item FOR DELETE USING (user_id = omnivore.get_current_user_id());
+CREATE POLICY library_item_policy ON omnivore.library_item 
+    USING (user_id = omnivore.get_current_user_id())
+    WITH CHECK (user_id = omnivore.get_current_user_id());
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.library_item TO omnivore_user;
 

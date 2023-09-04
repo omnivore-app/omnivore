@@ -276,14 +276,34 @@ export const findLibraryItemByUrl = async (
   url: string,
   userId: string
 ): Promise<LibraryItem | null> => {
-  return authTrx(async (tx) =>
-    tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .leftJoinAndSelect('library_item.labels', 'labels')
-      .leftJoinAndSelect('library_item.highlights', 'highlights')
-      .where('library_item.user_id = :userId', { userId })
-      .andWhere('library_item.url = :url', { url })
-      .getOne()
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.url = :url', { url })
+        .getOne(),
+    undefined,
+    userId
+  )
+}
+
+export const refreshLibraryItem = async (
+  id: string,
+  userId: string,
+  pubsub = createPubSubClient()
+): Promise<LibraryItem> => {
+  return updateLibraryItem(
+    id,
+    {
+      state: LibraryItemState.Succeeded,
+      savedAt: new Date(),
+      archivedAt: null,
+    },
+    userId,
+    pubsub
   )
 }
 
@@ -311,8 +331,10 @@ export const createLibraryItem = async (
   userId: string,
   pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
-  const newLibraryItem = await authTrx(async (tx) =>
-    tx.withRepository(libraryItemRepository).save(libraryItem)
+  const newLibraryItem = await authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).save(libraryItem),
+    undefined,
+    userId
   )
 
   await pubsub.entityCreated<LibraryItem>(
@@ -335,5 +357,20 @@ export const findLibraryItemsByPrefix = async (
       .orWhere('library_item.site_name ILIKE :prefix', { prefix: `${prefix}%` })
       .limit(limit)
       .getMany()
+  )
+}
+
+export const countByCreatedAt = async (
+  startDate = new Date(0),
+  endDate = new Date()
+): Promise<number> => {
+  return authTrx(async (tx) =>
+    tx
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .where('library_item.created_at between :startDate and :endDate', {
+        startDate,
+        endDate,
+      })
+      .getCount()
   )
 }

@@ -6,7 +6,7 @@ import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 import { ApiKey } from '../entity/api_key'
 import { env } from '../env'
-import { authTrx } from '../repository'
+import { getRepository } from '../repository'
 import { Claims, ClaimsToSet } from '../resolvers/types'
 import { logger } from './logger'
 
@@ -33,39 +33,33 @@ export const hashApiKey = (apiKey: string) => {
 
 export const claimsFromApiKey = async (key: string): Promise<Claims> => {
   const hashedKey = hashApiKey(key)
-  return authTrx(
-    async (tx) => {
-      const apiKeyRepo = tx.getRepository(ApiKey)
 
-      const apiKey = await apiKeyRepo.findOne({
-        where: {
-          key: hashedKey,
-        },
-        relations: ['user'],
-      })
-      if (!apiKey) {
-        throw new Error('api key not found')
-      }
+  const apiKeyRepo = getRepository(ApiKey)
 
-      const iat = Math.floor(Date.now() / 1000)
-      const exp = Math.floor(new Date(apiKey.expiresAt).getTime() / 1000)
-      if (exp < iat) {
-        throw new Error('api key expired')
-      }
-
-      // update last used
-      await apiKeyRepo.update(apiKey.id, { usedAt: new Date() })
-
-      return {
-        uid: apiKey.user.id,
-        iat,
-        exp,
-      }
+  const apiKey = await apiKeyRepo.findOne({
+    where: {
+      key: hashedKey,
     },
-    undefined,
-    undefined,
-    'omnivore_admin'
-  )
+    relations: ['user'],
+  })
+  if (!apiKey) {
+    throw new Error('api key not found')
+  }
+
+  const iat = Math.floor(Date.now() / 1000)
+  const exp = Math.floor(new Date(apiKey.expiresAt).getTime() / 1000)
+  if (exp < iat) {
+    throw new Error('api key expired')
+  }
+
+  // update last used
+  await apiKeyRepo.update(apiKey.id, { usedAt: new Date() })
+
+  return {
+    uid: apiKey.user.id,
+    iat,
+    exp,
+  }
 }
 
 // verify jwt token first
