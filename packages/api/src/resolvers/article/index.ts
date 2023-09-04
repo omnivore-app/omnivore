@@ -56,6 +56,7 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
+import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
@@ -825,7 +826,7 @@ export const bulkActionResolver = authorized<
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
 
-      labels = await findLabelsByIds(labelIds, uid)
+      labels = await findLabelsByIds(labelIds)
     }
 
     // parse query
@@ -848,7 +849,7 @@ export const setFavoriteArticleResolver = authorized<
   SetFavoriteArticleSuccessPartial,
   SetFavoriteArticleError,
   MutationSetFavoriteArticleArgs
->(async (_, { id }, { uid, log, pubsub }) => {
+>(async (_, { id }, { uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -859,24 +860,20 @@ export const setFavoriteArticleResolver = authorized<
       },
     })
 
-    const label = {
-      id: '',
-      name: 'Favorites',
-      color: '#FFD700', // gold
+    const label = getInternalLabelWithColor('Favorites')
+    if (!label) {
+      return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
     }
 
+    const labels = await getLabelsAndCreateIfNotExist([label], uid)
     // adds Favorites label to page
-    const updatedLibraryItem = await addLabelsToLibraryItem([label], id, uid)
+    await addLabelsToLibraryItem(labels, id, uid)
 
     return {
-      favoriteArticle: {
-        ...page,
-        labels: page.labels ? [...page.labels, label] : [label],
-        isArchived: !!page.archivedAt,
-      },
+      success: true,
     }
   } catch (error) {
-    log.info('Error adding Favorites label:', error)
+    log.info('Error adding Favorites label', error)
     return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
   }
 })

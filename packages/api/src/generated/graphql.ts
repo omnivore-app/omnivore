@@ -1239,20 +1239,14 @@ export type Mutation = {
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createGroup: CreateGroupResult;
   createHighlight: CreateHighlightResult;
-  createHighlightReply: CreateHighlightReplyResult;
   createLabel: CreateLabelResult;
   createNewsletterEmail: CreateNewsletterEmailResult;
-  createReaction: CreateReactionResult;
-  createReminder: CreateReminderResult;
   deleteAccount: DeleteAccountResult;
   deleteFilter: DeleteFilterResult;
   deleteHighlight: DeleteHighlightResult;
-  deleteHighlightReply: DeleteHighlightReplyResult;
   deleteIntegration: DeleteIntegrationResult;
   deleteLabel: DeleteLabelResult;
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
-  deleteReaction: DeleteReactionResult;
-  deleteReminder: DeleteReminderResult;
   deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
   generateApiKey: GenerateApiKeyResult;
@@ -1279,14 +1273,11 @@ export type Mutation = {
   setBookmarkArticle: SetBookmarkArticleResult;
   setDeviceToken: SetDeviceTokenResult;
   setFavoriteArticle: SetFavoriteArticleResult;
-  setFollow: SetFollowResult;
   setIntegration: SetIntegrationResult;
   setLabels: SetLabelsResult;
   setLabelsForHighlight: SetLabelsResult;
   setLinkArchived: ArchiveLinkResult;
   setRule: SetRuleResult;
-  setShareArticle: SetShareArticleResult;
-  setShareHighlight: SetShareHighlightResult;
   setUserPersonalization: SetUserPersonalizationResult;
   setWebhook: SetWebhookResult;
   subscribe: SubscribeResult;
@@ -1294,12 +1285,8 @@ export type Mutation = {
   updateEmail: UpdateEmailResult;
   updateFilter: UpdateFilterResult;
   updateHighlight: UpdateHighlightResult;
-  updateHighlightReply: UpdateHighlightReplyResult;
   updateLabel: UpdateLabelResult;
-  updateLinkShareInfo: UpdateLinkShareInfoResult;
   updatePage: UpdatePageResult;
-  updateReminder: UpdateReminderResult;
-  updateSharedComment: UpdateSharedCommentResult;
   updateSubscription: UpdateSubscriptionResult;
   updateUser: UpdateUserResult;
   updateUserProfile: UpdateUserProfileResult;
@@ -1342,23 +1329,8 @@ export type MutationCreateHighlightArgs = {
 };
 
 
-export type MutationCreateHighlightReplyArgs = {
-  input: CreateHighlightReplyInput;
-};
-
-
 export type MutationCreateLabelArgs = {
   input: CreateLabelInput;
-};
-
-
-export type MutationCreateReactionArgs = {
-  input: CreateReactionInput;
-};
-
-
-export type MutationCreateReminderArgs = {
-  input: CreateReminderInput;
 };
 
 
@@ -1377,11 +1349,6 @@ export type MutationDeleteHighlightArgs = {
 };
 
 
-export type MutationDeleteHighlightReplyArgs = {
-  highlightReplyId: Scalars['ID'];
-};
-
-
 export type MutationDeleteIntegrationArgs = {
   id: Scalars['ID'];
 };
@@ -1394,16 +1361,6 @@ export type MutationDeleteLabelArgs = {
 
 export type MutationDeleteNewsletterEmailArgs = {
   newsletterEmailId: Scalars['ID'];
-};
-
-
-export type MutationDeleteReactionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteReminderArgs = {
-  id: Scalars['ID'];
 };
 
 
@@ -1532,11 +1489,6 @@ export type MutationSetFavoriteArticleArgs = {
 };
 
 
-export type MutationSetFollowArgs = {
-  input: SetFollowInput;
-};
-
-
 export type MutationSetIntegrationArgs = {
   input: SetIntegrationInput;
 };
@@ -1559,16 +1511,6 @@ export type MutationSetLinkArchivedArgs = {
 
 export type MutationSetRuleArgs = {
   input: SetRuleInput;
-};
-
-
-export type MutationSetShareArticleArgs = {
-  input: SetShareArticleInput;
-};
-
-
-export type MutationSetShareHighlightArgs = {
-  input: SetShareHighlightInput;
 };
 
 
@@ -1608,33 +1550,13 @@ export type MutationUpdateHighlightArgs = {
 };
 
 
-export type MutationUpdateHighlightReplyArgs = {
-  input: UpdateHighlightReplyInput;
-};
-
-
 export type MutationUpdateLabelArgs = {
   input: UpdateLabelInput;
 };
 
 
-export type MutationUpdateLinkShareInfoArgs = {
-  input: UpdateLinkShareInfoInput;
-};
-
-
 export type MutationUpdatePageArgs = {
   input: UpdatePageInput;
-};
-
-
-export type MutationUpdateReminderArgs = {
-  input: UpdateReminderInput;
-};
-
-
-export type MutationUpdateSharedCommentArgs = {
-  input: UpdateSharedCommentInput;
 };
 
 
@@ -1794,12 +1716,8 @@ export type Query = {
   apiKeys: ApiKeysResult;
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
-  articles: ArticlesResult;
   deviceTokens: DeviceTokensResult;
-  feedArticles: FeedArticlesResult;
   filters: FiltersResult;
-  getFollowers: GetFollowersResult;
-  getFollowing: GetFollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
@@ -1809,11 +1727,9 @@ export type Query = {
   newsletterEmails: NewsletterEmailsResult;
   recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
-  reminder: ReminderResult;
   rules: RulesResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
-  sharedArticle: SharedArticleResult;
   subscriptions: SubscriptionsResult;
   typeaheadSearch: TypeaheadSearchResult;
   updatesSince: UpdatesSinceResult;
@@ -1838,39 +1754,6 @@ export type QueryArticleSavingRequestArgs = {
 };
 
 
-export type QueryArticlesArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  includePending?: InputMaybe<Scalars['Boolean']>;
-  query?: InputMaybe<Scalars['String']>;
-  sharedOnly?: InputMaybe<Scalars['Boolean']>;
-  sort?: InputMaybe<SortParams>;
-};
-
-
-export type QueryFeedArticlesArgs = {
-  after?: InputMaybe<Scalars['String']>;
-  first?: InputMaybe<Scalars['Int']>;
-  sharedByUser?: InputMaybe<Scalars['ID']>;
-  sort?: InputMaybe<SortParams>;
-};
-
-
-export type QueryGetFollowersArgs = {
-  userId?: InputMaybe<Scalars['ID']>;
-};
-
-
-export type QueryGetFollowingArgs = {
-  userId?: InputMaybe<Scalars['ID']>;
-};
-
-
-export type QueryReminderArgs = {
-  linkId: Scalars['ID'];
-};
-
-
 export type QueryRulesArgs = {
   enabled?: InputMaybe<Scalars['Boolean']>;
 };
@@ -1882,13 +1765,6 @@ export type QuerySearchArgs = {
   format?: InputMaybe<Scalars['String']>;
   includeContent?: InputMaybe<Scalars['Boolean']>;
   query?: InputMaybe<Scalars['String']>;
-};
-
-
-export type QuerySharedArticleArgs = {
-  selectedHighlightId?: InputMaybe<Scalars['String']>;
-  slug: Scalars['String'];
-  username: Scalars['String'];
 };
 
 
@@ -2457,7 +2333,7 @@ export type SetFavoriteArticleResult = SetFavoriteArticleError | SetFavoriteArti
 
 export type SetFavoriteArticleSuccess = {
   __typename?: 'SetFavoriteArticleSuccess';
-  favoriteArticle: Article;
+  success: Scalars['Boolean'];
 };
 
 export type SetFollowError = {
@@ -5235,20 +5111,14 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
-  createHighlightReply?: Resolver<ResolversTypes['CreateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightReplyArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
-  createReaction?: Resolver<ResolversTypes['CreateReactionResult'], ParentType, ContextType, RequireFields<MutationCreateReactionArgs, 'input'>>;
-  createReminder?: Resolver<ResolversTypes['CreateReminderResult'], ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
-  deleteHighlightReply?: Resolver<ResolversTypes['DeleteHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightReplyArgs, 'highlightReplyId'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
   deleteLabel?: Resolver<ResolversTypes['DeleteLabelResult'], ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'id'>>;
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
-  deleteReaction?: Resolver<ResolversTypes['DeleteReactionResult'], ParentType, ContextType, RequireFields<MutationDeleteReactionArgs, 'id'>>;
-  deleteReminder?: Resolver<ResolversTypes['DeleteReminderResult'], ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'id'>>;
   deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
@@ -5275,14 +5145,11 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
   setDeviceToken?: Resolver<ResolversTypes['SetDeviceTokenResult'], ParentType, ContextType, RequireFields<MutationSetDeviceTokenArgs, 'input'>>;
   setFavoriteArticle?: Resolver<ResolversTypes['SetFavoriteArticleResult'], ParentType, ContextType, RequireFields<MutationSetFavoriteArticleArgs, 'id'>>;
-  setFollow?: Resolver<ResolversTypes['SetFollowResult'], ParentType, ContextType, RequireFields<MutationSetFollowArgs, 'input'>>;
   setIntegration?: Resolver<ResolversTypes['SetIntegrationResult'], ParentType, ContextType, RequireFields<MutationSetIntegrationArgs, 'input'>>;
   setLabels?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsArgs, 'input'>>;
   setLabelsForHighlight?: Resolver<ResolversTypes['SetLabelsResult'], ParentType, ContextType, RequireFields<MutationSetLabelsForHighlightArgs, 'input'>>;
   setLinkArchived?: Resolver<ResolversTypes['ArchiveLinkResult'], ParentType, ContextType, RequireFields<MutationSetLinkArchivedArgs, 'input'>>;
   setRule?: Resolver<ResolversTypes['SetRuleResult'], ParentType, ContextType, RequireFields<MutationSetRuleArgs, 'input'>>;
-  setShareArticle?: Resolver<ResolversTypes['SetShareArticleResult'], ParentType, ContextType, RequireFields<MutationSetShareArticleArgs, 'input'>>;
-  setShareHighlight?: Resolver<ResolversTypes['SetShareHighlightResult'], ParentType, ContextType, RequireFields<MutationSetShareHighlightArgs, 'input'>>;
   setUserPersonalization?: Resolver<ResolversTypes['SetUserPersonalizationResult'], ParentType, ContextType, RequireFields<MutationSetUserPersonalizationArgs, 'input'>>;
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
   subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'input'>>;
@@ -5290,12 +5157,8 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updateEmail?: Resolver<ResolversTypes['UpdateEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateEmailArgs, 'input'>>;
   updateFilter?: Resolver<ResolversTypes['UpdateFilterResult'], ParentType, ContextType, RequireFields<MutationUpdateFilterArgs, 'input'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
-  updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
-  updateLinkShareInfo?: Resolver<ResolversTypes['UpdateLinkShareInfoResult'], ParentType, ContextType, RequireFields<MutationUpdateLinkShareInfoArgs, 'input'>>;
   updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
-  updateReminder?: Resolver<ResolversTypes['UpdateReminderResult'], ParentType, ContextType, RequireFields<MutationUpdateReminderArgs, 'input'>>;
-  updateSharedComment?: Resolver<ResolversTypes['UpdateSharedCommentResult'], ParentType, ContextType, RequireFields<MutationUpdateSharedCommentArgs, 'input'>>;
   updateSubscription?: Resolver<ResolversTypes['UpdateSubscriptionResult'], ParentType, ContextType, RequireFields<MutationUpdateSubscriptionArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
   updateUserProfile?: Resolver<ResolversTypes['UpdateUserProfileResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
@@ -5380,12 +5243,8 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   apiKeys?: Resolver<ResolversTypes['ApiKeysResult'], ParentType, ContextType>;
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
-  articles?: Resolver<ResolversTypes['ArticlesResult'], ParentType, ContextType, Partial<QueryArticlesArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
-  feedArticles?: Resolver<ResolversTypes['FeedArticlesResult'], ParentType, ContextType, Partial<QueryFeedArticlesArgs>>;
   filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
-  getFollowers?: Resolver<ResolversTypes['GetFollowersResult'], ParentType, ContextType, Partial<QueryGetFollowersArgs>>;
-  getFollowing?: Resolver<ResolversTypes['GetFollowingResult'], ParentType, ContextType, Partial<QueryGetFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5395,11 +5254,9 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   newsletterEmails?: Resolver<ResolversTypes['NewsletterEmailsResult'], ParentType, ContextType>;
   recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
-  reminder?: Resolver<ResolversTypes['ReminderResult'], ParentType, ContextType, RequireFields<QueryReminderArgs, 'linkId'>>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
-  sharedArticle?: Resolver<ResolversTypes['SharedArticleResult'], ParentType, ContextType, RequireFields<QuerySharedArticleArgs, 'slug' | 'username'>>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
   typeaheadSearch?: Resolver<ResolversTypes['TypeaheadSearchResult'], ParentType, ContextType, RequireFields<QueryTypeaheadSearchArgs, 'query'>>;
   updatesSince?: Resolver<ResolversTypes['UpdatesSinceResult'], ParentType, ContextType, RequireFields<QueryUpdatesSinceArgs, 'since'>>;
@@ -5767,7 +5624,7 @@ export type SetFavoriteArticleResultResolvers<ContextType = ResolverContext, Par
 };
 
 export type SetFavoriteArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SetFavoriteArticleSuccess'] = ResolversParentTypes['SetFavoriteArticleSuccess']> = {
-  favoriteArticle?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

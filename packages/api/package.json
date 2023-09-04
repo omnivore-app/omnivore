@@ -71,8 +71,6 @@
     "intercom-client": "^3.1.4",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
-    "knex": "2.4.2",
-    "knex-stringcase": "^1.4.2",
     "linkedom": "^0.14.9",
     "lodash": "^4.17.21",
     "luxon": "^3.2.1",

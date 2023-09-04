@@ -2523,7 +2523,7 @@ const schema = gql`
     | SetFavoriteArticleError
 
   type SetFavoriteArticleSuccess {
-    favoriteArticle: Article!
+    success: Boolean!
   }
 
   type SetFavoriteArticleError {

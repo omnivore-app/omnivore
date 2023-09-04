@@ -54,56 +54,48 @@ export const subscriptionsResolver = authorized<
   SubscriptionsSuccessPartial,
   SubscriptionsError,
   QuerySubscriptionsArgs
->(async (_obj, { sort, type }, { claims: { uid }, log }) => {
-  log.info('subscriptionsResolver')
+>(
+  async (
+    _obj,
+    { sort, type = SubscriptionType.Newsletter }, // default to newsletter
+    { authTrx, uid, log }
+  ) => {
+    try {
+      const sortBy =
+        sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
+      const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
 
-  analytics.track({
-    userId: uid,
-    event: 'subscriptions',
-    properties: {
-      env: env.server.apiEnv,
-    },
-  })
-
-  try {
-    const sortBy =
-      sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
-    const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SubscriptionsErrorCode.Unauthorized],
-      }
-    }
-
-    const queryBuilder = getRepository(Subscription)
-      .createQueryBuilder('subscription')
-      .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
-      .where({
-        user: { id: uid },
-      })
-
-    if (type && type == SubscriptionType.Newsletter) {
-      queryBuilder.andWhere({
-        type,
-        status: SubscriptionStatus.Active,
-      })
-    } else if (type && type == SubscriptionType.Rss) {
-      queryBuilder.andWhere({
-        type,
-      })
-    } else {
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.where({
-            type: SubscriptionType.Newsletter,
-            status: SubscriptionStatus.Active,
-          }).orWhere({
-            type: SubscriptionType.Rss,
+      const queryBuilder = await authTrx((t) =>
+        t
+          .getRepository(Subscription)
+          .createQueryBuilder('subscription')
+          .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
+          .where({
+            user: { id: uid },
           })
-        })
       )
-    }
+
+      if (type && type == SubscriptionType.Newsletter) {
+        queryBuilder.andWhere({
+          type,
+          status: SubscriptionStatus.Active,
+        })
+      } else if (type && type == SubscriptionType.Rss) {
+        queryBuilder.andWhere({
+          type,
+        })
+      } else {
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            qb.where({
+              type: SubscriptionType.Newsletter,
+              status: SubscriptionStatus.Active,
+            }).orWhere({
+              type: SubscriptionType.Rss,
+            })
+          })
+        )
+      }
 
     const subscriptions = await queryBuilder
       .orderBy('subscription.' + sortBy, sortOrder)
@@ -132,13 +124,6 @@ export const unsubscribeResolver = authorized<
   log.info('unsubscribeResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UnsubscribeErrorCode.Unauthorized],
-      }
-    }
-
     const queryBuilder = getRepository(Subscription)
       .createQueryBuilder('subscription')
       .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
@@ -325,7 +310,7 @@ export const updateSubscriptionResolver = authorized<
   UpdateSubscriptionSuccessPartial,
   UpdateSubscriptionError,
   MutationUpdateSubscriptionArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { authTrx, uid, log }) => {
   log.info('updateSubscriptionResolver')
 
   try {
@@ -338,34 +323,26 @@ export const updateSubscriptionResolver = authorized<
       },
     })
 
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UpdateSubscriptionErrorCode.Unauthorized],
+    const updatedSubscription = await authTrx(async (t) => {
+      // find existing subscription
+      const subscription = await t.getRepository(Subscription).findOneBy({
+        id: input.id,
+        user: { id: uid },
+      })
+      if (!subscription) {
+        throw new Error('subscription not found')
       }
-    }
 
-    // find existing subscription
-    const subscription = await getRepository(Subscription).findOneBy({
-      id: input.id,
-      user: { id: uid },
-    })
-    if (!subscription) {
-      log.info('subscription not found')
-      return {
-        errorCodes: [UpdateSubscriptionErrorCode.NotFound],
-      }
-    }
-
-    // update subscription
-    const updatedSubscription = await getRepository(Subscription).save({
-      id: input.id,
-      name: input.name || undefined,
-      description: input.description || undefined,
-      lastFetchedAt: input.lastFetchedAt
-        ? new Date(input.lastFetchedAt)
-        : undefined,
-      status: input.status || undefined,
+      // update subscription
+      return t.getRepository(Subscription).save({
+        id: input.id,
+        name: input.name || undefined,
+        description: input.description || undefined,
+        lastFetchedAt: input.lastFetchedAt
+          ? new Date(input.lastFetchedAt)
+          : undefined,
+        status: input.status || undefined,
+      })
     })
 
     return {
