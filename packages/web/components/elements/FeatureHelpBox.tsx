@@ -26,6 +26,10 @@ export const FeatureHelpBox = (props: FeatureHelpBoxProps) => {
     setDisplay(true)
   }, [])
 
+  if (!display) {
+    return <></>
+  }
+
   return (
     <HStack
       css={{
