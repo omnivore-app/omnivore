@@ -100,8 +100,7 @@ export const deleteHighlightById = async (highlightId: string) => {
       throw new Error(`Highlight ${highlightId} not found`)
     }
 
-    await highlightRepo.remove(highlight)
-
+    await highlightRepo.delete(highlightId)
     return highlight
   })
 }

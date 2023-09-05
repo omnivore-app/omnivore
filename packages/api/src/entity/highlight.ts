@@ -31,7 +31,7 @@ export class Highlight {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE' })
+  @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
 
