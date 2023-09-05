@@ -57,7 +57,7 @@ export const saveLabelsInLibraryItem = async (
   await authTrx(async (tx) => {
     await tx
       .withRepository(libraryItemRepository)
-      .update(libraryItemId, { labels })
+      .save({ id: libraryItemId, labels })
   })
 
   // create pubsub event
@@ -98,7 +98,9 @@ export const saveLabelsInHighlight = async (
   pubsub = createPubSubClient()
 ) => {
   await authTrx(async (tx) => {
-    await tx.withRepository(highlightRepository).update(highlightId, { labels })
+    await tx
+      .withRepository(highlightRepository)
+      .save({ id: highlightId, labels })
   })
 
   // create pubsub event

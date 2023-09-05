@@ -29,7 +29,7 @@ import {
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
-import { saveHighlight } from './highlights'
+import { createHighlight } from './highlights'
 import { findOrCreateLabels } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
 
@@ -174,7 +174,7 @@ export const savePage = async (
       type: HighlightType.Highlight,
     }
 
-    if (!(await saveHighlight(highlight, user.id))) {
+    if (!(await createHighlight(highlight, clientRequestId, user.id))) {
       return {
         errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
         message: 'Failed to save highlight',

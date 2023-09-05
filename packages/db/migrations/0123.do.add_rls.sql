@@ -61,9 +61,6 @@ CREATE POLICY search_history_policy on omnivore.search_history
   WITH CHECK (user_id = omnivore.get_current_user_id());
 GRANT SELECT, INSERT, DELETE ON omnivore.search_history TO omnivore_user;
 
-ALTER TABLE omnivore.abuse_report DROP COLUMN page_id;
-ALTER TABLE omnivore.abuse_report RENAME COLUMN elastic_page_id TO library_item_id;
-ALTER TABLE omnivore.content_display_report DROP COLUMN page_id;
-ALTER TABLE omnivore.content_display_report RENAME COLUMN elastic_page_id TO library_item_id;
+
 
 COMMIT;

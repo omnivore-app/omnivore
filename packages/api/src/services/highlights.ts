@@ -6,7 +6,7 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, setClaims } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 
-type HighlightEvent = Highlight & { pageId: string }
+type HighlightEvent = DeepPartial<Highlight> & { pageId: string }
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
@@ -17,8 +17,9 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 export const getHighlightUrl = (slug: string, highlightId: string): string =>
   `${homePageURL()}/me/${slug}#${highlightId}`
 
-export const saveHighlight = async (
+export const createHighlight = async (
   highlight: DeepPartial<Highlight>,
+  libraryItemId: string,
   userId: string,
   pubsub = createPubSubClient()
 ) => {
@@ -27,12 +28,12 @@ export const saveHighlight = async (
 
     return tx
       .withRepository(highlightRepository)
-      .createAndSave(highlight, userId)
+      .createAndSave(highlight, libraryItemId, userId)
   })
 
   await pubsub.entityCreated<HighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...newHighlight, pageId: newHighlight.libraryItem.id },
+    { ...newHighlight, pageId: libraryItemId },
     userId
   )
 
@@ -42,6 +43,7 @@ export const saveHighlight = async (
 export const mergeHighlights = async (
   highlightsToRemove: string[],
   highlightToAdd: DeepPartial<Highlight>,
+  libraryItemId: string,
   userId: string,
   pubsub = createPubSubClient()
 ) => {
@@ -50,16 +52,44 @@ export const mergeHighlights = async (
 
     await highlightRepo.delete(highlightsToRemove)
 
-    return highlightRepo.createAndSave(highlightToAdd, userId)
+    return highlightRepo.createAndSave(highlightToAdd, libraryItemId, userId)
   })
 
   await pubsub.entityCreated<HighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...newHighlight, pageId: newHighlight.libraryItem.id },
+    { ...newHighlight, pageId: libraryItemId },
     userId
   )
 
   return newHighlight
+}
+
+export const updateHighlight = async (
+  highlightId: string,
+  highlight: DeepPartial<Highlight>,
+  userId: string,
+  pubsub = createPubSubClient()
+) => {
+  const updatedHighlight = await authTrx(async (tx) => {
+    await tx.withRepository(highlightRepository).save({
+      ...highlight,
+      id: highlightId,
+    })
+
+    return tx.withRepository(highlightRepository).findById(highlightId)
+  })
+
+  if (!updatedHighlight) {
+    throw new Error(`Highlight ${highlightId} not found`)
+  }
+
+  await pubsub.entityUpdated<HighlightEvent>(
+    EntityType.HIGHLIGHT,
+    { ...highlight, id: highlightId, pageId: updatedHighlight.libraryItem.id },
+    userId
+  )
+
+  return updatedHighlight
 }
 
 export const deleteHighlightById = async (highlightId: string) => {
@@ -70,6 +100,8 @@ export const deleteHighlightById = async (highlightId: string) => {
       throw new Error(`Highlight ${highlightId} not found`)
     }
 
-    return highlightRepo.remove(highlight)
+    await highlightRepo.remove(highlight)
+
+    return highlight
   })
 }

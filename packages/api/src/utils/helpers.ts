@@ -10,10 +10,12 @@ import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Recommendation as RecommendationData } from '../entity/recommendation'
 import { RegistrationType, User } from '../entity/user'
 import {
+  Article,
   ArticleSavingRequest,
   ArticleSavingRequestStatus,
   ContentReader,
   CreateArticleError,
+  CreateArticleSuccess,
   FeedArticle,
   Highlight,
   HighlightType,
@@ -24,7 +26,6 @@ import {
   SearchItem,
 } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
-import { CreateArticlesSuccessPartial, PartialArticle } from '../resolvers'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
@@ -182,7 +183,7 @@ export const pageError = async (
   userId: string,
   pageId?: string | null,
   pubsub = createPubSubClient()
-): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
+): Promise<CreateArticleError | CreateArticleSuccess> => {
   if (!pageId) return result
 
   await updateLibraryItem(
@@ -225,9 +226,7 @@ export const libraryItemToArticleSavingRequest = (
   userId: user.id,
 })
 
-export const libraryItemToPartialArticle = (
-  item: LibraryItem
-): PartialArticle => ({
+export const libraryItemToArticle = (item: LibraryItem): Article => ({
   ...item,
   url: item.originalUrl,
   state: item.state as unknown as ArticleSavingRequestStatus,
@@ -239,6 +238,10 @@ export const libraryItemToPartialArticle = (
   ),
   subscription: item.subscription?.name,
   image: item.thumbnail,
+  contentReader: item.contentReader as unknown as ContentReader,
+  readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
+  readingProgressPercent: item.readingProgressTopPercent,
+  highlights: item.highlights?.map(highlightDataToHighlight) || [],
 })
 
 export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({

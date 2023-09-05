@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
-import graphqlFields from 'graphql-fields'
 import {
   LibraryItem,
   LibraryItemState,
@@ -12,7 +11,6 @@ import {
 } from '../../entity/library_item'
 import { env } from '../../env'
 import {
-  Article,
   ArticleError,
   ArticleErrorCode,
   ArticleSavingRequestStatus,
@@ -25,13 +23,11 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
-  FeedArticle,
   MutationBulkActionArgs,
   MutationCreateArticleArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetFavoriteArticleArgs,
-  PageInfo,
   PageType,
   QueryArticleArgs,
   QuerySearchArgs,
@@ -48,7 +44,6 @@ import {
   SetFavoriteArticleError,
   SetFavoriteArticleErrorCode,
   SetFavoriteArticleSuccess,
-  SetShareArticleSuccess,
   TypeaheadSearchError,
   TypeaheadSearchErrorCode,
   TypeaheadSearchSuccess,
@@ -80,7 +75,6 @@ import {
   setFileUploadComplete,
 } from '../../services/upload_file'
 import { traceAs } from '../../tracing'
-import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import {
@@ -89,7 +83,7 @@ import {
   generateSlug,
   isBase64Image,
   isParsingTimeout,
-  libraryItemToPartialArticle,
+  libraryItemToArticle,
   libraryItemToSearchItem,
   pageError,
   titleForFilePath,
@@ -117,16 +111,6 @@ export enum ArticleFormat {
   HighlightedMarkdown = 'highlightedMarkdown',
 }
 
-export type PartialArticle = Omit<
-  Article,
-  | 'updatedAt'
-  | 'readingProgressPercent'
-  | 'readingProgressAnchorIndex'
-  | 'savedAt'
-  | 'highlights'
-  | 'contentReader'
->
-
 // These two page types are better handled by the backend
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -136,12 +120,8 @@ const FORCE_PUPPETEER_URLS = [
 ]
 const UNPARSEABLE_CONTENT = '<p>We were unable to parse this page.</p>'
 
-export type CreateArticlesSuccessPartial = Merge<
-  CreateArticleSuccess,
-  { createdArticle: PartialArticle }
->
 export const createArticleResolver = authorized<
-  CreateArticlesSuccessPartial,
+  CreateArticleSuccess,
   CreateArticleError,
   MutationCreateArticleArgs
 >(
@@ -232,6 +212,11 @@ export const createArticleResolver = authorized<
           url,
           hash: '',
           isArchived: false,
+          readingProgressAnchorIndex: 0,
+          readingProgressPercent: 0,
+          highlights: [],
+          savedAt: new Date(),
+          updatedAt: new Date(),
         },
       }
 
@@ -378,7 +363,7 @@ export const createArticleResolver = authorized<
       return {
         user,
         created: true,
-        createdArticle: libraryItemToPartialArticle(libraryItemToReturn),
+        createdArticle: libraryItemToArticle(libraryItemToReturn),
       }
     } catch (error) {
       log.error('Error creating article', error)
@@ -394,29 +379,28 @@ export const createArticleResolver = authorized<
   }
 )
 
-export type ArticleSuccessPartial = Merge<
-  ArticleSuccess,
-  { article: PartialArticle }
->
 export const getArticleResolver = authorized<
-  ArticleSuccessPartial,
+  ArticleSuccess,
   ArticleError,
   QueryArticleArgs
 >(async (_obj, { slug, format }, { authTrx, uid, log }, info) => {
   try {
-    const includeOriginalHtml =
-      format === ArticleFormat.Distiller ||
-      !!graphqlFields(info).article.originalHtml
+    // const includeOriginalHtml =
+    //   format === ArticleFormat.Distiller ||
+    //   !!graphqlFields(info).article.originalHtml
 
     // We allow the backend to use the ID instead of a slug to fetch the article
     const libraryItem = await authTrx((tx) =>
-      tx
-        .withRepository(libraryItemRepository)
-        .createQueryBuilder('library_item')
-        .leftJoinAndSelect('library_item.labels', 'labels')
-        .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .where('library_item.id = :id', { id: slug })
-        .getOne()
+      tx.withRepository(libraryItemRepository).findOne({
+        where: { slug },
+        relations: {
+          labels: true,
+          highlights: {
+            user: true,
+            labels: true,
+          },
+        },
+      })
     )
 
     if (!libraryItem || libraryItem.state === LibraryItemState.Deleted) {
@@ -444,7 +428,7 @@ export const getArticleResolver = authorized<
     }
 
     return {
-      article: libraryItemToPartialArticle(libraryItem),
+      article: libraryItemToArticle(libraryItem),
     }
   } catch (error) {
     log.error(error)
@@ -452,26 +436,26 @@ export const getArticleResolver = authorized<
   }
 })
 
-type PaginatedPartialArticles = {
-  edges: { cursor: string; node: PartialArticle }[]
-  pageInfo: PageInfo
-}
+// type PaginatedPartialArticles = {
+//   edges: { cursor: string; node: PartialArticle }[]
+//   pageInfo: PageInfo
+// }
 
-export type SetShareArticleSuccessPartial = Merge<
-  SetShareArticleSuccess,
-  {
-    updatedFeedArticle?: Omit<
-      FeedArticle,
-      | 'sharedBy'
-      | 'article'
-      | 'highlightsCount'
-      | 'annotationsCount'
-      | 'reactions'
-    >
-    updatedFeedArticleId?: string
-    updatedArticle: PartialArticle
-  }
->
+// export type SetShareArticleSuccessPartial = Merge<
+//   SetShareArticleSuccess,
+//   {
+//     updatedFeedArticle?: Omit<
+//       FeedArticle,
+//       | 'sharedBy'
+//       | 'article'
+//       | 'highlightsCount'
+//       | 'annotationsCount'
+//       | 'reactions'
+//     >
+//     updatedFeedArticleId?: string
+//     updatedArticle: PartialArticle
+//   }
+// >
 
 // export const setShareArticleResolver = authorized<
 //   SetShareArticleSuccessPartial,
@@ -532,12 +516,8 @@ export type SetShareArticleSuccessPartial = Merge<
 //   }
 // )
 
-export type SetBookmarkArticleSuccessPartial = Merge<
-  SetBookmarkArticleSuccess,
-  { bookmarkedArticle: PartialArticle }
->
 export const setBookmarkArticleResolver = authorized<
-  SetBookmarkArticleSuccessPartial,
+  SetBookmarkArticleSuccess,
   SetBookmarkArticleError,
   MutationSetBookmarkArticleArgs
 >(async (_, { input: { articleID } }, { uid, log, pubsub }) => {
@@ -574,16 +554,12 @@ export const setBookmarkArticleResolver = authorized<
   })
   // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
   return {
-    bookmarkedArticle: libraryItemToPartialArticle(deletedLibraryItem),
+    bookmarkedArticle: libraryItemToArticle(deletedLibraryItem),
   }
 })
 
-export type SaveArticleReadingProgressSuccessPartial = Merge<
-  SaveArticleReadingProgressSuccess,
-  { updatedArticle: PartialArticle }
->
 export const saveArticleReadingProgressResolver = authorized<
-  SaveArticleReadingProgressSuccessPartial,
+  SaveArticleReadingProgressSuccess,
   SaveArticleReadingProgressError,
   MutationSaveArticleReadingProgressArgs
 >(
@@ -648,7 +624,7 @@ export const saveArticleReadingProgressResolver = authorized<
     const updatedItem = await updateLibraryItem(id, updatedPart, uid, pubsub)
 
     return {
-      updatedArticle: libraryItemToPartialArticle(updatedItem),
+      updatedArticle: libraryItemToArticle(updatedItem),
     }
   }
 )

@@ -100,7 +100,7 @@ type Article {
   title: String!
   unsubHttpUrl: String
   unsubMailTo: String
-  updatedAt: Date!
+  updatedAt: Date
   uploadFileId: ID
   url: String!
   wordsCount: Int
@@ -134,7 +134,7 @@ type ArticleSavingRequest {
   id: ID!
   slug: String!
   status: ArticleSavingRequestStatus!
-  updatedAt: Date!
+  updatedAt: Date
   url: String!
   user: User!
   userId: ID! @deprecated(reason: "userId has been replaced with user")
@@ -638,7 +638,7 @@ type Feature {
   id: ID!
   name: String!
   token: String!
-  updatedAt: Date!
+  updatedAt: Date
 }
 
 type FeedArticle {
@@ -683,7 +683,7 @@ type Filter {
   id: ID!
   name: String!
   position: Int!
-  updatedAt: Date!
+  updatedAt: Date
   visible: Boolean
 }
 
@@ -825,7 +825,7 @@ type Highlight {
   shortId: String!
   suffix: String
   type: HighlightType!
-  updatedAt: Date!
+  updatedAt: Date
   user: User!
 }
 
@@ -834,7 +834,7 @@ type HighlightReply {
   highlight: Highlight!
   id: ID!
   text: String!
-  updatedAt: Date!
+  updatedAt: Date
   user: User!
 }
 
@@ -871,7 +871,7 @@ type Integration {
   taskName: String
   token: String!
   type: IntegrationType!
-  updatedAt: Date!
+  updatedAt: Date
 }
 
 enum IntegrationType {
@@ -964,7 +964,7 @@ type Link {
   shareInfo: LinkShareInfo!
   shareStats: ShareStats!
   slug: String!
-  updatedAt: Date!
+  updatedAt: Date
   url: String!
 }
 
@@ -1217,7 +1217,7 @@ type Page {
   readableHtml: String!
   title: String!
   type: PageType!
-  updatedAt: Date!
+  updatedAt: Date
   url: String!
 }
 
@@ -1444,7 +1444,7 @@ type RecommendationGroup {
   members: [User!]!
   name: String!
   topics: [String!]
-  updatedAt: Date!
+  updatedAt: Date
 }
 
 type RecommendingUser {
@@ -1520,7 +1520,7 @@ type Rule {
   filter: String!
   id: ID!
   name: String!
-  updatedAt: Date!
+  updatedAt: Date
 }
 
 type RuleAction {
@@ -2082,7 +2082,7 @@ type Subscription {
   type: SubscriptionType!
   unsubscribeHttpUrl: String
   unsubscribeMailTo: String
-  updatedAt: Date!
+  updatedAt: Date
   url: String
 }
 
@@ -2585,7 +2585,7 @@ type Webhook {
   eventTypes: [WebhookEvent!]!
   id: ID!
   method: String!
-  updatedAt: Date!
+  updatedAt: Date
   url: String!
 }
 

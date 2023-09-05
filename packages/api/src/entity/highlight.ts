@@ -57,7 +57,7 @@ export class Highlight {
   createdAt!: Date
 
   @UpdateDateColumn()
-  updatedAt!: Date
+  updatedAt?: Date | null
 
   @Column('timestamp')
   sharedAt?: Date

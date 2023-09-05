@@ -291,7 +291,7 @@ const schema = gql`
     slug: String!
     savedBy: User!
     savedAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     savedByViewer: Boolean!
     postedByViewer: Boolean!
 
@@ -333,7 +333,7 @@ const schema = gql`
     originalHtml: String!
     readableHtml: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   type RecommendingUser {
@@ -368,7 +368,7 @@ const schema = gql`
     originalHtml: String
     createdAt: Date!
     savedAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     publishedAt: Date
     readingProgressTopPercent: Float
     readingProgressPercent: Float!
@@ -705,7 +705,7 @@ const schema = gql`
     replies: [HighlightReply!]!
     sharedAt: Date
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     reactions: [Reaction!]!
     createdByMe: Boolean!
     highlightPositionPercent: Float
@@ -835,7 +835,7 @@ const schema = gql`
     highlight: Highlight!
     text: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   input CreateHighlightReplyInput {
@@ -1109,7 +1109,7 @@ const schema = gql`
     status: ArticleSavingRequestStatus!
     errorCode: CreateArticleErrorCode
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     url: String!
   }
 
@@ -1652,7 +1652,7 @@ const schema = gql`
     count: Int!
     lastFetchedAt: Date
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   enum SubscriptionStatus {
@@ -1757,7 +1757,7 @@ const schema = gql`
     method: String!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   type SetWebhookError {
@@ -1949,7 +1949,7 @@ const schema = gql`
     token: String!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     taskName: String
   }
 
@@ -2047,7 +2047,7 @@ const schema = gql`
     name: String!
     token: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     grantedAt: Date
     expiresAt: Date
   }
@@ -2074,7 +2074,7 @@ const schema = gql`
     actions: [RuleAction!]!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     eventTypes: [RuleEventType!]!
   }
 
@@ -2188,7 +2188,7 @@ const schema = gql`
     category: String!
     description: String
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     defaultFilter: Boolean
     visible: Boolean
   }
@@ -2304,7 +2304,7 @@ const schema = gql`
     admins: [User!]!
     members: [User!]!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     canPost: Boolean!
     description: String
     topics: [String!]

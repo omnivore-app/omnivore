@@ -242,6 +242,8 @@ export const searchLibraryItems = async (
       .createQueryBuilder(LibraryItem, 'library_item')
       .leftJoinAndSelect('library_item.labels', 'labels')
       .leftJoinAndSelect('library_item.highlights', 'highlights')
+      .leftJoinAndSelect('highlights.user', 'user')
+      .leftJoinAndSelect('user.profile', 'profile')
       .where('library_item.user_id = :userId', { userId })
 
     // build the where clause

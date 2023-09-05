@@ -51,7 +51,7 @@ BEGIN
         WHERE library_item_id = current_library_item_id
     )
     UPDATE omnivore.library_item li
-    SET highlight_annotations = h.annotation_agg
+    SET highlight_annotations = coalesce(h.annotation_agg, array[]::text[])
     FROM highlight_agg h
     WHERE li.id = current_library_item_id;
 

@@ -276,6 +276,7 @@ export const setLabelsForHighlightResolver = authorized<
         }
       }
     }
+
     // save labels in the library item
     await saveLabelsInHighlight(labelsSet, input.highlightId, uid, pubsub)
 
@@ -293,7 +294,7 @@ export const setLabelsForHighlightResolver = authorized<
       labels: labelsSet,
     }
   } catch (error) {
-    log.error(error)
+    log.error('setLabelsForHighlightResolver error', error)
     return {
       errorCodes: [SetLabelsErrorCode.BadRequest],
     }

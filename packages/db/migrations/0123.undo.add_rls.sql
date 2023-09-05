@@ -32,9 +32,4 @@ DROP POLICY user_device_tokens_policy on omnivore.user_device_tokens;
 ALTER TABLE omnivore.search_history DISABLE ROW LEVEL SECURITY;
 DROP POLICY search_history_policy on omnivore.search_history;
 
-ALTER TABLE omnivore.abuse_report RENAME COLUMN library_item_id TO elastic_page_id;
-ALTER TABLE omnivore.abuse_report ADD COLUMN page_id text;
-ALTER TABLE omnivore.content_display_report RENAME COLUMN library_item_id TO elastic_page_id;
-ALTER TABLE omnivore.content_display_report ADD COLUMN page_id text;
-
 COMMIT;

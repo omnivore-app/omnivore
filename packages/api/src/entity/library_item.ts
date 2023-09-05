@@ -103,7 +103,7 @@ export class LibraryItem {
   readAt?: Date | null
 
   @UpdateDateColumn()
-  updatedAt!: Date
+  updatedAt?: Date | null
 
   @Column('text', { nullable: true })
   itemLanguage?: string | null

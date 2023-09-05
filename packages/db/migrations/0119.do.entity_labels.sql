@@ -8,7 +8,9 @@ CREATE TABLE omnivore.entity_labels (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     library_item_id uuid REFERENCES omnivore.library_item(id) ON DELETE CASCADE,
     highlight_id uuid REFERENCES omnivore.highlight(id) ON DELETE CASCADE,
-    label_id uuid NOT NULL REFERENCES omnivore.labels(id) ON DELETE CASCADE
+    label_id uuid NOT NULL REFERENCES omnivore.labels(id) ON DELETE CASCADE,
+    unique(library_item_id, label_id),
+    unique(highlight_id, label_id)
 );
 
 GRANT SELECT, INSERT, DELETE ON omnivore.entity_labels TO omnivore_user;
@@ -36,7 +38,7 @@ BEGIN
         )
         -- Update label_names on library_item
         UPDATE omnivore.library_item li
-        SET label_names = l.names_agg
+        SET label_names = coalesce(l.names_agg, array[]::text[]) 
         FROM labels_agg l
         WHERE li.id = current_library_item_id;
     ELSIF current_highlight_id IS NOT NULL THEN
@@ -51,7 +53,7 @@ BEGIN
         )
         -- Update highlight_labels on library_item
         UPDATE omnivore.library_item li
-        SET highlight_labels = l.names_agg
+        SET highlight_labels = coalesce(l.names_agg, array[]::text[]) 
         FROM labels_agg l
         WHERE li.id = current_library_item_id;
     END IF;

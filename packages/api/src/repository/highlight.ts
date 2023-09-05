@@ -26,10 +26,15 @@ export const highlightRepository = entityManager
       })
     },
 
-    createAndSave(highlight: DeepPartial<Highlight>, userId: string) {
+    createAndSave(
+      highlight: DeepPartial<Highlight>,
+      libraryItemId: string,
+      userId: string
+    ) {
       return this.save({
         ...unescapeHighlight(highlight),
         user: { id: userId },
+        libraryItem: { id: libraryItemId },
       })
     },
   })

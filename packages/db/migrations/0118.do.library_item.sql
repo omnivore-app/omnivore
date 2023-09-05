@@ -27,7 +27,7 @@ CREATE TABLE omnivore.library_item (
     archived_at timestamptz,
     deleted_at timestamptz,
     read_at timestamptz,
-    updated_at timestamptz NOT NULL DEFAULT current_timestamp,
+    updated_at timestamptz,
     item_language text,
     word_count integer,
     site_name text,
