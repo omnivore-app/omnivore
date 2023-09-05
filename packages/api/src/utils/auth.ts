@@ -86,7 +86,7 @@ export const getClaimsByToken = async (
       return claimsFromApiKey(token)
     }
 
-    throw e
+    return undefined
   }
 }
 

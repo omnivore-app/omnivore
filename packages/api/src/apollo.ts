@@ -7,7 +7,7 @@
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import * as Sentry from '@sentry/node'
 import { ContextFunction } from 'apollo-server-core'
-import { ApolloServer } from 'apollo-server-express'
+import { ApolloServer, AuthenticationError } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import * as jwt from 'jsonwebtoken'
 import { Knex } from 'knex'
@@ -46,6 +46,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     query: req.body.query,
     variables: req.body.variables,
   })
+
+  if (!claims) {
+    throw new AuthenticationError('unauthorized')
+  }
 
   async function setClaims(
     tx: Knex.Transaction,
