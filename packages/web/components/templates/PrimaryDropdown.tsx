@@ -311,8 +311,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
                   props.updateLayout && props.updateLayout('LIST_LAYOUT')
                 }}
               >
-                <ListViewIcon
-                  size={30}
+                <ListLayoutIcon
                   color={theme.colors.thTextContrast2.toString()}
                 />
               </StyledToggleButton>
