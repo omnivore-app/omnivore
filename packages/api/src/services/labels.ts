@@ -22,7 +22,7 @@ import { libraryItemRepository } from '../repository/library_item'
 
 // export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
 
-export const getLabelsAndCreateIfNotExist = async (
+export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
   userId: string
 ): Promise<Label[]> => {

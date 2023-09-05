@@ -1,5 +1,4 @@
 import { NewsletterEmail } from '../../entity/newsletter_email'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   CreateNewsletterEmailError,
@@ -13,7 +12,6 @@ import {
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,
@@ -80,10 +78,9 @@ export const deleteNewsletterEmailResolver = authorized<
   DeleteNewsletterEmailSuccess,
   DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs
->(async (_parent, args, { claims, log }) => {
-  log.info('deleteNewsletterEmailResolver')
+>(async (_parent, args, { authTrx, uid, log }) => {
   analytics.track({
-    userId: claims.uid,
+    userId: uid,
     event: 'newsletter_email_address_deleted',
     properties: {
       env: env.server.apiEnv,
@@ -91,22 +88,18 @@ export const deleteNewsletterEmailResolver = authorized<
   })
 
   try {
-    const newsletterEmail = await getRepository(NewsletterEmail).findOne({
-      where: {
-        id: args.newsletterEmailId,
-      },
-      relations: ['user', 'subscriptions'],
-    })
+    const newsletterEmail = await authTrx((t) =>
+      t.getRepository(NewsletterEmail).findOne({
+        where: {
+          id: args.newsletterEmailId,
+        },
+        relations: ['user', 'subscriptions'],
+      })
+    )
 
     if (!newsletterEmail) {
       return {
         errorCodes: [DeleteNewsletterEmailErrorCode.NotFound],
-      }
-    }
-
-    if (newsletterEmail.user.id !== claims.uid) {
-      return {
-        errorCodes: [DeleteNewsletterEmailErrorCode.Unauthorized],
       }
     }
 

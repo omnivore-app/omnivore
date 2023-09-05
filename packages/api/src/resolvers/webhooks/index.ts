@@ -82,18 +82,7 @@ export const deleteWebhookResolver = authorized<
   MutationDeleteWebhookArgs
 >(async (_, { id }, { authTrx, uid, log }) => {
   try {
-    const deletedWebhook = await authTrx(async (t) => {
-      const webhook = await t.getRepository(Webhook).findOne({
-        where: { id },
-        relations: ['user'],
-      })
-
-      if (!webhook) {
-        throw new Error('Webhook not found')
-      }
-
-      return t.getRepository(Webhook).remove(webhook)
-    })
+    await authTrx(async (t) => t.getRepository(Webhook).delete(id))
 
     analytics.track({
       userId: uid,
@@ -105,7 +94,16 @@ export const deleteWebhookResolver = authorized<
     })
 
     return {
-      webhook: webhookDataToResponse(deletedWebhook),
+      webhook: {
+        id,
+        url: '',
+        eventTypes: [],
+        method: 'POST',
+        contentType: 'application/json',
+        enabled: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     }
   } catch (error) {
     log.error('Error deleting webhook', error)

@@ -22,8 +22,10 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
+import { findOrCreateLabels } from './labels'
 import { createLibraryItem } from './library_item'
 import { updateReceivedEmail } from './received_emails'
+import { saveSubscription } from './subscriptions'
 
 export type SaveEmailInput = {
   userId: string
@@ -105,29 +107,29 @@ export const saveEmail = async (
       publishedAt: validatedDate(
         parseResult.parsedContent?.publishedDate ?? undefined
       ),
-      subscription: {
-        name: input.author,
-        unsubscribeMailTo: input.unsubMailTo,
-        unsubscribeHttpUrl: input.unsubHttpUrl,
-        user: { id: input.userId },
-        newsletterEmail: { id: input.newsletterEmailId },
-        icon: siteIcon,
-        lastFetchedAt: new Date(),
-      },
       state: LibraryItemState.Succeeded,
       siteIcon,
       siteName: parseResult.parsedContent?.siteName ?? undefined,
       wordCount: wordsCount(content),
-      labels: [
-        {
-          ...newsletterLabel,
-          internal: true,
-          user: { id: input.userId },
-        },
-      ],
     },
     input.userId
   )
+
+  if (input.newsletterEmailId) {
+    await saveSubscription({
+      userId: input.userId,
+      name: input.author,
+      unsubscribeMailTo: input.unsubMailTo,
+      unsubscribeHttpUrl: input.unsubHttpUrl,
+      icon: siteIcon,
+      newsletterEmailId: input.newsletterEmailId,
+    })
+  }
+
+  if (newsletterLabel) {
+    // add newsletter label
+    await findOrCreateLabels([newsletterLabel], input.userId)
+  }
 
   await updateReceivedEmail(input.receivedEmailId, 'article')
 

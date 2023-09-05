@@ -63,7 +63,7 @@ import { createPageSaveRequest } from '../../services/create_page_save_request'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
-  getLabelsAndCreateIfNotExist,
+  findOrCreateLabels,
 } from '../../services/labels'
 import {
   createLibraryItem,
@@ -340,10 +340,7 @@ export const createArticleResolver = authorized<
       libraryItemToSave.archivedAt =
         state === ArticleSavingRequestStatus.Archived ? new Date() : null
       if (inputLabels) {
-        libraryItemToSave.labels = await getLabelsAndCreateIfNotExist(
-          inputLabels,
-          uid
-        )
+        libraryItemToSave.labels = await findOrCreateLabels(inputLabels, uid)
       }
 
       let libraryItemToReturn: LibraryItem
@@ -862,7 +859,7 @@ export const setFavoriteArticleResolver = authorized<
       return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
     }
 
-    const labels = await getLabelsAndCreateIfNotExist([label], uid)
+    const labels = await findOrCreateLabels([label], uid)
     // adds Favorites label to page
     await addLabelsToLibraryItem(labels, id, uid)
 

@@ -9,7 +9,7 @@ import { sendEmail } from '../utils/sendEmail'
 interface SaveSubscriptionInput {
   userId: string
   name: string
-  newsletterEmail: NewsletterEmail
+  newsletterEmailId: string
   unsubscribeMailTo?: string
   unsubscribeHttpUrl?: string
   icon?: string
@@ -92,7 +92,7 @@ export const getSubscriptionByName = async (
 export const saveSubscription = async ({
   userId,
   name,
-  newsletterEmail,
+  newsletterEmailId,
   unsubscribeMailTo,
   unsubscribeHttpUrl,
   icon,
@@ -121,7 +121,7 @@ export const saveSubscription = async ({
     return tx.getRepository(Subscription).save({
       ...subscriptionData,
       name,
-      newsletterEmail: { id: newsletterEmail.id },
+      newsletterEmail: { id: newsletterEmailId },
       user: { id: userId },
       type: SubscriptionType.Newsletter,
     })

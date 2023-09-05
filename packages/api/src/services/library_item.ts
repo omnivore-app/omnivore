@@ -285,7 +285,7 @@ export const findLibraryItemByUrl = async (
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.url = :url', { url })
+        .andWhere('library_item.original_url = :url', { url })
         .getOne(),
     undefined,
     userId

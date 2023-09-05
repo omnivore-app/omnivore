@@ -11,7 +11,6 @@ import {
   RecentEmailsErrorCode,
   RecentEmailsSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
 import { updateReceivedEmail } from '../../services/received_emails'
 import { saveNewsletter } from '../../services/save_newsletter_email'
 import { authorized } from '../../utils/helpers'
@@ -21,34 +20,20 @@ import { sendEmail } from '../../utils/sendEmail'
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
   RecentEmailsError
->(async (_, __, { claims, log }) => {
-  log.info('Getting recent emails', {
-    labels: {
-      source: 'resolver',
-      resolver: 'recentEmailsResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, __, { authTrx, log }) => {
   try {
-    const recentEmails = await getRepository(ReceivedEmail).find({
-      where: { user: { id: claims.uid } },
-      order: { createdAt: 'DESC' },
-      take: 20,
-    })
+    const recentEmails = await authTrx((t) =>
+      t.getRepository(ReceivedEmail).find({
+        order: { createdAt: 'DESC' },
+        take: 20,
+      })
+    )
 
     return {
       recentEmails,
     }
   } catch (error) {
-    log.error('Error getting recent emails', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'recentEmailsResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error getting recent emails', error)
 
     return {
       errorCodes: [RecentEmailsErrorCode.BadRequest],
@@ -60,22 +45,14 @@ export const markEmailAsItemResolver = authorized<
   MarkEmailAsItemSuccess,
   MarkEmailAsItemError,
   MutationMarkEmailAsItemArgs
->(async (_, { recentEmailId }, { claims, log }) => {
-  log.info('Marking email as item', {
-    recentEmailId,
-    labels: {
-      source: 'resolver',
-      resolver: 'markEmailAsItemResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, { recentEmailId }, { authTrx, uid, log }) => {
   try {
-    const recentEmail = await getRepository(ReceivedEmail).findOneBy({
-      id: recentEmailId,
-      user: { id: claims.uid },
-      type: 'non-article',
-    })
+    const recentEmail = await authTrx((t) =>
+      t.getRepository(ReceivedEmail).findOneBy({
+        id: recentEmailId,
+        type: 'non-article',
+      })
+    )
     if (!recentEmail) {
       log.info('no recent email', recentEmailId)
 
@@ -84,13 +61,14 @@ export const markEmailAsItemResolver = authorized<
       }
     }
 
-    const newsletterEmail = await getRepository(NewsletterEmail).findOne({
-      where: {
-        address: ILike(recentEmail.to),
-        user: { id: claims.uid },
-      },
-      relations: ['user'],
-    })
+    const newsletterEmail = await authTrx((t) =>
+      t.getRepository(NewsletterEmail).findOne({
+        where: {
+          address: ILike(recentEmail.to),
+        },
+        relations: ['user'],
+      })
+    )
     if (!newsletterEmail) {
       log.info('no newsletter email for', {
         id: recentEmail.id,
@@ -127,7 +105,7 @@ export const markEmailAsItemResolver = authorized<
     await updateReceivedEmail(recentEmail.id, 'article')
 
     const text = `A recent email marked as a library item
-                    by: ${claims.uid}
+                    by: ${uid}
                     from: ${recentEmail.from}
                     subject: ${recentEmail.subject}`
 
@@ -143,14 +121,7 @@ export const markEmailAsItemResolver = authorized<
       success,
     }
   } catch (error) {
-    log.error('Error marking email as item', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'markEmailAsItemResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error marking email as item', error)
 
     return {
       errorCodes: [MarkEmailAsItemErrorCode.BadRequest],

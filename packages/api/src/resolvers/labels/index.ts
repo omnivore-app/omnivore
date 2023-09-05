@@ -29,7 +29,7 @@ import {
 } from '../../generated/graphql'
 import { labelRepository } from '../../repository/label'
 import {
-  getLabelsAndCreateIfNotExist,
+  findOrCreateLabels,
   saveLabelsInHighlight,
   saveLabelsInLibraryItem,
 } from '../../services/labels'
@@ -127,7 +127,11 @@ export const deleteLabelResolver = authorized<
     })
 
     return {
-      label: deleteResult.raw as Label,
+      label: {
+        id: labelId,
+        name: '',
+        color: '',
+      },
     }
   } catch (error) {
     log.error('error deleting label', error)
@@ -160,7 +164,7 @@ export const setLabelsResolver = authorized<
       if (labels && labels.length > 0) {
         // for new clients that send label names
         // create labels if they don't exist
-        labelsSet = await getLabelsAndCreateIfNotExist(labels, uid)
+        labelsSet = await findOrCreateLabels(labels, uid)
       } else if (labelIds && labelIds.length > 0) {
         // for old clients that send labelIds
         labelsSet = await authTrx(async (tx) => {
@@ -260,7 +264,7 @@ export const setLabelsForHighlightResolver = authorized<
     if (labels && labels.length > 0) {
       // for new clients that send label names
       // create labels if they don't exist
-      labelsSet = await getLabelsAndCreateIfNotExist(labels, uid)
+      labelsSet = await findOrCreateLabels(labels, uid)
     } else if (labelIds && labelIds.length > 0) {
       // for old clients that send labelIds
       labelsSet = await authTrx(async (tx) => {

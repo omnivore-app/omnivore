@@ -8,7 +8,7 @@ import { homePageURL } from '../env'
 import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
 import { entityManager, getRepository } from '../repository'
 import { userDataToUser } from '../utils/helpers'
-import { getLabelsAndCreateIfNotExist } from './labels'
+import { findOrCreateLabels } from './labels'
 import { createRule } from './rules'
 
 export const createGroup = async (input: {
@@ -226,10 +226,7 @@ export const createLabelAndRuleForGroup = async (
   userId: string,
   groupName: string
 ) => {
-  const labels = await getLabelsAndCreateIfNotExist(
-    [{ name: groupName }],
-    userId
-  )
+  const labels = await findOrCreateLabels([{ name: groupName }], userId)
 
   // create a rule to add the label to all pages in the group
   const addLabelPromise = createRule(userId, {

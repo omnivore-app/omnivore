@@ -30,7 +30,7 @@ import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
 import { createPageSaveRequest } from './create_page_save_request'
 import { saveHighlight } from './highlights'
-import { getLabelsAndCreateIfNotExist } from './labels'
+import { findOrCreateLabels } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
@@ -117,14 +117,14 @@ export const savePage = async (
       input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
     // add labels to page
     itemToSave.labels = input.labels
-      ? await getLabelsAndCreateIfNotExist(input.labels, user.id)
+      ? await findOrCreateLabels(input.labels, user.id)
       : undefined
 
     // check if the page already exists
     const existingLibraryItem = await authTrx((t) =>
       t.getRepository(LibraryItem).findOne({
         where: { user: { id: user.id }, originalUrl: itemToSave.originalUrl },
-        relations: ['subscriptions'],
+        relations: ['subscription'],
       })
     )
     if (existingLibraryItem) {

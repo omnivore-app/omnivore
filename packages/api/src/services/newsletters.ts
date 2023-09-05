@@ -56,7 +56,7 @@ export const getNewsletterEmails = async (
           status: SubscriptionStatus.Active,
         }
       )
-      .where('newsletter_email.user_id = :userId', { userId })
+      .where('newsletter_email.user = :userId', { userId })
       .orderBy('newsletter_email.createdAt', 'DESC')
       .getMany()
   )

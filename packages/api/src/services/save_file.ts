@@ -8,7 +8,7 @@ import {
 } from '../generated/graphql'
 import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
-import { getLabelsAndCreateIfNotExist } from './labels'
+import { findOrCreateLabels } from './labels'
 import { updateLibraryItem } from './library_item'
 import { findUploadFileById, setFileUploadComplete } from './upload_file'
 
@@ -40,7 +40,7 @@ export const saveFile = async (
     input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
   // add labels to page
   const labels = input.labels
-    ? await getLabelsAndCreateIfNotExist(input.labels, user.id)
+    ? await findOrCreateLabels(input.labels, user.id)
     : undefined
   if (input.state || input.labels) {
     const updated = await updateLibraryItem(
