@@ -189,6 +189,17 @@ export function EmailSignup(): JSX.Element {
         <StyledText
           style="action"
           css={{
+            color: '$omnivoreLightGray',
+            textAlign: 'center',
+          }}
+        >
+          During our beta period Omnivore will send you daily tips for your
+          first week as a new user. If you don't like them you can unsubscribe.
+        </StyledText>
+
+        <StyledText
+          style="action"
+          css={{
             pt: '16px',
             color: '$omnivoreLightGray',
             textAlign: 'center',
