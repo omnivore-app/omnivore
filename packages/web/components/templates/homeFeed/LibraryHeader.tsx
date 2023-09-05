@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
@@ -54,7 +54,11 @@ type LibraryHeaderProps = {
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 
-  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
+  handleLinkSubmission: (
+    link: string,
+    timezone: string,
+    locale: string
+  ) => Promise<void>
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
@@ -220,15 +224,20 @@ export type SearchBoxProps = {
 
   compact?: boolean
   onClose?: () => void
-  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
+  handleLinkSubmission: (
+    link: string,
+    timezone: string,
+    locale: string
+  ) => Promise<void>
 }
 
 export function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
-  const [isAddAction, setIsAddAction] = useState(false);
-  const IS_URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+  const [isAddAction, setIsAddAction] = useState(false)
+  const IS_URL_REGEX =
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 
   useEffect(() => {
     setSearchTerm(props.searchTerm ?? '')
@@ -284,22 +293,23 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             e.preventDefault()
           }}
         >
-          {
-            (() => {
-              if (isAddAction) {
-                return <Plus
+          {(() => {
+            if (isAddAction) {
+              return (
+                <Plus
                   size={props.compact ? 15 : 20}
                   color={theme.colors.graySolid.toString()}
                 />
+              )
             }
 
-              return <MagnifyingGlass
+            return (
+              <MagnifyingGlass
                 size={props.compact ? 15 : 20}
                 color={theme.colors.graySolid.toString()}
               />
-          })()
-          }
-
+            )
+          })()}
         </HStack>
         <form
           onSubmit={async (event) => {
@@ -308,9 +318,9 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             if (!isAddAction) {
               props.applySearchQuery(searchTerm || '')
             } else {
-                await props.handleLinkSubmission(searchTerm, timeZone, locale)
-                setSearchTerm(props.searchTerm ?? "")
-                props.applySearchQuery(props.searchTerm ?? "")
+              await props.handleLinkSubmission(searchTerm, timeZone, locale)
+              setSearchTerm(props.searchTerm ?? '')
+              props.applySearchQuery(props.searchTerm ?? '')
             }
             inputRef.current?.blur()
             if (props.onClose) {
@@ -408,7 +418,11 @@ type ControlButtonBoxProps = {
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
 
-  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
+  handleLinkSubmission: (
+    link: string,
+    timezone: string,
+    locale: string
+  ) => Promise<void>
 }
 
 function MultiSelectControls(props: ControlButtonBoxProps): JSX.Element {
@@ -517,13 +531,6 @@ function SearchControlButtonBox(
       </Button>
       <PrimaryDropdown
         showThemeSection={true}
-        startSelectMultiple={
-          props.allowSelectMultiple
-            ? () => {
-                props.setMultiSelectMode('none')
-              }
-            : undefined
-        }
         showAddLinkModal={props.showAddLinkModal}
       />
     </>
@@ -702,9 +709,6 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
             layout={props.layout}
             updateLayout={props.updateLayout}
             showAddLinkModal={props.showAddLinkModal}
-            startSelectMultiple={() => {
-              props.setMultiSelectMode('none')
-            }}
           />
         </HStack>
       )}
