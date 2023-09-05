@@ -321,12 +321,8 @@ export const updateLibraryItem = async (
     const itemRepo = tx.withRepository(libraryItemRepository)
     await itemRepo.save({ id, ...libraryItem })
 
-    return itemRepo.findById(id)
+    return itemRepo.findOneByOrFail({ id })
   })
-
-  if (!updatedLibraryItem) {
-    throw new Error(`Library item ${id} not found`)
-  }
 
   await pubsub.entityUpdated<DeepPartial<LibraryItem>>(
     EntityType.PAGE,
