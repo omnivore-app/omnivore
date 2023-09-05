@@ -27,6 +27,7 @@ export function SettingsHeader(props: HeaderProps): JSX.Element {
           '@mdDown': {
             pr: '15px',
           },
+          bg: '$thBackground',
         }}
       >
         <LogoBox />

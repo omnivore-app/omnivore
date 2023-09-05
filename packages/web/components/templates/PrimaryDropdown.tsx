@@ -26,19 +26,17 @@ type PrimaryDropdownProps = {
   updateLayout?: (layout: LayoutType) => void
 
   showAddLinkModal?: () => void
-  startSelectMultiple?: () => void
 }
 
 export type HeaderDropdownAction =
   | 'navigate-to-install'
+  | 'navigate-to-feeds'
   | 'navigate-to-emails'
   | 'navigate-to-labels'
   | 'navigate-to-profile'
   | 'navigate-to-subscriptions'
   | 'navigate-to-api'
   | 'navigate-to-integrations'
-  | 'increaseFontSize'
-  | 'decreaseFontSize'
   | 'logout'
 
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
@@ -50,6 +48,9 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
       switch (action) {
         case 'navigate-to-install':
           router.push('/settings/installation')
+          break
+        case 'navigate-to-feeds':
+          router.push('/settings/feeds')
           break
         case 'navigate-to-emails':
           router.push('/settings/emails')
@@ -150,6 +151,10 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         title="Install"
       />
       <DropdownOption
+        onSelect={() => headerDropdownActionHandler('navigate-to-feeds')}
+        title="Feeds"
+      />
+      <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-emails')}
         title="Emails"
       />
@@ -165,17 +170,6 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
             onSelect={() => props.showAddLinkModal && props.showAddLinkModal()}
             title="Add Link"
           />
-        </>
-      )}
-      {props.startSelectMultiple && (
-        <>
-          <DropdownOption
-            onSelect={() =>
-              props.startSelectMultiple && props.startSelectMultiple()
-            }
-            title="Select Multiple"
-          />
-          <DropdownSeparator />
         </>
       )}
       <DropdownOption
