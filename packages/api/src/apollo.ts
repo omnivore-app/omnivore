@@ -38,13 +38,14 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   req,
   res,
 }) => {
+  const token = req?.cookies?.auth || req?.headers?.authorization
+  const claims = await getClaimsByToken(token)
+
   logger.info(`handling gql request`, {
+    user: claims?.uid,
     query: req.body.query,
     variables: req.body.variables,
   })
-
-  const token = req?.cookies?.auth || req?.headers?.authorization
-  const claims = await getClaimsByToken(token)
 
   async function setClaims(
     tx: Knex.Transaction,
