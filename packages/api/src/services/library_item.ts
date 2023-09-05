@@ -1,5 +1,6 @@
 import { DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import {
@@ -389,10 +390,12 @@ export const updateLibraryItems = async (
 ) => {
   // build the script
   let values: QueryDeepPartialEntity<LibraryItem> = {}
+  let addLabels = false
   switch (action) {
     case BulkActionType.Archive:
       values = {
         archivedAt: new Date(),
+        state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
@@ -401,9 +404,7 @@ export const updateLibraryItems = async (
       }
       break
     case BulkActionType.AddLabels:
-      values = {
-        labels,
-      }
+      addLabels = true
       break
     case BulkActionType.MarkAsRead:
       values = {
@@ -421,6 +422,29 @@ export const updateLibraryItems = async (
 
     // build the where clause
     buildWhereClause(queryBuilder, args)
+
+    if (addLabels) {
+      if (!labels) {
+        throw new Error('Labels are required for this action')
+      }
+
+      const libraryItems = await queryBuilder.getMany()
+      // add labels in library items
+      const labelsToAdd = libraryItems.flatMap((libraryItem) =>
+        labels
+          .map((label) => ({
+            labelId: label.id,
+            libraryItemId: libraryItem.id,
+          }))
+          .filter((entityLabel) => {
+            const existingLabel = libraryItem.labels?.find(
+              (l) => l.id === entityLabel.labelId
+            )
+            return !existingLabel
+          })
+      )
+      return tx.getRepository(EntityLabel).save(labelsToAdd)
+    }
 
     return queryBuilder.update(LibraryItem).set(values).execute()
   })
