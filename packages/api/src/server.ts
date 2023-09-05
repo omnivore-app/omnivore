@@ -109,13 +109,8 @@ export const createApp = (): {
     max: async (req) => {
       // 100 RPM for an authenticated request, 5 for a non-authenticated request
       const token = getTokenByRequest(req)
-      try {
-        const claims = await getClaimsByToken(token)
-        return claims ? 100 : 5
-      } catch (e) {
-        console.log('non-authenticated request')
-        return 5
-      }
+      const claims = await getClaimsByToken(token)
+      return claims ? 100 : 15
     },
     keyGenerator: (req) => {
       return getTokenByRequest(req) || req.ip
