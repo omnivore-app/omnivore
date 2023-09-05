@@ -163,7 +163,7 @@ export function EmailSignup(): JSX.Element {
           }}
         >
           Omnivore will send you daily tips for your first week as a new user.
-          If you don't like them you can unsubscribe.
+          If you don&apos;t like them you can unsubscribe.
         </StyledText>
 
         <HStack
