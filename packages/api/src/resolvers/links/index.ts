@@ -1,4 +1,4 @@
-import { updatePage } from '../../elastic/pages'
+import { LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArchiveLinkError,
@@ -6,6 +6,7 @@ import {
   ArchiveLinkSuccess,
   MutationSetLinkArchivedArgs,
 } from '../../generated/graphql'
+import { updateLibraryItem } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
@@ -52,11 +53,9 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkSuccess,
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
->(async (_obj, args, { claims, pubsub, log }) => {
-  log.info('setLinkArchivedResolver', args.input.linkId)
-
+>(async (_obj, args, { uid }) => {
   analytics.track({
-    userId: claims.uid,
+    userId: uid,
     event: args.input.archived ? 'link_archived' : 'link_unarchived',
     properties: {
       env: env.server.apiEnv,
@@ -64,12 +63,15 @@ export const setLinkArchivedResolver = authorized<
   })
 
   try {
-    await updatePage(
+    await updateLibraryItem(
       args.input.linkId,
       {
         archivedAt: args.input.archived ? new Date() : null,
+        state: args.input.archived
+          ? LibraryItemState.Archived
+          : LibraryItemState.Succeeded,
       },
-      { pubsub, uid: claims.uid, refresh: true } // refresh index to update search results
+      uid
     )
   } catch (e) {
     return {

@@ -18,6 +18,7 @@ import {
   findLibraryItemByUrl,
   updateLibraryItem,
 } from '../services/library_item'
+import { addRecommendation } from '../services/recommendation'
 import { getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import {
@@ -166,18 +167,18 @@ export function pageRouter() {
         return res.status(404).send({ errorCode: 'NOT_FOUND' })
       }
 
-      const recommendedPageId = await addRecommendation(
-        ctx,
-        page,
+      const recommendedItem = await addRecommendation(
+        item,
         recommendation,
+        claims.uid,
         highlightIds
       )
-      if (!recommendedPageId) {
+      if (!recommendedItem) {
         logger.error('Failed to add recommendation to page')
         return res.sendStatus(500)
       }
 
-      return res.send({ recommendedPageId })
+      return res.send('OK')
     }
   )
 

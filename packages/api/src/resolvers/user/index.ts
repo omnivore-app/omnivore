@@ -1,7 +1,5 @@
 import * as jwt from 'jsonwebtoken'
 import { RegistrationType } from '../../datalayer/user/model'
-import { appDataSource } from '../../data_source'
-import { deletePagesByParam } from '../../elastic/pages'
 import { User as UserEntity } from '../../entity/user'
 import { env } from '../../env'
 import {
@@ -38,7 +36,6 @@ import {
   UsersError,
   UsersSuccess,
 } from '../../generated/graphql'
-import { setClaims } from '../../repository'
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendVerificationEmail } from '../../services/send_emails'
@@ -317,34 +314,9 @@ export const deleteAccountResolver = authorized<
   DeleteAccountSuccess,
   DeleteAccountError,
   MutationDeleteAccountArgs
->(async (_, { userID }, { claims, log, pubsub }) => {
-  const user = await userRepository.findOneBy({
-    id: userID,
-  })
-  if (!user) {
-    return {
-      errorCodes: [DeleteAccountErrorCode.UserNotFound],
-    }
-  }
-
-  if (user.id !== claims.uid) {
-    return {
-      errorCodes: [DeleteAccountErrorCode.Unauthorized],
-    }
-  }
-
-  log.info('Deleting a user account', {
-    userID,
-    labels: {
-      source: 'resolver',
-      resolver: 'deleteAccountResolver',
-      uid: claims.uid,
-    },
-  })
-
-  const result = await appDataSource.transaction(async (t) => {
-    await setClaims(t, claims.uid)
-    return t.getRepository(UserEntity).delete(userID)
+>(async (_, { userID }, { authTrx, log }) => {
+  const result = await authTrx(async (t) => {
+    return t.withRepository(userRepository).delete(userID)
   })
   if (!result.affected) {
     log.error('Error deleting user account')
@@ -353,9 +325,6 @@ export const deleteAccountResolver = authorized<
       errorCodes: [DeleteAccountErrorCode.UserNotFound],
     }
   }
-
-  // delete this user's pages in elastic
-  await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
 
   return { userID }
 })

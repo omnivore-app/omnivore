@@ -85,7 +85,7 @@ export const revokeApiKeyResolver = authorized<
   RevokeApiKeySuccess,
   RevokeApiKeyError,
   MutationRevokeApiKeyArgs
->(async (_, { id }, { claims: { uid }, log, authTrx }) => {
+>(async (_, { id }, { claims: { uid }, log }) => {
   try {
     const apiRepo = getRepository(ApiKey)
 

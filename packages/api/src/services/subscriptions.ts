@@ -2,7 +2,7 @@ import axios from 'axios'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
 import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
-import { authTrx } from '../repository'
+import { authTrx, entityManager, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
 
@@ -80,14 +80,13 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
 }
 
 export const getSubscriptionByName = async (
-  name: string
+  name: string,
+  userId: string
 ): Promise<Subscription | null> => {
-  return authTrx((tx) =>
-    tx.getRepository(Subscription).findOneBy({
-      name,
-      type: SubscriptionType.Newsletter,
-    })
-  )
+  return getRepository(Subscription).findOne({
+    where: { name, type: SubscriptionType.Newsletter, user: { id: userId } },
+    relations: ['newsletterEmail', 'user'],
+  })
 }
 
 export const saveSubscription = async ({
@@ -105,13 +104,16 @@ export const saveSubscription = async ({
     lastFetchedAt: new Date(),
   }
 
-  const existingSubscription = await getSubscriptionByName(name)
-  const result = await authTrx(async (tx) => {
+  const existingSubscription = await getSubscriptionByName(name, userId)
+  const result = await entityManager.transaction(async (tx) => {
     if (existingSubscription) {
       // update subscription if already exists
       await tx
         .getRepository(Subscription)
-        .update(existingSubscription.id, subscriptionData)
+        .update(
+          { id: existingSubscription.id, user: { id: userId } },
+          subscriptionData
+        )
 
       return existingSubscription
     }

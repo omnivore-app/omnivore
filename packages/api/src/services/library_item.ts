@@ -1,4 +1,5 @@
 import { DeepPartial, SelectQueryBuilder } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import {
@@ -6,6 +7,7 @@ import {
   LibraryItemState,
   LibraryItemType,
 } from '../entity/library_item'
+import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
@@ -373,4 +375,48 @@ export const countByCreatedAt = async (
       })
       .getCount()
   )
+}
+
+export const updateLibraryItems = async (
+  action: BulkActionType,
+  args: SearchArgs,
+  labels?: Label[]
+) => {
+  // build the script
+  let values: QueryDeepPartialEntity<LibraryItem> = {}
+  switch (action) {
+    case BulkActionType.Archive:
+      values = {
+        archivedAt: new Date(),
+      }
+      break
+    case BulkActionType.Delete:
+      values = {
+        state: LibraryItemState.Deleted,
+      }
+      break
+    case BulkActionType.AddLabels:
+      values = {
+        labels,
+      }
+      break
+    case BulkActionType.MarkAsRead:
+      values = {
+        readAt: new Date(),
+        readingProgressTopPercent: 100,
+        readingProgressBottomPercent: 100,
+      }
+      break
+    default:
+      throw new Error('Invalid bulk action')
+  }
+
+  await authTrx(async (tx) => {
+    const queryBuilder = tx.createQueryBuilder(LibraryItem, 'library_item')
+
+    // build the where clause
+    buildWhereClause(queryBuilder, args)
+
+    return queryBuilder.update(LibraryItem).set(values).execute()
+  })
 }

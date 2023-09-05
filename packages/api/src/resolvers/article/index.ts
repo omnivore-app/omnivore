@@ -72,6 +72,7 @@ import {
   findLibraryItemsByPrefix,
   searchLibraryItems,
   updateLibraryItem,
+  updateLibraryItems,
 } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
@@ -832,21 +833,17 @@ export const bulkActionResolver = authorized<
     // parse query
     const searchQuery = parseSearchQuery(query)
 
-    const updated = await updateLibraryItem(action, searchQuery, labels)
+    await updateLibraryItems(action, searchQuery, labels)
 
-    return { success: updated }
+    return { success: true }
   } catch (error) {
     log.error('bulkActionResolver error', error)
     return { errorCodes: [BulkActionErrorCode.BadRequest] }
   }
 })
 
-export type SetFavoriteArticleSuccessPartial = Merge<
-  SetFavoriteArticleSuccess,
-  { favoriteArticle: PartialArticle }
->
 export const setFavoriteArticleResolver = authorized<
-  SetFavoriteArticleSuccessPartial,
+  SetFavoriteArticleSuccess,
   SetFavoriteArticleError,
   MutationSetFavoriteArticleArgs
 >(async (_, { id }, { uid, log }) => {
