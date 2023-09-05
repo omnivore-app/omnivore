@@ -2,7 +2,7 @@ import { HStack, SpanBox, VStack } from './LayoutPrimitives'
 import { theme } from '../tokens/stitches.config'
 import { Button } from './Button'
 import { CloseIcon } from './icons/CloseIcon'
-import { HelpfulOwlImage } from './images/HelpfulOwlImage'
+import { HelpfulSlothImage } from './images/HelpfulSlothImage'
 import { ArrowSquareOut } from 'phosphor-react'
 import { useEffect, useState } from 'react'
 
@@ -57,7 +57,7 @@ export const FeatureHelpBox = (props: FeatureHelpBoxProps) => {
             '@smDown': { display: 'none' },
           }}
         >
-          <HelpfulOwlImage width={254} height={333} />
+          <HelpfulSlothImage />
         </SpanBox>
         <HelpSection {...props} />
       </HStack>
