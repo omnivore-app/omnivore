@@ -1,20 +1,14 @@
-import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import { LibraryItemState } from '../../entity/library_item'
 import {
   MutationUpdatePageArgs,
   UpdatePageError,
   UpdatePageSuccess,
 } from '../../generated/graphql'
 import { updateLibraryItem } from '../../services/library_item'
-import { Merge } from '../../util'
-import { authorized } from '../../utils/helpers'
-
-export type UpdatePageSuccessPartial = Merge<
-  UpdatePageSuccess,
-  { updatedPage: Partial<LibraryItem> }
->
+import { authorized, libraryItemToArticle } from '../../utils/helpers'
 
 export const updatePageResolver = authorized<
-  UpdatePageSuccessPartial,
+  UpdatePageSuccess,
   UpdatePageError,
   MutationUpdatePageArgs
 >(async (_, { input }, { uid }) => {
@@ -34,6 +28,6 @@ export const updatePageResolver = authorized<
     uid
   )
   return {
-    updatedPage,
+    updatedPage: libraryItemToArticle(updatedPage),
   }
 })
