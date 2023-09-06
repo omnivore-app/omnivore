@@ -12,6 +12,6 @@ CREATE TABLE omnivore.recommendation (
     created_at timestamptz NOT NULL DEFAULT current_timestamp
 );
 
-GRANT SELECT, INSERT ON omnivore.library_item TO omnivore_user;
+GRANT SELECT, INSERT ON omnivore.recommendation TO omnivore_user;
 
 COMMIT;

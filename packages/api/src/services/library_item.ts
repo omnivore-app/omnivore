@@ -46,6 +46,7 @@ export interface SearchArgs {
   includeContent?: boolean
   noFilters?: NoFilter[]
   siteName?: string
+  subscription?: string
 }
 
 export interface SearchResultItem {
@@ -88,10 +89,15 @@ const buildWhereClause = (
 ) => {
   if (args.query) {
     queryBuilder
-      .addSelect('ts_rank_cd(library_item.search_tsv, query)', 'rank')
-      .addFrom("websearch_to_tsquery('english', ':query')", 'query')
-      .andWhere('query @@ library_item.search_tsv')
+      .addSelect(
+        `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :query))`,
+        'rank'
+      )
+      .andWhere(
+        `websearch_to_tsquery('english', :query) @@ library_item.search_tsv`
+      )
       .setParameter('query', args.query)
+      .orderBy('rank', 'DESC')
   }
 
   if (args.typeFilter) {
@@ -114,6 +120,16 @@ const buildWhereClause = (
           "library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days'"
         )
         break
+      case InFilter.SUBSCRIPTION:
+        queryBuilder
+          .andWhere('library_item.subscription_id IS NOT NULL')
+          .andWhere('library_item.archived_at IS NULL')
+        break
+      case InFilter.LIBRARY:
+        queryBuilder
+          .andWhere('library_item.subscription_id IS NULL')
+          .andWhere('library_item.archived_at IS NULL')
+        break
     }
   }
 
@@ -133,11 +149,11 @@ const buildWhereClause = (
       switch (filter) {
         case HasFilter.HIGHLIGHTS:
           queryBuilder.andWhere(
-            'library_item.highlight_annotations IS NOT NULL'
+            'array_length(library_item.highlight_annotations, 1) > 0'
           )
           break
         case HasFilter.LABELS:
-          queryBuilder.andWhere('library_item.label_names IS NOT NULL')
+          queryBuilder.andWhere('array_length(library_item.label_names, 1) > 0')
           break
       }
     })
@@ -154,7 +170,7 @@ const buildWhereClause = (
     if (includeLabels && includeLabels.length > 0) {
       includeLabels.forEach((includeLabel) => {
         queryBuilder.andWhere(
-          '(lower(library_item.label_names::text)::text[] @> ARRAY[:...includeLabels]::text[] OR lower(library_item.highlight_labels::text)::text[] @> ARRAY[:...includeLabels]::text[])',
+          'lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] @> ARRAY[:...includeLabels]::text[]',
           {
             includeLabels: includeLabel.labels,
           }
@@ -164,9 +180,9 @@ const buildWhereClause = (
 
     if (excludeLabels && excludeLabels.length > 0) {
       queryBuilder.andWhere(
-        '(NOT lower(library_item.label_names::text)::text[] && ARRAY[:...excludeLabels]::text[] AND NOT lower(library_item.highlight_labels::text)::text[] && ARRAY[:...excludeLabels]::text[])',
+        'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
         {
-          excludeLabels,
+          excludeLabels: excludeLabels.flatMap((filter) => filter.labels),
         }
       )
     }
@@ -186,8 +202,8 @@ const buildWhereClause = (
 
   if (args.termFilters && args.termFilters.length > 0) {
     args.termFilters.forEach((filter) => {
-      queryBuilder.andWhere(`library_item.${filter.field} = :value`, {
-        value: filter.value,
+      queryBuilder.andWhere(`lower(library_item.${filter.field}) = :value`, {
+        value: filter.value.toLowerCase(),
       })
     })
   }
@@ -195,9 +211,9 @@ const buildWhereClause = (
   if (args.matchFilters && args.matchFilters.length > 0) {
     args.matchFilters.forEach((filter) => {
       queryBuilder.andWhere(
-        `websearch_to_tsquery('english', ':query') @@ library_item.${filter.field}_tsv`,
+        `websearch_to_tsquery('english', :matchQuery) @@ library_item.${filter.field}_tsv`,
         {
-          query: filter.value,
+          matchQuery: filter.value,
         }
       )
     })
@@ -223,6 +239,22 @@ const buildWhereClause = (
     args.noFilters.forEach((filter) => {
       queryBuilder.andWhere(`library_item.${filter.field} = '{}'`)
     })
+  }
+
+  if (args.recommendedBy) {
+    queryBuilder.innerJoin('library_item.recommendations', 'recommendations')
+  }
+
+  if (args.subscription) {
+    queryBuilder
+      .innerJoin('library_item.subscription', 'subscription')
+      .andWhere((qb) => {
+        qb.where('subscription.name = :subscription', {
+          subscription: args.subscription,
+        }).orWhere('subscription.url = :subscription', {
+          subscription: args.subscription,
+        })
+      })
   }
 }
 
@@ -251,7 +283,7 @@ export const searchLibraryItems = async (
     buildWhereClause(queryBuilder, args)
 
     const libraryItems = await queryBuilder
-      .orderBy(`library_item.${sortField}`, sortOrder)
+      .addOrderBy(`library_item.${sortField}`, sortOrder)
       .offset(from)
       .limit(size)
       .getMany()

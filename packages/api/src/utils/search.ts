@@ -42,6 +42,7 @@ export interface SearchFilter {
   recommendedBy?: string
   noFilters: NoFilter[]
   siteName?: string
+  subscription?: string
 }
 
 export enum LabelFilterType {
@@ -94,7 +95,7 @@ export interface NoFilter {
   field: string
 }
 
-const parseRecommendedBy = (str?: string): string | undefined => {
+const parseStringValue = (str?: string): string | undefined => {
   if (str === undefined) {
     return undefined
   }
@@ -268,22 +269,18 @@ const parseFieldFilter = (
     return undefined
   }
 
-  let nested = false
   // normalize the term to lower case
   const value = str.toLowerCase()
 
   switch (field.toUpperCase()) {
-    case 'RSS':
-      field = 'rssFeedUrl'
-      break
-    case 'NOTE':
-      field = 'highlights.annotation'
-      nested = true
-      break
+    case 'LANGUAGE':
+      return {
+        field: 'item_language',
+        value,
+      }
   }
 
   return {
-    nested,
     field,
     value,
   }
@@ -427,9 +424,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           dateFilter && result.dateFilters.push(dateFilter)
           break
         }
-        // term filters
         case 'subscription':
         case 'rss':
+          result.subscription = parseStringValue(keyword.value)
+          break
+        // term filters
         case 'language': {
           const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
           fieldFilter && result.termFilters.push(fieldFilter)
@@ -451,7 +450,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         }
         case 'recommendedBy': {
-          result.recommendedBy = parseRecommendedBy(keyword.value)
+          result.recommendedBy = parseStringValue(keyword.value)
           break
         }
         case 'no': {

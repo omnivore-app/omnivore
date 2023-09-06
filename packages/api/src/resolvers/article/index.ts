@@ -518,6 +518,7 @@ export const setBookmarkArticleResolver = authorized<
     articleID,
     {
       state: LibraryItemState.Deleted,
+      deletedAt: new Date(),
     },
     uid,
     pubsub
@@ -537,12 +538,6 @@ export const setBookmarkArticleResolver = authorized<
       readableContent: undefined,
       originalContent: undefined,
     }),
-    labels: {
-      source: 'resolver',
-      resolver: 'setBookmarkArticleResolver',
-      userId: uid,
-      articleID,
-    },
   })
   // Make sure article.id instead of userArticle.id has passed. We use it for cache updates
   return {
