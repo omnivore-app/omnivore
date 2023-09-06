@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import {
-  Box,
-  SpanBox,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
+import { VStack } from '../../components/elements/LayoutPrimitives'
 
 import { StyledText } from '../../components/elements/StyledText'
 import { ProfileLayout } from '../../components/templates/ProfileLayout'
@@ -16,14 +12,11 @@ import {
 import { Button } from '../../components/elements/Button'
 import { theme } from '../../components/tokens/stitches.config'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import * as Select from '@radix-ui/react-select'
-
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { useRouter } from 'next/router'
 import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import {
   BorderedFormInput,
-  FormInput,
   FormLabel,
 } from '../../components/elements/FormElements'
 
