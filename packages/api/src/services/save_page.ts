@@ -82,7 +82,6 @@ export const savePage = async (
     url: input.url,
     title: input.title,
     userId: user.id,
-    itemId: clientRequestId,
     slug,
     croppedPathname,
     parsedContent: parseResult.parsedContent,

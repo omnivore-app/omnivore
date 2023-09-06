@@ -320,7 +320,10 @@ export const updateLibraryItem = async (
 ): Promise<LibraryItem> => {
   const updatedLibraryItem = await authTrx(async (tx) => {
     const itemRepo = tx.withRepository(libraryItemRepository)
-    await itemRepo.save({ id, ...libraryItem })
+    await itemRepo.update(
+      id,
+      libraryItem as QueryDeepPartialEntity<LibraryItem>
+    )
 
     return itemRepo.findOneByOrFail({ id })
   })

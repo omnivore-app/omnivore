@@ -92,7 +92,7 @@ export const uploadFileRequestResolver = authorized<
   uploadFileData = await authTrx((t) =>
     t.getRepository(UploadFile).save({
       url: input.url,
-      userId: uid,
+      user: { id: uid },
       fileName,
       status: UploadFileStatus.Initialized,
       contentType: input.contentType,
@@ -156,7 +156,6 @@ export const uploadFileRequestResolver = authorized<
             itemType: itemTypeForContentType(input.contentType),
             uploadFile: { id: uploadFileData.id },
             slug: generateSlug(uploadFilePathName),
-            state: LibraryItemState.Succeeded,
           },
           uid
         )
