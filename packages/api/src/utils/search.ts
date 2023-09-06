@@ -303,11 +303,11 @@ const parseNoFilter = (str?: string): NoFilter | undefined => {
   }
 
   const strLower = str.toLowerCase()
-  const accepted = ['highlight', 'label']
-  if (accepted.includes(strLower)) {
-    return {
-      field: `${strLower}s`,
-    }
+  switch (strLower) {
+    case 'highlight':
+      return { field: 'highlight_annotations' }
+    case 'label':
+      return { field: 'label_names' }
   }
 
   return undefined

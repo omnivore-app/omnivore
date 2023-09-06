@@ -154,7 +154,7 @@ const buildWhereClause = (
     if (includeLabels && includeLabels.length > 0) {
       includeLabels.forEach((includeLabel) => {
         queryBuilder.andWhere(
-          'library_item.label_names @> ARRAY[:...includeLabels]::text[] OR library_item.highlight_labels @> ARRAY[:...includeLabels]::text[]',
+          '(lower(library_item.label_names::text)::text[] @> ARRAY[:...includeLabels]::text[] OR lower(library_item.highlight_labels::text)::text[] @> ARRAY[:...includeLabels]::text[])',
           {
             includeLabels: includeLabel.labels,
           }
@@ -164,7 +164,7 @@ const buildWhereClause = (
 
     if (excludeLabels && excludeLabels.length > 0) {
       queryBuilder.andWhere(
-        'NOT library_item.label_names && ARRAY[:...excludeLabels]::text[] AND NOT library_item.highlight_labels && ARRAY[:...excludeLabels]::text[]',
+        '(NOT lower(library_item.label_names::text)::text[] && ARRAY[:...excludeLabels]::text[] AND NOT lower(library_item.highlight_labels::text)::text[] && ARRAY[:...excludeLabels]::text[])',
         {
           excludeLabels,
         }
@@ -221,7 +221,7 @@ const buildWhereClause = (
 
   if (args.noFilters) {
     args.noFilters.forEach((filter) => {
-      queryBuilder.andWhere(`library_item.${filter.field} IS NULL`)
+      queryBuilder.andWhere(`library_item.${filter.field} = '{}'`)
     })
   }
 }
