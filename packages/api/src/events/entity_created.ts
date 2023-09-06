@@ -29,7 +29,7 @@ export class PublishEntitySubscriber implements EntitySubscriberInterface {
 
     await client
       .topic(TOPIC_NAME)
-      .publish(Buffer.from(msg))
+      .publishMessage({ data: Buffer.from(msg) })
       .catch((err) => {
         logger.error('PublishEntitySubscriber error publishing event', err)
       })

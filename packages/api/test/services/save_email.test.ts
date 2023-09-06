@@ -1,7 +1,9 @@
 import { expect } from 'chai'
 import 'mocha'
 import nock from 'nock'
+import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
+import { authTrx } from '../../src/repository'
 import { findLibraryItemByUrl } from '../../src/services/library_item'
 import { saveEmail } from '../../src/services/save_email'
 import { createTestUser, deleteTestUser } from '../db'
@@ -10,6 +12,7 @@ describe('saveEmail', () => {
   const fakeContent = 'fake content'
   let user: User
   let scope: nock.Scope
+  let receivedEmail: ReceivedEmail
 
   before(async () => {
     // create test user
@@ -18,6 +21,20 @@ describe('saveEmail', () => {
       .get('/fake-url')
       .reply(200)
       .persist()
+
+    receivedEmail = await authTrx(
+      (t) =>
+        t.getRepository(ReceivedEmail).save({
+          user: { id: user.id },
+          from: '',
+          to: '',
+          subject: '',
+          html: '',
+          type: 'non-article',
+        }),
+      undefined,
+      user.id
+    )
   })
 
   after(async () => {
@@ -36,7 +53,7 @@ describe('saveEmail', () => {
       title,
       author,
       userId: user.id,
-      receivedEmailId: 'fakeId',
+      receivedEmailId: receivedEmail.id,
     })
 
     // This ensures row level security doesnt prevent
@@ -47,7 +64,7 @@ describe('saveEmail', () => {
       title,
       author,
       userId: user.id,
-      receivedEmailId: 'fakeId',
+      receivedEmailId: receivedEmail.id,
     })
     expect(secondResult).to.not.be.undefined
 

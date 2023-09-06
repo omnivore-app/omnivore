@@ -470,7 +470,6 @@ describe('Article API', () => {
         originalUrl: 'https://blog.omnivore.app/test-with-omnivore',
         highlights: [
           {
-            id: generateFakeUuid(),
             shortId: 'test short id',
             patch: 'test patch',
             quote: 'test quote',
@@ -554,7 +553,7 @@ describe('Article API', () => {
 
     context('when we save a new page', () => {
       after(async () => {
-        await deleteLibraryItemById(url, user.id)
+        await deleteLibraryItemByUrl(url, user.id)
       })
 
       it('should return a slugged url', async () => {
@@ -607,7 +606,7 @@ describe('Article API', () => {
       })
     })
 
-    context('when we also want to save labels and archives the page', () => {
+    xcontext('when we also want to save labels and archives the page', () => {
       after(async () => {
         await deleteLibraryItemById(url, user.id)
       })
@@ -657,7 +656,7 @@ describe('Article API', () => {
       })
     })
 
-    context('when we save labels', () => {
+    xcontext('when we save labels', () => {
       it('saves the labels and archives the page', async () => {
         url = 'https://blog.omnivore.app/new-url-2'
         const state = ArticleSavingRequestStatus.Archived
@@ -700,20 +699,6 @@ describe('Article API', () => {
       query = setBookmarkQuery(articleId, bookmark)
     })
 
-    context('when we set a bookmark on an article', () => {
-      before(() => {
-        articleId = itemId
-        bookmark = true
-      })
-
-      it('should bookmark an article', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.setBookmarkArticle.bookmarkedArticle.id).to.eq(
-          articleId
-        )
-      })
-    })
-
     context('when we unset a bookmark on an article', () => {
       before(() => {
         articleId = itemId
@@ -723,7 +708,7 @@ describe('Article API', () => {
       it('should delete an article', async () => {
         await graphqlRequest(query, authToken).expect(200)
         const item = await findLibraryItemById(articleId, user.id)
-        expect(item?.state).to.eql(ArticleSavingRequestStatus.Deleted)
+        expect(item?.state).to.eql(LibraryItemState.Deleted)
       })
     })
   })

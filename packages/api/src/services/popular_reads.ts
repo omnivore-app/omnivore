@@ -1,9 +1,10 @@
 import * as httpContext from 'express-http-context2'
 import { readFileSync } from 'fs'
 import path from 'path'
-import { DeepPartial } from 'typeorm'
+import { DeepPartial, EntityManager } from 'typeorm'
 import { LibraryItem, LibraryItemType } from '../entity/library_item'
-import { ArticleSavingRequestStatus } from '../generated/graphql'
+import { authTrx, entityManager } from '../repository'
+import { libraryItemRepository } from '../repository/library_item'
 import { generateSlug, stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { createLibraryItem } from './library_item'
@@ -19,12 +20,6 @@ type PopularRead = {
 
   content: string
   originalHtml: string
-}
-
-interface AddPopularReadResult {
-  pageId?: string
-  name: string
-  status: ArticleSavingRequestStatus
 }
 
 const popularRead = (key: string): PopularRead | undefined => {
@@ -57,19 +52,17 @@ const popularRead = (key: string): PopularRead | undefined => {
   }
 }
 
-export const addPopularRead = async (
-  userId: string,
-  name: string
-): Promise<string | undefined> => {
+const popularReadToLibraryItem = (
+  name: string,
+  userId: string
+): DeepPartial<LibraryItem> | null => {
   const pr = popularRead(name)
   if (!pr) {
-    return undefined
+    return null
   }
 
-  const slug = generateSlug(pr.title)
-
-  const articleToSave: DeepPartial<LibraryItem> = {
-    slug,
+  return {
+    slug: generateSlug(pr.title),
     readableContent: pr.content,
     originalContent: pr.originalHtml,
     description: pr.description,
@@ -83,31 +76,36 @@ export const addPopularRead = async (
     siteName: pr.siteName,
     user: { id: userId },
   }
+}
 
-  const item = await createLibraryItem(articleToSave, userId)
-  return item.id
+export const addPopularRead = async (userId: string, name: string) => {
+  const itemToSave = popularReadToLibraryItem(name, userId)
+  if (!itemToSave) {
+    return null
+  }
+
+  return createLibraryItem(itemToSave, userId)
 }
 
 const addPopularReads = async (
+  names: string[],
   userId: string,
-  names: string[]
-): Promise<AddPopularReadResult[]> => {
-  const results: AddPopularReadResult[] = []
-  for (const name of names) {
-    const pageId = await addPopularRead(userId, name)
-    results.push({
-      pageId,
-      name,
-      status: pageId
-        ? ArticleSavingRequestStatus.Succeeded
-        : ArticleSavingRequestStatus.Failed,
-    })
-  }
-  return results
+  entityManager: EntityManager
+) => {
+  const libraryItems = names
+    .map((name) => popularReadToLibraryItem(name, userId))
+    .filter((pr) => pr !== null) as DeepPartial<LibraryItem>[]
+
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).save(libraryItems),
+    entityManager,
+    userId
+  )
 }
 
 export const addPopularReadsForNewUser = async (
-  userId: string
+  userId: string,
+  em = entityManager
 ): Promise<void> => {
   const defaultReads = ['omnivore_organize', 'power_read_it_later']
 
@@ -129,7 +127,7 @@ export const addPopularReadsForNewUser = async (
   // We always want this to be the top-most article in the user's
   // list. So we save it last to have the greatest saved_at
   defaultReads.push('omnivore_get_started')
-  await addPopularReads(userId, defaultReads)
+  await addPopularReads(defaultReads, userId, em)
 }
 
 const popularReads = [

@@ -5,7 +5,7 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
+import { authTrx, getRepository } from '../../src/repository'
 import { findLibraryItemByUrl } from '../../src/services/library_item'
 import { createNewsletterEmail } from '../../src/services/newsletters'
 import { saveNewsletter } from '../../src/services/save_newsletter_email'
@@ -25,15 +25,20 @@ describe('saveNewsletterEmail', () => {
   before(async () => {
     user = await createTestUser('fakeUser')
     newsletterEmail = await createNewsletterEmail(user.id)
-    receivedEmail = await getRepository(ReceivedEmail).save({
-      user: { id: user.id },
-      from,
-      to: newsletterEmail.address,
-      subject: title,
-      text,
-      html: '',
-      type: 'non-article',
-    })
+    receivedEmail = await authTrx(
+      (t) =>
+        t.getRepository(ReceivedEmail).save({
+          user: { id: user.id },
+          from,
+          to: newsletterEmail.address,
+          subject: title,
+          text,
+          html: '',
+          type: 'non-article',
+        }),
+      undefined,
+      user.id
+    )
   })
 
   after(async () => {

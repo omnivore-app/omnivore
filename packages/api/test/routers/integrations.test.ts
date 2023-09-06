@@ -10,7 +10,7 @@ import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
 import { PubSubRequestBody } from '../../src/pubsub'
-import { getRepository } from '../../src/repository'
+import { authTrx, getRepository } from '../../src/repository'
 import { createHighlight, getHighlightUrl } from '../../src/services/highlights'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { deleteLibraryItemById } from '../../src/services/library_item'
@@ -125,11 +125,16 @@ describe('Integrations routers', () => {
           let highlightsData: string
 
           before(async () => {
-            integration = await getRepository(Integration).save({
-              user: { id: user.id },
-              name: 'READWISE',
-              token: 'token',
-            })
+            integration = await authTrx(
+              (t) =>
+                t.getRepository(Integration).save({
+                  user: { id: user.id },
+                  name: 'READWISE',
+                  token: 'token',
+                }),
+              undefined,
+              user.id
+            )
             integrationName = integration.name
             // create page
             item = await createTestLibraryItem(user.id)
@@ -327,12 +332,17 @@ describe('Integrations routers', () => {
     before(async () => {
       token = 'test token'
       // create integration
-      integration = await getRepository(Integration).save({
-        user: { id: user.id },
-        name: 'POCKET',
-        token,
-        type: IntegrationType.Import,
-      })
+      integration = await authTrx(
+        (t) =>
+          t.getRepository(Integration).save({
+            user: { id: user.id },
+            name: 'POCKET',
+            token,
+            type: IntegrationType.Import,
+          }),
+        undefined,
+        user.id
+      )
 
       // mock Pocket API
       const reqBody = {

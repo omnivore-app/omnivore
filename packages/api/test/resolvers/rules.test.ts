@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import 'mocha'
 import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
+import { authTrx, getRepository } from '../../src/repository'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
@@ -89,13 +89,18 @@ describe('Rules Resolver', () => {
 
   describe('get rules', () => {
     before(async () => {
-      await getRepository(Rule).save({
-        user: { id: user.id },
-        name: 'test rule',
-        filter: 'test filter',
-        actions: [{ type: RuleActionType.SendNotification, params: [] }],
-        enabled: true,
-      })
+      await authTrx(
+        (t) =>
+          t.getRepository(Rule).save({
+            user: { id: user.id },
+            name: 'test rule',
+            filter: 'test filter',
+            actions: [{ type: RuleActionType.SendNotification, params: [] }],
+            enabled: true,
+          }),
+        undefined,
+        user.id
+      )
     })
 
     after(async () => {
@@ -137,13 +142,18 @@ describe('Rules Resolver', () => {
     let rule: Rule
 
     before(async () => {
-      rule = await getRepository(Rule).save({
-        user: { id: user.id },
-        name: 'test rule',
-        filter: 'test filter',
-        actions: [{ type: RuleActionType.SendNotification, params: [] }],
-        enabled: true,
-      })
+      rule = await authTrx(
+        (t) =>
+          t.getRepository(Rule).save({
+            user: { id: user.id },
+            name: 'test rule',
+            filter: 'test filter',
+            actions: [{ type: RuleActionType.SendNotification, params: [] }],
+            enabled: true,
+          }),
+        undefined,
+        user.id
+      )
     })
 
     const deleteRulesQuery = (id: string) => `

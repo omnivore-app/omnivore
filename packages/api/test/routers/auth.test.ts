@@ -5,6 +5,7 @@ import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
 import { StatusType, User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
+import { userRepository } from '../../src/repository/user'
 import { AuthProvider } from '../../src/routers/auth/auth_types'
 import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
 import { searchLibraryItems } from '../../src/services/library_item'
@@ -585,8 +586,8 @@ describe('auth router', () => {
       let provider: AuthProvider = 'EMAIL'
 
       afterEach(async () => {
-        const user = await getRepository(User).findOneBy({ name })
-        await deleteTestUser(user!.id)
+        const user = await userRepository.findOneByOrFail({ name })
+        await deleteTestUser(user.id)
       })
 
       it('adds popular reads to the library', async () => {
@@ -625,7 +626,7 @@ describe('auth router', () => {
           pendingUserToken!,
           'ios'
         ).expect(200)
-        const user = await getRepository(User).findOneByOrFail({ name })
+        const user = await userRepository.findOneByOrFail({ name })
         const { count } = await searchLibraryItems({}, user.id)
 
         expect(count).to.eql(4)

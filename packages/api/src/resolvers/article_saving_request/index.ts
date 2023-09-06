@@ -96,6 +96,6 @@ export const articleSavingRequestResolver = authorized<
     }
   } catch (error) {
     log.error('articleSavingRequestResolver error', error)
-    return { errorCodes: [ArticleSavingRequestErrorCode.Unauthorized] }
+    return { errorCodes: [ArticleSavingRequestErrorCode.NotFound] }
   }
 })

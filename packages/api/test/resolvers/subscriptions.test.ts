@@ -11,9 +11,9 @@ import {
 } from '../../src/generated/graphql'
 import {
   unsubscribe,
+  UNSUBSCRIBE_EMAIL_TEXT
 } from '../../src/services/subscriptions'
-import { getRepository } from '../../src/repository'
-import { UNSUBSCRIBE_EMAIL_TEXT } from '../../src/services/subscriptions'
+import { authTrx, getRepository } from '../../src/repository'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestSubscription, createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
@@ -35,11 +35,16 @@ describe('Subscriptions API', () => {
     authToken = res.body.authToken
 
     // create test newsletter subscriptions
-    const newsletterEmail = await getRepository(NewsletterEmail).save({
-      user,
-      address: 'test@inbox.omnivore.app',
-      confirmationCode: 'test',
-    })
+    const newsletterEmail = await authTrx(
+      (t) =>
+        t.getRepository(NewsletterEmail).save({
+          user,
+          address: 'test@inbox.omnivore.app',
+          confirmationCode: 'test',
+        }),
+      undefined,
+      user.id
+    )
 
     //  create testing newsletter subscriptions
     const sub1 = await createTestSubscription(user, 'sub_1', newsletterEmail)

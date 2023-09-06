@@ -3,7 +3,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { Webhook } from '../../src/entity/webhook'
 import { WebhookEvent } from '../../src/generated/graphql'
-import { getRepository } from '../../src/repository'
+import { authTrx, getRepository } from '../../src/repository'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
@@ -21,18 +21,23 @@ describe('Webhooks API', () => {
     authToken = res.body.authToken
 
     // create test webhooks
-    await getRepository(Webhook).save([
-      {
-        url: 'http://localhost:3000/webhooks/test',
-        user: { id: user.id },
-        eventTypes: [WebhookEvent.PageCreated],
-      },
-      {
-        url: 'http://localhost:3000/webhooks/test',
-        user: { id: user.id },
-        eventTypes: [WebhookEvent.PageUpdated],
-      },
-    ])
+    await authTrx(
+      (t) =>
+        t.getRepository(Webhook).save([
+          {
+            url: 'http://localhost:3000/webhooks/test',
+            user: { id: user.id },
+            eventTypes: [WebhookEvent.PageCreated],
+          },
+          {
+            url: 'http://localhost:3000/webhooks/test',
+            user: { id: user.id },
+            eventTypes: [WebhookEvent.PageUpdated],
+          },
+        ]),
+      undefined,
+      user.id
+    )
   })
 
   after(async () => {

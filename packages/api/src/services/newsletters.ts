@@ -32,11 +32,14 @@ export const createNewsletterEmail = async (
   // generate a random email address with username prefix
   const emailAddress = createRandomEmailAddress(user.profile.username, 8)
 
-  return authTrx((t) =>
-    t.getRepository(NewsletterEmail).save({
-      address: emailAddress,
-      user: user,
-    })
+  return authTrx(
+    (t) =>
+      t.getRepository(NewsletterEmail).save({
+        address: emailAddress,
+        user: user,
+      }),
+    undefined,
+    userId
   )
 }
 

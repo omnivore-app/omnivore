@@ -1,7 +1,7 @@
 import { AbuseReport } from '../entity/reports/abuse_report'
 import { ContentDisplayReport } from '../entity/reports/content_display_report'
 import { ReportItemInput, ReportType } from '../generated/graphql'
-import { authTrx } from '../repository'
+import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { findLibraryItemById } from './library_item'
 
@@ -18,16 +18,14 @@ export const saveContentDisplayReport = async (
   // We capture the article content and original html now, in case it
   // reparsed or updated later, this gives us a view of exactly
   // what the user saw.
-  const result = await authTrx((tx) =>
-    tx.getRepository(ContentDisplayReport).save({
-      user: { id: uid },
-      content: item.readableContent,
-      originalHtml: item.originalContent || undefined,
-      originalUrl: item.originalUrl,
-      reportComment: input.reportComment,
-      libraryItemId: item.id,
-    })
-  )
+  const result = await getRepository(ContentDisplayReport).save({
+    user: { id: uid },
+    content: item.readableContent,
+    originalHtml: item.originalContent || undefined,
+    originalUrl: item.originalUrl,
+    reportComment: input.reportComment,
+    libraryItemId: item.id,
+  })
 
   return !!result
 }

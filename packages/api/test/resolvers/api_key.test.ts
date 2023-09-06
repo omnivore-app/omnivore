@@ -9,13 +9,13 @@ import { graphqlRequest, request } from '../util'
 const testAPIKey = (apiKey: string): supertest.Test => {
   const query = `
     query {
-      articles(first: 1) {
-        ... on ArticlesSuccess {
+      search(first: 1) {
+        ... on SearchSuccess {
           edges {
             cursor
           }
         }
-        ... on ArticlesError {
+        ... on SearchError {
           errorCodes
         }
       }
