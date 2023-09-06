@@ -35,7 +35,6 @@ export async function deleteRuleMutation(id: string): Promise<Rule> {
   const data = (await gqlFetcher(mutation, { id })) as DeleteRuleResult
   const output = data as any
   const error = data.deleteRule?.errorCodes?.find(() => true)
-  console.log('DATA: ', output.deleteRule)
   if (error) {
     throw error
   }

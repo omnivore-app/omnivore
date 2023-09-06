@@ -155,6 +155,17 @@ export function EmailSignup(): JSX.Element {
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
 
+        <StyledText
+          style="caption"
+          css={{
+            p: '0px',
+            color: '$omnivoreLightGray',
+          }}
+        >
+          Omnivore will send you daily tips for your first week as a new user.
+          If you don&apos;t like them you can unsubscribe.
+        </StyledText>
+
         <HStack
           alignment="center"
           distribution="end"

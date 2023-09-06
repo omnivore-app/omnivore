@@ -35,6 +35,9 @@ import {
 import { LabelChip } from '../../components/elements/LabelChip'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
+import { SuggestionBox } from '../../components/elements/SuggestionBox'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { FeatureHelpBox } from '../../components/elements/FeatureHelpBox'
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -153,6 +156,10 @@ export default function LabelsPage(): JSX.Element {
   const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
     string | null
   >(null)
+  const [showLabelPageHelp, setShowLabelPageHelp] = usePersistedState<boolean>({
+    key: `--settings-labels-show-help`,
+    initialValue: true,
+  })
   const breakpoint = 768
 
   applyStoredTheme(false)
@@ -270,6 +277,23 @@ export default function LabelsPage(): JSX.Element {
               onOpenChange={() => setConfirmRemoveLabelId(null)}
             />
           ) : null}
+          {showLabelPageHelp && (
+            <FeatureHelpBox
+              helpTitle="Use labels to organize your library and optimize your workflow."
+              helpMessage="Use this page to view and edit all your labels. Labels can be attached to individual library items, or your highlights, and are used to keep your library organized."
+              docsMessage={'Read the Docs'}
+              docsDestination="https://docs.omnivore.app/using/organizing.html#labels"
+              onDismiss={() => {
+                setShowLabelPageHelp(false)
+              }}
+              helpCTAText="Create a label"
+              onClickCTA={() => {
+                resetLabelState()
+                handleGenerateRandomColor()
+                setIsCreateMode(true)
+              }}
+            />
+          )}
           <HeaderWrapper>
             <Box
               style={{
@@ -305,24 +329,11 @@ export default function LabelsPage(): JSX.Element {
                     >
                       <SpanBox
                         css={{
-                          display: 'none',
-                          '@md': {
-                            display: 'flex',
-                          },
-                        }}
-                      >
-                        <SpanBox>Add Label</SpanBox>
-                      </SpanBox>
-                      <SpanBox
-                        css={{
-                          p: '0',
                           display: 'flex',
-                          '@md': {
-                            display: 'none',
-                          },
+                          '@md': {},
                         }}
                       >
-                        <Plus size={24} />
+                        <SpanBox>Create a label</SpanBox>
                       </SpanBox>
                     </Button>
                   </>

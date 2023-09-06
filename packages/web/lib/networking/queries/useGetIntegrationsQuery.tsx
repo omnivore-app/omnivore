@@ -53,8 +53,6 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
   `
 
   const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
-  console.log('integrations data', data)
-
   try {
     if (data) {
       const result = data as IntegrationsQueryResponseData

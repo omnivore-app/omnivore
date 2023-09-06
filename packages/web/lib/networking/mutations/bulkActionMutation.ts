@@ -45,8 +45,6 @@ export async function bulkActionMutation(
     }
   `
 
-  console.log('bulkActionbulkActionMutation', mutation)
-
   try {
     const response = await gqlFetcher(mutation, {
       action,
@@ -54,7 +52,6 @@ export async function bulkActionMutation(
       labelIds,
       expectedCount,
     })
-    console.log('response', response)
     const data = response as BulkActionResponse | undefined
     return data?.bulkAction?.success ?? false
   } catch (error) {

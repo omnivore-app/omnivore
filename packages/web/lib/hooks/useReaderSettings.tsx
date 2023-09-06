@@ -99,7 +99,6 @@ export const useReaderSettings = (): ReaderSettings => {
           break
         case 'setMarginWidth': {
           const value = Number(arg)
-          console.log('setMarginWidth: ', value)
           if (value >= 200 && value <= 560) {
             setMarginWidth(value)
           }
