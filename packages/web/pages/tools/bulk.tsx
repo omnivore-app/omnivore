@@ -47,16 +47,24 @@ export default function BulkPerformer(): JSX.Element {
   const performAction = useCallback(() => {
     ;(async () => {
       console.log('performing action: ', action)
+      if (isValidating) {
+        showErrorToast('Query still being validated.')
+        return
+      }
       if (!action) {
         showErrorToast('Unable to run action, no action set.')
         return
       }
+      if (!expectedCount) {
+        showErrorToast('No items matching this query or query still running.')
+        return
+      }
+      if (!action) {
+        showErrorToast('No action selected')
+        return
+      }
       try {
-        // action: BulkAction,
-        // query: string,
-        // expectedCount: number,
-        // labelIds?: string[]
-        const success = await bulkActionMutation(action, query, size)
+        const success = await bulkActionMutation(action, query, expectedCount)
         if (!success) {
           throw 'Success not returned'
         }
@@ -66,7 +74,7 @@ export default function BulkPerformer(): JSX.Element {
         showErrorToast('Error performing bulk action.')
       }
     })()
-  }, [action])
+  }, [action, query, expectedCount])
 
   return (
     <ProfileLayout logoDestination="/home">
