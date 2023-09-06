@@ -4,27 +4,19 @@ import { DateTime } from 'luxon'
 import 'mocha'
 import nock from 'nock'
 import sinon from 'sinon'
-import {
-  createPubSubClient,
-  PubSubRequestBody,
-} from '../../src/pubsub'
-import { addHighlightToPage } from '../../src/elastic/highlights'
-import { deletePage } from '../../src/elastic/pages'
-import {
-  Highlight,
-  HighlightType,
-  Page,
-  PageContext,
-} from '../../src/elastic/types'
+import { Highlight } from '../../src/entity/highlight'
 import { Integration, IntegrationType } from '../../src/entity/integration'
+import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
+import { PubSubRequestBody } from '../../src/pubsub'
 import { getRepository } from '../../src/repository'
-import { getHighlightUrl } from '../../src/services/highlights'
+import { createHighlight, getHighlightUrl } from '../../src/services/highlights'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
+import { deleteLibraryItemById } from '../../src/services/library_item'
 import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
 import { MockBucket } from '../mock_storage'
-import { createTestElasticPage, request } from '../util'
+import { createTestLibraryItem, request } from '../util'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -128,8 +120,7 @@ describe('Integrations routers', () => {
 
         context('when integration is readwise and enabled', () => {
           let integration: Integration
-          let ctx: PageContext
-          let page: Page
+          let item: LibraryItem
           let highlight: Highlight
           let highlightsData: string
 
@@ -141,42 +132,37 @@ describe('Integrations routers', () => {
             })
             integrationName = integration.name
             // create page
-            page = await createTestElasticPage(user.id)
-            ctx = {
-              uid: user.id,
-              pubsub: createPubSubClient(),
-              refresh: true,
-            }
+            item = await createTestLibraryItem(user.id)
+
             // create highlight
             const highlightPositionPercent = 25
-            highlight = {
-              createdAt: new Date(),
-              id: 'test id',
-              patch: 'test patch',
-              quote: 'test quote',
-              shortId: 'test shortId',
-              updatedAt: new Date(),
-              userId: user.id,
-              highlightPositionPercent,
-              type: HighlightType.Highlight,
-            }
-            await addHighlightToPage(page.id, highlight, ctx)
+            highlight = await createHighlight(
+              {
+                patch: 'test patch',
+                quote: 'test quote',
+                shortId: 'test shortId',
+                highlightPositionPercent,
+                user,
+              },
+              item.id,
+              user.id
+            )
             // create highlights data for integration request
             highlightsData = JSON.stringify({
               highlights: [
                 {
                   text: highlight.quote,
-                  title: page.title,
-                  author: page.author,
-                  highlight_url: getHighlightUrl(page.slug, highlight.id),
+                  title: item.title,
+                  author: item.author,
+                  highlight_url: getHighlightUrl(item.slug, highlight.id),
                   highlighted_at: highlight.createdAt.toISOString(),
                   category: 'articles',
-                  image_url: page.image,
+                  image_url: item.thumbnail,
                   // location: highlightPositionPercent,
                   location_type: 'order',
                   note: highlight.annotation,
                   source_type: 'omnivore',
-                  source_url: page.url,
+                  source_url: item.originalUrl,
                 },
               ],
             })
@@ -184,7 +170,7 @@ describe('Integrations routers', () => {
 
           after(async () => {
             await deleteTestIntegrations(user.id, [integration.id])
-            await deletePage(page.id, ctx)
+            await deleteLibraryItemById(item.id)
           })
 
           context('when action is sync_updated', () => {
@@ -200,7 +186,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'page',
-                        id: page.id,
+                        id: item.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),
@@ -267,7 +253,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'highlight',
-                        articleId: page.id,
+                        articleId: item.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),

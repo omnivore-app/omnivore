@@ -3,11 +3,11 @@ import chai, { expect } from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
-import { searchLibraryItems } from '../../src/elastic/pages'
 import { StatusType, User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
 import { AuthProvider } from '../../src/routers/auth/auth_types'
 import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
+import { searchLibraryItems } from '../../src/services/library_item'
 import {
   comparePassword,
   generateVerificationToken,
@@ -604,11 +604,8 @@ describe('auth router', () => {
           pendingUserToken!,
           'web'
         ).expect(200)
-        const user = await getRepository(User).findOneBy({ name })
-        const [popularReads, count] = (await searchLibraryItems(
-          {},
-          user?.id!
-        )) || [[], 0]
+        const user = await getRepository(User).findOneByOrFail({ name })
+        const { count } = await searchLibraryItems({}, user.id)
 
         expect(count).to.eql(3)
       })
@@ -628,11 +625,8 @@ describe('auth router', () => {
           pendingUserToken!,
           'ios'
         ).expect(200)
-        const user = await getRepository(User).findOneBy({ name })
-        const [popularReads, count] = (await searchLibraryItems(
-          {},
-          user?.id!
-        )) || [[], 0]
+        const user = await getRepository(User).findOneByOrFail({ name })
+        const { count } = await searchLibraryItems({}, user.id)
 
         expect(count).to.eql(4)
       })

@@ -1,16 +1,17 @@
 import { expect } from 'chai'
-import { Page } from '../../src/elastic/types'
+import 'mocha'
+import { LibraryItem } from '../../src/entity/library_item'
 import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
 import { User } from '../../src/entity/user'
 import { ReportType } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createTestUser, deleteTestUser } from '../db'
-import { createTestElasticPage, graphqlRequest, request } from '../util'
+import { createTestLibraryItem, graphqlRequest, request } from '../util'
 
 describe('Report API', () => {
   let user: User
   let authToken: string
-  let page: Page
+  let item: LibraryItem
 
   before(async () => {
     // create test user and login
@@ -22,7 +23,7 @@ describe('Report API', () => {
     authToken = res.body.authToken
 
     // create a page
-    page = await createTestElasticPage(user.id)
+    item = await createTestLibraryItem(user.id)
   })
 
   after(async () => {
@@ -54,18 +55,17 @@ describe('Report API', () => {
 
     context('when page exists and report is content display', () => {
       before(() => {
-        pageId = page.id
+        pageId = item.id
         reportTypes = [ReportType.ContentDisplay]
       })
 
       it('should report an item', async () => {
         await graphqlRequest(query, authToken).expect(200)
 
-        expect(
-          await getRepository(ContentDisplayReport).findBy({
-            elasticPageId: pageId,
-          })
-        ).to.exist
+        const report = await getRepository(ContentDisplayReport).findOneBy({
+          libraryItemId: item.id,
+        })
+        expect(report).to.exist
       })
     })
   })

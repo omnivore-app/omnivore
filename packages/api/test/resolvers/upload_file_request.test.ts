@@ -1,13 +1,14 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
+import chaiString from 'chai-string'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import chaiString from 'chai-string'
-import { PageContext } from '../../src/elastic/types'
-import { createPubSubClient } from '../../src/pubsub'
-import { deletePage, getPageById } from '../../src/elastic/pages'
+import {
+  deleteLibraryItemById,
+  findLibraryItemById,
+} from '../../src/services/library_item'
+import { createTestUser, deleteTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
 
@@ -48,7 +49,6 @@ const uploadFileRequest = async (
 describe('uploadFileRequest API', () => {
   let authToken: string
   let user: User
-  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -58,12 +58,6 @@ describe('uploadFileRequest API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-
-    ctx = {
-      pubsub: createPubSubClient(),
-      refresh: true,
-      uid: user.id,
-    }
   })
 
   after(async () => {
@@ -75,7 +69,7 @@ describe('uploadFileRequest API', () => {
       const clientRequestId = generateFakeUuid()
 
       after(async () => {
-        await deletePage(clientRequestId, ctx)
+        await deleteLibraryItemById(clientRequestId)
       })
 
       xit('should create an article if create article is true', async () => {
@@ -88,8 +82,8 @@ describe('uploadFileRequest API', () => {
         expect(res.body.data.uploadFileRequest.createdPageId).to.eql(
           clientRequestId
         )
-        const page = await getPageById(clientRequestId)
-        expect(page).to.be
+        const item = await findLibraryItemById(clientRequestId, user.id)
+        expect(item).to.be
       })
 
       xit('should not save a file:// URL', async () => {
@@ -102,8 +96,8 @@ describe('uploadFileRequest API', () => {
         expect(res.body.data.uploadFileRequest.createdPageId).to.eql(
           clientRequestId
         )
-        const page = await getPageById(clientRequestId)
-        expect(page?.url).to.startWith('https://')
+        const item = await findLibraryItemById(clientRequestId, user.id)
+        expect(item?.originalUrl).to.startWith('https://')
       })
     })
   })

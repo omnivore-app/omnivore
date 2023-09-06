@@ -1,12 +1,12 @@
 import { expect } from 'chai'
 import 'mocha'
 import nock from 'nock'
-import { getPageByParam } from '../../src/elastic/pages'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
+import { findLibraryItemByUrl } from '../../src/services/library_item'
 import { createNewsletterEmail } from '../../src/services/newsletters'
 import { saveNewsletter } from '../../src/services/save_newsletter_email'
 import { createTestUser, deleteTestUser } from '../db'
@@ -59,12 +59,12 @@ describe('saveNewsletterEmail', () => {
       newsletterEmail
     )
 
-    const page = await getPageByParam({ userId: user.id, url })
-    expect(page).to.exist
-    expect(page?.url).to.equal(url)
-    expect(page?.title).to.equal(title)
-    expect(page?.author).to.equal(author)
-    expect(page?.content).to.contain(fakeContent)
+    const item = await findLibraryItemByUrl(url, user.id)
+    expect(item).to.exist
+    expect(item?.originalUrl).to.equal(url)
+    expect(item?.title).to.equal(title)
+    expect(item?.author).to.equal(author)
+    expect(item?.readableContent).to.contain(fakeContent)
 
     const subscriptions = await getRepository(Subscription).findBy({
       newsletterEmail: { id: newsletterEmail.id },
@@ -94,8 +94,8 @@ describe('saveNewsletterEmail', () => {
       newsletterEmail
     )
 
-    const page = await getPageByParam({ userId: user.id, url })
-    expect(page?.labels?.[0]).to.deep.include(newLabel)
+    const item = await findLibraryItemByUrl(url, user.id)
+    expect(item?.labels?.[0]).to.deep.include(newLabel)
   })
 
   it('does not create a subscription if no unsubscribe header', async () => {

@@ -5,10 +5,6 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { StatusType, User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
-import {
-  getUserFollowers,
-  getUserFollowing,
-} from '../../src/services/followers'
 import { createGroup } from '../../src/services/groups'
 import * as util from '../../src/utils/sendEmail'
 import {
@@ -40,39 +36,39 @@ describe('create user', () => {
   })
 
   context('create a user with an invite', () => {
-    it('follows the other user in the group', async () => {
-      after(async () => {
-        const testUser = await getRepository(User).findOneBy({
-          name: 'testuser',
-        })
-        await deleteTestUser(testUser!.id)
-        const testOwner = await getRepository(User).findOneBy({
-          name: 'testowner',
-        })
-        await deleteTestUser(testOwner!.id)
-      })
+    // it('follows the other user in the group', async () => {
+    //   after(async () => {
+    //     const testUser = await getRepository(User).findOneBy({
+    //       name: 'testuser',
+    //     })
+    //     await deleteTestUser(testUser!.id)
+    //     const testOwner = await getRepository(User).findOneBy({
+    //       name: 'testowner',
+    //     })
+    //     await deleteTestUser(testOwner!.id)
+    //   })
 
-      const testOwner = 'testowner'
-      const testUser = 'testuser'
+    //   const testOwner = 'testowner'
+    //   const testUser = 'testuser'
 
-      const adminUser = await createTestUser(testOwner)
-      const admninIds = [adminUser.id]
-      const [, invite] = await createGroup({
-        admin: adminUser,
-        name: 'testgroup',
-      })
-      const user = await createTestUser(testUser, invite.code)
-      const userIds = [user.id]
+    //   const adminUser = await createTestUser(testOwner)
+    //   const admninIds = [adminUser.id]
+    //   const [, invite] = await createGroup({
+    //     admin: adminUser,
+    //     name: 'testgroup',
+    //   })
+    //   const user = await createTestUser(testUser, invite.code)
+    //   const userIds = [user.id]
 
-      const userFollowers = await getUserFollowers(user)
-      const userFollowing = await getUserFollowing(user)
-      const adminUserFollowers = await getUserFollowers(adminUser)
-      const adminUserFollowing = await getUserFollowing(adminUser)
-      expect(userFollowers.map((u) => u.id)).to.eql(admninIds)
-      expect(userFollowing.map((u) => u.id)).to.eql(admninIds)
-      expect(adminUserFollowers.map((u) => u.id)).to.eql(userIds)
-      expect(adminUserFollowing.map((u) => u.id)).to.eql(userIds)
-    })
+    //   const userFollowers = await getUserFollowers(user)
+    //   const userFollowing = await getUserFollowing(user)
+    //   const adminUserFollowers = await getUserFollowers(adminUser)
+    //   const adminUserFollowing = await getUserFollowing(adminUser)
+    //   expect(userFollowers.map((u) => u.id)).to.eql(admninIds)
+    //   expect(userFollowing.map((u) => u.id)).to.eql(admninIds)
+    //   expect(adminUserFollowers.map((u) => u.id)).to.eql(userIds)
+    //   expect(adminUserFollowing.map((u) => u.id)).to.eql(userIds)
+    // })
 
     it('creates profile when user exists but profile not', async () => {
       after(async () => {

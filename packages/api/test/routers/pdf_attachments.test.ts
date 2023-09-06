@@ -1,14 +1,14 @@
+import { expect } from 'chai'
+import * as jwt from 'jsonwebtoken'
+import 'mocha'
+import { User } from '../../src/entity/user'
+import { findLibraryItemById } from '../../src/services/library_item'
 import {
   createTestNewsletterEmail,
   createTestUser,
   deleteTestUser,
 } from '../db'
 import { request } from '../util'
-import { User } from '../../src/entity/user'
-import 'mocha'
-import * as jwt from 'jsonwebtoken'
-import { expect } from 'chai'
-import { getPageById } from '../../src/elastic/pages'
 
 describe('PDF attachments Router', () => {
   const newsletterEmail = 'fakeEmail@omnivore.app'
@@ -75,9 +75,9 @@ describe('PDF attachments Router', () => {
         .expect(200)
 
       expect(res2.body.id).to.be.a('string')
-      const link = await getPageById(res2.body.id)
+      const item = await findLibraryItemById(res2.body.id, user.id)
 
-      expect(link).to.exist
+      expect(item).to.exist
     })
   })
 })

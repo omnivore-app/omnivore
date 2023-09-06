@@ -1,10 +1,10 @@
 import supertest from 'supertest'
+import { DeepPartial } from 'typeorm'
 import { v4 } from 'uuid'
-import { createPage } from '../src/elastic/pages'
-import { ArticleSavingRequestStatus, Label, Page } from '../src/elastic/types'
-import { PageType } from '../src/generated/graphql'
-import { createPubSubClient } from '../src/pubsub'
+import { Label } from '../src/entity/label'
+import { LibraryItem } from '../src/entity/library_item'
 import { createApp } from '../src/server'
+import { createLibraryItem } from '../src/services/library_item'
 import { corsConfig } from '../src/utils/corsConfig'
 
 const { app, apollo } = createApp()
@@ -37,31 +37,18 @@ export const generateFakeUuid = () => {
   return v4()
 }
 
-export const createTestElasticPage = async (
+export const createTestLibraryItem = async (
   userId: string,
   labels?: Label[]
-): Promise<Page> => {
-  const page: Page = {
-    id: '',
-    hash: 'test hash',
-    userId,
-    pageType: PageType.Article,
+): Promise<LibraryItem> => {
+  const item: DeepPartial<LibraryItem> = {
+    user: { id: userId },
     title: 'test title',
-    content: '<p>test content</p>',
-    createdAt: new Date(),
-    savedAt: new Date(),
-    url: 'https://blog.omnivore.app/test-url',
+    originalContent: '<p>test content</p>',
+    originalUrl: 'https://blog.omnivore.app/test-url',
     slug: 'test-with-omnivore',
-    labels: labels,
-    readingProgressPercent: 0,
-    readingProgressAnchorIndex: 0,
-    state: ArticleSavingRequestStatus.Succeeded,
+    labels,
   }
 
-  page.id = (await createPage(page, {
-    pubsub: createPubSubClient(),
-    refresh: true,
-    uid: userId,
-  }))!
-  return page
+  return createLibraryItem(item, userId)
 }

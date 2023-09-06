@@ -1,21 +1,19 @@
 import { expect } from 'chai'
 import 'mocha'
-import { createPubSubClient } from '../../src/pubsub'
-import { refreshIndex } from '../../src/elastic'
-import {
-  addHighlightToPage,
-  getHighlightById,
-} from '../../src/elastic/highlights'
-import { deletePage, getPageById } from '../../src/elastic/pages'
-import {
-  Highlight,
-  HighlightType,
-  Page,
-  PageContext,
-} from '../../src/elastic/types'
+import { DeepPartial } from 'typeorm'
+import { Highlight } from '../../src/entity/highlight'
 import { Label } from '../../src/entity/label'
+import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
+import {
+  createHighlight,
+  findHighlightById,
+} from '../../src/services/highlights'
+import {
+  deleteLibraryItemById,
+  findLibraryItemById,
+} from '../../src/services/library_item'
 import {
   createTestLabel,
   createTestUser,
@@ -23,7 +21,7 @@ import {
   deleteTestUser,
 } from '../db'
 import {
-  createTestElasticPage,
+  createTestLibraryItem,
   generateFakeUuid,
   graphqlRequest,
   request,
@@ -32,7 +30,6 @@ import {
 describe('Labels API', () => {
   let user: User
   let authToken: string
-  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -41,11 +38,6 @@ describe('Labels API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
     authToken = res.body.authToken
-    ctx = {
-      pubsub: createPubSubClient(),
-      refresh: true,
-      uid: user.id,
-    }
   })
 
   after(async () => {
@@ -250,62 +242,57 @@ describe('Labels API', () => {
       })
 
       context('when a page has this label', () => {
-        let page: Page
+        let item: LibraryItem
 
         before(async () => {
           toDeleteLabel = await createTestLabel(user, 'page label', '#ffffff')
           labelId = toDeleteLabel.id
-          page = await createTestElasticPage(user.id, [toDeleteLabel])
+          item = await createTestLibraryItem(user.id, [toDeleteLabel])
         })
 
         after(async () => {
-          await deletePage(page.id, ctx)
+          await deleteLibraryItemById(item.id)
         })
 
         it('should update page', async () => {
           await graphqlRequest(query, authToken).expect(200)
-          await refreshIndex()
 
-          const updatedPage = await getPageById(page.id)
-          expect(updatedPage?.labels).not.deep.include(toDeleteLabel)
+          const updatedItem = await findLibraryItemById(item.id, user.id)
+          expect(updatedItem?.labels).not.deep.include(toDeleteLabel)
         })
       })
 
       context('when a highlight has this label', () => {
         const highlightId = generateFakeUuid()
-        let page: Page
+        let item: LibraryItem
 
         before(async () => {
-          page = await createTestElasticPage(user.id)
+          item = await createTestLibraryItem(user.id)
           toDeleteLabel = await createTestLabel(
             user,
             'highlight label',
             '#ffffff'
           )
           labelId = toDeleteLabel.id
-          const highlight: Highlight = {
+          const highlight: DeepPartial<Highlight> = {
             id: highlightId,
             patch: 'test patch',
             quote: 'test quote',
             shortId: 'test shortId',
-            userId: user.id,
-            createdAt: new Date(),
             labels: [toDeleteLabel],
-            updatedAt: new Date(),
-            type: HighlightType.Highlight,
+            user,
           }
-          await addHighlightToPage(page.id, highlight, ctx)
+          await createHighlight(highlight, item.id, user.id)
         })
 
         after(async () => {
-          await deletePage(page.id, ctx)
+          await deleteLibraryItemById(item.id)
         })
 
         it('should update highlight', async () => {
           await graphqlRequest(query, authToken).expect(200)
-          await refreshIndex()
 
-          const updatedHighlight = await getHighlightById(highlightId)
+          const updatedHighlight = await findHighlightById(highlightId, user.id)
           expect(updatedHighlight?.labels).not.deep.include(toDeleteLabel)
         })
       })
@@ -340,17 +327,17 @@ describe('Labels API', () => {
 
   describe('Set labels', () => {
     let query: string
-    let pageId: string
+    let itemId: string
     let labelIds: string[] = []
     let labels: Label[]
-    let page: Page
+    let item: LibraryItem
 
     before(async () => {
       //  create testing labels
       const label1 = await createTestLabel(user, 'label_1', '#ffffff')
       const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
       labels = [label1, label2]
-      page = await createTestElasticPage(user.id)
+      item = await createTestLibraryItem(user.id)
     })
 
     after(async () => {
@@ -359,7 +346,7 @@ describe('Labels API', () => {
         user.id,
         labels.map((l) => l.id)
       )
-      await deletePage(page.id, ctx)
+      await deleteLibraryItemById(item.id)
     })
 
     beforeEach(() => {
@@ -367,7 +354,7 @@ describe('Labels API', () => {
         mutation {
           setLabels(
             input: {
-              pageId: "${pageId}",
+              pageId: "${itemId}",
               labelIds: [
                 "${labelIds[0]}",
                 "${labelIds[1]}"
@@ -390,20 +377,20 @@ describe('Labels API', () => {
 
     context('when labels exists', () => {
       before(() => {
-        pageId = page.id
+        itemId = item.id
         labelIds = [labels[0].id, labels[1].id]
       })
 
       it('should set labels', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const page = await getPageById(pageId)
+        const page = await findLibraryItemById(itemId, user.id)
         expect(page?.labels?.map((l) => l.id)).to.eql(labelIds)
       })
     })
 
     context('when labels not exist', () => {
       before(() => {
-        pageId = page.id
+        itemId = item.id
         labelIds = [generateFakeUuid(), generateFakeUuid()]
       })
 
@@ -413,9 +400,9 @@ describe('Labels API', () => {
       })
     })
 
-    context('when page not exist', () => {
+    context('when item not exist', () => {
       before(() => {
-        pageId = generateFakeUuid()
+        itemId = generateFakeUuid()
         labelIds = [labels[0].id, labels[1].id]
       })
 
@@ -504,22 +491,22 @@ describe('Labels API', () => {
         expect(updatedLabel?.color).to.eql(color)
       })
 
-      context('when a page has the label', () => {
-        let page: Page
+      context('when an item has the label', () => {
+        let item: LibraryItem
 
         before(async () => {
-          page = await createTestElasticPage(user.id, [toUpdateLabel])
+          item = await createTestLibraryItem(user.id, [toUpdateLabel])
         })
 
         after(async () => {
-          await deletePage(page.id, ctx)
+          await deleteLibraryItemById(item.id)
         })
 
-        it('should update the page with the label', async () => {
+        it('should update the item with the label', async () => {
           await graphqlRequest(query, authToken).expect(200)
 
-          const updatedPage = await getPageById(page.id)
-          const updatedLabel = updatedPage?.labels?.filter(
+          const updatedItem = await findLibraryItemById(item.id, user.id)
+          const updatedLabel = updatedItem?.labels?.filter(
             (l) => l.id === labelId
           )?.[0]
 
@@ -546,14 +533,14 @@ describe('Labels API', () => {
     let highlightId: string
     let labelIds: string[] = []
     let labels: Label[]
-    let page: Page
+    let item: LibraryItem
 
     before(async () => {
       //  create testing labels
       const label1 = await createTestLabel(user, 'label_1', '#ffffff')
       const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
       labels = [label1, label2]
-      page = await createTestElasticPage(user.id)
+      item = await createTestLibraryItem(user.id)
     })
 
     after(async () => {
@@ -562,7 +549,7 @@ describe('Labels API', () => {
         user.id,
         labels.map((l) => l.id)
       )
-      await deletePage(page.id, ctx)
+      await deleteLibraryItemById(item.id)
     })
 
     beforeEach(() => {
@@ -594,17 +581,14 @@ describe('Labels API', () => {
     context('when labels exists', () => {
       before(async () => {
         highlightId = generateFakeUuid()
-        const highlight: Highlight = {
-          createdAt: new Date(),
+        const highlight: DeepPartial<Highlight> = {
           id: highlightId,
           patch: 'test patch',
           quote: 'test quote',
           shortId: 'test shortId',
-          userId: user.id,
-          updatedAt: new Date(),
-          type: HighlightType.Highlight,
+          user,
         }
-        await addHighlightToPage(page.id, highlight, ctx)
+        await createHighlight(highlight, item.id, user.id)
         labelIds = [labels[0].id, labels[1].id]
       })
 
@@ -619,17 +603,14 @@ describe('Labels API', () => {
     context('when labels not exist', () => {
       before(async () => {
         highlightId = generateFakeUuid()
-        const highlight: Highlight = {
-          createdAt: new Date(),
+        const highlight: DeepPartial<Highlight> = {
           id: highlightId,
           patch: 'test patch',
           quote: 'test quote',
           shortId: 'test shortId',
-          userId: user.id,
-          updatedAt: new Date(),
-          type: HighlightType.Highlight,
+          user,
         }
-        await addHighlightToPage(page.id, highlight, ctx)
+        await createHighlight(highlight, item.id, user.id)
         labelIds = [generateFakeUuid(), generateFakeUuid()]
       })
 

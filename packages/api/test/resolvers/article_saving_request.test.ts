@@ -1,17 +1,13 @@
 import { expect } from 'chai'
 import 'mocha'
 import sinon from 'sinon'
-import { createPubSubClient } from '../../src/pubsub'
-import { deletePagesByParam, getPageByParam } from '../../src/elastic/pages'
-import {
-  ArticleSavingRequestStatus,
-  PageContext,
-} from '../../src/elastic/types'
 import { User } from '../../src/entity/user'
 import {
   ArticleSavingRequestErrorCode,
+  ArticleSavingRequestStatus,
   CreateArticleSavingRequestErrorCode,
 } from '../../src/generated/graphql'
+import { findLibraryItemByUrl } from '../../src/services/library_item'
 import * as createTask from '../../src/utils/createTask'
 import { createTestUser, deleteTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
@@ -62,7 +58,6 @@ const createArticleSavingRequestMutation = (url: string) => `
 describe('ArticleSavingRequest API', () => {
   let authToken: string
   let user: User
-  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -73,17 +68,11 @@ describe('ArticleSavingRequest API', () => {
 
     authToken = res.body.authToken
 
-    ctx = {
-      pubsub: createPubSubClient(),
-      refresh: true,
-      uid: user.id,
-    }
     sinon.replace(createTask, 'enqueueParseRequest', sinon.fake.resolves(''))
   })
 
   after(async () => {
     // clean up
-    await deletePagesByParam({ userId: user.id }, ctx)
     await deleteTestUser(user.id)
     sinon.restore()
   })
@@ -100,15 +89,15 @@ describe('ArticleSavingRequest API', () => {
       ).to.eql(ArticleSavingRequestStatus.Processing)
     })
 
-    it('creates a page in elastic', async () => {
+    it('creates a library item in db', async () => {
       const url = 'https://blog.omnivore.app/1'
       await graphqlRequest(
         createArticleSavingRequestMutation('https://blog.omnivore.app/1'),
         authToken
       ).expect(200)
 
-      const page = await getPageByParam({ url })
-      expect(page?.content).to.eql('Your link is being saved...')
+      const item = await findLibraryItemByUrl(url, user.id)
+      expect(item?.readableContent).to.eql('Your link is being saved...')
     })
 
     it('returns an error if the url is invalid', async () => {

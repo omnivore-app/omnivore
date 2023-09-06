@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import 'mocha'
 import nock from 'nock'
-import { getPageByParam } from '../../src/elastic/pages'
 import { User } from '../../src/entity/user'
+import { findLibraryItemByUrl } from '../../src/services/library_item'
 import { saveEmail } from '../../src/services/save_email'
 import { createTestUser, deleteTestUser } from '../db'
 
@@ -51,14 +51,11 @@ describe('saveEmail', () => {
     })
     expect(secondResult).to.not.be.undefined
 
-    const page = await getPageByParam({
-      userId: user.id,
-      url,
-    })
-    expect(page).to.exist
-    expect(page?.url).to.equal(url)
-    expect(page?.title).to.equal(title)
-    expect(page?.author).to.equal(author)
-    expect(page?.content).to.contain(fakeContent)
+    const item = await findLibraryItemByUrl(url, user.id)
+    expect(item).to.exist
+    expect(item?.originalUrl).to.equal(url)
+    expect(item?.title).to.equal(title)
+    expect(item?.author).to.equal(author)
+    expect(item?.readableContent).to.contain(fakeContent)
   })
 })

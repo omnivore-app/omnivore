@@ -1,6 +1,6 @@
 import { createTestUser, deleteTestUser } from '../db'
 import {
-  createTestElasticPage,
+  createTestLibraryItem,
   generateFakeUuid,
   graphqlRequest,
   request,
@@ -11,8 +11,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { createPubSubClient } from '../../src/pubsub'
-import { HighlightType, PageContext } from '../../src/elastic/types'
-import { deletePage, updatePage } from '../../src/elastic/pages'
+import { updateLibraryItem } from '../../src/services/library_item'
 
 chai.use(chaiString)
 
@@ -143,7 +142,6 @@ describe('Highlights API', () => {
   let authToken: string
   let user: User
   let pageId: string
-  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -153,15 +151,11 @@ describe('Highlights API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-    pageId = (await createTestElasticPage(user.id)).id
-    ctx = { pubsub: createPubSubClient(), uid: user.id, refresh: true }
+    pageId = (await createTestLibraryItem(user.id)).id
   })
 
   after(async () => {
     await deleteTestUser(user.id)
-    if (pageId) {
-      await deletePage(pageId, ctx)
-    }
   })
 
   context('createHighlightMutation', () => {
@@ -256,7 +250,7 @@ describe('Highlights API', () => {
     before(async () => {
       // create test highlight
       highlightId = generateFakeUuid()
-      await updatePage(
+      await updateLibraryItem(
         pageId,
         {
           highlights: [
@@ -264,16 +258,13 @@ describe('Highlights API', () => {
               id: highlightId,
               shortId: '_short_id_3',
               annotation: '',
-              userId: user.id,
               patch: '',
               quote: '',
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              type: HighlightType.Highlight,
+              user,
             },
           ],
         },
-        ctx
+        user.id
       )
     })
 

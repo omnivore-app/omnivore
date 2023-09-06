@@ -100,3 +100,19 @@ export const deleteHighlightById = async (highlightId: string) => {
     return highlight
   })
 }
+
+export const findHighlightById = async (
+  highlightId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) => {
+      const highlightRepo = tx.withRepository(highlightRepository)
+      return highlightRepo.findOneByOrFail({
+        id: highlightId,
+      })
+    },
+    undefined,
+    userId
+  )
+}

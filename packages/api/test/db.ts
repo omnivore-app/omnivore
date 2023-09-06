@@ -4,16 +4,15 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from '../src/data_source'
 import { Integration } from '../src/entity/integration'
 import { Label } from '../src/entity/label'
-import { Link } from '../src/entity/link'
 import { NewsletterEmail } from '../src/entity/newsletter_email'
-import { Page } from '../src/entity/page'
 import { Profile } from '../src/entity/profile'
 import { Reminder } from '../src/entity/reminder'
 import { Subscription } from '../src/entity/subscription'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
 import { SubscriptionStatus, SubscriptionType } from '../src/generated/graphql'
-import { getRepository, setClaims, userRepository } from '../src/repository'
+import { getRepository, setClaims } from '../src/repository'
+import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
 import { Filter } from "../src/entity/filter"
 
@@ -118,28 +117,6 @@ export const getProfile = async (user: User): Promise<Profile | null> => {
   return getRepository(Profile).findOneBy({ user: { id: user.id } })
 }
 
-export const createTestPage = async (): Promise<Page> => {
-  return getRepository(Page).save({
-    originalHtml: 'html',
-    content: 'Test content',
-    description: 'Test description',
-    title: 'Test title',
-    author: 'Test author',
-    url: 'Test url',
-    hash: 'Test hash',
-  })
-}
-
-export const createTestLink = async (user: User, page: Page): Promise<Link> => {
-  return getRepository(Link).save({
-    user: user,
-    page: page,
-    slug: 'Test slug',
-    articleUrl: 'Test url',
-    articleHash: 'Test hash',
-  })
-}
-
 export const createTestReminder = async (
   user: User,
   pageId?: string
@@ -190,10 +167,6 @@ export const getDeviceToken = async (
 
 export const getUser = async (id: string): Promise<User | null> => {
   return userRepository.findOneBy({ id })
-}
-
-export const getLink = async (id: string): Promise<Link | null> => {
-  return getRepository(Link).findOneBy({ id })
 }
 
 export const createTestLabel = async (

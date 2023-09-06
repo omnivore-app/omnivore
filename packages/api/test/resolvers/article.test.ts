@@ -3,42 +3,37 @@ import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
 import sinon from 'sinon'
-import { refreshIndex } from '../../src/elastic'
-import { addHighlightToPage } from '../../src/elastic/highlights'
-import {
-  createPage,
-  deletePage,
-  deletePagesByParam,
-  getPageById,
-  getPageByParam,
-  updatePage,
-} from '../../src/elastic/pages'
-import {
-  ArticleSavingRequestStatus,
-  Highlight,
-  HighlightType,
-  Page,
-  PageContext,
-  PageType,
-} from '../../src/elastic/types'
+import { DeepPartial } from 'typeorm'
+import { Highlight } from '../../src/entity/highlight'
+import { LibraryItem, LibraryItemState, LibraryItemType } from '../../src/entity/library_item'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
 import {
+  ArticleSavingRequestStatus,
   BulkActionType,
   SyncUpdatedItemEdge,
   UpdateReason,
-  UploadFileStatus,
+  UploadFileStatus
 } from '../../src/generated/graphql'
-import { createPubSubClient } from '../../src/pubsub'
 import { getRepository } from '../../src/repository'
+import { createHighlight } from '../../src/services/highlights'
+import {
+  createLibraryItem,
+  deleteLibraryItemById,
+  deleteLibraryItemByUrl,
+  deleteLibraryItemByUserId,
+  findLibraryItemById,
+  findLibraryItemByUrl,
+  updateLibraryItem
+} from '../../src/services/library_item'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
 import { createTestUser, deleteTestUser } from '../db'
 import {
-  createTestElasticPage,
+  createTestLibraryItem,
   generateFakeUuid,
   graphqlRequest,
-  request,
+  request
 } from '../util'
 
 chai.use(chaiString)
@@ -376,7 +371,6 @@ const typeaheadSearchQuery = (keyword: string) => {
 describe('Article API', () => {
   let authToken: string
   let user: User
-  let ctx: PageContext
 
   before(async () => {
     // create test user and login
@@ -386,12 +380,6 @@ describe('Article API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-
-    ctx = {
-      pubsub: createPubSubClient(),
-      refresh: true,
-      uid: user.id,
-    }
   })
 
   after(async () => {
@@ -405,7 +393,7 @@ describe('Article API', () => {
     let source = ''
     let document = ''
     let title = ''
-    let pageId = ''
+    let itemId = ''
 
     beforeEach(async () => {
       query = createArticleQuery(url, source, document, title)
@@ -420,14 +408,14 @@ describe('Article API', () => {
       })
 
       after(async () => {
-        await deletePage(pageId, ctx)
+        await deleteLibraryItemById(itemId, user.id)
       })
 
       it('should create an article', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.createArticle.createdArticle.title).to.eql(title)
-        pageId = res.body.data.createArticle.createdArticle.id
+        itemId = res.body.data.createArticle.createdArticle.id
       })
     })
 
@@ -438,29 +426,23 @@ describe('Article API', () => {
         document = '<p>test</p>'
         title = 'new title'
 
-        pageId = (await createPage(
+        const item = await createLibraryItem(
           {
-            content: document,
-            createdAt: new Date(),
-            hash: 'test hash',
-            id: '',
-            pageType: PageType.Article,
-            readingProgressAnchorIndex: 0,
-            readingProgressPercent: 0,
-            savedAt: new Date(),
+            readableContent: document,
             slug: 'test saving an archived article slug',
-            state: ArticleSavingRequestStatus.Succeeded,
             title,
-            userId: user.id,
-            url,
+            user: { id: user.id },
+            originalUrl: url,
             archivedAt: new Date(),
+            state: LibraryItemState.Archived,
           },
-          ctx
-        ))!
+          user.id
+        )
+        itemId = item.id
       })
 
       after(async () => {
-        await deletePage(pageId, ctx)
+        await deleteLibraryItemById(itemId, user.id)
       })
 
       it('unarchives the article', async () => {
@@ -476,42 +458,32 @@ describe('Article API', () => {
 
     let query = ''
     let slug = ''
-    let pageId: string
+    let itemId: string
 
     before(async () => {
-      const page: Page = {
-        state: ArticleSavingRequestStatus.Succeeded,
-        id: '',
-        hash: 'test hash',
-        userId: user.id,
-        pageType: PageType.Article,
+      const itemToCreate: DeepPartial<LibraryItem> = {
         title: 'test title',
-        content: '<p>test</p>',
+        originalContent: '<p>test</p>',
         slug: realSlug,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        readingProgressPercent: 100,
-        readingProgressAnchorIndex: 0,
-        url: 'https://blog.omnivore.app/test-with-omnivore',
-        savedAt: new Date(),
+        readingProgressTopPercent: 100,
+        user,
+        originalUrl: 'https://blog.omnivore.app/test-with-omnivore',
         highlights: [
           {
-            id: 'test id',
+            id: generateFakeUuid(),
             shortId: 'test short id',
-            createdAt: new Date(),
             patch: 'test patch',
             quote: 'test quote',
-            updatedAt: new Date(),
-            userId: user.id,
-            type: HighlightType.Highlight,
+            user,
           },
         ],
       }
-      pageId = (await createPage(page, ctx))!
+      const item = await createLibraryItem(itemToCreate, user.id)
+      itemId = item.id
     })
 
     after(async () => {
-      await deletePage(pageId, ctx)
+      await deleteLibraryItemById(itemId, user.id)
     })
 
     beforeEach(async () => {
@@ -537,13 +509,13 @@ describe('Article API', () => {
 
       context('when page is failed to process', () => {
         before(async () => {
-          await updatePage(
-            pageId,
+          await updateLibraryItem(
+            itemId,
             {
-              state: ArticleSavingRequestStatus.Processing,
+              state: LibraryItemState.Processing,
               savedAt: new Date(Date.now() - 1000 * 60),
             },
-            ctx
+            user.id
           )
         })
 
@@ -582,7 +554,7 @@ describe('Article API', () => {
 
     context('when we save a new page', () => {
       after(async () => {
-        await deletePagesByParam({ url }, ctx)
+        await deleteLibraryItemById(url, user.id)
       })
 
       it('should return a slugged url', async () => {
@@ -599,7 +571,7 @@ describe('Article API', () => {
       })
 
       after(async () => {
-        await deletePagesByParam({ url }, ctx)
+        await deleteLibraryItemById(url, user.id)
       })
 
       it('it should return that page in the GetArticles Query', async () => {
@@ -607,17 +579,14 @@ describe('Article API', () => {
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
-        await refreshIndex()
 
         // Save a link, then archive it
-        // refresh the index to make sure the page is updated
         let allLinks = await graphqlRequest(
           articlesQuery(''),
           authToken
         ).expect(200)
         const justSavedId = allLinks.body.data.articles.edges[0].node.id
         await archiveLink(authToken, justSavedId)
-        await refreshIndex()
 
         // test the negative case, ensuring the archive link wasn't returned
         allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
@@ -630,7 +599,6 @@ describe('Article API', () => {
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
-        await refreshIndex()
 
         allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
           200
@@ -641,7 +609,7 @@ describe('Article API', () => {
 
     context('when we also want to save labels and archives the page', () => {
       after(async () => {
-        await deletePagesByParam({ url }, ctx)
+        await deleteLibraryItemById(url, user.id)
       })
 
       it('saves the labels and archives the page', async () => {
@@ -652,11 +620,10 @@ describe('Article API', () => {
           savePageQuery(url, title, originalContent, state, labels),
           authToken
         ).expect(200)
-        await refreshIndex()
 
-        const savedPage = await getPageByParam({ url })
-        expect(savedPage?.archivedAt).to.not.be.null
-        expect(savedPage?.labels?.map((l) => l.name)).to.eql(labels)
+        const savedItem = await findLibraryItemByUrl(url, user.id)
+        expect(savedItem?.archivedAt).to.not.be.null
+        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
   })
@@ -678,7 +645,7 @@ describe('Article API', () => {
     })
 
     afterEach(async () => {
-      await deletePagesByParam({ url }, ctx)
+      await deleteLibraryItemByUrl(url, user.id)
     })
 
     context('when we save a new url', () => {
@@ -699,11 +666,10 @@ describe('Article API', () => {
           saveUrlQuery(url, state, labels),
           authToken
         ).expect(200)
-        await refreshIndex()
 
-        const savedPage = await getPageByParam({ url })
-        expect(savedPage?.archivedAt).to.not.be.null
-        expect(savedPage?.labels?.map((l) => l.name)).to.eql(labels)
+        const savedItem = await findLibraryItemByUrl(url, user.id)
+        expect(savedItem?.archivedAt).to.not.be.null
+        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
   })
@@ -712,29 +678,22 @@ describe('Article API', () => {
     let query = ''
     let articleId = ''
     let bookmark = true
-    let pageId: string
+    let itemId: string
 
     before(async () => {
-      const page: Page = {
-        id: '',
-        hash: 'test hash',
-        userId: user.id,
-        pageType: PageType.Article,
+      const itemToSave: DeepPartial<LibraryItem> = {
+        user,
         title: 'test title',
-        content: '<p>test</p>',
-        createdAt: new Date(),
-        savedAt: new Date(),
-        url: 'https://blog.omnivore.app/setBookmarkArticle',
+        readableContent: '<p>test</p>',
+        originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        state: ArticleSavingRequestStatus.Succeeded,
       }
-      pageId = (await createPage(page, ctx))!
+      const item = await createLibraryItem(itemToSave, user.id)
+      itemId = item.id
     })
 
     after(async () => {
-      await deletePage(pageId, ctx)
+      await deleteLibraryItemById(itemId, user.id)
     })
 
     beforeEach(() => {
@@ -743,7 +702,7 @@ describe('Article API', () => {
 
     context('when we set a bookmark on an article', () => {
       before(() => {
-        articleId = pageId
+        articleId = itemId
         bookmark = true
       })
 
@@ -757,34 +716,34 @@ describe('Article API', () => {
 
     context('when we unset a bookmark on an article', () => {
       before(() => {
-        articleId = pageId
+        articleId = itemId
         bookmark = false
       })
 
       it('should delete an article', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const page = await getPageById(articleId)
-        expect(page?.state).to.eql(ArticleSavingRequestStatus.Deleted)
+        const item = await findLibraryItemById(articleId, user.id)
+        expect(item?.state).to.eql(ArticleSavingRequestStatus.Deleted)
       })
     })
   })
 
   describe('saveArticleReadingProgressResolver', () => {
     let query = ''
-    let pageId = ''
+    let itemId = ''
     let progress = 0.5
     let topPercent: number | null = null
 
     before(async () => {
-      pageId = (await createTestElasticPage(user.id)).id!
+      itemId = (await createTestLibraryItem(user.id)).id
     })
 
     after(async () => {
-      await deletePage(pageId, ctx)
+      await deleteLibraryItemById(itemId, user.id)
     })
 
     it('saves a reading progress on an article', async () => {
-      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      query = saveArticleReadingProgressQuery(itemId, progress, topPercent)
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle
@@ -795,17 +754,16 @@ describe('Article API', () => {
     })
 
     it('should not allow setting the reading progress lower than current progress', async () => {
-      const firstQuery = saveArticleReadingProgressQuery(pageId, 75)
+      const firstQuery = saveArticleReadingProgressQuery(itemId, 75)
       const firstRes = await graphqlRequest(firstQuery, authToken).expect(200)
       expect(
         firstRes.body.data.saveArticleReadingProgress.updatedArticle
           .readingProgressPercent
       ).to.eq(75)
-      await refreshIndex()
 
       // Now try to set to a lower value (50), value should not be updated
       // refresh index to ensure the reading progress is updated
-      const secondQuery = saveArticleReadingProgressQuery(pageId, 50)
+      const secondQuery = saveArticleReadingProgressQuery(itemId, 50)
       const secondRes = await graphqlRequest(secondQuery, authToken).expect(200)
       expect(
         secondRes.body.data.saveArticleReadingProgress.updatedArticle
@@ -814,7 +772,7 @@ describe('Article API', () => {
     })
 
     it('does not save topPercent if not undefined', async () => {
-      query = saveArticleReadingProgressQuery(pageId, progress, null)
+      query = saveArticleReadingProgressQuery(itemId, progress, null)
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle
@@ -824,7 +782,7 @@ describe('Article API', () => {
 
     it('saves topPercent if defined', async () => {
       const topPercent = 0.2
-      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      query = saveArticleReadingProgressQuery(itemId, progress, topPercent)
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle
@@ -834,7 +792,7 @@ describe('Article API', () => {
 
     it('saves topPercent as 0 if defined as 0', async () => {
       const topPercent = 0
-      query = saveArticleReadingProgressQuery(pageId, progress, topPercent)
+      query = saveArticleReadingProgressQuery(itemId, progress, topPercent)
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle
@@ -843,7 +801,7 @@ describe('Article API', () => {
     })
 
     it('returns BAD_DATA error if top position is greater than bottom position', async () => {
-      query = saveArticleReadingProgressQuery(pageId, 0.5, 0.8)
+      query = saveArticleReadingProgressQuery(itemId, 0.5, 0.8)
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(res.body.data.saveArticleReadingProgress.errorCodes).to.eql([
         'BAD_DATA',
@@ -908,7 +866,7 @@ describe('Article API', () => {
 
   describe('Search API', () => {
     const url = 'https://blog.omnivore.app/p/getting-started-with-omnivore'
-    const pages: Page[] = []
+    const items: LibraryItem[] = []
     const highlights: Highlight[] = []
     const searchedKeyword = 'aaabbbccc'
 
@@ -918,38 +876,27 @@ describe('Article API', () => {
     before(async () => {
       // Create some test pages
       for (let i = 0; i < 5; i++) {
-        const page: Page = {
-          id: '',
-          hash: 'test hash',
-          userId: user.id,
-          pageType: PageType.Article,
+        const itemToSave: DeepPartial<LibraryItem> = {
+          user,
           title: 'test title',
-          content: `<p>test ${searchedKeyword}</p>`,
+          readableContent: `<p>test ${searchedKeyword}</p>`,
           slug: 'test slug',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          readingProgressPercent: 0,
-          readingProgressAnchorIndex: 0,
-          url: `${url}/${i}`,
-          savedAt: new Date(),
-          state: ArticleSavingRequestStatus.Succeeded,
+          originalUrl: `${url}/${i}`,
           siteName: 'Example',
         }
-        page.id = (await createPage(page, ctx))!
-        pages.push(page)
+        const item = await createLibraryItem(itemToSave, user.id)
+        items.push(item)
 
         // Create some test highlights
-        const highlight: Highlight = {
-          id: `highlight-${i}`,
+        const highlightToSave: DeepPartial<Highlight> = {
           patch: 'test patch',
           shortId: 'test shortId',
-          userId: user.id,
+          user,
           quote: '<p>search highlight</p>',
           createdAt: new Date(),
           updatedAt: new Date(),
-          type: HighlightType.Highlight,
         }
-        await addHighlightToPage(page.id, highlight, ctx)
+        const highlight = await createHighlight(highlightToSave, item.id, user.id)
         highlights.push(highlight)
       }
     })
@@ -959,7 +906,7 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      await deletePagesByParam({ userId: user.id }, ctx)
+      await deleteLibraryItemByUserId(user.id)
     })
 
     context('when type:highlights is not in the query', () => {
@@ -971,11 +918,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.edges.length).to.eql(5)
-        expect(res.body.data.search.edges[0].node.id).to.eq(pages[4].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(pages[3].id)
-        expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
-        expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
-        expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[4].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[3].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(items[0].id)
       })
 
       it('should return highlights in pages', async () => {
@@ -1014,11 +961,11 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.edges.length).to.eq(5)
-        expect(res.body.data.search.edges[0].node.id).to.eq(pages[4].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(pages[3].id)
-        expect(res.body.data.search.edges[2].node.id).to.eq(pages[2].id)
-        expect(res.body.data.search.edges[3].node.id).to.eq(pages[1].id)
-        expect(res.body.data.search.edges[4].node.id).to.eq(pages[0].id)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[4].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[3].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[3].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[4].node.id).to.eq(items[0].id)
       })
     })
 
@@ -1060,7 +1007,7 @@ describe('Article API', () => {
   })
 
   describe('TypeaheadSearch API', () => {
-    const pages: Page[] = []
+    const items: LibraryItem[] = []
 
     let query = ''
     let keyword = 'typeahead'
@@ -1068,24 +1015,15 @@ describe('Article API', () => {
     before(async () => {
       // Create some test pages
       for (let i = 0; i < 5; i++) {
-        const page: Page = {
-          id: '',
-          hash: '',
-          userId: user.id,
-          pageType: PageType.Article,
+        const itemToSave: DeepPartial<LibraryItem> = {
+          user,
           title: 'typeahead search page',
-          content: '',
+          readableContent: '<p>test</p>',
           slug: '',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          readingProgressPercent: 0,
-          readingProgressAnchorIndex: 0,
-          url: '',
-          savedAt: new Date(),
-          state: ArticleSavingRequestStatus.Succeeded,
+          originalUrl: `https://blog.omnivore.app/p/typeahead-search-${i}`,
         }
-        page.id = (await createPage(page, ctx))!
-        pages.push(page)
+        const item = await createLibraryItem(itemToSave, user.id)
+        items.push(item)
       }
     })
 
@@ -1094,18 +1032,18 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      await deletePagesByParam({ userId: user.id }, ctx)
+      await deleteLibraryItemByUserId(user.id)
     })
 
     it('should return pages with typeahead prefix', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.typeaheadSearch.items.length).to.eql(5)
-      expect(res.body.data.typeaheadSearch.items[0].id).to.eq(pages[0].id)
-      expect(res.body.data.typeaheadSearch.items[1].id).to.eq(pages[1].id)
-      expect(res.body.data.typeaheadSearch.items[2].id).to.eq(pages[2].id)
-      expect(res.body.data.typeaheadSearch.items[3].id).to.eq(pages[3].id)
-      expect(res.body.data.typeaheadSearch.items[4].id).to.eq(pages[4].id)
+      expect(res.body.data.typeaheadSearch.items[0].id).to.eq(items[0].id)
+      expect(res.body.data.typeaheadSearch.items[1].id).to.eq(items[1].id)
+      expect(res.body.data.typeaheadSearch.items[2].id).to.eq(items[2].id)
+      expect(res.body.data.typeaheadSearch.items[3].id).to.eq(items[3].id)
+      expect(res.body.data.typeaheadSearch.items[4].id).to.eq(items[4].id)
       expect(res.body.data.typeaheadSearch.items[0].contentReader).to.eq('WEB')
     })
   })
@@ -1142,49 +1080,39 @@ describe('Article API', () => {
       }
     `
     let since: string
-    let pages: Page[] = []
-    let deletedPages: Page[] = []
+    let items: LibraryItem[] = []
+    let deletedItems: LibraryItem[] = []
 
     before(async () => {
       // Create some test pages
       for (let i = 0; i < 5; i++) {
-        const page: Page = {
-          id: '',
-          hash: '',
-          userId: user.id,
-          pageType: PageType.Article,
+        const itemToSave: DeepPartial<LibraryItem> = {
           title: 'test page',
-          content: '',
           slug: '',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          readingProgressPercent: 0,
-          readingProgressAnchorIndex: 0,
-          url: '',
-          savedAt: new Date(),
-          state: ArticleSavingRequestStatus.Succeeded,
+          readableContent: '<p>test</p>',
+          originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
         }
-        page.id = (await createPage(page, ctx))!
-        pages.push(page)
+        const item = await createLibraryItem(itemToSave, user.id)
+        items.push(item)
       }
 
       // set the since to be the timestamp before deletion
-      since = pages[4].updatedAt!.toISOString()
+      since = items[4].updatedAt!.toISOString()
 
       // Delete some pages
       for (let i = 0; i < 3; i++) {
-        await updatePage(
-          pages[i].id,
-          { state: ArticleSavingRequestStatus.Deleted },
-          ctx
+        await updateLibraryItem(
+          items[i].id,
+          { state: LibraryItemState.Deleted },
+          user.id
         )
-        deletedPages.push(pages[i])
+        deletedItems.push(items[i])
       }
     })
 
     after(async () => {
       // Delete all pages
-      await deletePagesByParam({ userId: user.id }, ctx)
+      await deleteLibraryItemByUserId(user.id)
     })
 
     it('returns pages deleted after since', async () => {
@@ -1199,13 +1127,13 @@ describe('Article API', () => {
         ).length
       ).to.eql(3)
       expect(res.body.data.updatesSince.edges[0].itemID).to.eq(
-        deletedPages[2].id
+        deletedItems[2].id
       )
       expect(res.body.data.updatesSince.edges[1].itemID).to.eq(
-        deletedPages[1].id
+        deletedItems[1].id
       )
       expect(res.body.data.updatesSince.edges[2].itemID).to.eq(
-        deletedPages[0].id
+        deletedItems[0].id
       )
       expect(res.body.data.updatesSince.edges[0].updateReason).to.eq(
         UpdateReason.Deleted
@@ -1230,34 +1158,27 @@ describe('Article API', () => {
     before(async () => {
       // Create some test pages
       for (let i = 0; i < 5; i++) {
-        await createPage(
+        await createLibraryItem(
           {
-            id: '',
-            hash: '',
-            userId: user.id,
-            pageType: i == 0 ? PageType.Article : PageType.File,
+            user,
+            itemType: i == 0 ? LibraryItemType.Article : LibraryItemType.File,
             title: 'test page',
-            content: '',
+            readableContent: '<p>test</p>',
             slug: '',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            readingProgressPercent: 0,
-            readingProgressAnchorIndex: 0,
-            url: '',
-            savedAt: new Date(),
             state:
               i == 0
-                ? ArticleSavingRequestStatus.Failed
-                : ArticleSavingRequestStatus.Succeeded,
+                ? LibraryItemState.Failed
+                : LibraryItemState.Succeeded,
+            originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
           },
-          ctx
+          user.id
         )
       }
     })
 
     after(async () => {
       // Delete all pages
-      await deletePagesByParam({ userId: user.id }, ctx)
+      await deleteLibraryItemByUserId(user.id)
     })
 
     context('when action is Archive', () => {
@@ -1267,8 +1188,6 @@ describe('Article API', () => {
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
-
-        await refreshIndex()
 
         const pages = await graphqlRequest(searchQuery(), authToken).expect(200)
         expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
@@ -1282,8 +1201,6 @@ describe('Article API', () => {
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
-
-        await refreshIndex()
 
         const pages = await graphqlRequest(
           searchQuery('in:all'),
@@ -1315,28 +1232,20 @@ describe('Article API', () => {
     let articleId = ''
 
     before(async () => {
-      const page: Page = {
-        id: '',
-        hash: '',
-        userId: user.id,
-        pageType: PageType.Article,
+      const itemToSave: DeepPartial<LibraryItem> = {
+        user,
         title: 'test setFavoriteArticle',
-        content: '',
         slug: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        url: 'https://test.omnivore.app/setFavoriteArticle',
-        savedAt: new Date(),
-        state: ArticleSavingRequestStatus.Succeeded,
+        readableContent: '<p>test</p>',
+        originalUrl: `https://blog.omnivore.app/p/setFavoriteArticle`,
       }
-      articleId = (await createPage(page, ctx))!
+      const item = await createLibraryItem(itemToSave, user.id)
+      articleId = item.id
     })
 
     after(async () => {
       // Delete the page
-      await deletePagesByParam({ userId: user.id }, ctx)
+      await deleteLibraryItemById(articleId, user.id)
     })
 
     it('favorites the article', async () => {
@@ -1352,8 +1261,8 @@ describe('Article API', () => {
         res.body.data.setFavoriteArticle.favoriteArticle.labels[0].name
       ).to.eq('Favorites')
 
-      const page = await getPageById(articleId)
-      expect(page?.labels?.map((l) => l.name)).to.eql(['Favorites'])
+      const item = await findLibraryItemById(articleId, user.id)
+      expect(item?.labels?.map((l) => l.name)).to.eql(['Favorites'])
     })
   })
 })

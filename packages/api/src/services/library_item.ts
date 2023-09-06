@@ -489,3 +489,31 @@ export const updateLibraryItems = async (
     return queryBuilder.update(LibraryItem).set(values).execute()
   })
 }
+
+export const deleteLibraryItemById = async (id: string, userId?: string) => {
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).delete(id),
+    undefined,
+    userId
+  )
+}
+
+export const deleteLibraryItemByUrl = async (url: string, userId?: string) => {
+  return authTrx(
+    async (tx) =>
+      tx.withRepository(libraryItemRepository).delete({ originalUrl: url }),
+    undefined,
+    userId
+  )
+}
+
+export const deleteLibraryItemByUserId = async (userId: string) => {
+  return authTrx(
+    async (tx) =>
+      tx.withRepository(libraryItemRepository).delete({
+        user: { id: userId },
+      }),
+    undefined,
+    userId
+  )
+}
