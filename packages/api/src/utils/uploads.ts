@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
+import { ContentReaderType, LibraryItemType } from '../entity/library_item'
 import { env } from '../env'
-import { ContentReader, PageType } from '../generated/graphql'
 import { logger } from './logger'
 
-export const contentReaderForPage = (
-  pageType: PageType,
+export const contentReaderForLibraryItem = (
+  itemType: LibraryItemType,
   uploadFileId: string | null | undefined
 ) => {
   if (!uploadFileId) {
-    return ContentReader.Web
+    return ContentReaderType.WEB
   }
-  switch (pageType) {
-    case PageType.Book:
-      return ContentReader.Epub
-    case PageType.File:
-      return ContentReader.Pdf
+  switch (itemType) {
+    case LibraryItemType.Book:
+      return ContentReaderType.EPUB
+    case LibraryItemType.File:
+      return ContentReaderType.PDF
     default:
-      return ContentReader.Web
+      return ContentReaderType.WEB
   }
 }
 
@@ -47,10 +47,6 @@ export const generateUploadSignedUrl = async (
   contentType: string,
   selectedBucket?: string
 ): Promise<string> => {
-  // if (env.dev.isLocal) {
-  //   return 'http://localhost:3000/uploads/' + filePathName
-  // }
-
   // These options will allow temporary uploading of file with requested content type
   const options: GetSignedUrlConfig = {
     version: 'v4',

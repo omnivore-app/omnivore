@@ -1,3 +1,4 @@
+import { LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
@@ -6,7 +7,6 @@ import {
   SaveFileInput,
   SaveResult,
 } from '../generated/graphql'
-import { logger } from '../utils/logger'
 import { getStorageFileDetails } from '../utils/uploads'
 import { findOrCreateLabels } from './labels'
 import { updateLibraryItem } from './library_item'
@@ -16,8 +16,6 @@ export const saveFile = async (
   input: SaveFileInput,
   user: User
 ): Promise<SaveResult> => {
-  logger.info('saving file with input', input)
-  const pageId = input.clientRequestId
   const uploadFile = await findUploadFileById(input.uploadFileId)
   if (!uploadFile) {
     return {
@@ -35,28 +33,25 @@ export const saveFile = async (
     }
   }
 
-  // save state
-  const archivedAt =
-    input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
-  // add labels to page
-  const labels = input.labels
-    ? await findOrCreateLabels(input.labels, user.id)
-    : undefined
   if (input.state || input.labels) {
-    const updated = await updateLibraryItem(
-      pageId,
+    // save state
+    const archivedAt =
+      input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
+    // add labels to page
+    const labels = input.labels
+      ? await findOrCreateLabels(input.labels, user.id)
+      : undefined
+    await updateLibraryItem(
+      input.clientRequestId,
       {
         archivedAt,
         labels,
+        state: input.state
+          ? (input.state as unknown as LibraryItemState)
+          : LibraryItemState.Succeeded,
       },
       user.id
     )
-    if (!updated) {
-      logger.info('error updating page', pageId)
-      return {
-        errorCodes: [SaveErrorCode.Unknown],
-      }
-    }
   }
 
   return {

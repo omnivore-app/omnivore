@@ -20,6 +20,7 @@ import {
 import { analytics } from '../../utils/analytics'
 import { authorized, generateSlug } from '../../utils/helpers'
 import {
+  contentReaderForLibraryItem,
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getFilePublicUrl,
@@ -127,25 +128,21 @@ export const uploadFileRequestResolver = authorized<
       // If we have a file:// URL, don't try to match it
       // and create a copy of the page, just create a
       // new item.
-      const item = isFileUrl(input.url)
-        ? await findLibraryItemByUrl(input.url, uid)
-        : undefined
-
+      const item = await findLibraryItemByUrl(input.url, uid)
       if (item) {
-        if (
-          !(await updateLibraryItem(
-            item.id,
-            {
-              savedAt: new Date(),
-              archivedAt: null,
-            },
-            uid
-          ))
-        ) {
-          return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
-        }
+        await updateLibraryItem(
+          item.id,
+          {
+            savedAt: new Date(),
+            archivedAt: null,
+            state: LibraryItemState.Processing,
+          },
+          uid
+        )
         createdItemId = item.id
       } else {
+        const itemType = itemTypeForContentType(input.contentType)
+        const uploadFileId = uploadFileData.id
         const item = await createLibraryItem(
           {
             originalUrl: isFileUrl(input.url) ? publicUrl : input.url,
@@ -153,9 +150,11 @@ export const uploadFileRequestResolver = authorized<
             user: { id: uid },
             title,
             readableContent: '',
-            itemType: itemTypeForContentType(input.contentType),
+            itemType,
             uploadFile: { id: uploadFileData.id },
             slug: generateSlug(uploadFilePathName),
+            state: LibraryItemState.Processing,
+            contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
           },
           uid
         )

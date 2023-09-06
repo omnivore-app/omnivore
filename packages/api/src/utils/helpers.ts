@@ -178,7 +178,7 @@ export const generateSlug = (title: string): string => {
 
 export const MAX_CONTENT_LENGTH = 5e7 //50MB
 
-export const pageError = async (
+export const errorHandler = async (
   result: CreateArticleError,
   userId: string,
   pageId?: string | null,
@@ -242,6 +242,8 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
   readingProgressPercent: item.readingProgressTopPercent,
   highlights: item.highlights?.map(highlightDataToHighlight) || [],
+  uploadFileId: item.uploadFile?.id,
+  pageType: item.itemType as unknown as PageType,
 })
 
 export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
@@ -260,6 +262,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   ),
   image: item.thumbnail,
   highlights: item.highlights?.map(highlightDataToHighlight),
+  uploadFileId: item.uploadFile?.id,
 })
 
 export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {

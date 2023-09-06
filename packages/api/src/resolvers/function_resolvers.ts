@@ -383,7 +383,7 @@ export const functionResolvers = {
       }
       return article.url
     },
-    async originalArticleUrl(article: { url: string }) {
+    originalArticleUrl(article: { url: string }) {
       return article.url
     },
     hasContent(article: {
@@ -463,6 +463,9 @@ export const functionResolvers = {
     },
     image(item: SearchItem) {
       return item.image && createImageProxyUrl(item.image, 320, 320)
+    },
+    originalArticleUrl(item: { url: string }) {
+      return item.url
     },
   },
   Subscription: {

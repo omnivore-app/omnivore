@@ -81,7 +81,7 @@ export const createPageSaveRequest = async ({
   userId,
   url,
   pubsub = createPubSubClient(),
-  articleSavingRequestId = uuidv4(),
+  articleSavingRequestId,
   state,
   priority,
   labels,
@@ -149,7 +149,7 @@ export const createPageSaveRequest = async ({
   await enqueueParseRequest({
     url,
     userId,
-    saveRequestId: articleSavingRequestId,
+    saveRequestId: libraryItem.id,
     priority,
     state,
     labels,

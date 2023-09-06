@@ -80,12 +80,12 @@ import { isSiteBlockedForParse } from '../../utils/blocked'
 import {
   authorized,
   cleanUrl,
+  errorHandler,
   generateSlug,
   isBase64Image,
   isParsingTimeout,
   libraryItemToArticle,
   libraryItemToSearchItem,
-  pageError,
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
@@ -153,7 +153,7 @@ export const createArticleResolver = authorized<
 
     const userData = await userRepository.findById(uid)
     if (!userData) {
-      return pageError(
+      return errorHandler(
         {
           errorCodes: [CreateArticleErrorCode.Unauthorized],
         },
@@ -166,7 +166,7 @@ export const createArticleResolver = authorized<
 
     try {
       if (isSiteBlockedForParse(url)) {
-        return pageError(
+        return errorHandler(
           {
             errorCodes: [CreateArticleErrorCode.NotAllowedToParse],
           },
@@ -190,7 +190,6 @@ export const createArticleResolver = authorized<
       let title: string | undefined
       let parsedContent: Readability.ParseResult | null = null
       let canonicalUrl
-      let userArticleUrl: string | null = null
       let uploadFileHash = null
       let domContent = null
       let itemType = LibraryItemType.Unknown
@@ -226,7 +225,7 @@ export const createArticleResolver = authorized<
          */
         const uploadFile = await findUploadFileById(uploadFileId)
         if (!uploadFile) {
-          return pageError(
+          return errorHandler(
             { errorCodes: [CreateArticleErrorCode.UploadFileMissing] },
             uid,
             articleSavingRequestId,
@@ -238,7 +237,6 @@ export const createArticleResolver = authorized<
           uploadFile.fileName
         )
         uploadFileHash = uploadFileDetails.md5Hash
-        userArticleUrl = uploadFileDetails.fileUrl
         canonicalUrl = uploadFile.url
         itemType = itemTypeForContentType(uploadFile.contentType)
         title = titleForFilePath(uploadFile.url)
@@ -282,7 +280,6 @@ export const createArticleResolver = authorized<
         title,
         parsedContent,
         userId: uid,
-        itemId: articleSavingRequestId,
         slug,
         croppedPathname,
         originalHtml: domContent,
@@ -295,21 +292,15 @@ export const createArticleResolver = authorized<
 
       log.info('New article saving', {
         parsedArticle: Object.assign({}, libraryItemToSave, {
-          content: undefined,
-          originalHtml: undefined,
+          readableContent: undefined,
+          originalContent: undefined,
         }),
-        userArticleUrl,
-        labels: {
-          source: 'resolver',
-          resolver: 'createArticleResolver',
-          userId: uid,
-        },
       })
 
       if (uploadFileId) {
         const uploadFileData = await setFileUploadComplete(uploadFileId)
         if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
-          return pageError(
+          return errorHandler(
             {
               errorCodes: [CreateArticleErrorCode.UploadFileMissing],
             },
@@ -344,7 +335,7 @@ export const createArticleResolver = authorized<
           pubsub
         )
       } else {
-        // create new page in elastic
+        // create new page in database
         libraryItemToReturn = await createLibraryItem(
           libraryItemToSave,
           uid,
@@ -353,7 +344,7 @@ export const createArticleResolver = authorized<
       }
 
       log.info(
-        'page created in elastic',
+        'item created in database',
         libraryItemToReturn.id,
         libraryItemToReturn.originalUrl,
         libraryItemToReturn.slug,
@@ -367,7 +358,7 @@ export const createArticleResolver = authorized<
       }
     } catch (error) {
       log.error('Error creating article', error)
-      return pageError(
+      return errorHandler(
         {
           errorCodes: [CreateArticleErrorCode.ElasticError],
         },
@@ -399,6 +390,7 @@ export const getArticleResolver = authorized<
             user: true,
             labels: true,
           },
+          uploadFile: true,
         },
       })
     )

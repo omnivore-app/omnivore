@@ -7,8 +7,12 @@ export const findUploadFileById = async (id: string) => {
 
 export const setFileUploadComplete = async (id: string, userId?: string) => {
   return authTrx(
-    async (tx) =>
-      tx.getRepository(UploadFile).save({ id, status: 'COMPLETED' }),
+    async (tx) => {
+      const repo = tx.getRepository(UploadFile)
+      await repo.update(id, { status: 'COMPLETED' })
+
+      return repo.findOneByOrFail({ id })
+    },
     undefined,
     userId
   )

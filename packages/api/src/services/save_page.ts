@@ -28,6 +28,7 @@ import {
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
+import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
 import { findOrCreateLabels } from './labels'
@@ -258,5 +259,6 @@ export const parsedContentToLibraryItem = ({
     itemLanguage: parsedContent?.language,
     siteIcon: parsedContent?.siteIcon,
     wordCount: wordsCount(parsedContent?.textContent || ''),
+    contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
   }
 }
