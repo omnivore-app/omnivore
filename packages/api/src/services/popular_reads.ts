@@ -66,11 +66,10 @@ export const addPopularRead = async (
     return undefined
   }
 
-  const saveTime = new Date()
   const slug = generateSlug(pr.title)
 
   const articleToSave: DeepPartial<LibraryItem> = {
-    slug: slug,
+    slug,
     readableContent: pr.content,
     originalContent: pr.originalHtml,
     description: pr.description,
@@ -81,9 +80,8 @@ export const addPopularRead = async (
     textContentHash: stringToHash(pr.content),
     thumbnail: pr.previewImage,
     publishedAt: pr.publishedAt,
-    savedAt: saveTime,
-    createdAt: saveTime,
     siteName: pr.siteName,
+    user: { id: userId },
   }
 
   const item = await createLibraryItem(articleToSave, userId)
