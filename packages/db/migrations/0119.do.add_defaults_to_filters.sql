@@ -47,12 +47,22 @@ FROM omnivore.user
 ON CONFLICT DO NOTHING;
 
 INSERT INTO omnivore.filters (user_id, category, name,  filter, position, default_filter)
-SELECT id, 'Search','Unlabelled', 'no:label', 4, true
+SELECT id, 'Search','Unlabeled', 'no:label', 4, true
 FROM omnivore.user
 ON CONFLICT DO NOTHING;
 
 INSERT INTO omnivore.filters (user_id, category, name,  filter, position, default_filter)
-SELECT id, 'Search', 'Archived', 'in:archive', 5, true
+SELECT id, 'Search','Oldest First', 'sort:saved-asc', 5, true
+FROM omnivore.user
+    ON CONFLICT DO NOTHING;
+
+INSERT INTO omnivore.filters (user_id, category, name,  filter, position, default_filter)
+SELECT id, 'Search','Files', 'type:file', 6, true
+FROM omnivore.user
+    ON CONFLICT DO NOTHING;
+
+INSERT INTO omnivore.filters (user_id, category, name,  filter, position, default_filter)
+SELECT id, 'Search', 'Archived', 'in:archive', 7, true
 FROM omnivore.user
 ON CONFLICT DO NOTHING;
 

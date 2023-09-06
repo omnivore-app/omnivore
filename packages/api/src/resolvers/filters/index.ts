@@ -237,7 +237,7 @@ export const updateFilterResolver = authorized<
     }
 
     const filter = await getRepository(Filter).findOne({
-      where: { id },
+      where: { id, user: { id: uid } },
       relations: ['user'],
     })
     if (!filter) {

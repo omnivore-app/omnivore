@@ -110,7 +110,9 @@ const createDefaultFiltersForUser =
       { name: 'Continue Reading', filter: 'in:inbox sort:read-desc is:unread' },
       { name: 'Non-Feed Items', filter: 'in:library' },
       { name: 'Highlights', filter: 'has:highlights mode:highlights' },
-      { name: 'Unlabelled', filter: 'no:label' },
+      { name: 'Unlabeled', filter: 'no:label' },
+      { name: 'Oldest First', filter: 'sort:saved-asc' },
+      { name: 'Files', filter: 'type:file' },
       { name: 'Archived', filter: 'in:archive' },
     ].map((it, position) => ({
       ...it,
