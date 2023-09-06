@@ -90,11 +90,11 @@ const buildWhereClause = (
   if (args.query) {
     queryBuilder
       .addSelect(
-        `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :query))`,
+        "ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :query))",
         'rank'
       )
       .andWhere(
-        `websearch_to_tsquery('english', :query) @@ library_item.search_tsv`
+        "websearch_to_tsquery('english', :query) @@ library_item.search_tsv"
       )
       .setParameter('query', args.query)
       .orderBy('rank', 'DESC')
@@ -168,11 +168,12 @@ const buildWhereClause = (
     )
 
     if (includeLabels && includeLabels.length > 0) {
-      includeLabels.forEach((includeLabel) => {
+      includeLabels.forEach((includeLabel, i) => {
+        const param = `includeLabels_${i}`
         queryBuilder.andWhere(
-          'lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] @> ARRAY[:...includeLabels]::text[]',
+          `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
           {
-            includeLabels: includeLabel.labels,
+            [param]: includeLabel.labels,
           }
         )
       })
@@ -190,11 +191,13 @@ const buildWhereClause = (
 
   if (args.dateFilters && args.dateFilters.length > 0) {
     args.dateFilters.forEach((filter) => {
+      const startDate = `${filter.field}_start`
+      const endDate = `${filter.field}_end`
       queryBuilder.andWhere(
-        `library_item.${filter.field} between :startDate and :endDate`,
+        `library_item.${filter.field} between :${startDate} and :${endDate}`,
         {
-          startDate: filter.startDate ?? new Date(0),
-          endDate: filter.endDate ?? new Date(),
+          [startDate]: filter.startDate ?? new Date(0),
+          [endDate]: filter.endDate ?? new Date(),
         }
       )
     })
@@ -202,18 +205,20 @@ const buildWhereClause = (
 
   if (args.termFilters && args.termFilters.length > 0) {
     args.termFilters.forEach((filter) => {
-      queryBuilder.andWhere(`lower(library_item.${filter.field}) = :value`, {
-        value: filter.value.toLowerCase(),
+      const param = `term_${filter.field}`
+      queryBuilder.andWhere(`lower(library_item.${filter.field}) = :${param}`, {
+        [param]: filter.value.toLowerCase(),
       })
     })
   }
 
   if (args.matchFilters && args.matchFilters.length > 0) {
     args.matchFilters.forEach((filter) => {
+      const param = `match_${filter.field}`
       queryBuilder.andWhere(
-        `websearch_to_tsquery('english', :matchQuery) @@ library_item.${filter.field}_tsv`,
+        `websearch_to_tsquery('english', :${param}) @@ library_item.${filter.field}_tsv`,
         {
-          matchQuery: filter.value,
+          [param]: filter.value,
         }
       )
     })
