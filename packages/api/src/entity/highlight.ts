@@ -31,7 +31,7 @@ export class Highlight {
   @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE', eager: true })
+  @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
 
@@ -80,7 +80,7 @@ export class Highlight {
   @Column('text', { nullable: true })
   color?: string | null
 
-  @ManyToMany(() => Label, { cascade: true })
+  @ManyToMany(() => Label, { cascade: true, eager: true })
   @JoinTable({
     name: 'entity_labels',
     joinColumn: { name: 'highlight_id' },

@@ -21,10 +21,34 @@ export const createRule = async (
     return existingRule
   }
 
-  return authTrx((t) =>
-    t.getRepository(Rule).save({
-      ...rule,
-      user: { id: userId },
-    })
+  return authTrx(
+    (t) =>
+      t.getRepository(Rule).save({
+        ...rule,
+        user: { id: userId },
+      }),
+    undefined,
+    userId
+  )
+}
+
+export const deleteRule = async (id: string, userId?: string) => {
+  return authTrx(
+    async (t) => {
+      const repo = t.getRepository(Rule)
+      await repo.delete(id)
+
+      return repo.findOneByOrFail({ id })
+    },
+    undefined,
+    userId
+  )
+}
+
+export const deleteRules = async (userId: string) => {
+  return authTrx(
+    (t) => t.getRepository(Rule).delete({ user: { id: userId } }),
+    undefined,
+    userId
   )
 }

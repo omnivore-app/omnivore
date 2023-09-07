@@ -816,6 +816,7 @@ describe('Article API', () => {
           shortId: `test shortId${i}`,
           user,
           quote: '<p>search highlight</p>',
+          libraryItem: item,
         }
         const highlight = await createHighlight(
           highlightToSave,

@@ -32,6 +32,7 @@ import {
   findOrCreateLabels,
   saveLabelsInHighlight,
   saveLabelsInLibraryItem,
+  updateLabel,
 } from '../../services/labels'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
@@ -40,7 +41,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { log, authTrx }) => {
     try {
       const labels = await authTrx(async (tx) => {
-        return tx.find(Label, {
+        return tx.withRepository(labelRepository).find({
           order: {
             position: 'ASC',
           },
@@ -96,7 +97,7 @@ export const createLabelResolver = authorized<
   } catch (error) {
     log.error('createLabelResolver', error)
     return {
-      errorCodes: [CreateLabelErrorCode.LabelAlreadyExists],
+      errorCodes: [CreateLabelErrorCode.BadRequest],
     }
   }
 })
@@ -170,7 +171,14 @@ export const setLabelsResolver = authorized<
         labelsSet = await authTrx(async (tx) => {
           return tx.withRepository(labelRepository).findLabelsById(labelIds)
         })
+
+        if (labelsSet.length !== labelIds.length) {
+          return {
+            errorCodes: [SetLabelsErrorCode.NotFound],
+          }
+        }
       }
+
       // save labels in the library item
       await saveLabelsInLibraryItem(labelsSet, pageId, uid, pubsub)
 
@@ -190,7 +198,7 @@ export const setLabelsResolver = authorized<
     } catch (error) {
       log.error('setLabelsResolver error', error)
       return {
-        errorCodes: [SetLabelsErrorCode.NotFound],
+        errorCodes: [SetLabelsErrorCode.BadRequest],
       }
     }
   }
@@ -200,44 +208,18 @@ export const updateLabelResolver = authorized<
   UpdateLabelSuccess,
   UpdateLabelError,
   MutationUpdateLabelArgs
->(
-  async (
-    _,
-    { input: { name, color, description, labelId } },
-    { authTrx, log }
-  ) => {
-    try {
-      log.info('Updating a label', {
-        labels: {
-          source: 'resolver',
-          resolver: 'updateLabelResolver',
-        },
-      })
+>(async (_, { input: { name, color, description, labelId } }, { uid, log }) => {
+  try {
+    const label = await updateLabel(labelId, { name, color, description }, uid)
 
-      const result = await authTrx(async (tx) => {
-        return tx.withRepository(labelRepository).updateLabel(labelId, {
-          name,
-          color,
-          description,
-        })
-      })
-
-      if (!result.affected) {
-        log.error('failed to update')
-        return {
-          errorCodes: [UpdateLabelErrorCode.NotFound],
-        }
-      }
-
-      return { label: result.raw as Label }
-    } catch (error) {
-      log.error('error updating label', error)
-      return {
-        errorCodes: [UpdateLabelErrorCode.BadRequest],
-      }
+    return { label }
+  } catch (error) {
+    log.error('error updating label', error)
+    return {
+      errorCodes: [UpdateLabelErrorCode.BadRequest],
     }
   }
-)
+})
 
 export const setLabelsForHighlightResolver = authorized<
   SetLabelsSuccess,
@@ -291,7 +273,7 @@ export const setLabelsForHighlightResolver = authorized<
   } catch (error) {
     log.error('setLabelsForHighlightResolver error', error)
     return {
-      errorCodes: [SetLabelsErrorCode.NotFound],
+      errorCodes: [SetLabelsErrorCode.BadRequest],
     }
   }
 })
@@ -323,7 +305,7 @@ export const moveLabelResolver = authorized<
     let newPosition = 1
     if (afterLabelId) {
       const afterLabel = await authTrx(async (tx) => {
-        return tx.withRepository(labelRepository).findById(labelId)
+        return tx.withRepository(labelRepository).findById(afterLabelId)
       })
       if (!afterLabel) {
         return {
@@ -356,7 +338,7 @@ export const moveLabelResolver = authorized<
 
       // update the position of the label
       return labelRepo.save({
-        ...label,
+        id: labelId,
         position: newPosition,
       })
     })

@@ -13,7 +13,7 @@ import {
   SetRuleErrorCode,
   SetRuleSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
+import { deleteRule } from '../../services/rules'
 import { authorized } from '../../utils/helpers'
 
 export const setRuleResolver = authorized<
@@ -46,25 +46,19 @@ export const rulesResolver = authorized<
   RulesSuccess,
   RulesError,
   QueryRulesArgs
->(async (_, { enabled }, { claims, log }) => {
+>(async (_, { enabled }, { authTrx, log }) => {
   try {
-    const rules = await getRepository(Rule).findBy({
-      user: { id: claims.uid },
-      enabled: enabled === null ? undefined : enabled,
-    })
+    const rules = await authTrx((t) =>
+      t.getRepository(Rule).findBy({
+        enabled: enabled === null ? undefined : enabled,
+      })
+    )
 
     return {
       rules,
     }
   } catch (error) {
-    log.error('Error getting rules', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'rulesResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error getting rules', error)
 
     return {
       errorCodes: [RulesErrorCode.BadRequest],
@@ -76,46 +70,18 @@ export const deleteRuleResolver = authorized<
   DeleteRuleSuccess,
   DeleteRuleError,
   MutationDeleteRuleArgs
->(async (_, { id }, { claims, log }) => {
-  log.info('Deleting rule', {
-    id,
-    labels: {
-      source: 'resolver',
-      resolver: 'deleteRuleResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, { id }, { uid, log }) => {
   try {
-    const rule = await getRepository(Rule).findOneBy({
-      id,
-      user: { id: claims.uid },
-    })
-    if (!rule) {
-      return {
-        errorCodes: [DeleteRuleErrorCode.NotFound],
-      }
-    }
-
-    await getRepository(Rule).delete({
-      id: rule.id,
-    })
+    const rule = await deleteRule(id, uid)
 
     return {
       rule,
     }
   } catch (error) {
-    log.error('Error deleting rule', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'deleteRuleResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error deleting rule', error)
 
     return {
-      errorCodes: [DeleteRuleErrorCode.BadRequest],
+      errorCodes: [DeleteRuleErrorCode.NotFound],
     }
   }
 })

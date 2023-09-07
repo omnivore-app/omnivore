@@ -1,4 +1,5 @@
 import { FindOptionsWhere, In } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Label } from '../entity/label'
 import { createPubSubClient, EntityType } from '../pubsub'
@@ -168,6 +169,23 @@ export const deleteLabels = async (
 ) => {
   return authTrx(
     async (t) => t.withRepository(labelRepository).delete(criteria),
+    undefined,
+    userId
+  )
+}
+
+export const updateLabel = async (
+  id: string,
+  label: QueryDeepPartialEntity<Label>,
+  userId: string
+) => {
+  return authTrx(
+    async (t) => {
+      const repo = t.withRepository(labelRepository)
+      await repo.updateLabel(id, label)
+
+      return repo.findOneByOrFail({ id })
+    },
     undefined,
     userId
   )

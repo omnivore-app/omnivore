@@ -10,7 +10,7 @@ import {
   createHighlight,
   findHighlightById,
 } from '../../src/services/highlights'
-import { createLabel, deleteLabels } from '../../src/services/labels'
+import { createLabel, deleteLabels, saveLabelsInHighlight } from '../../src/services/labels'
 import {
   deleteLibraryItemById,
   findLibraryItemById,
@@ -167,11 +167,11 @@ describe('Labels API', () => {
         await deleteLabels([existingLabel.id], user.id)
       })
 
-      it('should return error code LABEL_ALREADY_EXISTS', async () => {
+      it('should return error code BAD_REQUEST', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.createLabel.errorCodes).to.eql([
-          'LABEL_ALREADY_EXISTS',
+          'BAD_REQUEST',
         ])
       })
     })
@@ -265,16 +265,16 @@ describe('Labels API', () => {
             '#ffffff',
             user.id
           )
-          labelId = toDeleteLabel.id
           const highlight: DeepPartial<Highlight> = {
             id: highlightId,
             patch: 'test patch',
             quote: 'test quote',
             shortId: 'test shortId',
-            labels: [toDeleteLabel],
             user,
+            libraryItem: item,
           }
           await createHighlight(highlight, item.id, user.id)
+          await saveLabelsInHighlight([toDeleteLabel], highlightId, user.id)
         })
 
         after(async () => {
@@ -398,9 +398,9 @@ describe('Labels API', () => {
         labelIds = [labels[0].id, labels[1].id]
       })
 
-      it('should return error code NOT_FOUND', async () => {
+      it('should return error code BAD_REQUEST', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.setLabels.errorCodes).to.eql(['NOT_FOUND'])
+        expect(res.body.data.setLabels.errorCodes).to.eql(['BAD_REQUEST'])
       })
     })
 
@@ -513,9 +513,9 @@ describe('Labels API', () => {
         labelId = generateFakeUuid()
       })
 
-      it('should return error code NOT_FOUND', async () => {
+      it('should return error code BAD_REQUEST', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        expect(res.body.data.updateLabel.errorCodes).to.eql(['NOT_FOUND'])
+        expect(res.body.data.updateLabel.errorCodes).to.eql(['BAD_REQUEST'])
       })
     })
   })
@@ -576,8 +576,9 @@ describe('Labels API', () => {
           id: highlightId,
           patch: 'test patch',
           quote: 'test quote',
-          shortId: generateFakeUuid(),
+          shortId: 'test shortId 2',
           user,
+          libraryItem: item,
         }
         highlightId = (await createHighlight(highlight, item.id, user.id)).id
         labelIds = [labels[0].id, labels[1].id]
@@ -596,8 +597,9 @@ describe('Labels API', () => {
         const highlight: DeepPartial<Highlight> = {
           patch: 'test patch',
           quote: 'test quote',
-          shortId: generateFakeUuid(),
+          shortId: 'test shortId 3',
           user,
+          libraryItem: item,
         }
         highlightId = (await createHighlight(highlight, item.id, user.id)).id
         labelIds = [generateFakeUuid(), generateFakeUuid()]
@@ -613,14 +615,14 @@ describe('Labels API', () => {
 
     context('when highlight not exist', () => {
       before(() => {
-        highlightId = generateFakeUuid()
+        highlightId = 'fake_highlight_id'
         labelIds = [labels[0].id, labels[1].id]
       })
 
-      it('should return error code NOT_FOUND', async () => {
+      it('should return error code BAD_REQUEST', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.setLabelsForHighlight.errorCodes).to.eql([
-          'NOT_FOUND',
+          'BAD_REQUEST',
         ])
       })
     })
