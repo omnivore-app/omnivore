@@ -97,6 +97,7 @@ export const filterPage = async (
 ): Promise<Page | null> => {
   filter += ` includes:${pageId}`
   const pages = await search(userId, apiEndpoint, auth, filter)
+  console.log('pages: ', pages)
 
   return pages.length > 0 ? pages[0] : null
 }

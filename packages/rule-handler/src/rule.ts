@@ -99,6 +99,7 @@ export const triggerActions = async (
       rule.filter,
       data.id
     )
+    console.log('filtered page: ', filterPage)
     if (!filteredPage) {
       continue
     }
