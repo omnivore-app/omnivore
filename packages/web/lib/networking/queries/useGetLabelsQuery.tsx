@@ -35,7 +35,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
     ${labelFragment}
   `
 
-  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
+  const { data, error, mutate, isValidating } = useSWR(query, publicGqlFetcher)
 
   try {
     if (data) {
