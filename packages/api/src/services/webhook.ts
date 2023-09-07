@@ -41,3 +41,16 @@ export const findWebhookById = async (id: string, userId?: string) => {
     userId
   )
 }
+
+export const deleteWebhook = async (id: string, userId?: string) => {
+  return authTrx(
+    async (tx) => {
+      const repo = tx.getRepository(Webhook)
+      const webhook = await repo.findOneByOrFail({ id })
+      await repo.delete(id)
+      return webhook
+    },
+    undefined,
+    userId
+  )
+}

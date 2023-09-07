@@ -12,6 +12,7 @@ import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
+import { wordsCount } from '../utils/helpers'
 import {
   DateFilter,
   FieldFilter,
@@ -387,7 +388,13 @@ export const createLibraryItem = async (
   pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
   const newLibraryItem = await authTrx(
-    async (tx) => tx.withRepository(libraryItemRepository).save(libraryItem),
+    async (tx) =>
+      tx.withRepository(libraryItemRepository).save({
+        ...libraryItem,
+        wordCount:
+          libraryItem.wordCount ??
+          wordsCount(libraryItem.readableContent || ''),
+      }),
     undefined,
     userId
   )

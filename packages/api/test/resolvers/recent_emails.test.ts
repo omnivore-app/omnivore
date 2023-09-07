@@ -146,7 +146,10 @@ describe('Recent Emails Resolver', () => {
 
       expect(resp.body.data.markEmailAsItem.success).to.be.true
 
-      const updatedRecentEmail = await findReceivedEmailById(recentEmail.id)
+      const updatedRecentEmail = await findReceivedEmailById(
+        recentEmail.id,
+        user.id
+      )
       expect(updatedRecentEmail?.type).to.eql('article')
     })
   })

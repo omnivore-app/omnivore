@@ -76,8 +76,11 @@ export const updateHighlight = async (
     const highlightRepo = tx.withRepository(highlightRepository)
     await highlightRepo.updateAndSave(highlightId, highlight)
 
-    return highlightRepo.findOneByOrFail({
-      id: highlightId,
+    return highlightRepo.findOneOrFail({
+      where: { id: highlightId },
+      relations: {
+        libraryItem: true,
+      },
     })
   })
 

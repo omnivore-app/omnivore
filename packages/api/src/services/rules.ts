@@ -36,9 +36,9 @@ export const deleteRule = async (id: string, userId?: string) => {
   return authTrx(
     async (t) => {
       const repo = t.getRepository(Rule)
+      const rule = await repo.findOneByOrFail({ id })
       await repo.delete(id)
-
-      return repo.findOneByOrFail({ id })
+      return rule
     },
     undefined,
     userId

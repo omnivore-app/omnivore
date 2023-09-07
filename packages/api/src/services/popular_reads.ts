@@ -5,7 +5,7 @@ import { DeepPartial, EntityManager } from 'typeorm'
 import { LibraryItem, LibraryItemType } from '../entity/library_item'
 import { authTrx, entityManager } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { generateSlug, stringToHash } from '../utils/helpers'
+import { generateSlug, stringToHash, wordsCount } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { createLibraryItem } from './library_item'
 
@@ -75,6 +75,7 @@ const popularReadToLibraryItem = (
     publishedAt: pr.publishedAt,
     siteName: pr.siteName,
     user: { id: userId },
+    wordCount: wordsCount(pr.content),
   }
 }
 

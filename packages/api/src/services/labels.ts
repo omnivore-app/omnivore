@@ -190,3 +190,23 @@ export const updateLabel = async (
     userId
   )
 }
+
+export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {
+  return authTrx(
+    async (tx) =>
+      tx.withRepository(labelRepository).find({
+        where: { user: { id: userId } },
+        order: { position: 'ASC' },
+      }),
+    undefined,
+    userId
+  )
+}
+
+export const findLabelById = async (id: string, userId: string) => {
+  return authTrx(
+    async (tx) => tx.withRepository(labelRepository).findOneBy({ id }),
+    undefined,
+    userId
+  )
+}

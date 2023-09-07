@@ -178,9 +178,9 @@ export const updateHighlightResolver = authorized<
     const updatedHighlight = await updateHighlight(
       input.highlightId,
       {
-        annotation: input.annotation,
-        html: input.html,
-        quote: input.quote,
+        annotation: input.annotation ?? undefined,
+        html: input.html ?? undefined,
+        quote: input.quote ?? undefined,
       },
       uid,
       pubsub

@@ -20,6 +20,7 @@ import {
   WebhookSuccess,
 } from '../../generated/graphql'
 import { authTrx } from '../../repository'
+import { deleteWebhook } from '../../services/webhook'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
@@ -80,9 +81,9 @@ export const deleteWebhookResolver = authorized<
   DeleteWebhookSuccess,
   DeleteWebhookError,
   MutationDeleteWebhookArgs
->(async (_, { id }, { authTrx, uid, log }) => {
+>(async (_, { id }, { uid, log }) => {
   try {
-    await authTrx(async (t) => t.getRepository(Webhook).delete(id))
+    const webhook = await deleteWebhook(id, uid)
 
     analytics.track({
       userId: uid,
@@ -94,16 +95,7 @@ export const deleteWebhookResolver = authorized<
     })
 
     return {
-      webhook: {
-        id,
-        url: '',
-        eventTypes: [],
-        method: 'POST',
-        contentType: 'application/json',
-        enabled: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      webhook: webhookDataToResponse(webhook),
     }
   } catch (error) {
     log.error('Error deleting webhook', error)

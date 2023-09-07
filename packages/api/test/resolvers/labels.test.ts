@@ -5,12 +5,17 @@ import { Highlight } from '../../src/entity/highlight'
 import { Label } from '../../src/entity/label'
 import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
 import {
   createHighlight,
   findHighlightById,
 } from '../../src/services/highlights'
-import { createLabel, deleteLabels, saveLabelsInHighlight } from '../../src/services/labels'
+import {
+  createLabel,
+  deleteLabels,
+  findLabelById,
+  findLabelsByUserId,
+  saveLabelsInHighlight,
+} from '../../src/services/labels'
 import {
   deleteLibraryItemById,
   findLibraryItemById,
@@ -38,22 +43,17 @@ describe('Labels API', () => {
   })
 
   describe('GET labels', () => {
-    let labels: Label[]
     let query: string
 
     before(async () => {
       //  create testing labels
-      const label1 = await createLabel('label_1', '#ffffff', user.id)
-      const label2 = await createLabel('label_2', '#eeeeee', user.id)
-      labels = [label1, label2]
+      await createLabel('label_1', '#ffffff', user.id)
+      await createLabel('label_2', '#eeeeee', user.id)
     })
 
     after(async () => {
       // clean up
-      await deleteLabels(
-        labels.map((l) => l.id),
-        user.id
-      )
+      await deleteLabels({ user: { id: user.id } }, user.id)
     })
 
     beforeEach(() => {
@@ -80,9 +80,7 @@ describe('Labels API', () => {
     it('should return labels', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
-      const labels = await getRepository(Label).findBy({
-        user: { id: user.id },
-      })
+      const labels = await findLabelsByUserId(user.id)
       expect(res.body.data.labels.labels).to.eql(
         labels.map((label) => ({
           id: label.id,
@@ -148,9 +146,10 @@ describe('Labels API', () => {
 
       it('should create label', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
-        const label = await getRepository(Label).findOneBy({
-          id: res.body.data.createLabel.label.id,
-        })
+        const label = await findLabelById(
+          res.body.data.createLabel.label.id,
+          user.id
+        )
         expect(label).to.exist
       })
     })
@@ -164,15 +163,13 @@ describe('Labels API', () => {
       })
 
       after(async () => {
-        await deleteLabels([existingLabel.id], user.id)
+        await deleteLabels({ id: existingLabel.id }, user.id)
       })
 
       it('should return error code BAD_REQUEST', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
-        expect(res.body.data.createLabel.errorCodes).to.eql([
-          'BAD_REQUEST',
-        ])
+        expect(res.body.data.createLabel.errorCodes).to.eql(['BAD_REQUEST'])
       })
     })
 
@@ -228,7 +225,7 @@ describe('Labels API', () => {
 
         it('should delete label', async () => {
           await graphqlRequest(query, authToken).expect(200)
-          const label = await getRepository(Label).findOneBy({ id: labelId })
+          const label = await findLabelById(labelId, user.id)
           expect(label).not.exist
         })
       })
@@ -335,7 +332,7 @@ describe('Labels API', () => {
     after(async () => {
       // clean up
       await deleteLabels(
-        labels.map((l) => l.id),
+        { user: { id: user.id } },
         user.id
       )
       await deleteLibraryItemById(item.id)
@@ -461,7 +458,7 @@ describe('Labels API', () => {
       })
 
       after(async () => {
-        await deleteLabels([toUpdateLabel.id], user.id)
+        await deleteLabels( { id: toUpdateLabel.id }, user.id)
       })
 
       it('should return the updated label', async () => {
@@ -475,9 +472,7 @@ describe('Labels API', () => {
 
       it('should update the label in db', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const updatedLabel = await getRepository(Label).findOne({
-          where: { id: labelId },
-        })
+        const updatedLabel = await findLabelById(labelId, user.id)
 
         expect(updatedLabel?.name).to.eql(name)
         expect(updatedLabel?.color).to.eql(color)
@@ -538,7 +533,7 @@ describe('Labels API', () => {
     after(async () => {
       // clean up
       await deleteLabels(
-        labels.map((l) => l.id),
+        { user: { id: user.id } },
         user.id
       )
       await deleteLibraryItemById(item.id)
@@ -689,12 +684,7 @@ describe('Labels API', () => {
         expect(res.body.data.moveLabel.label.position).to.eql(
           labels[4].position
         )
-        const reorderedLabels = await getRepository(Label).find({
-          where: {
-            user: { id: user.id },
-          },
-          order: { position: 'ASC' },
-        })
+        const reorderedLabels = await findLabelsByUserId(user.id)
         expect(reorderedLabels.map((l) => l.id)).to.eql([
           labels[0].id,
           labels[2].id,

@@ -16,6 +16,8 @@ CREATE POLICY integrations_policy on omnivore.integrations
   WITH CHECK (user_id = omnivore.get_current_user_id());
 GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.integrations TO omnivore_user;
 
+DROP POLICY read_labels ON omnivore.labels;
+DROP POLICY create_labels ON omnivore.labels;
 CREATE POLICY labels_policy on omnivore.labels
   USING (user_id = omnivore.get_current_user_id())
   WITH CHECK (user_id = omnivore.get_current_user_id());
@@ -38,6 +40,8 @@ CREATE POLICY webhooks_policy on omnivore.webhooks
   WITH CHECK (user_id = omnivore.get_current_user_id());
 GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.webhooks TO omnivore_user;
 
+DROP POLICY read_user_device_tokens ON omnivore.user_device_tokens;
+DROP POLICY create_user_device_tokens ON omnivore.user_device_tokens;
 CREATE POLICY user_device_tokens_policy on omnivore.user_device_tokens
   USING (user_id = omnivore.get_current_user_id())
   WITH CHECK (user_id = omnivore.get_current_user_id());
