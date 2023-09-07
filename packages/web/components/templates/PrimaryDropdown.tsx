@@ -11,7 +11,6 @@ import {
   DropdownSeparator,
 } from '../elements/DropdownElements'
 import GridLayoutIcon from '../elements/images/GridLayoutIcon'
-import ListLayoutIcon from '../elements/images/ListLayoutIcon'
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
@@ -37,6 +36,9 @@ export type HeaderDropdownAction =
   | 'navigate-to-subscriptions'
   | 'navigate-to-api'
   | 'navigate-to-integrations'
+  | 'navigate-to-saved-searches'
+  | 'increaseFontSize'
+  | 'decreaseFontSize'
   | 'logout'
 
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
@@ -67,6 +69,9 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         case 'navigate-to-integrations':
           router.push('/settings/integrations')
           break
+        case 'navigate-to-saved-searches':
+          router.push('/settings/saved-searches')
+          break;
         case 'logout':
           document.dispatchEvent(new Event('logout'))
           break

@@ -765,12 +765,14 @@ export type Filter = {
   __typename?: 'Filter';
   category: Scalars['String'];
   createdAt: Scalars['Date'];
+  defaultFilter?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
   position: Scalars['Int'];
   updatedAt: Scalars['Date'];
+  visible?: Maybe<Scalars['Boolean']>;
 };
 
 export type FiltersError = {
@@ -1289,6 +1291,7 @@ export type Mutation = {
   setWebhook: SetWebhookResult;
   subscribe: SubscribeResult;
   unsubscribe: UnsubscribeResult;
+  updateFilter: UpdateFilterResult;
   updateHighlight: UpdateHighlightResult;
   updateHighlightReply: UpdateHighlightReplyResult;
   updateLabel: UpdateLabelResult;
@@ -1586,6 +1589,11 @@ export type MutationSubscribeArgs = {
 export type MutationUnsubscribeArgs = {
   name: Scalars['String'];
   subscriptionId?: InputMaybe<Scalars['ID']>;
+};
+
+
+export type MutationUpdateFilterArgs = {
+  input: UpdateFilterInput;
 };
 
 
@@ -2248,11 +2256,11 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
-  category: Scalars['String'];
+  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
-  id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
+  position?: InputMaybe<Scalars['Int']>;
 };
 
 export type SaveFilterResult = SaveFilterError | SaveFilterSuccess;
@@ -2835,6 +2843,34 @@ export type UnsubscribeResult = UnsubscribeError | UnsubscribeSuccess;
 export type UnsubscribeSuccess = {
   __typename?: 'UnsubscribeSuccess';
   subscription: Subscription;
+};
+
+export type UpdateFilterError = {
+  __typename?: 'UpdateFilterError';
+  errorCodes: Array<UpdateFilterErrorCode>;
+};
+
+export enum UpdateFilterErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateFilterInput = {
+  category?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  filter?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  name?: InputMaybe<Scalars['String']>;
+  position?: InputMaybe<Scalars['Int']>;
+  visible?: InputMaybe<Scalars['Boolean']>;
+};
+
+export type UpdateFilterResult = UpdateFilterError | UpdateFilterSuccess;
+
+export type UpdateFilterSuccess = {
+  __typename?: 'UpdateFilterSuccess';
+  filter: Filter;
 };
 
 export type UpdateHighlightError = {
@@ -3777,6 +3813,11 @@ export type ResolversTypes = {
   UnsubscribeErrorCode: UnsubscribeErrorCode;
   UnsubscribeResult: ResolversTypes['UnsubscribeError'] | ResolversTypes['UnsubscribeSuccess'];
   UnsubscribeSuccess: ResolverTypeWrapper<UnsubscribeSuccess>;
+  UpdateFilterError: ResolverTypeWrapper<UpdateFilterError>;
+  UpdateFilterErrorCode: UpdateFilterErrorCode;
+  UpdateFilterInput: UpdateFilterInput;
+  UpdateFilterResult: ResolversTypes['UpdateFilterError'] | ResolversTypes['UpdateFilterSuccess'];
+  UpdateFilterSuccess: ResolverTypeWrapper<UpdateFilterSuccess>;
   UpdateHighlightError: ResolverTypeWrapper<UpdateHighlightError>;
   UpdateHighlightErrorCode: UpdateHighlightErrorCode;
   UpdateHighlightInput: UpdateHighlightInput;
@@ -4185,6 +4226,10 @@ export type ResolversParentTypes = {
   UnsubscribeError: UnsubscribeError;
   UnsubscribeResult: ResolversParentTypes['UnsubscribeError'] | ResolversParentTypes['UnsubscribeSuccess'];
   UnsubscribeSuccess: UnsubscribeSuccess;
+  UpdateFilterError: UpdateFilterError;
+  UpdateFilterInput: UpdateFilterInput;
+  UpdateFilterResult: ResolversParentTypes['UpdateFilterError'] | ResolversParentTypes['UpdateFilterSuccess'];
+  UpdateFilterSuccess: UpdateFilterSuccess;
   UpdateHighlightError: UpdateHighlightError;
   UpdateHighlightInput: UpdateHighlightInput;
   UpdateHighlightReplyError: UpdateHighlightReplyError;
@@ -4793,12 +4838,14 @@ export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentTy
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
   category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  defaultFilter?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  visible?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5200,6 +5247,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   setWebhook?: Resolver<ResolversTypes['SetWebhookResult'], ParentType, ContextType, RequireFields<MutationSetWebhookArgs, 'input'>>;
   subscribe?: Resolver<ResolversTypes['SubscribeResult'], ParentType, ContextType, RequireFields<MutationSubscribeArgs, 'input'>>;
   unsubscribe?: Resolver<ResolversTypes['UnsubscribeResult'], ParentType, ContextType, RequireFields<MutationUnsubscribeArgs, 'name'>>;
+  updateFilter?: Resolver<ResolversTypes['UpdateFilterResult'], ParentType, ContextType, RequireFields<MutationUpdateFilterArgs, 'input'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateHighlightReply?: Resolver<ResolversTypes['UpdateHighlightReplyResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightReplyArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
@@ -5907,6 +5955,20 @@ export type UnsubscribeSuccessResolvers<ContextType = ResolverContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateFilterErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateFilterError'] = ResolversParentTypes['UpdateFilterError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateFilterErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateFilterResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateFilterResult'] = ResolversParentTypes['UpdateFilterResult']> = {
+  __resolveType: TypeResolveFn<'UpdateFilterError' | 'UpdateFilterSuccess', ParentType, ContextType>;
+};
+
+export type UpdateFilterSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateFilterSuccess'] = ResolversParentTypes['UpdateFilterSuccess']> = {
+  filter?: Resolver<ResolversTypes['Filter'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdateHighlightErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateHighlightError'] = ResolversParentTypes['UpdateHighlightError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdateHighlightErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6466,6 +6528,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UnsubscribeError?: UnsubscribeErrorResolvers<ContextType>;
   UnsubscribeResult?: UnsubscribeResultResolvers<ContextType>;
   UnsubscribeSuccess?: UnsubscribeSuccessResolvers<ContextType>;
+  UpdateFilterError?: UpdateFilterErrorResolvers<ContextType>;
+  UpdateFilterResult?: UpdateFilterResultResolvers<ContextType>;
+  UpdateFilterSuccess?: UpdateFilterSuccessResolvers<ContextType>;
   UpdateHighlightError?: UpdateHighlightErrorResolvers<ContextType>;
   UpdateHighlightReplyError?: UpdateHighlightReplyErrorResolvers<ContextType>;
   UpdateHighlightReplyResult?: UpdateHighlightReplyResultResolvers<ContextType>;

@@ -15,6 +15,7 @@ import { getRepository, setClaims } from '../src/entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../src/generated/graphql'
 import { AppDataSource } from '../src/server'
 import { createUser } from '../src/services/create_user'
+import { Filter } from "../src/entity/filter"
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -67,6 +68,19 @@ export const deleteTestUser = async (userId: string) => {
   await AppDataSource.transaction(async (t) => {
     await setClaims(t, userId)
     await t.getRepository(User).delete(userId)
+  })
+}
+
+export const deleteFiltersFromUser = async (userId: string) => {
+  await AppDataSource.transaction(async (t) => {
+    await setClaims(t, userId)
+    const filterRepo = t.getRepository(Filter);
+
+    const userFilters = await filterRepo.findBy({ user: { id: userId }})
+
+    await Promise.all(userFilters.map(filter => {
+      return filterRepo.delete(filter.id)
+    }));
   })
 }
 

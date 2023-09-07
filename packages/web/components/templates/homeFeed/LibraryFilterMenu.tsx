@@ -10,6 +10,8 @@ import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { useGetSavedSearchQuery} from '../../../lib/networking/queries/useGetSavedSearchQuery'
+import { SavedSearch } from "../../../lib/networking/fragments/savedSearchFragment"
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
@@ -84,43 +86,16 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
 }
 
 function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
-  const items = [
-    {
-      name: 'Inbox',
-      term: 'in:inbox',
-    },
-    {
-      name: 'Continue Reading',
-      term: 'in:inbox sort:read-desc is:unread',
-    },
-    {
-      name: 'Non-Feed Items',
-      term: 'in:library',
-    },
-    {
-      name: 'Highlights',
-      term: 'has:highlights mode:highlights',
-    },
-    {
-      name: 'Unlabeled',
-      term: 'no:label',
-    },
-    {
-      name: 'Oldest First',
-      term: 'sort:saved-asc',
-    },
-    {
-      name: 'Files',
-      term: 'type:file',
-    },
-    {
-      name: 'Archived',
-      term: 'in:archive',
-    },
-  ]
+  const { savedSearches, isLoading } = useGetSavedSearchQuery();
+
+    const sortedSearches = useMemo(() => {
+        return savedSearches?.filter(it => it.visible)?.sort((left: SavedSearch, right: SavedSearch) =>
+            left.position - right.position
+        )
+    }, [savedSearches])
 
   useRegisterActions(
-    items.map((item, idx) => {
+    (sortedSearches ?? []).map((item, idx) => {
       const key = String(idx + 1)
       return {
         id: `saved_search_${key}`,
@@ -129,11 +104,11 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
         section: 'Saved Searches',
         keywords: '?' + item.name,
         perform: () => {
-          props.applySearchQuery(item.term)
+          props.applySearchQuery(item.filter)
         },
       }
     }),
-    []
+    [isLoading]
   )
 
   const [collapsed, setCollapsed] = usePersistedState<boolean>({
@@ -142,20 +117,23 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
   })
 
   return (
-    <MenuPanel
-      title="Saved Searches"
-      collapsed={collapsed}
-      setCollapsed={setCollapsed}
+    <MenuPanel title="Saved Searches"
+               collapsed={collapsed}
+               setCollapsed={setCollapsed}
     >
-      {!collapsed &&
-        items.map((item) => (
-          <FilterButton
-            key={item.name}
-            text={item.name}
-            filterTerm={item.term}
-            {...props}
-          />
-        ))}
+      {!collapsed && sortedSearches && sortedSearches?.map((item) => (
+        <FilterButton
+          key={item.name}
+          text={item.name}
+          filterTerm={item.filter}
+          {...props}
+        />
+      ))}
+      {!collapsed && (
+      <EditButton
+        title="Edit Saved Searches"
+        destination="/settings/saved-searches"
+      />)}
 
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>
@@ -239,6 +217,7 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
   return (
     <MenuPanel
       title="Labels"
+      editTitle="Edit Labels"
       hideBottomBorder={true}
       collapsed={collapsed}
       setCollapsed={setCollapsed}
@@ -258,9 +237,9 @@ function Labels(props: LibraryFilterMenuProps): JSX.Element {
 type MenuPanelProps = {
   title: string
   children: ReactNode
-
+  editFunc?: () => void
+  editTitle?: string
   hideBottomBorder?: boolean
-
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
 }

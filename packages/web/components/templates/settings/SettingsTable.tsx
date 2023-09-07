@@ -14,7 +14,7 @@ import { FeatureHelpBox } from '../../elements/FeatureHelpBox'
 
 type SettingsTableProps = {
   pageId: string
-  pageInfoLink: string
+  pageInfoLink?: string | undefined
   headerTitle: string
 
   createTitle?: string
@@ -375,7 +375,7 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
                 >
                   {props.headerTitle}
                 </StyledText>
-                <InfoLink href={props.pageInfoLink}></InfoLink>
+                { props.pageInfoLink && <InfoLink href={props.pageInfoLink}></InfoLink> }
               </HStack>
             </Box>
           </Box>
