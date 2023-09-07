@@ -65,7 +65,7 @@ describe('features resolvers', () => {
     context('when user is the first 1500 users', () => {
       after(async () => {
         // reset feature
-        await deleteFeature([], loginUser.id)
+        await deleteFeature({ user: { id: loginUser.id } })
       })
 
       it('opts in to the feature', async () => {
@@ -113,20 +113,20 @@ describe('features resolvers', () => {
 
         const features = users.map((user) => {
           return {
-            user: { id: user.id },
+            user,
             name: featureName,
             grantedAt: new Date(),
           }
         })
 
-        await createFeatures(features, loginUser.id)
+        await createFeatures(features)
       })
 
       after(async () => {
         // reset opt-in users
         Promise.all(users.map((user) => deleteUser(user.id)))
         // reset feature
-        await deleteFeature({ name: featureName }, loginUser.id)
+        await deleteFeature({ name: featureName })
       })
 
       it('does not opt in to the feature', async () => {
@@ -157,19 +157,16 @@ describe('features resolvers', () => {
     context('when user is already opted in', () => {
       before(async () => {
         // opt in
-        await createFeature(
-          {
-            user: { id: loginUser.id },
-            name: featureName,
-            grantedAt: new Date(),
-          },
-          loginUser.id
-        )
+        await createFeature({
+          user: { id: loginUser.id },
+          name: featureName,
+          grantedAt: new Date(),
+        })
       })
 
       after(async () => {
         // reset feature
-        await deleteFeature([], loginUser.id)
+        await deleteFeature({ user: { id: loginUser.id } })
       })
 
       it('returns the feature', async () => {

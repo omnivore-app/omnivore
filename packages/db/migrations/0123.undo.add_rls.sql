@@ -4,9 +4,6 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.features DISABLE ROW LEVEL SECURITY;
-DROP POLICY features_policy on omnivore.features;
-
 ALTER TABLE omnivore.filters DISABLE ROW LEVEL SECURITY;
 DROP POLICY filters_policy on omnivore.filters;
 

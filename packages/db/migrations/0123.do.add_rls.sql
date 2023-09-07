@@ -4,12 +4,6 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.features ENABLE ROW LEVEL SECURITY;
-CREATE POLICY features_policy on omnivore.features
-  USING (user_id = omnivore.get_current_user_id())
-  WITH CHECK (user_id = omnivore.get_current_user_id());
-GRANT SELECT, INSERT, UPDATE ON omnivore.features TO omnivore_user;
-
 ALTER TABLE omnivore.filters ENABLE ROW LEVEL SECURITY;
 CREATE POLICY filters_policy on omnivore.filters
   USING (user_id = omnivore.get_current_user_id())

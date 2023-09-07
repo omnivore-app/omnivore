@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken'
 import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
-import { authTrx, entityManager } from '../repository'
+import { entityManager, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
@@ -25,15 +25,14 @@ export const optInFeature = async (
 }
 
 const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
-  const feature = await authTrx((t) =>
-    t.getRepository(Feature).findOne({
-      where: {
-        name: FeatureName.UltraRealisticVoice,
-        grantedAt: Not(IsNull()),
-      },
-      relations: ['user'],
-    })
-  )
+  const feature = await getRepository(Feature).findOne({
+    where: {
+      name: FeatureName.UltraRealisticVoice,
+      grantedAt: Not(IsNull()),
+      user: { id: uid },
+    },
+    relations: ['user'],
+  })
   if (feature) {
     // already opted in
     logger.info('already opted in')
@@ -63,9 +62,10 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
       name: FeatureName.UltraRealisticVoice,
       grantedAt: null,
     }
-    const result = await authTrx((t) =>
-      t.getRepository(Feature).upsert(optInRecord, ['user', 'name'])
-    )
+    const result = await getRepository(Feature).upsert(optInRecord, [
+      'user',
+      'name',
+    ])
     if (result.generatedMaps.length === 0) {
       throw new Error('failed to update opt-in record')
     }
@@ -99,60 +99,26 @@ export const signFeatureToken = (
   )
 }
 
-export const isOptedIn = async (name: FeatureName): Promise<boolean> => {
-  const feature = await authTrx((t) =>
-    t.getRepository(Feature).findOneBy({
-      name,
-      grantedAt: Not(IsNull()),
-    })
-  )
-
-  return !!feature
-}
-
 export const findFeatureByName = async (
   name: FeatureName,
-  userId?: string
+  userId: string
 ): Promise<Feature | null> => {
-  return authTrx(
-    (t) =>
-      t.getRepository(Feature).findOneBy({
-        name,
-      }),
-    undefined,
-    userId
-  )
+  return await getRepository(Feature).findOneBy({
+    name,
+    user: { id: userId },
+  })
 }
 
 export const deleteFeature = async (
-  criteria: string[] | FindOptionsWhere<Feature>,
-  userId: string
+  criteria: string[] | FindOptionsWhere<Feature>
 ) => {
-  return authTrx(
-    (t) => t.getRepository(Feature).delete(criteria),
-    undefined,
-    userId
-  )
+  return getRepository(Feature).delete(criteria)
 }
 
-export const createFeature = async (
-  feature: DeepPartial<Feature>,
-  userId: string
-) => {
-  return authTrx(
-    (t) => t.getRepository(Feature).save(feature),
-    undefined,
-    userId
-  )
+export const createFeature = async (feature: DeepPartial<Feature>) => {
+  return getRepository(Feature).save(feature)
 }
 
-export const createFeatures = async (
-  features: DeepPartial<Feature>[],
-  userId: string
-) => {
-  return authTrx(
-    (t) => t.getRepository(Feature).save(features),
-    undefined,
-    userId
-  )
+export const createFeatures = async (features: DeepPartial<Feature>[]) => {
+  return getRepository(Feature).save(features)
 }
