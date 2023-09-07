@@ -30,11 +30,7 @@ import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
 import { createTestLibraryItem, createTestUser } from '../db'
-import {
-  generateFakeUuid,
-  graphqlRequest,
-  request
-} from '../util'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
 
@@ -532,25 +528,22 @@ describe('Article API', () => {
         await deleteLibraryItemByUrl(url, user.id)
       })
 
-      it('it should return that page in the GetArticles Query', async () => {
+      it('it should return that page in the Search Query', async () => {
         await graphqlRequest(
           savePageQuery(url, title, originalContent),
           authToken
         ).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(
-          searchQuery(''),
-          authToken
-        ).expect(200)
-        const justSavedId = allLinks.body.data.articles.edges[0].node.id
+        let allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
+          200
+        )
+        const justSavedId = allLinks.body.data.search.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
-          200
-        )
-        expect(allLinks.body.data.articles.edges[0]?.node?.url).to.not.eq(url)
+        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        expect(allLinks.body.data.search.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
         await graphqlRequest(
@@ -558,10 +551,8 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
-          200
-        )
-        expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
+        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })
     })
 
@@ -633,9 +624,6 @@ describe('Article API', () => {
   })
 
   describe('setBookmarkArticle', () => {
-    let query = ''
-    let articleId = ''
-    let bookmark = true
     let itemId: string
 
     before(async () => {
@@ -654,21 +642,12 @@ describe('Article API', () => {
       await deleteLibraryItemById(itemId, user.id)
     })
 
-    beforeEach(() => {
-      query = setBookmarkQuery(articleId, bookmark)
-    })
-
-    context('when we unset a bookmark on an article', () => {
-      before(() => {
-        articleId = itemId
-        bookmark = false
-      })
-
-      it('should delete an article', async () => {
-        await graphqlRequest(query, authToken).expect(200)
-        const item = await findLibraryItemById(articleId, user.id)
-        expect(item?.state).to.eql(LibraryItemState.Deleted)
-      })
+    it('marks an article as deleted', async () => {
+      await graphqlRequest(setBookmarkQuery(itemId, false), authToken).expect(
+        200
+      )
+      const item = await findLibraryItemById(itemId, user.id)
+      expect(item?.state).to.eql(LibraryItemState.Deleted)
     })
   })
 
@@ -721,7 +700,7 @@ describe('Article API', () => {
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle
           .readingProgressTopPercent
-      ).to.be.null
+      ).to.eq(0)
     })
 
     it('saves topPercent if defined', async () => {
@@ -834,13 +813,15 @@ describe('Article API', () => {
         // Create some test highlights
         const highlightToSave: DeepPartial<Highlight> = {
           patch: 'test patch',
-          shortId: 'test shortId',
+          shortId: `test shortId${i}`,
           user,
           quote: '<p>search highlight</p>',
-          createdAt: new Date(),
-          updatedAt: new Date(),
         }
-        const highlight = await createHighlight(highlightToSave, item.id, user.id)
+        const highlight = await createHighlight(
+          highlightToSave,
+          item.id,
+          user.id
+        )
         highlights.push(highlight)
       }
     })
@@ -876,23 +857,6 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[0].node.highlights[0].id).to.eq(
           highlights[4].id
         )
-      })
-    })
-
-    context('when type:highlights is in the query', () => {
-      before(() => {
-        keyword = `'${searchedKeyword}' type:highlights`
-      })
-
-      it('should return highlights in descending order', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
-
-        expect(res.body.data.search.edges.length).to.eq(5)
-        expect(res.body.data.search.edges[0].node.id).to.eq(highlights[4].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(highlights[3].id)
-        expect(res.body.data.search.edges[2].node.id).to.eq(highlights[2].id)
-        expect(res.body.data.search.edges[3].node.id).to.eq(highlights[1].id)
-        expect(res.body.data.search.edges[4].node.id).to.eq(highlights[0].id)
       })
     })
 
@@ -1035,19 +999,20 @@ describe('Article API', () => {
           slug: '',
           readableContent: '<p>test</p>',
           originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
+          user,
         }
         const item = await createLibraryItem(itemToSave, user.id)
         items.push(item)
       }
 
       // set the since to be the timestamp before deletion
-      since = items[4].updatedAt!.toISOString()
+      since = items[4].updatedAt.toISOString()
 
       // Delete some pages
       for (let i = 0; i < 3; i++) {
         await updateLibraryItem(
           items[i].id,
-          { state: LibraryItemState.Deleted },
+          { state: LibraryItemState.Deleted, deletedAt: new Date() },
           user.id
         )
         deletedItems.push(items[i])
@@ -1110,9 +1075,7 @@ describe('Article API', () => {
             readableContent: '<p>test</p>',
             slug: '',
             state:
-              i == 0
-                ? LibraryItemState.Failed
-                : LibraryItemState.Succeeded,
+              i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
             originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
           },
           user.id

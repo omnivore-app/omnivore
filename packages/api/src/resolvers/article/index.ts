@@ -4,6 +4,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
+import { DeepPartial } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import {
   LibraryItem,
   LibraryItemState,
@@ -590,13 +592,13 @@ export const saveArticleReadingProgressResolver = authorized<
       : undefined
     // If setting to zero we accept the update, otherwise we require it
     // be greater than the current reading progress.
-    const updatedPart = {
+    const updatedPart: DeepPartial<LibraryItem> = {
       readingProgressBottomPercent:
         readingProgressPercent === 0
           ? 0
           : Math.max(
               readingProgressPercent,
-              libraryItem.readingProgressTopPercent
+              libraryItem.readingProgressBottomPercent
             ),
       readingProgressHighestReadAnchor:
         readingProgressAnchorIndex === 0
@@ -726,7 +728,7 @@ export const updatesSinceResolver = authorized<
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
-      dateFilters: [{ field: 'updatedAt', startDate }],
+      dateFilters: [{ field: 'updated_at', startDate }],
       sort,
     },
     uid

@@ -23,11 +23,15 @@ export const createHighlight = async (
   userId: string,
   pubsub = createPubSubClient()
 ) => {
-  const newHighlight = await authTrx(async (tx) => {
-    return tx
-      .withRepository(highlightRepository)
-      .createAndSave(highlight, libraryItemId, userId)
-  })
+  const newHighlight = await authTrx(
+    async (tx) => {
+      return tx
+        .withRepository(highlightRepository)
+        .createAndSave(highlight, libraryItemId, userId)
+    },
+    undefined,
+    userId
+  )
 
   await pubsub.entityCreated<HighlightEvent>(
     EntityType.HIGHLIGHT,

@@ -303,14 +303,17 @@ export const findLibraryItemById = async (
   id: string,
   userId: string
 ): Promise<LibraryItem | null> => {
-  return authTrx(async (tx) =>
-    tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .leftJoinAndSelect('library_item.labels', 'labels')
-      .leftJoinAndSelect('library_item.highlights', 'highlights')
-      .where('library_item.user_id = :userId', { userId })
-      .andWhere('library_item.id = :id', { id })
-      .getOne()
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.id = :id', { id })
+        .getOne(),
+    undefined,
+    userId
   )
 }
 
