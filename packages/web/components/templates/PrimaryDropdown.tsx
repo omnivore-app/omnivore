@@ -11,11 +11,11 @@ import {
   DropdownSeparator,
 } from '../elements/DropdownElements'
 import GridLayoutIcon from '../elements/images/GridLayoutIcon'
+import ListLayoutIcon from '../elements/images/ListLayoutIcon'
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
-import { ListViewIcon } from '../elements/icons/ListViewIcon'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -71,7 +71,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           break
         case 'navigate-to-saved-searches':
           router.push('/settings/saved-searches')
-          break;
+          break
         case 'logout':
           document.dispatchEvent(new Event('logout'))
           break
