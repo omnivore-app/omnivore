@@ -58,17 +58,14 @@ export function notificationRouter() {
       tokens: tokens.map((token) => token.token),
     }
 
-    // Debounce the sendMulticastPushNotifications function with a delay of 1 minute
-    debounce(async () => {
-      const result = await sendMulticastPushNotifications(
-        userId,
-        message,
-        notificationType || 'rule'
-      )
-      if (!result) {
-        return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
-      }
-    }, 60 * 1000)
+    const result = await sendMulticastPushNotifications(
+      userId,
+      message,
+      notificationType || 'rule'
+    )
+    if (!result) {
+      return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
+    }
 
     res.send('OK')
   })
