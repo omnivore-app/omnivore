@@ -32,9 +32,9 @@ type LibraryFilterMenuProps = {
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
-  const { labels, isValidating: labelsLoading } = useGetLabelsQuery()
+  const { labels, isLoading: labelsLoading } = useGetLabelsQuery()
   const { savedSearches, isLoading: searchesLoading } = useGetSavedSearchQuery()
-  const { subscriptions, isValidating: subscriptionsLoading } =
+  const { subscriptions, isLoading: subscriptionsLoading } =
     useGetSubscriptionsQuery()
 
   return (
