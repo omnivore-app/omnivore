@@ -16,7 +16,11 @@ import {
 
 type AddLinkModalProps = {
   onOpenChange: (open: boolean) => void
-  handleLinkSubmission: (link: string, timezone: string, locale:string) => Promise<void>,
+  handleLinkSubmission: (
+    link: string,
+    timezone: string,
+    locale: string
+  ) => Promise<void>
 }
 
 export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
@@ -73,7 +77,7 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
               <FormInput
                 type="url"
                 value={link}
-                autoFocus
+                autoFocus={true}
                 placeholder="https://example.com"
                 onChange={(event) => setLink(event.target.value)}
                 css={{

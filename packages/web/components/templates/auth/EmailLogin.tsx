@@ -14,9 +14,8 @@ export function EmailLogin(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -51,6 +50,7 @@ export function EmailLogin(): JSX.Element {
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
             <BorderedFormInput
+              autoFocus={true}
               key="email"
               type="email"
               name="email"
