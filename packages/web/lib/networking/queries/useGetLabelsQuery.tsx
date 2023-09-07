@@ -4,6 +4,7 @@ import { Label, labelFragment } from '../fragments/labelFragment'
 import { publicGqlFetcher } from '../networkHelpers'
 
 type LabelsQueryResponse = {
+  isLoading: boolean
   isValidating: boolean
   labels: Label[]
   revalidate: () => void
@@ -41,6 +42,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
       const result = data as LabelsResponseData
       const labels = result.labels?.labels as Label[]
       return {
+        isLoading: !error && !data,
         isValidating,
         labels,
         revalidate: () => {
@@ -52,6 +54,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
     console.log('error', error)
   }
   return {
+    isLoading: !error && !data,
     isValidating: false,
     labels: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function

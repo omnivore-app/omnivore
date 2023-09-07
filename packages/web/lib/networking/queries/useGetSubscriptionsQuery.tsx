@@ -25,6 +25,7 @@ export type Subscription = {
 }
 
 type SubscriptionsQueryResponse = {
+  isLoading: boolean
   isValidating: boolean
   subscriptions: Subscription[]
   revalidate: () => void
@@ -84,6 +85,7 @@ export function useGetSubscriptionsQuery(
       const result = data as SubscriptionsResponseData
       const subscriptions = result.subscriptions.subscriptions as Subscription[]
       return {
+        isLoading: !error && !data,
         isValidating,
         subscriptions,
         revalidate: () => {
@@ -95,6 +97,7 @@ export function useGetSubscriptionsQuery(
     console.log('error', error)
   }
   return {
+    isLoading: !error && !data,
     isValidating: true,
     subscriptions: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function
