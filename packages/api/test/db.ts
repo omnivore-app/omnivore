@@ -11,8 +11,10 @@ import { getRepository } from '../src/repository'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
 import { Filter } from "../src/entity/filter"
+import { saveLabelsInLibraryItem } from '../src/services/labels'
 import { createLibraryItem } from '../src/services/library_item'
 import { createDeviceToken } from '../src/services/user_device_tokens'
+import { generateFakeUuid } from './util'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -133,10 +135,14 @@ export const createTestLibraryItem = async (
     user: { id: userId },
     title: 'test title',
     originalContent: '<p>test content</p>',
-    originalUrl: 'https://blog.omnivore.app/test-url',
+    originalUrl: `https://blog.omnivore.app/test-url-${generateFakeUuid()}`,
     slug: 'test-with-omnivore',
-    labels,
   }
 
-  return createLibraryItem(item, userId)
+  const createdItem = await createLibraryItem(item, userId)
+  if (labels) {
+    await saveLabelsInLibraryItem(labels, createdItem.id, userId)
+  }
+
+  return createdItem
 }

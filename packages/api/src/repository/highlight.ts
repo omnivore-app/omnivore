@@ -1,4 +1,5 @@
 import { DeepPartial } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { entityManager } from '.'
 import { Highlight } from '../entity/highlight'
 import { unescapeHtml } from '../utils/helpers'
@@ -26,15 +27,22 @@ export const highlightRepository = entityManager
       })
     },
 
-    createAndSave(
-      highlight: DeepPartial<Highlight>,
-      libraryItemId: string,
-      userId: string
+    createAndSave(highlight: DeepPartial<Highlight>) {
+      return this.save(unescapeHighlight(highlight))
+    },
+
+    updateAndSave(
+      highlightId: string,
+      highlight: QueryDeepPartialEntity<Highlight>
     ) {
-      return this.save({
-        ...unescapeHighlight(highlight),
-        user: { id: userId },
-        libraryItem: { id: libraryItemId },
+      return this.update(highlightId, {
+        ...highlight,
+        annotation: highlight.annotation
+          ? unescapeHtml(highlight.annotation.toString())
+          : undefined,
+        quote: highlight.quote
+          ? unescapeHtml(highlight.quote.toString())
+          : undefined,
       })
     },
   })

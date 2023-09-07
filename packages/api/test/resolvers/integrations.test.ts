@@ -6,9 +6,9 @@ import { Integration } from '../../src/entity/integration'
 import { User } from '../../src/entity/user'
 import { SetIntegrationErrorCode } from '../../src/generated/graphql'
 import {
-  createIntegration,
   deleteIntegrations,
   findIntegration,
+  saveIntegration,
   updateIntegration,
 } from '../../src/services/integrations'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
@@ -168,11 +168,14 @@ describe('Integrations resolvers', () => {
 
           before(async () => {
             otherUser = await createTestUser('otherUser')
-            existingIntegration = await createIntegration({
-              user: { id: otherUser.id },
-              name: 'READWISE',
-              token: 'fakeToken',
-            }, otherUser.id)
+            existingIntegration = await saveIntegration(
+              {
+                user: { id: otherUser.id },
+                name: 'READWISE',
+                token: 'fakeToken',
+              },
+              otherUser.id
+            )
             integrationId = existingIntegration.id
           })
 
@@ -187,18 +190,21 @@ describe('Integrations resolvers', () => {
               authToken
             )
             expect(res.body.data.setIntegration.errorCodes).to.eql([
-              SetIntegrationErrorCode.Unauthorized,
+              SetIntegrationErrorCode.NotFound,
             ])
           })
         })
 
         context('when integration belongs to the user', () => {
           before(async () => {
-            existingIntegration = await createIntegration({
-              user: { id: loginUser.id },
-              name: 'READWISE',
-              token: 'fakeToken',
-            }, loginUser.id)
+            existingIntegration = await saveIntegration(
+              {
+                user: { id: loginUser.id },
+                name: 'READWISE',
+                token: 'fakeToken',
+              },
+              loginUser.id
+            )
             integrationId = existingIntegration.id
           })
 
@@ -294,11 +300,14 @@ describe('Integrations resolvers', () => {
     let existingIntegration: Integration
 
     before(async () => {
-      existingIntegration = await createIntegration({
-        user: { id: loginUser.id },
-        name: 'READWISE',
-        token: 'fakeToken',
-      }, loginUser.id)
+      existingIntegration = await saveIntegration(
+        {
+          user: { id: loginUser.id },
+          name: 'READWISE',
+          token: 'fakeToken',
+        },
+        loginUser.id
+      )
     })
 
     after(async () => {
@@ -340,12 +349,15 @@ describe('Integrations resolvers', () => {
       let existingIntegration: Integration
 
       beforeEach(async () => {
-        existingIntegration = await createIntegration({
-          user: { id: loginUser.id },
-          name: 'READWISE',
-          token: 'fakeToken',
-          taskName: 'some task name',
-        }, loginUser.id)
+        existingIntegration = await saveIntegration(
+          {
+            user: { id: loginUser.id },
+            name: 'READWISE',
+            token: 'fakeToken',
+            taskName: 'some task name',
+          },
+          loginUser.id
+        )
       })
 
       it('deletes the integration and cloud task', async () => {
@@ -383,11 +395,14 @@ describe('Integrations resolvers', () => {
 
     context('when integration exists', () => {
       before(async () => {
-        existingIntegration = await createIntegration({
-          user: { id: loginUser.id },
-          name: 'POCKET',
-          token: 'fakeToken',
-        }, loginUser.id)
+        existingIntegration = await saveIntegration(
+          {
+            user: { id: loginUser.id },
+            name: 'POCKET',
+            token: 'fakeToken',
+          },
+          loginUser.id
+        )
       })
 
       after(async () => {

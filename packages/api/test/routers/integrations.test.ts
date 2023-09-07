@@ -10,9 +10,12 @@ import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
 import { PubSubRequestBody } from '../../src/pubsub'
-import { authTrx, getRepository } from '../../src/repository'
 import { createHighlight, getHighlightUrl } from '../../src/services/highlights'
-import { deleteIntegrations } from '../../src/services/integrations'
+import {
+  deleteIntegrations,
+  saveIntegration,
+  updateIntegration,
+} from '../../src/services/integrations'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { deleteLibraryItemById } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
@@ -127,14 +130,12 @@ describe('Integrations routers', () => {
           let highlightsData: string
 
           before(async () => {
-            integration = await authTrx(
-              (t) =>
-                t.getRepository(Integration).save({
-                  user: { id: user.id },
-                  name: 'READWISE',
-                  token: 'token',
-                }),
-              undefined,
+            integration = await saveIntegration(
+              {
+                user: { id: user.id },
+                name: 'READWISE',
+                token: 'token',
+              },
               user.id
             )
             integrationName = integration.name
@@ -309,10 +310,14 @@ describe('Integrations routers', () => {
               })
                 .post('/highlights', highlightsData)
                 .reply(200)
-              await getRepository(Integration).update(integration.id, {
-                syncedAt: null,
-                taskName: 'some task name',
-              })
+              await updateIntegration(
+                integration.id,
+                {
+                  syncedAt: null,
+                  taskName: 'some task name',
+                },
+                user.id
+              )
             })
 
             it('returns 200 with OK', async () => {
@@ -334,15 +339,13 @@ describe('Integrations routers', () => {
     before(async () => {
       token = 'test token'
       // create integration
-      integration = await authTrx(
-        (t) =>
-          t.getRepository(Integration).save({
-            user: { id: user.id },
-            name: 'POCKET',
-            token,
-            type: IntegrationType.Import,
-          }),
-        undefined,
+      integration = await saveIntegration(
+        {
+          user: { id: user.id },
+          name: 'POCKET',
+          token,
+          type: IntegrationType.Import,
+        },
         user.id
       )
 

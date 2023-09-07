@@ -61,14 +61,17 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const uploadFileData = await authTrx((tx) =>
-        tx.getRepository(UploadFile).save({
-          url: '',
-          userId: user.id,
-          fileName: fileName,
-          status: UploadFileStatus.Initialized,
-          contentType: contentType,
-        })
+      const uploadFileData = await authTrx(
+        (tx) =>
+          tx.getRepository(UploadFile).save({
+            url: '',
+            userId: user.id,
+            fileName: fileName,
+            status: UploadFileStatus.Initialized,
+            contentType: contentType,
+          }),
+        undefined,
+        user.id
       )
 
       if (uploadFileData.id) {
@@ -165,7 +168,7 @@ export function emailAttachmentRouter() {
       const pageId = await createLibraryItem(articleToSave, user.id)
 
       // update received email type
-      await updateReceivedEmail(receivedEmailId, 'article')
+      await updateReceivedEmail(receivedEmailId, 'article', user.id)
 
       res.send({ id: pageId })
     } catch (err) {

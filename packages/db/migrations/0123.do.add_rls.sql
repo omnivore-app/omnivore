@@ -16,12 +16,6 @@ CREATE POLICY integrations_policy on omnivore.integrations
   WITH CHECK (user_id = omnivore.get_current_user_id());
 GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.integrations TO omnivore_user;
 
-ALTER TABLE omnivore.newsletter_emails ENABLE ROW LEVEL SECURITY;
-CREATE POLICY newsletter_emails_policy on omnivore.newsletter_emails
-  USING (user_id = omnivore.get_current_user_id())
-  WITH CHECK (user_id = omnivore.get_current_user_id());
-GRANT SELECT, INSERT, DELETE ON omnivore.newsletter_emails TO omnivore_user;
-
 CREATE POLICY labels_policy on omnivore.labels
   USING (user_id = omnivore.get_current_user_id())
   WITH CHECK (user_id = omnivore.get_current_user_id());
@@ -48,13 +42,5 @@ CREATE POLICY user_device_tokens_policy on omnivore.user_device_tokens
   USING (user_id = omnivore.get_current_user_id())
   WITH CHECK (user_id = omnivore.get_current_user_id());
 GRANT SELECT, INSERT, DELETE ON omnivore.user_device_tokens TO omnivore_user;
-
-ALTER TABLE omnivore.search_history ENABLE ROW LEVEL SECURITY;
-CREATE POLICY search_history_policy on omnivore.search_history
-  USING (user_id = omnivore.get_current_user_id())
-  WITH CHECK (user_id = omnivore.get_current_user_id());
-GRANT SELECT, INSERT, DELETE ON omnivore.search_history TO omnivore_user;
-
-
 
 COMMIT;

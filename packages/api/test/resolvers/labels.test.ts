@@ -43,8 +43,8 @@ describe('Labels API', () => {
 
     before(async () => {
       //  create testing labels
-      const label1 = await createLabel(user.id, 'label_1', '#ffffff')
-      const label2 = await createLabel(user.id, 'label_2', '#eeeeee')
+      const label1 = await createLabel('label_1', '#ffffff', user.id)
+      const label2 = await createLabel('label_2', '#eeeeee', user.id)
       labels = [label1, label2]
     })
 
@@ -159,7 +159,7 @@ describe('Labels API', () => {
       let existingLabel: Label
 
       before(async () => {
-        existingLabel = await createLabel(user.id, 'label3', '#ffffff')
+        existingLabel = await createLabel('label3', '#ffffff', user.id)
         name = existingLabel.name
       })
 
@@ -219,9 +219,9 @@ describe('Labels API', () => {
       context('when label is not used', () => {
         before(async () => {
           toDeleteLabel = await createLabel(
-            user.id,
             'label not in use',
-            '#ffffff'
+            '#ffffff',
+            user.id
           )
           labelId = toDeleteLabel.id
         })
@@ -237,7 +237,7 @@ describe('Labels API', () => {
         let item: LibraryItem
 
         before(async () => {
-          toDeleteLabel = await createLabel(user.id, 'page label', '#ffffff')
+          toDeleteLabel = await createLabel('page label', '#ffffff', user.id)
           labelId = toDeleteLabel.id
           item = await createTestLibraryItem(user.id, [toDeleteLabel])
         })
@@ -261,9 +261,9 @@ describe('Labels API', () => {
         before(async () => {
           item = await createTestLibraryItem(user.id)
           toDeleteLabel = await createLabel(
-            user.id,
             'highlight label',
-            '#ffffff'
+            '#ffffff',
+            user.id
           )
           labelId = toDeleteLabel.id
           const highlight: DeepPartial<Highlight> = {
@@ -326,8 +326,8 @@ describe('Labels API', () => {
 
     before(async () => {
       //  create testing labels
-      const label1 = await createLabel(user.id, 'label_1', '#ffffff')
-      const label2 = await createLabel(user.id, 'label_2', '#eeeeee')
+      const label1 = await createLabel('label_1', '#ffffff', user.id)
+      const label2 = await createLabel('label_2', '#eeeeee', user.id)
       labels = [label1, label2]
       item = await createTestLibraryItem(user.id)
     })
@@ -454,7 +454,7 @@ describe('Labels API', () => {
       let toUpdateLabel: Label
 
       before(async () => {
-        toUpdateLabel = await createLabel(user.id, 'label5', '#ffffff')
+        toUpdateLabel = await createLabel('label5', '#ffffff', user.id)
         labelId = toUpdateLabel.id
         name = 'Updated label'
         color = '#aabbcc'
@@ -529,8 +529,8 @@ describe('Labels API', () => {
 
     before(async () => {
       //  create testing labels
-      const label1 = await createLabel(user.id, 'label_1', '#ffffff')
-      const label2 = await createLabel(user.id, 'label_2', '#eeeeee')
+      const label1 = await createLabel('label_1', '#ffffff', user.id)
+      const label2 = await createLabel('label_2', '#eeeeee', user.id)
       labels = [label1, label2]
       item = await createTestLibraryItem(user.id)
     })
@@ -572,15 +572,14 @@ describe('Labels API', () => {
 
     context('when labels exists', () => {
       before(async () => {
-        highlightId = generateFakeUuid()
         const highlight: DeepPartial<Highlight> = {
           id: highlightId,
           patch: 'test patch',
           quote: 'test quote',
-          shortId: 'test shortId',
+          shortId: generateFakeUuid(),
           user,
         }
-        await createHighlight(highlight, item.id, user.id)
+        highlightId = (await createHighlight(highlight, item.id, user.id)).id
         labelIds = [labels[0].id, labels[1].id]
       })
 
@@ -594,15 +593,13 @@ describe('Labels API', () => {
 
     context('when labels not exist', () => {
       before(async () => {
-        highlightId = generateFakeUuid()
         const highlight: DeepPartial<Highlight> = {
-          id: highlightId,
           patch: 'test patch',
           quote: 'test quote',
-          shortId: 'test shortId',
+          shortId: generateFakeUuid(),
           user,
         }
-        await createHighlight(highlight, item.id, user.id)
+        highlightId = (await createHighlight(highlight, item.id, user.id)).id
         labelIds = [generateFakeUuid(), generateFakeUuid()]
       })
 
@@ -657,7 +654,7 @@ describe('Labels API', () => {
     before(async () => {
       //  create testing labels
       for (let i = 0; i < 5; i++) {
-        const label = await createLabel(user.id, `label_${i}`, '#ffffff')
+        const label = await createLabel(`label_${i}`, '#ffffff', user.id)
         labels.push(label)
       }
     })

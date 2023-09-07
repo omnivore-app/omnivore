@@ -57,7 +57,7 @@ export const labelRepository = entityManager.getRepository(Label).extend({
       .getMany()
   },
 
-  findByIds(labelIds: string[]) {
+  findLabelsById(labelIds: string[]) {
     return this.find({
       where: { id: In(labelIds) },
       select: ['id', 'name', 'color', 'description', 'createdAt'],

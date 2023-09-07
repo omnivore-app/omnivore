@@ -67,7 +67,7 @@ export const saveUrlResolver = authorized<
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return saveUrl(ctx, user, input)
+  return saveUrl(input, user)
 })
 
 export const saveFileResolver = authorized<

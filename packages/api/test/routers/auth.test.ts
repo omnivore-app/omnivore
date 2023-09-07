@@ -56,7 +56,7 @@ describe('auth router', () => {
       })
 
       afterEach(async () => {
-        const user = await getRepository(User).findOneBy({ name })
+        const user = await userRepository.findOneBy({ name })
         await deleteUser(user!.id)
       })
 
@@ -83,7 +83,7 @@ describe('auth router', () => {
 
         it('creates the user with pending status and correct name', async () => {
           await signupRequest(email, password, name, username).expect(302)
-          const user = await getRepository(User).findOneBy({ name })
+          const user = await userRepository.findOneBy({ name })
 
           expect(user?.status).to.eql(StatusType.Pending)
           expect(user?.name).to.eql(name)

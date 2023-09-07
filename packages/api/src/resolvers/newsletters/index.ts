@@ -12,6 +12,7 @@ import {
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,
@@ -78,7 +79,7 @@ export const deleteNewsletterEmailResolver = authorized<
   DeleteNewsletterEmailSuccess,
   DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs
->(async (_parent, args, { authTrx, uid, log }) => {
+>(async (_parent, args, { uid, log }) => {
   analytics.track({
     userId: uid,
     event: 'newsletter_email_address_deleted',
@@ -88,14 +89,13 @@ export const deleteNewsletterEmailResolver = authorized<
   })
 
   try {
-    const newsletterEmail = await authTrx((t) =>
-      t.getRepository(NewsletterEmail).findOne({
-        where: {
-          id: args.newsletterEmailId,
-        },
-        relations: ['user', 'subscriptions'],
-      })
-    )
+    const newsletterEmail = await getRepository(NewsletterEmail).findOne({
+      where: {
+        id: args.newsletterEmailId,
+        user: { id: uid },
+      },
+      relations: ['user', 'subscriptions'],
+    })
 
     if (!newsletterEmail) {
       return {
@@ -120,8 +120,8 @@ export const deleteNewsletterEmailResolver = authorized<
         errorCodes: [DeleteNewsletterEmailErrorCode.NotFound],
       }
     }
-  } catch (e) {
-    log.info(e)
+  } catch (error) {
+    log.error('deleteNewsletterEmailResolver', error)
 
     return {
       errorCodes: [DeleteNewsletterEmailErrorCode.BadRequest],

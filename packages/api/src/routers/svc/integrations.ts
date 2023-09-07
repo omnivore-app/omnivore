@@ -5,12 +5,15 @@ import { stringify } from 'csv-stringify'
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { Integration, IntegrationType } from '../../entity/integration'
+import { IntegrationType } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
 import { EntityType, readPushSubscription } from '../../pubsub'
-import { getRepository } from '../../repository'
 import { Claims } from '../../resolvers/types'
-import { getIntegrationService } from '../../services/integrations'
+import {
+  findIntegration,
+  getIntegrationService,
+  updateIntegration,
+} from '../../services/integrations'
 import {
   findLibraryItemById,
   searchLibraryItems,
@@ -65,12 +68,14 @@ export function integrationsServiceRouter() {
         return
       }
 
-      const integration = await getRepository(Integration).findOneBy({
-        user: { id: userId },
-        name: req.params.integrationName.toUpperCase(),
-        type: IntegrationType.Export,
-        enabled: true,
-      })
+      const integration = await findIntegration(
+        {
+          name: req.params.integrationName.toUpperCase(),
+          type: IntegrationType.Export,
+          enabled: true,
+        },
+        userId
+      )
       if (!integration) {
         logger.info('No active integration found for user', { userId })
         res.status(200).send('No integration found')
@@ -158,9 +163,13 @@ export function integrationsServiceRouter() {
           }
         }
         // delete task name if completed
-        await getRepository(Integration).update(integration.id, {
-          taskName: null,
-        })
+        await updateIntegration(
+          integration.id,
+          {
+            taskName: null,
+          },
+          userId
+        )
       } else {
         logger.info('unknown action', { action })
         res.status(200).send('Unknown action')
@@ -197,12 +206,14 @@ export function integrationsServiceRouter() {
     let writeStream: NodeJS.WritableStream | undefined
     try {
       const userId = claims.uid
-      const integration = await getRepository(Integration).findOneBy({
-        user: { id: userId },
-        id: req.body.integrationId,
-        enabled: true,
-        type: IntegrationType.Import,
-      })
+      const integration = await findIntegration(
+        {
+          id: req.body.integrationId,
+          enabled: true,
+          type: IntegrationType.Import,
+        },
+        userId
+      )
       if (!integration) {
         logger.info('No active integration found for user', { userId })
         return res.status(200).send('No integration found')
@@ -270,10 +281,14 @@ export function integrationsServiceRouter() {
       }
 
       // update the integration's syncedAt and remove taskName
-      await getRepository(Integration).update(integration.id, {
-        syncedAt: new Date(syncedAt),
-        taskName: null,
-      })
+      await updateIntegration(
+        integration.id,
+        {
+          syncedAt: new Date(syncedAt),
+          taskName: null,
+        },
+        userId
+      )
     } catch (err) {
       logger.error('import pages from integration failed', err)
       return res.status(500).send(err)

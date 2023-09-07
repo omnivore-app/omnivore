@@ -1,16 +1,13 @@
-import { createTestLibraryItem, createTestUser } from '../db'
-import {
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
+import chaiString from 'chai-string'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import chaiString from 'chai-string'
+import { createHighlight } from '../../src/services/highlights'
 import { updateLibraryItem } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
 
@@ -140,7 +137,7 @@ const updateHighlightQuery = ({
 describe('Highlights API', () => {
   let authToken: string
   let user: User
-  let pageId: string
+  let itemId: string
 
   before(async () => {
     // create test user and login
@@ -150,7 +147,7 @@ describe('Highlights API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-    pageId = (await createTestLibraryItem(user.id)).id
+    itemId = (await createTestLibraryItem(user.id)).id
   })
 
   after(async () => {
@@ -165,7 +162,7 @@ describe('Highlights API', () => {
       const highlightPositionAnchorIndex = 15
       const html = '<p>test</p>'
       const query = createHighlightQuery(
-        pageId,
+        itemId,
         highlightId,
         shortHighlightId,
         highlightPositionPercent,
@@ -192,7 +189,7 @@ describe('Highlights API', () => {
         const highlightPositionPercent = 50.0
         const highlightPositionAnchorIndex = 25
         const query = createHighlightQuery(
-          pageId,
+          itemId,
           newHighlightId,
           newShortHighlightId,
           highlightPositionPercent,
@@ -214,7 +211,7 @@ describe('Highlights API', () => {
       // create test highlight
       highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id_1'
-      const query = createHighlightQuery(pageId, highlightId, shortHighlightId)
+      const query = createHighlightQuery(itemId, highlightId, shortHighlightId)
       await graphqlRequest(query, authToken).expect(200)
     })
 
@@ -224,7 +221,7 @@ describe('Highlights API', () => {
       const highlightPositionPercent = 50.0
       const highlightPositionAnchorIndex = 25
       const query = mergeHighlightQuery(
-        pageId,
+        itemId,
         newHighlightId,
         newShortHighlightId,
         [highlightId],
@@ -248,23 +245,16 @@ describe('Highlights API', () => {
 
     before(async () => {
       // create test highlight
-      highlightId = generateFakeUuid()
-      await updateLibraryItem(
-        pageId,
+      const highlight = await createHighlight(
         {
-          highlights: [
-            {
-              id: highlightId,
-              shortId: '_short_id_3',
-              annotation: '',
-              patch: '',
-              quote: '',
-              user,
-            },
-          ],
+          libraryItem: { id: itemId },
+          shortId: '_short_id_3',
+          user,
         },
+        itemId,
         user.id
       )
+      highlightId = highlight.id
     })
 
     it('updates the quote when the quote is in HTML format when the annotation has HTML reserved characters', async () => {

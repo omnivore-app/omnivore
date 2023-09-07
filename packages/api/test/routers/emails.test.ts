@@ -4,8 +4,8 @@ import 'mocha'
 import sinon from 'sinon'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
 import { createNewsletterEmail } from '../../src/services/newsletters'
+import { saveReceivedEmail } from '../../src/services/received_emails'
 import { deleteUser } from '../../src/services/user'
 import * as parser from '../../src/utils/parser'
 import * as sendEmail from '../../src/utils/sendEmail'
@@ -30,15 +30,15 @@ describe('Emails Router', () => {
 
     await createNewsletterEmail(user.id, newsletterEmail)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!
-    receivedEmail = await getRepository(ReceivedEmail).save({
-      user: { id: user.id },
+    receivedEmail = await saveReceivedEmail(
       from,
       to,
       subject,
       text,
-      html: '',
-      type: 'non-article',
-    })
+      '',
+      user.id,
+      'non-article'
+    )
   })
 
   after(async () => {

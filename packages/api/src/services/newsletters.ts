@@ -5,7 +5,7 @@ import {
   CreateNewsletterEmailErrorCode,
   SubscriptionStatus,
 } from '../generated/graphql'
-import { authTrx } from '../repository'
+import { getRepository } from '../repository'
 import { userRepository } from '../repository/user'
 import addressparser = require('nodemailer/lib/addressparser')
 
@@ -33,44 +33,34 @@ export const createNewsletterEmail = async (
   // generate a random email address with username prefix
   const emailAddress = createRandomEmailAddress(user.profile.username, 8)
 
-  return authTrx(
-    (t) =>
-      t.getRepository(NewsletterEmail).save({
-        address: emailAddress,
-        user,
-        confirmationCode,
-      }),
-    undefined,
-    userId
-  )
+  return getRepository(NewsletterEmail).save({
+    address: emailAddress,
+    user,
+    confirmationCode,
+  })
 }
 
 export const getNewsletterEmails = async (
   userId: string
 ): Promise<NewsletterEmail[]> => {
-  return authTrx((t) =>
-    t
-      .getRepository(NewsletterEmail)
-      .createQueryBuilder('newsletter_email')
-      .leftJoinAndSelect('newsletter_email.user', 'user')
-      .leftJoinAndSelect(
-        'newsletter_email.subscriptions',
-        'subscriptions',
-        'subscriptions.status = :status',
-        {
-          status: SubscriptionStatus.Active,
-        }
-      )
-      .where('newsletter_email.user = :userId', { userId })
-      .orderBy('newsletter_email.createdAt', 'DESC')
-      .getMany()
-  )
+  return getRepository(NewsletterEmail)
+    .createQueryBuilder('newsletter_email')
+    .leftJoinAndSelect('newsletter_email.user', 'user')
+    .leftJoinAndSelect(
+      'newsletter_email.subscriptions',
+      'subscriptions',
+      'subscriptions.status = :status',
+      {
+        status: SubscriptionStatus.Active,
+      }
+    )
+    .where('newsletter_email.user = :userId', { userId })
+    .orderBy('newsletter_email.createdAt', 'DESC')
+    .getMany()
 }
 
 export const deleteNewsletterEmail = async (id: string): Promise<boolean> => {
-  const result = await authTrx((t) =>
-    t.getRepository(NewsletterEmail).delete(id)
-  )
+  const result = await getRepository(NewsletterEmail).delete(id)
 
   return !!result.affected
 }
@@ -80,16 +70,13 @@ export const updateConfirmationCode = async (
   confirmationCode: string
 ): Promise<boolean> => {
   const address = parsedAddress(emailAddress)
-  const result = await authTrx((t) =>
-    t
-      .getRepository(NewsletterEmail)
-      .createQueryBuilder()
-      .where('address ILIKE :address', { address })
-      .update({
-        confirmationCode: confirmationCode,
-      })
-      .execute()
-  )
+  const result = await getRepository(NewsletterEmail)
+    .createQueryBuilder()
+    .where('address ILIKE :address', { address })
+    .update({
+      confirmationCode: confirmationCode,
+    })
+    .execute()
 
   return !!result.affected
 }
@@ -98,14 +85,11 @@ export const findNewsletterEmail = async (
   emailAddress: string
 ): Promise<NewsletterEmail | null> => {
   const address = parsedAddress(emailAddress)
-  return authTrx((t) =>
-    t
-      .getRepository(NewsletterEmail)
-      .createQueryBuilder('newsletter_email')
-      .innerJoinAndSelect('newsletter_email.user', 'user')
-      .where('address ILIKE :address', { address })
-      .getOne()
-  )
+  return getRepository(NewsletterEmail)
+    .createQueryBuilder('newsletter_email')
+    .innerJoinAndSelect('newsletter_email.user', 'user')
+    .where('address ILIKE :address', { address })
+    .getOne()
 }
 
 const createRandomEmailAddress = (userName: string, length: number): string => {
@@ -126,9 +110,5 @@ export const getNewsletterEmailById = async (
   id: string,
   userId: string
 ): Promise<NewsletterEmail | null> => {
-  return authTrx(
-    (t) => t.getRepository(NewsletterEmail).findOneBy({ id }),
-    undefined,
-    userId
-  )
+  return getRepository(NewsletterEmail).findOneBy({ id, user: { id: userId } })
 }

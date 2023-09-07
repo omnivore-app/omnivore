@@ -62,7 +62,7 @@ export const findIntegrations = async (
   )
 }
 
-export const createIntegration = async (
+export const saveIntegration = async (
   integration: DeepPartial<Integration>,
   userId: string
 ) => {

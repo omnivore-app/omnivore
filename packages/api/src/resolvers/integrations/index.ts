@@ -19,11 +19,11 @@ import {
   SetIntegrationSuccess,
 } from '../../generated/graphql'
 import {
-  createIntegration,
   findIntegration,
   findIntegrations,
   getIntegrationService,
   removeIntegration,
+  saveIntegration,
   updateIntegration,
 } from '../../services/integrations'
 import { analytics } from '../../utils/analytics'
@@ -54,11 +54,6 @@ export const setIntegrationResolver = authorized<
           errorCodes: [SetIntegrationErrorCode.NotFound],
         }
       }
-      if (existingIntegration.user.id !== uid) {
-        return {
-          errorCodes: [SetIntegrationErrorCode.Unauthorized],
-        }
-      }
 
       integrationToSave.id = existingIntegration.id
       integrationToSave.taskName = existingIntegration.taskName
@@ -76,7 +71,7 @@ export const setIntegrationResolver = authorized<
     }
 
     // save integration
-    const integration = await createIntegration(integrationToSave, uid)
+    const integration = await saveIntegration(integrationToSave, uid)
 
     if (
       integrationToSave.type === IntegrationType.Export &&

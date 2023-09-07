@@ -1,12 +1,3 @@
-import { MulticastMessage } from 'firebase-admin/messaging'
-import { appDataSource } from '../../data_source'
-import { updatePage } from '../../elastic/pages'
-import { UserDeviceToken } from '../../entity/user_device_tokens'
-import { homePageURL } from '../../env'
-import { ContentReader } from '../../generated/graphql'
-import { createPubSubClient } from '../../pubsub'
-import { setClaims } from '../../repository'
-
 interface PageToNotify {
   title: string
   url: string

@@ -5,7 +5,7 @@ import axios, { Method } from 'axios'
 import express from 'express'
 import { Webhook } from '../../entity/webhook'
 import { readPushSubscription } from '../../pubsub'
-import { getRepository } from '../../repository'
+import { authTrx } from '../../repository'
 import { logger } from '../../utils/logger'
 
 export function webhooksServiceRouter() {
@@ -38,12 +38,18 @@ export function webhooksServiceRouter() {
 
       // example: PAGE_CREATED
       const eventType = `${type}_${req.params.action}`.toUpperCase()
-      const webhooks = await getRepository(Webhook)
-        .createQueryBuilder()
-        .where('user_id = :userId', { userId })
-        .andWhere(':eventType = ANY(event_types)', { eventType })
-        .andWhere('enabled = true')
-        .getMany()
+      const webhooks = await authTrx(
+        (t) =>
+          t
+            .getRepository(Webhook)
+            .createQueryBuilder()
+            .where('user_id = :userId', { userId })
+            .andWhere(':eventType = ANY(event_types)', { eventType })
+            .andWhere('enabled = true')
+            .getMany(),
+        undefined,
+        userId
+      )
 
       if (webhooks.length <= 0) {
         logger.info(

@@ -1,6 +1,6 @@
 import express from 'express'
 import { SubscriptionStatus } from '../../generated/graphql'
-import { createPubSubClient, readPushSubscription } from '../../pubsub'
+import { readPushSubscription } from '../../pubsub'
 import {
   findNewsletterEmail,
   updateConfirmationCode,
@@ -111,16 +111,12 @@ export function newsletterServiceRouter() {
         return res.status(200).send('Not Found')
       }
 
-      const saveCtx = {
-        pubsub: createPubSubClient(),
-        uid: newsletterEmail.user.id,
-      }
       if (isUrl(data.title)) {
         // save url if the title is a parsable url
         const result = await saveUrlFromEmail(
-          saveCtx,
           data.title,
-          data.receivedEmailId
+          data.receivedEmailId,
+          newsletterEmail.user.id
         )
         if (!result) {
           return res.status(500).send('Error saving url from email')
@@ -146,7 +142,11 @@ export function newsletterServiceRouter() {
       }
 
       // update received email type
-      await updateReceivedEmail(data.receivedEmailId, 'article')
+      await updateReceivedEmail(
+        data.receivedEmailId,
+        'article',
+        newsletterEmail.user.id
+      )
     } catch (e) {
       logger.error(e)
       if (e instanceof SyntaxError) {

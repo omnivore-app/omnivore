@@ -3,9 +3,13 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import { Webhook } from '../../src/entity/webhook'
 import { WebhookEvent } from '../../src/generated/graphql'
-import { getRepository } from '../../src/repository'
 import { deleteUser } from '../../src/services/user'
-import { createWebhooks } from '../../src/services/webhook'
+import {
+  createWebhook,
+  createWebhooks,
+  findWebhookById,
+  findWebhooks,
+} from '../../src/services/webhook'
 import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
@@ -50,11 +54,14 @@ describe('Webhooks API', () => {
 
     before(async () => {
       // create test webhooks
-      webhook = await getRepository(Webhook).save({
-        url: 'http://localhost:3000/webhooks/test',
-        user: { id: user.id },
-        eventTypes: [WebhookEvent.PageDeleted],
-      })
+      webhook = await createWebhook(
+        {
+          url: 'http://localhost:3000/webhooks/test',
+          user: { id: user.id },
+          eventTypes: [WebhookEvent.PageDeleted],
+        },
+        user.id
+      )
     })
 
     it('should return a webhook', async () => {
@@ -102,9 +109,7 @@ describe('Webhooks API', () => {
       `
 
       const res = await graphqlRequest(query, authToken)
-      const webhooks = await getRepository(Webhook).findBy({
-        user: { id: user.id },
-      })
+      const webhooks = await findWebhooks(user.id)
 
       expect(res.body.data.webhooks.webhooks).to.eql(
         webhooks.map((w) => ({
@@ -171,11 +176,15 @@ describe('Webhooks API', () => {
 
     context('when id is there', () => {
       before(async () => {
-        const webhook = await getRepository(Webhook).save({
-          url: 'http://localhost:3000/webhooks/test',
-          user: { id: user.id },
-          eventTypes: [WebhookEvent.HighlightUpdated],
-        })
+        const webhook = await createWebhook(
+          {
+            url: 'http://localhost:3000/webhooks/test',
+            user: { id: user.id },
+            eventTypes: [WebhookEvent.HighlightUpdated],
+          },
+          user.id
+        )
+
         webhookId = webhook.id
         webhookUrl = 'http://localhost:3000/webhooks/test_2'
         eventTypes = [
@@ -219,19 +228,20 @@ describe('Webhooks API', () => {
 
     context('when webhook exists', () => {
       before(async () => {
-        const webhook = await getRepository(Webhook).save({
-          url: 'http://localhost:3000/webhooks/test',
-          user: { id: user.id },
-          eventTypes: [WebhookEvent.LabelCreated],
-        })
+        const webhook = await createWebhook(
+          {
+            url: 'http://localhost:3000/webhooks/test',
+            user: { id: user.id },
+            eventTypes: [WebhookEvent.LabelCreated],
+          },
+          user.id
+        )
         webhookId = webhook.id
       })
 
       it('should delete a webhook', async () => {
         const res = await graphqlRequest(query, authToken)
-        const webhook = await getRepository(Webhook).findOneBy({
-          id: webhookId,
-        })
+        const webhook = await findWebhookById(webhookId, user.id)
 
         expect(res.body.data.deleteWebhook.webhook).to.be.an('object')
         expect(res.body.data.deleteWebhook.webhook.id).to.eql(webhookId)

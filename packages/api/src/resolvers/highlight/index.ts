@@ -56,7 +56,11 @@ export const createHighlightResolver = authorized<
 >(async (_, { input }, { log, pubsub, uid }) => {
   try {
     const newHighlight = await createHighlight(
-      input,
+      {
+        ...input,
+        user: { id: uid },
+        libraryItem: { id: input.articleId },
+      },
       input.articleId,
       uid,
       pubsub
@@ -132,6 +136,8 @@ export const mergeHighlightResolver = authorized<
         mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
       labels: mergedLabels,
       color,
+      user: { id: uid },
+      libraryItem: { id: input.articleId },
     }
 
     const newHighlight = await mergeHighlights(
@@ -171,7 +177,11 @@ export const updateHighlightResolver = authorized<
   try {
     const updatedHighlight = await updateHighlight(
       input.highlightId,
-      input,
+      {
+        annotation: input.annotation,
+        html: input.html,
+        quote: input.quote,
+      },
       uid,
       pubsub
     )

@@ -96,7 +96,7 @@ export const createLabelResolver = authorized<
   } catch (error) {
     log.error('createLabelResolver', error)
     return {
-      errorCodes: [CreateLabelErrorCode.BadRequest],
+      errorCodes: [CreateLabelErrorCode.LabelAlreadyExists],
     }
   }
 })
@@ -168,13 +168,8 @@ export const setLabelsResolver = authorized<
       } else if (labelIds && labelIds.length > 0) {
         // for old clients that send labelIds
         labelsSet = await authTrx(async (tx) => {
-          return tx.withRepository(labelRepository).findByIds(labelIds)
+          return tx.withRepository(labelRepository).findLabelsById(labelIds)
         })
-        if (labelsSet.length !== labelIds.length) {
-          return {
-            errorCodes: [SetLabelsErrorCode.NotFound],
-          }
-        }
       }
       // save labels in the library item
       await saveLabelsInLibraryItem(labelsSet, pageId, uid, pubsub)
@@ -195,7 +190,7 @@ export const setLabelsResolver = authorized<
     } catch (error) {
       log.error('setLabelsResolver error', error)
       return {
-        errorCodes: [SetLabelsErrorCode.BadRequest],
+        errorCodes: [SetLabelsErrorCode.NotFound],
       }
     }
   }
@@ -230,7 +225,7 @@ export const updateLabelResolver = authorized<
       if (!result.affected) {
         log.error('failed to update')
         return {
-          errorCodes: [UpdateLabelErrorCode.BadRequest],
+          errorCodes: [UpdateLabelErrorCode.NotFound],
         }
       }
 
@@ -268,7 +263,7 @@ export const setLabelsForHighlightResolver = authorized<
     } else if (labelIds && labelIds.length > 0) {
       // for old clients that send labelIds
       labelsSet = await authTrx(async (tx) => {
-        return tx.withRepository(labelRepository).findByIds(labelIds)
+        return tx.withRepository(labelRepository).findLabelsById(labelIds)
       })
       if (labelsSet.length !== labelIds.length) {
         return {
@@ -296,7 +291,7 @@ export const setLabelsForHighlightResolver = authorized<
   } catch (error) {
     log.error('setLabelsForHighlightResolver error', error)
     return {
-      errorCodes: [SetLabelsErrorCode.BadRequest],
+      errorCodes: [SetLabelsErrorCode.NotFound],
     }
   }
 })

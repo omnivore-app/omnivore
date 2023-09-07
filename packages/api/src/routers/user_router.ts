@@ -2,9 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import cors from 'cors'
 import express from 'express'
-import { getRepository } from '../repository'
-import { User } from '../entity/user'
 import { env } from '../env'
+import { userRepository } from '../repository/user'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { logger } from '../utils/logger'
@@ -40,7 +39,7 @@ export function userRouter() {
       return
     }
     try {
-      const user = await getRepository(User).findOneBy({ id: claims.uid })
+      const user = await userRepository.findOneBy({ id: claims.uid })
       if (!user) {
         res.status(400).send('Bad Request')
         return

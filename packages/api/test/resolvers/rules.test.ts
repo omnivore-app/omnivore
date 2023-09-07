@@ -95,7 +95,7 @@ describe('Rules Resolver', () => {
           t.getRepository(Rule).save({
             user: { id: user.id },
             name: 'test rule',
-            filter: 'test filter',
+            filter: 'test filter 2',
             actions: [{ type: RuleActionType.SendNotification, params: [] }],
             enabled: true,
           }),
@@ -148,7 +148,7 @@ describe('Rules Resolver', () => {
           t.getRepository(Rule).save({
             user: { id: user.id },
             name: 'test rule',
-            filter: 'test filter',
+            filter: 'test filter 3',
             actions: [{ type: RuleActionType.SendNotification, params: [] }],
             enabled: true,
           }),

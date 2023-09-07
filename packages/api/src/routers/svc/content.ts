@@ -7,7 +7,10 @@ import { readPushSubscription } from '../../pubsub'
 import { authTrx } from '../../repository'
 import { libraryItemRepository } from '../../repository/library_item'
 import { updateLibraryItem } from '../../services/library_item'
-import { setFileUploadComplete } from '../../services/upload_file'
+import {
+  findUploadFileById,
+  setFileUploadComplete,
+} from '../../services/upload_file'
 import { logger } from '../../utils/logger'
 
 interface UpdateContentMessage {
@@ -54,18 +57,27 @@ export function contentServiceRouter() {
       return
     }
 
-    const libraryItem = await authTrx(async (tx) =>
-      tx
-        .withRepository(libraryItemRepository)
-        .createQueryBuilder('item')
-        .innerJoinAndSelect('item.user', 'user')
-        .innerJoinAndSelect('item.uploadFile', 'file')
-        .where('item.fileId = :fileId', { fileId })
-        .getOne()
+    const uploadFile = await findUploadFileById(fileId)
+    if (!uploadFile) {
+      logger.info('No file found')
+      res.status(404).send('No file found')
+      return
+    }
+
+    const libraryItem = await authTrx(
+      async (tx) =>
+        tx
+          .withRepository(libraryItemRepository)
+          .createQueryBuilder('item')
+          .innerJoinAndSelect('item.uploadFile', 'file')
+          .where('file.id = :fileId', { fileId })
+          .getOne(),
+      undefined,
+      uploadFile.user.id
     )
     if (!libraryItem) {
       logger.info('No upload file found for id:', fileId)
-      res.status(400).send('Bad Request')
+      res.status(404).send('Bad Request')
       return
     }
 
@@ -82,7 +94,7 @@ export function contentServiceRouter() {
     try {
       const uploadFileData = await setFileUploadComplete(
         fileId,
-        libraryItem.user.id
+        uploadFile.user.id
       )
       logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {
@@ -92,7 +104,7 @@ export function contentServiceRouter() {
     const result = await updateLibraryItem(
       libraryItem.id,
       itemToUpdate,
-      libraryItem.user.id
+      uploadFile.user.id
     )
     logger.info(
       'Updating library item text',

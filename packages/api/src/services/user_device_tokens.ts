@@ -19,10 +19,13 @@ export const findDeviceTokenByToken = async (
 export const findDeviceTokensByUserId = async (
   userId: string
 ): Promise<UserDeviceToken[]> => {
-  return authTrx((t) =>
-    t.getRepository(UserDeviceToken).findBy({
-      user: { id: userId },
-    })
+  return authTrx(
+    (t) =>
+      t.getRepository(UserDeviceToken).findBy({
+        user: { id: userId },
+      }),
+    undefined,
+    userId
   )
 }
 
