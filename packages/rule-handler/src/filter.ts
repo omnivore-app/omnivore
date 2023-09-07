@@ -19,6 +19,8 @@ interface Page {
   readingProgressPercent: number
   title: string
   image: string | null
+  author: string | null
+  siteName: string | null
 }
 
 interface Label {
@@ -45,6 +47,8 @@ export const search = async (
                       readingProgressPercent      
                       title
                       image
+                      author
+                      siteName
                     }
                   }
                 }
