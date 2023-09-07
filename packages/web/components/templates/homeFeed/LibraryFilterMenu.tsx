@@ -10,8 +10,8 @@ import { theme } from '../../tokens/stitches.config'
 import { useRegisterActions } from 'kbar'
 import { LogoBox } from '../../elements/LogoBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { useGetSavedSearchQuery} from '../../../lib/networking/queries/useGetSavedSearchQuery'
-import { SavedSearch } from "../../../lib/networking/fragments/savedSearchFragment"
+import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
+import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
@@ -86,13 +86,16 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
 }
 
 function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
-  const { savedSearches, isLoading } = useGetSavedSearchQuery();
+  const { savedSearches, isLoading } = useGetSavedSearchQuery()
 
-    const sortedSearches = useMemo(() => {
-        return savedSearches?.filter(it => it.visible)?.sort((left: SavedSearch, right: SavedSearch) =>
-            left.position - right.position
-        )
-    }, [savedSearches])
+  const sortedSearches = useMemo(() => {
+    return savedSearches
+      ?.filter((it) => it.visible)
+      ?.sort(
+        (left: SavedSearch, right: SavedSearch) =>
+          left.position - right.position
+      )
+  }, [savedSearches])
 
   useRegisterActions(
     (sortedSearches ?? []).map((item, idx) => {
@@ -117,23 +120,27 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
   })
 
   return (
-    <MenuPanel title="Saved Searches"
-               collapsed={collapsed}
-               setCollapsed={setCollapsed}
+    <MenuPanel
+      title="Saved Searches"
+      collapsed={collapsed}
+      setCollapsed={setCollapsed}
     >
-      {!collapsed && sortedSearches && sortedSearches?.map((item) => (
-        <FilterButton
-          key={item.name}
-          text={item.name}
-          filterTerm={item.filter}
-          {...props}
+      {!collapsed &&
+        sortedSearches &&
+        sortedSearches?.map((item) => (
+          <FilterButton
+            key={item.name}
+            text={item.name}
+            filterTerm={item.filter}
+            {...props}
+          />
+        ))}
+      {!collapsed && !isLoading && (
+        <EditButton
+          title="Edit Saved Searches"
+          destination="/settings/saved-searches"
         />
-      ))}
-      {!collapsed && (
-      <EditButton
-        title="Edit Saved Searches"
-        destination="/settings/saved-searches"
-      />)}
+      )}
 
       <Box css={{ height: '10px' }}></Box>
     </MenuPanel>
