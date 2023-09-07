@@ -1,5 +1,5 @@
+import { DeepPartial } from 'typeorm'
 import { Integration, IntegrationType } from '../../entity/integration'
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   DeleteIntegrationError,
@@ -18,8 +18,14 @@ import {
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../repository'
-import { getIntegrationService } from '../../services/integrations'
+import {
+  createIntegration,
+  findIntegration,
+  findIntegrations,
+  getIntegrationService,
+  removeIntegration,
+  updateIntegration,
+} from '../../services/integrations'
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
@@ -32,29 +38,17 @@ export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
   SetIntegrationError,
   MutationSetIntegrationArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('setIntegrationResolver')
-
+>(async (_, { input }, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SetIntegrationErrorCode.Unauthorized],
-      }
-    }
-
-    const integrationToSave: Partial<Integration> = {
+    const integrationToSave: DeepPartial<Integration> = {
       ...input,
-      user,
+      user: { id: uid },
       id: input.id || undefined,
       type: input.type || IntegrationType.Export,
     }
     if (input.id) {
       // Update
-      const existingIntegration = await getRepository(Integration).findOne({
-        where: { id: input.id },
-        relations: ['user'],
-      })
+      const existingIntegration = await findIntegration({ id: input.id }, uid)
       if (!existingIntegration) {
         return {
           errorCodes: [SetIntegrationErrorCode.NotFound],
@@ -82,18 +76,18 @@ export const setIntegrationResolver = authorized<
     }
 
     // save integration
-    const integration = await getRepository(Integration).save(integrationToSave)
+    const integration = await createIntegration(integrationToSave, uid)
 
     if (
       integrationToSave.type === IntegrationType.Export &&
       (!integrationToSave.id || integrationToSave.enabled)
     ) {
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const taskName = await enqueueSyncWithIntegration(user.id, input.name)
+      const taskName = await enqueueSyncWithIntegration(uid, input.name)
       log.info('enqueued task', taskName)
 
       // update task name in integration
-      await getRepository(Integration).update(integration.id, { taskName })
+      await updateIntegration(integration.id, { taskName }, uid)
       integration.taskName = taskName
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
@@ -101,9 +95,13 @@ export const setIntegrationResolver = authorized<
       log.info('task deleted', integrationToSave.taskName)
 
       // update task name in integration
-      await getRepository(Integration).update(integration.id, {
-        taskName: null,
-      })
+      await updateIntegration(
+        integration.id,
+        {
+          taskName: null,
+        },
+        uid
+      )
       integration.taskName = null
     }
 
@@ -131,19 +129,9 @@ export const setIntegrationResolver = authorized<
 export const integrationsResolver = authorized<
   IntegrationsSuccess,
   IntegrationsError
->(async (_, __, { claims: { uid }, log }) => {
-  log.info('integrationsResolver')
-
+>(async (_, __, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [IntegrationsErrorCode.Unauthorized],
-      }
-    }
-    const integrations = await getRepository(Integration).findBy({
-      user: { id: uid },
-    })
+    const integrations = await findIntegrations(uid)
 
     return {
       integrations,
@@ -165,27 +153,11 @@ export const deleteIntegrationResolver = authorized<
   log.info('deleteIntegrationResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [DeleteIntegrationErrorCode.Unauthorized],
-      }
-    }
-
-    const integration = await getRepository(Integration).findOne({
-      where: { id },
-      relations: ['user'],
-    })
+    const integration = await findIntegration({ id }, uid)
 
     if (!integration) {
       return {
         errorCodes: [DeleteIntegrationErrorCode.NotFound],
-      }
-    }
-
-    if (integration.user.id !== uid) {
-      return {
-        errorCodes: [DeleteIntegrationErrorCode.Unauthorized],
       }
     }
 
@@ -195,9 +167,7 @@ export const deleteIntegrationResolver = authorized<
       log.info('task deleted', integration.taskName)
     }
 
-    const deletedIntegration = await getRepository(Integration).remove(
-      integration
-    )
+    const deletedIntegration = await removeIntegration(integration, uid)
     deletedIntegration.id = id
 
     analytics.track({
@@ -229,10 +199,7 @@ export const importFromIntegrationResolver = authorized<
   log.info('importFromIntegrationResolver')
 
   try {
-    const integration = await getRepository(Integration).findOne({
-      where: { id: integrationId, user: { id: uid } },
-      relations: ['user'],
-    })
+    const integration = await findIntegration({ id: integrationId }, uid)
 
     if (!integration) {
       return {
@@ -251,7 +218,7 @@ export const importFromIntegrationResolver = authorized<
       authToken
     )
     // update task name in integration
-    await getRepository(Integration).update(integration.id, { taskName })
+    await updateIntegration(integration.id, { taskName }, uid)
 
     analytics.track({
       userId: uid,

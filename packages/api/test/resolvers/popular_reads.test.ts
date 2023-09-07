@@ -2,7 +2,8 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import { findLibraryItemById } from '../../src/services/library_item'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 describe('PopularReads API', () => {
@@ -36,7 +37,7 @@ describe('PopularReads API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('addPopularRead', () => {

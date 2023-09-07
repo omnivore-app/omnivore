@@ -5,8 +5,10 @@ import sinon, { SinonFakeTimers } from 'sinon'
 import { Feature } from '../../src/entity/feature'
 import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
-import { getRepository } from '../../src/repository'
-import { createTestUser, deleteTestUser } from '../db'
+import { userRepository } from '../../src/repository/user'
+import { createFeature, createFeatures, deleteFeature } from '../../src/services/features'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 describe('features resolvers', () => {
@@ -24,7 +26,7 @@ describe('features resolvers', () => {
   })
 
   after(async () => {
-    await deleteTestUser(loginUser.id)
+    await deleteUser(loginUser.id)
   })
 
   describe('optInFeature API', () => {
@@ -64,9 +66,7 @@ describe('features resolvers', () => {
     context('when user is the first 1500 users', () => {
       after(async () => {
         // reset feature
-        await getRepository(Feature).delete({
-          user: { id: loginUser.id },
-        })
+        await deleteFeature([], loginUser.id)
       })
 
       it('opts in to the feature', async () => {
@@ -110,7 +110,7 @@ describe('features resolvers', () => {
           }
         })
 
-        users = await getRepository(User).save(usersToSave)
+        users = await userRepository.save(usersToSave)
 
         const features = users.map((user) => {
           return {
@@ -120,16 +120,14 @@ describe('features resolvers', () => {
           }
         })
 
-        await getRepository(Feature).save(features)
+        await createFeatures(features, loginUser.id)
       })
 
       after(async () => {
         // reset opt-in users
-        Promise.all(users.map((user) => deleteTestUser(user.id)))
+        Promise.all(users.map((user) => deleteUser(user.id)))
         // reset feature
-        await getRepository(Feature).delete({
-          name: featureName,
-        })
+        await deleteFeature({ name: featureName }, loginUser.id)
       })
 
       it('does not opt in to the feature', async () => {
@@ -160,18 +158,19 @@ describe('features resolvers', () => {
     context('when user is already opted in', () => {
       before(async () => {
         // opt in
-        await getRepository(Feature).save({
-          user: { id: loginUser.id },
-          name: featureName,
-          grantedAt: new Date(),
-        })
+        await createFeature(
+          {
+            user: { id: loginUser.id },
+            name: featureName,
+            grantedAt: new Date(),
+          },
+          loginUser.id
+        )
       })
 
       after(async () => {
         // reset feature
-        await getRepository(Feature).delete({
-          user: { id: loginUser.id },
-        })
+        await deleteFeature([], loginUser.id)
       })
 
       it('returns the feature', async () => {

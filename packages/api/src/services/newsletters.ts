@@ -18,7 +18,8 @@ const parsedAddress = (emailAddress: string): string | undefined => {
 }
 
 export const createNewsletterEmail = async (
-  userId: string
+  userId: string,
+  confirmationCode?: string
 ): Promise<NewsletterEmail> => {
   const user = await userRepository.findOne({
     where: { id: userId },
@@ -36,7 +37,8 @@ export const createNewsletterEmail = async (
     (t) =>
       t.getRepository(NewsletterEmail).save({
         address: emailAddress,
-        user: user,
+        user,
+        confirmationCode,
       }),
     undefined,
     userId
@@ -92,7 +94,7 @@ export const updateConfirmationCode = async (
   return !!result.affected
 }
 
-export const getNewsletterEmail = async (
+export const findNewsletterEmail = async (
   emailAddress: string
 ): Promise<NewsletterEmail | null> => {
   const address = parsedAddress(emailAddress)
@@ -118,4 +120,15 @@ const createRandomEmailAddress = (userName: string, length: number): string => {
   when rand is abcdef: jacksonh-abcdefe@inbox.omnivore.app
    */
   return `${userName}-${nanoid(length)}e@${inbox}.omnivore.app`
+}
+
+export const getNewsletterEmailById = async (
+  id: string,
+  userId: string
+): Promise<NewsletterEmail | null> => {
+  return authTrx(
+    (t) => t.getRepository(NewsletterEmail).findOneBy({ id }),
+    undefined,
+    userId
+  )
 }

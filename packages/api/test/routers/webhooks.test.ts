@@ -3,8 +3,9 @@ import 'mocha'
 import nock from 'nock'
 import { User } from '../../src/entity/user'
 import { Webhook } from '../../src/entity/webhook'
-import { authTrx } from '../../src/repository'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createWebhook } from '../../src/services/webhook'
+import { createTestUser } from '../db'
 import { request } from '../util'
 
 describe('Webhooks Router', () => {
@@ -22,21 +23,19 @@ describe('Webhooks Router', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    webhook = await authTrx(
-      (t) =>
-        t.getRepository(Webhook).save({
-          url: webhookBaseUrl + webhookPath,
-          user: { id: user.id },
-          eventTypes: ['PAGE_CREATED'],
-        }),
-      undefined,
+    webhook = await createWebhook(
+      {
+        url: webhookBaseUrl + webhookPath,
+        user: { id: user.id },
+        eventTypes: ['PAGE_CREATED'],
+      },
       user.id
     )
   })
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('trigger webhooks', () => {

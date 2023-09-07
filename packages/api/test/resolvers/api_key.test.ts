@@ -2,8 +2,9 @@ import { expect } from 'chai'
 import supertest from 'supertest'
 import { ApiKey } from '../../src/entity/api_key'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
-import { createTestUser, deleteTestUser } from '../db'
+import { findApiKeys } from '../../src/services/api_key'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 const testAPIKey = (apiKey: string): supertest.Test => {
@@ -44,7 +45,7 @@ describe('Api Key resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('generate api key', () => {
@@ -180,10 +181,7 @@ describe('Api Key resolver', () => {
       }
     `
 
-      apiKeys = await getRepository(ApiKey).find({
-        select: ['id', 'name'],
-        where: { user: { id: user.id } },
-      })
+      apiKeys = await findApiKeys(user.id, undefined, ['id', 'name'])
     })
 
     it('should get api keys', async () => {

@@ -355,15 +355,19 @@ export const updateLibraryItem = async (
   userId: string,
   pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
-  const updatedLibraryItem = await authTrx(async (tx) => {
-    const itemRepo = tx.withRepository(libraryItemRepository)
-    await itemRepo.update(
-      id,
-      libraryItem as QueryDeepPartialEntity<LibraryItem>
-    )
+  const updatedLibraryItem = await authTrx(
+    async (tx) => {
+      const itemRepo = tx.withRepository(libraryItemRepository)
+      await itemRepo.update(
+        id,
+        libraryItem as QueryDeepPartialEntity<LibraryItem>
+      )
 
-    return itemRepo.findOneByOrFail({ id })
-  })
+      return itemRepo.findOneByOrFail({ id })
+    },
+    undefined,
+    userId
+  )
 
   await pubsub.entityUpdated<DeepPartial<LibraryItem>>(
     EntityType.PAGE,

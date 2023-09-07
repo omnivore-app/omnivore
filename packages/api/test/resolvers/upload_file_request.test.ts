@@ -7,7 +7,8 @@ import {
   deleteLibraryItemById,
   findLibraryItemById,
 } from '../../src/services/library_item'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
@@ -61,7 +62,7 @@ describe('uploadFileRequest API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('UploadFileRequest', () => {

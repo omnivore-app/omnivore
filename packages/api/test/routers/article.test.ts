@@ -1,12 +1,13 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { request } from '../util'
 import { expect } from 'chai'
-import nock from 'nock'
 import 'mocha'
-import { env } from '../../src/env'
-import { User } from '../../src/entity/user'
+import nock from 'nock'
 import sinon from 'sinon'
+import { User } from '../../src/entity/user'
+import { env } from '../../src/env'
+import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
+import { createTestUser } from '../db'
+import { request } from '../util'
 
 describe('/article/save API', () => {
   let user: User
@@ -29,7 +30,7 @@ describe('/article/save API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('POST /article/save', () => {

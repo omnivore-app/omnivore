@@ -14,6 +14,7 @@ import {
   RevokeApiKeySuccess,
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
+import { findApiKeys } from '../../services/api_key'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
 import { authorized } from '../../utils/helpers'
@@ -21,14 +22,7 @@ import { authorized } from '../../utils/helpers'
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
   async (_, __, { log, uid }) => {
     try {
-      const apiKeys = await getRepository(ApiKey).find({
-        select: ['id', 'name', 'scopes', 'expiresAt', 'createdAt', 'usedAt'],
-        where: { user: { id: uid } },
-        order: {
-          usedAt: { direction: 'DESC', nulls: 'last' },
-          createdAt: 'DESC',
-        },
-      })
+      const apiKeys = await findApiKeys(uid)
 
       return {
         apiKeys,

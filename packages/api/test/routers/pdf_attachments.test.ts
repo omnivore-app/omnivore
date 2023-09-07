@@ -3,11 +3,9 @@ import * as jwt from 'jsonwebtoken'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import { findLibraryItemById } from '../../src/services/library_item'
-import {
-  createTestNewsletterEmail,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
+import { createNewsletterEmail } from '../../src/services/newsletters'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { request } from '../util'
 
 describe('PDF attachments Router', () => {
@@ -20,13 +18,13 @@ describe('PDF attachments Router', () => {
     // create test user and login
     user = await createTestUser('fakeUser')
 
-    await createTestNewsletterEmail(user, newsletterEmail)
+    await createNewsletterEmail(user.id, newsletterEmail)
     authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')
   })
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('upload', () => {

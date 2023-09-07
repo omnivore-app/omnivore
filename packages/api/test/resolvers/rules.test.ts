@@ -3,7 +3,8 @@ import 'mocha'
 import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
 import { User } from '../../src/entity/user'
 import { authTrx, getRepository } from '../../src/repository'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 describe('Rules Resolver', () => {
@@ -24,7 +25,7 @@ describe('Rules Resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('set rules', () => {

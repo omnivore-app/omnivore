@@ -15,9 +15,9 @@ import {
 import {
   createDeviceToken,
   deleteDeviceToken,
-  getDeviceToken,
-  getDeviceTokenByToken,
-  getDeviceTokensByUserId,
+  findDeviceTokenById,
+  findDeviceTokenByToken,
+  findDeviceTokensByUserId,
 } from '../../services/user_device_tokens'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
@@ -44,7 +44,7 @@ export const setDeviceTokenResolver = authorized<
   try {
     // when token is null, we are deleting it
     if (!token && id) {
-      const deviceToken = await getDeviceToken(id)
+      const deviceToken = await findDeviceTokenById(id)
       if (!deviceToken) {
         log.error('device token not found', id)
 
@@ -107,7 +107,7 @@ export const setDeviceTokenResolver = authorized<
       token
     ) {
       // duplicate token
-      const deviceToken = await getDeviceTokenByToken(token)
+      const deviceToken = await findDeviceTokenByToken(token)
 
       if (!deviceToken) {
         return {
@@ -139,7 +139,7 @@ export const deviceTokensResolver = authorized<
       },
     })
 
-    const deviceTokens = await getDeviceTokensByUserId(uid)
+    const deviceTokens = await findDeviceTokensByUserId(uid)
     log.info('deviceTokens', deviceTokens)
 
     return {

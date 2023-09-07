@@ -3,7 +3,8 @@ import 'mocha'
 import { SearchHistory } from '../../src/entity/search_history'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 describe('recent_searches resolver', () => {
@@ -21,7 +22,7 @@ describe('recent_searches resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('recentSearches API', () => {

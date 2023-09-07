@@ -8,8 +8,9 @@ import {
   CreateArticleSavingRequestErrorCode,
 } from '../../src/generated/graphql'
 import { findLibraryItemByUrl } from '../../src/services/library_item'
+import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 const articleSavingRequestQuery = ({
@@ -73,7 +74,7 @@ describe('ArticleSavingRequest API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
     sinon.restore()
   })
 

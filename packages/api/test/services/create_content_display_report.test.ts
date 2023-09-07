@@ -5,10 +5,10 @@ import { LibraryItem } from '../../src/entity/library_item'
 import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
 import { User } from '../../src/entity/user'
 import { ReportType } from '../../src/generated/graphql'
-import { authTrx, getRepository } from '../../src/repository'
+import { getRepository } from '../../src/repository'
 import { saveContentDisplayReport } from '../../src/services/reports'
-import { createTestUser, deleteTestUser } from '../db'
-import { createTestLibraryItem } from '../util'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
 
 chai.use(sinonChai)
 
@@ -22,7 +22,7 @@ describe('saveContentDisplayReport', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   it('creates a report', async () => {

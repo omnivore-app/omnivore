@@ -10,7 +10,7 @@ import { env } from '../../env'
 import { UploadFileStatus } from '../../generated/graphql'
 import { authTrx } from '../../repository'
 import { createLibraryItem } from '../../services/library_item'
-import { getNewsletterEmail } from '../../services/newsletters'
+import { findNewsletterEmail } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
 import {
   findUploadFileById,
@@ -45,7 +45,7 @@ export function emailAttachmentRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const newsletterEmail = await getNewsletterEmail(email)
+    const newsletterEmail = await findNewsletterEmail(email)
     if (!newsletterEmail || !newsletterEmail.user) {
       return res.status(401).send('UNAUTHORIZED')
     }
@@ -109,7 +109,7 @@ export function emailAttachmentRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const newsletterEmail = await getNewsletterEmail(email)
+    const newsletterEmail = await findNewsletterEmail(email)
     if (!newsletterEmail || !newsletterEmail.user) {
       return res.status(401).send('UNAUTHORIZED')
     }

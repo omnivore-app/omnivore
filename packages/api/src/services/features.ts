@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken'
-import { IsNull, Not } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
 import { authTrx, entityManager } from '../repository'
@@ -110,12 +110,49 @@ export const isOptedIn = async (name: FeatureName): Promise<boolean> => {
   return !!feature
 }
 
-export const getFeature = async (
-  name: FeatureName
+export const findFeatureByName = async (
+  name: FeatureName,
+  userId?: string
 ): Promise<Feature | null> => {
-  return authTrx((t) =>
-    t.getRepository(Feature).findOneBy({
-      name,
-    })
+  return authTrx(
+    (t) =>
+      t.getRepository(Feature).findOneBy({
+        name,
+      }),
+    undefined,
+    userId
+  )
+}
+
+export const deleteFeature = async (
+  criteria: string[] | FindOptionsWhere<Feature>,
+  userId: string
+) => {
+  return authTrx(
+    (t) => t.getRepository(Feature).delete(criteria),
+    undefined,
+    userId
+  )
+}
+
+export const createFeature = async (
+  feature: DeepPartial<Feature>,
+  userId: string
+) => {
+  return authTrx(
+    (t) => t.getRepository(Feature).save(feature),
+    undefined,
+    userId
+  )
+}
+
+export const createFeatures = async (
+  features: DeepPartial<Feature>[],
+  userId: string
+) => {
+  return authTrx(
+    (t) => t.getRepository(Feature).save(features),
+    undefined,
+    userId
   )
 }

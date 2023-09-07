@@ -5,8 +5,9 @@ import { ContentDisplayReport } from '../../src/entity/reports/content_display_r
 import { User } from '../../src/entity/user'
 import { ReportType } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
-import { createTestUser, deleteTestUser } from '../db'
-import { createTestLibraryItem, graphqlRequest, request } from '../util'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Report API', () => {
   let user: User
@@ -28,7 +29,7 @@ describe('Report API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('reportItem', () => {

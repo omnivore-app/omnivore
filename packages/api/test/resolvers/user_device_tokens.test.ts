@@ -4,13 +4,9 @@ import { User } from '../../src/entity/user'
 import { UserDeviceToken } from '../../src/entity/user_device_tokens'
 import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
-import {
-  createTestDeviceToken,
-  createTestUser,
-  deleteTestDeviceTokens,
-  deleteTestUser,
-  getDeviceToken,
-} from '../db'
+import { deleteUser } from '../../src/services/user'
+import { deleteDeviceTokens, findDeviceTokenById } from '../../src/services/user_device_tokens'
+import { createTestDeviceToken, createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 describe('Device tokens API', () => {
@@ -33,7 +29,7 @@ describe('Device tokens API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('Set device token', () => {
@@ -67,7 +63,7 @@ describe('Device tokens API', () => {
 
     after(async () => {
       // clean up
-      await deleteTestDeviceTokens(user.id, { user: { id: user.id } })
+      await deleteDeviceTokens(user.id, { user: { id: user.id } })
     })
 
     context('when id in input is not null', () => {
@@ -79,7 +75,7 @@ describe('Device tokens API', () => {
 
         it('responds with status code 200 and deletes the token', async () => {
           const response = await graphqlRequest(query, authToken).expect(200)
-          const deviceToken = await getDeviceToken(
+          const deviceToken = await findDeviceTokenById(
             response.body.data.setDeviceToken.deviceToken.id
           )
           expect(deviceToken).to.be.null
@@ -109,7 +105,7 @@ describe('Device tokens API', () => {
 
       it('responds with status code 200 and creates the token', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
-        const deviceToken = await getDeviceToken(
+        const deviceToken = await findDeviceTokenById(
           response.body.data.setDeviceToken.deviceToken.id
         )
         expect(deviceToken).not.to.be.null
@@ -175,7 +171,7 @@ describe('Device tokens API', () => {
 
     after(async () => {
       // clean up
-      await deleteTestDeviceTokens(user.id, { token })
+      await deleteDeviceTokens(user.id, { token })
     })
 
     it('responds with status code 200 and returns all device tokens', async () => {

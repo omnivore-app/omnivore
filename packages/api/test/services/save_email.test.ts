@@ -3,10 +3,11 @@ import 'mocha'
 import nock from 'nock'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
-import { authTrx } from '../../src/repository'
 import { findLibraryItemByUrl } from '../../src/services/library_item'
+import { saveReceivedEmail } from '../../src/services/received_emails'
 import { saveEmail } from '../../src/services/save_email'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 
 describe('saveEmail', () => {
   const fakeContent = 'fake content'
@@ -22,23 +23,19 @@ describe('saveEmail', () => {
       .reply(200)
       .persist()
 
-    receivedEmail = await authTrx(
-      (t) =>
-        t.getRepository(ReceivedEmail).save({
-          user: { id: user.id },
-          from: '',
-          to: '',
-          subject: '',
-          html: '',
-          type: 'non-article',
-        }),
-      undefined,
-      user.id
+    receivedEmail = await saveReceivedEmail(
+      '',
+      '',
+      '',
+      '',
+      '',
+      user.id,
+      'non-article'
     )
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
     scope.persist(false)
   })
 

@@ -181,3 +181,22 @@ export const unsubscribeAll = async (
     logger.info('Failed to unsubscribe all', error)
   }
 }
+
+export const createSubscription = async (
+  userId: string,
+  name: string,
+  newsletterEmail?: NewsletterEmail,
+  status = SubscriptionStatus.Active,
+  unsubscribeMailTo?: string,
+  subscriptionType = SubscriptionType.Newsletter
+): Promise<Subscription> => {
+  return getRepository(Subscription).save({
+    user: { id: userId },
+    name,
+    newsletterEmail,
+    status,
+    unsubscribeMailTo,
+    lastFetchedAt: new Date(),
+    type: subscriptionType,
+  })
+}

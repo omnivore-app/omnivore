@@ -10,12 +10,15 @@ import {
   SubscriptionType,
 } from '../../src/generated/graphql'
 import {
+  createSubscription,
   unsubscribe,
   UNSUBSCRIBE_EMAIL_TEXT
 } from '../../src/services/subscriptions'
-import { authTrx, getRepository } from '../../src/repository'
+import { getRepository } from '../../src/repository'
+import { createNewsletterEmail } from '../../src/services/newsletters'
+import { deleteUser } from '../../src/services/user'
 import * as sendEmail from '../../src/utils/sendEmail'
-import { createTestSubscription, createTestUser, deleteTestUser } from '../db'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 chai.use(sinonChai)
@@ -35,30 +38,21 @@ describe('Subscriptions API', () => {
     authToken = res.body.authToken
 
     // create test newsletter subscriptions
-    const newsletterEmail = await authTrx(
-      (t) =>
-        t.getRepository(NewsletterEmail).save({
-          user,
-          address: 'test@inbox.omnivore.app',
-          confirmationCode: 'test',
-        }),
-      undefined,
-      user.id
-    )
+    const newsletterEmail = await createNewsletterEmail(user.id)
 
     //  create testing newsletter subscriptions
-    const sub1 = await createTestSubscription(user, 'sub_1', newsletterEmail)
-    const sub2 = await createTestSubscription(user, 'sub_2', newsletterEmail)
+    const sub1 = await createSubscription(user.id, 'sub_1', newsletterEmail)
+    const sub2 = await createSubscription(user.id, 'sub_2', newsletterEmail)
     // create a unsubscribed subscription
-    await createTestSubscription(
-      user,
+    await createSubscription(
+      user.id,
       'sub_3',
       newsletterEmail,
       SubscriptionStatus.Unsubscribed
     )
     // create an rss feed subscription
-    const sub4 = await createTestSubscription(
-      user,
+    const sub4 = await createSubscription(
+      user.id,
       'sub_4',
       undefined,
       SubscriptionStatus.Active,
@@ -70,7 +64,7 @@ describe('Subscriptions API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('GET subscriptions', () => {
@@ -313,8 +307,8 @@ describe('Subscriptions API', () => {
         address: 'test_2@inbox.omnivore.app',
         confirmationCode: 'test',
       })
-      const subscription = await createTestSubscription(
-        user,
+      const subscription = await createSubscription(
+        user.id,
         name,
         newsletterEmail,
         SubscriptionStatus.Active,

@@ -12,11 +12,13 @@ import { env } from '../../src/env'
 import { PubSubRequestBody } from '../../src/pubsub'
 import { authTrx, getRepository } from '../../src/repository'
 import { createHighlight, getHighlightUrl } from '../../src/services/highlights'
+import { deleteIntegrations } from '../../src/services/integrations'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { deleteLibraryItemById } from '../../src/services/library_item'
-import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
 import { MockBucket } from '../mock_storage'
-import { createTestLibraryItem, request } from '../util'
+import { request } from '../util'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -35,7 +37,7 @@ describe('Integrations routers', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('sync with integrations', () => {
@@ -174,7 +176,7 @@ describe('Integrations routers', () => {
           })
 
           after(async () => {
-            await deleteTestIntegrations(user.id, [integration.id])
+            await deleteIntegrations(user.id, [integration.id])
             await deleteLibraryItemById(item.id)
           })
 
@@ -399,7 +401,7 @@ describe('Integrations routers', () => {
 
     after(async () => {
       sinon.restore()
-      await deleteTestIntegrations(user.id, [integration.id])
+      await deleteIntegrations(user.id, [integration.id])
     })
 
     context('when integration is pocket', () => {

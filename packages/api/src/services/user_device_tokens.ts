@@ -1,21 +1,22 @@
+import { FindOptionsWhere } from 'typeorm'
 import { UserDeviceToken } from '../entity/user_device_tokens'
 import { env } from '../env'
 import { authTrx } from '../repository'
 import { analytics } from '../utils/analytics'
 
-export const getDeviceToken = async (
+export const findDeviceTokenById = async (
   id: string
 ): Promise<UserDeviceToken | null> => {
   return authTrx((t) => t.getRepository(UserDeviceToken).findOneBy({ id }))
 }
 
-export const getDeviceTokenByToken = async (
+export const findDeviceTokenByToken = async (
   token: string
 ): Promise<UserDeviceToken | null> => {
   return authTrx((t) => t.getRepository(UserDeviceToken).findOneBy({ token }))
 }
 
-export const getDeviceTokensByUserId = async (
+export const findDeviceTokensByUserId = async (
   userId: string
 ): Promise<UserDeviceToken[]> => {
   return authTrx((t) =>
@@ -62,4 +63,17 @@ export const deleteDeviceToken = async (
 
     return !!result.affected
   })
+}
+
+export const deleteDeviceTokens = async (
+  userId: string,
+  criteria: string[] | FindOptionsWhere<UserDeviceToken>
+) => {
+  return authTrx(
+    async (t) => {
+      await t.getRepository(UserDeviceToken).delete(criteria)
+    },
+    undefined,
+    userId
+  )
 }

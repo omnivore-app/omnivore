@@ -1,20 +1,18 @@
 import Postgrator from 'postgrator'
-import { FindOptionsWhere } from 'typeorm'
+import { DeepPartial } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from '../src/data_source'
-import { Integration } from '../src/entity/integration'
 import { Label } from '../src/entity/label'
-import { NewsletterEmail } from '../src/entity/newsletter_email'
-import { Profile } from '../src/entity/profile'
+import { LibraryItem } from '../src/entity/library_item'
 import { Reminder } from '../src/entity/reminder'
-import { Subscription } from '../src/entity/subscription'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { SubscriptionStatus, SubscriptionType } from '../src/generated/graphql'
-import { getRepository, setClaims } from '../src/repository'
+import { getRepository } from '../src/repository'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
 import { Filter } from "../src/entity/filter"
+import { createLibraryItem } from '../src/services/library_item'
+import { createDeviceToken } from '../src/services/user_device_tokens'
 
 const runMigrations = async () => {
   const migrationDirectory = __dirname + '/../../db/migrations'
@@ -63,13 +61,6 @@ export const createTestConnection = async (): Promise<void> => {
   await appDataSource.initialize()
 }
 
-export const deleteTestUser = async (userId: string) => {
-  await appDataSource.transaction(async (t) => {
-    await setClaims(t, userId)
-    await t.getRepository(User).delete(userId)
-  })
-}
-
 export const deleteFiltersFromUser = async (userId: string) => {
   await AppDataSource.transaction(async (t) => {
     await setClaims(t, userId)
@@ -105,16 +96,12 @@ export const createTestUser = async (
 }
 
 export const createUserWithoutProfile = async (name: string): Promise<User> => {
-  return getRepository(User).save({
+  return userRepository.save({
     source: 'GOOGLE',
     sourceUserId: 'fake-user-id-' + name,
     email: `${name}@omnivore.app`,
     name: name,
   })
-}
-
-export const getProfile = async (user: User): Promise<Profile | null> => {
-  return getRepository(Profile).findOneBy({ user: { id: user.id } })
 }
 
 export const createTestReminder = async (
@@ -132,107 +119,24 @@ export const getReminder = async (id: string): Promise<Reminder | null> => {
   return getRepository(Reminder).findOneBy({ id })
 }
 
-export const createTestNewsletterEmail = async (
-  user: User,
-  emailAddress?: string,
-  confirmationCode?: string
-): Promise<NewsletterEmail> => {
-  return getRepository(NewsletterEmail).save({
-    user: user,
-    address: emailAddress,
-    confirmationCode: confirmationCode,
-  })
-}
-
-export const getNewsletterEmail = async (
-  id: string
-): Promise<NewsletterEmail | null> => {
-  return getRepository(NewsletterEmail).findOneBy({ id })
-}
-
 export const createTestDeviceToken = async (
   user: User
 ): Promise<UserDeviceToken> => {
-  return getRepository(UserDeviceToken).save({
-    user: user,
-    token: 'Test token',
-  })
+  return createDeviceToken(user.id, 'fake-token')
 }
 
-export const getDeviceToken = async (
-  id: string
-): Promise<UserDeviceToken | null> => {
-  return getRepository(UserDeviceToken).findOneBy({ id })
-}
-
-export const getUser = async (id: string): Promise<User | null> => {
-  return userRepository.findOneBy({ id })
-}
-
-export const createTestLabel = async (
-  user: User,
-  name: string,
-  color: string
-): Promise<Label> => {
-  return getRepository(Label).save({
-    user,
-    name,
-    color,
-  })
-}
-
-export const createTestSubscription = async (
-  user: User,
-  name: string,
-  newsletterEmail?: NewsletterEmail,
-  status = SubscriptionStatus.Active,
-  unsubscribeMailTo?: string,
-  subscriptionType = SubscriptionType.Newsletter
-): Promise<Subscription> => {
-  return getRepository(Subscription).save({
-    user,
-    name,
-    newsletterEmail,
-    status,
-    unsubscribeMailTo,
-    lastFetchedAt: new Date(),
-    type: subscriptionType,
-  })
-}
-
-export const deleteTestLabels = async (
+export const createTestLibraryItem = async (
   userId: string,
-  criteria: string[] | FindOptionsWhere<Label>
-) => {
-  await appDataSource.transaction(async (t) => {
-    await setClaims(t, userId)
-    await t.getRepository(Label).delete(criteria)
-  })
-}
+  labels?: Label[]
+): Promise<LibraryItem> => {
+  const item: DeepPartial<LibraryItem> = {
+    user: { id: userId },
+    title: 'test title',
+    originalContent: '<p>test content</p>',
+    originalUrl: 'https://blog.omnivore.app/test-url',
+    slug: 'test-with-omnivore',
+    labels,
+  }
 
-export const deleteTestIntegrations = async (
-  userId: string,
-  criteria: string[] | FindOptionsWhere<Integration>
-) => {
-  await appDataSource.transaction(async (t) => {
-    await setClaims(t, userId)
-    await t.getRepository(Integration).delete(criteria)
-  })
-}
-
-export const updateTestUser = async (userId: string, update: Partial<User>) => {
-  await appDataSource.transaction(async (t) => {
-    await setClaims(t, userId)
-    await t.getRepository(User).update(userId, update)
-  })
-}
-
-export const deleteTestDeviceTokens = async (
-  userId: string,
-  criteria: string[] | FindOptionsWhere<UserDeviceToken>
-) => {
-  await appDataSource.transaction(async (t) => {
-    await setClaims(t, userId)
-    await t.getRepository(UserDeviceToken).delete(criteria)
-  })
+  return createLibraryItem(item, userId)
 }

@@ -10,22 +10,14 @@ import {
   createHighlight,
   findHighlightById,
 } from '../../src/services/highlights'
+import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
   deleteLibraryItemById,
   findLibraryItemById,
 } from '../../src/services/library_item'
-import {
-  createTestLabel,
-  createTestUser,
-  deleteTestLabels,
-  deleteTestUser,
-} from '../db'
-import {
-  createTestLibraryItem,
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 describe('Labels API', () => {
   let user: User
@@ -42,7 +34,7 @@ describe('Labels API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('GET labels', () => {
@@ -51,16 +43,16 @@ describe('Labels API', () => {
 
     before(async () => {
       //  create testing labels
-      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
-      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+      const label1 = await createLabel(user.id, 'label_1', '#ffffff')
+      const label2 = await createLabel(user.id, 'label_2', '#eeeeee')
       labels = [label1, label2]
     })
 
     after(async () => {
       // clean up
-      await deleteTestLabels(
-        user.id,
-        labels.map((l) => l.id)
+      await deleteLabels(
+        labels.map((l) => l.id),
+        user.id
       )
     })
 
@@ -151,7 +143,7 @@ describe('Labels API', () => {
 
       after(async () => {
         // clean up
-        await deleteTestLabels(user.id, { name })
+        await deleteLabels({ name }, user.id)
       })
 
       it('should create label', async () => {
@@ -167,12 +159,12 @@ describe('Labels API', () => {
       let existingLabel: Label
 
       before(async () => {
-        existingLabel = await createTestLabel(user, 'label3', '#ffffff')
+        existingLabel = await createLabel(user.id, 'label3', '#ffffff')
         name = existingLabel.name
       })
 
       after(async () => {
-        await deleteTestLabels(user.id, [existingLabel.id])
+        await deleteLabels([existingLabel.id], user.id)
       })
 
       it('should return error code LABEL_ALREADY_EXISTS', async () => {
@@ -226,8 +218,8 @@ describe('Labels API', () => {
 
       context('when label is not used', () => {
         before(async () => {
-          toDeleteLabel = await createTestLabel(
-            user,
+          toDeleteLabel = await createLabel(
+            user.id,
             'label not in use',
             '#ffffff'
           )
@@ -245,7 +237,7 @@ describe('Labels API', () => {
         let item: LibraryItem
 
         before(async () => {
-          toDeleteLabel = await createTestLabel(user, 'page label', '#ffffff')
+          toDeleteLabel = await createLabel(user.id, 'page label', '#ffffff')
           labelId = toDeleteLabel.id
           item = await createTestLibraryItem(user.id, [toDeleteLabel])
         })
@@ -268,8 +260,8 @@ describe('Labels API', () => {
 
         before(async () => {
           item = await createTestLibraryItem(user.id)
-          toDeleteLabel = await createTestLabel(
-            user,
+          toDeleteLabel = await createLabel(
+            user.id,
             'highlight label',
             '#ffffff'
           )
@@ -334,17 +326,17 @@ describe('Labels API', () => {
 
     before(async () => {
       //  create testing labels
-      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
-      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+      const label1 = await createLabel(user.id, 'label_1', '#ffffff')
+      const label2 = await createLabel(user.id, 'label_2', '#eeeeee')
       labels = [label1, label2]
       item = await createTestLibraryItem(user.id)
     })
 
     after(async () => {
       // clean up
-      await deleteTestLabels(
-        user.id,
-        labels.map((l) => l.id)
+      await deleteLabels(
+        labels.map((l) => l.id),
+        user.id
       )
       await deleteLibraryItemById(item.id)
     })
@@ -462,14 +454,14 @@ describe('Labels API', () => {
       let toUpdateLabel: Label
 
       before(async () => {
-        toUpdateLabel = await createTestLabel(user, 'label5', '#ffffff')
+        toUpdateLabel = await createLabel(user.id, 'label5', '#ffffff')
         labelId = toUpdateLabel.id
         name = 'Updated label'
         color = '#aabbcc'
       })
 
       after(async () => {
-        await deleteTestLabels(user.id, [toUpdateLabel.id])
+        await deleteLabels([toUpdateLabel.id], user.id)
       })
 
       it('should return the updated label', async () => {
@@ -537,17 +529,17 @@ describe('Labels API', () => {
 
     before(async () => {
       //  create testing labels
-      const label1 = await createTestLabel(user, 'label_1', '#ffffff')
-      const label2 = await createTestLabel(user, 'label_2', '#eeeeee')
+      const label1 = await createLabel(user.id, 'label_1', '#ffffff')
+      const label2 = await createLabel(user.id, 'label_2', '#eeeeee')
       labels = [label1, label2]
       item = await createTestLibraryItem(user.id)
     })
 
     after(async () => {
       // clean up
-      await deleteTestLabels(
-        user.id,
-        labels.map((l) => l.id)
+      await deleteLabels(
+        labels.map((l) => l.id),
+        user.id
       )
       await deleteLibraryItemById(item.id)
     })
@@ -665,16 +657,16 @@ describe('Labels API', () => {
     before(async () => {
       //  create testing labels
       for (let i = 0; i < 5; i++) {
-        const label = await createTestLabel(user, `label_${i}`, '#ffffff')
+        const label = await createLabel(user.id, `label_${i}`, '#ffffff')
         labels.push(label)
       }
     })
 
     after(async () => {
       // clean up
-      await deleteTestLabels(
-        user.id,
-        labels.map((l) => l.id)
+      await deleteLabels(
+        labels.map((l) => l.id),
+        user.id
       )
     })
 

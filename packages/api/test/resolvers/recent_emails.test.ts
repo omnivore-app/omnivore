@@ -5,8 +5,9 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
+import { deleteUser } from '../../src/services/user'
 import * as sendEmail from '../../src/utils/sendEmail'
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 describe('Recent Emails Resolver', () => {
@@ -59,7 +60,7 @@ describe('Recent Emails Resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('recentEmails', () => {
@@ -162,8 +163,8 @@ describe('Recent Emails Resolver', () => {
       user2Auth = res.body.authToken
     })
     after(async () => {
-      await deleteTestUser(user2.id)
-      await deleteTestUser(user3.id)
+      await deleteUser(user2.id)
+      await deleteUser(user3.id)
     })
 
     before(async () => {

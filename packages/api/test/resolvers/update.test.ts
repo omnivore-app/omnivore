@@ -2,8 +2,9 @@ import { expect } from 'chai'
 import 'mocha'
 import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { createTestLibraryItem, graphqlRequest, request } from '../util'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Update API', () => {
   let user: User
@@ -23,7 +24,7 @@ describe('Update API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('update page', () => {

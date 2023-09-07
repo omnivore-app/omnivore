@@ -9,18 +9,14 @@ import {
   ReminderErrorCode,
   UpdateReminderErrorCode,
 } from '../../src/generated/graphql'
-import {
-  createTestReminder,
-  createTestUser,
-  deleteTestUser,
-  getReminder,
-} from '../db'
+import { deleteUser } from '../../src/services/user'
 import {
   createTestLibraryItem,
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
+  createTestReminder,
+  createTestUser,
+  getReminder,
+} from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 xdescribe('Reminders API', () => {
   let authToken: string
@@ -44,7 +40,7 @@ xdescribe('Reminders API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('Get reminder', () => {

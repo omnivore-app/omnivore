@@ -5,14 +5,12 @@ import sinon from 'sinon'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
 import { getRepository } from '../../src/repository'
+import { createNewsletterEmail } from '../../src/services/newsletters'
+import { deleteUser } from '../../src/services/user'
 import * as parser from '../../src/utils/parser'
 import * as sendEmail from '../../src/utils/sendEmail'
 import * as sendNotification from '../../src/utils/sendNotification'
-import {
-  createTestNewsletterEmail,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
+import { createTestUser } from '../db'
 import { request } from '../util'
 
 describe('Emails Router', () => {
@@ -30,7 +28,7 @@ describe('Emails Router', () => {
     // create test user and login
     user = await createTestUser('fakeUser')
 
-    await createTestNewsletterEmail(user, newsletterEmail)
+    await createNewsletterEmail(user.id, newsletterEmail)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!
     receivedEmail = await getRepository(ReceivedEmail).save({
       user: { id: user.id },
@@ -45,7 +43,7 @@ describe('Emails Router', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
     sinon.restore()
   })
 

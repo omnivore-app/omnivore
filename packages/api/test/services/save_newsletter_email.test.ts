@@ -5,11 +5,13 @@ import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
-import { authTrx, getRepository } from '../../src/repository'
+import { getRepository } from '../../src/repository'
 import { findLibraryItemByUrl } from '../../src/services/library_item'
 import { createNewsletterEmail } from '../../src/services/newsletters'
+import { saveReceivedEmail } from '../../src/services/received_emails'
 import { saveNewsletter } from '../../src/services/save_newsletter_email'
-import { createTestUser, deleteTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
@@ -25,24 +27,19 @@ describe('saveNewsletterEmail', () => {
   before(async () => {
     user = await createTestUser('fakeUser')
     newsletterEmail = await createNewsletterEmail(user.id)
-    receivedEmail = await authTrx(
-      (t) =>
-        t.getRepository(ReceivedEmail).save({
-          user: { id: user.id },
-          from,
-          to: newsletterEmail.address,
-          subject: title,
-          text,
-          html: '',
-          type: 'non-article',
-        }),
-      undefined,
-      user.id
+    receivedEmail = await saveReceivedEmail(
+      from,
+      newsletterEmail.address,
+      title,
+      text,
+      '',
+      user.id,
+      'non-article'
     )
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   it('adds the newsletter to the library', async () => {

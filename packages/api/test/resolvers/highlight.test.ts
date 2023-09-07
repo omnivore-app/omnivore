@@ -1,6 +1,5 @@
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestLibraryItem, createTestUser } from '../db'
 import {
-  createTestLibraryItem,
   generateFakeUuid,
   graphqlRequest,
   request,
@@ -10,8 +9,8 @@ import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
-import { createPubSubClient } from '../../src/pubsub'
 import { updateLibraryItem } from '../../src/services/library_item'
+import { deleteUser } from '../../src/services/user'
 
 chai.use(chaiString)
 
@@ -155,7 +154,7 @@ describe('Highlights API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   context('createHighlightMutation', () => {

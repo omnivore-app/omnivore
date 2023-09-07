@@ -26,11 +26,11 @@ import {
   findLibraryItemByUrl,
   updateLibraryItem
 } from '../../src/services/library_item'
+import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestLibraryItem, createTestUser } from '../db'
 import {
-  createTestLibraryItem,
   generateFakeUuid,
   graphqlRequest,
   request
@@ -92,47 +92,6 @@ const createArticleQuery = (
         created
       }
       ... on CreateArticleError {
-        errorCodes
-      }
-    }
-  }
-  `
-}
-
-const articlesQuery = (after = '') => {
-  return `
-  query {
-    articles(
-      sharedOnly: ${false}
-      after: "${after}"
-      first: 5
-      query: "") {
-      ... on ArticlesSuccess {
-        edges {
-          cursor
-          node {
-            id
-            url
-            linkId
-            createdAt
-            updatedAt
-            originalArticleUrl
-            labels {
-              id
-              name
-              color
-            }
-          }
-        }
-        pageInfo {
-          hasNextPage
-          hasPreviousPage
-          startCursor
-          endCursor
-          totalCount
-        }
-      }
-      ... on ArticlesError {
         errorCodes
       }
     }
@@ -384,7 +343,7 @@ describe('Article API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('CreateArticle', () => {
@@ -570,7 +529,7 @@ describe('Article API', () => {
       })
 
       after(async () => {
-        await deleteLibraryItemById(url, user.id)
+        await deleteLibraryItemByUrl(url, user.id)
       })
 
       it('it should return that page in the GetArticles Query', async () => {
@@ -581,14 +540,14 @@ describe('Article API', () => {
 
         // Save a link, then archive it
         let allLinks = await graphqlRequest(
-          articlesQuery(''),
+          searchQuery(''),
           authToken
         ).expect(200)
         const justSavedId = allLinks.body.data.articles.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
           200
         )
         expect(allLinks.body.data.articles.edges[0]?.node?.url).to.not.eq(url)
@@ -599,7 +558,7 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
-        allLinks = await graphqlRequest(articlesQuery(''), authToken).expect(
+        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
           200
         )
         expect(allLinks.body.data.articles.edges[0].node.url).to.eq(url)
@@ -1201,12 +1160,7 @@ describe('Article API', () => {
       mutation {
         setFavoriteArticle(id: "${articleId}") {
           ... on SetFavoriteArticleSuccess {
-            favoriteArticle {
-              id
-              labels {
-                name
-              }
-            }
+            success
           }
           ... on SetFavoriteArticleError {
             errorCodes
@@ -1234,17 +1188,10 @@ describe('Article API', () => {
     })
 
     it('favorites the article', async () => {
-      const res = await graphqlRequest(
+      await graphqlRequest(
         setFavoriteArticleQuery(articleId),
         authToken
       ).expect(200)
-      console.log(res.body.data.setFavoriteArticle.favoriteArticle)
-      expect(res.body.data.setFavoriteArticle.favoriteArticle.id).to.eq(
-        articleId
-      )
-      expect(
-        res.body.data.setFavoriteArticle.favoriteArticle.labels[0].name
-      ).to.eq('Favorites')
 
       const item = await findLibraryItemById(articleId, user.id)
       expect(item?.labels?.map((l) => l.name)).to.eql(['Favorites'])

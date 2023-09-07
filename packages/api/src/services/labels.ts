@@ -1,4 +1,4 @@
-import { In } from 'typeorm'
+import { FindOptionsWhere, In } from 'typeorm'
 import { EntityLabel } from '../entity/entity_label'
 import { Label } from '../entity/label'
 import { createPubSubClient, EntityType } from '../pubsub'
@@ -147,4 +147,28 @@ export const findLabelsByIds = async (ids: string[]): Promise<Label[]> => {
       id: In(ids),
     })
   })
+}
+
+export const createLabel = async (
+  name: string,
+  color: string,
+  userId: string
+): Promise<Label> => {
+  return authTrx(
+    (t) =>
+      t.withRepository(labelRepository).createLabel({ name, color }, userId),
+    undefined,
+    userId
+  )
+}
+
+export const deleteLabels = async (
+  criteria: string[] | FindOptionsWhere<Label>,
+  userId: string
+) => {
+  return authTrx(
+    async (t) => t.withRepository(labelRepository).delete(criteria),
+    undefined,
+    userId
+  )
 }
