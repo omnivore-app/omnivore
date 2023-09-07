@@ -1,7 +1,6 @@
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { debounce } from 'lodash'
 import { env } from '../env'
 import { Claims } from '../resolvers/types'
 import { getDeviceTokensByUserId } from '../services/user_device_tokens'
