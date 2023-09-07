@@ -4,11 +4,8 @@ import { Box, HStack } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
 import {
   LabelColorDropdownProps,
-  LabelColorObject,
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
-import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { TwitterPicker } from 'react-color'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 
