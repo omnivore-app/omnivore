@@ -36,18 +36,18 @@ export function remindersServiceRouter() {
       scheduleTime?: number
     }
 
-    analytics.track({
-      userId: userId,
+    if (!userId || !scheduleTime) {
+      res.status(400).send('Bad Request')
+      return
+    }
+
+    analytics.capture({
+      distinctId: userId,
       event: 'reminder_triggered',
       properties: {
         env: env.server.apiEnv,
       },
     })
-
-    if (!userId || !scheduleTime) {
-      res.status(400).send('Bad Request')
-      return
-    }
 
     try {
       const remindAt = new Date(scheduleTime)

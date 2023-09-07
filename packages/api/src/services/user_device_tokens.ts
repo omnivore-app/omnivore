@@ -37,8 +37,8 @@ export const createDeviceToken = async (
     })
   }
 
-  analytics.track({
-    userId: userId,
+  analytics.capture({
+    distinctId: userId,
     event: 'device_token_created',
     properties: {
       env: env.server.apiEnv,
@@ -62,8 +62,8 @@ export const deleteDeviceToken = async (
     })
   }
 
-  analytics.track({
-    userId: userId,
+  analytics.capture({
+    distinctId: userId,
     event: 'device_token_deleted',
     properties: {
       env: env.server.apiEnv,

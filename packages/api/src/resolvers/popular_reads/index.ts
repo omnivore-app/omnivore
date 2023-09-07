@@ -19,8 +19,8 @@ export const addPopularReadResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'popular_read_added',
     properties: {
       name: name,

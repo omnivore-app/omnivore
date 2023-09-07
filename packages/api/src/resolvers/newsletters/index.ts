@@ -28,8 +28,8 @@ export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailError
 >(async (_parent, _args, { claims, log }) => {
   log.info('createNewsletterEmailResolver')
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: 'newsletter_email_address_created',
     properties: {
       env: env.server.apiEnv,
@@ -93,8 +93,8 @@ export const deleteNewsletterEmailResolver = authorized<
   MutationDeleteNewsletterEmailArgs
 >(async (_parent, args, { claims, log }) => {
   log.info('deleteNewsletterEmailResolver')
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: 'newsletter_email_address_deleted',
     properties: {
       env: env.server.apiEnv,

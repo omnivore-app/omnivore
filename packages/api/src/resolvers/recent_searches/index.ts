@@ -16,8 +16,8 @@ export const recentSearchesResolver = authorized<
 >(async (_obj, _params, { claims: { uid }, log }) => {
   log.info('recentSearches')
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'recentSearches',
     properties: {
       env: env.server.apiEnv,

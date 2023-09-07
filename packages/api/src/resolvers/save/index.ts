@@ -24,8 +24,8 @@ export const savePageResolver = authorized<
     models,
     claims: { uid },
   } = ctx
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -56,8 +56,8 @@ export const saveUrlResolver = authorized<
     claims: { uid },
   } = ctx
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -87,8 +87,8 @@ export const saveFileResolver = authorized<
     claims: { uid },
   } = ctx
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,

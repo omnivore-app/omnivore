@@ -109,8 +109,8 @@ export const createHighlightResolver = authorized<
       },
     })
 
-    analytics.track({
-      userId: claims.uid,
+    analytics.capture({
+      distinctId: claims.uid,
       event: 'highlight_created',
       properties: {
         pageId,

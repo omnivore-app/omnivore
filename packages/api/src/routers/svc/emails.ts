@@ -100,8 +100,8 @@ export function emailsServiceRouter() {
         return
       }
 
-      analytics.track({
-        userId: user.id,
+      analytics.capture({
+        distinctId: user.id,
         event: 'non_newsletter_email_received',
         properties: {
           env: env.server.apiEnv,
@@ -169,8 +169,8 @@ export function emailsServiceRouter() {
         user.id
       )
 
-      analytics.track({
-        userId: user.id,
+      analytics.capture({
+        distinctId: user.id,
         event: 'received_email_saved',
         properties: {
           env: env.server.apiEnv,

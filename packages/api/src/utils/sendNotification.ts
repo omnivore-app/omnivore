@@ -22,8 +22,8 @@ export const sendPushNotification = async (
   type: PushNotificationType
 ): Promise<string | undefined> => {
   try {
-    analytics.track({
-      userId,
+    analytics.capture({
+      distinctId: userId,
       event: 'notification_sent',
       properties: {
         type,
@@ -49,8 +49,8 @@ export const sendMulticastPushNotifications = async (
   type: PushNotificationType
 ): Promise<BatchResponse | undefined> => {
   try {
-    analytics.track({
-      userId,
+    analytics.capture({
+      distinctId: userId,
       event: 'notification_sent',
       properties: {
         type,

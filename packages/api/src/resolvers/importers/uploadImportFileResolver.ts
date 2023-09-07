@@ -50,8 +50,8 @@ export const uploadImportFileResolver = authorized<
     }
   }
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'upload_import_file',
     properties: {
       type,

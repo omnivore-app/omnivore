@@ -42,8 +42,8 @@ export const reportItemResolver: ResolverFn<
   const { sharedBy, reportTypes } = args.input
 
   if (sharedBy && isAbuseReport(reportTypes)) {
-    analytics.track({
-      userId: sharedBy,
+    analytics.capture({
+      distinctId: sharedBy,
       event: 'report_created',
       properties: {
         type: 'abuse',
@@ -70,8 +70,8 @@ export const reportItemResolver: ResolverFn<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'report_created',
       properties: {
         type: 'content',

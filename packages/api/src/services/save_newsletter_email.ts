@@ -34,8 +34,8 @@ export const saveNewsletterEmail = async (
   newsletterEmail: NewsletterEmail,
   ctx?: SaveContext
 ): Promise<boolean> => {
-  analytics.track({
-    userId: newsletterEmail.user.id,
+  analytics.capture({
+    distinctId: newsletterEmail.user.id,
     event: 'newsletter_email_received',
     properties: {
       url: data.url,

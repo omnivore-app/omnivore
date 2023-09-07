@@ -174,8 +174,8 @@ export const createArticleResolver = authorized<
       log,
     } = ctx
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'link_saved',
       properties: {
         url,
@@ -501,8 +501,8 @@ export const getArticlesResolver = authorized<
 
   const searchQuery = parseSearchQuery(params.query || undefined)
 
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: 'get_articles',
     properties: {
       env: env.server.apiEnv,
@@ -683,8 +683,8 @@ export const setBookmarkArticleResolver = authorized<
         return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
       }
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'link_removed',
         properties: {
           url: page.url,
@@ -986,8 +986,8 @@ export const typeaheadSearchResolver = authorized<
     return { errorCodes: [TypeaheadSearchErrorCode.Unauthorized] }
   }
 
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: 'typeahead',
     properties: {
       env: env.server.apiEnv,
@@ -1086,8 +1086,8 @@ export const bulkActionResolver = authorized<
   ) => {
     log.info('bulkActionResolver')
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'BulkAction',
       properties: {
         env: env.server.apiEnv,
@@ -1151,8 +1151,8 @@ export const setFavoriteArticleResolver = authorized<
   }
 
   try {
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'setFavoriteArticle',
       properties: {
         env: env.server.apiEnv,

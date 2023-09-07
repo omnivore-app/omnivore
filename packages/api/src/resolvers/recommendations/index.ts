@@ -78,8 +78,8 @@ export const createGroupResolver = authorized<
       onlyAdminCanSeeMembers: input.onlyAdminCanSeeMembers,
     })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'group_created',
       properties: {
         group_id: group.id,
@@ -284,8 +284,8 @@ export const joinGroupResolver = authorized<
 
     const group = await joinGroup(user, inviteCode)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'group_joined',
       properties: {
         group_id: group.id,
@@ -432,8 +432,8 @@ export const leaveGroupResolver = authorized<
 
     const success = await leaveGroup(user, groupId)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'group_left',
       properties: {
         group_id: groupId,

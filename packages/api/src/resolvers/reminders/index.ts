@@ -64,8 +64,8 @@ export const createReminderResolver = authorized<
     }
   }
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'reminder_created',
     properties: {
       clientRequestId,
@@ -150,8 +150,8 @@ export const reminderResolver = authorized<
 >(async (_, { linkId: pageId }, { models, claims: { uid }, log }) => {
   log.info('reminderResolver')
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'reminder',
     properties: {
       linkId: pageId,
@@ -218,8 +218,8 @@ export const updateReminderResolver = authorized<
     }
   }
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'reminder_updated',
     properties: {
       id,
@@ -292,8 +292,8 @@ export const deleteReminderResolver = authorized<
 >(async (_, { id }, { models, claims: { uid }, log, authTrx }) => {
   log.info('deleteReminderResolver')
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'reminder_deleted',
     properties: {
       id: id,

@@ -49,8 +49,8 @@ export const uploadFileRequestResolver: ResolverFn<
     return { errorCodes: [UploadFileRequestErrorCode.Unauthorized] }
   }
 
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: 'file_upload_request',
     properties: {
       url: input.url,

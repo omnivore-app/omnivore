@@ -51,8 +51,8 @@ export const subscriptionsResolver = authorized<
 >(async (_obj, { sort, type }, { claims: { uid }, log }) => {
   log.info('subscriptionsResolver')
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'subscriptions',
     properties: {
       env: env.server.apiEnv,
@@ -170,8 +170,8 @@ export const unsubscribeResolver = authorized<
 
     await unsubscribe(subscription)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'unsubscribed',
       properties: {
         name,
@@ -223,8 +223,8 @@ export const subscribeResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'subscribed',
       properties: {
         ...input,
@@ -323,8 +323,8 @@ export const updateSubscriptionResolver = authorized<
   log.info('updateSubscriptionResolver')
 
   try {
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'update_subscription',
       properties: {
         ...input,

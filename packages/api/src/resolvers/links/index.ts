@@ -60,8 +60,8 @@ export const setLinkArchivedResolver = authorized<
 >(async (_obj, args, { claims, pubsub, log }) => {
   log.info('setLinkArchivedResolver', args.input.linkId)
 
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: args.input.archived ? 'link_archived' : 'link_unarchived',
     properties: {
       env: env.server.apiEnv,

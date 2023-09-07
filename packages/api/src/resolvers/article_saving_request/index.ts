@@ -29,8 +29,8 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { claims, pubsub, log }) => {
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: claims.uid,
     event: 'link_saved',
     properties: {
       url: url,

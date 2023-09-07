@@ -35,9 +35,6 @@ interface BackendEnv {
       secret: string
     }
   }
-  segment: {
-    writeKey: string
-  }
   intercom: {
     token: string
   }
@@ -100,7 +97,9 @@ interface BackendEnv {
   gcp: {
     location: string
   }
-
+  posthog: {
+    POSTHOG_API_KEY: string
+  }
   pocket: {
     consumerKey: string
   }
@@ -141,7 +140,6 @@ const nullableEnvVars = [
   'GAUTH_ANDROID_CLIENT_ID',
   'GAUTH_CLIENT_ID',
   'GAUTH_SECRET',
-  'SEGMENT_WRITE_KEY',
   'TWITTER_BEARER_TOKEN',
   'ELASTIC_USERNAME',
   'ELASTIC_PASSWORD',
@@ -225,8 +223,8 @@ export function getEnv(): BackendEnv {
       secret: parse('GAUTH_SECRET'),
     },
   }
-  const segment = {
-    writeKey: parse('SEGMENT_WRITE_KEY'),
+  const posthog = {
+    POSTHOG_API_KEY: parse('POSTHOG_API_KEY'),
   }
   const intercom = {
     token: parse('INTERCOM_TOKEN'),
@@ -304,7 +302,7 @@ export function getEnv(): BackendEnv {
     client,
     server,
     google,
-    segment,
+    posthog,
     intercom,
     sentry,
     jaeger,

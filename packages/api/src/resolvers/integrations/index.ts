@@ -107,8 +107,8 @@ export const setIntegrationResolver = authorized<
       integration.taskName = null
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'integration_set',
       properties: {
         id: integrationToSave.id,
@@ -200,8 +200,8 @@ export const deleteIntegrationResolver = authorized<
     )
     deletedIntegration.id = id
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'integration_delete',
       properties: {
         integrationId: deletedIntegration.id,
@@ -253,8 +253,8 @@ export const importFromIntegrationResolver = authorized<
     // update task name in integration
     await getRepository(Integration).update(integration.id, { taskName })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'integration_import',
       properties: {
         integrationId,

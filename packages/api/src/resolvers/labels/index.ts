@@ -52,8 +52,8 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
     log.info('labelsResolver')
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'labels',
       properties: {
         env: env.server.apiEnv,
@@ -113,8 +113,8 @@ export const createLabelResolver = authorized<
 
     const label = await createLabel(uid, input)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_created',
       properties: {
         ...input,
@@ -184,8 +184,8 @@ export const deleteLabelResolver = authorized<
       refresh: true,
     })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_deleted',
       properties: {
         labelId,
@@ -277,8 +277,8 @@ export const setLabelsResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'labels_set',
       properties: {
         pageId,
@@ -447,8 +447,8 @@ export const setLabelsForHighlightResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'labels_set_for_highlight',
       properties: {
         highlightId,
@@ -561,8 +561,8 @@ export const moveLabelResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_moved',
       properties: {
         labelId,

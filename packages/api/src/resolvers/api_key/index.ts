@@ -86,8 +86,8 @@ export const generateApiKeyResolver = authorized<
       expiresAt: exp,
     })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'api_key_generated',
       properties: {
         name,
