@@ -109,6 +109,7 @@ export function makeApolloServer(): ApolloServer {
       return new Error('Unexpected server error')
     },
     introspection: env.dev.isLocal,
+    persistedQueries: false,
   })
 
   return apollo
