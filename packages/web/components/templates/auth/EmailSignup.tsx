@@ -18,9 +18,8 @@ export function EmailSignup(): JSX.Element {
   const [password, setPassword] = useState<string | undefined>()
   const [fullname, setFullname] = useState<string | undefined>()
   const [username, setUsername] = useState<string | undefined>()
-  const [debouncedUsername, setDebouncedUsername] = useState<
-    string | undefined
-  >()
+  const [debouncedUsername, setDebouncedUsername] =
+    useState<string | undefined>()
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export function EmailSignup(): JSX.Element {
       setUsername(event.target.value)
       setTimeout(() => {
         setDebouncedUsername(event.target.value)
-      }, 400)
+      }, 2000)
     },
     []
   )
