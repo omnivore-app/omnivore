@@ -3,7 +3,10 @@ import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { Circle } from 'phosphor-react'
-import { useGetSubscriptionsQuery } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
+import {
+  Subscription,
+  useGetSubscriptionsQuery,
+} from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { theme } from '../../tokens/stitches.config'
@@ -29,6 +32,11 @@ type LibraryFilterMenuProps = {
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
+  const { labels, isValidating: labelsLoading } = useGetLabelsQuery()
+  const { savedSearches, isLoading: searchesLoading } = useGetSavedSearchQuery()
+  const { subscriptions, isValidating: subscriptionsLoading } =
+    useGetSubscriptionsQuery()
+
   return (
     <>
       <Box
@@ -64,9 +72,13 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           <LogoBox />
         </Box>
 
-        <SavedSearches {...props} />
-        <Subscriptions {...props} />
-        <Labels {...props} />
+        {!labelsLoading && !searchesLoading && !subscriptionsLoading && (
+          <>
+            <SavedSearches {...props} savedSearches={savedSearches} />
+            <Subscriptions {...props} subscriptions={subscriptions} />
+            <Labels {...props} labels={labels} />
+          </>
+        )}
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
@@ -85,17 +97,17 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
   )
 }
 
-function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
-  const { savedSearches, isLoading } = useGetSavedSearchQuery()
-
+function SavedSearches(
+  props: LibraryFilterMenuProps & { savedSearches: SavedSearch[] | undefined }
+): JSX.Element {
   const sortedSearches = useMemo(() => {
-    return savedSearches
+    return props.savedSearches
       ?.filter((it) => it.visible)
       ?.sort(
         (left: SavedSearch, right: SavedSearch) =>
           left.position - right.position
       )
-  }, [savedSearches])
+  }, [props.savedSearches])
 
   useRegisterActions(
     (sortedSearches ?? []).map((item, idx) => {
@@ -111,7 +123,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
         },
       }
     }),
-    [isLoading]
+    [props.savedSearches]
   )
 
   const [collapsed, setCollapsed] = usePersistedState<boolean>({
@@ -135,7 +147,7 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
             {...props}
           />
         ))}
-      {!collapsed && !isLoading && (
+      {!collapsed && sortedSearches !== undefined && (
         <EditButton
           title="Edit Saved Searches"
           destination="/settings/saved-searches"
@@ -147,15 +159,16 @@ function SavedSearches(props: LibraryFilterMenuProps): JSX.Element {
   )
 }
 
-function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
-  const { subscriptions } = useGetSubscriptionsQuery()
+function Subscriptions(
+  props: LibraryFilterMenuProps & { subscriptions: Subscription[] | undefined }
+): JSX.Element {
   const [collapsed, setCollapsed] = usePersistedState<boolean>({
     key: `--subscriptions-collapsed`,
     initialValue: false,
   })
 
   useRegisterActions(
-    (subscriptions ?? []).map((subscription, idx) => {
+    (props.subscriptions ?? []).map((subscription, idx) => {
       const key = String(idx + 1)
       const name = subscription.name
       return {
@@ -168,7 +181,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
         },
       }
     }),
-    [subscriptions]
+    [props.subscriptions]
   )
 
   return (
@@ -186,7 +199,7 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
             text="Newsletters"
             {...props}
           />
-          {(subscriptions ?? []).map((item) => {
+          {(props.subscriptions ?? []).map((item) => {
             return (
               <FilterButton
                 key={item.id}
@@ -208,18 +221,19 @@ function Subscriptions(props: LibraryFilterMenuProps): JSX.Element {
   )
 }
 
-function Labels(props: LibraryFilterMenuProps): JSX.Element {
-  const { labels } = useGetLabelsQuery()
+function Labels(
+  props: LibraryFilterMenuProps & { labels: Label[] }
+): JSX.Element {
   const [collapsed, setCollapsed] = usePersistedState<boolean>({
     key: `--labels-collapsed`,
     initialValue: false,
   })
 
   const sortedLabels = useMemo(() => {
-    return labels.sort((left: Label, right: Label) =>
+    return props.labels.sort((left: Label, right: Label) =>
       left.name.localeCompare(right.name)
     )
-  }, [labels])
+  }, [props.labels])
 
   return (
     <MenuPanel
