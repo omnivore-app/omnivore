@@ -69,6 +69,7 @@ export function EmailSignup(): JSX.Element {
           <SpanBox css={{ width: '100%' }}>
             <FormLabel className="required">Email</FormLabel>
             <BorderedFormInput
+              autoFocus={true}
               key="email"
               type="email"
               name="email"
