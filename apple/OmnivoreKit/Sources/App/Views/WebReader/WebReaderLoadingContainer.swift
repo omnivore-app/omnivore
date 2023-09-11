@@ -53,9 +53,8 @@ public struct WebReaderLoadingContainer: View {
           }
         #endif
       } else {
-        WebReaderContainerView(item: item)
+        WebReaderContainerView(item: item, pop: {})
         #if os(iOS)
-          .navigationBarHidden(true)
           .navigationViewStyle(.stack)
         #endif
         .accentColor(.appGrayTextContrast)

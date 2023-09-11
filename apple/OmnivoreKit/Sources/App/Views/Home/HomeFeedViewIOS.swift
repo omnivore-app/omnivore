@@ -44,121 +44,110 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var body: some View {
-      ZStack {
-//        if let linkRequest = viewModel.linkRequest {
-//          NavigationLink(
-//            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
-//            tag: linkRequest,
-//            selection: $viewModel.linkRequest
-//          ) {
-//            EmptyView()
-//          }
-//        }
-        HomeFeedView(
-          listTitle: $listTitle,
-          isListScrolled: $isListScrolled,
-          prefersListLayout: $prefersListLayout,
-          viewModel: viewModel
-        )
-        .refreshable {
-          loadItems(isRefresh: true)
+      HomeFeedView(
+        listTitle: $listTitle,
+        isListScrolled: $isListScrolled,
+        prefersListLayout: $prefersListLayout,
+        viewModel: viewModel
+      )
+      .refreshable {
+        loadItems(isRefresh: true)
+      }
+      .onChange(of: viewModel.searchTerm) { _ in
+        // Maybe we should debounce this, but
+        // it feels like it works ok without
+        loadItems(isRefresh: true)
+      }
+      .onChange(of: viewModel.selectedLabels) { _ in
+        loadItems(isRefresh: true)
+      }
+      .onChange(of: viewModel.negatedLabels) { _ in
+        loadItems(isRefresh: true)
+      }
+      .onChange(of: viewModel.appliedFilter) { _ in
+        loadItems(isRefresh: true)
+      }
+      .onChange(of: viewModel.appliedSort) { _ in
+        loadItems(isRefresh: true)
+      }
+      .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+        ApplyLabelsView(mode: .item(item), onSave: nil)
+      }
+      .sheet(item: $viewModel.itemUnderTitleEdit) { item in
+        LinkedItemMetadataEditView(item: item)
+      }
+      .sheet(item: $viewModel.itemForHighlightsView) { item in
+        NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
+      }
+      .sheet(isPresented: $viewModel.showFiltersModal) {
+        NavigationView {
+          FilterSelectorView(viewModel: viewModel)
         }
-        .onChange(of: viewModel.searchTerm) { _ in
-          // Maybe we should debounce this, but
-          // it feels like it works ok without
-          loadItems(isRefresh: true)
-        }
-        .onChange(of: viewModel.selectedLabels) { _ in
-          loadItems(isRefresh: true)
-        }
-        .onChange(of: viewModel.negatedLabels) { _ in
-          loadItems(isRefresh: true)
-        }
-        .onChange(of: viewModel.appliedFilter) { _ in
-          loadItems(isRefresh: true)
-        }
-        .onChange(of: viewModel.appliedSort) { _ in
-          loadItems(isRefresh: true)
-        }
-        .sheet(item: $viewModel.itemUnderLabelEdit) { item in
-          ApplyLabelsView(mode: .item(item), onSave: nil)
-        }
-        .sheet(item: $viewModel.itemUnderTitleEdit) { item in
-          LinkedItemMetadataEditView(item: item)
-        }
-        .sheet(item: $viewModel.itemForHighlightsView) { item in
-          NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
-        }
-        .sheet(isPresented: $viewModel.showFiltersModal) {
-          NavigationView {
-            FilterSelectorView(viewModel: viewModel)
-          }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .barLeading) {
-            VStack(alignment: .leading) {
-              let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
+      }
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        ToolbarItem(placement: .barLeading) {
+          VStack(alignment: .leading) {
+            let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
 
-              Text(title)
-                .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
+            Text(title)
+              .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
 
-              if isListScrolled {
-                Text(listTitle)
-                  .font(Font.system(size: 15, weight: .regular))
-                  .foregroundColor(Color.appGrayText)
-              }
-            }.frame(maxWidth: .infinity, alignment: .leading)
-          }
-          ToolbarItem(placement: .barTrailing) {
-            Button("", action: {})
-              .disabled(true)
-              .overlay {
-                if viewModel.isLoading, !prefersListLayout, enableGrid {
-                  ProgressView()
-                }
-              }
-          }
-          ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
-            if enableGrid {
-              Button(
-                action: { prefersListLayout.toggle() },
-                label: {
-                  Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                }
-              )
-            } else {
-              EmptyView()
+            if isListScrolled {
+              Text(listTitle)
+                .font(Font.system(size: 15, weight: .regular))
+                .foregroundColor(Color.appGrayText)
             }
-          }
-          ToolbarItem(placement: .barTrailing) {
+          }.frame(maxWidth: .infinity, alignment: .leading)
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button("", action: {})
+            .disabled(true)
+            .overlay {
+              if viewModel.isLoading, !prefersListLayout, enableGrid {
+                ProgressView()
+              }
+            }
+        }
+        ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
+          if enableGrid {
             Button(
-              action: { searchPresented = true },
+              action: { prefersListLayout.toggle() },
               label: {
-                Image(systemName: "magnifyingglass")
-                  .resizable()
-                  .frame(width: 18, height: 18)
-                  .padding(.vertical)
-                  .foregroundColor(.appGrayTextContrast)
+                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
               }
             )
+          } else {
+            EmptyView()
           }
-          ToolbarItem(placement: .barTrailing) {
-            if UIDevice.isIPhone {
-              Menu(content: {
-                Button(action: { settingsPresented = true }, label: {
-                  Label(LocalText.genericProfile, systemImage: "person.circle")
-                })
-                Button(action: { addLinkPresented = true }, label: {
-                  Label("Add Link", systemImage: "plus.circle")
-                })
-              }, label: {
-                Image.utilityMenu
-              })
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: { searchPresented = true },
+            label: {
+              Image(systemName: "magnifyingglass")
+                .resizable()
+                .frame(width: 18, height: 18)
+                .padding(.vertical)
                 .foregroundColor(.appGrayTextContrast)
-            } else {
-              EmptyView()
             }
+          )
+        }
+        ToolbarItem(placement: .barTrailing) {
+          if UIDevice.isIPhone {
+            Menu(content: {
+              Button(action: { settingsPresented = true }, label: {
+                Label(LocalText.genericProfile, systemImage: "person.circle")
+              })
+              Button(action: { addLinkPresented = true }, label: {
+                Label("Add Link", systemImage: "plus.circle")
+              })
+            }, label: {
+              Image.utilityMenu
+            })
+              .foregroundColor(.appGrayTextContrast)
+          } else {
+            EmptyView()
           }
         }
       }
@@ -170,13 +159,8 @@ struct AnimatingCellHeight: AnimatableModifier {
         guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
-        viewModel.selectedItem = linkedItem
-        viewModel.linkIsActive = true
-      }
-      .onReceive(NSNotification.pushReaderItemPublisher) { notification in
-        if let objectID = notification.userInfo?["objectID"] as? NSManagedObjectID {
-          viewModel.handleReaderItemNotification(objectID: objectID, dataService: dataService)
-        }
+        //   viewModel.selectedItem = linkedItem
+        //   viewModel.linkIsActive = true
       }
       .onOpenURL { url in
         viewModel.linkRequest = nil

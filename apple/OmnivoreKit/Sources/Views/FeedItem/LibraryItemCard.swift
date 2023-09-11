@@ -27,8 +27,8 @@ public struct LibraryItemCard: View {
   public var body: some View {
     VStack {
       HStack(alignment: .top, spacing: 10) {
-        articleInfo
         imageBox
+        articleInfo
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -156,12 +156,12 @@ public struct LibraryItemCard: View {
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 40, height: 40)
+              .frame(width: 74 * 0.666, height: 74)
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
             Color.systemBackground
-              .frame(width: 40, height: 40)
+              .frame(width: 74 * 0.666, height: 74)
               .cornerRadius(5)
               .padding(.top, 2)
           }

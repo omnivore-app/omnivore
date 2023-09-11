@@ -44,7 +44,7 @@ struct FeedCardNavigationLink: View {
       isPDF: item.isPDF
     ), label: {
       LibraryItemCard(item: item, viewer: dataService.currentViewer)
-        .padding(10)
+        .padding(.top, 15)
     })
       .onAppear {
         Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
@@ -71,8 +71,8 @@ struct GridCardNavigationLink: View {
         if isContextMenuOpen {
           isContextMenuOpen = false
         } else {
-          viewModel.selectedItem = item
-          viewModel.linkIsActive = true
+          //  viewModel.selectedItem = item
+          // viewModel.linkIsActive = true
         }
       } label: {
         NavigationLink(destination: EmptyView()) {
