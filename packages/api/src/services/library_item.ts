@@ -276,28 +276,32 @@ export const searchLibraryItems = async (
   const sortField = sort?.by || SortBy.SAVED
 
   // add pagination and sorting
-  return authTrx(async (tx) => {
-    const queryBuilder = tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .leftJoinAndSelect('library_item.labels', 'labels')
-      .leftJoinAndSelect('library_item.highlights', 'highlights')
-      .leftJoinAndSelect('highlights.user', 'user')
-      .leftJoinAndSelect('user.profile', 'profile')
-      .where('library_item.user_id = :userId', { userId })
+  return authTrx(
+    async (tx) => {
+      const queryBuilder = tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .leftJoinAndSelect('highlights.user', 'user')
+        .leftJoinAndSelect('user.profile', 'profile')
+        .where('library_item.user_id = :userId', { userId })
 
-    // build the where clause
-    buildWhereClause(queryBuilder, args)
+      // build the where clause
+      buildWhereClause(queryBuilder, args)
 
-    const libraryItems = await queryBuilder
-      .addOrderBy(`library_item.${sortField}`, sortOrder)
-      .offset(from)
-      .limit(size)
-      .getMany()
+      const libraryItems = await queryBuilder
+        .addOrderBy(`library_item.${sortField}`, sortOrder)
+        .offset(from)
+        .limit(size)
+        .getMany()
 
-    const count = await queryBuilder.getCount()
+      const count = await queryBuilder.getCount()
 
-    return { libraryItems, count }
-  })
+      return { libraryItems, count }
+    },
+    undefined,
+    userId
+  )
 }
 
 export const findLibraryItemById = async (

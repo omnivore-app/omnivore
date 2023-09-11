@@ -151,6 +151,7 @@ describe('Integrations routers', () => {
                 shortId: 'test shortId',
                 highlightPositionPercent,
                 user,
+                libraryItem: item,
               },
               item.id,
               user.id

@@ -9,10 +9,10 @@ import { getRepository } from '../repository'
 import { userRepository } from '../repository/user'
 import addressparser = require('nodemailer/lib/addressparser')
 
-const parsedAddress = (emailAddress: string): string | undefined => {
+const parsedAddress = (emailAddress: string) => {
   const res = addressparser(emailAddress, { flatten: true })
   if (!res || res.length < 1) {
-    return undefined
+    throw new Error('Invalid email address')
   }
   return res[0].address
 }
@@ -72,7 +72,7 @@ export const updateConfirmationCode = async (
   const address = parsedAddress(emailAddress)
   const result = await getRepository(NewsletterEmail)
     .createQueryBuilder()
-    .where('address ILIKE :address', { address })
+    .where('LOWER(address) = :address', { address: address.toLowerCase() })
     .update({
       confirmationCode: confirmationCode,
     })
@@ -81,14 +81,14 @@ export const updateConfirmationCode = async (
   return !!result.affected
 }
 
-export const findNewsletterEmail = async (
+export const findNewsletterEmailByAddress = async (
   emailAddress: string
 ): Promise<NewsletterEmail | null> => {
   const address = parsedAddress(emailAddress)
   return getRepository(NewsletterEmail)
     .createQueryBuilder('newsletter_email')
     .innerJoinAndSelect('newsletter_email.user', 'user')
-    .where('address ILIKE :address', { address })
+    .where('LOWER(address) = :address', { address: address.toLowerCase() })
     .getOne()
 }
 
@@ -106,9 +106,8 @@ const createRandomEmailAddress = (userName: string, length: number): string => {
   return `${userName}-${nanoid(length)}e@${inbox}.omnivore.app`
 }
 
-export const getNewsletterEmailById = async (
-  id: string,
-  userId: string
+export const findNewsletterEmailById = async (
+  id: string
 ): Promise<NewsletterEmail | null> => {
-  return getRepository(NewsletterEmail).findOneBy({ id, user: { id: userId } })
+  return getRepository(NewsletterEmail).findOneBy({ id })
 }

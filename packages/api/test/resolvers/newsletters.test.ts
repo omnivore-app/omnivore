@@ -9,7 +9,8 @@ import {
 import { getRepository } from '../../src/repository'
 import {
   createNewsletterEmail,
-  findNewsletterEmail,
+  findNewsletterEmailByAddress,
+  findNewsletterEmailById,
 } from '../../src/services/newsletters'
 import { createSubscription } from '../../src/services/subscriptions'
 import { deleteUser } from '../../src/services/user'
@@ -181,7 +182,7 @@ describe('Newsletters API', () => {
 
     it('responds with status code 200', async () => {
       const response = await graphqlRequest(query, authToken).expect(200)
-      const newsletterEmail = await findNewsletterEmail(
+      const newsletterEmail = await findNewsletterEmailById(
         response.body.data.createNewsletterEmail.id
       )
       expect(newsletterEmail).not.to.be.undefined
@@ -241,7 +242,7 @@ describe('Newsletters API', () => {
 
       it('responds with status code 200', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
-        const newsletterEmail = await findNewsletterEmail(
+        const newsletterEmail = await findNewsletterEmailByAddress(
           response.body.data.deleteNewsletterEmail.newsletterEmail.id
         )
         expect(newsletterEmail).to.be.null

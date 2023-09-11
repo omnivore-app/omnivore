@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import * as jwt from 'jsonwebtoken'
 import 'mocha'
 import sinon from 'sinon'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { User } from '../../src/entity/user'
 import { createNewsletterEmail } from '../../src/services/newsletters'
@@ -14,31 +15,32 @@ import { createTestUser } from '../db'
 import { request } from '../util'
 
 describe('Emails Router', () => {
-  const newsletterEmail = 'fakeUser@omnivore.app'
   const from = 'fake from'
   const subject = 'fake subject'
   const text = 'fake text'
-  const to = newsletterEmail
 
   let user: User
   let token: string
   let receivedEmail: ReceivedEmail
+  let newsletterEmail: NewsletterEmail
+  let authToken: string
 
   before(async () => {
     // create test user and login
     user = await createTestUser('fakeUser')
 
-    await createNewsletterEmail(user.id, newsletterEmail)
+    newsletterEmail = await createNewsletterEmail(user.id)
     token = process.env.PUBSUB_VERIFICATION_TOKEN!
     receivedEmail = await saveReceivedEmail(
       from,
-      to,
+      newsletterEmail.address,
       subject,
       text,
       '',
       user.id,
       'non-article'
     )
+    authToken = jwt.sign(user.id, process.env.JWT_SECRET || '')
   })
 
   after(async () => {
@@ -74,7 +76,7 @@ describe('Emails Router', () => {
             data: Buffer.from(
               JSON.stringify({
                 from,
-                to,
+                to: newsletterEmail.address,
                 subject,
                 html,
                 text,
@@ -103,7 +105,7 @@ describe('Emails Router', () => {
             data: Buffer.from(
               JSON.stringify({
                 from,
-                to,
+                to: newsletterEmail.address,
                 subject,
                 html,
                 text,
@@ -128,14 +130,13 @@ describe('Emails Router', () => {
     const text = 'test text'
     const from = 'fake from'
     const subject = 'fake subject'
-    const authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')
 
     it('saves the email in the database', async () => {
       const data = {
         html,
         text,
         from,
-        to: newsletterEmail,
+        to: newsletterEmail.address,
         subject,
       }
       const res = await request
@@ -150,7 +151,7 @@ describe('Emails Router', () => {
     it('saves the email if body is empty', async () => {
       const data = {
         from,
-        to: newsletterEmail,
+        to: newsletterEmail.address,
         subject,
       }
       const res = await request
@@ -165,7 +166,7 @@ describe('Emails Router', () => {
     it('saves the email if subject is empty', async () => {
       const data = {
         from,
-        to: newsletterEmail,
+        to: newsletterEmail.address,
         html,
       }
       const res = await request

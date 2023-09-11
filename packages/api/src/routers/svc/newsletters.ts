@@ -2,7 +2,7 @@ import express from 'express'
 import { SubscriptionStatus } from '../../generated/graphql'
 import { readPushSubscription } from '../../pubsub'
 import {
-  findNewsletterEmail,
+  findNewsletterEmailByAddress,
   updateConfirmationCode,
 } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
@@ -105,7 +105,7 @@ export function newsletterServiceRouter() {
       }
 
       // get user from newsletter email
-      const newsletterEmail = await findNewsletterEmail(data.email)
+      const newsletterEmail = await findNewsletterEmailByAddress(data.email)
       if (!newsletterEmail) {
         logger.info(`newsletter email not found: ${data.email}`)
         return res.status(200).send('Not Found')

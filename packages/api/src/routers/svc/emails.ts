@@ -2,7 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import { env } from '../../env'
 import { readPushSubscription } from '../../pubsub'
-import { findNewsletterEmail } from '../../services/newsletters'
+import { findNewsletterEmailByAddress } from '../../services/newsletters'
 import { saveReceivedEmail } from '../../services/received_emails'
 import { saveNewsletter } from '../../services/save_newsletter_email'
 import { analytics } from '../../utils/analytics'
@@ -57,12 +57,12 @@ export function emailsServiceRouter() {
       const data = JSON.parse(message) as unknown
       if (!isEmailMessage(data)) {
         logger.error('Invalid message')
-        res.status(400).send('Bad Request')
+        res.status(200).send('Bad Request')
         return
       }
 
       // get user from newsletter email
-      const newsletterEmail = await findNewsletterEmail(data.to)
+      const newsletterEmail = await findNewsletterEmailByAddress(data.to)
 
       if (!newsletterEmail) {
         logger.info('newsletter email not found', { email: data.to })
@@ -150,7 +150,7 @@ export function emailsServiceRouter() {
 
     try {
       // get user from newsletter email
-      const newsletterEmail = await findNewsletterEmail(req.body.to)
+      const newsletterEmail = await findNewsletterEmailByAddress(req.body.to)
 
       if (!newsletterEmail) {
         logger.info('newsletter email not found', { email: req.body.to })

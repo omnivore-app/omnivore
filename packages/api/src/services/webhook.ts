@@ -36,7 +36,7 @@ export const findWebhooks = async (userId?: string) => {
 
 export const findWebhookById = async (id: string, userId?: string) => {
   return authTrx(
-    (tx) => tx.getRepository(Webhook).findBy({ id }),
+    (tx) => tx.getRepository(Webhook).findOneBy({ id }),
     undefined,
     userId
   )

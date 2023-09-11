@@ -606,7 +606,7 @@ describe('auth router', () => {
           pendingUserToken!,
           'web'
         ).expect(200)
-        const user = await getRepository(User).findOneByOrFail({ name })
+        const user = await userRepository.findOneByOrFail({ name })
         const { count } = await searchLibraryItems({}, user.id)
 
         expect(count).to.eql(3)

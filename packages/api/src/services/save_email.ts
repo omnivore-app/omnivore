@@ -3,9 +3,7 @@ import {
   LibraryItemState,
   LibraryItemType,
 } from '../entity/library_item'
-import { authTrx } from '../repository'
 import { getInternalLabelWithColor } from '../repository/label'
-import { libraryItemRepository } from '../repository/library_item'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   cleanUrl,
@@ -23,7 +21,11 @@ import {
   parseUrlMetadata,
 } from '../utils/parser'
 import { findOrCreateLabels } from './labels'
-import { createLibraryItem } from './library_item'
+import {
+  createLibraryItem,
+  findLibraryItemByUrl,
+  updateLibraryItem,
+} from './library_item'
 import { updateReceivedEmail } from './received_emails'
 import { saveSubscription } from './subscriptions'
 
@@ -69,17 +71,19 @@ export const saveEmail = async (
     siteIcon = await fetchFavicon(url)
   }
 
-  const existingLibraryItem = await authTrx((t) =>
-    t.withRepository(libraryItemRepository).findOneBy({
-      originalUrl: cleanedUrl,
-      state: LibraryItemState.Succeeded,
-    })
+  const existingLibraryItem = await findLibraryItemByUrl(
+    cleanedUrl,
+    input.userId
   )
   if (existingLibraryItem) {
-    const updatedLibraryItem = await libraryItemRepository.save({
-      ...existingLibraryItem,
-      archivedAt: null,
-    })
+    const updatedLibraryItem = await updateLibraryItem(
+      existingLibraryItem.id,
+      {
+        archivedAt: null,
+        state: LibraryItemState.Succeeded,
+      },
+      input.userId
+    )
     logger.info('updated page from email', updatedLibraryItem)
 
     return updatedLibraryItem

@@ -26,26 +26,32 @@ export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
   userId: string
 ): Promise<Label[]> => {
-  return authTrx(async (tx) => {
-    const labelRepo = tx.withRepository(labelRepository)
-    // find existing labels
-    const labelEntities = await labelRepo.findByNames(labels.map((l) => l.name))
+  return authTrx(
+    async (tx) => {
+      const labelRepo = tx.withRepository(labelRepository)
+      // find existing labels
+      const labelEntities = await labelRepo.findByNames(
+        labels.map((l) => l.name)
+      )
 
-    const existingLabelsInLowerCase = labelEntities.map((l) =>
-      l.name.toLowerCase()
-    )
-    const newLabels = labels.filter(
-      (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
-    )
-    if (newLabels.length === 0) {
-      return labelEntities
-    }
+      const existingLabelsInLowerCase = labelEntities.map((l) =>
+        l.name.toLowerCase()
+      )
+      const newLabels = labels.filter(
+        (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
+      )
+      if (newLabels.length === 0) {
+        return labelEntities
+      }
 
-    // create new labels
-    const newLabelEntities = await labelRepo.createLabels(newLabels, userId)
+      // create new labels
+      const newLabelEntities = await labelRepo.createLabels(newLabels, userId)
 
-    return [...labelEntities, ...newLabelEntities]
-  })
+      return [...labelEntities, ...newLabelEntities]
+    },
+    undefined,
+    userId
+  )
 }
 
 export const saveLabelsInLibraryItem = async (

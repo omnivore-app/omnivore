@@ -5,7 +5,7 @@ import { UserDeviceToken } from '../../src/entity/user_device_tokens'
 import { SetDeviceTokenErrorCode } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { deleteUser } from '../../src/services/user'
-import { deleteDeviceTokens, findDeviceTokenById } from '../../src/services/user_device_tokens'
+import { createDeviceToken, deleteDeviceTokens, findDeviceTokenById } from '../../src/services/user_device_tokens'
 import { createTestDeviceToken, createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
@@ -106,7 +106,8 @@ describe('Device tokens API', () => {
       it('responds with status code 200 and creates the token', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
         const deviceToken = await findDeviceTokenById(
-          response.body.data.setDeviceToken.deviceToken.id
+          response.body.data.setDeviceToken.deviceToken.id,
+          user.id
         )
         expect(deviceToken).not.to.be.null
       })
@@ -163,10 +164,7 @@ describe('Device tokens API', () => {
 
     before(async () => {
       // create test device token
-      await getRepository(UserDeviceToken).save({
-        user: { id: user.id },
-        token,
-      })
+      await createDeviceToken(user.id, token)
     })
 
     after(async () => {

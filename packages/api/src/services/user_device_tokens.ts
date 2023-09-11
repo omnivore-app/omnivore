@@ -5,9 +5,14 @@ import { authTrx } from '../repository'
 import { analytics } from '../utils/analytics'
 
 export const findDeviceTokenById = async (
-  id: string
+  id: string,
+  userId?: string
 ): Promise<UserDeviceToken | null> => {
-  return authTrx((t) => t.getRepository(UserDeviceToken).findOneBy({ id }))
+  return authTrx(
+    (t) => t.getRepository(UserDeviceToken).findOneBy({ id }),
+    undefined,
+    userId
+  )
 }
 
 export const findDeviceTokenByToken = async (
@@ -41,11 +46,14 @@ export const createDeviceToken = async (
     },
   })
 
-  return authTrx((t) =>
-    t.getRepository(UserDeviceToken).save({
-      token,
-      user: { id: userId },
-    })
+  return authTrx(
+    (t) =>
+      t.getRepository(UserDeviceToken).save({
+        token,
+        user: { id: userId },
+      }),
+    undefined,
+    userId
   )
 }
 
