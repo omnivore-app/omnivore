@@ -45,15 +45,15 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var body: some View {
       ZStack {
-        if let linkRequest = viewModel.linkRequest {
-          NavigationLink(
-            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
-            tag: linkRequest,
-            selection: $viewModel.linkRequest
-          ) {
-            EmptyView()
-          }
-        }
+//        if let linkRequest = viewModel.linkRequest {
+//          NavigationLink(
+//            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
+//            tag: linkRequest,
+//            selection: $viewModel.linkRequest
+//          ) {
+//            EmptyView()
+//          }
+//        }
         HomeFeedView(
           listTitle: $listTitle,
           isListScrolled: $isListScrolled,

@@ -12,23 +12,20 @@ struct MacFeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
-      NavigationLink(
-        destination: LinkItemDetailView(
-          linkedItemObjectID: item.objectID,
-          isPDF: item.isPDF
-        ),
-        tag: item.objectID,
-        selection: $viewModel.selectedLinkItem
-      ) {
-        EmptyView()
-      }
-      .opacity(0)
-      .buttonStyle(PlainButtonStyle())
-      .onAppear {
-        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-      }
+    NavigationLink(
+      destination: LinkItemDetailView(
+        linkedItemObjectID: item.objectID,
+        isPDF: item.isPDF
+      ),
+      tag: item.objectID,
+      selection: $viewModel.selectedLinkItem
+    ) {
       LibraryItemCard(item: item, viewer: dataService.currentViewer)
+    }
+    .opacity(0)
+    .buttonStyle(PlainButtonStyle())
+    .onAppear {
+      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
     }
   }
 }
@@ -42,22 +39,16 @@ struct FeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
-      Button {
-        viewModel.selectedItem = item
-        viewModel.linkIsActive = true
-      } label: {
-        NavigationLink(destination: EmptyView()) {
-          EmptyView()
-        }
-        .opacity(0)
-        .buttonStyle(PlainButtonStyle())
-        .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-        }
-        LibraryItemCard(item: item, viewer: dataService.currentViewer)
+    NavigationLink(destination: LinkItemDetailView(
+      linkedItemObjectID: item.objectID,
+      isPDF: item.isPDF
+    ), label: {
+      LibraryItemCard(item: item, viewer: dataService.currentViewer)
+        .padding(10)
+    })
+      .onAppear {
+        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
       }
-    }
   }
 }
 
