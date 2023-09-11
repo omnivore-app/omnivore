@@ -66,28 +66,16 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
-      Button {
-        if isContextMenuOpen {
-          isContextMenuOpen = false
-        } else {
-          //  viewModel.selectedItem = item
-          // viewModel.linkIsActive = true
-        }
-      } label: {
-        NavigationLink(destination: EmptyView()) {
-          EmptyView()
-        }
-        .opacity(0)
-        .buttonStyle(PlainButtonStyle())
-        .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-        }
-        GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
-      }
+    NavigationLink(destination: LinkItemDetailView(
+      linkedItemObjectID: item.objectID,
+      isPDF: item.isPDF
+    )) {
+      GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
     }
-    .aspectRatio(1.8, contentMode: .fill)
-    .scaleEffect(scale)
+    .onAppear {
+      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    }
+    .aspectRatio(1.0, contentMode: .fill)
     .background(
       Color.secondarySystemGroupedBackground
         .onTapGesture {

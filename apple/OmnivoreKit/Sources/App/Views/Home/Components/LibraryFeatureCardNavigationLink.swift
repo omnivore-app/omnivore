@@ -20,7 +20,10 @@ struct LibraryFeatureCardNavigationLink: View {
   @State var showFeatureActions = false
 
   var body: some View {
-    NavigationLink(destination: EmptyView()) {
+    NavigationLink(destination: LinkItemDetailView(
+      linkedItemObjectID: item.objectID,
+      isPDF: item.isPDF
+    )) {
       LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
     }
     .confirmationDialog("", isPresented: $showFeatureActions) {

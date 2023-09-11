@@ -27,7 +27,7 @@ import Views
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
-  // @Published var selectedItem: LinkedItem?
+  @Published var selectedItem: LinkedItem?
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false

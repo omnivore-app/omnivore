@@ -159,8 +159,8 @@ struct AnimatingCellHeight: AnimatableModifier {
         guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
         guard let linkedItem = dataService.viewContext.object(with: objectID) as? LinkedItem else { return }
         viewModel.pushFeedItem(item: linkedItem)
-        //   viewModel.selectedItem = linkedItem
-        //   viewModel.linkIsActive = true
+        viewModel.selectedItem = linkedItem
+        viewModel.linkIsActive = true
       }
       .onOpenURL { url in
         viewModel.linkRequest = nil
@@ -228,6 +228,19 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var body: some View {
       VStack(spacing: 0) {
+        if let linkRequest = viewModel.linkRequest {
+          NavigationLink(
+            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
+            tag: linkRequest,
+            selection: $viewModel.linkRequest
+          ) {
+            EmptyView()
+          }
+        }
+        NavigationLink(destination: LinkDestination(selectedItem: viewModel.selectedItem), isActive: $viewModel.linkIsActive) {
+          EmptyView()
+        }
+
         if prefersListLayout || !enableGrid {
           HomeFeedListView(listTitle: $listTitle, isListScrolled: $isListScrolled, prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
@@ -702,7 +715,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             .padding(.leading, 16)
             .padding(.bottom, 25)
 
-          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325), spacing: 16)], alignment: .leading, spacing: 16) {
+          LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
             ForEach(viewModel.items) { item in
               GridCardNavigationLink(
                 item: item,
@@ -710,9 +723,9 @@ struct AnimatingCellHeight: AnimatableModifier {
                 isContextMenuOpen: $isContextMenuOpen,
                 viewModel: viewModel
               )
-              .contextMenu {
-                libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
-              }
+//              .contextMenu {
+//                libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
+//              }
             }
             Spacer()
           }

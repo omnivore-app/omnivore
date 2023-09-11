@@ -149,7 +149,7 @@ public struct LibraryItemCard: View {
   }
 
   var imageBox: some View {
-    Group {
+    ZStack(alignment: .bottomLeading) {
       if let imageURL = item.imageURL {
         AsyncImage(url: imageURL) { phase in
           if let image = phase.image {
@@ -166,8 +166,24 @@ public struct LibraryItemCard: View {
               .padding(.top, 2)
           }
         }
+      } else {
+        fallbackImage
       }
     }
+    .cornerRadius(5)
+  }
+
+  var fallbackImage: some View {
+    HStack {
+      Text(item.unwrappedTitle.prefix(1))
+        .font(Font.system(size: 32, weight: .bold))
+        .frame(alignment: .bottomLeading)
+        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
+    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+    .frame(width: 74 * 0.666, height: 74)
   }
 
   var bylineStr: String {

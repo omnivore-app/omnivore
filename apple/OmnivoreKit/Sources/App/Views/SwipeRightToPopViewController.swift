@@ -121,7 +121,11 @@ class SwipeRightToPopViewController<Content>: UIHostingController<Content>, UINa
                             from _: UIViewController,
                             to _: UIViewController) -> UIViewControllerAnimatedTransitioning?
   {
-    SlideAnimatedTransitioning()
+    if #available(iOS 17.0, *) {
+      return nil
+    } else {
+      return SlideAnimatedTransitioning()
+    }
   }
 
   func navigationController(_: UINavigationController,
@@ -129,7 +133,7 @@ class SwipeRightToPopViewController<Content>: UIHostingController<Content>, UINa
     -> UIViewControllerInteractiveTransitioning?
   {
     parentNavigationControllerToUse?.delegate = nil
-//    navigationController.delegate = nil
+    //    navigationController.delegate = nil
 
     if panGestureRecognizer.state == .began {
       percentDrivenInteractiveTransition = UIPercentDrivenInteractiveTransition()

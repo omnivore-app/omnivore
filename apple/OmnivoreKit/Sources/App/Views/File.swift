@@ -13,38 +13,47 @@ class SlideAnimatedTransitioning: NSObject {}
 extension SlideAnimatedTransitioning: UIViewControllerAnimatedTransitioning {
   func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
     let containerView = transitionContext.containerView
-    let fromView = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from)!.view
-    let toView = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)!.view
+    guard
+      let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from),
+      let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)
+    else {
+      return
+    }
 
     let width = containerView.frame.width
 
-    var offsetLeft = fromView?.frame
+    var offsetLeft = fromVC.view?.frame
     offsetLeft?.origin.x = width
 
-    var offscreenRight = toView?.frame
+    var offscreenRight = fromVC.view?.frame
     offscreenRight?.origin.x = -width / 3.33
 
-    toView?.frame = offscreenRight!
+    toVC.view?.frame = offscreenRight!
 
-    fromView?.layer.shadowRadius = 5.0
-    fromView?.layer.shadowOpacity = 1.0
-    toView?.layer.opacity = 0.9
+    fromVC.view?.layer.shadowRadius = 5.0
+    fromVC.view?.layer.shadowOpacity = 1.0
+    toVC.view?.layer.opacity = 0.9
 
-    containerView.insertSubview(toView!, belowSubview: fromView!)
+    transitionContext.containerView.addSubview(toVC.view)
+    transitionContext.containerView.addSubview(fromVC.view)
+
+    // containerView.insertSubview(toView!, belowSubview: fromView!)
+    print("CONTAINER VIEW: ", containerView)
 
     UIView.animate(withDuration: transitionDuration(using: transitionContext), delay: 0, options: .curveLinear, animations: {
-      toView?.frame = (fromView?.frame)!
-      fromView?.frame = offsetLeft!
+      toVC.view?.frame = (fromVC.view?.frame)!
+      fromVC.view?.frame = offsetLeft!
 
-      toView?.layer.opacity = 1.0
-      fromView?.layer.shadowOpacity = 0.1
+      toVC.view?.layer.opacity = 1.0
+      fromVC.view?.layer.shadowOpacity = 0.1
 
     }, completion: { _ in
-      toView?.layer.opacity = 1.0
-      toView?.layer.shadowOpacity = 0
-      fromView?.layer.opacity = 1.0
-      fromView?.layer.shadowOpacity = 0
+      toVC.view?.layer.opacity = 1.0
+      toVC.view?.layer.shadowOpacity = 0
+      fromVC.view?.layer.opacity = 1.0
+      fromVC.view?.layer.shadowOpacity = 0
 
+      fromVC.view.removeFromSuperview()
       // when cancelling or completing the animation, ios simulator seems to sometimes flash black backgrounds during the animation. on devices, this doesn't seem to happen though.
       // containerView.backgroundColor = [UIColor whiteColor];
       transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
