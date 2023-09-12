@@ -37,9 +37,6 @@ extension SlideAnimatedTransitioning: UIViewControllerAnimatedTransitioning {
     transitionContext.containerView.addSubview(toVC.view)
     transitionContext.containerView.addSubview(fromVC.view)
 
-    // containerView.insertSubview(toView!, belowSubview: fromView!)
-    print("CONTAINER VIEW: ", containerView)
-
     UIView.animate(withDuration: transitionDuration(using: transitionContext), delay: 0, options: .curveLinear, animations: {
       toVC.view?.frame = (fromVC.view?.frame)!
       fromVC.view?.frame = offsetLeft!
