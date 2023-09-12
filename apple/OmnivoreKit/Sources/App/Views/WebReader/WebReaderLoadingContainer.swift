@@ -34,8 +34,11 @@ import Views
 public struct WebReaderLoadingContainer: View {
   let requestID: String
 
+  @Environment(\.dismiss) private var dismiss
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
+
+  @State var lazyPopIsEnabled = true
   @StateObject var viewModel = WebReaderLoadingContainerViewModel()
 
   public var body: some View {
@@ -53,10 +56,11 @@ public struct WebReaderLoadingContainer: View {
           }
         #endif
       } else {
-        WebReaderContainerView(item: item)
+        WebReaderContainerView(item: item, pop: { dismiss() })
         #if os(iOS)
-          .navigationBarHidden(true)
           .navigationViewStyle(.stack)
+          .navigationBarHidden(true)
+          .lazyPop(pop: { dismiss() }, isEnabled: $lazyPopIsEnabled)
         #endif
         .accentColor(.appGrayTextContrast)
           .task { viewModel.trackReadEvent() }

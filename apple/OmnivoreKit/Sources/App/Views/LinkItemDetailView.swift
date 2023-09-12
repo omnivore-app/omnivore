@@ -75,25 +75,29 @@ struct LinkItemDetailView: View {
 
   @StateObject private var viewModel = LinkItemDetailViewModel()
 
+  @State var isEnabled = true
+  @Environment(\.dismiss) var dismiss
+
   init(linkedItemObjectID: NSManagedObjectID, isPDF: Bool) {
     self.linkedItemObjectID = linkedItemObjectID
     self.isPDF = isPDF
   }
 
   var body: some View {
-    ZStack { // Using ZStack so .task can be used on if/else body
+    ZStack {
       if isPDF {
         pdfContainerView
       } else if let item = viewModel.item {
-        WebReaderContainerView(item: item)
+        WebReaderContainerView(item: item, pop: { dismiss() })
+          .navigationBarHidden(true)
+          .lazyPop(pop: {
+            dismiss()
+          }, isEnabled: $isEnabled)
       }
     }
     .task {
       await viewModel.loadItem(linkedItemObjectID: linkedItemObjectID, dataService: dataService)
     }
-    #if os(iOS)
-      .navigationBarHidden(true)
-    #endif
   }
 
   @ViewBuilder private var pdfContainerView: some View {
@@ -113,17 +117,3 @@ struct LinkItemDetailView: View {
     }
   }
 }
-
-#if os(iOS)
-  // Enable swipe to go back behavior if nav bar is hidden
-  extension UINavigationController: UIGestureRecognizerDelegate {
-    override open func viewDidLoad() {
-      super.viewDidLoad()
-      interactivePopGestureRecognizer?.delegate = self
-    }
-
-    public func gestureRecognizerShouldBegin(_: UIGestureRecognizer) -> Bool {
-      viewControllers.count > 1
-    }
-  }
-#endif

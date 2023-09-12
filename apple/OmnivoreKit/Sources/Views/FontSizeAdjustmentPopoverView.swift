@@ -90,6 +90,7 @@ public enum WebFont: String, CaseIterable {
     @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
     @AppStorage(UserDefaultKey.justifyText.rawValue) var justifyText = false
+    @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBar = false
 
     public init(
       updateReaderPreferences: @escaping () -> Void,
@@ -148,6 +149,13 @@ public enum WebFont: String, CaseIterable {
           .frame(height: 40)
           .padding(.trailing, 6)
           .onChange(of: justifyText) { _ in
+            updateReaderPreferences()
+          }
+
+        Toggle("Hide Status Bar", isOn: $prefersHideStatusBar)
+          .frame(height: 40)
+          .padding(.trailing, 6)
+          .onChange(of: prefersHideStatusBar) { _ in
             updateReaderPreferences()
           }
 

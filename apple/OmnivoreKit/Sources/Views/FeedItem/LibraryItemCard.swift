@@ -36,7 +36,8 @@ public struct LibraryItemCard: View {
         labels
       }
     }
-    .padding(.bottom, 5)
+    .padding(5)
+    .padding(.top, 10)
     .draggableItem(item: item)
     .dynamicTypeSize(.xSmall ... .accessibility1)
   }
@@ -149,25 +150,42 @@ public struct LibraryItemCard: View {
   }
 
   var imageBox: some View {
-    Group {
+    ZStack(alignment: .bottomLeading) {
       if let imageURL = item.imageURL {
         AsyncImage(url: imageURL) { phase in
           if let image = phase.image {
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 40, height: 40)
+              .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
             Color.systemBackground
-              .frame(width: 40, height: 40)
+              .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           }
         }
+      } else {
+        fallbackImage
       }
     }
+    .padding(.top, 10)
+    .cornerRadius(5)
+  }
+
+  var fallbackImage: some View {
+    HStack {
+      Text(item.unwrappedTitle.prefix(1))
+        .font(Font.system(size: 32, weight: .bold))
+        .frame(alignment: .bottomLeading)
+        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
+    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+    .frame(width: 50, height: 50)
   }
 
   var bylineStr: String {

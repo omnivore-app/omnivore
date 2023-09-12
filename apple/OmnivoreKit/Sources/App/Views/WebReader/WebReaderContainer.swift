@@ -10,6 +10,7 @@ import WebKit
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
   let item: LinkedItem
+  let pop: () -> Void
 
   @State private var showPreferencesPopover = false
   @State private var showPreferencesFormsheet = false
@@ -40,9 +41,11 @@ struct WebReaderContainerView: View {
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
-  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   @Environment(\.openURL) var openURL
   @StateObject var viewModel = WebReaderViewModel()
+  @Environment(\.dismiss) var dismiss
+
+  @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBarInReader = false
 
   func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
     if let replyHandler = replyHandler {
@@ -271,7 +274,9 @@ struct WebReaderContainerView: View {
     HStack(alignment: .center, spacing: 10) {
       #if os(iOS)
         Button(
-          action: { self.presentationMode.wrappedValue.dismiss() },
+          action: {
+            pop()
+          },
           label: {
             Image.chevronRight
               .padding(.horizontal, 10)
@@ -422,6 +427,7 @@ struct WebReaderContainerView: View {
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
+        .statusBar(hidden: prefersHideStatusBarInReader)
         .onAppear {
           if item.isUnread {
             dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
@@ -620,7 +626,7 @@ struct WebReaderContainerView: View {
   func archive() {
     dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
     #if os(iOS)
-      presentationMode.wrappedValue.dismiss()
+      pop()
     #endif
   }
 
@@ -651,7 +657,7 @@ struct WebReaderContainerView: View {
     removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-        presentationMode.wrappedValue.dismiss()
+        pop()
       }
     #endif
   }
