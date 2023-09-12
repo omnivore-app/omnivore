@@ -5,6 +5,7 @@ import { Button } from '../../elements/Button'
 import { Circle } from 'phosphor-react'
 import {
   Subscription,
+  SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
@@ -200,14 +201,26 @@ function Subscriptions(
             {...props}
           />
           {(props.subscriptions ?? []).map((item) => {
-            return (
-              <FilterButton
-                key={item.id}
-                filterTerm={`subscription:\"${item.name}\"`}
-                text={item.name}
-                {...props}
-              />
-            )
+            switch (item.type) {
+              case SubscriptionType.NEWSLETTER:
+                return (
+                  <FilterButton
+                    key={item.id}
+                    filterTerm={`in:inbox subscription:\"${item.name}\"`}
+                    text={item.name}
+                    {...props}
+                  />
+                )
+              case SubscriptionType.RSS:
+                return (
+                  <FilterButton
+                    key={item.id}
+                    filterTerm={`in:inbox rss:\"${item.url}\"`}
+                    text={item.name}
+                    {...props}
+                  />
+                )
+            }
           })}
           <EditButton
             title="Edit Subscriptions"
