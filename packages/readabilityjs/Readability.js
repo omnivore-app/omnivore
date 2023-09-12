@@ -88,7 +88,6 @@ function Readability(doc, options) {
   this._articleDir = null;
   this._languageCode = null;
   this._attempts = [];
-  this._testLinkDensity = options.testLinkDensity || true
 
   // Configurable options
   this._debug = !!options.debug;
@@ -103,6 +102,7 @@ function Readability(doc, options) {
   this._disableJSONLD = !!options.disableJSONLD;
   this._baseURI = options.url || this._doc.baseURI;
   this._documentURI = options.url || this._doc.documentURI;
+  this._ignoreLinkDensity = options.ignoreLinkDensity || false
 
   // Start with all flags set
   this._flags = this.FLAG_STRIP_UNLIKELYS |
@@ -2398,6 +2398,10 @@ Readability.prototype = {
    * @return number (float)
    **/
   _getLinkDensity: function(element) {
+    // If we are ignoring link density (often we do this for newsletters, just set it to zero so all link density checks pass)
+    if (this._ignoreLinkDensity) {
+      return 0
+    }
     var textLength = this._getInnerText(element).length;
     if (textLength === 0)
       return 0;
@@ -2829,12 +2833,12 @@ Readability.prototype = {
           (img > 1 && p / img < 0.5 && !this._hasAncestorTag(node, "figure")) ||
           (!isList && li > p) ||
           (input > Math.floor(p/3)) ||
-          (this._testLinkDensity && !isList && headingDensity < 0.9 && contentLength < 25 && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
+          (!isList && headingDensity < 0.9 && contentLength < 25 && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
           // ignores link density for the links inside the .post-body div (the main content)
-          (this._testLinkDensity && !isList && weight < 25 && linkDensity > 0.2 && !(this.CLASSES_TO_SKIP.some((c) => parentClasses.contains(c))) )||
+          (!isList && weight < 25 && linkDensity > 0.2 && !(this.CLASSES_TO_SKIP.some((c) => parentClasses.contains(c))) )||
           // some website like https://substack.com might have their custom styling of tweets
           // we should omit ignoring their particular case by checking against "tweet" classname
-          (weight >= 25 && (this._testLinkDensity && linkDensity > 0.5) && !(node.className === "tweet" && linkDensity === 1)) ||
+          (weight >= 25 && linkDensity > 0.5 && !(node.className === "tweet" && linkDensity === 1)) ||
           ((embedCount === 1 && contentLength < 75) || embedCount > 1))
 
         // Allow simple lists of images to remain in pages
@@ -2854,7 +2858,7 @@ Readability.prototype = {
         }
 
         if (haveToRemove) {
-          console.log("Cleaning Conditionally", { className: node.textContent, children: Array.from(node.children).map(ch => ch.tagName) });
+          this.log("Cleaning Conditionally", { className: node.className, children: Array.from(node.children).map(ch => ch.tagName) });
         }
 
         return haveToRemove;
