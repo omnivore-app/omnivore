@@ -102,6 +102,7 @@ function Readability(doc, options) {
   this._disableJSONLD = !!options.disableJSONLD;
   this._baseURI = options.url || this._doc.baseURI;
   this._documentURI = options.url || this._doc.documentURI;
+  this._ignoreLinkDensity = options.ignoreLinkDensity || false
 
   // Start with all flags set
   this._flags = this.FLAG_STRIP_UNLIKELYS |
@@ -2397,6 +2398,10 @@ Readability.prototype = {
    * @return number (float)
    **/
   _getLinkDensity: function(element) {
+    // If we are ignoring link density (often we do this for newsletters, just set it to zero so all link density checks pass)
+    if (this._ignoreLinkDensity) {
+      return 0
+    }
     var textLength = this._getInnerText(element).length;
     if (textLength === 0)
       return 0;
@@ -2778,7 +2783,7 @@ Readability.prototype = {
       var contentScore = 0;
 
       if (weight + contentScore < 0) {
-        this.log("Cleaning Conditionally by weight", { node, className: node.className, children: Array.from(node.children).map(ch => ch.tagName)});
+        this.log("Cleaning Conditionally by weight", { text: node.innerText, className: node.className, children: Array.from(node.children).map(ch => ch.tagName)});
         return true;
       }
 
@@ -2811,8 +2816,12 @@ Readability.prototype = {
           embedCount++;
         }
 
+        var innerText = this._getInnerText(node)
         var linkDensity = this._getLinkDensity(node);
-        var contentLength = this._getInnerText(node).length;
+        var contentLength = innerText.length;
+
+        const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu;
+        const textHasEmoji = Array.from(innerText.matchAll(emojiRegex)).length > 0
 
         if (hasTweetInChildren(node)) {
           return false;
@@ -2828,7 +2837,7 @@ Readability.prototype = {
           (img > 1 && p / img < 0.5 && !this._hasAncestorTag(node, "figure")) ||
           (!isList && li > p) ||
           (input > Math.floor(p/3)) ||
-          (!isList && headingDensity < 0.9 && contentLength < 25 && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
+          (!isList && headingDensity < 0.9 && contentLength < 25 && !textHasEmoji && (img === 0 || img > 2) && !this._hasAncestorTag(node, "figure")) ||
           // ignores link density for the links inside the .post-body div (the main content)
           (!isList && weight < 25 && linkDensity > 0.2 && !(this.CLASSES_TO_SKIP.some((c) => parentClasses.contains(c))) )||
           // some website like https://substack.com might have their custom styling of tweets
