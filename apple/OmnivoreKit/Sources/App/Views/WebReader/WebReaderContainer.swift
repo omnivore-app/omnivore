@@ -45,6 +45,8 @@ struct WebReaderContainerView: View {
   @StateObject var viewModel = WebReaderViewModel()
   @Environment(\.dismiss) var dismiss
 
+  @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBarInReader = false
+
   func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
     if let replyHandler = replyHandler {
       viewModel.webViewActionWithReplyHandler(
@@ -425,6 +427,7 @@ struct WebReaderContainerView: View {
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
+        .statusBar(hidden: prefersHideStatusBarInReader)
         .onAppear {
           if item.isUnread {
             dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)

@@ -54,7 +54,5 @@ struct LibraryListView: View {
         }
       }
 //    }
-      .navigationViewStyle(.stack)
-      .navigationBarTitleDisplayMode(.inline)
   }
 }

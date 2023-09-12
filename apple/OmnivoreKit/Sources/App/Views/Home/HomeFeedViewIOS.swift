@@ -84,7 +84,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           FilterSelectorView(viewModel: viewModel)
         }
       }
-      .navigationBarTitleDisplayMode(.inline)
+      //    .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .barLeading) {
           VStack(alignment: .leading) {
@@ -93,7 +93,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             Text(title)
               .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
 
-            if isListScrolled {
+            if prefersListLayout, isListScrolled {
               Text(listTitle)
                 .font(Font.system(size: 15, weight: .regular))
                 .foregroundColor(Color.appGrayText)
@@ -244,7 +244,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         if prefersListLayout || !enableGrid {
           HomeFeedListView(listTitle: $listTitle, isListScrolled: $isListScrolled, prefersListLayout: $prefersListLayout, viewModel: viewModel)
         } else {
-          HomeFeedGridView(viewModel: viewModel)
+          HomeFeedGridView(viewModel: viewModel, isListScrolled: $isListScrolled)
         }
       }.sheet(isPresented: $viewModel.showLabelsSheet) {
         FilterByLabelsView(
@@ -309,7 +309,8 @@ struct AnimatingCellHeight: AnimatableModifier {
                 },
                 label: {
                   TextChipButton.makeMenuButton(
-                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter",
+                    color: .systemGray6
                   )
                 }
               )
@@ -322,13 +323,12 @@ struct AnimatingCellHeight: AnimatableModifier {
               },
               label: {
                 TextChipButton.makeMenuButton(
-                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
+                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort",
+                  color: .systemGray6
                 )
               }
             )
-            TextChipButton.makeAddLabelButton {
-              viewModel.showLabelsSheet = true
-            }
+            TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
             ForEach(viewModel.selectedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
                 viewModel.selectedLabels.removeAll { $0.id == label.id }
@@ -633,6 +633,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
+    @Binding var isListScrolled: Bool
 
     func contextMenuActionHandler(item: LinkedItem, action: GridCardAction) {
       switch action {
@@ -670,7 +671,8 @@ struct AnimatingCellHeight: AnimatableModifier {
                 },
                 label: {
                   TextChipButton.makeMenuButton(
-                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter"
+                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter",
+                    color: .systemGray6
                   )
                 }
               )
@@ -683,13 +685,12 @@ struct AnimatingCellHeight: AnimatableModifier {
               },
               label: {
                 TextChipButton.makeMenuButton(
-                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort"
+                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort",
+                  color: .systemGray6
                 )
               }
             )
-            TextChipButton.makeAddLabelButton {
-              viewModel.showLabelsSheet = true
-            }
+            TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
             ForEach(viewModel.selectedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
                 viewModel.selectedLabels.removeAll { $0.id == label.id }
@@ -706,15 +707,32 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         .listRowSeparator(.hidden)
       }
+      .dynamicTypeSize(.small ... .accessibility1)
     }
 
     var body: some View {
-      ZStack {
-        ScrollView {
-          filtersHeader
-            .padding(.leading, 16)
-            .padding(.bottom, 25)
+      VStack(alignment: .leading) {
+        if viewModel.showLoadingBar {
+          ShimmeringLoader()
+        } else {
+          Spacer(minLength: 2)
+        }
 
+        filtersHeader
+          .onAppear {
+            withAnimation {
+              isListScrolled = false
+            }
+          }
+          .onDisappear {
+            withAnimation {
+              isListScrolled = true
+            }
+          }
+          .padding(.horizontal, 20)
+          .frame(maxHeight: 35)
+
+        ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
             ForEach(viewModel.items) { item in
               GridCardNavigationLink(
@@ -723,9 +741,6 @@ struct AnimatingCellHeight: AnimatableModifier {
                 isContextMenuOpen: $isContextMenuOpen,
                 viewModel: viewModel
               )
-//              .contextMenu {
-//                libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
-//              }
             }
             Spacer()
           }
@@ -751,7 +766,11 @@ struct AnimatingCellHeight: AnimatableModifier {
             LoadingSection()
           }
         }
+        .background(Color(.systemGroupedBackground))
+
+        Spacer()
       }
+      .frame(maxHeight: .infinity)
     }
   }
 

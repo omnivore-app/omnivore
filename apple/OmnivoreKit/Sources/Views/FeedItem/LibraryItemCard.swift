@@ -36,7 +36,8 @@ public struct LibraryItemCard: View {
         labels
       }
     }
-    .padding(.bottom, 5)
+    .padding(5)
+    .padding(.top, 10)
     .draggableItem(item: item)
     .dynamicTypeSize(.xSmall ... .accessibility1)
   }
@@ -156,12 +157,12 @@ public struct LibraryItemCard: View {
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 60, height: 60)
+              .frame(width: 50, height: 50)
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
             Color.systemBackground
-              .frame(width: 60, height: 60)
+              .frame(width: 50, height: 50)
               .cornerRadius(5)
               .padding(.top, 2)
           }
@@ -170,6 +171,7 @@ public struct LibraryItemCard: View {
         fallbackImage
       }
     }
+    .padding(.top, 15)
     .cornerRadius(5)
   }
 
@@ -183,7 +185,7 @@ public struct LibraryItemCard: View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
     .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
-    .frame(width: 74 * 0.666, height: 74)
+    .frame(width: 50, height: 50)
   }
 
   var bylineStr: String {

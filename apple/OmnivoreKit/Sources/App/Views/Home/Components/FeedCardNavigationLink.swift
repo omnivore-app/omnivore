@@ -39,16 +39,18 @@ struct FeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    NavigationLink(destination: LinkItemDetailView(
-      linkedItemObjectID: item.objectID,
-      isPDF: item.isPDF
-    ), label: {
+    ZStack {
       LibraryItemCard(item: item, viewer: dataService.currentViewer)
-        .padding(.top, 15)
-    })
-      .onAppear {
-        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-      }
+      NavigationLink(destination: LinkItemDetailView(
+        linkedItemObjectID: item.objectID,
+        isPDF: item.isPDF
+      ), label: {
+        EmptyView()
+      }).opacity(0)
+    }
+    .onAppear {
+      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    }
   }
 }
 
