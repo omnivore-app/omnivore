@@ -155,7 +155,6 @@ public struct GridCard: View {
 
               Spacer()
             }
-            // .onTapGesture { tapHandler() }
           }
           .frame(height: 30)
           .padding(.horizontal, 10)
@@ -167,7 +166,7 @@ public struct GridCard: View {
             Text(item.descriptionText ?? item.unwrappedTitle)
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
-              .lineLimit(nil)
+              .lineLimit(3)
               .multilineTextAlignment(.leading)
 
             Spacer()
@@ -185,11 +184,6 @@ public struct GridCard: View {
               }
               .padding(.horizontal, 10)
             }
-            // .onTapGesture { tapHandler() }
-          }
-
-          if item.serverSyncStatus != ServerSyncStatus.isNSync.rawValue {
-            SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) ?? ServerSyncStatus.isNSync)
           }
         }
         .padding(.horizontal, 0)
