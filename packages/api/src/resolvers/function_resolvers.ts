@@ -41,6 +41,7 @@ import {
   createReminderResolver,
   deleteAccountResolver,
   deleteFilterResolver,
+  updateFilterResolver,
   deleteHighlightResolver,
   deleteIntegrationResolver,
   deleteLabelResolver,
@@ -210,6 +211,7 @@ export const functionResolvers = {
     importFromIntegration: importFromIntegrationResolver,
     setFavoriteArticle: setFavoriteArticleResolver,
     updateSubscription: updateSubscriptionResolver,
+    updateFilter: updateFilterResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -391,8 +393,7 @@ export const functionResolvers = {
           return undefined
         }
         const filePath = generateUploadFilePathName(upload.id, upload.fileName)
-        const url = await generateDownloadSignedUrl(filePath)
-        return url
+        return generateDownloadSignedUrl(filePath)
       }
       return article.url
     },

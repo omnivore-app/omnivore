@@ -107,14 +107,14 @@ export const createApp = (): {
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: async (req) => {
-      // 100 RPM for an authenticated request, 5 for a non-authenticated request
+      // 100 RPM for an authenticated request, 15 for a non-authenticated request
       const token = getTokenByRequest(req)
       try {
         const claims = await getClaimsByToken(token)
-        return claims ? 100 : 5
+        return claims ? 100 : 15
       } catch (e) {
         console.log('non-authenticated request')
-        return 5
+        return 15
       }
     },
     keyGenerator: (req) => {

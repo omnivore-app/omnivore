@@ -27,7 +27,7 @@ export function ConfirmProfileModal(): JSX.Element {
       setUsername(event.target.value)
       setTimeout(() => {
         setDebouncedUsername(event.target.value)
-      }, 400)
+      }, 2000)
     },
     []
   )

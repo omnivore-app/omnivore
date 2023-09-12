@@ -95,7 +95,7 @@ import Views
     potentialUsername = profile.username
 
     $potentialUsername
-      .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
+      .debounce(for: .seconds(2.0), scheduler: DispatchQueue.main)
       .sink(receiveValue: { [weak self] username in
         self?.validateUsername(username: username, dataService: dataService)
       })

@@ -677,12 +677,14 @@ type FeedArticlesSuccess {
 type Filter {
   category: String!
   createdAt: Date!
+  defaultFilter: Boolean
   description: String
   filter: String!
   id: ID!
   name: String!
   position: Int!
   updatedAt: Date!
+  visible: Boolean
 }
 
 type FiltersError {
@@ -1157,6 +1159,7 @@ type Mutation {
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
   subscribe(input: SubscribeInput!): SubscribeResult!
   unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
+  updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -1629,11 +1632,11 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
-  category: String!
+  category: String
   description: String
   filter: String!
-  id: ID
   name: String!
+  position: Int
 }
 
 union SaveFilterResult = SaveFilterError | SaveFilterSuccess
@@ -2172,6 +2175,32 @@ union UnsubscribeResult = UnsubscribeError | UnsubscribeSuccess
 
 type UnsubscribeSuccess {
   subscription: Subscription!
+}
+
+type UpdateFilterError {
+  errorCodes: [UpdateFilterErrorCode!]!
+}
+
+enum UpdateFilterErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input UpdateFilterInput {
+  category: String
+  description: String
+  filter: String
+  id: String!
+  name: String
+  position: Int
+  visible: Boolean
+}
+
+union UpdateFilterResult = UpdateFilterError | UpdateFilterSuccess
+
+type UpdateFilterSuccess {
+  filter: Filter!
 }
 
 type UpdateHighlightError {

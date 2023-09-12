@@ -28,6 +28,7 @@ export function CloseButton(props: CloseButtonProps): JSX.Element {
       onMouseOut={() => setHover(false)}
     >
       <Button
+        tabIndex={-1}
         css={{
           cursor: 'pointer',
           marginLeft: 'auto',

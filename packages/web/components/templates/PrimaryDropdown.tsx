@@ -16,7 +16,6 @@ import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
-import { ListViewIcon } from '../elements/icons/ListViewIcon'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -37,6 +36,9 @@ export type HeaderDropdownAction =
   | 'navigate-to-subscriptions'
   | 'navigate-to-api'
   | 'navigate-to-integrations'
+  | 'navigate-to-saved-searches'
+  | 'increaseFontSize'
+  | 'decreaseFontSize'
   | 'logout'
 
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
@@ -66,6 +68,9 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           break
         case 'navigate-to-integrations':
           router.push('/settings/integrations')
+          break
+        case 'navigate-to-saved-searches':
+          router.push('/settings/saved-searches')
           break
         case 'logout':
           document.dispatchEvent(new Event('logout'))

@@ -113,7 +113,7 @@ class LoginViewModel @Inject constructor(
     validateUsernameJob?.cancel()
 
     validateUsernameJob = viewModelScope.launch {
-      delay(500)
+      delay(2000)
 
       // Check the username requirements first
       if (potentialUsername.isEmpty()) {

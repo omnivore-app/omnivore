@@ -53,6 +53,7 @@ export function EmailForgotPassword(): JSX.Element {
               name="email"
               value={email}
               placeholder="Email"
+              autoFocus={true}
               css={{ bg: 'white', color: 'black' }}
               onChange={(e) => {
                 e.preventDefault()
