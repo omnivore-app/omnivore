@@ -123,6 +123,8 @@ class SwipeRightToPopViewController<Content>: UIHostingController<Content>, UINa
   {
     if #available(iOS 17.0, *) {
       return nil
+    } else if UIDevice.isIPad {
+      return nil
     } else {
       return SlideAnimatedTransitioning()
     }
