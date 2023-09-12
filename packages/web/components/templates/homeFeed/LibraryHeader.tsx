@@ -237,7 +237,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
   const [isAddAction, setIsAddAction] = useState(false)
   const IS_URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+    /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/
 
   useEffect(() => {
     setSearchTerm(props.searchTerm ?? '')
