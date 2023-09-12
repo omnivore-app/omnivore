@@ -770,7 +770,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         Spacer()
       }
-      .frame(maxHeight: .infinity)
     }
   }
 

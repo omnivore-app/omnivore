@@ -157,12 +157,12 @@ public struct LibraryItemCard: View {
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 50, height: 50)
+              .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
             Color.systemBackground
-              .frame(width: 50, height: 50)
+              .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           }
@@ -171,7 +171,7 @@ public struct LibraryItemCard: View {
         fallbackImage
       }
     }
-    .padding(.top, 15)
+    .padding(.top, 10)
     .cornerRadius(5)
   }
 
