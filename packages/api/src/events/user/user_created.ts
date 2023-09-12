@@ -37,32 +37,6 @@ export class CreateIntercomAccount
 }
 
 @EventSubscriber()
-export class IdentifySegmentUser implements EntitySubscriberInterface<Profile> {
-  listenTo() {
-    return Profile
-  }
-
-  afterInsert(event: InsertEvent<Profile>): Promise<void> {
-    try {
-      const profile = event.entity
-
-      analytics.identify({
-        userId: profile.user.id,
-        traits: {
-          name: profile.user.name,
-          email: profile.user.email,
-          source: profile.user.source,
-          env: env.server.apiEnv,
-        },
-      })
-    } catch (error) {
-      logger.info('error in sign up', error)
-    }
-    return Promise.resolve()
-  }
-}
-
-@EventSubscriber()
 export class PublishNewUserEvent implements EntitySubscriberInterface<Profile> {
   listenTo() {
     return Profile
