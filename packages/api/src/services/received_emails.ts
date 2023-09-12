@@ -29,7 +29,7 @@ export const saveReceivedEmail = async (
 export const updateReceivedEmail = async (
   id: string,
   type: 'article' | 'non-article',
-  userId?: string
+  userId: string
 ) => {
   return authTrx(
     (t) => t.getRepository(ReceivedEmail).update(id, { type }),

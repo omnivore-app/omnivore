@@ -103,27 +103,24 @@ export function integrationsServiceRouter() {
           res.status(200).send('Bad Request')
           return
         }
-        const page = await findLibraryItemById(id, userId)
-        if (!page) {
-          logger.info('No page found for id', { id })
+        const item = await findLibraryItemById(id, userId)
+        if (!item) {
+          logger.info('No item found for id', { id })
           res.status(200).send('No page found')
           return
         }
-        if (page.user.id !== userId) {
-          logger.info('Page does not belong to user', { id, userId })
-          return res.status(200).send('Page does not belong to user')
-        }
-        // sync updated page with integration
-        logger.info('syncing updated page with integration', {
+
+        // sync updated item with integration
+        logger.info('syncing updated item with integration', {
           integrationId: integration.id,
-          pageId: page.id,
+          itemId: item.id,
         })
 
-        const synced = await integrationService.export(integration, [page])
+        const synced = await integrationService.export(integration, [item])
         if (!synced) {
-          logger.info('failed to sync page', {
+          logger.info('failed to sync item', {
             integrationId: integration.id,
-            pageId: page.id,
+            itemId: item.id,
           })
           return res.status(400).send('Failed to sync')
         }
@@ -135,7 +132,7 @@ export function integrationsServiceRouter() {
           let hasNextPage = true,
             count = 0,
             after = 0,
-            pages: LibraryItem[] = [];
+            items: LibraryItem[] = [];
           hasNextPage;
           after += size, hasNextPage = count > after
         ) {
@@ -148,15 +145,15 @@ export function integrationsServiceRouter() {
             { from: after, size, dateFilters },
             userId
           )
-          pages = libraryItems
-          const pageIds = pages.map((p) => p.id)
+          items = libraryItems
+          const itemIds = items.map((p) => p.id)
 
-          logger.info('syncing pages', { pageIds })
+          logger.info('syncing items', { pageIds: itemIds })
 
-          const synced = await integrationService.export(integration, pages)
+          const synced = await integrationService.export(integration, items)
           if (!synced) {
-            logger.error('failed to sync pages', {
-              pageIds,
+            logger.error('failed to sync items', {
+              pageIds: itemIds,
               integrationId: integration.id,
             })
             return res.status(400).send('Failed to sync')

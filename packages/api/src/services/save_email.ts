@@ -20,7 +20,7 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-import { findOrCreateLabels } from './labels'
+import { addLabelsToLibraryItem, findOrCreateLabels } from './labels'
 import {
   createLibraryItem,
   findLibraryItemByUrl,
@@ -132,10 +132,11 @@ export const saveEmail = async (
 
   if (newsletterLabel) {
     // add newsletter label
-    await findOrCreateLabels([newsletterLabel], input.userId)
+    const labels = await findOrCreateLabels([newsletterLabel], input.userId)
+    await addLabelsToLibraryItem(labels, newLibraryItem.id, input.userId)
   }
 
-  await updateReceivedEmail(input.receivedEmailId, 'article')
+  await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)
 
   // create a task to update thumbnail and pre-cache all images
   try {

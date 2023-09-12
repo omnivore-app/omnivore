@@ -91,23 +91,27 @@ export const addLabelsToLibraryItem = async (
   userId: string,
   pubsub = createPubSubClient()
 ) => {
-  await authTrx(async (tx) => {
-    const libraryItem = await tx
-      .withRepository(libraryItemRepository)
-      .findOneByOrFail({ id: libraryItemId })
+  await authTrx(
+    async (tx) => {
+      const libraryItem = await tx
+        .withRepository(libraryItemRepository)
+        .findOneByOrFail({ id: libraryItemId })
 
-    if (libraryItem.labels) {
-      labels.push(...libraryItem.labels)
-    }
+      if (libraryItem.labels) {
+        labels.push(...libraryItem.labels)
+      }
 
-    // save new labels
-    await tx.getRepository(EntityLabel).save(
-      labels.map((l) => ({
-        labelId: l.id,
-        libraryItemId,
-      }))
-    )
-  })
+      // save new labels
+      await tx.getRepository(EntityLabel).save(
+        labels.map((l) => ({
+          labelId: l.id,
+          libraryItemId,
+        }))
+      )
+    },
+    undefined,
+    userId
+  )
 
   // create pubsub event
   await pubsub.entityCreated<(Label & { pageId: string })[]>(

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { updateIntegration } from '.'
 import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
@@ -64,7 +65,7 @@ export class ReadwiseIntegration extends IntegrationService {
   ): Promise<boolean> => {
     let result = true
 
-    const highlights = items.flatMap(this.pageToReadwiseHighlight)
+    const highlights = items.flatMap(this.libraryItemToReadwiseHighlight)
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
       result = await this.syncWithReadwise(integration.token, highlights)
@@ -73,16 +74,18 @@ export class ReadwiseIntegration extends IntegrationService {
     // update integration syncedAt if successful
     if (result) {
       logger.info('updating integration syncedAt')
-      await authTrx((t) =>
-        t.getRepository(Integration).update(integration.id, {
+      await updateIntegration(
+        integration.id,
+        {
           syncedAt: new Date(),
-        })
+        },
+        integration.user.id
       )
     }
     return result
   }
 
-  pageToReadwiseHighlight = (item: LibraryItem): ReadwiseHighlight[] => {
+  libraryItemToReadwiseHighlight = (item: LibraryItem): ReadwiseHighlight[] => {
     if (!item.highlights) return []
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
     return item.highlights
@@ -128,7 +131,7 @@ export class ReadwiseIntegration extends IntegrationService {
         {
           headers: {
             Authorization: `Token ${token}`,
-            ContentType: 'application/json',
+            'Content-Type': 'application/json',
           },
           timeout: 5000, // 5 seconds
         }

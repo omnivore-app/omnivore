@@ -19,7 +19,7 @@ export class Integration {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE', eager: true })
   @JoinColumn({ name: 'user_id' })
   user!: User
 

@@ -127,12 +127,12 @@ describe('Integrations routers', () => {
           let integration: Integration
           let item: LibraryItem
           let highlight: Highlight
-          let highlightsData: string
+          let highlightsData: any
 
           before(async () => {
             integration = await saveIntegration(
               {
-                user: { id: user.id },
+                user,
                 name: 'READWISE',
                 token: 'token',
               },
@@ -157,24 +157,24 @@ describe('Integrations routers', () => {
               user.id
             )
             // create highlights data for integration request
-            highlightsData = JSON.stringify({
+            highlightsData = {
               highlights: [
                 {
                   text: highlight.quote,
                   title: item.title,
-                  author: item.author,
+                  author: item.author ?? undefined,
                   highlight_url: getHighlightUrl(item.slug, highlight.id),
                   highlighted_at: highlight.createdAt.toISOString(),
                   category: 'articles',
-                  image_url: item.thumbnail,
+                  image_url: item.thumbnail ?? undefined,
                   // location: highlightPositionPercent,
                   location_type: 'order',
-                  note: highlight.annotation,
+                  note: highlight.annotation ?? undefined,
                   source_type: 'omnivore',
                   source_url: item.originalUrl,
                 },
               ],
-            })
+            }
           })
 
           after(async () => {
@@ -205,7 +205,7 @@ describe('Integrations routers', () => {
                 nock(READWISE_API_URL, {
                   reqheaders: {
                     Authorization: `Token ${integration.token}`,
-                    ContentType: 'application/json',
+                    'Content-Type': 'application/json',
                   },
                 })
                   .post('/highlights', highlightsData)
@@ -227,7 +227,7 @@ describe('Integrations routers', () => {
                   nock(READWISE_API_URL, {
                     reqheaders: {
                       Authorization: `Token ${integration.token}`,
-                      ContentType: 'application/json',
+                      'Content-Type': 'application/json',
                     },
                   })
                     .post('/highlights')
@@ -236,7 +236,7 @@ describe('Integrations routers', () => {
                   nock(READWISE_API_URL, {
                     reqheaders: {
                       Authorization: `Token ${integration.token}`,
-                      ContentType: 'application/json',
+                      'Content-Type': 'application/json',
                     },
                   })
                     .post('/highlights')
@@ -272,7 +272,7 @@ describe('Integrations routers', () => {
                 nock(READWISE_API_URL, {
                   reqheaders: {
                     Authorization: `Token ${integration.token}`,
-                    ContentType: 'application/json',
+                    'Content-Type': 'application/json',
                   },
                 })
                   .post('/highlights', highlightsData)
@@ -306,7 +306,7 @@ describe('Integrations routers', () => {
               nock(READWISE_API_URL, {
                 reqheaders: {
                   Authorization: `Token ${integration.token}`,
-                  ContentType: 'application/json',
+                  'Content-Type': 'application/json',
                 },
               })
                 .post('/highlights', highlightsData)

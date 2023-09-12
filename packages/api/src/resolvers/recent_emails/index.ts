@@ -102,7 +102,7 @@ export const markEmailAsItemResolver = authorized<
     }
 
     // update received email type
-    await updateReceivedEmail(recentEmail.id, 'article')
+    await updateReceivedEmail(recentEmail.id, 'article', uid)
 
     const text = `A recent email marked as a library item
                     by: ${uid}
