@@ -1,5 +1,12 @@
 import { UserBasicData } from './networking/queries/useGetViewerQuery'
-import { intercomAppID } from './appConfig'
+import { intercomAppID, posthogApiKey } from './appConfig'
+import posthog from 'posthog-js'
+
+if (posthogApiKey) {
+  posthog.init(posthogApiKey, {
+    api_host: 'https://app.posthog.com',
+  })
+}
 
 const userInfo = (user: UserBasicData): { user_id: string; name: string } => {
   return {
@@ -22,11 +29,18 @@ const initAnalytics = (user?: UserBasicData): void => {
 }
 
 export const setupAnalytics = (user?: UserBasicData): void => {
-  if (!intercomAppID) return
-  if (!window.Intercom) return
-  if (!window.ANALYTICS_INITIALIZED) initAnalytics(user)
+  if (!intercomAppID || !window.Intercom) {
+    return
+  }
+  if (!window.ANALYTICS_INITIALIZED) {
+    initAnalytics(user)
+  }
 
   if (user) {
     window.Intercom('update', userInfo(user))
+    posthog.identify(user.id, {
+      name: user.name,
+      username: user.profile.username,
+    })
   }
 }
