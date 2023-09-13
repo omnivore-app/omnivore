@@ -12,7 +12,7 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.RecommendResult> {
       try $0.on(
-        recommendError: .init { .error(errorMessage: try $0.errorCodes().first.toString()) },
+        recommendError: .init { .error(errorMessage: try $0.errorCodes().first?.rawValue ?? "Unknown Error") },
         recommendSuccess: .init {
           .saved(success: try $0.success())
         }
