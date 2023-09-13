@@ -45,12 +45,14 @@ extension SlideAnimatedTransitioning: UIViewControllerAnimatedTransitioning {
       fromVC.view?.layer.shadowOpacity = 0.1
 
     }, completion: { _ in
-      toVC.view?.layer.opacity = 1.0
-      toVC.view?.layer.shadowOpacity = 0
-      fromVC.view?.layer.opacity = 1.0
-      fromVC.view?.layer.shadowOpacity = 0
+      if !transitionContext.transitionWasCancelled {
+        toVC.view?.layer.opacity = 1.0
+        toVC.view?.layer.shadowOpacity = 0
+        fromVC.view?.layer.opacity = 1.0
+        fromVC.view?.layer.shadowOpacity = 0
 
-      fromVC.view.removeFromSuperview()
+        fromVC.view.removeFromSuperview()
+      }
       // when cancelling or completing the animation, ios simulator seems to sometimes flash black backgrounds during the animation. on devices, this doesn't seem to happen though.
       // containerView.backgroundColor = [UIColor whiteColor];
       transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
