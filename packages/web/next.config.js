@@ -40,6 +40,10 @@ const moduleExports = {
       source: '/api/mobile-auth/:path*',
       destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
     },
+    {
+      source: '/collect/:match*',
+      destination: 'https://app.posthog.com/:match*',
+    },
   ],
   async headers() {
     return [

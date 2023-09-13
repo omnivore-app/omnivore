@@ -8,9 +8,10 @@ import { useRouter } from 'next/router'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
-import { setupAnalytics } from '../../lib/analytics'
+import { deinitAnalytics, setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { applyStoredTheme } from '../../lib/themeUpdater'
+import { logout } from '../../lib/logout'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -46,20 +47,6 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
   useEffect(() => {
     setupAnalytics(viewerData?.me)
   }, [viewerData?.me])
-
-  async function logout(): Promise<void> {
-    await logoutMutation()
-    try {
-      const result = await logoutMutation()
-      if (!result) {
-        throw new Error('Logout failed')
-      }
-      router.push('/login')
-    } catch {
-      // TODO: display an error message instead
-      router.push('/')
-    }
-  }
 
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)

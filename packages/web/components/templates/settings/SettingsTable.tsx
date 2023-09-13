@@ -212,7 +212,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
           }}
         >
           <VStack>
-            <StyledText
+            <SpanBox
               css={{
                 m: '0px',
                 fontSize: '18px',
@@ -223,7 +223,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
               }}
             >
               {props.title}
-            </StyledText>
+            </SpanBox>
             {props.sublineElement}
           </VStack>
           <SpanBox css={{ marginLeft: 'auto' }}>{props.titleElement}</SpanBox>
@@ -375,7 +375,9 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
                 >
                   {props.headerTitle}
                 </StyledText>
-                { props.pageInfoLink && <InfoLink href={props.pageInfoLink}></InfoLink> }
+                {props.pageInfoLink && (
+                  <InfoLink href={props.pageInfoLink}></InfoLink>
+                )}
               </HStack>
             </Box>
           </Box>

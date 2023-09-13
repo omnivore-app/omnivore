@@ -70,7 +70,6 @@ export const appleAuthRedirectURI =
 
 export const intercomAppID = process.env.NEXT_PUBLIC_INTERCOM_APP_ID
 
-export const segmentApiKey = process.env.NEXT_PUBLIC_SEGMENT_API_KEY
 export const posthogApiKey = process.env.NEXT_PUBLIC_POSTHOG_API_KEY
 
 export const googleID =
