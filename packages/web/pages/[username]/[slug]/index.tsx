@@ -47,6 +47,7 @@ import { EpubContainerProps } from '../../../components/templates/article/EpubCo
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
 import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
+import { posthog } from 'posthog-js'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -200,11 +201,10 @@ export default function Home(): JSX.Element {
 
   useEffect(() => {
     if (article && viewerData?.me) {
-      window.analytics?.track('link_read', {
+      posthog.capture('link_read', {
         link: article.id,
         slug: article.slug,
         url: article.originalArticleUrl,
-        userId: viewerData.me.id,
       })
     }
   }, [article, viewerData])

@@ -69,20 +69,67 @@ public struct GridCard: View {
     }
   }
 
+  var imageBox: some View {
+    GeometryReader { geo in
+
+      ZStack(alignment: .bottomLeading) {
+        if let imageURL = item.imageURL {
+          AsyncImage(url: imageURL) { phase in
+            switch phase {
+            case .empty:
+              Color.systemBackground
+                .frame(maxWidth: .infinity, maxHeight: geo.size.height)
+            case let .success(image):
+              image.resizable()
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: geo.size.height)
+                .clipped()
+            case .failure:
+              fallbackImage
+
+            @unknown default:
+              // Since the AsyncImagePhase enum isn't frozen,
+              // we need to add this currently unused fallback
+              // to handle any new cases that might be added
+              // in the future:
+              Color.systemBackground
+                .frame(maxWidth: .infinity, maxHeight: geo.size.height)
+            }
+          }
+        } else {
+          fallbackImage
+        }
+        Color(hex: "#D9D9D9")?.opacity(0.65).frame(width: geo.size.width, height: 5)
+        Color(hex: "#FFD234").frame(width: geo.size.width * (item.readingProgress / 100), height: 5)
+      }
+    }
+    .cornerRadius(5)
+  }
+
+  var fallbackImage: some View {
+    GeometryReader { geo in
+      HStack {
+        Text(item.unwrappedTitle.prefix(1))
+          .font(Font.system(size: 128, weight: .bold))
+          .offset(CGSize(width: -48, height: 12))
+          .frame(alignment: .bottomLeading)
+          .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
+      .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+      .frame(width: geo.size.width, height: geo.size.height)
+    }
+  }
+
   public var body: some View {
     GeometryReader { geo in
       VStack(alignment: .leading, spacing: 0) {
-        // Progress Bar
-        Group {
-          ProgressView(value: min(abs(item.readingProgress) / 100, 1))
-            .tint(.appYellow48)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.bottom, 16)
-        }
-        // .onTapGesture { tapHandler() }
-
         VStack {
-          // Title, Subtitle, Menu Button
+          imageBox
+            .frame(height: geo.size.height / 2.0)
+
           VStack(alignment: .leading, spacing: 4) {
             HStack {
               Text(item.unwrappedTitle)
@@ -108,42 +155,23 @@ public struct GridCard: View {
 
               Spacer()
             }
-            // .onTapGesture { tapHandler() }
           }
           .frame(height: 30)
-          .padding(.horizontal)
-          .padding(.bottom, 16)
+          .padding(.horizontal, 10)
+          .padding(.bottom, 10)
+          .padding(.top, 10)
 
           // Link description and image
           HStack(alignment: .top) {
             Text(item.descriptionText ?? item.unwrappedTitle)
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
-              .lineLimit(nil)
+              .lineLimit(3)
               .multilineTextAlignment(.leading)
 
             Spacer()
-
-            if let imageURL = item.imageURL {
-              AsyncImage(url: imageURL) { phase in
-                if let image = phase.image {
-                  image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
-                    .cornerRadius(3)
-                } else if phase.error != nil {
-                  EmptyView()
-                } else {
-                  Color.appButtonBackground
-                    .frame(width: geo.size.width / 3, height: (geo.size.width * 2) / 9)
-                    .cornerRadius(3)
-                }
-              }
-            }
           }
-          .padding(.horizontal)
-          // .onTapGesture { tapHandler() }
+          .padding(.horizontal, 10)
 
           // Category Labels
           if item.hasLabels {
@@ -154,18 +182,12 @@ public struct GridCard: View {
                 }
                 Spacer()
               }
-              .padding(.horizontal)
+              .padding(.horizontal, 10)
             }
-            // .onTapGesture { tapHandler() }
-          }
-
-          if item.serverSyncStatus != ServerSyncStatus.isNSync.rawValue {
-            SyncStatusIcon(status: ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) ?? ServerSyncStatus.isNSync)
           }
         }
         .padding(.horizontal, 0)
         .padding(.top, 0)
-        .padding(.bottom, 8)
       }
       .contextMenu { contextMenuView }
     }

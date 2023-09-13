@@ -142,7 +142,7 @@
                 .onTapGesture { setSearchTerm("has:highlights") }
 
               Button(action: {}, label: {
-                Text("[More on Advanced Search](https://omnivore.app/help/search)")
+                Text("[More on Advanced Search](https://docs.omnivore.app/using/search.html)")
                   .underline()
                   .padding(.top, 25)
               })

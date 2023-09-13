@@ -19,6 +19,8 @@ import Views
         return AnyView(splitView)
       } else {
         return AnyView(LibraryTabView())
+        //      .navigationViewStyle(.stack)
+        //      .navigationBarTitleDisplayMode(.inline)
       }
     #else
       return AnyView(splitView)
@@ -44,6 +46,7 @@ import Views
         // Second column is the Primary Nav Stack
         PrimaryContentCategory.feed.destinationView
       }
+      .navigationBarTitleDisplayMode(.inline)
       .accentColor(.appGrayTextContrast)
       .introspectSplitViewController {
         $0.preferredSplitBehavior = .tile

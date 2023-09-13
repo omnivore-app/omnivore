@@ -5,11 +5,8 @@ import {
 } from 'typeorm'
 import { createPubSubClient } from '../../datalayer/pubsub'
 import { Profile } from '../../entity/profile'
-import { env } from '../../env'
 import { addPopularReadsForNewUser } from '../../services/popular_reads'
-import { analytics } from '../../utils/analytics'
 import { IntercomClient } from '../../utils/intercom'
-import { logger } from '../../utils/logger'
 
 @EventSubscriber()
 export class CreateIntercomAccount

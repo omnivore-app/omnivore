@@ -17,10 +17,6 @@ export const useCopyLink = (
     const res = await navigator.clipboard.writeText(link)
     setIsLinkCopied(true)
     window.setTimeout(() => setIsLinkCopied(false), 5000)
-    window.analytics?.track('link_copied', {
-      link,
-      type,
-    })
   }, [link, type])
 
   return { link, copyLink, isLinkCopied }

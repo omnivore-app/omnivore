@@ -4,56 +4,48 @@ Omnivore est une **application de lecture ultérieure** qui vous permet de sauve
 
 Ce guide vous montrera comment utiliser les fonctions de base et les fonctionnalités avancées d'Omnivore, divisées en quatre activités principales:
 
-
-* Sauvegarde
-* Lecture
-* Organisation
-* Intégrations
+- Sauvegarde
+- Lecture
+- Organisation
+- Intégrations
 
 La **Library** est le centre de votre expérience Omnivore, où vous pouvez accéder rapidement à tous les liens que vous avez enregistrés. Les liens enregistrés restent dans votre bibliothèque à jamais, à moins que vous ne les supprimiez.
 
-
 ## Sauvegarde
-
 
 Il existe cinq façons de sauvegarder des liens vers des pages ou des articles que vous souhaitez lire plus tard:
 
-
-
-* Sauvegarde depuis votre bibliothèque Omnivore
-* Sauvegarde depuis un navigateur
-* Sauvegarde depuis un téléphone ou une tablette (iOS ou Android)
-* Abonnements à des newsletters via e-mail
-* Sauvegarde de PDF à partir d'un Mac
-
+- Sauvegarde depuis votre bibliothèque Omnivore
+- Sauvegarde depuis un navigateur
+- Sauvegarde depuis un téléphone ou une tablette (iOS ou Android)
+- Abonnements à des newsletters via e-mail
+- Sauvegarde de PDF à partir d'un Mac
 
 ### Sauvegarde depuis votre bibliothèque Omnivore
+
 1. Dans le coin supérieur droit de votre bibliothèque, appuyez sur le bouton **Add Link**.
 2. Entrez l'URL que vous souhaitez enregistrer et appuyez sur **Add Link**.
 3. Le lien apparaîtra dans votre bibliothèque la prochaine fois que vous la rafraîchissez.
-
 
 ### Sauvegarde depuis un navigateur
 
 1. Téléchargez et installez l'extension Omnivore pour votre navigateur :
 
-* [Chrome ](https://omnivore.app/install/chrome)
-* [Edge](https://omnivore.app/install/edge)
-* [Firefox](https://omnivore.app/install/firefox)
-* [Safari](https://omnivore.app/install/safari)
+- [Chrome ](https://omnivore.app/install/chrome)
+- [Edge](https://omnivore.app/install/edge)
+- [Firefox](https://omnivore.app/install/firefox)
+- [Safari](https://omnivore.app/install/safari)
 
 2. Accédez à la page que vous souhaitez enregistrer et appuyez sur le bouton Omnivore dans la barre d'outils de votre navigateur ou dans le menu Extensions.
 3. Alternativement, vous pouvez cliquer avec le bouton droit (commande + clic sur Mac) sur n'importe quel lien hypertexte et sélectionner **Enregistrer dans Omnivore** dans le menu.
 4. Le lien apparaîtra dans votre bibliothèque la prochaine fois que vous la rafraîchissez.
 
-
-
 ### Sauvegarde depuis un téléphone ou une tablette
 
 La meilleure façon d'enregistrer des liens à partir de votre appareil mobile est via l'application Omnivore. Vous pouvez télécharger l'application ici :
 
-* [iOS (iPhone ou iPad)](https://omnivore.app/install/ios)
-* Android
+- [iOS (iPhone ou iPad)](https://omnivore.app/install/ios)
+- Android
 
 Une fois que l'application mobile est installée :
 
@@ -70,28 +62,26 @@ Une fois que l'application mobile est installée :
 5. Collez l'adresse e-mail Omnivore dans le formulaire d'inscription.
 6. Les nouvelles newsletters seront automatiquement livrées à votre boîte de réception Omnivore.
 
-
 ### Enregistrement de PDF à partir d'un Mac
 
-1. Installez [l'application Mac](https://omnivore.app/install/mac). 
+1. Installez [l'application Mac](https://omnivore.app/install/mac).
 2. Sur votre Mac, localisez le PDF que vous souhaitez enregistrer et faites un clic droit ou ctrl + clic sur le nom de fichier.
 3. Sélectionnez **Share** dans le menu et choisissez **Omnivore**.
 4. Le lien apparaîtra dans votre bibliothèque la prochaine fois que vous la rafraîchirez.
 
-
 ## Lecture
 
-Cliquez sur n'importe quel lien enregistré dans votre bibliothèque pour accéder à la vue du lecteur. 
+Cliquez sur n'importe quel lien enregistré dans votre bibliothèque pour accéder à la vue du lecteur.
 
 Omnivore formatte les pages pour une lecture facile et une surbrillance, en enlevant les publicités et les encombrements pour une lecture exempte de distractions. La vue axée sur le texte rend également les articles plus petits et plus rapides à charger.
 
 Pendant la lecture, vous pouvez :
 
-* <span style="text-decoration:underline;">Modifier la mise en forme</span>
-* <span style="text-decoration:underline;">Surligner le texte</span>
-* <span style="text-decoration:underline;">Ajouter des notes</span>
-* <span style="text-decoration:underline;">Voir toutes les surlignages et notes enregistrés</span>
-* <span style="text-decoration:underline;">Suivre la progression de la lecture</span>
+- <span style="text-decoration:underline;">Modifier la mise en forme</span>
+- <span style="text-decoration:underline;">Surligner le texte</span>
+- <span style="text-decoration:underline;">Ajouter des notes</span>
+- <span style="text-decoration:underline;">Voir toutes les surlignages et notes enregistrés</span>
+- <span style="text-decoration:underline;">Suivre la progression de la lecture</span>
 
 ### Modification de la mise en forme
 
@@ -123,10 +113,10 @@ Omnivore garde automatiquement une trace de votre avancement de lecture sur vos 
 
 Par défaut, la boîte de réception de la bibliothèque affiche tous les liens que vous avez enregistrés. Pour gérer votre liste et maintenir votre lecture organisée, Omnivore fournit les actions suivantes:
 
-* <span style="text-decoration:underline;">Archiving</span>
-* <span style="text-decoration:underline;">Labels</span>
-* <span style="text-decoration:underline;">Search</span>
-* <span style="text-decoration:underline;">Filters</span>
+- <span style="text-decoration:underline;">Archiving</span>
+- <span style="text-decoration:underline;">Labels</span>
+- <span style="text-decoration:underline;">Search</span>
+- <span style="text-decoration:underline;">Filters</span>
 
 ### Archivage
 
@@ -144,8 +134,8 @@ Par défaut, la boîte de réception de la bibliothèque affiche tous les liens 
 
 ### Recherche
 
-1. Pour rechercher parmi tous les liens que vous avez enregistrés, entrez un mot-clé ou une phrase dans la barre de recherche. 
-2. Vous pouvez combiner les mots-clés avec les étiquettes et les filtres pour cibler encore plus votre recherche. [En savoir plus sur la recherche avancée.](https://omnivore.app/help/search).
+1. Pour rechercher parmi tous les liens que vous avez enregistrés, entrez un mot-clé ou une phrase dans la barre de recherche.
+2. Vous pouvez combiner les mots-clés avec les étiquettes et les filtres pour cibler encore plus votre recherche. [En savoir plus sur la recherche avancée.](https://docs.omnivore.app/using/search.html).
 
 ### Filtres
 
@@ -159,13 +149,12 @@ Par défaut, la boîte de réception de la bibliothèque affiche tous les liens 
 
 Omnivore permet des intégrations avec des bases de connaissances et des applications de prise de notes, notamment :
 
-* Logseq
-* Webhooks
+- Logseq
+- Webhooks
 
 ### Logseq
 
 Avec le plugin Omnivore pour Logseq, vous pouvez synchroniser tous vos articles enregistrés, vos surlignages et vos notes dans Logseq, une base de connaissances populaire. Pour obtenir des informations sur la configuration et l'utilisation du plugin Logseq, veuillez consulter ce guide utile [Omnivore pour le plugin Logseq](https://briansunter.com/graph/#/page/omnivore-logseq-guide).
-
 
 ### Webhooks
 

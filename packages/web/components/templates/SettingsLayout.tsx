@@ -6,11 +6,13 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { useRouter } from 'next/router'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
+import { deinitAnalytics } from '../../lib/analytics'
+import { logout } from '../../lib/logout'
 
 type SettingsLayoutProps = {
   title?: string
@@ -27,19 +29,17 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   useKeyboardShortcuts(navigationCommands(router))
   applyStoredTheme(false)
 
-  async function logout(): Promise<void> {
-    await logoutMutation()
-    try {
-      const result = await logoutMutation()
-      if (!result) {
-        throw new Error('Logout failed')
-      }
-      router.push('/login')
-    } catch {
-      // TODO: display an error message instead
-      router.push('/')
+  const showLogout = useCallback(() => {
+    setShowLogoutConfirmation(true)
+  }, [setShowLogoutConfirmation])
+
+  useEffect(() => {
+    document.addEventListener('logout', showLogout)
+
+    return () => {
+      document.removeEventListener('logout', showLogout)
     }
-  }
+  }, [showLogout])
 
   return (
     <>

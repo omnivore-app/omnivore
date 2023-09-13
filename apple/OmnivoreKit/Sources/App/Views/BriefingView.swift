@@ -82,7 +82,7 @@ struct BriefingView: View {
   var body: some View {
     ZStack { // Using ZStack so .task can be used on if/else body
       if let item = viewModel.item {
-        WebReaderContainerView(item: item)
+        WebReaderContainerView(item: item, pop: {})
       }
     }
     .task {

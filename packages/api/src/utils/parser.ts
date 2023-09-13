@@ -176,6 +176,7 @@ const getReadabilityResult = async (
         debug: DEBUG_MODE,
         createImageProxyUrl,
         keepTables: isNewsletter,
+        ignoreLinkDensity: isNewsletter,
         url,
       }).parse()
 
