@@ -164,22 +164,19 @@ export default function ExtensionsInstallHelp({
         to Omnivore from your computer.
         <br />
         {!onboarding && (
-          <a
+          <StyledAnchor
+            css={{
+              color: '$grayTextContrast',
+              fontSize: '14px',
+              fontWeight: 600,
+              textDecoration: 'underline',
+            }}
             href="https://docs.omnivore.app/using/saving.html"
             target="_blank"
             rel="noreferrer"
           >
-            <StyledAnchor
-              css={{
-                color: '$grayTextContrast',
-                fontSize: '14px',
-                fontWeight: 600,
-                textDecoration: 'underline',
-              }}
-            >
-              Learn more about the browser extension -&gt;
-            </StyledAnchor>
-          </a>
+            Learn more about the browser extension -&gt;
+          </StyledAnchor>
         )}
       </StyledText>
       <HStack

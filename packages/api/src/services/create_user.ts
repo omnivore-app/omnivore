@@ -12,6 +12,8 @@ import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
 import { sendConfirmationEmail } from './send_emails'
 import { Filter } from '../entity/filter'
+import { analytics } from '../utils/analytics'
+import { env } from '../env'
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -39,6 +41,16 @@ export const createUser = async (input: {
       pictureUrl: input.pictureUrl,
       bio: input.bio,
       user: existingUser,
+    })
+
+    analytics.track({
+      userId: existingUser.id,
+      event: 'create_user',
+      properties: {
+        env: env.server.apiEnv,
+        email: existingUser.email,
+        username: profile.username,
+      },
     })
 
     return [existingUser, profile]
@@ -98,6 +110,16 @@ export const createUser = async (input: {
       return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
     }
   }
+
+  analytics.track({
+    userId: user.id,
+    event: 'create_user',
+    properties: {
+      env: env.server.apiEnv,
+      email: user.email,
+      username: profile.username,
+    },
+  })
 
   return [user, profile]
 }

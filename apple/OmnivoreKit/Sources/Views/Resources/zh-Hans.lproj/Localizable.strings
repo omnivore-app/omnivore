@@ -244,7 +244,7 @@
 //"filter to inbox, archive, or all" = "筛选到收集箱、存档或全部";
 //"search for a specific title" = "搜索特定标题";
 //"any saved read with highlights" = "任何带有荧光笔高亮显示的已保存文章";
-//"[More on Advanced Search](https://omnivore.app/help/search)" = "[了解更多高级搜索](https://omnivore.app/help/search)";
+//"[More on Advanced Search](https://docs.omnivore.app/using/search.html)" = "[了解更多高级搜索](https://docs.omnivore.app/using/search.html)";
 //
 //// Views/AudioPlayer/ExpandedPlayer.swift
 //"Playback Speed (%.1f×)" = "播放速度 (%.1f×)";

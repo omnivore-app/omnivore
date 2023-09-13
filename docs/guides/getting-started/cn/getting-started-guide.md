@@ -4,10 +4,10 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 
 该指南将向您展示如何使用 Omnivore 的基本功能和高级特性，分为四个主要功能：
 
-* 保存
-* 阅读
-* 整理
-* 集成
+- 保存
+- 阅读
+- 整理
+- 集成
 
 **文库**是您 Omnivore 体验的中心，您可以在其中快速访问已保存的任何链接。保存的链接将永久保留在您的文库中，除非您将其删除。
 
@@ -15,13 +15,14 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 
 有五种主要方法可以保存您希望稍后阅读的页面或文章的链接：
 
-* 从 Omnivore 文库保存
-* 从浏览器保存
-* 从手机或平板电脑 (iOS 或 Android)
-* 通过电子邮件订阅新闻稿件
-* 从 Mac 保存PDF
+- 从 Omnivore 文库保存
+- 从浏览器保存
+- 从手机或平板电脑 (iOS 或 Android)
+- 通过电子邮件订阅新闻稿件
+- 从 Mac 保存 PDF
 
 ### 从 Omnivore 文库中保存
+
 1. 在资料库的右上角，点击 **添加链接** 按钮。
 2. 输入您想要保存的 URL 超链接，然后点击**添加链接**。
 3. 下次刷新链接时，该链接将显示在您的文库中。
@@ -30,21 +31,21 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 
 1. 下载并安装浏览器的 Omnivore 扩展程序：
 
-* [Chrome ](https://omnivore.app/install/chrome)
-* [Edge](https://omnivore.app/install/edge)
-* [Firefox](https://omnivore.app/install/firefox)
-* [Safari](https://omnivore.app/install/safari)
+- [Chrome ](https://omnivore.app/install/chrome)
+- [Edge](https://omnivore.app/install/edge)
+- [Firefox](https://omnivore.app/install/firefox)
+- [Safari](https://omnivore.app/install/safari)
 
 2. 导航到您要保存的页面，然后点击浏览器工具栏或扩展菜单中的 Omnivore 按钮。
-3. 或者，您可以在任何超链接上右键单击（Mac：command+click），然后从菜单中选择 **保存到Omnivore**。 
+3. 或者，您可以在任何超链接上右键单击（Mac：command+click），然后从菜单中选择 **保存到 Omnivore**。
 4. 下次刷新该链接时，该链接将显示在您的文库中。
 
 ### 从手机或平板电脑保存
 
 从移动设备保存链接的最佳方法是通过 Omnivore 应用程序。您可以在此处下载此应用程序：
 
-* [iOS (iPhone 或 iPad)](https://omnivore.app/install/ios)
-* Android
+- [iOS (iPhone 或 iPad)](https://omnivore.app/install/ios)
+- Android
 
 安装移动应用程序后：
 
@@ -61,10 +62,10 @@ Omnivore 是一个**稍后阅读应用** ，让你保存和整理你在网上阅
 5. 将 Omnivore 电子邮件地址粘贴到注册表中。
 6. 新的新闻稿件将自动发送到您的 Omnivore 收集箱。
 
-### 从 Mac 保存PDF
+### 从 Mac 保存 PDF
 
 1. 安装 [Mac 应用程序](https://omnivore.app/install/mac)。
-2. 在 Mac 上，找到要保存的PDF，然后右键单击或 ctrl + 单击 文件名。
+2. 在 Mac 上，找到要保存的 PDF，然后右键单击或 ctrl + 单击 文件名。
 3. 从菜单中选择 **共享**，然后选择 **Omnivore**。
 4. 下次刷新链接时，该链接将显示在您的文库中。
 
@@ -76,11 +77,11 @@ Omnivore 格式页面，便于阅读和高亮显示，没有广告和杂乱的�
 
 在阅读时，您可以：
 
-* <span style="text-decoration:underline;">更改样式</span>
-* <span style="text-decoration:underline;">高亮显示文本</span>
-* <span style="text-decoration:underline;">添加注释</span>
-* <span style="text-decoration:underline;">查看所有保存的高亮显示和注释</span>
-* <span style="text-decoration:underline;">跟踪阅读进度</span>
+- <span style="text-decoration:underline;">更改样式</span>
+- <span style="text-decoration:underline;">高亮显示文本</span>
+- <span style="text-decoration:underline;">添加注释</span>
+- <span style="text-decoration:underline;">查看所有保存的高亮显示和注释</span>
+- <span style="text-decoration:underline;">跟踪阅读进度</span>
 
 ### 更改样式
 
@@ -112,10 +113,10 @@ Omnivore 自动跟踪您在不同设备上的阅读进度，以便您可以轻�
 
 默认情况下，文库中的收集箱显示已保存的所有链接。为了管理您的列表并保持阅读井井有条，Omnivore 提供了以下操作：
 
-* <span style="text-decoration:underline;">存档</span>
-* <span style="text-decoration:underline;">标签</span>
-* <span style="text-decoration:underline;">搜索</span>
-* <span style="text-decoration:underline;">筛选器 (过滤器)</span>
+- <span style="text-decoration:underline;">存档</span>
+- <span style="text-decoration:underline;">标签</span>
+- <span style="text-decoration:underline;">搜索</span>
+- <span style="text-decoration:underline;">筛选器 (过滤器)</span>
 
 ### 存档
 
@@ -134,7 +135,7 @@ Omnivore 自动跟踪您在不同设备上的阅读进度，以便您可以轻�
 ### 搜索
 
 1. 要搜索所有已保存的链接，请在搜索栏中输入关键字或短语。
-2. 您可以将关键字与标签和筛选器结合使用，以进一步集中搜索。 [了解有关高级搜索的更多信息](https://omnivore.app/help/search)。
+2. 您可以将关键字与标签和筛选器结合使用，以进一步集中搜索。 [了解有关高级搜索的更多信息](https://docs.omnivore.app/using/search.html)。
 
 ### 筛选器 (过滤器)
 
@@ -148,8 +149,8 @@ Omnivore 自动跟踪您在不同设备上的阅读进度，以便您可以轻�
 
 Omnivore 允许与知识库和笔记应用程序集成，包括：
 
-* Logseq
-* Webhooks
+- Logseq
+- Webhooks
 
 ### Logseq
 
@@ -157,4 +158,4 @@ Omnivore 允许与知识库和笔记应用程序集成，包括：
 
 ### Webhooks
 
-Omnivore 可以在您保存链接或向您正在阅读的页面添加突出显示时触发Webhooks。 <span style="text-decoration:underline;">该示例</span> 展示了 Webhook 被用来将所有保存的链接存储到 Google Drive 上的 Google Sheet 电子表格。
+Omnivore 可以在您保存链接或向您正在阅读的页面添加突出显示时触发 Webhooks。 <span style="text-decoration:underline;">该示例</span> 展示了 Webhook 被用来将所有保存的链接存储到 Google Drive 上的 Google Sheet 电子表格。

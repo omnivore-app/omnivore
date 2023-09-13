@@ -2,8 +2,7 @@ import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
 import { useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
-import { HStack } from '../../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../../components/elements/StyledText'
+import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import {
   EmptySettingsRow,
@@ -156,7 +155,7 @@ export default function Rss(): JSX.Element {
                   </HStack>
                 ) : (
                   <HStack alignment={'center'} distribution={'start'}>
-                    <StyledText
+                    <SpanBox
                       css={{
                         m: '0px',
                         fontSize: '18px',
@@ -167,7 +166,7 @@ export default function Rss(): JSX.Element {
                       }}
                     >
                       {subscription.name}
-                    </StyledText>
+                    </SpanBox>
                     <Pencil
                       style={{ cursor: 'pointer', marginLeft: '5px' }}
                       color={theme.colors.omnivoreLightGray.toString()}
@@ -194,7 +193,7 @@ export default function Rss(): JSX.Element {
               deleteTitle="Delete"
               editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
-                <StyledText
+                <SpanBox
                   css={{
                     my: '8px',
                     fontSize: '11px',
@@ -206,19 +205,19 @@ export default function Rss(): JSX.Element {
                       ? formattedDateTime(subscription.lastFetchedAt)
                       : 'Never'
                   }`}
-                </StyledText>
+                </SpanBox>
               }
               onClick={() => {
                 router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
               }}
               extraElement={
-                <StyledText
+                <SpanBox
                   css={{
                     fontSize: '12px',
                   }}
                 >
                   {subscription.status === 'ACTIVE' ? 'Active' : 'Paused'}
-                </StyledText>
+                </SpanBox>
               }
             />
           )

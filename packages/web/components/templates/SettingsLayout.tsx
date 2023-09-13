@@ -11,6 +11,8 @@ import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
+import { deinitAnalytics } from '../../lib/analytics'
+import { logout } from '../../lib/logout'
 
 type SettingsLayoutProps = {
   title?: string
@@ -26,20 +28,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
 
   useKeyboardShortcuts(navigationCommands(router))
   applyStoredTheme(false)
-
-  async function logout(): Promise<void> {
-    await logoutMutation()
-    try {
-      const result = await logoutMutation()
-      if (!result) {
-        throw new Error('Logout failed')
-      }
-      router.push('/login')
-    } catch {
-      // TODO: display an error message instead
-      router.push('/')
-    }
-  }
 
   return (
     <>
