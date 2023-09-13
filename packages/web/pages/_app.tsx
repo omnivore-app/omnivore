@@ -72,7 +72,6 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       posthog.capture('$pageview')
-      console.log('handling pageview')
     }
     router.events.on('routeChangeComplete', handleRouteChange)
     return () => {

@@ -39,7 +39,6 @@ export const setupAnalytics = (user?: UserBasicData): void => {
   }
 
   if (user) {
-    console.log('calling identify: ', user.id)
     window.Intercom('update', userInfo(user))
     posthog.identify(user.id, {
       name: user.name,
