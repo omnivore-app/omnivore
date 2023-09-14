@@ -31,4 +31,8 @@ class EventTracker @Inject constructor(val app: Context) {
   fun track(eventName: String, properties: Properties = Properties()) {
     posthog.capture(eventName, properties)
   }
+
+  fun logout() {
+    posthog.reset()
+  }
 }
