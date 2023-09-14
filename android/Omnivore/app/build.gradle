@@ -144,7 +144,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.pspdfkit:pspdfkit:8.4.1'
 
-    implementation 'com.segment.analytics.kotlin:android:1.10.0'
+    implementation 'com.posthog.android:posthog:1.+'
     implementation 'io.intercom.android:intercom-sdk:15.1.0'
 
     // Room Deps
