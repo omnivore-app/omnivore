@@ -42,8 +42,6 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
         }
       #endif
 
-      EventTracker.start()
-
       if let intercomKeys = AppKeys.sharedInstance?.intercom {
         Intercom.setApiKey(intercomKeys.apiKey, forAppId: intercomKeys.appID)
 
