@@ -3,34 +3,37 @@ import chai, { expect } from 'chai'
 import 'mocha'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
+import { Filter } from '../../src/entity/filter'
 import { StatusType, User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
+import { authTrx, getRepository } from '../../src/repository'
 import { findProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
 import * as util from '../../src/utils/sendEmail'
 import {
   createTestUser,
-  createUserWithoutProfile, deleteFiltersFromUser,
-  deleteTestUser,
-  getProfile,
+  createUserWithoutProfile,
+  deleteFiltersFromUser,
 } from '../db'
 
 chai.use(sinonChai)
 
 describe('create user', () => {
-
   context('creates a user through manual sign up', () => {
-    it ('adds the default filters to the user', async () => {
+    it('adds the default filters to the user', async () => {
       after(async () => {
         const testUser = await getRepository(User).findOneBy({
           name: 'filter_user',
         })
-        await deleteTestUser(testUser!.id)
+        await deleteUser(testUser!.id)
         await deleteFiltersFromUser(testUser!.id)
       })
 
-      const user = await createTestUser('filter_user');
-      const filters = await getRepository(Filter).findBy({ user: { id: user.id }})
+      const user = await createTestUser('filter_user')
+      const filters = await authTrx(
+        (t) => t.getRepository(Filter).findBy({ user: { id: user.id } }),
+        undefined,
+        user.id
+      )
 
       expect(filters).not.to.be.empty
     })

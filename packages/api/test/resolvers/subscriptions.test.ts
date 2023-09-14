@@ -128,8 +128,8 @@ describe('Subscriptions API', () => {
     })
 
     it('should not return inactive newsletters but should return inactive RSS', async () => {
-      const sub5 = await createTestSubscription(
-        user,
+      const sub5 = await createSubscription(
+        user.id,
         'sub_5',
         undefined,
         SubscriptionStatus.Unsubscribed,
@@ -138,8 +138,8 @@ describe('Subscriptions API', () => {
       )
 
       try {
-        await createTestSubscription(
-          user,
+        await createSubscription(
+          user.id,
           'sub_6',
           undefined,
           SubscriptionStatus.Unsubscribed,
@@ -164,8 +164,8 @@ describe('Subscriptions API', () => {
       // create test user and login
       const user2 = await createTestUser('fakeUser2')
       try {
-        await createTestSubscription(
-          user2,
+        await createSubscription(
+          user2.id,
           'sub_other',
           undefined,
           SubscriptionStatus.Unsubscribed,
@@ -180,7 +180,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteTestUser(user2.id)
+        deleteUser(user2.id)
       }
     })
 
@@ -202,8 +202,8 @@ describe('Subscriptions API', () => {
     `
       const user3 = await createTestUser('fakeUser3')
       try {
-        await createTestSubscription(
-          user3,
+        await createSubscription(
+          user3.id,
           'sub_other',
           undefined,
           SubscriptionStatus.Unsubscribed,
@@ -221,7 +221,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteTestUser(user3.id)
+        deleteUser(user3.id)
       }
     })
 
@@ -243,8 +243,8 @@ describe('Subscriptions API', () => {
     `
       const user2 = await createTestUser('fakeUser2')
       try {
-        await createTestSubscription(
-          user2,
+        await createSubscription(
+          user2.id,
           'sub_other',
           undefined,
           SubscriptionStatus.Unsubscribed,
@@ -262,7 +262,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        deleteTestUser(user2.id)
+        deleteUser(user2.id)
       }
     })
 

@@ -1,3 +1,4 @@
+import { isNil, mergeWith } from 'lodash'
 import { Between } from 'typeorm'
 import { Filter } from '../../entity/filter'
 import { env } from '../../env'
@@ -19,22 +20,21 @@ import {
   SaveFilterErrorCode,
   SaveFilterSuccess,
   UpdateFilterError,
-  UpdateFilterSuccess,
   UpdateFilterErrorCode,
+  UpdateFilterSuccess,
 } from '../../generated/graphql'
+import { entityManager } from '../../repository'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
-import { isNil, mergeWith } from 'lodash'
 import { authorized } from '../../utils/helpers'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,
   SaveFilterError,
   MutationSaveFilterArgs
->(async (_, { input }, { authTrx, log }) => {
+>(async (_, { input }, { authTrx, log, uid }) => {
   try {
     const filter = await authTrx(async (t) => {
-      return t.withRepository(filterRepository).save({
+      return t.getRepository(Filter).save({
         user: { id: uid },
         name: input.name,
         category: 'Search',
@@ -118,9 +118,7 @@ const updatePosition = async (
   const moveUp = newPosition < position
 
   // move filter to the new position
-  const updated = await AppDataSource.transaction(async (t) => {
-    await setClaims(t, uid)
-
+  const updated = await entityManager.transaction(async (t) => {
     // update the position of the other filters
     const updated = await t.getRepository(Filter).update(
       {
@@ -157,32 +155,17 @@ export const updateFilterResolver = authorized<
   UpdateFilterSuccess,
   UpdateFilterError,
   MutationUpdateFilterArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  const repo = getRepository(Filter)
+>(async (_, { input }, { authTrx, log, uid }) => {
   const { id } = input
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UpdateFilterErrorCode.Unauthorized],
-      }
-    }
-
-    const filter = await getRepository(Filter).findOne({
-      where: { id, user: { id: uid } },
-      relations: ['user'],
-    })
+    const filter = await authTrx((t) =>
+      t.getRepository(Filter).findOneBy({ id })
+    )
     if (!filter) {
       return {
         __typename: 'UpdateFilterError',
         errorCodes: [UpdateFilterErrorCode.NotFound],
-      }
-    }
-    if (filter.user.id !== uid) {
-      return {
-        __typename: 'UpdateFilterError',
-        errorCodes: [UpdateFilterErrorCode.Unauthorized],
       }
     }
 
@@ -190,11 +173,13 @@ export const updateFilterResolver = authorized<
       await updatePosition(uid, filter, input.position)
     }
 
-    const updated = await repo.save({
-      ...mergeWith({}, filter, input, (a: unknown, b: unknown) =>
-        isNil(b) ? a : undefined
-      ),
-    })
+    const updated = await authTrx((t) =>
+      t.getRepository(Filter).save({
+        ...mergeWith({}, filter, input, (a: unknown, b: unknown) =>
+          isNil(b) ? a : undefined
+        ),
+      })
+    )
 
     return {
       __typename: 'UpdateFilterSuccess',

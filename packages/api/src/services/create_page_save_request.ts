@@ -1,5 +1,4 @@
 import * as privateIpLib from 'private-ip'
-import { v4 as uuidv4 } from 'uuid'
 import { LibraryItemState, LibraryItemType } from '../entity/library_item'
 import {
   ArticleSavingRequest,

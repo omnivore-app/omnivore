@@ -2,15 +2,15 @@ import Postgrator from 'postgrator'
 import { DeepPartial } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from '../src/data_source'
+import { Filter } from '../src/entity/filter'
 import { Label } from '../src/entity/label'
 import { LibraryItem } from '../src/entity/library_item'
 import { Reminder } from '../src/entity/reminder'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { getRepository } from '../src/repository'
+import { entityManager, getRepository, setClaims } from '../src/repository'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
-import { Filter } from "../src/entity/filter"
 import { saveLabelsInLibraryItem } from '../src/services/labels'
 import { createLibraryItem } from '../src/services/library_item'
 import { createDeviceToken } from '../src/services/user_device_tokens'
@@ -64,15 +64,17 @@ export const createTestConnection = async (): Promise<void> => {
 }
 
 export const deleteFiltersFromUser = async (userId: string) => {
-  await AppDataSource.transaction(async (t) => {
+  await entityManager.transaction(async (t) => {
     await setClaims(t, userId)
-    const filterRepo = t.getRepository(Filter);
+    const filterRepo = t.getRepository(Filter)
 
-    const userFilters = await filterRepo.findBy({ user: { id: userId }})
+    const userFilters = await filterRepo.findBy({ user: { id: userId } })
 
-    await Promise.all(userFilters.map(filter => {
-      return filterRepo.delete(filter.id)
-    }));
+    await Promise.all(
+      userFilters.map((filter) => {
+        return filterRepo.delete(filter.id)
+      })
+    )
   })
 }
 

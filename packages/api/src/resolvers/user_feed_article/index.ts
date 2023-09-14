@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { PartialArticle } from '..'
-import {
-  FeedArticle,
-  PageInfo,
-  SharedArticleSuccess,
-} from '../../generated/graphql'
-import { Merge } from '../../util'
+import { FeedArticle, PageInfo } from '../../generated/graphql'
 
 export type PartialFeedArticle = Omit<
   FeedArticle,
@@ -17,11 +11,6 @@ type PaginatedFeedArticlesSuccessPartial = {
   edges: { cursor: string; node: PartialFeedArticle }[]
   pageInfo: PageInfo
 }
-
-export type SharedArticleSuccessPartial = Merge<
-  SharedArticleSuccess,
-  { article: PartialArticle }
->
 
 // export const getSharedArticleResolver: ResolverFn<
 //   SharedArticleSuccessPartial | SharedArticleError,

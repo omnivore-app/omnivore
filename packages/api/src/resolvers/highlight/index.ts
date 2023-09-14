@@ -122,13 +122,13 @@ export const mergeHighlightResolver = authorized<
             }
           })
         }
-      // collect colors of overlap highlights
-      highlight.color && mergedColors.push(highlight.color)
-
+        // collect colors of overlap highlights
+        highlight.color && mergedColors.push(highlight.color)
       }
     })
-  // use new color or the color of the last overlap highlight
-  const color = newHighlightInput.color || mergedColors[mergedColors.length - 1]
+    // use new color or the color of the last overlap highlight
+    const color =
+      newHighlightInput.color || mergedColors[mergedColors.length - 1]
 
     const highlight: DeepPartial<HighlightData> = {
       ...newHighlightInput,
