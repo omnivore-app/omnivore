@@ -272,6 +272,7 @@ class LoginViewModel @Inject constructor(
       datastoreRepo.clear()
       dataService.clearDatabase()
       Intercom.client().logout()
+      eventTracker.logout()
     }
   }
 

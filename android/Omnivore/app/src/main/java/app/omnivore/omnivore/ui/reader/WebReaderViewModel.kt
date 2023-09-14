@@ -7,11 +7,11 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.EventTracker
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
@@ -20,7 +20,6 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
-import app.omnivore.omnivore.ui.components.LabelSwatchHelper
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
@@ -28,9 +27,6 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
-import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
@@ -46,7 +42,7 @@ data class AnnotationWebViewMessage(
 )
 
 enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroundColor: Long) {
-  SYSTEM("System", 0xFFFFFFFF, 0xFF000000),
+  SYSTEM("System", 0xFF000000, 0xFF000000),
   LIGHT("Light", 0xFFFFFFFF, 0xFF000000),
   SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000),
   DARK("Dark", 0xFF2F3030, 0xFFFFFFFF),
@@ -58,7 +54,8 @@ enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroun
 class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val dataService: DataService,
-  private val networker: Networker
+  private val networker: Networker,
+  private val eventTracker: EventTracker,
 ): ViewModel() {
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
@@ -174,6 +171,13 @@ class WebReaderViewModel @Inject constructor(
 
     if (webReaderParams != null) {
       Log.d("reader", "data loaded from server")
+      eventTracker.track("link_read",
+        com.posthog.android.Properties()
+          .putValue("linkID", webReaderParams.item.savedItemId)
+          .putValue("slug", webReaderParams.item.slug)
+          .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+          .putValue("loaded_from", "network")
+      )
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
     }
@@ -185,6 +189,13 @@ class WebReaderViewModel @Inject constructor(
 
     if (webReaderParams != null && isSuccessful) {
       this.slug = webReaderParams.item.slug
+      eventTracker.track("link_read",
+        com.posthog.android.Properties()
+          .putValue("linkID", webReaderParams.item.savedItemId)
+          .putValue("slug", webReaderParams.item.slug)
+          .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+          .putValue("loaded_from", "request_id")
+      )
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
     } else if (requestCount < 7) {
@@ -210,14 +221,21 @@ class WebReaderViewModel @Inject constructor(
           labelsJSONString = Gson().toJson(persistedItem.labels)
         )
 
-        Log.d("sync", "data loaded from db")
-        webReaderParamsLiveData.postValue(
-          WebReaderParams(
-            persistedItem.savedItem,
-            articleContent,
-            persistedItem.labels
-          )
+        val webReaderParams = WebReaderParams(
+          persistedItem.savedItem,
+          articleContent,
+          persistedItem.labels
         )
+
+        Log.d("sync", "data loaded from db")
+        eventTracker.track("link_read",
+          com.posthog.android.Properties()
+            .putValue("linkID", webReaderParams.item.savedItemId)
+            .putValue("slug", webReaderParams.item.slug)
+            .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+            .putValue("loaded_from", "db")
+        )
+        webReaderParamsLiveData.postValue(webReaderParams)
       }
       isLoading = false
     }

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.EventTracker
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
@@ -37,7 +38,8 @@ data class PDFReaderParams(
 @HiltViewModel
 class PDFReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
-  private val networker: Networker
+  private val networker: Networker,
+  private val eventTracker: EventTracker,
 ): ViewModel() {
   var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
@@ -70,8 +72,18 @@ class PDFReaderViewModel @Inject constructor(
             labelsJSONString = Gson().toJson(articleQueryResult.labels)
           )
 
+          val pdfReaderParams = PDFReaderParams(article, articleContent, Uri.fromFile(output))
+
+          eventTracker.track("link_read",
+            com.posthog.android.Properties()
+              .putValue("linkID", pdfReaderParams.item.savedItemId)
+              .putValue("slug", pdfReaderParams.item.slug)
+              .putValue("originalArticleURL", pdfReaderParams.item.pageURLString)
+              .putValue("loaded_from", "network")
+          )
+
           currentReadingProgress = article.readingProgress
-          pdfReaderParamsLiveData.postValue(PDFReaderParams(article, articleContent, Uri.fromFile(output)))
+          pdfReaderParamsLiveData.postValue(pdfReaderParams)
         }
 
         override fun onError(exception: Throwable) {

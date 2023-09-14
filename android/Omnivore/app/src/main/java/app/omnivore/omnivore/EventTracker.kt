@@ -1,36 +1,38 @@
 package app.omnivore.omnivore
 
 import android.content.Context
-import com.segment.analytics.kotlin.android.Analytics
-import com.segment.analytics.kotlin.core.*
+import com.posthog.android.PostHog
+import com.posthog.android.Properties
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.identity.Registration
 import org.json.JSONObject
 import javax.inject.Inject
 
+
 class EventTracker @Inject constructor(val app: Context) {
-  val segmentAnalytics: Analytics
+  private val posthog: PostHog
 
   init {
-    val writeKey = app.getString(R.string.segment_write_key)
+    val posthogClientKey = app.getString(R.string.posthog_client_key)
+    val posthogInstanceAddress = app.getString(R.string.posthog_instance_address)
 
-    segmentAnalytics = Analytics(writeKey, app.applicationContext) {
-      trackApplicationLifecycleEvents = true
-      application = app.applicationContext
-      useLifecycleObserver = true
-    }
+    posthog = PostHog.Builder(app, posthogClientKey, posthogInstanceAddress)
+      .captureApplicationLifecycleEvents()
+      .build()
+
+    PostHog.setSingletonInstance(posthog)
   }
 
   fun registerUser(userID: String) {
-    segmentAnalytics.identify(userID)
+    posthog.identify(userID)
     Intercom.client().loginIdentifiedUser(Registration.create().withUserId(userID))
   }
 
-  fun debugMessage(message: String) {
-    track(message)
+  fun track(eventName: String, properties: Properties = Properties()) {
+    posthog.capture(eventName, properties)
   }
 
-  fun track(eventName: String, jsonObject: JSONObject = JSONObject()) {
-    segmentAnalytics.track(eventName, jsonObject)
+  fun logout() {
+    posthog.reset()
   }
 }
