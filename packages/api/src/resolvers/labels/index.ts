@@ -52,14 +52,6 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { claims: { uid }, log }) => {
     log.info('labelsResolver')
 
-    analytics.track({
-      userId: uid,
-      event: 'labels',
-      properties: {
-        env: env.server.apiEnv,
-      },
-    })
-
     try {
       const user = await getRepository(User).findOne({
         where: { id: uid },
@@ -75,6 +67,16 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
           errorCodes: [LabelsErrorCode.Unauthorized],
         }
       }
+
+      analytics.track({
+        userId: uid,
+        event: 'labels',
+        properties: {
+          env: env.server.apiEnv,
+          email: user.email,
+          username: user.profile.username,
+        },
+      })
 
       return {
         labels: user.labels || [],
