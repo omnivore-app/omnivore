@@ -17,8 +17,6 @@ public final class RootViewModel: ObservableObject {
   @Published public var showNewFeaturePrimer = false
   @AppStorage(UserDefaultKey.shouldShowNewFeaturePrimer.rawValue) var shouldShowNewFeaturePrimer = false
 
-  @Published var showMiniPlayer = false
-
   public init() {
     registerFonts()
 

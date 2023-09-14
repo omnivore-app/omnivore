@@ -14,6 +14,7 @@ import {
   createWebAuthToken,
   suggestedUsername,
 } from './jwt_helpers'
+import { analytics } from '../../utils/analytics'
 
 const appleBaseURL = 'https://appleid.apple.com'
 const audienceName = 'app.omnivore.app'
@@ -144,6 +145,17 @@ export async function handleAppleWebAuth(
       const redirectURL = isVercel
         ? ssoRedirectURL(ssoToken)
         : `${baseURL()}/home`
+
+      analytics.track({
+        userId: user.id,
+        event: 'login',
+        properties: {
+          method: 'apple',
+          email: user.email,
+          username: user.profile.username,
+          env: env.server.apiEnv,
+        },
+      })
 
       return {
         authToken,
