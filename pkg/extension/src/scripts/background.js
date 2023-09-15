@@ -603,6 +603,7 @@ function handleActionClick() {
 
 function executeAction(action) {
   getCurrentTab().then((currentTab) => {
+    console.log('currentTab: ', currentTab)
     browserApi.tabs.sendMessage(
       currentTab.id,
       {
@@ -637,49 +638,6 @@ function executeAction(action) {
   })
 }
 
-function getIconPath(active, dark) {
-  let iconPath = '/images/toolbar/icon'
-  if (ENV_IS_FIREFOX) {
-    iconPath += '_firefox'
-  } else if (ENV_IS_EDGE) {
-    iconPath += '_edge'
-  }
-  if (!active) {
-    iconPath += '_inactive'
-  }
-  /* we have to evaluate this every time as the onchange is not
-   * fired inside background pages, due to https://crbug.com/968651 */
-  const useDarkIcon =
-    typeof dark === 'boolean'
-      ? dark
-      : window.matchMedia('(prefers-color-scheme: dark)').matches
-
-  if (useDarkIcon) {
-    iconPath += '_dark'
-  }
-  if (ENV_IS_FIREFOX) {
-    return iconPath + '.svg'
-  }
-
-  const iconSizes = ['16', '24', '32', '48']
-  if (!ENV_IS_EDGE) {
-    iconSizes.push('19', '38')
-  }
-  const iconPaths = {}
-  for (let i = 0; i < iconSizes.length; i++) {
-    const iconSize = iconSizes[i]
-    iconPaths[iconSize] = iconPath + '-' + iconSize + '.png'
-  }
-  return iconPaths
-}
-
-function updateActionIcon(tabId, active, dark) {
-  browserActionApi.setIcon({
-    path: getIconPath(active, dark),
-    tabId: tabId,
-  })
-}
-
 function getActionableState(tab) {
   if (tab.status !== 'complete') return false
 
@@ -698,17 +656,7 @@ function getActionableState(tab) {
   return true
 }
 
-function reflectIconState(tab) {
-  const tabId = tab && tab.id
-  if (!tabId) return
-
-  const active = getActionableState(tab)
-
-  updateActionIcon(tabId, active)
-}
-
 function init() {
-  /* Extension icon switcher on page/tab load status */
   browserApi.tabs.onActivated.addListener(({ tabId }) => {
     // Due to a chrome bug, chrome.tabs.* may run into an error because onActivated is triggered too fast.
     function checkCurrentTab() {
@@ -716,19 +664,9 @@ function init() {
         if (browserApi.runtime.lastError) {
           setTimeout(checkCurrentTab, 150)
         }
-        reflectIconState(tab)
       })
     }
-
     checkCurrentTab()
-  })
-
-  /* Extension icon switcher on page/tab load status */
-  browserApi.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    /* Not an update while this tab is active so we skip updating icon */
-    if (!changeInfo.status || !tab || !tab.active) return
-
-    reflectIconState(tab)
   })
 
   browserApi.tabs.onRemoved.addListener((tabId) => {
@@ -744,10 +682,6 @@ function init() {
       delete request.forwardToTab
       browserApi.tabs.sendRequest(sender.tab.id, request)
       return
-    }
-
-    if (request.action === ACTIONS.RefreshDarkMode) {
-      updateActionIcon(sender.tab.id, request.payload.value)
     }
 
     if (request.action === ACTIONS.EditTitle) {
@@ -808,25 +742,9 @@ function init() {
     }
   })
 
-  // set initial extension icon
-  browserActionApi.setIcon({
-    path: getIconPath(true),
-  })
-
   browserApi.contextMenus.create({
     id: 'save-selection',
-    title: 'Save link to Omnivore',
-    contexts: ['link'],
-    onclick: async function (obj) {
-      executeAction(async function (currentTab) {
-        await saveUrl(currentTab, obj.linkUrl)
-      })
-    },
-  })
-
-  browserApi.contextMenus.create({
-    id: 'save-selection',
-    title: 'Save link to Omnivore',
+    title: 'Save this link to Omnivore',
     contexts: ['link'],
     onclick: async function (obj) {
       executeAction(async function (currentTab) {
