@@ -18,6 +18,7 @@ class EventTracker @Inject constructor(val app: Context) {
 
     posthog = PostHog.Builder(app, posthogClientKey, posthogInstanceAddress)
       .captureApplicationLifecycleEvents()
+      .collectDeviceId(false)
       .build()
 
     PostHog.setSingletonInstance(posthog)
