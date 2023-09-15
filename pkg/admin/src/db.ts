@@ -276,6 +276,7 @@ export class Subscription extends BaseEntity {
   id!: string
 
   @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
 
   @Column('text')
