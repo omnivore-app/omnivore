@@ -187,6 +187,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       let lastValidItem: Item | null = null
 
       // fetch feed
+      let itemCount = 0
       const feed = await parser.parseURL(feedUrl)
       console.log('Fetched feed', feed.title, new Date())
 
@@ -220,6 +221,11 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           lastValidItem = item
         }
 
+        // Max limit per-feed update
+        if (itemCount > 99) {
+          continue
+        }
+
         // skip old items and items that were published before 24h
         if (
           publishedAt < new Date(lastFetchedAt) ||
@@ -239,6 +245,8 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         if (!lastItemFetchedAt || publishedAt > lastItemFetchedAt) {
           lastItemFetchedAt = publishedAt
         }
+
+        itemCount = itemCount + 1
       }
 
       // no items saved
