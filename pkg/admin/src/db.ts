@@ -49,6 +49,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       ContentDisplayReport,
       Group,
       Integration,
+      Subscription,
     ],
   })
 
