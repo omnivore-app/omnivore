@@ -38,7 +38,7 @@ import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
-  async (_obj, _params, { log, authTrx }) => {
+  async (_obj, _params, { authTrx, log, uid }) => {
     try {
       const labels = await authTrx(async (tx) => {
         return tx.withRepository(labelRepository).find({
