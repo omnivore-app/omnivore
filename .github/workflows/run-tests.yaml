@@ -16,6 +16,8 @@ jobs:
     name: Run Codebase tests
     runs-on: ubuntu-latest
     services:
+      pgvector:
+        image: ankane/pgvector
       postgres:
         image: postgres
         env:
