@@ -8,7 +8,7 @@
   ],
   "license": "UNLICENSED",
   "scripts": {
-    "test": "lerna run test --ignore @omnivore/web",
+    "test": "lerna run --no-bail test --ignore @omnivore/web",
     "lint": "lerna run lint --ignore @omnivore/web",
     "build": "lerna run build --ignore @omnivore/web",
     "bootstrap": "lerna bootstrap",
