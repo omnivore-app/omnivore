@@ -45,7 +45,7 @@ const isPrivateIP = privateIpLib.default
 const getPriorityByRateLimit = async (
   userId: string
 ): Promise<'low' | 'high'> => {
-  const count = await countByCreatedAt(new Date(Date.now() - 60 * 1000))
+  const count = await countByCreatedAt(userId, new Date(Date.now() - 60 * 1000))
   return count >= 5 ? 'low' : 'high'
 }
 

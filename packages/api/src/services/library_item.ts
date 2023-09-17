@@ -427,17 +427,21 @@ export const findLibraryItemsByPrefix = async (
 }
 
 export const countByCreatedAt = async (
+  userId: string,
   startDate = new Date(0),
   endDate = new Date()
 ): Promise<number> => {
-  return authTrx(async (tx) =>
-    tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.created_at between :startDate and :endDate', {
-        startDate,
-        endDate,
-      })
-      .getCount()
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .where('library_item.created_at between :startDate and :endDate', {
+          startDate,
+          endDate,
+        })
+        .getCount(),
+    undefined,
+    userId
   )
 }
 
