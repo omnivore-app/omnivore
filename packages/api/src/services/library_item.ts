@@ -421,6 +421,7 @@ export const findLibraryItemsByPrefix = async (
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.title ILIKE :prefix', { prefix: `${prefix}%` })
       .orWhere('library_item.site_name ILIKE :prefix', { prefix: `${prefix}%` })
+      .orderBy('library_item.saved_at', 'DESC')
       .limit(limit)
       .getMany()
   )
@@ -529,7 +530,7 @@ export const deleteLibraryItemByUrl = async (url: string, userId?: string) => {
   )
 }
 
-export const deleteLibraryItemByUserId = async (userId: string) => {
+export const deleteLibraryItemsByUserId = async (userId: string) => {
   return authTrx(
     async (tx) =>
       tx.withRepository(libraryItemRepository).delete({

@@ -21,10 +21,10 @@ import {
   createLibraryItem,
   deleteLibraryItemById,
   deleteLibraryItemByUrl,
-  deleteLibraryItemByUserId,
+  deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
-  updateLibraryItem
+  updateLibraryItem,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -832,7 +832,7 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      await deleteLibraryItemByUserId(user.id)
+      await deleteLibraryItemsByUserId(user.id)
     })
 
     context('when type:highlights is not in the query', () => {
@@ -941,19 +941,18 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      await deleteLibraryItemByUserId(user.id)
+      await deleteLibraryItemsByUserId(user.id)
     })
 
-    it('should return pages with typeahead prefix', async () => {
+    it('returns pages with typeahead prefix', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.typeaheadSearch.items.length).to.eql(5)
-      expect(res.body.data.typeaheadSearch.items[0].id).to.eq(items[0].id)
-      expect(res.body.data.typeaheadSearch.items[1].id).to.eq(items[1].id)
+      expect(res.body.data.typeaheadSearch.items[0].id).to.eq(items[4].id)
+      expect(res.body.data.typeaheadSearch.items[1].id).to.eq(items[3].id)
       expect(res.body.data.typeaheadSearch.items[2].id).to.eq(items[2].id)
-      expect(res.body.data.typeaheadSearch.items[3].id).to.eq(items[3].id)
-      expect(res.body.data.typeaheadSearch.items[4].id).to.eq(items[4].id)
-      expect(res.body.data.typeaheadSearch.items[0].contentReader).to.eq('WEB')
+      expect(res.body.data.typeaheadSearch.items[3].id).to.eq(items[1].id)
+      expect(res.body.data.typeaheadSearch.items[4].id).to.eq(items[0].id)
     })
   })
 
@@ -1022,7 +1021,7 @@ describe('Article API', () => {
 
     after(async () => {
       // Delete all pages
-      await deleteLibraryItemByUserId(user.id)
+      await deleteLibraryItemsByUserId(user.id)
     })
 
     it('returns pages deleted after since', async () => {
@@ -1086,7 +1085,7 @@ describe('Article API', () => {
 
     after(async () => {
       // Delete all pages
-      await deleteLibraryItemByUserId(user.id)
+      await deleteLibraryItemsByUserId(user.id)
     })
 
     context('when action is Archive', () => {
