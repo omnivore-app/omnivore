@@ -102,6 +102,7 @@ export type Article = {
   labels?: Maybe<Array<Label>>;
   language?: Maybe<Scalars['String']>;
   linkId?: Maybe<Scalars['ID']>;
+  note?: Maybe<Scalars['String']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   originalHtml?: Maybe<Scalars['String']>;
   pageType?: Maybe<PageType>;
@@ -949,7 +950,6 @@ export type HighlightStats = {
 
 export enum HighlightType {
   Highlight = 'HIGHLIGHT',
-  Note = 'NOTE',
   Redaction = 'REDACTION'
 }
 
@@ -2212,6 +2212,7 @@ export type SearchItem = {
   isArchived: Scalars['Boolean'];
   labels?: Maybe<Array<Label>>;
   language?: Maybe<Scalars['String']>;
+  note?: Maybe<Scalars['String']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
@@ -4292,6 +4293,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   linkId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalHtml?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   pageType?: Resolver<Maybe<ResolversTypes['PageType']>, ParentType, ContextType>;
@@ -5528,6 +5530,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;

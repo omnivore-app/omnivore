@@ -16,7 +16,6 @@ import { User } from './user'
 export enum HighlightType {
   Highlight = 'HIGHLIGHT',
   Redaction = 'REDACTION', // allowing people to remove text from the page
-  Note = 'NOTE', // allowing people to add a note at the document level
 }
 
 @Entity({ name: 'highlight' })
@@ -49,9 +48,6 @@ export class Highlight {
 
   @Column('text')
   annotation?: string | null
-
-  @Column('boolean')
-  deleted?: boolean
 
   @CreateDateColumn()
   createdAt!: Date

@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
+import graphqlFields from 'graphql-fields'
 import { DeepPartial } from 'typeorm'
 import {
   LibraryItem,
@@ -377,9 +378,9 @@ export const getArticleResolver = authorized<
   QueryArticleArgs
 >(async (_obj, { slug, format }, { authTrx, uid, log }, info) => {
   try {
-    // const includeOriginalHtml =
-    //   format === ArticleFormat.Distiller ||
-    //   !!graphqlFields(info).article.originalHtml
+    const includeOriginalHtml =
+      format === ArticleFormat.Distiller ||
+      !!graphqlFields(info).article.originalHtml
 
     // We allow the backend to use the ID instead of a slug to fetch the article
     const libraryItem = await authTrx((tx) =>
@@ -392,6 +393,10 @@ export const getArticleResolver = authorized<
             labels: true,
           },
           uploadFile: true,
+          recommendations: {
+            recommender: true,
+            group: true,
+          },
         },
       })
     )

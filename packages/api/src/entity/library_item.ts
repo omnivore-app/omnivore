@@ -15,7 +15,6 @@ import {
 import { Highlight } from './highlight'
 import { Label } from './label'
 import { Recommendation } from './recommendation'
-import { Subscription } from './subscription'
 import { UploadFile } from './upload_file'
 import { User } from './user'
 
@@ -164,9 +163,8 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   gcsArchiveId?: string | null
 
-  @OneToOne(() => Subscription, { cascade: true })
-  @JoinColumn({ name: 'subscription_id' })
-  subscription?: Subscription
+  @Column('text', { nullable: true })
+  subscription?: string | null
 
   @ManyToMany(() => Label, { cascade: true })
   @JoinTable({

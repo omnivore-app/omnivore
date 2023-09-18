@@ -1,5 +1,5 @@
 import { DeepPartial } from 'typeorm'
-import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { LibraryItem } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
 import { logger } from '../utils/logger'
 import {
@@ -34,23 +34,12 @@ export const addRecommendation = async (
         ) || []
 
       const existingRecommendations = existingItem.recommendations || []
-      const isRecommended = existingRecommendations.some(
-        (existingRecommendation) =>
-          existingRecommendation.id === recommendation.id
-      )
-      if (isRecommended && newHighlights.length === 0) {
-        return existingItem
-      }
 
       // update recommendations in the existing item
-      const recommendations = isRecommended
-        ? undefined
-        : existingRecommendations.concat(recommendation)
-
       await updateLibraryItem(
         existingItem.id,
         {
-          recommendations,
+          recommendations: existingRecommendations.concat(recommendation),
           highlights: existingHighlights.concat(newHighlights),
         },
         userId
@@ -61,17 +50,25 @@ export const addRecommendation = async (
 
     // create a new item
     const newItem: DeepPartial<LibraryItem> = {
-      ...item,
-      id: '',
       recommendations: [recommendation],
       user: { id: userId },
-      readingProgressTopPercent: 0,
-      readingProgressBottomPercent: 0,
       highlights,
-      readAt: null,
-      labels: [],
-      archivedAt: null,
-      state: LibraryItemState.Succeeded,
+      slug: item.slug,
+      title: item.title,
+      author: item.author,
+      description: item.description,
+      originalUrl: item.originalUrl,
+      originalContent: item.originalContent,
+      contentReader: item.contentReader,
+      directionality: item.directionality,
+      itemLanguage: item.itemLanguage,
+      itemType: item.itemType,
+      readableContent: item.readableContent,
+      siteIcon: item.siteIcon,
+      siteName: item.siteName,
+      thumbnail: item.thumbnail,
+      uploadFile: item.uploadFile,
+      wordCount: item.wordCount,
     }
 
     return createLibraryItem(newItem, userId)

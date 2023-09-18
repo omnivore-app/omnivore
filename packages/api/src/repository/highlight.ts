@@ -6,10 +6,12 @@ import { unescapeHtml } from '../utils/helpers'
 
 const unescapeHighlight = (highlight: DeepPartial<Highlight>) => {
   // unescape HTML entities
-  highlight.annotation = highlight.annotation
-    ? unescapeHtml(highlight.annotation)
-    : undefined
-  highlight.quote = highlight.quote ? unescapeHtml(highlight.quote) : undefined
+  if (highlight.annotation !== undefined && highlight.annotation !== null) {
+    highlight.annotation = unescapeHtml(highlight.annotation.toString())
+  }
+  if (highlight.quote !== undefined && highlight.quote !== null) {
+    highlight.quote = unescapeHtml(highlight.quote.toString())
+  }
 
   return highlight
 }
@@ -21,9 +23,10 @@ export const highlightRepository = entityManager
       return this.findOneBy({ id })
     },
 
-    findByLibraryItemId(libraryItemId: string) {
+    findByLibraryItemId(libraryItemId: string, userId: string) {
       return this.findBy({
         libraryItem: { id: libraryItemId },
+        user: { id: userId },
       })
     },
 
@@ -35,14 +38,12 @@ export const highlightRepository = entityManager
       highlightId: string,
       highlight: QueryDeepPartialEntity<Highlight>
     ) {
-      return this.update(highlightId, {
-        ...highlight,
-        annotation: highlight.annotation
-          ? unescapeHtml(highlight.annotation.toString())
-          : undefined,
-        quote: highlight.quote
-          ? unescapeHtml(highlight.quote.toString())
-          : undefined,
-      })
+      if (highlight.annotation !== undefined && highlight.annotation !== null) {
+        highlight.annotation = unescapeHtml(highlight.annotation.toString())
+      }
+      if (highlight.quote !== undefined && highlight.quote !== null) {
+        highlight.quote = unescapeHtml(highlight.quote.toString())
+      }
+      return this.update(highlightId, highlight)
     },
   })

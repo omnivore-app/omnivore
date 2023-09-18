@@ -211,7 +211,13 @@ const recommandationDataToRecommendation = (
   recommendation: RecommendationData
 ): Recommendation => ({
   ...recommendation,
-  name: recommendation.recommender.name,
+  user: {
+    userId: recommendation.recommender.id,
+    username: recommendation.recommender.profile.username,
+    profileImageURL: recommendation.recommender.profile.pictureUrl,
+    name: recommendation.recommender.name,
+  },
+  name: recommendation.group.name,
   recommendedAt: recommendation.createdAt,
 })
 
@@ -236,7 +242,6 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   recommendations: item.recommendations?.map(
     recommandationDataToRecommendation
   ),
-  subscription: item.subscription?.name,
   image: item.thumbnail,
   contentReader: item.contentReader as unknown as ContentReader,
   readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
@@ -256,7 +261,6 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   readingProgressPercent: item.readingProgressBottomPercent,
   contentReader: item.contentReader as unknown as ContentReader,
   readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
-  subscription: item.subscription?.name,
   recommendations: item.recommendations?.map(
     recommandationDataToRecommendation
   ),

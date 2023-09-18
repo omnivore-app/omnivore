@@ -208,7 +208,7 @@ export const recommendResolver = authorized<
               member.user.id,
               item.id,
               {
-                id: group.id,
+                group,
                 note: input.note ?? null,
                 recommender: item.user,
                 createdAt: new Date(),
@@ -227,14 +227,7 @@ export const recommendResolver = authorized<
       success: true,
     }
   } catch (error) {
-    log.error('Error recommending', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'recommendResolver',
-        uid,
-      },
-    })
+    log.error('Error recommending', error)
 
     return {
       errorCodes: [RecommendErrorCode.BadRequest],

@@ -54,7 +54,7 @@ CREATE TABLE omnivore.library_item (
     text_content_hash text,
     gcs_archive_id text,
     directionality directionality_type NOT NULL DEFAULT 'LTR',
-    subscription_id uuid REFERENCES omnivore.subscriptions ON DELETE CASCADE,
+    subscription text,
     label_names text[] NOT NULL DEFAULT array[]::text[], -- array of label names of the item
     highlight_labels text[] NOT NULL DEFAULT array[]::text[], -- array of label names of the item's highlights
     highlight_annotations text[] NOT NULL DEFAULT array[]::text[], -- array of highlight annotations of the item

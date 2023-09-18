@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
+import { Group } from './groups/group'
 import { LibraryItem } from './library_item'
 import { User } from './user'
 
@@ -21,6 +22,10 @@ export class Recommendation {
   @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
+
+  @ManyToOne(() => Group, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'group_id' })
+  group!: Group
 
   @Column('text', { nullable: true })
   note?: string | null

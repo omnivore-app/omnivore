@@ -92,6 +92,7 @@ export const savePage = async (
     saveTime: input.savedAt ? new Date(input.savedAt) : undefined,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     state: input.state || undefined,
+    rssFeedUrl: input.rssFeedUrl,
   })
   const isImported = input.source === 'csv-importer'
 
@@ -122,17 +123,14 @@ export const savePage = async (
 
     // check if the page already exists
     const existingLibraryItem = await authTrx((t) =>
-      t.getRepository(LibraryItem).findOne({
-        where: { user: { id: user.id }, originalUrl: itemToSave.originalUrl },
-        relations: ['subscription'],
+      t.getRepository(LibraryItem).findOneBy({
+        user: { id: user.id },
+        originalUrl: itemToSave.originalUrl,
       })
     )
     if (existingLibraryItem) {
       // we don't want to update an rss feed page if rss-feeder is tring to re-save it
-      if (
-        existingLibraryItem.subscription &&
-        existingLibraryItem.subscription.url === input.rssFeedUrl
-      ) {
+      if (existingLibraryItem.subscription === input.rssFeedUrl) {
         return {
           clientRequestId,
           url: `${homePageURL()}/${user.profile.username}/${slug}`,
@@ -206,6 +204,7 @@ export const parsedContentToLibraryItem = ({
   saveTime,
   publishedAt,
   state,
+  rssFeedUrl,
 }: {
   url: string
   userId: string
@@ -223,6 +222,7 @@ export const parsedContentToLibraryItem = ({
   saveTime?: Date
   publishedAt?: Date | null
   state?: ArticleSavingRequestStatus | null
+  rssFeedUrl?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   return {
     id: itemId || undefined,
@@ -260,5 +260,6 @@ export const parsedContentToLibraryItem = ({
     siteIcon: parsedContent?.siteIcon,
     wordCount: wordsCount(parsedContent?.textContent || ''),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
+    subscription: rssFeedUrl,
   }
 }

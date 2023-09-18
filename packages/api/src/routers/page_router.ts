@@ -152,17 +152,17 @@ export function pageRouter() {
       }
       const claims = jwt.decode(token) as Claims
 
-      const { userId, pageId, recommendation, highlightIds } = req.body as {
+      const { userId, itemId, recommendation, highlightIds } = req.body as {
         userId: string
-        pageId: string
+        itemId: string
         recommendation: Recommendation
         highlightIds?: string[]
       }
-      if (!userId || !pageId || !recommendation) {
+      if (!userId || !itemId || !recommendation) {
         return res.status(400).send({ errorCode: 'BAD_DATA' })
       }
 
-      const item = await findLibraryItemById(pageId, userId)
+      const item = await findLibraryItemById(itemId, userId)
       if (!item) {
         return res.status(404).send({ errorCode: 'NOT_FOUND' })
       }

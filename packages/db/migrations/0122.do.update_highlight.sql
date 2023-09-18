@@ -6,8 +6,7 @@ BEGIN;
 
 CREATE TYPE highlight_type AS ENUM (
     'HIGHLIGHT',
-    'REDACTION',
-    'NOTE'
+    'REDACTION'
 );
 
 ALTER TABLE omnivore.highlight 
@@ -19,14 +18,9 @@ ALTER TABLE omnivore.highlight
     ADD COLUMN html text,
     ALTER COLUMN quote DROP NOT NULL,
     ALTER COLUMN patch DROP NOT NULL,
+    DROP COLUMN deleted,
     DROP COLUMN article_id,
     DROP COLUMN elastic_page_id;
-
-ALTER POLICY read_highlight on omnivore.highlight
-  USING (user_id = omnivore.get_current_user_id());
-
-ALTER POLICY create_highlight on omnivore.highlight
-  WITH CHECK (user_id = omnivore.get_current_user_id());
 
 CREATE POLICY delete_highlight on omnivore.highlight
   FOR DELETE TO omnivore_user

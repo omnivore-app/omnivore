@@ -394,6 +394,7 @@ const schema = gql`
     readAt: Date
     recommendations: [Recommendation!]
     wordsCount: Int
+    note: String
   }
 
   # Query: article
@@ -686,7 +687,6 @@ const schema = gql`
   enum HighlightType {
     HIGHLIGHT
     REDACTION
-    NOTE
   }
 
   # Highlight
@@ -1606,6 +1606,7 @@ const schema = gql`
     wordsCount: Int
     content: String
     archivedAt: Date
+    note: String
   }
 
   type SearchItemEdge {

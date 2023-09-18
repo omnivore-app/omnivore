@@ -115,6 +115,7 @@ export const saveEmail = async (
       siteIcon,
       siteName: parseResult.parsedContent?.siteName ?? undefined,
       wordCount: wordsCount(content),
+      subscription: input.author,
     },
     input.userId
   )

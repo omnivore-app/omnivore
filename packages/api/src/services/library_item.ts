@@ -123,12 +123,12 @@ const buildWhereClause = (
         break
       case InFilter.SUBSCRIPTION:
         queryBuilder
-          .andWhere('library_item.subscription_id IS NOT NULL')
+          .andWhere('library_item.subscription IS NOT NULL')
           .andWhere('library_item.archived_at IS NULL')
         break
       case InFilter.LIBRARY:
         queryBuilder
-          .andWhere('library_item.subscription_id IS NULL')
+          .andWhere('library_item.subscription IS NULL')
           .andWhere('library_item.archived_at IS NULL')
         break
     }
@@ -248,19 +248,24 @@ const buildWhereClause = (
   }
 
   if (args.recommendedBy) {
-    queryBuilder.innerJoin('library_item.recommendations', 'recommendations')
+    const recommendedByInLowerCase = args.recommendedBy.toLowerCase()
+    queryBuilder
+      .innerJoin('library_item.recommendations', 'recommendations')
+      .innerJoin('recommendations.recommender', 'recommender')
+      .innerJoin('recommendations.group', 'group')
+      .andWhere((qb) => {
+        qb.where('lower(recommender.name) = :recommendedBy', {
+          recommendedBy: recommendedByInLowerCase,
+        }).orWhere('lower(group.name) = :recommendedBy', {
+          recommendedBy: recommendedByInLowerCase,
+        })
+      })
   }
 
   if (args.subscription) {
-    queryBuilder
-      .innerJoin('library_item.subscription', 'subscription')
-      .andWhere((qb) => {
-        qb.where('subscription.name = :subscription', {
-          subscription: args.subscription,
-        }).orWhere('subscription.url = :subscription', {
-          subscription: args.subscription,
-        })
-      })
+    queryBuilder.andWhere('lower(library_item.subscription) = :subscription', {
+      subscription: args.subscription.toLowerCase(),
+    })
   }
 }
 
@@ -314,8 +319,7 @@ export const findLibraryItemById = async (
         .createQueryBuilder(LibraryItem, 'library_item')
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.id = :id', { id })
+        .where('library_item.id = :id', { id })
         .getOne(),
     undefined,
     userId
@@ -332,8 +336,11 @@ export const findLibraryItemByUrl = async (
         .createQueryBuilder(LibraryItem, 'library_item')
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.original_url = :url', { url })
+        .leftJoinAndSelect('library_item.recommendations', 'recommendations')
+        .leftJoinAndSelect('recommendations.recommender', 'recommender')
+        .leftJoinAndSelect('recommender.profile', 'profile')
+        .leftJoinAndSelect('recommendations.group', 'group')
+        .where('library_item.original_url = :url', { url })
         .getOne(),
     undefined,
     userId
@@ -416,11 +423,15 @@ export const findLibraryItemsByPrefix = async (
   prefix: string,
   limit = 5
 ): Promise<LibraryItem[]> => {
+  const prefixWildcard = `${prefix}%`
+
   return authTrx(async (tx) =>
     tx
       .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.title ILIKE :prefix', { prefix: `${prefix}%` })
-      .orWhere('library_item.site_name ILIKE :prefix', { prefix: `${prefix}%` })
+      .where('library_item.title ILIKE :prefix', { prefix: prefixWildcard })
+      .orWhere('library_item.site_name ILIKE :prefix', {
+        prefix: prefixWildcard,
+      })
       .orderBy('library_item.saved_at', 'DESC')
       .limit(limit)
       .getMany()
