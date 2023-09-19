@@ -60,7 +60,7 @@ struct LibraryAddLinkView: View {
 
   var pasteboardString: String? {
     #if os(iOS)
-      UIPasteboard.general.url.absoluteString
+      UIPasteboard.general.url?.absoluteString
     #else
       NSPasteboard.general.string(forType: NSPasteboard.PasteboardType.URL)
     #endif
