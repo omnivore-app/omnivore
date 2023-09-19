@@ -31,7 +31,7 @@ export const userRepository = entityManager.getRepository(User).extend({
       .where({
         profile: { username: In(TOP_USERS) },
       })
-      .limit(MAX_RECORDS_LIMIT)
+      .take(MAX_RECORDS_LIMIT)
       .getMany()
   },
 })

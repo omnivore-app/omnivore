@@ -289,15 +289,14 @@ export const searchLibraryItems = async (
         .leftJoinAndSelect('library_item.highlights', 'highlights')
         .leftJoinAndSelect('highlights.user', 'user')
         .leftJoinAndSelect('user.profile', 'profile')
-        .where('library_item.user_id = :userId', { userId })
 
       // build the where clause
       buildWhereClause(queryBuilder, args)
 
       const libraryItems = await queryBuilder
         .addOrderBy(`library_item.${sortField}`, sortOrder)
-        .offset(from)
-        .limit(size)
+        .skip(from)
+        .take(size)
         .getMany()
 
       const count = await queryBuilder.getCount()
@@ -432,7 +431,7 @@ export const findLibraryItemsByPrefix = async (
       .orWhere('library_item.site_name ILIKE :prefix', {
         prefix: prefixWildcard,
       })
-      .orderBy('library_item.saved_at', 'DESC')
+      .orderBy('library_item.savedAt', 'DESC')
       .limit(limit)
       .getMany()
   )

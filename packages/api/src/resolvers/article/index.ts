@@ -690,7 +690,7 @@ export const searchResolver = authorized<
     pageInfo: {
       hasPreviousPage: false,
       startCursor,
-      hasNextPage: hasNextPage,
+      hasNextPage,
       endCursor,
       totalCount: count,
     },
