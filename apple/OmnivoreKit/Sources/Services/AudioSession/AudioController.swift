@@ -411,13 +411,15 @@
         currentItemOffset = max(currentItemOffset, 0)
 
         let idx = currentAudioIndex // item.speechItem.audioIdx
-        let currentItem = document?.utterances[idx].text ?? ""
-        let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
-        let lastItem = String(currentItem[..<currentReadIndex])
-        let lastItemAfter = String(currentItem[currentReadIndex...])
+        if idx < document?.utterances.count ?? 0 {
+          let currentItem = document?.utterances[idx].text ?? ""
+          let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
+          let lastItem = String(currentItem[..<currentReadIndex])
+          let lastItemAfter = String(currentItem[currentReadIndex...])
 
-        readText = lastItem
-        unreadText = lastItemAfter
+          readText = lastItem
+          unreadText = lastItemAfter
+        }
       } else {
         readText = ""
       }
