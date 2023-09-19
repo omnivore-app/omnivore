@@ -42,7 +42,6 @@ export interface SearchArgs {
   recommendedBy?: string
   includeContent?: boolean
   noFilters?: NoFilter[]
-  siteName?: string
   subscription?: string
 }
 

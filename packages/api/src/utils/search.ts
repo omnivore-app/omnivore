@@ -40,7 +40,6 @@ export interface SearchFilter {
   ids: string[]
   recommendedBy?: string
   noFilters: NoFilter[]
-  siteName?: string
   subscription?: string
 }
 
@@ -435,6 +434,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'title':
         case 'description':
         case 'note':
+        case 'site':
         case 'content': {
           const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
           fieldFilter && result.matchFilters.push(fieldFilter)
@@ -456,9 +456,6 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         }
         case 'mode':
           // mode is ignored and used only by the frontend
-          break
-        case 'site':
-          result.siteName = keyword.value
           break
       }
     }
