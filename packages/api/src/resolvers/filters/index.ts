@@ -23,7 +23,7 @@ import {
   UpdateFilterErrorCode,
   UpdateFilterSuccess,
 } from '../../generated/graphql'
-import { entityManager } from '../../repository'
+import { authTrx } from '../../repository'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
@@ -65,14 +65,13 @@ export const deleteFilterResolver = authorized<
 >(async (_, { id }, { authTrx, log }) => {
   try {
     const filter = await authTrx(async (t) => {
-      const filter = await t.getRepository(Filter).findOneBy({
+      const repo = t.getRepository(Filter)
+      const filter = await repo.findOneByOrFail({
         id,
       })
-      if (!filter) {
-        throw new Error('Filter not found')
-      }
 
-      return t.getRepository(Filter).remove(filter)
+      await repo.delete(filter.id)
+      return filter
     })
 
     return {
@@ -118,9 +117,10 @@ const updatePosition = async (
   const moveUp = newPosition < position
 
   // move filter to the new position
-  const updated = await entityManager.transaction(async (t) => {
+  const updated = await authTrx(async (t) => {
+    const repo = t.getRepository(Filter)
     // update the position of the other filters
-    const updated = await t.getRepository(Filter).update(
+    const updated = await repo.update(
       {
         user: { id: uid },
         position: Between(
@@ -138,7 +138,7 @@ const updatePosition = async (
     }
 
     // update the position of the filter
-    return t.getRepository(Filter).save({
+    return repo.save({
       ...filter,
       position: newPosition,
     })
@@ -186,14 +186,7 @@ export const updateFilterResolver = authorized<
       filter: updated,
     }
   } catch (error) {
-    log.error('Error Updating filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'UpdateFilterResolver',
-        uid,
-      },
-    })
+    log.error('Error Updating filters', error)
 
     return {
       __typename: 'UpdateFilterError',
@@ -207,32 +200,17 @@ export const moveFilterResolver = authorized<
   MoveFilterError,
   MutationMoveFilterArgs
 >(async (_, { input }, { authTrx, uid, log }) => {
-  log.info('Moving filters', {
-    input,
-    filters: {
-      source: 'resolver',
-      resolver: 'moveFilterResolver',
-      uid,
-    },
-  })
-
   const { filterId, afterFilterId } = input
 
   try {
     const filter = await authTrx((t) =>
-      t.getRepository(Filter).findOne({
-        where: { id: filterId },
-        relations: ['user'],
+      t.getRepository(Filter).findOneBy({
+        id: filterId,
       })
     )
     if (!filter) {
       return {
         errorCodes: [MoveFilterErrorCode.NotFound],
-      }
-    }
-    if (filter.user.id !== uid) {
-      return {
-        errorCodes: [MoveFilterErrorCode.Unauthorized],
       }
     }
 
@@ -245,9 +223,8 @@ export const moveFilterResolver = authorized<
     let newPosition = 0
     if (afterFilterId) {
       const afterFilter = await authTrx((t) =>
-        t.getRepository(Filter).findOne({
-          where: { id: afterFilterId },
-          relations: ['user'],
+        t.getRepository(Filter).findOneBy({
+          id: afterFilterId,
         })
       )
       if (!afterFilter) {
@@ -255,11 +232,7 @@ export const moveFilterResolver = authorized<
           errorCodes: [MoveFilterErrorCode.NotFound],
         }
       }
-      if (afterFilter.user.id !== uid) {
-        return {
-          errorCodes: [MoveFilterErrorCode.Unauthorized],
-        }
-      }
+
       newPosition = afterFilter.position
     }
     const updated = await updatePosition(uid, filter, newPosition)
@@ -284,14 +257,7 @@ export const moveFilterResolver = authorized<
       filter: updated,
     }
   } catch (error) {
-    log.error('Error moving filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'moveFilterResolver',
-        uid,
-      },
-    })
+    log.error('Error moving filters', error)
 
     return {
       errorCodes: [MoveFilterErrorCode.BadRequest],
