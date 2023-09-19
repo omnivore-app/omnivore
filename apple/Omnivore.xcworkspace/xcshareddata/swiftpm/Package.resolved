@@ -145,12 +145,30 @@
       }
     },
     {
+      "identity" : "posthog-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PostHog/posthog-ios.git",
+      "state" : {
+        "revision" : "3a6afc24d6bde730a19470d4e6b713f44d076ad9",
+        "version" : "2.0.3"
+      }
+    },
+    {
       "identity" : "promises",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/promises.git",
       "state" : {
         "revision" : "46c1e6b5ac09d8f82c991061c659f67e573d425d",
         "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "pspdfkit-sp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PSPDFKit/PSPDFKit-SP",
+      "state" : {
+        "revision" : "f4ba9790488b8f11c29cff35943e430efcdb8003",
+        "version" : "12.0.1"
       }
     },
     {
