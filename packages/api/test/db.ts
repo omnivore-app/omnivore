@@ -1,4 +1,3 @@
-import Postgrator from 'postgrator'
 import { DeepPartial } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from '../src/data_source'
@@ -16,37 +15,7 @@ import { createLibraryItem } from '../src/services/library_item'
 import { createDeviceToken } from '../src/services/user_device_tokens'
 import { generateFakeUuid } from './util'
 
-const runMigrations = async () => {
-  const migrationDirectory = __dirname + '/../../db/migrations'
-  console.log(
-    'running migrations from',
-    migrationDirectory,
-    'into database',
-    process.env.PG_DB
-  )
-
-  const postgrator = new Postgrator({
-    migrationDirectory: migrationDirectory,
-    driver: 'pg',
-    host: process.env.PG_HOST,
-    port: process.env.PG_PORT,
-    username: process.env.PG_USER,
-    password: process.env.PG_PASSWORD,
-    database: process.env.PG_DB,
-    schemaTable: 'schemaversion',
-    validateChecksums: true,
-  })
-
-  const migrations = await postgrator.migrate('max')
-  for (const migration of migrations) {
-    console.log(` - ${migration.action} ${migration.name}`)
-  }
-}
-
 export const createTestConnection = async (): Promise<void> => {
-  // need to manually run migrations before creating the connection
-  // await runMigrations()
-
   appDataSource.setOptions({
     type: 'postgres',
     host: process.env.PG_HOST,
