@@ -20,7 +20,10 @@ import Views
       if UIDevice.isIPad {
         return AnyView(splitView)
       } else {
-        return AnyView(LibraryTabView())
+        return AnyView(
+          LibraryTabView()
+            .navigationViewStyle(.stack)
+        )
       }
     #else
       return AnyView(splitView)
