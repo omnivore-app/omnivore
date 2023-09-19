@@ -78,7 +78,6 @@ type Article {
   labels: [Label!]
   language: String
   linkId: ID
-  note: String
   originalArticleUrl: String
   originalHtml: String
   pageType: PageType
@@ -845,6 +844,7 @@ type HighlightStats {
 
 enum HighlightType {
   HIGHLIGHT
+  NOTE
   REDACTION
 }
 
@@ -1684,7 +1684,6 @@ type SearchItem {
   isArchived: Boolean!
   labels: [Label!]
   language: String
-  note: String
   originalArticleUrl: String
   ownedByViewer: Boolean
   pageId: ID

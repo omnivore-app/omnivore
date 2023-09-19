@@ -6,7 +6,8 @@ BEGIN;
 
 CREATE TYPE highlight_type AS ENUM (
     'HIGHLIGHT',
-    'REDACTION'
+    'REDACTION',
+    'NOTE'
 );
 
 ALTER TABLE omnivore.highlight 

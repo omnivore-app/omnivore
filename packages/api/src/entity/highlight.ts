@@ -16,6 +16,7 @@ import { User } from './user'
 export enum HighlightType {
   Highlight = 'HIGHLIGHT',
   Redaction = 'REDACTION', // allowing people to remove text from the page
+  Note = 'NOTE', // to be deleted in favor of note on library item
 }
 
 @Entity({ name: 'highlight' })

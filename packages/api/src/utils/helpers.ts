@@ -203,7 +203,7 @@ const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   createdByMe: true,
   reactions: [],
   replies: [],
-  type: highlight.highlightType as unknown as HighlightType,
+  type: highlight.highlightType as HighlightType,
   user: userDataToUser(highlight.user),
 })
 

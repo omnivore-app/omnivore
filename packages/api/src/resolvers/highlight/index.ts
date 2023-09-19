@@ -60,6 +60,7 @@ export const createHighlightResolver = authorized<
         ...input,
         user: { id: uid },
         libraryItem: { id: input.articleId },
+        highlightType: input.type as HighlightType,
       },
       input.articleId,
       uid,
