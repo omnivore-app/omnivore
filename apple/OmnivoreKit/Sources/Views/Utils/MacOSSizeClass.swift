@@ -8,10 +8,10 @@ import SwiftUI
 
 // https://stackoverflow.com/questions/63526478/swiftui-userinterfacesizeclass-for-universal-macos-ios-views
 #if os(macOS)
-  public enum UserInterfaceSizeClass {
-    case compact
-    case regular
-  }
+//  public enum UserInterfaceSizeClass {
+//    case compact
+//    case regular
+//  }
 
   public struct HorizontalSizeClassEnvironmentKey: EnvironmentKey {
     public static let defaultValue: UserInterfaceSizeClass = .regular

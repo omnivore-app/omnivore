@@ -9,6 +9,8 @@ import Views
     PrimaryContentCategory.profile
   ]
 
+  @State var searchTerm: String = ""
+
   public var body: some View {
     innerBody
   }
@@ -19,8 +21,6 @@ import Views
         return AnyView(splitView)
       } else {
         return AnyView(LibraryTabView())
-        //      .navigationViewStyle(.stack)
-        //      .navigationBarTitleDisplayMode(.inline)
       }
     #else
       return AnyView(splitView)
@@ -33,7 +33,6 @@ import Views
         PrimaryContentCategory.feed.destinationView
         Text(LocalText.navigationSelectLink)
       }
-      .accentColor(.appGrayTextContrast)
     }
   #endif
 

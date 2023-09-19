@@ -7,7 +7,6 @@ import Views
 struct WelcomeView: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var authenticator: Authenticator
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @Environment(\.openURL) var openURL
 
   @StateObject private var viewModel = RegistrationViewModel()

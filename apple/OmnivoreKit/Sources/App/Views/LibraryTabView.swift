@@ -46,7 +46,6 @@ struct LibraryTabView: View {
     if #available(iOS 16.0, *) {
       NavigationView {
         HomeView(viewModel: libraryViewModel)
-          .navigationBarHidden(false)
       }
     } else {
       // Fallback on earlier versions

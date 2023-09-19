@@ -89,10 +89,12 @@ struct LinkItemDetailView: View {
         pdfContainerView
       } else if let item = viewModel.item {
         WebReaderContainerView(item: item, pop: { dismiss() })
+        #if os(iOS)
           .navigationBarHidden(true)
           .lazyPop(pop: {
             dismiss()
           }, isEnabled: $isEnabled)
+        #endif
       }
     }
     .task {

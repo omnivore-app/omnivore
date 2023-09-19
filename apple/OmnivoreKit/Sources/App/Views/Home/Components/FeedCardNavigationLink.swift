@@ -12,18 +12,15 @@ struct MacFeedCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    NavigationLink(
-      destination: LinkItemDetailView(
+    ZStack {
+      LibraryItemCard(item: item, viewer: dataService.currentViewer)
+      NavigationLink(destination: LinkItemDetailView(
         linkedItemObjectID: item.objectID,
         isPDF: item.isPDF
-      ),
-      tag: item.objectID,
-      selection: $viewModel.selectedLinkItem
-    ) {
-      LibraryItemCard(item: item, viewer: dataService.currentViewer)
+      ), label: {
+        EmptyView()
+      }).opacity(0)
     }
-    .opacity(0)
-    .buttonStyle(PlainButtonStyle())
     .onAppear {
       Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
     }

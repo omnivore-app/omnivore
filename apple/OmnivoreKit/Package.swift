@@ -46,9 +46,9 @@ let package = Package(
     .testTarget(name: "ModelsTests", dependencies: ["Models"]),
     .target(
       name: "Utils",
-      dependencies: [
-        .product(name: "PostHog", package: "posthog-ios")
-      ],
+//      dependencies: [
+//        .product(name: "PostHog", package: "posthog-ios")
+//      ],
       resources: [.process("Resources")]
     ),
     .testTarget(name: "UtilsTests", dependencies: ["Utils"])
@@ -58,7 +58,7 @@ let package = Package(
 var appPackageDependencies: [Target.Dependency] {
   var deps: [Target.Dependency] = ["Views", "Services", "Models", "Utils"]
   // Comment out following line for macOS build
-  deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
+  // deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
   return deps
 }
 
@@ -69,10 +69,11 @@ var dependencies: [Package.Dependency] {
     .package(url: "https://github.com/siteline/SwiftUI-Introspect.git", from: "0.1.4"),
     .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "6.2.2"),
     .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.0.0"),
-    .package(url: "https://github.com/exyte/PopupView.git", from: "2.6.0"),
-    .package(url: "https://github.com/PostHog/posthog-ios.git", from: "2.0.0")
+    .package(url: "https://github.com/exyte/PopupView.git", from: "2.6.0")
+//    ,
+//    .package(url: "https://github.com/PostHog/posthog-ios.git", from: "2.0.0")
   ]
   // Comment out following line for macOS build
-  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", from: "12.0.1"))
+  // deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", from: "12.0.1"))
   return deps
 }
