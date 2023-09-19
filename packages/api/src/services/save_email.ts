@@ -16,7 +16,7 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-import { addLabelsToLibraryItem, findOrCreateLabels } from './labels'
+import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
 import {
   createLibraryItem,
   findLibraryItemByUrl,
@@ -130,7 +130,7 @@ export const saveEmail = async (
   if (newsletterLabel) {
     // add newsletter label
     const labels = await findOrCreateLabels([newsletterLabel], input.userId)
-    await addLabelsToLibraryItem(labels, newLibraryItem.id, input.userId)
+    await saveLabelsInLibraryItem(labels, newLibraryItem.id, input.userId)
   }
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)

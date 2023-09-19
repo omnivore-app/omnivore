@@ -27,7 +27,7 @@ import { parsePreparedContent } from '../utils/parser'
 import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
-import { findOrCreateLabels } from './labels'
+import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
@@ -112,10 +112,6 @@ export const savePage = async (
     // save state
     itemToSave.archivedAt =
       input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
-    // add labels to page
-    itemToSave.labels = input.labels
-      ? await findOrCreateLabels(input.labels, user.id)
-      : undefined
 
     // check if the page already exists
     const existingLibraryItem = await authTrx((t) =>
@@ -135,16 +131,17 @@ export const savePage = async (
 
       clientRequestId = existingLibraryItem.id
       slug = existingLibraryItem.slug
-      if (!(await updateLibraryItem(clientRequestId, itemToSave, user.id))) {
-        return {
-          errorCodes: [SaveErrorCode.Unknown],
-          message: 'Failed to update existing page',
-        }
-      }
+      await updateLibraryItem(clientRequestId, itemToSave, user.id)
     } else {
       // do not publish a pubsub event if the page is imported
       const newItem = await createLibraryItem(itemToSave, user.id)
       clientRequestId = newItem.id
+    }
+
+    // add labels to page
+    if (input.labels) {
+      const labels = await findOrCreateLabels(input.labels, user.id)
+      await saveLabelsInLibraryItem(labels, clientRequestId, user.id)
     }
   }
 
