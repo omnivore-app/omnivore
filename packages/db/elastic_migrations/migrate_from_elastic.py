@@ -4,10 +4,10 @@ import hashlib
 import os
 import uuid
 from datetime import datetime
+
 import asyncpg
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_scan
-
 
 PG_HOST = os.getenv('PG_HOST', 'localhost')
 PG_PORT = os.getenv('PG_PORT', 5432)
@@ -23,6 +23,70 @@ ES_INDEX = os.getenv('ES_INDEX', 'pages_alias')
 CUT_OFF_DATE = os.getenv('CUT_OFF_DATE', '2000-01-01')
 # ISO 8601 format
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
+
+
+async def assert_data(db_conn, es_client, users, uploaded_files):
+    # get all users from postgres
+    try:
+        success = 0
+        failure = 0
+        for user in users:
+            user_id = user['id']
+            number_of_docs_in_postgres = await db_conn.fetchval(
+                f'SELECT COUNT(*) FROM omnivore.library_item WHERE user_id = \'{user_id}\'')
+
+            query = {
+                'size': 0,
+                'query': {
+                    'bool': {
+                        'must': [
+                            {
+                                'term': {
+                                    'userId': user_id
+                                }
+                            }
+                        ],
+                        'should': [
+                            {
+                                'bool': {
+                                    'must_not': {
+                                        'exists': {
+                                            'field': 'uploadFileId'
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                'terms': {
+                                    'uploadFileId': [file['id'] for file in uploaded_files]
+                                }
+                            }
+                        ],
+                        'minimum_should_match': 1
+                    }
+                },
+                'aggs': {
+                    'unique_urls': {
+                        'cardinality': {
+                            'field': 'url'
+                        }
+                    }
+                }
+            }
+            # Get the count of unique URLs for the specified user
+            result = await es_client.search(index=ES_INDEX, body=query)
+            number_of_docs_in_elastic = result['aggregations']['unique_urls']['value']
+
+            if number_of_docs_in_postgres == number_of_docs_in_elastic:
+                success += 1
+                print(f'User {user_id} OK')
+            else:
+                failure += 1
+                print(
+                    f'User {user_id} ERROR: postgres: {number_of_docs_in_postgres}, elastic: {number_of_docs_in_elastic}')
+        print(f'Asserted data, success: {success}, failure: {failure}')
+    except Exception as err:
+        print('Assert data ERROR:', err)
 
 
 def get_uuid(val):
@@ -46,7 +110,7 @@ def convert_string_to_datetime(val):
 
 
 async def insert_library_items(db_conn, library_items):
-    insert_query = """
+    insert_query = '''
         INSERT INTO omnivore.library_item (
             id, user_id, title, author, description, readable_content, original_url, upload_file_id, item_type, slug, reading_progress_top_percent, reading_progress_bottom_percent, reading_progress_highest_read_anchor, created_at, saved_at, archived_at, site_name, subscription, state, updated_at, published_at, item_language, read_at, word_count, site_icon, thumbnail, content_reader, original_content
         )
@@ -79,14 +143,14 @@ async def insert_library_items(db_conn, library_items):
             thumbnail = EXCLUDED.thumbnail,
             content_reader = EXCLUDED.content_reader,
             original_content = EXCLUDED.original_content
-    """
+    '''
     print('Inserting library items into postgres')
     await insert_into_postgres(insert_query, db_conn, library_items)
     print(f'Inserted {len(library_items)} library items')
 
 
 async def insert_highlights(db_conn, highlights):
-    insert_query = """
+    insert_query = '''
         INSERT INTO omnivore.highlight (
             id, user_id, quote, prefix, suffix, patch, annotation, created_at, updated_at, shared_at, short_id, library_item_id, highlight_position_percent, highlight_position_anchor_index, highlight_type, color, html
         )
@@ -114,14 +178,14 @@ async def insert_highlights(db_conn, highlights):
             highlight_type = EXCLUDED.highlight_type,
             color = EXCLUDED.color,
             html = EXCLUDED.html
-    """
+    '''
     print('Inserting highlights into postgres')
     await insert_into_postgres(insert_query, db_conn, highlights)
     print(f'Inserted {len(highlights)} highlights')
 
 
 async def insert_labels(db_conn, labels):
-    insert_query = """
+    insert_query = '''
         INSERT INTO omnivore.entity_labels (
             label_id, library_item_id, highlight_id
         )
@@ -131,14 +195,14 @@ async def insert_labels(db_conn, labels):
         LEFT JOIN omnivore.highlight h ON h.id = $3
         WHERE l.id = $1 AND ($2 IS NULL OR li.id = $2) AND ($3 IS NULL OR h.id = $3)
         ON CONFLICT (label_id, library_item_id, highlight_id) DO NOTHING
-    """
+    '''
     print('Inserting labels into postgres')
     await insert_into_postgres(insert_query, db_conn, labels)
     print(f'Inserted {len(labels)} labels')
 
 
 async def insert_recommendations(db_conn, recommendations):
-    insert_query = """
+    insert_query = '''
         INSERT INTO omnivore.recommendation (
             library_item_id, recommender_id, group_id, note, created_at
         )
@@ -150,7 +214,7 @@ async def insert_recommendations(db_conn, recommendations):
         ON CONFLICT (library_item_id, recommender_id, group_id) DO UPDATE SET
             note = EXCLUDED.note,
             created_at = EXCLUDED.created_at
-    """
+    '''
     print('Inserting recommendations into postgres')
     await insert_into_postgres(insert_query, db_conn, recommendations)
     print(f'Inserted {len(recommendations)} recommendations')
@@ -196,45 +260,45 @@ async def main():
         recommendations = []
 
         query = {
-            "query": {
-                "bool": {
-                    "must": [
+            'query': {
+                'bool': {
+                    'must': [
                         {
-                            "range": {
-                                "updatedAt": {
-                                    "gte": CUT_OFF_DATE
+                            'range': {
+                                'updatedAt': {
+                                    'gte': CUT_OFF_DATE
                                 }
                             }
                         },
                         {
-                            "terms": {
-                                "userId": [user['id'] for user in users]
+                            'terms': {
+                                'userId': [user['id'] for user in users]
                             },
                         },
                     ],
-                    "should": [
+                    'should': [
                         {
-                            "bool": {
-                                "must_not": {
-                                    "exists": {
-                                        "field": "uploadFileId"
+                            'bool': {
+                                'must_not': {
+                                    'exists': {
+                                        'field': 'uploadFileId'
                                     }
                                 }
                             },
                         },
                         {
-                            "terms": {
-                                "uploadFileId": [file['id'] for file in uploaded_files]
+                            'terms': {
+                                'uploadFileId': [file['id'] for file in uploaded_files]
                             }
                         }
                     ],
-                    "minimum_should_match": 1,
+                    'minimum_should_match': 1,
                 }
             },
-            "sort": [
+            'sort': [
                 {
-                    "updatedAt": {
-                        "order": "asc"
+                    'updatedAt': {
+                        'order': 'asc'
                     }
                 }
             ]
@@ -372,6 +436,8 @@ async def main():
             await insert_recommendations(db_conn, recommendations)
 
         print('Migration complete', migrated_at)
+
+        await assert_data(db_conn, es_client, users, uploaded_files)
     except Exception as err:
         print('Migration error', err)
     finally:
