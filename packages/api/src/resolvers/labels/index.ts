@@ -28,6 +28,7 @@ import {
   UpdateLabelSuccess,
 } from '../../generated/graphql'
 import { labelRepository } from '../../repository/label'
+import { userRepository } from '../../repository/user'
 import {
   findOrCreateLabels,
   saveLabelsInHighlight,
@@ -40,6 +41,13 @@ import { authorized } from '../../utils/helpers'
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { authTrx, log, uid }) => {
     try {
+      const user = await userRepository.findById(uid)
+      if (!user) {
+        return {
+          errorCodes: [LabelsErrorCode.Unauthorized],
+        }
+      }
+
       const labels = await authTrx(async (tx) => {
         return tx.withRepository(labelRepository).find({
           order: {
