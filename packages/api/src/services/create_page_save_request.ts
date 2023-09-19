@@ -1,10 +1,11 @@
 import * as privateIpLib from 'private-ip'
-import { LibraryItemState, LibraryItemType } from '../entity/library_item'
+import { LibraryItemState } from '../entity/library_item'
 import {
   ArticleSavingRequest,
   ArticleSavingRequestStatus,
   CreateArticleSavingRequestErrorCode,
   CreateLabelInput,
+  PageType,
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
 import { userRepository } from '../repository/user'
@@ -118,7 +119,7 @@ export const createPageSaveRequest = async ({
         id: articleSavingRequestId,
         user: { id: userId },
         readableContent: SAVING_CONTENT,
-        itemType: LibraryItemType.Unknown,
+        itemType: PageType.Unknown,
         slug: generateSlug(url),
         title: url,
         originalUrl: url,

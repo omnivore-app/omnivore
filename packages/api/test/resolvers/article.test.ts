@@ -5,15 +5,16 @@ import 'mocha'
 import sinon from 'sinon'
 import { DeepPartial } from 'typeorm'
 import { Highlight } from '../../src/entity/highlight'
-import { LibraryItem, LibraryItemState, LibraryItemType } from '../../src/entity/library_item'
+import { LibraryItem, LibraryItemState } from '../../src/entity/library_item'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
 import {
   ArticleSavingRequestStatus,
   BulkActionType,
+  PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
-  UploadFileStatus
+  UploadFileStatus,
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createHighlight } from '../../src/services/highlights'
@@ -1070,7 +1071,7 @@ describe('Article API', () => {
         await createLibraryItem(
           {
             user,
-            itemType: i == 0 ? LibraryItemType.Article : LibraryItemType.File,
+            itemType: i == 0 ? PageType.Article : PageType.File,
             title: 'test page',
             readableContent: '<p>test</p>',
             slug: '',

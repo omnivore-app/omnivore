@@ -26,18 +26,6 @@ export enum LibraryItemState {
   Archived = 'ARCHIVED',
 }
 
-export enum LibraryItemType {
-  Article = 'ARTICLE',
-  Book = 'BOOK',
-  File = 'FILE',
-  Profile = 'PROFILE',
-  Website = 'WEBSITE',
-  Tweet = 'TWEET',
-  Video = 'VIDEO',
-  Image = 'IMAGE',
-  Unknown = 'UNKNOWN',
-}
-
 export enum ContentReaderType {
   WEB = 'WEB',
   PDF = 'PDF',
@@ -134,8 +122,8 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   thumbnail?: string | null
 
-  @Column('enum', { enum: LibraryItemType, default: LibraryItemType.Unknown })
-  itemType!: LibraryItemType
+  @Column('text')
+  itemType!: string
 
   @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'upload_file_id' })

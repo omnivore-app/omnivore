@@ -9,8 +9,7 @@ import {
   SearchParserKeyWordOffset,
   SearchParserTextOffset,
 } from 'search-query-parser'
-import { LibraryItemType } from '../entity/library_item'
-import { InputMaybe, SortParams } from '../generated/graphql'
+import { InputMaybe, PageType, SortParams } from '../generated/graphql'
 
 export enum ReadFilter {
   ALL,
@@ -31,7 +30,7 @@ export interface SearchFilter {
   query: string | undefined
   inFilter: InFilter
   readFilter: ReadFilter
-  typeFilter?: LibraryItemType
+  typeFilter?: string
   labelFilters: LabelFilter[]
   sort?: Sort
   hasFilters: HasFilter[]
@@ -134,27 +133,25 @@ const parseInFilter = (
   return query ? InFilter.ALL : InFilter.INBOX
 }
 
-const parseTypeFilter = (
-  str: string | undefined
-): LibraryItemType | undefined => {
+const parseTypeFilter = (str: string | undefined): string | undefined => {
   if (str === undefined) {
     return undefined
   }
 
   switch (str.toLowerCase()) {
     case 'article':
-      return LibraryItemType.Article
+      return PageType.Article
     case 'book':
-      return LibraryItemType.Book
+      return PageType.Book
     case 'pdf':
     case 'file':
-      return LibraryItemType.File
+      return PageType.File
     case 'profile':
-      return LibraryItemType.Profile
+      return PageType.Profile
     case 'website':
-      return LibraryItemType.Website
+      return PageType.Website
     case 'unknown':
-      return LibraryItemType.Unknown
+      return PageType.Unknown
   }
   return undefined
 }

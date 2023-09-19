@@ -1,8 +1,4 @@
-import {
-  LibraryItem,
-  LibraryItemState,
-  LibraryItemType,
-} from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { getInternalLabelWithColor } from '../repository/label'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
@@ -102,7 +98,7 @@ export const saveEmail = async (
       title: input.title,
       author: input.author,
       originalUrl: cleanedUrl,
-      itemType: parseResult.pageType as unknown as LibraryItemType,
+      itemType: parseResult.pageType,
       textContentHash: stringToHash(content),
       thumbnail:
         metadata?.previewImage ||

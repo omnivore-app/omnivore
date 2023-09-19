@@ -5,11 +5,11 @@
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { LibraryItemState, LibraryItemType } from '../entity/library_item'
+import { LibraryItemState } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
 import { UploadFile } from '../entity/upload_file'
 import { env } from '../env'
-import { UploadFileStatus } from '../generated/graphql'
+import { PageType, UploadFileStatus } from '../generated/graphql'
 import { authTrx } from '../repository'
 import { Claims } from '../resolvers/types'
 import {
@@ -124,7 +124,7 @@ export function pageRouter() {
           user: { id: claims.uid },
           title,
           originalContent: '',
-          itemType: LibraryItemType.File,
+          itemType: PageType.File,
           uploadFile: { id: uploadFileData.id },
           slug: generateSlug(uploadFilePathName),
           state: LibraryItemState.Processing,

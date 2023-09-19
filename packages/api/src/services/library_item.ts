@@ -3,11 +3,7 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
-import {
-  LibraryItem,
-  LibraryItemState,
-  LibraryItemType,
-} from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
@@ -34,7 +30,7 @@ export interface SearchArgs {
   query?: string
   inFilter?: InFilter
   readFilter?: ReadFilter
-  typeFilter?: LibraryItemType
+  typeFilter?: string
   labelFilters?: LabelFilter[]
   hasFilters?: HasFilter[]
   dateFilters?: DateFilter[]
@@ -58,7 +54,7 @@ export interface SearchResultItem {
   id: string
   image?: string | null
   pageId?: string
-  pageType: LibraryItemType
+  pageType: string
   publishedAt?: Date
   quote?: string | null
   shortId?: string | null

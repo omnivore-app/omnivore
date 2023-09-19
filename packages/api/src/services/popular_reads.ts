@@ -2,7 +2,8 @@ import * as httpContext from 'express-http-context2'
 import { readFileSync } from 'fs'
 import path from 'path'
 import { DeepPartial, EntityManager } from 'typeorm'
-import { LibraryItem, LibraryItemType } from '../entity/library_item'
+import { LibraryItem } from '../entity/library_item'
+import { PageType } from '../generated/graphql'
 import { authTrx, entityManager } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { generateSlug, stringToHash, wordsCount } from '../utils/helpers'
@@ -69,7 +70,7 @@ const popularReadToLibraryItem = (
     title: pr.title,
     author: pr.author,
     originalUrl: pr.url,
-    itemType: LibraryItemType.Article,
+    itemType: PageType.Article,
     textContentHash: stringToHash(pr.content),
     thumbnail: pr.previewImage,
     publishedAt: pr.publishedAt,

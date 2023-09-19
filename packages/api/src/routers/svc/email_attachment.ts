@@ -1,13 +1,9 @@
 import express from 'express'
 import { DeepPartial } from 'typeorm'
-import {
-  LibraryItem,
-  LibraryItemState,
-  LibraryItemType,
-} from '../../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
-import { UploadFileStatus } from '../../generated/graphql'
+import { PageType, UploadFileStatus } from '../../generated/graphql'
 import { authTrx } from '../../repository'
 import { createLibraryItem } from '../../services/library_item'
 import { findNewsletterEmailByAddress } from '../../services/newsletters'
@@ -151,8 +147,8 @@ export function emailAttachmentRouter() {
       const uploadFileHash = uploadFileDetails.md5Hash
       const itemType =
         uploadFile.contentType === 'application/pdf'
-          ? LibraryItemType.File
-          : LibraryItemType.Book
+          ? PageType.File
+          : PageType.Book
       const title = subject || uploadFileData.fileName
       const articleToSave: DeepPartial<LibraryItem> = {
         originalUrl: uploadFileUrlOverride,

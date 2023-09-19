@@ -1,21 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
-import { ContentReaderType, LibraryItemType } from '../entity/library_item'
+import { ContentReaderType } from '../entity/library_item'
 import { env } from '../env'
+import { PageType } from '../generated/graphql'
 import { logger } from './logger'
 
 export const contentReaderForLibraryItem = (
-  itemType: LibraryItemType,
+  itemType: string,
   uploadFileId: string | null | undefined
 ) => {
   if (!uploadFileId) {
     return ContentReaderType.WEB
   }
   switch (itemType) {
-    case LibraryItemType.Book:
+    case PageType.Book:
       return ContentReaderType.EPUB
-    case LibraryItemType.File:
+    case PageType.File:
       return ContentReaderType.PDF
     default:
       return ContentReaderType.WEB

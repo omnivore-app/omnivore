@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import normalizeUrl from 'normalize-url'
 import path from 'path'
-import { LibraryItemState, LibraryItemType } from '../../entity/library_item'
+import { LibraryItemState } from '../../entity/library_item'
 import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import {
   MutationUploadFileRequestArgs,
+  PageType,
   UploadFileRequestError,
   UploadFileRequestErrorCode,
   UploadFileRequestSuccess,
@@ -31,13 +32,11 @@ const isFileUrl = (url: string): boolean => {
   return parsedUrl.protocol == 'file:'
 }
 
-export const itemTypeForContentType = (
-  contentType: string
-): LibraryItemType => {
+export const itemTypeForContentType = (contentType: string) => {
   if (contentType == 'application/epub+zip') {
-    return LibraryItemType.Book
+    return PageType.Book
   }
-  return LibraryItemType.File
+  return PageType.File
 }
 
 export const uploadFileRequestResolver = authorized<

@@ -6,11 +6,7 @@
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
 import { DeepPartial } from 'typeorm'
-import {
-  LibraryItem,
-  LibraryItemState,
-  LibraryItemType,
-} from '../../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArticleError,
@@ -194,7 +190,7 @@ export const createArticleResolver = authorized<
       let canonicalUrl
       let uploadFileHash = null
       let domContent = null
-      let itemType = LibraryItemType.Unknown
+      let itemType = PageType.Unknown
 
       const DUMMY_RESPONSE = {
         user,
@@ -207,7 +203,7 @@ export const createArticleResolver = authorized<
           content: '',
           description: '',
           title: '',
-          pageType: itemType as unknown as PageType,
+          pageType: itemType,
           contentReader: ContentReader.Web,
           author: '',
           url,
@@ -263,7 +259,7 @@ export const createArticleResolver = authorized<
         parsedContent = parseResults.parsedContent
         canonicalUrl = parseResults.canonicalUrl
         domContent = parseResults.domContent
-        itemType = parseResults.pageType as unknown as LibraryItemType
+        itemType = parseResults.pageType
       } else if (!preparedDocument?.document) {
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.

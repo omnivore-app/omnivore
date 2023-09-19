@@ -1,10 +1,6 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
-import {
-  LibraryItem,
-  LibraryItemState,
-  LibraryItemType,
-} from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
@@ -86,7 +82,7 @@ export const savePage = async (
     slug,
     croppedPathname,
     parsedContent: parseResult.parsedContent,
-    itemType: parseResult.pageType as unknown as LibraryItemType,
+    itemType: parseResult.pageType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
     saveTime: input.savedAt ? new Date(input.savedAt) : undefined,
@@ -210,7 +206,7 @@ export const parsedContentToLibraryItem = ({
   userId: string
   slug: string
   croppedPathname: string
-  itemType: LibraryItemType
+  itemType: string
   parsedContent: Readability.ParseResult | null
   originalHtml?: string | null
   itemId?: string | null

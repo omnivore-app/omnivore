@@ -4,11 +4,10 @@
 
 BEGIN;
 
-CREATE EXTENSION vector;
+CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TYPE library_item_state AS ENUM ('SUCCEEDED', 'FAILED', 'PROCESSING', 'ARCHIVED', 'DELETED');
 CREATE TYPE content_reader_type AS ENUM ('WEB', 'PDF', 'EPUB');
-CREATE TYPE library_item_type AS ENUM ('ARTICLE', 'BOOK', 'FILE', 'PROFILE', 'WEBSITE', 'TWEET', 'VIDEO', 'IMAGE', 'UNKNOWN');
 CREATE TYPE directionality_type AS ENUM ('LTR', 'RTL');
 
 CREATE TABLE omnivore.library_item (
@@ -38,7 +37,7 @@ CREATE TABLE omnivore.library_item (
     reading_progress_top_percent real NOT NULL DEFAULT 0,
     reading_progress_bottom_percent real NOT NULL DEFAULT 0,
     thumbnail text,
-    item_type library_item_type NOT NULL DEFAULT 'UNKNOWN',
+    item_type text NOT NULL DEFAULT 'UNKNOWN',
     upload_file_id uuid REFERENCES omnivore.upload_files ON DELETE CASCADE,
     content_reader content_reader_type NOT NULL DEFAULT 'WEB',
     original_content text,
