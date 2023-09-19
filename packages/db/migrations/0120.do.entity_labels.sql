@@ -9,8 +9,7 @@ CREATE TABLE omnivore.entity_labels (
     library_item_id uuid REFERENCES omnivore.library_item(id) ON DELETE CASCADE,
     highlight_id uuid REFERENCES omnivore.highlight(id) ON DELETE CASCADE,
     label_id uuid NOT NULL REFERENCES omnivore.labels(id) ON DELETE CASCADE,
-    unique(library_item_id, label_id),
-    unique(highlight_id, label_id)
+    unique(label_id, library_item_id, highlight_id)
 );
 
 GRANT SELECT, INSERT, DELETE ON omnivore.entity_labels TO omnivore_user;
