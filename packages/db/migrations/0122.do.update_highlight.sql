@@ -4,6 +4,9 @@
 
 BEGIN;
 
+-- delete existing highlights
+DELETE FROM omnivore.highlight;
+
 CREATE TYPE highlight_type AS ENUM (
     'HIGHLIGHT',
     'REDACTION',
