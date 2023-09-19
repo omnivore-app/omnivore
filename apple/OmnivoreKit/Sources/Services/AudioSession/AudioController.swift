@@ -416,7 +416,7 @@
           let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
           let lastItem = String(currentItem[..<currentReadIndex])
           let lastItemAfter = String(currentItem[currentReadIndex...])
-          
+
           readText = lastItem
           unreadText = lastItemAfter
         }
