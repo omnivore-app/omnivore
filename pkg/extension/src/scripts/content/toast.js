@@ -64,6 +64,7 @@
     const html = await file.text()
 
     const root = document.createElement('div')
+    root.tabIndex = 0
     root.attachShadow({ mode: 'open' })
     if (root.shadowRoot) {
       root.shadowRoot.innerHTML = `<style>:host {all initial;}</style>`
@@ -72,11 +73,12 @@
     const toastEl = document.createElement('div')
     toastEl.id = '#omnivore-toast'
     toastEl.innerHTML = html
+    toastEl.tabIndex = 0
     root.shadowRoot.appendChild(toastEl)
 
     document.body.appendChild(root)
     connectButtons(root)
-    // connectKeyboard(root)
+    connectKeyboard(root)
 
     return root
   }
@@ -217,6 +219,8 @@
         toastEl.remove()
       }
     })
+
+    currentToastEl.focus()
   }
 
   function updatePageStatus(status) {
@@ -328,15 +332,7 @@
   }
 
   function connectKeyboard(root) {
-    console.log('connecting keyboard')
     root.addEventListener('keydown', (e) => {
-      console.log(
-        'root.addEventListener document code: ',
-        e.key,
-        'activeElement:',
-        document.activeElement
-      )
-
       switch (e.key) {
         case 'r':
           readNow()
@@ -347,12 +343,18 @@
         case 'm':
           openMenu()
           break
-        case 'i':
+        case 't':
           editTitle()
           break
-        case 't':
+        case 'n':
+          e.preventDefault()
           addNote()
           break
+      }
+
+      e.cancelBubble = true
+      if (e.stopPropogation) {
+        e.stopPropogation()
       }
     })
   }
@@ -420,6 +422,11 @@
   }
 
   function labelKeyDown(event) {
+    event.cancelBubble = true
+    if (event.stopPropogation) {
+      event.stopPropogation()
+    }
+
     switch (event.key.toLowerCase()) {
       case 'arrowup': {
         if (
@@ -485,9 +492,37 @@
   function addNote() {
     cancelAutoDismiss()
     toggleRow('#omnivore-add-note-row')
-    currentToastEl.shadowRoot
-      .querySelector('#omnivore-add-note-textarea')
-      ?.focus()
+
+    const noteArea = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-add-note-textarea'
+    )
+
+    if (noteArea) {
+      noteArea.focus()
+
+      noteArea.onkeydown = (e) => {
+        e.cancelBubble = true
+        if (e.stopPropogation) {
+          e.stopPropogation()
+        }
+        // Handle the enter key
+        if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+          updateStatusBox(
+            '#omnivore-add-note-status',
+            'loading',
+            'Adding note...'
+          )
+
+          browserApi.runtime.sendMessage({
+            action: ACTIONS.AddNote,
+            payload: {
+              ctx: ctx,
+              note: noteArea.value,
+            },
+          })
+        }
+      }
+    }
 
     currentToastEl.shadowRoot.querySelector(
       '#omnivore-add-note-form'
@@ -504,17 +539,28 @@
       })
 
       event.preventDefault()
+      event.stopPropogation()
     }
   }
 
   function editTitle() {
-    console.log('editing title')
-
     cancelAutoDismiss()
     toggleRow('#omnivore-edit-title-row')
-    currentToastEl.shadowRoot
-      .querySelector('#omnivore-edit-title-textarea')
-      ?.focus()
+
+    const titleArea = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-title-textarea'
+    )
+
+    if (titleArea) {
+      titleArea.focus()
+
+      titleArea.onkeydown = (e) => {
+        e.cancelBubble = true
+        if (e.stopPropogation) {
+          e.stopPropogation()
+        }
+      }
+    }
 
     currentToastEl.shadowRoot.querySelector(
       '#omnivore-edit-title-form'

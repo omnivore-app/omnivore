@@ -6,6 +6,7 @@ import Views
 
 @MainActor final class FilterByLabelsViewModel: ObservableObject {
   @Published var isLoading = false
+  @Published var errorMessage: String? = nil
   @Published var labels = [LinkedItemLabel]()
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
@@ -26,7 +27,7 @@ import Views
     initiallyNegatedLabels: [LinkedItemLabel]
   ) async {
     isLoading = true
-
+    errorMessage = nil
     await loadLabelsFromStore(dataService: dataService)
     for label in labels {
       if initiallySelectedLabels.contains(label) {
@@ -36,6 +37,11 @@ import Views
       } else {
         unselectedLabels.append(label)
       }
+    }
+    isLoading = false
+
+    if labels.isEmpty {
+      isLoading = true
     }
 
     Task.detached(priority: .userInitiated) {
@@ -53,11 +59,14 @@ import Views
               self.unselectedLabels.append(label)
             }
           }
+          self.isLoading = false
+        }
+      } else {
+        DispatchQueue.main.async {
+          self.errorMessage = "Error loading labels"
         }
       }
     }
-
-    isLoading = false
   }
 
   func loadLabelsFromStore(dataService: DataService) async {

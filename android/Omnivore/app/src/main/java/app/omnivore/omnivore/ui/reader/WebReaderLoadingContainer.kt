@@ -58,6 +58,8 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
     val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID")
     val slug = intent.getStringExtra("SAVED_ITEM_SLUG")
 
+    viewModel.loadItem(slug = slug, requestID = requestID)
+
     setContent {
       val systemUiController = rememberSystemUiController()
       val useDarkIcons = !isSystemInDarkTheme()
@@ -140,7 +142,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
 
   val maxToolbarHeight = 48.dp
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
-  webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
   val coroutineScope = rememberCoroutineScope()
 

@@ -31,10 +31,7 @@ export function PageMetaData(props: PageMetaDataProps): JSX.Element {
 
   return (
     <Head>
-      <link
-        rel="shortcut icon"
-        href={`/static/icons/favicon-${isDarkMode ? 'dark' : 'light'}.ico`}
-      />
+      <link rel="icon" href="/static/icons/favicon.ico" sizes="32x32" />
 
       <meta property="fb:app_id" content="3584400838451823" />
       <meta name="twitter:card" content="summary_large_image" />

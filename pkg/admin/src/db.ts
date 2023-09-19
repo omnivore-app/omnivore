@@ -49,6 +49,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       ContentDisplayReport,
       Group,
       Integration,
+      Subscription,
     ],
   })
 
@@ -256,4 +257,60 @@ export class Integration extends BaseEntity {
 
   @Column({ name: 'synced_at', type: 'timestamp', nullable: true })
   syncedAt?: Date | null
+}
+
+enum SubscriptionStatus {
+  Active = 'ACTIVE',
+  Deleted = 'DELETED',
+  Unsubscribed = 'UNSUBSCRIBED',
+}
+
+enum SubscriptionType {
+  Newsletter = 'NEWSLETTER',
+  Rss = 'RSS',
+}
+
+@Entity({ name: 'subscriptions' })
+export class Subscription extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('text')
+  name!: string
+
+  @Column('enum', {
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.Active,
+  })
+  status!: SubscriptionStatus
+
+  @Column('text', { nullable: true })
+  description?: string
+
+  @Column('text', { nullable: true })
+  url?: string
+
+  @Column('text', { nullable: true })
+  icon?: string
+
+  @Column('enum', {
+    enum: SubscriptionType,
+  })
+  type!: SubscriptionType
+
+  @Column('integer', { default: 0 })
+  count!: number
+
+  @Column({ type: 'timestamp', name: 'last_fetched_at', nullable: true })
+  lastFetchedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
 }

@@ -51,6 +51,7 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import { analytics } from '../../utils/analytics'
 
 export interface SignupRequest {
   email: string
@@ -323,6 +324,17 @@ export function authRouter() {
       )
     }
 
+    analytics.track({
+      userId: user.id,
+      event: 'login',
+      properties: {
+        method: 'google',
+        email: user.email,
+        username: user.profile.username,
+        env: env.server.apiEnv,
+      },
+    })
+
     res.setHeader('set-cookie', result.headers['set-cookie'])
 
     await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
@@ -447,6 +459,17 @@ export function authRouter() {
           )
         }
 
+        analytics.track({
+          userId: user.id,
+          event: 'login',
+          properties: {
+            method: 'email',
+            email: user.email,
+            username: user.profile.username,
+            env: env.server.apiEnv,
+          },
+        })
+
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
@@ -547,6 +570,17 @@ export function authRouter() {
             )
           }
         }
+
+        analytics.track({
+          userId: user.id,
+          event: 'login',
+          properties: {
+            method: 'email_verification',
+            email: user.email,
+            username: user.profile.username,
+            env: env.server.apiEnv,
+          },
+        })
 
         res.set('Message', 'EMAIL_CONFIRMED')
         await handleSuccessfulLogin(req, res, user, false)
@@ -663,6 +697,17 @@ export function authRouter() {
             `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`
           )
         }
+
+        analytics.track({
+          userId: user.id,
+          event: 'login',
+          properties: {
+            method: 'password_reset',
+            email: user.email,
+            username: user.profile.username,
+            env: env.server.apiEnv,
+          },
+        })
 
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {

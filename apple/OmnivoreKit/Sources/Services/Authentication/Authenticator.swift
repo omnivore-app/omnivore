@@ -43,6 +43,7 @@ public final class Authenticator: ObservableObject {
     Authenticator.unregisterIntercomUser?()
     isLoggedIn = false
     showAppleRevokeTokenAlert = isAccountDeletion
+    EventTracker.reset()
   }
 
   public func clearCreds() {

@@ -20,7 +20,31 @@ struct FilterByLabelsView: View {
     viewModel.selectedLabels.contains(where: { $0.id == label.id })
   }
 
-  var innerBody: some View {
+  func loadLabelsAsync() {
+    Task {
+      await viewModel.loadLabels(
+        dataService: dataService,
+        initiallySelectedLabels: initiallySelected,
+        initiallyNegatedLabels: initiallyNegated
+      )
+    }
+  }
+
+  var navBody: some View {
+    if let errorMessage = viewModel.errorMessage {
+      AnyView(
+        VStack {
+          Text(errorMessage)
+          Button("Retry", action: loadLabelsAsync)
+        })
+    } else if viewModel.labels.isEmpty, viewModel.isLoading {
+      AnyView(ProgressView())
+    } else {
+      AnyView(labelsList)
+    }
+  }
+
+  var labelsList: some View {
     List {
       ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
         Button(
@@ -48,7 +72,18 @@ struct FilterByLabelsView: View {
       }
     }
     .listStyle(PlainListStyle())
-    .navigationTitle("Filter by Label")
+  }
+
+  var innerBody: some View {
+    navBody
+      .navigationTitle("Filter by Label")
+      .refreshable {
+        await viewModel.loadLabels(
+          dataService: dataService,
+          initiallySelectedLabels: initiallySelected,
+          initiallyNegatedLabels: initiallyNegated
+        )
+      }
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -73,20 +108,16 @@ struct FilterByLabelsView: View {
 
   var body: some View {
     NavigationView {
-      if viewModel.isLoading {
-        EmptyView()
-      } else {
-        #if os(iOS)
-          innerBody
-            .searchable(
-              text: $viewModel.labelSearchFilter,
-              placement: .navigationBarDrawer(displayMode: .always),
-              prompt: "Filter Labels"
-            )
-        #else
-          innerBody
-        #endif
-      }
+      #if os(iOS)
+        innerBody
+          .searchable(
+            text: $viewModel.labelSearchFilter,
+            placement: .navigationBarDrawer(displayMode: .always),
+            prompt: "Filter Labels"
+          )
+      #else
+        innerBody
+      #endif
     }
     .task {
       await viewModel.loadLabels(

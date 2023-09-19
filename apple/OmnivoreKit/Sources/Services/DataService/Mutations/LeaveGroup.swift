@@ -12,7 +12,7 @@ public extension DataService {
 
     let selection = Selection<MutationResult, Unions.LeaveGroupResult> {
       try $0.on(
-        leaveGroupError: .init { .error(errorMessage: try $0.errorCodes().first.toString()) },
+        leaveGroupError: .init { .error(errorMessage: try $0.errorCodes().first?.rawValue ?? "Unknown Error") },
         leaveGroupSuccess: .init {
           .saved(success: try $0.success())
         }

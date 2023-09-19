@@ -13,6 +13,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,6 +36,7 @@ fun WebReader(
   val javascriptActionLoopUUID: UUID by webReaderViewModel
     .javascriptActionLoopUUIDLiveData
     .observeAsState(UUID.randomUUID())
+  val isDarkMode = isSystemInDarkTheme()
 
   WebView.setWebContentsDebuggingEnabled(true)
 
@@ -56,7 +58,19 @@ fun WebReader(
         alpha = 1.0f
         viewModel?.showNavBar()
         currentTheme?.let { theme ->
-          setBackgroundColor(theme.backgroundColor.toInt());
+          val bg = when (theme) {
+            Themes.SYSTEM -> {
+              if (isDarkMode) {
+                Color.BLACK
+              } else {
+                Color.WHITE
+              }
+            }
+            else -> {
+              theme.backgroundColor
+            }
+          }
+          setBackgroundColor(bg.toInt());
         }
 
         webViewClient = object : WebViewClient() {
