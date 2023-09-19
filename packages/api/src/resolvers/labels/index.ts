@@ -73,8 +73,10 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         event: 'labels',
         properties: {
           env: env.server.apiEnv,
-          email: user.email,
-          username: user.profile.username,
+          $set: {
+            email: user.email,
+            username: user.profile.username,
+          },
         },
       })
 
