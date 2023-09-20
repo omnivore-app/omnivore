@@ -40,7 +40,6 @@ export interface SearchFilter {
   ids: string[]
   recommendedBy?: string
   noFilters: NoFilter[]
-  subscription?: string
 }
 
 export enum LabelFilterType {
@@ -273,6 +272,12 @@ const parseFieldFilter = (
         field: 'item_language',
         value,
       }
+    case 'SUBSCRIPTION':
+    case 'RSS':
+      return {
+        field: 'subscription',
+        value,
+      }
   }
 
   return {
@@ -419,11 +424,9 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           dateFilter && result.dateFilters.push(dateFilter)
           break
         }
+        // term filters
         case 'subscription':
         case 'rss':
-          result.subscription = parseStringValue(keyword.value)
-          break
-        // term filters
         case 'language': {
           const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
           fieldFilter && result.termFilters.push(fieldFilter)

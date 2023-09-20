@@ -42,7 +42,6 @@ export interface SearchArgs {
   recommendedBy?: string
   includeContent?: boolean
   noFilters?: NoFilter[]
-  subscription?: string
 }
 
 export interface SearchResultItem {
@@ -256,12 +255,6 @@ const buildWhereClause = (
           recommendedBy: args.recommendedBy.toLowerCase(),
         }
       )
-  }
-
-  if (args.subscription) {
-    queryBuilder.andWhere('lower(library_item.subscription) = :subscription', {
-      subscription: args.subscription.toLowerCase(),
-    })
   }
 }
 
