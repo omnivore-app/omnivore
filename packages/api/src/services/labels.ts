@@ -60,22 +60,26 @@ export const saveLabelsInLibraryItem = async (
   userId: string,
   pubsub = createPubSubClient()
 ) => {
-  await authTrx(async (tx) => {
-    const repo = tx.getRepository(EntityLabel)
+  await authTrx(
+    async (tx) => {
+      const repo = tx.getRepository(EntityLabel)
 
-    // delete existing labels
-    await repo.delete({
-      libraryItemId,
-    })
-
-    // save new labels
-    await repo.save(
-      labels.map((l) => ({
-        labelId: l.id,
+      // delete existing labels
+      await repo.delete({
         libraryItemId,
-      }))
-    )
-  })
+      })
+
+      // save new labels
+      await repo.save(
+        labels.map((l) => ({
+          labelId: l.id,
+          libraryItemId,
+        }))
+      )
+    },
+    undefined,
+    userId
+  )
 
   // create pubsub event
   await pubsub.entityCreated<(Label & { pageId: string })[]>(

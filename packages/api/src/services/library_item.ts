@@ -389,6 +389,17 @@ export const updateLibraryItem = async (
   return updatedLibraryItem
 }
 
+export const createLibraryItems = async (
+  libraryItems: DeepPartial<LibraryItem>[],
+  userId: string
+): Promise<LibraryItem[]> => {
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).save(libraryItems),
+    undefined,
+    userId
+  )
+}
+
 export const createLibraryItem = async (
   libraryItem: DeepPartial<LibraryItem>,
   userId: string,
@@ -523,6 +534,17 @@ export const updateLibraryItems = async (
 export const deleteLibraryItemById = async (id: string, userId?: string) => {
   return authTrx(
     async (tx) => tx.withRepository(libraryItemRepository).delete(id),
+    undefined,
+    userId
+  )
+}
+
+export const deleteLibraryItems = async (
+  items: LibraryItem[],
+  userId?: string
+) => {
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).remove(items),
     undefined,
     userId
   )

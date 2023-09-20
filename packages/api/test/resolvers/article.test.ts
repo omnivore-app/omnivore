@@ -5,6 +5,7 @@ import 'mocha'
 import sinon from 'sinon'
 import { DeepPartial } from 'typeorm'
 import { Highlight } from '../../src/entity/highlight'
+import { Label } from '../../src/entity/label'
 import { LibraryItem, LibraryItemState } from '../../src/entity/library_item'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
@@ -19,9 +20,16 @@ import {
 import { getRepository } from '../../src/repository'
 import { createHighlight } from '../../src/services/highlights'
 import {
+  createLabel,
+  deleteLabels,
+  saveLabelsInLibraryItem,
+} from '../../src/services/labels'
+import {
   createLibraryItem,
+  createLibraryItems,
   deleteLibraryItemById,
   deleteLibraryItemByUrl,
+  deleteLibraryItems,
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
@@ -798,7 +806,7 @@ describe('Article API', () => {
     let keyword = ''
 
     before(async () => {
-      // Create some test pages
+      // Create some test items
       for (let i = 0; i < 5; i++) {
         const itemToSave: DeepPartial<LibraryItem> = {
           user,
@@ -841,7 +849,7 @@ describe('Article API', () => {
         keyword = searchedKeyword
       })
 
-      it('should return pages in descending order', async () => {
+      it('should return items in descending order', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.edges.length).to.eql(5)
@@ -852,7 +860,7 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[4].node.id).to.eq(items[0].id)
       })
 
-      it('should return highlights in pages', async () => {
+      it('should return highlights in items', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.edges[0].node.highlights.length).to.eql(1)
@@ -914,6 +922,61 @@ describe('Article API', () => {
         expect(res.body.data.search.pageInfo.totalCount).to.eq(5)
       })
     })
+
+    context("when 'in:archive label:test' is in the query", () => {
+      let items: LibraryItem[] = []
+      let label: Label
+
+      before(async () => {
+        keyword = 'in:archive label:test'
+        // Create some test items
+        label = await createLabel('test', '', user.id)
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label], items[2].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels({ id: label.id }, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns archived items with label test', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
@@ -923,7 +986,7 @@ describe('Article API', () => {
     let keyword = 'typeahead'
 
     before(async () => {
-      // Create some test pages
+      // Create some test items
       for (let i = 0; i < 5; i++) {
         const itemToSave: DeepPartial<LibraryItem> = {
           user,
@@ -945,7 +1008,7 @@ describe('Article API', () => {
       await deleteLibraryItemsByUserId(user.id)
     })
 
-    it('returns pages with typeahead prefix', async () => {
+    it('returns items with typeahead prefix', async () => {
       const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.typeaheadSearch.items.length).to.eql(5)
@@ -993,7 +1056,7 @@ describe('Article API', () => {
     let deletedItems: LibraryItem[] = []
 
     before(async () => {
-      // Create some test pages
+      // Create some test items
       for (let i = 0; i < 5; i++) {
         const itemToSave: DeepPartial<LibraryItem> = {
           title: 'test page',
@@ -1009,7 +1072,7 @@ describe('Article API', () => {
       // set the since to be the timestamp before deletion
       since = items[4].updatedAt.toISOString()
 
-      // Delete some pages
+      // Delete some items
       for (let i = 0; i < 3; i++) {
         await updateLibraryItem(
           items[i].id,
@@ -1021,11 +1084,11 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      // Delete all pages
+      // Delete all items
       await deleteLibraryItemsByUserId(user.id)
     })
 
-    it('returns pages deleted after since', async () => {
+    it('returns items deleted after since', async () => {
       const res = await graphqlRequest(
         updatesSinceQuery(since),
         authToken
@@ -1066,7 +1129,7 @@ describe('Article API', () => {
     `
 
     before(async () => {
-      // Create some test pages
+      // Create some test items
       for (let i = 0; i < 5; i++) {
         await createLibraryItem(
           {
@@ -1085,36 +1148,36 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      // Delete all pages
+      // Delete all items
       await deleteLibraryItemsByUserId(user.id)
     })
 
     context('when action is Archive', () => {
-      it('archives all pages', async () => {
+      it('archives all items', async () => {
         const res = await graphqlRequest(
           bulkActionQuery(BulkActionType.Archive),
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
 
-        const pages = await graphqlRequest(searchQuery(), authToken).expect(200)
-        expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+        const items = await graphqlRequest(searchQuery(), authToken).expect(200)
+        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
 
     context('when action is Delete', () => {
-      it('deletes all pages', async () => {
+      it('deletes all items', async () => {
         const res = await graphqlRequest(
           bulkActionQuery(BulkActionType.Delete),
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
 
-        const pages = await graphqlRequest(
+        const items = await graphqlRequest(
           searchQuery('in:all'),
           authToken
         ).expect(200)
-        expect(pages.body.data.search.pageInfo.totalCount).to.eql(0)
+        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
   })
