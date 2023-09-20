@@ -49,6 +49,7 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
+import { getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
@@ -374,13 +375,17 @@ export const getArticleResolver = authorized<
   QueryArticleArgs
 >(async (_obj, { slug, format }, { authTrx, uid, log }, info) => {
   try {
+    const selectColumns = getColumns(libraryItemRepository)
     const includeOriginalHtml =
       format === ArticleFormat.Distiller ||
       !!graphqlFields(info).article.originalHtml
-
+    if (!includeOriginalHtml) {
+      selectColumns.splice(selectColumns.indexOf('originalContent'), 1)
+    }
     // We allow the backend to use the ID instead of a slug to fetch the article
     const libraryItem = await authTrx((tx) =>
       tx.withRepository(libraryItemRepository).findOne({
+        select: selectColumns,
         where: { slug },
         relations: {
           labels: true,

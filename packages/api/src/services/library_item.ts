@@ -97,8 +97,8 @@ const buildWhereClause = (
   }
 
   if (args.typeFilter) {
-    queryBuilder.andWhere('library_item.item_type = :typeFilter', {
-      typeFilter: args.typeFilter,
+    queryBuilder.andWhere('lower(library_item.item_type) = :typeFilter', {
+      typeFilter: args.typeFilter.toLowerCase(),
     })
   }
 
@@ -108,7 +108,12 @@ const buildWhereClause = (
         queryBuilder.andWhere('library_item.archived_at IS NULL')
         break
       case InFilter.ARCHIVE:
-        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+        queryBuilder.andWhere(
+          'library_item.archived_at IS NOT NULL OR library_item.state = :state',
+          {
+            state: LibraryItemState.Archived,
+          }
+        )
         break
       case InFilter.TRASH:
         // return only deleted pages within 14 days
@@ -287,7 +292,7 @@ export const searchLibraryItems = async (
       buildWhereClause(queryBuilder, args)
 
       const libraryItems = await queryBuilder
-        .addOrderBy(`library_item.${sortField}`, sortOrder)
+        .addOrderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
         .skip(from)
         .take(size)
         .getMany()
