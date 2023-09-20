@@ -396,7 +396,7 @@ async def main():
                         convert_string_to_datetime(highlight['createdAt']),
                         convert_string_to_datetime(highlight.get('updatedAt', None)),
                         convert_string_to_datetime(highlight.get('sharedAt', None)),
-                        highlight.get('shortId', None),
+                        short_id,
                         id,
                         highlight_position_percent if highlight_position_percent is not None else 0,
                         highlight_position_anchor_index if highlight_position_anchor_index is not None else 0,
