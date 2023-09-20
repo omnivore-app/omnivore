@@ -977,6 +977,61 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
       })
     })
+
+    context("when in:library label:test' is in the query", () => {
+      let items: LibraryItem[] = []
+      let label: Label
+
+      before(async () => {
+        keyword = 'in:library label:test'
+        // Create some test items
+        label = await createLabel('test', '', user.id)
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              subscription: 'test subscription',
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label], items[1].id, user.id)
+        await saveLabelsInLibraryItem([label], items[2].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels({ id: label.id }, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns archived items with label test', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
