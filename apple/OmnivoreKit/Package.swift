@@ -47,7 +47,7 @@ let package = Package(
     .target(
       name: "Utils",
       dependencies: [
-        .product(name: "PostHog", package: "posthog-ios")
+        .product(name: "PostHog", package: "posthog-ios", condition: .when(platforms: [.iOS]))
       ],
       resources: [.process("Resources")]
     ),
@@ -58,7 +58,7 @@ let package = Package(
 var appPackageDependencies: [Target.Dependency] {
   var deps: [Target.Dependency] = ["Views", "Services", "Models", "Utils"]
   // Comment out following line for macOS build
-  deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP"))
+  deps.append(.product(name: "PSPDFKit", package: "PSPDFKit-SP", condition: .when(platforms: [.iOS])))
   return deps
 }
 
