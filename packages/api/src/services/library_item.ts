@@ -108,17 +108,12 @@ const buildWhereClause = (
         queryBuilder.andWhere('library_item.archived_at IS NULL')
         break
       case InFilter.ARCHIVE:
-        queryBuilder.andWhere(
-          'library_item.archived_at IS NOT NULL OR library_item.state = :state',
-          {
-            state: LibraryItemState.Archived,
-          }
-        )
+        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
         break
       case InFilter.TRASH:
         // return only deleted pages within 14 days
         queryBuilder.andWhere(
-          "library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days'"
+          "library_item.deleted_at >= now() - interval '14 days'"
         )
         break
       case InFilter.SUBSCRIPTION:
@@ -253,7 +248,7 @@ const buildWhereClause = (
       .innerJoin('recommendations.recommender', 'recommender')
       .innerJoin('recommendations.group', 'group')
       .andWhere(
-        'lower(recommender.name) = :recommendedBy or lower(group.name) = :recommendedBy',
+        '(lower(recommender.name) = :recommendedBy OR lower(group.name) = :recommendedBy)',
         {
           recommendedBy: args.recommendedBy.toLowerCase(),
         }

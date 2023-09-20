@@ -112,11 +112,11 @@ def convert_string_to_datetime(val):
 async def insert_library_items(db_conn, library_items):
     insert_query = '''
         INSERT INTO omnivore.library_item (
-            id, user_id, title, author, description, readable_content, original_url, upload_file_id, item_type, slug, reading_progress_top_percent, reading_progress_bottom_percent, reading_progress_highest_read_anchor, created_at, saved_at, archived_at, site_name, subscription, state, updated_at, published_at, item_language, read_at, word_count, site_icon, thumbnail, content_reader, original_content
+            id, user_id, title, author, description, readable_content, original_url, upload_file_id, item_type, slug, reading_progress_top_percent, reading_progress_bottom_percent, reading_progress_highest_read_anchor, created_at, saved_at, archived_at, site_name, subscription, state, updated_at, published_at, item_language, read_at, word_count, site_icon, thumbnail, content_reader, original_content, deleted_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
                 $11, $12, $13, $14, $15, $16, $17, $18, $19,
-                $20, $21, $22, $23, $24, $25, $26, $27, $28)
+                $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)
         ON CONFLICT (user_id, original_url) DO UPDATE SET
             title = EXCLUDED.title,
             author = EXCLUDED.author,
@@ -142,7 +142,8 @@ async def insert_library_items(db_conn, library_items):
             site_icon = EXCLUDED.site_icon,
             thumbnail = EXCLUDED.thumbnail,
             content_reader = EXCLUDED.content_reader,
-            original_content = EXCLUDED.original_content
+            original_content = EXCLUDED.original_content,
+            deleted_at = EXCLUDED.deleted_at
     '''
     print('Inserting library items into postgres')
     await insert_into_postgres(insert_query, db_conn, library_items)
@@ -325,6 +326,9 @@ async def main():
                     content_reader = 'EPUB'
                 elif page_type == 'FILE':
                     content_reader = 'PDF'
+            updated_at = convert_string_to_datetime(source['updatedAt'])
+            state = source['state']
+            deleted_at = updated_at if state == 'DELETED' else None
 
             library_item = (
                 id,
@@ -345,8 +349,8 @@ async def main():
                 convert_string_to_datetime(source.get('archivedAt', None)),
                 source.get('siteName', None),
                 subscription,
-                source['state'],
-                convert_string_to_datetime(source['updatedAt']),
+                state,
+                updated_at,
                 convert_string_to_datetime(source.get('publishedAt', None)),
                 source.get('language', None),
                 convert_string_to_datetime(source.get('readAt', None)),
@@ -355,6 +359,7 @@ async def main():
                 remove_null_bytes(source.get('image', None)),
                 content_reader,
                 remove_null_bytes(source.get('originalHtml', None)),
+                deleted_at,
             )
             library_items.append(library_item)
 
