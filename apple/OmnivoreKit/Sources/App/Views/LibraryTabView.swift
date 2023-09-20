@@ -45,7 +45,9 @@ struct LibraryTabView: View {
   var body: some View {
     NavigationView {
       HomeView(viewModel: libraryViewModel)
+      #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+      #endif
     }
   }
 }
