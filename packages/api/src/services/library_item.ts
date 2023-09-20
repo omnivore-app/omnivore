@@ -119,11 +119,14 @@ const buildWhereClause = (
       case InFilter.SUBSCRIPTION:
         queryBuilder
           .andWhere('library_item.subscription IS NOT NULL')
+          .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
           .andWhere('library_item.archived_at IS NULL')
         break
       case InFilter.LIBRARY:
         queryBuilder
-          .andWhere('library_item.subscription IS NULL')
+          .andWhere(
+            "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
+          )
           .andWhere('library_item.archived_at IS NULL')
         break
     }
