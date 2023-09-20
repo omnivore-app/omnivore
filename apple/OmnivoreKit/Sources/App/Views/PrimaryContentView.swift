@@ -92,7 +92,9 @@ import Views
     .sheet(isPresented: $addLinkPresented) {
       NavigationView {
         LibraryAddLinkView()
+        #if os(iOS)
           .navigationBarTitleDisplayMode(.inline)
+        #endif
       }
     }
   }

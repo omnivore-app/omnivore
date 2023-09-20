@@ -14,6 +14,7 @@ import Views
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State private var presentProfileSheet = false
+    @State private var addLinkPresented = false
 
     @Namespace var mainNamespace
 
@@ -62,6 +63,15 @@ import Views
       }
     }
 
+    var addLinkButton: some View {
+      Button(
+        action: {
+          addLinkPresented = true
+        },
+        label: { Label("Add Link", systemImage: "plus") }
+      )
+    }
+
     var refreshButton: some View {
       Button(
         action: {
@@ -98,7 +108,6 @@ import Views
             }
             Divider().padding(5)
           }
-          .prefersDefaultFocus(true, in: mainNamespace)
 
           if viewModel.isLoading {
             LoadingSection()
@@ -112,6 +121,7 @@ import Views
         }
         .toolbar {
           Spacer()
+          addLinkButton
           refreshButton
         }
       }
@@ -149,6 +159,10 @@ import Views
       }
       .sheet(isPresented: $presentProfileSheet) {
         ProfileView()
+      }
+      .sheet(isPresented: $addLinkPresented) {
+        LibraryAddLinkView()
+          .frame(width: 450, height: 160)
       }
       .onReceive(NSNotification.displayProfilePublisher) { _ in
         presentProfileSheet = true
