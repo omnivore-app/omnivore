@@ -339,7 +339,7 @@ async def main():
                 source['content'],
                 source['url'],
                 source.get('uploadFileId', None),
-                page_type,
+                page_type if page_type is not None else 'UNKNOWN',
                 source['slug'],
                 source.get('readingProgressTopPercent', 0),
                 source.get('readingProgressPercent', 0),
