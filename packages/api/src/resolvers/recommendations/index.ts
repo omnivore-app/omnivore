@@ -205,21 +205,9 @@ export const joinGroupResolver = authorized<
   JoinGroupSuccess,
   JoinGroupError,
   MutationJoinGroupArgs
->(async (_, { inviteCode }, { claims: { uid }, log }) => {
-  log.info('Joining group', {
-    inviteCode,
-    labels: {
-      source: 'resolver',
-      resolver: 'joinGroupResolver',
-      uid,
-    },
-  })
-
+>(async (_, { inviteCode }, { uid, log }) => {
   try {
-    const user = await userRepository.findOne({
-      where: { id: uid },
-      relations: ['profile'],
-    })
+    const user = await userRepository.findById(uid)
     if (!user) {
       return {
         errorCodes: [JoinGroupErrorCode.Unauthorized],
@@ -243,14 +231,7 @@ export const joinGroupResolver = authorized<
       group,
     }
   } catch (error) {
-    log.error('Error joining group', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'joinGroupResolver',
-        uid,
-      },
-    })
+    log.error('Error joining group', error)
 
     return {
       errorCodes: [JoinGroupErrorCode.BadRequest],
@@ -263,20 +244,8 @@ export const recommendHighlightsResolver = authorized<
   RecommendHighlightsError,
   MutationRecommendHighlightsArgs
 >(async (_, { input }, { uid, log, signToken }) => {
-  log.info('Recommend highlights', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'recommendHighlightsResolver',
-      uid,
-    },
-  })
-
   try {
-    const user = await userRepository.findOne({
-      where: { id: uid },
-      relations: ['profile'],
-    })
+    const user = await userRepository.findById(uid)
     if (!user) {
       return {
         errorCodes: [RecommendHighlightsErrorCode.Unauthorized],
@@ -330,14 +299,7 @@ export const recommendHighlightsResolver = authorized<
       success: true,
     }
   } catch (error) {
-    log.error('Error recommending highlights', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'recommendHighlightsResolver',
-        uid,
-      },
-    })
+    log.error('Error recommending highlights', error)
 
     return {
       errorCodes: [RecommendHighlightsErrorCode.BadRequest],
@@ -349,20 +311,9 @@ export const leaveGroupResolver = authorized<
   LeaveGroupSuccess,
   LeaveGroupError,
   MutationLeaveGroupArgs
->(async (_, { groupId }, { claims: { uid }, log }) => {
-  log.info('Leaving group', {
-    groupId,
-    labels: {
-      source: 'resolver',
-      resolver: 'leaveGroupResolver',
-      uid,
-    },
-  })
-
+>(async (_, { groupId }, { uid, log }) => {
   try {
-    const user = await userRepository.findOneBy({
-      id: uid,
-    })
+    const user = await userRepository.findById(uid)
     if (!user) {
       return {
         errorCodes: [LeaveGroupErrorCode.Unauthorized],
@@ -383,14 +334,7 @@ export const leaveGroupResolver = authorized<
       success,
     }
   } catch (error) {
-    log.error('Error leaving group', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'leaveGroupResolver',
-        uid,
-      },
-    })
+    log.error('Error leaving group', error)
 
     return {
       errorCodes: [LeaveGroupErrorCode.BadRequest],
