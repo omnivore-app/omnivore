@@ -994,8 +994,6 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
-              archivedAt: new Date(),
-              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1011,6 +1009,8 @@ describe('Article API', () => {
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
           ],
           user.id
@@ -1025,11 +1025,11 @@ describe('Article API', () => {
         await deleteLibraryItems(items, user.id)
       })
 
-      it('returns archived items with label test', async () => {
+      it('returns library items with label test', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
-        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
       })
     })
 
@@ -1078,7 +1078,57 @@ describe('Article API', () => {
         await deleteLibraryItems(items, user.id)
       })
 
-      it('returns archived items with label test', async () => {
+      it('returns files with label test', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when in:archive is:unread is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'in:archive is:unread'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              itemType: PageType.File,
+              archivedAt: new Date(),
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              archivedAt: new Date(),
+              readingProgressTopPercent: 100,
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns unfinished archived items', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
