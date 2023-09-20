@@ -379,6 +379,9 @@ async def main():
             if 'highlights' in source:
                 for highlight in source['highlights']:
                     highlight_id = get_uuid(highlight['id'])
+                    short_id = highlight.get('shortId', None)
+                    if len(short_id) > 14:
+                        short_id = short_id[:14]
                     highlight_position_percent = highlight.get('highlightPositionPercent', 0)
                     highlight_position_anchor_index = highlight.get('highlightPositionAnchorIndex', 0)
 
