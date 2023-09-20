@@ -61,7 +61,9 @@ struct LibraryAddLinkView: View {
         innerBody
       #endif
     }
-    .padding()
+    #if os(macOS)
+      .padding()
+    #endif
     .onAppear {
       focusedField = .addLinkEditor
     }
