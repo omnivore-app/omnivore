@@ -636,7 +636,7 @@ const schema = gql`
     id: ID!
     readingProgressTopPercent: Float
     readingProgressPercent: Float!
-    readingProgressAnchorIndex: Int!
+    readingProgressAnchorIndex: Int
   }
   enum SaveArticleReadingProgressErrorCode {
     NOT_FOUND

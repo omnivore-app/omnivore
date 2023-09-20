@@ -1572,7 +1572,7 @@ enum SaveArticleReadingProgressErrorCode {
 
 input SaveArticleReadingProgressInput {
   id: ID!
-  readingProgressAnchorIndex: Int!
+  readingProgressAnchorIndex: Int
   readingProgressPercent: Float!
   readingProgressTopPercent: Float
 }

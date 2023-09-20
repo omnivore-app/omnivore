@@ -581,7 +581,7 @@ export const saveArticleReadingProgressResolver = authorized<
       (readingProgressTopPercent &&
         (readingProgressTopPercent < 0 ||
           readingProgressTopPercent > readingProgressPercent)) ||
-      readingProgressAnchorIndex < 0
+      (readingProgressAnchorIndex && readingProgressAnchorIndex < 0)
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
@@ -609,7 +609,7 @@ export const saveArticleReadingProgressResolver = authorized<
         readingProgressAnchorIndex === 0
           ? 0
           : Math.max(
-              readingProgressAnchorIndex,
+              readingProgressAnchorIndex || 0,
               libraryItem.readingProgressHighestReadAnchor
             ),
       readingProgressTopPercent: readingProgressTopPercentToSave,
