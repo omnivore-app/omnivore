@@ -16,6 +16,7 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
   class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_: Notification) {
       NSApplication.shared.delegate = self
+      NSWindow.allowsAutomaticWindowTabbing = false
       #if DEBUG
         if CommandLine.arguments.contains("--uitesting") {
           configureForUITests()
