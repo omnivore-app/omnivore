@@ -20,6 +20,31 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 export const getHighlightUrl = (slug: string, highlightId: string): string =>
   `${homePageURL()}/me/${slug}#${highlightId}`
 
+export const createHighlights = async (
+  highlights: DeepPartial<Highlight>[],
+  libraryItemId: string,
+  userId: string,
+  pubsub = createPubSubClient()
+) => {
+  const newHighlights = await authTrx(
+    async (tx) =>
+      tx.withRepository(highlightRepository).createAndSaves(highlights),
+    undefined,
+    userId
+  )
+
+  await pubsub.entityCreated<CreateHighlightEvent[]>(
+    EntityType.HIGHLIGHT,
+    newHighlights.map((highlight) => ({
+      ...highlight,
+      pageId: libraryItemId,
+    })),
+    userId
+  )
+
+  return newHighlights
+}
+
 export const createHighlight = async (
   highlight: DeepPartial<Highlight>,
   libraryItemId: string,

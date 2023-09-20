@@ -311,6 +311,7 @@ export const findLibraryItemById = async (
         .createQueryBuilder(LibraryItem, 'library_item')
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .leftJoinAndSelect('highlights.user', 'user')
         .where('library_item.id = :id', { id })
         .getOne(),
     undefined,

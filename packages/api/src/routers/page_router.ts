@@ -162,7 +162,7 @@ export function pageRouter() {
         return res.status(400).send({ errorCode: 'BAD_DATA' })
       }
 
-      const item = await findLibraryItemById(itemId, userId)
+      const item = await findLibraryItemById(itemId, claims.uid)
       if (!item) {
         return res.status(404).send({ errorCode: 'NOT_FOUND' })
       }
@@ -170,7 +170,7 @@ export function pageRouter() {
       const recommendedItem = await addRecommendation(
         item,
         recommendation,
-        claims.uid,
+        userId,
         highlightIds
       )
       if (!recommendedItem) {

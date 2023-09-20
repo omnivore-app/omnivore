@@ -5,6 +5,7 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
+import { DeepPartial } from 'typeorm'
 import { Recommendation } from '../entity/recommendation'
 import { Subscription } from '../entity/subscription'
 import { env } from '../env'
@@ -443,7 +444,7 @@ export const enqueueTextToSpeech = async ({
 export const enqueueRecommendation = async (
   userId: string,
   itemId: string,
-  recommendation: Partial<Recommendation>,
+  recommendation: DeepPartial<Recommendation>,
   authToken: string,
   highlightIds?: string[]
 ): Promise<string> => {

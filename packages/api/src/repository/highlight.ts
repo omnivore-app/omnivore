@@ -34,6 +34,10 @@ export const highlightRepository = entityManager
       return this.save(unescapeHighlight(highlight))
     },
 
+    createAndSaves(highlights: DeepPartial<Highlight>[]) {
+      return this.save(highlights.map(unescapeHighlight))
+    },
+
     updateAndSave(
       highlightId: string,
       highlight: QueryDeepPartialEntity<Highlight>

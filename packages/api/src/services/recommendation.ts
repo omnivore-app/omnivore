@@ -1,12 +1,11 @@
+import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
 import { LibraryItem } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
+import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
-import {
-  createLibraryItem,
-  findLibraryItemByUrl,
-  updateLibraryItem,
-} from './library_item'
+import { createHighlights } from './highlights'
+import { createLibraryItem, findLibraryItemByUrl } from './library_item'
 
 export const addRecommendation = async (
   item: LibraryItem,
@@ -15,65 +14,83 @@ export const addRecommendation = async (
   highlightIds?: string[]
 ) => {
   try {
-    const highlights = item.highlights?.filter((highlight) =>
-      highlightIds?.includes(highlight.id)
-    )
-
     // check if the item is already recommended to the group
-    const existingItem = await findLibraryItemByUrl(item.originalUrl, userId)
-    if (existingItem) {
-      const existingHighlights = existingItem.highlights || []
+    let recommendedItem = await findLibraryItemByUrl(item.originalUrl, userId)
+    // if (existingItem) {
+    //   const existingHighlights = existingItem.highlights || []
 
-      // remove duplicates
-      const newHighlights =
-        highlights?.filter(
-          (highlight) =>
-            !existingHighlights.find(
-              (existingHighlight) => existingHighlight.quote === highlight.quote
-            )
-        ) || []
+    //   // remove duplicates
+    //   const newHighlights =
+    //     highlights?.filter(
+    //       (highlight) =>
+    //         !existingHighlights.find(
+    //           (existingHighlight) => existingHighlight.quote === highlight.quote
+    //         )
+    //     ) || []
 
-      const existingRecommendations = existingItem.recommendations || []
+    //   return existingItem
+    // }
 
-      // update recommendations in the existing item
-      await updateLibraryItem(
-        existingItem.id,
-        {
-          recommendations: existingRecommendations.concat(recommendation),
-          highlights: existingHighlights.concat(newHighlights),
-        },
-        userId
-      )
+    if (!recommendedItem) {
+      // create a new item
+      const newItem: DeepPartial<LibraryItem> = {
+        user: { id: userId },
+        slug: item.slug,
+        title: item.title,
+        author: item.author,
+        description: item.description,
+        originalUrl: item.originalUrl,
+        originalContent: item.originalContent,
+        contentReader: item.contentReader,
+        directionality: item.directionality,
+        itemLanguage: item.itemLanguage,
+        itemType: item.itemType,
+        readableContent: item.readableContent,
+        siteIcon: item.siteIcon,
+        siteName: item.siteName,
+        thumbnail: item.thumbnail,
+        uploadFile: item.uploadFile,
+        wordCount: item.wordCount,
+      }
 
-      return existingItem
+      recommendedItem = await createLibraryItem(newItem, userId)
     }
 
-    // create a new item
-    const newItem: DeepPartial<LibraryItem> = {
-      recommendations: [recommendation],
-      user: { id: userId },
-      highlights,
-      slug: item.slug,
-      title: item.title,
-      author: item.author,
-      description: item.description,
-      originalUrl: item.originalUrl,
-      originalContent: item.originalContent,
-      contentReader: item.contentReader,
-      directionality: item.directionality,
-      itemLanguage: item.itemLanguage,
-      itemType: item.itemType,
-      readableContent: item.readableContent,
-      siteIcon: item.siteIcon,
-      siteName: item.siteName,
-      thumbnail: item.thumbnail,
-      uploadFile: item.uploadFile,
-      wordCount: item.wordCount,
+    const highlights = item.highlights
+      ?.filter((highlight) => highlightIds?.includes(highlight.id))
+      .map((highlight) => ({
+        shortId: nanoid(8),
+        createdAt: new Date(),
+        libraryItem: { id: recommendedItem?.id },
+        user: { id: userId },
+        quote: highlight.quote,
+        annotation: highlight.annotation,
+        prefix: highlight.prefix,
+        suffix: highlight.suffix,
+        patch: highlight.patch,
+        updatedAt: new Date(),
+        sharedAt: new Date(),
+        html: highlight.html,
+        color: highlight.color,
+      }))
+    if (highlights) {
+      await createHighlights(highlights, recommendedItem.id, userId)
     }
 
-    return createLibraryItem(newItem, userId)
+    await createRecommendation({
+      ...recommendation,
+      libraryItem: { id: recommendedItem.id },
+    })
+
+    return recommendedItem
   } catch (err) {
     logger.error('Error adding recommendation', err)
     return null
   }
+}
+
+export const createRecommendation = async (
+  recommendation: DeepPartial<Recommendation>
+) => {
+  return getRepository(Recommendation).save(recommendation)
 }

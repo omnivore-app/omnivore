@@ -11,7 +11,7 @@ from elasticsearch.helpers import async_scan
 
 PG_HOST = os.getenv('PG_HOST', 'localhost')
 PG_PORT = os.getenv('PG_PORT', 5432)
-PG_USER = os.getenv('PG_USER', 'app_user')
+PG_USER = os.getenv('PG_USER', 'hongbo')
 PG_PASSWORD = os.getenv('PG_PASSWORD', 'app_pass')
 PG_DB = os.getenv('PG_DB', 'omnivore')
 ES_URL = os.getenv('ES_URL', 'http://localhost:9200')

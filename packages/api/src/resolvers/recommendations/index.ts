@@ -46,20 +46,10 @@ export const createGroupResolver = authorized<
   CreateGroupSuccess,
   CreateGroupError,
   MutationCreateGroupArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('Creating group', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'createGroupResolver',
-      uid,
-    },
-  })
-
+>(async (_, { input }, { uid, log }) => {
   try {
-    const userData = await userRepository.findOne({
-      where: { id: uid },
-      relations: ['profile'],
+    const userData = await userRepository.findOneBy({
+      id: uid,
     })
     if (!userData) {
       return {
@@ -106,14 +96,7 @@ export const createGroupResolver = authorized<
       },
     }
   } catch (error) {
-    log.error('Error creating group', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'createGroupResolver',
-        uid,
-      },
-    })
+    log.error('Error creating group', error)
 
     return {
       errorCodes: [CreateGroupErrorCode.BadRequest],
@@ -122,15 +105,7 @@ export const createGroupResolver = authorized<
 })
 
 export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
-  async (_, __, { claims: { uid }, log }) => {
-    log.info('Getting groups', {
-      labels: {
-        source: 'resolver',
-        resolver: 'groupsResolver',
-        uid,
-      },
-    })
-
+  async (_, __, { uid, log }) => {
     try {
       const user = await userRepository.findOneBy({
         id: uid,
@@ -168,15 +143,6 @@ export const recommendResolver = authorized<
   RecommendError,
   MutationRecommendArgs
 >(async (_, { input }, { uid, log, signToken }) => {
-  log.info('Recommend', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'recommendResolver',
-      uid,
-    },
-  })
-
   try {
     const item = await findLibraryItemById(input.pageId, uid)
     if (!item) {
@@ -208,11 +174,11 @@ export const recommendResolver = authorized<
               member.user.id,
               item.id,
               {
-                group,
-                note: input.note ?? null,
-                recommender: item.user,
+                group: { id: group.id },
+                note: input.note,
+                recommender: { id: uid },
                 createdAt: new Date(),
-                libraryItem: item,
+                libraryItem: { id: item.id },
               },
               auth,
               recommendedHighlightIds
