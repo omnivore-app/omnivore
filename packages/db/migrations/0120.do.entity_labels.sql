@@ -12,7 +12,7 @@ CREATE TABLE omnivore.entity_labels (
     unique(label_id, library_item_id, highlight_id)
 );
 
-GRANT SELECT, INSERT, DELETE ON omnivore.entity_labels TO omnivore_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.entity_labels TO omnivore_user;
 
 CREATE OR REPLACE FUNCTION update_library_item_labels()
 RETURNS trigger AS $$
@@ -29,7 +29,7 @@ BEGIN
     END IF;
 
     IF current_library_item_id IS NOT NULL THEN
-        -- for labels of the ABORTlibrary_item
+        -- for labels of the library_item
         WITH labels_agg AS (
             SELECT array_agg(l.name) as names_agg
             FROM omnivore.labels l
