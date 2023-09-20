@@ -329,6 +329,9 @@ async def main():
             updated_at = convert_string_to_datetime(source['updatedAt'])
             state = source['state']
             deleted_at = updated_at if state == 'DELETED' else None
+            reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
+            reading_progress_percent = source.get('readingProgressPercent', 0)
+            reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
 
             library_item = (
                 id,
@@ -341,9 +344,9 @@ async def main():
                 source.get('uploadFileId', None),
                 page_type if page_type is not None else 'UNKNOWN',
                 source['slug'],
-                source.get('readingProgressTopPercent', 0),
-                source.get('readingProgressPercent', 0),
-                source.get('readingProgressAnchorIndex', 0),
+                reading_progress_top_percent if reading_progress_top_percent is not None else 0,
+                reading_progress_percent if reading_progress_percent is not None else 0,
+                reading_progress_anchor if reading_progress_anchor is not None else 0,
                 convert_string_to_datetime(source['createdAt']),
                 convert_string_to_datetime(source['savedAt']),
                 convert_string_to_datetime(source.get('archivedAt', None)),
@@ -376,6 +379,9 @@ async def main():
             if 'highlights' in source:
                 for highlight in source['highlights']:
                     highlight_id = get_uuid(highlight['id'])
+                    highlight_position_percent = highlight.get('highlightPositionPercent', 0)
+                    highlight_position_anchor_index = highlight.get('highlightPositionAnchorIndex', 0)
+
                     highlights.append((
                         highlight_id,
                         get_uuid(highlight['userId']),
@@ -389,8 +395,8 @@ async def main():
                         convert_string_to_datetime(highlight.get('sharedAt', None)),
                         highlight.get('shortId', None),
                         id,
-                        highlight.get('highlightPositionPercent', 0),
-                        highlight.get('highlightPositionAnchorIndex', 0),
+                        highlight_position_percent if highlight_position_percent is not None else 0,
+                        highlight_position_anchor_index if highlight_position_anchor_index is not None else 0,
                         highlight.get('type', 'HIGHLIGHT'),
                         highlight.get('color', None),
                         highlight.get('html', None),
