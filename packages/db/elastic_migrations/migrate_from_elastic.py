@@ -17,7 +17,7 @@ PG_DB = os.getenv('PG_DB', 'omnivore')
 ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
 ES_USERNAME = os.getenv('ES_USERNAME', 'elastic')
 ES_PASSWORD = os.getenv('ES_PASSWORD', 'password')
-ES_SCAN_SIZE = os.getenv('ES_SCAN_SIZE', 10000)
+ES_SCAN_SIZE = os.getenv('ES_SCAN_SIZE', 1000)
 ES_INDEX = os.getenv('ES_INDEX', 'pages_alias')
 
 CUT_OFF_DATE = os.getenv('CUT_OFF_DATE', '2000-01-01')
@@ -416,7 +416,7 @@ async def main():
                     ))
 
             # copy to postgres every ES_SCAN_SIZE records
-            if i % ES_SCAN_SIZE == 0:
+            if i % int(ES_SCAN_SIZE) == 0:
                 await insert_library_items(db_conn, library_items)
                 print('Copied', i, 'records to postgres')
                 library_items = []
