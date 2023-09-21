@@ -20,10 +20,13 @@ import { sendEmail } from '../../utils/sendEmail'
 export const recentEmailsResolver = authorized<
   RecentEmailsSuccess,
   RecentEmailsError
->(async (_, __, { authTrx, log }) => {
+>(async (_, __, { authTrx, log, uid }) => {
   try {
     const recentEmails = await authTrx((t) =>
       t.getRepository(ReceivedEmail).find({
+        where: {
+          user: { id: uid },
+        },
         order: { createdAt: 'DESC' },
         take: 20,
       })
@@ -50,6 +53,7 @@ export const markEmailAsItemResolver = authorized<
     const recentEmail = await authTrx((t) =>
       t.getRepository(ReceivedEmail).findOneBy({
         id: recentEmailId,
+        user: { id: uid },
         type: 'non-article',
       })
     )
@@ -64,6 +68,7 @@ export const markEmailAsItemResolver = authorized<
     const newsletterEmail = await authTrx((t) =>
       t.getRepository(NewsletterEmail).findOne({
         where: {
+          user: { id: uid },
           address: ILike(recentEmail.to),
         },
         relations: ['user'],

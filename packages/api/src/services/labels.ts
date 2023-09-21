@@ -31,7 +31,8 @@ export const findOrCreateLabels = async (
       const labelRepo = tx.withRepository(labelRepository)
       // find existing labels
       const labelEntities = await labelRepo.findByNames(
-        labels.map((l) => l.name)
+        labels.map((l) => l.name),
+        userId
       )
 
       const existingLabelsInLowerCase = labelEntities.map((l) =>
@@ -99,7 +100,7 @@ export const addLabelsToLibraryItem = async (
     async (tx) => {
       const libraryItem = await tx
         .withRepository(libraryItemRepository)
-        .findOneByOrFail({ id: libraryItemId })
+        .findOneByOrFail({ id: libraryItemId, user: { id: userId } })
 
       if (libraryItem.labels) {
         labels.push(...libraryItem.labels)
@@ -156,12 +157,20 @@ export const saveLabelsInHighlight = async (
   )
 }
 
-export const findLabelsByIds = async (ids: string[]): Promise<Label[]> => {
-  return authTrx(async (tx) => {
-    return tx.withRepository(labelRepository).findBy({
-      id: In(ids),
-    })
-  })
+export const findLabelsByIds = async (
+  ids: string[],
+  userId: string
+): Promise<Label[]> => {
+  return authTrx(
+    async (tx) => {
+      return tx.withRepository(labelRepository).findBy({
+        id: In(ids),
+        user: { id: userId },
+      })
+    },
+    undefined,
+    userId
+  )
 }
 
 export const createLabel = async (
@@ -219,7 +228,10 @@ export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {
 
 export const findLabelById = async (id: string, userId: string) => {
   return authTrx(
-    async (tx) => tx.withRepository(labelRepository).findOneBy({ id }),
+    async (tx) =>
+      tx
+        .withRepository(labelRepository)
+        .findOneBy({ id, user: { id: userId } }),
     undefined,
     userId
   )

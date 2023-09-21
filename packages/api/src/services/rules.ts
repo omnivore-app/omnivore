@@ -13,6 +13,7 @@ export const createRule = async (
 ): Promise<Rule> => {
   const existingRule = await authTrx((t) =>
     t.getRepository(Rule).findOneBy({
+      user: { id: userId },
       name: ILike(rule.name),
     })
   )
@@ -32,11 +33,11 @@ export const createRule = async (
   )
 }
 
-export const deleteRule = async (id: string, userId?: string) => {
+export const deleteRule = async (id: string, userId: string) => {
   return authTrx(
     async (t) => {
       const repo = t.getRepository(Rule)
-      const rule = await repo.findOneByOrFail({ id })
+      const rule = await repo.findOneByOrFail({ id, user: { id: userId } })
       await repo.delete(id)
       return rule
     },

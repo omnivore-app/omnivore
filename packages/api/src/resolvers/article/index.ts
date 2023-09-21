@@ -794,7 +794,7 @@ export const bulkActionResolver = authorized<
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
 
-      labels = await findLabelsByIds(labelIds)
+      labels = await findLabelsByIds(labelIds, uid)
     }
 
     // parse query

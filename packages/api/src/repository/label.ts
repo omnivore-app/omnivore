@@ -49,11 +49,12 @@ export const labelRepository = entityManager.getRepository(Label).extend({
       .getOne()
   },
 
-  findByNames(names: string[]) {
+  findByNames(names: string[], userId: string) {
     return this.createQueryBuilder()
       .where('LOWER(name) IN (:...names)', {
         names: names.map((n) => n.toLowerCase()),
       })
+      .andWhere('user_id = :userId', { userId })
       .getMany()
   },
 

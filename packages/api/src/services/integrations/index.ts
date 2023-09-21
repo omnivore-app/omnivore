@@ -45,7 +45,11 @@ export const findIntegration = async (
   userId: string
 ) => {
   return authTrx(
-    async (t) => t.getRepository(Integration).findOneBy(where),
+    async (t) =>
+      t.getRepository(Integration).findOneBy({
+        ...where,
+        user: { id: userId },
+      }),
     undefined,
     userId
   )
@@ -56,7 +60,11 @@ export const findIntegrations = async (
   where?: FindOptionsWhere<Integration> | FindOptionsWhere<Integration>[]
 ) => {
   return authTrx(
-    async (t) => t.getRepository(Integration).find({ where }),
+    async (t) =>
+      t.getRepository(Integration).findBy({
+        ...where,
+        user: { id: userId },
+      }),
     undefined,
     userId
   )

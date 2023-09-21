@@ -18,7 +18,10 @@ export const findApiKeys = async (
           'createdAt',
           'usedAt',
         ],
-        where,
+        where: {
+          ...where,
+          user: { id: userId },
+        },
         order: {
           usedAt: { direction: 'DESC', nulls: 'last' },
           createdAt: 'DESC',

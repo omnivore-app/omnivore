@@ -28,13 +28,11 @@ export const setDeviceTokenResolver = authorized<
   SetDeviceTokenSuccess,
   SetDeviceTokenError,
   MutationSetDeviceTokenArgs
->(async (_parent, { input }, { claims: { uid }, log }) => {
-  log.info('setDeviceTokenResolver', input)
-
+>(async (_parent, { input }, { uid, log }) => {
   const { id, token } = input
 
   if (!id && !token) {
-    log.info('id or token is required')
+    log.error('id or token is required')
 
     return {
       errorCodes: [SetDeviceTokenErrorCode.BadRequest],
@@ -44,7 +42,7 @@ export const setDeviceTokenResolver = authorized<
   try {
     // when token is null, we are deleting it
     if (!token && id) {
-      const deviceToken = await findDeviceTokenById(id)
+      const deviceToken = await findDeviceTokenById(id, uid)
       if (!deviceToken) {
         log.error('device token not found', id)
 
@@ -107,7 +105,7 @@ export const setDeviceTokenResolver = authorized<
       token
     ) {
       // duplicate token
-      const deviceToken = await findDeviceTokenByToken(token)
+      const deviceToken = await findDeviceTokenByToken(token, uid)
 
       if (!deviceToken) {
         return {

@@ -50,6 +50,9 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
 
       const labels = await authTrx(async (tx) => {
         return tx.withRepository(labelRepository).find({
+          where: {
+            user: { id: uid },
+          },
           order: {
             position: 'ASC',
           },

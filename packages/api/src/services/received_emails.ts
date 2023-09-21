@@ -32,23 +32,27 @@ export const updateReceivedEmail = async (
   userId: string
 ) => {
   return authTrx(
-    (t) => t.getRepository(ReceivedEmail).update(id, { type }),
+    (t) =>
+      t
+        .getRepository(ReceivedEmail)
+        .update({ id, user: { id: userId } }, { type }),
     undefined,
     userId
   )
 }
 
-export const deleteReceivedEmail = async (id: string, userId?: string) => {
+export const deleteReceivedEmail = async (id: string, userId: string) => {
   return authTrx(
-    (t) => t.getRepository(ReceivedEmail).delete(id),
+    (t) => t.getRepository(ReceivedEmail).delete({ id, user: { id: userId } }),
     undefined,
     userId
   )
 }
 
-export const findReceivedEmailById = async (id: string, userId?: string) => {
+export const findReceivedEmailById = async (id: string, userId: string) => {
   return authTrx(
-    (t) => t.getRepository(ReceivedEmail).findOneBy({ id }),
+    (t) =>
+      t.getRepository(ReceivedEmail).findOneBy({ id, user: { id: userId } }),
     undefined,
     userId
   )

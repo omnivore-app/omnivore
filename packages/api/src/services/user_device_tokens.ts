@@ -6,19 +6,28 @@ import { analytics } from '../utils/analytics'
 
 export const findDeviceTokenById = async (
   id: string,
-  userId?: string
+  userId: string
 ): Promise<UserDeviceToken | null> => {
   return authTrx(
-    (t) => t.getRepository(UserDeviceToken).findOneBy({ id }),
+    (t) =>
+      t.getRepository(UserDeviceToken).findOneBy({ id, user: { id: userId } }),
     undefined,
     userId
   )
 }
 
 export const findDeviceTokenByToken = async (
-  token: string
+  token: string,
+  userId: string
 ): Promise<UserDeviceToken | null> => {
-  return authTrx((t) => t.getRepository(UserDeviceToken).findOneBy({ token }))
+  return authTrx(
+    (t) =>
+      t
+        .getRepository(UserDeviceToken)
+        .findOneBy({ token, user: { id: userId } }),
+    undefined,
+    userId
+  )
 }
 
 export const findDeviceTokensByUserId = async (
@@ -70,7 +79,9 @@ export const deleteDeviceToken = async (
   })
 
   return authTrx(async (t) => {
-    const result = await t.getRepository(UserDeviceToken).delete(id)
+    const result = await t
+      .getRepository(UserDeviceToken)
+      .delete({ id, user: { id: userId } })
 
     return !!result.affected
   })

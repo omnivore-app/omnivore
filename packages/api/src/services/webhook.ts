@@ -26,7 +26,7 @@ export const createWebhook = async (
   )
 }
 
-export const findWebhooks = async (userId?: string) => {
+export const findWebhooks = async (userId: string) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).findBy({ user: { id: userId } }),
     undefined,
@@ -34,19 +34,19 @@ export const findWebhooks = async (userId?: string) => {
   )
 }
 
-export const findWebhookById = async (id: string, userId?: string) => {
+export const findWebhookById = async (id: string, userId: string) => {
   return authTrx(
-    (tx) => tx.getRepository(Webhook).findOneBy({ id }),
+    (tx) => tx.getRepository(Webhook).findOneBy({ id, user: { id: userId } }),
     undefined,
     userId
   )
 }
 
-export const deleteWebhook = async (id: string, userId?: string) => {
+export const deleteWebhook = async (id: string, userId: string) => {
   return authTrx(
     async (tx) => {
       const repo = tx.getRepository(Webhook)
-      const webhook = await repo.findOneByOrFail({ id })
+      const webhook = await repo.findOneByOrFail({ id, user: { id: userId } })
       await repo.delete(id)
       return webhook
     },
