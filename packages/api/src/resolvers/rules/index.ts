@@ -46,10 +46,11 @@ export const rulesResolver = authorized<
   RulesSuccess,
   RulesError,
   QueryRulesArgs
->(async (_, { enabled }, { authTrx, log }) => {
+>(async (_, { enabled }, { authTrx, log, uid }) => {
   try {
     const rules = await authTrx((t) =>
       t.getRepository(Rule).findBy({
+        user: { id: uid },
         enabled: enabled === null ? undefined : enabled,
       })
     )
