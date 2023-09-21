@@ -379,7 +379,7 @@ export const updateLibraryItem = async (
 
   await pubsub.entityUpdated<DeepPartial<LibraryItem>>(
     EntityType.PAGE,
-    libraryItem,
+    { ...libraryItem, id },
     userId
   )
 
