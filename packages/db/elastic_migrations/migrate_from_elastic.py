@@ -309,7 +309,7 @@ async def main():
         # Scan API for larger library
         docs = async_scan(es_client, index=ES_INDEX, query=query,
                           preserve_order=True, size=ES_SCAN_SIZE,
-                          request_timeout=60, scroll='1m')
+                          request_timeout=60, scroll='2m')
 
         # convert _id to uuid
         async for doc in docs:
@@ -438,6 +438,8 @@ async def main():
                 if len(recommendations) > 0:
                     await insert_recommendations(db_conn, recommendations)
                     recommendations = []
+                # cool down for 5 seconds
+                await asyncio.sleep(5)
         # copy remaining records to postgres
         if len(library_items) > 0:
             await insert_library_items(db_conn, library_items)
