@@ -480,6 +480,7 @@ export const updateLibraryItems = async (
       break
     case BulkActionType.Delete:
       values = {
+        deletedAt: new Date(),
         state: LibraryItemState.Deleted,
       }
       break
