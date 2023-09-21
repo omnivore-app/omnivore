@@ -245,10 +245,7 @@ const buildWhereClause = (
   }
 
   if (args.recommendedBy) {
-    queryBuilder
-      .innerJoin('library_item.recommendations', 'recommendations')
-      .innerJoin('recommendations.recommender', 'recommender')
-      .innerJoin('recommendations.group', 'group')
+    queryBuilder.andWhere('recommendations IS NOT NULL')
 
     // select all if * is provided
     if (args.recommendedBy !== '*') {
@@ -282,6 +279,11 @@ export const searchLibraryItems = async (
         .leftJoinAndSelect('library_item.highlights', 'highlights')
         .leftJoinAndSelect('highlights.user', 'user')
         .leftJoinAndSelect('user.profile', 'profile')
+        .leftJoinAndSelect('library_item.recommendations', 'recommendations')
+        .leftJoinAndSelect('recommendations.recommender', 'recommender')
+        .leftJoinAndSelect('recommendations.group', 'group')
+        .leftJoinAndSelect('recommender.profile', 'recommender_profile')
+        .where('library_item.user_id = :userId', { userId })
 
       // build the where clause
       buildWhereClause(queryBuilder, args)
