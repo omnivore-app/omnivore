@@ -14,6 +14,7 @@ PG_PORT = os.getenv('PG_PORT', 5432)
 PG_USER = os.getenv('PG_USER', 'app_user')
 PG_PASSWORD = os.getenv('PG_PASSWORD', 'app_pass')
 PG_DB = os.getenv('PG_DB', 'omnivore')
+PG_COOLDOWN_TIME = os.getenv('PG_COOLDOWN_TIME', 1)
 ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
 ES_USERNAME = os.getenv('ES_USERNAME', 'elastic')
 ES_PASSWORD = os.getenv('ES_PASSWORD', 'password')
@@ -223,6 +224,8 @@ async def insert_recommendations(db_conn, recommendations):
 
 async def insert_into_postgres(insert_query, db_conn, records):
     await db_conn.executemany(insert_query, records, timeout=60)
+    # cool down for PG_COOLDOWN_TIME seconds
+    await asyncio.sleep(float(PG_COOLDOWN_TIME))
 
 
 def remove_null_bytes(val):
@@ -438,8 +441,7 @@ async def main():
                 if len(recommendations) > 0:
                     await insert_recommendations(db_conn, recommendations)
                     recommendations = []
-                # cool down for 5 seconds
-                await asyncio.sleep(5)
+
         # copy remaining records to postgres
         if len(library_items) > 0:
             await insert_library_items(db_conn, library_items)
