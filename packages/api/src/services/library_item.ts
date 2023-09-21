@@ -249,12 +249,16 @@ const buildWhereClause = (
       .innerJoin('library_item.recommendations', 'recommendations')
       .innerJoin('recommendations.recommender', 'recommender')
       .innerJoin('recommendations.group', 'group')
-      .andWhere(
+
+    // select all if * is provided
+    if (args.recommendedBy !== '*') {
+      queryBuilder.andWhere(
         '(lower(recommender.name) = :recommendedBy OR lower(group.name) = :recommendedBy)',
         {
           recommendedBy: args.recommendedBy.toLowerCase(),
         }
       )
+    }
   }
 }
 
