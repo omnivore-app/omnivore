@@ -383,10 +383,14 @@ export const getArticleResolver = authorized<
       selectColumns.splice(selectColumns.indexOf('originalContent'), 1)
     }
     // We allow the backend to use the ID instead of a slug to fetch the article
+    // query against id if slug is a uuid
+    const where = slug.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i)
+      ? { id: slug }
+      : { slug }
     const libraryItem = await authTrx((tx) =>
       tx.withRepository(libraryItemRepository).findOne({
         select: selectColumns,
-        where: { slug },
+        where,
         relations: {
           labels: true,
           highlights: {

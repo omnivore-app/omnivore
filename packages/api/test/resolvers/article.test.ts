@@ -453,12 +453,12 @@ describe('Article API', () => {
       query = getArticleQuery(slug)
     })
 
-    context('when page exists', () => {
+    context('when item exists', () => {
       before(() => {
         slug = realSlug
       })
 
-      it('should return the page', async () => {
+      it('should return the item', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.article.article.slug).to.eql(slug)
@@ -470,7 +470,7 @@ describe('Article API', () => {
         expect(res.body.data.article.article.highlights).to.length(1)
       })
 
-      context('when page is failed to process', () => {
+      context('when item is failed to process', () => {
         before(async () => {
           await updateLibraryItem(
             itemId,
@@ -492,7 +492,19 @@ describe('Article API', () => {
       })
     })
 
-    context('when page does not exist', () => {
+    context('query with id instead of slug', () => {
+      before(() => {
+        slug = itemId
+      })
+
+      it('returns the item', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.article.article.id).to.eql(slug)
+      })
+    })
+
+    context('when item does not exist', () => {
       before(() => {
         slug = 'not-a-real-slug'
       })
@@ -515,7 +527,7 @@ describe('Article API', () => {
       query = savePageQuery(url, title, originalContent)
     })
 
-    context('when we save a new page', () => {
+    context('when we save a new item', () => {
       after(async () => {
         await deleteLibraryItemByUrl(url, user.id)
       })
@@ -528,7 +540,7 @@ describe('Article API', () => {
       })
     })
 
-    context('when we save a page that is already archived', () => {
+    context('when we save a item that is already archived', () => {
       before(() => {
         url = 'https://blog.omnivore.app/new-url'
       })
@@ -537,7 +549,7 @@ describe('Article API', () => {
         await deleteLibraryItemByUrl(url, user.id)
       })
 
-      it('it should return that page in the Search Query', async () => {
+      it('it should return that item in the Search Query', async () => {
         await graphqlRequest(
           savePageQuery(url, title, originalContent),
           authToken
@@ -565,12 +577,12 @@ describe('Article API', () => {
       })
     })
 
-    xcontext('when we also want to save labels and archives the page', () => {
+    xcontext('when we also want to save labels and archives the item', () => {
       after(async () => {
         await deleteLibraryItemById(url, user.id)
       })
 
-      it('saves the labels and archives the page', async () => {
+      it('saves the labels and archives the item', async () => {
         url = 'https://blog.omnivore.app/new-url-2'
         const state = ArticleSavingRequestStatus.Archived
         const labels = ['test name', 'test name 2']
@@ -616,7 +628,7 @@ describe('Article API', () => {
     })
 
     xcontext('when we save labels', () => {
-      it('saves the labels and archives the page', async () => {
+      it('saves the labels and archives the item', async () => {
         url = 'https://blog.omnivore.app/new-url-2'
         const state = ArticleSavingRequestStatus.Archived
         const labels = ['test name', 'test name 2']
@@ -1247,7 +1259,7 @@ describe('Article API', () => {
       for (let i = 0; i < 5; i++) {
         const itemToSave: DeepPartial<LibraryItem> = {
           user,
-          title: 'typeahead search page',
+          title: 'typeahead search item',
           readableContent: '<p>test</p>',
           slug: '',
           originalUrl: `https://blog.omnivore.app/p/typeahead-search-${i}`,
@@ -1316,7 +1328,7 @@ describe('Article API', () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
         const itemToSave: DeepPartial<LibraryItem> = {
-          title: 'test page',
+          title: 'test item',
           slug: '',
           readableContent: '<p>test</p>',
           originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
@@ -1392,7 +1404,7 @@ describe('Article API', () => {
           {
             user,
             itemType: i == 0 ? PageType.Article : PageType.File,
-            title: 'test page',
+            title: 'test item',
             readableContent: '<p>test</p>',
             slug: '',
             state:
@@ -1467,7 +1479,7 @@ describe('Article API', () => {
     })
 
     after(async () => {
-      // Delete the page
+      // Delete the item
       await deleteLibraryItemById(articleId, user.id)
     })
 
