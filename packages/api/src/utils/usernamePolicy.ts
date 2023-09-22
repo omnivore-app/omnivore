@@ -42,6 +42,7 @@ const RESERVED_NAMES = new Set([
   'contact',
   'create',
   'delete',
+  '_debug',
   'discover',
   'direct_messages',
   'documentation',

@@ -99,7 +99,6 @@
       .then(function (response) {
         if (response.status === 200) {
           return response.json().then((responseJson) => {
-            const url = encodeURIComponent(responseJson.url)
             return currentOrigin + '/article?url=' + url
           })
         }
@@ -132,12 +131,11 @@
 
   function handleFetchRequest(ev) {
     const request = ev.request
-
     if (request.method === 'POST') {
       const requestUrl = new URL(request.url)
       if (requestUrl.pathname === '/share-target') {
         const shareRequest = handleShareTarget(request)
-        ev.respondWith(shareRequest)
+        return shareRequest
       }
     }
 
