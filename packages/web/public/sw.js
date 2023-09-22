@@ -132,6 +132,7 @@
 
   function handleFetchRequest(ev) {
     const request = ev.request
+    console.log('requestUrl.pathname: ', requestUrl.pathname)
 
     if (request.method === 'POST') {
       const requestUrl = new URL(request.url)
@@ -180,6 +181,7 @@
   })
 
   globalApi.addEventListener('fetch', (ev) => {
+    console.log('handling fetch request for: ', ev)
     if (ev.request.destination === 'script') {
       return
     }
