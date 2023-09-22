@@ -19,6 +19,7 @@ ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
 ES_USERNAME = os.getenv('ES_USERNAME', 'elastic')
 ES_PASSWORD = os.getenv('ES_PASSWORD', 'password')
 ES_SCAN_SIZE = os.getenv('ES_SCAN_SIZE', 1000)
+ES_SCROLL_TIME = os.getenv('ES_SCROLL_TIME', '2m')
 ES_INDEX = os.getenv('ES_INDEX', 'pages_alias')
 
 CUT_OFF_DATE = os.getenv('CUT_OFF_DATE', '2000-01-01')
@@ -312,7 +313,7 @@ async def main():
         # Scan API for larger library
         docs = async_scan(es_client, index=ES_INDEX, query=query,
                           preserve_order=True, size=ES_SCAN_SIZE,
-                          request_timeout=60, scroll='2m')
+                          request_timeout=60, scroll=ES_SCROLL_TIME)
 
         # convert _id to uuid
         async for doc in docs:

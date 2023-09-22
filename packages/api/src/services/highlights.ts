@@ -52,8 +52,16 @@ export const createHighlight = async (
   pubsub = createPubSubClient()
 ) => {
   const newHighlight = await authTrx(
-    async (tx) =>
-      tx.withRepository(highlightRepository).createAndSave(highlight),
+    async (tx) => {
+      const repo = tx.withRepository(highlightRepository)
+      const newHighlight = await repo.createAndSave(highlight)
+      return repo.findOneOrFail({
+        where: { id: newHighlight.id },
+        relations: {
+          user: true,
+        },
+      })
+    },
     undefined,
     userId
   )
@@ -79,7 +87,13 @@ export const mergeHighlights = async (
 
     await highlightRepo.delete(highlightsToRemove)
 
-    return highlightRepo.createAndSave(highlightToAdd)
+    const newHighlight = await highlightRepo.createAndSave(highlightToAdd)
+    return highlightRepo.findOneOrFail({
+      where: { id: newHighlight.id },
+      relations: {
+        user: true,
+      },
+    })
   })
 
   await pubsub.entityCreated<CreateHighlightEvent>(
@@ -105,6 +119,7 @@ export const updateHighlight = async (
       where: { id: highlightId },
       relations: {
         libraryItem: true,
+        user: true,
       },
     })
   })

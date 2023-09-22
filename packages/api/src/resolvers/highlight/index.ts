@@ -15,7 +15,6 @@ import {
   DeleteHighlightError,
   DeleteHighlightErrorCode,
   DeleteHighlightSuccess,
-  Highlight,
   MergeHighlightError,
   MergeHighlightErrorCode,
   MergeHighlightSuccess,
@@ -35,19 +34,7 @@ import {
   updateHighlight,
 } from '../../services/highlights'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
-
-const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
-  ...highlight,
-  replies: [],
-  reactions: [],
-  type: highlight.highlightType,
-  createdByMe: false,
-  user: {
-    ...highlight.user,
-    sharedArticles: [],
-  },
-})
+import { authorized, highlightDataToHighlight } from '../../utils/helpers'
 
 export const createHighlightResolver = authorized<
   CreateHighlightSuccess,

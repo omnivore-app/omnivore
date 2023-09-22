@@ -18,7 +18,6 @@ import {
   CreateArticleSuccess,
   FeedArticle,
   Highlight,
-  HighlightType,
   PageType,
   Profile,
   Recommendation,
@@ -198,12 +197,14 @@ export const errorHandler = async (
   return result
 }
 
-const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
+export const highlightDataToHighlight = (
+  highlight: HighlightData
+): Highlight => ({
   ...highlight,
-  createdByMe: true,
+  createdByMe: false,
   reactions: [],
   replies: [],
-  type: highlight.highlightType as HighlightType,
+  type: highlight.highlightType,
   user: userDataToUser(highlight.user),
 })
 
