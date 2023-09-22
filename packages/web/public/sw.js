@@ -138,7 +138,7 @@
       const requestUrl = new URL(request.url)
       if (requestUrl.pathname === '/share-target') {
         const shareRequest = handleShareTarget(request)
-        ev.respondWith(shareRequest)
+        return shareRequest
       }
     }
 
