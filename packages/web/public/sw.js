@@ -99,7 +99,6 @@
       .then(function (response) {
         if (response.status === 200) {
           return response.json().then((responseJson) => {
-            const url = encodeURIComponent(responseJson.url)
             return currentOrigin + '/article?url=' + url
           })
         }
