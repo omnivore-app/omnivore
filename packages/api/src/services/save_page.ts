@@ -1,5 +1,6 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
@@ -85,7 +86,7 @@ export const savePage = async (
     itemType: parseResult.pageType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
-    saveTime: input.savedAt ? new Date(input.savedAt) : undefined,
+    saveTime: input.savedAt ? new Date(input.savedAt) : new Date(),
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
@@ -109,11 +110,7 @@ export const savePage = async (
       }
     }
   } else {
-    // save state
-    itemToSave.archivedAt =
-      input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
-
-    // check if the page already exists
+    // check if the item already exists
     const existingLibraryItem = await authTrx((t) =>
       t.getRepository(LibraryItem).findOneBy({
         user: { id: user.id },
@@ -121,7 +118,7 @@ export const savePage = async (
       })
     )
     if (existingLibraryItem) {
-      // we don't want to update an rss feed page if rss-feeder is tring to re-save it
+      // we don't want to update an rss feed item if rss-feeder is tring to re-save it
       if (existingLibraryItem.subscription === input.rssFeedUrl) {
         return {
           clientRequestId,
@@ -131,14 +128,18 @@ export const savePage = async (
 
       clientRequestId = existingLibraryItem.id
       slug = existingLibraryItem.slug
-      await updateLibraryItem(clientRequestId, itemToSave, user.id)
+      await updateLibraryItem(
+        clientRequestId,
+        itemToSave as QueryDeepPartialEntity<LibraryItem>,
+        user.id
+      )
     } else {
-      // do not publish a pubsub event if the page is imported
+      // do not publish a pubsub event if the item is imported
       const newItem = await createLibraryItem(itemToSave, user.id)
       clientRequestId = newItem.id
     }
 
-    // add labels to page
+    // save labels in item
     if (input.labels) {
       const labels = await findOrCreateLabels(input.labels, user.id)
       await saveLabelsInLibraryItem(labels, clientRequestId, user.id)

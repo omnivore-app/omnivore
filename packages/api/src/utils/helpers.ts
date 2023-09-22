@@ -271,7 +271,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
 
 export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {
   return (
-    // page processed more than 30 seconds ago
+    // item processed more than 30 seconds ago
     libraryItem.state === LibraryItemState.Processing &&
     libraryItem.savedAt.getTime() < new Date().getTime() - 1000 * 30
   )

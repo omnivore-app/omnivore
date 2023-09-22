@@ -5,13 +5,13 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { DeepPartial } from 'typeorm'
+import { Not } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArticleError,
   ArticleErrorCode,
-  ArticleSavingRequestStatus,
   ArticleSuccess,
   BulkActionError,
   BulkActionErrorCode,
@@ -58,6 +58,7 @@ import {
   addLabelsToLibraryItem,
   findLabelsByIds,
   findOrCreateLabels,
+  saveLabelsInLibraryItem,
 } from '../../services/labels'
 import {
   createLibraryItem,
@@ -287,6 +288,7 @@ export const createArticleResolver = authorized<
         uploadFileHash,
         canonicalUrl,
         uploadFileId,
+        state,
       })
 
       log.info('New article saving', {
@@ -311,13 +313,6 @@ export const createArticleResolver = authorized<
         await makeStorageFilePublic(uploadFileData.id, uploadFileData.fileName)
       }
 
-      // save page's state and labels
-      libraryItemToSave.archivedAt =
-        state === ArticleSavingRequestStatus.Archived ? new Date() : null
-      if (inputLabels) {
-        libraryItemToSave.labels = await findOrCreateLabels(inputLabels, uid)
-      }
-
       let libraryItemToReturn: LibraryItem
 
       const existingLibraryItem = await findLibraryItemByUrl(
@@ -326,20 +321,26 @@ export const createArticleResolver = authorized<
       )
       articleSavingRequestId = existingLibraryItem?.id || articleSavingRequestId
       if (articleSavingRequestId) {
-        // update existing page's state from processing to succeeded
+        // update existing item's state from processing to succeeded
         libraryItemToReturn = await updateLibraryItem(
           articleSavingRequestId,
-          libraryItemToSave,
+          libraryItemToSave as QueryDeepPartialEntity<LibraryItem>,
           uid,
           pubsub
         )
       } else {
-        // create new page in database
+        // create new item in database
         libraryItemToReturn = await createLibraryItem(
           libraryItemToSave,
           uid,
           pubsub
         )
+      }
+
+      // save labels in item
+      if (inputLabels) {
+        const labels = await findOrCreateLabels(inputLabels, user.id)
+        await saveLabelsInLibraryItem(labels, libraryItemToReturn.id, user.id)
       }
 
       log.info(
@@ -524,7 +525,7 @@ export const setBookmarkArticleResolver = authorized<
   SetBookmarkArticleError,
   MutationSetBookmarkArticleArgs
 >(async (_, { input: { articleID } }, { uid, log, pubsub }) => {
-  // delete the page and its metadata
+  // delete the item and its metadata
   const deletedLibraryItem = await updateLibraryItem(
     articleID,
     {
@@ -545,7 +546,7 @@ export const setBookmarkArticleResolver = authorized<
   })
 
   log.info('Article unbookmarked', {
-    page: Object.assign({}, deletedLibraryItem, {
+    item: Object.assign({}, deletedLibraryItem, {
       readableContent: undefined,
       originalContent: undefined,
     }),
@@ -601,7 +602,7 @@ export const saveArticleReadingProgressResolver = authorized<
       : undefined
     // If setting to zero we accept the update, otherwise we require it
     // be greater than the current reading progress.
-    const updatedPart: DeepPartial<LibraryItem> = {
+    const updatedPart: QueryDeepPartialEntity<LibraryItem> = {
       readingProgressBottomPercent:
         readingProgressPercent === 0
           ? 0
@@ -834,7 +835,7 @@ export const setFavoriteArticleResolver = authorized<
     }
 
     const labels = await findOrCreateLabels([label], uid)
-    // adds Favorites label to page
+    // adds Favorites label to item
     await addLabelsToLibraryItem(labels, id, uid)
 
     return {

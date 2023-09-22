@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { readPushSubscription } from '../../pubsub'
 import { authTrx } from '../../repository'
@@ -81,7 +82,9 @@ export function contentServiceRouter() {
       return
     }
 
-    const itemToUpdate: Partial<LibraryItem> = { originalContent: msg.content }
+    const itemToUpdate: QueryDeepPartialEntity<LibraryItem> = {
+      originalContent: msg.content,
+    }
     if (msg.title) itemToUpdate.title = msg.title
     if (msg.author) itemToUpdate.author = msg.author
     if (msg.description) itemToUpdate.description = msg.description

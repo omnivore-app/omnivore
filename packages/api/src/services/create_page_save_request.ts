@@ -113,7 +113,7 @@ export const createPageSaveRequest = async ({
   if (!libraryItem) {
     logger.info('libraryItem does not exist', { url })
 
-    // create processing page
+    // create processing item
     libraryItem = await createLibraryItem(
       {
         id: articleSavingRequestId,
@@ -145,7 +145,7 @@ export const createPageSaveRequest = async ({
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
 
-  // enqueue task to parse page
+  // enqueue task to parse item
   await enqueueParseRequest({
     url,
     userId,

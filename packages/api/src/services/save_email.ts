@@ -20,7 +20,7 @@ import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
 import {
   createLibraryItem,
   findLibraryItemByUrl,
-  updateLibraryItem,
+  restoreLibraryItem,
 } from './library_item'
 import { updateReceivedEmail } from './received_emails'
 import { saveSubscription } from './subscriptions'
@@ -72,12 +72,8 @@ export const saveEmail = async (
     input.userId
   )
   if (existingLibraryItem) {
-    const updatedLibraryItem = await updateLibraryItem(
+    const updatedLibraryItem = await restoreLibraryItem(
       existingLibraryItem.id,
-      {
-        archivedAt: null,
-        state: LibraryItemState.Succeeded,
-      },
       input.userId
     )
     logger.info('updated page from email', updatedLibraryItem)

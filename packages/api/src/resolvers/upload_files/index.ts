@@ -125,15 +125,13 @@ export const uploadFileRequestResolver = authorized<
     let createdItemId: string | undefined = undefined
     if (input.createPageEntry) {
       // If we have a file:// URL, don't try to match it
-      // and create a copy of the page, just create a
+      // and create a copy of the item, just create a
       // new item.
       const item = await findLibraryItemByUrl(input.url, uid)
       if (item) {
         await updateLibraryItem(
           item.id,
           {
-            savedAt: new Date(),
-            archivedAt: null,
             state: LibraryItemState.Processing,
           },
           uid

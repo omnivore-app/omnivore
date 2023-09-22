@@ -16,7 +16,7 @@ import {
   createLibraryItem,
   findLibraryItemById,
   findLibraryItemByUrl,
-  updateLibraryItem,
+  restoreLibraryItem,
 } from '../services/library_item'
 import { addRecommendation } from '../services/recommendation'
 import { getTokenByRequest } from '../utils/auth'
@@ -105,18 +105,8 @@ export function pageRouter() {
     const item = await findLibraryItemByUrl(url, claims.uid)
 
     if (item) {
-      logger.info('updating page')
-      await updateLibraryItem(
-        item.id,
-        {
-          savedAt: new Date(),
-          archivedAt: null,
-          state: LibraryItemState.Succeeded,
-        },
-        claims.uid
-      )
+      await restoreLibraryItem(item.id, claims.uid)
     } else {
-      logger.info('creating page')
       await createLibraryItem(
         {
           originalUrl: signedUrl,

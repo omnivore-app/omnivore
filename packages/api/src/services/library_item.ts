@@ -342,7 +342,7 @@ export const findLibraryItemByUrl = async (
   )
 }
 
-export const refreshLibraryItem = async (
+export const restoreLibraryItem = async (
   id: string,
   userId: string,
   pubsub = createPubSubClient()
@@ -353,6 +353,7 @@ export const refreshLibraryItem = async (
       state: LibraryItemState.Succeeded,
       savedAt: new Date(),
       archivedAt: null,
+      deletedAt: null,
     },
     userId,
     pubsub
@@ -361,17 +362,30 @@ export const refreshLibraryItem = async (
 
 export const updateLibraryItem = async (
   id: string,
-  libraryItem: DeepPartial<LibraryItem>,
+  libraryItem: QueryDeepPartialEntity<LibraryItem>,
   userId: string,
   pubsub = createPubSubClient()
 ): Promise<LibraryItem> => {
   const updatedLibraryItem = await authTrx(
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
-      await itemRepo.update(
-        id,
-        libraryItem as QueryDeepPartialEntity<LibraryItem>
-      )
+
+      // reset deletedAt and archivedAt
+      switch (libraryItem.state) {
+        case LibraryItemState.Archived:
+          libraryItem.archivedAt = new Date()
+          break
+        case LibraryItemState.Deleted:
+          libraryItem.deletedAt = new Date()
+          break
+        case LibraryItemState.Processing:
+        case LibraryItemState.Succeeded:
+          libraryItem.archivedAt = null
+          libraryItem.deletedAt = null
+          break
+      }
+
+      await itemRepo.update(id, libraryItem)
 
       return itemRepo.findOneByOrFail({ id })
     },
@@ -379,7 +393,7 @@ export const updateLibraryItem = async (
     userId
   )
 
-  await pubsub.entityUpdated<DeepPartial<LibraryItem>>(
+  await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
     EntityType.PAGE,
     { ...libraryItem, id },
     userId
