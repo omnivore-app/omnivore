@@ -236,9 +236,7 @@ def remove_null_bytes(val):
 
 
 async def main():
-    print('Starting migration')
-    migrated_at = CUT_OFF_DATE
-    print('Cut off date', CUT_OFF_DATE)
+    print('Starting migration', CUT_OFF_DATE)
 
     # postgres connection
     db_conn = await asyncpg.connect(user=PG_USER, password=PG_PASSWORD,
@@ -336,6 +334,11 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
+
+            # skip item if content is larger than 1MB
+            if len(source['content']) > 1000000:
+                print('Skipping item', doc['_id'], 'because content is larger than 1MB')
+                continue
 
             library_item = (
                 id,
