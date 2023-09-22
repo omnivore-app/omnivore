@@ -42,7 +42,7 @@ const highlightDataToHighlight = (highlight: HighlightData): Highlight => ({
   replies: [],
   reactions: [],
   type: highlight.highlightType,
-  createdByMe: true,
+  createdByMe: false,
   user: {
     ...highlight.user,
     sharedArticles: [],
@@ -181,6 +181,7 @@ export const updateHighlightResolver = authorized<
         annotation: input.annotation,
         html: input.html,
         quote: input.quote,
+        color: input.color,
       },
       uid,
       pubsub

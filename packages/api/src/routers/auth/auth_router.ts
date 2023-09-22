@@ -347,7 +347,7 @@ export function authRouter() {
           const state = JSON.parse((req.query?.state || '') as string)
           redirectUri = state?.redirect_uri
         } catch (err) {
-          logger.warn(
+          logger.error(
             'handleSuccessfulLogin: failed to parse redirect query state param',
             err
           )
