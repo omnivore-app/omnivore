@@ -132,7 +132,7 @@
 
   function handleFetchRequest(ev) {
     const request = ev.request
-    console.log('requestUrl.pathname: ', requestUrl.pathname)
+    console.log('requestUrl.pathname: ', request)
 
     if (request.method === 'POST') {
       const requestUrl = new URL(request.url)
