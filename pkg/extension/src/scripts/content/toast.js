@@ -220,7 +220,9 @@
       }
     })
 
-    currentToastEl.focus()
+    currentToastEl.focus({
+      preventScroll: true,
+    })
   }
 
   function updatePageStatus(status) {
