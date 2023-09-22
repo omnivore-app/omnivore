@@ -132,8 +132,6 @@
 
   function handleFetchRequest(ev) {
     const request = ev.request
-    console.log('requestUrl.pathname: ', request)
-
     if (request.method === 'POST') {
       const requestUrl = new URL(request.url)
       if (requestUrl.pathname === '/share-target') {
@@ -181,7 +179,6 @@
   })
 
   globalApi.addEventListener('fetch', (ev) => {
-    console.log('handling fetch request for: ', ev)
     if (ev.request.destination === 'script') {
       return
     }
