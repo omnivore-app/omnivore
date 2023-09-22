@@ -43,14 +43,11 @@ struct LibraryTabView: View {
   )
 
   var body: some View {
-    if #available(iOS 16.0, *) {
-      NavigationView {
-        HomeView(viewModel: libraryViewModel)
-          .navigationBarHidden(false)
-      }
-    } else {
-      // Fallback on earlier versions
-      EmptyView()
+    NavigationView {
+      HomeView(viewModel: libraryViewModel)
+      #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+      #endif
     }
   }
 }

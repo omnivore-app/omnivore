@@ -98,6 +98,12 @@ struct LinkedItemMetadataEditView: View {
           .navigationTitle("Edit Title and Description")
           .navigationBarTitleDisplayMode(.inline)
           .toolbar {
+            ToolbarItem(placement: .barLeading) {
+              Button(
+                action: { presentationMode.wrappedValue.dismiss() },
+                label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
+              )
+            }
             ToolbarItem(placement: .barTrailing) {
               Button(
                 action: {
@@ -108,12 +114,6 @@ struct LinkedItemMetadataEditView: View {
                   presentationMode.wrappedValue.dismiss()
                 },
                 label: { Text(LocalText.genericSave).foregroundColor(.appGrayTextContrast) }
-              )
-            }
-            ToolbarItem(placement: .barLeading) {
-              Button(
-                action: { presentationMode.wrappedValue.dismiss() },
-                label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
               )
             }
           }

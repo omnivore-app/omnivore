@@ -9,6 +9,8 @@ import Views
     PrimaryContentCategory.profile
   ]
 
+  @State var searchTerm: String = ""
+
   public var body: some View {
     innerBody
   }
@@ -18,9 +20,10 @@ import Views
       if UIDevice.isIPad {
         return AnyView(splitView)
       } else {
-        return AnyView(LibraryTabView())
-        //      .navigationViewStyle(.stack)
-        //      .navigationBarTitleDisplayMode(.inline)
+        return AnyView(
+          LibraryTabView()
+            .navigationViewStyle(.stack)
+        )
       }
     #else
       return AnyView(splitView)
@@ -33,7 +36,6 @@ import Views
         PrimaryContentCategory.feed.destinationView
         Text(LocalText.navigationSelectLink)
       }
-      .accentColor(.appGrayTextContrast)
     }
   #endif
 
@@ -90,6 +92,9 @@ import Views
     .sheet(isPresented: $addLinkPresented) {
       NavigationView {
         LibraryAddLinkView()
+        #if os(iOS)
+          .navigationBarTitleDisplayMode(.inline)
+        #endif
       }
     }
   }

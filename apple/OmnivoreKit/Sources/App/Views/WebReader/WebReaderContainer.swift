@@ -427,7 +427,9 @@ struct WebReaderContainerView: View {
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
-        .statusBar(hidden: prefersHideStatusBarInReader)
+        #if os(iOS)
+          .statusBar(hidden: prefersHideStatusBarInReader)
+        #endif
         .onAppear {
           if item.isUnread {
             dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)

@@ -1,24 +1,29 @@
 import Foundation
-import PostHog
+
+#if os(iOS)
+  import PostHog
+#endif
 
 public enum EventTracker {
-  public static var posthog: PHGPostHog? = {
-    guard let writeKey = AppKeys.sharedInstance?.posthogClientKey else {
-      return nil
-    }
+  #if os(iOS)
+    public static var posthog: PHGPostHog? = {
+      guard let writeKey = AppKeys.sharedInstance?.posthogClientKey else {
+        return nil
+      }
 
-    guard let posthogInstanceAddress = AppKeys.sharedInstance?.posthogInstanceAddress else {
-      return nil
-    }
+      guard let posthogInstanceAddress = AppKeys.sharedInstance?.posthogInstanceAddress else {
+        return nil
+      }
 
-    let configuration = PHGPostHogConfiguration(apiKey: writeKey, host: posthogInstanceAddress)
+      let configuration = PHGPostHogConfiguration(apiKey: writeKey, host: posthogInstanceAddress)
 
-    configuration.recordScreenViews = false
-    configuration.captureApplicationLifecycleEvents = true
+      configuration.recordScreenViews = false
+      configuration.captureApplicationLifecycleEvents = true
 
-    PHGPostHog.setup(with: configuration)
-    return PHGPostHog.shared()
-  }()
+      PHGPostHog.setup(with: configuration)
+      return PHGPostHog.shared()
+    }()
+  #endif
 
   public static func trackForDebugging(_ message: String) {
     #if DEBUG
@@ -27,14 +32,20 @@ public enum EventTracker {
   }
 
   public static func track(_ event: TrackableEvent) {
-    posthog?.capture(event.name, properties: event.properties)
+    #if os(iOS)
+      posthog?.capture(event.name, properties: event.properties)
+    #endif
   }
 
   public static func registerUser(userID: String) {
-    posthog?.identify(userID)
+    #if os(iOS)
+      posthog?.identify(userID)
+    #endif
   }
 
   public static func reset() {
-    posthog?.reset()
+    #if os(iOS)
+      posthog?.reset()
+    #endif
   }
 }
