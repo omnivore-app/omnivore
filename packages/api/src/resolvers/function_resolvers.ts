@@ -429,11 +429,11 @@ export const functionResolvers = {
     //   return await ctx.models.reaction.batchGetFromHighlight(id)
     // },
     createdByMe(
-      highlight: { userId: string },
+      highlight: { user: { id: string } },
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return highlight.userId === ctx.uid
+      return highlight.user.id === ctx.uid
     },
   },
   // Reaction: {
