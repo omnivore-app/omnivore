@@ -21,6 +21,7 @@ ES_PASSWORD = os.getenv('ES_PASSWORD', 'password')
 ES_SCAN_SIZE = os.getenv('ES_SCAN_SIZE', 1000)
 ES_SCROLL_TIME = os.getenv('ES_SCROLL_TIME', '2m')
 ES_INDEX = os.getenv('ES_INDEX', 'pages_alias')
+ES_TIMEOUT = os.getenv('ES_TIMEOUT', 60)
 
 START_TIME = os.getenv('START_TIME', '2000-01-01')
 END_TIME = os.getenv('END_TIME', '2100-01-01')
@@ -317,7 +318,7 @@ async def main():
         # Scan API for larger library
         docs = async_scan(es_client, index=ES_INDEX, query=query,
                           preserve_order=True, size=ES_SCAN_SIZE,
-                          request_timeout=60, scroll=ES_SCROLL_TIME)
+                          request_timeout=ES_TIMEOUT, scroll=ES_SCROLL_TIME)
 
         # convert _id to uuid
         async for doc in docs:
@@ -463,9 +464,6 @@ async def main():
         if len(recommendations) > 0:
             await insert_recommendations(db_conn, recommendations)
 
-        # enable update_library_item_modtime trigger
-        await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER update_library_item_modtime')
-
         print('Migration complete', migrated_at)
 
         await assert_data(db_conn, es_client, users, uploaded_files)
@@ -473,6 +471,8 @@ async def main():
         print('Migration error', err)
     finally:
         print('Closing connections')
+        # enable update_library_item_modtime trigger
+        await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER update_library_item_modtime')
         await db_conn.close()
         await es_client.close()
 
