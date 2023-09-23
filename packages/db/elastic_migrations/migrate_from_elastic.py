@@ -318,7 +318,7 @@ async def main():
         # Scan API for larger library
         docs = async_scan(es_client, index=ES_INDEX, query=query,
                           preserve_order=True, size=ES_SCAN_SIZE,
-                          request_timeout=ES_TIMEOUT, scroll=ES_SCROLL_TIME)
+                          request_timeout=int(ES_TIMEOUT), scroll=ES_SCROLL_TIME)
 
         # convert _id to uuid
         async for doc in docs:
