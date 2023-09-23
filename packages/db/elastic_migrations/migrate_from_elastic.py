@@ -229,7 +229,7 @@ async def insert_recommendations(db_conn, recommendations):
 async def insert_into_postgres(insert_query, db_conn, records):
     await db_conn.executemany(insert_query, records, timeout=int(PG_TIMEOUT))
     # cool down for PG_COOLDOWN_TIME seconds
-    if PG_COOLDOWN_TIME > 0:
+    if float(PG_COOLDOWN_TIME) > 0:
         await asyncio.sleep(float(PG_COOLDOWN_TIME))
 
 
