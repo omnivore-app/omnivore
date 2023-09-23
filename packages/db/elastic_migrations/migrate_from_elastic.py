@@ -230,11 +230,28 @@ async def insert_into_postgres(insert_query, db_conn, records):
     try:
         await db_conn.executemany(insert_query, records, timeout=int(PG_TIMEOUT))
     except Exception as err:
-        print('Insert into postgres ERROR:', err)
-        # excute insert query one by one
+        print('Batch insert into postgres ERROR:', err)
+        # excute insert query one by one if batch insert failed
         for record in records:
-            print('Inserting record', record)
-            await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
+            # print record id for debugging, the record id is the last element
+            print('Inserting record', record[-1])
+            try:
+                await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
+            except Exception as err:
+                # print the error
+                print('Insert into postgres ERROR:', err)
+                if 'string is too long for tsvector' in str(err):
+                    # create a transaction
+                    async with db_conn.transaction():
+                        # disable library_item_tsv_update trigger
+                        await db_conn.execute('ALTER TABLE omnivore.library_item DISABLE TRIGGER update_library_item_tsv')
+                        # insert record again
+                        await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
+                        # enable library_item_tsv_update trigger
+                        await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER update_library_item_tsv')
+                else:
+                    # the error is not caused by tsvector, throw the error
+                    raise err
 
     # cool down for PG_COOLDOWN_TIME seconds
     if float(PG_COOLDOWN_TIME) > 0:
@@ -331,7 +348,8 @@ async def main():
         # convert _id to uuid
         async for doc in docs:
             i += 1
-            id = get_uuid(doc['_id'])
+            doc_id = doc['_id']
+            id = get_uuid(doc_id)
 
             # convert library items to postgres format
             source = doc['_source']
@@ -353,8 +371,8 @@ async def main():
             description = source.get('description', None)
 
             # skip item if content is larger than 1MB
-            if len(content) > 1000000:
-                print('Skipping item', doc['_id'], 'because content is larger than 1MB')
+            if len(content) > 1048575:
+                print('Skipping item', doc_id, 'because content is larger than 1MB')
                 continue
 
             library_item = (
@@ -387,6 +405,7 @@ async def main():
                 content_reader,
                 remove_null_bytes(source.get('originalHtml', None)),
                 deleted_at,
+                doc_id,
             )
             library_items.append(library_item)
 
@@ -397,6 +416,7 @@ async def main():
                         get_uuid(label['id']),
                         id,
                         None,
+                        label['id'],
                     ))
 
             # convert highlights to postgres format
@@ -427,6 +447,7 @@ async def main():
                         highlight.get('type', 'HIGHLIGHT'),
                         highlight.get('color', None),
                         highlight.get('html', None),
+                        highlight['id'],
                     ))
 
                     if 'labels' in highlight:
@@ -435,6 +456,7 @@ async def main():
                                 get_uuid(label['id']),
                                 None,
                                 highlight_id,
+                                label['id'],
                             ))
 
             # convert recommendations to postgres format
@@ -446,6 +468,7 @@ async def main():
                         get_uuid(recommendation['id']),
                         recommendation.get('note', None),
                         convert_string_to_datetime(recommendation['recommendedAt']),
+                        recommendation['id'],
                     ))
 
             # copy to postgres every ES_SCAN_SIZE records
