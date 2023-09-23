@@ -114,7 +114,7 @@ def convert_string_to_datetime(val):
     return datetime.strptime(val, DATE_FORMAT)
 
 
-async def insert_library_items(db_conn, library_items):
+async def insert_library_items(db_conn, library_items, original_ids):
     insert_query = '''
         INSERT INTO omnivore.library_item (
             id, user_id, title, author, description, readable_content, original_url, upload_file_id, item_type, slug, reading_progress_top_percent, reading_progress_bottom_percent, reading_progress_highest_read_anchor, created_at, saved_at, archived_at, site_name, subscription, state, updated_at, published_at, item_language, read_at, word_count, site_icon, thumbnail, content_reader, original_content, deleted_at
@@ -151,11 +151,11 @@ async def insert_library_items(db_conn, library_items):
             deleted_at = EXCLUDED.deleted_at
     '''
     print(f'Inserting {len(library_items)} library items into postgres')
-    await insert_into_postgres(insert_query, db_conn, library_items)
+    await insert_into_postgres(insert_query, db_conn, library_items, original_ids)
     print(f'Inserted {len(library_items)} library items')
 
 
-async def insert_highlights(db_conn, highlights):
+async def insert_highlights(db_conn, highlights, original_ids):
     insert_query = '''
         INSERT INTO omnivore.highlight (
             id, user_id, quote, prefix, suffix, patch, annotation, created_at, updated_at, shared_at, short_id, library_item_id, highlight_position_percent, highlight_position_anchor_index, highlight_type, color, html
@@ -186,11 +186,11 @@ async def insert_highlights(db_conn, highlights):
             html = EXCLUDED.html
     '''
     print(f'Inserting {len(highlights)} highlights into postgres')
-    await insert_into_postgres(insert_query, db_conn, highlights)
+    await insert_into_postgres(insert_query, db_conn, highlights, original_ids)
     print(f'Inserted {len(highlights)} highlights')
 
 
-async def insert_labels(db_conn, labels):
+async def insert_labels(db_conn, labels, original_ids):
     insert_query = '''
         INSERT INTO omnivore.entity_labels (
             label_id, library_item_id, highlight_id
@@ -203,11 +203,11 @@ async def insert_labels(db_conn, labels):
         ON CONFLICT (label_id, library_item_id, highlight_id) DO NOTHING
     '''
     print(f'Inserting {len(labels)} labels into postgres')
-    await insert_into_postgres(insert_query, db_conn, labels)
+    await insert_into_postgres(insert_query, db_conn, labels, original_ids)
     print(f'Inserted {len(labels)} labels')
 
 
-async def insert_recommendations(db_conn, recommendations):
+async def insert_recommendations(db_conn, recommendations, original_ids):
     insert_query = '''
         INSERT INTO omnivore.recommendation (
             library_item_id, recommender_id, group_id, note, created_at
@@ -222,19 +222,19 @@ async def insert_recommendations(db_conn, recommendations):
             created_at = EXCLUDED.created_at
     '''
     print(f'Inserting {len(recommendations)} recommendations into postgres')
-    await insert_into_postgres(insert_query, db_conn, recommendations)
+    await insert_into_postgres(insert_query, db_conn, recommendations, original_ids)
     print(f'Inserted {len(recommendations)} recommendations')
 
 
-async def insert_into_postgres(insert_query, db_conn, records):
+async def insert_into_postgres(insert_query, db_conn, records, original_ids):
     try:
         await db_conn.executemany(insert_query, records, timeout=int(PG_TIMEOUT))
     except Exception as err:
         print('Batch insert into postgres ERROR:', err)
         # excute insert query one by one if batch insert failed
-        for record in records:
-            # print record id for debugging, the record id is the last element
-            print('Inserting record', record[-1])
+        for i, record in records:
+            # print original id for debugging
+            print('Inserting record', original_ids[i])
             try:
                 await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
             except Exception as err:
@@ -291,9 +291,13 @@ async def main():
         print('Getting data from elastic and if uploadFileId exists, check if it exists in postgres')
         i = 0
         library_items = []
+        library_items_original_ids = []
         highlights = []
+        highlights_original_ids = []
         labels = []
+        labels_original_ids = []
         recommendations = []
+        recommendations_original_ids = []
 
         query = {
             'query': {
@@ -405,9 +409,9 @@ async def main():
                 content_reader,
                 remove_null_bytes(source.get('originalHtml', None)),
                 deleted_at,
-                doc_id,
             )
             library_items.append(library_item)
+            library_items_original_ids.append(doc_id)
 
             # convert labels to postgres format
             if 'labels' in source:
@@ -416,8 +420,8 @@ async def main():
                         get_uuid(label['id']),
                         id,
                         None,
-                        label['id'],
                     ))
+                    labels_original_ids.append(label['id'])
 
             # convert highlights to postgres format
             if 'highlights' in source:
@@ -447,8 +451,8 @@ async def main():
                         highlight.get('type', 'HIGHLIGHT'),
                         highlight.get('color', None),
                         highlight.get('html', None),
-                        highlight['id'],
                     ))
+                    highlights_original_ids.append(highlight['id'])
 
                     if 'labels' in highlight:
                         for label in highlight['labels']:
@@ -456,8 +460,8 @@ async def main():
                                 get_uuid(label['id']),
                                 None,
                                 highlight_id,
-                                label['id'],
                             ))
+                            labels_original_ids.append(label['id'])
 
             # convert recommendations to postgres format
             if 'recommendations' in source:
@@ -468,34 +472,38 @@ async def main():
                         get_uuid(recommendation['id']),
                         recommendation.get('note', None),
                         convert_string_to_datetime(recommendation['recommendedAt']),
-                        recommendation['id'],
                     ))
+                    recommendations_original_ids.append(recommendation['id'])
 
             # copy to postgres every ES_SCAN_SIZE records
             if i % int(ES_SCAN_SIZE) == 0:
-                await insert_library_items(db_conn, library_items)
+                await insert_library_items(db_conn, library_items, library_items_original_ids)
                 print('Copied', i, 'records to postgres')
                 library_items = []
+                library_items_original_ids = []
                 if len(highlights) > 0:
-                    await insert_highlights(db_conn, highlights)
+                    await insert_highlights(db_conn, highlights, highlights_original_ids)
                     highlights = []
+                    highlights_original_ids = []
                 if len(labels) > 0:
-                    await insert_labels(db_conn, labels)
+                    await insert_labels(db_conn, labels, labels_original_ids)
                     labels = []
+                    labels_original_ids = []
                 if len(recommendations) > 0:
-                    await insert_recommendations(db_conn, recommendations)
+                    await insert_recommendations(db_conn, recommendations, recommendations_original_ids)
                     recommendations = []
+                    recommendations_original_ids = []
 
         # copy remaining records to postgres
         if len(library_items) > 0:
-            await insert_library_items(db_conn, library_items)
+            await insert_library_items(db_conn, library_items, library_items_original_ids)
             print('Copied', i, 'records to postgres')
         if len(highlights) > 0:
-            await insert_highlights(db_conn, highlights)
+            await insert_highlights(db_conn, highlights, highlights_original_ids)
         if len(labels) > 0:
-            await insert_labels(db_conn, labels)
+            await insert_labels(db_conn, labels, labels_original_ids)
         if len(recommendations) > 0:
-            await insert_recommendations(db_conn, recommendations)
+            await insert_recommendations(db_conn, recommendations, recommendations_original_ids)
 
         print('Migration complete', END_TIME)
 
