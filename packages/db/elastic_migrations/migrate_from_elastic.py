@@ -15,6 +15,7 @@ PG_USER = os.getenv('PG_USER', 'app_user')
 PG_PASSWORD = os.getenv('PG_PASSWORD', 'app_pass')
 PG_DB = os.getenv('PG_DB', 'omnivore')
 PG_COOLDOWN_TIME = os.getenv('PG_COOLDOWN_TIME', 1)
+PG_TIMEOUT = os.getenv('PG_TIMEOUT', 60)
 ES_URL = os.getenv('ES_URL', 'http://localhost:9200')
 ES_USERNAME = os.getenv('ES_USERNAME', 'elastic')
 ES_PASSWORD = os.getenv('ES_PASSWORD', 'password')
@@ -226,7 +227,7 @@ async def insert_recommendations(db_conn, recommendations):
 
 
 async def insert_into_postgres(insert_query, db_conn, records):
-    await db_conn.executemany(insert_query, records, timeout=60)
+    await db_conn.executemany(insert_query, records, timeout=int(PG_TIMEOUT))
     # cool down for PG_COOLDOWN_TIME seconds
     if PG_COOLDOWN_TIME > 0:
         await asyncio.sleep(float(PG_COOLDOWN_TIME))
@@ -243,7 +244,8 @@ async def main():
 
     # postgres connection
     db_conn = await asyncpg.connect(user=PG_USER, password=PG_PASSWORD,
-                                    database=PG_DB, host=PG_HOST, port=PG_PORT)
+                                    database=PG_DB, host=PG_HOST, port=PG_PORT,
+                                    timeout=int(PG_TIMEOUT))
 
     # elastic client
     es_client = AsyncElasticsearch(ES_URL, http_auth=(
