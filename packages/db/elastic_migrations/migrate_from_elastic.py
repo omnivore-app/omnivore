@@ -232,7 +232,7 @@ async def insert_into_postgres(insert_query, db_conn, records, original_ids):
     except Exception as err:
         print('Batch insert into postgres ERROR:', err)
         # excute insert query one by one if batch insert failed
-        for i, record in records:
+        for i, record in enumerate(records):
             # print original id for debugging
             print('Inserting record', original_ids[i])
             try:
