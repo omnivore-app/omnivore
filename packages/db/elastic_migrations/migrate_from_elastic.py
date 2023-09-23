@@ -371,7 +371,8 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
-            content = source['content']
+            # encode surrogatepass to avoid error when inserting into postgres
+            content = source['content'].encode('utf-8', 'surrogatepass').decode('utf-8')
             description = source.get('description', None)
 
             # skip item if content is larger than 1MB
