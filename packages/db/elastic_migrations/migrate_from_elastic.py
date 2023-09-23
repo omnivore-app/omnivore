@@ -249,12 +249,6 @@ async def insert_into_postgres(insert_query, db_conn, records, original_ids):
                         await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
                         # enable library_item_tsv_update trigger
                         await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER library_item_tsv_update')
-                elif 'invalid input for query argument' in str(err):
-                    # encode surrogatepass to avoid error when inserting into postgres
-                    record[5] = record[5].encode('utf-16', 'surrogatepass').decode('utf-16')
-                    record[28] = record[28].encode('utf-16', 'surrogatepass').decode('utf-16')
-                    # insert record again
-                    await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
                 else:
                     # throw the error
                     raise err
@@ -268,6 +262,12 @@ def remove_null_bytes(val):
     if val is None:
         return None
     return val.replace('\u0000', '')
+
+
+def replace_surrogates(val):
+    if val is None:
+        return None
+    return val.encode('utf-8', 'replace').decode('utf-8')
 
 
 async def main():
@@ -377,7 +377,8 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
-            content = source['content']
+            content = replace_surrogates(source['content'])
+            original_html = replace_surrogates(remove_null_bytes(source.get('originalHtml', None)))
             description = source.get('description', None)
 
             # skip item if content is larger than 1MB
@@ -413,7 +414,7 @@ async def main():
                 remove_null_bytes(source.get('siteIcon', None)),
                 remove_null_bytes(source.get('image', None)),
                 content_reader,
-                remove_null_bytes(source.get('originalHtml', None)),
+                original_html,
                 deleted_at,
             )
             library_items.append(library_item)
