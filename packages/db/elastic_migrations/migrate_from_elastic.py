@@ -244,11 +244,11 @@ async def insert_into_postgres(insert_query, db_conn, records, original_ids):
                     # create a transaction
                     async with db_conn.transaction():
                         # disable library_item_tsv_update trigger
-                        await db_conn.execute('ALTER TABLE omnivore.library_item DISABLE TRIGGER update_library_item_tsv')
+                        await db_conn.execute('ALTER TABLE omnivore.library_item DISABLE TRIGGER library_item_tsv_update')
                         # insert record again
                         await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
                         # enable library_item_tsv_update trigger
-                        await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER update_library_item_tsv')
+                        await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER library_item_tsv_update')
                 else:
                     # the error is not caused by tsvector, throw the error
                     raise err
