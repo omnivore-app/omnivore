@@ -315,8 +315,6 @@ async def main():
                 }
             ]
         }
-        # get current time
-        migrated_at = datetime.utcnow().strftime(DATE_FORMAT)
         # Scan API for larger library
         docs = async_scan(es_client, index=ES_INDEX, query=query,
                           preserve_order=True, size=ES_SCAN_SIZE,
@@ -343,19 +341,24 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
-
+            content = source['content']
             # skip item if content is larger than 1MB
-            if len(source['content']) > 1000000:
+            if len(content) > 1000000:
                 print('Skipping item', doc['_id'], 'because content is larger than 1MB')
                 continue
+
+            # truncate description to 1MB characters
+            description = source.get('description', None)
+            if description is not None and len(description) > 1000000:
+                description = description[:1000000]
 
             library_item = (
                 id,
                 get_uuid(source['userId']),
                 source['title'],
                 source.get('author', None),
-                source.get('description', None),
-                source['content'],
+                description,
+                content,
                 source['url'],
                 source.get('uploadFileId', None),
                 page_type if page_type is not None else 'UNKNOWN',
@@ -466,7 +469,7 @@ async def main():
         if len(recommendations) > 0:
             await insert_recommendations(db_conn, recommendations)
 
-        print('Migration complete', migrated_at)
+        print('Migration complete', END_TIME)
 
         await assert_data(db_conn, es_client, users, uploaded_files)
     except Exception as err:
