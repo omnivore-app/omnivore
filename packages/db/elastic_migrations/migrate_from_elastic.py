@@ -249,8 +249,14 @@ async def insert_into_postgres(insert_query, db_conn, records, original_ids):
                         await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
                         # enable library_item_tsv_update trigger
                         await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER library_item_tsv_update')
+                elif 'invalid input for query argument' in str(err):
+                    # encode surrogatepass to avoid error when inserting into postgres
+                    record[5] = record[5].encode('utf-16', 'surrogatepass').decode('utf-16')
+                    record[28] = record[28].encode('utf-16', 'surrogatepass').decode('utf-16')
+                    # insert record again
+                    await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
                 else:
-                    # the error is not caused by tsvector, throw the error
+                    # throw the error
                     raise err
 
     # cool down for PG_COOLDOWN_TIME seconds
@@ -371,8 +377,7 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
-            # encode surrogatepass to avoid error when inserting into postgres
-            content = source['content'].encode('utf-8', 'surrogatepass').decode('utf-8')
+            content = source['content']
             description = source.get('description', None)
 
             # skip item if content is larger than 1MB
