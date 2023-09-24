@@ -111,7 +111,11 @@ def convert_string_to_uuid(val):
 def convert_string_to_datetime(val):
     if val is None:
         return None
-    return datetime.strptime(val, DATE_FORMAT)
+    try:
+        return datetime.strptime(val, DATE_FORMAT)
+    except Exception as err:
+        print('Convert string to datetime ERROR:', err)
+        return None
 
 
 async def insert_library_items(db_conn, library_items, original_ids):
@@ -228,6 +232,12 @@ async def insert_recommendations(db_conn, recommendations, original_ids):
 
 async def insert_into_postgres(insert_query, db_conn, records, original_ids):
     try:
+        # sanitize input if input is a string
+        for record in records:
+            for i, val in enumerate(record):
+                if isinstance(val, str):
+                    record[i] = sanitize_string(val)
+
         await db_conn.executemany(insert_query, records, timeout=int(PG_TIMEOUT))
     except Exception as err:
         print('Batch insert into postgres ERROR:', err)
@@ -256,6 +266,10 @@ async def insert_into_postgres(insert_query, db_conn, records, original_ids):
     # cool down for PG_COOLDOWN_TIME seconds
     if float(PG_COOLDOWN_TIME) > 0:
         await asyncio.sleep(float(PG_COOLDOWN_TIME))
+
+
+def sanitize_string(val):
+    return replace_surrogates(remove_null_bytes(val))
 
 
 def remove_null_bytes(val):
@@ -377,8 +391,8 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
-            content = replace_surrogates(remove_null_bytes(source['content']))
-            original_html = replace_surrogates(remove_null_bytes(source.get('originalHtml', None)))
+            content = source['content']
+            original_html = source.get('originalHtml', None)
             description = source.get('description', None)
 
             # skip item if content is larger than 1MB
@@ -389,9 +403,9 @@ async def main():
             library_item = (
                 id,
                 get_uuid(source['userId']),
-                remove_null_bytes(source['title']),
-                remove_null_bytes(source.get('author', None)),
-                remove_null_bytes(description),
+                source['title'],
+                source.get('author', None),
+                description,
                 content,
                 source['url'],
                 source.get('uploadFileId', None),
@@ -408,11 +422,11 @@ async def main():
                 state,
                 updated_at,
                 convert_string_to_datetime(source.get('publishedAt', None)),
-                remove_null_bytes(source.get('language', None)),
+                source.get('language', None),
                 convert_string_to_datetime(source.get('readAt', None)),
                 source.get('wordsCount', None),
-                remove_null_bytes(source.get('siteIcon', None)),
-                remove_null_bytes(source.get('image', None)),
+                source.get('siteIcon', None),
+                source.get('image', None),
                 content_reader,
                 original_html,
                 deleted_at,
@@ -457,7 +471,7 @@ async def main():
                         highlight_position_anchor_index if highlight_position_anchor_index is not None else 0,
                         highlight.get('type', 'HIGHLIGHT'),
                         highlight.get('color', None),
-                        remove_null_bytes(highlight.get('html', None)),
+                        highlight.get('html', None),
                     ))
                     highlights_original_ids.append(highlight['id'])
 
