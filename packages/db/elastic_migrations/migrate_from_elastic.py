@@ -377,7 +377,7 @@ async def main():
             reading_progress_top_percent = source.get('readingProgressTopPercent', 0)
             reading_progress_percent = source.get('readingProgressPercent', 0)
             reading_progress_anchor = source.get('readingProgressAnchorIndex', 0)
-            content = replace_surrogates(source['content'])
+            content = replace_surrogates(remove_null_bytes(source['content']))
             original_html = replace_surrogates(remove_null_bytes(source.get('originalHtml', None)))
             description = source.get('description', None)
 
@@ -389,9 +389,9 @@ async def main():
             library_item = (
                 id,
                 get_uuid(source['userId']),
-                source['title'],
-                source.get('author', None),
-                description,
+                remove_null_bytes(source['title']),
+                remove_null_bytes(source.get('author', None)),
+                remove_null_bytes(description),
                 content,
                 source['url'],
                 source.get('uploadFileId', None),
@@ -408,7 +408,7 @@ async def main():
                 state,
                 updated_at,
                 convert_string_to_datetime(source.get('publishedAt', None)),
-                source.get('language', None),
+                remove_null_bytes(source.get('language', None)),
                 convert_string_to_datetime(source.get('readAt', None)),
                 source.get('wordsCount', None),
                 remove_null_bytes(source.get('siteIcon', None)),
@@ -457,7 +457,7 @@ async def main():
                         highlight_position_anchor_index if highlight_position_anchor_index is not None else 0,
                         highlight.get('type', 'HIGHLIGHT'),
                         highlight.get('color', None),
-                        highlight.get('html', None),
+                        remove_null_bytes(highlight.get('html', None)),
                     ))
                     highlights_original_ids.append(highlight['id'])
 
