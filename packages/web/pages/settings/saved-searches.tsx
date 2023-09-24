@@ -1,11 +1,4 @@
-import {
-  Dispatch,
-  MouseEventHandler,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import { Dispatch, MouseEventHandler, SetStateAction, useCallback, useEffect, useState } from "react"
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Button } from '../../components/elements/Button'
 import { styled, theme } from '../../components/tokens/stitches.config'
@@ -32,13 +25,13 @@ import {
 } from '../../components/elements/DropdownElements'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
-import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
-import CheckboxComponent from '../../components/elements/Checkbox'
-import { updateFilterMutation } from '../../lib/networking/mutations/updateFilterMutation'
-import { saveFilterMutation } from '../../lib/networking/mutations/saveFilterMutation'
-import { inRange } from 'lodash'
-import { deleteFilterMutation } from '../../lib/networking/mutations/deleteFilterMutation'
+import { useGetSavedSearchQuery } from "../../lib/networking/queries/useGetSavedSearchQuery"
+import { SavedSearch } from "../../lib/networking/fragments/savedSearchFragment"
+import CheckboxComponent from "../../components/elements/Checkbox"
+import { updateFilterMutation } from "../../lib/networking/mutations/updateFilterMutation"
+import { saveFilterMutation } from "../../lib/networking/mutations/saveFilterMutation"
+import { inRange } from 'lodash';
+import { deleteFilterMutation } from "../../lib/networking/mutations/deleteFilterMutation"
 
 const HeaderWrapper = styled(Box, {
   width: '100%',
@@ -153,24 +146,22 @@ export default function SavedSearchesPage(): JSX.Element {
   const { savedSearches, isLoading } = useGetSavedSearchQuery()
   const [nameInputText, setNameInputText] = useState<string>('')
   const [queryInputText, setQueryInputText] = useState<string>('')
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string|null>(null);
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveSavedSearchId, setConfirmRemoveSavedSearchId] =
-    useState<string | null>(null)
-  const [draggedElementId, setDraggedElementId] = useState<string | null>(null)
-  const [draggedElementPosition, setDraggedElementPosition] =
-    useState<{ x: number; y: number } | null>(null)
-  const [sortedSavedSearch, setSortedSavedSearch] = useState<SavedSearch[]>([])
+  const [confirmRemoveSavedSearchId, setConfirmRemoveSavedSearchId] = useState<
+    string | null
+  >(null)
+  const [draggedElementId, setDraggedElementId] = useState<string | null>(null);
+  const [draggedElementPosition, setDraggedElementPosition] = useState<{ x: number, y: number } | null>(null);
+  const [sortedSavedSearch, setSortedSavedSearch] = useState<SavedSearch[]>([]);
 
   // Some theming stuff here.
   const breakpoint = 768
   applyStoredTheme(false)
 
   useEffect(() => {
-    setSortedSavedSearch(
-      [...(savedSearches ?? [])].sort((l, r) => l.position - r.position)
-    )
+    setSortedSavedSearch([...(savedSearches ?? [])].sort((l, r) => l.position - r.position))
   }, [isLoading])
 
   useEffect(() => {
@@ -193,12 +184,7 @@ export default function SavedSearchesPage(): JSX.Element {
 
   async function createSavedSearch(): Promise<void> {
     try {
-      const savedFilter = await saveFilterMutation({
-        name: nameInputText,
-        filter: queryInputText,
-        category: 'Search',
-        position: sortedSavedSearch?.length ?? 0,
-      })
+      const savedFilter = await saveFilterMutation({ name: nameInputText, filter: queryInputText, category: 'Search', position: sortedSavedSearch?.length ?? 0 });
       showSuccessToast(`Added Filter: ${nameInputText}`)
 
       if (savedFilter) {
@@ -213,16 +199,12 @@ export default function SavedSearchesPage(): JSX.Element {
   async function updateSavedSearch(id: string): Promise<void> {
     resetSavedSearchState()
 
-    const changedSortedSearch = sortedSavedSearch?.find((it) => it.id == id)
+    const changedSortedSearch = sortedSavedSearch?.find(it => it.id == id)
     if (changedSortedSearch != undefined) {
       changedSortedSearch.name = nameInputText
       changedSortedSearch.filter = queryInputText
       setSortedSavedSearch(sortedSavedSearch)
-      await updateFilterMutation({
-        id,
-        name: nameInputText,
-        filter: queryInputText,
-      })
+      await updateFilterMutation( { id, name: nameInputText, filter: queryInputText });
     }
   }
 
@@ -237,21 +219,15 @@ export default function SavedSearchesPage(): JSX.Element {
   }
 
   async function onDeleteSavedSearch(id: string): Promise<void> {
-    const currentElement = sortedSavedSearch?.find((it) => it.id == id)
+    const currentElement = sortedSavedSearch?.find((it) => it.id == id);
     if (currentElement) {
       await deleteFilterMutation(id)
 
       setSortedSavedSearch(
         sortedSavedSearch
-          .filter((it) => it.id !== id)
-          .map((it) => {
-            return {
-              ...it,
-              position:
-                currentElement.position > it.position
-                  ? it.position
-                  : it.position - 1,
-            }
+          .filter(it => it.id !== id)
+          .map(it => {
+            return { ...it, position: currentElement.position > it.position ? it.position : it.position - 1 }
           })
       )
     }
@@ -263,34 +239,18 @@ export default function SavedSearchesPage(): JSX.Element {
     setConfirmRemoveSavedSearchId(id)
   }
 
-  async function updatePositionOnMouseUp(
-    y: number
-  ): Promise<string | undefined> {
-    const currentElement = sortedSavedSearch?.find(
-      ({ id }) => id == draggedElementId
-    )
+  async function updatePositionOnMouseUp(y: number): Promise<string | undefined> {
+    const currentElement = sortedSavedSearch?.find(({ id }) => id == draggedElementId);
     if (currentElement) {
-      const idx = Math.floor(
-        (y + window.scrollY - 25 - TOP_SETTINGS_PANEL) / HEIGHT_SETTING_CARD
-      )
-      const correctedIdx = Math.min(
-        Math.max(idx, 0),
-        sortedSavedSearch?.length - 1
-      )
+      const idx = Math.floor(((y + window.scrollY - 25) - TOP_SETTINGS_PANEL) / HEIGHT_SETTING_CARD)
+      const correctedIdx = Math.min(Math.max(idx, 0), sortedSavedSearch?.length - 1)
       const moveUp = correctedIdx < currentElement.position
 
       if (correctedIdx != currentElement.position) {
         const newlyOrdered = sortedSavedSearch
           ?.map((search) => {
-            let pos = search.position
-            if (
-              inRange(
-                pos,
-                Math.min(correctedIdx, currentElement.position),
-                Math.max(correctedIdx, currentElement.position)
-              ) ||
-              search.position == correctedIdx
-            ) {
+            let pos = search.position;
+            if (inRange(pos, Math.min(correctedIdx, currentElement.position), Math.max(correctedIdx, currentElement.position)) || search.position == correctedIdx) {
               pos = search.position + (moveUp ? +1 : -1)
             }
             if (draggedElementId == search?.id) {
@@ -298,15 +258,12 @@ export default function SavedSearchesPage(): JSX.Element {
             }
             return {
               ...search,
-              position: pos,
+              position: pos
             }
           })
-          ?.sort((l, r) => l.position - r.position)
+          ?.sort((l, r) => l.position - r.position);
         setSortedSavedSearch(newlyOrdered)
-        return updateFilterMutation({
-          ...currentElement,
-          position: correctedIdx,
-        })
+        return updateFilterMutation({ ...currentElement, position: correctedIdx })
       }
     }
 
@@ -331,7 +288,9 @@ export default function SavedSearchesPage(): JSX.Element {
         >
           {confirmRemoveSavedSearchId ? (
             <ConfirmationModal
-              message={'Are you sure?'}
+              message={
+                'Are you sure?'
+              }
               onAccept={async () => {
                 await onDeleteSavedSearch(confirmRemoveSavedSearchId)
                 setConfirmRemoveSavedSearchId(null)
@@ -349,7 +308,7 @@ export default function SavedSearchesPage(): JSX.Element {
               <Box>
                 <StyledText style="fixedHeadline">Saved Searches </StyledText>
               </Box>
-              <InfoLink href="https://docs.omnivore.app/using/search.html" />
+              <InfoLink href="/help/search" />
               <Box
                 css={{
                   display: 'flex',
@@ -515,7 +474,7 @@ type EditCardProps = {
   setQueryInputText: Dispatch<SetStateAction<string>>
   isCreateMode: boolean
   setIsCreateMode: Dispatch<SetStateAction<boolean>>
-  setEditingId: Dispatch<SetStateAction<string | null>>
+  setEditingId:  Dispatch<SetStateAction<string | null>>
   setNameInputText: Dispatch<SetStateAction<string>>
   createSavedSearch: () => Promise<void>
   updateSavedSearch: (id: string) => Promise<void>
@@ -526,10 +485,8 @@ type EditCardProps = {
   isLastChild?: boolean | undefined
   draggedElementId: string | null
   setDraggedElementId: Dispatch<SetStateAction<string | null>>
-  setDraggedElementPosition: Dispatch<
-    SetStateAction<{ x: number; y: number } | null>
-  >
-  isSwappedCard?: boolean
+  setDraggedElementPosition: Dispatch<SetStateAction<{ x: number, y: number } | null>>
+  isSwappedCard?: boolean,
   updatePositionOnMouseUp?: (y: number) => Promise<string | undefined>
 }
 
@@ -562,19 +519,10 @@ function GenericTableCard(
     updatePositionOnMouseUp,
   } = props
   const [isVisible, setIsVisible] = useState(!!savedSearch?.visible)
-  const showInput =
-    editingId === savedSearch?.id || (isCreateMode && !savedSearch)
+  const showInput = editingId === savedSearch?.id || (isCreateMode && !savedSearch)
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
-  const DEFAULT_STYLE = { position: null }
-  const [style, setStyle] =
-    useState<
-      Partial<{
-        position: string | null
-        top: string
-        left: string
-        maxWidth: string
-      }>
-    >(DEFAULT_STYLE)
+  const DEFAULT_STYLE = { position: null };
+  const [style, setStyle] = useState<Partial<{ position: string | null, top: string, left: string, maxWidth: string }>>(DEFAULT_STYLE)
   const handleEdit = () => {
     editingId && updateSavedSearch(editingId)
     setEditingId(null)
@@ -584,14 +532,14 @@ function GenericTableCard(
       <ActionsWrapper>
         <Dropdown
           disabled={isCreateMode}
-          triggerElement={<DotsThree size={24} color={iconColor} />}
+          triggerElement={<DotsThree size={'100%'} color={iconColor} />}
         >
           <DropdownOption onSelect={() => null}>
             <Button
               style="plainIcon"
               css={{
                 mr: '0px',
-                display: 'flex',
+                display: isCreateMode ? 'none' : 'flex',
                 alignItems: 'center',
                 backgroundColor: 'transparent',
                 border: 0,
@@ -599,7 +547,7 @@ function GenericTableCard(
               onClick={() => onEditPress(savedSearch)}
               disabled={isCreateMode}
             >
-              <PencilSimple size={24} color={'black'} />
+              <PencilSimple size={24} color={"black"} />
               <StyledText
                 color="$grayText"
                 css={{ m: '0px', fontSize: '$5', marginLeft: '$2' }}
@@ -618,9 +566,7 @@ function GenericTableCard(
                 backgroundColor: 'transparent',
                 border: 0,
               }}
-              onClick={() =>
-                savedSearch ? deleteSavedSearch(savedSearch.id) : null
-              }
+              onClick={() => (savedSearch ? deleteSavedSearch(savedSearch.id) : null)}
               disabled={isCreateMode}
             >
               <Trash size={24} color="#AA2D11" />
@@ -641,10 +587,10 @@ function GenericTableCard(
     )
   }
 
-  const onMouseDown = (e: MouseEvent) => {
+  const onMouseDown= (e: MouseEvent) => {
     if (savedSearch) {
       setDraggedElementId(savedSearch.id)
-      setDraggedElementPosition({ y: e.clientY - 25, x: e.clientX - 25 })
+      setDraggedElementPosition({ y: e.clientY - 25, x: e.clientX - 25})
     }
   }
 
@@ -708,13 +654,14 @@ function GenericTableCard(
         } as never
       }
     >
+
       <TableCardBox
         onMouseUp={onMouseUp as unknown as MouseEventHandler}
         css={{
           display: 'grid',
           width: '100%',
           gridGap: '$1',
-          gridTemplateColumns: '4% 3% 80% 1fr 1fr 1fr 1fr',
+          gridTemplateColumns: '1fr 1fr 17fr 2fr',
           height: editingId == savedSearch?.id ? '120px' : '56px',
           '.showHidden': {
             display: 'none',
@@ -763,13 +710,14 @@ function GenericTableCard(
           }}
         >
           {showInput && !savedSearch ? (
-            <SpanBox
+              <SpanBox
               css={{
                 '@smDown': {
                   display: 'none',
                 },
               }}
             >
+
               <Input
                 type="text"
                 value={nameInputText}
@@ -787,7 +735,7 @@ function GenericTableCard(
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                paddingLeft: '15px',
+                paddingLeft: '15px'
               }}
             >
               {editingId === savedSearch?.id
@@ -833,7 +781,8 @@ function GenericTableCard(
           )}
         </HStack>
 
-        <HStack
+        {  !savedSearch?.defaultFilter &&
+          <HStack
           distribution="start"
           css={{
             padding: '4px 8px',
@@ -842,42 +791,28 @@ function GenericTableCard(
           }}
         >
           {!showInput && (
-            <Box css={{ marginLeft: 'auto', '@md': { display: 'none' } }}>
-              {moreActionsButton()}
+            <Box css={{ marginLeft: 'auto', '@md': { display: 'none' },}}>
+              { moreActionsButton() }
             </Box>
           )}
         </HStack>
+        }
 
-        <HStack
-          distribution="start"
-          alignment="center"
-          css={{
-            ml: '8px',
-            display: 'flex',
-            '@md': {
-              display: 'none',
-            },
-          }}
-        >
-          {showInput && (
-            <Input
-              type="text"
-              placeholder="The search query to execute (e.g. in:inbox)"
-              value={queryInputText}
-              onChange={(event) => setQueryInputText(event.target.value)}
-              autoFocus={!!savedSearch}
-            />
-          )}
-        </HStack>
-
-        <HStack
-          distribution="end"
-          alignment="center"
-          css={{
-            padding: '0px 8px',
-          }}
-        >
-          {editingId === savedSearch?.id || !savedSearch ? (
+          <HStack
+            distribution="end"
+            alignment="center"
+            css={{
+              padding: '0px 8px',
+              display: 'flex',
+              '@sm': {
+                display: 'none',
+              },
+              '@md': {
+                display: 'flex',
+              }
+            }}
+          >
+            {editingId === savedSearch?.id || !savedSearch ? (
             <>
               <Button
                 style="plainIcon"
@@ -895,7 +830,7 @@ function GenericTableCard(
                 onClick={() =>
                   savedSearch ? handleEdit() : createSavedSearch()
                 }
-              >
+                >
                 Saved
               </Button>
             </>
@@ -952,13 +887,14 @@ function MobileEditCard(props: EditCardProps) {
     queryInputText,
     setQueryInputText,
     createSavedSearch,
+    updateSavedSearch,
     resetState,
     isFirstChild,
     isLastChild,
   } = props
 
   const handleEdit = () => {
-    editingId && setEditingId(editingId)
+    editingId && updateSavedSearch(editingId)
     setEditingId(null)
   }
 
