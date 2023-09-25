@@ -174,7 +174,7 @@ struct ApplyLabelsView: View {
         }
       #elseif os(macOS)
         innerBody
-          .frame(minWidth: 400, minHeight: 400)
+          .frame(minWidth: 400, minHeight: 600)
       #endif
     }
     .task {
