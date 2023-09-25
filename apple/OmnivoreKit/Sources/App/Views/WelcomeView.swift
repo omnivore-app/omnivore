@@ -196,7 +196,7 @@ struct WelcomeView: View {
         if let loginError = viewModel.loginError {
           HStack {
             LoginErrorMessageView(loginError: loginError)
-            Spacer()
+              .frame(maxWidth: 400, alignment: .leading)
           }
         }
       }

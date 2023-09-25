@@ -138,7 +138,7 @@ struct LinkedItemMetadataEditView: View {
             )
           }
         }
-        .frame(minWidth: 400, minHeight: 400)
+        .frame(minWidth: 400, minHeight: 600)
     }
   #endif
 }
