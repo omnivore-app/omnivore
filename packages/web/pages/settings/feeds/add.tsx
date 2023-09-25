@@ -25,9 +25,8 @@ const Header = styled(Box, {
 
 export default function AddRssFeed(): JSX.Element {
   const router = useRouter()
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
   const [feedUrl, setFeedUrl] = useState<string>('')
 
   const subscribe = useCallback(async () => {
@@ -39,7 +38,7 @@ export default function AddRssFeed(): JSX.Element {
     let normailizedUrl: string
     // normalize the url
     try {
-      normailizedUrl = new URL(feedUrl).toString()
+      normailizedUrl = new URL(feedUrl.trim()).toString()
     } catch (e) {
       setErrorMessage('Please enter a valid feed URL')
       return
