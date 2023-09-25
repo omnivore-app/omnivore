@@ -2228,16 +2228,25 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@elastic/elasticsearch@~7.12.0":
-  version "7.12.0"
-  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-7.12.0.tgz#dbb51a2841f644b670a56d8c15899e860928856f"
-  integrity sha512-GquUEytCijFRPEk3DKkkDdyhspB3qbucVQOwih9uNyz3iz804I+nGBUsFo2LwVvLQmQfEM0IY2+yoYfEz5wMug==
+"@elastic/elasticsearch@~8.9.0":
+  version "8.9.0"
+  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-8.9.0.tgz#d132021c6c12e4171fe14371609a5c69b535edd4"
+  integrity sha512-UyolnzjOYTRL2966TYS3IoJP4tQbvak/pmYmbP3JdphD53RjkyVDdxMpTBv+2LcNBRrvYPTzxQbpRW/nGSXA9g==
   dependencies:
-    debug "^4.3.1"
-    hpagent "^0.1.1"
+    "@elastic/transport" "^8.3.2"
+    tslib "^2.4.0"
+
+"@elastic/transport@^8.3.2":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@elastic/transport/-/transport-8.3.4.tgz#43c852e848dc8502bbd7f23f2d61bd5665cded99"
+  integrity sha512-+0o8o74sbzu3BO7oOZiP9ycjzzdOt4QwmMEjFc1zfO7M0Fh7QX1xrpKqZbSd8vBwihXNlSq/EnMPfgD2uFEmFg==
+  dependencies:
+    debug "^4.3.4"
+    hpagent "^1.0.0"
     ms "^2.1.3"
-    pump "^3.0.0"
-    secure-json-parse "^2.3.1"
+    secure-json-parse "^2.4.0"
+    tslib "^2.4.0"
+    undici "^5.22.1"
 
 "@emotion/cache@^10.0.27":
   version "10.0.29"
@@ -10316,6 +10325,13 @@ builtins@^1.0.3:
   resolved "https://registry.yarnpkg.com/builtins/-/builtins-1.0.3.tgz#cb94faeb61c8696451db36534e1422f94f0aee88"
   integrity sha1-y5T662HIaWRR2zZTThQi+U8K7og=
 
+busboy@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/busboy/-/busboy-1.6.0.tgz#966ea36a9502e43cdb9146962523b92f531f6893"
+  integrity sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==
+  dependencies:
+    streamsearch "^1.1.0"
+
 byline@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/byline/-/byline-5.0.0.tgz#741c5216468eadc457b03410118ad77de8c1ddb1"
@@ -15637,10 +15653,10 @@ hpack.js@^2.1.6:
     readable-stream "^2.0.1"
     wbuf "^1.1.0"
 
-hpagent@^0.1.1:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/hpagent/-/hpagent-0.1.2.tgz#cab39c66d4df2d4377dbd212295d878deb9bdaa9"
-  integrity sha512-ePqFXHtSQWAFXYmj+JtOTHr84iNrII4/QRlAAPPE+zqnKy4xJo7Ie1Y4kC7AdB+LxLxSTTzBMASsEcy0q8YyvQ==
+hpagent@^1.0.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/hpagent/-/hpagent-1.2.0.tgz#0ae417895430eb3770c03443456b8d90ca464903"
+  integrity sha512-A91dYTeIB6NoXG+PxTQpCCDDnfHsW9kc06Lvpu1TEe9gnd6ZFeiBoRO9JvzEv6xK7EX97/dUE8g/vBMTqTS3CA==
 
 html-encoding-sniffer@^2.0.1:
   version "2.0.1"
@@ -24293,10 +24309,10 @@ search-query-parser@^1.6.0:
   resolved "https://registry.yarnpkg.com/search-query-parser/-/search-query-parser-1.6.0.tgz#d69ade33f3685cae25613a70189b7b18970b46f1"
   integrity sha512-bhf+phLlKF38nuniwLcVHWPArHGdzenlPhPi955CR3vm1QQifXIuPHwAffhjapojdVVzmv4hgIJ6NOX1d/w+Uw==
 
-secure-json-parse@^2.3.1:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/secure-json-parse/-/secure-json-parse-2.4.0.tgz#5aaeaaef85c7a417f76271a4f5b0cc3315ddca85"
-  integrity sha512-Q5Z/97nbON5t/L/sH6mY2EacfjVGwrCcSi5D3btRO2GZ8pf1K1UN7Z9H5J57hjVU2Qzxr1xO+FmBhOvEkzCMmg==
+secure-json-parse@^2.4.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/secure-json-parse/-/secure-json-parse-2.7.0.tgz#5a5f9cd6ae47df23dba3151edd06855d47e09862"
+  integrity sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==
 
 selderee@^0.6.0:
   version "0.6.0"
@@ -25077,6 +25093,11 @@ stream-shift@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/stream-shift/-/stream-shift-1.0.1.tgz#d7088281559ab2778424279b0877da3c392d5a3d"
   integrity sha512-AiisoFqQ0vbGcZgQPY1cdP2I76glaVA/RauYR4G4thNFgkTqr90yXTo4LYX60Jl+sIlPNHHdGSwo01AvbKUSVQ==
+
+streamsearch@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-1.1.0.tgz#404dd1e2247ca94af554e841a8ef0eaa238da764"
+  integrity sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==
 
 streamx@^2.15.0:
   version "2.15.0"
@@ -26429,6 +26450,13 @@ undici@^4.9.3:
   version "4.14.1"
   resolved "https://registry.yarnpkg.com/undici/-/undici-4.14.1.tgz#7633b143a8a10d6d63335e00511d071e8d52a1d9"
   integrity sha512-WJ+g+XqiZcATcBaUeluCajqy4pEDcQfK1vy+Fo+bC4/mqXI9IIQD/XWHLS70fkGUT6P52Drm7IFslO651OdLPQ==
+
+undici@^5.22.1:
+  version "5.25.2"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-5.25.2.tgz#17ddc3e8ab3c77e473ae1547f3f2917a05da2820"
+  integrity sha512-tch8RbCfn1UUH1PeVCXva4V8gDpGAud/w0WubD6sHC46vYQ3KDxL+xv1A2UxK0N6jrVedutuPHxe1XIoqerwMw==
+  dependencies:
+    busboy "^1.6.0"
 
 unfetch@^4.2.0:
   version "4.2.0"

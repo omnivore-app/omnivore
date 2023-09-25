@@ -12,7 +12,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.html dist/"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "~7.12.0",
+    "@elastic/elasticsearch": "~8.9.0",
     "@google-cloud/logging-winston": "^6.0.0",
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
