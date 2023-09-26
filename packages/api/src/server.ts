@@ -56,7 +56,6 @@ import {
   buildLoggerTransport,
   CustomTypeOrmLogger,
 } from './utils/logger'
-import { socialRouter } from './routers/social/social_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -157,7 +156,6 @@ export const createApp = (): {
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())
-  app.use('/api/social', socialRouter())
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
