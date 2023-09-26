@@ -51,27 +51,25 @@ const extractPublishedDateFromAuthor = (author)=> {
     return [null, null];
   }
   const authorName = author.replace(/^by\s+/i, '');
-  const regexes = [
-    /(January|February|March|April|May|June|July|August|September|Octrober|November|December)\s\d{1,2},\s\d{2,4}/i,
-    /(\d{2,4})年(\d{1,2})月(\d{1,2})日/,
-  ];
+  const regex = /(January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2},\s\d{2,4}/i;
+  const chineseDateRegex = /(\d{2,4})年(\d{1,2})月(\d{1,2})日/;
 
   // English date
-  if (regexes[0].test(author)) {
+  if (regex.test(author)) {
     const match = author.match(regex) || [];
     return [authorName.replace(regex, ''), match[0]];
   }
 
   // Chinese date
-  if (regexes[1].test(author)) {
-    const match = author.match(regex);
+  if (chineseDateRegex.test(author)) {
+    const match = author.match(chineseDateRegex);
     if (match) {
       const year = parseInt(match[1], 10);
       const month = parseInt(match[2], 10) - 1; // January is 0 in JavaScript Date
       const day = parseInt(match[3], 10);
   
       const publishedAt = new Date(year, month, day);
-      return [authorName.replace(regex, ''), publishedAt];
+      return [authorName.replace(chineseDateRegex, ''), publishedAt];
     }
   }
 
@@ -220,8 +218,9 @@ Readability.prototype = {
       /([0-9]{4}[-\/]?((0[13-9]|1[012])[-\/]?(0[1-9]|[12][0-9]|30)|(0[13578]|1[02])[-\/]?31|02[-\/]?(0[1-9]|1[0-9]|2[0-8]))|([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00)[-\/]?02[-\/]?29)/i,
       /(((0[13-9]|1[012])[-/]?(0[1-9]|[12][0-9]|30)|(0[13578]|1[02])[-/]?31|02[-/]?(0[1-9]|1[0-9]|2[0-8]))[-/]?[0-9]{4}|02[-/]?29[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i,
       /(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i,
-      /\d{2,4}年\d{1,2}月\d{1,2}日/
-    ]
+    ],
+    LONG_DATE_REGEXP: /(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s\d{1,2}(?:st|nd|rd|th)?(,)?\s\d{2,4}/i,
+    CHINESE_DATE_REGEXP: /\d{2,4}年\d{1,2}月\d{1,2}日/,
   },
 
   UNLIKELY_ROLES: ["menu", "menubar", "complementary", "navigation", "alert", "alertdialog", "dialog"],
@@ -1083,8 +1082,16 @@ Readability.prototype = {
     // we don't want to check for dates in the URL's
     if (node.tagName.toLowerCase() === 'a') return
     // Searching for the real date in the text content
-    let dateRegExpFound = this.REGEXPS.DATES_REGEXPS.find(regexp => regexp.test(node.textContent.trim()))
-    dateRegExpFound && (dateRegExpFound = dateRegExpFound.exec(node.textContent.trim()))
+    const content = node.textContent.trim()
+    let dateFound
+    const dateRegExpFound = this.REGEXPS.DATES_REGEXPS.find(regexp => regexp.test(content))
+    if (dateRegExpFound) {
+      dateFound = dateRegExpFound.exec(content)[0]
+    } else if (this.REGEXPS.LONG_DATE_REGEXP.test(content)) {
+      dateFound = this.REGEXPS.LONG_DATE_REGEXP.exec(content)[0].replace(/st|nd|rd|th/i, '')
+    } else if (this.REGEXPS.CHINESE_DATE_REGEXP.test(content)) {
+      dateFound = this.REGEXPS.CHINESE_DATE_REGEXP.exec(content)[0].replace(/年|月/g, '-').replace(/日/g, '')
+    }
 
     let publishedDateParsed
     try {
@@ -1097,17 +1104,13 @@ Readability.prototype = {
       ((this._someNodeAttribute(node, ({ value, name }) => {
         if (/href|uri|url/i.test(name)) return false;
         return this.REGEXPS.publishedDate.test(value)
-      }) || dateRegExpFound) || (/date/i.test(matchString) && !isNaN(publishedDateParsed)))
+      }) || dateFound) || (/date/i.test(matchString) && !isNaN(publishedDateParsed)))
       && this._isValidPublishedDate(node.textContent)
     ) {
       try {
-        if (isNaN(publishedDateParsed) && dateRegExpFound) {
+        if (isNaN(publishedDateParsed)) {
           // Trying to parse the Date from the found by REGEXP string
-          publishedDateParsed = new Date(dateRegExpFound[0])
-          if (isNaN(publishedDateParsed)) {
-            // Trying to parse the Chinese date
-            publishedDateParsed = new Date(dateRegExpFound[0].replace(/年|月/g, '-').replace(/日/g, ''))
-          }
+          publishedDateParsed = new Date(dateFound)
         }
 
         if (!isNaN(publishedDateParsed) && !this._articlePublishedDate)
