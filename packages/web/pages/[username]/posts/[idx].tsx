@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import { useRouter } from 'next/router'
 import { Toaster } from 'react-hot-toast'

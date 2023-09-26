@@ -21,14 +21,14 @@ type PostResponse = {
 export function useGetPostQuery(
   postId: string | undefined
 ): PostResponse | undefined {
-  if (!postId) {
-    return {
-      error: undefined,
-      post: undefined,
-      isLoading: true,
-      isValidating: true,
-    }
-  }
+  // if (!postId) {
+  //   return {
+  //     error: undefined,
+  //     post: undefined,
+  //     isLoading: true,
+  //     isValidating: true,
+  //   }
+  // }
 
   const fetcher = (url: string) => {
     return fetch(url).then((r) => r.json())
