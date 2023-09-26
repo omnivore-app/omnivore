@@ -51,16 +51,31 @@ const extractPublishedDateFromAuthor = (author)=> {
     return [null, null];
   }
   const authorName = author.replace(/^by\s+/i, '');
-  const regex = /(January|February|March|April|May|June|July|August|September|Octrober|November|December)\s\d{1,2},\s\d{2,4}/;
-  if (!regex.test(author)) {
-    return [authorName, null];
+  const regexes = [
+    /(January|February|March|April|May|June|July|August|September|Octrober|November|December)\s\d{1,2},\s\d{2,4}/i,
+    /(\d{2,4})年(\d{1,2})月(\d{1,2})日/,
+  ];
+
+  // English date
+  if (regexes[0].test(author)) {
+    const match = author.match(regex) || [];
+    return [authorName.replace(regex, ''), match[0]];
   }
 
+  // Chinese date
+  if (regexes[1].test(author)) {
+    const match = author.match(regex);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1; // January is 0 in JavaScript Date
+      const day = parseInt(match[3], 10);
+  
+      const publishedAt = new Date(year, month, day);
+      return [authorName.replace(regex, ''), publishedAt];
+    }
+  }
 
-  const matchedDates = author.match(regex) || [];
-  const publishedAt = matchedDates[0];
-
-  return [authorName.replace(regex, ''), publishedAt];
+  return [authorName, null];
 };
 
 /**
@@ -204,7 +219,8 @@ Readability.prototype = {
     DATES_REGEXPS: [
       /([0-9]{4}[-\/]?((0[13-9]|1[012])[-\/]?(0[1-9]|[12][0-9]|30)|(0[13578]|1[02])[-\/]?31|02[-\/]?(0[1-9]|1[0-9]|2[0-8]))|([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00)[-\/]?02[-\/]?29)/i,
       /(((0[13-9]|1[012])[-/]?(0[1-9]|[12][0-9]|30)|(0[13578]|1[02])[-/]?31|02[-/]?(0[1-9]|1[0-9]|2[0-8]))[-/]?[0-9]{4}|02[-/]?29[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i,
-      /(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i
+      /(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i,
+      /\d{2,4}年\d{1,2}月\d{1,2}日/
     ]
   },
 
@@ -1085,9 +1101,15 @@ Readability.prototype = {
       && this._isValidPublishedDate(node.textContent)
     ) {
       try {
-        if (isNaN(publishedDateParsed))
+        if (isNaN(publishedDateParsed) && dateRegExpFound) {
           // Trying to parse the Date from the found by REGEXP string
           publishedDateParsed = new Date(dateRegExpFound[0])
+          if (isNaN(publishedDateParsed)) {
+            // Trying to parse the Chinese date
+            publishedDateParsed = new Date(dateRegExpFound[0].replace(/年|月/g, '-').replace(/日/g, ''))
+          }
+        }
+
         if (!isNaN(publishedDateParsed) && !this._articlePublishedDate)
           this._articlePublishedDate = publishedDateParsed
       }
