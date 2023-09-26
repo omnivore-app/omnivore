@@ -168,7 +168,8 @@ async def insert_highlights(db_conn, highlights, original_ids):
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
             $11, $12, $13, $14, $15, $16, $17
         FROM
-            omnivore.library_item
+            omnivore.library_item l
+        INNER JOIN omnivore.user u ON u.id = $2
         WHERE
             id = $12
         ON CONFLICT (id) DO UPDATE SET
