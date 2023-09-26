@@ -207,6 +207,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         highlight_background_alpha: '0.2',
         highlight_underline_alpha: '1.0',
+
+        thPostBg: '#1C1C1C',
       },
     },
     media: {
@@ -311,6 +313,8 @@ const darkThemeSpec = {
     thHighlightBar: '#6A6968',
     highlight_underline_alpha: '0.5',
     highlight_background_alpha: '0.35',
+
+    thPostBg: '#1C1C1C',
   },
   shadows: {
     cardBoxShadow:

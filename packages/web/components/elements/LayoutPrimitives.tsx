@@ -20,7 +20,47 @@ const stackVariants = {
 
 export const Box = styled('div', {})
 
-export const SpanBox = styled('span', {})
+export const SpanBox = styled('span', {
+  variants: {
+    style: {
+      postPosterName: {
+        fontSize: '12px',
+        fontFamily: '$inter',
+        fontWeight: '500',
+      },
+      postPostTime: {
+        fontSize: '12px',
+        fontFamily: '$inter',
+        fontWeight: '500',
+        color: '$thNotebookSubtle',
+      },
+      postPostContent: {
+        fontSize: '12px',
+        fontFamily: '$inter',
+        fontWeight: '500',
+        lineHeight: '20pt',
+      },
+      postHighlightTitle: {
+        fontSize: '13px',
+        fontFamily: '$inter',
+        fontWeight: '700',
+        lineHeight: '20pt',
+      },
+      postLinkSubtle: {
+        fontSize: '11px',
+        fontFamily: '$inter',
+        fontWeight: '500',
+        color: '$thHighlightBar',
+      },
+      postLinkBold: {
+        fontSize: '14px',
+        fontFamily: '$inter',
+        fontWeight: '700',
+        lineHeight: '1.25',
+      },
+    },
+  },
+})
 
 export const StyledLink = styled('a', {})
 
