@@ -29,7 +29,7 @@ export class CustomTypeOrmLogger
   private logger: Logger
 
   constructor(options?: TypeOrmLoggerOptions) {
-    super(false)
+    super(options)
     this.logger = buildLogger('typeorm')
   }
 
