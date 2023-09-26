@@ -67,7 +67,7 @@ export const KBarResultsComponents = () => {
               {item.shortcut?.map((st, idx) => (
                 <SpanBox
                   key={idx}
-                  style={{
+                  css={{
                     padding: '4px 6px',
                     background: 'rgba(0, 0, 0, 0.1)',
                     borderRadius: '4px',
