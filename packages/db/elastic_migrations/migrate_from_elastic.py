@@ -171,7 +171,7 @@ async def insert_highlights(db_conn, highlights, original_ids):
             omnivore.library_item l
         INNER JOIN omnivore.user u ON u.id = $2
         WHERE
-            id = $12
+            l.id = $12
         ON CONFLICT (id) DO UPDATE SET
             user_id = EXCLUDED.user_id,
             quote = EXCLUDED.quote,
