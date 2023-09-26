@@ -77,7 +77,7 @@ export const generateDownloadSignedUrl = async (
     .bucket(bucketName)
     .file(filePathName)
     .getSignedUrl(options)
-  logger.info('generating download signed url', url)
+  logger.info(`generating download signed url: ${url}`)
   return url
 }
 

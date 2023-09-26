@@ -264,7 +264,7 @@ export const enqueueParseRequest = async ({
     setTimeout(() => {
       axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
         logError(error)
-        logger.warning(
+        logger.error(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
         )
       })

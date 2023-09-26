@@ -38,7 +38,7 @@ export function newsletterServiceRouter() {
     logger.info('setConfirmationCode')
 
     const { message, expired } = readPushSubscription(req)
-    logger.info('pubsub message:', message, 'expired:', expired)
+    logger.info('pubsub message', { message, expired })
 
     if (!message) {
       res.status(400).send('Bad Request')
@@ -46,7 +46,7 @@ export function newsletterServiceRouter() {
     }
 
     if (expired) {
-      logger.info('discards expired message:', message)
+      logger.info(`discards expired message: ${message}`)
       res.status(200).send('Expired')
       return
     }
@@ -66,7 +66,7 @@ export function newsletterServiceRouter() {
         data.confirmationCode
       )
       if (!result) {
-        logger.info('Newsletter email not found', data.emailAddress)
+        logger.info(`Newsletter email not found: ${data.emailAddress}`)
         res.status(200).send('Not Found')
         return
       }

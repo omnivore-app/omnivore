@@ -15,7 +15,7 @@ export function rssFeedRouter() {
 
     try {
       const { message: msgStr, expired } = readPushSubscription(req)
-      logger.info('read pubsub message', msgStr, 'has expired', expired)
+      logger.info(`read pubsub message`, { msgStr, expired })
 
       if (expired) {
         logger.info('discarding expired message')

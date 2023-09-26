@@ -15,9 +15,9 @@ export function linkServiceRouter() {
   const router = express.Router()
 
   router.post('/create', async (req, res) => {
-    logger.info('create link req', req.query, req.body)
+    logger.info('create link req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', { msgStr, expired })
 
     if (!msgStr) {
       res.status(400).send('Bad Request')

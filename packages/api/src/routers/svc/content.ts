@@ -26,9 +26,9 @@ export function contentServiceRouter() {
   const router = express.Router()
 
   router.post('/search', async (req, res) => {
-    logger.info('search req', req.query, req.body)
+    logger.info('search req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', { msgStr, expired })
 
     if (!msgStr) {
       res.status(200).send('Bad Request')
@@ -77,7 +77,7 @@ export function contentServiceRouter() {
       uploadFile.user.id
     )
     if (!libraryItem) {
-      logger.info('No upload file found for id:', fileId)
+      logger.info(`No upload file found for id: ${fileId}`)
       res.status(404).send('Bad Request')
       return
     }
@@ -109,12 +109,11 @@ export function contentServiceRouter() {
       itemToUpdate,
       uploadFile.user.id
     )
-    logger.info(
-      'Updating library item text',
-      libraryItem.id,
+    logger.info('Updating library item text', {
+      id: libraryItem.id,
       result,
-      msg.content.substring(0, 20)
-    )
+      content: msg.content.substring(0, 20),
+    })
 
     res.status(200).send(msg)
   })

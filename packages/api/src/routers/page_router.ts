@@ -50,12 +50,7 @@ export function pageRouter() {
     const { url, clientRequestId } = req.query
     const contentType = req.headers['content-type']
     logger.info(
-      'contentType',
-      contentType,
-      'url',
-      url,
-      'clientRequestId',
-      clientRequestId
+      `creating page from pdf ${url} ${contentType} ${clientRequestId}`
     )
 
     if (
@@ -63,12 +58,11 @@ export function pageRouter() {
       !isString(contentType) ||
       !isString(clientRequestId)
     ) {
-      logger.info(
-        'creating page from pdf failed',
+      logger.info('creating page from pdf failed', {
         url,
         contentType,
-        clientRequestId
-      )
+        clientRequestId,
+      })
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
@@ -123,7 +117,7 @@ export function pageRouter() {
       )
     }
 
-    logger.info('redirecting to signed URL', signedUrl)
+    logger.info(`redirecting to signed URL: ${signedUrl}`)
     return res.redirect(signedUrl)
   })
 

@@ -183,7 +183,7 @@ const getReadabilityResult = async (
         return article
       }
     } catch (error) {
-      logger.info('parsing error for url', url, error)
+      logger.info('parsing error for url', { url, error })
     }
   }
 
@@ -223,7 +223,7 @@ export const parsePreparedContent = async (
     pageInfo.contentType &&
     !ALLOWED_CONTENT_TYPES.includes(pageInfo.contentType)
   ) {
-    logger.info('Not allowed content type', pageInfo.contentType)
+    logger.info(`Not allowed content type: ${pageInfo.contentType}`)
     return {
       canonicalUrl: url,
       parsedContent: null,
@@ -401,7 +401,7 @@ const getJSONLdLinkMetadata = async (
 
     return result
   } catch (error) {
-    logger.warning(`Unable to get JSONLD link of the article`, { error })
+    logger.error(`Unable to get JSONLD link of the article`, error)
     return result
   }
 }
@@ -689,7 +689,7 @@ export const getDistillerResult = async (
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
 
-    logger.info('Parsing by distiller', url)
+    logger.info(`Parsing by distiller: ${url}`)
     const response = await axios.post<string>(url, html, {
       headers: {
         Authorization: auth,

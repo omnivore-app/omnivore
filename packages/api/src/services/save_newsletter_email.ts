@@ -34,7 +34,7 @@ export const saveNewsletter = async (
   })
 
   if (!data.content) {
-    logger.info('newsletter not created, no content:', data.email)
+    logger.info(`newsletter not created, no content: ${data.email}`)
     return false
   }
 
@@ -51,7 +51,7 @@ export const saveNewsletter = async (
   }
   const savedLibraryItem = await saveEmail(input)
   if (!savedLibraryItem) {
-    logger.info('newsletter not created:', input.title)
+    logger.info(`newsletter not created: ${input.title}`)
 
     return false
   }

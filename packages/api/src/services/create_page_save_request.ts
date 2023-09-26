@@ -101,7 +101,7 @@ export const createPageSaveRequest = async ({
   // if user is not specified, get it from the database
   const user = await userRepository.findById(userId)
   if (!user) {
-    logger.info('User not found', userId)
+    logger.info(`User not found: ${userId}`)
     return Promise.reject({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })

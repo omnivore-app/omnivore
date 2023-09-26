@@ -51,7 +51,7 @@ const sendUnsubscribeEmail = async (
     })
 
     if (!sent) {
-      logger.info('Failed to send unsubscribe email', unsubscribeMailTo)
+      logger.info(`Failed to send unsubscribe email: ${unsubscribeMailTo}`)
       return false
     }
 
@@ -71,7 +71,7 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
     return true
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      logger.info('Failed to send unsubscribe http request', error.message)
+      logger.info(`Failed to send unsubscribe http request: ${error.message}`)
     } else {
       logger.info('Failed to send unsubscribe http request', error)
     }

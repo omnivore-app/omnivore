@@ -173,7 +173,7 @@ const validateInvite = async (
     entityManager
   )
   if (numMembers >= invite.maxMembers) {
-    logger.info('rejecting invite, too many users', invite, numMembers)
+    logger.info('rejecting invite, too many users', { invite, numMembers })
     return false
   }
   return true

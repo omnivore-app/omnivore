@@ -134,12 +134,11 @@ export async function handleGoogleWebAuth(
     const userId = user?.id
 
     if (!userId || !user?.profile) {
-      logger.info(
-        'user or profile does not exist:',
+      logger.info('user or profile does not exist:', {
         sourceUserId,
-        'GOOGLE',
-        email
-      )
+        source: 'GOOGLE',
+        email,
+      })
       // User doesn't exist yet, so we return a pending user token
       // if user's profile doesn't exist, also send back to the profile creation
       const pendingUserAuth = await createPendingUserToken({

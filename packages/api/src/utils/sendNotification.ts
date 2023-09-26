@@ -76,7 +76,7 @@ export const sendBatchPushNotifications = async (
 ): Promise<BatchResponse | undefined> => {
   try {
     const res = await getMessaging().sendAll(messages)
-    logger.info('success count: ', res.successCount)
+    logger.info(`success count: ${res.successCount}`)
 
     return res
   } catch (err) {

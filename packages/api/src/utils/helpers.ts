@@ -294,7 +294,7 @@ export const validatedDate = (
     }
     return new Date(date)
   } catch (e) {
-    logger.error('error validating date', date, e)
+    logger.error('error validating date', { date, error: e })
     return undefined
   }
 }
