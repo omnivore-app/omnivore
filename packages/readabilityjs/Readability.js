@@ -1073,6 +1073,10 @@ Readability.prototype = {
   },
 
   _checkPublishedDate: function (node, matchString) {
+    if (this._articlePublishedDate) {
+      return false;
+    }
+    
     // Skipping meta tags
     if (node.tagName.toLowerCase() === 'meta') return
     // return published date if the class name is 'omnivore-published-date' which we added when we scraped the article
