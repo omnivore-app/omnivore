@@ -68,6 +68,11 @@
     line-height: 20px;
     text-align: center;
   }
+ #omnivore-toast-container #omnivore-edit-labels-status {
+  height: 22px;
+  padding-top: 10px;
+ }
+
  #omnivore-toast-button-row {
     gap: 5px;
     align-items: center;
@@ -228,7 +233,7 @@
     max-height: 200px;
     gap: 5px;
     color: #3B3A38;
-    margin-top: 15px;
+    margin-top: 0px;
     margin-bottom: 10px;
   }
 
@@ -332,6 +337,86 @@
 
   }
 </style>
+<style>
+.label-editor {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    display: inline-block;
+    background-color: var(--colors-thBackground2);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 5px;
+    line-height: 2;
+    cursor: text;
+    font-size: 12px;
+    width: calc(100% - 10px);
+    min-height: 28px;
+}
+
+.label-list {
+  flex-wrap: wrap;
+  justify-content: start;
+  display: flex;
+    width: 100%;
+    align-items: center;
+    padding: 0px;
+    box-sizing: border-box;
+    height: auto;
+    flex: 0 0 auto;
+    overflow-y: auto;
+    margin: 0;
+    list-style: none;
+    gap: 5px;
+}
+
+#omnivore-toast-container .omnivore-toast-func-row .label-remove-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 0px;
+}
+
+#omnivore-edit-labels-row .label-input {
+  box-sizing: content-box;
+  font-size: 16px;
+  min-width: 2px;
+  border: none;
+  outline: none;
+  padding: 0px;
+  height: 28px;
+}
+
+.label {
+  display: inline-table;
+  padding: 1px;
+  padding-left: 7px;
+  padding-right: 7px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgb(222, 222, 222);
+  background-color: rgb(249, 249, 249);
+}
+
+#omnivore-toast-container .omnivore-toast-func-row .label button {
+  height: unset;
+}
+
+.label[data-label-backspaced="on"] {
+  border: 1px solid rgb(255, 234, 159);
+}
+
+.label[data-item-highlighted="on"] {
+  border: 1px solid black;
+  transition: border-color 0.25s linear;
+}
+
+</style>
 <div id="omnivore-toast-container"> 
   <div id="omnivore-toast-button-row">
     <span class="omnivore-toast-statusBox">
@@ -421,14 +506,16 @@
     </form>
   </div>
   <div id="omnivore-edit-labels-row" class="omnivore-toast-func-row" data-state="closed">
-    <span id="omnivore-edit-labels-status" class="omnivore-toast-func-status"></span>
-
     <form id="omnivore-edit-labels-form">
-      <input type="text" id="omnivore-edit-label-text" placeholder="Filter for labels" tabindex="0"> </input>
-      <div id="omnivore-edit-labels-list">
-
+      <div id="omnivore-edit-label-editor" class="label-editor">
+        <ul id="label-list" class="label-list">
+            <li id="label-entry-item">
+              <input type="text" id="omnivore-edit-label-input" placeholder="Add a label..." maxlength="48" class="label-input">
+            </li>
+        </ul>
       </div>
-      <button class="omnivore-save-button">Save</button>
+      <span id="omnivore-edit-labels-status" class="omnivore-toast-func-status"></span>
+      <div id="omnivore-edit-labels-list"></div>
     </form>
   </div>
 
