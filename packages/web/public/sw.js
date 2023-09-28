@@ -169,9 +169,9 @@
     }
 
     if (ev.request.method === 'POST') {
-      const requestUrl = new URL(request.url)
+      const requestUrl = new URL(ev.request.url)
       if (requestUrl.pathname === '/share-target') {
-        const shareRequest = handleShareTarget(request)
+        const shareRequest = handleShareTarget(ev.request)
         return shareRequest
       }
     }
