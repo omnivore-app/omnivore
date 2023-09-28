@@ -54,6 +54,7 @@ async function updateLabelsCache(apiUrl, tab) {
     console.log(!data.labels, data.labels['errorCodes'], !data.labels['labels'])
     return []
   }
+
   await setStorage({
     labels: data.labels.labels,
     labelsLastUpdated: new Date().toISOString(),
@@ -97,13 +98,20 @@ async function updatePageTitle(apiUrl, pageId, title) {
   return data.updatePage.updatePage
 }
 
-async function setLabels(apiUrl, pageId, labelIds) {
+async function setLabels(apiUrl, pageId, labelIds, createdLabels) {
+  console.log(
+    'setLabels(apiUrl, pageId, labelIds, createdLabels)',
+    labelIds,
+    createdLabels
+  )
   const mutation = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {
       setLabels(input: $input) {
         ... on SetLabelsSuccess {
           labels {
             id
+            name
+            color
           }
         }
         ... on SetLabelsError {
@@ -116,6 +124,7 @@ async function setLabels(apiUrl, pageId, labelIds) {
       input: {
         pageId,
         labelIds,
+        labels: createdLabels,
       },
     },
   })
@@ -129,7 +138,32 @@ async function setLabels(apiUrl, pageId, labelIds) {
     console.log('GQL Error setting labels:', data)
     throw new Error('Error setting labels.')
   }
+
+  await appendLabelsToCache(data.setLabels.labels)
+
   return data.setLabels.labels
+}
+
+async function appendLabelsToCache(labels) {
+  const cachedLabels = await getStorageItem('labels')
+  if (cachedLabels) {
+    labels.forEach((l) => {
+      const existing = cachedLabels.find((cached) => cached.name === l.name)
+      if (!existing) {
+        cachedLabels.unshift(l)
+      }
+    })
+
+    await setStorage({
+      labels: cachedLabels,
+      labelsLastUpdated: new Date().toISOString(),
+    })
+  } else {
+    await setStorage({
+      labels: labels,
+      labelsLastUpdated: new Date().toISOString(),
+    })
+  }
 }
 
 async function addNote(apiUrl, pageId, noteId, shortId, note) {
