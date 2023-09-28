@@ -219,8 +219,8 @@ Readability.prototype = {
       /(((0[13-9]|1[012])[-/]?(0[1-9]|[12][0-9]|30)|(0[13578]|1[02])[-/]?31|02[-/]?(0[1-9]|1[0-9]|2[0-8]))[-/]?[0-9]{4}|02[-/]?29[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i,
       /(((0[1-9]|[12][0-9]|30)[-/]?(0[13-9]|1[012])|31[-/]?(0[13578]|1[02])|(0[1-9]|1[0-9]|2[0-8])[-/]?02)[-/]?[0-9]{4}|29[-/]?02[-/]?([0-9]{2}(([2468][048]|[02468][48])|[13579][26])|([13579][26]|[02468][048]|0[0-9]|1[0-6])00))/i,
     ],
-    LONG_DATE_REGEXP: /(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s\d{1,2}(?:st|nd|rd|th)?(,)?\s\d{2,4}/i,
-    CHINESE_DATE_REGEXP: /\d{2,4}年\d{1,2}月\d{1,2}日/,
+    LONG_DATE_REGEXP: /^(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s\d{1,2}(?:st|nd|rd|th)?(,)?\s\d{2,4}$/i,
+    CHINESE_DATE_REGEXP: /^\d{2,4}年\d{1,2}月\d{1,2}日$/,
   },
 
   UNLIKELY_ROLES: ["menu", "menubar", "complementary", "navigation", "alert", "alertdialog", "dialog"],
@@ -1073,10 +1073,6 @@ Readability.prototype = {
   },
 
   _checkPublishedDate: function (node, matchString) {
-    if (this._articlePublishedDate) {
-      return false;
-    }
-    
     // Skipping meta tags
     if (node.tagName.toLowerCase() === 'meta') return
     // return published date if the class name is 'omnivore-published-date' which we added when we scraped the article
@@ -1100,7 +1096,7 @@ Readability.prototype = {
     let publishedDateParsed
     try {
       // Trying to parse the Date from the content itself
-      publishedDateParsed = new Date(node.textContent.trim())
+      publishedDateParsed = new Date(content)
     } catch (error) { }
 
     if (
