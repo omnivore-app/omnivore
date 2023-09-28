@@ -76,6 +76,22 @@ const extractPublishedDateFromAuthor = (author)=> {
   return [authorName, null];
 };
 
+// extract published date from url if it's in the format of yyyy/mm/dd or yyyy-mm-dd
+const extractPublishedDateFromUrl = (url) => {
+  if (!url) return null;
+  
+  const regex = /(\d{4})(\/|-)(\d{2})(\/|-)(\d{2})/i;
+  const match = url.match(regex);
+  if (match) {
+    const year = parseInt(match[1], 10);
+    const month = parseInt(match[3], 10) - 1; // January is 0 in JavaScript Date
+    const day = parseInt(match[5], 10);
+
+    return new Date(year, month, day);
+  }
+  return null;
+}
+
 /**
  * Public constructor.
  * @param {Document} doc     The document to parse.
@@ -1081,6 +1097,18 @@ Readability.prototype = {
     }
     // we don't want to check for dates in the URL's
     if (node.tagName.toLowerCase() === 'a') return
+    // get the datetime from time element
+    if (node.tagName.toLowerCase() === 'time') {
+      const datetime = node.getAttribute('datetime')
+      if (datetime) {
+        const date = new Date(datetime)
+        if (!isNaN(date)) {
+          this._articlePublishedDate = date
+          return true
+        }
+      }
+    }
+        
     // Searching for the real date in the text content
     const content = node.textContent.trim()
     let dateFound
@@ -3056,7 +3084,11 @@ Readability.prototype = {
       return null;
 
     const byline = metadata.byline || this._articleByline;
-    const [author, publishedAt] = extractPublishedDateFromAuthor(byline);
+    const [author, publishedDateFromAuthor] = extractPublishedDateFromAuthor(byline);
+    const publishedDate = metadata.publishedDate || 
+      extractPublishedDateFromUrl(this._documentURI) || 
+      publishedDateFromAuthor || 
+      this._articlePublishedDate;
 
     this._postProcessContent(articleContent);
 
@@ -3092,7 +3124,7 @@ Readability.prototype = {
       siteName: metadata.siteName,
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
-      publishedDate: metadata.publishedDate || publishedAt || this._articlePublishedDate,
+      publishedDate,
       language: this._getLanguage(metadata.locale || this._languageCode),
     };
   }
