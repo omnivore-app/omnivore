@@ -1081,6 +1081,18 @@ Readability.prototype = {
     }
     // we don't want to check for dates in the URL's
     if (node.tagName.toLowerCase() === 'a') return
+    // get the datetime from time element
+    if (node.tagName.toLowerCase() === 'time') {
+      const datetime = node.getAttribute('datetime')
+      if (datetime) {
+        const date = new Date(datetime)
+        if (!isNaN(date)) {
+          this._articlePublishedDate = date
+          return true
+        }
+      }
+    }
+        
     // Searching for the real date in the text content
     const content = node.textContent.trim()
     let dateFound
