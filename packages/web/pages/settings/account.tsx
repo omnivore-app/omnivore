@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
-import { FormInput } from '../../components/elements/FormElements'
 import { StyledText } from '../../components/elements/StyledText'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
@@ -21,6 +20,25 @@ import { styled } from '../../components/tokens/stitches.config'
 const StyledLabel = styled('label', {
   fontWeight: 600,
   fontSize: '16px',
+})
+
+export const FormInput = styled('input', {
+  border: '1px solid $textNonessential',
+  width: '100%',
+  bg: 'transparent',
+  fontSize: '16px',
+  fontFamily: 'inter',
+  fontWeight: 'normal',
+  lineHeight: '1.35',
+  borderRadius: '5px',
+  textIndent: '8px',
+  marginBottom: '2px',
+  height: '38px',
+  color: '$grayTextContrast',
+  '&:focus': {
+    border: '1px solid transparent',
+    outline: '2px solid $omnivoreCtaYellow',
+  },
 })
 
 export default function Account(): JSX.Element {
