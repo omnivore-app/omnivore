@@ -16,7 +16,9 @@ import { Button } from '../../components/elements/Button'
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
-import { styled } from '../../components/tokens/stitches.config'
+import { styled, theme } from '../../components/tokens/stitches.config'
+import { ProgressBar } from '../../components/elements/ProgressBar'
+import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 
 const StyledLabel = styled('label', {
   fontWeight: 600,
@@ -53,6 +55,16 @@ export default function Account(): JSX.Element {
     usernameErrorMessage,
     isUsernameValidationLoading,
   ])
+
+  const { itemsPages, isValidating } = useGetLibraryItemsQuery({
+    limit: 0,
+    searchQuery: 'in:all',
+    sortDescending: false,
+  })
+
+  const libraryCount = useMemo(() => {
+    return itemsPages?.find(() => true)?.search.pageInfo.totalCount
+  }, [itemsPages, isValidating])
 
   useEffect(() => {
     if (viewerData?.me?.profile.username) {
@@ -249,6 +261,33 @@ export default function Account(): JSX.Element {
               </StyledText>
               <Button style="ctaDarkYellow">Update Username</Button>
             </form>
+          </VStack>
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '10px',
+              borderRadius: '5px',
+            }}
+          >
+            <StyledLabel>Account Storage</StyledLabel>
+            {!isValidating && (
+              <>
+                <ProgressBar
+                  fillPercentage={(libraryCount ?? 0) / 50000}
+                  fillColor={theme.colors.omnivoreCtaYellow.toString()}
+                  backgroundColor={theme.colors.grayText.toString()}
+                  borderRadius={'2px'}
+                />
+                <StyledText style="footnote" css={{ mt: '0px', mb: '20px' }}>
+                  {`${libraryCount} of 50K library items used.`}
+                </StyledText>
+              </>
+            )}
+            <Button style="ctaDarkYellow">Upgrade</Button>
           </VStack>
         </VStack>
       </VStack>
