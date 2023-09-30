@@ -146,7 +146,6 @@ const textVariants = {
     },
     navLink: {
       m: 0,
-      fontSize: '$1',
       fontWeight: 400,
       color: '$graySolid',
       cursor: 'pointer',

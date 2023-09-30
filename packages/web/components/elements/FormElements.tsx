@@ -25,16 +25,21 @@ export interface FormInputProps {
 }
 
 export const FormInput = styled('input', {
-  border: 'none',
+  border: '1px solid $textNonessential',
   width: '100%',
   bg: 'transparent',
   fontSize: '16px',
   fontFamily: 'inter',
   fontWeight: 'normal',
   lineHeight: '1.35',
+  borderRadius: '5px',
+  textIndent: '8px',
+  marginBottom: '2px',
+  height: '38px',
   color: '$grayTextContrast',
   '&:focus': {
-    outline: 'none',
+    border: '1px solid transparent',
+    outline: '2px solid $omnivoreCtaYellow',
   },
 })
 
@@ -63,6 +68,10 @@ export const BorderedFormInput = styled(FormInput, {
   borderColor: '#d9d9d9',
   borderRadius: '6px',
   transition: 'all .2s',
+  '&:focus': {
+    border: '1px solid transparent',
+    outline: '2px solid $omnivoreCtaYellow',
+  },
 })
 
 export function GeneralFormInput(props: FormInputProps): JSX.Element {
@@ -170,7 +179,7 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
         required={input.required}
         css={{
           border: '1px solid $textNonessential',
-          borderRadius: '8px',
+          borderRadius: '5px',
           width: '100%',
           bg: 'transparent',
           fontSize: '16px',
@@ -179,8 +188,8 @@ export function GeneralFormInput(props: FormInputProps): JSX.Element {
           height: '38px',
           color: '$grayTextContrast',
           '&:focus': {
-            outline: 'none',
-            boxShadow: '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
+            border: '1px solid transparent',
+            outline: '2px solid $omnivoreCtaYellow',
           },
         }}
         name={input.name}
