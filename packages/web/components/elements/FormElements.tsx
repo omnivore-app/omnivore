@@ -25,7 +25,7 @@ export interface FormInputProps {
 }
 
 export const FormInput = styled('input', {
-  border: '1px solid $textNonessential',
+  border: 'none',
   width: '100%',
   bg: 'transparent',
   fontSize: '16px',
@@ -38,8 +38,7 @@ export const FormInput = styled('input', {
   height: '38px',
   color: '$grayTextContrast',
   '&:focus': {
-    border: '1px solid transparent',
-    outline: '2px solid $omnivoreCtaYellow',
+    outline: 'none',
   },
 })
 
