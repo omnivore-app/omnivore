@@ -192,8 +192,18 @@
   function updateLabelsFromCache(payload) {
     ;(async () => {
       await getStorageItem('labels').then((cachedLabels) => {
+        if (labels) {
+          const selectedLabels = labels.filter((l) => l.selected)
+          selectedLabels.forEach((l) => {
+            const cached = cachedLabels.find((cached) => cached.name == l.name)
+            if (cached) {
+              cached.selected = true
+            } else {
+              cachedLabels.push(l)
+            }
+          })
+        }
         labels = cachedLabels
-        console.log(' == updated labels', cachedLabels)
       })
     })()
   }
@@ -279,6 +289,12 @@
   }
 
   function toggleRow(rowId) {
+    if (!currentToastEl) {
+      // its possible this was called after closing the extension
+      // so just return
+      return
+    }
+
     const container = currentToastEl.shadowRoot.querySelector(rowId)
     const initialState = container?.getAttribute('data-state')
     const rows = currentToastEl.shadowRoot.querySelectorAll(
@@ -538,7 +554,15 @@
     }
   }
 
-  function addNote() {
+  function noteCacheKey() {
+    return document.location
+      ? `cached-note-${document.location.href}`
+      : undefined
+  }
+
+  async function addNote() {
+    const cachedNoteKey = noteCacheKey()
+
     cancelAutoDismiss()
     toggleRow('#omnivore-add-note-row')
 
@@ -547,7 +571,24 @@
     )
 
     if (noteArea) {
-      noteArea.focus()
+      if (cachedNoteKey) {
+        const existingNote = await getStorageItem(cachedNoteKey)
+        noteArea.value = existingNote
+      }
+
+      if (noteArea.value) {
+        noteArea.select()
+      } else {
+        noteArea.focus()
+      }
+
+      noteArea.addEventListener('input', (event) => {
+        ;(async () => {
+          const note = {}
+          note[cachedNoteKey] = event.target.value
+          await setStorage(note)
+        })()
+      })
 
       noteArea.onkeydown = (e) => {
         e.cancelBubble = true
@@ -587,7 +628,9 @@
       })
 
       event.preventDefault()
-      event.stopPropogation()
+      if (event.stopPropogation) {
+        event.stopPropogation()
+      }
     }
   }
 
@@ -745,27 +788,32 @@
       rowElement.setAttribute('data-label-selected', 'off')
     }
 
-    updateLabels()
+    syncLabelChanges()
   }
 
   function syncLabelChanges() {
-    console.log('syncLabels')
-
     updateStatusBox(
       '#omnivore-edit-labels-status',
       'loading',
       'Updating Labels...',
       undefined
     )
-    const labelIds = labels.filter((l) => l['selected']).map((l) => l.id)
+    const setLabels = labels
+      .filter((l) => l['selected'])
+      .map((l) => {
+        return {
+          name: l.name,
+          color: l.color,
+        }
+      })
 
-    //     browserApi.runtime.sendMessage({
-    // -        action: ACTIONS.SetLabels,
-    // -        payload: {
-    // -          ctx: ctx,
-    // -          labelIds: labelIds,
-    // -        },
-    // -      })
+    browserApi.runtime.sendMessage({
+      action: ACTIONS.SetLabels,
+      payload: {
+        ctx: ctx,
+        labels: setLabels,
+      },
+    })
   }
 
   async function editLabels() {
@@ -799,10 +847,14 @@
 
     if (list) {
       list.innerHTML = ''
-      labels.forEach(function (label, idx) {
-        const rowHtml = createLabelRow(label)
-        list.appendChild(rowHtml)
-      })
+      labels
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+        )
+        .forEach(function (label, idx) {
+          const rowHtml = createLabelRow(label)
+          list.appendChild(rowHtml)
+        })
     }
   }
 
@@ -817,15 +869,22 @@
           .filter(
             (l) => l.name.toLowerCase().indexOf(filterValue.toLowerCase()) > -1
           )
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+          )
           .forEach(function (label) {
             const rowHtml = createLabelRow(label)
             list.appendChild(rowHtml)
           })
       } else {
-        labels.forEach(function (label) {
-          const rowHtml = createLabelRow(label)
-          list.appendChild(rowHtml)
-        })
+        labels
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+          )
+          .forEach(function (label) {
+            const rowHtml = createLabelRow(label)
+            list.appendChild(rowHtml)
+          })
       }
     }
   }

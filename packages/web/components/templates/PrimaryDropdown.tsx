@@ -106,6 +106,10 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           cursor: 'pointer',
           mouseEvents: 'all',
         }}
+        onClick={(event) => {
+          router.push('/settings/account')
+          event.preventDefault()
+        }}
       >
         <Avatar
           imageURL={viewerData.me.profile.pictureUrl}

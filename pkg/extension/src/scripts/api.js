@@ -98,12 +98,7 @@ async function updatePageTitle(apiUrl, pageId, title) {
   return data.updatePage.updatePage
 }
 
-async function setLabels(apiUrl, pageId, labelIds, createdLabels) {
-  console.log(
-    'setLabels(apiUrl, pageId, labelIds, createdLabels)',
-    labelIds,
-    createdLabels
-  )
+async function setLabels(apiUrl, pageId, labels) {
   const mutation = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {
       setLabels(input: $input) {
@@ -123,8 +118,7 @@ async function setLabels(apiUrl, pageId, labelIds, createdLabels) {
     variables: {
       input: {
         pageId,
-        labelIds,
-        labels: createdLabels,
+        labels,
       },
     },
   })

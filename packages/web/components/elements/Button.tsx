@@ -194,12 +194,13 @@ export const Button = styled('button', {
         },
       },
       link: {
-        color: '$grayText',
         border: 'none',
         bg: 'transparent',
-        '&:hover': {
-          opacity: 0.8,
-        },
+        fontSize: '14px',
+        fontWeight: 'regular',
+        fontFamily: '$display',
+        color: '$thLibraryMenuUnselected',
+        cursor: 'pointer',
       },
       circularIcon: {
         mx: '$1',
