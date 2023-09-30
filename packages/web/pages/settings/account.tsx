@@ -1,23 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
-import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
-import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
 
-import {
-  FormInput,
-  FormInputProps,
-} from '../../components/elements/FormElements'
-import { FormModal } from '../../components/patterns/FormModal'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../components/templates/settings/SettingsTable'
+import { FormInput } from '../../components/elements/FormElements'
 import { StyledText } from '../../components/elements/StyledText'
-import { formattedShortDate } from '../../lib/dateFormatting'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Toaster } from 'react-hot-toast'
@@ -38,20 +24,17 @@ const StyledLabel = styled('label', {
 })
 
 export default function Account(): JSX.Element {
-  const { viewerData, isLoading } = useGetViewerQuery()
+  const { viewerData } = useGetViewerQuery()
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [nameUpdating, setNameUpdating] = useState(false)
   const [usernameUpdating, setUsernameUpdating] = useState(false)
 
   const [debouncedUsername, setDebouncedUsername] = useState('')
-  const {
-    isUsernameValid,
-    usernameErrorMessage,
-    isLoading: isUsernameValidationLoading,
-  } = useValidateUsernameQuery({
-    username: debouncedUsername,
-  })
+  const { usernameErrorMessage, isLoading: isUsernameValidationLoading } =
+    useValidateUsernameQuery({
+      username: debouncedUsername,
+    })
 
   const usernameEdited = useMemo(() => {
     return username !== viewerData?.me?.profile.username

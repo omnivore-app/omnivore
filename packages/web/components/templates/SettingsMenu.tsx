@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { LIBRARY_LEFT_MENU_WIDTH } from './homeFeed/LibraryFilterMenu'
 import { LogoBox } from '../elements/LogoBox'
@@ -128,7 +128,11 @@ export function SettingsMenu(): JSX.Element {
               },
             }}
           >
-            <a href="https://docs.omnivore.app" target="_blank">
+            <a
+              href="https://docs.omnivore.app"
+              target="_blank"
+              rel="noreferrer"
+            >
               <HStack
                 distribution="start"
                 alignment="center"
