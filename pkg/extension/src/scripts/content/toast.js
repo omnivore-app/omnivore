@@ -797,6 +797,11 @@
       rowElement.setAttribute('data-label-selected', 'off')
     }
 
+    const label = labels.find((l) => l.id === labelID)
+    if (label) {
+      label.selected = false
+    }
+
     syncLabelChanges()
   }
 
