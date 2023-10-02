@@ -107,6 +107,8 @@ export default function AddRssFeed(): JSX.Element {
           <FormInput
             type="url"
             key="feedUrl"
+            tabIndex={1}
+            autoFocus={true}
             value={feedUrl}
             placeholder={'Enter the feed URL here'}
             onChange={(e) => {
@@ -132,6 +134,7 @@ export default function AddRssFeed(): JSX.Element {
               Back
             </Button>
             <Button
+              tabIndex={1}
               style="ctaDarkYellow"
               css={{ marginRight: '10px' }}
               onClick={subscribe}
