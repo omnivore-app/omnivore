@@ -263,7 +263,7 @@ export default function Account(): JSX.Element {
             </form>
           </VStack>
 
-          <VStack
+          {/* <VStack
             css={{
               padding: '24px',
               width: '100%',
@@ -288,7 +288,7 @@ export default function Account(): JSX.Element {
               </>
             )}
             <Button style="ctaDarkYellow">Upgrade</Button>
-          </VStack>
+          </VStack> */}
         </VStack>
       </VStack>
     </SettingsLayout>
