@@ -66,7 +66,7 @@ struct InnerRootView: View {
         innerBody
       #elseif os(macOS)
         innerBody
-          .frame(minWidth: 400, idealWidth: 1200, minHeight: 400, idealHeight: 1200)
+          .frame(minWidth: 400, idealWidth: 1200, minHeight: 600, idealHeight: 1200)
       #endif
     }
     .onOpenURL { Authenticator.handleGoogleURL(url: $0) }

@@ -48,6 +48,7 @@ import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
 import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { posthog } from 'posthog-js'
+import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -556,15 +557,26 @@ export default function Home(): JSX.Element {
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}
-      {readerSettings.showEditDisplaySettingsModal && (
-        <DisplaySettingsModal
-          centerX={true}
-          readerSettings={readerSettings}
-          onOpenChange={() => {
-            readerSettings.setShowEditDisplaySettingsModal(false)
-          }}
-        />
-      )}
+      {article?.contentReader === 'PDF' &&
+        readerSettings.showEditDisplaySettingsModal && (
+          <PDFDisplaySettingsModal
+            centerX={true}
+            readerSettings={readerSettings}
+            onOpenChange={() => {
+              readerSettings.setShowEditDisplaySettingsModal(false)
+            }}
+          />
+        )}
+      {article?.contentReader !== 'PDF' &&
+        readerSettings.showEditDisplaySettingsModal && (
+          <DisplaySettingsModal
+            centerX={true}
+            readerSettings={readerSettings}
+            onOpenChange={() => {
+              readerSettings.setShowEditDisplaySettingsModal(false)
+            }}
+          />
+        )}
       {article && showEditModal && (
         <EditArticleModal
           article={article}

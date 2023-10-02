@@ -22,6 +22,7 @@ extension EmailAuthViewModel {
       emailAuthState = .pendingEmailVerification(email: email, password: password)
     } catch {
       loginError = error as? LoginError
+      emailAuthState = .signUp
     }
   }
 
@@ -171,6 +172,7 @@ struct EmailSignupFormView: View {
 
             Button(
               action: {
+                viewModel.emailAuthState = .loading
                 Task {
                   await viewModel.signUp(
                     email: email,
@@ -180,7 +182,14 @@ struct EmailSignupFormView: View {
                   )
                 }
               },
-              label: { Text(LocalText.genericSubmit) }
+              label: {
+                switch viewModel.emailAuthState {
+                case .loading:
+                  ProgressView()
+                default:
+                  Text(LocalText.genericSubmit)
+                }
+              }
             )
             .buttonStyle(SolidCapsuleButtonStyle(color: .appCtaYellow, width: 300))
 

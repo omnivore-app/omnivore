@@ -302,10 +302,12 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
       />
       <HStack css={{ width: '100%' }} alignment="center">
         <VStack
+          alignment="start"
           distribution="center"
           css={{
             mx: '10px',
             width: '100%',
+            height: '100%',
             maxWidth: '865px',
             color: '$grayText',
             paddingBottom: '5rem',

@@ -129,23 +129,6 @@
       })
   }
 
-  function handleFetchRequest(ev) {
-    const request = ev.request
-    if (request.method === 'POST') {
-      const requestUrl = new URL(request.url)
-      if (requestUrl.pathname === '/share-target') {
-        const shareRequest = handleShareTarget(request)
-        return shareRequest
-      }
-    }
-
-    if (naviApi.onLine) {
-      return globalApi.fetch(request)
-    }
-
-    return fetchWithCacheBackup(request)
-  }
-
   function handleOutdatedCache() {
     return globalApi.caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -181,8 +164,16 @@
     if (ev.request.destination === 'script') {
       return
     }
+    if (ev.request.destination === 'image') {
+      return
+    }
 
-    const handler = handleFetchRequest(ev)
-    ev.respondWith(handler)
+    if (ev.request.method === 'POST') {
+      const requestUrl = new URL(ev.request.url)
+      if (requestUrl.pathname === '/share-target') {
+        const shareRequest = handleShareTarget(ev.request)
+        return shareRequest
+      }
+    }
   })
 })()

@@ -12,6 +12,7 @@ import * as jwt from 'jsonwebtoken'
 import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
 import rfc2047 from 'rfc2047'
+import { Converter } from 'showdown'
 import { promisify } from 'util'
 import { Attachment, handleAttachments, isAttachment } from './attachment'
 import {
@@ -36,6 +37,11 @@ const signToken = promisify(jwt.sign)
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
+const converter = new Converter()
+
+export const plainTextToHtml = (text: string): string => {
+  return converter.makeHtml(text)
+}
 
 export const publishMessage = async (
   topic: string,
@@ -163,19 +169,24 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           await handleAttachments(to, subject, attachments, receivedEmailId)
           return res.send('ok')
         }
+
+        // convert text to html if html is not available
+        const content = html || plainTextToHtml(text)
+
         // all other emails are considered newsletters
         const newsletterMessage = await handleNewsletter({
           from,
           to,
           subject,
-          html,
+          html: content,
           headers,
         })
+
         // queue newsletter emails
         await pubsub.topic(NEWSLETTER_EMAIL_RECEIVED_TOPIC).publishMessage({
           json: {
             email: to,
-            content: html || text, // html is preferred
+            content,
             url: generateUniqueUrl(),
             title: subject,
             author: parseAuthor(from),

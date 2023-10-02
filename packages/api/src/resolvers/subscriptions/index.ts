@@ -1,4 +1,5 @@
 import Parser from 'rss-parser'
+import { Brackets } from 'typeorm'
 import { Subscription } from '../../entity/subscription'
 import { User } from '../../entity/user'
 import { getRepository } from '../../entity/utils'
@@ -31,13 +32,19 @@ import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
-import { Brackets } from 'typeorm'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
 const parser = new Parser({
   timeout: 30000, // 30 seconds
   maxRedirects: 5,
+  headers: {
+    // some rss feeds require user agent
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    Accept:
+      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
+  },
 })
 
 export type SubscriptionsSuccessPartial = Merge<

@@ -1,4 +1,4 @@
-import { Box, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { SettingsHeader } from '../patterns/SettingsHeader'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
@@ -13,6 +13,7 @@ import { PageMetaData } from '../patterns/PageMetaData'
 import { HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { deinitAnalytics } from '../../lib/analytics'
 import { logout } from '../../lib/logout'
+import { SettingsMenu } from './SettingsMenu'
 
 type SettingsLayoutProps = {
   title?: string
@@ -42,7 +43,11 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   }, [showLogout])
 
   return (
-    <>
+    <VStack
+      alignment="start"
+      distribution="start"
+      css={{ width: '100%', height: '100%', minHeight: '100vh' }}
+    >
       <PageMetaData path="settings" title="Settings" />
       <SettingsHeader user={viewerData?.me} />
       <VStack css={{ width: '100%', height: '100%' }}>
@@ -51,7 +56,10 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
             height: HEADER_HEIGHT,
           }}
         ></Box>
-        {props.children}
+        <HStack css={{ width: '100%', height: '100%' }} distribution="start">
+          <SettingsMenu />
+          {props.children}
+        </HStack>
         <Box css={{ height: '120px', width: '100%' }} />
       </VStack>
       {showLogoutConfirmation ? (
@@ -66,6 +74,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
           onOpenChange={() => setShowKeyboardCommandsModal(false)}
         />
       ) : null}
-    </>
+    </VStack>
   )
 }

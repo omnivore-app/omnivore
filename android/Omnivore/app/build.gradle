@@ -160,3 +160,9 @@ dependencies {
 apollo {
     packageName.set 'app.omnivore.omnivore.graphql.generated'
 }
+
+task printVersion {
+    doLast {
+        println "omnivoreVersion: ${android.defaultConfig.versionName}"
+    }
+}

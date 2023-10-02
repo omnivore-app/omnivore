@@ -23,7 +23,8 @@
   browserApi.runtime.onMessage.addListener(
     ({ action, payload }, sender, sendResponse) => {
       if (action === ACTIONS.GetContent) {
-        prepareContent().then((pageContent) => {
+        const createHighlight = payload && payload.createHighlight
+        prepareContent(createHighlight).then((pageContent) => {
           sendResponse({
             type: pageContent.type,
             doc: pageContent.content || '',

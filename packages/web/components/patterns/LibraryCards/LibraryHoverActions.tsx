@@ -75,7 +75,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         />
       </Button>
       <Button
-        title={props.item.isArchived ? 'Archive (e)' : 'Unarchive (e)'}
+        title={props.item.isArchived ? 'Unarchive (e)' : 'Archive (e)'}
         style="hoverActionIcon"
         onClick={(event) => {
           const action = props.item.isArchived ? 'unarchive' : 'archive'

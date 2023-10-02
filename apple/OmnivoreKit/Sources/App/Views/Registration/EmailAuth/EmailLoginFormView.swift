@@ -11,8 +11,11 @@ extension EmailAuthViewModel {
     authenticator: Authenticator
   ) async {
     do {
+      isLoading = true
       try await authenticator.submitEmailLogin(email: email, password: password)
+      isLoading = false
     } catch {
+      isLoading = false
       if let newLoginError = error as? LoginError {
         if newLoginError == .pendingEmailVerification {
           emailAuthState = .pendingEmailVerification(email: email, password: password)
@@ -175,7 +178,13 @@ struct EmailPendingVerificationView: View {
             )
           }
         },
-        label: { Text(LocalText.registrationStatusCheck) }
+        label: {
+          if viewModel.isLoading {
+            ProgressView()
+          } else {
+            Text(LocalText.registrationStatusCheck)
+          }
+        }
       )
       .buttonStyle(SolidCapsuleButtonStyle(color: .appDeepBackground, width: 300))
 
