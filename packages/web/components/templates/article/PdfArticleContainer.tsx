@@ -22,6 +22,7 @@ import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -36,9 +37,8 @@ export default function PdfArticleContainer(
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
@@ -65,7 +65,12 @@ export default function PdfArticleContainer(
         'spacer',
         'search',
         'export-pdf',
+        'sidebar-bookmarks',
+        'sidebar-thumbnails',
+        'sidebar-document-outline',
       ]
+
+      console.log('PSPDFKit.defaultToolbarItems', PSPDFKit.defaultToolbarItems)
       const toolbarItems = PSPDFKit.defaultToolbarItems.filter(
         (i) => ALLOWED_TOOLBAR_ITEM_TYPES.indexOf(i.type) !== -1
       )
@@ -193,6 +198,11 @@ export default function PdfArticleContainer(
         }
         return props.article.readingProgressAnchorIndex
       }
+
+      console.log(
+        'theme: ',
+        isDarkTheme() ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT
+      )
 
       instance = await PSPDFKit.load({
         container: container || '.pdf-container',
@@ -453,6 +463,15 @@ export default function PdfArticleContainer(
           }
         }
       }
+    })
+
+    document.addEventListener('pdfReaderUpdateSettings', () => {
+      const show = localStorage.getItem('reader-show-pdf-tool-bar')
+      const showToolbarbar = show ? JSON.parse(show) == true : false
+
+      instance.setViewState((viewState) =>
+        viewState.set('showToolbar', showToolbarbar)
+      )
     })
 
     return () => {
