@@ -1,9 +1,13 @@
 import * as jwt from 'jsonwebtoken'
+import { Not } from 'typeorm'
 import { deletePagesByParam } from '../../elastic/pages'
 import { User as UserEntity } from '../../entity/user'
-import { setClaims } from '../../entity/utils'
+import { getRepository, setClaims } from '../../entity/utils'
 import { env } from '../../env'
 import {
+  ConvertToEmailError,
+  ConvertToEmailErrorCode,
+  ConvertToEmailSuccess,
   DeleteAccountError,
   DeleteAccountErrorCode,
   DeleteAccountSuccess,
@@ -12,6 +16,7 @@ import {
   LoginResult,
   LogOutErrorCode,
   LogOutResult,
+  MutationConvertToEmailArgs,
   MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
@@ -35,6 +40,7 @@ import {
 } from '../../generated/graphql'
 import { AppDataSource } from '../../server'
 import { createUser } from '../../services/create_user'
+import { sendVerificationEmail } from '../../services/send_emails'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
@@ -336,4 +342,36 @@ export const deleteAccountResolver = authorized<
   await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
 
   return { userID }
+})
+
+export const convertToEmailResolver = authorized<
+  ConvertToEmailSuccess,
+  ConvertToEmailError,
+  MutationConvertToEmailArgs
+>(async (_, { input: { email } }, { uid, log }) => {
+  try {
+    const user = await getRepository(UserEntity).findOneBy({
+      id: uid,
+      source: Not('EMAIL'),
+    })
+
+    if (!user) {
+      return {
+        errorCodes: [ConvertToEmailErrorCode.Unauthorized],
+      }
+    }
+
+    const result = await sendVerificationEmail({
+      id: user.id,
+      name: user.name,
+      email,
+    })
+
+    return { success: result }
+  } catch (error) {
+    log.error('Error converting user to email', error)
+    return {
+      errorCodes: [ConvertToEmailErrorCode.BadRequest],
+    }
+  }
 })

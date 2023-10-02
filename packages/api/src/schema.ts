@@ -2567,6 +2567,26 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union ConvertToEmailResult = ConvertToEmailSuccess | ConvertToEmailError
+
+  type ConvertToEmailSuccess {
+    success: Boolean!
+  }
+
+  type ConvertToEmailError {
+    errorCodes: [ConvertToEmailErrorCode!]!
+  }
+
+  enum ConvertToEmailErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    EMAIL_ALREADY_EXISTS
+  }
+
+  input ConvertToEmailInput {
+    email: String!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2575,6 +2595,7 @@ const schema = gql`
     deleteAccount(userID: ID!): DeleteAccountResult!
     updateUser(input: UpdateUserInput!): UpdateUserResult!
     updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
+    convertToEmail(input: ConvertToEmailInput!): ConvertToEmailResult!
     createArticle(input: CreateArticleInput!): CreateArticleResult!
     createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!

@@ -252,6 +252,28 @@ export enum ContentReader {
   Web = 'WEB'
 }
 
+export type ConvertToEmailError = {
+  __typename?: 'ConvertToEmailError';
+  errorCodes: Array<ConvertToEmailErrorCode>;
+};
+
+export enum ConvertToEmailErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  EmailAlreadyExists = 'EMAIL_ALREADY_EXISTS',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ConvertToEmailInput = {
+  email: Scalars['String'];
+};
+
+export type ConvertToEmailResult = ConvertToEmailError | ConvertToEmailSuccess;
+
+export type ConvertToEmailSuccess = {
+  __typename?: 'ConvertToEmailSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type CreateArticleError = {
   __typename?: 'CreateArticleError';
   errorCodes: Array<CreateArticleErrorCode>;
@@ -1235,6 +1257,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   addPopularRead: AddPopularReadResult;
   bulkAction: BulkActionResult;
+  convertToEmail: ConvertToEmailResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createGroup: CreateGroupResult;
@@ -1318,6 +1341,11 @@ export type MutationBulkActionArgs = {
   expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   query: Scalars['String'];
+};
+
+
+export type MutationConvertToEmailArgs = {
+  input: ConvertToEmailInput;
 };
 
 
@@ -3442,6 +3470,11 @@ export type ResolversTypes = {
   BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
   BulkActionType: BulkActionType;
   ContentReader: ContentReader;
+  ConvertToEmailError: ResolverTypeWrapper<ConvertToEmailError>;
+  ConvertToEmailErrorCode: ConvertToEmailErrorCode;
+  ConvertToEmailInput: ConvertToEmailInput;
+  ConvertToEmailResult: ResolversTypes['ConvertToEmailError'] | ResolversTypes['ConvertToEmailSuccess'];
+  ConvertToEmailSuccess: ResolverTypeWrapper<ConvertToEmailSuccess>;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
   CreateArticleInput: CreateArticleInput;
@@ -3936,6 +3969,10 @@ export type ResolversParentTypes = {
   BulkActionError: BulkActionError;
   BulkActionResult: ResolversParentTypes['BulkActionError'] | ResolversParentTypes['BulkActionSuccess'];
   BulkActionSuccess: BulkActionSuccess;
+  ConvertToEmailError: ConvertToEmailError;
+  ConvertToEmailInput: ConvertToEmailInput;
+  ConvertToEmailResult: ResolversParentTypes['ConvertToEmailError'] | ResolversParentTypes['ConvertToEmailSuccess'];
+  ConvertToEmailSuccess: ConvertToEmailSuccess;
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
   CreateArticleResult: ResolversParentTypes['CreateArticleError'] | ResolversParentTypes['CreateArticleSuccess'];
@@ -4478,6 +4515,20 @@ export type BulkActionResultResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type BulkActionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['BulkActionSuccess'] = ResolversParentTypes['BulkActionSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ConvertToEmailErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ConvertToEmailError'] = ResolversParentTypes['ConvertToEmailError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ConvertToEmailErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ConvertToEmailResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ConvertToEmailResult'] = ResolversParentTypes['ConvertToEmailResult']> = {
+  __resolveType: TypeResolveFn<'ConvertToEmailError' | 'ConvertToEmailSuccess', ParentType, ContextType>;
+};
+
+export type ConvertToEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ConvertToEmailSuccess'] = ResolversParentTypes['ConvertToEmailSuccess']> = {
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5191,6 +5242,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
+  convertToEmail?: Resolver<ResolversTypes['ConvertToEmailResult'], ParentType, ContextType, RequireFields<MutationConvertToEmailArgs, 'input'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
@@ -6282,6 +6334,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   BulkActionError?: BulkActionErrorResolvers<ContextType>;
   BulkActionResult?: BulkActionResultResolvers<ContextType>;
   BulkActionSuccess?: BulkActionSuccessResolvers<ContextType>;
+  ConvertToEmailError?: ConvertToEmailErrorResolvers<ContextType>;
+  ConvertToEmailResult?: ConvertToEmailResultResolvers<ContextType>;
+  ConvertToEmailSuccess?: ConvertToEmailSuccessResolvers<ContextType>;
   CreateArticleError?: CreateArticleErrorResolvers<ContextType>;
   CreateArticleResult?: CreateArticleResultResolvers<ContextType>;
   CreateArticleSavingRequestError?: CreateArticleSavingRequestErrorResolvers<ContextType>;
