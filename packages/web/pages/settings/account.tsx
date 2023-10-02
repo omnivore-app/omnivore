@@ -396,6 +396,28 @@ export default function Account(): JSX.Element {
             )}
             <Button style="ctaDarkYellow">Upgrade</Button>
           </VStack> */}
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '20px',
+              borderRadius: '5px',
+            }}
+          >
+            <StyledLabel>Danger Zone</StyledLabel>
+            <Button
+              style="ctaDarkYellow"
+              css={{ color: 'white', background: 'red' }}
+              onClick={(event) => {
+                window.location.href = '/settings/delete-my-account'
+              }}
+            >
+              Delete Account
+            </Button>
+          </VStack>
         </VStack>
       </VStack>
 
