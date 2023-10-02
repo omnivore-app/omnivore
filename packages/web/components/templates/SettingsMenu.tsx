@@ -42,6 +42,42 @@ const StyledLink = styled(SpanBox, {
   whiteSpace: 'nowrap',
 })
 
+type ExternalLinkProps = {
+  title: string
+  destination: string
+}
+
+function ExternalLink(props: ExternalLinkProps): JSX.Element {
+  return (
+    <StyledLink
+      css={{
+        '> a': {
+          backgroundColor: 'transparent',
+          textDecoration: 'none',
+        },
+      }}
+      title={props.title}
+    >
+      <a href={props.destination} target="_blank" rel="noreferrer">
+        <HStack
+          distribution="start"
+          alignment="center"
+          css={{
+            gap: '5px',
+            color: '$thLibraryMenuUnselected',
+            '&:hover': {
+              textDecoration: 'underline',
+            },
+          }}
+        >
+          {props.title}
+          <ArrowSquareUpRight size={12} />
+        </HStack>
+      </a>
+    </StyledLink>
+  )
+}
+
 export function SettingsMenu(): JSX.Element {
   const section1 = [
     { name: 'Account', destination: '/settings/account' },
@@ -112,7 +148,14 @@ export function SettingsMenu(): JSX.Element {
               style="link"
               onClick={(event) => {
                 if (window.Intercom) {
-                  window.Intercom('show')
+                  try {
+                    window.Intercom('show')
+                  } catch (error) {
+                    console.log(error)
+                    alert('error opening system feedback')
+                  }
+                } else {
+                  alert('error opening system feedback')
                 }
                 event.preventDefault()
               }}
@@ -120,35 +163,14 @@ export function SettingsMenu(): JSX.Element {
               Feedback
             </Button>
           </StyledLink>
-          <StyledLink
-            css={{
-              '> a': {
-                backgroundColor: 'transparent',
-                textDecoration: 'none',
-              },
-            }}
-          >
-            <a
-              href="https://docs.omnivore.app"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <HStack
-                distribution="start"
-                alignment="center"
-                css={{
-                  gap: '5px',
-                  color: '$thLibraryMenuUnselected',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
-              >
-                Documentation
-                <ArrowSquareUpRight size={12} />
-              </HStack>
-            </a>
-          </StyledLink>
+          <ExternalLink
+            destination="https://blog.omnivore.app/p/contributing-to-omnivore"
+            title="Contribute"
+          />
+          <ExternalLink
+            destination="https://docs.omnivore.app"
+            title="Documentation"
+          />
         </VStack>
       </Box>
       {/* This spacer pushes library content to the right of 
