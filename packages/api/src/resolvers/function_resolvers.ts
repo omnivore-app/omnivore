@@ -124,7 +124,7 @@ import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { Claims, WithDataSourcesContext } from './types'
-import { convertToEmailResolver } from './user'
+import { updateEmailResolver } from './user'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -213,7 +213,7 @@ export const functionResolvers = {
     setFavoriteArticle: setFavoriteArticleResolver,
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
-    convertToEmail: convertToEmailResolver,
+    updateEmail: updateEmailResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -680,5 +680,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('ImportFromIntegration'),
   ...resultResolveTypeResolver('SetFavoriteArticle'),
   ...resultResolveTypeResolver('UpdateSubscription'),
-  ...resultResolveTypeResolver('ConvertToEmail'),
+  ...resultResolveTypeResolver('UpdateEmail'),
 }

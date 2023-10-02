@@ -211,26 +211,6 @@ enum ContentReader {
   WEB
 }
 
-type ConvertToEmailError {
-  errorCodes: [ConvertToEmailErrorCode!]!
-}
-
-enum ConvertToEmailErrorCode {
-  BAD_REQUEST
-  EMAIL_ALREADY_EXISTS
-  UNAUTHORIZED
-}
-
-input ConvertToEmailInput {
-  email: String!
-}
-
-union ConvertToEmailResult = ConvertToEmailError | ConvertToEmailSuccess
-
-type ConvertToEmailSuccess {
-  success: Boolean!
-}
-
 type CreateArticleError {
   errorCodes: [CreateArticleErrorCode!]!
 }
@@ -1123,7 +1103,6 @@ type MoveLabelSuccess {
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
-  convertToEmail(input: ConvertToEmailInput!): ConvertToEmailResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
@@ -1180,6 +1159,7 @@ type Mutation {
   setWebhook(input: SetWebhookInput!): SetWebhookResult!
   subscribe(input: SubscribeInput!): SubscribeResult!
   unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
+  updateEmail(input: UpdateEmailInput!): UpdateEmailResult!
   updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateHighlightReply(input: UpdateHighlightReplyInput!): UpdateHighlightReplyResult!
@@ -2198,6 +2178,27 @@ type UnsubscribeSuccess {
   subscription: Subscription!
 }
 
+type UpdateEmailError {
+  errorCodes: [UpdateEmailErrorCode!]!
+}
+
+enum UpdateEmailErrorCode {
+  BAD_REQUEST
+  EMAIL_ALREADY_EXISTS
+  UNAUTHORIZED
+}
+
+input UpdateEmailInput {
+  email: String!
+}
+
+union UpdateEmailResult = UpdateEmailError | UpdateEmailSuccess
+
+type UpdateEmailSuccess {
+  email: String!
+  verificationEmailSent: Boolean
+}
+
 type UpdateFilterError {
   errorCodes: [UpdateFilterErrorCode!]!
 }
@@ -2535,6 +2536,7 @@ enum UploadImportFileType {
 }
 
 type User {
+  email: String
   followersCount: Int
   friendsCount: Int
   id: ID!
@@ -2547,6 +2549,7 @@ type User {
   sharedArticlesCount: Int
   sharedHighlightsCount: Int
   sharedNotesCount: Int
+  source: String
   viewerIsFollowing: Boolean
 }
 

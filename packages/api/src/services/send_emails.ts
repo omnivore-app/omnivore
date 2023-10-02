@@ -31,7 +31,7 @@ export const sendVerificationEmail = async (user: {
 }): Promise<boolean> => {
   // generate verification link
   const token = generateVerificationToken({ id: user.id, email: user.email })
-  const link = `${env.client.url}/auth/convert-to-email/${token}`
+  const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
     name: user.name,

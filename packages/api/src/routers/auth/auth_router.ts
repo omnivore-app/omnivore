@@ -672,7 +672,6 @@ export function authRouter() {
 
         const user = await getRepository(User).findOneBy({
           id: claims.uid,
-          source: 'EMAIL',
         })
         if (!user) {
           return res.redirect(
@@ -686,13 +685,17 @@ export function authRouter() {
           )
         }
 
+        // check if email needs to be updated
+        const updateEmail = claims.email && claims.email !== user.email
+
         const hashedPassword = await hashPassword(password)
         const updated = await AppDataSource.transaction(
           async (entityManager) => {
             await setClaims(entityManager, user.id)
             return entityManager.getRepository(User).update(user.id, {
               password: hashedPassword,
-              email: claims.email,
+              email: updateEmail ? claims.email : undefined,
+              source: updateEmail ? RegistrationType.Email : undefined,
             })
           }
         )

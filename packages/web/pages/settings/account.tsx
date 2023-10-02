@@ -1,23 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-
-import { StyledText } from '../../components/elements/StyledText'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Toaster } from 'react-hot-toast'
+import { Button } from '../../components/elements/Button'
 import {
   Box,
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
-import { Button } from '../../components/elements/Button'
-import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
+import { StyledText } from '../../components/elements/StyledText'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { styled } from '../../components/tokens/stitches.config'
+import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
-import { styled, theme } from '../../components/tokens/stitches.config'
-import { ProgressBar } from '../../components/elements/ProgressBar'
 import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
+import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
 const StyledLabel = styled('label', {
   fontWeight: 600,
@@ -49,6 +48,9 @@ export default function Account(): JSX.Element {
   const [username, setUsername] = useState('')
   const [nameUpdating, setNameUpdating] = useState(false)
   const [usernameUpdating, setUsernameUpdating] = useState(false)
+  const [email, setEmail] = useState('')
+  const [emailUpdating, setEmailUpdating] = useState(false)
+  const [source, setSource] = useState('')
 
   const [debouncedUsername, setDebouncedUsername] = useState('')
   const { usernameErrorMessage, isLoading: isUsernameValidationLoading } =
@@ -95,6 +97,18 @@ export default function Account(): JSX.Element {
       setName(viewerData?.me?.name)
     }
   }, [viewerData?.me?.name])
+
+  useEffect(() => {
+    if (viewerData?.me?.email) {
+      setEmail(viewerData?.me?.email)
+    }
+  }, [viewerData?.me?.email])
+
+  useEffect(() => {
+    if (viewerData?.me?.source) {
+      setSource(viewerData?.me?.source)
+    }
+  }, [viewerData?.me?.source])
 
   const handleUsernameChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -153,6 +167,24 @@ export default function Account(): JSX.Element {
     setUsernameUpdating,
     viewerData?.me,
   ])
+
+  const updateEmail = useCallback(() => {
+    setEmailUpdating(true)
+    ;(async () => {
+      const response = await updateEmailMutation({ email })
+      if (response) {
+        setEmail(response.email)
+        if (response.verificationEmailSent) {
+          showSuccessToast('Verification email sent')
+        } else {
+          showSuccessToast('Email updated')
+        }
+      } else {
+        showErrorToast('Error updating email')
+      }
+      setEmailUpdating(false)
+    })()
+  }, [email])
 
   applyStoredTheme(false)
 
@@ -278,6 +310,50 @@ export default function Account(): JSX.Element {
                 apps.
               </StyledText>
               <Button style="ctaDarkYellow">Update Username</Button>
+            </form>
+          </VStack>
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '5px',
+              borderRadius: '5px',
+            }}
+          >
+            <form
+              onSubmit={(event) => {
+                updateEmail()
+                event.preventDefault()
+              }}
+            >
+              <StyledLabel>Email</StyledLabel>
+              <FormInput
+                type={'text'}
+                placeholder={'Email'}
+                value={email}
+                disabled={emailUpdating}
+                onChange={(event) => {
+                  setEmail(event.target.value)
+                  event.preventDefault()
+                }}
+              />
+              <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+                Your email is used for account recovery and notifications.
+              </StyledText>
+              {source == 'EMAIL' ? (
+                <Button style="ctaDarkYellow">Update Email</Button>
+              ) : (
+                <VStack>
+                  <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
+                    You are currently logged in with a social account. To
+                    convert to an email login, please click the button below.
+                  </StyledText>
+                <Button style="ctaDarkYellow">Convert to email login</Button>
+                </VStack>
+              )}
             </form>
           </VStack>
 

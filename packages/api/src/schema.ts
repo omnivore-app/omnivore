@@ -84,6 +84,8 @@ const schema = gql`
     sharedNotesCount: Int
     friendsCount: Int
     followersCount: Int
+    email: String
+    source: String
   }
 
   type Profile {
@@ -2567,23 +2569,24 @@ const schema = gql`
     NOT_FOUND
   }
 
-  union ConvertToEmailResult = ConvertToEmailSuccess | ConvertToEmailError
+  union UpdateEmailResult = UpdateEmailSuccess | UpdateEmailError
 
-  type ConvertToEmailSuccess {
-    success: Boolean!
+  type UpdateEmailSuccess {
+    email: String!
+    verificationEmailSent: Boolean
   }
 
-  type ConvertToEmailError {
-    errorCodes: [ConvertToEmailErrorCode!]!
+  type UpdateEmailError {
+    errorCodes: [UpdateEmailErrorCode!]!
   }
 
-  enum ConvertToEmailErrorCode {
+  enum UpdateEmailErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     EMAIL_ALREADY_EXISTS
   }
 
-  input ConvertToEmailInput {
+  input UpdateEmailInput {
     email: String!
   }
 
@@ -2595,7 +2598,7 @@ const schema = gql`
     deleteAccount(userID: ID!): DeleteAccountResult!
     updateUser(input: UpdateUserInput!): UpdateUserResult!
     updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
-    convertToEmail(input: ConvertToEmailInput!): ConvertToEmailResult!
+    updateEmail(input: UpdateEmailInput!): UpdateEmailResult!
     createArticle(input: CreateArticleInput!): CreateArticleResult!
     createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!

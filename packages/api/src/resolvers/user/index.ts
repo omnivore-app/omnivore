@@ -1,13 +1,10 @@
 import * as jwt from 'jsonwebtoken'
-import { Not } from 'typeorm'
+import { RegistrationType } from '../../datalayer/user/model'
 import { deletePagesByParam } from '../../elastic/pages'
 import { User as UserEntity } from '../../entity/user'
 import { getRepository, setClaims } from '../../entity/utils'
 import { env } from '../../env'
 import {
-  ConvertToEmailError,
-  ConvertToEmailErrorCode,
-  ConvertToEmailSuccess,
   DeleteAccountError,
   DeleteAccountErrorCode,
   DeleteAccountSuccess,
@@ -16,16 +13,19 @@ import {
   LoginResult,
   LogOutErrorCode,
   LogOutResult,
-  MutationConvertToEmailArgs,
   MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
+  MutationUpdateEmailArgs,
   MutationUpdateUserArgs,
   MutationUpdateUserProfileArgs,
   QueryUserArgs,
   QueryValidateUsernameArgs,
   ResolverFn,
   SignupErrorCode,
+  UpdateEmailError,
+  UpdateEmailErrorCode,
+  UpdateEmailSuccess,
   UpdateUserError,
   UpdateUserErrorCode,
   UpdateUserProfileError,
@@ -344,21 +344,31 @@ export const deleteAccountResolver = authorized<
   return { userID }
 })
 
-export const convertToEmailResolver = authorized<
-  ConvertToEmailSuccess,
-  ConvertToEmailError,
-  MutationConvertToEmailArgs
+export const updateEmailResolver = authorized<
+  UpdateEmailSuccess,
+  UpdateEmailError,
+  MutationUpdateEmailArgs
 >(async (_, { input: { email } }, { uid, log }) => {
   try {
     const user = await getRepository(UserEntity).findOneBy({
       id: uid,
-      source: Not('EMAIL'),
     })
 
     if (!user) {
       return {
-        errorCodes: [ConvertToEmailErrorCode.Unauthorized],
+        errorCodes: [UpdateEmailErrorCode.Unauthorized],
       }
+    }
+
+    if (user.source === RegistrationType.Email) {
+      await AppDataSource.transaction(async (entityManager) => {
+        await setClaims(entityManager, user.id)
+        return entityManager.getRepository(UserEntity).update(user.id, {
+          email,
+        })
+      })
+
+      return { email }
     }
 
     const result = await sendVerificationEmail({
@@ -366,12 +376,17 @@ export const convertToEmailResolver = authorized<
       name: user.name,
       email,
     })
+    if (!result) {
+      return {
+        errorCodes: [UpdateEmailErrorCode.BadRequest],
+      }
+    }
 
-    return { success: result }
+    return { email, verificationEmailSent: true }
   } catch (error) {
-    log.error('Error converting user to email', error)
+    log.error('Error updating email', error)
     return {
-      errorCodes: [ConvertToEmailErrorCode.BadRequest],
+      errorCodes: [UpdateEmailErrorCode.BadRequest],
     }
   }
 })
