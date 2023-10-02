@@ -203,7 +203,7 @@ public struct LibraryItemCard: View {
   var byLine: some View {
     Text(bylineStr)
       .font(.caption2)
-      .foregroundColor(Color.isDarkMode ? Color.themeLightGray : Color.themeLightestGray)
+      .foregroundColor(Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
   }
