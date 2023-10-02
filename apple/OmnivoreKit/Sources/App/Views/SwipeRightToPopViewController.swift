@@ -80,15 +80,14 @@
     @objc func handlePanGesture(_ panGesture: UIPanGestureRecognizer) {
       // if the parentNavigationControllerToUse has a width value, use that because it's more accurate. Otherwise use this view's width as a backup
       let total = parentNavigationControllerToUse?.view.frame.width ?? view.frame.width
-      let percent = max(panGesture.translation(in: view).x, 0) / total
+      let amount = max(panGesture.translation(in: view).x, 0)
+      let percent = amount / total
+      let velocity = panGesture.velocity(in: view).x
 
       switch panGesture.state {
       case .began:
         if lazyPopContent?.isEnabled == true {
           parentNavigationControllerToUse?.delegate = self
-          if let pop = self.pop {
-            pop()
-          }
         }
 
       case .changed:
@@ -97,10 +96,11 @@
         }
 
       case .ended:
-        let velocity = panGesture.velocity(in: view).x
-
-        // Continue if drag more than 50% of screen width or velocity is higher than 100
-        if percent > 0.5 || velocity > 100 {
+        // Continue if drag more than 20% of screen width or velocity is higher than 1000
+        if percent > 0.2 || velocity > 1000 {
+          if let pop = self.pop {
+            pop()
+          }
           percentDrivenInteractiveTransition?.finish()
         } else {
           percentDrivenInteractiveTransition?.cancel()
