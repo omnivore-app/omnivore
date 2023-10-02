@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
-    "@sentry/serverless": "^6.16.1",
+    "@sentry/serverless": "^7.73.0",
     "axios": "^1.4.0",
     "dotenv": "^16.0.1",
     "image-size": "^1.0.2",
