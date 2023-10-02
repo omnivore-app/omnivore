@@ -142,7 +142,7 @@ export function VerticalArticleActionsMenu(
           </Button>
         )}
         <Button
-          title="Edit Info (i)"
+          title="Display Settings (d)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('editDisplaySettings')}
           css={{
