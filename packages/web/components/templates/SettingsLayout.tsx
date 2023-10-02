@@ -43,7 +43,11 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
   }, [showLogout])
 
   return (
-    <>
+    <VStack
+      alignment="start"
+      distribution="start"
+      css={{ width: '100%', height: '100%', minHeight: '100vh' }}
+    >
       <PageMetaData path="settings" title="Settings" />
       <SettingsHeader user={viewerData?.me} />
       <VStack css={{ width: '100%', height: '100%' }}>
@@ -52,7 +56,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
             height: HEADER_HEIGHT,
           }}
         ></Box>
-        <HStack css={{ width: '100%', height: '100%' }}>
+        <HStack css={{ width: '100%', height: '100%' }} distribution="start">
           <SettingsMenu />
           {props.children}
         </HStack>
@@ -70,6 +74,6 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
           onOpenChange={() => setShowKeyboardCommandsModal(false)}
         />
       ) : null}
-    </>
+    </VStack>
   )
 }
