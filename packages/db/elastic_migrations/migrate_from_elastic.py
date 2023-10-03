@@ -440,6 +440,10 @@ async def main():
                 original_html,
                 deleted_at,
             )
+            if id in library_items_original_ids:
+                print('Skipping item', doc_id, 'because it already exists in postgres')
+                continue
+
             library_items.append(library_item)
             library_items_original_ids.append(doc_id)
 
