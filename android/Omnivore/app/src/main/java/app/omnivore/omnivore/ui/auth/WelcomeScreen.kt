@@ -68,6 +68,9 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
       RegistrationState.EmailSignUp -> {
         EmailSignUpView(viewModel = viewModel)
       }
+      RegistrationState.SelfHosted -> {
+        SelfHostedView(viewModel = viewModel)
+      }
       RegistrationState.SocialLogin -> {
         Text(
           text = stringResource(id = R.string.welcome_title),
@@ -136,6 +139,17 @@ fun AuthProviderView(viewModel: LoginViewModel) {
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { viewModel.showEmailSignIn() }
+      )
+
+      Spacer(modifier = Modifier.weight(1.0F))
+
+      ClickableText(
+        text = AnnotatedString("Self-hosting options"),
+        style = MaterialTheme.typography.titleMedium
+          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+        onClick = { viewModel.showSelfHostedSettings() },
+        modifier = Modifier
+          .padding(vertical = 10.dp)
       )
     }
     Spacer(modifier = Modifier.weight(1.0F))
