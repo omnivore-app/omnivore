@@ -96,8 +96,8 @@
         }
 
       case .ended:
-        // Continue if drag more than 20% of screen width or velocity is higher than 1000
-        if percent > 0.2 || velocity > 1000 {
+        // Continue if drag more than 30% of screen width or velocity is higher than 1000
+        if percent > 0.30 || velocity > 1000 {
           if let pop = self.pop {
             pop()
           }
