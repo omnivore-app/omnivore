@@ -4,15 +4,13 @@
 
 BEGIN;
 
-DROP INDEX IF EXISTS highlight_library_item_id_idx;
+DROP INDEX IF EXISTS omnivore.highlight_library_item_id_idx;
 
-DROP INDEX IF EXISTS entity_labels_highlight_id_idx;
-DROP INDEX IF EXISTS entity_labels_library_item_id_idx;
+DROP INDEX IF EXISTS omnivore.entity_labels_highlight_id_idx;
+DROP INDEX IF EXISTS omnivore.entity_labels_library_item_id_idx;
 
-DROP INDEX IF NOT EXISTS user_profile_user_id_idx;
+DROP INDEX IF NOT EXISTS omnivore.user_profile_user_id_idx;
 
-DROP INDEX IF NOT EXISTS library_item_user_id_idx;
-
-DROP INDEX IF NOT EXISTS recommendation_library_item_id_idx;
+DROP INDEX IF NOT EXISTS omnivore.library_item_user_id_idx;
 
 COMMIT;

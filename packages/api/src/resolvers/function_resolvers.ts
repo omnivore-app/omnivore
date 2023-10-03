@@ -412,8 +412,8 @@ export const functionResolvers = {
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 320, 320)
     },
-    wordsCount(article: { wordsCount?: number; content?: string }) {
-      if (article.wordsCount) return article.wordsCount
+    wordsCount(article: { wordCount?: number; content?: string }) {
+      if (article.wordCount) return article.wordCount
       return article.content ? wordsCount(article.content) : undefined
     },
   },
@@ -466,6 +466,10 @@ export const functionResolvers = {
     },
     originalArticleUrl(item: { url: string }) {
       return item.url
+    },
+    wordsCount(article: { wordCount?: number; content?: string }) {
+      if (article.wordCount) return article.wordCount
+      return article.content ? wordsCount(article.content) : undefined
     },
   },
   Subscription: {

@@ -250,6 +250,7 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   highlights: item.highlights?.map(highlightDataToHighlight) || [],
   uploadFileId: item.uploadFile?.id,
   pageType: item.itemType as unknown as PageType,
+  wordsCount: item.wordCount,
 })
 
 export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
@@ -268,6 +269,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   image: item.thumbnail,
   highlights: item.highlights?.map(highlightDataToHighlight),
   uploadFileId: item.uploadFile?.id,
+  wordsCount: item.wordCount,
 })
 
 export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {
