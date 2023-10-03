@@ -329,10 +329,10 @@ describe('Subscriptions API', () => {
         id: subscription.id,
       })
 
-      const deletedSubscription = await getRepository(Subscription).findOneBy({
+      const updatedSubscription = await getRepository(Subscription).findOneBy({
         id: subscription.id,
       })
-      expect(deletedSubscription).to.be.null
+      expect(updatedSubscription?.status).to.eql(SubscriptionStatus.Unsubscribed)
 
       // check if the email was sent
       expect(fake).to.have.been.calledOnceWith({
@@ -343,6 +343,9 @@ describe('Subscriptions API', () => {
       })
 
       sinon.restore()
+
+      // clean up
+      await getRepository(Subscription).remove(subscription)
     })
   })
 })
