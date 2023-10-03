@@ -255,6 +255,10 @@ async def insert_into_postgres(insert_query, db_conn, records, original_ids):
                         await db_conn.execute(insert_query, *record, timeout=int(PG_TIMEOUT))
                         # enable library_item_tsv_update trigger
                         await db_conn.execute('ALTER TABLE omnivore.library_item ENABLE TRIGGER library_item_tsv_update')
+                elif 'duplicate key value violates unique constraint' in str(err):
+                    # skip the error
+                    print('Skipping duplicate record', original_ids[i])
+                    continue
                 else:
                     # throw the error
                     raise err
@@ -440,9 +444,6 @@ async def main():
                 original_html,
                 deleted_at,
             )
-            if id in library_items_original_ids:
-                print('Skipping item', doc_id, 'because it already exists in postgres')
-                continue
 
             library_items.append(library_item)
             library_items_original_ids.append(doc_id)
