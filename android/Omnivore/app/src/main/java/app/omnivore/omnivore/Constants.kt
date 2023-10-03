@@ -6,6 +6,8 @@ object Constants {
 }
 
 object DatastoreKeys {
+  const val omnivoreSelfHostedAPIServer =  "omnivoreSelfHostedAPIServer"
+  const val omnivoreSelfHostedWebServer = "omnivoreSelfHostedWebServer"
   const val omnivoreAuthToken =  "omnivoreAuthToken"
   const val omnivoreAuthCookieString =  "omnivoreAuthCookieString"
   const val omnivorePendingUserToken =  "omnivorePendingUserToken"

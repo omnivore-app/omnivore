@@ -1,5 +1,7 @@
 package app.omnivore.omnivore.ui.auth
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,7 +26,8 @@ enum class RegistrationState {
   SocialLogin,
   EmailSignIn,
   EmailSignUp,
-  PendingUser
+  PendingUser,
+  SelfHosted
 }
 
 data class PendingEmailUserCreds(
@@ -67,6 +70,31 @@ class LoginViewModel @Inject constructor(
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthCookieString)
   }
 
+  fun setSelfHostingDetails(context: Context, apiServer: String, webServer: String) {
+    viewModelScope.launch {
+      datastoreRepo.putString(DatastoreKeys.omnivoreSelfHostedAPIServer, apiServer)
+      datastoreRepo.putString(DatastoreKeys.omnivoreSelfHostedWebServer, webServer)
+      Toast.makeText(
+        context,
+        "Self-hosting settings updated.",
+        Toast.LENGTH_SHORT
+      ).show()
+    }
+  }
+
+  fun resetSelfHostingDetails(context: Context) {
+    viewModelScope.launch {
+      datastoreRepo.clearValue(DatastoreKeys.omnivoreSelfHostedAPIServer)
+      datastoreRepo.clearValue(DatastoreKeys.omnivoreSelfHostedWebServer)
+      Toast.makeText(
+        context,
+        "Self-hosting settings reset.",
+        Toast.LENGTH_SHORT
+      ).show()
+    }
+
+
+  }
   fun showSocialLogin() {
     resetState()
     registrationStateLiveData.value = RegistrationState.SocialLogin
@@ -81,6 +109,11 @@ class LoginViewModel @Inject constructor(
     resetState()
     pendingEmailUserCreds = pendingCreds
     registrationStateLiveData.value = RegistrationState.EmailSignUp
+  }
+
+  fun showSelfHostedSettings(pendingCreds: PendingEmailUserCreds? = null) {
+    resetState()
+    registrationStateLiveData.value = RegistrationState.SelfHosted
   }
 
   fun cancelNewUserSignUp() {
@@ -162,9 +195,10 @@ class LoginViewModel @Inject constructor(
   }
 
   fun login(email: String, password: String) {
-    val emailLogin = RetrofitHelper.getInstance().create(EmailLoginSubmit::class.java)
 
     viewModelScope.launch {
+      val emailLogin = RetrofitHelper.getInstance(networker).create(EmailLoginSubmit::class.java)
+
       isLoading = true
       errorMessage = null
 
@@ -200,7 +234,7 @@ class LoginViewModel @Inject constructor(
     name: String,
   ) {
     viewModelScope.launch {
-      val request = RetrofitHelper.getInstance().create(CreateEmailAccountSubmit::class.java)
+      val request = RetrofitHelper.getInstance(networker).create(CreateEmailAccountSubmit::class.java)
 
       isLoading = true
       errorMessage = null
@@ -230,7 +264,7 @@ class LoginViewModel @Inject constructor(
 
   fun submitProfile(username: String, name: String) {
     viewModelScope.launch {
-      val request = RetrofitHelper.getInstance().create(CreateAccountSubmit::class.java)
+      val request = RetrofitHelper.getInstance(networker).create(CreateAccountSubmit::class.java)
 
       isLoading = true
       errorMessage = null
@@ -300,9 +334,10 @@ class LoginViewModel @Inject constructor(
   }
 
   private fun submitAuthProviderPayload(params: SignInParams) {
-    val login = RetrofitHelper.getInstance().create(AuthProviderLoginSubmit::class.java)
 
     viewModelScope.launch {
+      val login = RetrofitHelper.getInstance(networker).create(AuthProviderLoginSubmit::class.java)
+
       isLoading = true
       errorMessage = null
 
@@ -340,7 +375,7 @@ class LoginViewModel @Inject constructor(
     isLoading = true
     errorMessage = null
 
-    val request = RetrofitHelper.getInstance().create(PendingUserSubmit::class.java)
+    val request = RetrofitHelper.getInstance(networker).create(PendingUserSubmit::class.java)
     val result = request.submitPendingUser(params)
 
     isLoading = false
