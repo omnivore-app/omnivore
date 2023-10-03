@@ -157,7 +157,7 @@ describe('Subscriptions API', () => {
           }))
         )
       } finally {
-        unsubscribe(sub5)
+        await getRepository(Subscription).remove(sub5)
       }
     })
 
