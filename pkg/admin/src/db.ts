@@ -289,13 +289,7 @@ export class Subscription extends BaseEntity {
   status!: SubscriptionStatus
 
   @Column('text', { nullable: true })
-  description?: string
-
-  @Column('text', { nullable: true })
   url?: string
-
-  @Column('text', { nullable: true })
-  icon?: string
 
   @Column('enum', {
     enum: SubscriptionType,
