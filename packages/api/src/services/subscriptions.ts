@@ -134,29 +134,25 @@ export const saveSubscription = async ({
 export const unsubscribe = async (subscription: Subscription) => {
   // unsubscribe from newsletter
   if (subscription.type === SubscriptionType.Newsletter) {
-    let unsubscribed = false
-
     if (subscription.unsubscribeMailTo && subscription.newsletterEmail) {
       // unsubscribe by sending email
-      unsubscribed = await sendUnsubscribeEmail(
+      const sent = await sendUnsubscribeEmail(
         subscription.unsubscribeMailTo,
         subscription.newsletterEmail.address
       )
+
+      logger.info('Unsubscribe email sent', {
+        subscriptionId: subscription.id,
+        sent,
+      })
     }
     // TODO: find a good way to unsubscribe by url if email fails or not provided
     // because it often requires clicking a button on the page to unsubscribe
-
-    if (!unsubscribed) {
-      // update subscription status to unsubscribed if failed to unsubscribe
-      logger.info('Failed to unsubscribe', subscription.id)
-      return getRepository(Subscription).update(subscription.id, {
-        status: SubscriptionStatus.Unsubscribed,
-      })
-    }
   }
 
-  // delete the subscription if successfully unsubscribed or it's an rss feed
-  await getRepository(Subscription).delete(subscription.id)
+  return getRepository(Subscription).update(subscription.id, {
+    status: SubscriptionStatus.Unsubscribed,
+  })
 }
 
 export const unsubscribeAll = async (
