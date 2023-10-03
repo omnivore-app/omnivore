@@ -42,6 +42,7 @@ const FONT_FAMILIES = [
   'Source Serif Pro',
   'LXGWWenKai',
   'AtkinsonHyperlegible',
+  'IBMPlexSans',
 ]
 
 type SettingsProps = {
