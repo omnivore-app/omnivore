@@ -306,7 +306,7 @@ describe('auth router', () => {
 
     context('when token is valid', () => {
       before(() => {
-        token = generateVerificationToken(user.id)
+        token = generateVerificationToken({ id: user.id })
       })
 
       it('set auth token in cookie', async () => {
@@ -340,7 +340,7 @@ describe('auth router', () => {
 
     context('when token is expired', () => {
       before(() => {
-        token = generateVerificationToken(user.id, -1)
+        token = generateVerificationToken({ id: user.id }, -1)
       })
 
       it('redirects to confirm-email page with error code TokenExpired', async () => {
@@ -354,7 +354,7 @@ describe('auth router', () => {
     context('when user is not found', () => {
       before(() => {
         const nonExistsUserId = generateFakeUuid()
-        token = generateVerificationToken(nonExistsUserId)
+        token = generateVerificationToken({ id: nonExistsUserId })
       })
 
       it('redirects to confirm-email page with error code UserNotFound', async () => {
@@ -498,7 +498,7 @@ describe('auth router', () => {
 
     context('when token is valid', () => {
       before(async () => {
-        token = generateVerificationToken(user.id)
+        token = generateVerificationToken({ id: user.id })
       })
 
       context('when password is not empty', () => {
@@ -543,7 +543,7 @@ describe('auth router', () => {
 
       context('when token is expired', () => {
         before(() => {
-          token = generateVerificationToken(user.id, -1)
+          token = generateVerificationToken({ id: user.id }, -1)
         })
 
         it('redirects to reset-password page with error code ExpiredToken', async () => {
