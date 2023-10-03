@@ -96,7 +96,7 @@ async def assert_data(db_conn, es_client, users, uploaded_files):
 
 def get_uuid(val):
     try:
-        return uuid.UUID(val, version=4)
+        return uuid.UUID(val)
     except ValueError:
         id = convert_string_to_uuid(val)
         return id
