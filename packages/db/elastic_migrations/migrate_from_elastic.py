@@ -111,7 +111,11 @@ def convert_string_to_datetime(val):
     if val is None:
         return None
     try:
-        return datetime.strptime(val, DATE_FORMAT)
+        date = datetime.strptime(val, DATE_FORMAT)
+        if date.year <= 1:
+            # avoid year 0 is out of range error
+            return None
+        return date
     except Exception as err:
         print('Convert string to datetime ERROR:', err)
         return None
