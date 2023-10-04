@@ -208,7 +208,7 @@ export const highlightDataToHighlight = (
   user: userDataToUser(highlight.user),
 })
 
-const recommandationDataToRecommendation = (
+export const recommandationDataToRecommendation = (
   recommendation: RecommendationData
 ): Recommendation => ({
   ...recommendation,

@@ -94,3 +94,15 @@ export const createRecommendation = async (
 ) => {
   return getRepository(Recommendation).save(recommendation)
 }
+
+export const findRecommendationsByLibraryItemId = async (
+  libraryItemId: string
+) => {
+  return getRepository(Recommendation).find({
+    where: { libraryItem: { id: libraryItemId } },
+    relations: {
+      group: true,
+      recommender: true,
+    }
+  })
+}

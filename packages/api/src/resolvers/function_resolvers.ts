@@ -9,13 +9,16 @@ import {
   Highlight,
   Label,
   PageType,
+  Recommendation,
   SearchItem,
 } from '../generated/graphql'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
+import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
   highlightDataToHighlight,
+  recommandationDataToRecommendation,
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
@@ -501,6 +504,15 @@ export const functionResolvers = {
       if (item.labels) return item.labels
 
       return findLabelsByLibraryItemId(item.id, ctx.uid)
+    },
+    async recommendations(item: {
+      id: string
+      recommendations?: Recommendation[]
+    }) {
+      if (item.recommendations) return item.recommendations
+
+      const recommendations = await findRecommendationsByLibraryItemId(item.id)
+      return recommendations.map(recommandationDataToRecommendation)
     },
   },
   Subscription: {

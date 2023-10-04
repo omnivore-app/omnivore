@@ -198,4 +198,7 @@ export class LibraryItem {
 
   @Column('text', { nullable: true })
   note?: string | null
+
+  @Column('text', { nullable: true })
+  recommenderNames?: string[] | null
 }

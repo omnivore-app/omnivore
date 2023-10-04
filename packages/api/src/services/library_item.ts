@@ -6,7 +6,7 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx, getColumns } from '../repository'
+import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { wordsCount } from '../utils/helpers'
 import {
@@ -245,12 +245,13 @@ const buildWhereClause = (
   }
 
   if (args.recommendedBy) {
-    queryBuilder.andWhere('recommendations IS NOT NULL')
-
-    // select all if * is provided
-    if (args.recommendedBy !== '*') {
+    if (args.recommendedBy === '*') {
+      // select all if * is provided
+      queryBuilder.andWhere(`library_item.recommender_names <> '{}'`)
+    } else {
+      // select only if the user is recommended by the provided user
       queryBuilder.andWhere(
-        '(lower(recommender.name) = :recommendedBy OR lower(group.name) = :recommendedBy)',
+        'lower(library_item.recommender_names::text)::text[] && ARRAY[:recommendedBy]::text[]',
         {
           recommendedBy: args.recommendedBy.toLowerCase(),
         }
@@ -275,10 +276,6 @@ export const searchLibraryItems = async (
     async (tx) => {
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .leftJoinAndSelect('library_item.recommendations', 'recommendations')
-        .leftJoinAndSelect('recommendations.recommender', 'recommender')
-        .leftJoinAndSelect('recommendations.group', 'group')
-        .leftJoinAndSelect('recommender.profile', 'recommender_profile')
         .where('library_item.user_id = :userId', { userId })
 
       // build the where clause
