@@ -4,8 +4,10 @@
 
 BEGIN;
 
+DROP INDEX IF EXISTS omnivore.library_item_read_at_idx;
 DROP INDEX IF EXISTS omnivore.library_item_updated_at_idx;
 DROP INDEX IF EXISTS omnivore.library_item_saved_at_idx;
+DROP INDEX IF EXISTS omnivore.library_item_slug_idx;
 
 DROP INDEX IF EXISTS omnivore.user_profile_user_id_idx;
 
