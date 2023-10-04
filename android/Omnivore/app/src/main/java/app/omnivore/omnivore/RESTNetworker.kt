@@ -1,5 +1,6 @@
 package app.omnivore.omnivore
 
+import app.omnivore.omnivore.networking.Networker
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -81,8 +82,9 @@ interface CreateEmailAccountSubmit {
 }
 
 object RetrofitHelper {
-  fun getInstance(): Retrofit {
-    return Retrofit.Builder().baseUrl(Constants.apiURL)
+  suspend fun getInstance(networker: Networker): Retrofit {
+    val baseUrl = networker.baseUrl()
+    return Retrofit.Builder().baseUrl(baseUrl)
       .addConverterFactory(GsonConverterFactory.create())
       .build()
   }

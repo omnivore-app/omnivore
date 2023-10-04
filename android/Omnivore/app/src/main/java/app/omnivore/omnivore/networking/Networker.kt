@@ -9,15 +9,17 @@ import javax.inject.Inject
 class Networker @Inject constructor(
   private val datastoreRepo: DatastoreRepository
 ) {
-  private val serverUrl = "${Constants.apiURL}/api/graphql"
+  suspend fun baseUrl() = datastoreRepo.getString(DatastoreKeys.omnivoreSelfHostedAPIServer) ?: Constants.apiURL
+
+  suspend fun serverUrl() = "${baseUrl()}/api/graphql"
   private suspend fun authToken() = datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken) ?: ""
 
   suspend fun publicApolloClient() = ApolloClient.Builder()
-    .serverUrl(serverUrl)
+    .serverUrl(serverUrl())
     .build()
 
   suspend fun authenticatedApolloClient() = ApolloClient.Builder()
-    .serverUrl(serverUrl)
+    .serverUrl(serverUrl())
     .addHttpHeader("Authorization", value = authToken())
     .build()
 }

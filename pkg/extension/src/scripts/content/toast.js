@@ -699,6 +699,7 @@
   function addLabel(labelList, labelInput, labelValue) {
     // first check if the label is already entered:
     const existingLabel = labels.find((l) => l.name === labelValue)
+    const labelID = existingLabel ? existingLabel.id : getTempUUID()
     const labelEntryItem = labelList.querySelector('#label-entry-item')
     const inputItem = labelEntryItem.querySelector('#omnivore-edit-label-input')
 
@@ -740,6 +741,14 @@
     labelList.insertBefore(labelElem, labelEntryItem)
     labelInput.value = ''
 
+    const removeButton = labelElem.querySelector('.label-remove-button')
+    if (removeButton) {
+      removeButton.onclick = (event) => {
+        removeLabel(labelList, labelID)
+        event.preventDefault()
+      }
+    }
+
     const form = labelList.closest('#omnivore-edit-labels-form')
     if (existingLabel) {
       const element = form.querySelector(
@@ -752,7 +761,7 @@
       // insert a toggle row at the top
       const rowList = form.querySelector('#omnivore-edit-labels-list')
       const newLabel = {
-        id: getTempUUID(),
+        id: labelID,
         color: labelColor,
         name: labelValue,
         temporary: true,
@@ -786,6 +795,11 @@
     const rowElement = form.querySelector(`[data-label-id='${labelID}']`)
     if (rowElement) {
       rowElement.setAttribute('data-label-selected', 'off')
+    }
+
+    const label = labels.find((l) => l.id === labelID)
+    if (label) {
+      label.selected = false
     }
 
     syncLabelChanges()
