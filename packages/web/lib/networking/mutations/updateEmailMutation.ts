@@ -35,6 +35,9 @@ export async function updateEmailMutation(
       input,
     })
     const output = data as Response
+    if ('errorCodes' in output.updateEmail) {
+      return undefined
+    }
     return {
       email: output.updateEmail.email,
       verificationEmailSent: output.updateEmail.verificationEmailSent,

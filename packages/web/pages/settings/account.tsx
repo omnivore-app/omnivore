@@ -180,6 +180,10 @@ export default function Account(): JSX.Element {
           showSuccessToast('Email updated')
         }
       } else {
+        // Reset if possible
+        if (viewerData?.me?.email) {
+          setEmail(viewerData?.me?.email)
+        }
         showErrorToast('Error updating email')
       }
       setEmailUpdating(false)
@@ -348,10 +352,10 @@ export default function Account(): JSX.Element {
               ) : (
                 <VStack>
                   <StyledText style="footnote" css={{ mt: '10px', mb: '20px' }}>
-                    You are currently logged in with a social account. To
-                    convert to an email login, please click the button below.
+                    {`You are currently logged in with a ${source} account. To
+                    convert to an email login, please click the button below.`}
                   </StyledText>
-                <Button style="ctaDarkYellow">Convert to email login</Button>
+                  <Button style="ctaDarkYellow">Convert to email login</Button>
                 </VStack>
               )}
             </form>
