@@ -17,6 +17,7 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 
 const StyledLabel = styled('label', {
   fontWeight: 600,
@@ -51,6 +52,8 @@ export default function Account(): JSX.Element {
   const [email, setEmail] = useState('')
   const [emailUpdating, setEmailUpdating] = useState(false)
   const [source, setSource] = useState('')
+  const [showUpdateEmailConfirmation, setShowUpdateEmailConfirmation] =
+    useState(false)
 
   const [debouncedUsername, setDebouncedUsername] = useState('')
   const { usernameErrorMessage, isLoading: isUsernameValidationLoading } =
@@ -170,6 +173,7 @@ export default function Account(): JSX.Element {
 
   const updateEmail = useCallback(() => {
     setEmailUpdating(true)
+    setShowUpdateEmailConfirmation(false)
     ;(async () => {
       const response = await updateEmailMutation({ email })
       if (response) {
@@ -329,7 +333,12 @@ export default function Account(): JSX.Element {
           >
             <form
               onSubmit={(event) => {
-                updateEmail()
+                // Show a confirmation dialog if switching from social login
+                if (source == 'EMAIL') {
+                  updateEmail()
+                } else {
+                  setShowUpdateEmailConfirmation(true)
+                }
                 event.preventDefault()
               }}
             >
@@ -389,6 +398,16 @@ export default function Account(): JSX.Element {
           </VStack> */}
         </VStack>
       </VStack>
+
+      {showUpdateEmailConfirmation ? (
+        <ConfirmationModal
+          message={
+            'You are converting from social to email based login. This can not be undone.'
+          }
+          onAccept={updateEmail}
+          onOpenChange={() => setShowUpdateEmailConfirmation(false)}
+        />
+      ) : null}
     </SettingsLayout>
   )
 }
