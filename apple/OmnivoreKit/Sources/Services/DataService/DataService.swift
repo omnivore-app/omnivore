@@ -63,6 +63,31 @@ public final class DataService: ObservableObject {
           fatalError("Core Data store failed to load with error: \(error)")
         }
       }
+      cleanupDeletedItems(in: viewContext)
+    }
+  }
+
+  func cleanupDeletedItems(in context: NSManagedObjectContext) {
+    let fetchRequest: NSFetchRequest<LinkedItem> = LinkedItem.fetchRequest()
+
+    let calendar = Calendar.current
+    let oneDayAgo = calendar.date(byAdding: .day, value: -1, to: Date())!
+
+    let statePredicate = NSPredicate(format: "state == %@", "DELETED")
+    let datePredicate = NSPredicate(format: "updatedAt < %@", oneDayAgo as NSDate)
+
+    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [statePredicate, datePredicate])
+
+    do {
+      let oldDeletedItems = try context.fetch(fetchRequest)
+
+      for item in oldDeletedItems {
+        context.delete(item)
+      }
+
+      try context.save()
+    } catch {
+      print("Error fetching or deleting objects: \(error)")
     }
   }
 
