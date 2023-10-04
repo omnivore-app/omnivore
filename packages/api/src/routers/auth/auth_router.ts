@@ -685,17 +685,14 @@ export function authRouter() {
           )
         }
 
-        // check if email needs to be updated
-        const updateEmail = claims.email && claims.email !== user.email
-
         const hashedPassword = await hashPassword(password)
         const updated = await AppDataSource.transaction(
           async (entityManager) => {
             await setClaims(entityManager, user.id)
             return entityManager.getRepository(User).update(user.id, {
               password: hashedPassword,
-              email: updateEmail ? claims.email : undefined,
-              source: updateEmail ? RegistrationType.Email : undefined,
+              email: claims.email ?? undefined, // update email address if it was provided
+              source: RegistrationType.Email, // reset password will always be email
             })
           }
         )
