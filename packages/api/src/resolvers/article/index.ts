@@ -649,7 +649,6 @@ export const searchResolver = authorized<
       size: first + 1, // fetch one more item to get next cursor
       sort: searchQuery.sort,
       includePending: true,
-      includeContent: params.includeContent ?? false,
       ...searchQuery,
     },
     uid
@@ -738,7 +737,7 @@ export const updatesSinceResolver = authorized<
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
-      dateFilters: [{ field: 'updated_at', startDate }],
+      dateFilters: [{ field: 'updatedAt', startDate }],
       sort,
     },
     uid

@@ -2,6 +2,7 @@ import { FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Label } from '../entity/label'
+import { LibraryItem } from '../entity/library_item'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
@@ -232,6 +233,31 @@ export const findLabelById = async (id: string, userId: string) => {
       tx
         .withRepository(labelRepository)
         .findOneBy({ id, user: { id: userId } }),
+    undefined,
+    userId
+  )
+}
+
+export const findLabelsByLibraryItemId = async (
+  libraryItemId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(Label, 'label')
+        .innerJoin(
+          EntityLabel,
+          'entityLabel',
+          'entityLabel.label_id = label.id'
+        )
+        .innerJoin(
+          LibraryItem,
+          'LibraryItem',
+          'LibraryItem.id = entityLabel.library_item_id'
+        )
+        .where('LibraryItem.id = :libraryItemId', { libraryItemId })
+        .getMany(),
     undefined,
     userId
   )

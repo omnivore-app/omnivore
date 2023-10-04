@@ -160,3 +160,21 @@ export const findHighlightById = async (
     userId
   )
 }
+
+export const findHighlightsByLibraryItemId = async (
+  libraryItemId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) =>
+      tx.withRepository(highlightRepository).find({
+        where: { libraryItem: { id: libraryItemId } },
+        relations: {
+          user: true,
+          labels: true,
+        },
+      }),
+    undefined,
+    userId
+  )
+}

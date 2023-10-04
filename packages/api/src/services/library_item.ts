@@ -6,7 +6,7 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx } from '../repository'
+import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { wordsCount } from '../utils/helpers'
 import {
@@ -275,10 +275,6 @@ export const searchLibraryItems = async (
     async (tx) => {
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .leftJoinAndSelect('library_item.labels', 'labels')
-        .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .leftJoinAndSelect('highlights.user', 'user')
-        .leftJoinAndSelect('user.profile', 'profile')
         .leftJoinAndSelect('library_item.recommendations', 'recommendations')
         .leftJoinAndSelect('recommendations.recommender', 'recommender')
         .leftJoinAndSelect('recommendations.group', 'group')

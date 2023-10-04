@@ -11,6 +11,8 @@ CREATE INDEX IF NOT EXISTS highlight_library_item_id_idx ON omnivore.highlight (
 
 CREATE INDEX IF NOT EXISTS user_profile_user_id_idx ON omnivore.user_profile (user_id);
 
-CREATE INDEX IF NOT EXISTS library_item_user_id_idx ON omnivore.library_item (user_id);
+-- create index for sorting
+CREATE INDEX IF NOT EXISTS library_item_saved_at_idx ON omnivore.library_item (saved_at);
+CREATE INDEX IF NOT EXISTS library_item_updated_at_idx ON omnivore.library_item (updated_at);
 
 COMMIT;

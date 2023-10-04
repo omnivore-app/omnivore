@@ -4,9 +4,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Subscription } from '../entity/subscription'
-import { Article, PageType, SearchItem } from '../generated/graphql'
+import {
+  Article,
+  Highlight,
+  Label,
+  PageType,
+  SearchItem,
+} from '../generated/graphql'
+import { findHighlightsByLibraryItemId } from '../services/highlights'
+import { findLabelsByLibraryItemId } from '../services/labels'
 import { findUploadFileById } from '../services/upload_file'
-import { validatedDate, wordsCount } from '../utils/helpers'
+import {
+  highlightDataToHighlight,
+  validatedDate,
+  wordsCount,
+} from '../utils/helpers'
 import { createImageProxyUrl } from '../utils/imageproxy'
 import {
   generateDownloadSignedUrl,
@@ -467,9 +479,28 @@ export const functionResolvers = {
     originalArticleUrl(item: { url: string }) {
       return item.url
     },
-    wordsCount(article: { wordCount?: number; content?: string }) {
-      if (article.wordCount) return article.wordCount
-      return article.content ? wordsCount(article.content) : undefined
+    wordsCount(item: { wordCount?: number; content?: string }) {
+      if (item.wordCount) return item.wordCount
+      return item.content ? wordsCount(item.content) : undefined
+    },
+    async highlights(
+      item: { id: string; highlights?: Highlight[] },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (item.highlights) return item.highlights
+
+      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+      return highlights.map(highlightDataToHighlight)
+    },
+    async labels(
+      item: { id: string; labels?: Label[] },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (item.labels) return item.labels
+
+      return findLabelsByLibraryItemId(item.id, ctx.uid)
     },
   },
   Subscription: {
