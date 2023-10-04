@@ -27936,9 +27936,9 @@ yauzl@^2.10.0:
     fd-slicer "~1.1.0"
 
 yet-another-react-lightbox@^3.12.0:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/yet-another-react-lightbox/-/yet-another-react-lightbox-3.12.0.tgz#0b23c61724dce80b8696a65b782f5f3f1bd49605"
-  integrity sha512-Hd3CzPJJFFQ2TMP9QvhkuKouWJ/DIw/mrlPkUa6KiQu4AW+CwtKIiJsxWixNN9uS4sC10G0V1ULyJKpHs4yk8g==
+  version "3.12.2"
+  resolved "https://registry.yarnpkg.com/yet-another-react-lightbox/-/yet-another-react-lightbox-3.12.2.tgz#10b6a023fe6469e51d52e881715f00d5f2e5e82b"
+  integrity sha512-sFypE74Rjjl7WbzKSrGeZ7lbcgduOam/BKj8kqzx/ciC4dJyYdE1SG0dur9oDq/gZiY3VGJh+PYGbq6ZwmPFmA==
 
 yn@3.1.1:
   version "3.1.1"
