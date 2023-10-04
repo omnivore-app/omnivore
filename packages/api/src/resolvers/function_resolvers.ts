@@ -41,7 +41,6 @@ import {
   createReminderResolver,
   deleteAccountResolver,
   deleteFilterResolver,
-  updateFilterResolver,
   deleteHighlightResolver,
   deleteIntegrationResolver,
   deleteLabelResolver,
@@ -105,6 +104,7 @@ import {
   subscriptionsResolver,
   typeaheadSearchResolver,
   unsubscribeResolver,
+  updateFilterResolver,
   updateHighlightResolver,
   updateLabelResolver,
   updateLinkShareInfoResolver,
@@ -124,6 +124,7 @@ import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { Claims, WithDataSourcesContext } from './types'
+import { updateEmailResolver } from './user'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -212,6 +213,7 @@ export const functionResolvers = {
     setFavoriteArticle: setFavoriteArticleResolver,
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
+    updateEmail: updateEmailResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -678,4 +680,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('ImportFromIntegration'),
   ...resultResolveTypeResolver('SetFavoriteArticle'),
   ...resultResolveTypeResolver('UpdateSubscription'),
+  ...resultResolveTypeResolver('UpdateEmail'),
 }

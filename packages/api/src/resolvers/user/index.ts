@@ -1,7 +1,8 @@
 import * as jwt from 'jsonwebtoken'
+import { RegistrationType } from '../../datalayer/user/model'
 import { deletePagesByParam } from '../../elastic/pages'
 import { User as UserEntity } from '../../entity/user'
-import { setClaims } from '../../entity/utils'
+import { getRepository, setClaims } from '../../entity/utils'
 import { env } from '../../env'
 import {
   DeleteAccountError,
@@ -15,12 +16,16 @@ import {
   MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
+  MutationUpdateEmailArgs,
   MutationUpdateUserArgs,
   MutationUpdateUserProfileArgs,
   QueryUserArgs,
   QueryValidateUsernameArgs,
   ResolverFn,
   SignupErrorCode,
+  UpdateEmailError,
+  UpdateEmailErrorCode,
+  UpdateEmailSuccess,
   UpdateUserError,
   UpdateUserErrorCode,
   UpdateUserProfileError,
@@ -35,6 +40,7 @@ import {
 } from '../../generated/graphql'
 import { AppDataSource } from '../../server'
 import { createUser } from '../../services/create_user'
+import { sendVerificationEmail } from '../../services/send_emails'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
@@ -336,4 +342,51 @@ export const deleteAccountResolver = authorized<
   await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
 
   return { userID }
+})
+
+export const updateEmailResolver = authorized<
+  UpdateEmailSuccess,
+  UpdateEmailError,
+  MutationUpdateEmailArgs
+>(async (_, { input: { email } }, { uid, log }) => {
+  try {
+    const user = await getRepository(UserEntity).findOneBy({
+      id: uid,
+    })
+
+    if (!user) {
+      return {
+        errorCodes: [UpdateEmailErrorCode.Unauthorized],
+      }
+    }
+
+    if (user.source === RegistrationType.Email) {
+      await AppDataSource.transaction(async (entityManager) => {
+        await setClaims(entityManager, user.id)
+        return entityManager.getRepository(UserEntity).update(user.id, {
+          email,
+        })
+      })
+
+      return { email }
+    }
+
+    const result = await sendVerificationEmail({
+      id: user.id,
+      name: user.name,
+      email,
+    })
+    if (!result) {
+      return {
+        errorCodes: [UpdateEmailErrorCode.BadRequest],
+      }
+    }
+
+    return { email, verificationEmailSent: true }
+  } catch (error) {
+    log.error('Error updating email', error)
+    return {
+      errorCodes: [UpdateEmailErrorCode.BadRequest],
+    }
+  }
 })

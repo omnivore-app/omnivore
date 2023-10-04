@@ -546,7 +546,7 @@ export const enqueueThumbnailTask = async (
   }
 
   const headers = {
-    Cookie: `auth=${generateVerificationToken(userId)}`,
+    Cookie: `auth=${generateVerificationToken({ id: userId })}`,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -593,7 +593,7 @@ export const enqueueRssFeedFetch = async (
   }
 
   const headers = {
-    [OmnivoreAuthorizationHeader]: generateVerificationToken(userId),
+    [OmnivoreAuthorizationHeader]: generateVerificationToken({ id: userId }),
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

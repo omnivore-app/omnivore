@@ -91,15 +91,21 @@ export const getClaimsByToken = async (
 }
 
 export const generateVerificationToken = (
-  userId: string,
-  expireInDays = 1
+  user: {
+    id: string
+    email?: string
+  },
+  expireInSeconds = 60 * 60 * 24 // 1 day
 ): string => {
   const iat = Math.floor(Date.now() / 1000)
   const exp = Math.floor(
-    new Date(Date.now() + 1000 * 60 * 60 * 24 * expireInDays).getTime() / 1000
+    new Date(Date.now() + expireInSeconds * 1000).getTime() / 1000
   )
 
-  return jwt.sign({ uid: userId, iat, exp }, env.server.jwtSecret)
+  return jwt.sign(
+    { uid: user.id, iat, exp, email: user.email },
+    env.server.jwtSecret
+  )
 }
 
 export const setAuthInCookie = async (
