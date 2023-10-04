@@ -229,6 +229,11 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
           // remove focus from modal
           ;(document.activeElement as HTMLElement).blur()
         }}
+        onEscapeKeyDown={(event) => {
+          props.onOpenChange(false)
+          event.preventDefault()
+          event.stopPropagation()
+        }}
       >
         <VStack distribution="start" css={{ p: '0px' }}>
           <Header onOpenChange={props.onOpenChange} />
