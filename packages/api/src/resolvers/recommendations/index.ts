@@ -283,9 +283,9 @@ export const recommendHighlightsResolver = authorized<
                 {
                   id: group.id,
                   note: input.note,
-                  recommender: user,
+                  recommender: { id: uid },
                   createdAt: new Date(),
-                  libraryItem: item,
+                  libraryItem: { id: item.id },
                 },
                 auth,
                 input.highlightIds

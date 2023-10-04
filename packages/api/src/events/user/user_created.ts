@@ -4,7 +4,6 @@ import {
   InsertEvent,
 } from 'typeorm'
 import { Profile } from '../../entity/profile'
-import { env } from '../../env'
 import { createPubSubClient } from '../../pubsub'
 import { addPopularReadsForNewUser } from '../../services/popular_reads'
 import { IntercomClient } from '../../utils/intercom'

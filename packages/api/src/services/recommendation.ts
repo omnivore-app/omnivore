@@ -16,21 +16,6 @@ export const addRecommendation = async (
   try {
     // check if the item is already recommended to the group
     let recommendedItem = await findLibraryItemByUrl(item.originalUrl, userId)
-    // if (existingItem) {
-    //   const existingHighlights = existingItem.highlights || []
-
-    //   // remove duplicates
-    //   const newHighlights =
-    //     highlights?.filter(
-    //       (highlight) =>
-    //         !existingHighlights.find(
-    //           (existingHighlight) => existingHighlight.quote === highlight.quote
-    //         )
-    //     ) || []
-
-    //   return existingItem
-    // }
-
     if (!recommendedItem) {
       // create a new item
       const newItem: DeepPartial<LibraryItem> = {
@@ -103,6 +88,6 @@ export const findRecommendationsByLibraryItemId = async (
     relations: {
       group: true,
       recommender: true,
-    }
+    },
   })
 }
