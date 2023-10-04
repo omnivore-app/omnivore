@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
 import { LibraryItem } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
-import { getRepository } from '../repository'
+import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { createHighlights } from './highlights'
 import { createLibraryItem, findLibraryItemByUrl } from './library_item'
@@ -62,10 +62,13 @@ export const addRecommendation = async (
       await createHighlights(highlights, recommendedItem.id, userId)
     }
 
-    await createRecommendation({
-      ...recommendation,
-      libraryItem: { id: recommendedItem.id },
-    })
+    await createRecommendation(
+      {
+        ...recommendation,
+        libraryItem: { id: recommendedItem.id },
+      },
+      userId
+    )
 
     return recommendedItem
   } catch (err) {
@@ -75,9 +78,14 @@ export const addRecommendation = async (
 }
 
 export const createRecommendation = async (
-  recommendation: DeepPartial<Recommendation>
+  recommendation: DeepPartial<Recommendation>,
+  userId: string
 ) => {
-  return getRepository(Recommendation).save(recommendation)
+  return authTrx(
+    async (tx) => tx.getRepository(Recommendation).save(recommendation),
+    undefined,
+    userId
+  )
 }
 
 export const findRecommendationsByLibraryItemId = async (
