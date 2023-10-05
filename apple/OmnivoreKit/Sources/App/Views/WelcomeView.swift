@@ -248,13 +248,9 @@ struct WelcomeView: View {
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
         }
-        #if os(iOS)
-          .sheet(isPresented: $showAdvancedLogin) {
-            NavigationView {
-              SelfHostSettingsView()
-            }
-          }
-        #endif
+        .sheet(isPresented: $showAdvancedLogin) {
+          SelfHostSettingsView()
+        }
         .alert(deletedAccountConfirmationMessage, isPresented: $authenticator.showAppleRevokeTokenAlert) {
           Button("View Details") {
             openURL(URL(string: "https://support.apple.com/en-us/HT210426")!)

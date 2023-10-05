@@ -3,6 +3,7 @@ import CoreData
 import Foundation
 import Models
 import Services
+import Utils
 import Views
 
 func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObjectID) {
@@ -10,6 +11,11 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
     if let item = dataService.viewContext.object(with: objectID) as? LinkedItem {
       item.state = "DELETED"
       try? dataService.viewContext.save()
+
+      // Delete local PDF file if it exists
+      if let localPdf = item.localPDF, let localPdfURL = PDFUtils.localPdfURL(filename: localPdf) {
+        try? FileManager.default.removeItem(at: localPdfURL)
+      }
     }
   }
 

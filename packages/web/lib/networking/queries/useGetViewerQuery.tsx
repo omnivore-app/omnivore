@@ -17,6 +17,8 @@ export type UserBasicData = {
   name: string
   isFullUser?: boolean
   profile: UserProfile
+  email: string
+  source: string
 }
 
 export type UserProfile = {
@@ -39,6 +41,8 @@ export function useGetViewerQuery(): ViewerQueryResponse {
           pictureUrl
           bio
         }
+        email
+        source
       }
     }
   `

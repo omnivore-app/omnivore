@@ -32,6 +32,7 @@ import {
   sendConfirmationEmail,
   sendPasswordResetEmail,
 } from '../../services/send_emails'
+import { analytics } from '../../utils/analytics'
 import {
   comparePassword,
   getClaimsByToken,
@@ -51,7 +52,6 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
-import { analytics } from '../../utils/analytics'
 
 export interface SignupRequest {
   email: string
@@ -670,7 +670,9 @@ export function authRouter() {
           )
         }
 
-        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        const user = await getRepository(User).findOneBy({
+          id: claims.uid,
+        })
         if (!user) {
           return res.redirect(
             `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`
@@ -687,9 +689,11 @@ export function authRouter() {
         const updated = await AppDataSource.transaction(
           async (entityManager) => {
             await setClaims(entityManager, user.id)
-            return entityManager
-              .getRepository(User)
-              .update({ id: user.id }, { password: hashedPassword })
+            return entityManager.getRepository(User).update(user.id, {
+              password: hashedPassword,
+              email: claims.email ?? undefined, // update email address if it was provided
+              source: RegistrationType.Email, // reset password will always be email
+            })
           }
         )
         if (!updated.affected) {

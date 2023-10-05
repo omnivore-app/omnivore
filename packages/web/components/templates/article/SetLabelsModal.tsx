@@ -186,6 +186,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
           onEscapeKeyDown={(event) => {
             props.onOpenChange(false)
             event.preventDefault()
+            event.stopPropagation()
           }}
         >
           <VStack distribution="start" css={{ height: '100%' }}>

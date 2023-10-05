@@ -122,7 +122,14 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
   const uploadSignedUrlForFile = async (
     file: UploadingFile
   ): Promise<UploadInfo> => {
-    switch (file.contentType) {
+    let { contentType } = file;
+    if (
+      contentType == 'application/vnd.ms-excel' &&
+      file.name.endsWith('.csv')
+    ) {
+      contentType = 'text/csv'
+    }
+    switch (contentType) {
       case 'text/csv': {
         let urlCount = 0
         try {
@@ -146,7 +153,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
 
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.URL_LIST,
-          file.contentType
+          contentType
         )
         return {
           uploadSignedUrl: result?.uploadSignedUrl,
@@ -156,7 +163,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
       case 'application/zip': {
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.MATTER,
-          file.contentType
+          contentType
         )
         return {
           uploadSignedUrl: result?.uploadSignedUrl,
@@ -168,7 +175,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           // This will tell the backend not to save the URL
           // and give it the local filename as the title.
           url: `file://local/${file.id}/${file.file.path}`,
-          contentType: file.contentType,
+          contentType: contentType,
           createPageEntry: true,
         })
         return {
@@ -177,7 +184,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
         }
       }
     }
-    return {}
+    return {
+      message: `Invalid content type: ${contentType}`
+    }
   }
 
   const handleAcceptedFiles = useCallback(

@@ -84,6 +84,8 @@ const schema = gql`
     sharedNotesCount: Int
     friendsCount: Int
     followersCount: Int
+    email: String
+    source: String
   }
 
   type Profile {
@@ -2567,6 +2569,27 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union UpdateEmailResult = UpdateEmailSuccess | UpdateEmailError
+
+  type UpdateEmailSuccess {
+    email: String!
+    verificationEmailSent: Boolean
+  }
+
+  type UpdateEmailError {
+    errorCodes: [UpdateEmailErrorCode!]!
+  }
+
+  enum UpdateEmailErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    EMAIL_ALREADY_EXISTS
+  }
+
+  input UpdateEmailInput {
+    email: String!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2575,6 +2598,7 @@ const schema = gql`
     deleteAccount(userID: ID!): DeleteAccountResult!
     updateUser(input: UpdateUserInput!): UpdateUserResult!
     updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
+    updateEmail(input: UpdateEmailInput!): UpdateEmailResult!
     createArticle(input: CreateArticleInput!): CreateArticleResult!
     createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!

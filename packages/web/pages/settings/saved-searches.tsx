@@ -156,11 +156,14 @@ export default function SavedSearchesPage(): JSX.Element {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveSavedSearchId, setConfirmRemoveSavedSearchId] =
-    useState<string | null>(null)
+  const [confirmRemoveSavedSearchId, setConfirmRemoveSavedSearchId] = useState<
+    string | null
+  >(null)
   const [draggedElementId, setDraggedElementId] = useState<string | null>(null)
-  const [draggedElementPosition, setDraggedElementPosition] =
-    useState<{ x: number; y: number } | null>(null)
+  const [draggedElementPosition, setDraggedElementPosition] = useState<{
+    x: number
+    y: number
+  } | null>(null)
   const [sortedSavedSearch, setSortedSavedSearch] = useState<SavedSearch[]>([])
 
   // Some theming stuff here.
@@ -584,14 +587,14 @@ function GenericTableCard(
       <ActionsWrapper>
         <Dropdown
           disabled={isCreateMode}
-          triggerElement={<DotsThree size={24} color={iconColor} />}
+          triggerElement={<DotsThree size={'100%'} color={iconColor} />}
         >
           <DropdownOption onSelect={() => null}>
             <Button
               style="plainIcon"
               css={{
                 mr: '0px',
-                display: 'flex',
+                display: isCreateMode ? 'none' : 'flex',
                 alignItems: 'center',
                 backgroundColor: 'transparent',
                 border: 0,
@@ -714,7 +717,7 @@ function GenericTableCard(
           display: 'grid',
           width: '100%',
           gridGap: '$1',
-          gridTemplateColumns: '4% 3% 80% 1fr 1fr 1fr 1fr',
+          gridTemplateColumns: '1fr 1fr 17fr 2fr',
           height: editingId == savedSearch?.id ? '120px' : '56px',
           '.showHidden': {
             display: 'none',
@@ -833,48 +836,35 @@ function GenericTableCard(
           )}
         </HStack>
 
-        <HStack
-          distribution="start"
-          css={{
-            padding: '4px 8px',
-            paddingLeft: '10px',
-            alignItems: 'center',
-          }}
-        >
-          {!showInput && (
-            <Box css={{ marginLeft: 'auto', '@md': { display: 'none' } }}>
-              {moreActionsButton()}
-            </Box>
-          )}
-        </HStack>
-
-        <HStack
-          distribution="start"
-          alignment="center"
-          css={{
-            ml: '8px',
-            display: 'flex',
-            '@md': {
-              display: 'none',
-            },
-          }}
-        >
-          {showInput && (
-            <Input
-              type="text"
-              placeholder="The search query to execute (e.g. in:inbox)"
-              value={queryInputText}
-              onChange={(event) => setQueryInputText(event.target.value)}
-              autoFocus={!!savedSearch}
-            />
-          )}
-        </HStack>
+        {!savedSearch?.defaultFilter && (
+          <HStack
+            distribution="start"
+            css={{
+              padding: '4px 8px',
+              paddingLeft: '10px',
+              alignItems: 'center',
+            }}
+          >
+            {!showInput && (
+              <Box css={{ marginLeft: 'auto', '@md': { display: 'none' } }}>
+                {moreActionsButton()}
+              </Box>
+            )}
+          </HStack>
+        )}
 
         <HStack
           distribution="end"
           alignment="center"
           css={{
             padding: '0px 8px',
+            display: 'flex',
+            '@sm': {
+              display: 'none',
+            },
+            '@md': {
+              display: 'flex',
+            },
           }}
         >
           {editingId === savedSearch?.id || !savedSearch ? (
@@ -952,13 +942,14 @@ function MobileEditCard(props: EditCardProps) {
     queryInputText,
     setQueryInputText,
     createSavedSearch,
+    updateSavedSearch,
     resetState,
     isFirstChild,
     isLastChild,
   } = props
 
   const handleEdit = () => {
-    editingId && setEditingId(editingId)
+    editingId && updateSavedSearch(editingId)
     setEditingId(null)
   }
 
