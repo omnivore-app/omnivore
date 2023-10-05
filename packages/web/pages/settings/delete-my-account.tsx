@@ -9,7 +9,7 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { Button } from '../../components/elements/Button'
-import { HStack } from '../../components/elements/LayoutPrimitives'
+import { HStack, VStack } from '../../components/elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { Loader } from '../../components/templates/SavingRequest'
 import { deleteAccountMutation } from '../../lib/networking/mutations/deleteAccountMutation'
@@ -52,26 +52,59 @@ export default function DeleteMyAccount(): JSX.Element {
           top: '5rem',
         }}
       />
+      <VStack
+        css={{ width: '100%', height: '100%' }}
+        distribution="start"
+        alignment="center"
+      >
+        <VStack
+          css={{
+            padding: '24px',
+            width: '100%',
+            height: '100%',
+            gap: '25px',
+            minWidth: '300px',
+            maxWidth: '865px',
+          }}
+        >
+          {showConfirm ? (
+            <ConfirmationModal
+              message={
+                'Are you sure you want to delete your account? This can not be reversed and all your data (saved articles, highlights, and notes) will be deleted.'
+              }
+              onAccept={deleteAccount}
+              onOpenChange={() => setShowConfirm(false)}
+            />
+          ) : null}
 
-      {showConfirm ? (
-        <ConfirmationModal
-          message={
-            'Are you sure you want to delete your account? This can not be reversed and all your data (saved articles, highlights, and notes) will be deleted.'
-          }
-          onAccept={deleteAccount}
-          onOpenChange={() => setShowConfirm(false)}
-        />
-      ) : null}
-
-      <HStack css={{ padding: '24px', width: '100%', height: '100%' }}>
-        {viewer && router ? (
-          <Button style="ctaDarkYellow" onClick={() => setShowConfirm(true)}>
-            Delete my Account
-          </Button>
-        ) : (
-          <Loader />
-        )}
-      </HStack>
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '20px',
+              borderRadius: '5px',
+            }}
+            distribution="start"
+            alignment="start"
+          >
+            Deleting your account will delete all your saved items, notes, and
+            highlights. This operation can not be undone.
+            {viewer && router ? (
+              <Button
+                style="ctaDarkYellow"
+                onClick={() => setShowConfirm(true)}
+                css={{ alignSelf: 'center' }}
+              >
+                Delete my Account
+              </Button>
+            ) : (
+              <Loader />
+            )}
+          </VStack>
+        </VStack>
+      </VStack>
     </SettingsLayout>
   )
 }
