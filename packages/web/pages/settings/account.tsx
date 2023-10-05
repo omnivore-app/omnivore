@@ -22,6 +22,7 @@ import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 const StyledLabel = styled('label', {
   fontWeight: 600,
   fontSize: '16px',
+  marginBottom: '5px',
 })
 
 export const FormInput = styled('input', {
@@ -236,13 +237,13 @@ export default function Account(): JSX.Element {
             distribution="start"
             alignment="start"
           >
+            <StyledLabel>Name</StyledLabel>
             <form
               onSubmit={(event) => {
                 handleUpdateName()
                 event.preventDefault()
               }}
             >
-              <StyledLabel>Name</StyledLabel>
               <FormInput
                 type={'text'}
                 value={name}
@@ -331,6 +332,7 @@ export default function Account(): JSX.Element {
               borderRadius: '5px',
             }}
           >
+            <StyledLabel>Email</StyledLabel>
             <form
               onSubmit={(event) => {
                 // Show a confirmation dialog if switching from social login
@@ -342,7 +344,6 @@ export default function Account(): JSX.Element {
                 event.preventDefault()
               }}
             >
-              <StyledLabel>Email</StyledLabel>
               <FormInput
                 type={'text'}
                 placeholder={'Email'}
@@ -396,6 +397,28 @@ export default function Account(): JSX.Element {
             )}
             <Button style="ctaDarkYellow">Upgrade</Button>
           </VStack> */}
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '20px',
+              borderRadius: '5px',
+            }}
+          >
+            <StyledLabel>Danger Zone</StyledLabel>
+            <Button
+              style="ctaDarkYellow"
+              css={{ color: 'white', background: 'red' }}
+              onClick={(event) => {
+                window.location.href = '/settings/delete-my-account'
+              }}
+            >
+              Delete Account
+            </Button>
+          </VStack>
         </VStack>
       </VStack>
 
