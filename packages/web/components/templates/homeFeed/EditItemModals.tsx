@@ -253,6 +253,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                     css={{
                       ...inputStyle,
                       fontSize: '14px',
+                      textIndent: '0px',
                     }}
                   />
                 </VStack>
@@ -273,6 +274,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
                     css={{
                       ...inputStyle,
                       fontSize: '14px',
+                      textIndent: '0px',
                     }}
                   />
                 </VStack>
