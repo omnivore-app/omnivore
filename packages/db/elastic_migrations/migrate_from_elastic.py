@@ -30,13 +30,12 @@ END_TIME = os.getenv('END_TIME', '2100-01-01')
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 
-async def assert_data(db_conn, es_client, users, uploaded_files):
+async def assert_data(db_conn, es_client, user_ids, uploaded_files):
     # get all users from postgres
     try:
         success = 0
         failure = 0
-        for user in users:
-            user_id = user['id']
+        for user_id in user_ids:
             number_of_docs_in_postgres = await db_conn.fetchval(
                 f'SELECT COUNT(1) FROM omnivore.library_item WHERE user_id = \'{user_id}\'')
 
@@ -314,6 +313,8 @@ async def main():
         ES_USERNAME, ES_PASSWORD), retry_on_timeout=True)
 
     try:
+        updated_user_ids = []
+
         print(await es_client.info())
 
         # disable update_library_item_modtime trigger
@@ -451,6 +452,7 @@ async def main():
 
             library_items.append(library_item)
             library_items_original_ids.append(doc_id)
+            updated_user_ids.append(source['userId'])
 
             # convert labels to postgres format
             if 'labels' in source:
@@ -546,7 +548,7 @@ async def main():
 
         print('Migration complete', END_TIME)
 
-        await assert_data(db_conn, es_client, users, uploaded_files)
+        await assert_data(db_conn, es_client, updated_user_ids, uploaded_files)
     except Exception as err:
         print('Migration error', err)
     finally:
