@@ -56,29 +56,6 @@ services:
     ports:
       - "9200:9200"
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.1
-    container_name: "omnivore-kibana"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elastic:9200
-    depends_on:
-      - elastic
-    ports:
-      - "5601:5601"
-    profiles:
-      - debug
-
-  redis:
-    image: "redis:6.2.7"
-    container_name: "omnivore-redis"
-    healthcheck:
-      test: "exit 0"
-      interval: 2s
-      timeout: 12s
-      retries: 3
-    ports:
-      - "6379:6379"
-
   api:
     build:
       context: .
@@ -100,20 +77,16 @@ services:
       - PG_POOL_MAX=20
       - ELASTIC_URL=http://elastic:9200
       - JAEGER_HOST=jaeger
-      - IMAGE_PROXY_URL=http://localhost:9999
       - IMAGE_PROXY_SECRET=some-secret
       - JWT_SECRET=some_secret
       - SSO_JWT_SECRET=some_sso_secret
       - CLIENT_URL=http://localhost:3000
       - GATEWAY_URL=http://localhost:8080/api
       - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
-      - REMINDER_TASK_HANDLER_URL=/svc/reminders/trigger
     depends_on:
       migrate:
         condition: service_completed_successfully
       elastic:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
   web:
@@ -151,16 +124,3 @@ services:
     depends_on:
       api:
         condition: service_healthy
-
-  rule-handler:
-    build:
-      context: .
-      dockerfile: ./packages/rule-handler/Dockerfile
-    container_name: "omnivore-rule-handler"
-    ports:
-      - "9091:8080"
-    environment:
-      - PUBSUB_VERIFICATION_TOKEN=some_token
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
