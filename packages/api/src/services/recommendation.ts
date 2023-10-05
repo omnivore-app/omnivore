@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
 import { LibraryItem } from '../entity/library_item'
 import { Recommendation } from '../entity/recommendation'
-import { authTrx, getRepository } from '../repository'
+import { authTrx } from '../repository'
 import { logger } from '../utils/logger'
 import { createHighlights } from './highlights'
 import { createLibraryItem, findLibraryItemByUrl } from './library_item'
@@ -89,13 +89,19 @@ export const createRecommendation = async (
 }
 
 export const findRecommendationsByLibraryItemId = async (
-  libraryItemId: string
+  libraryItemId: string,
+  userId: string
 ) => {
-  return getRepository(Recommendation).find({
-    where: { libraryItem: { id: libraryItemId } },
-    relations: {
-      group: true,
-      recommender: true,
-    },
-  })
+  return authTrx(
+    async (tx) =>
+      tx.getRepository(Recommendation).find({
+        where: { libraryItem: { id: libraryItemId } },
+        relations: {
+          group: true,
+          recommender: true,
+        },
+      }),
+    undefined,
+    userId
+  )
 }
