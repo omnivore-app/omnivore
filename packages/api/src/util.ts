@@ -165,6 +165,7 @@ const nullableEnvVars = [
   'THUMBNAIL_TASK_HANDLER_URL',
   'RSS_FEED_TASK_HANDLER_URL',
   'SENDGRID_VERIFICATION_TEMPLATE_ID',
+  'REMINDER_TASK_HANDLER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
