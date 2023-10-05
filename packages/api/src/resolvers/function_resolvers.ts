@@ -505,13 +505,20 @@ export const functionResolvers = {
 
       return findLabelsByLibraryItemId(item.id, ctx.uid)
     },
-    async recommendations(item: {
-      id: string
-      recommendations?: Recommendation[]
-    }) {
+    async recommendations(
+      item: {
+        id: string
+        recommendations?: Recommendation[]
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
       if (item.recommendations) return item.recommendations
 
-      const recommendations = await findRecommendationsByLibraryItemId(item.id)
+      const recommendations = await findRecommendationsByLibraryItemId(
+        item.id,
+        ctx.uid
+      )
       return recommendations.map(recommandationDataToRecommendation)
     },
   },
