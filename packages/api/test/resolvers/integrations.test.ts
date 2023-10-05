@@ -1,14 +1,20 @@
-import 'mocha'
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { SetIntegrationErrorCode } from '../../src/generated/graphql'
 import chai, { expect } from 'chai'
-import { getRepository } from '../../src/entity/utils'
-import { Integration } from '../../src/entity/integration'
+import 'mocha'
 import nock from 'nock'
-import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import sinonChai from 'sinon-chai'
+import { Integration } from '../../src/entity/integration'
+import { User } from '../../src/entity/user'
+import { SetIntegrationErrorCode } from '../../src/generated/graphql'
+import {
+  deleteIntegrations,
+  findIntegration,
+  saveIntegration,
+  updateIntegration,
+} from '../../src/services/integrations'
+import { READWISE_API_URL } from '../../src/services/integrations/readwise'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(sinonChai)
 
@@ -27,7 +33,7 @@ describe('Integrations resolvers', () => {
   })
 
   after(async () => {
-    await deleteTestUser(loginUser.id)
+    await deleteUser(loginUser.id)
   })
 
   describe('setIntegration API', () => {
@@ -110,7 +116,7 @@ describe('Integrations resolvers', () => {
         })
 
         afterEach(async () => {
-          await deleteTestIntegrations(loginUser.id, {
+          await deleteIntegrations(loginUser.id, {
             user: { id: loginUser.id },
             name: integrationName,
           })
@@ -129,9 +135,9 @@ describe('Integrations resolvers', () => {
             query(integrationId, integrationName, token),
             authToken
           )
-          const integration = await getRepository(Integration).findOneBy({
+          const integration = await findIntegration({
             id: res.body.data.setIntegration.integration.id,
-          })
+          }, loginUser.id)
           expect(integration?.taskName).not.to.be.null
         })
       })
@@ -162,17 +168,20 @@ describe('Integrations resolvers', () => {
 
           before(async () => {
             otherUser = await createTestUser('otherUser')
-            existingIntegration = await getRepository(Integration).save({
-              user: { id: otherUser.id },
-              name: 'READWISE',
-              token: 'fakeToken',
-            })
+            existingIntegration = await saveIntegration(
+              {
+                user: { id: otherUser.id },
+                name: 'READWISE',
+                token: 'fakeToken',
+              },
+              otherUser.id
+            )
             integrationId = existingIntegration.id
           })
 
           after(async () => {
-            await deleteTestUser(otherUser.id)
-            await deleteTestIntegrations(otherUser.id, [existingIntegration.id])
+            await deleteUser(otherUser.id)
+            await deleteIntegrations(otherUser.id, [existingIntegration.id])
           })
 
           it('returns Unauthorized error code', async () => {
@@ -181,23 +190,26 @@ describe('Integrations resolvers', () => {
               authToken
             )
             expect(res.body.data.setIntegration.errorCodes).to.eql([
-              SetIntegrationErrorCode.Unauthorized,
+              SetIntegrationErrorCode.NotFound,
             ])
           })
         })
 
         context('when integration belongs to the user', () => {
           before(async () => {
-            existingIntegration = await getRepository(Integration).save({
-              user: { id: loginUser.id },
-              name: 'READWISE',
-              token: 'fakeToken',
-            })
+            existingIntegration = await saveIntegration(
+              {
+                user: { id: loginUser.id },
+                name: 'READWISE',
+                token: 'fakeToken',
+              },
+              loginUser.id
+            )
             integrationId = existingIntegration.id
           })
 
           after(async () => {
-            await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
+            await deleteIntegrations(loginUser.id, [existingIntegration.id])
           })
 
           context('when enable is false', () => {
@@ -206,10 +218,10 @@ describe('Integrations resolvers', () => {
             })
 
             afterEach(async () => {
-              await getRepository(Integration).update(existingIntegration.id, {
+              await updateIntegration(existingIntegration.id, {
                 taskName: 'some task name',
                 enabled: true,
-              })
+              }, loginUser.id)
             })
 
             it('disables integration', async () => {
@@ -226,9 +238,9 @@ describe('Integrations resolvers', () => {
                 query(integrationId, integrationName, token, enabled),
                 authToken
               )
-              const integration = await getRepository(Integration).findOneBy({
+              const integration = await findIntegration({
                 id: res.body.data.setIntegration.integration.id,
-              })
+              }, loginUser.id)
               expect(integration?.taskName).to.be.null
             })
           })
@@ -239,10 +251,10 @@ describe('Integrations resolvers', () => {
             })
 
             afterEach(async () => {
-              await getRepository(Integration).update(existingIntegration.id, {
+              await updateIntegration(existingIntegration.id, {
                 taskName: null,
                 enabled: false,
-              })
+              }, loginUser.id)
             })
 
             it('enables integration', async () => {
@@ -259,9 +271,9 @@ describe('Integrations resolvers', () => {
                 query(integrationId, integrationName, token, enabled),
                 authToken
               )
-              const integration = await getRepository(Integration).findOneBy({
+              const integration = await findIntegration({
                 id: res.body.data.setIntegration.integration.id,
-              })
+              }, loginUser.id)
               expect(integration?.taskName).not.to.be.null
             })
           })
@@ -288,15 +300,18 @@ describe('Integrations resolvers', () => {
     let existingIntegration: Integration
 
     before(async () => {
-      existingIntegration = await getRepository(Integration).save({
-        user: { id: loginUser.id },
-        name: 'READWISE',
-        token: 'fakeToken',
-      })
+      existingIntegration = await saveIntegration(
+        {
+          user: { id: loginUser.id },
+          name: 'READWISE',
+          token: 'fakeToken',
+        },
+        loginUser.id
+      )
     })
 
     after(async () => {
-      await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
+      await deleteIntegrations(loginUser.id, [existingIntegration.id])
     })
 
     it('returns all integrations', async () => {
@@ -334,12 +349,15 @@ describe('Integrations resolvers', () => {
       let existingIntegration: Integration
 
       beforeEach(async () => {
-        existingIntegration = await getRepository(Integration).save({
-          user: { id: loginUser.id },
-          name: 'READWISE',
-          token: 'fakeToken',
-          taskName: 'some task name',
-        })
+        existingIntegration = await saveIntegration(
+          {
+            user: { id: loginUser.id },
+            name: 'READWISE',
+            token: 'fakeToken',
+            taskName: 'some task name',
+          },
+          loginUser.id
+        )
       })
 
       it('deletes the integration and cloud task', async () => {
@@ -347,9 +365,9 @@ describe('Integrations resolvers', () => {
           query(existingIntegration.id),
           authToken
         )
-        const integration = await getRepository(Integration).findOneBy({
+        const integration = await findIntegration({
           id: existingIntegration.id,
-        })
+        }, loginUser.id)
 
         expect(res.body.data.deleteIntegration.integration).to.be.an('object')
         expect(res.body.data.deleteIntegration.integration.id).to.eql(
@@ -377,15 +395,18 @@ describe('Integrations resolvers', () => {
 
     context('when integration exists', () => {
       before(async () => {
-        existingIntegration = await getRepository(Integration).save({
-          user: { id: loginUser.id },
-          name: 'POCKET',
-          token: 'fakeToken',
-        })
+        existingIntegration = await saveIntegration(
+          {
+            user: { id: loginUser.id },
+            name: 'POCKET',
+            token: 'fakeToken',
+          },
+          loginUser.id
+        )
       })
 
       after(async () => {
-        await deleteTestIntegrations(loginUser.id, [existingIntegration.id])
+        await deleteIntegrations(loginUser.id, [existingIntegration.id])
       })
 
       it('returns success and starts cloud task', async () => {
@@ -394,9 +415,9 @@ describe('Integrations resolvers', () => {
           authToken
         ).expect(200)
         expect(res.body.data.importFromIntegration.success).to.be.true
-        const integration = await getRepository(Integration).findOneBy({
+        const integration = await findIntegration({
           id: existingIntegration.id,
-        })
+        }, loginUser.id)
         expect(integration?.taskName).not.to.be.null
       })
     })

@@ -4,27 +4,24 @@ import { DateTime } from 'luxon'
 import 'mocha'
 import nock from 'nock'
 import sinon from 'sinon'
-import {
-  createPubSubClient,
-  PubSubRequestBody,
-} from '../../src/datalayer/pubsub'
-import { addHighlightToPage } from '../../src/elastic/highlights'
-import { deletePage } from '../../src/elastic/pages'
-import {
-  Highlight,
-  HighlightType,
-  Page,
-  PageContext,
-} from '../../src/elastic/types'
+import { Highlight } from '../../src/entity/highlight'
 import { Integration, IntegrationType } from '../../src/entity/integration'
+import { LibraryItem } from '../../src/entity/library_item'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity/utils'
 import { env } from '../../src/env'
-import { getHighlightUrl } from '../../src/services/highlights'
+import { PubSubRequestBody } from '../../src/pubsub'
+import { createHighlight, getHighlightUrl } from '../../src/services/highlights'
+import {
+  deleteIntegrations,
+  saveIntegration,
+  updateIntegration,
+} from '../../src/services/integrations'
 import { READWISE_API_URL } from '../../src/services/integrations/readwise'
-import { createTestUser, deleteTestIntegrations, deleteTestUser } from '../db'
+import { deleteLibraryItemById } from '../../src/services/library_item'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
 import { MockBucket } from '../mock_storage'
-import { createTestElasticPage, request } from '../util'
+import { request } from '../util'
 
 describe('Integrations routers', () => {
   const baseUrl = '/svc/pubsub/integrations'
@@ -43,7 +40,7 @@ describe('Integrations routers', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('sync with integrations', () => {
@@ -128,63 +125,61 @@ describe('Integrations routers', () => {
 
         context('when integration is readwise and enabled', () => {
           let integration: Integration
-          let ctx: PageContext
-          let page: Page
+          let item: LibraryItem
           let highlight: Highlight
-          let highlightsData: string
+          let highlightsData: any
 
           before(async () => {
-            integration = await getRepository(Integration).save({
-              user: { id: user.id },
-              name: 'READWISE',
-              token: 'token',
-            })
+            integration = await saveIntegration(
+              {
+                user,
+                name: 'READWISE',
+                token: 'token',
+              },
+              user.id
+            )
             integrationName = integration.name
             // create page
-            page = await createTestElasticPage(user.id)
-            ctx = {
-              uid: user.id,
-              pubsub: createPubSubClient(),
-              refresh: true,
-            }
+            item = await createTestLibraryItem(user.id)
+
             // create highlight
             const highlightPositionPercent = 25
-            highlight = {
-              createdAt: new Date(),
-              id: 'test id',
-              patch: 'test patch',
-              quote: 'test quote',
-              shortId: 'test shortId',
-              updatedAt: new Date(),
-              userId: user.id,
-              highlightPositionPercent,
-              type: HighlightType.Highlight,
-            }
-            await addHighlightToPage(page.id, highlight, ctx)
+            highlight = await createHighlight(
+              {
+                patch: 'test patch',
+                quote: 'test quote',
+                shortId: 'test shortId',
+                highlightPositionPercent,
+                user,
+                libraryItem: item,
+              },
+              item.id,
+              user.id
+            )
             // create highlights data for integration request
-            highlightsData = JSON.stringify({
+            highlightsData = {
               highlights: [
                 {
                   text: highlight.quote,
-                  title: page.title,
-                  author: page.author,
-                  highlight_url: getHighlightUrl(page.slug, highlight.id),
+                  title: item.title,
+                  author: item.author ?? undefined,
+                  highlight_url: getHighlightUrl(item.slug, highlight.id),
                   highlighted_at: highlight.createdAt.toISOString(),
                   category: 'articles',
-                  image_url: page.image,
+                  image_url: item.thumbnail ?? undefined,
                   // location: highlightPositionPercent,
                   location_type: 'order',
-                  note: highlight.annotation,
+                  note: highlight.annotation ?? undefined,
                   source_type: 'omnivore',
-                  source_url: page.url,
+                  source_url: item.originalUrl,
                 },
               ],
-            })
+            }
           })
 
           after(async () => {
-            await deleteTestIntegrations(user.id, [integration.id])
-            await deletePage(page.id, ctx)
+            await deleteIntegrations(user.id, [integration.id])
+            await deleteLibraryItemById(item.id)
           })
 
           context('when action is sync_updated', () => {
@@ -200,7 +195,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'page',
-                        id: page.id,
+                        id: item.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),
@@ -210,7 +205,7 @@ describe('Integrations routers', () => {
                 nock(READWISE_API_URL, {
                   reqheaders: {
                     Authorization: `Token ${integration.token}`,
-                    ContentType: 'application/json',
+                    'Content-Type': 'application/json',
                   },
                 })
                   .post('/highlights', highlightsData)
@@ -232,7 +227,7 @@ describe('Integrations routers', () => {
                   nock(READWISE_API_URL, {
                     reqheaders: {
                       Authorization: `Token ${integration.token}`,
-                      ContentType: 'application/json',
+                      'Content-Type': 'application/json',
                     },
                   })
                     .post('/highlights')
@@ -241,7 +236,7 @@ describe('Integrations routers', () => {
                   nock(READWISE_API_URL, {
                     reqheaders: {
                       Authorization: `Token ${integration.token}`,
-                      ContentType: 'application/json',
+                      'Content-Type': 'application/json',
                     },
                   })
                     .post('/highlights')
@@ -267,7 +262,7 @@ describe('Integrations routers', () => {
                       JSON.stringify({
                         userId: user.id,
                         type: 'highlight',
-                        articleId: page.id,
+                        articleId: item.id,
                       })
                     ).toString('base64'),
                     publishTime: new Date().toISOString(),
@@ -277,7 +272,7 @@ describe('Integrations routers', () => {
                 nock(READWISE_API_URL, {
                   reqheaders: {
                     Authorization: `Token ${integration.token}`,
-                    ContentType: 'application/json',
+                    'Content-Type': 'application/json',
                   },
                 })
                   .post('/highlights', highlightsData)
@@ -311,15 +306,19 @@ describe('Integrations routers', () => {
               nock(READWISE_API_URL, {
                 reqheaders: {
                   Authorization: `Token ${integration.token}`,
-                  ContentType: 'application/json',
+                  'Content-Type': 'application/json',
                 },
               })
                 .post('/highlights', highlightsData)
                 .reply(200)
-              await getRepository(Integration).update(integration.id, {
-                syncedAt: null,
-                taskName: 'some task name',
-              })
+              await updateIntegration(
+                integration.id,
+                {
+                  syncedAt: null,
+                  taskName: 'some task name',
+                },
+                user.id
+              )
             })
 
             it('returns 200 with OK', async () => {
@@ -341,12 +340,15 @@ describe('Integrations routers', () => {
     before(async () => {
       token = 'test token'
       // create integration
-      integration = await getRepository(Integration).save({
-        user: { id: user.id },
-        name: 'POCKET',
-        token,
-        type: IntegrationType.Import,
-      })
+      integration = await saveIntegration(
+        {
+          user: { id: user.id },
+          name: 'POCKET',
+          token,
+          type: IntegrationType.Import,
+        },
+        user.id
+      )
 
       // mock Pocket API
       const reqBody = {
@@ -403,7 +405,7 @@ describe('Integrations routers', () => {
 
     after(async () => {
       sinon.restore()
-      await deleteTestIntegrations(user.id, [integration.id])
+      await deleteIntegrations(user.id, [integration.id])
     })
 
     context('when integration is pocket', () => {

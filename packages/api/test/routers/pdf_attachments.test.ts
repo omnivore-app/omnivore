@@ -1,14 +1,12 @@
-import {
-  createTestNewsletterEmail,
-  createTestUser,
-  deleteTestUser,
-} from '../db'
-import { request } from '../util'
-import { User } from '../../src/entity/user'
-import 'mocha'
-import * as jwt from 'jsonwebtoken'
 import { expect } from 'chai'
-import { getPageById } from '../../src/elastic/pages'
+import * as jwt from 'jsonwebtoken'
+import 'mocha'
+import { User } from '../../src/entity/user'
+import { findLibraryItemById } from '../../src/services/library_item'
+import { createNewsletterEmail } from '../../src/services/newsletters'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { request } from '../util'
 
 describe('PDF attachments Router', () => {
   const newsletterEmail = 'fakeEmail@omnivore.app'
@@ -20,13 +18,13 @@ describe('PDF attachments Router', () => {
     // create test user and login
     user = await createTestUser('fakeUser')
 
-    await createTestNewsletterEmail(user, newsletterEmail)
+    await createNewsletterEmail(user.id, newsletterEmail)
     authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')
   })
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('upload', () => {
@@ -75,9 +73,9 @@ describe('PDF attachments Router', () => {
         .expect(200)
 
       expect(res2.body.id).to.be.a('string')
-      const link = await getPageById(res2.body.id)
+      const item = await findLibraryItemById(res2.body.id, user.id)
 
-      expect(link).to.exist
+      expect(item).to.exist
     })
   })
 })

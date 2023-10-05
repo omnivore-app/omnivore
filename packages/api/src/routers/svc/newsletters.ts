@@ -1,20 +1,17 @@
 import express from 'express'
-import {
-  createPubSubClient,
-  readPushSubscription,
-} from '../../datalayer/pubsub'
 import { SubscriptionStatus } from '../../generated/graphql'
+import { readPushSubscription } from '../../pubsub'
 import {
-  getNewsletterEmail,
+  findNewsletterEmailByAddress,
   updateConfirmationCode,
 } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
 import {
   NewsletterMessage,
-  saveNewsletterEmail,
+  saveNewsletter,
 } from '../../services/save_newsletter_email'
 import { saveUrlFromEmail } from '../../services/save_url'
-import { getSubscriptionByNameAndUserId } from '../../services/subscriptions'
+import { getSubscriptionByName } from '../../services/subscriptions'
 import { isUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 
@@ -41,7 +38,7 @@ export function newsletterServiceRouter() {
     logger.info('setConfirmationCode')
 
     const { message, expired } = readPushSubscription(req)
-    logger.info('pubsub message:', message, 'expired:', expired)
+    logger.info('pubsub message', { message, expired })
 
     if (!message) {
       res.status(400).send('Bad Request')
@@ -49,7 +46,7 @@ export function newsletterServiceRouter() {
     }
 
     if (expired) {
-      logger.info('discards expired message:', message)
+      logger.info(`discards expired message: ${message}`)
       res.status(200).send('Expired')
       return
     }
@@ -69,7 +66,7 @@ export function newsletterServiceRouter() {
         data.confirmationCode
       )
       if (!result) {
-        logger.info('Newsletter email not found', data.emailAddress)
+        logger.info(`Newsletter email not found: ${data.emailAddress}`)
         res.status(200).send('Not Found')
         return
       }
@@ -108,29 +105,25 @@ export function newsletterServiceRouter() {
       }
 
       // get user from newsletter email
-      const newsletterEmail = await getNewsletterEmail(data.email)
+      const newsletterEmail = await findNewsletterEmailByAddress(data.email)
       if (!newsletterEmail) {
         logger.info(`newsletter email not found: ${data.email}`)
         return res.status(200).send('Not Found')
       }
 
-      const saveCtx = {
-        pubsub: createPubSubClient(),
-        uid: newsletterEmail.user.id,
-      }
       if (isUrl(data.title)) {
         // save url if the title is a parsable url
         const result = await saveUrlFromEmail(
-          saveCtx,
           data.title,
-          data.receivedEmailId
+          data.receivedEmailId,
+          newsletterEmail.user.id
         )
         if (!result) {
           return res.status(500).send('Error saving url from email')
         }
       } else {
         // do not subscribe if subscription already exists and is unsubscribed
-        const existingSubscription = await getSubscriptionByNameAndUserId(
+        const existingSubscription = await getSubscriptionByName(
           data.author,
           newsletterEmail.user.id
         )
@@ -140,7 +133,7 @@ export function newsletterServiceRouter() {
         }
 
         // save newsletter instead
-        const result = await saveNewsletterEmail(data, newsletterEmail, saveCtx)
+        const result = await saveNewsletter(data, newsletterEmail)
         if (!result) {
           logger.info('Error creating newsletter link from data', data)
 
@@ -149,7 +142,11 @@ export function newsletterServiceRouter() {
       }
 
       // update received email type
-      await updateReceivedEmail(data.receivedEmailId, 'article')
+      await updateReceivedEmail(
+        data.receivedEmailId,
+        'article',
+        newsletterEmail.user.id
+      )
     } catch (e) {
       logger.error(e)
       if (e instanceof SyntaxError) {

@@ -1,56 +1,56 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import normalizeUrl from 'normalize-url'
 import path from 'path'
-import { createPage, getPageByParam, updatePage } from '../../elastic/pages'
-import { PageType } from '../../elastic/types'
+import { LibraryItemState } from '../../entity/library_item'
+import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import {
-  ArticleSavingRequestStatus,
   MutationUploadFileRequestArgs,
-  ResolverFn,
+  PageType,
+  UploadFileRequestError,
   UploadFileRequestErrorCode,
-  UploadFileRequestResult,
+  UploadFileRequestSuccess,
   UploadFileStatus,
 } from '../../generated/graphql'
 import { validateUrl } from '../../services/create_page_save_request'
-import { analytics } from '../../utils/analytics'
-import { generateSlug } from '../../utils/helpers'
 import {
+  createLibraryItem,
+  findLibraryItemByUrl,
+  updateLibraryItem,
+} from '../../services/library_item'
+import { analytics } from '../../utils/analytics'
+import { authorized, generateSlug } from '../../utils/helpers'
+import {
+  contentReaderForLibraryItem,
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getFilePublicUrl,
 } from '../../utils/uploads'
-import { WithDataSourcesContext } from '../types'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
   return parsedUrl.protocol == 'file:'
 }
 
-export const pageTypeForContentType = (contentType: string): PageType => {
+export const itemTypeForContentType = (contentType: string) => {
   if (contentType == 'application/epub+zip') {
     return PageType.Book
   }
   return PageType.File
 }
 
-export const uploadFileRequestResolver: ResolverFn<
-  UploadFileRequestResult,
-  unknown,
-  WithDataSourcesContext,
+export const uploadFileRequestResolver = authorized<
+  UploadFileRequestSuccess,
+  UploadFileRequestError,
   MutationUploadFileRequestArgs
-> = async (_obj, { input }, ctx) => {
-  const { models, authTrx, claims, log } = ctx
+>(async (_, { input }, ctx) => {
+  const { authTrx, uid, log } = ctx
   let uploadFileData: { id: string | null } = {
     id: null,
   }
 
-  if (!claims?.uid) {
-    return { errorCodes: [UploadFileRequestErrorCode.Unauthorized] }
-  }
-
   analytics.track({
-    userId: claims.uid,
+    userId: uid,
     event: 'file_upload_request',
     properties: {
       url: input.url,
@@ -89,13 +89,15 @@ export const uploadFileRequestResolver: ResolverFn<
     return { errorCodes: [UploadFileRequestErrorCode.BadInput] }
   }
 
-  uploadFileData = await models.uploadFile.create({
-    url: input.url,
-    userId: claims.uid,
-    fileName: fileName,
-    status: UploadFileStatus.Initialized,
-    contentType: input.contentType,
-  })
+  uploadFileData = await authTrx((t) =>
+    t.getRepository(UploadFile).save({
+      url: input.url,
+      user: { id: uid },
+      fileName,
+      status: UploadFileStatus.Initialized,
+      contentType: input.contentType,
+    })
+  )
 
   if (uploadFileData.id) {
     const uploadFileId = uploadFileData.id
@@ -113,76 +115,56 @@ export const uploadFileRequestResolver: ResolverFn<
     // If this is a file URL, we swap in the GCS public URL
     if (isFileUrl(input.url)) {
       await authTrx(async (tx) => {
-        await models.uploadFile.update(
-          uploadFileId,
-          {
-            url: publicUrl,
-            status: UploadFileStatus.Initialized,
-          },
-          tx
-        )
+        await tx.getRepository(UploadFile).update(uploadFileId, {
+          url: publicUrl,
+          status: UploadFileStatus.Initialized,
+        })
       })
     }
 
-    let createdPageId: string | undefined = undefined
+    let createdItemId: string | undefined = undefined
     if (input.createPageEntry) {
       // If we have a file:// URL, don't try to match it
-      // and create a copy of the page, just create a
+      // and create a copy of the item, just create a
       // new item.
-      const page = isFileUrl(input.url)
-        ? await getPageByParam({
-            userId: claims.uid,
-            url: input.url,
-          })
-        : undefined
-
-      if (page) {
-        if (
-          !(await updatePage(
-            page.id,
-            {
-              savedAt: new Date(),
-              archivedAt: null,
-            },
-            ctx
-          ))
-        ) {
-          return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
-        }
-        createdPageId = page.id
-      } else {
-        const pageId = await createPage(
+      const item = await findLibraryItemByUrl(input.url, uid)
+      if (item) {
+        await updateLibraryItem(
+          item.id,
           {
-            url: isFileUrl(input.url) ? publicUrl : input.url,
-            id: input.clientRequestId || '',
-            userId: claims.uid,
-            title: title,
-            hash: uploadFilePathName,
-            content: '',
-            pageType: pageTypeForContentType(input.contentType),
-            uploadFileId: uploadFileData.id,
-            slug: generateSlug(uploadFilePathName),
-            createdAt: new Date(),
-            savedAt: new Date(),
-            readingProgressPercent: 0,
-            readingProgressAnchorIndex: 0,
-            state: ArticleSavingRequestStatus.Succeeded,
+            state: LibraryItemState.Processing,
           },
-          ctx
+          uid
         )
-        if (!pageId) {
-          return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
-        }
-        createdPageId = pageId
+        createdItemId = item.id
+      } else {
+        const itemType = itemTypeForContentType(input.contentType)
+        const uploadFileId = uploadFileData.id
+        const item = await createLibraryItem(
+          {
+            originalUrl: isFileUrl(input.url) ? publicUrl : input.url,
+            id: input.clientRequestId || undefined,
+            user: { id: uid },
+            title,
+            readableContent: '',
+            itemType,
+            uploadFile: { id: uploadFileData.id },
+            slug: generateSlug(uploadFilePathName),
+            state: LibraryItemState.Processing,
+            contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
+          },
+          uid
+        )
+        createdItemId = item.id
       }
     }
 
     return {
       id: uploadFileData.id,
       uploadSignedUrl,
-      createdPageId: createdPageId,
+      createdPageId: createdItemId,
     }
   } else {
     return { errorCodes: [UploadFileRequestErrorCode.FailedCreate] }
   }
-}
+})

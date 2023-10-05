@@ -16,26 +16,6 @@ services:
     expose:
       - 5432
 
-  elastic-test:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
-    container_name: "omnivore-elastic-test"
-    healthcheck:
-      test: curl 0.0.0.0:9201/_cat/health >/dev/null || exit 1
-      interval: 2s
-      timeout: 2s
-      retries: 5
-    environment:
-      - discovery.type=single-node
-      - http.cors.allow-origin=*
-      - http.cors.enabled=true
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
-      - http.port=9201
-    volumes:
-      - ./.docker/elastic-test-data:/usr/share/elasticsearch/data
-    ports:
-      - "9201:9201"
-
   api-test:
     build:
       context: .
@@ -49,7 +29,6 @@ services:
       - PG_DB=omnivore_test
       - PG_PORT=5432
       - PG_POOL_MAX=20
-      - ELASTIC_URL=http://elastic-test:9201
       - IMAGE_PROXY_URL=http://localhost:9999
       - IMAGE_PROXY_SECRET=some-secret
       - JWT_SECRET=some_secret
@@ -68,6 +47,4 @@ services:
       - PUBSUB_VERIFICATION_TOKEN='123456'
     depends_on:
       postgres-test:
-        condition: service_healthy
-      elastic-test:
         condition: service_healthy

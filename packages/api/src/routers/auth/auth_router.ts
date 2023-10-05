@@ -14,20 +14,14 @@ import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
 import { promisify } from 'util'
-import { kx } from '../../datalayer/knex_config'
-import UserModel from '../../datalayer/user'
-import {
-  RegistrationType,
-  StatusType,
-  UserData,
-} from '../../datalayer/user/model'
-import { User } from '../../entity/user'
-import { getRepository, setClaims } from '../../entity/utils'
+import { appDataSource } from '../../data_source'
+import { RegistrationType, StatusType, User } from '../../entity/user'
 import { env } from '../../env'
 import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
+import { getRepository, setClaims } from '../../repository'
+import { userRepository } from '../../repository/user'
 import { isErrorWithCode } from '../../resolvers'
-import { AppDataSource } from '../../server'
-import { createUser, getUserByEmail } from '../../services/create_user'
+import { createUser } from '../../services/create_user'
 import {
   sendConfirmationEmail,
   sendPasswordResetEmail,
@@ -247,8 +241,7 @@ export function authRouter() {
       return { errorCodes: [SignupErrorCode.GoogleAuthError] }
     }
 
-    const model = new UserModel(kx)
-    const user = await model.getWhere({ email: userData.email })
+    const user = await userRepository.findOneBy({ email: userData.email })
 
     // eslint-disable-next @typescript-eslint/ban-ts-comment
     const secret = (await signToken(
@@ -343,7 +336,7 @@ export function authRouter() {
   async function handleSuccessfulLogin(
     req: express.Request,
     res: express.Response,
-    user: UserData | User,
+    user: User,
     newUser: boolean
   ): Promise<void> {
     try {
@@ -354,7 +347,7 @@ export function authRouter() {
           const state = JSON.parse((req.query?.state || '') as string)
           redirectUri = state?.redirect_uri
         } catch (err) {
-          logger.warn(
+          logger.error(
             'handleSuccessfulLogin: failed to parse redirect query state param',
             err
           )
@@ -427,7 +420,7 @@ export function authRouter() {
       }
       const { email, password } = req.body
       try {
-        const user = await getUserByEmail(email.trim())
+        const user = await userRepository.findByEmail(email.trim())
         if (!user?.id) {
           return res.redirect(
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
@@ -555,7 +548,7 @@ export function authRouter() {
         }
 
         if (user.status === StatusType.Pending) {
-          const updated = await AppDataSource.transaction(
+          const updated = await appDataSource.transaction(
             async (entityManager) => {
               await setClaims(entityManager, user.id)
               return entityManager
@@ -616,7 +609,7 @@ export function authRouter() {
       }
 
       try {
-        const user = await getUserByEmail(email)
+        const user = await userRepository.findByEmail(email)
         if (!user) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
@@ -686,7 +679,7 @@ export function authRouter() {
         }
 
         const hashedPassword = await hashPassword(password)
-        const updated = await AppDataSource.transaction(
+        const updated = await appDataSource.transaction(
           async (entityManager) => {
             await setClaims(entityManager, user.id)
             return entityManager.getRepository(User).update(user.id, {

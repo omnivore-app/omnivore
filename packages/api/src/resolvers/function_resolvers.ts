@@ -3,25 +3,27 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { getShareInfoForArticle } from '../datalayer/links/share_info'
-import { getPageByParam } from '../elastic/pages'
 import { Subscription } from '../entity/subscription'
 import {
   Article,
-  ArticleHighlightsInput,
   Highlight,
-  HighlightType,
-  LinkShareInfo,
+  Label,
   PageType,
-  Reaction,
+  Recommendation,
   SearchItem,
-  User,
 } from '../generated/graphql'
-import { userDataToUser, validatedDate, wordsCount } from '../utils/helpers'
-import { createImageProxyUrl } from '../utils/imageproxy'
-import { logger } from '../utils/logger'
+import { findHighlightsByLibraryItemId } from '../services/highlights'
+import { findLabelsByLibraryItemId } from '../services/labels'
+import { findRecommendationsByLibraryItemId } from '../services/recommendation'
+import { findUploadFileById } from '../services/upload_file'
 import {
-  contentReaderForPage,
+  highlightDataToHighlight,
+  recommandationDataToRecommendation,
+  validatedDate,
+  wordsCount,
+} from '../utils/helpers'
+import { createImageProxyUrl } from '../utils/imageproxy'
+import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
@@ -38,14 +40,14 @@ import {
   createHighlightResolver,
   createLabelResolver,
   createNewsletterEmailResolver,
-  createReminderResolver,
+  // createReminderResolver,
   deleteAccountResolver,
   deleteFilterResolver,
   deleteHighlightResolver,
   deleteIntegrationResolver,
   deleteLabelResolver,
   deleteNewsletterEmailResolver,
-  deleteReminderResolver,
+  // deleteReminderResolver,
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
@@ -53,12 +55,11 @@ import {
   generateApiKeyResolver,
   getAllUsersResolver,
   getArticleResolver,
-  getArticlesResolver,
-  getFollowersResolver,
-  getFollowingResolver,
+  // getFollowersResolver,
+  // getFollowingResolver,
   getMeUserResolver,
-  getSharedArticleResolver,
-  getUserFeedArticlesResolver,
+  // getSharedArticleResolver,
+  // getUserFeedArticlesResolver,
   getUserPersonalizationResolver,
   getUserResolver,
   googleLoginResolver,
@@ -76,7 +77,7 @@ import {
   newsletterEmailsResolver,
   recommendHighlightsResolver,
   recommendResolver,
-  reminderResolver,
+  // reminderResolver,
   reportItemResolver,
   revokeApiKeyResolver,
   rulesResolver,
@@ -90,14 +91,14 @@ import {
   setBookmarkArticleResolver,
   setDeviceTokenResolver,
   setFavoriteArticleResolver,
-  setFollowResolver,
+  // setFollowResolver,
   setIntegrationResolver,
   setLabelsForHighlightResolver,
   setLabelsResolver,
   setLinkArchivedResolver,
   setRuleResolver,
-  setShareArticleResolver,
-  setShareHighlightResolver,
+  // setShareArticleResolver,
+  // setShareHighlightResolver,
   setUserPersonalizationResolver,
   setWebhookResolver,
   subscribeResolver,
@@ -107,10 +108,10 @@ import {
   updateFilterResolver,
   updateHighlightResolver,
   updateLabelResolver,
-  updateLinkShareInfoResolver,
+  // updateLinkShareInfoResolver,
   updatePageResolver,
-  updateReminderResolver,
-  updateSharedCommentResolver,
+  // updateReminderResolver,
+  // updateSharedCommentResolver,
   updatesSinceResolver,
   updateSubscriptionResolver,
   updateUserProfileResolver,
@@ -120,10 +121,9 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { createReactionResolver, deleteReactionResolver } from './reaction'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
-import { Claims, WithDataSourcesContext } from './types'
+import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -154,30 +154,30 @@ export const functionResolvers = {
     updateUserProfile: updateUserProfileResolver,
     createArticle: createArticleResolver,
     createHighlight: createHighlightResolver,
-    createReaction: createReactionResolver,
-    deleteReaction: deleteReactionResolver,
+    // createReaction: createReactionResolver,
+    // deleteReaction: deleteReactionResolver,
     mergeHighlight: mergeHighlightResolver,
     updateHighlight: updateHighlightResolver,
     deleteHighlight: deleteHighlightResolver,
     uploadFileRequest: uploadFileRequestResolver,
-    setShareArticle: setShareArticleResolver,
-    updateSharedComment: updateSharedCommentResolver,
-    setFollow: setFollowResolver,
+    // setShareArticle: setShareArticleResolver,
+    // updateSharedComment: updateSharedCommentResolver,
+    // setFollow: setFollowResolver,
     setBookmarkArticle: setBookmarkArticleResolver,
     setUserPersonalization: setUserPersonalizationResolver,
     createArticleSavingRequest: createArticleSavingRequestResolver,
-    setShareHighlight: setShareHighlightResolver,
+    // setShareHighlight: setShareHighlightResolver,
     reportItem: reportItemResolver,
-    updateLinkShareInfo: updateLinkShareInfoResolver,
+    // updateLinkShareInfo: updateLinkShareInfoResolver,
     setLinkArchived: setLinkArchivedResolver,
     createNewsletterEmail: createNewsletterEmailResolver,
     deleteNewsletterEmail: deleteNewsletterEmailResolver,
     saveUrl: saveUrlResolver,
     savePage: savePageResolver,
     saveFile: saveFileResolver,
-    createReminder: createReminderResolver,
-    updateReminder: updateReminderResolver,
-    deleteReminder: deleteReminderResolver,
+    // createReminder: createReminderResolver,
+    // updateReminder: updateReminderResolver,
+    // deleteReminder: deleteReminderResolver,
     setDeviceToken: setDeviceTokenResolver,
     createLabel: createLabelResolver,
     updateLabel: updateLabelResolver,
@@ -221,15 +221,14 @@ export const functionResolvers = {
     users: getAllUsersResolver,
     validateUsername: validateUsernameResolver,
     article: getArticleResolver,
-    sharedArticle: getSharedArticleResolver,
-    articles: getArticlesResolver,
-    feedArticles: getUserFeedArticlesResolver,
-    getFollowers: getFollowersResolver,
-    getFollowing: getFollowingResolver,
+    // sharedArticle: getSharedArticleResolver,
+    // feedArticles: getUserFeedArticlesResolver,
+    // getFollowers: getFollowersResolver,
+    // getFollowing: getFollowingResolver,
     getUserPersonalization: getUserPersonalizationResolver,
     articleSavingRequest: articleSavingRequestResolver,
     newsletterEmails: newsletterEmailsResolver,
-    reminder: reminderResolver,
+    // reminder: reminderResolver,
     labels: labelsResolver,
     search: searchResolver,
     subscriptions: subscriptionsResolver,
@@ -247,141 +246,141 @@ export const functionResolvers = {
     groups: groupsResolver,
     recentEmails: recentEmailsResolver,
   },
-  User: {
-    async sharedArticles(
-      user: User,
-      __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
-    ) {
-      return ctx.models.userArticle.getUserSharedArticles(user.id, ctx.kx)
-    },
-    async sharedArticlesCount(
-      user: { id: string; sharedArticlesCount?: number },
-      __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
-    ) {
-      if (user.sharedArticlesCount) return user.sharedArticlesCount
-      return ctx.models.userArticle.getSharedArticlesCount(user.id, ctx.kx)
-    },
-    async sharedHighlightsCount(
-      user: { id: string; sharedHighlightsCount?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      // #TODO: restructure highlightStats and sharedArticlesCount in order to get it within a single query
-      if (user.sharedHighlightsCount) return user.sharedHighlightsCount
-      const { sharedHighlightsCount } =
-        await ctx.models.user.getSharedHighlightsStats(user.id)
-      return sharedHighlightsCount
-    },
-    async sharedNotesCount(
-      user: User,
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (user.sharedNotesCount) return user.sharedNotesCount
-      const { sharedNotesCount } =
-        await ctx.models.user.getSharedHighlightsStats(user.id)
-      return sharedNotesCount
-    },
-  },
-  FeedArticle: {
-    async article(
-      feedArticle: { articleId: string; userId: string; article?: Article },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.article) return feedArticle.article
+  // User: {
+  //   async sharedArticles(
+  //     user: User,
+  //     __: Record<string, unknown>,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     return ctx.models.userArticle.getUserSharedArticles(user.id, ctx.kx)
+  //   },
+  //   async sharedArticlesCount(
+  //     user: { id: string; sharedArticlesCount?: number },
+  //     __: Record<string, unknown>,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (user.sharedArticlesCount) return user.sharedArticlesCount
+  //     return ctx.models.userArticle.getSharedArticlesCount(user.id, ctx.kx)
+  //   },
+  //   async sharedHighlightsCount(
+  //     user: { id: string; sharedHighlightsCount?: number },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     // #TODO: restructure highlightStats and sharedArticlesCount in order to get it within a single query
+  //     if (user.sharedHighlightsCount) return user.sharedHighlightsCount
+  //     const { sharedHighlightsCount } =
+  //       await ctx.models.user.getSharedHighlightsStats(user.id)
+  //     return sharedHighlightsCount
+  //   },
+  //   async sharedNotesCount(
+  //     user: User,
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (user.sharedNotesCount) return user.sharedNotesCount
+  //     const { sharedNotesCount } =
+  //       await ctx.models.user.getSharedHighlightsStats(user.id)
+  //     return sharedNotesCount
+  //   },
+  // },
+  // FeedArticle: {
+  //   async article(
+  //     feedArticle: { articleId: string; userId: string; article?: Article },
+  //     __: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.article) return feedArticle.article
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let a: any
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     let a: any
 
-      const savedArticle =
-        ctx.claims?.uid &&
-        (await ctx.models.userArticle.getForUser(
-          ctx.claims?.uid,
-          feedArticle.articleId,
-          ctx.kx
-        ))
+  //     const savedArticle =
+  //       ctx.claims?.uid &&
+  //       (await ctx.models.userArticle.getForUser(
+  //         ctx.claims?.uid,
+  //         feedArticle.articleId,
+  //         ctx.kx
+  //       ))
 
-      if (savedArticle) {
-        // If user has saved the article, use his version (slug) then
-        a = {
-          ...savedArticle,
-          savedByViewer: true,
-          postedByViewer: !!savedArticle.sharedAt,
-        }
-      } else {
-        a = await ctx.models.userArticle.getForUser(
-          feedArticle.userId,
-          feedArticle.articleId,
-          ctx.kx
-        )
-      }
+  //     if (savedArticle) {
+  //       // If user has saved the article, use his version (slug) then
+  //       a = {
+  //         ...savedArticle,
+  //         savedByViewer: true,
+  //         postedByViewer: !!savedArticle.sharedAt,
+  //       }
+  //     } else {
+  //       a = await ctx.models.userArticle.getForUser(
+  //         feedArticle.userId,
+  //         feedArticle.articleId,
+  //         ctx.kx
+  //       )
+  //     }
 
-      if (a && a.image) {
-        a.image = createImageProxyUrl(a.image, 0, 180)
-      } else {
-        logger.info(
-          'error getting article for feedItem',
-          feedArticle.userId,
-          feedArticle.articleId
-        )
-      }
+  //     if (a && a.image) {
+  //       a.image = createImageProxyUrl(a.image, 0, 180)
+  //     } else {
+  //       logger.info(
+  //         'error getting article for feedItem',
+  //         feedArticle.userId,
+  //         feedArticle.articleId
+  //       )
+  //     }
 
-      return a
-    },
-    async sharedBy(
-      feedArticle: { userId: string; sharedBy?: User },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.sharedBy) return feedArticle.sharedBy
-      return userDataToUser(await ctx.models.user.get(feedArticle.userId))
-    },
-    async highlight(
-      feedArticle: { highlightId?: string; highlight?: Highlight },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.highlight) return feedArticle.highlight
-      return feedArticle.highlightId
-        ? await ctx.models.highlight.get(feedArticle.highlightId)
-        : null
-    },
-    async reactions(
-      feedArticle: { id: string; reactions?: Reaction[] },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const { reactions, id } = feedArticle
-      if (reactions) return reactions
+  //     return a
+  //   },
+  //   async sharedBy(
+  //     feedArticle: { userId: string; sharedBy?: User },
+  //     __: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.sharedBy) return feedArticle.sharedBy
+  //     return userDataToUser(await ctx.models.user.get(feedArticle.userId))
+  //   },
+  //   async highlight(
+  //     feedArticle: { highlightId?: string; highlight?: Highlight },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.highlight) return feedArticle.highlight
+  //     return feedArticle.highlightId
+  //       ? await ctx.models.highlight.get(feedArticle.highlightId)
+  //       : null
+  //   },
+  //   async reactions(
+  //     feedArticle: { id: string; reactions?: Reaction[] },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     const { reactions, id } = feedArticle
+  //     if (reactions) return reactions
 
-      return await ctx.models.reaction.batchGetFromArticle(id)
-    },
-    async highlightsCount(
-      feedArticle: { id: string; highlightsCount?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.highlightsCount) return feedArticle.highlightsCount
-      const { highlightsCount } = await ctx.models.userArticle.getStats(
-        feedArticle.id
-      )
-      return highlightsCount
-    },
-    async annotationsCount(
-      feedArticle: { id: string; annotationsCount?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (feedArticle.annotationsCount) return feedArticle.annotationsCount
-      const { annotationsCount } = await ctx.models.userArticle.getStats(
-        feedArticle.id
-      )
-      return annotationsCount
-    },
-  },
+  //     return await ctx.models.reaction.batchGetFromArticle(id)
+  //   },
+  //   async highlightsCount(
+  //     feedArticle: { id: string; highlightsCount?: number },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.highlightsCount) return feedArticle.highlightsCount
+  //     const { highlightsCount } = await ctx.models.userArticle.getStats(
+  //       feedArticle.id
+  //     )
+  //     return highlightsCount
+  //   },
+  //   async annotationsCount(
+  //     feedArticle: { id: string; annotationsCount?: number },
+  //     _: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     if (feedArticle.annotationsCount) return feedArticle.annotationsCount
+  //     const { annotationsCount } = await ctx.models.userArticle.getStats(
+  //       feedArticle.id
+  //     )
+  //     return annotationsCount
+  //   },
+  // },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
       if (
@@ -390,7 +389,7 @@ export const functionResolvers = {
         ctx.claims &&
         article.uploadFileId
       ) {
-        const upload = await ctx.models.uploadFile.get(article.uploadFileId)
+        const upload = await findUploadFileById(article.uploadFileId)
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -399,56 +398,8 @@ export const functionResolvers = {
       }
       return article.url
     },
-    async originalArticleUrl(article: { url: string }) {
+    originalArticleUrl(article: { url: string }) {
       return article.url
-    },
-    async savedByViewer(
-      article: { id: string; savedByViewer?: boolean },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if (article.savedByViewer) {
-        return article.savedByViewer
-      }
-      if (!ctx.claims?.uid) return undefined
-      const page = await getPageByParam({
-        userId: ctx.claims.uid,
-        _id: article.id,
-      })
-      return !!page
-    },
-    async postedByViewer(
-      article: { id: string; postedByViewer?: boolean },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if (article.postedByViewer) {
-        return article.postedByViewer
-      }
-      if (!ctx.claims?.uid) return false
-      const page = await getPageByParam({
-        userId: ctx.claims.uid,
-        _id: article.id,
-      })
-      return !!page?.sharedAt
-    },
-    async savedAt(
-      article: { id: string; savedAt?: Date; createdAt?: Date },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if (!ctx.claims?.uid) return new Date()
-      if (article.savedAt) return article.savedAt
-      return (
-        (
-          await getPageByParam({
-            userId: ctx.claims.uid,
-            _id: article.id,
-          })
-        )?.savedAt ||
-        article.createdAt ||
-        new Date()
-      )
     },
     hasContent(article: {
       content: string | null
@@ -459,115 +410,64 @@ export const functionResolvers = {
     publishedAt(article: { publishedAt: Date }) {
       return validatedDate(article.publishedAt)
     },
-    async isArchived(
-      article: {
-        id: string
-        isArchived?: boolean | null
-        archivedAt?: Date | undefined
-      },
-      __: unknown,
-      ctx: WithDataSourcesContext & { claims: Claims }
-    ) {
-      if ('isArchived' in article) return article.isArchived
-      if ('archivedAt' in article) return !!article.archivedAt
-      if (!ctx.claims?.uid) return false
-      const page = await getPageByParam({
-        userId: ctx.claims.uid,
-        _id: article.id,
-      })
-      return !!page?.archivedAt || false
-    },
-    contentReader(article: {
-      pageType: PageType
-      uploadFileId: string | undefined
-    }) {
-      return contentReaderForPage(article.pageType, article.uploadFileId)
-    },
-    highlights(
-      article: { id: string; userId?: string; highlights?: Highlight[] },
-      _: { input: ArticleHighlightsInput },
-      ctx: WithDataSourcesContext
-    ) {
-      return article.highlights || []
-    },
-    async shareInfo(
-      article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ): Promise<LinkShareInfo | undefined> {
-      if (article.shareInfo) return article.shareInfo
-      if (!ctx.claims?.uid) return undefined
-      return getShareInfoForArticle(
-        ctx.kx,
-        ctx.claims?.uid,
-        article.id,
-        ctx.models
-      )
-    },
+    // async shareInfo(
+    //   article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
+    //   __: unknown,
+    //   ctx: WithDataSourcesContext
+    // ): Promise<LinkShareInfo | undefined> {
+    //   if (article.shareInfo) return article.shareInfo
+    //   if (!ctx.claims?.uid) return undefined
+    //   return getShareInfoForArticle(
+    //     ctx.kx,
+    //     ctx.claims?.uid,
+    //     article.id,
+    //     ctx.models
+    //   )
+    // },
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 320, 320)
     },
-    wordsCount(article: { wordsCount?: number; content?: string }) {
-      if (article.wordsCount) return article.wordsCount
+    wordsCount(article: { wordCount?: number; content?: string }) {
+      if (article.wordCount) return article.wordCount
       return article.content ? wordsCount(article.content) : undefined
     },
   },
-  ArticleSavingRequest: {
-    async article(request: { userId: string; articleId: string }, __: unknown) {
-      if (!request.userId || !request.articleId) return undefined
-
-      return getPageByParam({
-        userId: request.userId,
-        _id: request.articleId,
-      })
-    },
-  },
   Highlight: {
-    async user(
-      highlight: { userId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      return userDataToUser(await ctx.models.user.get(highlight.userId))
-    },
-    async reactions(
-      highlight: { id: string; reactions?: Reaction[] },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const { reactions, id } = highlight
-      if (reactions) return reactions
+    // async reactions(
+    //   highlight: { id: string; reactions?: Reaction[] },
+    //   _: unknown,
+    //   ctx: WithDataSourcesContext
+    // ) {
+    //   const { reactions, id } = highlight
+    //   if (reactions) return reactions
 
-      return await ctx.models.reaction.batchGetFromHighlight(id)
-    },
-    async createdByMe(
-      highlight: { userId: string; createdByMe?: boolean },
+    //   return await ctx.models.reaction.batchGetFromHighlight(id)
+    // },
+    createdByMe(
+      highlight: { user: { id: string } },
       __: unknown,
       ctx: WithDataSourcesContext
     ) {
-      return highlight.createdByMe ?? highlight.userId === ctx.claims?.uid
-    },
-    type(highlight: { type: HighlightType }) {
-      return highlight.type || HighlightType.Highlight
+      return highlight.user.id === ctx.uid
     },
   },
-  Reaction: {
-    async user(
-      reaction: { userId: string },
-      __: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      return userDataToUser(await ctx.models.user.get(reaction.userId))
-    },
-  },
+  // Reaction: {
+  //   async user(
+  //     reaction: { userId: string },
+  //     __: unknown,
+  //     ctx: WithDataSourcesContext
+  //   ) {
+  //     return userDataToUser(await ctx.models.user.get(reaction.userId))
+  //   },
+  // },
   SearchItem: {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       if (
         (item.pageType == PageType.File || item.pageType == PageType.Book) &&
-        ctx.claims &&
+        ctx.uid &&
         item.uploadFileId
       ) {
-        const upload = await ctx.models.uploadFile.get(item.uploadFileId)
+        const upload = await findUploadFileById(item.uploadFileId)
         if (!upload || !upload.fileName) {
           return undefined
         }
@@ -576,8 +476,43 @@ export const functionResolvers = {
       }
       return item.url
     },
-    pageType(item: SearchItem) {
-      return item.pageType || PageType.Unknown
+    image(item: SearchItem) {
+      return item.image && createImageProxyUrl(item.image, 320, 320)
+    },
+    originalArticleUrl(item: { url: string }) {
+      return item.url
+    },
+    wordsCount(item: { wordCount?: number; content?: string }) {
+      if (item.wordCount) return item.wordCount
+      return item.content ? wordsCount(item.content) : undefined
+    },
+    async highlights(
+      item: { id: string; highlights?: Highlight[] },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (item.highlights) return item.highlights
+
+      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+      return highlights.map(highlightDataToHighlight)
+    },
+    async labels(
+      item: { id: string; labels?: Label[] },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (item.labels) return item.labels
+
+      return findLabelsByLibraryItemId(item.id, ctx.uid)
+    },
+    async recommendations(item: {
+      id: string
+      recommendations?: Recommendation[]
+    }) {
+      if (item.recommendations) return item.recommendations
+
+      const recommendations = await findRecommendationsByLibraryItemId(item.id)
+      return recommendations.map(recommandationDataToRecommendation)
     },
   },
   Subscription: {
@@ -596,31 +531,31 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateUser'),
   ...resultResolveTypeResolver('UpdateUserProfile'),
   ...resultResolveTypeResolver('Article'),
-  ...resultResolveTypeResolver('SharedArticle'),
+  // ...resultResolveTypeResolver('SharedArticle'),
   ...resultResolveTypeResolver('Articles'),
   ...resultResolveTypeResolver('User'),
   ...resultResolveTypeResolver('Users'),
   ...resultResolveTypeResolver('SaveArticleReadingProgress'),
-  ...resultResolveTypeResolver('FeedArticles'),
+  // ...resultResolveTypeResolver('FeedArticles'),
   ...resultResolveTypeResolver('CreateArticle'),
   ...resultResolveTypeResolver('CreateHighlight'),
-  ...resultResolveTypeResolver('CreateReaction'),
-  ...resultResolveTypeResolver('DeleteReaction'),
+  // ...resultResolveTypeResolver('CreateReaction'),
+  // ...resultResolveTypeResolver('DeleteReaction'),
   ...resultResolveTypeResolver('MergeHighlight'),
   ...resultResolveTypeResolver('UpdateHighlight'),
   ...resultResolveTypeResolver('DeleteHighlight'),
   ...resultResolveTypeResolver('UploadFileRequest'),
-  ...resultResolveTypeResolver('SetShareArticle'),
-  ...resultResolveTypeResolver('UpdateSharedComment'),
+  // ...resultResolveTypeResolver('SetShareArticle'),
+  // ...resultResolveTypeResolver('UpdateSharedComment'),
   ...resultResolveTypeResolver('SetBookmarkArticle'),
-  ...resultResolveTypeResolver('SetFollow'),
-  ...resultResolveTypeResolver('GetFollowers'),
-  ...resultResolveTypeResolver('GetFollowing'),
+  // ...resultResolveTypeResolver('SetFollow'),
+  // ...resultResolveTypeResolver('GetFollowers'),
+  // ...resultResolveTypeResolver('GetFollowing'),
   ...resultResolveTypeResolver('GetUserPersonalization'),
   ...resultResolveTypeResolver('SetUserPersonalization'),
   ...resultResolveTypeResolver('ArticleSavingRequest'),
   ...resultResolveTypeResolver('CreateArticleSavingRequest'),
-  ...resultResolveTypeResolver('SetShareHighlight'),
+  // ...resultResolveTypeResolver('SetShareHighlight'),
   ...resultResolveTypeResolver('ArchiveLink'),
   ...resultResolveTypeResolver('CreateNewsletterEmail'),
   ...resultResolveTypeResolver('NewsletterEmails'),

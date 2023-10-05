@@ -1,13 +1,19 @@
-import 'mocha'
 import { expect } from 'chai'
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
-import { getRepository } from '../../src/entity/utils'
-import { ReceivedEmail } from '../../src/entity/received_email'
-import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import 'mocha'
 import sinon from 'sinon'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
+import { ReceivedEmail } from '../../src/entity/received_email'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import {
+  deleteReceivedEmail,
+  findReceivedEmailById,
+  saveReceivedEmail,
+} from '../../src/services/received_emails'
+import { deleteUser } from '../../src/services/user'
 import * as sendEmail from '../../src/utils/sendEmail'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Recent Emails Resolver', () => {
   const recentEmailsQuery = `
@@ -59,30 +65,30 @@ describe('Recent Emails Resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('recentEmails', () => {
     before(async () => {
       // create fake emails
-      const recentEmail = await getRepository(ReceivedEmail).save({
-        user: { id: user.id },
-        from: 'fake from',
-        subject: 'fake subject',
-        text: 'fake text',
-        html: 'fake html',
-        to: newsletterEmail.address,
-        type: 'article',
-      })
-      const recentEmail2 = await getRepository(ReceivedEmail).save({
-        user: { id: user.id },
-        from: 'fake from 2',
-        subject: 'fake subject 2',
-        text: 'fake text 2',
-        html: 'fake html 2',
-        to: newsletterEmail2.address,
-        type: 'non-article',
-      })
+      const recentEmail = await saveReceivedEmail(
+        'fake from',
+        newsletterEmail.address,
+        'fake subject',
+        'fake text',
+        'fake html',
+        user.id,
+        'article'
+      )
+      const recentEmail2 = await saveReceivedEmail(
+        'fake from 2',
+        newsletterEmail2.address,
+        'fake subject 2',
+        'fake text 2',
+        'fake html 2',
+        user.id,
+        'non-article'
+      )
       recentEmails = [recentEmail, recentEmail2]
     })
 
@@ -114,21 +120,21 @@ describe('Recent Emails Resolver', () => {
 
     before(async () => {
       // create fake email
-      recentEmail = await getRepository(ReceivedEmail).save({
-        user: { id: user.id },
-        from: 'Omnivore Newsletter <newsletter@omnivore.app>',
-        subject: 'fake subject 3',
-        text: 'fake text 3',
-        html: '<html><body>fake html 3</body></html>',
-        to: newsletterEmail.address,
-        type: 'non-article',
-      })
+      recentEmail = await saveReceivedEmail(
+        'Omnivore Newsletter <newsletter@omnivore.app>',
+        newsletterEmail.address,
+        'fake subject 3',
+        'fake text 3',
+        'fake html 3',
+        user.id,
+        'non-article'
+      )
       sinon.replace(sendEmail, 'sendEmail', sinon.fake.resolves(true))
     })
 
     after(async () => {
       // clean up
-      await getRepository(ReceivedEmail).delete(recentEmail.id)
+      await deleteReceivedEmail(recentEmail.id, user.id)
       sinon.restore()
     })
 
@@ -140,9 +146,10 @@ describe('Recent Emails Resolver', () => {
 
       expect(resp.body.data.markEmailAsItem.success).to.be.true
 
-      const updatedRecentEmail = await getRepository(ReceivedEmail).findOneBy({
-        id: recentEmail.id,
-      })
+      const updatedRecentEmail = await findReceivedEmailById(
+        recentEmail.id,
+        user.id
+      )
       expect(updatedRecentEmail?.type).to.eql('article')
     })
   })
@@ -162,30 +169,32 @@ describe('Recent Emails Resolver', () => {
       user2Auth = res.body.authToken
     })
     after(async () => {
-      await deleteTestUser(user2.id)
-      await deleteTestUser(user3.id)
+      await deleteUser(user2.id)
+      await deleteUser(user3.id)
     })
 
     before(async () => {
       // create fake emails
-      const recentEmail = await getRepository(ReceivedEmail).save({
-        user: { id: user2.id },
-        from: 'fake from',
-        subject: 'fake subject',
-        text: 'fake text',
-        html: 'fake html',
-        to: newsletterEmail.address,
-        type: 'article',
-      })
-      const recentEmail2 = await getRepository(ReceivedEmail).save({
-        user: { id: user2.id },
-        from: 'fake from 2',
-        subject: 'fake subject 2',
-        text: 'fake text 2',
-        html: 'fake html 2',
-        to: newsletterEmail2.address,
-        type: 'non-article',
-      })
+      const recentEmail = await saveReceivedEmail(
+        'fake from 4',
+        newsletterEmail.address,
+        'fake subject 4',
+        'fake text 4',
+        'fake html 4',
+        user2.id,
+        'article'
+      )
+
+      const recentEmail2 = await saveReceivedEmail(
+        'fake from 4',
+        newsletterEmail.address,
+        'fake subject 4',
+        'fake text 4',
+        'fake html 4',
+        user2.id,
+        'non-article'
+      )
+
       recentEmails = [recentEmail, recentEmail2]
     })
 
@@ -197,15 +206,15 @@ describe('Recent Emails Resolver', () => {
       expect(results[0].id).to.eql(recentEmails[1].id)
       expect(results[1].id).to.eql(recentEmails[0].id)
 
-      await getRepository(ReceivedEmail).save({
-        user: { id: user3.id },
-        from: 'fake from',
-        subject: 'fake subject',
-        text: 'fake text',
-        html: 'fake html',
-        to: newsletterEmail.address,
-        type: 'article',
-      })
+      await saveReceivedEmail(
+        'fake from 5',
+        newsletterEmail.address,
+        'fake subject 5',
+        'fake text 5',
+        'fake html 5',
+        user3.id,
+        'article'
+      )
 
       const res2 = await graphqlRequest(recentEmailsQuery, user2Auth).expect(
         200

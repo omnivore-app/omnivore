@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
 import { Subscription } from '../../entity/subscription'
-import { getRepository } from '../../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../../generated/graphql'
+import { readPushSubscription } from '../../pubsub'
+import { getRepository } from '../../repository'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 
@@ -15,7 +15,7 @@ export function rssFeedRouter() {
 
     try {
       const { message: msgStr, expired } = readPushSubscription(req)
-      logger.info('read pubsub message', msgStr, 'has expired', expired)
+      logger.info(`read pubsub message`, { msgStr, expired })
 
       if (expired) {
         logger.info('discarding expired message')

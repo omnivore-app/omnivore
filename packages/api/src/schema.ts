@@ -291,7 +291,7 @@ const schema = gql`
     slug: String!
     savedBy: User!
     savedAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     savedByViewer: Boolean!
     postedByViewer: Boolean!
 
@@ -333,7 +333,7 @@ const schema = gql`
     originalHtml: String!
     readableHtml: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   type RecommendingUser {
@@ -368,7 +368,7 @@ const schema = gql`
     originalHtml: String
     createdAt: Date!
     savedAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     publishedAt: Date
     readingProgressTopPercent: Float
     readingProgressPercent: Float!
@@ -636,7 +636,7 @@ const schema = gql`
     id: ID!
     readingProgressTopPercent: Float
     readingProgressPercent: Float!
-    readingProgressAnchorIndex: Int!
+    readingProgressAnchorIndex: Int
   }
   enum SaveArticleReadingProgressErrorCode {
     NOT_FOUND
@@ -705,7 +705,7 @@ const schema = gql`
     replies: [HighlightReply!]!
     sharedAt: Date
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     reactions: [Reaction!]!
     createdByMe: Boolean!
     highlightPositionPercent: Float
@@ -759,7 +759,7 @@ const schema = gql`
     quote: String! @sanitize(maxLength: 12000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
-    annotation: String @sanitize(maxLength: 8000)
+    annotation: String @sanitize(maxLength: 4000)
     overlapHighlightIdList: [String!]!
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
@@ -835,7 +835,7 @@ const schema = gql`
     highlight: Highlight!
     text: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   input CreateHighlightReplyInput {
@@ -1109,7 +1109,7 @@ const schema = gql`
     status: ArticleSavingRequestStatus!
     errorCode: CreateArticleErrorCode
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     url: String!
   }
 
@@ -1652,7 +1652,7 @@ const schema = gql`
     count: Int!
     lastFetchedAt: Date
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   enum SubscriptionStatus {
@@ -1757,7 +1757,7 @@ const schema = gql`
     method: String!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   type SetWebhookError {
@@ -1949,7 +1949,7 @@ const schema = gql`
     token: String!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     taskName: String
   }
 
@@ -2047,7 +2047,7 @@ const schema = gql`
     name: String!
     token: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     grantedAt: Date
     expiresAt: Date
   }
@@ -2074,7 +2074,7 @@ const schema = gql`
     actions: [RuleAction!]!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     eventTypes: [RuleEventType!]!
   }
 
@@ -2188,7 +2188,7 @@ const schema = gql`
     category: String!
     description: String
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     defaultFilter: Boolean
     visible: Boolean
   }
@@ -2304,7 +2304,7 @@ const schema = gql`
     admins: [User!]!
     members: [User!]!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     canPost: Boolean!
     description: String
     topics: [String!]
@@ -2523,7 +2523,7 @@ const schema = gql`
     | SetFavoriteArticleError
 
   type SetFavoriteArticleSuccess {
-    favoriteArticle: Article!
+    success: Boolean!
   }
 
   type SetFavoriteArticleError {
@@ -2604,24 +2604,24 @@ const schema = gql`
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
     updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
     deleteHighlight(highlightId: ID!): DeleteHighlightResult!
-    createHighlightReply(
-      input: CreateHighlightReplyInput!
-    ): CreateHighlightReplyResult!
-    updateHighlightReply(
-      input: UpdateHighlightReplyInput!
-    ): UpdateHighlightReplyResult!
-    deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
-    createReaction(input: CreateReactionInput!): CreateReactionResult!
-    deleteReaction(id: ID!): DeleteReactionResult!
+    # createHighlightReply(
+    #   input: CreateHighlightReplyInput!
+    # ): CreateHighlightReplyResult!
+    # updateHighlightReply(
+    #   input: UpdateHighlightReplyInput!
+    # ): UpdateHighlightReplyResult!
+    # deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
+    # createReaction(input: CreateReactionInput!): CreateReactionResult!
+    # deleteReaction(id: ID!): DeleteReactionResult!
     uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
     saveArticleReadingProgress(
       input: SaveArticleReadingProgressInput!
     ): SaveArticleReadingProgressResult!
-    setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
-    updateSharedComment(
-      input: UpdateSharedCommentInput!
-    ): UpdateSharedCommentResult!
-    setFollow(input: SetFollowInput!): SetFollowResult!
+    # setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
+    # updateSharedComment(
+    #   input: UpdateSharedCommentInput!
+    # ): UpdateSharedCommentResult!
+    # setFollow(input: SetFollowInput!): SetFollowResult!
     setBookmarkArticle(
       input: SetBookmarkArticleInput!
     ): SetBookmarkArticleResult!
@@ -2631,11 +2631,11 @@ const schema = gql`
     createArticleSavingRequest(
       input: CreateArticleSavingRequestInput!
     ): CreateArticleSavingRequestResult!
-    setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
+    # setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
     reportItem(input: ReportItemInput!): ReportItemResult!
-    updateLinkShareInfo(
-      input: UpdateLinkShareInfoInput!
-    ): UpdateLinkShareInfoResult!
+    # updateLinkShareInfo(
+    #   input: UpdateLinkShareInfoInput!
+    # ): UpdateLinkShareInfoResult!
     setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
     createNewsletterEmail: CreateNewsletterEmailResult!
     deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
@@ -2643,9 +2643,9 @@ const schema = gql`
     savePage(input: SavePageInput!): SaveResult!
     updatePage(input: UpdatePageInput!): UpdatePageResult!
     saveFile(input: SaveFileInput!): SaveResult!
-    createReminder(input: CreateReminderInput!): CreateReminderResult!
-    updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
-    deleteReminder(id: ID!): DeleteReminderResult!
+    # createReminder(input: CreateReminderInput!): CreateReminderResult!
+    # updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
+    # deleteReminder(id: ID!): DeleteReminderResult!
     setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
     createLabel(input: CreateLabelInput!): CreateLabelResult!
     updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -2701,34 +2701,26 @@ const schema = gql`
     hello: String
     me: User
     user(userId: ID, username: String): UserResult!
-    articles(
-      sharedOnly: Boolean
-      sort: SortParams
-      after: String
-      first: Int
-      query: String
-      includePending: Boolean
-    ): ArticlesResult!
     article(username: String!, slug: String!, format: String): ArticleResult!
-    sharedArticle(
-      username: String!
-      slug: String!
-      selectedHighlightId: String
-    ): SharedArticleResult!
-    feedArticles(
-      after: String
-      first: Int
-      sort: SortParams
-      sharedByUser: ID
-    ): FeedArticlesResult!
+    # sharedArticle(
+    #   username: String!
+    #   slug: String!
+    #   selectedHighlightId: String
+    # ): SharedArticleResult!
+    # feedArticles(
+    #   after: String
+    #   first: Int
+    #   sort: SortParams
+    #   sharedByUser: ID
+    # ): FeedArticlesResult!
     users: UsersResult!
     validateUsername(username: String!): Boolean!
-    getFollowers(userId: ID): GetFollowersResult!
-    getFollowing(userId: ID): GetFollowingResult!
+    # getFollowers(userId: ID): GetFollowersResult!
+    # getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
     articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
-    reminder(linkId: ID!): ReminderResult!
+    # reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
     search(
       after: String

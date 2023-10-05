@@ -4,7 +4,7 @@
 BEGIN;
 
 ALTER TABLE omnivore.filters
-    DROP COLUMN default,
+    DROP COLUMN default_filter,
     DROP COLUMN visible;
 
 COMMIT;

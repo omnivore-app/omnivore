@@ -1,9 +1,9 @@
 import { google, oauth2_v2 as oauthV2 } from 'googleapis'
 import { OAuth2Client } from 'googleapis-common'
 import url from 'url'
-import UserModel from '../../datalayer/user'
 import { env, homePageURL } from '../../env'
 import { LoginErrorCode } from '../../generated/graphql'
+import { userRepository } from '../../repository/user'
 import { logger } from '../../utils/logger'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { DecodeTokenResult } from './auth_types'
@@ -127,20 +127,18 @@ export async function handleGoogleWebAuth(
         redirectURL: authFailedRedirect,
       })
     }
-    const model = new UserModel()
-    const user = await model.getWhere({
+    const user = await userRepository.findOneBy({
       email,
       source: 'GOOGLE',
     })
     const userId = user?.id
 
     if (!userId || !user?.profile) {
-      logger.info(
-        'user or profile does not exist:',
+      logger.info('user or profile does not exist:', {
         sourceUserId,
-        'GOOGLE',
-        email
-      )
+        source: 'GOOGLE',
+        email,
+      })
       // User doesn't exist yet, so we return a pending user token
       // if user's profile doesn't exist, also send back to the profile creation
       const pendingUserAuth = await createPendingUserToken({

@@ -3,9 +3,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
-import UserModel from '../../datalayer/user'
 import { env, homePageURL } from '../../env'
 import { LoginErrorCode } from '../../generated/graphql'
+import { userRepository } from '../../repository/user'
 import { logger } from '../../utils/logger'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { DecodeTokenResult } from './auth_types'
@@ -119,8 +119,7 @@ export async function handleAppleWebAuth(
   }
 
   try {
-    const model = new UserModel()
-    const user = await model.getWhere({
+    const user = await userRepository.findOneBy({
       sourceUserId: decodedTokenResult.sourceUserId,
       source: 'APPLE',
     })

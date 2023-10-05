@@ -1,17 +1,17 @@
 import { expect } from 'chai'
 import 'mocha'
 import nock from 'nock'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getPageByParam } from '../../src/elastic/pages'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { ReceivedEmail } from '../../src/entity/received_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/repository'
+import { findLibraryItemByUrl } from '../../src/services/library_item'
 import { createNewsletterEmail } from '../../src/services/newsletters'
-import { SaveContext } from '../../src/services/save_email'
-import { saveNewsletterEmail } from '../../src/services/save_newsletter_email'
-import { createTestUser, deleteTestUser } from '../db'
+import { saveReceivedEmail } from '../../src/services/received_emails'
+import { saveNewsletter } from '../../src/services/save_newsletter_email'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 
 describe('saveNewsletterEmail', () => {
   const fakeContent = 'fake content'
@@ -22,30 +22,24 @@ describe('saveNewsletterEmail', () => {
 
   let user: User
   let newsletterEmail: NewsletterEmail
-  let ctx: SaveContext
   let receivedEmail: ReceivedEmail
 
   before(async () => {
     user = await createTestUser('fakeUser')
     newsletterEmail = await createNewsletterEmail(user.id)
-    ctx = {
-      pubsub: createPubSubClient(),
-      refresh: true,
-      uid: user.id,
-    }
-    receivedEmail = await getRepository(ReceivedEmail).save({
-      user: { id: user.id },
+    receivedEmail = await saveReceivedEmail(
       from,
-      to: newsletterEmail.address,
-      subject: title,
+      newsletterEmail.address,
+      title,
       text,
-      html: '',
-      type: 'non-article',
-    })
+      '',
+      user.id,
+      'non-article'
+    )
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   it('adds the newsletter to the library', async () => {
@@ -53,7 +47,7 @@ describe('saveNewsletterEmail', () => {
     nock('https://blog.omnivore.app').head('/fake-url').reply(200)
     const url = 'https://blog.omnivore.app/fake-url'
 
-    await saveNewsletterEmail(
+    await saveNewsletter(
       {
         from,
         email: newsletterEmail.address,
@@ -64,16 +58,15 @@ describe('saveNewsletterEmail', () => {
         receivedEmailId: receivedEmail.id,
         unsubHttpUrl: 'https://blog.omnivore.app/unsubscribe',
       },
-      newsletterEmail,
-      ctx
+      newsletterEmail
     )
 
-    const page = await getPageByParam({ userId: user.id, url })
-    expect(page).to.exist
-    expect(page?.url).to.equal(url)
-    expect(page?.title).to.equal(title)
-    expect(page?.author).to.equal(author)
-    expect(page?.content).to.contain(fakeContent)
+    const item = await findLibraryItemByUrl(url, user.id)
+    expect(item).to.exist
+    expect(item?.originalUrl).to.equal(url)
+    expect(item?.title).to.equal(title)
+    expect(item?.author).to.equal(author)
+    expect(item?.readableContent).to.contain(fakeContent)
 
     const subscriptions = await getRepository(Subscription).findBy({
       newsletterEmail: { id: newsletterEmail.id },
@@ -90,7 +83,7 @@ describe('saveNewsletterEmail', () => {
       color: '#07D2D1',
     }
 
-    await saveNewsletterEmail(
+    await saveNewsletter(
       {
         email: newsletterEmail.address,
         content: `<html><body>fake content 2</body></html>`,
@@ -100,19 +93,18 @@ describe('saveNewsletterEmail', () => {
         from,
         receivedEmailId: receivedEmail.id,
       },
-      newsletterEmail,
-      ctx
+      newsletterEmail
     )
 
-    const page = await getPageByParam({ userId: user.id, url })
-    expect(page?.labels?.[0]).to.deep.include(newLabel)
+    const item = await findLibraryItemByUrl(url, user.id)
+    expect(item?.labels?.[0]).to.deep.include(newLabel)
   })
 
   it('does not create a subscription if no unsubscribe header', async () => {
     const url = 'https://omnivore.app/no_url?q=no-unsubscribe'
     nock('https://omnivore.app').get('/no_url?q=no-unsubscribe').reply(404)
 
-    await saveNewsletterEmail(
+    await saveNewsletter(
       {
         email: newsletterEmail.address,
         content: `<html><body>fake content 2</body></html>`,
@@ -122,8 +114,7 @@ describe('saveNewsletterEmail', () => {
         from,
         receivedEmailId: receivedEmail.id,
       },
-      newsletterEmail,
-      ctx
+      newsletterEmail
     )
 
     const subscriptions = await getRepository(Subscription).findBy({

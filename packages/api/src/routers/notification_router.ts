@@ -3,7 +3,7 @@ import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import { env } from '../env'
 import { Claims } from '../resolvers/types'
-import { getDeviceTokensByUserId } from '../services/user_device_tokens'
+import { findDeviceTokensByUserId } from '../services/user_device_tokens'
 import { corsConfig } from '../utils/corsConfig'
 import {
   PushNotificationType,
@@ -42,7 +42,7 @@ export function notificationRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const tokens = await getDeviceTokensByUserId(userId)
+    const tokens = await findDeviceTokensByUserId(userId)
     if (tokens.length === 0) {
       return res.status(400).send({ errorCode: 'NO_DEVICE_TOKENS' })
     }

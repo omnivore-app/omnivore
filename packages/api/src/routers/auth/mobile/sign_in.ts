@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
-import UserModel from '../../../datalayer/user'
-import { StatusType } from '../../../datalayer/user/model'
-import { getUserByEmail } from '../../../services/create_user'
+import { StatusType } from '../../../entity/user'
+import { userRepository } from '../../../repository/user'
 import { sendConfirmationEmail } from '../../../services/send_emails'
 import { comparePassword } from '../../../utils/auth'
 import { logger } from '../../../utils/logger'
@@ -46,7 +45,7 @@ export async function createMobileEmailSignInResponse(
       throw new Error('Missing username or password')
     }
 
-    const user = await getUserByEmail(email.trim())
+    const user = await userRepository.findByEmail(email.trim())
     if (!user?.id || !user?.password) {
       throw new Error('user not found')
     }
@@ -97,8 +96,7 @@ async function createAuthResponsePayload(
   }
 
   try {
-    const model = new UserModel()
-    const user = await model.getWhere({
+    const user = await userRepository.findOneBy({
       email: decodedTokenResult.email,
       source: authProvider,
     })

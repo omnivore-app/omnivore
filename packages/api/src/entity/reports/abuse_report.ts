@@ -13,7 +13,7 @@ export class AbuseReport {
   id?: string
 
   @Column('text')
-  pageId?: string
+  libraryItemId?: string
 
   @Column('text')
   sharedBy!: string
@@ -35,7 +35,4 @@ export class AbuseReport {
 
   @UpdateDateColumn()
   updatedAt?: Date
-
-  @Column('text')
-  elasticPageId?: string
 }

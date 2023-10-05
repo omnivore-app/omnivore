@@ -19,7 +19,7 @@ export class ContentDisplayReport {
   user!: User
 
   @Column('text')
-  pageId?: string
+  libraryItemId?: string
 
   @Column('text')
   content!: string
@@ -38,7 +38,4 @@ export class ContentDisplayReport {
 
   @UpdateDateColumn()
   updatedAt?: Date
-
-  @Column('text')
-  elasticPageId?: string
 }

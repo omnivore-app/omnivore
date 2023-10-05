@@ -1,19 +1,30 @@
 import { EntityManager } from 'typeorm'
-import { StatusType } from '../datalayer/user/model'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
 import { Profile } from '../entity/profile'
-import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
+import { StatusType, User } from '../entity/user'
 import { SignupErrorCode } from '../generated/graphql'
+import { authTrx, entityManager, getRepository } from '../repository'
+import { userRepository } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
-import { AppDataSource } from '../server'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
 import { sendConfirmationEmail } from './send_emails'
 import { Filter } from '../entity/filter'
 import { analytics } from '../utils/analytics'
 import { env } from '../env'
+
+const TOP_USERS = [
+  'jacksonh',
+  'nat',
+  'luis',
+  'satindar',
+  'malandrina',
+  'patrick',
+  'alexgutjahr',
+  'hongbowu',
+]
+export const MAX_RECORDS_LIMIT = 1000
 
 export const createUser = async (input: {
   provider: AuthProvider
@@ -29,7 +40,7 @@ export const createUser = async (input: {
   pendingConfirmation?: boolean
 }): Promise<[User, Profile]> => {
   const trimmedEmail = input.email.trim()
-  const existingUser = await getUserByEmail(trimmedEmail)
+  const existingUser = await userRepository.findByEmail(trimmedEmail)
   if (existingUser) {
     if (existingUser.profile) {
       return Promise.reject({ errorCode: SignupErrorCode.UserExists })
@@ -60,7 +71,7 @@ export const createUser = async (input: {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }
 
-  const [user, profile] = await AppDataSource.transaction<[User, Profile]>(
+  const [user, profile] = await entityManager.transaction<[User, Profile]>(
     async (t) => {
       let hasInvite = false
       let invite: Invite | null = null
@@ -147,7 +158,7 @@ const createDefaultFiltersForUser =
     return t.getRepository(Filter).save(defaultFilters)
   }
 
-// TODO: Maybe this should be moved into a service
+// Maybe this should be moved into a service
 const validateInvite = async (
   entityManager: EntityManager,
   invite: Invite
@@ -156,19 +167,14 @@ const validateInvite = async (
     logger.info('rejecting invite, expired', invite)
     return false
   }
-  const membershipRepo = entityManager.getRepository(GroupMembership)
-  const numMembers = await membershipRepo.countBy({ invite: { id: invite.id } })
+  const numMembers = await authTrx(
+    (t) =>
+      t.getRepository(GroupMembership).countBy({ invite: { id: invite.id } }),
+    entityManager
+  )
   if (numMembers >= invite.maxMembers) {
-    logger.info('rejecting invite, too many users', invite, numMembers)
+    logger.info('rejecting invite, too many users', { invite, numMembers })
     return false
   }
   return true
-}
-
-export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return getRepository(User)
-    .createQueryBuilder('user')
-    .leftJoinAndSelect('user.profile', 'profile')
-    .where('LOWER(email) = LOWER(:email)', { email }) // case insensitive
-    .getOne()
 }

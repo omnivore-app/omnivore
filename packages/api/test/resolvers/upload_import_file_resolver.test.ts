@@ -1,10 +1,11 @@
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
 import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
+import { deleteUser } from '../../src/services/user'
 
 chai.use(chaiString)
 
@@ -43,7 +44,7 @@ describe('uploadImportFile API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('UploadImportFile', () => {

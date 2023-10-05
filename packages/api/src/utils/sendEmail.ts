@@ -26,7 +26,7 @@ export const sendEmail = async (msg: MailDataRequired): Promise<boolean> => {
   const client = new MailService()
   if (!process.env.SENDGRID_MSGS_API_KEY) {
     if (env.dev.isLocal) {
-      logger.warning('SendGrid API key not set.\nSending email:', msg)
+      logger.error('SendGrid API key not set.\nSending email:', msg)
       return true
     }
 
