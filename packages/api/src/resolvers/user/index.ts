@@ -1,6 +1,5 @@
 import * as jwt from 'jsonwebtoken'
-import { RegistrationType } from '../../datalayer/user/model'
-import { User as UserEntity } from '../../entity/user'
+import { RegistrationType, User as UserEntity } from '../../entity/user'
 import { env } from '../../env'
 import {
   DeleteAccountError,
@@ -333,9 +332,9 @@ export const updateEmailResolver = authorized<
   UpdateEmailSuccess,
   UpdateEmailError,
   MutationUpdateEmailArgs
->(async (_, { input: { email } }, { uid, log }) => {
+>(async (_, { input: { email } }, { authTrx, uid, log }) => {
   try {
-    const user = await getRepository(UserEntity).findOneBy({
+    const user = await userRepository.findOneBy({
       id: uid,
     })
 
@@ -346,12 +345,11 @@ export const updateEmailResolver = authorized<
     }
 
     if (user.source === RegistrationType.Email) {
-      await AppDataSource.transaction(async (entityManager) => {
-        await setClaims(entityManager, user.id)
-        return entityManager.getRepository(UserEntity).update(user.id, {
+      await authTrx(async (tx) =>
+        tx.withRepository(userRepository).update(user.id, {
           email,
         })
-      })
+      )
 
       return { email }
     }
