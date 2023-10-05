@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
@@ -260,7 +262,9 @@ fun LabelsSelectionSheetContent(
     it.name.toLowerCase(Locale.current) == text
   }
 
-  val titleText = if (isLibraryMode) "Filter by Label" else "Set Labels"
+  val titleText = if (isLibraryMode)
+    stringResource(R.string.label_selection_sheet_title) else
+    stringResource(R.string.label_selection_sheet_title_alt)
 
   Surface(
     modifier = Modifier
@@ -282,13 +286,15 @@ fun LabelsSelectionSheetContent(
           .fillMaxWidth()
       ) {
         TextButton(onClick = onCancel) {
-          Text(text = "Cancel")
+          Text(text = stringResource(R.string.label_selection_sheet_action_cancel))
         }
 
         Text(titleText, fontWeight = FontWeight.ExtraBold)
 
         TextButton(onClick = { onSave(state.chips.map { it.label }) }) {
-          Text(text = if (isLibraryMode) "Search" else "Save")
+          Text(text = if (isLibraryMode)
+            stringResource(R.string.label_selection_sheet_action_search) else
+            stringResource(R.string.label_selection_sheet_action_save))
         }
       }
 
@@ -341,7 +347,11 @@ fun LabelsSelectionSheetContent(
           modifier = Modifier
             .fillMaxWidth()
             .clickable {
-              val label = findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = filterTextValue)
+              val label = findOrCreateLabel(
+                labelsViewModel = labelsViewModel,
+                labels = labels,
+                name = filterTextValue
+              )
               state.addChip(LabelChipView(label))
               filterTextValue = TextFieldValue()
             }
@@ -354,7 +364,7 @@ fun LabelsSelectionSheetContent(
             contentDescription = null,
             modifier = Modifier.padding(end = 8.dp)
           )
-          Text(text = "Create a new label named \"${filterTextValue.text}\"")
+          Text(text = stringResource(R.string.label_selection_sheet_text_create, filterTextValue.text))
         }
       }
 

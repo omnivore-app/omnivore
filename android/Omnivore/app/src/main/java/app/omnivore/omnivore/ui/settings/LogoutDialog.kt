@@ -5,6 +5,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import app.omnivore.omnivore.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
@@ -14,9 +16,9 @@ fun LogoutDialog(onClose: (Boolean) -> Unit) {
 
   AlertDialog(
     onDismissRequest = { onClose(false) },
-    title = { Text(text = "Logout") },
+    title = { Text(text = stringResource(R.string.logout_dialog_title)) },
     text = {
-      Text("Are you sure you want to logout?")
+      Text(stringResource(R.string.logout_dialog_confirm_msg))
     },
     confirmButton = {
       Button(onClick = {
@@ -28,12 +30,12 @@ fun LogoutDialog(onClose: (Boolean) -> Unit) {
         googleSignIn.signOut()
         onClose(true)
       }) {
-        Text("Confirm")
+        Text(stringResource(R.string.logout_dialog_action_confirm))
       }
     },
     dismissButton = {
       Button(onClick = { onClose(false) }) {
-        Text("Cancel")
+        Text(stringResource(R.string.logout_dialog_action_cancel))
       }
     }
   )

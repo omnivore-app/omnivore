@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -28,8 +29,8 @@ fun AppleAuthButton(viewModel: LoginViewModel) {
   val showDialog = remember { mutableStateOf(false) }
 
   LoadingButtonWithIcon(
-    text = "Continue with Apple",
-    loadingText = "Signing in...",
+    text = stringResource(R.string.apple_auth_text),
+    loadingText = stringResource(R.string.apple_auth_loading),
     isLoading = viewModel.isLoading,
     icon = painterResource(id = R.drawable.ic_logo_apple),
     modifier = Modifier.padding(vertical = 6.dp),

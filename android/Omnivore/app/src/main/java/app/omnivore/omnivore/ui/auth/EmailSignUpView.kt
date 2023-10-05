@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -25,14 +26,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import app.omnivore.omnivore.R
 
 @Composable
 fun EmailSignUpView(viewModel: LoginViewModel) {
   if (viewModel.pendingEmailUserCreds != null) {
     val email = viewModel.pendingEmailUserCreds?.email ?: ""
     val password = viewModel.pendingEmailUserCreds?.password ?: ""
-
-    val verificationMessage = "We've sent a verification email to ${email}. Please verify your email and then tap the button below."
 
     Row(
       horizontalArrangement = Arrangement.Center
@@ -43,7 +43,7 @@ fun EmailSignUpView(viewModel: LoginViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
       ) {
         Text(
-          text = verificationMessage,
+          text = stringResource(R.string.email_signup_verification_message, email),
           style = MaterialTheme.typography.titleMedium
         )
 
@@ -55,13 +55,13 @@ fun EmailSignUpView(viewModel: LoginViewModel) {
         )
         ) {
           Text(
-            text = "Check Status",
+            text = stringResource(R.string.email_signup_check_status),
             modifier = Modifier.padding(horizontal = 100.dp)
           )
         }
 
         ClickableText(
-          text = AnnotatedString("Use a different email?"),
+          text = AnnotatedString(stringResource(R.string.email_signup_action_use_different_email)),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
           onClick = { viewModel.showEmailSignUp() }
@@ -115,21 +115,21 @@ fun EmailSignUpForm(viewModel: LoginViewModel) {
 
       // TODO: add a activity indicator (maybe after a delay?)
       if (viewModel.isLoading) {
-        Text("Loading...")
+        Text(stringResource(R.string.email_signup_loading))
       }
 
       Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
         ClickableText(
-          text = AnnotatedString("Return to Social Login"),
+          text = AnnotatedString(stringResource(R.string.email_signup_action_back)),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
           onClick = { viewModel.showSocialLogin() }
         )
 
         ClickableText(
-          text = AnnotatedString("Already have an account?"),
+          text = AnnotatedString(stringResource(R.string.email_signup_action_already_have_account)),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
           onClick = { viewModel.showEmailSignIn() }
@@ -167,8 +167,8 @@ fun EmailSignUpFields(
   ) {
     OutlinedTextField(
       value = email,
-      placeholder = { Text(text = "user@email.com") },
-      label = { Text(text = "Email") },
+      placeholder = { Text(stringResource(R.string.email_signup_field_placeholder_email)) },
+      label = { Text(stringResource(R.string.email_signup_field_label_email)) },
       onValueChange = onEmailChange,
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
@@ -176,8 +176,8 @@ fun EmailSignUpFields(
 
     OutlinedTextField(
       value = password,
-      placeholder = { Text(text = "Password") },
-      label = { Text(text = "Password") },
+      placeholder = { Text(stringResource(R.string.email_signup_field_placeholder_password)) },
+      label = { Text(stringResource(R.string.email_signup_field_label_password)) },
       onValueChange = onPasswordChange,
       visualTransformation = PasswordVisualTransformation(),
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -186,8 +186,8 @@ fun EmailSignUpFields(
 
     OutlinedTextField(
       value = name,
-      placeholder = { Text(text = "Name") },
-      label = { Text(text = "Name") },
+      placeholder = { Text(stringResource(R.string.email_signup_field_placeholder_name)) },
+      label = { Text(stringResource(R.string.email_signup_field_label_name)) },
       onValueChange = onNameChange,
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
@@ -199,8 +199,8 @@ fun EmailSignUpFields(
     ) {
       OutlinedTextField(
         value = username,
-        placeholder = { Text(text = "Username") },
-        label = { Text(text = "Username") },
+        placeholder = { Text(stringResource(R.string.email_signup_field_placeholder_username)) },
+        label = { Text(stringResource(R.string.email_signup_field_label_username)) },
         onValueChange = onUsernameChange,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -231,7 +231,7 @@ fun EmailSignUpFields(
       } else {
         Toast.makeText(
           context,
-          "Please complete all fields.",
+          context.getString(R.string.email_signup_error_msg),
           Toast.LENGTH_SHORT
         ).show()
       }
@@ -241,7 +241,7 @@ fun EmailSignUpFields(
     )
     ) {
       Text(
-        text = "Sign Up",
+        text = stringResource(R.string.email_signup_action_sign_up),
         modifier = Modifier.padding(horizontal = 100.dp)
       )
     }

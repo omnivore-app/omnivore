@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import app.omnivore.omnivore.ui.reader.WebReaderViewModel
@@ -31,7 +32,7 @@ fun SavedItemContextMenu(
     onDismissRequest = onDismiss
   ) {
     DropdownMenuItem(
-      text = { Text("Edit Labels") },
+      text = { Text(stringResource(R.string.saved_item_context_menu_action_edit_labels)) },
       onClick = {
         actionHandler(SavedItemAction.EditLabels)
         onDismiss()
@@ -44,7 +45,9 @@ fun SavedItemContextMenu(
       }
     )
     DropdownMenuItem(
-      text = { Text(if (isArchived) "Unarchive" else "Archive") },
+      text = { Text(if (isArchived)
+        stringResource(R.string.saved_item_context_menu_action_unarchive) else
+        stringResource(R.string.saved_item_context_menu_action_archive)) },
       onClick = {
         val action = if (isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
         actionHandler(action)
@@ -58,7 +61,7 @@ fun SavedItemContextMenu(
       }
     )
     DropdownMenuItem(
-      text = { Text("Share Original") },
+      text = { Text(stringResource(R.string.saved_item_context_menu_action_share_original)) },
       onClick = {
         webReaderViewModel.showShareLinkSheet(context)
         onDismiss()
@@ -71,7 +74,7 @@ fun SavedItemContextMenu(
       }
     )
     DropdownMenuItem(
-      text = { Text("Remove Item") },
+      text = { Text(stringResource(R.string.saved_item_context_menu_action_remove_item)) },
       onClick = {
         actionHandler(SavedItemAction.Delete)
         onDismiss()

@@ -11,9 +11,11 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.R
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,7 +24,7 @@ fun PolicyWebView(navController: NavHostController, url: String) {
   Scaffold(
     topBar = {
       TopAppBar(
-        title = { androidx.compose.material3.Text("Settings") },
+        title = { androidx.compose.material3.Text(stringResource(R.string.policy_webview_title)) },
         actions = {
           IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
             Icon(

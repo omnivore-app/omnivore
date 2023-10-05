@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -38,8 +39,8 @@ fun GoogleAuthButton(viewModel: LoginViewModel) {
     }
 
   LoadingButtonWithIcon(
-    text = "Continue with Google",
-    loadingText = "Signing in...",
+    text = stringResource(R.string.google_auth_text),
+    loadingText = stringResource(R.string.google_auth_loading),
     isLoading = viewModel.isLoading,
     icon = painterResource(id = R.drawable.ic_logo_google),
     onClick = {
