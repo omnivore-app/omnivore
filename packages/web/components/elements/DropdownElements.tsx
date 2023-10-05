@@ -1,10 +1,9 @@
 import {
   Separator,
   Item,
-  Trigger,
   Content,
   Root,
-  TriggerItem,
+  Trigger,
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
@@ -40,7 +39,7 @@ const DropdownTrigger = styled(Trigger, {
   },
 })
 
-const StyledTriggerItem = styled(TriggerItem, {
+const StyledTriggerItem = styled(Trigger, {
   '&[data-state="open"]': {
     outline: 'none',
     backgroundColor: '$grayBgHover',

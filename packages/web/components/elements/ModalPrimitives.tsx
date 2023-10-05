@@ -1,5 +1,4 @@
 import { Root, Overlay, Content } from '@radix-ui/react-dialog'
-import { X } from 'phosphor-react'
 import { styled, keyframes, theme } from '../tokens/stitches.config'
 import { Button } from './Button'
 import { CloseButton } from './CloseButton'
