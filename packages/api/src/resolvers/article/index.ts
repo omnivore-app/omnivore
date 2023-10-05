@@ -672,10 +672,6 @@ export const setBookmarkArticleResolver = authorized<
         page.id,
         {
           state: ArticleSavingRequestStatus.Deleted,
-          labels: [],
-          highlights: [],
-          readingProgressAnchorIndex: 0,
-          readingProgressPercent: 0,
         },
         pageContext
       )
