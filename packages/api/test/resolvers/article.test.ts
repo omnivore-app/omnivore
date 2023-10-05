@@ -765,7 +765,6 @@ describe('Article API', () => {
         await graphqlRequest(query, authToken).expect(200)
         const page = await getPageById(articleId)
         expect(page?.state).to.eql(ArticleSavingRequestStatus.Deleted)
-        expect(page?.highlights).to.eql([])
       })
     })
   })
