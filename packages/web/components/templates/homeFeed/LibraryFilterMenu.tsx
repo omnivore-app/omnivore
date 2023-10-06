@@ -200,8 +200,17 @@ function Subscriptions(
     initialValue: false,
   })
 
+  const sortedSubscriptions = useMemo(() => {
+    if (!props.subscriptions) {
+      return []
+    }
+    return props.subscriptions.sort((a, b) =>
+      b.updatedAt.localeCompare(a.updatedAt)
+    )
+  }, [props.subscriptions])
+
   useRegisterActions(
-    (props.subscriptions ?? []).map((subscription, idx) => {
+    (sortedSubscriptions ?? []).map((subscription, idx) => {
       const key = String(idx + 1)
       const name = subscription.name
       return {
