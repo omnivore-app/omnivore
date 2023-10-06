@@ -44,16 +44,16 @@ import Views
       NavigationView {
         // The first column is the sidebar.
         PrimaryContentSidebar(categories: categories)
+          .navigationBarTitleDisplayMode(.inline)
 
         // Second column is the Primary Nav Stack
         PrimaryContentCategory.feed.destinationView
+          .navigationBarTitleDisplayMode(.inline)
       }
       .navigationBarTitleDisplayMode(.inline)
       .accentColor(.appGrayTextContrast)
       .introspectSplitViewController {
-        $0.preferredSplitBehavior = .tile
         $0.preferredPrimaryColumnWidth = 160
-        $0.presentsWithGesture = false
         $0.displayModeButtonVisibility = .always
       }
     }
@@ -62,26 +62,23 @@ import Views
 
 @MainActor struct PrimaryContentSidebar: View {
   @State private var addLinkPresented = false
+  @State private var showProfile = false
   @State private var selectedCategory: PrimaryContentCategory?
   let categories: [PrimaryContentCategory]
 
   var innerBody: some View {
     List {
-      ForEach(categories, id: \.self) { category in
-        NavigationLink(
-          destination: category.destinationView,
-          tag: category,
-          selection: $selectedCategory,
-          label: { category.listLabel }
-        )
-        #if os(iOS)
-          .listRowBackground(
-            category == selectedCategory
-              ? Color.appGraySolid.opacity(0.4).cornerRadius(8)
-              : Color.clear.cornerRadius(8)
-          )
-        #endif
-      }
+      NavigationLink(
+        destination: PrimaryContentCategory.feed.destinationView,
+        tag: PrimaryContentCategory.feed,
+        selection: $selectedCategory,
+        label: { PrimaryContentCategory.feed.listLabel }
+      )
+      .listRowBackground(Color.systemBackground.cornerRadius(8))
+
+      Button(action: { showProfile = true }, label: {
+        PrimaryContentCategory.profile.listLabel
+      })
 
       Button(action: { addLinkPresented = true }, label: {
         Label("Add Link", systemImage: "plus.circle")
@@ -92,6 +89,14 @@ import Views
     .sheet(isPresented: $addLinkPresented) {
       NavigationView {
         LibraryAddLinkView()
+        #if os(iOS)
+          .navigationBarTitleDisplayMode(.inline)
+        #endif
+      }
+    }
+    .sheet(isPresented: $showProfile) {
+      NavigationView {
+        PrimaryContentCategory.profile.destinationView
         #if os(iOS)
           .navigationBarTitleDisplayMode(.inline)
         #endif
