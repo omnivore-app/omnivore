@@ -412,6 +412,7 @@ async def main():
             content = source['content']
             original_html = source.get('originalHtml', None)
             description = source.get('description', None)
+            user_id = get_uuid(source['userId'])
 
             # skip item if content is larger than 1MB
             if len(content) > 1048575:
@@ -420,7 +421,7 @@ async def main():
 
             library_item = (
                 id,
-                get_uuid(source['userId']),
+                user_id,
                 source['title'],
                 source.get('author', None),
                 description,
@@ -452,7 +453,9 @@ async def main():
 
             library_items.append(library_item)
             library_items_original_ids.append(doc_id)
-            updated_user_ids.append(source['userId'])
+
+            if user_id not in updated_user_ids:
+                updated_user_ids.append(user_id)
 
             # convert labels to postgres format
             if 'labels' in source:
