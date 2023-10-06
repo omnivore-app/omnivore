@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react'
+import { ReactNode, useEffect, useMemo } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -33,10 +33,47 @@ type LibraryFilterMenuProps = {
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
-  const { labels, isLoading: labelsLoading } = useGetLabelsQuery()
-  const { savedSearches, isLoading: searchesLoading } = useGetSavedSearchQuery()
-  const { subscriptions, isLoading: subscriptionsLoading } =
-    useGetSubscriptionsQuery()
+  const [labels, setLabels] = usePersistedState<Label[]>({
+    key: 'menu-labels',
+    isSessionStorage: false,
+    initialValue: [],
+  })
+  const [savedSearches, setSavedSearches] = usePersistedState<SavedSearch[]>({
+    key: 'menu-searches',
+    isSessionStorage: false,
+    initialValue: [],
+  })
+  const [subscriptions, setSubscriptions] = usePersistedState<Subscription[]>({
+    key: 'menu-subscriptions',
+    isSessionStorage: false,
+    initialValue: [],
+  })
+  const { labels: networkLabels, isLoading: labelsLoading } =
+    useGetLabelsQuery()
+  const { savedSearches: networkSearches, isLoading: searchesLoading } =
+    useGetSavedSearchQuery()
+  const {
+    subscriptions: networkSubscriptions,
+    isLoading: subscriptionsLoading,
+  } = useGetSubscriptionsQuery()
+
+  useEffect(() => {
+    if (!labelsLoading) {
+      setLabels(networkLabels)
+    }
+  }, [setLabels, networkLabels, labelsLoading])
+
+  useEffect(() => {
+    if (!subscriptionsLoading) {
+      setSubscriptions(networkSubscriptions)
+    }
+  }, [setSubscriptions, networkLabels, subscriptionsLoading])
+
+  useEffect(() => {
+    if (!searchesLoading) {
+      setSavedSearches(networkSearches ?? [])
+    }
+  }, [setSavedSearches, networkSearches, searchesLoading])
 
   return (
     <>
@@ -72,14 +109,9 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         >
           <LogoBox />
         </Box>
-
-        {!labelsLoading && !searchesLoading && !subscriptionsLoading && (
-          <>
-            <SavedSearches {...props} savedSearches={savedSearches} />
-            <Subscriptions {...props} subscriptions={subscriptions} />
-            <Labels {...props} labels={labels} />
-          </>
-        )}
+        <SavedSearches {...props} savedSearches={savedSearches} />
+        <Subscriptions {...props} subscriptions={subscriptions} />
+        <Labels {...props} labels={labels} />
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
@@ -168,8 +200,17 @@ function Subscriptions(
     initialValue: false,
   })
 
+  const sortedSubscriptions = useMemo(() => {
+    if (!props.subscriptions) {
+      return []
+    }
+    return props.subscriptions.sort((a, b) =>
+      b.updatedAt.localeCompare(a.updatedAt)
+    )
+  }, [props.subscriptions])
+
   useRegisterActions(
-    (props.subscriptions ?? []).map((subscription, idx) => {
+    (sortedSubscriptions ?? []).map((subscription, idx) => {
       const key = String(idx + 1)
       const name = subscription.name
       return {
