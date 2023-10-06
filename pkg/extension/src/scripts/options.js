@@ -34,6 +34,21 @@ function clearAPIKey() {
   })
 }
 
+function autoDismissChanged(event) {
+  const value = document.getElementById('disable-auto-dismiss').checked
+  console.log(
+    ' value: ',
+    value,
+    document.getElementById('disable-auto-dismiss')
+  )
+
+  setStorage({
+    disableAutoDismiss: value ? 'true' : null,
+  }).then(() => {
+    console.log('disableAutoDismiss updated', value)
+  })
+}
+
 ;(() => {
   document
     .getElementById('save-api-key-btn')
@@ -44,4 +59,15 @@ function clearAPIKey() {
   document
     .getElementById('clear-api-key-btn')
     .addEventListener('click', clearAPIKey)
+
+  getStorageItem('disableAutoDismiss').then((value) => {
+    console.log('disableAutoDismiss updated', value)
+    document.getElementById('disable-auto-dismiss').checked = value
+      ? true
+      : false
+  })
+
+  document
+    .getElementById('disable-auto-dismiss')
+    .addEventListener('change', autoDismissChanged)
 })()

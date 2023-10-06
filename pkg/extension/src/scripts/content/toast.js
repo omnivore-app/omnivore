@@ -246,6 +246,7 @@
       case 'success':
         // Auto hide if everything went well and the user
         // has not initiated any interaction.
+
         hideToastTimeout = setTimeout(function () {
           console.log('hiding: ', currentToastEl, doNotHide)
           if (!doNotHide) {
@@ -253,6 +254,12 @@
             currentToastEl = undefined
           }
         }, 2500)
+        getStorageItem('disableAutoDismiss').then((disable) => {
+          console.log('got disableAutoDismiss', disable)
+          if (disable) {
+            cancelAutoDismiss()
+          }
+        })
         statusBox.innerHTML = systemIcons.success
         break
       case 'failure':
