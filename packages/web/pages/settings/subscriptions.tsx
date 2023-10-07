@@ -38,7 +38,9 @@ export default function SubscriptionsPage(): JSX.Element {
     if (!subscriptions) {
       return []
     }
-    return subscriptions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    return subscriptions
+      .filter((s) => s.status == 'ACTIVE')
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
   }, [subscriptions])
 
   return (
