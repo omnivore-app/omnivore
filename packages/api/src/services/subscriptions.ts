@@ -147,13 +147,15 @@ export const unsubscribe = async (subscription: Subscription) => {
     }
     // TODO: find a good way to unsubscribe by url if email fails or not provided
     // because it often requires clicking a button on the page to unsubscribe
+    return authTrx((tx) =>
+      tx.getRepository(Subscription).update(subscription.id, {
+        status: SubscriptionStatus.Unsubscribed,
+      })
+    )
   }
 
-  return authTrx((tx) =>
-    tx.getRepository(Subscription).update(subscription.id, {
-      status: SubscriptionStatus.Unsubscribed,
-    })
-  )
+  // unsubscribe from rss feed
+  return authTrx((tx) => tx.getRepository(Subscription).delete(subscription.id))
 }
 
 export const unsubscribeAll = async (
