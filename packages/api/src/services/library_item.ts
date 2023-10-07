@@ -6,7 +6,7 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx } from '../repository'
+import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { wordsCount } from '../utils/helpers'
 import {
@@ -17,6 +17,7 @@ import {
   LabelFilter,
   LabelFilterType,
   NoFilter,
+  RangeFilter,
   ReadFilter,
   Sort,
   SortBy,
@@ -42,6 +43,7 @@ export interface SearchArgs {
   recommendedBy?: string
   includeContent?: boolean
   noFilters?: NoFilter[]
+  rangeFilters?: RangeFilter[]
 }
 
 export interface SearchResultItem {
@@ -258,6 +260,22 @@ const buildWhereClause = (
       )
     }
   }
+
+  if (args.includeContent) {
+    queryBuilder.addSelect('library_item.readableContent')
+  }
+
+  if (args.rangeFilters && args.rangeFilters.length > 0) {
+    args.rangeFilters.forEach((filter, i) => {
+      const param = `range_${filter.field}_${i}`
+      queryBuilder.andWhere(
+        `library_item.${filter.field} ${filter.operator} ${param}`,
+        {
+          [param]: filter.value,
+        }
+      )
+    })
+  }
 }
 
 export const searchLibraryItems = async (
@@ -271,11 +289,20 @@ export const searchLibraryItems = async (
   // default sort by saved_at
   const sortField = sort?.by || SortBy.SAVED
 
+  const selectColumns = getColumns(libraryItemRepository)
+    .map((column) => `library_item.${column}`)
+    .filter(
+      (column) =>
+        column !== 'library_item.readableContent' &&
+        column !== 'library_item.originalContent'
+    )
+
   // add pagination and sorting
   return authTrx(
     async (tx) => {
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
+        .select(selectColumns)
         .where('library_item.user_id = :userId', { userId })
 
       // build the where clause

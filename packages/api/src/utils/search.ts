@@ -40,6 +40,7 @@ export interface SearchFilter {
   ids: string[]
   recommendedBy?: string
   noFilters: NoFilter[]
+  rangeFilters: RangeFilter[]
 }
 
 export enum LabelFilterType {
@@ -61,6 +62,12 @@ export interface DateFilter {
   field: string
   startDate?: Date
   endDate?: Date
+}
+
+export interface RangeFilter {
+  field: string
+  operator: string
+  value: number
 }
 
 export enum SortBy {
@@ -255,6 +262,40 @@ const parseDateFilter = (
   }
 }
 
+const parseRangeFilter = (
+  field: string,
+  str?: string
+): RangeFilter | undefined => {
+  if (str === undefined) {
+    return undefined
+  }
+
+  switch (field.toUpperCase()) {
+    case 'WORDSCOUNT':
+      field = 'wordCount'
+      break
+    default:
+      return undefined
+  }
+
+  const operatorRegex = /([<>]=?)/
+  const operator = str.match(operatorRegex)?.[0]
+  if (!operator) {
+    return undefined
+  }
+
+  const value = str.replace(operatorRegex, '')
+  if (!value) {
+    return undefined
+  }
+
+  return {
+    field,
+    operator,
+    value: Number(value),
+  }
+}
+
 const parseFieldFilter = (
   field: string,
   str?: string
@@ -323,6 +364,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
     matchFilters: [],
     ids: [],
     noFilters: [],
+    rangeFilters: [],
   }
 
   if (!searchQuery) {
@@ -337,6 +379,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       matchFilters: [],
       ids: [],
       noFilters: [],
+      rangeFilters: [],
     }
   }
 
@@ -364,6 +407,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'site',
       'note',
       'rss',
+      'wordCount',
     ],
     tokenize: true,
   })
@@ -460,6 +504,11 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'mode':
           // mode is ignored and used only by the frontend
           break
+        case 'wordCount': {
+          const rangeFilter = parseRangeFilter(keyword.keyword, keyword.value)
+          rangeFilter && result.rangeFilters.push(rangeFilter)
+          break
+        }
       }
     }
   }

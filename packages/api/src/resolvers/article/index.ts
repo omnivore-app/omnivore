@@ -649,6 +649,7 @@ export const searchResolver = authorized<
       size: first + 1, // fetch one more item to get next cursor
       sort: searchQuery.sort,
       includePending: true,
+      includeContent: params.includeContent || false,
       ...searchQuery,
     },
     uid
