@@ -5,7 +5,8 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import { Recommendation } from '../elastic/types'
+import { DeepPartial } from 'typeorm'
+import { Recommendation } from '../entity/recommendation'
 import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import {
@@ -241,8 +242,8 @@ export const enqueueParseRequest = async ({
   labels?: CreateLabelInput[]
   locale?: string
   timezone?: string
-  savedAt?: number // unix timestamp
-  publishedAt?: number // unix timestamp
+  savedAt?: Date
+  publishedAt?: Date
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -263,7 +264,7 @@ export const enqueueParseRequest = async ({
     setTimeout(() => {
       axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
         logError(error)
-        logger.warning(
+        logger.error(
           `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
         )
       })
@@ -442,15 +443,15 @@ export const enqueueTextToSpeech = async ({
 
 export const enqueueRecommendation = async (
   userId: string,
-  pageId: string,
-  recommendation: Recommendation,
+  itemId: string,
+  recommendation: DeepPartial<Recommendation>,
   authToken: string,
   highlightIds?: string[]
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
-    pageId,
+    itemId,
     recommendation,
     highlightIds,
   }

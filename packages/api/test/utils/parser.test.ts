@@ -12,7 +12,8 @@ import {
 import nock from 'nock'
 import chaiAsPromised from 'chai-as-promised'
 import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser } from '../db'
+import { deleteUser } from '../../src/services/user'
 
 chai.use(chaiAsPromised)
 
@@ -112,7 +113,7 @@ describe('isProbablyArticle', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   it('returns true when email is signed up with us', async () => {

@@ -1,8 +1,5 @@
 import { In } from 'typeorm'
-import { getPageByParam } from '../../elastic/pages'
 import { Group } from '../../entity/groups/group'
-import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   CreateGroupError,
@@ -29,6 +26,8 @@ import {
   RecommendHighlightsSuccess,
   RecommendSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
+import { userRepository } from '../../repository/user'
 import {
   createGroup,
   createLabelAndRuleForGroup,
@@ -38,6 +37,7 @@ import {
   joinGroup,
   leaveGroup,
 } from '../../services/groups'
+import { findLibraryItemById } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { enqueueRecommendation } from '../../utils/createTask'
 import { authorized, userDataToUser } from '../../utils/helpers'
@@ -46,20 +46,10 @@ export const createGroupResolver = authorized<
   CreateGroupSuccess,
   CreateGroupError,
   MutationCreateGroupArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('Creating group', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'createGroupResolver',
-      uid,
-    },
-  })
-
+>(async (_, { input }, { uid, log }) => {
   try {
-    const userData = await getRepository(User).findOne({
-      where: { id: uid },
-      relations: ['profile'],
+    const userData = await userRepository.findOneBy({
+      id: uid,
     })
     if (!userData) {
       return {
@@ -106,14 +96,7 @@ export const createGroupResolver = authorized<
       },
     }
   } catch (error) {
-    log.error('Error creating group', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'createGroupResolver',
-        uid,
-      },
-    })
+    log.error('Error creating group', error)
 
     return {
       errorCodes: [CreateGroupErrorCode.BadRequest],
@@ -122,17 +105,9 @@ export const createGroupResolver = authorized<
 })
 
 export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
-  async (_, __, { claims: { uid }, log }) => {
-    log.info('Getting groups', {
-      labels: {
-        source: 'resolver',
-        resolver: 'groupsResolver',
-        uid,
-      },
-    })
-
+  async (_, __, { uid, log }) => {
     try {
-      const user = await getRepository(User).findOneBy({
+      const user = await userRepository.findOneBy({
         id: uid,
       })
       if (!user) {
@@ -167,29 +142,10 @@ export const recommendResolver = authorized<
   RecommendSuccess,
   RecommendError,
   MutationRecommendArgs
->(async (_, { input }, { claims: { uid }, log, signToken }) => {
-  log.info('Recommend', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'recommendResolver',
-      uid,
-    },
-  })
-
+>(async (_, { input }, { uid, log, signToken }) => {
   try {
-    const user = await getRepository(User).findOne({
-      where: { id: uid },
-      relations: ['profile'],
-    })
-    if (!user) {
-      return {
-        errorCodes: [RecommendErrorCode.Unauthorized],
-      }
-    }
-
-    const page = await getPageByParam({ _id: input.pageId, userId: uid })
-    if (!page) {
+    const item = await findLibraryItemById(input.pageId, uid)
+    if (!item) {
       return {
         errorCodes: [RecommendErrorCode.NotFound],
       }
@@ -205,7 +161,7 @@ export const recommendResolver = authorized<
 
     // only recommend highlights created by the user
     const recommendedHighlightIds = input.recommendedWithHighlights
-      ? page.highlights?.filter((h) => h.userId === uid)?.map((h) => h.id)
+      ? item.highlights?.filter((h) => h.user.id === uid)?.map((h) => h.id)
       : undefined
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
@@ -216,18 +172,13 @@ export const recommendResolver = authorized<
           group.members.map((member) =>
             enqueueRecommendation(
               member.user.id,
-              page.id,
+              item.id,
               {
-                id: group.id,
-                name: group.name,
-                note: input.note ?? null,
-                user: {
-                  userId: user.id,
-                  name: user.name,
-                  username: user.profile.username,
-                  profileImageURL: user.profile.pictureUrl,
-                },
-                recommendedAt: new Date(),
+                group: { id: group.id },
+                note: input.note,
+                recommender: { id: uid },
+                createdAt: new Date(),
+                libraryItem: { id: item.id },
               },
               auth,
               recommendedHighlightIds
@@ -242,14 +193,7 @@ export const recommendResolver = authorized<
       success: true,
     }
   } catch (error) {
-    log.error('Error recommending', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'recommendResolver',
-        uid,
-      },
-    })
+    log.error('Error recommending', error)
 
     return {
       errorCodes: [RecommendErrorCode.BadRequest],
@@ -261,21 +205,9 @@ export const joinGroupResolver = authorized<
   JoinGroupSuccess,
   JoinGroupError,
   MutationJoinGroupArgs
->(async (_, { inviteCode }, { claims: { uid }, log }) => {
-  log.info('Joining group', {
-    inviteCode,
-    labels: {
-      source: 'resolver',
-      resolver: 'joinGroupResolver',
-      uid,
-    },
-  })
-
+>(async (_, { inviteCode }, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOne({
-      where: { id: uid },
-      relations: ['profile'],
-    })
+    const user = await userRepository.findById(uid)
     if (!user) {
       return {
         errorCodes: [JoinGroupErrorCode.Unauthorized],
@@ -299,14 +231,7 @@ export const joinGroupResolver = authorized<
       group,
     }
   } catch (error) {
-    log.error('Error joining group', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'joinGroupResolver',
-        uid,
-      },
-    })
+    log.error('Error joining group', error)
 
     return {
       errorCodes: [JoinGroupErrorCode.BadRequest],
@@ -318,21 +243,9 @@ export const recommendHighlightsResolver = authorized<
   RecommendHighlightsSuccess,
   RecommendHighlightsError,
   MutationRecommendHighlightsArgs
->(async (_, { input }, { claims: { uid }, log, signToken }) => {
-  log.info('Recommend highlights', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'recommendHighlightsResolver',
-      uid,
-    },
-  })
-
+>(async (_, { input }, { uid, log, signToken }) => {
   try {
-    const user = await getRepository(User).findOne({
-      where: { id: uid },
-      relations: ['profile'],
-    })
+    const user = await userRepository.findById(uid)
     if (!user) {
       return {
         errorCodes: [RecommendHighlightsErrorCode.Unauthorized],
@@ -349,8 +262,8 @@ export const recommendHighlightsResolver = authorized<
       }
     }
 
-    const page = await getPageByParam({ _id: input.pageId, userId: uid })
-    if (!page) {
+    const item = await findLibraryItemById(input.pageId, uid)
+    if (!item) {
       return {
         errorCodes: [RecommendHighlightsErrorCode.NotFound],
       }
@@ -366,18 +279,13 @@ export const recommendHighlightsResolver = authorized<
             .map((member) =>
               enqueueRecommendation(
                 member.user.id,
-                page.id,
+                item.id,
                 {
                   id: group.id,
-                  name: group.name,
                   note: input.note,
-                  user: {
-                    userId: user.id,
-                    name: user.name,
-                    username: user.profile.username,
-                    profileImageURL: user.profile.pictureUrl,
-                  },
-                  recommendedAt: new Date(),
+                  recommender: { id: uid },
+                  createdAt: new Date(),
+                  libraryItem: { id: item.id },
                 },
                 auth,
                 input.highlightIds
@@ -391,14 +299,7 @@ export const recommendHighlightsResolver = authorized<
       success: true,
     }
   } catch (error) {
-    log.error('Error recommending highlights', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'recommendHighlightsResolver',
-        uid,
-      },
-    })
+    log.error('Error recommending highlights', error)
 
     return {
       errorCodes: [RecommendHighlightsErrorCode.BadRequest],
@@ -410,20 +311,9 @@ export const leaveGroupResolver = authorized<
   LeaveGroupSuccess,
   LeaveGroupError,
   MutationLeaveGroupArgs
->(async (_, { groupId }, { claims: { uid }, log }) => {
-  log.info('Leaving group', {
-    groupId,
-    labels: {
-      source: 'resolver',
-      resolver: 'leaveGroupResolver',
-      uid,
-    },
-  })
-
+>(async (_, { groupId }, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({
-      id: uid,
-    })
+    const user = await userRepository.findById(uid)
     if (!user) {
       return {
         errorCodes: [LeaveGroupErrorCode.Unauthorized],
@@ -444,14 +334,7 @@ export const leaveGroupResolver = authorized<
       success,
     }
   } catch (error) {
-    log.error('Error leaving group', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'leaveGroupResolver',
-        uid,
-      },
-    })
+    log.error('Error leaving group', error)
 
     return {
       errorCodes: [LeaveGroupErrorCode.BadRequest],

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
+import { readPushSubscription } from '../../pubsub'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { logger } from '../../utils/logger'
 
@@ -15,9 +15,9 @@ export function linkServiceRouter() {
   const router = express.Router()
 
   router.post('/create', async (req, res) => {
-    logger.info('create link req', req.query, req.body)
+    logger.info('create link req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', { msgStr, expired })
 
     if (!msgStr) {
       res.status(400).send('Bad Request')

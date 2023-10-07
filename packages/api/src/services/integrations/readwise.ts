@@ -1,7 +1,8 @@
 import axios from 'axios'
-import { HighlightType, Page } from '../../elastic/types'
+import { updateIntegration } from '.'
+import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
-import { getRepository } from '../../entity/utils'
+import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { wait } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
@@ -59,11 +60,11 @@ export class ReadwiseIntegration extends IntegrationService {
   }
   export = async (
     integration: Integration,
-    pages: Page[]
+    items: LibraryItem[]
   ): Promise<boolean> => {
     let result = true
 
-    const highlights = pages.flatMap(this.pageToReadwiseHighlight)
+    const highlights = items.flatMap(this.libraryItemToReadwiseHighlight)
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
       result = await this.syncWithReadwise(integration.token, highlights)
@@ -72,37 +73,43 @@ export class ReadwiseIntegration extends IntegrationService {
     // update integration syncedAt if successful
     if (result) {
       logger.info('updating integration syncedAt')
-      await getRepository(Integration).update(integration.id, {
-        syncedAt: new Date(),
-      })
+      await updateIntegration(
+        integration.id,
+        {
+          syncedAt: new Date(),
+        },
+        integration.user.id
+      )
     }
     return result
   }
 
-  pageToReadwiseHighlight = (page: Page): ReadwiseHighlight[] => {
-    const { highlights } = page
-    if (!highlights) return []
-    const category = page.siteName === 'Twitter' ? 'tweets' : 'articles'
-    return highlights
+  libraryItemToReadwiseHighlight = (item: LibraryItem): ReadwiseHighlight[] => {
+    if (!item.highlights) return []
+    const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
+    return item.highlights
       .map((highlight) => {
         // filter out highlights that are not of type highlight or have no quote
-        if (highlight.type !== HighlightType.Highlight || !highlight.quote) {
+        if (
+          highlight.highlightType !== HighlightType.Highlight ||
+          !highlight.quote
+        ) {
           return undefined
         }
 
         return {
           text: highlight.quote,
-          title: page.title,
-          author: page.author || undefined,
-          highlight_url: getHighlightUrl(page.slug, highlight.id),
+          title: item.title,
+          author: item.author || undefined,
+          highlight_url: getHighlightUrl(item.slug, highlight.id),
           highlighted_at: new Date(highlight.createdAt).toISOString(),
           category,
-          image_url: page.image || undefined,
+          image_url: item.thumbnail || undefined,
           // location: highlight.highlightPositionAnchorIndex || undefined,
           location_type: 'order',
           note: highlight.annotation || undefined,
           source_type: 'omnivore',
-          source_url: page.url,
+          source_url: item.originalUrl,
         }
       })
       .filter((highlight) => highlight !== undefined) as ReadwiseHighlight[]
@@ -123,7 +130,7 @@ export class ReadwiseIntegration extends IntegrationService {
         {
           headers: {
             Authorization: `Token ${token}`,
-            ContentType: 'application/json',
+            'Content-Type': 'application/json',
           },
           timeout: 5000, // 5 seconds
         }

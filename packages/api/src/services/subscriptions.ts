@@ -1,16 +1,15 @@
 import axios from 'axios'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
-import { getRepository } from '../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
+import { authTrx, entityManager, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
-import { createNewsletterEmail } from './newsletters'
 
 interface SaveSubscriptionInput {
   userId: string
   name: string
-  newsletterEmail: NewsletterEmail
+  newsletterEmailId: string
   unsubscribeMailTo?: string
   unsubscribeHttpUrl?: string
   icon?: string
@@ -52,7 +51,7 @@ const sendUnsubscribeEmail = async (
     })
 
     if (!sent) {
-      logger.info('Failed to send unsubscribe email', unsubscribeMailTo)
+      logger.info(`Failed to send unsubscribe email: ${unsubscribeMailTo}`)
       return false
     }
 
@@ -72,7 +71,7 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
     return true
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      logger.info('Failed to send unsubscribe http request', error.message)
+      logger.info(`Failed to send unsubscribe http request: ${error.message}`)
     } else {
       logger.info('Failed to send unsubscribe http request', error)
     }
@@ -80,21 +79,20 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
   }
 }
 
-export const getSubscriptionByNameAndUserId = async (
+export const getSubscriptionByName = async (
   name: string,
   userId: string
 ): Promise<Subscription | null> => {
-  return getRepository(Subscription).findOneBy({
-    name,
-    user: { id: userId },
-    type: SubscriptionType.Newsletter,
+  return getRepository(Subscription).findOne({
+    where: { name, type: SubscriptionType.Newsletter, user: { id: userId } },
+    relations: ['newsletterEmail', 'user'],
   })
 }
 
 export const saveSubscription = async ({
   userId,
   name,
-  newsletterEmail,
+  newsletterEmailId,
   unsubscribeMailTo,
   unsubscribeHttpUrl,
   icon,
@@ -106,26 +104,27 @@ export const saveSubscription = async ({
     lastFetchedAt: new Date(),
   }
 
-  const existingSubscription = await getSubscriptionByNameAndUserId(
-    name,
-    userId
-  )
-  if (existingSubscription) {
-    // update subscription if already exists
-    await getRepository(Subscription).update(
-      existingSubscription.id,
-      subscriptionData
-    )
+  const existingSubscription = await getSubscriptionByName(name, userId)
+  const result = await entityManager.transaction(async (tx) => {
+    if (existingSubscription) {
+      // update subscription if already exists
+      await tx
+        .getRepository(Subscription)
+        .update(
+          { id: existingSubscription.id, user: { id: userId } },
+          subscriptionData
+        )
 
-    return existingSubscription.id
-  }
+      return existingSubscription
+    }
 
-  const result = await getRepository(Subscription).save({
-    ...subscriptionData,
-    name,
-    newsletterEmail: { id: newsletterEmail.id },
-    user: { id: userId },
-    type: SubscriptionType.Newsletter,
+    return tx.getRepository(Subscription).save({
+      ...subscriptionData,
+      name,
+      newsletterEmail: { id: newsletterEmailId },
+      user: { id: userId },
+      type: SubscriptionType.Newsletter,
+    })
   })
 
   return result.id
@@ -150,22 +149,26 @@ export const unsubscribe = async (subscription: Subscription) => {
     // because it often requires clicking a button on the page to unsubscribe
   }
 
-  return getRepository(Subscription).update(subscription.id, {
-    status: SubscriptionStatus.Unsubscribed,
-  })
+  return authTrx((tx) =>
+    tx.getRepository(Subscription).update(subscription.id, {
+      status: SubscriptionStatus.Unsubscribed,
+    })
+  )
 }
 
 export const unsubscribeAll = async (
   newsletterEmail: NewsletterEmail
 ): Promise<void> => {
   try {
-    const subscriptions = await getRepository(Subscription).find({
-      where: {
-        user: { id: newsletterEmail.user.id },
-        newsletterEmail: { id: newsletterEmail.id },
-      },
-      relations: ['newsletterEmail'],
-    })
+    const subscriptions = await authTrx((t) =>
+      t.getRepository(Subscription).find({
+        where: {
+          user: { id: newsletterEmail.user.id },
+          newsletterEmail: { id: newsletterEmail.id },
+        },
+        relations: ['newsletterEmail'],
+      })
+    )
 
     for await (const subscription of subscriptions) {
       try {
@@ -179,116 +182,21 @@ export const unsubscribeAll = async (
   }
 }
 
-export const getSubscribeHandler = (name: string): SubscribeHandler | null => {
-  switch (name.toLowerCase()) {
-    case 'axios_essentials':
-      return new AxiosEssentialsHandler()
-    case 'morning_brew':
-      return new MorningBrewHandler()
-    case 'milk_road':
-      return new MilkRoadHandler()
-    case 'money_stuff':
-      return new MoneyStuffHandler()
-    default:
-      return null
-  }
-}
-
-export class SubscribeHandler {
-  async handleSubscribe(
-    userId: string,
-    name: string
-  ): Promise<Subscription[] | null> {
-    try {
-      const newsletterEmail =
-        (await getRepository(NewsletterEmail).findOneBy({
-          user: { id: userId },
-        })) || (await createNewsletterEmail(userId))
-
-      // subscribe to newsletter service
-      const subscribedNames = await this._subscribe(newsletterEmail.address)
-      if (subscribedNames.length === 0) {
-        logger.info('Failed to get subscribe response', name)
-        return null
-      }
-
-      // create new subscriptions in db
-      const newSubscriptions = subscribedNames.map(
-        (name: string): Promise<Subscription> => {
-          return getRepository(Subscription).save({
-            name,
-            newsletterEmail: { id: newsletterEmail.id },
-            user: { id: userId },
-            status: SubscriptionStatus.Active,
-          })
-        }
-      )
-
-      return Promise.all(newSubscriptions)
-    } catch (error) {
-      logger.info('Failed to handleSubscribe', error)
-      return null
-    }
-  }
-
-  async _subscribe(email: string): Promise<string[]> {
-    return Promise.all([])
-  }
-}
-
-class AxiosEssentialsHandler extends SubscribeHandler {
-  async _subscribe(email: string): Promise<string[]> {
-    await axios.post('https://api.axios.com/api/render/readers/unauth-sub/', {
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: `{"lists":["newsletter_axiosam","newsletter_axiospm","newsletter_axiosfinishline"],"user_vars":{"source":"axios","medium":null,"campaign":null,"term":null,"content":null,"page":"webflow-newsletters-all"},"email":"${email}"`,
-    })
-
-    return ['Axios AM', 'Axios PM', 'Axios Finish Line']
-  }
-}
-
-class MorningBrewHandler extends SubscribeHandler {
-  async _subscribe(email: string): Promise<string[]> {
-    await axios.post('https://singularity.morningbrew.com/graphql', {
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: `{"operationName":"CreateUserSubscription","variables":{"signupCreateInput":{"email":"${email}","kid":null,"gclid":null,"utmCampaign":"mb","utmMedium":"website","utmSource":"hero-module","utmContent":null,"utmTerm":null,"requestPath":"https://www.morningbrew.com/daily","uiModule":"hero-module"},"signupCreateVerticalSlug":"daily"},"query":"mutation CreateUserSubscription($signupCreateInput: SignupCreateInput!, $signupCreateVerticalSlug: String!) {\\n  signupCreate(input: $signupCreateInput, verticalSlug: $signupCreateVerticalSlug) {\\n    user {\\n      accessToken\\n      email\\n      hasSeenOnboarding\\n      referralCode\\n      verticalSubscriptions {\\n        isActive\\n        vertical {\\n          slug\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    isNewSubscription\\n    fromAffiliate\\n    subscriptionId\\n    __typename\\n  }\\n}\\n"}`,
-    })
-
-    return ['Morning Brew']
-  }
-}
-
-class MilkRoadHandler extends SubscribeHandler {
-  async _subscribe(email: string): Promise<string[]> {
-    await axios.post('https://www.milkroad.com/subscriptions', {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-      body: `email=${encodeURIComponent(email)}&commit=Subscribe`,
-    })
-
-    return ['Milk Road']
-  }
-}
-
-class MoneyStuffHandler extends SubscribeHandler {
-  async _subscribe(email: string): Promise<string[]> {
-    await axios.put(
-      `https://login.bloomberg.com/api/newsletters/update?email=${encodeURIComponent(
-        email
-      )}&source=&notify=true&optIn=false`,
-      {
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: '{"Money Stuff":true}',
-      }
-    )
-
-    return ['Money Stuff']
-  }
+export const createSubscription = async (
+  userId: string,
+  name: string,
+  newsletterEmail?: NewsletterEmail,
+  status = SubscriptionStatus.Active,
+  unsubscribeMailTo?: string,
+  subscriptionType = SubscriptionType.Newsletter
+): Promise<Subscription> => {
+  return getRepository(Subscription).save({
+    user: { id: userId },
+    name,
+    newsletterEmail,
+    status,
+    unsubscribeMailTo,
+    lastFetchedAt: new Date(),
+    type: subscriptionType,
+  })
 }

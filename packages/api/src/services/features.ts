@@ -1,9 +1,8 @@
 import * as jwt from 'jsonwebtoken'
-import { IsNull, Not } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { Feature } from '../entity/feature'
-import { getRepository } from '../entity/utils'
 import { env } from '../env'
-import { AppDataSource } from '../server'
+import { entityManager, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
@@ -28,9 +27,9 @@ export const optInFeature = async (
 const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
   const feature = await getRepository(Feature).findOne({
     where: {
-      user: { id: uid },
       name: FeatureName.UltraRealisticVoice,
       grantedAt: Not(IsNull()),
+      user: { id: uid },
     },
     relations: ['user'],
   })
@@ -42,7 +41,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const optedInFeatures = (await AppDataSource.query(
+  const optedInFeatures = (await entityManager.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 
@@ -100,25 +99,26 @@ export const signFeatureToken = (
   )
 }
 
-export const isOptedIn = async (
+export const findFeatureByName = async (
   name: FeatureName,
-  uid: string
-): Promise<boolean> => {
-  const feature = await getRepository(Feature).findOneBy({
-    user: { id: uid },
+  userId: string
+): Promise<Feature | null> => {
+  return await getRepository(Feature).findOneBy({
     name,
-    grantedAt: Not(IsNull()),
+    user: { id: userId },
   })
-
-  return !!feature
 }
 
-export const getFeature = async (
-  name: FeatureName,
-  uid: string
-): Promise<Feature | null> => {
-  return getRepository(Feature).findOneBy({
-    user: { id: uid },
-    name,
-  })
+export const deleteFeature = async (
+  criteria: string[] | FindOptionsWhere<Feature>
+) => {
+  return getRepository(Feature).delete(criteria)
+}
+
+export const createFeature = async (feature: DeepPartial<Feature>) => {
+  return getRepository(Feature).save(feature)
+}
+
+export const createFeatures = async (features: DeepPartial<Feature>[]) => {
+  return getRepository(Feature).save(features)
 }

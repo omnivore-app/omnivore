@@ -1,7 +1,8 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import 'mocha'
 import { User } from '../../src/entity/user'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Send Install Instructions API', () => {
   let authToken: string
@@ -19,7 +20,7 @@ describe('Send Install Instructions API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('Send install instructions', () => {

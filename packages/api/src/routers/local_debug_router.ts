@@ -1,11 +1,11 @@
+import cors from 'cors'
 import express, { Router } from 'express'
 import { env } from '../env'
-import { createWebAuthToken } from './auth/jwt_helpers'
-import UserModel from '../datalayer/user'
 import { LoginErrorCode } from '../generated/graphql'
-import cors from 'cors'
+import { userRepository } from '../repository/user'
 import { createUser } from '../services/create_user'
 import { corsConfig } from '../utils/corsConfig'
+import { createWebAuthToken } from './auth/jwt_helpers'
 
 // For local development only
 export function localDebugRouter(): Router {
@@ -20,8 +20,9 @@ export function localDebugRouter(): Router {
 
         try {
           let userId: string | undefined = undefined
-          const userModel = new UserModel()
-          const existingUser = await userModel.getWhere({ email: fakeEmail })
+          const existingUser = await userRepository.findOneBy({
+            email: fakeEmail,
+          })
           userId = existingUser?.id
 
           if (!userId) {

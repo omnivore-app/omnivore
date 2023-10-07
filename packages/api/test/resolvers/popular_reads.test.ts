@@ -1,8 +1,9 @@
 import { expect } from 'chai'
 import 'mocha'
-import { getPageByParam } from '../../src/elastic/pages'
 import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
+import { findLibraryItemById } from '../../src/services/library_item'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
 describe('PopularReads API', () => {
@@ -36,31 +37,31 @@ describe('PopularReads API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('addPopularRead', () => {
     it('should add a new article if the readName is valid', async () => {
-      const readName = 'omnivore_get_started'
+      const readName = 'omnivore_ios'
       const res = await graphqlRequest(
         addPopularReadQuery(readName),
         authToken
       ).expect(200)
       expect(res.body.data.addPopularRead.pageId).to.be
 
-      const page = await getPageByParam({
-        userId: user.id,
-        _id: res.body.data.addPopularRead.pageId,
-      })
-      expect(page?.url).to.eq(
-        'https://blog.omnivore.app/p/getting-started-with-omnivore'
+      const item = await findLibraryItemById(
+        res.body.data.addPopularRead.pageId,
+        user.id
       )
-      expect(page?.wordsCount).to.eq(1155)
+      expect(item?.originalUrl).to.eq(
+        'https://blog.omnivore.app/p/saving-links-from-your-iphone-or'
+      )
+      expect(item?.wordCount).to.eq(371)
     })
 
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
-      const readName = 'omnivore_get_started'
+      const readName = 'omnivore_web'
       return graphqlRequest(
         addPopularReadQuery(readName),
         invalidAuthToken

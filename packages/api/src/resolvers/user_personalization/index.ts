@@ -1,3 +1,4 @@
+import { UserPersonalization } from '../../entity/user_personalization'
 import {
   GetUserPersonalizationError,
   GetUserPersonalizationResult,
@@ -8,21 +9,16 @@ import {
   SortOrder,
 } from '../../generated/graphql'
 import { authorized } from '../../utils/helpers'
-import { UserPersonalization } from '../../entity/user_personalization'
-import { AppDataSource } from '../../server'
-import { getRepository, setClaims } from '../../entity/utils'
 
 export const setUserPersonalizationResolver = authorized<
   SetUserPersonalizationSuccess,
   SetUserPersonalizationError,
   MutationSetUserPersonalizationArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { authTrx, claims: { uid }, log }) => {
   log.info('setUserPersonalizationResolver', { uid, input })
 
-  const result = await AppDataSource.transaction(async (entityManager) => {
-    await setClaims(entityManager, uid)
-
-    return entityManager.getRepository(UserPersonalization).upsert(
+  const result = await authTrx(async (t) => {
+    return t.getRepository(UserPersonalization).upsert(
       {
         user: { id: uid },
         ...input,
@@ -37,9 +33,11 @@ export const setUserPersonalizationResolver = authorized<
     }
   }
 
-  const updatedUserPersonalization = await getRepository(
-    UserPersonalization
-  ).findOneBy({ id: result.identifiers[0].id as string })
+  const updatedUserPersonalization = await authTrx((t) =>
+    t
+      .getRepository(UserPersonalization)
+      .findOneBy({ id: result.identifiers[0].id as string })
+  )
 
   // Cast SortOrder from string to enum
   const librarySortOrder = updatedUserPersonalization?.librarySortOrder as
@@ -58,8 +56,12 @@ export const setUserPersonalizationResolver = authorized<
 export const getUserPersonalizationResolver = authorized<
   GetUserPersonalizationResult,
   GetUserPersonalizationError
->(async (_parent, _args, { models, claims: { uid } }) => {
-  const userPersonalization = await models.userPersonalization.getByUserId(uid)
+>(async (_parent, _args, { authTrx, uid }) => {
+  const userPersonalization = await authTrx((t) =>
+    t.getRepository(UserPersonalization).findOneBy({
+      user: { id: uid },
+    })
+  )
 
   // Cast SortOrder from string to enum
   const librarySortOrder = userPersonalization?.librarySortOrder as

@@ -1,61 +1,33 @@
-import { getPageById, updatePage } from '../../elastic/pages'
-import { Page } from '../../elastic/types'
+import { LibraryItemState } from '../../entity/library_item'
 import {
   MutationUpdatePageArgs,
   UpdatePageError,
-  UpdatePageErrorCode,
   UpdatePageSuccess,
 } from '../../generated/graphql'
-import { Merge } from '../../util'
-import { authorized, userDataToUser } from '../../utils/helpers'
-
-export type UpdatePageSuccessPartial = Merge<
-  UpdatePageSuccess,
-  { updatedPage: Partial<Page> }
->
+import { updateLibraryItem } from '../../services/library_item'
+import { authorized, libraryItemToArticle } from '../../utils/helpers'
 
 export const updatePageResolver = authorized<
-  UpdatePageSuccessPartial,
+  UpdatePageSuccess,
   UpdatePageError,
   MutationUpdatePageArgs
->(async (_, { input }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
-
-  const user = userDataToUser(await models.user.get(uid))
-  if (!user) {
-    return { errorCodes: [UpdatePageErrorCode.Unauthorized] }
-  }
-
-  const page = await getPageById(input.pageId)
-
-  if (!page) return { errorCodes: [UpdatePageErrorCode.NotFound] }
-  else if (page.userId !== user.id)
-    return { errorCodes: [UpdatePageErrorCode.Unauthorized] }
-
-  const pageData = {
-    id: input.pageId,
-    title: input.title ?? undefined,
-    description: input.description ?? undefined,
-    author: input.byline ?? undefined,
-    savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
-    publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
-    image: input.previewImage ?? undefined,
-    state: input.state ?? undefined,
-  }
-
-  const updateResult = await updatePage(input.pageId, pageData, {
-    pubsub: ctx.pubsub,
-    uid,
-    refresh: true,
-  })
-  if (!updateResult) return { errorCodes: [UpdatePageErrorCode.UpdateFailed] }
-
-  const updatedPage = (await getPageById(input.pageId)) as unknown as Page
+>(async (_, { input }, { uid }) => {
+  const updatedPage = await updateLibraryItem(
+    input.pageId,
+    {
+      title: input.title ?? undefined,
+      description: input.description ?? undefined,
+      author: input.byline ?? undefined,
+      savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
+      publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+      thumbnail: input.previewImage ?? undefined,
+      state: input.state
+        ? (input.state as unknown as LibraryItemState)
+        : undefined,
+    },
+    uid
+  )
   return {
-    updatedPage: updatedPage,
-    __typename: 'UpdatePageSuccess',
+    updatedPage: libraryItemToArticle(updatedPage),
   }
 })

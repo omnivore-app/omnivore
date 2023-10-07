@@ -15,11 +15,10 @@ import { ElementNode } from 'node-html-markdown/dist/nodes'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
-import { Highlight } from '../elastic/types'
-import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
+import { Highlight } from '../entity/highlight'
 import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
+import { userRepository } from '../repository/user'
 import { ArticleFormat } from '../resolvers/article'
 import {
   EmbeddedHighlightData,
@@ -184,7 +183,7 @@ const getReadabilityResult = async (
         return article
       }
     } catch (error) {
-      logger.info('parsing error for url', url, error)
+      logger.info('parsing error for url', { url, error })
     }
   }
 
@@ -224,7 +223,7 @@ export const parsePreparedContent = async (
     pageInfo.contentType &&
     !ALLOWED_CONTENT_TYPES.includes(pageInfo.contentType)
   ) {
-    logger.info('Not allowed content type', pageInfo.contentType)
+    logger.info(`Not allowed content type: ${pageInfo.contentType}`)
     return {
       canonicalUrl: url,
       parsedContent: null,
@@ -402,7 +401,7 @@ const getJSONLdLinkMetadata = async (
 
     return result
   } catch (error) {
-    logger.warning(`Unable to get JSONLD link of the article`, { error })
+    logger.error(`Unable to get JSONLD link of the article`, error)
     return result
   }
 }
@@ -469,7 +468,7 @@ export const isProbablyArticle = async (
   email: string,
   subject: string
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     email: ILike(email),
   })
   return !!user || subject.includes(ARTICLE_PREFIX)
@@ -655,7 +654,7 @@ export const htmlToHighlightedMarkdown = (
 
   // wrap highlights in special tags
   highlights
-    .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
+    .filter((h) => h.highlightType == 'HIGHLIGHT' && h.patch)
     .forEach((highlight) => {
       try {
         makeHighlightNodeAttributes(
@@ -690,7 +689,7 @@ export const getDistillerResult = async (
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
 
-    logger.info('Parsing by distiller', url)
+    logger.info(`Parsing by distiller: ${url}`)
     const response = await axios.post<string>(url, html, {
       headers: {
         Authorization: auth,

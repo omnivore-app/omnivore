@@ -1,8 +1,9 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
-import { User } from '../../src/entity/user'
-import { hashPassword } from '../../src/utils/auth'
 import 'mocha'
+import { User } from '../../src/entity/user'
+import { deleteUser } from '../../src/services/user'
+import { hashPassword } from '../../src/utils/auth'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Sanitize Directive', () => {
   const correctPassword = 'fakePassword'
@@ -21,7 +22,7 @@ describe('Sanitize Directive', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('Update user with a bio that is too long', () => {

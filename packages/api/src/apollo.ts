@@ -9,18 +9,18 @@ import * as Sentry from '@sentry/node'
 import { ContextFunction } from 'apollo-server-core'
 import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
+import * as httpContext from 'express-http-context2'
 import * as jwt from 'jsonwebtoken'
-import { Knex } from 'knex'
+import { EntityManager } from 'typeorm'
 import { promisify } from 'util'
-import { kx } from './datalayer/knex_config'
-import { createPubSubClient } from './datalayer/pubsub'
 import { sanitizeDirectiveTransformer } from './directives'
 import { env } from './env'
+import { createPubSubClient } from './pubsub'
+import { entityManager } from './repository'
 import { functionResolvers } from './resolvers/function_resolvers'
 import { ClaimsToSet, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
-import { initModels } from './server'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
@@ -46,8 +46,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   const token = req?.cookies?.auth || req?.headers?.authorization
   const claims = await getClaimsByToken(token)
 
+  httpContext.set('claims', claims)
+
   async function setClaims(
-    tx: Knex.Transaction,
+    em: EntityManager,
     uuid?: string,
     userRole?: string
   ): Promise<void> {
@@ -55,18 +57,14 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
       (claims && claims.uid) || uuid || '00000000-0000-0000-0000-000000000000'
     const dbRole =
       userRole === SetClaimsRole.ADMIN ? 'omnivore_admin' : 'omnivore_user'
-    return tx.raw('SELECT * from omnivore.set_claims(?, ?)', [uid, dbRole])
+    return em.query('SELECT * from omnivore.set_claims($1, $2)', [uid, dbRole])
   }
 
   const ctx = {
     log: logger,
     claims,
-    kx,
     pubsub,
     // no caching for subscriptions
-    // TODO: create per request caching for connections
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    models: initModels(kx, true),
     clearAuth: () => {
       res.clearCookie('auth')
       res.clearCookie('pendingUserAuth')
@@ -78,10 +76,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     ) => await setAuthInCookie(claims, res, secret),
     setClaims,
     authTrx: <TResult>(
-      cb: (tx: Knex.Transaction) => TResult,
+      cb: (em: EntityManager) => TResult,
       userRole?: string
     ): Promise<TResult> =>
-      kx.transaction(async (tx) => {
+      entityManager.transaction(async (tx) => {
         await setClaims(tx, undefined, userRole)
         return cb(tx)
       }),

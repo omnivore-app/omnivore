@@ -5,13 +5,19 @@ import { stringify } from 'csv-stringify'
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { EntityType, readPushSubscription } from '../../datalayer/pubsub'
-import { getPageById, searchPages } from '../../elastic/pages'
-import { Page } from '../../elastic/types'
-import { Integration, IntegrationType } from '../../entity/integration'
-import { getRepository } from '../../entity/utils'
+import { IntegrationType } from '../../entity/integration'
+import { LibraryItem } from '../../entity/library_item'
+import { EntityType, readPushSubscription } from '../../pubsub'
 import { Claims } from '../../resolvers/types'
-import { getIntegrationService } from '../../services/integrations'
+import {
+  findIntegration,
+  getIntegrationService,
+  updateIntegration,
+} from '../../services/integrations'
+import {
+  findLibraryItemById,
+  searchLibraryItems,
+} from '../../services/library_item'
 import { getClaimsByToken } from '../../utils/auth'
 import { logger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
@@ -62,12 +68,14 @@ export function integrationsServiceRouter() {
         return
       }
 
-      const integration = await getRepository(Integration).findOneBy({
-        user: { id: userId },
-        name: req.params.integrationName.toUpperCase(),
-        type: IntegrationType.Export,
-        enabled: true,
-      })
+      const integration = await findIntegration(
+        {
+          name: req.params.integrationName.toUpperCase(),
+          type: IntegrationType.Export,
+          enabled: true,
+        },
+        userId
+      )
       if (!integration) {
         logger.info('No active integration found for user', { userId })
         res.status(200).send('No integration found')
@@ -95,27 +103,24 @@ export function integrationsServiceRouter() {
           res.status(200).send('Bad Request')
           return
         }
-        const page = await getPageById(id)
-        if (!page) {
-          logger.info('No page found for id', { id })
+        const item = await findLibraryItemById(id, userId)
+        if (!item) {
+          logger.info('No item found for id', { id })
           res.status(200).send('No page found')
           return
         }
-        if (page.userId !== userId) {
-          logger.info('Page does not belong to user', { id, userId })
-          return res.status(200).send('Page does not belong to user')
-        }
-        // sync updated page with integration
-        logger.info('syncing updated page with integration', {
+
+        // sync updated item with integration
+        logger.info('syncing updated item with integration', {
           integrationId: integration.id,
-          pageId: page.id,
+          itemId: item.id,
         })
 
-        const synced = await integrationService.export(integration, [page])
+        const synced = await integrationService.export(integration, [item])
         if (!synced) {
-          logger.info('failed to sync page', {
+          logger.info('failed to sync item', {
             integrationId: integration.id,
-            pageId: page.id,
+            itemId: item.id,
           })
           return res.status(400).send('Failed to sync')
         }
@@ -124,7 +129,10 @@ export function integrationsServiceRouter() {
         const size = 50
 
         for (
-          let hasNextPage = true, count = 0, after = 0, pages: Page[] = [];
+          let hasNextPage = true,
+            count = 0,
+            after = 0,
+            items: LibraryItem[] = [];
           hasNextPage;
           after += size, hasNextPage = count > after
         ) {
@@ -133,27 +141,32 @@ export function integrationsServiceRouter() {
           const dateFilters: DateFilter[] = []
           syncedAt &&
             dateFilters.push({ field: 'updatedAt', startDate: syncedAt })
-          ;[pages, count] = (await searchPages(
+          const { libraryItems } = await searchLibraryItems(
             { from: after, size, dateFilters },
             userId
-          )) as [Page[], number]
-          const pageIds = pages.map((p) => p.id)
+          )
+          items = libraryItems
+          const itemIds = items.map((p) => p.id)
 
-          logger.info('syncing pages', { pageIds })
+          logger.info('syncing items', { pageIds: itemIds })
 
-          const synced = await integrationService.export(integration, pages)
+          const synced = await integrationService.export(integration, items)
           if (!synced) {
-            logger.error('failed to sync pages', {
-              pageIds,
+            logger.error('failed to sync items', {
+              pageIds: itemIds,
               integrationId: integration.id,
             })
             return res.status(400).send('Failed to sync')
           }
         }
         // delete task name if completed
-        await getRepository(Integration).update(integration.id, {
-          taskName: null,
-        })
+        await updateIntegration(
+          integration.id,
+          {
+            taskName: null,
+          },
+          userId
+        )
       } else {
         logger.info('unknown action', { action })
         res.status(200).send('Unknown action')
@@ -190,12 +203,14 @@ export function integrationsServiceRouter() {
     let writeStream: NodeJS.WritableStream | undefined
     try {
       const userId = claims.uid
-      const integration = await getRepository(Integration).findOneBy({
-        user: { id: userId },
-        id: req.body.integrationId,
-        enabled: true,
-        type: IntegrationType.Import,
-      })
+      const integration = await findIntegration(
+        {
+          id: req.body.integrationId,
+          enabled: true,
+          type: IntegrationType.Import,
+        },
+        userId
+      )
       if (!integration) {
         logger.info('No active integration found for user', { userId })
         return res.status(200).send('No integration found')
@@ -263,10 +278,14 @@ export function integrationsServiceRouter() {
       }
 
       // update the integration's syncedAt and remove taskName
-      await getRepository(Integration).update(integration.id, {
-        syncedAt: new Date(syncedAt),
-        taskName: null,
-      })
+      await updateIntegration(
+        integration.id,
+        {
+          syncedAt: new Date(syncedAt),
+          taskName: null,
+        },
+        userId
+      )
     } catch (err) {
       logger.error('import pages from integration failed', err)
       return res.status(500).send(err)

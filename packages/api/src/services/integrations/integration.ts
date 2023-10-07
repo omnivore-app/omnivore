@@ -1,10 +1,10 @@
 import { Integration } from '../../entity/integration'
-import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 
 export interface RetrievedData {
   url: string
   labels?: string[]
-  state?: ArticleSavingRequestStatus
+  state?: LibraryItemState
 }
 export interface RetrievedResult {
   data: RetrievedData[]
@@ -27,7 +27,7 @@ export abstract class IntegrationService {
   }
   export = async (
     integration: Integration,
-    pages: Page[]
+    items: LibraryItem[]
   ): Promise<boolean> => {
     return Promise.resolve(false)
   }

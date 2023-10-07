@@ -1,40 +1,21 @@
-import { PubsubClient } from '../datalayer/pubsub'
-import { ArticleSavingRequestStatus } from '../elastic/types'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
 import { SaveErrorCode, SaveResult, SaveUrlInput } from '../generated/graphql'
+import { userRepository } from '../repository/user'
 import { logger } from '../utils/logger'
 import { createPageSaveRequest } from './create_page_save_request'
-import { createLabels } from './labels'
-
-interface SaveContext {
-  pubsub: PubsubClient
-  uid: string
-}
 
 export const saveUrl = async (
-  ctx: SaveContext,
-  user: User,
-  input: SaveUrlInput
+  input: SaveUrlInput,
+  user: User
 ): Promise<SaveResult> => {
   try {
-    // save state
-    const archivedAt =
-      input.state === ArticleSavingRequestStatus.Archived ? new Date() : null
-    // add labels to page
-    const labels = input.labels
-      ? await createLabels({ ...ctx, uid: ctx.uid }, input.labels)
-      : undefined
-
     const pageSaveRequest = await createPageSaveRequest({
       ...input,
-      userId: ctx.uid,
-      pubsub: ctx.pubsub,
+      userId: user.id,
       articleSavingRequestId: input.clientRequestId,
-      archivedAt,
-      labels,
-      user,
+      state: input.state || undefined,
+      labels: input.labels || undefined,
       locale: input.locale || undefined,
       timezone: input.timezone || undefined,
       savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
@@ -57,22 +38,25 @@ export const saveUrl = async (
 }
 
 export const saveUrlFromEmail = async (
-  ctx: SaveContext,
   url: string,
-  clientRequestId: string
+  clientRequestId: string,
+  userId: string
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
-    id: ctx.uid,
+  const user = await userRepository.findOneBy({
+    id: userId,
   })
   if (!user) {
     return false
   }
 
-  const result = await saveUrl(ctx, user, {
-    url,
-    clientRequestId,
-    source: 'email',
-  })
+  const result = await saveUrl(
+    {
+      url,
+      clientRequestId,
+      source: 'email',
+    },
+    user
+  )
   if (result.__typename === 'SaveError') {
     return false
   }

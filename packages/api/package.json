@@ -12,7 +12,6 @@
     "copy-files": "copyfiles -u 1 src/**/*.html dist/"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "~7.12.0",
     "@google-cloud/logging-winston": "^6.0.0",
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
@@ -55,7 +54,6 @@
     "dompurify": "^2.0.17",
     "dot-case": "^3.0.4",
     "dotenv": "^8.2.0",
-    "elastic-ts": "^0.9.0",
     "express": "^4.17.1",
     "express-http-context2": "^1.0.0",
     "express-rate-limit": "^6.3.0",
@@ -71,8 +69,6 @@
     "intercom-client": "^3.1.4",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
-    "knex": "2.4.2",
-    "knex-stringcase": "^1.4.2",
     "linkedom": "^0.14.9",
     "lodash": "^4.17.21",
     "luxon": "^3.2.1",

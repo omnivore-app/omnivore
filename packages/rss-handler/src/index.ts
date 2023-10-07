@@ -91,7 +91,7 @@ const createSavingItemTask = async (
     source: 'rss-feeder',
     url: item.link,
     saveRequestId: '',
-    labels: [{ name: 'RSS', color: '#f26522' }],
+    labels: [{ name: 'RSS' }],
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,

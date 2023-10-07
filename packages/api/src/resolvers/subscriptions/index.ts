@@ -1,8 +1,6 @@
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
 import { Subscription } from '../../entity/subscription'
-import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   MutationSubscribeArgs,
@@ -26,8 +24,8 @@ import {
   UpdateSubscriptionErrorCode,
   UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
-import { getSubscribeHandler, unsubscribe } from '../../services/subscriptions'
+import { getRepository } from '../../repository'
+import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
@@ -55,27 +53,11 @@ export const subscriptionsResolver = authorized<
   SubscriptionsSuccessPartial,
   SubscriptionsError,
   QuerySubscriptionsArgs
->(async (_obj, { sort, type }, { claims: { uid }, log }) => {
-  log.info('subscriptionsResolver')
-
-  analytics.track({
-    userId: uid,
-    event: 'subscriptions',
-    properties: {
-      env: env.server.apiEnv,
-    },
-  })
-
+>(async (_obj, { sort, type }, { uid, log }) => {
   try {
     const sortBy =
       sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
     const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SubscriptionsErrorCode.Unauthorized],
-      }
-    }
 
     const queryBuilder = getRepository(Subscription)
       .createQueryBuilder('subscription')
@@ -107,7 +89,7 @@ export const subscriptionsResolver = authorized<
     }
 
     const subscriptions = await queryBuilder
-      .orderBy('subscription.' + sortBy, sortOrder)
+      .orderBy(`subscription.${sortBy}`, sortOrder, 'NULLS LAST')
       .getMany()
 
     return {
@@ -129,17 +111,10 @@ export const unsubscribeResolver = authorized<
   UnsubscribeSuccessPartial,
   UnsubscribeError,
   MutationUnsubscribeArgs
->(async (_, { name, subscriptionId }, { claims: { uid }, log }) => {
+>(async (_, { name, subscriptionId }, { uid, log }) => {
   log.info('unsubscribeResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UnsubscribeErrorCode.Unauthorized],
-      }
-    }
-
     const queryBuilder = getRepository(Subscription)
       .createQueryBuilder('subscription')
       .leftJoinAndSelect('subscription.newsletterEmail', 'newsletterEmail')
@@ -154,16 +129,10 @@ export const unsubscribeResolver = authorized<
     }
 
     const subscription = await queryBuilder.getOne()
+
     if (!subscription) {
       return {
         errorCodes: [UnsubscribeErrorCode.NotFound],
-      }
-    }
-
-    // if subscription is already unsubscribed, throw error
-    if (subscription.status === SubscriptionStatus.Unsubscribed) {
-      return {
-        errorCodes: [UnsubscribeErrorCode.AlreadyUnsubscribed],
       }
     }
 
@@ -205,25 +174,20 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { authTrx, uid, log }) => {
   log.info('subscribeResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SubscribeErrorCode.Unauthorized],
-      }
-    }
-
     // find existing subscription
-    const subscription = await getRepository(Subscription).findOneBy({
-      url: input.url || undefined,
-      name: input.name || undefined,
-      user: { id: uid },
-      status: SubscriptionStatus.Active,
-      type: input.subscriptionType || SubscriptionType.Rss, // default to rss
-    })
+    const subscription = await authTrx((t) =>
+      t.getRepository(Subscription).findOneBy({
+        url: input.url || undefined,
+        name: input.name || undefined,
+        user: { id: uid },
+        status: SubscriptionStatus.Active,
+        type: input.subscriptionType || SubscriptionType.Rss, // default to rss
+      })
+    )
     if (subscription) {
       return {
         errorCodes: [SubscribeErrorCode.AlreadySubscribed],
@@ -239,30 +203,6 @@ export const subscribeResolver = authorized<
       },
     })
 
-    // create new newsletter subscription
-    if (input.name && input.subscriptionType === SubscriptionType.Newsletter) {
-      const subscribeHandler = getSubscribeHandler(input.name)
-      if (!subscribeHandler) {
-        return {
-          errorCodes: [SubscribeErrorCode.NotFound],
-        }
-      }
-
-      const newSubscriptions = await subscribeHandler.handleSubscribe(
-        uid,
-        input.name
-      )
-      if (!newSubscriptions) {
-        return {
-          errorCodes: [SubscribeErrorCode.BadRequest],
-        }
-      }
-
-      return {
-        subscriptions: newSubscriptions,
-      }
-    }
-
     // create new rss subscription
     if (input.url) {
       const MAX_RSS_SUBSCRIPTIONS = 150
@@ -270,21 +210,23 @@ export const subscribeResolver = authorized<
       const feed = await parser.parseURL(input.url)
 
       // limit number of rss subscriptions to 50
-      const newSubscriptions = (await AppDataSource.query(
-        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
+      const newSubscriptions = (await authTrx((t) =>
+        t.query(
+          `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
         select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
         where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
         having count(*) < $7 
         returning *;`,
-        [
-          feed.title,
-          input.url,
-          feed.description || null,
-          SubscriptionType.Rss,
-          uid,
-          feed.image?.url || null,
-          MAX_RSS_SUBSCRIPTIONS,
-        ]
+          [
+            feed.title,
+            input.url,
+            feed.description || null,
+            SubscriptionType.Rss,
+            uid,
+            feed.image?.url || null,
+            MAX_RSS_SUBSCRIPTIONS,
+          ]
+        )
       )) as Subscription[]
 
       if (newSubscriptions.length === 0) {
@@ -326,9 +268,7 @@ export const updateSubscriptionResolver = authorized<
   UpdateSubscriptionSuccessPartial,
   UpdateSubscriptionError,
   MutationUpdateSubscriptionArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('updateSubscriptionResolver')
-
+>(async (_, { input }, { authTrx, uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -339,34 +279,24 @@ export const updateSubscriptionResolver = authorized<
       },
     })
 
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [UpdateSubscriptionErrorCode.Unauthorized],
-      }
-    }
+    const updatedSubscription = await authTrx(async (t) => {
+      const repo = t.getRepository(Subscription)
 
-    // find existing subscription
-    const subscription = await getRepository(Subscription).findOneBy({
-      id: input.id,
-      user: { id: uid },
-    })
-    if (!subscription) {
-      log.info('subscription not found')
-      return {
-        errorCodes: [UpdateSubscriptionErrorCode.NotFound],
-      }
-    }
+      // update subscription
+      await t.getRepository(Subscription).save({
+        id: input.id,
+        name: input.name || undefined,
+        description: input.description || undefined,
+        lastFetchedAt: input.lastFetchedAt
+          ? new Date(input.lastFetchedAt)
+          : undefined,
+        status: input.status || undefined,
+      })
 
-    // update subscription
-    const updatedSubscription = await getRepository(Subscription).save({
-      id: input.id,
-      name: input.name || undefined,
-      description: input.description || undefined,
-      lastFetchedAt: input.lastFetchedAt
-        ? new Date(input.lastFetchedAt)
-        : undefined,
-      status: input.status || undefined,
+      return repo.findOneByOrFail({
+        id: input.id,
+        user: { id: uid },
+      })
     })
 
     return {

@@ -3,8 +3,8 @@ import {
   EventSubscriber,
   InsertEvent,
 } from 'typeorm'
-import { createPubSubClient } from '../../datalayer/pubsub'
 import { Profile } from '../../entity/profile'
+import { createPubSubClient } from '../../pubsub'
 import { addPopularReadsForNewUser } from '../../services/popular_reads'
 import { IntercomClient } from '../../utils/intercom'
 
@@ -26,7 +26,7 @@ export class CreateIntercomAccount
       email: profile.user.email,
       externalId: profile.user.id,
       name: profile.user.name,
-      avatar: profile.pictureUrl,
+      avatar: profile.pictureUrl || undefined,
       customAttributes: customAttributes,
       signedUpAt: Math.floor(Date.now() / 1000),
     })
@@ -59,6 +59,6 @@ export class AddPopularReadsToNewUser
   }
 
   async afterInsert(event: InsertEvent<Profile>): Promise<void> {
-    await addPopularReadsForNewUser(event.entity.user.id)
+    await addPopularReadsForNewUser(event.entity.user.id, event.manager)
   }
 }

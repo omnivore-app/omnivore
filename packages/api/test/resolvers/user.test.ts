@@ -1,13 +1,15 @@
-import { createTestUser, deleteTestUser, getProfile, getUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
+import 'mocha'
+import { User } from '../../src/entity/user'
 import {
   UpdateUserErrorCode,
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
-import { User } from '../../src/entity/user'
+import { findProfile } from '../../src/services/profile'
+import { deleteUser, findUser } from '../../src/services/user'
 import { hashPassword } from '../../src/utils/auth'
-import 'mocha'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('User API', () => {
   const correctPassword = 'fakePassword'
@@ -33,8 +35,8 @@ describe('User API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
-    await deleteTestUser(anotherUser.id)
+    await deleteUser(user.id)
+    await deleteUser(anotherUser.id)
   })
 
   describe('Update user', () => {
@@ -96,7 +98,7 @@ describe('User API', () => {
 
       it('updates user and responds with status code 200', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
-        const user = await getUser(response.body.data.updateUser.user.id)
+        const user = await findUser(response.body.data.updateUser.user.id)
         expect(user?.name).to.eql(name)
       })
     })
@@ -160,7 +162,7 @@ describe('User API', () => {
 
       it('updates user profile and responds with 200', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const profile = await getProfile(user)
+        const profile = await findProfile(user)
         expect(profile?.username).to.eql(newUsername)
       })
     })
@@ -196,7 +198,7 @@ describe('User API', () => {
     context('when username exists', () => {
       before(async () => {
         userId = user.id
-        const profile = await getProfile(user)
+        const profile = await findProfile(user)
         newUsername = profile?.username || 'new_username'
       })
 

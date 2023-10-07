@@ -5,20 +5,29 @@ import path from 'path'
 import _ from 'underscore'
 import slugify from 'voca/slugify'
 import wordsCounter from 'word-counting'
-import { RegistrationType, UserData } from '../datalayer/user/model'
-import { updatePage } from '../elastic/pages'
-import { ArticleSavingRequestStatus, Page } from '../elastic/types'
-import { User } from '../entity/user'
+import { Highlight as HighlightData } from '../entity/highlight'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { Recommendation as RecommendationData } from '../entity/recommendation'
+import { RegistrationType, User } from '../entity/user'
 import {
+  Article,
   ArticleSavingRequest,
+  ArticleSavingRequestStatus,
+  ContentReader,
   CreateArticleError,
+  CreateArticleSuccess,
   FeedArticle,
+  Highlight,
+  PageType,
   Profile,
+  Recommendation,
   ResolverFn,
+  SearchItem,
 } from '../generated/graphql'
-import { CreateArticlesSuccessPartial } from '../resolvers'
+import { createPubSubClient } from '../pubsub'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { validateUrl } from '../services/create_page_save_request'
+import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
 import { logger } from './logger'
 interface InputObject {
@@ -116,7 +125,7 @@ export const findDelimiter = (
 // FIXME: Remove this Date stub after nullable types will be fixed
 export const userDataToUser = (
   user: Merge<
-    UserData,
+    User,
     {
       isFriend?: boolean
       followersCount?: number
@@ -149,22 +158,17 @@ export const userDataToUser = (
   profile: Profile
 } => ({
   ...user,
-  name: user.name,
   source: user.source as RegistrationType,
-  createdAt: user.createdAt || new Date(),
+  createdAt: user.createdAt,
   friendsCount: user.friendsCount || 0,
   followersCount: user.followersCount || 0,
   isFullUser: true,
   viewerIsFollowing: user.viewerIsFollowing || user.isFriend || false,
-  picture: user.profile.picture_url,
+  picture: user.profile.pictureUrl,
   sharedArticles: [],
   sharedArticlesCount: user.sharedArticlesCount || 0,
   sharedHighlightsCount: user.sharedHighlightsCount || 0,
   sharedNotesCount: user.sharedNotesCount || 0,
-  profile: {
-    ...user.profile,
-    pictureUrl: user.profile.picture_url,
-  },
 })
 
 export const generateSlug = (title: string): string => {
@@ -173,39 +177,106 @@ export const generateSlug = (title: string): string => {
 
 export const MAX_CONTENT_LENGTH = 5e7 //50MB
 
-export const pageError = async (
+export const errorHandler = async (
   result: CreateArticleError,
-  ctx: WithDataSourcesContext,
-  pageId?: string | null
-): Promise<CreateArticleError | CreateArticlesSuccessPartial> => {
+  userId: string,
+  pageId?: string | null,
+  pubsub = createPubSubClient()
+): Promise<CreateArticleError | CreateArticleSuccess> => {
   if (!pageId) return result
 
-  await updatePage(
+  await updateLibraryItem(
     pageId,
     {
-      state: ArticleSavingRequestStatus.Failed,
+      state: LibraryItemState.Failed,
     },
-    ctx
+    userId,
+    pubsub
   )
 
   return result
 }
 
-export const pageToArticleSavingRequest = (
-  user: User,
-  page: Page
-): ArticleSavingRequest => ({
-  ...page,
-  user: userDataToUser(user),
-  status: page.state,
-  updatedAt: page.updatedAt || new Date(),
+export const highlightDataToHighlight = (
+  highlight: HighlightData
+): Highlight => ({
+  ...highlight,
+  createdByMe: false,
+  reactions: [],
+  replies: [],
+  type: highlight.highlightType,
+  user: userDataToUser(highlight.user),
 })
 
-export const isParsingTimeout = (page: Page): boolean => {
+export const recommandationDataToRecommendation = (
+  recommendation: RecommendationData
+): Recommendation => ({
+  ...recommendation,
+  user: {
+    userId: recommendation.recommender.id,
+    username: recommendation.recommender.profile.username,
+    profileImageURL: recommendation.recommender.profile.pictureUrl,
+    name: recommendation.recommender.name,
+  },
+  name: recommendation.group.name,
+  recommendedAt: recommendation.createdAt,
+})
+
+export const libraryItemToArticleSavingRequest = (
+  user: User,
+  item: LibraryItem
+): ArticleSavingRequest => ({
+  ...item,
+  user: userDataToUser(user),
+  status: item.state as unknown as ArticleSavingRequestStatus,
+  url: item.originalUrl,
+  userId: user.id,
+})
+
+export const libraryItemToArticle = (item: LibraryItem): Article => ({
+  ...item,
+  url: item.originalUrl,
+  state: item.state as unknown as ArticleSavingRequestStatus,
+  content: item.readableContent,
+  hash: item.textContentHash || '',
+  isArchived: !!item.archivedAt,
+  recommendations: item.recommendations?.map(
+    recommandationDataToRecommendation
+  ),
+  image: item.thumbnail,
+  contentReader: item.contentReader as unknown as ContentReader,
+  readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
+  readingProgressPercent: item.readingProgressBottomPercent,
+  highlights: item.highlights?.map(highlightDataToHighlight) || [],
+  uploadFileId: item.uploadFile?.id,
+  pageType: item.itemType as unknown as PageType,
+  wordsCount: item.wordCount,
+})
+
+export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
+  ...item,
+  url: item.originalUrl,
+  state: item.state as unknown as ArticleSavingRequestStatus,
+  content: item.readableContent,
+  isArchived: !!item.archivedAt,
+  pageType: item.itemType as unknown as PageType,
+  readingProgressPercent: item.readingProgressBottomPercent,
+  contentReader: item.contentReader as unknown as ContentReader,
+  readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
+  recommendations: item.recommendations?.map(
+    recommandationDataToRecommendation
+  ),
+  image: item.thumbnail,
+  highlights: item.highlights?.map(highlightDataToHighlight),
+  uploadFileId: item.uploadFile?.id,
+  wordsCount: item.wordCount,
+})
+
+export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {
   return (
-    // page processed more than 30 seconds ago
-    page.state === ArticleSavingRequestStatus.Processing &&
-    new Date(page.savedAt).getTime() < new Date().getTime() - 1000 * 30
+    // item processed more than 30 seconds ago
+    libraryItem.state === LibraryItemState.Processing &&
+    libraryItem.savedAt.getTime() < new Date().getTime() - 1000 * 30
   )
 }
 
@@ -225,7 +296,7 @@ export const validatedDate = (
     }
     return new Date(date)
   } catch (e) {
-    logger.error('error validating date', date, e)
+    logger.error('error validating date', { date, error: e })
     return undefined
   }
 }

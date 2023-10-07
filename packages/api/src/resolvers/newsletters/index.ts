@@ -1,6 +1,4 @@
 import { NewsletterEmail } from '../../entity/newsletter_email'
-import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   CreateNewsletterEmailError,
@@ -14,6 +12,7 @@ import {
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
 } from '../../generated/graphql'
+import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,
@@ -57,20 +56,9 @@ export const createNewsletterEmailResolver = authorized<
 export const newsletterEmailsResolver = authorized<
   NewsletterEmailsSuccess,
   NewsletterEmailsError
->(async (_parent, _args, { claims, log }) => {
-  log.info('newsletterEmailsResolver')
-
+>(async (_parent, _args, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({
-      id: claims.uid,
-    })
-    if (!user) {
-      return Promise.reject({
-        errorCode: NewsletterEmailsErrorCode.Unauthorized,
-      })
-    }
-
-    const newsletterEmails = await getNewsletterEmails(user.id)
+    const newsletterEmails = await getNewsletterEmails(uid)
 
     return {
       newsletterEmails: newsletterEmails.map((newsletterEmail) => ({
@@ -91,10 +79,9 @@ export const deleteNewsletterEmailResolver = authorized<
   DeleteNewsletterEmailSuccess,
   DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs
->(async (_parent, args, { claims, log }) => {
-  log.info('deleteNewsletterEmailResolver')
+>(async (_parent, args, { uid, log }) => {
   analytics.track({
-    userId: claims.uid,
+    userId: uid,
     event: 'newsletter_email_address_deleted',
     properties: {
       env: env.server.apiEnv,
@@ -105,6 +92,7 @@ export const deleteNewsletterEmailResolver = authorized<
     const newsletterEmail = await getRepository(NewsletterEmail).findOne({
       where: {
         id: args.newsletterEmailId,
+        user: { id: uid },
       },
       relations: ['user', 'subscriptions'],
     })
@@ -112,12 +100,6 @@ export const deleteNewsletterEmailResolver = authorized<
     if (!newsletterEmail) {
       return {
         errorCodes: [DeleteNewsletterEmailErrorCode.NotFound],
-      }
-    }
-
-    if (newsletterEmail.user.id !== claims.uid) {
-      return {
-        errorCodes: [DeleteNewsletterEmailErrorCode.Unauthorized],
       }
     }
 
@@ -138,8 +120,8 @@ export const deleteNewsletterEmailResolver = authorized<
         errorCodes: [DeleteNewsletterEmailErrorCode.NotFound],
       }
     }
-  } catch (e) {
-    log.info(e)
+  } catch (error) {
+    log.error('deleteNewsletterEmailResolver', error)
 
     return {
       errorCodes: [DeleteNewsletterEmailErrorCode.BadRequest],

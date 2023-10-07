@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import chalk from 'chalk'
 import * as dotenv from 'dotenv'
 import Postgrator from 'postgrator'
-import chalk from 'chalk'
-import { Client } from '@elastic/elasticsearch'
-import { readFileSync } from 'fs'
-import { join } from 'path'
 
 dotenv.config()
 
@@ -86,37 +83,6 @@ const logAppliedMigrations = (
   }
 }
 
-export const INDEX_ALIAS = 'pages_alias'
-export const esClient = new Client({
-  node: process.env.ELASTIC_URL || 'http://localhost:9200',
-  requestTimeout: 60000 * 30, // 30 minutes
-  auth: {
-    username: process.env.ELASTIC_USERNAME || '',
-    password: process.env.ELASTIC_PASSWORD || '',
-  },
-})
-// read index settings from file
-const indexSettings = readFileSync(
-  join(__dirname, 'elastic_migrations', 'index_settings.json'),
-  'utf8'
-)
-const INDEX_NAME = 'pages'
-const createIndex = async (): Promise<void> => {
-  // create index
-  await esClient.indices.create({
-    index: INDEX_NAME,
-    body: JSON.parse(indexSettings),
-  })
-}
-
-const updateMappings = async (): Promise<void> => {
-  // update mappings
-  await esClient.indices.putMapping({
-    index: INDEX_ALIAS,
-    body: JSON.parse(indexSettings).mappings,
-  })
-}
-
 // postgres migration
 const postgresMigration = postgrator
   .migrate(targetMigration)
@@ -131,26 +97,4 @@ const postgresMigration = postgrator
     process.exit(1)
   })
 
-// elastic migration
-log('Creating elastic index...')
-const elasticMigration = esClient.indices
-  .exists({ index: INDEX_ALIAS })
-  .then(({ body: exists }) => {
-    if (!exists) {
-      return createIndex().then(() => log('Elastic index created.'))
-    } else {
-      log('Elastic index already exists.')
-    }
-  })
-  .then(() => {
-    log('Updating elastic index mappings...')
-    return updateMappings().then(() => {
-      log('Elastic index mappings updated.')
-    })
-  })
-  .catch((error) => {
-    log(`${chalk.red('Elastic migration failed: ')}${error.message}`, chalk.red)
-    process.exit(1)
-  })
-
-Promise.all([postgresMigration, elasticMigration]).then(() => log('Exiting...'))
+postgresMigration.then(() => log('Exiting...'))
