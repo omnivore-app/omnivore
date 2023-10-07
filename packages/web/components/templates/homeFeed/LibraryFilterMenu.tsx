@@ -65,7 +65,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
 
   useEffect(() => {
     if (!subscriptionsLoading) {
-      setSubscriptions(networkSubscriptions)
+      setSubscriptions(networkSubscriptions.filter((s) => s.status == 'ACTIVE'))
     }
   }, [setSubscriptions, networkLabels, subscriptionsLoading])
 
