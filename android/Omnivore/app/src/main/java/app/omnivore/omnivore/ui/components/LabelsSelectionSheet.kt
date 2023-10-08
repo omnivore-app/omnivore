@@ -373,6 +373,7 @@ fun LabelsSelectionSheetContent(
               name = label.name,
               colors = chipColors,
               modifier = Modifier
+                .padding(end = 10.dp, bottom = 10.dp)
                 .clickable {
                   state.addChip(LabelChipView(label))
                   filterTextValue = TextFieldValue()
