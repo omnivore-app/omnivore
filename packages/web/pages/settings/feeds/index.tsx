@@ -199,8 +199,8 @@ export default function Rss(): JSX.Element {
                 )
                 setOnPauseId(subscription.id)
               }}
-              deleteTitle="Delete"
-              editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
+              deleteTitle="Unsubscribe"
+              // editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
                 <SpanBox
                   css={{
