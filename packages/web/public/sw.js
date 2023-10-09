@@ -7,7 +7,6 @@
 'use strict'
 ;(function () {
   const globalApi = (typeof globalThis !== 'undefined' && globalThis) || self
-  const naviApi = globalApi.navigator
 
   const mainOrigin = 'https://omnivore.app'
   const devOrigin = 'https://dev.omnivore.app'
@@ -27,41 +26,6 @@
   )
     return
 
-  const cacheVersion = 'v1.0.0'
-
-  const homeCache = '/?cid=' + cacheVersion
-
-  const initialCacheItems = [
-    homeCache,
-    '/manifest.webmanifest',
-    '/pwa-36.png',
-    '/pwa-48.png',
-    '/pwa-72.png',
-    '/pwa-96.png',
-    '/pwa-144.png',
-    '/pwa-192.png',
-    '/pwa-256.png',
-    '/pwa-384.png',
-    '/pwa-512.png',
-  ]
-
-  function fetchWithCacheBackup(request) {
-    return globalApi.fetch(request).then((freshResult) => {
-      if (freshResult.status > 199 && freshResult.status < 400)
-        return freshResult
-
-      return globalApi.caches
-        .match(request, {
-          ignoreSearch: true,
-          ignoreMethod: true,
-          ignoreVary: true,
-        })
-        .then((cachedResult) => {
-          return cachedResult || freshResult
-        })
-    })
-  }
-
   function findShareUrlInText(formData) {
     const url = formData.get('url') || ''
     const text = formData.get('text') || ''
@@ -78,88 +42,6 @@
     }
   }
 
-  function saveArticleUrl(url) {
-    if (!url) {
-      return Promise.reject(new Error('No URL'))
-    }
-
-    const requestUrl = currentOrigin + '/api/article/save'
-
-    return globalApi
-      .fetch(requestUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          url: url,
-          v: '0.2.18',
-        }),
-      })
-      .then(function (response) {
-        if (response.status === 200) {
-          return response.json().then((responseJson) => {
-            return currentOrigin + '/article?url=' + url
-          })
-        }
-
-        if (response.status === 400) {
-          return response.json().then((responseJson) => {
-            if (responseJson.errorCode === 'UNAUTHORIZED') {
-              return currentOrigin + '/login'
-            }
-          })
-        }
-      })
-  }
-
-  function handleShareTarget(request) {
-    return request
-      .formData()
-      .then((formData) => {
-        const shareUrl = findShareUrlInText(formData)
-
-        return saveArticleUrl(shareUrl).catch(() => {
-          // generic error redirect
-          return currentOrigin + '/'
-        })
-      })
-      .then((responseUrl) => {
-        return Response.redirect(responseUrl, 303)
-      })
-  }
-
-  function handleOutdatedCache() {
-    return globalApi.caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== cacheVersion) {
-            return globalApi.caches.delete(cacheName)
-          }
-        })
-      )
-    })
-  }
-
-  function initCache() {
-    return globalApi.caches.open(cacheVersion).then((cache) => {
-      if (!cache.addAll || !naviApi.onLine) return
-      return cache.addAll(initialCacheItems)
-    })
-  }
-
-  globalApi.addEventListener('install', (ev) => {
-    globalApi.skipWaiting()
-
-    const handler = initCache()
-    ev.waitUntil(handler)
-  })
-
-  globalApi.addEventListener('activate', (ev) => {
-    const handler = handleOutdatedCache()
-    ev.waitUntil(handler)
-  })
-
   globalApi.addEventListener('fetch', (ev) => {
     if (ev.request.destination === 'script') {
       return
@@ -168,12 +50,19 @@
       return
     }
 
-    if (ev.request.method === 'POST') {
-      const requestUrl = new URL(ev.request.url)
-      if (requestUrl.pathname === '/share-target') {
-        const shareRequest = handleShareTarget(ev.request)
-        return shareRequest
-      }
+    if (
+      ev.request.method === 'POST' &&
+      ev.request.url.endsWith('/share-target')
+    ) {
+      ev.respondWith(
+        (async () => {
+          const formData = await ev.request.formData()
+          const sharedUrl = findShareUrlInText(formData)
+          return Response.redirect(`/api/article/save?url=${sharedUrl}`, 303)
+        })()
+      )
     }
   })
 })()
+
+console.log('activated service worker')
