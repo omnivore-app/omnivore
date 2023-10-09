@@ -80,7 +80,7 @@ describe('Webhooks API', () => {
         }
       `
 
-      const res = await graphqlRequest(query, authToken)
+      const res = await graphqlRequest(query, authToken).expect(200)
 
       expect(res.body.data.webhook.webhook.id).to.eql(webhook.id)
       expect(res.body.data.webhook.webhook.url).to.eql(webhook.url)
@@ -108,7 +108,7 @@ describe('Webhooks API', () => {
         }
       `
 
-      const res = await graphqlRequest(query, authToken)
+      const res = await graphqlRequest(query, authToken).expect(200)
       const webhooks = await findWebhooks(user.id)
 
       expect(res.body.data.webhooks.webhooks).to.eql(
@@ -165,7 +165,7 @@ describe('Webhooks API', () => {
       })
 
       it('should create a webhook', async () => {
-        const res = await graphqlRequest(query, authToken)
+        const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.setWebhook.webhook).to.be.an('object')
         expect(res.body.data.setWebhook.webhook.url).to.eql(webhookUrl)
@@ -195,7 +195,7 @@ describe('Webhooks API', () => {
       })
 
       it('should update a webhook', async () => {
-        const res = await graphqlRequest(query, authToken)
+        const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.setWebhook.webhook).to.be.an('object')
         expect(res.body.data.setWebhook.webhook.url).to.eql(webhookUrl)
@@ -240,7 +240,7 @@ describe('Webhooks API', () => {
       })
 
       it('should delete a webhook', async () => {
-        const res = await graphqlRequest(query, authToken)
+        const res = await graphqlRequest(query, authToken).expect(200)
         const webhook = await findWebhookById(webhookId, user.id)
 
         expect(res.body.data.deleteWebhook.webhook).to.be.an('object')

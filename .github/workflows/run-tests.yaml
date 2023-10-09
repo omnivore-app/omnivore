@@ -73,14 +73,6 @@ jobs:
           source ~/.nvm/nvm.sh
           yarn build
           yarn lint
-        env:
-          PG_HOST: localhost
-          PG_PORT: ${{ job.services.postgres.ports[5432] }}
-          PG_USER: app_user
-          PG_PASSWORD: app_pass
-          PG_DB: omnivore_test
-          PG_POOL_MAX: 10
-          REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
       - name: Tests
         run: |
           source ~/.nvm/nvm.sh
@@ -91,7 +83,6 @@ jobs:
           PG_USER: app_user
           PG_PASSWORD: app_pass
           PG_DB: omnivore_test
-          PG_POOL_MAX: 10
           PG_LOGGER: debug
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
   build-docker-images:

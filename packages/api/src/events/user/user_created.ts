@@ -50,15 +50,15 @@ export class PublishNewUserEvent implements EntitySubscriberInterface<Profile> {
   }
 }
 
-@EventSubscriber()
-export class AddPopularReadsToNewUser
-  implements EntitySubscriberInterface<Profile>
-{
-  listenTo() {
-    return Profile
-  }
+// @EventSubscriber()
+// export class AddPopularReadsToNewUser
+//   implements EntitySubscriberInterface<Profile>
+// {
+//   listenTo() {
+//     return Profile
+//   }
 
-  async afterInsert(event: InsertEvent<Profile>): Promise<void> {
-    await addPopularReadsForNewUser(event.entity.user.id, event.manager)
-  }
-}
+//   async afterInsert(event: InsertEvent<Profile>): Promise<void> {
+//     await addPopularReadsForNewUser(event.entity.user.id, event.manager)
+//   }
+// }
