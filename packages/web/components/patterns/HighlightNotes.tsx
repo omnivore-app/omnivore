@@ -19,7 +19,7 @@ import { updateHighlightMutation } from '../../lib/networking/mutations/updateHi
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { Button } from '../elements/Button'
 import remarkGfm from 'remark-gfm'
-import { RcEditorStyles } from './RcEditorStyles'
+import { MDEditorSettings, RcEditorStyles } from './RcEditorStyles'
 import { isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 
@@ -163,31 +163,11 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
             autoFocus={true}
             defaultValue={props.text}
             placeholder={props.placeHolder}
-            view={{ menu: true, md: true, html: false }}
-            canView={{
-              menu: props.mode == 'edit',
-              md: true,
-              html: true,
-              both: false,
-              fullScreen: false,
-              hideMenu: false,
-            }}
-            plugins={[
-              'tab-insert',
-              'header',
-              'font-bold',
-              'font-italic',
-              'font-underline',
-              'font-strikethrough',
-              'list-unordered',
-              'list-ordered',
-              'block-quote',
-              'link',
-              'auto-resize',
-            ]}
+            view={MDEditorSettings.view}
+            canView={MDEditorSettings.canView}
+            plugins={MDEditorSettings.plugins}
             style={{
               width: '100%',
-              height: '160px',
             }}
             renderHTML={(text: string) => mdParser.render(text)}
             onChange={handleEditorChange}
@@ -268,7 +248,7 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         <>
           <SpanBox
             css={{
-              p: props.text ? '10px' : '0px',
+              p: props.text ? '10px' : '10px',
               width: '100%',
               fontSize: '12px',
               marginTop: '0px',
@@ -280,6 +260,9 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
                   : 'unset',
               '> *': {
                 m: '0px',
+              },
+              '&:hover': {
+                bg: '#2A2A2A',
               },
             }}
             onClick={() => props.setEditMode('edit')}

@@ -46,6 +46,18 @@ import { updatePageMutation } from '../../../lib/networking/mutations/updatePage
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { posthog } from 'posthog-js'
 import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
+import { SplitPageLayout } from '../../../components/templates/SplitPageLayout'
+import { NotebookHeader } from '../../../components/templates/article/NotebookHeader'
+import { NotebookView } from '../../../components/templates/inspectors/NotebookView'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { Allotment, LayoutPriority } from 'allotment'
+import 'allotment/dist/style.css'
+import {
+  Inspector,
+  InspectorView,
+} from '../../../components/templates/Inspector'
+import { OutlineItem } from '../../../components/templates/inspectors/OutlineView'
+import { useInspector } from '../../../lib/hooks/useInspector'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -57,12 +69,12 @@ const EpubContainerNoSSR = dynamic<EpubContainerProps>(
   { ssr: false }
 )
 
-export default function Home(): JSX.Element {
+export default function Reader(): JSX.Element {
   const router = useRouter()
   const { cache, mutate } = useSWRConfig()
   const [showEditModal, setShowEditModal] = useState(false)
-  const [showHighlightsModal, setShowHighlightsModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
+  const inspector = useInspector()
   const readerSettings = useReaderSettings()
 
   const { articleData, articleFetchError } = useGetArticleQuery({
@@ -185,8 +197,8 @@ export default function Home(): JSX.Element {
             labels: arg as Label[],
           })
           break
-        case 'showHighlights':
-          setShowHighlightsModal(true)
+        case 'showNotebook':
+          inspector.openInspector('notebook')
           break
         case 'showEditModal':
           setShowEditModal(true)
@@ -196,7 +208,7 @@ export default function Home(): JSX.Element {
           break
       }
     },
-    [article, viewerData, cache, mutate, router, readerSettings]
+    [article, cache, mutate, router, readerSettings, inspector, viewerData]
   )
 
   useEffect(() => {
@@ -218,11 +230,16 @@ export default function Home(): JSX.Element {
       actionHandler('showEditModal')
     }
 
+    const openInspectorNote = () => {
+      inspector.openInspector('notebook')
+    }
+
     document.addEventListener('archive', archive)
     document.addEventListener('delete', deletePage)
     document.addEventListener('mark-read', markRead)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
     document.addEventListener('showEditModal', showEditModal)
+    document.addEventListener('openInspector-note', openInspectorNote)
 
     document.addEventListener('goNextOrHome', goNextOrHome)
     document.addEventListener('goPreviousOrHome', goPreviousOrHome)
@@ -235,6 +252,7 @@ export default function Home(): JSX.Element {
       document.removeEventListener('showEditModal', showEditModal)
       document.removeEventListener('goNextOrHome', goNextOrHome)
       document.removeEventListener('goPreviousOrHome', goPreviousOrHome)
+      document.removeEventListener('openInspector-note', openInspectorNote)
     }
   }, [actionHandler, goNextOrHome, goPreviousOrHome])
 
@@ -313,8 +331,8 @@ export default function Home(): JSX.Element {
           ) {
             return
           }
-          if (showHighlightsModal) {
-            setShowHighlightsModal(false)
+          if (inspector.inspectorVisible) {
+            inspector.toggleInspector()
             return
           }
           const query = window.sessionStorage.getItem('q')
@@ -408,7 +426,7 @@ export default function Home(): JSX.Element {
         name: 'Notebook',
         shortcut: ['t'],
         perform: () => {
-          setShowHighlightsModal(!showHighlightsModal)
+          inspector.openInspector('notebook')
         },
       },
       {
@@ -437,7 +455,7 @@ export default function Home(): JSX.Element {
       //   },
       // },
     ],
-    [readerSettings, showHighlightsModal]
+    [readerSettings, inspector]
   )
 
   const [labels, dispatchLabels] = useSetPageLabels(
@@ -449,8 +467,70 @@ export default function Home(): JSX.Element {
     return <LoadingView />
   }
 
+  const [outline, setOutline] = useState<OutlineItem | undefined>(undefined)
+
+  useEffect(() => {
+    const headers = document
+      .getElementById('article-container')
+      ?.querySelectorAll('h1, h2, h3, h4')
+
+    const headerLevel = (node: Element) => {
+      switch (node.nodeName) {
+        case 'H1':
+          return 1
+        case 'H2':
+          return 2
+        case 'H3':
+          return 3
+        case 'H4':
+          return 4
+        case 'H5':
+          return 5
+        case 'H6':
+          return 6
+      }
+      return undefined
+    }
+
+    const root: OutlineItem = {
+      text: '',
+      level: 0,
+      anchor: '',
+      children: [],
+    }
+
+    const stack: OutlineItem[] = [root]
+
+    headers?.forEach((header) => {
+      const level = headerLevel(header)
+      if (!level) {
+        return
+      }
+
+      const item: OutlineItem = {
+        level,
+        text: header.textContent?.trim() ?? '',
+        anchor: header.getAttribute('data-omnivore-anchor-idx') ?? '',
+        children: [],
+      }
+
+      while (stack.length > level) {
+        stack.pop()
+      }
+
+      if (!stack[stack.length - 1].children) {
+        stack[stack.length - 1].children = []
+      }
+
+      stack[stack.length - 1].children.push(item)
+      stack.push(item)
+    })
+
+    setOutline(root)
+  }, [setOutline])
+
   return (
-    <PrimaryLayout
+    <SplitPageLayout
       pageTestId="home-page-tag"
       headerToolbarControl={
         <ArticleActionsMenu
@@ -476,104 +556,149 @@ export default function Home(): JSX.Element {
       />
       <Toaster />
 
-      <ReaderHeader
-        hideDisplaySettings={false}
-        showDisplaySettingsModal={
-          readerSettings.setShowEditDisplaySettingsModal
-        }
-        alwaysDisplayToolbar={article?.contentReader == 'PDF'}
-      >
-        <VerticalArticleActionsMenu
-          article={article}
-          layout="top"
-          showReaderDisplaySettings={article?.contentReader != 'PDF'}
-          articleActionHandler={actionHandler}
-        />
-      </ReaderHeader>
-
-      {article?.contentReader == 'PDF' && <PdfHeaderSpacer />}
-
-      <VStack
-        distribution="between"
-        alignment="center"
-        css={{
-          position: 'fixed',
-          flexDirection: 'row-reverse',
-          left: 8,
-          height: '100%',
-          width: '35px',
-          '@lgDown': {
-            display: 'none',
-          },
-        }}
-      >
-        {article?.contentReader !== 'PDF' ? (
-          <ArticleActionsMenu
-            article={article}
-            layout="side"
-            readerSettings={readerSettings}
-            showReaderDisplaySettings={true}
-            articleActionHandler={actionHandler}
-          />
-        ) : null}
-      </VStack>
-      {article && viewerData?.me && article.contentReader == 'PDF' && (
-        <PdfArticleContainerNoSSR
-          article={article}
-          showHighlightsModal={showHighlightsModal}
-          setShowHighlightsModal={setShowHighlightsModal}
-          viewer={viewerData.me}
-        />
-      )}
-      {article && viewerData?.me && article.contentReader == 'WEB' && (
-        <VStack
-          id="article-wrapper"
-          alignment="center"
-          distribution="start"
-          className="disable-webkit-callout"
-          css={{
-            width: '100%',
-            height: '100%',
-            background: '$readerBg',
-            overflow: 'scroll',
-            paddingTop: '80px',
-            '@media print': {
-              paddingTop: '0px',
-            },
-          }}
-        >
-          {article && viewerData?.me ? (
-            <ArticleContainer
-              viewer={viewerData.me}
+      <Allotment>
+        <Allotment.Pane visible={inspector.mainAreaVisible}>
+          <ReaderHeader
+            showDisplaySettingsModal={
+              readerSettings.setShowEditDisplaySettingsModal
+            }
+            alwaysDisplayToolbar={article?.contentReader == 'PDF'}
+            showInspectorToggle={!inspector.inspectorVisible}
+            inspectorToggleClicked={(event) => {
+              inspector.toggleInspector()
+              event.preventDefault()
+            }}
+          >
+            <VerticalArticleActionsMenu
               article={article}
-              isAppleAppEmbed={false}
-              highlightBarDisabled={false}
-              fontSize={readerSettings.fontSize}
-              margin={readerSettings.marginWidth}
-              lineHeight={readerSettings.lineHeight}
-              fontFamily={readerSettings.fontFamily}
-              labels={labels.labels}
-              showHighlightsModal={showHighlightsModal}
-              setShowHighlightsModal={setShowHighlightsModal}
-              justifyText={readerSettings.justifyText ?? undefined}
-              highContrastText={readerSettings.highContrastText ?? undefined}
-              articleMutations={{
-                createHighlightMutation,
-                deleteHighlightMutation,
-                mergeHighlightMutation,
-                updateHighlightMutation,
-                articleReadingProgressMutation,
-              }}
+              layout="top"
+              showReaderDisplaySettings={article?.contentReader != 'PDF'}
+              articleActionHandler={actionHandler}
+              showInspectorToggle={!inspector.inspectorVisible}
+              openInspector={inspector.openInspector}
             />
-          ) : (
-            <SkeletonArticleContainer
-              margin={readerSettings.marginWidth}
-              lineHeight={readerSettings.lineHeight}
-              fontSize={readerSettings.fontSize}
+          </ReaderHeader>
+
+          <VStack
+            distribution="between"
+            alignment="center"
+            css={{
+              position: 'fixed',
+              flexDirection: 'row-reverse',
+              left: 8,
+              height: '100%',
+              width: '35px',
+              '@lgDown': {
+                display: 'none',
+              },
+            }}
+          >
+            {article?.contentReader !== 'PDF' ? (
+              <ArticleActionsMenu
+                article={article}
+                layout="side"
+                readerSettings={readerSettings}
+                showReaderDisplaySettings={true}
+                articleActionHandler={actionHandler}
+              />
+            ) : null}
+          </VStack>
+          {article && viewerData?.me && article.contentReader == 'PDF' && (
+            <PdfArticleContainerNoSSR
+              article={article}
+              viewer={viewerData.me}
+              setOutline={setOutline}
             />
           )}
-        </VStack>
-      )}
+          {article && viewerData?.me && article.contentReader == 'WEB' && (
+            <VStack
+              id="article-wrapper"
+              alignment="center"
+              distribution="start"
+              className="disable-webkit-callout"
+              css={{
+                width: '100%',
+                height: '100%',
+                background: '$readerBg',
+                overflow: 'scroll',
+                '@media print': {
+                  paddingTop: '0px',
+                },
+              }}
+            >
+              {article && viewerData?.me ? (
+                <ArticleContainer
+                  viewer={viewerData.me}
+                  article={article}
+                  isAppleAppEmbed={false}
+                  highlightBarDisabled={false}
+                  fontSize={readerSettings.fontSize}
+                  margin={readerSettings.marginWidth}
+                  lineHeight={readerSettings.lineHeight}
+                  fontFamily={readerSettings.fontFamily}
+                  labels={labels.labels}
+                  justifyText={readerSettings.justifyText ?? undefined}
+                  highContrastText={
+                    readerSettings.highContrastText ?? undefined
+                  }
+                  articleMutations={{
+                    createHighlightMutation,
+                    deleteHighlightMutation,
+                    mergeHighlightMutation,
+                    updateHighlightMutation,
+                    articleReadingProgressMutation,
+                  }}
+                />
+              ) : (
+                <SkeletonArticleContainer
+                  margin={readerSettings.marginWidth}
+                  lineHeight={readerSettings.lineHeight}
+                  fontSize={readerSettings.fontSize}
+                />
+              )}
+            </VStack>
+          )}
+        </Allotment.Pane>
+
+        <Allotment.Pane
+          minSize={inspector.inspectorMinSize}
+          maxSize={inspector.inspectorMaxSize}
+          preferredSize={inspector.inspectorPreferredSize}
+          priority={LayoutPriority.High}
+          visible={inspector.inspectorVisible}
+          className="inspectorPane"
+        >
+          {article && viewerData?.me && (
+            <>
+              <Inspector
+                viewer={viewerData.me}
+                item={article}
+                outline={outline}
+                closeInspector={inspector.closeInspector}
+                currentView={inspector.currentInspectorView}
+                setCurrentView={inspector.setCurrentInspectorView}
+                viewInReader={(highlightId) => {
+                  // The timeout here is a bit of a hack to work around rerendering
+                  setTimeout(() => {
+                    const target = document.querySelector(
+                      `[omnivore-highlight-id="${highlightId}"]`
+                    )
+                    target?.scrollIntoView({
+                      block: 'center',
+                      behavior: 'auto',
+                    })
+                  }, 1)
+                  history.replaceState(
+                    undefined,
+                    window.location.href,
+                    `#${highlightId}`
+                  )
+                }}
+              />
+            </>
+          )}
+        </Allotment.Pane>
+      </Allotment>
 
       {article && viewerData?.me && article.contentReader == 'EPUB' && (
         <VStack
@@ -585,16 +710,10 @@ export default function Home(): JSX.Element {
             height: '100%',
             background: '$readerBg',
             overflow: 'scroll',
-            paddingTop: '80px',
           }}
         >
           {article && viewerData?.me ? (
-            <EpubContainerNoSSR
-              article={article}
-              showHighlightsModal={showHighlightsModal}
-              setShowHighlightsModal={setShowHighlightsModal}
-              viewer={viewerData.me}
-            />
+            <EpubContainerNoSSR article={article} viewer={viewerData.me} />
           ) : (
             <SkeletonArticleContainer
               margin={readerSettings.marginWidth}
@@ -650,6 +769,6 @@ export default function Home(): JSX.Element {
           }}
         />
       )}
-    </PrimaryLayout>
+    </SplitPageLayout>
   )
 }

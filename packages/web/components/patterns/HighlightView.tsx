@@ -29,6 +29,11 @@ import {
   useInteractions,
 } from '@floating-ui/react'
 import { HighlightHoverActions } from './HighlightHoverActions'
+import { StyledText } from '../elements/StyledText'
+import dayjs from 'dayjs'
+import calendar from 'dayjs/plugin/calendar'
+
+dayjs.extend(calendar)
 
 type HighlightViewProps = {
   item: ReadableItem
@@ -52,6 +57,10 @@ const StyledQuote = styled(Blockquote, {
   borderRadius: '4px',
   width: '100%',
 })
+
+const timeAgo = (date: string): string => {
+  return dayjs().calendar(date)
+}
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
   const isDark = isDarkTheme()
@@ -101,6 +110,19 @@ export function HighlightView(props: HighlightViewProps): JSX.Element {
           }
         />
       </Box>
+      <StyledText
+        css={{
+          fontSize: '10px',
+          fontFamily: '$inter',
+          p: '0px',
+          m: '0px',
+          ml: '-2px', // because the highlight padding extends outside its box
+          mb: '5px',
+        }}
+        title={props.highlight.createdAt}
+      >
+        {timeAgo(props.highlight.createdAt)}
+      </StyledText>
       <VStack
         css={{
           width: '100%',

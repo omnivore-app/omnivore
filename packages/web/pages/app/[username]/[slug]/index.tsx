@@ -92,8 +92,6 @@ function AppArticleEmbedContent(
             margin={props.margin}
             fontFamily={props.fontFamily}
             labels={[]}
-            showHighlightsModal={showHighlightsModal}
-            setShowHighlightsModal={setShowHighlightsModal}
             articleMutations={{
               createHighlightMutation,
               deleteHighlightMutation,

@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { VStack } from '../../../components/elements/LayoutPrimitives'
 import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
@@ -30,15 +30,6 @@ export default function ArticleSavingRequestPage(): JSX.Element {
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
-      headerToolbarControl={
-        <ArticleActionsMenu
-          article={undefined}
-          layout="top"
-          readerSettings={readerSettings}
-          showReaderDisplaySettings={true}
-          articleActionHandler={readerSettings.actionHandler}
-        />
-      }
       alwaysDisplayToolbar={false}
       pageMetaDataProps={{
         title: 'Saving link',
@@ -47,9 +38,11 @@ export default function ArticleSavingRequestPage(): JSX.Element {
     >
       <ReaderHeader
         alwaysDisplayToolbar={false}
-        hideDisplaySettings={true}
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         showDisplaySettingsModal={() => {}}
+        showInspectorToggle={false}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        inspectorToggleClicked={() => {}}
       />
       <TopBarProgress />
       <VStack
@@ -66,15 +59,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
             display: 'none',
           },
         }}
-      >
-        <ArticleActionsMenu
-          article={undefined}
-          layout="side"
-          readerSettings={readerSettings}
-          showReaderDisplaySettings={true}
-          articleActionHandler={readerSettings.actionHandler}
-        />
-      </VStack>
+      ></VStack>
       <VStack
         alignment="center"
         distribution="center"

@@ -2,7 +2,7 @@ import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItems
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
-import { NotebookContent } from './Notebook'
+import { NotebookView } from '../inspectors/NotebookView'
 import { NotebookHeader } from './NotebookHeader'
 import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 import { useRouter } from 'next/router'
@@ -39,7 +39,7 @@ export const NotebookPresenter = (props: NotebookPresenterProps) => {
           item={props.item}
           setShowNotebook={props.setOpen}
         />
-        <NotebookContent
+        <NotebookView
           viewer={props.viewer}
           item={props.item}
           viewInReader={(highlightId) => {

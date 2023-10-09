@@ -26,8 +26,6 @@ import { theme } from '../../tokens/stitches.config'
 export type EpubContainerProps = {
   viewer: UserBasicData
   article: ArticleAttributes
-  showHighlightsModal: boolean
-  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type EpubPatch = {
@@ -325,34 +323,6 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
           }}
           onOpenChange={() => {
             setNoteTarget(undefined)
-          }}
-        />
-      )}
-      {props.showHighlightsModal && (
-        <NotebookModal
-          key={notebookKey}
-          viewer={props.viewer}
-          item={props.article}
-          onClose={(updatedHighlights, deletedAnnotations) => {
-            console.log(
-              'closed PDF notebook: ',
-              updatedHighlights,
-              deletedAnnotations
-            )
-            deletedAnnotations.forEach((highlight) => {
-              const event = new CustomEvent('deleteHighlightbyId', {
-                detail: highlight.id,
-              })
-              document.dispatchEvent(event)
-            })
-            props.setShowHighlightsModal(false)
-          }}
-          viewHighlightInReader={(highlightId) => {
-            const event = new CustomEvent('scrollToHighlightId', {
-              detail: highlightId,
-            })
-            document.dispatchEvent(event)
-            props.setShowHighlightsModal(false)
           }}
         />
       )}

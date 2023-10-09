@@ -13,6 +13,8 @@ import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { LeftPanelToggleIcon } from '../../elements/icons/LeftPanelToggleIcon'
+import { InspectorView } from '../Inspector'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
@@ -20,6 +22,8 @@ type ArticleActionsMenuProps = {
   article?: ArticleAttributes
   layout: ArticleActionsMenuLayout
   showReaderDisplaySettings?: boolean
+  showInspectorToggle?: boolean
+  openInspector: (initial: InspectorView | undefined) => void
   articleActionHandler: (action: string, arg?: unknown) => void
 }
 
@@ -33,7 +37,7 @@ export function VerticalArticleActionsMenu(
         alignment="center"
         css={{
           width: '100%',
-          gap: '30px',
+          gap: '5px',
         }}
       >
         <Button
@@ -48,13 +52,16 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <LabelIcon size={24} color={theme.colors.thHighContrast.toString()} />
+          <LabelIcon
+            size={25}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
         </Button>
 
         <Button
           title="Open notebook (t)"
           style="articleActionIcon"
-          onClick={() => props.articleActionHandler('showHighlights')}
+          onClick={() => props.articleActionHandler('showNotebook')}
           css={{
             display: 'flex',
             alignItems: 'center',
@@ -64,8 +71,8 @@ export function VerticalArticleActionsMenu(
           }}
         >
           <NotebookIcon
-            size={24}
-            color={theme.colors.thHighContrast.toString()}
+            size={25}
+            color={theme.colors.thNotebookSubtle.toString()}
           />
         </Button>
 
@@ -82,8 +89,8 @@ export function VerticalArticleActionsMenu(
           }}
         >
           <EditInfoIcon
-            size={24}
-            color={theme.colors.thHighContrast.toString()}
+            size={25}
+            color={theme.colors.thNotebookSubtle.toString()}
           />
         </Button>
 
@@ -101,7 +108,10 @@ export function VerticalArticleActionsMenu(
             },
           }}
         >
-          <TrashIcon size={24} color={theme.colors.thHighContrast.toString()} />
+          <TrashIcon
+            size={25}
+            color={theme.colors.thNotebookSubtle.toString()}
+          />
         </Button>
 
         {!props.article?.isArchived ? (
@@ -118,8 +128,8 @@ export function VerticalArticleActionsMenu(
             }}
           >
             <ArchiveIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
+              size={25}
+              color={theme.colors.thNotebookSubtle.toString()}
             />
           </Button>
         ) : (
@@ -136,6 +146,22 @@ export function VerticalArticleActionsMenu(
             }}
           >
             <UnarchiveIcon
+              size={25}
+              color={theme.colors.thNotebookSubtle.toString()}
+            />
+          </Button>
+        )}
+        {props.showReaderDisplaySettings && (
+          <Button
+            title="Display Settings (d)"
+            style="articleActionIcon"
+            onClick={() => props.articleActionHandler('editDisplaySettings')}
+            css={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <ReaderSettingsIcon
               size={24}
               color={theme.colors.thHighContrast.toString()}
             />
@@ -159,12 +185,29 @@ export function VerticalArticleActionsMenu(
         <ReaderDropdownMenu
           triggerElement={
             <CircleUtilityMenuIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
+              size={25}
+              color={theme.colors.thNotebookSubtle.toString()}
             />
           }
           articleActionHandler={props.articleActionHandler}
         />
+
+        {props.showInspectorToggle && (
+          <Button
+            title="Toggle Inspector"
+            style="articleActionIcon"
+            onClick={(event) => {
+              props.openInspector(undefined)
+              event.preventDefault()
+            }}
+            css={{ ml: '30px' }}
+          >
+            <LeftPanelToggleIcon
+              size={25}
+              color={theme.colors.thNotebookSubtle.toString()}
+            />
+          </Button>
+        )}
       </HStack>
     </>
   )

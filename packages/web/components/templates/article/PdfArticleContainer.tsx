@@ -16,17 +16,18 @@ import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
 import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import SlidingPane from 'react-sliding-pane'
-import 'react-sliding-pane/dist/react-sliding-pane.css'
-import { NotebookContent } from './Notebook'
-import { NotebookHeader } from './NotebookHeader'
 import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
+import { OutlineItem } from '../inspectors/OutlineView'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
   article: ArticleAttributes
-  showHighlightsModal: boolean
-  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
+  setOutline: (outline: OutlineItem | undefined) => void
+}
+
+interface OutlineElement {
+  children: OutlineElement[]
+  action?: { pageIndex?: number }
 }
 
 export default function PdfArticleContainer(
@@ -48,6 +49,41 @@ export default function PdfArticleContainer(
       (annotation.customData.omnivoreHighlight as Highlight).id
     ) {
       return (annotation.customData.omnivoreHighlight as Highlight).id
+    }
+    return undefined
+  }
+
+  const getOutline = async (
+    instance: Instance
+  ): Promise<OutlineItem | undefined> => {
+    const getOutlineChildren = (
+      prefix: string,
+      outline: any[]
+    ): OutlineItem[] => {
+      return outline.map((item, idx) => {
+        const anchor = prefix + '/' + idx.toString()
+        return {
+          anchor,
+          text: item.title as string,
+          level: 1,
+          children: getOutlineChildren(anchor, item.children),
+        }
+      })
+    }
+
+    try {
+      const outline = await (await instance.getDocumentOutline()).toJS()
+      if (outline.length) {
+        const root = {
+          level: 0,
+          text: '',
+          anchor: '',
+          children: getOutlineChildren('', outline),
+        }
+        return root
+      }
+    } catch (err) {
+      console.log('error generating outline: ', err)
     }
     return undefined
   }
@@ -218,6 +254,11 @@ export default function PdfArticleContainer(
 
       instance = await PSPDFKit.load(config)
       console.log('created PDF instance', instance)
+
+      const outline = await getOutline(instance)
+      if (outline) {
+        props.setOutline(outline)
+      }
 
       instance.addEventListener('annotations.willChange', async (event) => {
         const annotation = event.annotations.get(0)
@@ -552,8 +593,67 @@ export default function PdfArticleContainer(
         viewState.set('showToolbar', showToolbarbar)
       )
     })
+    const scrollToOutlineAnchorIdx = (event: Event) => {
+      console.log('scrollToOutlineAnchorIdx', event)
+      ;(async () => {
+        const anchor = (event as CustomEvent).detail
+        // const outline = await getOutline(instance)
+        const outline = (await (
+          await instance.getDocumentOutline()
+        ).toJS()) as OutlineElement[]
+        const root = {
+          children: outline,
+        }
+
+        console.log('navigate to anchor: ', anchor, outline)
+        if (!outline) {
+          return
+        }
+
+        const position = (anchor as string).split('/')
+        position.shift()
+        console.log('positions: ', position)
+
+        // const outline = (await (
+        //   await instance.getDocumentOutline()
+        // ).toJS()) as OutlineElement[]
+
+        var current: OutlineElement | undefined = root
+        while (position.length > 0) {
+          const positionBefore = position
+          const top = position.shift()
+          console.log(
+            'top: ',
+            top,
+            'position',
+            positionBefore
+            // 'current: ',
+            // current
+          )
+          current = current?.children[Number(top)]
+        }
+        console.log('selected: ', anchor, current)
+        if (current && current.action?.pageIndex) {
+          console.log('action: ', current.action)
+          const pageIndex = Number(current.action?.pageIndex)
+          const state = instance.viewState
+          const newState = state.set('currentPageIndex', pageIndex)
+          instance.setViewState(newState)
+        }
+      })()
+    }
+
+    document.addEventListener(
+      'scrollToOutlineAnchorIdx',
+      scrollToOutlineAnchorIdx
+    )
 
     return () => {
+      document.removeEventListener(
+        'scrollToOutlineAnchorIdx',
+        scrollToOutlineAnchorIdx
+      )
+
       PSPDFKit && container && PSPDFKit.unload(container)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -594,35 +694,6 @@ export default function PdfArticleContainer(
           }}
         />
       )}
-      <SlidingPane
-        className="sliding-pane-class"
-        isOpen={props.showHighlightsModal}
-        width={windowDimensions.width < 600 ? '100%' : '420px'}
-        hideHeader={true}
-        from="right"
-        overlayClassName="slide-panel-overlay"
-        onRequestClose={() => {
-          props.setShowHighlightsModal(false)
-        }}
-      >
-        <>
-          <NotebookHeader
-            viewer={props.viewer}
-            item={props.article}
-            setShowNotebook={props.setShowHighlightsModal}
-          />
-          <NotebookContent
-            viewer={props.viewer}
-            item={props.article}
-            viewInReader={(highlightId) => {
-              const event = new CustomEvent('scrollToHighlightId', {
-                detail: highlightId,
-              })
-              document.dispatchEvent(event)
-            }}
-          />
-        </>
-      </SlidingPane>
     </Box>
   )
 }

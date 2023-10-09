@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 import { useGetArticleSavingStatus } from '../../../lib/networking/queries/useGetArticleSavingStatus'
 import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
 import {
@@ -30,15 +30,6 @@ export default function ArticleSavingRequestPage(): JSX.Element {
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
-      headerToolbarControl={
-        <ArticleActionsMenu
-          article={undefined}
-          layout="top"
-          readerSettings={readerSettings}
-          showReaderDisplaySettings={true}
-          articleActionHandler={readerSettings.actionHandler}
-        />
-      }
       alwaysDisplayToolbar={false}
       pageMetaDataProps={{
         title: 'Saving link',
@@ -63,16 +54,11 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       >
         <ReaderHeader
           alwaysDisplayToolbar={false}
-          hideDisplaySettings={true}
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           showDisplaySettingsModal={() => {}}
-        />
-        <ArticleActionsMenu
-          article={undefined}
-          layout="side"
-          readerSettings={readerSettings}
-          showReaderDisplaySettings={true}
-          articleActionHandler={readerSettings.actionHandler}
+          showInspectorToggle={false}
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          inspectorToggleClicked={() => {}}
         />
       </VStack>
       <VStack

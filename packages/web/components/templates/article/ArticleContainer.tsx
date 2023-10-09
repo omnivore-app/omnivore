@@ -33,10 +33,8 @@ type ArticleContainerProps = {
   lineHeight?: number
   maxWidthPercentage?: number
   highContrastText?: boolean
-  showHighlightsModal: boolean
   highlightOnRelease?: boolean
   justifyText?: boolean
-  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type RecommendationCommentsProps = {
@@ -268,6 +266,21 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       console.log('saving read position')
     }
 
+    const scrollToOutlineAnchorIdx = (event: Event) => {
+      const detail = (event as CustomEvent).detail
+      if (!detail) {
+        return
+      }
+      const element = document.querySelector(
+        `[data-omnivore-anchor-idx='${detail}']`
+      )
+      element?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      })
+    }
+
     document.addEventListener('saveReadPosition', saveReadPosition)
 
     document.addEventListener('updateFontFamily', updateFontFamily)
@@ -294,6 +307,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       updateHighlightMode
     )
 
+    document.addEventListener(
+      'scrollToOutlineAnchorIdx',
+      scrollToOutlineAnchorIdx
+    )
+
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
       document.removeEventListener('updateLineHeight', updateLineHeight)
@@ -317,6 +335,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         updateHighlightMode
       )
       document.removeEventListener('saveReadPosition', saveReadPosition)
+      document.removeEventListener(
+        'scrollToOutlineAnchorIdx',
+        scrollToOutlineAnchorIdx
+      )
     }
   })
 
@@ -366,7 +388,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       <Box
         id="article-container"
         css={{
-          padding: 30,
+          px: 30,
           minHeight: '100vh',
           maxWidth: maxWidthStyles.default,
           background: theme.colors.readerBg.toString(),
@@ -416,10 +438,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           >
             {title}
           </StyledText>
-          <ArticleSubtitle
-            author={props.article.author}
-            href={props.article.url}
-          />
+          <ArticleSubtitle item={props.article} author={props.article.author} />
 
           {labels ? (
             <SpanBox
@@ -484,8 +503,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
-        showHighlightsModal={props.showHighlightsModal}
-        setShowHighlightsModal={props.setShowHighlightsModal}
         highlightOnRelease={highlightOnRelease}
         articleMutations={props.articleMutations}
       />

@@ -30,7 +30,7 @@ type PageCoordinates = {
 export type HighlightAction =
   | 'delete'
   | 'create'
-  | 'comment'
+  | 'createWithNote'
   | 'share'
   | 'post'
   | 'unshare'
@@ -172,11 +172,10 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           </Button>
         </>
       )}
-
       <Button
         title={props.isNewHighlight ? `Create highlight w/note` : 'Add note'}
         style="highlightBarIcon"
-        onClick={() => props.handleButtonClick('comment')}
+        onClick={() => props.handleButtonClick('createWithNote')}
         onMouseEnter={() => {
           setHovered('note')
         }}

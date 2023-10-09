@@ -1,8 +1,15 @@
 import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
-import { theme } from '../../tokens/stitches.config'
+import { styled, theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -11,22 +18,23 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { HighlightViewItem } from './HighlightViewItem'
+import { HighlightViewItem } from '../article/HighlightViewItem'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
-import { Button } from '../../elements/Button'
+import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { SetHighlightLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
 import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { formattedShortTime } from '../../../lib/dateFormatting'
 import { isDarkTheme } from '../../../lib/themeUpdater'
+import { Button } from '../../elements/Button'
+import { ColoredStack } from '../../elements/EditLabelChipStack'
 
-type NotebookContentProps = {
+type NotebookViewProps = {
   viewer: UserBasicData
 
-  item: ReadableItem
+  item: LibraryItemNode
 
   viewInReader: (highlightId: string) => void
 
@@ -48,7 +56,7 @@ type NoteState = {
   createStarted: Date | undefined
 }
 
-export function NotebookContent(props: NotebookContentProps): JSX.Element {
+export function NotebookView(props: NotebookViewProps): JSX.Element {
   const isDark = isDarkTheme()
 
   const { articleData, mutate } = useGetArticleQuery({
@@ -217,28 +225,85 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     }
   }, [mutate])
 
+  const pluralStr = (str: string, count: number | undefined) => {
+    let useCount = count ?? 0
+    if (count === 1) {
+      return `${useCount} ${str}`
+    }
+    return `${useCount} ${str}s`
+  }
+
   return (
     <VStack
       tabIndex={-1}
       distribution="start"
       css={{
-        height: '100%',
+        height: 'calc(100% - 56px)',
         width: '100%',
-        px: '20px',
-        '@mdDown': { p: '15px' },
+        overflowY: 'auto',
       }}
     >
+      <StyledText
+        css={{
+          color: '$thTextContrast2',
+          fontFamily: '$inter',
+          fontSize: '18px',
+          fontStyle: 'normal',
+          fontWeight: '600',
+          lineHeight: '150%',
+          px: '20px',
+        }}
+      >
+        {props.item.title}
+      </StyledText>
+      <HStack
+        css={{
+          px: '20px',
+          gap: '10px',
+        }}
+      >
+        <InfoBubble text={pluralStr('label', props.item.labels?.length)}>
+          {(props.item.labels?.length ?? 0) > 0 && (
+            <SpanBox css={{ ml: '14px' }}>
+              <ColoredStack
+                colors={props.item.labels?.map((l) => l.color) ?? []}
+              />
+            </SpanBox>
+          )}
+        </InfoBubble>
+        <InfoBubble
+          text={pluralStr(
+            'highlight',
+            props.item.highlights?.filter((h) => h.type == 'HIGHLIGHT').length
+          )}
+          onClick={(event) => {
+            const highlights = document.getElementById('highlights-container')
+            highlights?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+              inline: 'nearest',
+            })
+            event.preventDefault()
+          }}
+        />
+        <InfoBubble
+          text={pluralStr(
+            'note',
+            props.item.highlights?.filter((h) => h.type == 'NOTE').length
+          )}
+        />
+      </HStack>
       <>
         <HStack
           alignment="start"
           distribution="start"
-          css={{ width: '100%', gap: '10px', mt: '25px' }}
+          css={{ width: '100%', gap: '10px', mt: '25px', px: '20px' }}
         >
           <ArticleNotes
             targetId={props.item.id}
             text={noteText}
             setText={setNoteText}
-            placeHolder="Add notes to this document..."
+            placeHolder="Add Article Note..."
             saveText={handleSaveNoteText}
           />
         </HStack>
@@ -248,6 +313,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             width: '100%',
             fontSize: '9px',
             mt: '5px',
+            px: '20px',
             color: '$thTextSubtle',
           }}
           alignment="start"
@@ -274,7 +340,12 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         </HStack>
       </>
 
-      <VStack css={{ mt: '25px', gap: '25px' }}>
+      <ItemSeparator></ItemSeparator>
+
+      <VStack
+        css={{ mt: '25px', gap: '25px', px: '25px' }}
+        id="highlights-container"
+      >
         {sortedHighlights.map((highlight) => (
           <HighlightViewItem
             key={highlight.id}
@@ -381,3 +452,40 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     </VStack>
   )
 }
+
+type InfoBubbleProps = {
+  text: string
+  children?: React.ReactNode
+
+  onClick?: MouseEventHandler<HTMLButtonElement>
+}
+
+const InfoBubble = (props: InfoBubbleProps): JSX.Element => {
+  return (
+    <Button
+      style="ctaGray"
+      css={{
+        display: 'inline-flex',
+        height: '28px',
+        background: '$thBackground',
+        color: '$thTextSubtle',
+        fontFamily: '$inter',
+        fontSize: '12px',
+        fontWeight: '500',
+        padding: '4px 10px',
+        alignItems: 'center',
+        borderRadius: '5px',
+        gap: '5px',
+      }}
+      onClick={props.onClick}
+    >
+      {props.children && props.children}
+      {props.text}
+    </Button>
+  )
+}
+
+const ItemSeparator = styled('hr', {
+  width: '100%',
+  border: '0.5px solid $thBorderColor',
+})

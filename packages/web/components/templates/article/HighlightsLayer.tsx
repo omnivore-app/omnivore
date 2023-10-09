@@ -27,7 +27,7 @@ import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItems
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
 import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
-import { NotebookContent } from './Notebook'
+import { NotebookView } from '../inspectors/NotebookView'
 import { NotebookHeader } from './NotebookHeader'
 import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
@@ -43,11 +43,9 @@ type HighlightsLayerProps = {
   articleAuthor: string
   isAppleAppEmbed: boolean
   highlightBarDisabled: boolean
-  showHighlightsModal: boolean
   highlightOnRelease?: boolean
   scrollToHighlight: MutableRefObject<string | null>
 
-  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
   articleMutations: ArticleMutations
 }
 
@@ -431,21 +429,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     [highlights, openNoteModal]
   )
 
-  const handleCloseNotebook = useCallback(
-    (updatedHighlights: Highlight[]) => {
-      props.setShowHighlightsModal(false)
-
-      // Remove all the existing highlights, then set the new ones
-      removeHighlights(
-        highlights.map((h) => h.id),
-        highlightLocations
-      )
-
-      setHighlights([...updatedHighlights])
-    },
-    [highlights, highlightLocations, props, setHighlights]
-  )
-
   useEffect(() => {
     let clickCount = 0
     const handleClick = (e: MouseEvent) => {
@@ -490,18 +473,20 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             showErrorToast('Error updating color')
           }
           break
-        case 'comment':
+        case 'createWithNote':
           if (props.highlightBarDisabled || focusedHighlight) {
             openNoteModal({
               highlight: focusedHighlight,
               highlightModalAction: 'addComment',
             })
-          } else {
+          } else if (selectionData) {
             openNoteModal({
               highlight: undefined,
               selectionData: selectionData || undefined,
               highlightModalAction: 'addComment',
             })
+          } else {
+            document.dispatchEvent(new Event('openInspector-note'))
           }
           break
         case 'copy': {
@@ -624,7 +609,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     }
 
     const annotate = async () => {
-      await safeHandleAction('comment')
+      await safeHandleAction('createWithNote')
     }
 
     const highlight = async () => {
@@ -830,48 +815,6 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           />
         </>
       )}
-      <SlidingPane
-        className="sliding-pane-class"
-        isOpen={props.showHighlightsModal}
-        width={windowDimensions.width < 600 ? '100%' : '420px'}
-        hideHeader={true}
-        from="right"
-        overlayClassName="slide-panel-overlay"
-        onRequestClose={() => {
-          props.setShowHighlightsModal(false)
-        }}
-      >
-        <>
-          <NotebookHeader
-            viewer={props.viewer}
-            item={props.item}
-            setShowNotebook={props.setShowHighlightsModal}
-          />
-          <NotebookContent
-            viewer={props.viewer}
-            item={props.item}
-            // highlights={highlights}
-            // onClose={handleCloseNotebook}
-            viewInReader={(highlightId) => {
-              // The timeout here is a bit of a hack to work around rerendering
-              setTimeout(() => {
-                const target = document.querySelector(
-                  `[omnivore-highlight-id="${highlightId}"]`
-                )
-                target?.scrollIntoView({
-                  block: 'center',
-                  behavior: 'auto',
-                })
-              }, 1)
-              history.replaceState(
-                undefined,
-                window.location.href,
-                `#${highlightId}`
-              )
-            }}
-          />
-        </>
-      </SlidingPane>
     </>
   )
 }

@@ -16,7 +16,7 @@ import { diff_match_patch } from 'diff-match-patch'
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
-import { NotebookContent } from './Notebook'
+import { NotebookView } from '../inspectors/NotebookView'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 
@@ -149,7 +149,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
             <CloseButton close={handleClose} />
           </HStack>
         </HStack>
-        <NotebookContent
+        <NotebookView
           {...props}
           viewInReader={viewInReader}
           onAnnotationsChanged={handleAnnotationsChange}

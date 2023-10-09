@@ -13,7 +13,7 @@ import {
 import { Box, VStack } from '../../elements/LayoutPrimitives'
 
 import { styled, theme } from '../../tokens/stitches.config'
-import { getHighlightLocation } from '../article/Notebook'
+import { getHighlightLocation } from '../inspectors/NotebookView'
 
 type HighlightsMenuProps = {
   viewer: UserBasicData

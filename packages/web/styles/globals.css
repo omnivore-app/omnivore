@@ -450,3 +450,14 @@ button {
     border-left: 1px solid var(--colors-thNotebookBorder);
   }
 }
+
+/* .menuPane,
+.inspectorPane {
+  transition: all 0.05s ease-in-out;
+  will-change: auto;
+} */
+.splitViewContainer:global(.split-view-sash-dragging) .menuPane,
+.splitViewContainer:global(.split-view-sash-dragging) .inspectorPane {
+  /* disable animation while sash dragging */
+  transition: none;
+}

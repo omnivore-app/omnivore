@@ -183,7 +183,7 @@ const GridImage = (props: GridImageProps): JSX.Element => {
 const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   const { isChecked, setIsChecked, item } = props
   const [menuOpen, setMenuOpen] = useState(false)
-  const originText = siteName(props.item.originalArticleUrl, props.item.url)
+  const originText = siteName(props.item)
 
   const handleCheckChanged = useCallback(() => {
     const newValue = !isChecked

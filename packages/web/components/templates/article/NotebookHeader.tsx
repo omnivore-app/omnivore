@@ -53,16 +53,16 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
         top: '0px',
         height: '50px',
         p: '20px',
-        borderTopLeftRadius: '10px',
+        // borderTopLeftRadius: '10px',
         overflow: 'clip',
-        background: '$thNotebookBackground',
+        // background: '$thNotebookBackground',
         zIndex: 10,
-        borderBottom: '1px solid $thNotebookBorder',
+        // borderBottom: '1px solid $thNotebookBorder',
       }}
     >
-      <StyledText style="modalHeadline" css={{ color: '$thNotebookSubtle' }}>
+      {/* <StyledText style="modalHeadline" css={{ color: '$thNotebookSubtle' }}>
         Notebook
-      </StyledText>
+      </StyledText> */}
       <HStack
         css={{
           ml: 'auto',
@@ -100,9 +100,9 @@ export const NotebookHeader = (props: NotebookHeaderProps) => {
             color={theme.colors.thNotebookSubtle.toString()}
           />
         </Button>
-        <Button style="plainIcon" onClick={() => props.setShowNotebook(false)}>
+        {/* <Button style="plainIcon" onClick={() => props.setShowNotebook(false)}>
           <Sidebar size={25} color={theme.colors.thNotebookSubtle.toString()} />
-        </Button>
+        </Button> */}
       </HStack>
     </HStack>
   )

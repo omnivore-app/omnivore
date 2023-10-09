@@ -26,15 +26,6 @@ export default function ArticleSavingRequestPage(): JSX.Element {
   return (
     <PrimaryLayout
       pageTestId="home-page-tag"
-      headerToolbarControl={
-        <ArticleActionsMenu
-          article={undefined}
-          layout="top"
-          readerSettings={readerSettings}
-          showReaderDisplaySettings={true}
-          articleActionHandler={readerSettings.actionHandler}
-        />
-      }
       alwaysDisplayToolbar={false}
       pageMetaDataProps={{
         title: 'Saving link',
@@ -42,29 +33,6 @@ export default function ArticleSavingRequestPage(): JSX.Element {
       }}
     >
       <TopBarProgress />
-      <VStack
-        distribution="between"
-        alignment="center"
-        css={{
-          position: 'fixed',
-          flexDirection: 'row-reverse',
-          top: '-120px',
-          left: 8,
-          height: '100%',
-          width: '35px',
-          '@lgDown': {
-            display: 'none',
-          },
-        }}
-      >
-        <ArticleActionsMenu
-          article={undefined}
-          layout="side"
-          readerSettings={readerSettings}
-          showReaderDisplaySettings={true}
-          articleActionHandler={readerSettings.actionHandler}
-        />
-      </VStack>
       <VStack
         alignment="center"
         distribution="center"

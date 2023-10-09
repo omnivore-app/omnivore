@@ -15,9 +15,9 @@ import 'react-markdown-editor-lite/lib/index.css'
 import throttle from 'lodash/throttle'
 import { updateHighlightMutation } from '../../lib/networking/mutations/updateHighlightMutation'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
-import Counter from './MDEditorSavePlugin'
+import SavePlugin from './MDEditorSavePlugin'
 import { isDarkTheme } from '../../lib/themeUpdater'
-import { RcEditorStyles } from './RcEditorStyles'
+import { MDEditorSettings, RcEditorStyles } from './RcEditorStyles'
 
 const mdParser = new MarkdownIt()
 
@@ -25,7 +25,12 @@ MdEditor.use(Plugins.TabInsert, {
   tabMapValue: 1, // note that 1 means a '\t' instead of ' '.
 })
 
-MdEditor.use(Counter)
+MdEditor.use(Plugins.AutoResize, {
+  min: 200,
+  max: 800,
+})
+
+MdEditor.use(SavePlugin)
 
 type NoteSectionProps = {
   targetId: string
@@ -181,32 +186,11 @@ export function MarkdownNote(props: MarkdownNote): JSX.Element {
         ref={editorRef}
         value={props.text}
         placeholder={props.placeHolder}
-        view={{ menu: true, md: true, html: false }}
-        canView={{
-          menu: true,
-          md: true,
-          html: true,
-          both: false,
-          fullScreen: false,
-          hideMenu: false,
-        }}
-        plugins={[
-          'tab-insert',
-          'header',
-          'font-bold',
-          'font-italic',
-          'font-underline',
-          'font-strikethrough',
-          'list-unordered',
-          'list-ordered',
-          'block-quote',
-          'link',
-          'auto-resize',
-          'save',
-        ]}
+        view={MDEditorSettings.view}
+        canView={MDEditorSettings.canView}
+        plugins={MDEditorSettings.plugins}
         style={{
           width: '100%',
-          height: '180px',
         }}
         renderHTML={(text: string) => mdParser.render(text)}
         onChange={handleEditorChange}

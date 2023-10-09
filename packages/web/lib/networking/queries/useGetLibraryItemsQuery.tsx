@@ -20,6 +20,9 @@ export interface ReadableItem {
   id: string
   title: string
   slug: string
+  url: string
+  siteName?: string
+  originalArticleUrl: string
 }
 
 export type LibraryItemsQueryInput = {
