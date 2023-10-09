@@ -58,7 +58,7 @@
         (async () => {
           const formData = await ev.request.formData()
           const sharedUrl = findShareUrlInText(formData)
-          return Response.redirect(`/api/article/save?url=${sharedUrl}`, 303)
+          return Response.redirect(`/api/save?url=${sharedUrl}`, 303)
         })()
       )
     }
