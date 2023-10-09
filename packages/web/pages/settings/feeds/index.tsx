@@ -39,7 +39,7 @@ export default function Rss(): JSX.Element {
     }
     return subscriptions
       .filter((s) => s.status == 'ACTIVE')
-      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .sort((a, b) => a.name.localeCompare(b.name))
   }, [subscriptions])
 
   async function updateSubscription(): Promise<void> {
@@ -199,8 +199,8 @@ export default function Rss(): JSX.Element {
                 )
                 setOnPauseId(subscription.id)
               }}
-              deleteTitle="Delete"
-              editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
+              deleteTitle="Unsubscribe"
+              // editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
                 <SpanBox
                   css={{

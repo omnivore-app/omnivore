@@ -204,9 +204,7 @@ function Subscriptions(
     if (!props.subscriptions) {
       return []
     }
-    return props.subscriptions.sort((a, b) =>
-      b.updatedAt.localeCompare(a.updatedAt)
-    )
+    return props.subscriptions.sort((a, b) => a.name.localeCompare(b.name))
   }, [props.subscriptions])
 
   useRegisterActions(
