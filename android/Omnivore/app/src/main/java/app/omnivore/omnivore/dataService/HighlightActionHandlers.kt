@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
 
-suspend fun DataService.createWebHighlight(jsonString: String) {
+suspend fun DataService.createWebHighlight(jsonString: String, colorName: String?) {
   val createHighlightInput = Gson().fromJson(jsonString, CreateHighlightParams::class.java).asCreateHighlightInput()
 
   withContext(Dispatchers.IO) {
@@ -28,7 +28,7 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
       createdAt = null,
       updatedAt = null,
       createdByMe = false,
-      color = null,
+      color = colorName ?: createHighlightInput.color.getOrNull(),
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -80,13 +80,13 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
     val newHighlight = networker.createHighlight(input = CreateHighlightParams(
-       type = HighlightType.NOTE,
-       articleId = savedItemId,
-       id = createHighlightId,
-       shortId = shortId,
-       quote = null,
-       patch = null,
-       annotation = note,
+      type = HighlightType.NOTE,
+      articleId = savedItemId,
+      id = createHighlightId,
+      shortId = shortId,
+      quote = null,
+      patch = null,
+      annotation = note,
     ).asCreateHighlightInput())
 
     newHighlight?.let {
