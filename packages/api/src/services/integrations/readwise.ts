@@ -65,7 +65,9 @@ export class ReadwiseIntegration extends IntegrationService {
     let result = true
 
     const highlights = await Promise.all(
-      items.map((item) => this.libraryItemToReadwiseHighlight(item))
+      items.map((item) =>
+        this.libraryItemToReadwiseHighlight(item, integration.user.id)
+      )
     )
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
@@ -87,11 +89,12 @@ export class ReadwiseIntegration extends IntegrationService {
   }
 
   libraryItemToReadwiseHighlight = async (
-    item: LibraryItem
+    item: LibraryItem,
+    userId: string
   ): Promise<ReadwiseHighlight[]> => {
     let highlights = item.highlights
     if (!highlights) {
-      highlights = await findHighlightsByLibraryItemId(item.id, item.user.id)
+      highlights = await findHighlightsByLibraryItemId(item.id, userId)
     }
 
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
