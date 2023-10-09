@@ -109,6 +109,7 @@ jobs:
           PG_PASSWORD: app_pass
           PG_DB: omnivore_test
           PG_POOL_MAX: 10
+          PG_LOGGER: debug
           ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
   build-docker-images:

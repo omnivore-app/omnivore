@@ -1,5 +1,4 @@
 import { DeepPartial } from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from '../src/data_source'
 import { Filter } from '../src/entity/filter'
 import { Label } from '../src/entity/label'
@@ -27,7 +26,12 @@ export const createTestConnection = async (): Promise<void> => {
     logging: ['query', 'info'],
     entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
     subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
-    namingStrategy: new SnakeNamingStrategy(),
+    logger: process.env.PG_LOGGER as
+      | 'advanced-console'
+      | 'simple-console'
+      | 'file'
+      | 'debug'
+      | undefined,
   })
   await appDataSource.initialize()
 }
