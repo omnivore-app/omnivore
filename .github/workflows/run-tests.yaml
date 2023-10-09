@@ -14,7 +14,7 @@ on:
 jobs:
   run-code-tests:
     name: Run Codebase tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     services:
       postgres:
         image: ankane/pgvector
@@ -84,7 +84,7 @@ jobs:
           PG_DB: omnivore_test
           ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
           PGPASSWORD: postgres # This is required for the psql command to work without a password prompt
-      - name: TypeScript, Lint, Tests
+      - name: TypeScript Build and Lint
         run: |
           source ~/.nvm/nvm.sh
           yarn build
