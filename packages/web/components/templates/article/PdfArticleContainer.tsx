@@ -11,7 +11,6 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
@@ -22,7 +21,6 @@ import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 
 export type PdfArticleContainerProps = {
   viewer: UserBasicData
@@ -418,6 +416,65 @@ export default function PdfArticleContainer(
             readingProgressAnchorIndex: pageIndex,
           })
         }
+      )
+
+      function keyDownHandler(event: globalThis.KeyboardEvent) {
+        const key = event.key.toLowerCase()
+        switch (key) {
+          case 'o':
+            document.dispatchEvent(new Event('openOriginalArticle'))
+            break
+          case 'u':
+            const query = window.sessionStorage.getItem('q')
+            if (query) {
+              window.location.assign(`/home?${query}`)
+            } else {
+              window.location.replace(`/home`)
+            }
+            break
+          case 'e':
+            document.dispatchEvent(new Event('archive'))
+            break
+          case '#':
+            document.dispatchEvent(new Event('delete'))
+            break
+          case 'h':
+            const root = (event.target as HTMLElement).querySelector(
+              '.PSPDFKit-Root'
+            )
+            const highlight = root?.querySelector(
+              '.PSPDFKit-Text-Markup-Inline-Toolbar-Highlight'
+            )
+            console.log('root ', root)
+            console.log('highlight overlay: ', highlight, highlight?.nodeName)
+            if (highlight && highlight?.nodeName == 'BUTTON') {
+              const button = highlight as HTMLButtonElement
+              button.click()
+            }
+            break
+          // case 'n':
+          // TODO: need to set a post creation event here, then
+          // go through the regular highlight creation
+          //   document.dispatchEvent(new Event('annotate'))
+          //   break
+          case 't':
+            props.setShowHighlightsModal(true)
+            break
+          case 'i':
+            document.dispatchEvent(new Event('showEditModal'))
+            break
+        }
+      }
+
+      const isIE11 = navigator.userAgent.indexOf('Trident/') > -1
+      instance.contentDocument.addEventListener(
+        'keydown',
+        keyDownHandler,
+        isIE11
+          ? {
+              capture: true,
+            }
+          : true
       )
     })()
 
