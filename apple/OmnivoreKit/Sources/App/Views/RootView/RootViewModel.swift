@@ -24,6 +24,8 @@ public final class RootViewModel: ObservableObject {
       EventTracker.registerUser(userID: viewer.unwrappedUserID)
     }
 
+    services.dataService.cleanupDeletedItems(in: services.dataService.viewContext)
+
     #if DEBUG
       if CommandLine.arguments.contains("--uitesting") {
         services.authenticator.logout(dataService: services.dataService)

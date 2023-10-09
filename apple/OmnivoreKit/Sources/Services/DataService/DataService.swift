@@ -63,11 +63,10 @@ public final class DataService: ObservableObject {
           fatalError("Core Data store failed to load with error: \(error)")
         }
       }
-      cleanupDeletedItems(in: viewContext)
     }
   }
 
-  func cleanupDeletedItems(in context: NSManagedObjectContext) {
+  public func cleanupDeletedItems(in context: NSManagedObjectContext) {
     let fetchRequest: NSFetchRequest<LinkedItem> = LinkedItem.fetchRequest()
 
     let calendar = Calendar.current
