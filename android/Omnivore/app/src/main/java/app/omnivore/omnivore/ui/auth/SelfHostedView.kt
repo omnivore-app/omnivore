@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -34,6 +35,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.DatastoreKeys
+import app.omnivore.omnivore.R
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -62,7 +64,7 @@ fun SelfHostedView(viewModel: LoginViewModel) {
 
             // TODO: add a activity indicator (maybe after a delay?)
             if (viewModel.isLoading) {
-                Text("Loading...")
+                Text(stringResource(R.string.self_hosted_view_loading))
             }
 
             Row(
@@ -72,14 +74,14 @@ fun SelfHostedView(viewModel: LoginViewModel) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     ClickableText(
-                        text = AnnotatedString("Reset"),
+                        text = AnnotatedString(stringResource(R.string.self_hosted_view_action_reset)),
                         style = MaterialTheme.typography.titleMedium
                             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
                         onClick = { viewModel.resetSelfHostingDetails(context) },
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     ClickableText(
-                        text = AnnotatedString("Back"),
+                        text = AnnotatedString(stringResource(R.string.self_hosted_view_action_back)),
                         style = MaterialTheme.typography.titleMedium
                             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
                         onClick = { viewModel.showSocialLogin() },
@@ -91,7 +93,7 @@ fun SelfHostedView(viewModel: LoginViewModel) {
 //                        "your private self-hosted instance.\n\n"
 //                )
                     ClickableText(
-                        text = AnnotatedString("Learn more about self-hosting Omnivore"),
+                        text = AnnotatedString(stringResource(R.string.self_hosted_view_action_learn_more)),
                         style = MaterialTheme.typography.titleMedium
                             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
                         onClick = {
@@ -130,7 +132,7 @@ fun SelfHostedFields(
         OutlinedTextField(
             value = apiServer,
             placeholder = { Text(text = "https://api-prod.omnivore.app/") },
-            label = { Text(text = "API Server") },
+            label = { Text(stringResource(R.string.self_hosted_view_field_api_url_label)) },
             onValueChange = onAPIServerChange,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
@@ -142,7 +144,7 @@ fun SelfHostedFields(
         OutlinedTextField(
             value = webServer,
             placeholder = { Text(text = "https://omnivore.app/") },
-            label = { Text(text = "Web Server") },
+            label = { Text(stringResource(R.string.self_hosted_view_field_web_url_label)) },
             onValueChange = onWebServerChange,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
@@ -158,7 +160,7 @@ fun SelfHostedFields(
             } else {
                 Toast.makeText(
                     context,
-                    "Please enter API Server and Web server addresses.",
+                    context.getString(R.string.self_hosted_view_error_msg),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -168,7 +170,7 @@ fun SelfHostedFields(
         )
         ) {
             Text(
-                text = "Save",
+                text = stringResource(R.string.self_hosted_view_action_save),
                 modifier = Modifier.padding(horizontal = 100.dp)
             )
         }

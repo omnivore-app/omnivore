@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
@@ -37,7 +38,7 @@ fun SettingsView(
   Scaffold(
     topBar = {
       TopAppBar(
-        title = { Text("Settings") },
+        title = { Text(stringResource(R.string.settings_view_title)) },
         actions = {
           IconButton(onClick = { navController.navigate(Routes.Library.route) }) {
             Icon(
@@ -100,19 +101,31 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
 //
 //      SectionSpacer()
 
-      SettingRow(text = "Documentation") { navController.navigate(Routes.Documentation.route) }
+      SettingRow(text = stringResource(R.string.settings_view_setting_row_documentation)) {
+        navController.navigate(Routes.Documentation.route)
+      }
       RowDivider()
-      SettingRow(text = "Feedback") { Intercom.client().present(space = IntercomSpace.Messages) }
+      SettingRow(text = stringResource(R.string.settings_view_setting_row_feedback)) {
+        Intercom.client().present(space = IntercomSpace.Messages)
+      }
       RowDivider()
-      SettingRow(text = "Privacy Policy") { navController.navigate(Routes.PrivacyPolicy.route) }
+      SettingRow(text = stringResource(R.string.settings_view_setting_row_privacy_policy)) {
+        navController.navigate(Routes.PrivacyPolicy.route)
+      }
       RowDivider()
-      SettingRow(text = "Terms and Conditions") { navController.navigate(Routes.TermsAndConditions.route) }
+      SettingRow(text = stringResource(R.string.settings_view_setting_row_terms_and_conditions)) {
+        navController.navigate(Routes.TermsAndConditions.route)
+      }
 
       SectionSpacer()
 
-      SettingRow(text = "Manage Account") { showManageAccountDialog.value = true }
+      SettingRow(text = stringResource(R.string.settings_view_setting_row_manage_account)) {
+        showManageAccountDialog.value = true
+      }
       RowDivider()
-      SettingRow(text = "Logout", includeIcon = false) { showLogoutDialog.value = true }
+      SettingRow(text = stringResource(R.string.settings_view_setting_row_logout), includeIcon = false) {
+        showLogoutDialog.value = true
+      }
       RowDivider()
     }
 

@@ -8,7 +8,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,7 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
-import org.intellij.lang.annotations.JdkConstants
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -42,7 +40,7 @@ fun CreateUserProfileView(viewModel: LoginViewModel) {
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
       Text(
-        text = "Create Your Profile",
+        text = stringResource(R.string.create_user_profile_title),
         style = MaterialTheme.typography.headlineMedium,
         modifier = Modifier.padding(bottom = 8.dp)
       )
@@ -61,11 +59,11 @@ fun CreateUserProfileView(viewModel: LoginViewModel) {
 
       // TODO: add a activity indicator (maybe after a delay?)
       if (viewModel.isLoading) {
-        Text("Loading...")
+        Text(stringResource(R.string.create_user_profile_loading))
       }
 
       ClickableText(
-        text = AnnotatedString("Cancel Sign Up"),
+        text = AnnotatedString(stringResource(R.string.create_user_profile_action_cancel)),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { viewModel.cancelNewUserSignUp() }
@@ -98,8 +96,8 @@ fun UserProfileFields(
   ) {
     OutlinedTextField(
       value = name,
-      placeholder = { Text(text = "Name") },
-      label = { Text(text = "Name") },
+      placeholder = { Text(stringResource(R.string.create_user_profile_field_placeholder_name)) },
+      label = { Text(stringResource(R.string.create_user_profile_field_label_name)) },
       onValueChange = onNameChange,
       keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
@@ -111,8 +109,8 @@ fun UserProfileFields(
     ) {
       OutlinedTextField(
         value = username,
-        placeholder = { Text(text = "Username") },
-        label = { Text(text = "Username") },
+        placeholder = { Text(stringResource(R.string.create_user_profile_field_placeholder_username)) },
+        label = { Text(stringResource(R.string.create_user_profile_field_label_username)) },
         onValueChange = onUsernameChange,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -144,7 +142,7 @@ fun UserProfileFields(
         } else {
           Toast.makeText(
             context,
-            "Please enter a valid name and username.",
+            context.getString(R.string.create_user_profile_error_msg),
             Toast.LENGTH_SHORT
           ).show()
         }
@@ -154,7 +152,7 @@ fun UserProfileFields(
       )
     ) {
       Text(
-        text = "Submit",
+        text = stringResource(R.string.create_user_profile_action_submit),
         modifier = Modifier.padding(horizontal = 100.dp)
       )
     }

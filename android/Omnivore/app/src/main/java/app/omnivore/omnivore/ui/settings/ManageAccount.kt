@@ -14,8 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import app.omnivore.omnivore.R
 
 @Composable
 fun ManageAccountDialog(onDismiss: () -> Unit, settingsViewModel: SettingsViewModel) {
@@ -43,7 +45,7 @@ fun ManageAccountView(settingsViewModel: SettingsViewModel) {
         .padding(top = 12.dp, bottom = 12.dp),
       horizontalArrangement = Arrangement.Center
     ) {
-      Text("Manage Account")
+      Text(stringResource(R.string.manage_account_title))
     }
 
     Column(
@@ -55,7 +57,7 @@ fun ManageAccountView(settingsViewModel: SettingsViewModel) {
         modifier = Modifier
           .clickable(onClick = { settingsViewModel.resetDataCache() })
       ) {
-        Text("Reset Data Cache")
+        Text(stringResource(R.string.manage_account_action_reset_data_cache))
         Spacer(modifier = Modifier.weight(1.0F))
         Icon(imageVector = Icons.Filled.Refresh, contentDescription = null)
       }

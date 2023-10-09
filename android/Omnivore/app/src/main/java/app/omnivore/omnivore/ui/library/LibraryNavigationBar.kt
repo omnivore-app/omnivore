@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
@@ -34,7 +35,9 @@ fun LibraryNavigationBar(
 
   TopAppBar(
     title = {
-        Text(if (actionsMenuItem == null) "Library" else "")
+        Text(if (actionsMenuItem == null)
+            stringResource(R.string.library_nav_bar_title) else
+            stringResource(R.string.library_nav_bar_title_alt))
     },
       modifier = Modifier.statusBarsPadding(),
       colors = TopAppBarDefaults.topAppBarColors(
@@ -218,7 +221,7 @@ fun SearchField(
         value = searchText,
         onValueChange = onSearchTextChanged,
         placeholder = {
-          Text(text = "Search")
+          Text(text = stringResource(R.string.library_nav_bar_field_placeholder_search))
         },
         leadingIcon = {
             IconButton(

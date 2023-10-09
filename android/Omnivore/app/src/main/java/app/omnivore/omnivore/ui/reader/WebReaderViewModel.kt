@@ -12,6 +12,7 @@ import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.EventTracker
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
@@ -139,7 +140,11 @@ class WebReaderViewModel @Inject constructor(
     currentLink?.let {
       viewModelScope.launch {
         val success = networker.saveUrl(it)
-        Toast.makeText(context, if (success) "Link saved" else "Error saving link" , Toast.LENGTH_SHORT).show()
+        Toast.makeText(context,
+          if (success)
+            context.getString(R.string.web_reader_view_model_save_link_success) else
+            context.getString(R.string.web_reader_view_model_save_link_error),
+          Toast.LENGTH_SHORT).show()
       }
     }
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
@@ -153,7 +158,9 @@ class WebReaderViewModel @Inject constructor(
       clipboard.setPrimaryClip(clip)
       clipboard?.let {
         clipboard?.setPrimaryClip(clip)
-        Toast.makeText(context, "Link Copied", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context,
+          context.getString(R.string.web_reader_view_model_copy_link_success),
+          Toast.LENGTH_SHORT).show()
       }
     }
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
