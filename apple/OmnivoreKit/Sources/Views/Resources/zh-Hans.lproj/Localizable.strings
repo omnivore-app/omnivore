@@ -20,6 +20,7 @@
 "labelsViewAssignNameColor" = "指定名称和颜色。";
 "createLabelMessage" = "创建新标签";
 "labelsPurposeDescription" = "使用标签创建精选的链接集合。";
+"labelNamePlaceholder" = "标签名称";
 
 // Manage Account View
 "manageAccountDelete" = "删除帐户";

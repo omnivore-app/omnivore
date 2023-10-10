@@ -116,8 +116,16 @@ struct CreateLabelView: View {
       }
       .padding(.bottom, 8)
 
-      TextField("Label Name", text: $newLabelName)
+      TextField(LocalText.labelNamePlaceholder, text: $newLabelName)
         .textFieldStyle(StandardTextFieldStyle())
+        .onChange(of: newLabelName) { inputLabelName in
+          newLabelName = String(inputLabelName.prefix(viewModel.labelNameMaxLength))
+        }
+
+      Text("\(newLabelName.count)/\(viewModel.labelNameMaxLength)")
+        .font(.caption)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .foregroundColor(newLabelName.count < viewModel.labelNameMaxLength ? .gray : .red)
 
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHGrid(rows: rows, alignment: .top, spacing: 20) {

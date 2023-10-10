@@ -26,6 +26,7 @@ public enum LocalText {
   public static let labelsViewAssignNameColor = localText(key: "labelsViewAssignNameColor")
   public static let createLabelMessage = localText(key: "createLabelMessage")
   public static let labelsPurposeDescription = localText(key: "labelsPurposeDescription")
+  public static let labelNamePlaceholder = localText(key: "labelNamePlaceholder")
 
   // Manage Account View
   public static let manageAccountDelete = localText(key: "manageAccountDelete")
