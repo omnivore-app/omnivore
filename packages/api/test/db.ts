@@ -112,6 +112,7 @@ export const createTestLibraryItem = async (
     originalContent: '<p>test content</p>',
     originalUrl: `https://blog.omnivore.app/test-url-${generateFakeUuid()}`,
     slug: 'test-with-omnivore',
+    itemType: 'ARTICLE',
   }
 
   const createdItem = await createLibraryItem(item, userId)

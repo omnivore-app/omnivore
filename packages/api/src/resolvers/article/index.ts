@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { Not } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
@@ -590,34 +589,34 @@ export const saveArticleReadingProgressResolver = authorized<
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
-    // If we have a top percent, we only save it if it's greater than the current top percent
-    // or set to zero if the top percent is zero.
-    const readingProgressTopPercentToSave = readingProgressTopPercent
-      ? Math.max(
-          readingProgressTopPercent,
-          libraryItem.readingProgressTopPercent || 0
+    // For non-PDFs, we only allow the reading progress to increase or set to 0
+    if (libraryItem.itemType != PageType.File) {
+      if (readingProgressPercent > 0) {
+        readingProgressPercent = Math.max(
+          readingProgressPercent,
+          libraryItem.readingProgressBottomPercent
         )
-      : readingProgressTopPercent === 0
-      ? 0
-      : undefined
-    // If setting to zero we accept the update, otherwise we require it
-    // be greater than the current reading progress.
+      }
+
+      if (readingProgressTopPercent && readingProgressTopPercent > 0) {
+        readingProgressTopPercent = Math.max(
+          readingProgressTopPercent,
+          libraryItem.readingProgressTopPercent
+        )
+      }
+
+      if (readingProgressAnchorIndex && readingProgressAnchorIndex > 0) {
+        readingProgressAnchorIndex = Math.max(
+          readingProgressAnchorIndex,
+          libraryItem.readingProgressHighestReadAnchor
+        )
+      }
+    }
+
     const updatedPart: QueryDeepPartialEntity<LibraryItem> = {
-      readingProgressBottomPercent:
-        readingProgressPercent === 0
-          ? 0
-          : Math.max(
-              readingProgressPercent,
-              libraryItem.readingProgressBottomPercent
-            ),
-      readingProgressHighestReadAnchor:
-        readingProgressAnchorIndex === 0
-          ? 0
-          : Math.max(
-              readingProgressAnchorIndex || 0,
-              libraryItem.readingProgressHighestReadAnchor
-            ),
-      readingProgressTopPercent: readingProgressTopPercentToSave,
+      readingProgressBottomPercent: readingProgressPercent,
+      readingProgressHighestReadAnchor: readingProgressAnchorIndex ?? undefined,
+      readingProgressTopPercent: readingProgressTopPercent ?? undefined,
       readAt: new Date(),
     }
     const updatedItem = await updateLibraryItem(id, updatedPart, uid, pubsub)

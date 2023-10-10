@@ -715,6 +715,39 @@ describe('Article API', () => {
       ).to.eq(75)
     })
 
+    context('when item is a PDF', () => {
+      let item: LibraryItem
+
+      before(async () => {
+        item = await createLibraryItem(
+          {
+            user,
+            title: 'test update reading progress for PDF',
+            readableContent: '<p>test</p>',
+            originalUrl:
+              'https://blog.omnivore.app/test-update-reading-progress-for-pdf',
+            slug: 'test-update-reading-progress-for-pdf',
+            itemType: PageType.File,
+            readingProgressBottomPercent: 90,
+          },
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItemById(item.id, user.id)
+      })
+
+      it('allows setting the reading progress lower than current progress', async () => {
+        const query = saveArticleReadingProgressQuery(itemId, 50)
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(
+          res.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eq(50)
+      })
+    })
+
     it('does not save topPercent if not undefined', async () => {
       query = saveArticleReadingProgressQuery(itemId, progress, null)
       const res = await graphqlRequest(query, authToken).expect(200)
