@@ -293,7 +293,7 @@ const buildWhereClause = (
     args.rangeFilters.forEach((filter, i) => {
       const param = `range_${filter.field}_${i}`
       queryBuilder.andWhere(
-        `library_item.${filter.field} ${filter.operator} ${param}`,
+        `library_item.${filter.field} ${filter.operator} :${param}`,
         {
           [param]: filter.value,
         }

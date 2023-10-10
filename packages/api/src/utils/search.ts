@@ -275,7 +275,10 @@ const parseRangeFilter = (
 
   switch (field.toUpperCase()) {
     case 'WORDSCOUNT':
-      field = 'wordCount'
+      field = 'word_count'
+      break
+    case 'READPOSITION':
+      field = 'reading_progress_bottom_percent'
       break
     default:
       return undefined
@@ -410,7 +413,8 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'site',
       'note',
       'rss',
-      'wordCount',
+      'wordsCount',
+      'readPosition',
     ],
     tokenize: true,
   })
@@ -507,7 +511,8 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
         case 'mode':
           // mode is ignored and used only by the frontend
           break
-        case 'wordCount': {
+        case 'readPosition':
+        case 'wordsCount': {
           const rangeFilter = parseRangeFilter(keyword.keyword, keyword.value)
           rangeFilter && result.rangeFilters.push(rangeFilter)
           break
