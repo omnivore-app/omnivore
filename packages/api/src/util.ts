@@ -74,11 +74,6 @@ interface BackendEnv {
     gcsUploadSAKeyFilePath: string
     gcsUploadPrivateBucket: string
   }
-  elastic: {
-    url: string
-    username: string
-    password: string
-  }
   sender: {
     message: string
     feedback: string
@@ -144,8 +139,6 @@ const nullableEnvVars = [
   'GAUTH_SECRET',
   'SEGMENT_WRITE_KEY',
   'TWITTER_BEARER_TOKEN',
-  'ELASTIC_USERNAME',
-  'ELASTIC_PASSWORD',
   'GCS_UPLOAD_PRIVATE_BUCKET',
   'SENDER_MESSAGE',
   'SENDER_FEEDBACK',
@@ -267,11 +260,6 @@ export function getEnv(): BackendEnv {
     gcsUploadSAKeyFilePath: parse('GCS_UPLOAD_SA_KEY_FILE_PATH'),
     gcsUploadPrivateBucket: parse('GCS_UPLOAD_PRIVATE_BUCKET'),
   }
-  const elastic = {
-    url: parse('ELASTIC_URL'),
-    username: parse('ELASTIC_USERNAME'),
-    password: parse('ELASTIC_PASSWORD'),
-  }
   const sender = {
     message: parse('SENDER_MESSAGE'),
     feedback: parse('SENDER_FEEDBACK'),
@@ -317,7 +305,6 @@ export function getEnv(): BackendEnv {
     dev,
     fileUpload,
     queue,
-    elastic,
     sender,
     sendgrid,
     readwise,

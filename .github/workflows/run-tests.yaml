@@ -14,7 +14,7 @@ on:
 jobs:
   run-code-tests:
     name: Run Codebase tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-m
     services:
       postgres:
         image: ankane/pgvector
@@ -27,21 +27,6 @@ jobs:
           --health-retries 5
         ports:
           - 5432
-      elastic:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
-        env:
-          discovery.type: single-node
-          http.cors.allow-origin: '*'
-          http.cors.enabled: true
-          http.cors.allow-headers: 'X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization'
-          http.cors.allow-credentials: true
-        options: >-
-          --health-cmd "curl http://0.0.0.0:9200/_cluster/health"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-        ports:
-          - 9200
       redis:
         image: redis
         options: >-
@@ -82,13 +67,15 @@ jobs:
           PG_USER: postgres
           PG_PASSWORD: postgres
           PG_DB: omnivore_test
-          ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
           PGPASSWORD: postgres # This is required for the psql command to work without a password prompt
-      - name: TypeScript, Lint, Tests
+      - name: TypeScript Build and Lint
         run: |
           source ~/.nvm/nvm.sh
           yarn build
           yarn lint
+      - name: Tests
+        run: |
+          source ~/.nvm/nvm.sh
           yarn test
         env:
           PG_HOST: localhost
@@ -96,8 +83,7 @@ jobs:
           PG_USER: app_user
           PG_PASSWORD: app_pass
           PG_DB: omnivore_test
-          PG_POOL_MAX: 10
-          ELASTIC_URL: http://localhost:${{ job.services.elastic.ports[9200] }}/
+          PG_LOGGER: debug
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
   build-docker-images:
     name: Build docker images

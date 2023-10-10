@@ -1,5 +1,4 @@
 import { DeepPartial } from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from '../src/data_source'
 import { Filter } from '../src/entity/filter'
 import { Label } from '../src/entity/label'
@@ -7,7 +6,7 @@ import { LibraryItem } from '../src/entity/library_item'
 import { Reminder } from '../src/entity/reminder'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { entityManager, getRepository, setClaims } from '../src/repository'
+import { getRepository, setClaims } from '../src/repository'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
 import { saveLabelsInLibraryItem } from '../src/services/labels'
@@ -27,13 +26,18 @@ export const createTestConnection = async (): Promise<void> => {
     logging: ['query', 'info'],
     entities: [__dirname + '/../src/entity/**/*{.js,.ts}'],
     subscribers: [__dirname + '/../src/events/**/*{.js,.ts}'],
-    namingStrategy: new SnakeNamingStrategy(),
+    logger: process.env.PG_LOGGER as
+      | 'advanced-console'
+      | 'simple-console'
+      | 'file'
+      | 'debug'
+      | undefined,
   })
   await appDataSource.initialize()
 }
 
 export const deleteFiltersFromUser = async (userId: string) => {
-  await entityManager.transaction(async (t) => {
+  await appDataSource.transaction(async (t) => {
     await setClaims(t, userId)
     const filterRepo = t.getRepository(Filter)
 

@@ -1,6 +1,6 @@
 import { In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { entityManager } from '.'
+import { appDataSource } from '../data_source'
 import { Label } from '../entity/label'
 import { generateRandomColor } from '../utils/helpers'
 
@@ -38,7 +38,7 @@ const convertToLabel = (label: CreateLabelInput, userId: string) => {
   }
 }
 
-export const labelRepository = entityManager.getRepository(Label).extend({
+export const labelRepository = appDataSource.getRepository(Label).extend({
   findById(id: string) {
     return this.findOneBy({ id })
   },

@@ -1,5 +1,5 @@
 import { In } from 'typeorm'
-import { entityManager } from '.'
+import { appDataSource } from '../data_source'
 import { User } from './../entity/user'
 
 const TOP_USERS = [
@@ -14,7 +14,7 @@ const TOP_USERS = [
 ]
 export const MAX_RECORDS_LIMIT = 1000
 
-export const userRepository = entityManager.getRepository(User).extend({
+export const userRepository = appDataSource.getRepository(User).extend({
   findById(id: string) {
     return this.findOneBy({ id })
   },

@@ -19,6 +19,7 @@ import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
+import app.omnivore.omnivore.ui.ResourceProvider
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +32,8 @@ import javax.inject.Inject
 class LibraryViewModel @Inject constructor(
   private val networker: Networker,
   private val dataService: DataService,
-  private val datastoreRepo: DatastoreRepository
+  private val datastoreRepo: DatastoreRepository,
+  private val resourceProvider: ResourceProvider
 ): ViewModel(), SavedItemViewModel {
   private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
@@ -348,9 +350,9 @@ class LibraryViewModel @Inject constructor(
         dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
 
         if (!networkResult || labelCreationError) {
-          snackbarMessage = "Unable to set labels"
+          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_error)
         } else {
-          snackbarMessage = "Labels updated"
+          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_success)
         }
 
         CoroutineScope(Dispatchers.Main).launch {

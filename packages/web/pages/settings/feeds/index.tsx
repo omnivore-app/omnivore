@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
 import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
@@ -32,6 +32,15 @@ export default function Rss(): JSX.Element {
   const [onEditName, setOnEditName] = useState('')
   const [onPauseId, setOnPauseId] = useState('')
   const [onEditStatus, setOnEditStatus] = useState<SubscriptionStatus>()
+
+  const sortedSubscriptions = useMemo(() => {
+    if (!subscriptions) {
+      return []
+    }
+    return subscriptions
+      .filter((s) => s.status == 'ACTIVE')
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [subscriptions])
 
   async function updateSubscription(): Promise<void> {
     const result = await updateSubscriptionMutation({
@@ -107,10 +116,10 @@ export default function Rss(): JSX.Element {
         },
       }}
     >
-      {subscriptions.length === 0 ? (
+      {sortedSubscriptions.length === 0 ? (
         <EmptySettingsRow text={isValidating ? '-' : 'No feeds subscribed'} />
       ) : (
-        subscriptions.map((subscription, i) => {
+        sortedSubscriptions.map((subscription, i) => {
           return (
             <SettingsTableRow
               key={subscription.id}
@@ -179,7 +188,7 @@ export default function Rss(): JSX.Element {
                   </HStack>
                 )
               }
-              isLast={i === subscriptions.length - 1}
+              isLast={i === sortedSubscriptions.length - 1}
               onDelete={() => {
                 console.log('onDelete triggered: ', subscription.id)
                 setOnDeleteId(subscription.id)
@@ -190,8 +199,8 @@ export default function Rss(): JSX.Element {
                 )
                 setOnPauseId(subscription.id)
               }}
-              deleteTitle="Delete"
-              editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
+              deleteTitle="Unsubscribe"
+              // editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
                 <SpanBox
                   css={{

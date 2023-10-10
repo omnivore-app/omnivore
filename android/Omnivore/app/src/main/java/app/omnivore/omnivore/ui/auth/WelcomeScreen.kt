@@ -135,7 +135,7 @@ fun AuthProviderView(viewModel: LoginViewModel) {
       AppleAuthButton(viewModel)
 
       ClickableText(
-        text = AnnotatedString("Continue with Email"),
+        text = AnnotatedString(stringResource(R.string.welcome_screen_action_continue_with_email)),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { viewModel.showEmailSignIn() }
@@ -144,7 +144,7 @@ fun AuthProviderView(viewModel: LoginViewModel) {
       Spacer(modifier = Modifier.weight(1.0F))
 
       ClickableText(
-        text = AnnotatedString("Self-hosting options"),
+        text = AnnotatedString(stringResource(R.string.welcome_screen_action_self_hosting_options)),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { viewModel.showSelfHostedSettings() },

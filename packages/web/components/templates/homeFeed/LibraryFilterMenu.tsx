@@ -67,7 +67,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
     if (!subscriptionsLoading) {
       setSubscriptions(networkSubscriptions)
     }
-  }, [setSubscriptions, networkLabels, subscriptionsLoading])
+  }, [setSubscriptions, networkSubscriptions, subscriptionsLoading])
 
   useEffect(() => {
     if (!searchesLoading) {
@@ -204,9 +204,9 @@ function Subscriptions(
     if (!props.subscriptions) {
       return []
     }
-    return props.subscriptions.sort((a, b) =>
-      b.updatedAt.localeCompare(a.updatedAt)
-    )
+    return props.subscriptions
+      .filter((s) => s.status == 'ACTIVE')
+      .sort((a, b) => a.name.localeCompare(b.name))
   }, [props.subscriptions])
 
   useRegisterActions(

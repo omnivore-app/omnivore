@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import HighlightColorPalette
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -18,8 +19,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.components.HighlightColorPaletteMode
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +44,9 @@ fun WebReader(
   val isDarkMode = isSystemInDarkTheme()
 
   WebView.setWebContentsDebuggingEnabled(true)
+
+  val showHighlightColorPalette = webReaderViewModel.showHighlightColorPalette.observeAsState()
+  val highlightColor = webReaderViewModel.highlightColor.observeAsState()
 
   Box {
     AndroidView(factory = {
@@ -144,6 +152,18 @@ fun WebReader(
         webReaderViewModel.resetJavascriptDispatchQueue()
       }
     })
+    if (showHighlightColorPalette.value == true) {
+      HighlightColorPalette(
+        mode = if (isDarkMode) HighlightColorPaletteMode.Dark else HighlightColorPaletteMode.Light,
+        selectedColorName = highlightColor.value?.name ?: "yellow",
+        onColorSelected = {
+          webReaderViewModel.setHighlightColor(it)
+        },
+        modifier = Modifier
+          .align(Alignment.BottomCenter)
+          .padding(12.dp, 12.dp, 12.dp, 36.dp)
+      )
+    }
   }
 }
 
@@ -164,6 +184,7 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
         Log.d("wv", "inflating existing highlight menu")
         mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
       } else {
+        viewModel?.showHighlightColorPalette()
         mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
       }
       return true
@@ -233,6 +254,7 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
     override fun onDestroyActionMode(mode: ActionMode) {
       Log.d("wv", "destroying menu: $mode")
       viewModel?.hasTappedExistingHighlight = false
+      viewModel?.hideHighlightColorPalette()
       actionMode = null
     }
 

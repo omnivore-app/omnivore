@@ -1,8 +1,9 @@
 import * as jwt from 'jsonwebtoken'
 import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
+import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
-import { entityManager, getRepository } from '../repository'
+import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
@@ -41,7 +42,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const optedInFeatures = (await entityManager.query(
+  const optedInFeatures = (await appDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 

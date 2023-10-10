@@ -14,8 +14,10 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.MainActivity
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import kotlinx.coroutines.launch
@@ -36,7 +38,7 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
         .fillMaxSize()
         .padding(top = 48.dp, bottom = 32.dp)
     ) {
-      Text(text = viewModel.message ?: "Saving")
+      Text(text = viewModel.message ?: stringResource(R.string.save_content_msg))
       Row {
         if (enableReadNow) {
           Button(
@@ -55,7 +57,7 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
               backgroundColor = Color.White
             )
           ) {
-            Text(text = "Read Now")
+            Text(text = stringResource(R.string.save_content_action_read_now))
           }
 
           Spacer(modifier = Modifier.width(8.dp))
@@ -72,7 +74,9 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
             backgroundColor = Color(0xffffd234)
           )
         ) {
-          Text(text = if (enableReadNow) "Read Later" else "Dismiss")
+          Text(text = if (enableReadNow)
+            stringResource(R.string.save_content_action_read_later) else
+            stringResource(R.string.save_content_action_dismiss))
         }
       }
     }
