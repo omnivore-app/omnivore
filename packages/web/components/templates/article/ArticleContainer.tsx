@@ -126,21 +126,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
-  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -281,13 +276,18 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       if (!detail) {
         return
       }
+      if (detail === -1 || detail === '-1') {
+        props.containerRef?.current?.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+
       const element = document.querySelector(
         `[data-omnivore-anchor-idx='${detail}']`
       )
       element?.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
+        block: 'center',
+        inline: 'center',
       })
     }
 

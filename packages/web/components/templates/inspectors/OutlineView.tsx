@@ -8,6 +8,7 @@ import { TreeDownIcon } from '../../elements/icons/TreeDownIcon'
 import { styled, theme } from '../../tokens/stitches.config'
 import { Button } from '../../elements/Button'
 import { TreeRightIcon } from '../../elements/icons/TreeRightIcon'
+import { Circle } from 'phosphor-react'
 
 type OutlineViewProps = {
   item: ReadableItem
@@ -28,23 +29,34 @@ export const OutlineView = (props: OutlineViewProps): JSX.Element => {
       distribution="start"
       css={{
         width: '100%',
-        height: '100%',
-        overflowY: 'scroll',
       }}
     >
-      <StyledText
+      <Button
+        style="link"
         css={{
+          p: '20px',
+          textAlign: 'left',
           color: '$thTextContrast2',
           fontFamily: '$inter',
           fontSize: '18px',
           fontStyle: 'normal',
           fontWeight: '600',
           lineHeight: '150%',
-          px: '20px',
+          '&:hover': {
+            textDecoration: 'underline',
+          },
+        }}
+        onClick={(event) => {
+          event.preventDefault()
+          const scrollEvent = new CustomEvent('scrollToOutlineAnchorIdx', {
+            detail: -1, // props.item.anchor,
+          })
+          document.dispatchEvent(scrollEvent)
         }}
       >
         {props.item.title}
-      </StyledText>
+      </Button>
+
       {props.outline?.children.length ?? 0 > 0 ? (
         props.outline?.children.map((child) => {
           return <RecursiveList key={child.anchor} item={child} />
@@ -82,13 +94,13 @@ const RecursiveList = (props: RecursiveListProps) => {
   return (
     <StyledUL>
       <li key={props.item.text}>
-        <HStack distribution="start" alignment="center">
+        <HStack distribution="start" alignment="start">
           {props.item.children.length > 0 ? (
             <Button
               style="articleActionIcon"
               css={{
                 display: 'flex',
-                width: '25px',
+                width: '30px',
                 textAlign: 'left',
                 '&:hover': {
                   textDecoration: 'underline',
@@ -110,16 +122,47 @@ const RecursiveList = (props: RecursiveListProps) => {
               )}
             </Button>
           ) : (
-            <Box css={{ width: '25px', height: '0px', bg: 'red' }}> </Box>
+            <SpanBox
+              css={{
+                pl: '6px',
+                width: '25px',
+                height: '100%',
+                display: 'flex',
+              }}
+            >
+              <Button
+                css={{
+                  '&:hover': {
+                    '>svg': {
+                      scale: 1.5,
+                    },
+                  },
+                }}
+                style="plainIcon"
+                onClick={(event) => {
+                  event.preventDefault()
+                  const scrollEvent = new CustomEvent(
+                    'scrollToOutlineAnchorIdx',
+                    {
+                      detail: props.item.anchor,
+                    }
+                  )
+                  document.dispatchEvent(scrollEvent)
+                }}
+              >
+                <Circle
+                  size={8}
+                  weight="fill"
+                  color={theme.colors.thNotebookSubtle.toString()}
+                />
+              </Button>
+            </SpanBox>
           )}
           <Button
             style="link"
             css={{
               textAlign: 'left',
-              color:
-                props.item.children.length > 0
-                  ? '$thNotebookSubtle'
-                  : '$thTextContrast2',
+              color: '$thTextContrast2',
               fontFamily: '$inter',
               fontSize: '15px',
               fontStyle: 'normal',
@@ -134,7 +177,6 @@ const RecursiveList = (props: RecursiveListProps) => {
               const scrollEvent = new CustomEvent('scrollToOutlineAnchorIdx', {
                 detail: props.item.anchor,
               })
-              console.log('scrolling: ', scrollEvent)
               document.dispatchEvent(scrollEvent)
             }}
           >

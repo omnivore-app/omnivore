@@ -20,8 +20,6 @@ export const LabelsView = (props: LabelsViewProps): JSX.Element => {
         p: '20px',
         gap: '20px',
         width: '100%',
-        height: '100%',
-        overflowY: 'scroll',
       }}
     >
       <StyledText

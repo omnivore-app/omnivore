@@ -147,9 +147,11 @@ export function Article(props: ArticleProps): JSX.Element {
       }
 
       const calculatedOffset = calculateOffset(anchorElement)
-      window.document.documentElement.scroll(0, calculatedOffset - 100)
+
+      props.containerRef?.current?.scroll(0, calculatedOffset - 100)
     }
   }, [
+    props.content,
     props.initialAnchorIndex,
     props.initialReadingProgress,
     shouldScrollToInitialPosition,
