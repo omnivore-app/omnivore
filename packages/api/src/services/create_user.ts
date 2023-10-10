@@ -1,4 +1,5 @@
 import { EntityManager } from 'typeorm'
+import { appDataSource } from '../data_source'
 import { Filter } from '../entity/filter'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
@@ -7,14 +8,13 @@ import { StatusType, User } from '../entity/user'
 import { env } from '../env'
 import { SignupErrorCode } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
-import { authTrx, entityManager, getRepository } from '../repository'
+import { authTrx, getRepository } from '../repository'
 import { userRepository } from '../repository/user'
 import { AuthProvider } from '../routers/auth/auth_types'
 import { analytics } from '../utils/analytics'
 import { IntercomClient } from '../utils/intercom'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
-import { addPopularReadsForNewUser } from './popular_reads'
 import { sendConfirmationEmail } from './send_emails'
 
 export const MAX_RECORDS_LIMIT = 1000
@@ -64,7 +64,7 @@ export const createUser = async (input: {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }
 
-  const [user, profile] = await entityManager.transaction<[User, Profile]>(
+  const [user, profile] = await appDataSource.transaction<[User, Profile]>(
     async (t) => {
       let hasInvite = false
       let invite: Invite | null = null
@@ -103,18 +103,9 @@ export const createUser = async (input: {
         })
       }
 
-      await createDefaultFiltersForUser(t)(user.id)
-      await addPopularReadsForNewUser(user.id, t)
-
       return [user, profile]
     }
   )
-
-  if (input.pendingConfirmation) {
-    if (!(await sendConfirmationEmail(user))) {
-      return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
-    }
-  }
 
   const customAttributes: { source_user_id: string } = {
     source_user_id: user.sourceUserId,
@@ -146,10 +137,16 @@ export const createUser = async (input: {
     },
   })
 
+  if (input.pendingConfirmation) {
+    if (!(await sendConfirmationEmail(user))) {
+      return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
+    }
+  }
+
   return [user, profile]
 }
 
-const createDefaultFiltersForUser =
+export const createDefaultFiltersForUser =
   (t: EntityManager) =>
   async (userId: string): Promise<Filter[]> => {
     const defaultFilters = [

@@ -1,8 +1,9 @@
 import axios from 'axios'
+import { appDataSource } from '../data_source'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
 import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
-import { authTrx, entityManager, getRepository } from '../repository'
+import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
 
@@ -105,7 +106,7 @@ export const saveSubscription = async ({
   }
 
   const existingSubscription = await getSubscriptionByName(name, userId)
-  const result = await entityManager.transaction(async (tx) => {
+  const result = await appDataSource.transaction(async (tx) => {
     if (existingSubscription) {
       // update subscription if already exists
       await tx

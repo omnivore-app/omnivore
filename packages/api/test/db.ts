@@ -6,7 +6,7 @@ import { LibraryItem } from '../src/entity/library_item'
 import { Reminder } from '../src/entity/reminder'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { entityManager, getRepository, setClaims } from '../src/repository'
+import { getRepository, setClaims } from '../src/repository'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
 import { saveLabelsInLibraryItem } from '../src/services/labels'
@@ -37,7 +37,7 @@ export const createTestConnection = async (): Promise<void> => {
 }
 
 export const deleteFiltersFromUser = async (userId: string) => {
-  await entityManager.transaction(async (t) => {
+  await appDataSource.transaction(async (t) => {
     await setClaims(t, userId)
     const filterRepo = t.getRepository(Filter)
 

@@ -1,6 +1,6 @@
 import { DeepPartial } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { entityManager } from '.'
+import { appDataSource } from '../data_source'
 import { Highlight } from '../entity/highlight'
 import { unescapeHtml } from '../utils/helpers'
 
@@ -16,7 +16,7 @@ const unescapeHighlight = (highlight: DeepPartial<Highlight>) => {
   return highlight
 }
 
-export const highlightRepository = entityManager
+export const highlightRepository = appDataSource
   .getRepository(Highlight)
   .extend({
     findById(id: string) {

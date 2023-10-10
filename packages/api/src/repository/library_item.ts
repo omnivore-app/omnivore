@@ -1,7 +1,7 @@
-import { entityManager } from '.'
+import { appDataSource } from '../data_source'
 import { LibraryItem } from '../entity/library_item'
 
-export const libraryItemRepository = entityManager
+export const libraryItemRepository = appDataSource
   .getRepository(LibraryItem)
   .extend({
     findById(id: string) {

@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid'
+import { appDataSource } from '../data_source'
 import { Group } from '../entity/groups/group'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
@@ -6,7 +7,7 @@ import { RuleActionType } from '../entity/rule'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
-import { entityManager, getRepository } from '../repository'
+import { getRepository } from '../repository'
 import { userDataToUser } from '../utils/helpers'
 import { findOrCreateLabels } from './labels'
 import { createRule } from './rules'
@@ -21,7 +22,7 @@ export const createGroup = async (input: {
   onlyAdminCanPost?: boolean | null
   onlyAdminCanSeeMembers?: boolean | null
 }): Promise<[Group, Invite]> => {
-  const [group, invite] = await entityManager.transaction<[Group, Invite]>(
+  const [group, invite] = await appDataSource.transaction<[Group, Invite]>(
     async (t) => {
       // Max number of groups a user can create
       const maxGroups = 3
@@ -113,7 +114,7 @@ export const joinGroup = async (
   user: User,
   inviteCode: string
 ): Promise<RecommendationGroup> => {
-  const invite = await entityManager.transaction<Invite>(async (t) => {
+  const invite = await appDataSource.transaction<Invite>(async (t) => {
     // Check if the invite exists
     const invite = await t
       .getRepository(Invite)
@@ -173,7 +174,7 @@ export const leaveGroup = async (
   user: User,
   groupId: string
 ): Promise<boolean> => {
-  return entityManager.transaction(async (t) => {
+  return appDataSource.transaction(async (t) => {
     const group = await t
       .getRepository(Group)
       .createQueryBuilder('group')

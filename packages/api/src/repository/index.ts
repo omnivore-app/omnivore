@@ -22,7 +22,7 @@ export const setClaims = async (
 
 export const authTrx = async <T>(
   fn: (manager: EntityManager) => Promise<T>,
-  em = entityManager,
+  em = appDataSource.manager,
   uid?: string,
   userRole?: string
 ): Promise<T> => {
@@ -40,7 +40,5 @@ export const authTrx = async <T>(
 }
 
 export const getRepository = <T>(entity: EntityTarget<T>) => {
-  return entityManager.getRepository(entity)
+  return appDataSource.getRepository(entity)
 }
-
-export const entityManager = appDataSource.manager
