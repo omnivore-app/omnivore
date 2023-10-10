@@ -155,7 +155,10 @@ const createDefaultFiltersForUser =
   async (userId: string): Promise<Filter[]> => {
     const defaultFilters = [
       { name: 'Inbox', filter: 'in:inbox' },
-      { name: 'Continue Reading', filter: 'in:inbox sort:read-desc is:unread' },
+      {
+        name: 'Continue Reading',
+        filter: 'in:inbox sort:read-desc is:reading',
+      },
       { name: 'Non-Feed Items', filter: 'in:library' },
       { name: 'Highlights', filter: 'has:highlights mode:highlights' },
       { name: 'Unlabeled', filter: 'no:label' },
