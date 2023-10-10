@@ -91,7 +91,7 @@ const Header = (props: HeaderProps): JSX.Element => {
         alignment="center"
       >
         <Button
-          title="Notebook"
+          title="Notebook (t)"
           style="articleActionIcon"
           onClick={(event) => {
             props.setCurrentView('notebook')
@@ -100,7 +100,7 @@ const Header = (props: HeaderProps): JSX.Element => {
         >
           <NotebookIcon size={25} color={toggleColor('notebook')} />
         </Button>
-        <Button
+        {/* <Button
           title="Labels"
           style="articleActionIcon"
           onClick={(event) => {
@@ -109,9 +109,9 @@ const Header = (props: HeaderProps): JSX.Element => {
           }}
         >
           <LabelIcon size={25} color={toggleColor('labels')} />
-        </Button>
+        </Button> */}
         <Button
-          title="Info"
+          title="Info (i)"
           style="articleActionIcon"
           onClick={(event) => {
             props.setCurrentView('info')
@@ -121,7 +121,7 @@ const Header = (props: HeaderProps): JSX.Element => {
           <EditInfoIcon size={25} color={toggleColor('info')} />
         </Button>
         <Button
-          title="Outline"
+          title="Outline (c)"
           style="articleActionIcon"
           onClick={(event) => {
             props.setCurrentView('outline')
@@ -142,6 +142,7 @@ const Header = (props: HeaderProps): JSX.Element => {
       >
         {props.currentView == 'notebook' && (
           <Button
+            title="Export"
             style="plainIcon"
             onClick={(event) => {
               exportHighlights()
@@ -155,7 +156,7 @@ const Header = (props: HeaderProps): JSX.Element => {
           </Button>
         )}
         <Button
-          title="Close Inspector"
+          title="Close Inspector (esc)"
           style="articleActionIcon"
           onClick={(event) => {
             event.preventDefault()
