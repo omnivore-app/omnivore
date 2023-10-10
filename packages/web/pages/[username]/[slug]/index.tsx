@@ -13,8 +13,6 @@ import {
 } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
 import { useCallback, useEffect, useState } from 'react'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
 import { Toaster } from 'react-hot-toast'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
@@ -38,7 +36,6 @@ import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
-import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
@@ -120,6 +117,9 @@ export default function Home(): JSX.Element {
                 })
               } else {
                 router.push(`/home`)
+                showSuccessToast('Page archived', {
+                  position: 'bottom-right',
+                })
               }
             })
           }
@@ -187,16 +187,22 @@ export default function Home(): JSX.Element {
       actionHandler('mark-read')
     }
 
+    const showEditModal = () => {
+      actionHandler('showEditModal')
+    }
+
     document.addEventListener('archive', archive)
     document.addEventListener('delete', deletePage)
     document.addEventListener('mark-read', markRead)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
+    document.addEventListener('showEditModal', showEditModal)
 
     return () => {
       document.removeEventListener('archive', archive)
       document.removeEventListener('mark-read', markRead)
       document.removeEventListener('delete', deletePage)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
+      document.removeEventListener('showEditModal', showEditModal)
     }
   }, [actionHandler])
 
