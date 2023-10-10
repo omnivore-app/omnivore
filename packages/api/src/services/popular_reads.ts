@@ -2,9 +2,10 @@ import * as httpContext from 'express-http-context2'
 import { readFileSync } from 'fs'
 import path from 'path'
 import { DeepPartial, EntityManager } from 'typeorm'
+import { appDataSource } from '../data_source'
 import { LibraryItem } from '../entity/library_item'
 import { PageType } from '../generated/graphql'
-import { authTrx, entityManager } from '../repository'
+import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { generateSlug, stringToHash, wordsCount } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -107,7 +108,7 @@ const addPopularReads = async (
 
 export const addPopularReadsForNewUser = async (
   userId: string,
-  em = entityManager
+  em = appDataSource.manager
 ): Promise<void> => {
   const defaultReads = ['omnivore_organize', 'power_read_it_later']
 

@@ -260,15 +260,17 @@ export const enqueueParseRequest = async ({
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
-        logError(error)
-        logger.error(
-          `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
-        )
-      })
-    }, 0)
+    if (env.queue.contentFetchUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
+          logError(error)
+          logger.error(
+            `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
+          )
+        })
+      }, 0)
+    }
     return ''
   }
 
@@ -414,12 +416,14 @@ export const enqueueTextToSpeech = async ({
   const taskHandlerUrl = `${env.queue.textToSpeechTaskHandlerUrl}?token=${token}`
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios.post(taskHandlerUrl, payload).catch((error) => {
-        logError(error)
-      })
-    }, 0)
+    if (env.queue.textToSpeechTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios.post(taskHandlerUrl, payload).catch((error) => {
+          logError(error)
+        })
+      }, 0)
+    }
     return ''
   }
   const createdTasks = await createHttpTaskWithToken({
@@ -461,16 +465,18 @@ export const enqueueRecommendation = async (
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(env.queue.recommendationTaskHandlerUrl, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.recommendationTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.recommendationTaskHandlerUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return ''
   }
 
@@ -505,16 +511,18 @@ export const enqueueImportFromIntegration = async (
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(`${env.queue.integrationTaskHandlerUrl}/import`, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.integrationTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(`${env.queue.integrationTaskHandlerUrl}/import`, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return nanoid()
   }
 
@@ -552,16 +560,18 @@ export const enqueueThumbnailTask = async (
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(env.queue.thumbnailTaskHandlerUrl, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.thumbnailTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.thumbnailTaskHandlerUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return ''
   }
 
@@ -599,16 +609,18 @@ export const enqueueRssFeedFetch = async (
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(env.queue.rssFeedTaskHandlerUrl, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.rssFeedTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.rssFeedTaskHandlerUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return nanoid()
   }
 
