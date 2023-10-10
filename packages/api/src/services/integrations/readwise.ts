@@ -6,7 +6,7 @@ import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { wait } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
-import { getHighlightUrl } from '../highlights'
+import { findHighlightsByLibraryItemId, getHighlightUrl } from '../highlights'
 import { IntegrationService } from './integration'
 
 interface ReadwiseHighlight {
@@ -64,10 +64,14 @@ export class ReadwiseIntegration extends IntegrationService {
   ): Promise<boolean> => {
     let result = true
 
-    const highlights = items.flatMap(this.libraryItemToReadwiseHighlight)
+    const highlights = await Promise.all(
+      items.map((item) =>
+        this.libraryItemToReadwiseHighlight(item, integration.user.id)
+      )
+    )
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
-      result = await this.syncWithReadwise(integration.token, highlights)
+      result = await this.syncWithReadwise(integration.token, highlights.flat())
     }
 
     // update integration syncedAt if successful
@@ -84,10 +88,17 @@ export class ReadwiseIntegration extends IntegrationService {
     return result
   }
 
-  libraryItemToReadwiseHighlight = (item: LibraryItem): ReadwiseHighlight[] => {
-    if (!item.highlights) return []
+  libraryItemToReadwiseHighlight = async (
+    item: LibraryItem,
+    userId: string
+  ): Promise<ReadwiseHighlight[]> => {
+    let highlights = item.highlights
+    if (!highlights) {
+      highlights = await findHighlightsByLibraryItemId(item.id, userId)
+    }
+
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
-    return item.highlights
+    return highlights
       .map((highlight) => {
         // filter out highlights that are not of type highlight or have no quote
         if (
