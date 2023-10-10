@@ -65,7 +65,6 @@ export default function Reader(): JSX.Element {
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const { cache, mutate } = useSWRConfig()
-  const [showEditModal, setShowEditModal] = useState(false)
   const { viewerData } = useGetViewerQuery()
   const inspector = useInspector()
   const readerSettings = useReaderSettings()
@@ -193,8 +192,8 @@ export default function Reader(): JSX.Element {
         case 'showNotebook':
           inspector.openInspector('notebook')
           break
-        case 'showEditModal':
-          setShowEditModal(true)
+        case 'showEditInfo':
+          inspector.openInspector('info')
           break
         default:
           readerSettings.actionHandler(action, arg)
@@ -219,21 +218,20 @@ export default function Reader(): JSX.Element {
       actionHandler('mark-read')
     }
 
-    const showEditModal = () => {
-      actionHandler('showEditModal')
-    }
-
     const openInspectorNote = () => {
       inspector.openInspector('notebook')
+    }
+
+    const openInspectorEditInfo = () => {
+      inspector.openInspector('info')
     }
 
     document.addEventListener('archive', archive)
     document.addEventListener('delete', deletePage)
     document.addEventListener('mark-read', markRead)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
-    document.addEventListener('showEditModal', showEditModal)
     document.addEventListener('openInspector-note', openInspectorNote)
-
+    document.addEventListener('openInspector-edit', openInspectorEditInfo)
     document.addEventListener('goNextOrHome', goNextOrHome)
     document.addEventListener('goPreviousOrHome', goPreviousOrHome)
 
@@ -242,10 +240,10 @@ export default function Reader(): JSX.Element {
       document.removeEventListener('mark-read', markRead)
       document.removeEventListener('delete', deletePage)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
-      document.removeEventListener('showEditModal', showEditModal)
       document.removeEventListener('goNextOrHome', goNextOrHome)
       document.removeEventListener('goPreviousOrHome', goPreviousOrHome)
       document.removeEventListener('openInspector-note', openInspectorNote)
+      document.removeEventListener('openInspector-edit', openInspectorEditInfo)
     }
   }, [actionHandler, goNextOrHome, goPreviousOrHome])
 
@@ -431,24 +429,15 @@ export default function Reader(): JSX.Element {
           inspector.openInspector('info')
         },
       },
-      // {
-      //   id: 'go_previous',
-      //   section: 'Article',
-      //   name: 'Go to Previous',
-      //   shortcut: ['g', 'p'],
-      //   perform: () => {
-      //     document.dispatchEvent(new Event('goPreviousOrHome'))
-      //   },
-      // },
-      // {
-      //   id: 'go_next',
-      //   section: 'Article',
-      //   name: 'Go to Next',
-      //   shortcut: ['g', 'n'],
-      //   perform: () => {
-      //     document.dispatchEvent(new Event('goNextOrHome'))
-      //   },
-      // },
+      {
+        id: 'view_outline',
+        section: 'Article',
+        name: 'View Outline',
+        shortcut: ['c'],
+        perform: () => {
+          inspector.openInspector('outline')
+        },
+      },
     ],
     [readerSettings, inspector]
   )
@@ -696,23 +685,6 @@ export default function Reader(): JSX.Element {
             }}
           />
         )}
-      {article && showEditModal && (
-        <EditArticleModal
-          article={article}
-          onOpenChange={() => setShowEditModal(false)}
-          updateArticle={(title, author, description, savedAt, publishedAt) => {
-            article.title = title
-            article.author = author
-            article.description = description
-            article.savedAt = savedAt
-            article.publishedAt = publishedAt
-
-            const titleEvent = new Event('updateTitle') as UpdateTitleEvent
-            titleEvent.title = title
-            document.dispatchEvent(titleEvent)
-          }}
-        />
-      )}
     </SplitPageLayout>
   )
 }

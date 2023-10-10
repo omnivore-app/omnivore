@@ -521,10 +521,13 @@ export default function PdfArticleContainer(
           //   document.dispatchEvent(new Event('annotate'))
           //   break
           case 't':
-            document.dispatchEvent(new Event('showNotebook'))
+            document.dispatchEvent(new Event('openInspector-note'))
             break
           case 'i':
-            document.dispatchEvent(new Event('showEditModal'))
+            document.dispatchEvent(new Event('openInspector-edit'))
+            break
+          case 'c':
+            document.dispatchEvent(new Event('openInspector-outline'))
             break
         }
       }
