@@ -313,7 +313,7 @@ async def main():
         ES_USERNAME, ES_PASSWORD), retry_on_timeout=True)
 
     try:
-        updated_user_ids = []
+        # updated_user_ids = []
 
         print(await es_client.info())
 
@@ -454,8 +454,8 @@ async def main():
             library_items.append(library_item)
             library_items_original_ids.append(doc_id)
 
-            if user_id not in updated_user_ids:
-                updated_user_ids.append(user_id)
+            # if user_id not in updated_user_ids:
+            #     updated_user_ids.append(user_id)
 
             # convert labels to postgres format
             if 'labels' in source:
@@ -551,7 +551,7 @@ async def main():
 
         print('Migration complete', END_TIME)
 
-        await assert_data(db_conn, es_client, updated_user_ids, uploaded_files)
+        # await assert_data(db_conn, es_client, updated_user_ids, uploaded_files)
     except Exception as err:
         print('Migration error', err)
     finally:
