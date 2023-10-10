@@ -818,6 +818,7 @@ describe('Article API', () => {
     let keyword = ''
 
     before(async () => {
+      const readingProgressArray = [0, 2, 97, 98, 100]
       // Create some test items
       for (let i = 0; i < 5; i++) {
         const itemToSave: DeepPartial<LibraryItem> = {
@@ -827,6 +828,7 @@ describe('Article API', () => {
           slug: 'test slug',
           originalUrl: `${url}/${i}`,
           siteName: 'Example',
+          readingProgressBottomPercent: readingProgressArray[i],
         }
         const item = await createLibraryItem(itemToSave, user.id)
         items.push(item)
@@ -887,15 +889,39 @@ describe('Article API', () => {
         keyword = `'${searchedKeyword}' is:unread`
       })
 
-      it('should return unread articles in descending order', async () => {
+      it('returns unread articles in descending order', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
-        expect(res.body.data.search.edges.length).to.eq(5)
+        expect(res.body.data.search.edges.length).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when is:reading is in the query', () => {
+      before(() => {
+        keyword = `'${searchedKeyword}' is:reading`
+      })
+
+      it('returns reading articles in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges.length).to.eq(3)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[3].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[1].id)
+      })
+    })
+
+    context('when is:read is in the query', () => {
+      before(() => {
+        keyword = `'${searchedKeyword}' is:read`
+      })
+
+      it('returns fully read articles in descending order', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.edges.length).to.eq(1)
         expect(res.body.data.search.edges[0].node.id).to.eq(items[4].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(items[3].id)
-        expect(res.body.data.search.edges[2].node.id).to.eq(items[2].id)
-        expect(res.body.data.search.edges[3].node.id).to.eq(items[1].id)
-        expect(res.body.data.search.edges[4].node.id).to.eq(items[0].id)
       })
     })
 
@@ -1122,7 +1148,7 @@ describe('Article API', () => {
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
               archivedAt: new Date(),
-              readingProgressTopPercent: 100,
+              readingProgressBottomPercent: 100,
             },
             {
               user,
@@ -1140,7 +1166,7 @@ describe('Article API', () => {
         await deleteLibraryItems(items, user.id)
       })
 
-      it('returns unfinished archived items', async () => {
+      it('returns unread archived items', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
@@ -1221,7 +1247,7 @@ describe('Article API', () => {
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
               deletedAt: new Date(),
-              readingProgressTopPercent: 100,
+              readingProgressBottomPercent: 100,
             },
             {
               user,

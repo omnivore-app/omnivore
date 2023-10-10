@@ -1,4 +1,13 @@
-import { DeepPartial, SelectQueryBuilder } from 'typeorm'
+import {
+  Between,
+  DeepPartial,
+  In,
+  IsNull,
+  LessThan,
+  MoreThan,
+  Not,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -106,10 +115,14 @@ const buildWhereClause = (
   if (args.inFilter !== InFilter.ALL) {
     switch (args.inFilter) {
       case InFilter.INBOX:
-        queryBuilder.andWhere('library_item.archived_at IS NULL')
+        queryBuilder.andWhere({
+          archivedAt: IsNull(),
+        })
         break
       case InFilter.ARCHIVE:
-        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+        queryBuilder.andWhere({
+          archivedAt: Not(IsNull()),
+        })
         break
       case InFilter.TRASH:
         // return only deleted pages within 14 days
@@ -119,16 +132,20 @@ const buildWhereClause = (
         break
       case InFilter.SUBSCRIPTION:
         queryBuilder
-          .andWhere('library_item.subscription IS NOT NULL')
           .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-          .andWhere('library_item.archived_at IS NULL')
+          .andWhere({
+            subscription: Not(IsNull()),
+            archivedAt: IsNull(),
+          })
         break
       case InFilter.LIBRARY:
         queryBuilder
           .andWhere(
             "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
           )
-          .andWhere('library_item.archived_at IS NULL')
+          .andWhere({
+            archivedAt: IsNull(),
+          })
         break
     }
   }
@@ -136,10 +153,17 @@ const buildWhereClause = (
   if (args.readFilter !== ReadFilter.ALL) {
     switch (args.readFilter) {
       case ReadFilter.READ:
-        queryBuilder.andWhere('library_item.reading_progress_top_percent >= 98')
+        queryBuilder.andWhere({
+          readingProgressBottomPercent: MoreThan(98),
+        })
+        break
+      case ReadFilter.READING:
+        queryBuilder.andWhere({ readingProgressBottomPercent: Between(2, 98) })
         break
       case ReadFilter.UNREAD:
-        queryBuilder.andWhere('library_item.reading_progress_top_percent < 98')
+        queryBuilder.andWhere({
+          readingProgressBottomPercent: LessThan(2),
+        })
         break
     }
   }
@@ -148,12 +172,10 @@ const buildWhereClause = (
     args.hasFilters.forEach((filter) => {
       switch (filter) {
         case HasFilter.HIGHLIGHTS:
-          queryBuilder.andWhere(
-            'array_length(library_item.highlight_annotations, 1) > 0'
-          )
+          queryBuilder.andWhere("library_item.highlight_annotations <> '{}'")
           break
         case HasFilter.LABELS:
-          queryBuilder.andWhere('array_length(library_item.label_names, 1) > 0')
+          queryBuilder.andWhere("library_item.label_names <> '{}'")
           break
       }
     })
@@ -225,18 +247,20 @@ const buildWhereClause = (
   }
 
   if (args.ids && args.ids.length > 0) {
-    queryBuilder.andWhere('library_item.id IN (:...ids)', { ids: args.ids })
+    queryBuilder.andWhere({
+      id: In(args.ids),
+    })
   }
 
   if (!args.includePending) {
-    queryBuilder.andWhere('library_item.state != :state', {
-      state: LibraryItemState.Processing,
+    queryBuilder.andWhere({
+      state: Not(LibraryItemState.Processing),
     })
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere('library_item.state != :state', {
-      state: LibraryItemState.Deleted,
+    queryBuilder.andWhere({
+      state: Not(LibraryItemState.Deleted),
     })
   }
 
@@ -303,7 +327,7 @@ export const searchLibraryItems = async (
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
-        .where('library_item.user_id = :userId', { userId })
+        .where({ user: { id: userId } })
 
       // build the where clause
       buildWhereClause(queryBuilder, args)

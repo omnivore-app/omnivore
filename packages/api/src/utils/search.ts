@@ -14,6 +14,7 @@ import { InputMaybe, PageType, SortParams } from '../generated/graphql'
 export enum ReadFilter {
   ALL,
   READ,
+  READING,
   UNREAD,
 }
 
@@ -110,6 +111,8 @@ const parseIsFilter = (str: string | undefined): ReadFilter => {
   switch (str?.toUpperCase()) {
     case 'READ':
       return ReadFilter.READ
+    case 'READING':
+      return ReadFilter.READING
     case 'UNREAD':
       return ReadFilter.UNREAD
   }
