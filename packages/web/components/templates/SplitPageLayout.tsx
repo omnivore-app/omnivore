@@ -45,11 +45,6 @@ export function SplitPageLayout(props: PrimaryLayoutProps): JSX.Element {
   // Attempt to identify the user if they are logged in.
   useEffect(() => {
     setupAnalytics(viewerData?.me)
-
-    const user = window.analytics?.user().id()
-    if (!user && viewerData?.me?.id) {
-      window.analytics?.identify({ userId: viewerData?.me?.id })
-    }
   }, [viewerData?.me])
 
   async function logout(): Promise<void> {

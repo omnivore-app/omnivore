@@ -521,7 +521,7 @@ export default function PdfArticleContainer(
           //   document.dispatchEvent(new Event('annotate'))
           //   break
           case 't':
-            props.setShowHighlightsModal(true)
+            document.dispatchEvent(new Event('showNotebook'))
             break
           case 'i':
             document.dispatchEvent(new Event('showEditModal'))
