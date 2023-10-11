@@ -6,7 +6,6 @@ BEGIN;
 
 UPDATE omnivore.highlight SET updated_at = created_at WHERE updated_at IS NULL;
 ALTER TABLE omnivore.highlight
-    ALTER COLUMN updated_at SET DEFAULT current_timestamp,
-    ALTER COLUMN updated_at SET NOT NULL;
+    ALTER COLUMN updated_at SET DEFAULT current_timestamp;
 
 COMMIT;
