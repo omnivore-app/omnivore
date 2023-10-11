@@ -223,7 +223,7 @@ function Subscriptions(
         },
       }
     }),
-    [props.subscriptions]
+    [sortedSubscriptions]
   )
 
   return (
@@ -241,7 +241,7 @@ function Subscriptions(
             text="Newsletters"
             {...props}
           />
-          {(props.subscriptions ?? []).map((item) => {
+          {(sortedSubscriptions ?? []).map((item) => {
             switch (item.type) {
               case SubscriptionType.NEWSLETTER:
                 return (
