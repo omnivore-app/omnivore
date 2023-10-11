@@ -35,8 +35,9 @@ export default function PdfArticleContainer(
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
@@ -418,7 +419,43 @@ export default function PdfArticleContainer(
         }
       )
 
+      function getActiveElement(element = document.activeElement) {
+        if (element && !('contentDocument' in element)) {
+          return undefined
+        }
+
+        const shadowRoot = element?.shadowRoot
+        const contentDocument = element?.contentDocument as Document
+
+        if (shadowRoot && shadowRoot.activeElement) {
+          return getActiveElement(shadowRoot.activeElement)
+        }
+
+        if (contentDocument && contentDocument.activeElement) {
+          return getActiveElement(contentDocument.activeElement)
+        }
+
+        return element
+      }
+
       function keyDownHandler(event: globalThis.KeyboardEvent) {
+        var inputs = ['input', 'select', 'button', 'textarea']
+
+        if (event.target && 'nodeName' in event.target) {
+          const nodeName = (event.target.nodeName as string).toLowerCase()
+          console.log('nodeName: ', nodeName)
+          if (inputs.indexOf(nodeName) != -1) {
+            return
+          }
+        }
+
+        var activeElement = event.target
+        if (activeElement && 'nodeName' in activeElement) {
+          if (inputs.indexOf(activeElement.nodeName as string) != -1) {
+            return
+          }
+        }
+
         const key = event.key.toLowerCase()
         switch (key) {
           case 'o':
