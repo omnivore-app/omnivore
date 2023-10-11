@@ -379,7 +379,8 @@ export const findLibraryItemByUrl = async (
         .leftJoinAndSelect('recommendations.recommender', 'recommender')
         .leftJoinAndSelect('recommender.profile', 'profile')
         .leftJoinAndSelect('recommendations.group', 'group')
-        .where('library_item.original_url = :url', { url })
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.original_url = :url', { url })
         .getOne(),
     undefined,
     userId
@@ -485,6 +486,7 @@ export const createLibraryItem = async (
 
 export const findLibraryItemsByPrefix = async (
   prefix: string,
+  userId: string,
   limit = 5
 ): Promise<LibraryItem[]> => {
   const prefixWildcard = `${prefix}%`
@@ -492,10 +494,11 @@ export const findLibraryItemsByPrefix = async (
   return authTrx(async (tx) =>
     tx
       .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.title ILIKE :prefix', { prefix: prefixWildcard })
-      .orWhere('library_item.site_name ILIKE :prefix', {
-        prefix: prefixWildcard,
-      })
+      .where('library_item.user_id = :userId', { userId })
+      .andWhere(
+        '(library_item.title ILIKE :prefix OR library_item.site_name ILIKE :prefix)',
+        { prefix: prefixWildcard }
+      )
       .orderBy('library_item.savedAt', 'DESC')
       .limit(limit)
       .getMany()
@@ -511,7 +514,8 @@ export const countByCreatedAt = async (
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.created_at between :startDate and :endDate', {
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.created_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
@@ -608,10 +612,12 @@ export const deleteLibraryItems = async (
   )
 }
 
-export const deleteLibraryItemByUrl = async (url: string, userId?: string) => {
+export const deleteLibraryItemByUrl = async (url: string, userId: string) => {
   return authTrx(
     async (tx) =>
-      tx.withRepository(libraryItemRepository).delete({ originalUrl: url }),
+      tx
+        .withRepository(libraryItemRepository)
+        .delete({ originalUrl: url, user: { id: userId } }),
     undefined,
     userId
   )

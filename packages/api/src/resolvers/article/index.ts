@@ -707,9 +707,9 @@ export const typeaheadSearchResolver = authorized<
   TypeaheadSearchSuccess,
   TypeaheadSearchError,
   QueryTypeaheadSearchArgs
->(async (_obj, { query, first }, { log }) => {
+>(async (_obj, { query, first }, { log, uid }) => {
   try {
-    const items = await findLibraryItemsByPrefix(query, first || undefined)
+    const items = await findLibraryItemsByPrefix(query, uid, first || undefined)
 
     return {
       items: items.map((item) => ({
