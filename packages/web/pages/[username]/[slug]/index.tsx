@@ -607,6 +607,7 @@ export default function Reader(): JSX.Element {
                 viewer={viewerData.me}
                 item={article}
                 outline={outline}
+                containerRef={containerRef}
                 closeInspector={inspector.closeInspector}
                 currentView={inspector.currentInspectorView}
                 setCurrentView={inspector.setCurrentInspectorView}

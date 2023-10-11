@@ -1,5 +1,6 @@
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import {
+  clampToPercent,
   getTopOmnivoreAnchorElement,
   parseDomTree,
 } from '../../../lib/anchorElements'
@@ -40,10 +41,6 @@ export function Article(props: ArticleProps): JSX.Element {
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
-  const clampToPercent = (float: number) => {
-    return Math.floor(Math.max(0, Math.min(100, float)))
-  }
-
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
   const [lightboxIndex, setlightBoxIndex] = useState(0)
@@ -52,10 +49,10 @@ export function Article(props: ArticleProps): JSX.Element {
     ;(async () => {
       if (!readingProgress) return
       if (!articleContentRef.current) return
-      if (!window.document.scrollingElement) return
+      if (!props.containerRef?.current) return
       const anchor = getTopOmnivoreAnchorElement(articleContentRef.current)
       const topPositionPercent =
-        window.scrollY / window.document.scrollingElement.scrollHeight
+        window.scrollY / props.containerRef?.current.scrollHeight
       const anchorIndex = Number(anchor)
 
       await props.articleMutations.articleReadingProgressMutation({
@@ -284,6 +281,7 @@ export function Article(props: ArticleProps): JSX.Element {
         href={`/static/highlightjs/${highlightTheme}.min.css`}
       />
       <Box
+        id="article-content"
         ref={articleContentRef}
         css={{
           maxWidth: '100%',

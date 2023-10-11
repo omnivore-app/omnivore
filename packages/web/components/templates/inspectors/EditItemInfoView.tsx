@@ -4,12 +4,23 @@ import { FormInput } from '../../elements/FormElements'
 import { HStack, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { styled } from '@stitches/react'
+import { ChangeEvent, useState } from 'react'
+import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
+import {
+  clampToPercent,
+  getTopOmnivoreAnchorElement,
+} from '../../../lib/anchorElements'
 
 type EditInfoProps = {
   item: ReadableItem
+  containerRef: React.RefObject<HTMLDivElement | null>
 }
 
 export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
+  const [readingProgress, setReadingProgress] = useState(
+    props.item.readingProgressPercent
+  )
+
   return (
     <VStack
       css={{
@@ -41,8 +52,67 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
         <NumberSelectRow
           title="Reading Progress"
           type="number"
-          value={props.item.readingProgressPercent.toString()}
+          value={readingProgress}
           max={100}
+          onChange={(event) => {
+            console.log('event: ', event)
+            if (
+              !('value' in event.target) ||
+              !props.containerRef.current?.scrollHeight ||
+              Number.isNaN(Number(event.target.value))
+            ) {
+              return
+            }
+            const numberValue = Number(event.target.value)
+            setReadingProgress(numberValue)
+
+            const value = numberValue / 100.0
+            props.item.readingProgressPercent = value
+
+            const position = props.containerRef.current?.scrollHeight * value
+            console.log('position: ', position)
+
+            console.log(
+              'scrollHeight: ',
+              props.containerRef.current?.scrollHeight
+            )
+
+            console.log(
+              'scrolling container: ',
+              props.containerRef,
+              'tp',
+              position
+            )
+            props.containerRef?.current.scrollTo({
+              top: position,
+              behavior: 'instant',
+            })
+            ;(async () => {
+              const articleContent = document.querySelector('#article-content')
+              if (!articleContent || !props.containerRef?.current) {
+                return
+              }
+              const anchor = getTopOmnivoreAnchorElement(
+                articleContent as HTMLElement
+              )
+              const topPositionPercent =
+                props.containerRef?.current.scrollTop /
+                props.containerRef?.current.scrollHeight
+              const anchorIndex = Number(anchor)
+
+              await articleReadingProgressMutation({
+                id: props.item.id,
+                readingProgressPercent: clampToPercent(readingProgress),
+                readingProgressTopPercent: clampToPercent(
+                  topPositionPercent * 100
+                ),
+                readingProgressAnchorIndex:
+                  anchorIndex == Number.NaN ? undefined : anchorIndex,
+              })
+            })()
+
+            event.preventDefault()
+          }}
         />
       </VStack>
 
@@ -225,8 +295,9 @@ const FullRowText = (props: FullRowTextProps): JSX.Element => {
 type NumberSelectRowProps = {
   title: string
   type: string
-  value: string | undefined
+  value: number
   max: number
+  onChange: (event: ChangeEvent) => void
 }
 
 const StyledSelect = styled('select', {
@@ -242,6 +313,11 @@ const StyledSelect = styled('select', {
   width: '98px',
   height: '35px',
   border: 'unset',
+
+  backgroundImage: `linear-gradient(45deg, transparent 50%, gray 50%),linear-gradient: '(135deg, gray 50%, transparent 50%),linear-gradient: '(to right, #ccc, #ccc)`,
+  backgroundPosition: `calc(100% - 20px) calc(1em + 2px),calc(100% - 15px) calc(1em + 2px),calc(100% - 2.5em) 0.5em;`,
+  backgroundSize: `5px 5px,5px 5px,1px 1.5em`,
+  backgroundRepeat: 'no-repeat',
 })
 
 const NumberSelectRow = (props: NumberSelectRowProps): JSX.Element => {
@@ -270,11 +346,11 @@ const NumberSelectRow = (props: NumberSelectRowProps): JSX.Element => {
       >
         {props.title}
       </StyledText>
-      <StyledSelect value={props.value}>
+      <StyledSelect value={props.value} onChange={props.onChange}>
         {values.map((value) => {
           return (
             <option key={`option-${value}`} value={value}>
-              {value}
+              {value}%
             </option>
           )
         })}

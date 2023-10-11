@@ -27,6 +27,7 @@ type InspectorProps = {
   viewer: UserBasicData
   item: ReadableItem
   outline: OutlineItem | undefined
+  containerRef: React.RefObject<HTMLDivElement | null>
 
   currentView: InspectorView
   setCurrentView: (view: InspectorView) => void
