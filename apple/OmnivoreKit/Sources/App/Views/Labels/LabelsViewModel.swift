@@ -5,6 +5,8 @@ import SwiftUI
 import Views
 
 @MainActor final class LabelsViewModel: ObservableObject {
+  let labelNameMaxLength = 64
+
   @Published var isLoading = false
   @Published var selectedLabels = Set<LinkedItemLabel>()
   @Published var unselectedLabels = Set<LinkedItemLabel>()
