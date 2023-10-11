@@ -71,7 +71,8 @@ export function contentServiceRouter() {
           .withRepository(libraryItemRepository)
           .createQueryBuilder('item')
           .innerJoinAndSelect('item.uploadFile', 'file')
-          .where('file.id = :fileId', { fileId })
+          .where('item.user = :userId', { userId: uploadFile.user.id })
+          .andWhere('file.id = :fileId', { fileId })
           .getOne(),
       undefined,
       uploadFile.user.id

@@ -136,8 +136,11 @@ export const updateHighlight = async (
 export const deleteHighlightById = async (highlightId: string) => {
   return authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
-    const highlight = await highlightRepo.findOneByOrFail({
-      id: highlightId,
+    const highlight = await highlightRepo.findOneOrFail({
+      where: { id: highlightId },
+      relations: {
+        user: true,
+      },
     })
 
     await highlightRepo.delete(highlightId)
