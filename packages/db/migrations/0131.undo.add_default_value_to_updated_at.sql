@@ -4,10 +4,6 @@
 
 BEGIN;
 
-ALTER TABLE omnivore.user_profile ALTER COLUMN updated_at DROP NOT NULL;
-
-ALTER TABLE omnivore.labels ALTER COLUMN updated_at DROP NOT NULL;
-
 ALTER TABLE omnivore.highlight ALTER COLUMN updated_at DROP NOT NULL;
 
 COMMIT;
