@@ -443,7 +443,6 @@ export default function PdfArticleContainer(
 
         if (event.target && 'nodeName' in event.target) {
           const nodeName = (event.target.nodeName as string).toLowerCase()
-          console.log('nodeName: ', nodeName)
           if (inputs.indexOf(nodeName) != -1) {
             return
           }
