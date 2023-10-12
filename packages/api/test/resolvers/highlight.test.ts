@@ -247,7 +247,7 @@ describe('Highlights API', () => {
     context('when no position info is sent', () => {
       it('nulls the position info', async () => {
         const newHighlightId = generateFakeUuid()
-        const newShortHighlightId = '_short_id_4'
+        const newShortHighlightId = '_short_id_5'
         const query = createHighlightQueryWithNoPositionInfo(
           itemId,
           newHighlightId,
