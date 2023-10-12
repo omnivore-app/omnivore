@@ -4,4 +4,17 @@
 
 BEGIN;
 
+ALTER TABLE omnivore.highlight
+    ALTER COLUMN highlight_position_percent DROP NOT NULL;
+
+ALTER TABLE omnivore.highlight
+    ALTER COLUMN highlight_position_anchor_index DROP NOT NULL;
+
+
+ALTER TABLE omnivore.highlight
+    ALTER COLUMN highlight_position_percent SET DEFAULT NULL;
+
+ALTER TABLE omnivore.highlight
+    ALTER COLUMN highlight_position_anchor_index SET DEFAULT NULL;
+
 COMMIT;
