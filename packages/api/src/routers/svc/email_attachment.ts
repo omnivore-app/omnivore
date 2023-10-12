@@ -61,10 +61,10 @@ export function emailAttachmentRouter() {
         (tx) =>
           tx.getRepository(UploadFile).save({
             url: '',
-            userId: user.id,
-            fileName: fileName,
+            fileName,
             status: UploadFileStatus.Initialized,
-            contentType: contentType,
+            contentType,
+            user: { id: user.id },
           }),
         undefined,
         user.id
@@ -150,7 +150,7 @@ export function emailAttachmentRouter() {
           ? PageType.File
           : PageType.Book
       const title = subject || uploadFileData.fileName
-      const articleToSave: DeepPartial<LibraryItem> = {
+      const itemToCreate: DeepPartial<LibraryItem> = {
         originalUrl: uploadFileUrlOverride,
         itemType,
         textContentHash: uploadFileHash,
@@ -159,14 +159,15 @@ export function emailAttachmentRouter() {
         readableContent: '',
         slug: generateSlug(title),
         state: LibraryItemState.Succeeded,
+        user: { id: user.id },
       }
 
-      const pageId = await createLibraryItem(articleToSave, user.id)
+      const item = await createLibraryItem(itemToCreate, user.id)
 
       // update received email type
       await updateReceivedEmail(receivedEmailId, 'article', user.id)
 
-      res.send({ id: pageId })
+      res.send({ id: item.id })
     } catch (err) {
       logger.info(err)
       res.status(500).send(err)
