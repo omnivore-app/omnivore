@@ -3,6 +3,7 @@
 package app.omnivore.omnivore.ui.components
 
 import LabelChip
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -341,19 +342,33 @@ fun LabelsSelectionSheetContent(
       )
 
       if (!isLibraryMode && filterTextValue.text.isNotEmpty() && currentLabel == null) {
+        val context = LocalContext.current
         Row(
           horizontalArrangement = Arrangement.Start,
           verticalAlignment = Alignment.CenterVertically,
           modifier = Modifier
             .fillMaxWidth()
             .clickable {
-              val label = findOrCreateLabel(
-                labelsViewModel = labelsViewModel,
-                labels = labels,
-                name = filterTextValue
-              )
-              state.addChip(LabelChipView(label))
-              filterTextValue = TextFieldValue()
+              when(labelsViewModel.validateLabelName(filterTextValue.text)) {
+                LabelsViewModel.Error.LabelNameTooLong -> {
+                  Toast.makeText(
+                    context,
+                    context.getString(R.string.label_selection_sheet_label_too_long_error_msg,
+                      labelsViewModel.labelNameMaxLength),
+                    Toast.LENGTH_SHORT
+                  ).show()
+                }
+                null -> {
+                  val label = findOrCreateLabel(
+                    labelsViewModel = labelsViewModel,
+                    labels = labels,
+                    name = filterTextValue
+                  )
+
+                  state.addChip(LabelChipView(label))
+                  filterTextValue = TextFieldValue()
+                }
+              }
             }
             .padding(horizontal = 10.dp)
             .padding(top = 10.dp, bottom = 5.dp)
