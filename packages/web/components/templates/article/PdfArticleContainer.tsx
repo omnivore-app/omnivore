@@ -419,15 +419,25 @@ export default function PdfArticleContainer(
         }
       )
 
-      function keyDownHandler(event: globalThis.KeyboardEvent) {
+      type PossibleInputEventTarget = KeyboardEvent & {
+        nodeName: string
+      }
+
+      function isPossibleInputEventTarget(
+        target: any
+      ): target is PossibleInputEventTarget {
+        return (
+          'nodeName' in target &&
+          typeof target.nodeName == 'string' &&
+          target.nodeName
+        )
+      }
+
+      function keyDownHandler(event: KeyboardEvent) {
         const inputs = ['input', 'select', 'button', 'textarea']
 
-        if (
-          event.target &&
-          'nodeName' in event.target &&
-          typeof event.target.nodeName == 'string'
-        ) {
-          const nodeName = (event.target.nodeName as string).toLowerCase()
+        if (event.target && isPossibleInputEventTarget(event.target)) {
+          const nodeName = event.target.nodeName.toLowerCase()
           if (inputs.indexOf(nodeName) != -1) {
             return
           }
