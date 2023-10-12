@@ -35,8 +35,9 @@ export default function PdfArticleContainer(
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] =
-    useState<number | undefined>(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
+    number | undefined
+  >(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const annotationOmnivoreId = (annotation: Annotation): string | undefined => {
@@ -418,7 +419,30 @@ export default function PdfArticleContainer(
         }
       )
 
-      function keyDownHandler(event: globalThis.KeyboardEvent) {
+      type PossibleInputEventTarget = KeyboardEvent & {
+        nodeName: string
+      }
+
+      function isPossibleInputEventTarget(
+        target: any
+      ): target is PossibleInputEventTarget {
+        return (
+          'nodeName' in target &&
+          typeof target.nodeName == 'string' &&
+          target.nodeName
+        )
+      }
+
+      function keyDownHandler(event: KeyboardEvent) {
+        const inputs = ['input', 'select', 'button', 'textarea']
+
+        if (event.target && isPossibleInputEventTarget(event.target)) {
+          const nodeName = event.target.nodeName.toLowerCase()
+          if (inputs.indexOf(nodeName) != -1) {
+            return
+          }
+        }
+
         const key = event.key.toLowerCase()
         switch (key) {
           case 'o':
@@ -445,8 +469,6 @@ export default function PdfArticleContainer(
             const highlight = root?.querySelector(
               '.PSPDFKit-Text-Markup-Inline-Toolbar-Highlight'
             )
-            console.log('root ', root)
-            console.log('highlight overlay: ', highlight, highlight?.nodeName)
             if (highlight && highlight?.nodeName == 'BUTTON') {
               const button = highlight as HTMLButtonElement
               button.click()
