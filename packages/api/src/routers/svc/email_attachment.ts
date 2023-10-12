@@ -1,6 +1,10 @@
 import express from 'express'
 import { DeepPartial } from 'typeorm'
-import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import {
+  ContentReaderType,
+  LibraryItem,
+  LibraryItemState,
+} from '../../entity/library_item'
 import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import { PageType, UploadFileStatus } from '../../generated/graphql'
@@ -160,6 +164,10 @@ export function emailAttachmentRouter() {
         slug: generateSlug(title),
         state: LibraryItemState.Succeeded,
         user: { id: user.id },
+        contentReader:
+          itemType === PageType.File
+            ? ContentReaderType.PDF
+            : ContentReaderType.EPUB,
       }
 
       const item = await createLibraryItem(itemToCreate, user.id)

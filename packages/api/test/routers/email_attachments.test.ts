@@ -94,6 +94,7 @@ describe('Email attachments Router', () => {
       const item = await findLibraryItemById(res2.body.id, user.id)
 
       expect(item).to.exist
+      expect(item?.contentReader).to.eq('PDF')
     })
   })
 })
