@@ -61,10 +61,10 @@ export function emailAttachmentRouter() {
         (tx) =>
           tx.getRepository(UploadFile).save({
             url: '',
-            userId: user.id,
-            fileName: fileName,
+            fileName,
             status: UploadFileStatus.Initialized,
             contentType: contentType,
+            user: { id: user.id },
           }),
         undefined,
         user.id
