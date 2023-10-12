@@ -1,15 +1,19 @@
+import { Storage } from '@google-cloud/storage'
 import { expect } from 'chai'
 import * as jwt from 'jsonwebtoken'
 import 'mocha'
+import sinon from 'sinon'
+import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
 import { findLibraryItemById } from '../../src/services/library_item'
-import { createNewsletterEmail } from '../../src/services/newsletters'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
+import { MockBucket } from '../mock_storage'
 import { request } from '../util'
 
-describe('PDF attachments Router', () => {
-  const newsletterEmail = 'fakeEmail@omnivore.app'
+describe('Email attachments Router', () => {
+  const newsletterEmailAddress = 'fakeEmail@omnivore.app'
 
   let user: User
   let authToken: string
@@ -18,25 +22,38 @@ describe('PDF attachments Router', () => {
     // create test user and login
     user = await createTestUser('fakeUser')
 
-    await createNewsletterEmail(user.id, newsletterEmail)
-    authToken = jwt.sign(newsletterEmail, process.env.JWT_SECRET || '')
+    await getRepository(NewsletterEmail).save({
+      address: newsletterEmailAddress,
+      user: { id: user.id },
+    })
+    authToken = jwt.sign(newsletterEmailAddress, process.env.JWT_SECRET || '')
+
+    // mock cloud storage
+    const mockBucket = new MockBucket('test')
+    sinon.replace(
+      Storage.prototype,
+      'bucket',
+      sinon.fake.returns(mockBucket as never)
+    )
   })
 
   after(async () => {
     // clean up
     await deleteUser(user.id)
+    sinon.restore()
   })
 
   describe('upload', () => {
-    xit('create upload file request and return id and url', async () => {
+    it('create upload file request and return id and url', async () => {
       const testFile = 'testFile.pdf'
 
       const res = await request
-        .post('/svc/pdf-attachments/upload')
+        .post('/svc/email-attachment/upload')
         .set('Authorization', `${authToken}`)
         .send({
-          email: newsletterEmail,
+          email: newsletterEmailAddress,
           fileName: testFile,
+          contentType: 'application/pdf',
         })
         .expect(200)
 
@@ -52,22 +69,23 @@ describe('PDF attachments Router', () => {
       // upload file first
       const testFile = 'testFile.pdf'
       const res = await request
-        .post('/svc/pdf-attachments/upload')
+        .post('/svc/email-attachment/upload')
         .set('Authorization', `${authToken}`)
         .send({
-          email: newsletterEmail,
+          email: newsletterEmailAddress,
           fileName: testFile,
+          contentType: 'application/pdf',
         })
       uploadFileId = res.body.id
     })
 
-    xit('create article with uploaded file id and url', async () => {
+    it('create article with uploaded file id and url', async () => {
       // create article
       const res2 = await request
-        .post('/svc/pdf-attachments/create-article')
+        .post('/svc/email-attachment/create-article')
         .send({
-          email: newsletterEmail,
-          uploadFileId: uploadFileId,
+          email: newsletterEmailAddress,
+          uploadFileId,
         })
         .set('Authorization', `${authToken}`)
         .expect(200)

@@ -63,7 +63,7 @@ export function emailAttachmentRouter() {
             url: '',
             fileName,
             status: UploadFileStatus.Initialized,
-            contentType: contentType,
+            contentType,
             user: { id: user.id },
           }),
         undefined,
@@ -162,12 +162,12 @@ export function emailAttachmentRouter() {
         user: { id: user.id },
       }
 
-      const pageId = await createLibraryItem(itemToCreate, user.id)
+      const item = await createLibraryItem(itemToCreate, user.id)
 
       // update received email type
       await updateReceivedEmail(receivedEmailId, 'article', user.id)
 
-      res.send({ id: pageId })
+      res.send({ id: item.id })
     } catch (err) {
       logger.info(err)
       res.status(500).send(err)
