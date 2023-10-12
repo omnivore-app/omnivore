@@ -420,9 +420,13 @@ export default function PdfArticleContainer(
       )
 
       function keyDownHandler(event: globalThis.KeyboardEvent) {
-        var inputs = ['input', 'select', 'button', 'textarea']
+        const inputs = ['input', 'select', 'button', 'textarea']
 
-        if (event.target && 'nodeName' in event.target) {
+        if (
+          event.target &&
+          'nodeName' in event.target &&
+          typeof event.target.nodeName == 'string'
+        ) {
           const nodeName = (event.target.nodeName as string).toLowerCase()
           if (inputs.indexOf(nodeName) != -1) {
             return
@@ -455,8 +459,6 @@ export default function PdfArticleContainer(
             const highlight = root?.querySelector(
               '.PSPDFKit-Text-Markup-Inline-Toolbar-Highlight'
             )
-            console.log('root ', root)
-            console.log('highlight overlay: ', highlight, highlight?.nodeName)
             if (highlight && highlight?.nodeName == 'BUTTON') {
               const button = highlight as HTMLButtonElement
               button.click()
