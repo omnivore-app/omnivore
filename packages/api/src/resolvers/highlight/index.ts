@@ -47,7 +47,9 @@ export const createHighlightResolver = authorized<
         ...input,
         user: { id: uid },
         libraryItem: { id: input.articleId },
-        highlightType: input.type as HighlightType,
+        highlightType: input.type || HighlightType.Highlight,
+        highlightPositionAnchorIndex: input.highlightPositionAnchorIndex || 0,
+        highlightPositionPercent: input.highlightPositionPercent || 0,
       },
       input.articleId,
       uid,
@@ -125,6 +127,8 @@ export const mergeHighlightResolver = authorized<
       color,
       user: { id: uid },
       libraryItem: { id: input.articleId },
+      highlightPositionAnchorIndex: input.highlightPositionAnchorIndex || 0,
+      highlightPositionPercent: input.highlightPositionPercent || 0,
     }
 
     const newHighlight = await mergeHighlights(

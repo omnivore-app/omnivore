@@ -3,8 +3,10 @@ import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import { createHighlight } from '../../src/services/highlights'
-import { updateLibraryItem } from '../../src/services/library_item'
+import {
+  createHighlight,
+  deleteHighlightById,
+} from '../../src/services/highlights'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
@@ -15,8 +17,8 @@ const createHighlightQuery = (
   linkId: string,
   highlightId: string,
   shortHighlightId: string,
-  highlightPositionPercent = 0.0,
-  highlightPositionAnchorIndex = 0,
+  highlightPositionPercent: number | null = null,
+  highlightPositionAnchorIndex: number | null = null,
   annotation = '_annotation',
   html: string | null = null,
   prefix = '_prefix',
@@ -180,6 +182,24 @@ describe('Highlights API', () => {
         res.body.data.createHighlight.highlight.highlightPositionAnchorIndex
       ).to.eq(highlightPositionAnchorIndex)
       expect(res.body.data.createHighlight.highlight.html).to.eq(html)
+    })
+
+    context('when highlight position is null', () => {
+      it('sets highlight position = 0', async () => {
+        const newHighlightId = generateFakeUuid()
+        const newShortHighlightId = '_short_id_5'
+        const query = createHighlightQuery(
+          itemId,
+          newHighlightId,
+          newShortHighlightId
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(
+          res.body.data.createHighlight.highlight.highlightPositionPercent
+        ).to.eq(0)
+
+        await deleteHighlightById(newHighlightId)
+      })
     })
 
     context('when the annotation has HTML reserved characters', () => {
