@@ -255,6 +255,7 @@ describe('Highlights API', () => {
           '-> <-'
         )
         const res = await graphqlRequest(query, authToken).expect(200)
+        console.log('nulls the position info: ', JSON.stringify(res.body.data))
         expect(res.body.data.createHighlight.id.to.eq(newHighlightId))
         expect(
           res.body.data.createHighlight.highlightPositionPercent.pos.to.be.null
