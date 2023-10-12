@@ -58,6 +58,47 @@ const createHighlightQuery = (
   `
 }
 
+const createHighlightQueryWithNoPositionInfo = (
+  linkId: string,
+  highlightId: string,
+  shortHighlightId: string,
+  annotation = '_annotation',
+  html: string | null = null,
+  prefix = '_prefix',
+  suffix = '_suffix',
+  quote = '_quote',
+  patch = '_patch'
+) => {
+  return `
+  mutation {
+    createHighlight(
+      input: {
+        prefix: "${prefix}",
+        suffix: "${suffix}",
+        quote: "${quote}",
+        id: "${highlightId}",
+        shortId: "${shortHighlightId}",
+        patch: "${patch}",
+        articleId: "${linkId}",
+        annotation: "${annotation}"
+        html: "${html}"
+      }
+    ) {
+      ... on CreateHighlightSuccess {
+        highlight {
+          id
+          highlightPositionPercent
+          highlightPositionAnchorIndex
+        }
+      }
+      ... on CreateHighlightError {
+        errorCodes
+      }
+    }
+  }
+  `
+}
+
 const mergeHighlightQuery = (
   pageId: string,
   highlightId: string,
@@ -199,6 +240,28 @@ describe('Highlights API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(res.body.data.createHighlight.highlight.annotation).to.eql(
           '-> <-'
+        )
+      })
+    })
+
+    context('when no position info is sent', () => {
+      it('nulls the position info', async () => {
+        const newHighlightId = generateFakeUuid()
+        const newShortHighlightId = '_short_id_4'
+        const query = createHighlightQueryWithNoPositionInfo(
+          itemId,
+          newHighlightId,
+          newShortHighlightId,
+          '-> <-'
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(res.body.data.createHighlight.id.to.eq(newHighlightId))
+        expect(
+          res.body.data.createHighlight.highlightPositionPercent.pos.to.be.null
+        )
+        expect(
+          res.body.data.createHighlight.highlightPositionAnchorIndex.pos.to.be
+            .null
         )
       })
     })
