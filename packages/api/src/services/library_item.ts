@@ -1,4 +1,13 @@
-import { DeepPartial, SelectQueryBuilder } from 'typeorm'
+import {
+  Between,
+  DeepPartial,
+  In,
+  IsNull,
+  LessThan,
+  MoreThan,
+  Not,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -6,7 +15,7 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx } from '../repository'
+import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { wordsCount } from '../utils/helpers'
 import {
@@ -17,6 +26,7 @@ import {
   LabelFilter,
   LabelFilterType,
   NoFilter,
+  RangeFilter,
   ReadFilter,
   Sort,
   SortBy,
@@ -42,6 +52,7 @@ export interface SearchArgs {
   recommendedBy?: string
   includeContent?: boolean
   noFilters?: NoFilter[]
+  rangeFilters?: RangeFilter[]
 }
 
 export interface SearchResultItem {
@@ -104,10 +115,14 @@ const buildWhereClause = (
   if (args.inFilter !== InFilter.ALL) {
     switch (args.inFilter) {
       case InFilter.INBOX:
-        queryBuilder.andWhere('library_item.archived_at IS NULL')
+        queryBuilder.andWhere({
+          archivedAt: IsNull(),
+        })
         break
       case InFilter.ARCHIVE:
-        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+        queryBuilder.andWhere({
+          archivedAt: Not(IsNull()),
+        })
         break
       case InFilter.TRASH:
         // return only deleted pages within 14 days
@@ -117,16 +132,20 @@ const buildWhereClause = (
         break
       case InFilter.SUBSCRIPTION:
         queryBuilder
-          .andWhere('library_item.subscription IS NOT NULL')
           .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-          .andWhere('library_item.archived_at IS NULL')
+          .andWhere({
+            subscription: Not(IsNull()),
+            archivedAt: IsNull(),
+          })
         break
       case InFilter.LIBRARY:
         queryBuilder
           .andWhere(
             "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
           )
-          .andWhere('library_item.archived_at IS NULL')
+          .andWhere({
+            archivedAt: IsNull(),
+          })
         break
     }
   }
@@ -134,10 +153,17 @@ const buildWhereClause = (
   if (args.readFilter !== ReadFilter.ALL) {
     switch (args.readFilter) {
       case ReadFilter.READ:
-        queryBuilder.andWhere('library_item.reading_progress_top_percent >= 98')
+        queryBuilder.andWhere({
+          readingProgressBottomPercent: MoreThan(98),
+        })
+        break
+      case ReadFilter.READING:
+        queryBuilder.andWhere({ readingProgressBottomPercent: Between(2, 98) })
         break
       case ReadFilter.UNREAD:
-        queryBuilder.andWhere('library_item.reading_progress_top_percent < 98')
+        queryBuilder.andWhere({
+          readingProgressBottomPercent: LessThan(2),
+        })
         break
     }
   }
@@ -146,12 +172,10 @@ const buildWhereClause = (
     args.hasFilters.forEach((filter) => {
       switch (filter) {
         case HasFilter.HIGHLIGHTS:
-          queryBuilder.andWhere(
-            'array_length(library_item.highlight_annotations, 1) > 0'
-          )
+          queryBuilder.andWhere("library_item.highlight_annotations <> '{}'")
           break
         case HasFilter.LABELS:
-          queryBuilder.andWhere('array_length(library_item.label_names, 1) > 0')
+          queryBuilder.andWhere("library_item.label_names <> '{}'")
           break
       }
     })
@@ -223,18 +247,20 @@ const buildWhereClause = (
   }
 
   if (args.ids && args.ids.length > 0) {
-    queryBuilder.andWhere('library_item.id IN (:...ids)', { ids: args.ids })
+    queryBuilder.andWhere({
+      id: In(args.ids),
+    })
   }
 
   if (!args.includePending) {
-    queryBuilder.andWhere('library_item.state != :state', {
-      state: LibraryItemState.Processing,
+    queryBuilder.andWhere({
+      state: Not(LibraryItemState.Processing),
     })
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere('library_item.state != :state', {
-      state: LibraryItemState.Deleted,
+    queryBuilder.andWhere({
+      state: Not(LibraryItemState.Deleted),
     })
   }
 
@@ -258,6 +284,22 @@ const buildWhereClause = (
       )
     }
   }
+
+  if (args.includeContent) {
+    queryBuilder.addSelect('library_item.readableContent')
+  }
+
+  if (args.rangeFilters && args.rangeFilters.length > 0) {
+    args.rangeFilters.forEach((filter, i) => {
+      const param = `range_${filter.field}_${i}`
+      queryBuilder.andWhere(
+        `library_item.${filter.field} ${filter.operator} :${param}`,
+        {
+          [param]: filter.value,
+        }
+      )
+    })
+  }
 }
 
 export const searchLibraryItems = async (
@@ -271,12 +313,21 @@ export const searchLibraryItems = async (
   // default sort by saved_at
   const sortField = sort?.by || SortBy.SAVED
 
+  const selectColumns = getColumns(libraryItemRepository)
+    .map((column) => `library_item.${column}`)
+    .filter(
+      (column) =>
+        column !== 'library_item.readableContent' &&
+        column !== 'library_item.originalContent'
+    )
+
   // add pagination and sorting
   return authTrx(
     async (tx) => {
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.user_id = :userId', { userId })
+        .select(selectColumns)
+        .where({ user: { id: userId } })
 
       // build the where clause
       buildWhereClause(queryBuilder, args)
@@ -328,7 +379,8 @@ export const findLibraryItemByUrl = async (
         .leftJoinAndSelect('recommendations.recommender', 'recommender')
         .leftJoinAndSelect('recommender.profile', 'profile')
         .leftJoinAndSelect('recommendations.group', 'group')
-        .where('library_item.original_url = :url', { url })
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.original_url = :url', { url })
         .getOne(),
     undefined,
     userId
@@ -434,6 +486,7 @@ export const createLibraryItem = async (
 
 export const findLibraryItemsByPrefix = async (
   prefix: string,
+  userId: string,
   limit = 5
 ): Promise<LibraryItem[]> => {
   const prefixWildcard = `${prefix}%`
@@ -441,10 +494,11 @@ export const findLibraryItemsByPrefix = async (
   return authTrx(async (tx) =>
     tx
       .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.title ILIKE :prefix', { prefix: prefixWildcard })
-      .orWhere('library_item.site_name ILIKE :prefix', {
-        prefix: prefixWildcard,
-      })
+      .where('library_item.user_id = :userId', { userId })
+      .andWhere(
+        '(library_item.title ILIKE :prefix OR library_item.site_name ILIKE :prefix)',
+        { prefix: prefixWildcard }
+      )
       .orderBy('library_item.savedAt', 'DESC')
       .limit(limit)
       .getMany()
@@ -460,7 +514,8 @@ export const countByCreatedAt = async (
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.created_at between :startDate and :endDate', {
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.created_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
@@ -557,10 +612,12 @@ export const deleteLibraryItems = async (
   )
 }
 
-export const deleteLibraryItemByUrl = async (url: string, userId?: string) => {
+export const deleteLibraryItemByUrl = async (url: string, userId: string) => {
   return authTrx(
     async (tx) =>
-      tx.withRepository(libraryItemRepository).delete({ originalUrl: url }),
+      tx
+        .withRepository(libraryItemRepository)
+        .delete({ originalUrl: url, user: { id: userId } }),
     undefined,
     userId
   )

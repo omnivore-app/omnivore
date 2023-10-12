@@ -15,6 +15,7 @@ import { analytics } from '../utils/analytics'
 import { IntercomClient } from '../utils/intercom'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
+import { addPopularReadsForNewUser } from './popular_reads'
 import { sendConfirmationEmail } from './send_emails'
 
 export const MAX_RECORDS_LIMIT = 1000
@@ -103,6 +104,9 @@ export const createUser = async (input: {
         })
       }
 
+      await addPopularReadsForNewUser(user.id, t)
+      await createDefaultFiltersForUser(t)(user.id)
+
       return [user, profile]
     }
   )
@@ -146,12 +150,15 @@ export const createUser = async (input: {
   return [user, profile]
 }
 
-export const createDefaultFiltersForUser =
+const createDefaultFiltersForUser =
   (t: EntityManager) =>
   async (userId: string): Promise<Filter[]> => {
     const defaultFilters = [
       { name: 'Inbox', filter: 'in:inbox' },
-      { name: 'Continue Reading', filter: 'in:inbox sort:read-desc is:unread' },
+      {
+        name: 'Continue Reading',
+        filter: 'in:inbox sort:read-desc is:reading',
+      },
       { name: 'Non-Feed Items', filter: 'in:library' },
       { name: 'Highlights', filter: 'has:highlights mode:highlights' },
       { name: 'Unlabeled', filter: 'no:label' },

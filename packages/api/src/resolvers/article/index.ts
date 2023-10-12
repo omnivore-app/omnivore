@@ -649,6 +649,7 @@ export const searchResolver = authorized<
       size: first + 1, // fetch one more item to get next cursor
       sort: searchQuery.sort,
       includePending: true,
+      includeContent: params.includeContent || false,
       ...searchQuery,
     },
     uid
@@ -706,9 +707,9 @@ export const typeaheadSearchResolver = authorized<
   TypeaheadSearchSuccess,
   TypeaheadSearchError,
   QueryTypeaheadSearchArgs
->(async (_obj, { query, first }, { log }) => {
+>(async (_obj, { query, first }, { log, uid }) => {
   try {
-    const items = await findLibraryItemsByPrefix(query, first || undefined)
+    const items = await findLibraryItemsByPrefix(query, uid, first || undefined)
 
     return {
       items: items.map((item) => ({

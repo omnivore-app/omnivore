@@ -167,7 +167,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
       switch (props.searchTerm) {
         case 'in:inbox':
           return 'inbox'
-        case 'in:inbox sort:read-desc is:unread':
+        case 'in:inbox sort:read-desc is:reading':
           return 'continue'
         case 'in:library':
           return 'non-feed'

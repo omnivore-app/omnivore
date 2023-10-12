@@ -70,7 +70,7 @@ const sendUpdateSubscriptionMutation = async (
     )
 
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-    return !!response.data.data.savePage
+    return !!response.data.data.updateSubscription.subscription
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('update subscription mutation error', error.message)

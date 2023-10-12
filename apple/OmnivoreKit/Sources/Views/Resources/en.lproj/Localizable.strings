@@ -19,6 +19,7 @@
 "labelsViewAssignNameColor" = "Assign a name and color.";
 "createLabelMessage" = "Create a new Label";
 "labelsPurposeDescription" = "Use labels to create curated collections of links.";
+"labelNamePlaceholder" = "Label Name";
 
 // Manage Account View
 "manageAccountDelete" = "Delete Account";
