@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { Not } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
@@ -792,6 +791,12 @@ export const bulkActionResolver = authorized<
       },
     })
 
+    // parse query
+    const searchQuery = parseSearchQuery(query)
+    if (searchQuery.ids.length > 100) {
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
+    }
+
     // get labels if needed
     let labels = undefined
     if (action === BulkActionType.AddLabels) {
@@ -802,10 +807,7 @@ export const bulkActionResolver = authorized<
       labels = await findLabelsByIds(labelIds, uid)
     }
 
-    // parse query
-    const searchQuery = parseSearchQuery(query)
-
-    await updateLibraryItems(action, searchQuery, labels)
+    await updateLibraryItems(action, searchQuery, uid, labels)
 
     return { success: true }
   } catch (error) {

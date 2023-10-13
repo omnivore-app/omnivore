@@ -1,13 +1,4 @@
-import {
-  Between,
-  DeepPartial,
-  In,
-  IsNull,
-  LessThan,
-  MoreThan,
-  Not,
-  SelectQueryBuilder,
-} from 'typeorm'
+import { DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -115,14 +106,10 @@ const buildWhereClause = (
   if (args.inFilter !== InFilter.ALL) {
     switch (args.inFilter) {
       case InFilter.INBOX:
-        queryBuilder.andWhere({
-          archivedAt: IsNull(),
-        })
+        queryBuilder.andWhere('library_item.archived_at IS NULL')
         break
       case InFilter.ARCHIVE:
-        queryBuilder.andWhere({
-          archivedAt: Not(IsNull()),
-        })
+        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
         break
       case InFilter.TRASH:
         // return only deleted pages within 14 days
@@ -133,19 +120,15 @@ const buildWhereClause = (
       case InFilter.SUBSCRIPTION:
         queryBuilder
           .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-          .andWhere({
-            subscription: Not(IsNull()),
-            archivedAt: IsNull(),
-          })
+          .andWhere('library_item.archived_at IS NULL')
+          .andWhere('library_item.subscription IS NOT NULL')
         break
       case InFilter.LIBRARY:
         queryBuilder
           .andWhere(
             "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
           )
-          .andWhere({
-            archivedAt: IsNull(),
-          })
+          .andWhere('library_item.archived_at IS NULL')
         break
     }
   }
@@ -153,17 +136,19 @@ const buildWhereClause = (
   if (args.readFilter !== ReadFilter.ALL) {
     switch (args.readFilter) {
       case ReadFilter.READ:
-        queryBuilder.andWhere({
-          readingProgressBottomPercent: MoreThan(98),
-        })
+        queryBuilder.andWhere(
+          'library_item.reading_progress_bottom_percent > 98'
+        )
         break
       case ReadFilter.READING:
-        queryBuilder.andWhere({ readingProgressBottomPercent: Between(2, 98) })
+        queryBuilder.andWhere(
+          'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
+        )
         break
       case ReadFilter.UNREAD:
-        queryBuilder.andWhere({
-          readingProgressBottomPercent: LessThan(2),
-        })
+        queryBuilder.andWhere(
+          'library_item.reading_progress_bottom_percent < 2'
+        )
         break
     }
   }
@@ -247,20 +232,20 @@ const buildWhereClause = (
   }
 
   if (args.ids && args.ids.length > 0) {
-    queryBuilder.andWhere({
-      id: In(args.ids),
+    queryBuilder.andWhere('library_item.id = ANY(:ids)', {
+      ids: args.ids,
     })
   }
 
   if (!args.includePending) {
-    queryBuilder.andWhere({
-      state: Not(LibraryItemState.Processing),
+    queryBuilder.andWhere('library_item.state <> :state', {
+      state: LibraryItemState.Processing,
     })
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere({
-      state: Not(LibraryItemState.Deleted),
+    queryBuilder.andWhere('library_item.state <> :state', {
+      state: LibraryItemState.Deleted,
     })
   }
 
@@ -528,6 +513,7 @@ export const countByCreatedAt = async (
 export const updateLibraryItems = async (
   action: BulkActionType,
   args: SearchArgs,
+  userId: string,
   labels?: Label[]
 ) => {
   // build the script
@@ -561,7 +547,9 @@ export const updateLibraryItems = async (
   }
 
   await authTrx(async (tx) => {
-    const queryBuilder = tx.createQueryBuilder(LibraryItem, 'library_item')
+    const queryBuilder = tx
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .where('library_item.user_id = :userId', { userId })
 
     // build the where clause
     buildWhereClause(queryBuilder, args)
