@@ -1018,11 +1018,9 @@ describe('Article API', () => {
 
     context('when site is in the query', () => {
       let items: LibraryItem[] = []
-      let label: Label
 
       before(async () => {
-        // Create some test items
-        label = await createLabel('test', '', user.id)
+        keyword = 'site:yes-app.com'
         items = await createLibraryItems(
           [
             {
@@ -1053,15 +1051,48 @@ describe('Article API', () => {
       })
 
       it('returns item with matching site', async () => {
-        keyword = 'site:yes-app.com'
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
         expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
       })
+    })
+
+    context('when wildcard site is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'site:app.com'
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              state: LibraryItemState.Succeeded,
+              siteName: 'yes-app.com',
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              state: LibraryItemState.Succeeded,
+              siteName: 'no-app.com',
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
 
       it('returns item with matching search query', async () => {
-        keyword = 'site:app.com'
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
