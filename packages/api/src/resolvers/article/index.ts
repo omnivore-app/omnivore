@@ -53,6 +53,7 @@ import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
@@ -631,7 +632,7 @@ export const searchResolver = authorized<
   SearchSuccess,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { uid, log }) => {
+>(async (_obj, params, { log, uid }) => {
   const startCursor = params.after || ''
   const first = params.first || 10
 
@@ -663,6 +664,21 @@ export const searchResolver = authorized<
     // remove an extra if exists
     libraryItems.pop()
   }
+
+  await Promise.all(
+    libraryItems.map(async (libraryItem) => {
+      if (
+        libraryItem.highlightAnnotations &&
+        libraryItem.highlightAnnotations.length > 0
+      ) {
+        // fetch highlights for each item
+        libraryItem.highlights = await findHighlightsByLibraryItemId(
+          libraryItem.id,
+          uid
+        )
+      }
+    })
+  )
 
   const edges = libraryItems.map((libraryItem) => {
     if (libraryItem.siteIcon && !isBase64Image(libraryItem.siteIcon)) {

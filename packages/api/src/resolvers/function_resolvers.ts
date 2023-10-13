@@ -6,18 +6,15 @@
 import { Subscription } from '../entity/subscription'
 import {
   Article,
-  Highlight,
   Label,
   PageType,
   Recommendation,
   SearchItem,
 } from '../generated/graphql'
-import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
-  highlightDataToHighlight,
   recommandationDataToRecommendation,
   validatedDate,
   wordsCount,
@@ -485,16 +482,6 @@ export const functionResolvers = {
     wordsCount(item: { wordCount?: number; content?: string }) {
       if (item.wordCount) return item.wordCount
       return item.content ? wordsCount(item.content) : undefined
-    },
-    async highlights(
-      item: { id: string; highlights?: Highlight[] },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (item.highlights) return item.highlights
-
-      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
-      return highlights.map(highlightDataToHighlight)
     },
     async labels(
       item: { id: string; labels?: Label[] },
