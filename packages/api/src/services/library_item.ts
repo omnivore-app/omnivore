@@ -1,4 +1,4 @@
-import { DeepPartial, SelectQueryBuilder } from 'typeorm'
+import { Brackets, DeepPartial, SelectQueryBuilder } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -223,10 +223,16 @@ const buildWhereClause = (
     args.matchFilters.forEach((filter) => {
       const param = `match_${filter.field}`
       queryBuilder.andWhere(
-        `websearch_to_tsquery('english', :${param}) @@ library_item.${filter.field}_tsv`,
-        {
-          [param]: filter.value,
-        }
+        new Brackets((qb) => {
+          qb.andWhere(
+            `websearch_to_tsquery('english', :${param}) @@ library_item.${filter.field}_tsv`,
+            {
+              [param]: filter.value,
+            }
+          ).orWhere(`${filter.field} ILIKE :value`, {
+            value: `%${filter.value}%`,
+          })
+        })
       )
     })
   }

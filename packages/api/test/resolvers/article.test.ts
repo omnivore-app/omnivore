@@ -1016,6 +1016,89 @@ describe('Article API', () => {
       })
     })
 
+    context('when site is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'site:yes-app.com'
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              state: LibraryItemState.Succeeded,
+              siteName: 'yes-app.com',
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              state: LibraryItemState.Succeeded,
+              siteName: 'no-app.com',
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns item with matching site', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when wildcard site is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'site:app.com'
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              state: LibraryItemState.Succeeded,
+              siteName: 'yes-app.com',
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              state: LibraryItemState.Succeeded,
+              siteName: 'no-app.com',
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns item with matching search query', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
+      })
+    })
+
     context("when in:library label:test' is in the query", () => {
       let items: LibraryItem[] = []
       let label: Label
@@ -1322,54 +1405,57 @@ describe('Article API', () => {
       })
     })
 
-    context('when wordsCount:>=10000 wordsCount:<=20000 is in the query', () => {
-      let items: LibraryItem[] = []
+    context(
+      'when wordsCount:>=10000 wordsCount:<=20000 is in the query',
+      () => {
+        let items: LibraryItem[] = []
 
-      before(async () => {
-        keyword = 'wordsCount:>=10000 wordsCount:<=20000'
-        // Create some test items
-        items = await createLibraryItems(
-          [
-            {
-              user,
-              title: 'test title 1',
-              readableContent: '<p>test 1</p>',
-              slug: 'test slug 1',
-              originalUrl: `${url}/test1`,
-              wordCount: 10000,
-            },
-            {
-              user,
-              title: 'test title 2',
-              readableContent: '<p>test 2</p>',
-              slug: 'test slug 2',
-              originalUrl: `${url}/test2`,
-              wordCount: 8000,
-            },
-            {
-              user,
-              title: 'test title 3',
-              readableContent: '<p>test 3</p>',
-              slug: 'test slug 3',
-              originalUrl: `${url}/test3`,
-              wordCount: 100000,
-            },
-          ],
-          user.id
-        )
-      })
+        before(async () => {
+          keyword = 'wordsCount:>=10000 wordsCount:<=20000'
+          // Create some test items
+          items = await createLibraryItems(
+            [
+              {
+                user,
+                title: 'test title 1',
+                readableContent: '<p>test 1</p>',
+                slug: 'test slug 1',
+                originalUrl: `${url}/test1`,
+                wordCount: 10000,
+              },
+              {
+                user,
+                title: 'test title 2',
+                readableContent: '<p>test 2</p>',
+                slug: 'test slug 2',
+                originalUrl: `${url}/test2`,
+                wordCount: 8000,
+              },
+              {
+                user,
+                title: 'test title 3',
+                readableContent: '<p>test 3</p>',
+                slug: 'test slug 3',
+                originalUrl: `${url}/test3`,
+                wordCount: 100000,
+              },
+            ],
+            user.id
+          )
+        })
 
-      after(async () => {
-        await deleteLibraryItems(items, user.id)
-      })
+        after(async () => {
+          await deleteLibraryItems(items, user.id)
+        })
 
-      it('returns items with words count between 10000 and 20000 inclusively', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
+        it('returns items with words count between 10000 and 20000 inclusively', async () => {
+          const res = await graphqlRequest(query, authToken).expect(200)
 
-        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
-        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
-      })
-    })
+          expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+          expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+        })
+      }
+    )
   })
 
   describe('TypeaheadSearch API', () => {

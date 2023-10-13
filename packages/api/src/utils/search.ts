@@ -325,6 +325,11 @@ const parseFieldFilter = (
         field: 'subscription',
         value,
       }
+    case 'SITE':
+      return {
+        field: 'site_name',
+        value,
+      }
   }
 
   return {
