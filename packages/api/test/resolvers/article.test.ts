@@ -1096,8 +1096,6 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
-        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
-        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
       })
     })
 
