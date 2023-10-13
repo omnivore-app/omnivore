@@ -152,18 +152,18 @@ fun WebReader(
         webReaderViewModel.resetJavascriptDispatchQueue()
       }
     })
-    if (showHighlightColorPalette.value == true) {
-      HighlightColorPalette(
-        mode = if (isDarkMode) HighlightColorPaletteMode.Dark else HighlightColorPaletteMode.Light,
-        selectedColorName = highlightColor.value?.name ?: "yellow",
-        onColorSelected = {
-          webReaderViewModel.setHighlightColor(it)
-        },
-        modifier = Modifier
-          .align(Alignment.BottomCenter)
-          .padding(12.dp, 12.dp, 12.dp, 36.dp)
-      )
-    }
+//    if (showHighlightColorPalette.value == true) {
+//      HighlightColorPalette(
+//        mode = if (isDarkMode) HighlightColorPaletteMode.Dark else HighlightColorPaletteMode.Light,
+//        selectedColorName = highlightColor.value?.name ?: "yellow",
+//        onColorSelected = {
+//          webReaderViewModel.setHighlightColor(it)
+//        },
+//        modifier = Modifier
+//          .align(Alignment.BottomCenter)
+//          .padding(12.dp, 12.dp, 12.dp, 36.dp)
+//      )
+//    }
   }
 }
 

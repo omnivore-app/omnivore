@@ -1,12 +1,10 @@
 package app.omnivore.omnivore.dataService
 
-import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItemAndHighlightCrossRef
-import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,6 +27,8 @@ suspend fun DataService.createWebHighlight(jsonString: String, colorName: String
       updatedAt = null,
       createdByMe = false,
       color = colorName ?: createHighlightInput.color.getOrNull(),
+      highlightPositionPercent = createHighlightInput.highlightPositionPercent.getOrNull() ?: 0.0,
+      highlightPositionAnchorIndex = createHighlightInput.highlightPositionAnchorIndex.getOrNull() ?: 0
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -66,7 +66,9 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
       createdAt = null,
       updatedAt = null,
       createdByMe = true,
-      color = null
+      color = null,
+      highlightPositionAnchorIndex = 0,
+      highlightPositionPercent = 0.0
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -87,6 +89,8 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
       quote = null,
       patch = null,
       annotation = note,
+      highlightPositionAnchorIndex = 0,
+      highlightPositionPercent = 0.0
     ).asCreateHighlightInput())
 
     newHighlight?.let {

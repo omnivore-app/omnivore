@@ -54,7 +54,9 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
         createdAt = it.highlightFields.createdAt as String?,
         updatedAt = it.highlightFields.updatedAt as String?,
         createdByMe = it.highlightFields.createdByMe,
-        color = it.highlightFields.color
+        color = it.highlightFields.color,
+        highlightPositionPercent = it.highlightFields.highlightPositionPercent,
+        highlightPositionAnchorIndex = it.highlightFields.highlightPositionAnchorIndex
       )
     }
 
