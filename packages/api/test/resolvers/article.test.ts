@@ -1545,6 +1545,22 @@ describe('Article API', () => {
       await deleteLibraryItemsByUserId(user.id)
     })
 
+    context('when action is MarkAsRead and query is in:unread', () => {
+      it('marks unread items as read', async () => {
+        const res = await graphqlRequest(
+          bulkActionQuery(BulkActionType.MarkAsRead, 'is:unread'),
+          authToken
+        ).expect(200)
+        expect(res.body.data.bulkAction.success).to.be.true
+
+        const items = await graphqlRequest(
+          searchQuery('is:unread'),
+          authToken
+        ).expect(200)
+        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
+      })
+    })
+
     context('when action is Archive', () => {
       it('archives all items', async () => {
         const res = await graphqlRequest(
