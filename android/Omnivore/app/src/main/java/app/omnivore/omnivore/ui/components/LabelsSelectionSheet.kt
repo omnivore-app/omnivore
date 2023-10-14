@@ -220,12 +220,12 @@ class LabelChipView(label: SavedItemLabel) : Chip(label.name) {
   val label = label
 }
 
-fun findOrCreateLabel(labelsViewModel: LabelsViewModel, labels: List<SavedItemLabel>, name: TextFieldValue): SavedItemLabel {
-  val found = labels.find { it.name == name.text }
+fun findOrCreateLabel(labelsViewModel: LabelsViewModel, labels: List<SavedItemLabel>, name: String): SavedItemLabel {
+  val found = labels.find { it.name == name }
   if (found != null) {
     return found
   }
-  return labelsViewModel.createNewSavedItemLabelWithTemp(name.text, LabelSwatchHelper.random())
+  return labelsViewModel.createNewSavedItemLabelWithTemp(name, LabelSwatchHelper.random())
 }
 
 @Composable
@@ -309,7 +309,7 @@ fun LabelsSelectionSheetContent(
               LabelChipView(it)
             } ?: null
           } else {
-            LabelChipView(findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = it))
+            LabelChipView(findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = it.text))
           }
         },
         chipLeadingIcon = { chip -> CircleIcon(colorHex = chip.label.color) },
@@ -349,7 +349,8 @@ fun LabelsSelectionSheetContent(
           modifier = Modifier
             .fillMaxWidth()
             .clickable {
-              when(labelsViewModel.validateLabelName(filterTextValue.text)) {
+              val labelName = filterTextValue.text.trim()
+              when(labelsViewModel.validateLabelName(labelName)) {
                 LabelsViewModel.Error.LabelNameTooLong -> {
                   Toast.makeText(
                     context,
@@ -362,7 +363,7 @@ fun LabelsSelectionSheetContent(
                   val label = findOrCreateLabel(
                     labelsViewModel = labelsViewModel,
                     labels = labels,
-                    name = filterTextValue
+                    name = labelName
                   )
 
                   state.addChip(LabelChipView(label))
@@ -379,7 +380,7 @@ fun LabelsSelectionSheetContent(
             contentDescription = null,
             modifier = Modifier.padding(end = 8.dp)
           )
-          Text(text = stringResource(R.string.label_selection_sheet_text_create, filterTextValue.text))
+          Text(text = stringResource(R.string.label_selection_sheet_text_create, filterTextValue.text.trim()))
         }
       }
 

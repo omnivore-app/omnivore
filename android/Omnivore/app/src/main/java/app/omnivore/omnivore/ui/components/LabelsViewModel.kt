@@ -36,8 +36,7 @@ class LabelsViewModel @Inject constructor(
      * @return null if valid, [Error] otherwise.
      */
     fun validateLabelName(labelName: String): Error? {
-        val trimmedName = labelName.trim()
-        if (trimmedName.count() > labelNameMaxLength) {
+        if (labelName.count() > labelNameMaxLength) {
             return Error.LabelNameTooLong
         }
 
