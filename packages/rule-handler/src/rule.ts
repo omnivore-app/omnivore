@@ -93,7 +93,6 @@ export const triggerActions = async (
     }
 
     const filteredPage = await filterPage(
-      userId,
       apiEndpoint,
       authToken,
       rule.filter,
