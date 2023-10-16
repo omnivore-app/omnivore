@@ -11,7 +11,7 @@ Sentry.GCPFunction.init({
   tracesSampleRate: 0,
 })
 
-const PROJECT_ID = process.env.PROJECT_ID
+const PROJECT_ID = process.env.GCP_PROJECT_ID
 const LOCATION = 'us-west2'
 const IMPORT_QUEUE_NAME = process.env.IMPORT_QUEUE_NAME
 const RSS_QUEUE_NAME = process.env.RSS_FEED_QUEUE_NAME
