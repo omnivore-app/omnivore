@@ -86,11 +86,7 @@ export default function Home(): JSX.Element {
         const idx = libraryList.findIndex((slug) => slug == article.slug)
         if (idx != -1 && idx < libraryList.length - 1) {
           const nextSlug = libraryList[idx + 1] as string
-          router.push(
-            `/${viewerData?.me.profile.username}/${nextSlug}`,
-            `/${viewerData?.me.profile.username}/${nextSlug}`
-          )
-          return
+          window.location.href = `/${viewerData?.me.profile.username}/${nextSlug}`
         }
       } catch (err) {
         console.log('error going next: ', err)
@@ -107,10 +103,7 @@ export default function Home(): JSX.Element {
         const idx = libraryList.findIndex((slug) => slug == article.slug)
         if (idx > 0) {
           const previousSlug = libraryList[idx - 1] as string
-          router.push(
-            `/${viewerData?.me.profile.username}/${previousSlug}`,
-            `/${viewerData?.me.profile.username}/${previousSlug}`
-          )
+          window.location.href = `/${viewerData?.me.profile.username}/${previousSlug}`
           return
         }
       } catch (err) {
@@ -436,7 +429,7 @@ export default function Home(): JSX.Element {
         id: 'go_previous',
         section: 'Article',
         name: 'Go to Previous',
-        shortcut: ['g', 'p'],
+        shortcut: ['<'],
         perform: () => {
           document.dispatchEvent(new Event('goPreviousOrHome'))
         },
@@ -445,7 +438,7 @@ export default function Home(): JSX.Element {
         id: 'go_next',
         section: 'Article',
         name: 'Go to Next',
-        shortcut: ['g', 'n'],
+        shortcut: ['>'],
         perform: () => {
           document.dispatchEvent(new Event('goNextOrHome'))
         },
