@@ -429,7 +429,7 @@ export default function Home(): JSX.Element {
         id: 'go_previous',
         section: 'Article',
         name: 'Go to Previous',
-        shortcut: ['<'],
+        shortcut: [','],
         perform: () => {
           document.dispatchEvent(new Event('goPreviousOrHome'))
         },
@@ -438,7 +438,7 @@ export default function Home(): JSX.Element {
         id: 'go_next',
         section: 'Article',
         name: 'Go to Next',
-        shortcut: ['>'],
+        shortcut: ['.'],
         perform: () => {
           document.dispatchEvent(new Event('goNextOrHome'))
         },
