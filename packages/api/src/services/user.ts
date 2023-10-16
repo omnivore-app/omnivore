@@ -13,7 +13,7 @@ export const deleteUser = async (userId: string) => {
 }
 
 export const updateUser = async (userId: string, update: Partial<User>) => {
-  await authTrx(
+  return authTrx(
     async (t) => t.getRepository(User).update(userId, update),
     undefined,
     userId

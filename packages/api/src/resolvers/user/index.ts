@@ -1,5 +1,9 @@
 import * as jwt from 'jsonwebtoken'
-import { RegistrationType, User as UserEntity } from '../../entity/user'
+import {
+  RegistrationType,
+  StatusType,
+  User as UserEntity,
+} from '../../entity/user'
 import { env } from '../../env'
 import {
   DeleteAccountError,
@@ -38,6 +42,7 @@ import {
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendVerificationEmail } from '../../services/send_emails'
+import { updateUser } from '../../services/user'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
@@ -313,9 +318,10 @@ export const deleteAccountResolver = authorized<
   DeleteAccountSuccess,
   DeleteAccountError,
   MutationDeleteAccountArgs
->(async (_, { userID }, { authTrx, log }) => {
-  const result = await authTrx(async (t) => {
-    return t.withRepository(userRepository).delete(userID)
+>(async (_, { userID }, { log }) => {
+  // soft delete user
+  const result = await updateUser(userID, {
+    status: StatusType.Deleted,
   })
   if (!result.affected) {
     log.error('Error deleting user account')
