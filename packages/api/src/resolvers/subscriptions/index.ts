@@ -89,7 +89,8 @@ export const subscriptionsResolver = authorized<
     }
 
     const subscriptions = await queryBuilder
-      .orderBy(`subscription.${sortBy}`, sortOrder, 'NULLS LAST')
+      .orderBy('subscription.status', 'ASC')
+      .addOrderBy(`subscription.${sortBy}`, sortOrder, 'NULLS LAST')
       .getMany()
 
     return {

@@ -21,10 +21,7 @@ export const createNewsletterEmail = async (
   userId: string,
   confirmationCode?: string
 ): Promise<NewsletterEmail> => {
-  const user = await userRepository.findOne({
-    where: { id: userId },
-    relations: ['profile'],
-  })
+  const user = await userRepository.findById(userId)
   if (!user) {
     return Promise.reject({
       errorCode: CreateNewsletterEmailErrorCode.Unauthorized,

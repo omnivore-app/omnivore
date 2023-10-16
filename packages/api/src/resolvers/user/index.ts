@@ -52,9 +52,7 @@ export const updateUserResolver = authorized<
   UpdateUserError,
   MutationUpdateUserArgs
 >(async (_, { input: { name, bio } }, { uid, authTrx }) => {
-  const user = await userRepository.findOneBy({
-    id: uid,
-  })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [UpdateUserErrorCode.UserNotFound] }
   }
@@ -92,9 +90,7 @@ export const updateUserProfileResolver = authorized<
   UpdateUserProfileError,
   MutationUpdateUserProfileArgs
 >(async (_, { input: { userId, username, pictureUrl } }, { uid, authTrx }) => {
-  const user = await userRepository.findOneBy({
-    id: userId,
-  })
+  const user = await userRepository.findById(userId)
   if (!user) {
     return { errorCodes: [UpdateUserProfileErrorCode.Unauthorized] }
   }
@@ -117,6 +113,7 @@ export const updateUserProfileResolver = authorized<
       profile: {
         username: lowerCasedUsername,
       },
+      status: StatusType.Active,
     })
     if (existingUser?.id) {
       return {
@@ -161,6 +158,7 @@ export const googleLoginResolver: ResolverFn<
 
   const user = await userRepository.findOneBy({
     email,
+    status: StatusType.Active,
   })
   if (!user?.id) {
     return { errorCodes: [LoginErrorCode.UserNotFound] }
@@ -256,9 +254,7 @@ export const getMeUserResolver: ResolverFn<
       return undefined
     }
 
-    const user = await userRepository.findOneBy({
-      id: claims.uid,
-    })
+    const user = await userRepository.findById(claims.uid)
     if (!user) {
       return undefined
     }
@@ -282,12 +278,17 @@ export const getUserResolver: ResolverFn<
   const userId =
     id ||
     (username &&
-      (await userRepository.findOneBy({ profile: { username } }))?.id)
+      (
+        await userRepository.findOneBy({
+          profile: { username },
+          status: StatusType.Active,
+        })
+      )?.id)
   if (!userId) {
     return { errorCodes: [UserErrorCode.UserNotFound] }
   }
 
-  const userRecord = await userRepository.findOneBy({ id: userId })
+  const userRecord = await userRepository.findById(userId)
   if (!userRecord) {
     return { errorCodes: [UserErrorCode.UserNotFound] }
   }
@@ -340,9 +341,7 @@ export const updateEmailResolver = authorized<
   MutationUpdateEmailArgs
 >(async (_, { input: { email } }, { authTrx, uid, log }) => {
   try {
-    const user = await userRepository.findOneBy({
-      id: uid,
-    })
+    const user = await userRepository.findById(uid)
 
     if (!user) {
       return {

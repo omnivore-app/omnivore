@@ -33,14 +33,14 @@ export const uploadImportFileResolver = authorized<
   UploadImportFileSuccess,
   UploadImportFileError,
   MutationUploadImportFileArgs
->(async (_, { type, contentType }, { claims: { uid }, log }) => {
+>(async (_, { type, contentType }, { uid }) => {
   if (!VALID_CONTENT_TYPES.includes(contentType)) {
     return {
       errorCodes: [UploadImportFileErrorCode.BadRequest],
     }
   }
 
-  const user = await userRepository.findOneBy({ id: uid })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return {
       errorCodes: [UploadImportFileErrorCode.Unauthorized],

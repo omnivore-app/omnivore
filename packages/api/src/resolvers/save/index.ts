@@ -18,9 +18,9 @@ export const savePageResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSavePageArgs
->(async (_, { input }, ctx) => {
+>(async (_, { input }, { uid }) => {
   analytics.track({
-    userId: ctx.uid,
+    userId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -30,9 +30,7 @@ export const savePageResolver = authorized<
     },
   })
 
-  const user = await userRepository.findOneBy({
-    id: ctx.uid,
-  })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
@@ -44,11 +42,7 @@ export const saveUrlResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSaveUrlArgs
->(async (_, { input }, ctx) => {
-  const {
-    claims: { uid },
-  } = ctx
-
+>(async (_, { input }, { uid }) => {
   analytics.track({
     userId: uid,
     event: 'link_saved',
@@ -60,9 +54,7 @@ export const saveUrlResolver = authorized<
     },
   })
 
-  const user = await userRepository.findOneBy({
-    id: uid,
-  })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
@@ -74,9 +66,9 @@ export const saveFileResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSaveFileArgs
->(async (_, { input }, ctx) => {
+>(async (_, { input }, { uid }) => {
   analytics.track({
-    userId: ctx.uid,
+    userId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -86,9 +78,7 @@ export const saveFileResolver = authorized<
     },
   })
 
-  const user = await userRepository.findOneBy({
-    id: ctx.uid,
-  })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }

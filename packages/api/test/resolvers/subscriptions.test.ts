@@ -146,7 +146,7 @@ describe('Subscriptions API', () => {
           undefined,
           SubscriptionType.Newsletter
         )
-        const allSubscriptions = [sub5, ...subscriptions]
+        const allSubscriptions = [...subscriptions, sub5]
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.subscriptions.subscriptions).to.eql(

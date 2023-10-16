@@ -1,4 +1,4 @@
-import { User } from '../entity/user'
+import { StatusType, User } from '../entity/user'
 import { authTrx } from '../repository'
 import { userRepository } from '../repository/user'
 
@@ -21,5 +21,5 @@ export const updateUser = async (userId: string, update: Partial<User>) => {
 }
 
 export const findUser = async (id: string): Promise<User | null> => {
-  return userRepository.findOneBy({ id })
+  return userRepository.findOneBy({ id, status: StatusType.Active })
 }

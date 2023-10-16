@@ -421,7 +421,7 @@ export function authRouter() {
       const { email, password } = req.body
       try {
         const user = await userRepository.findByEmail(email.trim())
-        if (!user?.id) {
+        if (!user || user.status === StatusType.Deleted) {
           return res.redirect(
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
@@ -610,7 +610,7 @@ export function authRouter() {
 
       try {
         const user = await userRepository.findByEmail(email)
-        if (!user) {
+        if (!user || user.status === StatusType.Deleted) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 
