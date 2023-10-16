@@ -81,12 +81,19 @@ export default function Home(): JSX.Element {
   const goNextOrHome = useCallback(() => {
     const listStr = localStorage.getItem('library-slug-list')
     if (article && listStr && viewerData?.me) {
-      const libraryList = JSON.parse(listStr) as string[]
-      const idx = libraryList.findIndex((slug) => slug == article.slug)
-      if (idx != -1 && idx < libraryList.length - 1) {
-        const nextSlug = libraryList[idx + 1] as string
-        router.push(`/${viewerData?.me.profile.username}/${nextSlug}`)
-        return
+      try {
+        const libraryList = JSON.parse(listStr) as string[]
+        const idx = libraryList.findIndex((slug) => slug == article.slug)
+        if (idx != -1 && idx < libraryList.length - 1) {
+          const nextSlug = libraryList[idx + 1] as string
+          router.push(
+            `/${viewerData?.me.profile.username}/${nextSlug}`,
+            `/${viewerData?.me.profile.username}/${nextSlug}`
+          )
+          return
+        }
+      } catch (err) {
+        console.log('error going next: ', err)
       }
     }
     router.push(`/home`)
@@ -95,12 +102,19 @@ export default function Home(): JSX.Element {
   const goPreviousOrHome = useCallback(() => {
     const listStr = localStorage.getItem('library-slug-list')
     if (article && listStr && viewerData?.me) {
-      const libraryList = JSON.parse(listStr) as string[]
-      const idx = libraryList.findIndex((slug) => slug == article.slug)
-      if (idx > 0) {
-        const previousSlug = libraryList[idx - 1] as string
-        router.push(`/${viewerData?.me.profile.username}/${previousSlug}`)
-        return
+      try {
+        const libraryList = JSON.parse(listStr) as string[]
+        const idx = libraryList.findIndex((slug) => slug == article.slug)
+        if (idx > 0) {
+          const previousSlug = libraryList[idx - 1] as string
+          router.push(
+            `/${viewerData?.me.profile.username}/${previousSlug}`,
+            `/${viewerData?.me.profile.username}/${previousSlug}`
+          )
+          return
+        }
+      } catch (err) {
+        console.log('error going previous:', err)
       }
     }
     router.push(`/home`)
