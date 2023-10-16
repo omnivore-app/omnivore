@@ -192,6 +192,15 @@ export function HomeFeedContainer(): JSX.Element {
   }, [itemsPages, performActionOnItem])
 
   useEffect(() => {
+    if (localStorage) {
+      localStorage.setItem(
+        'library-slug-list',
+        JSON.stringify(libraryItems.map((li) => li.node.slug))
+      )
+    }
+  }, [libraryItems])
+
+  useEffect(() => {
     const timeout: NodeJS.Timeout[] = []
 
     const items = (

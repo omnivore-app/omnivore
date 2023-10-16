@@ -289,6 +289,10 @@ const sendSavePageMutation = async (userId, input) => {
 
     if (response.data.data.savePage.errorCodes && response.data.data.savePage.errorCodes.length > 0) {
       console.error('error while saving page', response.data.data.savePage.errorCodes[0]);
+      if (response.data.data.savePage.errorCodes[0] === 'UNAUTHORIZED') {
+        return { error: 'UNAUTHORIZED' };
+      }
+
       return null;
     }
 
@@ -473,6 +477,9 @@ async function fetchContent(req, res) {
       if (!apiResponse) {
         logRecord.error = 'error while saving page';
         statusCode = 500;
+      } else if (apiResponse.error === 'UNAUTHORIZED') {
+        console.info('user is deleted, do not retry', logRecord);
+        return res.sendStatus(200);
       } else {
         importStatus = readabilityResult ? 'imported' : 'failed';
       }

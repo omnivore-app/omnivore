@@ -180,7 +180,7 @@ export function ArticleActionsMenu(
           </Button>
         ) : (
           <Button
-            title="Unarchive (u)"
+            title="Unarchive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('unarchive')}
           >

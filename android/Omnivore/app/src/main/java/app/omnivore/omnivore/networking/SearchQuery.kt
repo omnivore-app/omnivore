@@ -1,8 +1,6 @@
 package app.omnivore.omnivore.networking
 
-import androidx.room.PrimaryKey
 import app.omnivore.omnivore.graphql.generated.SearchQuery
-import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.persistence.entities.*
 import com.apollographql.apollo3.api.Optional
@@ -82,7 +80,9 @@ suspend fun Networker.search(
             suffix  = highlight.highlightFields.suffix,
             updatedAt = highlight.highlightFields.updatedAt as String?,
             createdAt = highlight.highlightFields.createdAt as String?,
-            color = highlight.highlightFields.color
+            color = highlight.highlightFields.color,
+            highlightPositionPercent = highlight.highlightFields.highlightPositionPercent,
+            highlightPositionAnchorIndex = highlight.highlightFields.highlightPositionAnchorIndex
           )
         }
       )

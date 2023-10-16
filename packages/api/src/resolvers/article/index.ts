@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
-import { Not } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
@@ -54,6 +53,7 @@ import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
@@ -632,7 +632,7 @@ export const searchResolver = authorized<
   SearchSuccess,
   SearchError,
   QuerySearchArgs
->(async (_obj, params, { uid, log }) => {
+>(async (_obj, params, { log, uid }) => {
   const startCursor = params.after || ''
   const first = params.first || 10
 
@@ -664,6 +664,21 @@ export const searchResolver = authorized<
     // remove an extra if exists
     libraryItems.pop()
   }
+
+  await Promise.all(
+    libraryItems.map(async (libraryItem) => {
+      if (
+        libraryItem.highlightAnnotations &&
+        libraryItem.highlightAnnotations.length > 0
+      ) {
+        // fetch highlights for each item
+        libraryItem.highlights = await findHighlightsByLibraryItemId(
+          libraryItem.id,
+          uid
+        )
+      }
+    })
+  )
 
   const edges = libraryItems.map((libraryItem) => {
     if (libraryItem.siteIcon && !isBase64Image(libraryItem.siteIcon)) {
@@ -792,6 +807,12 @@ export const bulkActionResolver = authorized<
       },
     })
 
+    // parse query
+    const searchQuery = parseSearchQuery(query)
+    if (searchQuery.ids.length > 100) {
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
+    }
+
     // get labels if needed
     let labels = undefined
     if (action === BulkActionType.AddLabels) {
@@ -802,10 +823,7 @@ export const bulkActionResolver = authorized<
       labels = await findLabelsByIds(labelIds, uid)
     }
 
-    // parse query
-    const searchQuery = parseSearchQuery(query)
-
-    await updateLibraryItems(action, searchQuery, labels)
+    await updateLibraryItems(action, searchQuery, uid, labels)
 
     return { success: true }
   } catch (error) {

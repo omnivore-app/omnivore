@@ -38,6 +38,22 @@ class MockFile {
   createWriteStream() {
     return new MockWriteStream(this)
   }
+
+  getSignedUrl() {
+    return ['https://signed-url.upload.omnivore.app']
+  }
+
+  getMetadata() {
+    return [{ md5Hash: 'md5Hash' }]
+  }
+
+  publicUrl() {
+    return 'https://public-url.upload.omnivore.app'
+  }
+
+  makePublic() {
+    return
+  }
 }
 
 class MockWriteStream extends Writable {

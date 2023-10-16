@@ -54,7 +54,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
             user: { id: uid },
           },
           order: {
-            position: 'ASC',
+            name: 'ASC',
           },
         })
       })

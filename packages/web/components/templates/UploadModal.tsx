@@ -122,7 +122,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
   const uploadSignedUrlForFile = async (
     file: UploadingFile
   ): Promise<UploadInfo> => {
-    let { contentType } = file;
+    let { contentType } = file
     if (
       contentType == 'application/vnd.ms-excel' &&
       file.name.endsWith('.csv')
@@ -135,6 +135,12 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
         try {
           const csvData = await validateCsvFile(file.file)
           urlCount = csvData.data.length
+          if (urlCount > 500) {
+            return {
+              message:
+                'Due to an increase in traffic we are limiting CSV imports to 500 items.',
+            }
+          }
           if (csvData.inValidData.length > 0) {
             return {
               message: csvData.inValidData[0].message,
@@ -185,7 +191,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
       }
     }
     return {
-      message: `Invalid content type: ${contentType}`
+      message: `Invalid content type: ${contentType}`,
     }
   }
 
@@ -215,8 +221,9 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
             const uploadInfo = await uploadSignedUrlForFile(file)
             if (!uploadInfo.uploadSignedUrl) {
               const message = uploadInfo.message || 'No upload URL available'
-              // close after 5 seconds
-              showErrorToast(message, { duration: 5000 })
+              showErrorToast(message, { duration: 10000 })
+              file.status = 'error'
+              setUploadFiles([...allFiles])
               return
             }
 

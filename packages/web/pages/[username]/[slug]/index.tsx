@@ -78,6 +78,34 @@ export default function Home(): JSX.Element {
     })
   }, [articleData?.article.article])
 
+  const goNextOrHome = useCallback(() => {
+    // const listStr = localStorage.getItem('library-slug-list')
+    // if (article && listStr && viewerData?.me) {
+    //   const libraryList = JSON.parse(listStr) as string[]
+    //   const idx = libraryList.findIndex((slug) => slug == article.slug)
+    //   if (idx != -1 && idx < libraryList.length - 1) {
+    //     const nextSlug = libraryList[idx + 1] as string
+    //     router.push(`/${viewerData?.me.profile.username}/${nextSlug}`)
+    //     return
+    //   }
+    // }
+    router.push(`/home`)
+  }, [router, viewerData, article])
+
+  const goPreviousOrHome = useCallback(() => {
+    // const listStr = localStorage.getItem('library-slug-list')
+    // if (article && listStr && viewerData?.me) {
+    //   const libraryList = JSON.parse(listStr) as string[]
+    //   const idx = libraryList.findIndex((slug) => slug == article.slug)
+    //   if (idx > 0) {
+    //     const previousSlug = libraryList[idx - 1] as string
+    //     router.push(`/${viewerData?.me.profile.username}/${previousSlug}`)
+    //     return
+    //   }
+    // }
+    router.push(`/home`)
+  }, [router, viewerData, article])
+
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
       switch (action) {
@@ -99,8 +127,7 @@ export default function Home(): JSX.Element {
                 })
               }
             })
-
-            router.push(`/home`)
+            goNextOrHome()
           }
           break
         case 'archive':
@@ -116,7 +143,7 @@ export default function Home(): JSX.Element {
                   position: 'bottom-right',
                 })
               } else {
-                router.push(`/home`)
+                goNextOrHome()
                 showSuccessToast('Page archived', {
                   position: 'bottom-right',
                 })
@@ -138,7 +165,7 @@ export default function Home(): JSX.Element {
                   position: 'bottom-right',
                 })
               } else {
-                router.push(`/home`)
+                goNextOrHome()
               }
             })
           }
@@ -169,7 +196,7 @@ export default function Home(): JSX.Element {
           break
       }
     },
-    [article, cache, mutate, router, readerSettings]
+    [article, viewerData, cache, mutate, router, readerSettings]
   )
 
   useEffect(() => {
@@ -197,14 +224,19 @@ export default function Home(): JSX.Element {
     document.addEventListener('openOriginalArticle', openOriginalArticle)
     document.addEventListener('showEditModal', showEditModal)
 
+    document.addEventListener('goNextOrHome', goNextOrHome)
+    document.addEventListener('goPreviousOrHome', goPreviousOrHome)
+
     return () => {
       document.removeEventListener('archive', archive)
       document.removeEventListener('mark-read', markRead)
       document.removeEventListener('delete', deletePage)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
       document.removeEventListener('showEditModal', showEditModal)
+      document.removeEventListener('goNextOrHome', goNextOrHome)
+      document.removeEventListener('goPreviousOrHome', goPreviousOrHome)
     }
-  }, [actionHandler])
+  }, [actionHandler, goNextOrHome, goPreviousOrHome])
 
   useEffect(() => {
     if (article && viewerData?.me) {
@@ -386,6 +418,24 @@ export default function Home(): JSX.Element {
         shortcut: ['i'],
         perform: () => setShowEditModal(true),
       },
+      // {
+      //   id: 'go_previous',
+      //   section: 'Article',
+      //   name: 'Go to Previous',
+      //   shortcut: ['g', 'p'],
+      //   perform: () => {
+      //     document.dispatchEvent(new Event('goPreviousOrHome'))
+      //   },
+      // },
+      // {
+      //   id: 'go_next',
+      //   section: 'Article',
+      //   name: 'Go to Next',
+      //   shortcut: ['g', 'n'],
+      //   perform: () => {
+      //     document.dispatchEvent(new Event('goNextOrHome'))
+      //   },
+      // },
     ],
     [readerSettings, showHighlightsModal]
   )

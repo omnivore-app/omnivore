@@ -159,3 +159,10 @@ describe('query with author set', () => {
   })
 })
 
+describe('query with site set', () => {
+  it('adds site_name to the match filters', () => {
+    const result = parseSearchQuery('site:omnivore.app')
+    expect(result.matchFilters[0].field).to.equal('site_name')
+    expect(result.matchFilters[0].value).to.equal('omnivore.app')
+  })
+})

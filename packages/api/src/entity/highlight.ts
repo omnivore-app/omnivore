@@ -59,11 +59,11 @@ export class Highlight {
   @Column('timestamp')
   sharedAt?: Date
 
-  @Column('real')
-  highlightPositionPercent?: number | null
+  @Column('real', { default: 0 })
+  highlightPositionPercent!: number
 
-  @Column('integer')
-  highlightPositionAnchorIndex?: number | null
+  @Column('integer', { default: 0 })
+  highlightPositionAnchorIndex!: number
 
   @Column('enum', {
     enum: HighlightType,
