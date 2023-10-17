@@ -46,7 +46,7 @@ export async function createMobileEmailSignInResponse(
     }
 
     const user = await userRepository.findByEmail(email.trim())
-    if (!user?.id || !user?.password) {
+    if (!user || !user.password || user.status === StatusType.Deleted) {
       throw new Error('user not found')
     }
 

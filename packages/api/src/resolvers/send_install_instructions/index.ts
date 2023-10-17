@@ -14,11 +14,9 @@ const INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID =
 export const sendInstallInstructionsResolver = authorized<
   SendInstallInstructionsSuccess,
   SendInstallInstructionsError
->(async (_parent, _args, { claims, log }) => {
+>(async (_parent, _args, { uid, log }) => {
   try {
-    const user = await userRepository.findOneBy({
-      id: claims.uid,
-    })
+    const user = await userRepository.findById(uid)
 
     if (!user) {
       return { errorCodes: [SendInstallInstructionsErrorCode.Unauthorized] }

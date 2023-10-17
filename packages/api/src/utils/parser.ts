@@ -16,6 +16,7 @@ import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { Highlight } from '../entity/highlight'
+import { StatusType } from '../entity/user'
 import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
 import { userRepository } from '../repository/user'
@@ -465,6 +466,7 @@ export const isProbablyArticle = async (
 ): Promise<boolean> => {
   const user = await userRepository.findOneBy({
     email: ILike(email),
+    status: StatusType.Active,
   })
   return !!user || subject.includes(ARTICLE_PREFIX)
 }

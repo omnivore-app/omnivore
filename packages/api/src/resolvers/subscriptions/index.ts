@@ -89,7 +89,8 @@ export const subscriptionsResolver = authorized<
     }
 
     const subscriptions = await queryBuilder
-      .orderBy(`subscription.${sortBy}`, sortOrder, 'NULLS LAST')
+      .orderBy('subscription.status', 'ASC')
+      .addOrderBy(`subscription.${sortBy}`, sortOrder, 'NULLS LAST')
       .getMany()
 
     return {
@@ -184,7 +185,6 @@ export const subscribeResolver = authorized<
         url: input.url || undefined,
         name: input.name || undefined,
         user: { id: uid },
-        status: SubscriptionStatus.Active,
         type: input.subscriptionType || SubscriptionType.Rss, // default to rss
       })
     )
