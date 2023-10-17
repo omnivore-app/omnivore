@@ -97,12 +97,12 @@ const checkShouldPauseQueues = async () => {
           0
         ) / ts.points.length
       if (avgLatency > LATENCY_THRESHOLD) {
-        return [true, avgLatency]
+        return { shouldPauseQueues: true, avgLatency: avgLatency }
       }
     }
   }
 
-  return [false, 0]
+  return { shouldPauseQueues: false, avgLatency: 0 }
 }
 
 const getQueueTaskCount = async (queueName: string) => {
@@ -143,7 +143,7 @@ async function checkMetricsAndPauseQueues() {
     throw new Error('environment not supplied.')
   }
 
-  const [shouldPauseQueues, avgLatency] = await checkShouldPauseQueues()
+  const { shouldPauseQueues, avgLatency } = await checkShouldPauseQueues()
 
   if (shouldPauseQueues) {
     let rssQueueCount: number | string = 'unknown'
