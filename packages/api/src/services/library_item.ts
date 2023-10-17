@@ -438,6 +438,75 @@ export const updateLibraryItem = async (
   return updatedLibraryItem
 }
 
+export const updateLibraryItemReadingProgress = async (
+  id: string,
+  userId: string,
+  bottomPercent: number,
+  topPercent: number | null = null,
+  anchorIndex: number | null = null,
+  pubsub = createPubSubClient()
+): Promise<LibraryItem | null> => {
+  // If we have a top percent, we only save it if it's greater than the current top percent
+  // or set to zero if the top percent is zero.
+  const result = (await authTrx(
+    async (tx) =>
+      tx.getRepository(LibraryItem).query(
+        `
+      UPDATE omnivore.library_item
+      SET reading_progress_top_percent = CASE
+        WHEN reading_progress_top_percent < $2 THEN $2
+        WHEN $2 = 0 THEN 0
+        ELSE reading_progress_top_percent
+      END,
+      reading_progress_bottom_percent = CASE
+        WHEN reading_progress_bottom_percent < $3 THEN $3
+        WHEN $3 = 0 THEN 0
+        ELSE reading_progress_bottom_percent
+      END,
+      reading_progress_highest_read_anchor = CASE
+        WHEN reading_progress_top_percent < $4 THEN $4
+        WHEN $4 = 0 THEN 0
+        ELSE reading_progress_highest_read_anchor
+      END,
+      read_at = now()
+      WHERE id = $1 AND (
+        (reading_progress_top_percent < $2 OR $2 = 0) OR
+        (reading_progress_bottom_percent < $3 OR $3 = 0) OR
+        (reading_progress_highest_read_anchor < $4 OR $4 = 0)
+      )
+      RETURNING
+        id,
+        reading_progress_top_percent as "readingProgressTopPercent",
+        reading_progress_bottom_percent as "readingProgressBottomPercent",
+        reading_progress_highest_read_anchor as "readingProgressHighestReadAnchor",
+        read_at as "readAt"
+      `,
+        [id, topPercent, bottomPercent, anchorIndex]
+      ),
+    undefined,
+    userId
+  )) as [LibraryItem[], number]
+  if (result[1] === 0) {
+    return null
+  }
+
+  const updatedItem = result[0][0]
+  await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
+    EntityType.PAGE,
+    {
+      id,
+      readingProgressBottomPercent: updatedItem.readingProgressBottomPercent,
+      readingProgressTopPercent: updatedItem.readingProgressTopPercent,
+      readingProgressHighestReadAnchor:
+        updatedItem.readingProgressHighestReadAnchor,
+      readAt: updatedItem.readAt,
+    },
+    userId
+  )
+
+  return updatedItem
+}
+
 export const createLibraryItems = async (
   libraryItems: DeepPartial<LibraryItem>[],
   userId: string

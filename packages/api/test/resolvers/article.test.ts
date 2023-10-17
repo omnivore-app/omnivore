@@ -706,7 +706,6 @@ describe('Article API', () => {
       ).to.eq(75)
 
       // Now try to set to a lower value (50), value should not be updated
-      // refresh index to ensure the reading progress is updated
       const secondQuery = saveArticleReadingProgressQuery(itemId, 50)
       const secondRes = await graphqlRequest(secondQuery, authToken).expect(200)
       expect(
