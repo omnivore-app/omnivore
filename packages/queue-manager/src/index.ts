@@ -188,7 +188,9 @@ async function checkMetricsAndPauseQueues() {
 export const queueManager = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     try {
-      checkMetricsAndPauseQueues()
+      if (req.query['check']) {
+        checkMetricsAndPauseQueues()
+      }
       res.send('ok')
     } catch (e) {
       console.error('Error while parsing RSS feed', e)
