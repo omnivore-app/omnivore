@@ -72,6 +72,7 @@ export const createApp = (): {
       }
     },
     keyGenerator: (req) => {
+      console.log('x-forwarded-for header', req.header('x-forwarded-for'))
       return getTokenByRequest(req) || req.ip
     },
     // skip preflight requests and test requests
