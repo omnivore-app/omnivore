@@ -98,15 +98,13 @@ const checkShouldPauseQueues = async () => {
           (acc, point) => acc + (point.value?.doubleValue ?? 0),
           0
         ) / ts.points.length
-      console.log('avgLatency: ', avgLatency)
       if (avgLatency > LATENCY_THRESHOLD) {
-        shouldPauseQueues = true
-        break
+        return [true, avgLatency]
       }
     }
   }
 
-  return shouldPauseQueues
+  return [false, 0]
 }
 
 const getQueueTaskCount = async (queueName: string) => {
@@ -147,7 +145,7 @@ async function checkMetricsAndPauseQueues() {
     throw new Error('environment not supplied.')
   }
 
-  const shouldPauseQueues = await checkShouldPauseQueues()
+  const [shouldPauseQueues, avgLatency] = await checkShouldPauseQueues()
 
   if (shouldPauseQueues) {
     let rssQueueCount: number | string = 'unknown'
@@ -159,7 +157,7 @@ async function checkMetricsAndPauseQueues() {
       console.log('error fetching queue counts', err)
     }
 
-    const message = `Both queues have been paused due to API latency threshold exceedance.\n\t-The RSS queue currently has ${rssQueueCount} tasks.\n\t-The import queue currently has ${importQueueCount} pending tasks.`
+    const message = `Both queues have been paused due to API latency threshold exceedance (${avgLatency}).\n\t-The RSS queue currently has ${rssQueueCount} tasks.\n\t-The import queue currently has ${importQueueCount} pending tasks.`
 
     await pauseQueues()
     await postToDiscord(message)
