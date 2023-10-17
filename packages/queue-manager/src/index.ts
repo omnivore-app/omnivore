@@ -150,29 +150,37 @@ async function checkMetricsAndPauseQueues() {
   const shouldPauseQueues = await checkShouldPauseQueues()
 
   if (shouldPauseQueues) {
-    const rssQueueCount = await getQueueTaskCount(RSS_QUEUE_NAME)
-    const importQueueCount = await getQueueTaskCount(IMPORT_QUEUE_NAME)
-    const message = `Both queues have been paused due to API latency threshold exceedance.\n\t-The RSS queue currently has ${rssQueueCount} tasks.\n\t-The import queue currently has ${importQueueCount} pending tasks.`
-
-    // Pause the two queues
-    await pauseQueues()
-
-    // Post to Discord server using webhook
-    await postToDiscord(message)
-  } else {
-    const rssQueueCount = await getQueueTaskCount(RSS_QUEUE_NAME)
-    const importQueueCount = await getQueueTaskCount(IMPORT_QUEUE_NAME)
-
-    if (rssQueueCount > RSS_QUEUE_THRESHOLD) {
-      await postToDiscord(
-        `The RSS queue has exceeded it's threshold, it has ${rssQueueCount} items in it.`
-      )
+    let rssQueueCount: number | string = 'unknown'
+    let importQueueCount: number | string = 'unknown'
+    try {
+      rssQueueCount = await getQueueTaskCount(RSS_QUEUE_NAME)
+      importQueueCount = await getQueueTaskCount(IMPORT_QUEUE_NAME)
+    } catch (err) {
+      console.log('error fetching queue counts', err)
     }
 
-    if (importQueueCount > IMPORT_QUEUE_THRESHOLD) {
-      await postToDiscord(
-        `The import queue has exceeded it's threshold, it has ${importQueueCount} items in it.`
-      )
+    const message = `Both queues have been paused due to API latency threshold exceedance.\n\t-The RSS queue currently has ${rssQueueCount} tasks.\n\t-The import queue currently has ${importQueueCount} pending tasks.`
+
+    await pauseQueues()
+    await postToDiscord(message)
+  } else {
+    try {
+      const rssQueueCount = await getQueueTaskCount(RSS_QUEUE_NAME)
+      const importQueueCount = await getQueueTaskCount(IMPORT_QUEUE_NAME)
+
+      if (rssQueueCount > RSS_QUEUE_THRESHOLD) {
+        await postToDiscord(
+          `The RSS queue has exceeded it's threshold, it has ${rssQueueCount} items in it.`
+        )
+      }
+
+      if (importQueueCount > IMPORT_QUEUE_THRESHOLD) {
+        await postToDiscord(
+          `The import queue has exceeded it's threshold, it has ${importQueueCount} items in it.`
+        )
+      }
+    } catch (err) {
+      console.log('error getting queue counts')
     }
   }
 }
