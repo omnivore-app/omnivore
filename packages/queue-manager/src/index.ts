@@ -79,8 +79,6 @@ const checkShouldPauseQueues = async () => {
     },
   })
 
-  let shouldPauseQueues = false
-
   for (const ts of timeSeries) {
     // We only want to look at the backend service right now
     if (
