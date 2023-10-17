@@ -4,6 +4,7 @@ import { Label, labelFragment } from '../fragments/labelFragment'
 import { publicGqlFetcher } from '../networkHelpers'
 
 type LabelsQueryResponse = {
+  error: any
   isLoading: boolean
   isValidating: boolean
   labels: Label[]
@@ -38,10 +39,11 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
   const { data, error, mutate, isValidating } = useSWR(query, publicGqlFetcher)
 
   try {
-    if (data) {
+    if (data && !error) {
       const result = data as LabelsResponseData
       const labels = result.labels?.labels as Label[]
       return {
+        error,
         isLoading: !error && !data,
         isValidating,
         labels,
@@ -54,6 +56,7 @@ export function useGetLabelsQuery(): LabelsQueryResponse {
     console.log('error', error)
   }
   return {
+    error,
     isLoading: !error && !data,
     isValidating: false,
     labels: [],
