@@ -122,6 +122,7 @@ const parser = new Parser({
   maxRedirects: 10,
   customFields: {
     item: [['link', 'links', { keepArray: true }], 'published', 'updated'],
+    feed: ['dc:date', 'lastBuildDate', 'pubDate'],
   },
   headers: {
     // some rss feeds require user agent
@@ -198,7 +199,16 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       // fetch feed
       let itemCount = 0
       const feed = await parser.parseURL(feedUrl)
-      console.log('Fetched feed', feed.title, new Date())
+      console.log('Fetched feed', feed, new Date())
+
+      const feedPubDate = (feed['dc:date'] ||
+        feed.pubDate ||
+        feed.lastBuildDate) as string | undefined
+      console.log('Feed pub date', feedPubDate)
+      if (feedPubDate && new Date(feedPubDate) < new Date(lastFetchedAt)) {
+        console.log('Skipping old feed', feedPubDate)
+        return res.send('ok')
+      }
 
       // save each item in the feed
       for (const item of feed.items) {
