@@ -189,7 +189,7 @@ export const queueManager = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
     try {
       if (req.query['check']) {
-        checkMetricsAndPauseQueues()
+        await checkMetricsAndPauseQueues()
       }
       res.send('ok')
     } catch (e) {
