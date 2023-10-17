@@ -2228,16 +2228,25 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@elastic/elasticsearch@~7.12.0":
-  version "7.12.0"
-  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-7.12.0.tgz#dbb51a2841f644b670a56d8c15899e860928856f"
-  integrity sha512-GquUEytCijFRPEk3DKkkDdyhspB3qbucVQOwih9uNyz3iz804I+nGBUsFo2LwVvLQmQfEM0IY2+yoYfEz5wMug==
+"@elastic/elasticsearch@~8.10.0":
+  version "8.10.0"
+  resolved "https://registry.yarnpkg.com/@elastic/elasticsearch/-/elasticsearch-8.10.0.tgz#48842b3358b8ea4d37d75cff29fdd37fdf0b2996"
+  integrity sha512-RIEyqz0D18bz/dK+wJltaak+7wKaxDELxuiwOJhuMrvbrBsYDFnEoTdP/TZ0YszHBgnRPGqBDBgH/FHNgHObiQ==
   dependencies:
-    debug "^4.3.1"
-    hpagent "^0.1.1"
+    "@elastic/transport" "^8.3.4"
+    tslib "^2.4.0"
+
+"@elastic/transport@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@elastic/transport/-/transport-8.3.4.tgz#43c852e848dc8502bbd7f23f2d61bd5665cded99"
+  integrity sha512-+0o8o74sbzu3BO7oOZiP9ycjzzdOt4QwmMEjFc1zfO7M0Fh7QX1xrpKqZbSd8vBwihXNlSq/EnMPfgD2uFEmFg==
+  dependencies:
+    debug "^4.3.4"
+    hpagent "^1.0.0"
     ms "^2.1.3"
-    pump "^3.0.0"
-    secure-json-parse "^2.3.1"
+    secure-json-parse "^2.4.0"
+    tslib "^2.4.0"
+    undici "^5.22.1"
 
 "@emotion/cache@^10.0.27":
   version "10.0.29"
@@ -2385,6 +2394,11 @@
   integrity sha512-7PQA7EH43S0CxcOa9OeAnaeA0oQ+e/DHNPZwSQM9CQHW76jle5+OvLdibRp/Aafs9KXbLhxyjOTkRjWUbQEd3Q==
   dependencies:
     text-decoding "^1.0.0"
+
+"@fastify/busboy@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.0.0.tgz#f22824caff3ae506b18207bad4126dbc6ccdb6b8"
+  integrity sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==
 
 "@ffmpeg-installer/darwin-arm64@4.1.5":
   version "4.1.5"
@@ -7974,6 +7988,14 @@
   dependencies:
     "@types/node" "*"
     form-data "^3.0.0"
+
+"@types/node-fetch@^2.6.6":
+  version "2.6.6"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.6.6.tgz#b72f3f4bc0c0afee1c0bc9cff68e041d01e3e779"
+  integrity sha512-95X8guJYhfqiuVVhRFxVQcf4hW/2bCuoPwDasMf/531STFoNoWTT7YDnWdXHEZKqAGUigmpG31r2FE70LwnzJw==
+  dependencies:
+    "@types/node" "*"
+    form-data "^4.0.0"
 
 "@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0":
   version "16.7.1"
@@ -15835,10 +15857,10 @@ hpack.js@^2.1.6:
     readable-stream "^2.0.1"
     wbuf "^1.1.0"
 
-hpagent@^0.1.1:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/hpagent/-/hpagent-0.1.2.tgz#cab39c66d4df2d4377dbd212295d878deb9bdaa9"
-  integrity sha512-ePqFXHtSQWAFXYmj+JtOTHr84iNrII4/QRlAAPPE+zqnKy4xJo7Ie1Y4kC7AdB+LxLxSTTzBMASsEcy0q8YyvQ==
+hpagent@^1.0.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/hpagent/-/hpagent-1.2.0.tgz#0ae417895430eb3770c03443456b8d90ca464903"
+  integrity sha512-A91dYTeIB6NoXG+PxTQpCCDDnfHsW9kc06Lvpu1TEe9gnd6ZFeiBoRO9JvzEv6xK7EX97/dUE8g/vBMTqTS3CA==
 
 html-encoding-sniffer@^2.0.1:
   version "2.0.1"
@@ -24468,10 +24490,10 @@ search-query-parser@^1.6.0:
   resolved "https://registry.yarnpkg.com/search-query-parser/-/search-query-parser-1.6.0.tgz#d69ade33f3685cae25613a70189b7b18970b46f1"
   integrity sha512-bhf+phLlKF38nuniwLcVHWPArHGdzenlPhPi955CR3vm1QQifXIuPHwAffhjapojdVVzmv4hgIJ6NOX1d/w+Uw==
 
-secure-json-parse@^2.3.1:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/secure-json-parse/-/secure-json-parse-2.4.0.tgz#5aaeaaef85c7a417f76271a4f5b0cc3315ddca85"
-  integrity sha512-Q5Z/97nbON5t/L/sH6mY2EacfjVGwrCcSi5D3btRO2GZ8pf1K1UN7Z9H5J57hjVU2Qzxr1xO+FmBhOvEkzCMmg==
+secure-json-parse@^2.4.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/secure-json-parse/-/secure-json-parse-2.7.0.tgz#5a5f9cd6ae47df23dba3151edd06855d47e09862"
+  integrity sha512-6aU+Rwsezw7VR8/nyvKTx8QpWH9FrcYiXXlqC4z5d5XQBDRqtbfsRjnwGyqbi3gddNtWHuEk9OANUotL26qKUw==
 
 selderee@^0.6.0:
   version "0.6.0"
@@ -26596,6 +26618,13 @@ undici@^4.9.3:
   version "4.14.1"
   resolved "https://registry.yarnpkg.com/undici/-/undici-4.14.1.tgz#7633b143a8a10d6d63335e00511d071e8d52a1d9"
   integrity sha512-WJ+g+XqiZcATcBaUeluCajqy4pEDcQfK1vy+Fo+bC4/mqXI9IIQD/XWHLS70fkGUT6P52Drm7IFslO651OdLPQ==
+
+undici@^5.22.1:
+  version "5.26.3"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-5.26.3.tgz#ab3527b3d5bb25b12f898dfd22165d472dd71b79"
+  integrity sha512-H7n2zmKEWgOllKkIUkLvFmsJQj062lSm3uA4EYApG8gLuiOM0/go9bIoC3HVaSnfg4xunowDE2i9p8drkXuvDw==
+  dependencies:
+    "@fastify/busboy" "^2.0.0"
 
 unfetch@^4.2.0:
   version "4.2.0"
