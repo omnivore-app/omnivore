@@ -34,7 +34,7 @@
     "@google-cloud/pubsub": "^4.0.0",
     "@omnivore/content-handler": "1.0.0",
     "@sendgrid/client": "^7.6.0",
-    "@sentry/serverless": "^6.16.1",
+    "@sentry/serverless": "^7.74.0",
     "addressparser": "^1.0.1",
     "axios": "^0.27.2",
     "jsonwebtoken": "^8.5.1",
