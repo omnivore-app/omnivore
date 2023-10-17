@@ -1,34 +1,16 @@
 package app.omnivore.omnivore.ui.components
 
-
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
-import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.entities.SavedItem
-import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
-import app.omnivore.omnivore.ui.components.LabelSwatchHelper
-import app.omnivore.omnivore.ui.library.SavedItemAction
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.distinctUntilChanged
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -42,6 +24,24 @@ class LabelsViewModel @Inject constructor(
     private val dataService: DataService,
     private val networker: Networker
 ): ViewModel() {
+    val labelNameMaxLength = 64
+
+    enum class Error {
+        LabelNameTooLong
+    }
+
+    /**
+     * Checks whether or not the provided label name is valid.
+     * @param labelName The name of the label.
+     * @return null if valid, [Error] otherwise.
+     */
+    fun validateLabelName(labelName: String): Error? {
+        if (labelName.count() > labelNameMaxLength) {
+            return Error.LabelNameTooLong
+        }
+
+        return null
+    }
 
     fun createNewSavedItemLabelWithTemp(labelName: String, hexColorValue: String): SavedItemLabel {
         val tempId = UUID.randomUUID().toString()
