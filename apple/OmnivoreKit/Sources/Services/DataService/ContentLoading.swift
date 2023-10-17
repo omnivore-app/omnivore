@@ -231,7 +231,7 @@ extension DataService {
         _ = try await saveURL(id: id, url: url)
       }
     } catch {
-      // We don't propogate these errors, we just let it pass through so
+      // We don't propagate these errors, we just let it pass through so
       // the user can attempt to fetch content again.
       print("Error syncUnsyncedArticleContent", error)
     }
