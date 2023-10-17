@@ -48,32 +48,39 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
     isSessionStorage: false,
     initialValue: [],
   })
-  const { labels: networkLabels, isLoading: labelsLoading } =
-    useGetLabelsQuery()
-  const { savedSearches: networkSearches, isLoading: searchesLoading } =
-    useGetSavedSearchQuery()
-  const {
-    subscriptions: networkSubscriptions,
-    isLoading: subscriptionsLoading,
-  } = useGetSubscriptionsQuery()
+  const labelsResponse = useGetLabelsQuery()
+  const searchesResponse = useGetSavedSearchQuery()
+  const subscriptionsResponse = useGetSubscriptionsQuery()
 
   useEffect(() => {
-    if (!labelsLoading) {
-      setLabels(networkLabels)
+    if (
+      !labelsResponse.error &&
+      !labelsResponse.isLoading &&
+      labelsResponse.labels
+    ) {
+      setLabels(labelsResponse.labels)
     }
-  }, [setLabels, networkLabels, labelsLoading])
+  }, [setLabels, labelsResponse])
 
   useEffect(() => {
-    if (!subscriptionsLoading) {
-      setSubscriptions(networkSubscriptions)
+    if (
+      !subscriptionsResponse.error &&
+      !subscriptionsResponse.isLoading &&
+      subscriptionsResponse.subscriptions
+    ) {
+      setSubscriptions(subscriptionsResponse.subscriptions)
     }
-  }, [setSubscriptions, networkSubscriptions, subscriptionsLoading])
+  }, [setSubscriptions, subscriptionsResponse])
 
   useEffect(() => {
-    if (!searchesLoading) {
-      setSavedSearches(networkSearches ?? [])
+    if (
+      !searchesResponse.error &&
+      !searchesResponse.isLoading &&
+      searchesResponse.savedSearches
+    ) {
+      setSavedSearches(searchesResponse.savedSearches)
     }
-  }, [setSavedSearches, networkSearches, searchesLoading])
+  }, [setSavedSearches, searchesResponse])
 
   return (
     <>

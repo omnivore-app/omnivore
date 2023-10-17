@@ -25,6 +25,7 @@ export type Subscription = {
 }
 
 type SubscriptionsQueryResponse = {
+  error: any
   isLoading: boolean
   isValidating: boolean
   subscriptions: Subscription[]
@@ -85,6 +86,7 @@ export function useGetSubscriptionsQuery(
       const result = data as SubscriptionsResponseData
       const subscriptions = result.subscriptions.subscriptions as Subscription[]
       return {
+        error,
         isLoading: !error && !data,
         isValidating,
         subscriptions,
@@ -97,6 +99,7 @@ export function useGetSubscriptionsQuery(
     console.log('error', error)
   }
   return {
+    error,
     isLoading: !error && !data,
     isValidating: true,
     subscriptions: [],
