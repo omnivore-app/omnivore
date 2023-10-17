@@ -6,13 +6,12 @@ BEGIN;
 
 -- Deleting duplicates first to avoid unique constraint violation
 WITH DuplicateCTE AS (
-    SELECT user_id, url, 
-           ROW_NUMBER() OVER (PARTITION BY user_id, url ORDER BY (SELECT NULL)) AS RowNum
+    SELECT id, ROW_NUMBER() OVER (PARTITION BY user_id, url ORDER BY status, last_fetched_at DESC NULLS LAST) AS row_number
     FROM omnivore.subscriptions
     WHERE type = 'RSS'
 )
 DELETE FROM omnivore.subscriptions
-    WHERE (user_id, url) IN (SELECT user_id, url FROM DuplicateCTE WHERE RowNum > 1);
+    WHERE id IN (SELECT id FROM DuplicateCTE WHERE row_number > 1);
 
 ALTER TABLE omnivore.subscriptions ADD CONSTRAINT subscriptions_user_id_url_key UNIQUE (user_id, url);
 

@@ -185,7 +185,6 @@ export const subscribeResolver = authorized<
         url: input.url || undefined,
         name: input.name || undefined,
         user: { id: uid },
-        status: SubscriptionStatus.Active,
         type: input.subscriptionType || SubscriptionType.Rss, // default to rss
       })
     )
