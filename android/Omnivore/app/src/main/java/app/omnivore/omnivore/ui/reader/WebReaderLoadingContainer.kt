@@ -42,7 +42,6 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import app.omnivore.omnivore.ui.components.LabelsViewModel
@@ -446,41 +445,6 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
     ) { paddingValues ->
       Box(modifier = Modifier.fillMaxSize()) {
         content()
-      }
-    }
-  }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun OpenLinkView(webReaderViewModel: WebReaderViewModel) {
-  val context = LocalContext.current
-
-  Column(modifier = Modifier
-    .padding(top = 50.dp)
-    .padding(horizontal = 50.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-    Row {
-      Button(onClick = { webReaderViewModel.openCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = stringResource(R.string.open_link_view_action_open_in_browser))
-
-      }
-    }
-    Row() {
-      Button(onClick = { webReaderViewModel.saveCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = stringResource(R.string.open_link_view_action_save_to_omnivore))
-
-      }
-    }
-    Row() {
-      Button(onClick = {webReaderViewModel.copyCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = stringResource(R.string.open_link_view_action_copy_link))
-
-      }
-    }
-    Row {
-      Button(onClick = {webReaderViewModel.resetBottomSheet() }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = stringResource(R.string.open_link_view_action_cancel))
-
       }
     }
   }
