@@ -23,13 +23,7 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
   )
 }
 
-type FeedFetchResult = {
-  url: string
-  content: string
-  checksum: string
-}
-
-async function fetchAndChecksum(url: string): Promise<FeedFetchResult> {
+export const fetchAndChecksum = async (url: string) => {
   try {
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
