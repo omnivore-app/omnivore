@@ -282,19 +282,17 @@ export const updateSubscriptionResolver = authorized<
     const updatedSubscription = await authTrx(async (t) => {
       const repo = t.getRepository(Subscription)
 
-      const dict = {
+      // update subscription
+      await t.getRepository(Subscription).save({
         id: input.id,
         name: input.name || undefined,
         description: input.description || undefined,
         lastFetchedAt: input.lastFetchedAt
           ? new Date(input.lastFetchedAt)
           : undefined,
-        lastFetchedChecksum: input.lastfetchedChecksum || undefined,
+        lastFetchedChecksum: input.lastFetchedChecksum || undefined,
         status: input.status || undefined,
-      }
-      console.log('saving dict:', JSON.stringify(dict))
-      // update subscription
-      await t.getRepository(Subscription).save(dict)
+      })
 
       return repo.findOneByOrFail({
         id: input.id,

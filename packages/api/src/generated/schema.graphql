@@ -2391,7 +2391,7 @@ input UpdateSubscriptionInput {
   description: String
   id: ID!
   lastFetchedAt: Date
-  lastfetchedChecksum: String
+  lastFetchedChecksum: String
   name: String
   status: SubscriptionStatus
 }
