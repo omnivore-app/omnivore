@@ -58,6 +58,9 @@ export const createApp = (): {
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
 
+  // set to true if behind a reverse proxy/load balancer
+  app.set('trust proxy', env.server.trustProxy)
+
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: async (req) => {
