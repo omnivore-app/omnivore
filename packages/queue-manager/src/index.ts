@@ -30,7 +30,7 @@ if (
 
 const LATENCY_THRESHOLD = 500
 const RSS_QUEUE_THRESHOLD = 20_000
-const IMPORT_QUEUE_THRESHOLD = 200_000
+const IMPORT_QUEUE_THRESHOLD = 250_000
 
 const postToDiscord = async (message: string) => {
   console.log('notify message', { message })
