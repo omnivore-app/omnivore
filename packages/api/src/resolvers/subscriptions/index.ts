@@ -300,8 +300,6 @@ export const updateSubscriptionResolver = authorized<
       })
     })
 
-    console.log('updatedSubscription', updatedSubscription)
-
     return {
       subscription: updatedSubscription,
     }
