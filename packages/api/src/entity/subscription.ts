@@ -59,6 +59,9 @@ export class Subscription {
   @Column('timestamp', { nullable: true })
   lastFetchedAt?: Date | null
 
+  @Column('text', { nullable: true })
+  lastFetchedChecksum?: string | null
+
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt!: Date
 

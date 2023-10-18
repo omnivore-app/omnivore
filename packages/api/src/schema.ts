@@ -2548,6 +2548,7 @@ const schema = gql`
     name: String
     description: String
     lastFetchedAt: Date
+    lastfetchedChecksum: String
     status: SubscriptionStatus
   }
 

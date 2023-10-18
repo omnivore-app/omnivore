@@ -2978,6 +2978,7 @@ export type UpdateSubscriptionInput = {
   description?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
+  lastfetchedChecksum?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
   status?: InputMaybe<SubscriptionStatus>;
 };
