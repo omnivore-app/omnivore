@@ -57,7 +57,7 @@ export const createApp = (): {
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
-  app.set('trust proxy', 1)
+  app.set('trust proxy', 2)
 
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
