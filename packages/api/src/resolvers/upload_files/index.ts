@@ -24,7 +24,6 @@ import {
   contentReaderForLibraryItem,
   generateUploadFilePathName,
   generateUploadSignedUrl,
-  getFilePublicUrl,
 } from '../../utils/uploads'
 
 const isFileUrl = (url: string): boolean => {
@@ -110,13 +109,12 @@ export const uploadFileRequestResolver = authorized<
       input.contentType
     )
 
-    const publicUrl = getFilePublicUrl(uploadFilePathName)
-
-    // If this is a file URL, we swap in the GCS public URL
+    // If this is a file URL, we swap in a special URL
+    const attachmentUrl = `https://omnivore.app/attachments/${uploadFilePathName}`
     if (isFileUrl(input.url)) {
       await authTrx(async (tx) => {
         await tx.getRepository(UploadFile).update(uploadFileId, {
-          url: publicUrl,
+          url: attachmentUrl,
           status: UploadFileStatus.Initialized,
         })
       })
@@ -142,8 +140,8 @@ export const uploadFileRequestResolver = authorized<
         const uploadFileId = uploadFileData.id
         const item = await createLibraryItem(
           {
-            originalUrl: isFileUrl(input.url) ? publicUrl : input.url,
             id: input.clientRequestId || undefined,
+            originalUrl: isFileUrl(input.url) ? attachmentUrl : input.url,
             user: { id: uid },
             title,
             readableContent: '',

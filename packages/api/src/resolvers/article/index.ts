@@ -98,10 +98,7 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
-import {
-  getStorageFileDetails,
-  makeStorageFilePublic,
-} from '../../utils/uploads'
+import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
 export enum ArticleFormat {
@@ -310,7 +307,6 @@ export const createArticleResolver = authorized<
             pubsub
           )
         }
-        await makeStorageFilePublic(uploadFileData.id, uploadFileData.fileName)
       }
 
       let libraryItemToReturn: LibraryItem
