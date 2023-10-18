@@ -31,7 +31,6 @@ type FeedFetchResult = {
 
 async function fetchAndChecksum(url: string): Promise<FeedFetchResult> {
   try {
-    // Fetch the content from the URL
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
       headers: {
@@ -42,15 +41,15 @@ async function fetchAndChecksum(url: string): Promise<FeedFetchResult> {
       },
     })
 
-    // Create a sha256 hash of the content
     const hash = crypto.createHash('sha256')
-    hash.update(response.data)
+    hash.update(response.data as Buffer)
 
-    return { url, content: response.data, checksum: hash.digest('hex') }
+    const dataStr = (response.data as Buffer).toString()
+
+    return { url, content: dataStr, checksum: hash.digest('hex') }
   } catch (error) {
-    throw new Error(
-      `Failed to fetch or hash content from ${url}. Error: ${error}`
-    )
+    console.log(error)
+    throw new Error(`Failed to fetch or hash content from ${url}.`)
   }
 }
 
@@ -228,14 +227,13 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       let lastItemFetchedAt: Date | null = null
       let lastValidItem: Item | null = null
-      let updatedLastFetchedChecksum: string | null
 
-      let fetchResult = await fetchAndChecksum(feedUrl)
+      const fetchResult = await fetchAndChecksum(feedUrl)
       if (fetchResult.checksum === lastFetchedChecksum) {
         console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
         return res.status(200)
       }
-      updatedLastFetchedChecksum = fetchResult.checksum
+      const updatedLastFetchedChecksum = fetchResult.checksum
 
       // fetch feed
       let itemCount = 0
