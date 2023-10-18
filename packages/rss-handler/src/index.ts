@@ -83,6 +83,8 @@ const sendUpdateSubscriptionMutation = async (
     },
   })
 
+  console.log('sending', data)
+
   const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
   try {
     const response = await axios.post(
