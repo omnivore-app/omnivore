@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: "postgres:12.8"
+    image: "ankane/pgvector"
     container_name: "omnivore-postgres"
     environment:
       - POSTGRES_USER=postgres

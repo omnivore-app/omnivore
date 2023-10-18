@@ -1,0 +1,143 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: omnivore
+  namespace: omnivore
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: omnivore
+  template:
+    metadata:
+      labels:
+        app: omnivore
+    spec:
+      containers:
+        - name: omnivore-web
+          command:
+            - /bin/sh
+            - -c
+            - "yarn workspace @omnivore/web start -p 3000"
+          image: ghcr.io/lawrencegripper/omnivore:17-10-23-11
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_APP_ENV
+              value: prod
+            - name: NEXT_PUBLIC_BASE_URL
+              value: http://omnivore-web.some-tailnet.ts.net
+            - name: NEXT_PUBLIC_SERVER_BASE_URL
+              value: http://omnivore-web.some-tailnet.ts.net:4000
+            - name: NEXT_PUBLIC_HIGHLIGHTS_BASE_URL
+              value: http://omnivore-web.some-tailnet.ts.net
+            - name: SSO_JWT_SECRET
+              value: 2f6f53a8-6626-477d-af94-801f652e9919
+      # NOTE: You will need to manually exec 'PG_USER=$POSTGRES_USER PG_PASSWORD=$POSTGRES_PASSWORD yarn workspace @omnivore/db migrate' on the box
+      # If you see uuid-ossp already exits run 'psql --host $PG_HOST -c 'DROP EXTENSION "uuid-ossp" CASCADE;' --user omnivore'
+        - name: omnivore-api
+          image: ghcr.io/lawrencegripper/omnivore:17-10-23-11
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PG_DB
+              value: omnivore
+            - name: PG_PASSWORD
+              value: some-postgres-password
+            - name: POSTGRES_DB
+              value: omnivore
+            - name: POSTGRES_PASSWORD
+              value: some-postgres-password
+            - name: POSTGRES_USER
+              value: omnivore
+            - name: POSTGRES_HOST
+              value: localhost
+            - name: PG_USER
+              value: omnivore
+            - name: PG_HOST
+              value: localhost
+            - name: PG_PORT
+              value: "5432"
+            - name: PG_POOL_MAX
+              value: "20"
+            - name: API_ENV
+              value: local
+            - name: JAEGER_HOST
+              value: "jaeger"
+            - name: REMINDER_TASK_HANDLER_URL
+              value: /svc/reminders/trigger
+            - name: CLIENT_URL
+              value: http://omnivore-web.some-tailnet.ts.net
+            - name: GATEWAY_URL
+              value: http://localhost:8080/api
+            - name: ELASTIC_URL
+              value: http://localhost:9200
+            - name: JWT_SECRET
+              value: 2f6f53a8-6626-477d-af94-801f652e9919
+            - name: SSO_JWT_SECRET
+              value: 2f6f53a8-6626-477d-af94-801f652e9919
+          volumeMounts:
+            - mountPath: /config
+              name: config
+        - name: postgresql
+          image: ankane/pgvector
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: omnivore
+            - name: POSTGRES_PASSWORD
+              value: some-postgres-password
+            - name: POSTGRES_USER
+              value: omnivore
+            - name: PG_POOL
+              value: "20"
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/usr/local/bin/pg_ctl stop -D /var/lib/postgresql/data -w -t 60 -m fast"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 250m
+              memory: 600Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data/
+              name: database
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+          ports:
+            - containerPort: 9200
+          env:
+            - name: ELASTIC_PASSWORD
+              value: some-postgres-passwordelastic
+            - name: discovery.type
+              value: single-node
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elastic-data
+            # - mountPath: /usr/share/elasticsearch/config
+            #   name: elastic-config
+      volumes:
+        - name: elastic-data
+          hostPath:
+            path: /mnt/k3s-local/omnivore/elastic-data
+            type: Directory
+        - name: elastic-config
+          hostPath:
+            path: /mnt/k3s-local/omnivore/elastic-config
+            type: Directory
+        - name: database
+          hostPath:
+            path: /mnt/k3s-local/omnivore/database
+            type: Directory
+        - name: config
+          hostPath:
+            path: /mnt/k3s-local/omnivore/config
+            type: Directory

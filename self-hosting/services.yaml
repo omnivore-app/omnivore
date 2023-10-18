@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: omnivore
+  name: web
+  namespace: omnivore
+spec:
+  ports:
+    - name: "web"
+      port: 80
+      targetPort: 3000
+    - name: "web2"
+      port: 3000
+      targetPort: 3000
+    - name: "api2"
+      port: 4000
+      targetPort: 8080
+  externalTrafficPolicy: Local
+  selector:
+    app: omnivore
+  type: LoadBalancer
+  loadBalancerClass: tailscale
