@@ -109,9 +109,12 @@ export const uploadFileRequestResolver = authorized<
       input.contentType
     )
 
+    // If this is a file URL, we swap in a special URL
+    const attachmentUrl = `https://omnivore.app/attachments/${uploadFilePathName}`
     if (isFileUrl(input.url)) {
       await authTrx(async (tx) => {
         await tx.getRepository(UploadFile).update(uploadFileId, {
+          url: attachmentUrl,
           status: UploadFileStatus.Initialized,
         })
       })
