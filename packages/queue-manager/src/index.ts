@@ -30,7 +30,7 @@ if (
 
 const LATENCY_THRESHOLD = 500
 const RSS_QUEUE_THRESHOLD = 20_000
-const IMPORT_QUEUE_THRESHOLD = 200_000
+const IMPORT_QUEUE_THRESHOLD = 250_000
 
 const postToDiscord = async (message: string) => {
   console.log('notify message', { message })
@@ -79,8 +79,6 @@ const checkShouldPauseQueues = async () => {
     },
   })
 
-  let shouldPauseQueues = false
-
   for (const ts of timeSeries) {
     // We only want to look at the backend service right now
     if (
@@ -98,15 +96,13 @@ const checkShouldPauseQueues = async () => {
           (acc, point) => acc + (point.value?.doubleValue ?? 0),
           0
         ) / ts.points.length
-      console.log('avgLatency: ', avgLatency)
       if (avgLatency > LATENCY_THRESHOLD) {
-        shouldPauseQueues = true
-        break
+        return { shouldPauseQueues: true, avgLatency: avgLatency }
       }
     }
   }
 
-  return shouldPauseQueues
+  return { shouldPauseQueues: false, avgLatency: 0 }
 }
 
 const getQueueTaskCount = async (queueName: string) => {
@@ -147,7 +143,7 @@ async function checkMetricsAndPauseQueues() {
     throw new Error('environment not supplied.')
   }
 
-  const shouldPauseQueues = await checkShouldPauseQueues()
+  const { shouldPauseQueues, avgLatency } = await checkShouldPauseQueues()
 
   if (shouldPauseQueues) {
     let rssQueueCount: number | string = 'unknown'
@@ -159,7 +155,7 @@ async function checkMetricsAndPauseQueues() {
       console.log('error fetching queue counts', err)
     }
 
-    const message = `Both queues have been paused due to API latency threshold exceedance.\n\t-The RSS queue currently has ${rssQueueCount} tasks.\n\t-The import queue currently has ${importQueueCount} pending tasks.`
+    const message = `Both queues have been paused due to API latency threshold exceedance (${avgLatency}).\n\t-The RSS queue currently has ${rssQueueCount} tasks.\n\t-The import queue currently has ${importQueueCount} pending tasks.`
 
     await pauseQueues()
     await postToDiscord(message)
