@@ -24,7 +24,6 @@ import {
   contentReaderForLibraryItem,
   generateUploadFilePathName,
   generateUploadSignedUrl,
-  getFilePublicUrl,
 } from '../../utils/uploads'
 
 const isFileUrl = (url: string): boolean => {
