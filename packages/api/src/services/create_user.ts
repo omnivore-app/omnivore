@@ -65,6 +65,10 @@ export const createUser = async (input: {
     return Promise.reject({ errorCode: SignupErrorCode.InvalidUsername })
   }
 
+  if (process.env.SENDGRID_MSGS_API_KEY == '') {
+    input.pendingConfirmation = false
+  }
+
   const [user, profile] = await appDataSource.transaction<[User, Profile]>(
     async (t) => {
       let hasInvite = false
