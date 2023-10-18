@@ -4,4 +4,6 @@
 
 BEGIN;
 
+ALTER TABLE omnivore.subscriptions ADD COLUMN last_fetched_checksum TEXT ;
+
 COMMIT;
