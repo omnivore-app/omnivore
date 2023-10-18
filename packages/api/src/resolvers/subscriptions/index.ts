@@ -290,7 +290,7 @@ export const updateSubscriptionResolver = authorized<
         lastFetchedAt: input.lastFetchedAt
           ? new Date(input.lastFetchedAt)
           : undefined,
-        lastFetchedChecksum: input.lastfetchedChecksum,
+        lastFetchedChecksum: input.lastfetchedChecksum || undefined,
         status: input.status || undefined,
       })
 
@@ -299,6 +299,8 @@ export const updateSubscriptionResolver = authorized<
         user: { id: uid },
       })
     })
+
+    console.log('updatedSubscription', updatedSubscription)
 
     return {
       subscription: updatedSubscription,
