@@ -24,7 +24,6 @@ import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getStorageFileDetails,
-  makeStorageFilePublic,
 } from '../../utils/uploads'
 
 export function emailAttachmentRouter() {
