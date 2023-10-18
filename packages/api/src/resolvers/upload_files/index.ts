@@ -110,13 +110,9 @@ export const uploadFileRequestResolver = authorized<
       input.contentType
     )
 
-    const publicUrl = getFilePublicUrl(uploadFilePathName)
-
-    // If this is a file URL, we swap in the GCS public URL
     if (isFileUrl(input.url)) {
       await authTrx(async (tx) => {
         await tx.getRepository(UploadFile).update(uploadFileId, {
-          url: publicUrl,
           status: UploadFileStatus.Initialized,
         })
       })
@@ -142,7 +138,7 @@ export const uploadFileRequestResolver = authorized<
         const uploadFileId = uploadFileData.id
         const item = await createLibraryItem(
           {
-            originalUrl: isFileUrl(input.url) ? publicUrl : input.url,
+            originalUrl: input.url,
             id: input.clientRequestId || undefined,
             user: { id: uid },
             title,
