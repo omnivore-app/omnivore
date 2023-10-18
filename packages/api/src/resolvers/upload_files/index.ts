@@ -140,8 +140,8 @@ export const uploadFileRequestResolver = authorized<
         const uploadFileId = uploadFileData.id
         const item = await createLibraryItem(
           {
-            originalUrl: input.url,
             id: input.clientRequestId || undefined,
+            originalUrl: isFileUrl(input.url) ? attachmentUrl : input.url,
             user: { id: uid },
             title,
             readableContent: '',
