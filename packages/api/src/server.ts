@@ -57,6 +57,7 @@ export const createApp = (): {
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
+  app.set('trust proxy', 1)
 
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
@@ -72,8 +73,8 @@ export const createApp = (): {
       }
     },
     keyGenerator: (req) => {
-      console.log('x-forwarded-for header', req.header('x-forwarded-for'))
-      console.log('ip', req.ip)
+      console.log('x-forwarded-for header:', req.header('x-forwarded-for'))
+      console.log('ip:', req.ip)
       return getTokenByRequest(req) || req.ip
     },
     // skip preflight requests and test requests
