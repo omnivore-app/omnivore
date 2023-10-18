@@ -81,22 +81,6 @@ export const generateDownloadSignedUrl = async (
   return url
 }
 
-export const makeStorageFilePublic = async (
-  id: string,
-  fileName: string
-): Promise<string> => {
-  // if (env.dev.isLocal) {
-  //   return 'http://localhost:3000/public/' + id + '/' + fileName
-  // }
-
-  // Makes the file public
-  const filePathName = generateUploadFilePathName(id, fileName)
-  await storage.bucket(bucketName).file(filePathName).makePublic()
-
-  const fileObj = storage.bucket(bucketName).file(filePathName)
-  return fileObj.publicUrl()
-}
-
 export const getStorageFileDetails = async (
   id: string,
   fileName: string

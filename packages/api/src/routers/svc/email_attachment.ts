@@ -143,11 +143,7 @@ export function emailAttachmentRouter() {
         return res.status(400).send('BAD REQUEST')
       }
 
-      const uploadFileUrlOverride = await makeStorageFilePublic(
-        uploadFileData.id,
-        uploadFileData.fileName
-      )
-
+      const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFileId}/${uploadFile.fileName}`
       const uploadFileHash = uploadFileDetails.md5Hash
       const itemType =
         uploadFile.contentType === 'application/pdf'
