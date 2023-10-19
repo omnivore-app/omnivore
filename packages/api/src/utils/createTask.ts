@@ -7,7 +7,6 @@ import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
 import { Recommendation } from '../entity/recommendation'
-import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -592,21 +591,29 @@ export const enqueueThumbnailTask = async (
   return createdTasks[0].name
 }
 
-export const enqueueRssFeedFetch = async (
-  userId: string,
-  rssFeedSubscription: Subscription
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
-  const payload = {
-    subscriptionId: rssFeedSubscription.id,
-    feedUrl: rssFeedSubscription.url,
-    lastFetchedAt: rssFeedSubscription.lastFetchedAt?.getTime() || 0, // unix timestamp in milliseconds
-    lastFetchedChecksum: rssFeedSubscription.lastFetchedChecksum || null,
-    scheduledAt: new Date().getTime(), // unix timestamp in milliseconds
-  }
+export interface RssSubscriptionGroup {
+  url: string
+  subscription_ids: string[]
+  user_ids: string[]
+  last_fetched_timestamps: (Date | null)[]
+  scheduled_timestamps: (Date | null)[]
+}
 
-  const headers = {
-    [OmnivoreAuthorizationHeader]: generateVerificationToken({ id: userId }),
+export const enqueueRssFeedFetch = async (
+  subscriptionGroup: RssSubscriptionGroup
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
+  const payload = {
+    subscriptionIds: subscriptionGroup.subscription_ids,
+    feedUrl: subscriptionGroup.url,
+    lastFetchedTimestamps: subscriptionGroup.last_fetched_timestamps.map(
+      (timestamp) => timestamp?.getTime() || 0
+    ), // unix timestamp in milliseconds
+    lastFetchedChecksum: rssFeedSubscription.lastFetchedChecksum || null,
+    scheduledTimestamps: subscriptionGroup.scheduled_timestamps.map(
+      (timestamp) => timestamp?.getTime() || 0
+    ), // unix timestamp in milliseconds
+    userIds: subscriptionGroup.user_ids,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -615,9 +622,10 @@ export const enqueueRssFeedFetch = async (
       // Calling the handler function directly.
       setTimeout(() => {
         axios
-          .post(env.queue.rssFeedTaskHandlerUrl, payload, {
-            headers,
-          })
+          .post(
+            `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
+            payload
+          )
           .catch((error) => {
             logError(error)
           })
@@ -630,8 +638,7 @@ export const enqueueRssFeedFetch = async (
     project: GOOGLE_CLOUD_PROJECT,
     queue: 'omnivore-rss-queue',
     payload,
-    taskHandlerUrl: env.queue.rssFeedTaskHandlerUrl,
-    requestHeaders: headers,
+    taskHandlerUrl: `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

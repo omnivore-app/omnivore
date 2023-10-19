@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DeleteResult } from 'typeorm'
+import { DeepPartial, DeleteResult } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
@@ -214,4 +214,10 @@ export const deleteSubscription = async (
     undefined,
     userId
   )
+}
+
+export const createRssSubscriptions = async (
+  subscriptions: DeepPartial<Subscription>[]
+) => {
+  return getRepository(Subscription).save(subscriptions)
 }

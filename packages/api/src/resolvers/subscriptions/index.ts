@@ -235,11 +235,19 @@ export const subscribeResolver = authorized<
         }
       }
 
+      const newSubscription = newSubscriptions[0]
+
       // create a cloud task to fetch rss feed item for the new subscription
-      await enqueueRssFeedFetch(uid, newSubscriptions[0])
+      await enqueueRssFeedFetch({
+        user_ids: [uid],
+        url: input.url,
+        subscription_ids: [newSubscription.id],
+        scheduled_timestamps: [null],
+        last_fetched_timestamps: [null],
+      })
 
       return {
-        subscriptions: newSubscriptions,
+        subscriptions: [newSubscription],
       }
     }
 
