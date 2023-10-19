@@ -1,4 +1,4 @@
-FROM node:18.16-alpine
+FROM node:18.16-alpine3.17
 
 # Installs latest Chromium (92) package.
 RUN apk add --no-cache \
