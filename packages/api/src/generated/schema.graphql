@@ -2393,6 +2393,7 @@ input UpdateSubscriptionInput {
   lastFetchedAt: Date
   lastFetchedChecksum: String
   name: String
+  scheduledAt: Date
   status: SubscriptionStatus
 }
 

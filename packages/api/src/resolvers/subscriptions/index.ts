@@ -239,11 +239,12 @@ export const subscribeResolver = authorized<
 
       // create a cloud task to fetch rss feed item for the new subscription
       await enqueueRssFeedFetch({
-        user_ids: [uid],
+        userIds: [uid],
         url: input.url,
-        subscription_ids: [newSubscription.id],
-        scheduled_timestamps: [null],
-        last_fetched_timestamps: [null],
+        subscriptionIds: [newSubscription.id],
+        scheduledDates: [new Date()], // fetch immediately
+        fetchedDates: [null],
+        checksums: [null],
       })
 
       return {
@@ -300,6 +301,9 @@ export const updateSubscriptionResolver = authorized<
           : undefined,
         lastFetchedChecksum: input.lastFetchedChecksum || undefined,
         status: input.status || undefined,
+        scheduledAt: input.scheduledAt
+          ? new Date(input.scheduledAt)
+          : undefined,
       })
 
       return repo.findOneByOrFail({

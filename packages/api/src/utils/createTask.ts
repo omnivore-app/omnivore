@@ -593,10 +593,11 @@ export const enqueueThumbnailTask = async (
 
 export interface RssSubscriptionGroup {
   url: string
-  subscription_ids: string[]
-  user_ids: string[]
-  last_fetched_timestamps: (Date | null)[]
-  scheduled_timestamps: (Date | null)[]
+  subscriptionIds: string[]
+  userIds: string[]
+  fetchedDates: (Date | null)[]
+  scheduledDates: Date[]
+  checksums: (string | null)[]
 }
 
 export const enqueueRssFeedFetch = async (
@@ -604,16 +605,16 @@ export const enqueueRssFeedFetch = async (
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
   const payload = {
-    subscriptionIds: subscriptionGroup.subscription_ids,
+    subscriptionIds: subscriptionGroup.subscriptionIds,
     feedUrl: subscriptionGroup.url,
-    lastFetchedTimestamps: subscriptionGroup.last_fetched_timestamps.map(
+    lastFetchedTimestamps: subscriptionGroup.fetchedDates.map(
       (timestamp) => timestamp?.getTime() || 0
     ), // unix timestamp in milliseconds
-    lastFetchedChecksum: rssFeedSubscription.lastFetchedChecksum || null,
-    scheduledTimestamps: subscriptionGroup.scheduled_timestamps.map(
-      (timestamp) => timestamp?.getTime() || 0
+    lastFetchedChecksums: subscriptionGroup.checksums,
+    scheduledTimestamps: subscriptionGroup.scheduledDates.map((timestamp) =>
+      timestamp.getTime()
     ), // unix timestamp in milliseconds
-    userIds: subscriptionGroup.user_ids,
+    userIds: subscriptionGroup.userIds,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

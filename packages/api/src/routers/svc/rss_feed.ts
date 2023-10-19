@@ -30,10 +30,11 @@ export function rssFeedRouter() {
         `
         SELECT
           url,
-          ARRAY_AGG(id) AS subscription_ids,
-          ARRAY_AGG(user_id) AS user_ids,
-          ARRAY_AGG(last_fetched_at) AS last_fetched_timestamps,
-          ARRAY_AGG(scheduled_at) AS scheduled_timestamps
+          ARRAY_AGG(id) AS "subscriptionIds",
+          ARRAY_AGG(user_id) AS "userIds",
+          ARRAY_AGG(last_fetched_at) AS "fetchedDates",
+          ARRAY_AGG(IFNULL(scheduled_at, NOW())) AS "scheduledDates",
+          ARRAY_AGG(last_fetched_checksum) AS "checksums"
         FROM
           omnivore.subscriptions
         WHERE
