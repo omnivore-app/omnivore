@@ -290,6 +290,7 @@ export const updateSubscriptionResolver = authorized<
         lastFetchedAt: input.lastFetchedAt
           ? new Date(input.lastFetchedAt)
           : undefined,
+        lastFetchedChecksum: input.lastFetchedChecksum || undefined,
         status: input.status || undefined,
       })
 

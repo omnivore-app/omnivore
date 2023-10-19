@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
+import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
 import Parser, { Item } from 'rss-parser'
@@ -10,6 +11,7 @@ interface RssFeedRequest {
   subscriptionId: string
   feedUrl: string
   lastFetchedAt: number // unix timestamp in milliseconds
+  lastFetchedChecksum: string | undefined
 }
 
 // link can be a string or an object
@@ -21,10 +23,37 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
   )
 }
 
+export const fetchAndChecksum = async (url: string) => {
+  try {
+    const response = await axios.get(url, {
+      responseType: 'arraybuffer',
+      timeout: 60_000,
+      maxRedirects: 10,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+        Accept:
+          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
+      },
+    })
+
+    const hash = crypto.createHash('sha256')
+    hash.update(response.data as Buffer)
+
+    const dataStr = (response.data as Buffer).toString()
+
+    return { url, content: dataStr, checksum: hash.digest('hex') }
+  } catch (error) {
+    console.log(error)
+    throw new Error(`Failed to fetch or hash content from ${url}.`)
+  }
+}
+
 const sendUpdateSubscriptionMutation = async (
   userId: string,
   subscriptionId: string,
-  lastFetchedAt: Date
+  lastFetchedAt: Date,
+  lastFetchedChecksum: string
 ) => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
@@ -51,6 +80,7 @@ const sendUpdateSubscriptionMutation = async (
       input: {
         id: subscriptionId,
         lastFetchedAt,
+        lastFetchedChecksum,
       },
     },
   })
@@ -118,18 +148,14 @@ Sentry.GCPFunction.init({
 
 const signToken = promisify(jwt.sign)
 const parser = new Parser({
-  timeout: 60000, // 60 seconds
-  maxRedirects: 10,
   customFields: {
-    item: [['link', 'links', { keepArray: true }], 'published', 'updated'],
+    item: [
+      ['link', 'links', { keepArray: true }],
+      'published',
+      'updated',
+      'created',
+    ],
     feed: ['dc:date', 'lastBuildDate', 'pubDate'],
-  },
-  headers: {
-    // some rss feeds require user agent
-    'User-Agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-    Accept:
-      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
   },
 })
 
@@ -190,16 +216,24 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
 
-      const { feedUrl, subscriptionId, lastFetchedAt } = req.body
+      const { feedUrl, subscriptionId, lastFetchedAt, lastFetchedChecksum } =
+        req.body
       console.log('Processing feed', feedUrl, lastFetchedAt)
 
       let lastItemFetchedAt: Date | null = null
       let lastValidItem: Item | null = null
 
+      const fetchResult = await fetchAndChecksum(feedUrl)
+      if (fetchResult.checksum === lastFetchedChecksum) {
+        console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
+        return res.status(200)
+      }
+      const updatedLastFetchedChecksum = fetchResult.checksum
+
       // fetch feed
       let itemCount = 0
-      const feed = await parser.parseURL(feedUrl)
-      console.log('Fetched feed', feed, new Date())
+      const feed = await parser.parseString(fetchResult.content)
+      console.log('Fetched feed', feed.title, new Date())
 
       const feedPubDate = (feed['dc:date'] ||
         feed.pubDate ||
@@ -214,7 +248,10 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       for (const item of feed.items) {
         // use published or updated if isoDate is not available for atom feeds
         item.isoDate =
-          item.isoDate || (item.published as string) || (item.updated as string)
+          item.isoDate ||
+          (item.published as string) ||
+          (item.updated as string) ||
+          (item.created as string)
         console.log('Processing feed item', item.links, item.isoDate)
 
         if (!item.links || item.links.length === 0) {
@@ -299,7 +336,8 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       const updatedSubscription = await sendUpdateSubscriptionMutation(
         userId,
         subscriptionId,
-        lastItemFetchedAt
+        lastItemFetchedAt,
+        updatedLastFetchedChecksum
       )
       console.log('Updated subscription', updatedSubscription)
 
