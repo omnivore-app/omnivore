@@ -27,6 +27,8 @@ export const fetchAndChecksum = async (url: string) => {
   try {
     const response = await axios.get(url, {
       responseType: 'arraybuffer',
+      timeout: 60_000,
+      maxRedirects: 10,
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
@@ -146,8 +148,6 @@ Sentry.GCPFunction.init({
 
 const signToken = promisify(jwt.sign)
 const parser = new Parser({
-  timeout: 60000, // 60 seconds
-  maxRedirects: 10,
   customFields: {
     item: [
       ['link', 'links', { keepArray: true }],
@@ -155,6 +155,7 @@ const parser = new Parser({
       'updated',
       'created',
     ],
+    feed: ['dc:date', 'lastBuildDate', 'pubDate'],
   },
 })
 
