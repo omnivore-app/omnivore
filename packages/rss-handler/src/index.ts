@@ -226,7 +226,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       const fetchResult = await fetchAndChecksum(feedUrl)
       if (fetchResult.checksum === lastFetchedChecksum) {
         console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
-        return res.status(200)
+        return res.send('ok')
       }
       const updatedLastFetchedChecksum = fetchResult.checksum
 
