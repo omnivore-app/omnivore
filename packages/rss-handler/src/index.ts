@@ -176,7 +176,27 @@ const parser = new Parser({
   },
 })
 
-const getUpdatePeriodInHours = (updatePeriod: string) => {
+const getUpdateFrequency = (feed: any) => {
+  const updateFrequency = (feed['syn:updateFrequency'] ||
+    feed['sy:updateFrequency']) as string | undefined
+
+  if (!updateFrequency) {
+    return 1
+  }
+
+  const frequency = parseInt(updateFrequency, 10)
+  if (isNaN(frequency)) {
+    return 1
+  }
+
+  return frequency
+}
+
+const getUpdatePeriodInHours = (feed: any) => {
+  const updatePeriod = (feed['syn:updatePeriod'] || feed['sy:updatePeriod']) as
+    | string
+    | undefined
+
   switch (updatePeriod) {
     case 'hourly':
       return 1
@@ -332,15 +352,9 @@ const processSubscription = async (
       : new Date()
   }
 
-  const updateFrequency = (feed['syn:updateFrequency'] ||
-    feed['sy:updateFrequency'] ||
-    1) as number
-  const updatePeriod = (feed['syn:updatePeriod'] ||
-    feed['sy:updatePeriod'] ||
-    'hourly') as string
-  const nextScheduledAt =
-    scheduledAt +
-    getUpdatePeriodInHours(updatePeriod) * 60 * 60 * 1000 * updateFrequency
+  const updateFrequency = getUpdateFrequency(feed)
+  const updatePeriodInMs = getUpdatePeriodInHours(feed) * 60 * 60 * 1000
+  const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
 
   // update subscription lastFetchedAt
   const updatedSubscription = await sendUpdateSubscriptionMutation(
