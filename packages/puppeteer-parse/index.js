@@ -272,7 +272,7 @@ const sendSavePageMutation = async (userId, input) => {
           }
     }`,
     variables: {
-      input: Object.assign({}, input),
+      input,
     },
   });
 
