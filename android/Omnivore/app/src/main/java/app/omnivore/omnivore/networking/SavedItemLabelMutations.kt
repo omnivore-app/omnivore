@@ -5,12 +5,12 @@ import app.omnivore.omnivore.graphql.generated.SetLabelsMutation
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 
-suspend fun Networker.updateLabelsForSavedItem(input: SetLabelsInput): Boolean {
+suspend fun Networker.updateLabelsForSavedItem(input: SetLabelsInput): List<SetLabelsMutation.Label>? {
   return try {
     val result = authenticatedApolloClient().mutation(SetLabelsMutation(input)).execute()
-    return result.data?.setLabels?.onSetLabelsSuccess?.labels != null
+    return result.data?.setLabels?.onSetLabelsSuccess?.labels
   } catch (e: java.lang.Exception) {
-    false
+    return null
   }
 }
 

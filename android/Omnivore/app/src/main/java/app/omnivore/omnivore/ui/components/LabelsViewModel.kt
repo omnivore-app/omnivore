@@ -56,21 +56,6 @@ class LabelsViewModel @Inject constructor(
             serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
         )
 
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                dataService.db.savedItemLabelDao().insertAll(listOf(res))
-
-                val newLabel = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(res.color), name = res.name))
-                if (newLabel != null) {
-                    try {
-                        dataService.db.savedItemLabelDao().updateTempLabel(tempId, newLabel.id)
-                    } catch (e: Exception) {
-                        Log.d("EXCEPTION: ", e.toString())
-                    }
-                }
-            }
-        }
-
         return res
     }
 }

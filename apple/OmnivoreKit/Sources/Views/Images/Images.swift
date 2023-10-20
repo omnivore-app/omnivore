@@ -28,4 +28,11 @@ public extension Image {
   static var unarchive: Image { Image("unarchive", bundle: .module) }
   static var remove: Image { Image("remove", bundle: .module) }
   static var label: Image { Image("label", bundle: .module) }
+
+  static var flairFeed: Image { Image("flair-feed", bundle: .module) }
+  static var flairFavorite: Image { Image("flair-favorite", bundle: .module) }
+
+  static var flairNewsletter: Image { Image("flair-newsletter", bundle: .module) }
+  static var flairPinned: Image { Image("flair-pinned", bundle: .module) }
+  static var flairRecommended: Image { Image("flair-recommended", bundle: .module) }
 }
