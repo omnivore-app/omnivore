@@ -68,7 +68,7 @@ export const createApp = (): {
       const token = getTokenByRequest(req)
       try {
         const claims = await getClaimsByToken(token)
-        return claims ? 100 : 15
+        return claims ? 60 : 15
       } catch (e) {
         console.log('non-authenticated request')
         return 15
