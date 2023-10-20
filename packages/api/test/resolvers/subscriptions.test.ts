@@ -350,17 +350,9 @@ describe('Subscriptions API', () => {
   })
 
   describe('Subscribe API', () => {
-    const query = (
-      name: string | null,
-      url: string | null,
-      subscriptionType: SubscriptionType | null
-    ) => `
-      mutation {
-        subscribe(input: {
-          name: ${name ? `"${name}"` : null} 
-          url: ${url ? `"${url}"` : null}
-          subscriptionType: ${subscriptionType}
-        }) {
+    const query = `
+      mutation Subscribe($input: SubscribeInput!){
+        subscribe(input: $input) {
           ... on SubscribeSuccess {
             subscriptions {
               id
@@ -410,8 +402,9 @@ describe('Subscriptions API', () => {
 
         it('returns an error', async () => {
           const res = await graphqlRequest(
-            query(null, url, subscriptionType),
-            authToken
+            query,
+            authToken,
+            { input: { url, subscriptionType } },
           ).expect(200)
           expect(res.body.data.subscribe.errorCodes).to.eql([
             'ALREADY_SUBSCRIBED',
@@ -421,8 +414,9 @@ describe('Subscriptions API', () => {
 
       it('creates a rss subscription', async () => {
         const res = await graphqlRequest(
-          query(null, url, subscriptionType),
-          authToken
+          query,
+          authToken,
+          { input: { url, subscriptionType } },
         ).expect(200)
         expect(res.body.data.subscribe.subscriptions).to.have.lengthOf(1)
         expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
