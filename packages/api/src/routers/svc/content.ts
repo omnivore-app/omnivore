@@ -91,7 +91,7 @@ export function contentServiceRouter() {
     if (msg.description) itemToUpdate.description = msg.description
 
     // This event is fired after the file is fully uploaded,
-    // so along with updateing content, we mark it as
+    // so along with updating content, we mark it as
     // succeeded.
     itemToUpdate.state = LibraryItemState.Succeeded
 
