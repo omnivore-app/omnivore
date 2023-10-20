@@ -2616,9 +2616,8 @@ export enum SubscribeErrorCode {
 }
 
 export type SubscribeInput = {
-  name?: InputMaybe<Scalars['String']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
-  url?: InputMaybe<Scalars['String']>;
+  url: Scalars['String'];
 };
 
 export type SubscribeResult = SubscribeError | SubscribeSuccess;

@@ -2538,8 +2538,7 @@ const schema = gql`
   }
 
   input SubscribeInput {
-    url: String
-    name: String
+    url: String!
     subscriptionType: SubscriptionType
   }
 

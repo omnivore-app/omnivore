@@ -397,18 +397,44 @@ describe('Subscriptions API', () => {
         })
 
         after(async () => {
-          await deleteSubscription(existingSubscription.id, user.id)
+          await deleteSubscription(existingSubscription.id)
         })
 
         it('returns an error', async () => {
-          const res = await graphqlRequest(
-            query,
-            authToken,
-            { input: { url, subscriptionType } },
-          ).expect(200)
+          const res = await graphqlRequest(query, authToken, {
+            input: { url, subscriptionType },
+          }).expect(200)
           expect(res.body.data.subscribe.errorCodes).to.eql([
             'ALREADY_SUBSCRIBED',
           ])
+        })
+      })
+
+      context('when the user unsubscribed the feed', () => {
+        let existingSubscription: Subscription
+
+        before(async () => {
+          existingSubscription = await createSubscription(
+            user.id,
+            'RSS Feed',
+            undefined,
+            SubscriptionStatus.Unsubscribed,
+            url,
+            subscriptionType,
+            url
+          )
+        })
+
+        after(async () => {
+          await deleteSubscription(existingSubscription.id)
+        })
+
+        it('re-subscribes the user', async () => {
+          const res = await graphqlRequest(query, authToken, {
+            input: { url, subscriptionType },
+          }).expect(200)
+          expect(res.body.data.subscribe.subscriptions).to.have.lengthOf(1)
+          expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
         })
       })
 
@@ -422,10 +448,7 @@ describe('Subscriptions API', () => {
         expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
 
         // clean up
-        await deleteSubscription(
-          res.body.data.subscribe.subscriptions[0].id,
-          user.id
-        )
+        await deleteSubscription(res.body.data.subscribe.subscriptions[0].id)
       })
     })
   })

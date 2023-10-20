@@ -205,15 +205,8 @@ export const createSubscription = async (
   })
 }
 
-export const deleteSubscription = async (
-  id: string,
-  userId: string
-): Promise<DeleteResult> => {
-  return authTrx(
-    (tx) => tx.getRepository(Subscription).delete(id),
-    undefined,
-    userId
-  )
+export const deleteSubscription = async (id: string): Promise<DeleteResult> => {
+  return getRepository(Subscription).delete(id)
 }
 
 export const createRssSubscriptions = async (

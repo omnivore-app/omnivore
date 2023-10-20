@@ -2058,9 +2058,8 @@ enum SubscribeErrorCode {
 }
 
 input SubscribeInput {
-  name: String
   subscriptionType: SubscriptionType
-  url: String
+  url: String!
 }
 
 union SubscribeResult = SubscribeError | SubscribeSuccess
