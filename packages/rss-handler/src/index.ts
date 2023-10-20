@@ -241,9 +241,9 @@ const getLink = (links: RssFeedItemLink[]) => {
 }
 
 const processSubscription = async (
-  feedUrl: string,
-  userId: string,
   subscriptionId: string,
+  userId: string,
+  feedUrl: string,
   fetchResult: { content: string; checksum: string },
   lastFetchedAt: number,
   scheduledAt: number,
