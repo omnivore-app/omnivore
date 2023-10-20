@@ -8,10 +8,12 @@ import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 interface RssFeedRequest {
-  subscriptionId: string
+  subscriptionIds: string[]
   feedUrl: string
-  lastFetchedAt: number // unix timestamp in milliseconds
-  lastFetchedChecksum: string | undefined
+  lastFetchedTimestamps: number[] // unix timestamp in milliseconds
+  scheduledTimestamps: number[] // unix timestamp in milliseconds
+  lastFetchedChecksums: string[]
+  userIds: string[]
 }
 
 // link can be a string or an object
@@ -19,7 +21,12 @@ type RssFeedItemLink = string | { $: { rel?: string; href: string } }
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
-    'subscriptionId' in body && 'feedUrl' in body && 'lastFetchedAt' in body
+    'subscriptionIds' in body &&
+    'feedUrl' in body &&
+    'lastFetchedTimestamps' in body &&
+    'scheduledTimestamps' in body &&
+    'userIds' in body &&
+    'lastFetchedChecksums' in body
   )
 }
 
@@ -53,7 +60,8 @@ const sendUpdateSubscriptionMutation = async (
   userId: string,
   subscriptionId: string,
   lastFetchedAt: Date,
-  lastFetchedChecksum: string
+  lastFetchedChecksum: string,
+  scheduledAt: Date
 ) => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
@@ -81,6 +89,7 @@ const sendUpdateSubscriptionMutation = async (
         id: subscriptionId,
         lastFetchedAt,
         lastFetchedChecksum,
+        scheduledAt,
       },
     },
   })
@@ -155,9 +164,55 @@ const parser = new Parser({
       'updated',
       'created',
     ],
-    feed: ['dc:date', 'lastBuildDate', 'pubDate'],
+    feed: [
+      'dc:date',
+      'lastBuildDate',
+      'pubDate',
+      'syn:updatePeriod',
+      'syn:updateFrequency',
+      'sy:updatePeriod',
+      'sy:updateFrequency',
+    ],
   },
 })
+
+const getUpdateFrequency = (feed: any) => {
+  const updateFrequency = (feed['syn:updateFrequency'] ||
+    feed['sy:updateFrequency']) as string | undefined
+
+  if (!updateFrequency) {
+    return 1
+  }
+
+  const frequency = parseInt(updateFrequency, 10)
+  if (isNaN(frequency)) {
+    return 1
+  }
+
+  return frequency
+}
+
+const getUpdatePeriodInHours = (feed: any) => {
+  const updatePeriod = (feed['syn:updatePeriod'] || feed['sy:updatePeriod']) as
+    | string
+    | undefined
+
+  switch (updatePeriod) {
+    case 'hourly':
+      return 1
+    case 'daily':
+      return 24
+    case 'weekly':
+      return 7 * 24
+    case 'monthly':
+      return 30 * 24
+    case 'yearly':
+      return 365 * 24
+    default:
+      // default to hourly
+      return 1
+  }
+}
 
 // get link following the order of preference: via, alternate, self
 const getLink = (links: RssFeedItemLink[]) => {
@@ -185,161 +240,175 @@ const getLink = (links: RssFeedItemLink[]) => {
   return sortedLinks.find((link) => !!link)
 }
 
-export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
-  async (req, res) => {
-    if (!process.env.JWT_SECRET) {
-      console.error('Missing JWT_SECRET in environment')
-      return res.status(500).send('INTERNAL_SERVER_ERROR')
+const processSubscription = async (
+  feedUrl: string,
+  userId: string,
+  subscriptionId: string,
+  fetchResult: { content: string; checksum: string },
+  lastFetchedAt: number,
+  scheduledAt: number,
+  lastFetchedChecksum: string
+) => {
+  let lastItemFetchedAt: Date | null = null
+  let lastValidItem: Item | null = null
+
+  if (fetchResult.checksum === lastFetchedChecksum) {
+    console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
+    return
+  }
+  const updatedLastFetchedChecksum = fetchResult.checksum
+
+  // fetch feed
+  let itemCount = 0
+  const feed = await parser.parseString(fetchResult.content)
+  console.log('Fetched feed', feed.title, new Date())
+
+  const feedPubDate = (feed['dc:date'] ||
+    feed.pubDate ||
+    feed.lastBuildDate) as string | undefined
+  console.log('Feed pub date', feedPubDate)
+  if (feedPubDate && new Date(feedPubDate) < new Date(lastFetchedAt)) {
+    console.log('Skipping old feed', feedPubDate)
+    return
+  }
+
+  // save each item in the feed
+  for (const item of feed.items) {
+    // use published or updated if isoDate is not available for atom feeds
+    item.isoDate =
+      item.isoDate ||
+      (item.published as string) ||
+      (item.updated as string) ||
+      (item.created as string)
+    console.log('Processing feed item', item.links, item.isoDate)
+
+    if (!item.links || item.links.length === 0) {
+      console.log('Invalid feed item', item)
+      continue
     }
 
-    const token = req.header('Omnivore-Authorization')
-    if (!token) {
-      console.error('Missing authorization header')
-      return res.status(401).send('UNAUTHORIZED')
+    item.link = getLink(item.links as RssFeedItemLink[])
+    if (!item.link) {
+      console.log('Invalid feed item links', item.links)
+      continue
+    }
+
+    console.log('Fetching feed item', item.link)
+
+    const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
+    // remember the last valid item
+    if (
+      !lastValidItem ||
+      (lastValidItem.isoDate && publishedAt > new Date(lastValidItem.isoDate))
+    ) {
+      lastValidItem = item
+    }
+
+    // Max limit per-feed update
+    if (itemCount > 99) {
+      continue
+    }
+
+    // skip old items and items that were published before 24h
+    if (
+      publishedAt < new Date(lastFetchedAt) ||
+      publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
+    ) {
+      console.log('Skipping old feed item', item.link)
+      continue
+    }
+
+    const created = await createSavingItemTask(userId, feedUrl, item)
+    if (!created) {
+      console.error('Failed to create task for feed item', item.link)
+      continue
+    }
+
+    // remember the last item fetched at
+    if (!lastItemFetchedAt || publishedAt > lastItemFetchedAt) {
+      lastItemFetchedAt = publishedAt
+    }
+
+    itemCount = itemCount + 1
+  }
+
+  // no items saved
+  if (!lastItemFetchedAt) {
+    // the feed has been fetched before, no new valid items found
+    if (lastFetchedAt || !lastValidItem) {
+      console.log('No new valid items found')
+      return
+    }
+
+    // the feed has never been fetched, save at least the last valid item
+    const created = await createSavingItemTask(userId, feedUrl, lastValidItem)
+    if (!created) {
+      console.error('Failed to create task for feed item', lastValidItem.link)
+      throw new Error('Failed to create task for feed item')
+    }
+
+    lastItemFetchedAt = lastValidItem.isoDate
+      ? new Date(lastValidItem.isoDate)
+      : new Date()
+  }
+
+  const updateFrequency = getUpdateFrequency(feed)
+  const updatePeriodInMs = getUpdatePeriodInHours(feed) * 60 * 60 * 1000
+  const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
+
+  // update subscription lastFetchedAt
+  const updatedSubscription = await sendUpdateSubscriptionMutation(
+    userId,
+    subscriptionId,
+    lastItemFetchedAt,
+    updatedLastFetchedChecksum,
+    new Date(nextScheduledAt)
+  )
+  console.log('Updated subscription', updatedSubscription)
+}
+
+export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
+  async (req, res) => {
+    if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
+      console.log('query does not include valid token')
+      return res.sendStatus(403)
     }
 
     try {
-      let userId: string
-
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
-          uid: string
-        }
-        userId = decoded.uid
-      } catch (e) {
-        console.error('Authorization error', e)
-        return res.status(401).send('UNAUTHORIZED')
-      }
-
       if (!isRssFeedRequest(req.body)) {
         console.error('Invalid request body', req.body)
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
 
-      const { feedUrl, subscriptionId, lastFetchedAt, lastFetchedChecksum } =
-        req.body
-      console.log('Processing feed', feedUrl, lastFetchedAt)
-
-      let lastItemFetchedAt: Date | null = null
-      let lastValidItem: Item | null = null
+      const {
+        feedUrl,
+        subscriptionIds,
+        lastFetchedTimestamps,
+        scheduledTimestamps,
+        userIds,
+        lastFetchedChecksums,
+      } = req.body
+      console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
-      if (fetchResult.checksum === lastFetchedChecksum) {
-        console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
-        return res.send('ok')
-      }
-      const updatedLastFetchedChecksum = fetchResult.checksum
 
-      // fetch feed
-      let itemCount = 0
-      const feed = await parser.parseString(fetchResult.content)
-      console.log('Fetched feed', feed.title, new Date())
+      for (let i = 0; i < subscriptionIds.length; i++) {
+        const subscriptionId = subscriptionIds[i]
+        const lastFetchedAt = lastFetchedTimestamps[i]
+        const scheduledAt = scheduledTimestamps[i]
+        const userId = userIds[i]
+        const lastFetchedChecksum = lastFetchedChecksums[i]
 
-      const feedPubDate = (feed['dc:date'] ||
-        feed.pubDate ||
-        feed.lastBuildDate) as string | undefined
-      console.log('Feed pub date', feedPubDate)
-      if (feedPubDate && new Date(feedPubDate) < new Date(lastFetchedAt)) {
-        console.log('Skipping old feed', feedPubDate)
-        return res.send('ok')
-      }
-
-      // save each item in the feed
-      for (const item of feed.items) {
-        // use published or updated if isoDate is not available for atom feeds
-        item.isoDate =
-          item.isoDate ||
-          (item.published as string) ||
-          (item.updated as string) ||
-          (item.created as string)
-        console.log('Processing feed item', item.links, item.isoDate)
-
-        if (!item.links || item.links.length === 0) {
-          console.log('Invalid feed item', item)
-          continue
-        }
-
-        item.link = getLink(item.links as RssFeedItemLink[])
-        if (!item.link) {
-          console.log('Invalid feed item links', item.links)
-          continue
-        }
-
-        console.log('Fetching feed item', item.link)
-
-        const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
-        // remember the last valid item
-        if (
-          !lastValidItem ||
-          (lastValidItem.isoDate &&
-            publishedAt > new Date(lastValidItem.isoDate))
-        ) {
-          lastValidItem = item
-        }
-
-        // Max limit per-feed update
-        if (itemCount > 99) {
-          continue
-        }
-
-        // skip old items and items that were published before 24h
-        if (
-          publishedAt < new Date(lastFetchedAt) ||
-          publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
-        ) {
-          console.log('Skipping old feed item', item.link)
-          continue
-        }
-
-        const created = await createSavingItemTask(userId, feedUrl, item)
-        if (!created) {
-          console.error('Failed to create task for feed item', item.link)
-          continue
-        }
-
-        // remember the last item fetched at
-        if (!lastItemFetchedAt || publishedAt > lastItemFetchedAt) {
-          lastItemFetchedAt = publishedAt
-        }
-
-        itemCount = itemCount + 1
-      }
-
-      // no items saved
-      if (!lastItemFetchedAt) {
-        // the feed has been fetched before, no new valid items found
-        if (lastFetchedAt || !lastValidItem) {
-          console.log('No new valid items found')
-          return res.send('ok')
-        }
-
-        // the feed has never been fetched, save at least the last valid item
-        const created = await createSavingItemTask(
+        await processSubscription(
+          subscriptionId,
           userId,
           feedUrl,
-          lastValidItem
+          fetchResult,
+          lastFetchedAt,
+          scheduledAt,
+          lastFetchedChecksum
         )
-        if (!created) {
-          console.error(
-            'Failed to create task for feed item',
-            lastValidItem.link
-          )
-          return res.status(500).send('INTERNAL_SERVER_ERROR')
-        }
-
-        lastItemFetchedAt = lastValidItem.isoDate
-          ? new Date(lastValidItem.isoDate)
-          : new Date()
       }
-
-      // update subscription lastFetchedAt
-      const updatedSubscription = await sendUpdateSubscriptionMutation(
-        userId,
-        subscriptionId,
-        lastItemFetchedAt,
-        updatedLastFetchedChecksum
-      )
-      console.log('Updated subscription', updatedSubscription)
 
       res.send('ok')
     } catch (e) {

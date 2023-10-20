@@ -67,4 +67,7 @@ export class Subscription {
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt!: Date
+
+  @Column('timestamp', { nullable: true })
+  scheduledAt?: Date | null
 }

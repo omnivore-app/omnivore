@@ -1,5 +1,6 @@
 import chai, { expect } from 'chai'
 import 'mocha'
+import Parser from 'rss-parser'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
@@ -9,13 +10,13 @@ import {
   SubscriptionStatus,
   SubscriptionType,
 } from '../../src/generated/graphql'
-import {
-  createSubscription,
-  unsubscribe,
-  UNSUBSCRIBE_EMAIL_TEXT
-} from '../../src/services/subscriptions'
 import { getRepository } from '../../src/repository'
 import { createNewsletterEmail } from '../../src/services/newsletters'
+import {
+  createSubscription,
+  deleteSubscription,
+  UNSUBSCRIBE_EMAIL_TEXT,
+} from '../../src/services/subscriptions'
 import { deleteUser } from '../../src/services/user'
 import * as sendEmail from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
@@ -345,6 +346,110 @@ describe('Subscriptions API', () => {
 
       // clean up
       await getRepository(Subscription).remove(subscription)
+    })
+  })
+
+  describe('Subscribe API', () => {
+    const query = `
+      mutation Subscribe($input: SubscribeInput!){
+        subscribe(input: $input) {
+          ... on SubscribeSuccess {
+            subscriptions {
+              id
+            }
+          }
+          ... on SubscribeError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    context('when subscribing to a rss feed', () => {
+      const url = 'https://www.omnivore.app/rss'
+      const subscriptionType = SubscriptionType.Rss
+
+      before(async () => {
+        // fake rss parser
+        sinon.replace(Parser.prototype, 'parseURL', sinon.fake.resolves({
+          title: 'RSS Feed',
+          description: 'RSS Feed Description',
+        }))
+      })
+
+      after(() => {
+        sinon.restore()
+      })
+
+      context('when the user is subscribed to the feed', () => {
+        let existingSubscription: Subscription
+
+        before(async () => {
+          existingSubscription = await createSubscription(
+            user.id,
+            'RSS Feed',
+            undefined,
+            SubscriptionStatus.Active,
+            url,
+            subscriptionType,
+            url
+          )
+        })
+
+        after(async () => {
+          await deleteSubscription(existingSubscription.id)
+        })
+
+        it('returns an error', async () => {
+          const res = await graphqlRequest(query, authToken, {
+            input: { url, subscriptionType },
+          }).expect(200)
+          expect(res.body.data.subscribe.errorCodes).to.eql([
+            'ALREADY_SUBSCRIBED',
+          ])
+        })
+      })
+
+      context('when the user unsubscribed the feed', () => {
+        let existingSubscription: Subscription
+
+        before(async () => {
+          existingSubscription = await createSubscription(
+            user.id,
+            'RSS Feed',
+            undefined,
+            SubscriptionStatus.Unsubscribed,
+            url,
+            subscriptionType,
+            url
+          )
+        })
+
+        after(async () => {
+          await deleteSubscription(existingSubscription.id)
+        })
+
+        it('re-subscribes the user', async () => {
+          const res = await graphqlRequest(query, authToken, {
+            input: { url, subscriptionType },
+          }).expect(200)
+          expect(res.body.data.subscribe.subscriptions).to.have.lengthOf(1)
+          expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
+        })
+      })
+
+      it('creates a rss subscription', async () => {
+        const res = await graphqlRequest(
+          query,
+          authToken,
+          { input: { url, subscriptionType } },
+        ).expect(200)
+        expect(res.body.data.subscribe.subscriptions).to.have.lengthOf(1)
+        expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
+
+        // clean up
+        await deleteSubscription(res.body.data.subscribe.subscriptions[0].id)
+      })
     })
   })
 })

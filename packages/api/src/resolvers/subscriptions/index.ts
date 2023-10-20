@@ -175,25 +175,8 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { authTrx, uid, log }) => {
-  log.info('subscribeResolver')
-
+>(async (_, { input }, { uid, log }) => {
   try {
-    // find existing subscription
-    const subscription = await authTrx((t) =>
-      t.getRepository(Subscription).findOneBy({
-        url: input.url || undefined,
-        name: input.name || undefined,
-        user: { id: uid },
-        type: input.subscriptionType || SubscriptionType.Rss, // default to rss
-      })
-    )
-    if (subscription) {
-      return {
-        errorCodes: [SubscribeErrorCode.AlreadySubscribed],
-      }
-    }
-
     analytics.track({
       userId: uid,
       event: 'subscribed',
@@ -203,49 +186,83 @@ export const subscribeResolver = authorized<
       },
     })
 
-    // create new rss subscription
-    if (input.url) {
-      const MAX_RSS_SUBSCRIPTIONS = 150
-      // validate rss feed
-      const feed = await parser.parseURL(input.url)
-
-      // limit number of rss subscriptions to 50
-      const newSubscriptions = (await authTrx((t) =>
-        t.query(
-          `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
-        select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
-        where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-        having count(*) < $7 
-        returning *;`,
-          [
-            feed.title,
-            input.url,
-            feed.description || null,
-            SubscriptionType.Rss,
-            uid,
-            feed.image?.url || null,
-            MAX_RSS_SUBSCRIPTIONS,
-          ]
-        )
-      )) as Subscription[]
-
-      if (newSubscriptions.length === 0) {
+    // find existing subscription
+    const existingSubscription = await getRepository(Subscription).findOneBy({
+      url: input.url,
+      user: { id: uid },
+      type: SubscriptionType.Rss,
+    })
+    if (existingSubscription) {
+      if (existingSubscription.status === SubscriptionStatus.Active) {
         return {
-          errorCodes: [SubscribeErrorCode.ExceededMaxSubscriptions],
+          errorCodes: [SubscribeErrorCode.AlreadySubscribed],
         }
       }
 
-      // create a cloud task to fetch rss feed item for the new subscription
-      await enqueueRssFeedFetch(uid, newSubscriptions[0])
+      // re-subscribe
+      const updatedSubscription = await getRepository(Subscription).save({
+        ...existingSubscription,
+        status: SubscriptionStatus.Active,
+      })
+
+      // create a cloud task to fetch rss feed item for resub subscription
+      await enqueueRssFeedFetch({
+        userIds: [uid],
+        url: input.url,
+        subscriptionIds: [updatedSubscription.id],
+        scheduledDates: [new Date()], // fetch immediately
+        fetchedDates: [updatedSubscription.lastFetchedAt || null],
+        checksums: [updatedSubscription.lastFetchedChecksum || null],
+      })
 
       return {
-        subscriptions: newSubscriptions,
+        subscriptions: [updatedSubscription],
       }
     }
 
-    log.info('missing url or name')
+    // create new rss subscription
+    const MAX_RSS_SUBSCRIPTIONS = 150
+    // validate rss feed
+    const feed = await parser.parseURL(input.url)
+
+    // limit number of rss subscriptions to 150
+    const results = (await getRepository(Subscription).query(
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
+          select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
+          where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
+          having count(*) < $7 
+          returning *;`,
+      [
+        feed.title,
+        input.url,
+        feed.description || null,
+        SubscriptionType.Rss,
+        uid,
+        feed.image?.url || null,
+        MAX_RSS_SUBSCRIPTIONS,
+      ]
+    )) as Subscription[]
+
+    if (results.length === 0) {
+      return {
+        errorCodes: [SubscribeErrorCode.ExceededMaxSubscriptions],
+      }
+    }
+
+    const newSubscription = results[0]
+
+    // create a cloud task to fetch rss feed item for the new subscription
+    await enqueueRssFeedFetch({
+      userIds: [uid],
+      url: input.url,
+      subscriptionIds: [newSubscription.id],
+      scheduledDates: [new Date()], // fetch immediately
+      fetchedDates: [null],
+      checksums: [null],
+    })
+
     return {
-      errorCodes: [SubscribeErrorCode.BadRequest],
+      subscriptions: [newSubscription],
     }
   } catch (error) {
     log.error('failed to subscribe', error)
@@ -292,6 +309,9 @@ export const updateSubscriptionResolver = authorized<
           : undefined,
         lastFetchedChecksum: input.lastFetchedChecksum || undefined,
         status: input.status || undefined,
+        scheduledAt: input.scheduledAt
+          ? new Date(input.scheduledAt)
+          : undefined,
       })
 
       return repo.findOneByOrFail({
