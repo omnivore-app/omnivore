@@ -42,9 +42,7 @@ export const saveUrlFromEmail = async (
   clientRequestId: string,
   userId: string
 ): Promise<boolean> => {
-  const user = await userRepository.findOneBy({
-    id: userId,
-  })
+  const user = await userRepository.findById(userId)
   if (!user) {
     return false
   }

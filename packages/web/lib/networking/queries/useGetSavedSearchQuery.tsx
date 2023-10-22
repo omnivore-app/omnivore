@@ -7,6 +7,7 @@ import {
 } from '../fragments/savedSearchFragment'
 
 type SavedSearchResponse = {
+  error: any
   savedSearches?: SavedSearch[]
   savedSearchErrors?: unknown
   isLoading: boolean
@@ -39,6 +40,7 @@ export function useGetSavedSearchQuery(): SavedSearchResponse {
     const { filters } = data as SavedSearchResponseData
 
     return {
+      error,
       savedSearches: filters?.filters ?? [],
       savedSearchErrors: error ?? {},
       isLoading: false,
@@ -46,6 +48,7 @@ export function useGetSavedSearchQuery(): SavedSearchResponse {
   }
 
   return {
+    error,
     savedSearches: [],
     savedSearchErrors: null,
     isLoading: !error && !data,

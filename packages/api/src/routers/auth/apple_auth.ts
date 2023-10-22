@@ -15,6 +15,7 @@ import {
   suggestedUsername,
 } from './jwt_helpers'
 import { analytics } from '../../utils/analytics'
+import { StatusType } from '../../entity/user'
 
 const appleBaseURL = 'https://appleid.apple.com'
 const audienceName = 'app.omnivore.app'
@@ -122,6 +123,7 @@ export async function handleAppleWebAuth(
     const user = await userRepository.findOneBy({
       sourceUserId: decodedTokenResult.sourceUserId,
       source: 'APPLE',
+      status: StatusType.Active,
     })
     const userId = user?.id
 

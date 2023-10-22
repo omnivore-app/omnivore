@@ -14,7 +14,7 @@ interface Page {
   lines: string[]
 }
 
-// Unused at the moment -- comented out for now to satisfy linter
+// Unused at the moment -- commented out for now to satisfy linter
 const MAX_TITLE_LENGTH = 95
 
 type MetadataInfoKey =

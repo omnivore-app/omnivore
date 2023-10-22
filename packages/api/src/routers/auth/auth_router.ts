@@ -46,6 +46,7 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import rateLimit from 'express-rate-limit'
 
 export interface SignupRequest {
   email: string
@@ -80,6 +81,15 @@ export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
   )
 }
 
+// The hourly limiter is used on the create account,
+// and reset password endpoints
+// this limits users to five operations per an hour
+const hourlyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  skip: (req) => env.dev.isLocal,
+})
+
 export function authRouter() {
   const router = express.Router()
 
@@ -108,6 +118,7 @@ export function authRouter() {
   )
   router.post(
     '/create-account',
+    hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const { name, bio, username } = req.body
@@ -421,7 +432,7 @@ export function authRouter() {
       const { email, password } = req.body
       try {
         const user = await userRepository.findByEmail(email.trim())
-        if (!user?.id) {
+        if (!user || user.status === StatusType.Deleted) {
           return res.redirect(
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
@@ -480,6 +491,7 @@ export function authRouter() {
 
   router.post(
     '/email-signup',
+    hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       if (!isValidSignupRequest(req.body)) {
@@ -599,6 +611,7 @@ export function authRouter() {
 
   router.post(
     '/forgot-password',
+    hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const email = req.body.email?.trim() as string // trim whitespace
@@ -610,7 +623,7 @@ export function authRouter() {
 
       try {
         const user = await userRepository.findByEmail(email)
-        if (!user) {
+        if (!user || user.status === StatusType.Deleted) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 

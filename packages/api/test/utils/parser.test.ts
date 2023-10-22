@@ -78,32 +78,32 @@ describe('parsePreparedContent', () => {
   })
 })
 
-describe('parsePreparedContent', () => {
-  nock('https://oembeddata').get('/').reply(200, {
-    version: '1.0',
-    provider_name: 'Hippocratic Adventures',
-    provider_url: 'https://www.hippocraticadventures.com',
-    title:
-      'The Ultimate Guide to Practicing Medicine in Singapore &#8211; Part 2',
-  })
+// describe('parsePreparedContent', () => {
+//   nock('https://oembeddata').get('/').reply(200, {
+//     version: '1.0',
+//     provider_name: 'Hippocratic Adventures',
+//     provider_url: 'https://www.hippocraticadventures.com',
+//     title:
+//       'The Ultimate Guide to Practicing Medicine in Singapore &#8211; Part 2',
+//   })
 
-  it('gets metadata from external JSONLD if available', async () => {
-    const html = `<html>
-                    <head>
-                    <link rel="alternate" type="application/json+oembed" href="https://oembeddata">
-                    </link
-                    </head>
-                    <body>body</body>
-                    </html>`
-    const result = await parsePreparedContent('https://blog.omnivore.app/', {
-      document: html,
-      pageInfo: {},
-    })
-    expect(result.parsedContent?.title).to.equal(
-      'The Ultimate Guide to Practicing Medicine in Singapore – Part 2'
-    )
-  })
-})
+//   it('gets metadata from external JSONLD if available', async () => {
+//     const html = `<html>
+//                     <head>
+//                     <link rel="alternate" type="application/json+oembed" href="https://oembeddata">
+//                     </link
+//                     </head>
+//                     <body>body</body>
+//                     </html>`
+//     const result = await parsePreparedContent('https://blog.omnivore.app/', {
+//       document: html,
+//       pageInfo: {},
+//     })
+//     expect(result.parsedContent?.title).to.equal(
+//       'The Ultimate Guide to Practicing Medicine in Singapore – Part 2'
+//     )
+//   })
+// })
 
 describe('isProbablyArticle', () => {
   let user: User

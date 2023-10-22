@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { DeepPartial, DeleteResult } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { NewsletterEmail } from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
@@ -189,7 +190,8 @@ export const createSubscription = async (
   newsletterEmail?: NewsletterEmail,
   status = SubscriptionStatus.Active,
   unsubscribeMailTo?: string,
-  subscriptionType = SubscriptionType.Newsletter
+  subscriptionType = SubscriptionType.Newsletter,
+  url?: string
 ): Promise<Subscription> => {
   return getRepository(Subscription).save({
     user: { id: userId },
@@ -199,5 +201,16 @@ export const createSubscription = async (
     unsubscribeMailTo,
     lastFetchedAt: new Date(),
     type: subscriptionType,
+    url,
   })
+}
+
+export const deleteSubscription = async (id: string): Promise<DeleteResult> => {
+  return getRepository(Subscription).delete(id)
+}
+
+export const createRssSubscriptions = async (
+  subscriptions: DeepPartial<Subscription>[]
+) => {
+  return getRepository(Subscription).save(subscriptions)
 }

@@ -39,7 +39,7 @@ export function userRouter() {
       return
     }
     try {
-      const user = await userRepository.findOneBy({ id: claims.uid })
+      const user = await userRepository.findById(claims.uid)
       if (!user) {
         res.status(400).send('Bad Request')
         return

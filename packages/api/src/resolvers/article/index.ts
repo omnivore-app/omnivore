@@ -62,11 +62,11 @@ import {
 } from '../../services/labels'
 import {
   createLibraryItem,
-  findLibraryItemById,
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
   updateLibraryItem,
+  updateLibraryItemReadingProgress,
   updateLibraryItems,
 } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
@@ -98,10 +98,7 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
-import {
-  getStorageFileDetails,
-  makeStorageFilePublic,
-} from '../../utils/uploads'
+import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
 export enum ArticleFormat {
@@ -310,7 +307,6 @@ export const createArticleResolver = authorized<
             pubsub
           )
         }
-        await makeStorageFilePublic(uploadFileData.id, uploadFileData.fileName)
       }
 
       let libraryItemToReturn: LibraryItem
@@ -572,14 +568,8 @@ export const saveArticleReadingProgressResolver = authorized<
         readingProgressTopPercent,
       },
     },
-    { uid, pubsub }
+    { log, pubsub, uid }
   ) => {
-    const libraryItem = await findLibraryItemById(id, uid)
-
-    if (!libraryItem) {
-      return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
-    }
-
     if (
       readingProgressPercent < 0 ||
       readingProgressPercent > 100 ||
@@ -590,40 +580,26 @@ export const saveArticleReadingProgressResolver = authorized<
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
-    // If we have a top percent, we only save it if it's greater than the current top percent
-    // or set to zero if the top percent is zero.
-    const readingProgressTopPercentToSave = readingProgressTopPercent
-      ? Math.max(
-          readingProgressTopPercent,
-          libraryItem.readingProgressTopPercent || 0
-        )
-      : readingProgressTopPercent === 0
-      ? 0
-      : undefined
-    // If setting to zero we accept the update, otherwise we require it
-    // be greater than the current reading progress.
-    const updatedPart: QueryDeepPartialEntity<LibraryItem> = {
-      readingProgressBottomPercent:
-        readingProgressPercent === 0
-          ? 0
-          : Math.max(
-              readingProgressPercent,
-              libraryItem.readingProgressBottomPercent
-            ),
-      readingProgressHighestReadAnchor:
-        readingProgressAnchorIndex === 0
-          ? 0
-          : Math.max(
-              readingProgressAnchorIndex || 0,
-              libraryItem.readingProgressHighestReadAnchor
-            ),
-      readingProgressTopPercent: readingProgressTopPercentToSave,
-      readAt: new Date(),
-    }
-    const updatedItem = await updateLibraryItem(id, updatedPart, uid, pubsub)
+    try {
+      const updatedItem = await updateLibraryItemReadingProgress(
+        id,
+        uid,
+        readingProgressPercent,
+        readingProgressTopPercent,
+        readingProgressAnchorIndex,
+        pubsub
+      )
+      if (!updatedItem) {
+        return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
+      }
 
-    return {
-      updatedArticle: libraryItemToArticle(updatedItem),
+      return {
+        updatedArticle: libraryItemToArticle(updatedItem),
+      }
+    } catch (error) {
+      log.error('saveArticleReadingProgressResolver error', error)
+
+      return { errorCodes: [SaveArticleReadingProgressErrorCode.Unauthorized] }
     }
   }
 )

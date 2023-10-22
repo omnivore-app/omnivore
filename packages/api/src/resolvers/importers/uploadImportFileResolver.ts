@@ -16,7 +16,7 @@ import {
   generateUploadSignedUrl,
 } from '../../utils/uploads'
 
-const MAX_DAILY_UPLOADS = 4
+const MAX_DAILY_UPLOADS = 1
 const VALID_CONTENT_TYPES = ['text/csv', 'application/zip']
 
 const extensionForContentType = (contentType: string) => {
@@ -33,14 +33,14 @@ export const uploadImportFileResolver = authorized<
   UploadImportFileSuccess,
   UploadImportFileError,
   MutationUploadImportFileArgs
->(async (_, { type, contentType }, { claims: { uid }, log }) => {
+>(async (_, { type, contentType }, { uid }) => {
   if (!VALID_CONTENT_TYPES.includes(contentType)) {
     return {
       errorCodes: [UploadImportFileErrorCode.BadRequest],
     }
   }
 
-  const user = await userRepository.findOneBy({ id: uid })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return {
       errorCodes: [UploadImportFileErrorCode.Unauthorized],
@@ -61,7 +61,7 @@ export const uploadImportFileResolver = authorized<
   const dirPath = `imports/${uid}/${dateStr}/`
   const fileCount = await countOfFilesWithPrefix(dirPath)
 
-  if (fileCount > MAX_DAILY_UPLOADS) {
+  if (fileCount >= MAX_DAILY_UPLOADS) {
     return {
       errorCodes: [UploadImportFileErrorCode.UploadDailyLimitExceeded],
     }

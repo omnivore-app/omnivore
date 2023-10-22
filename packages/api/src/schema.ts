@@ -2538,8 +2538,7 @@ const schema = gql`
   }
 
   input SubscribeInput {
-    url: String
-    name: String
+    url: String!
     subscriptionType: SubscriptionType
   }
 
@@ -2548,7 +2547,9 @@ const schema = gql`
     name: String
     description: String
     lastFetchedAt: Date
+    lastFetchedChecksum: String
     status: SubscriptionStatus
+    scheduledAt: Date
   }
 
   union UpdateSubscriptionResult =

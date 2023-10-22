@@ -272,7 +272,7 @@ const sendSavePageMutation = async (userId, input) => {
           }
     }`,
     variables: {
-      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
+      input,
     },
   });
 
@@ -289,6 +289,10 @@ const sendSavePageMutation = async (userId, input) => {
 
     if (response.data.data.savePage.errorCodes && response.data.data.savePage.errorCodes.length > 0) {
       console.error('error while saving page', response.data.data.savePage.errorCodes[0]);
+      if (response.data.data.savePage.errorCodes[0] === 'UNAUTHORIZED') {
+        return { error: 'UNAUTHORIZED' };
+      }
+
       return null;
     }
 
@@ -337,7 +341,7 @@ async function fetchContent(req, res) {
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
   const state = req.body.state
   const labels = req.body.labels
-  const source = req.body.source || 'parseContent';
+  const source = req.body.source || 'puppeteer-parse';
   const taskId = req.body.taskId; // taskId is used to update import status
   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
   const locale = (req.query ? req.query.locale : undefined) || (req.body ? req.body.locale : undefined);
@@ -469,10 +473,14 @@ async function fetchContent(req, res) {
         rssFeedUrl,
         savedAt,
         publishedAt,
+        source,
       });
       if (!apiResponse) {
         logRecord.error = 'error while saving page';
         statusCode = 500;
+      } else if (apiResponse.error === 'UNAUTHORIZED') {
+        console.info('user is deleted, do not retry', logRecord);
+        return res.sendStatus(200);
       } else {
         importStatus = readabilityResult ? 'imported' : 'failed';
       }

@@ -17,15 +17,14 @@ export const stopApolloServer = async () => {
 
 export const graphqlRequest = (
   query: string,
-  authToken?: string
+  authToken: string,
+  variables?: Record<string, unknown>,
 ): supertest.Test => {
   return request
     .post(apollo.graphqlPath)
-    .send({
-      query,
-    })
+    .send({ query, variables })
     .set('Accept', 'application/json')
-    .set('authorization', authToken || '')
+    .set('authorization', authToken)
     .expect('Content-Type', /json/)
 }
 

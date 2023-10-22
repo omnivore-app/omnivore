@@ -3,6 +3,7 @@
 package app.omnivore.omnivore.ui.components
 
 import LabelChip
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -219,12 +220,12 @@ class LabelChipView(label: SavedItemLabel) : Chip(label.name) {
   val label = label
 }
 
-fun findOrCreateLabel(labelsViewModel: LabelsViewModel, labels: List<SavedItemLabel>, name: TextFieldValue): SavedItemLabel {
-  val found = labels.find { it.name == name.text }
+fun findOrCreateLabel(labelsViewModel: LabelsViewModel, labels: List<SavedItemLabel>, name: String): SavedItemLabel {
+  val found = labels.find { it.name == name }
   if (found != null) {
     return found
   }
-  return labelsViewModel.createNewSavedItemLabelWithTemp(name.text, LabelSwatchHelper.random())
+  return labelsViewModel.createNewSavedItemLabelWithTemp(name, LabelSwatchHelper.random())
 }
 
 @Composable
@@ -308,7 +309,7 @@ fun LabelsSelectionSheetContent(
               LabelChipView(it)
             } ?: null
           } else {
-            LabelChipView(findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = it))
+            LabelChipView(findOrCreateLabel(labelsViewModel = labelsViewModel, labels = labels, name = it.text))
           }
         },
         chipLeadingIcon = { chip -> CircleIcon(colorHex = chip.label.color) },
@@ -341,19 +342,34 @@ fun LabelsSelectionSheetContent(
       )
 
       if (!isLibraryMode && filterTextValue.text.isNotEmpty() && currentLabel == null) {
+        val context = LocalContext.current
         Row(
           horizontalArrangement = Arrangement.Start,
           verticalAlignment = Alignment.CenterVertically,
           modifier = Modifier
             .fillMaxWidth()
             .clickable {
-              val label = findOrCreateLabel(
-                labelsViewModel = labelsViewModel,
-                labels = labels,
-                name = filterTextValue
-              )
-              state.addChip(LabelChipView(label))
-              filterTextValue = TextFieldValue()
+              val labelName = filterTextValue.text.trim()
+              when(labelsViewModel.validateLabelName(labelName)) {
+                LabelsViewModel.Error.LabelNameTooLong -> {
+                  Toast.makeText(
+                    context,
+                    context.getString(R.string.label_selection_sheet_label_too_long_error_msg,
+                      labelsViewModel.labelNameMaxLength),
+                    Toast.LENGTH_SHORT
+                  ).show()
+                }
+                null -> {
+                  val label = findOrCreateLabel(
+                    labelsViewModel = labelsViewModel,
+                    labels = labels,
+                    name = labelName
+                  )
+
+                  state.addChip(LabelChipView(label))
+                  filterTextValue = TextFieldValue()
+                }
+              }
             }
             .padding(horizontal = 10.dp)
             .padding(top = 10.dp, bottom = 5.dp)
@@ -364,7 +380,7 @@ fun LabelsSelectionSheetContent(
             contentDescription = null,
             modifier = Modifier.padding(end = 8.dp)
           )
-          Text(text = stringResource(R.string.label_selection_sheet_text_create, filterTextValue.text))
+          Text(text = stringResource(R.string.label_selection_sheet_text_create, filterTextValue.text.trim()))
         }
       }
 
