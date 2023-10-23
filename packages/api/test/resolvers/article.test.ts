@@ -1741,18 +1741,56 @@ describe('Article API', () => {
       })
     })
 
-    context('when action is Archive', () => {
-      it('archives all items', async () => {
-        const res = await graphqlRequest(
-          bulkActionQuery(BulkActionType.Archive),
-          authToken
-        ).expect(200)
-        expect(res.body.data.bulkAction.success).to.be.true
+    context(
+      'when action is Archive and query is published:*..2023-10-01',
+      () => {
+        let items: LibraryItem[] = []
 
-        const items = await graphqlRequest(searchQuery(), authToken).expect(200)
-        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
-      })
-    })
+        before(async () => {
+          items = await createLibraryItems(
+            [
+              {
+                user,
+                title: 'test item',
+                readableContent: '<p>test</p>',
+                slug: 'test-item',
+                originalUrl: `https://blog.omnivore.app/p/bulk-action-archive`,
+                publishedAt: new Date('2023-10-01'),
+              },
+              {
+                user,
+                title: 'test item 2',
+                readableContent: '<p>test</p>',
+                slug: 'test-item-2',
+                originalUrl: `https://blog.omnivore.app/p/bulk-action-archive-2`,
+                publishedAt: new Date('2023-10-02'),
+              },
+            ],
+            user.id
+          )
+        })
+
+        after(async () => {
+          // Delete all items
+          await deleteLibraryItems(items, user.id)
+        })
+
+        it('archives old items', async () => {
+          const res = await graphqlRequest(
+            bulkActionQuery(BulkActionType.Archive, 'published:*..2023-10-01'),
+            authToken
+          ).expect(200)
+          expect(res.body.data.bulkAction.success).to.be.true
+
+          const response = await graphqlRequest(
+            searchQuery('in:archive'),
+            authToken
+          ).expect(200)
+          expect(response.body.data.search.pageInfo.totalCount).to.eql(1)
+          expect(response.body.data.search.edges[0].node.id).to.eql(items[0].id)
+        })
+      }
+    )
 
     context('when action is Delete', () => {
       it('deletes all items', async () => {
