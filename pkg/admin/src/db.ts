@@ -319,7 +319,7 @@ export class LibraryItem extends BaseEntity {
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
 
-  @Column('text')
+  @Column({ type: 'text', name: 'original_url' })
   originalUrl!: string
 
   @Column('text')
@@ -330,12 +330,6 @@ export class LibraryItem extends BaseEntity {
 
   @Column('text', { nullable: true })
   author?: string | null
-
-  @Column('text', { nullable: true })
-  siteName?: string | null
-
-  @Column('text')
-  itemType!: string
 
   @Column('text', { nullable: true })
   subscription?: string | null
