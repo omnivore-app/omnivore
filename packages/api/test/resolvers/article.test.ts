@@ -295,16 +295,18 @@ const setBookmarkQuery = (articleId: string, bookmark: boolean) => {
 const saveArticleReadingProgressQuery = (
   articleId: string,
   progress: number,
-  topPercent: number | null = null
+  topPercent: number | null = null,
+  force: boolean | null = null
 ) => {
   return `
     mutation {
       saveArticleReadingProgress(
         input: {
           id: "${articleId}",
-          readingProgressPercent: ${progress}
-          readingProgressAnchorIndex: 0
-          readingProgressTopPercent: ${topPercent}
+          readingProgressPercent: ${progress},
+          readingProgressAnchorIndex: 0,
+          readingProgressTopPercent: ${topPercent},
+          force: ${force}
         }
       ) {
         ... on SaveArticleReadingProgressSuccess {
@@ -783,6 +785,37 @@ describe('Article API', () => {
       expect(res.body.data.saveArticleReadingProgress.errorCodes).to.eql([
         'BAD_DATA',
       ])
+    })
+
+    context('when force is true', () => {
+      before(async () => {
+        itemId = (await createLibraryItem({
+          user: { id: user.id },
+          originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
+          slug: 'test-with-omnivore',
+          readableContent: '<p>test</p>',
+          title: 'test title',
+          readingProgressBottomPercent: 100,
+          readingProgressTopPercent: 80,
+        }, user.id)).id
+      })
+
+      after(async () => {
+        await deleteLibraryItemById(itemId, user.id)
+      })
+
+      it('ignore position check if force is true', async () => {
+        query = saveArticleReadingProgressQuery(itemId, 20, 10, true)
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(
+          res.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressPercent
+        ).to.eql(20)
+        expect(
+          res.body.data.saveArticleReadingProgress.updatedArticle
+            .readingProgressTopPercent
+        ).to.eql(10)
+      })
     })
   })
 
