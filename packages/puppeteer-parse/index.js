@@ -40,7 +40,7 @@ const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) Apple
 const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
-const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
+const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com', 'fortelabs.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
