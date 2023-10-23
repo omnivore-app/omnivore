@@ -527,7 +527,8 @@ export const createLibraryItems = async (
 export const createLibraryItem = async (
   libraryItem: DeepPartial<LibraryItem>,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ): Promise<LibraryItem> => {
   const newLibraryItem = await authTrx(
     async (tx) =>
@@ -540,6 +541,10 @@ export const createLibraryItem = async (
     undefined,
     userId
   )
+
+  if (skipPubSub) {
+    return newLibraryItem
+  }
 
   await pubsub.entityCreated<DeepPartial<LibraryItem>>(
     EntityType.PAGE,

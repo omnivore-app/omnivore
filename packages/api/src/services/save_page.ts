@@ -7,7 +7,6 @@ import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
-  HighlightType,
   Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
@@ -144,7 +143,12 @@ export const savePage = async (
       )
     } else {
       // do not publish a pubsub event if the item is imported
-      const newItem = await createLibraryItem(itemToSave, user.id)
+      const newItem = await createLibraryItem(
+        itemToSave,
+        user.id,
+        undefined,
+        isImported
+      )
       clientRequestId = newItem.id
     }
 
