@@ -51,6 +51,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       Integration,
       Subscription,
       LibraryItem,
+      UploadFile,
     ],
   })
 
