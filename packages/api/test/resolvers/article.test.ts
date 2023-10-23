@@ -608,12 +608,12 @@ describe('Article API', () => {
       })
     })
 
-    context('when the source is rss-feeder', () => {
+    context('when the source is rss-feeder and url is from youtube.com', () => {
       const source = 'rss-feeder'
       const stub = sinon.stub(createTask, 'enqueueParseRequest')
 
       before(() => {
-        url = 'https://blog.omnivore.app/new-url-3'
+        url = 'https://www.youtube.com/watch?v=123'
       })
 
       after(async () => {
