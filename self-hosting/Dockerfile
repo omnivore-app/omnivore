@@ -3,7 +3,7 @@ FROM node:14.18-alpine as builder
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-RUN apk add g++ make python3
+RUN apk add --no-cache g++ make python3
 
 COPY package.json .
 COPY yarn.lock .
@@ -53,7 +53,7 @@ COPY --from=builder /app/packages/content-handler/ /app/packages/content-handler
 COPY --from=builder /app/packages/db/ /app/packages/db/
 COPY --from=builder /app/selfhost.sh /app/selfhost.sh
 
-RUN apk add postgresql-client
+RUN apk add --no-cache postgresql-client
 RUN chmod 0755 /app/selfhost.sh
 
 EXPOSE 8080
