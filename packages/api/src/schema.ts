@@ -543,8 +543,7 @@ const schema = gql`
     title: String!
     byline: String
     dir: String
-    # max length of 10MB
-    content: String! @sanitize(maxLength: 10485760)
+    content: String!
     textContent: String!
     length: Int!
     excerpt: String!
@@ -560,8 +559,7 @@ const schema = gql`
     source: String!
     clientRequestId: ID!
     title: String
-    # max length of 10MB
-    originalContent: String! @sanitize(maxLength: 10485760)
+    originalContent: String!
     parseResult: ParseResult
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
