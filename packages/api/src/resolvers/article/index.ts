@@ -53,11 +53,9 @@ import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
-  findLabelsByLibraryItemId,
   findOrCreateLabels,
   saveLabelsInLibraryItem,
 } from '../../services/labels'
@@ -70,7 +68,6 @@ import {
   updateLibraryItemReadingProgress,
   updateLibraryItems,
 } from '../../services/library_item'
-import { findRecommendationsByLibraryItemId } from '../../services/recommendation'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
   findUploadFileById,
@@ -84,14 +81,12 @@ import {
   cleanUrl,
   errorHandler,
   generateSlug,
-  isBase64Image,
   isParsingTimeout,
   libraryItemToArticle,
   libraryItemToSearchItem,
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
-import { createImageProxyUrl } from '../../utils/imageproxy'
 import {
   contentConverter,
   getDistillerResult,

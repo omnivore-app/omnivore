@@ -36,6 +36,7 @@ const FORCE_PUPPETEER_URLS = [
   TWEET_URL_REGEX,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
+const ALREADY_PARSED_SOURCES = ['puppeteer-parse', 'csv-importer', 'rss-feeder']
 
 const createSlug = (url: string, title?: Maybe<string> | undefined) => {
   const { pathname } = new URL(url)
@@ -52,7 +53,7 @@ const createSlug = (url: string, title?: Maybe<string> | undefined) => {
 
 const shouldParseInBackend = (input: SavePageInput): boolean => {
   return (
-    input.source !== 'puppeteer-parse' &&
+    ALREADY_PARSED_SOURCES.indexOf(input.source) === -1 &&
     FORCE_PUPPETEER_URLS.some((regex) => regex.test(input.url))
   )
 }
@@ -99,7 +100,7 @@ export const savePage = async (
       await createPageSaveRequest({
         userId: user.id,
         url: itemToSave.originalUrl,
-        articleSavingRequestId: clientRequestId,
+        articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,
         labels: input.labels || undefined,
       })
