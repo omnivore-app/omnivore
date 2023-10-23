@@ -46,6 +46,7 @@ import {
   TypeaheadSearchSuccess,
   UpdateReason,
   UpdatesSinceError,
+  UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { getColumns } from '../../repository'
@@ -702,7 +703,12 @@ export const updatesSinceResolver = authorized<
 
   const startCursor = after || ''
   const size = first || 10
-  const startDate = new Date(since)
+  let startDate = new Date(since)
+  if (isNaN(startDate.getTime())) {
+    // for android app compatibility
+    startDate = new Date(0)
+  }
+
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),

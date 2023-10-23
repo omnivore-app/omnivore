@@ -1670,6 +1670,21 @@ describe('Article API', () => {
         UpdateReason.Deleted
       )
     })
+
+    context('when since is -1000000000-01-01T00:00:00Z from android app', () => {
+      before(() => {
+        since = '-1000000000-01-01T00:00:00Z'
+      })
+
+      it('returns all', async () => {
+        const res = await graphqlRequest(
+          updatesSinceQuery(since),
+          authToken
+        ).expect(200)
+
+        expect(res.body.data.updatesSince.edges.length).to.eql(5)
+      })
+    })
   })
 
   describe('BulkAction API', () => {
