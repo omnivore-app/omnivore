@@ -20,11 +20,11 @@ COPY /packages/db/package.json ./packages/db/package.json
 
 RUN yarn install --pure-lockfile
 
-ADD /packages/readabilityjs ./packages/readabilityjs
-ADD /packages/api ./packages/api
-ADD /packages/text-to-speech ./packages/text-to-speech
-ADD /packages/content-handler ./packages/content-handler
-ADD /packages/db ./packages/db
+COPY /packages/readabilityjs ./packages/readabilityjs
+COPY /packages/api ./packages/api
+COPY /packages/text-to-speech ./packages/text-to-speech
+COPY /packages/content-handler ./packages/content-handler
+COPY /packages/db ./packages/db
 
 RUN yarn workspace @omnivore/text-to-speech-handler build
 RUN yarn workspace @omnivore/content-handler build
