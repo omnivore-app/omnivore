@@ -1,6 +1,7 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
@@ -166,12 +167,9 @@ export const savePage = async (
   }
 
   if (parseResult.highlightData) {
-    const highlight = {
-      updatedAt: new Date(),
-      createdAt: new Date(),
-      userId: user.id,
+    const highlight: DeepPartial<Highlight> = {
       ...parseResult.highlightData,
-      type: HighlightType.Highlight,
+      user: { id: user.id },
     }
 
     if (!(await createHighlight(highlight, clientRequestId, user.id))) {
