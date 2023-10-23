@@ -185,15 +185,17 @@ const savePageQuery = (
   title: string,
   originalContent: string,
   state: ArticleSavingRequestStatus | null = null,
-  labels: string[] | null = null
+  labels: string[] | null = null,
+  clientRequestId = generateFakeUuid(),
+  source = 'puppeteer-parse'
 ) => {
   return `
     mutation {
       savePage(
         input: {
           url: "${url}",
-          source: "test",
-          clientRequestId: "${generateFakeUuid()}",
+          source: "${source}",
+          clientRequestId: "${clientRequestId}",
           title: "${title}",
           originalContent: "${originalContent}"
           state: ${state}
@@ -603,6 +605,29 @@ describe('Article API', () => {
         const savedItem = await findLibraryItemByUrl(url, user.id)
         expect(savedItem?.archivedAt).to.not.be.null
         expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
+      })
+    })
+
+    context('when the source is rss-feeder', () => {
+      const source = 'rss-feeder'
+      const stub = sinon.stub(createTask, 'enqueueParseRequest')
+
+      before(() => {
+        url = 'https://blog.omnivore.app/new-url-3'
+      })
+
+      after(async () => {
+        await deleteLibraryItemByUrl(url, user.id)
+        sinon.restore()
+      })
+
+      it('does not parse in the backend', async () => {
+        await graphqlRequest(
+          savePageQuery(url, title, originalContent, null, null, '', source),
+          authToken
+        ).expect(200)
+
+        expect(stub).not.to.have.been.called
       })
     })
   })
