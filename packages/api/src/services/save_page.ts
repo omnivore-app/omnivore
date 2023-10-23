@@ -174,6 +174,7 @@ export const savePage = async (
     const highlight: DeepPartial<Highlight> = {
       ...parseResult.highlightData,
       user: { id: user.id },
+      libraryItem: { id: clientRequestId },
     }
 
     if (!(await createHighlight(highlight, clientRequestId, user.id))) {
