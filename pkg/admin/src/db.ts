@@ -311,7 +311,7 @@ export class Subscription extends BaseEntity {
 }
 
 @Entity({ name: 'library_item' })
-export class LibraryItem {
+export class LibraryItem extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
