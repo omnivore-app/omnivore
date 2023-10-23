@@ -4,6 +4,7 @@ import chaiString from 'chai-string'
 import 'mocha'
 import sinon from 'sinon'
 import { DeepPartial } from 'typeorm'
+import { Group } from '../../src/entity/groups/group'
 import { Highlight } from '../../src/entity/highlight'
 import { Label } from '../../src/entity/label'
 import { LibraryItem, LibraryItemState } from '../../src/entity/library_item'
@@ -18,6 +19,7 @@ import {
   UploadFileStatus,
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
+import { createGroup, deleteGroup } from '../../src/services/groups'
 import { createHighlight } from '../../src/services/highlights'
 import {
   createLabel,
@@ -152,6 +154,13 @@ const searchQuery = (keyword = '') => {
             updatedAt
             highlights {
               id
+            }
+            labels {
+              id
+              name
+            }
+            recommendations {
+              name
             }
           }
         }
@@ -1455,6 +1464,64 @@ describe('Article API', () => {
         })
       }
     )
+
+    context('when recommendedBy:* is in the query', () => {
+      let items: LibraryItem[] = []
+      let group: Group
+
+      before(async () => {
+        keyword = 'recommendedBy:*'
+
+        group = (
+          await createGroup({
+            admin: user,
+            name: 'test group',
+          })
+        )[0]
+
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+              recommendations: [
+                {
+                  recommender: user,
+                  group,
+                },
+              ],
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+        await deleteGroup(group.id)
+      })
+
+      it('returns recommended items', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+        expect(
+          res.body.data.search.edges[0].node.recommendations[0].name
+        ).to.eq(group.name)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
