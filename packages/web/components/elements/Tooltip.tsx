@@ -53,6 +53,7 @@ export const TooltipContent = StyledContent
 export const TooltipArrow = StyledArrow
 
 type TooltipWrappedProps = {
+  children: React.ReactNode;
   tooltipContent: string;
   active?: boolean;
   tooltipSide?: TooltipPrimitive.TooltipContentProps['side']

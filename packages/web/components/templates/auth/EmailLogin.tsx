@@ -122,7 +122,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           Don&apos;t have an account?{' '}
-          <Link href="/auth/email-signup" passHref>
+          <Link href="/auth/email-signup" passHref legacyBehavior>
             <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
               Sign up
             </StyledTextSpan>
@@ -140,7 +140,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           Forgot your password?{' '}
-          <Link href="/auth/forgot-password" passHref>
+          <Link href="/auth/forgot-password" passHref legacyBehavior>
             <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
               Click here
             </StyledTextSpan>
@@ -148,5 +148,5 @@ export function EmailLogin(): JSX.Element {
         </StyledText>
       </VStack>
     </form>
-  )
+  );
 }

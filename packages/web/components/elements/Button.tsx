@@ -28,11 +28,9 @@ export const Button = styled('button', {
         color: '#3D3D3D',
         bg: '#FFEA9F',
         p: '10px 15px',
-        '&:hover': {
+        '&:hover, &:focus': {
           bg: '$omnivoreCtaYellow',
-        },
-        '&:focus': {
-          border: '1px solid $omnivoreCtaYellow',
+          outline: '1px solid $omnivoreCtaYellow',
         },
       },
       cancelGeneric: {
@@ -45,18 +43,13 @@ export const Button = styled('button', {
         border: '1px solid transparent',
         p: '10px 15px',
         bg: 'transparent',
-        '&:hover': {
+        '&:hover, &:focus': {
           bg: '#EBEBEB',
-        },
-        '&:focus': {
-          outline: 'none !important',
-          border: '1px solid $omnivoreCtaYellow',
+          outline: '1px solid $omnivoreCtaYellow',
         },
       },
       ctaOutlineYellow: {
         boxSizing: 'border-box',
-        '-moz-box-sizing': 'border-box',
-        '-webkit-box-sizing': 'border-box',
         borderColor: 'unset',
         border: '1px solid $omnivoreCtaYellow',
         fontSize: '14px',
@@ -159,7 +152,6 @@ export const Button = styled('button', {
         outlineColor: 'rgba(0, 0, 0, 0)',
         border: '1px solid rgba(0, 0, 0, 0.06)',
         cursor: 'pointer',
-        '&:focus': { outline: 'none' },
       },
       ctaModal: {
         height: '32px',
@@ -172,7 +164,6 @@ export const Button = styled('button', {
         border: '1px solid $grayBorder',
         cursor: 'pointer',
         borderRadius: '8px',
-        '&:focus': { outline: 'none' },
       },
       ctaSecondary: {
         color: '$grayText',
@@ -245,7 +236,6 @@ export const Button = styled('button', {
         '&:hover': {
           opacity: 0.7,
         },
-        '&:focus': { outline: 'none' },
       },
       highlightBarIcon: {
         p: '0px',
@@ -257,7 +247,6 @@ export const Button = styled('button', {
           opacity: 0.5,
         },
 
-        '&:focus': { outline: 'none' },
       },
       articleActionIcon: {
         bg: 'transparent',

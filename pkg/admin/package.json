@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node-dev --files src/index.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test:typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@tsconfig/node14": "^1.0.1",
@@ -50,5 +51,8 @@
   ],
   "exclude": [
     "./src/node_modules"
-  ]
+  ],
+  "volta": {
+    "extends": "../../package.json"
+  }
 }

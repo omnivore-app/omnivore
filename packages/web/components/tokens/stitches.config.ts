@@ -269,7 +269,7 @@ const darkThemeSpec = {
 
     labelButtonsBg: '#5F5E58',
 
-    // New theme, special naming to keep things straigh
+    // New theme, special naming to keep things straight
     // once all switch over, we will rename
     // DARK
     colorScheme: 'dark',

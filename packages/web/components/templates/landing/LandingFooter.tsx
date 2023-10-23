@@ -1,4 +1,4 @@
-import { HStack, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { styled } from '../../tokens/stitches.config'
 import { StyledText } from '../../elements/StyledText'
 
@@ -30,11 +30,29 @@ export function LandingFooter(): JSX.Element {
         textDecoration: 'underline',
       },
     },
+    '@mdDown': {
+      columns: 2,
+      width: '100%',
+      marginTop: "8px",
+      marginBottom: "30px",
+    },
   })
 
   return (
     <HStack css={containerStyles}>
-      <HStack css={{ width: '100%', maxWidth: '1224px' }}>
+      <Box
+        css={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          maxWidth: '1024px',
+          '@md': {
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+          },
+        }}
+      >
         <VStack>
           <StyledText style="aboutFooter">Install</StyledText>
           <FooterList>
@@ -77,7 +95,7 @@ export function LandingFooter(): JSX.Element {
               </a>
             </li>
             <li>
-              <a href="mailto:feedback@omnivore.app">Contact us via email</a>
+              <a href="mailto:feedback@omnivore.app">Contact&nbsp;us via&nbsp;email</a>
             </li>
             <li>
               <a href="https://discord.gg/h2z5rppzz9">
@@ -112,7 +130,7 @@ export function LandingFooter(): JSX.Element {
             </li>
           </FooterList>
         </VStack>
-      </HStack>
+      </Box>
     </HStack>
   )
 }

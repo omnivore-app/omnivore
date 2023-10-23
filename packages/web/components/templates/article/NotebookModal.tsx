@@ -49,7 +49,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     props.onClose(allAnnotations ?? [], deletedHighlights ?? [])
   }, [props, allAnnotations])
 
-  const handleAnnotationsChange = useCallback((allAnnotations) => {
+  const handleAnnotationsChange = useCallback((allAnnotations: Highlight[]) => {
     setAllAnnotations(allAnnotations)
   }, [])
 
@@ -66,7 +66,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
   }, [allAnnotations])
 
   const viewInReader = useCallback(
-    (highlightId) => {
+    (highlightId: string) => {
       props.viewHighlightInReader(highlightId)
       handleClose()
     },

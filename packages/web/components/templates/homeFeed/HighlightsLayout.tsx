@@ -368,7 +368,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
   }, [props.item.node.highlights])
 
   const viewInReader = useCallback(
-    (highlightId) => {
+    (highlightId: string) => {
       if (!router || !router.isReady || !props.viewer) {
         showErrorToast('Error navigating to highlight')
         return

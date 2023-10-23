@@ -11,10 +11,16 @@ on:
     paths-ignore:
       - 'apple/**'
 
+env:
+  NEXT_PUBLIC_APP_ENV: prod
+  NEXT_PUBLIC_BASE_URL: http://localhost:3000
+  NEXT_PUBLIC_SERVER_BASE_URL: http://localhost:4000
+  NEXT_PUBLIC_HIGHLIGHTS_BASE_URL: http://localhost:3000
+
 jobs:
   run-code-tests:
     name: Run Codebase tests
-    runs-on: ubuntu-latest-m
+    runs-on: ${{ github.repository_owner == 'omnivore-app' && 'ubuntu-latest-m' || 'ubuntu-latest' }}
     services:
       postgres:
         image: ankane/pgvector
@@ -71,6 +77,7 @@ jobs:
       - name: TypeScript Build and Lint
         run: |
           source ~/.nvm/nvm.sh
+          env
           yarn build
           yarn lint
       - name: Tests

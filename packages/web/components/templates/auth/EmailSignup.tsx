@@ -206,7 +206,7 @@ export function EmailSignup(): JSX.Element {
           }}
         >
           Already have an account?{' '}
-          <Link href="/auth/email-login" passHref>
+          <Link href="/auth/email-login" passHref legacyBehavior>
             <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
               Login instead
             </StyledTextSpan>
@@ -215,5 +215,5 @@ export function EmailSignup(): JSX.Element {
         <TermAndConditionsFooter />
       </VStack>
     </form>
-  )
+  );
 }

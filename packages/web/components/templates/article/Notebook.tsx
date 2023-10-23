@@ -163,7 +163,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   }, [highlights])
 
   const handleSaveNoteText = useCallback(
-    (text) => {
+    (text: string) => {
       const changeTime = new Date()
 
       setLastChanged(changeTime)

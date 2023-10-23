@@ -10,6 +10,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc && yarn copy-files",
@@ -52,5 +53,8 @@
     "unzip-stream": "^0.3.1",
     "urlsafe-base64": "^1.0.0",
     "uuid": "^9.0.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

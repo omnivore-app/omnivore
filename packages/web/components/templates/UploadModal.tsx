@@ -110,7 +110,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
   const dropzoneRef = useRef<DropzoneRef | null>(null)
 
   const openDialog = useCallback(
-    (event) => {
+    (event: React.MouseEvent) => {
       if (dropzoneRef.current) {
         dropzoneRef.current.open()
       }

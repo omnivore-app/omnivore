@@ -6,16 +6,16 @@
   "workspaces": [
     "packages/*"
   ],
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "scripts": {
-    "test": "lerna run --no-bail test --ignore @omnivore/web",
-    "lint": "lerna run lint --ignore @omnivore/web",
-    "build": "lerna run build --ignore @omnivore/web",
-    "bootstrap": "lerna bootstrap",
+    "test": "lerna run --no-bail test",
+    "lint": "lerna run lint",
+    "build": "lerna run build",
     "test:scoped:example": "lerna run test --scope={@omnivore/pdf-handler,@omnivore/web}",
     "gql-typegen": "graphql-codegen",
     "deploy:web": "vercel --prod"
   },
+  "dependencies": {},
   "devDependencies": {
     "@ardatan/aggregate-error": "^0.0.6",
     "@graphql-codegen/cli": "^2.6.2",
@@ -33,11 +33,10 @@
     "graphql-tag": "^2.11.0",
     "lerna": "^7.4.1",
     "prettier": "^2.5.1",
-    "typescript": "^4.4.3"
+    "typescript": "4.5.2"
   },
   "volta": {
     "node": "18.16.1",
     "yarn": "1.22.19"
-  },
-  "dependencies": {}
+  }
 }

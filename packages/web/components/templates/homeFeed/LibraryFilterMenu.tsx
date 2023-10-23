@@ -553,7 +553,7 @@ type EditButtonProps = {
 
 function EditButton(props: EditButtonProps): JSX.Element {
   return (
-    <Link href={props.destination} passHref>
+    <Link href={props.destination} passHref legacyBehavior>
       <SpanBox
         css={{
           ml: '10px',
@@ -584,5 +584,5 @@ function EditButton(props: EditButtonProps): JSX.Element {
         {props.title}
       </SpanBox>
     </Link>
-  )
+  );
 }

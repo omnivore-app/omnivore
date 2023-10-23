@@ -204,7 +204,7 @@ function SettingsButton(props: SettingsButtonProps): JSX.Element {
   }, [props, router])
 
   return (
-    <Link href={props.destination} passHref title={props.name}>
+    <Link href={props.destination} passHref title={props.name} legacyBehavior>
       <SpanBox
         css={{
           mx: '10px',
@@ -249,5 +249,5 @@ function SettingsButton(props: SettingsButtonProps): JSX.Element {
         {props.name}
       </SpanBox>
     </Link>
-  )
+  );
 }

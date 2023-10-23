@@ -33,13 +33,14 @@ export function About(props: AboutProps): JSX.Element {
           }}
         >
           <Box
+            as="p"
             css={{
               fontWeight: '700',
               color: '#3D3D3D',
               fontSize: 45,
               lineHeight: '53px',
-              padding: '10px',
-              paddingBottom: '0px',
+              padding: '10px 10px 0',
+              margin: 0,
               textAlign: 'center',
             }}
           >
@@ -49,9 +50,11 @@ export function About(props: AboutProps): JSX.Element {
             readers.`}
           </Box>
           <Box
+          as="p"
             css={{
               color: 'rgb(125, 125, 125)',
               padding: '10px',
+              margin: 0,
               textAlign: 'center',
               width: '100%',
               fontWeight: '600',
@@ -64,9 +67,11 @@ export function About(props: AboutProps): JSX.Element {
           </Box>
 
           <Box
+            as="p"
             css={{
               color: 'rgb(125, 125, 125)',
               padding: '10px',
+              margin: 0,
               textAlign: 'center',
             }}
           >

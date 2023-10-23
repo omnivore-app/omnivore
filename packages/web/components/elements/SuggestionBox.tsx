@@ -40,14 +40,14 @@ const InternalOrExternalLink = (props: InternalOrExternalLinkProps) => {
       }}
     >
       {!isExternal ? (
-        <Link href={props.link}>{props.children}</Link>
+        <Link href={props.link} legacyBehavior>{props.children}</Link>
       ) : (
         <a href={props.link} target="_blank" rel="noreferrer">
           {props.children}
         </a>
       )}
     </SpanBox>
-  )
+  );
 }
 
 export const SuggestionBox = (props: SuggestionBoxProps) => {

@@ -1,3 +1,7 @@
+:root {
+  font-size: 112.5%;
+}
+
 html,
 body {
   padding: 0;
@@ -8,7 +12,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
-  font-size: 18px;
 }
 
 .disable-webkit-callout {

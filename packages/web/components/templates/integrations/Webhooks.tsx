@@ -140,7 +140,7 @@ export function Webhooks(): JSX.Element {
                 }}
               >
                 <h3>{item.method}</h3>
-                <p>{item.createdAt}</p>
+                <p>{item.createdAt?.toLocaleDateString()}</p>
               </Box>
             </Box>
           )

@@ -30,10 +30,10 @@ export function LibraryHighlightGridCard(
   props: LibraryHighlightGridCardProps
 ): JSX.Element {
   const [expanded, setExpanded] = useState(false)
-  const higlightCount = props.item.highlights?.length ?? 0
+  const highlightCount = props.item.highlights?.length ?? 0
   const router = useRouter()
   const viewInReader = useCallback(
-    (highlightId) => {
+    (highlightId: string) => {
       if (!router || !router.isReady || !props.viewer) {
         showErrorToast('Error navigating to highlight')
         return
@@ -197,7 +197,7 @@ export function LibraryHighlightGridCard(
                 event.preventDefault()
               }}
             >
-              {`View ${higlightCount} highlight${higlightCount > 1 ? 's' : ''}`}
+              {`View ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`}
               <CaretDown
                 size={10}
                 weight="bold"

@@ -17,6 +17,7 @@ const ContentSecurityPolicy = `
 
 const moduleExports = {
   images: {
+    formats: ['image/avif', 'image/webp'],
     domains: [
       'proxy-demo.omnivore-image-cache.app',
       'proxy-dev.omnivore-image-cache.app',
@@ -56,7 +57,7 @@ const moduleExports = {
           },
         ],
       },
-    ]
+    ];
   },
   async redirects() {
     return [
