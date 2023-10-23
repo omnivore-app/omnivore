@@ -334,11 +334,43 @@ export class LibraryItem extends BaseEntity {
   @Column('text', { nullable: true })
   subscription?: string | null
 
+  @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'upload_file_id' })
+  uploadFile?: UploadFile
+
   @Column({ type: 'timestamp', name: 'saved_at' })
   savedAt!: Date
 
   @Column({ type: 'timestamp', name: 'deleted_at' })
   deletedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+}
+
+@Entity({ name: 'upload_files' })
+export class UploadFile extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('text')
+  url!: string
+
+  @Column('text')
+  fileName!: string
+
+  @Column('text')
+  contentType!: string
+
+  @Column('text')
+  status!: string
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
