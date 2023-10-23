@@ -57,6 +57,7 @@ import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
+  findLabelsByLibraryItemId,
   findOrCreateLabels,
   saveLabelsInLibraryItem,
 } from '../../services/labels'
@@ -69,6 +70,7 @@ import {
   updateLibraryItemReadingProgress,
   updateLibraryItems,
 } from '../../services/library_item'
+import { findRecommendationsByLibraryItemId } from '../../services/recommendation'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
   findUploadFileById,
@@ -610,7 +612,7 @@ export const searchResolver = authorized<
   QuerySearchArgs
 >(async (_obj, params, { log, uid }) => {
   const startCursor = params.after || ''
-  const first = params.first || 10
+  const first = Math.min(params.first || 10, 100) // limit to 100 items
 
   // the query size is limited to 255 characters
   if (params.query && params.query.length > 255) {
@@ -641,25 +643,7 @@ export const searchResolver = authorized<
     libraryItems.pop()
   }
 
-  await Promise.all(
-    libraryItems.map(async (libraryItem) => {
-      if (
-        libraryItem.highlightAnnotations &&
-        libraryItem.highlightAnnotations.length > 0
-      ) {
-        // fetch highlights for each item
-        libraryItem.highlights = await findHighlightsByLibraryItemId(
-          libraryItem.id,
-          uid
-        )
-      }
-    })
-  )
-
   const edges = libraryItems.map((libraryItem) => {
-    if (libraryItem.siteIcon && !isBase64Image(libraryItem.siteIcon)) {
-      libraryItem.siteIcon = createImageProxyUrl(libraryItem.siteIcon, 128, 128)
-    }
     if (params.includeContent && libraryItem.readableContent) {
       // convert html to the requested format
       const format = params.format || ArticleFormat.Html
