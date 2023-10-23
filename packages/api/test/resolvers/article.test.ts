@@ -16,7 +16,7 @@ import {
   PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
-  UploadFileStatus,
+  UploadFileStatus
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
@@ -24,7 +24,7 @@ import { createHighlight } from '../../src/services/highlights'
 import {
   createLabel,
   deleteLabels,
-  saveLabelsInLibraryItem,
+  saveLabelsInLibraryItem
 } from '../../src/services/labels'
 import {
   createLibraryItem,
@@ -35,7 +35,7 @@ import {
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
-  updateLibraryItem,
+  updateLibraryItem
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -579,22 +579,26 @@ describe('Article API', () => {
 
         // Now save the link again, and ensure it is returned
         await graphqlRequest(
-          savePageQuery(url, title, originalContent),
+          savePageQuery(url, title, originalContent, null, null, generateFakeUuid()),
           authToken
         ).expect(200)
 
         allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })
     })
 
-    xcontext('when we also want to save labels and archives the item', () => {
+    context('when we also want to save labels and archives the item', () => {
+      before(() => {
+        url = 'https://blog.omnivore.app/new-url-2'
+      })
+
       after(async () => {
-        await deleteLibraryItemById(url, user.id)
+        await deleteLibraryItemByUrl(url, user.id)
       })
 
       it('saves the labels and archives the item', async () => {
-        url = 'https://blog.omnivore.app/new-url-2'
         const state = ArticleSavingRequestStatus.Archived
         const labels = ['test name', 'test name 2']
         await graphqlRequest(
@@ -658,22 +662,6 @@ describe('Article API', () => {
         expect(res.body.data.saveUrl.url).to.startsWith(
           'http://localhost:3000/fakeUser/links/'
         )
-      })
-    })
-
-    xcontext('when we save labels', () => {
-      it('saves the labels and archives the item', async () => {
-        url = 'https://blog.omnivore.app/new-url-2'
-        const state = ArticleSavingRequestStatus.Archived
-        const labels = ['test name', 'test name 2']
-        await graphqlRequest(
-          saveUrlQuery(url, state, labels),
-          authToken
-        ).expect(200)
-
-        const savedItem = await findLibraryItemByUrl(url, user.id)
-        expect(savedItem?.archivedAt).to.not.be.null
-        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
   })
