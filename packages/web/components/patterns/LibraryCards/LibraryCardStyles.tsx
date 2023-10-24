@@ -101,16 +101,36 @@ export const FLAIR_ICON_NAMES = [
 const flairIconForLabel = (label: Label): JSX.Element | undefined => {
   switch (label.name.toLocaleLowerCase()) {
     case 'favorite':
-      return <FavoriteFlairIcon />
+      return (
+        <SpanBox title="Favorite">
+          <FavoriteFlairIcon />
+        </SpanBox>
+      )
     case 'pinned':
-      return <PinnedFlairIcon />
+      return (
+        <SpanBox title="Pinned">
+          <PinnedFlairIcon />
+        </SpanBox>
+      )
     case 'recommended':
-      return <RecommendedFlairIcon />
+      return (
+        <SpanBox title="Recommended">
+          <RecommendedFlairIcon />
+        </SpanBox>
+      )
     case 'newsletter':
-      return <NewsletterFlairIcon />
+      return (
+        <SpanBox title="Newsletter">
+          <NewsletterFlairIcon />
+        </SpanBox>
+      )
     case 'rss':
     case 'feed':
-      return <FeedFlairIcon />
+      return (
+        <SpanBox title="Feed">
+          <FeedFlairIcon />
+        </SpanBox>
+      )
   }
   return undefined
 }

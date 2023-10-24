@@ -1,5 +1,6 @@
 /* eslint-disable functional/no-class */
 /* eslint-disable functional/no-this-expression */
+import { SpanBox } from '../LayoutPrimitives'
 import { IconProps } from './IconProps'
 
 import React from 'react'
