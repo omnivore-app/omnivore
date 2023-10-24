@@ -38,6 +38,7 @@ import { sentryConfig } from './sentry'
 import { getClaimsByToken, getTokenByRequest } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { FirefishClient, createFirefishUserClient } from './activitypub'
 
 const PORT = process.env.PORT || 4000
 
@@ -178,4 +179,28 @@ const main = async (): Promise<void> => {
 // only call main if the file was called from the CLI and wasn't required from another module
 if (require.main === module) {
   main()
+  ;(async () => {
+    // console.log(
+    //   'creating user with firefish token: ',
+    //   process.env.FIREFISH_TOKEN
+    // )
+    // const client = new FirefishClient(
+    //   'http://localhost:8000/api',
+    //   process.env.FIREFISH_TOKEN || 'firefish-token',
+    //   'abc123'
+    // )
+    // // const token = await client.createUserActor(
+    // //   'a03a7396-909b-11ed-9075-c3f3cf07eed9',
+    // //   'jacksonh@gmail.com',
+    // //   'jacksonharper'
+    // // )
+    // // console.log('user token: ', token)
+    // // if (token) {
+    // //   const secret = client.createAppForActor(token)
+    // //   console.log('created secretL: ', secret)
+    // // }
+    // const appClient = createFirefishUserClient('UEpw5pStVG5hFhrX')
+    // appClient.setupUserActor('a03a7396-909b-11ed-9075-c3f3cf07eed9')
+    // appClient.getUserInfo()
+  })()
 }
