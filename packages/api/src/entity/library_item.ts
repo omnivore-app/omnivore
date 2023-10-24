@@ -129,6 +129,10 @@ export class LibraryItem {
   @JoinColumn({ name: 'upload_file_id' })
   uploadFile?: UploadFile
 
+  // get upload_file_id without loading the uploadFile entity
+  @Column('text', { nullable: true })
+  uploadFileId?: string
+
   @Column('enum', { enum: ContentReaderType, default: ContentReaderType.WEB })
   contentReader!: ContentReaderType
 
