@@ -22,20 +22,20 @@ export class FeedFlairIcon extends React.Component<IconProps> {
             d="M8.73861 3.23242L3.40527 5.89909L8.73861 8.56576L14.0719 5.89909L8.73861 3.23242Z"
             fill="#FF7B03"
             stroke="#FF7B03"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
             d="M3.40527 8.56641L8.73861 11.2331L14.0719 8.56641"
             stroke="#FF7B03"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
             d="M3.40527 11.2324L8.73861 13.8991L14.0719 11.2324"
             stroke="#FF7B03"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </g>
       </svg>
