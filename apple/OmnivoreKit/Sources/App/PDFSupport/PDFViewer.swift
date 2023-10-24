@@ -237,13 +237,12 @@ import Utils
             let pageIndex = Int(event.pageIndex)
             if let totalPageCount = controller.document?.pageCount {
               let percent = min(100, max(0, ((Double(pageIndex) + 1.0) / Double(totalPageCount)) * 100.0))
-              if percent > self.viewModel.pdfItem.readingProgress {
-                self.viewModel.updateItemReadProgress(
-                  dataService: dataService,
-                  percent: percent,
-                  anchorIndex: pageIndex
-                )
-              }
+              self.viewModel.updateItemReadProgress(
+                dataService: dataService,
+                percent: percent,
+                anchorIndex: pageIndex,
+                force: true
+              )
             }
           }
         }.store(in: &subscriptions)

@@ -4,13 +4,15 @@ import Models
 import SwiftGraphQL
 
 extension DataService {
-  public func updateLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {
+  public func updateLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int, force: Bool?) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
-      if readingProgress != 0, readingProgress < linkedItem.readingProgress {
-        return
+      if let force = force, !force {
+        if readingProgress != 0, readingProgress < linkedItem.readingProgress {
+          return
+        }
       }
 
       print("updating reading progress: ", readingProgress, anchorIndex)
@@ -24,12 +26,13 @@ extension DataService {
       self.syncLinkReadingProgress(
         itemID: linkedItem.unwrappedID,
         readingProgress: readingProgress,
-        anchorIndex: anchorIndex
+        anchorIndex: anchorIndex,
+        force: force
       )
     }
   }
 
-  func syncLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int) {
+  func syncLinkReadingProgress(itemID: String, readingProgress: Double, anchorIndex: Int, force: Bool?) {
     enum MutationResult {
       case saved(readAt: Date?)
       case error(errorCode: Enums.SaveArticleReadingProgressErrorCode)
@@ -49,8 +52,9 @@ extension DataService {
     let mutation = Selection.Mutation {
       try $0.saveArticleReadingProgress(
         input: InputObjects.SaveArticleReadingProgressInput(
+          force: OptionalArgument(force),
           id: itemID,
-          readingProgressAnchorIndex: anchorIndex,
+          readingProgressAnchorIndex: OptionalArgument(anchorIndex),
           readingProgressPercent: readingProgress
         ),
         selection: selection

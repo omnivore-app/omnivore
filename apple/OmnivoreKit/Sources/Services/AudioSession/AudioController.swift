@@ -740,7 +740,7 @@
         let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
 
         if let itemID = itemAudioProperties?.itemID {
-          dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex)
+          dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex, force: true)
         }
 
         if let itemID = itemAudioProperties?.itemID, let player = player, let currentItem = player.currentItem {
