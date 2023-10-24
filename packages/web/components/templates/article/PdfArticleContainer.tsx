@@ -413,6 +413,7 @@ export default function PdfArticleContainer(
           }
           await articleReadingProgressMutation({
             id: props.article.id,
+            force: true,
             readingProgressPercent: percent,
             readingProgressAnchorIndex: pageIndex,
           })
