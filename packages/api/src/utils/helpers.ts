@@ -268,7 +268,6 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   ),
   image: item.thumbnail,
   highlights: item.highlights?.map(highlightDataToHighlight),
-  uploadFileId: item.uploadFile?.id,
   wordsCount: item.wordCount,
 })
 

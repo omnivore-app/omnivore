@@ -242,7 +242,7 @@ export const parsedContentToLibraryItem = ({
     publishedAt: validatedDate(
       publishedAt || parsedContent?.publishedDate || undefined
     ),
-    uploadFile: { id: uploadFileId ?? undefined },
+    uploadFileId: uploadFileId || undefined,
     readingProgressTopPercent: 0,
     readingProgressHighestReadAnchor: 0,
     state: state

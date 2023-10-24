@@ -465,7 +465,7 @@ export const functionResolvers = {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       if (
         (item.pageType == PageType.File || item.pageType == PageType.Book) &&
-        ctx.uid &&
+        ctx.claims &&
         item.uploadFileId
       ) {
         const upload = await findUploadFileById(item.uploadFileId)
