@@ -1,0 +1,248 @@
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Firefish configuration
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# After starting your server, please don't change the URL! Doing so will break federation.
+
+#   ┌─────┐
+#───┘ URL └─────────────────────────────────────────────────────
+
+# Final accessible URL seen by a user.
+url: http://localhost:8000
+
+#   ┌───────────────────────┐
+#───┘ Port and TLS settings └───────────────────────────────────
+
+#
+# Firefish requires a reverse proxy to support HTTPS connections.
+#
+#                 +----- https://example.com/ ------------+
+#   +------+      |+-------------+      +----------------+|
+#   | User | ---> || Proxy (443) | ---> | Firefish (3000) ||
+#   +------+      |+-------------+      +----------------+|
+#                 +---------------------------------------+
+#
+#   You need to set up a reverse proxy. (e.g. nginx, caddy)
+#   An encrypted connection with HTTPS is highly recommended
+#   because tokens may be transferred in GET requests.
+
+# The port that your Firefish server should listen on.
+port: 8000
+
+# The bind host your Firefish server should listen on.
+# If unspecified, the wildcard address will be used.
+#bind: 127.0.0.1
+
+#   ┌──────────────────────────┐
+#───┘ PostgreSQL configuration └────────────────────────────────
+
+db:
+  host: postgres
+  port: 5432
+  #ssl: false
+  # Database name
+  db: firefish
+
+  # Auth
+  user: postgres
+  pass: postgres
+
+  # Whether disable Caching queries
+  #disableCache: true
+
+  # Extra Connection options
+  #extra:
+  #  ssl:
+  #   host: localhost
+  #   rejectUnauthorized: false
+
+#   ┌─────────────────────┐
+#───┘ Redis configuration └─────────────────────────────────────
+
+redis:
+  host: redis
+  port: 6379
+  #tls:
+  #  host: localhost
+  #  rejectUnauthorized: false
+  #family: 0  # 0=Both, 4=IPv4, 6=IPv6
+  #pass: example-pass
+  #prefix: example-prefix
+  #db: 1
+  #user: default
+
+#   ┌─────────────────────────────┐
+#───┘ Cache server configuration └─────────────────────────────────────
+
+# A Redis-compatible server (DragonflyDB, Keydb, Redis) for caching
+# If left blank, it will use the Redis server from above
+
+#cacheServer:
+#host: localhost
+#port: 6379
+#family: 0  # 0=Both, 4=IPv4, 6=IPv6
+#pass: example-pass
+#prefix: example-prefix
+#db: 1
+
+# Please configure either MeiliSearch *or* Sonic.
+# If both MeiliSearch and Sonic configurations are present, MeiliSearch will take precedence.
+
+#   ┌───────────────────────────┐
+#───┘ MeiliSearch configuration └─────────────────────────────────────
+#meilisearch:
+#  host: meilisearch
+#  port: 7700
+#  ssl: false
+#  apiKey:
+
+#   ┌─────────────────────┐
+#───┘ Sonic configuration └─────────────────────────────────────
+
+#sonic:
+#  host: localhost
+#  port: 1491
+#  auth: SecretPassword
+#  collection: notes
+#  bucket: default
+
+#   ┌───────────────┐
+#───┘ ID generation └───────────────────────────────────────────
+
+# No need to uncomment in most cases, but you may want to change
+# these settings if you plan to run a large and/or distributed server.
+
+# cuid:
+#   # Min 16, Max 24
+#   length: 16
+#
+#   # Set this to a unique string across workers (e.g., machine's hostname)
+#   # if your workers are running in multiple hosts.
+#   fingerprint: my-fingerprint
+
+#   ┌─────────────────────┐
+#───┘ Other configuration └─────────────────────────────────────
+
+# Maximum length of a post (default 3000, max 100000)
+#maxNoteLength: 3000
+
+# Maximum length of an image caption (default 1500, max 8192)
+#maxCaptionLength: 1500
+
+# Reserved usernames that only the administrator can register with
+reservedUsernames: ['root', 'admin', 'administrator', 'me', 'system']
+# Whether disable HSTS
+#disableHsts: true
+
+# Number of worker processes by type.
+# The sum must not exceed the number of available cores.
+#clusterLimits:
+#  web: 1
+#  queue: 1
+
+# Job concurrency per worker
+# deliverJobConcurrency: 128
+# inboxJobConcurrency: 16
+
+# Job rate limiter
+# deliverJobPerSec: 128
+# inboxJobPerSec: 16
+
+# Job attempts
+# deliverJobMaxAttempts: 12
+# inboxJobMaxAttempts: 8
+
+# Local address used for outgoing requests
+#outgoingAddress: 127.0.0.1
+
+# IP address family used for outgoing request (ipv4, ipv6 or dual)
+#outgoingAddressFamily: ipv4
+
+# Syslog option
+#syslog:
+#  host: localhost
+#  port: 514
+
+# Proxy for HTTP/HTTPS
+#proxy: http://127.0.0.1:3128
+
+#proxyBypassHosts: [
+#  'web.kaiteki.app',
+#  'example.com',
+#  '192.0.2.8'
+#]
+
+# Proxy for SMTP/SMTPS
+#proxySmtp: http://127.0.0.1:3128   # use HTTP/1.1 CONNECT
+#proxySmtp: socks4://127.0.0.1:1080 # use SOCKS4
+#proxySmtp: socks5://127.0.0.1:1080 # use SOCKS5
+
+# Media Proxy
+#mediaProxy: https://example.com/proxy
+
+# Proxy remote files (default: false)
+#proxyRemoteFiles: true
+
+#allowedPrivateNetworks: [
+#  '127.0.0.1/32'
+#]
+
+# TWA
+#twa:
+#  nameSpace: android_app
+#  packageName: tld.domain.twa
+#  sha256CertFingerprints: ['AB:CD:EF']
+
+# Upload or download file size limits (bytes)
+#maxFileSize: 262144000
+
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Congrats, you've reached the end of the config file needed for most deployments!
+# Enjoy your Firefish server!
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Managed hosting settings
+# >>> NORMAL SELF-HOSTERS, STAY AWAY! <<<
+# >>> YOU DON'T NEED THIS! <<<
+# Each category is optional, but if each item in each category is mandatory!
+# If you mess this up, that's on you, you've been warned...
+#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+#maxUserSignups: 100
+#isManagedHosting: true
+#deepl:
+#  managed: true
+#  authKey: ''
+#  isPro: false
+#
+#email:
+#  managed: true
+#  address: 'example@email.com'
+#  host: 'email.com'
+#  port: 587
+#  user: 'example@email.com'
+#  pass: ''
+#  useImplicitSslTls: false
+#
+#objectStorage:
+#  managed: true
+#  baseUrl: ''
+#  bucket: ''
+#  prefix: ''
+#  endpoint: ''
+#  region: ''
+#  accessKey: ''
+#  secretKey: ''
+#  useSsl: true
+#  connnectOverProxy: false
+#  setPublicReadOnUpload: true
+#  s3ForcePathStyle: true
+
+# !!!!!!!!!!
+# >>>>>> AGAIN, NORMAL SELF-HOSTERS, STAY AWAY! <<<<<<
+# >>>>>> YOU DON'T NEED THIS, ABOVE SETTINGS ARE FOR MANAGED HOSTING ONLY! <<<<<<
+# !!!!!!!!!!
+
+# Seriously. Do NOT fill out the above settings if you're self-hosting.
+# They're much better off being set from the control panel.
