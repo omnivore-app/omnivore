@@ -1,9 +1,15 @@
 package app.omnivore.omnivore.networking
 
+import android.util.Log
 import app.omnivore.omnivore.graphql.generated.GetArticleQuery
+import app.omnivore.omnivore.graphql.generated.type.ContentReader
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.Highlight
+import java.io.File
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 data class SavedItemQueryResponse(
   val item: SavedItem?,
@@ -60,7 +66,18 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
       )
     }
 
-    // TODO: handle errors
+    var localPDFPath: String? = null
+    if (article.articleFields.contentReader == ContentReader.PDF) {
+      // download the PDF and save it locally
+      // article.articleFields.url
+
+      val localFile = File.createTempFile("pdf-" + article.articleFields.id, ".pdf", )
+      val url = URL(article.articleFields.url)
+      Log.d("pdf", "creating local file: $localFile")
+
+      url.openStream().use { Files.copy(it, localFile.toPath(), StandardCopyOption.REPLACE_EXISTING) }
+      localPDFPath = localFile.toPath().toString()
+    }
 
     val savedItem = SavedItem(
       savedItemId = article.articleFields.id,
@@ -82,7 +99,8 @@ suspend fun Networker.savedItem(slug: String): SavedItemQueryResponse {
       isArchived = article.articleFields.isArchived,
       contentReader = article.articleFields.contentReader.rawValue,
       content = article.articleFields.content,
-      wordsCount = article.articleFields.wordsCount
+      wordsCount = article.articleFields.wordsCount,
+      localPDFPath = localPDFPath
     )
 
     return SavedItemQueryResponse(item = savedItem, highlights, labels = savedItemLabels, state = article.articleFields.state?.rawValue ?: "")

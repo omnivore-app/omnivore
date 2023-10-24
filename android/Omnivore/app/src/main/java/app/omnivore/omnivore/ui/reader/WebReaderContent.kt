@@ -91,7 +91,7 @@ data class WebReaderContent(
                   url: `${item.pageURLString}`,
                   title: `${articleContent.title.replace("`", "\\`")}`,
                   content: document.getElementById('_omnivore-htmlContent').innerHTML,
-                  originalArticleUrl: "${item.pageURLString}",
+                  originalArticleUrl: "${item.publisherURLString}",
                   contentReader: "WEB",
                   readingProgressPercent: ${item.readingProgress},
                   readingProgressAnchorIndex: ${item.readingProgressAnchor},

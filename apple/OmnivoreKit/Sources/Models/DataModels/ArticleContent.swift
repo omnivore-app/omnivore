@@ -16,19 +16,22 @@ public struct ArticleContent {
   public let highlightsJSONString: String
   public let contentStatus: ArticleContentStatus
   public let objectID: NSManagedObjectID?
+  public let downloadURL: String
 
   public init(
     title: String,
     htmlContent: String,
     highlightsJSONString: String,
     contentStatus: ArticleContentStatus,
-    objectID: NSManagedObjectID?
+    objectID: NSManagedObjectID?,
+    downloadURL: String
   ) {
     self.title = title
     self.htmlContent = htmlContent
     self.highlightsJSONString = highlightsJSONString
     self.contentStatus = contentStatus
     self.objectID = objectID
+    self.downloadURL = downloadURL
   }
 }
 

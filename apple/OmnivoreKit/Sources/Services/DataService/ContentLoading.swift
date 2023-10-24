@@ -63,7 +63,8 @@ extension DataService {
       htmlContent: fetchResult.htmlContent,
       highlightsJSONString: fetchResult.highlights.asJSONString,
       contentStatus: fetchResult.item.isPDF ? .succeeded : fetchResult.item.state,
-      objectID: objectID
+      objectID: objectID,
+      downloadURL: fetchResult.item.downloadURL
     )
   }
 
@@ -91,7 +92,8 @@ extension DataService {
           .filter { $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
           .map { InternalHighlight.make(from: $0) }.asJSONString,
         contentStatus: .succeeded,
-        objectID: linkedItem.objectID
+        objectID: linkedItem.objectID,
+        downloadURL: linkedItem.downloadURL ?? ""
       )
     }
   }
@@ -166,7 +168,7 @@ extension DataService {
     }
 
     if articleProps.item.isPDF, needsPDFDownload {
-      _ = try await loadPDFData(slug: articleProps.item.slug, pageURLString: articleProps.item.pageURLString)
+      _ = try await loadPDFData(slug: articleProps.item.slug, downloadURL: articleProps.item.downloadURL)
     }
 
     try await backgroundContext.perform { [weak self] in

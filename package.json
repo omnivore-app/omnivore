@@ -2,7 +2,7 @@
   "name": "omnivore-app",
   "version": "1.0.0",
   "description": "",
-  "private": false,
+  "private": true,
   "workspaces": [
     "packages/*"
   ],
