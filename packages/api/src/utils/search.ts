@@ -249,13 +249,13 @@ const parseDateFilter = (
 
   switch (field.toUpperCase()) {
     case 'PUBLISHED':
-      field = 'publishedAt'
+      field = 'published_at'
       break
     case 'SAVED':
-      field = 'savedAt'
+      field = 'saved_at'
       break
     case 'UPDATED':
-      field = 'updatedAt'
+      field = 'updated_at'
   }
 
   return {

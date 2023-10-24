@@ -431,7 +431,13 @@ export const updateLibraryItem = async (
 
   await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
     EntityType.PAGE,
-    { ...libraryItem, id },
+    {
+      ...libraryItem,
+      id,
+      // don't send original content and readable content
+      originalContent: undefined,
+      readableContent: undefined,
+    },
     userId
   )
 
@@ -521,7 +527,8 @@ export const createLibraryItems = async (
 export const createLibraryItem = async (
   libraryItem: DeepPartial<LibraryItem>,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ): Promise<LibraryItem> => {
   const newLibraryItem = await authTrx(
     async (tx) =>
@@ -535,9 +542,18 @@ export const createLibraryItem = async (
     userId
   )
 
-  await pubsub.entityCreated<LibraryItem>(
+  if (skipPubSub) {
+    return newLibraryItem
+  }
+
+  await pubsub.entityCreated<DeepPartial<LibraryItem>>(
     EntityType.PAGE,
-    newLibraryItem,
+    {
+      ...newLibraryItem,
+      // don't send original content and readable content
+      originalContent: undefined,
+      readableContent: undefined,
+    },
     userId
   )
 

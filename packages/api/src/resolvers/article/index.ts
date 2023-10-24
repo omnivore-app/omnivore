@@ -46,6 +46,7 @@ import {
   TypeaheadSearchSuccess,
   UpdateReason,
   UpdatesSinceError,
+  UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { getColumns } from '../../repository'
@@ -644,7 +645,7 @@ export const searchResolver = authorized<
       size: first + 1, // fetch one more item to get next cursor
       sort: searchQuery.sort,
       includePending: true,
-      includeContent: params.includeContent || false,
+      includeContent: !!params.includeContent,
       ...searchQuery,
     },
     uid
@@ -724,7 +725,12 @@ export const updatesSinceResolver = authorized<
 
   const startCursor = after || ''
   const size = first || 10
-  const startDate = new Date(since)
+  let startDate = new Date(since)
+  if (isNaN(startDate.getTime())) {
+    // for android app compatibility
+    startDate = new Date(0)
+  }
+
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),

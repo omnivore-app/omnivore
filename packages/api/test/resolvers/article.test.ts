@@ -16,7 +16,7 @@ import {
   PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
-  UploadFileStatus,
+  UploadFileStatus
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
@@ -24,7 +24,7 @@ import { createHighlight } from '../../src/services/highlights'
 import {
   createLabel,
   deleteLabels,
-  saveLabelsInLibraryItem,
+  saveLabelsInLibraryItem
 } from '../../src/services/labels'
 import {
   createLibraryItem,
@@ -35,7 +35,7 @@ import {
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
-  updateLibraryItem,
+  updateLibraryItem
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -581,22 +581,26 @@ describe('Article API', () => {
 
         // Now save the link again, and ensure it is returned
         await graphqlRequest(
-          savePageQuery(url, title, originalContent),
+          savePageQuery(url, title, originalContent, null, null, generateFakeUuid()),
           authToken
         ).expect(200)
 
         allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })
     })
 
-    xcontext('when we also want to save labels and archives the item', () => {
+    context('when we also want to save labels and archives the item', () => {
+      before(() => {
+        url = 'https://blog.omnivore.app/new-url-2'
+      })
+
       after(async () => {
-        await deleteLibraryItemById(url, user.id)
+        await deleteLibraryItemByUrl(url, user.id)
       })
 
       it('saves the labels and archives the item', async () => {
-        url = 'https://blog.omnivore.app/new-url-2'
         const state = ArticleSavingRequestStatus.Archived
         const labels = ['test name', 'test name 2']
         await graphqlRequest(
@@ -660,22 +664,6 @@ describe('Article API', () => {
         expect(res.body.data.saveUrl.url).to.startsWith(
           'http://localhost:3000/fakeUser/links/'
         )
-      })
-    })
-
-    xcontext('when we save labels', () => {
-      it('saves the labels and archives the item', async () => {
-        url = 'https://blog.omnivore.app/new-url-2'
-        const state = ArticleSavingRequestStatus.Archived
-        const labels = ['test name', 'test name 2']
-        await graphqlRequest(
-          saveUrlQuery(url, state, labels),
-          authToken
-        ).expect(200)
-
-        const savedItem = await findLibraryItemByUrl(url, user.id)
-        expect(savedItem?.archivedAt).to.not.be.null
-        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
   })
@@ -1715,6 +1703,21 @@ describe('Article API', () => {
         UpdateReason.Deleted
       )
     })
+
+    context('when since is -1000000000-01-01T00:00:00Z from android app', () => {
+      before(() => {
+        since = '-1000000000-01-01T00:00:00Z'
+      })
+
+      it('returns all', async () => {
+        const res = await graphqlRequest(
+          updatesSinceQuery(since),
+          authToken
+        ).expect(200)
+
+        expect(res.body.data.updatesSince.edges.length).to.eql(5)
+      })
+    })
   })
 
   describe('BulkAction API', () => {
@@ -1771,18 +1774,56 @@ describe('Article API', () => {
       })
     })
 
-    context('when action is Archive', () => {
-      it('archives all items', async () => {
-        const res = await graphqlRequest(
-          bulkActionQuery(BulkActionType.Archive),
-          authToken
-        ).expect(200)
-        expect(res.body.data.bulkAction.success).to.be.true
+    context(
+      'when action is Archive and query is published:*..2023-10-01',
+      () => {
+        let items: LibraryItem[] = []
 
-        const items = await graphqlRequest(searchQuery(), authToken).expect(200)
-        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
-      })
-    })
+        before(async () => {
+          items = await createLibraryItems(
+            [
+              {
+                user,
+                title: 'test item',
+                readableContent: '<p>test</p>',
+                slug: 'test-item',
+                originalUrl: `https://blog.omnivore.app/p/bulk-action-archive`,
+                publishedAt: new Date('2023-10-01'),
+              },
+              {
+                user,
+                title: 'test item 2',
+                readableContent: '<p>test</p>',
+                slug: 'test-item-2',
+                originalUrl: `https://blog.omnivore.app/p/bulk-action-archive-2`,
+                publishedAt: new Date('2023-10-02'),
+              },
+            ],
+            user.id
+          )
+        })
+
+        after(async () => {
+          // Delete all items
+          await deleteLibraryItems(items, user.id)
+        })
+
+        it('archives old items', async () => {
+          const res = await graphqlRequest(
+            bulkActionQuery(BulkActionType.Archive, 'published:*..2023-10-01'),
+            authToken
+          ).expect(200)
+          expect(res.body.data.bulkAction.success).to.be.true
+
+          const response = await graphqlRequest(
+            searchQuery('in:archive'),
+            authToken
+          ).expect(200)
+          expect(response.body.data.search.pageInfo.totalCount).to.eql(1)
+          expect(response.body.data.search.edges[0].node.id).to.eql(items[0].id)
+        })
+      }
+    )
 
     context('when action is Delete', () => {
       it('deletes all items', async () => {
