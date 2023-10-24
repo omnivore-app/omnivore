@@ -2092,6 +2092,7 @@ export enum SaveArticleReadingProgressErrorCode {
 }
 
 export type SaveArticleReadingProgressInput = {
+  force?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   readingProgressAnchorIndex?: InputMaybe<Scalars['Int']>;
   readingProgressPercent: Scalars['Float'];
