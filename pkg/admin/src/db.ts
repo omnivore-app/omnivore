@@ -50,6 +50,8 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       Group,
       Integration,
       Subscription,
+      LibraryItem,
+      UploadFile,
     ],
   })
 
@@ -301,6 +303,75 @@ export class Subscription extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'last_fetched_at', nullable: true })
   lastFetchedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+}
+
+@Entity({ name: 'library_item' })
+export class LibraryItem extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column({ type: 'text', name: 'original_url' })
+  originalUrl!: string
+
+  @Column('text')
+  slug!: string
+
+  @Column('text')
+  title!: string
+
+  @Column('text', { nullable: true })
+  author?: string | null
+
+  @Column('text', { nullable: true })
+  subscription?: string | null
+
+  @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'upload_file_id' })
+  uploadFile?: UploadFile
+
+  @Column({ type: 'timestamp', name: 'saved_at' })
+  savedAt!: Date
+
+  @Column({ type: 'timestamp', name: 'deleted_at' })
+  deletedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+}
+
+@Entity({ name: 'upload_files' })
+export class UploadFile extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('text')
+  url!: string
+
+  @Column('text')
+  fileName!: string
+
+  @Column('text')
+  contentType!: string
+
+  @Column('text')
+  status!: string
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
