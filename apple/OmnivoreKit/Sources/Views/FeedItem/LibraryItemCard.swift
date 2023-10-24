@@ -2,6 +2,35 @@ import Models
 import SwiftUI
 import Utils
 
+enum FlairLabels: String {
+  case pinned
+  case favorite
+  case recommended
+  case newsletter
+  case rss
+  case feed
+
+  var icon: Image {
+    switch self {
+    case .pinned: return Image.flairPinned
+    case .favorite: return Image.flairFavorite
+    case .recommended: return Image.flairRecommended
+    case .newsletter: return Image.flairNewsletter
+    case .feed, .rss: return Image.flairFeed
+    }
+  }
+
+  var sortOrder: Int {
+    switch self {
+    case .feed, .rss: return 0
+    case .favorite: return 1
+    case .newsletter: return 2
+    case .recommended: return 3
+    case .pinned: return 4
+    }
+  }
+}
+
 public extension View {
   func draggableItem(item: LinkedItem) -> some View {
     #if os(iOS)
@@ -124,8 +153,30 @@ public struct LibraryItemCard: View {
     return ""
   }
 
+  var flairLabels: [FlairLabels] {
+    item.sortedLabels.compactMap { label in
+      if let name = label.name {
+        return FlairLabels(rawValue: name.lowercased())
+      }
+      return nil
+    }.sorted { $0.sortOrder < $1.sortOrder }
+  }
+
+  var nonFlairLabels: [LinkedItemLabel] {
+    item.sortedLabels.filter { label in
+      if let name = label.name, FlairLabels(rawValue: name.lowercased()) != nil {
+        return false
+      }
+      return true
+    }
+  }
+
   var readInfo: some View {
-    AnyView(HStack {
+    HStack(alignment: .center, spacing: 5.0) {
+      ForEach(flairLabels, id: \.self) {
+        $0.icon
+      }
+
       let fgcolor = Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray
       Text("\(estimatedReadingTime)")
         .font(.caption2).fontWeight(.medium)
@@ -146,7 +197,7 @@ public struct LibraryItemCard: View {
         .font(.caption2).fontWeight(.medium)
         .foregroundColor(fgcolor)
     }
-    .frame(maxWidth: .infinity, alignment: .leading))
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 
   var imageBox: some View {
@@ -227,6 +278,6 @@ public struct LibraryItemCard: View {
   }
 
   var labels: some View {
-    LabelsFlowLayout(labels: item.sortedLabels)
+    LabelsFlowLayout(labels: nonFlairLabels)
   }
 }

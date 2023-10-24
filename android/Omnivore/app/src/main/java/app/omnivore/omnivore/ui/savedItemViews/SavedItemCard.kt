@@ -20,16 +20,20 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toLowerCase
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.library.SavedItemAction
+import app.omnivore.omnivore.ui.library.SavedItemFilter
 import app.omnivore.omnivore.ui.library.SavedItemViewModel
 import coil.compose.rememberAsyncImagePainter
 
@@ -45,14 +49,14 @@ fun SavedItemCard(
 
   Column(
       modifier = Modifier
-      .combinedClickable(
-        onClick = onClickHandler,
-        onLongClick = {
-          savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem)
-        }
-      )
-      .background(if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background)
-      .fillMaxWidth()
+        .combinedClickable(
+          onClick = onClickHandler,
+          onLongClick = {
+            savedItemViewModel.actionsMenuItemLiveData.postValue(savedItem)
+          }
+        )
+        .background(if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background)
+        .fillMaxWidth()
   ) {
     Row(
       horizontalArrangement = Arrangement.SpaceBetween,
@@ -108,8 +112,10 @@ fun SavedItemCard(
       )
     }
 
-    FlowRow(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
-      savedItem.labels.sortedWith(compareBy { it.name.toLowerCase(Locale.current) }).forEach { label ->
+    FlowRow(modifier = Modifier
+      .fillMaxWidth()
+      .padding(10.dp)) {
+      savedItem.labels.filter { !isFlairLabel(it) }.sortedWith(compareBy { it.name.toLowerCase(Locale.current) }).forEach { label ->
         val chipColors = LabelChipColors.fromHex(label.color)
 
         LabelChip(
@@ -196,6 +202,82 @@ fun readingProgress(item: SavedItemWithLabelsAndHighlights): String {
 //  return ""
 //}
 
+
+public enum class FlairIcon(
+  public val rawValue: String,
+  public val sortOrder: Int
+) {
+  FEED("feed", 0),
+  RSS("rss", 0),
+  FAVORITE("favorite", 1),
+  NEWSLETTER("newsletter", 2),
+  RECOMMENDED("recommended", 3),
+  PINNED("pinned", 4)
+}
+
+val FLAIR_ICON_NAMES = listOf("feed", "rss", "favorite", "newsletter", "recommended", "pinned")
+
+fun isFlairLabel(label: SavedItemLabel): Boolean {
+  return FLAIR_ICON_NAMES.contains(label.name.toLowerCase(Locale.current))
+}
+
+@Composable
+fun flairIcons(item: SavedItemWithLabelsAndHighlights) {
+  val labels = item.labels.filter { isFlairLabel(it) }.map {
+    FlairIcon.valueOf(it.name.toUpperCase(Locale.current))
+  }
+  labels.forEach {
+    when (it) {
+      FlairIcon.RSS,
+      FlairIcon.FEED -> {
+        Image(
+          painter = painterResource(id = R.drawable.flair_feed),
+          contentDescription = "Feed flair Icon",
+          modifier = Modifier
+            .padding(end = 5.0.dp)
+        )
+      }
+
+      FlairIcon.FAVORITE -> {
+        Image(
+          painter = painterResource(id = R.drawable.flaire_favorite),
+          contentDescription = "Favorite flair Icon",
+          modifier = Modifier
+            .padding(end = 5.0.dp)
+        )
+      }
+
+      FlairIcon.NEWSLETTER -> {
+        Image(
+          painter = painterResource(id = R.drawable.flair_newsletter),
+          contentDescription = "Newsletter flair Icon",
+          modifier = Modifier
+            .padding(end = 5.0.dp)
+        )
+      }
+
+      FlairIcon.RECOMMENDED -> {
+        Image(
+          painter = painterResource(id = R.drawable.flair_recommended),
+          contentDescription = "Recommended flair Icon",
+          modifier = Modifier
+            .padding(end = 5.0.dp)
+        )
+      }
+
+      FlairIcon.PINNED -> {
+        Image(
+          painter = painterResource(id = R.drawable.flair_pinned),
+          contentDescription = "Pinned flair Icon",
+                  modifier = Modifier
+                    .padding(end = 5.0.dp)
+        )
+      }
+
+    }
+  }
+}
+
 @Composable
 fun readInfo(item: SavedItemWithLabelsAndHighlights) {
   Row(
@@ -203,6 +285,9 @@ fun readInfo(item: SavedItemWithLabelsAndHighlights) {
       .fillMaxWidth()
       .defaultMinSize(minHeight = 15.dp)
   ) {
+    // Show flair here
+    flairIcons(item)
+
     Text(
       text = estimatedReadingTime(item),
       style = TextStyle(

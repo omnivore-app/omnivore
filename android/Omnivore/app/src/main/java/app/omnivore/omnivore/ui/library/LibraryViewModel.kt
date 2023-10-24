@@ -304,55 +304,44 @@ class LibraryViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val syncedLabels = labels.filter { it.serverSyncStatus == ServerSyncStatus.IS_SYNCED.rawValue }
-        val unsyncedLabels = labels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }
+        val input = SetLabelsInput(
+          pageId = savedItemID,
+          labels = Optional.presentIfNotNull(labels.map { CreateLabelInput(color = Optional.presentIfNotNull(it.color), name = it.name) }),
+        )
 
-        var labelCreationError = false
-        val createdLabels = unsyncedLabels.mapNotNull { label ->
-          val result = networker.createNewLabel(CreateLabelInput(
-            name = label.name,
-            color = presentIfNotNull(label.color),
-            description = presentIfNotNull(label.labelDescription),
-          ))
-          result?.let {
+        val updatedLabels = networker.updateLabelsForSavedItem(input)
+
+        // Figure out which of the labels are new
+        updatedLabels?.let { updatedLabels ->
+          val existingNamedLabels = dataService.db.savedItemLabelDao()
+            .namedLabels(updatedLabels.map { it.labelFields.name })
+          val existingNames = existingNamedLabels.map { it.name }
+          val newNamedLabels = updatedLabels.filter { !existingNames.contains(it.labelFields.name) }
+
+          dataService.db.savedItemLabelDao().insertAll(newNamedLabels.map {
             SavedItemLabel(
-              savedItemLabelId = result.id,
-              name = result.name,
-              color = result.color,
-              createdAt = result.createdAt.toString(),
-              labelDescription = result.description,
-              serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
+              savedItemLabelId = it.labelFields.id,
+              name = it.labelFields.name,
+              color = it.labelFields.color,
+              createdAt = null,
+              labelDescription = null
             )
-          } ?: run {
-            labelCreationError = true
-            null
+          })
+
+          val allNamedLabels = dataService.db.savedItemLabelDao()
+            .namedLabels(updatedLabels.map { it.labelFields.name })
+          val crossRefs = allNamedLabels.map {
+            SavedItemAndSavedItemLabelCrossRef(
+              savedItemLabelId = it.savedItemLabelId,
+              savedItemId = savedItemID
+            )
           }
-        }
+          dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
+          dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
 
-        dataService.db.savedItemLabelDao().insertAll(createdLabels)
-
-        val allLabels = syncedLabels + createdLabels
-
-        val input = SetLabelsInput(labelIds =  Optional.presentIfNotNull(allLabels.map { it.savedItemLabelId }), pageId = savedItemID)
-        val networkResult = networker.updateLabelsForSavedItem(input)
-
-        val crossRefs = allLabels.map {
-          SavedItemAndSavedItemLabelCrossRef(
-            savedItemLabelId = it.savedItemLabelId,
-            savedItemId = savedItemID
-          )
-        }
-
-        // Remove all labels first
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
-
-        // Add back the current labels
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
-
-        if (!networkResult || labelCreationError) {
-          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_error)
-        } else {
           snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_success)
+        } ?: run {
+          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_error)
         }
 
         CoroutineScope(Dispatchers.Main).launch {
