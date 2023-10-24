@@ -166,7 +166,7 @@ extension DataService {
     }
 
     if articleProps.item.isPDF, needsPDFDownload {
-      _ = try await loadPDFData(slug: articleProps.item.slug, pageURLString: articleProps.item.pageURLString)
+      _ = try await loadPDFData(slug: articleProps.item.slug, downloadURL: articleProps.item.downloadURL)
     }
 
     try await backgroundContext.perform { [weak self] in

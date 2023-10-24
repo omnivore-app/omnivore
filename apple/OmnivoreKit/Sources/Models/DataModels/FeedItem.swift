@@ -56,12 +56,14 @@ public struct JSONArticle: Decodable {
   public let isArchived: Bool
   public let language: String?
   public let wordsCount: Int?
+  public let downloadURL: String
 }
 
 public extension LinkedItem {
   var unwrappedID: String { id ?? "" }
   var unwrappedSlug: String { slug ?? "" }
   var unwrappedTitle: String { title ?? "" }
+  var unwrappedDownloadURLString: String { downloadURL ?? "" }
   var unwrappedPageURLString: String { pageURLString ?? "" }
   var unwrappedSavedAt: Date { savedAt ?? Date() }
   var unwrappedCreatedAt: Date { createdAt ?? Date() }

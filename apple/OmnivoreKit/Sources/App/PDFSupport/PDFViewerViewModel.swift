@@ -96,7 +96,7 @@ final class PDFViewerViewModel: ObservableObject {
         }
       }
 
-      return try await dataService.loadPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL)
+      return try await dataService.loadPDFData(slug: pdfItem.slug, downloadURL: pdfItem.downloadURL)
     } catch {
       print("error downloading PDF", error)
       return nil

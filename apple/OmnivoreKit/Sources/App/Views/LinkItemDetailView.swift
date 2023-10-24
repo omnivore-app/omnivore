@@ -46,7 +46,7 @@ import Views
   private func trackReadEvent() {
     guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
     guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
-    guard let originalArticleURL = item?.unwrappedPageURLString ?? pdfItem?.originalArticleURL else { return }
+    guard let originalArticleURL = item?.unwrappedPageURLString ?? pdfItem?.downloadURL else { return }
 
     EventTracker.track(
       .linkRead(
