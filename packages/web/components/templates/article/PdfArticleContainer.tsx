@@ -408,11 +408,9 @@ export default function PdfArticleContainer(
             100,
             Math.max(0, ((pageIndex + 1) / instance.totalPageCount) * 100)
           )
-          if (percent <= props.article.readingProgressPercent) {
-            return
-          }
           await articleReadingProgressMutation({
             id: props.article.id,
+            force: true,
             readingProgressPercent: percent,
             readingProgressAnchorIndex: pageIndex,
           })

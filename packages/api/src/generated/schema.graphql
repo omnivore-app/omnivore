@@ -1571,6 +1571,7 @@ enum SaveArticleReadingProgressErrorCode {
 }
 
 input SaveArticleReadingProgressInput {
+  force: Boolean
   id: ID!
   readingProgressAnchorIndex: Int
   readingProgressPercent: Float!
@@ -2058,9 +2059,8 @@ enum SubscribeErrorCode {
 }
 
 input SubscribeInput {
-  name: String
   subscriptionType: SubscriptionType
-  url: String
+  url: String!
 }
 
 union SubscribeResult = SubscribeError | SubscribeSuccess
@@ -2391,7 +2391,9 @@ input UpdateSubscriptionInput {
   description: String
   id: ID!
   lastFetchedAt: Date
+  lastFetchedChecksum: String
   name: String
+  scheduledAt: Date
   status: SubscriptionStatus
 }
 

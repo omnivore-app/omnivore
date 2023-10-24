@@ -46,6 +46,7 @@ import {
   TypeaheadSearchSuccess,
   UpdateReason,
   UpdatesSinceError,
+  UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { getColumns } from '../../repository'
@@ -53,7 +54,6 @@ import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
@@ -62,11 +62,11 @@ import {
 } from '../../services/labels'
 import {
   createLibraryItem,
-  findLibraryItemById,
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
   updateLibraryItem,
+  updateLibraryItemReadingProgress,
   updateLibraryItems,
 } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
@@ -82,14 +82,12 @@ import {
   cleanUrl,
   errorHandler,
   generateSlug,
-  isBase64Image,
   isParsingTimeout,
   libraryItemToArticle,
   libraryItemToSearchItem,
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
-import { createImageProxyUrl } from '../../utils/imageproxy'
 import {
   contentConverter,
   getDistillerResult,
@@ -98,10 +96,7 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
-import {
-  getStorageFileDetails,
-  makeStorageFilePublic,
-} from '../../utils/uploads'
+import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
 export enum ArticleFormat {
@@ -310,7 +305,6 @@ export const createArticleResolver = authorized<
             pubsub
           )
         }
-        await makeStorageFilePublic(uploadFileData.id, uploadFileData.fileName)
       }
 
       let libraryItemToReturn: LibraryItem
@@ -570,16 +564,11 @@ export const saveArticleReadingProgressResolver = authorized<
         readingProgressPercent,
         readingProgressAnchorIndex,
         readingProgressTopPercent,
+        force,
       },
     },
-    { uid, pubsub }
+    { log, pubsub, uid }
   ) => {
-    const libraryItem = await findLibraryItemById(id, uid)
-
-    if (!libraryItem) {
-      return { errorCodes: [SaveArticleReadingProgressErrorCode.NotFound] }
-    }
-
     if (
       readingProgressPercent < 0 ||
       readingProgressPercent > 100 ||
@@ -590,40 +579,47 @@ export const saveArticleReadingProgressResolver = authorized<
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
-    // If we have a top percent, we only save it if it's greater than the current top percent
-    // or set to zero if the top percent is zero.
-    const readingProgressTopPercentToSave = readingProgressTopPercent
-      ? Math.max(
-          readingProgressTopPercent,
-          libraryItem.readingProgressTopPercent || 0
+    try {
+      if (force) {
+        // update reading progress without checking the current value
+        const updatedItem = await updateLibraryItem(
+          id,
+          {
+            readingProgressBottomPercent: readingProgressPercent,
+            readingProgressTopPercent: readingProgressTopPercent ?? undefined,
+            readingProgressHighestReadAnchor:
+              readingProgressAnchorIndex ?? undefined,
+            readAt: new Date(),
+          },
+          uid,
+          pubsub
         )
-      : readingProgressTopPercent === 0
-      ? 0
-      : undefined
-    // If setting to zero we accept the update, otherwise we require it
-    // be greater than the current reading progress.
-    const updatedPart: QueryDeepPartialEntity<LibraryItem> = {
-      readingProgressBottomPercent:
-        readingProgressPercent === 0
-          ? 0
-          : Math.max(
-              readingProgressPercent,
-              libraryItem.readingProgressBottomPercent
-            ),
-      readingProgressHighestReadAnchor:
-        readingProgressAnchorIndex === 0
-          ? 0
-          : Math.max(
-              readingProgressAnchorIndex || 0,
-              libraryItem.readingProgressHighestReadAnchor
-            ),
-      readingProgressTopPercent: readingProgressTopPercentToSave,
-      readAt: new Date(),
-    }
-    const updatedItem = await updateLibraryItem(id, updatedPart, uid, pubsub)
 
-    return {
-      updatedArticle: libraryItemToArticle(updatedItem),
+        return {
+          updatedArticle: libraryItemToArticle(updatedItem),
+        }
+      }
+
+      // update reading progress only if the current value is lower
+      const updatedItem = await updateLibraryItemReadingProgress(
+        id,
+        uid,
+        readingProgressPercent,
+        readingProgressTopPercent,
+        readingProgressAnchorIndex,
+        pubsub
+      )
+      if (!updatedItem) {
+        return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
+      }
+
+      return {
+        updatedArticle: libraryItemToArticle(updatedItem),
+      }
+    } catch (error) {
+      log.error('saveArticleReadingProgressResolver error', error)
+
+      return { errorCodes: [SaveArticleReadingProgressErrorCode.Unauthorized] }
     }
   }
 )
@@ -634,7 +630,7 @@ export const searchResolver = authorized<
   QuerySearchArgs
 >(async (_obj, params, { log, uid }) => {
   const startCursor = params.after || ''
-  const first = params.first || 10
+  const first = Math.min(params.first || 10, 100) // limit to 100 items
 
   // the query size is limited to 255 characters
   if (params.query && params.query.length > 255) {
@@ -649,7 +645,7 @@ export const searchResolver = authorized<
       size: first + 1, // fetch one more item to get next cursor
       sort: searchQuery.sort,
       includePending: true,
-      includeContent: params.includeContent || false,
+      includeContent: !!params.includeContent,
       ...searchQuery,
     },
     uid
@@ -665,25 +661,7 @@ export const searchResolver = authorized<
     libraryItems.pop()
   }
 
-  await Promise.all(
-    libraryItems.map(async (libraryItem) => {
-      if (
-        libraryItem.highlightAnnotations &&
-        libraryItem.highlightAnnotations.length > 0
-      ) {
-        // fetch highlights for each item
-        libraryItem.highlights = await findHighlightsByLibraryItemId(
-          libraryItem.id,
-          uid
-        )
-      }
-    })
-  )
-
   const edges = libraryItems.map((libraryItem) => {
-    if (libraryItem.siteIcon && !isBase64Image(libraryItem.siteIcon)) {
-      libraryItem.siteIcon = createImageProxyUrl(libraryItem.siteIcon, 128, 128)
-    }
     if (params.includeContent && libraryItem.readableContent) {
       // convert html to the requested format
       const format = params.format || ArticleFormat.Html
@@ -747,7 +725,12 @@ export const updatesSinceResolver = authorized<
 
   const startCursor = after || ''
   const size = first || 10
-  const startDate = new Date(since)
+  let startDate = new Date(since)
+  if (isNaN(startDate.getTime())) {
+    // for android app compatibility
+    startDate = new Date(0)
+  }
+
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),

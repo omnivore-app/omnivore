@@ -11,12 +11,12 @@ export const addPopularReadResolver = authorized<
   AddPopularReadError,
   MutationAddPopularReadArgs
 >(async (_, { name }, { uid }) => {
-  const item = await addPopularRead(uid, name)
-  if (!item) {
+  const items = await addPopularRead(uid, name)
+  if (items.length === 0) {
     return { errorCodes: [AddPopularReadErrorCode.NotFound] }
   }
 
   return {
-    pageId: item.id,
+    pageId: items[0].id,
   }
 })

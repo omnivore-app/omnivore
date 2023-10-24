@@ -1,6 +1,6 @@
 import { In } from 'typeorm'
 import { appDataSource } from '../data_source'
-import { User } from './../entity/user'
+import { StatusType, User } from './../entity/user'
 
 const TOP_USERS = [
   'jacksonh',
@@ -16,7 +16,7 @@ export const MAX_RECORDS_LIMIT = 1000
 
 export const userRepository = appDataSource.getRepository(User).extend({
   findById(id: string) {
-    return this.findOneBy({ id })
+    return this.findOneBy({ id, status: StatusType.Active })
   },
 
   findByEmail(email: string) {

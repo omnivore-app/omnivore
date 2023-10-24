@@ -103,6 +103,7 @@
     <string name="label_selection_sheet_action_search">Search</string>
     <string name="label_selection_sheet_action_save">Save</string>
     <string name="label_selection_sheet_text_create">Create a new label named \"%1$s\"</string>
+    <string name="label_selection_sheet_label_too_long_error_msg">The name provided is too long (must be less or equal than %1$d characters)</string>
 
     <!-- LibraryFilterBar -->
     <string name="library_filter_bar_label_labels">Labels</string>

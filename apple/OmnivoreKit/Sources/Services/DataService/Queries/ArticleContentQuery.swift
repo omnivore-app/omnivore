@@ -45,6 +45,7 @@ extension DataService {
           originalHtml: nil,
           language: try $0.language(),
           wordsCount: try $0.wordsCount(),
+          downloadURL: try $0.url(),
           recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
           labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
         ),

@@ -24,7 +24,6 @@ import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getStorageFileDetails,
-  makeStorageFilePublic,
 } from '../../utils/uploads'
 
 export function emailAttachmentRouter() {
@@ -143,11 +142,12 @@ export function emailAttachmentRouter() {
         return res.status(400).send('BAD REQUEST')
       }
 
-      const uploadFileUrlOverride = await makeStorageFilePublic(
-        uploadFileData.id,
-        uploadFileData.fileName
+      const uploadFilePathName = generateUploadFilePathName(
+        uploadFileId,
+        uploadFile.fileName
       )
 
+      const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFilePathName}`
       const uploadFileHash = uploadFileDetails.md5Hash
       const itemType =
         uploadFile.contentType === 'application/pdf'

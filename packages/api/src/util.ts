@@ -21,6 +21,7 @@ interface BackendEnv {
     gateway_url: string
     apiEnv: string
     instanceId: string
+    trustProxy: boolean
   }
   client: {
     url: string
@@ -159,6 +160,7 @@ const nullableEnvVars = [
   'RSS_FEED_TASK_HANDLER_URL',
   'SENDGRID_VERIFICATION_TEMPLATE_ID',
   'REMINDER_TASK_HANDLER_URL',
+  'TRUST_PROXY',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -207,6 +209,7 @@ export function getEnv(): BackendEnv {
     apiEnv: parse('API_ENV'),
     instanceId:
       parse('GAE_INSTANCE') || `x${os.userInfo().username}_${os.hostname()}`,
+    trustProxy: parse('TRUST_PROXY') === 'true',
   }
   const client = {
     url: parse('CLIENT_URL'),

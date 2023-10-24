@@ -40,7 +40,7 @@ const DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) Apple
 const BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
-const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com'];
+const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com', 'fortelabs.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
 
@@ -272,7 +272,7 @@ const sendSavePageMutation = async (userId, input) => {
           }
     }`,
     variables: {
-      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
+      input,
     },
   });
 
@@ -341,7 +341,7 @@ async function fetchContent(req, res) {
   const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
   const state = req.body.state
   const labels = req.body.labels
-  const source = req.body.source || 'parseContent';
+  const source = req.body.source || 'puppeteer-parse';
   const taskId = req.body.taskId; // taskId is used to update import status
   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
   const locale = (req.query ? req.query.locale : undefined) || (req.body ? req.body.locale : undefined);
@@ -473,6 +473,7 @@ async function fetchContent(req, res) {
         rssFeedUrl,
         savedAt,
         publishedAt,
+        source,
       });
       if (!apiResponse) {
         logRecord.error = 'error while saving page';

@@ -1,6 +1,7 @@
 import { google, oauth2_v2 as oauthV2 } from 'googleapis'
 import { OAuth2Client } from 'googleapis-common'
 import url from 'url'
+import { StatusType } from '../../entity/user'
 import { env, homePageURL } from '../../env'
 import { LoginErrorCode } from '../../generated/graphql'
 import { userRepository } from '../../repository/user'
@@ -130,6 +131,7 @@ export async function handleGoogleWebAuth(
     const user = await userRepository.findOneBy({
       email,
       source: 'GOOGLE',
+      status: StatusType.Active,
     })
     const userId = user?.id
 

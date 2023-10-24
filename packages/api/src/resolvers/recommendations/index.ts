@@ -48,9 +48,7 @@ export const createGroupResolver = authorized<
   MutationCreateGroupArgs
 >(async (_, { input }, { uid, log }) => {
   try {
-    const userData = await userRepository.findOneBy({
-      id: uid,
-    })
+    const userData = await userRepository.findById(uid)
     if (!userData) {
       return {
         errorCodes: [CreateGroupErrorCode.Unauthorized],
@@ -107,9 +105,7 @@ export const createGroupResolver = authorized<
 export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
   async (_, __, { uid, log }) => {
     try {
-      const user = await userRepository.findOneBy({
-        id: uid,
-      })
+      const user = await userRepository.findById(uid)
       if (!user) {
         return {
           errorCodes: [GroupsErrorCode.Unauthorized],

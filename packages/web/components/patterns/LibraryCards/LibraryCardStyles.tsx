@@ -2,7 +2,13 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { ChangeEvent, useMemo } from 'react'
 import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { Box, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { RecommendedFlairIcon } from '../../elements/icons/RecommendedFlairIcon'
+import { PinnedFlairIcon } from '../../elements/icons/PinnedFlairIcon'
+import { FavoriteFlairIcon } from '../../elements/icons/FavoriteFlairIcon'
+import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
+import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 dayjs.extend(relativeTime)
 
@@ -83,6 +89,52 @@ const shouldHideUrl = (url: string): boolean => {
   return false
 }
 
+export const FLAIR_ICON_NAMES = [
+  'favorite',
+  'pinned',
+  'recommended',
+  'newsletter',
+  'feed',
+  'rss',
+]
+
+const flairIconForLabel = (label: Label): JSX.Element | undefined => {
+  switch (label.name.toLocaleLowerCase()) {
+    case 'favorite':
+      return (
+        <SpanBox title="Favorite">
+          <FavoriteFlairIcon />
+        </SpanBox>
+      )
+    case 'pinned':
+      return (
+        <SpanBox title="Pinned">
+          <PinnedFlairIcon />
+        </SpanBox>
+      )
+    case 'recommended':
+      return (
+        <SpanBox title="Recommended">
+          <RecommendedFlairIcon />
+        </SpanBox>
+      )
+    case 'newsletter':
+      return (
+        <SpanBox title="Newsletter">
+          <NewsletterFlairIcon />
+        </SpanBox>
+      )
+    case 'rss':
+    case 'feed':
+      return (
+        <SpanBox title="Feed">
+          <FeedFlairIcon />
+        </SpanBox>
+      )
+  }
+  return undefined
+}
+
 export const siteName = (
   originalArticleUrl: string,
   itemUrl: string
@@ -114,7 +166,10 @@ export function LibraryItemMetadata(
   }, [props.item.highlights])
 
   return (
-    <Box>
+    <HStack css={{ gap: '5px' }}>
+      {props.item.labels?.map((label) => {
+        return flairIconForLabel(label)
+      })}
       {timeAgo(props.item.savedAt)}
       {` `}
       {props.item.wordsCount ?? 0 > 0
@@ -126,7 +181,7 @@ export function LibraryItemMetadata(
       {highlightCount > 0
         ? `  • ${highlightCount} highlight${highlightCount > 1 ? 's' : ''}`
         : null}
-    </Box>
+    </HStack>
   )
 }
 

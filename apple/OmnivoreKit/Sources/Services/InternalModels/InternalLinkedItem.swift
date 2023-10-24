@@ -27,6 +27,7 @@ struct InternalLinkedItem {
   let originalHtml: String?
   let language: String?
   let wordsCount: Int?
+  let downloadURL: String
   let recommendations: [InternalRecommendation]
   var labels: [InternalLinkedItemLabel]
 
@@ -65,6 +66,7 @@ struct InternalLinkedItem {
     linkedItem.originalHtml = originalHtml
     linkedItem.language = language
     linkedItem.wordsCount = Int64(wordsCount ?? 0)
+    linkedItem.downloadURL = downloadURL
 
     // Remove existing labels in case a label had been deleted
     if let existingLabels = linkedItem.labels {
@@ -146,6 +148,7 @@ extension JSONArticle {
       originalHtml: nil,
       language: language,
       wordsCount: wordsCount,
+      downloadURL: downloadURL,
       recommendations: [],
       labels: []
     )

@@ -1,40 +1,29 @@
-Guidelines
-==========
+📝 **Guidelines for Contribution**
 
-When contributing to Omnivore, please follow the style of the file you
-are editing. For most code running `yarn lint` should tell you if
-your code meets are style.
+Hello there! When contributing to Omnivore, it's essential to maintain a style consistent with the file you're editing. You can quickly check if your code aligns with our style by running `yarn lint`. Your attention to detail here is appreciated! 😊
 
+📜 **License**
 
-License
-=======
+Omnivore is proudly licensed under the [AGPL license](https://github.com/omnivore-app/omnivore/blob/main/LICENSE). Let's keep our code open and accessible to all!
 
-Omnivore is licensed under the [AGPL license](https://github.com/omnivore-app/omnivore/blob/main/LICENSE).
+🤝 **CLA (Contributor License Agreement)**
 
-CLA
-=======
+We kindly request all contributors to adhere to Omnivore's CLA, which you can review and accept at [Omnivore's CLA](https://cla-assistant.io/omnivore-app/omnivore). Your commitment to this agreement is much appreciated.
 
-Contributions are accepted under [Omnivore's CLA](https://cla-assistant.io/omnivore-app/omnivore).
+👩‍💻 **Code Review**
 
-Code Review
-=======
-We require code review from a [CODEOWNER](https://github.com/omnivore-app/omnivore/blob/main/.github/CODEOWNERS) before merging a pull request.
+Before merging any pull request, we require a code review from one of our trusted [CODEOWNERS](https://github.com/omnivore-app/omnivore/blob/main/.github/CODEOWNERS). It ensures the quality and integrity of our codebase.
 
-Testing
-=======
+🧪 **Testing**
 
-Pull requests are automatically tested using GitHub Actions. We
-usually only merge a pull request if it causes no regressions in
-our tests.
+We take quality seriously! Pull requests automatically undergo testing using GitHub Actions. We typically merge a pull request only if it passes all our tests without causing any regressions. 🧪
 
-When you submit a pull request:
+📬 **Submitting a Pull Request**
 
-* If you are a new contributor, GitHub will ask for permissions (on
-  the pull request) to test it. A maintainer will reply to approve
-  the test run if they find the patch appropriate.
-* If you have previously contributed, GitHub will test your pull 
-  request as soon as a test machine is available.
+- **New Contributors**: If you're a new contributor, GitHub may request permissions on the pull request to run tests. Don't worry, our maintainer will swiftly approve the test run if your patch looks promising.
 
-Once tests are passing on your pull request it will be reviewed, 
-merged, and deployed by a maintiner. We deploy around ten times
-a day, so your changes should hit production quickly.
+- **Previous Contributors**: For those who've contributed before, GitHub will kick off testing as soon as a test machine is available.
+
+Once your pull request passes the tests, it'll be promptly reviewed, merged, and deployed by one of our diligent maintainers. We usually deploy changes around ten times a day, so your contributions will go live quickly! 🚀
+
+Thank you for being part of the Omnivore community. Let's keep coding, collaborating, and creating something amazing together! 🌟

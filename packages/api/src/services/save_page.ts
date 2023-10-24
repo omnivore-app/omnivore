@@ -1,12 +1,12 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
-  HighlightType,
   Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
@@ -36,6 +36,7 @@ const FORCE_PUPPETEER_URLS = [
   TWEET_URL_REGEX,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
+const ALREADY_PARSED_SOURCES = ['puppeteer-parse', 'csv-importer', 'rss-feeder']
 
 const createSlug = (url: string, title?: Maybe<string> | undefined) => {
   const { pathname } = new URL(url)
@@ -52,7 +53,7 @@ const createSlug = (url: string, title?: Maybe<string> | undefined) => {
 
 const shouldParseInBackend = (input: SavePageInput): boolean => {
   return (
-    input.source !== 'puppeteer-parse' &&
+    ALREADY_PARSED_SOURCES.indexOf(input.source) === -1 &&
     FORCE_PUPPETEER_URLS.some((regex) => regex.test(input.url))
   )
 }
@@ -77,6 +78,7 @@ export const savePage = async (
   let clientRequestId = input.clientRequestId
 
   const itemToSave = parsedContentToLibraryItem({
+    itemId: clientRequestId,
     url: input.url,
     title: input.title,
     userId: user.id,
@@ -99,7 +101,7 @@ export const savePage = async (
       await createPageSaveRequest({
         userId: user.id,
         url: itemToSave.originalUrl,
-        articleSavingRequestId: clientRequestId,
+        articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,
         labels: input.labels || undefined,
       })
@@ -118,6 +120,9 @@ export const savePage = async (
       })
     )
     if (existingLibraryItem) {
+      clientRequestId = existingLibraryItem.id
+      slug = existingLibraryItem.slug
+
       // we don't want to update an rss feed item if rss-feeder is tring to re-save it
       if (existingLibraryItem.subscription === input.rssFeedUrl) {
         return {
@@ -126,16 +131,24 @@ export const savePage = async (
         }
       }
 
-      clientRequestId = existingLibraryItem.id
-      slug = existingLibraryItem.slug
+      // update the item except for id and slug
       await updateLibraryItem(
         clientRequestId,
-        itemToSave as QueryDeepPartialEntity<LibraryItem>,
+        {
+          ...itemToSave,
+          id: undefined,
+          slug: undefined,
+        } as QueryDeepPartialEntity<LibraryItem>,
         user.id
       )
     } else {
       // do not publish a pubsub event if the item is imported
-      const newItem = await createLibraryItem(itemToSave, user.id)
+      const newItem = await createLibraryItem(
+        itemToSave,
+        user.id,
+        undefined,
+        isImported
+      )
       clientRequestId = newItem.id
     }
 
@@ -158,12 +171,10 @@ export const savePage = async (
   }
 
   if (parseResult.highlightData) {
-    const highlight = {
-      updatedAt: new Date(),
-      createdAt: new Date(),
-      userId: user.id,
+    const highlight: DeepPartial<Highlight> = {
       ...parseResult.highlightData,
-      type: HighlightType.Highlight,
+      user: { id: user.id },
+      libraryItem: { id: clientRequestId },
     }
 
     if (!(await createHighlight(highlight, clientRequestId, user.id))) {
@@ -241,7 +252,7 @@ export const parsedContentToLibraryItem = ({
     publishedAt: validatedDate(
       publishedAt || parsedContent?.publishedDate || undefined
     ),
-    uploadFile: { id: uploadFileId ?? undefined },
+    uploadFileId: uploadFileId || undefined,
     readingProgressTopPercent: 0,
     readingProgressHighestReadAnchor: 0,
     state: state
@@ -255,5 +266,7 @@ export const parsedContentToLibraryItem = ({
     wordCount: wordsCount(parsedContent?.textContent || ''),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
+    archivedAt:
+      state === ArticleSavingRequestStatus.Archived ? new Date() : undefined,
   }
 }

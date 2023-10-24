@@ -6,15 +6,19 @@
 import { Subscription } from '../entity/subscription'
 import {
   Article,
+  Highlight,
   Label,
   PageType,
   Recommendation,
   SearchItem,
 } from '../generated/graphql'
+import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
+  highlightDataToHighlight,
+  isBase64Image,
   recommandationDataToRecommendation,
   validatedDate,
   wordsCount,
@@ -461,7 +465,7 @@ export const functionResolvers = {
     async url(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       if (
         (item.pageType == PageType.File || item.pageType == PageType.Book) &&
-        ctx.uid &&
+        ctx.claims &&
         item.uploadFileId
       ) {
         const upload = await findUploadFileById(item.uploadFileId)
@@ -483,30 +487,64 @@ export const functionResolvers = {
       if (item.wordCount) return item.wordCount
       return item.content ? wordsCount(item.content) : undefined
     },
+    siteIcon(item: { siteIcon?: string }) {
+      if (item.siteIcon && !isBase64Image(item.siteIcon)) {
+        return createImageProxyUrl(item.siteIcon, 128, 128)
+      }
+
+      return item.siteIcon
+    },
+    async highlights(
+      item: {
+        id: string
+        highlights?: Highlight[]
+        highlightAnnotations?: string[] | null
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (item.highlights) return item.highlights
+
+      if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
+        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+        return highlights.map(highlightDataToHighlight)
+      }
+
+      return []
+    },
     async labels(
-      item: { id: string; labels?: Label[] },
+      item: { id: string; labels?: Label[]; labelNames?: string[] | null },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.labels) return item.labels
 
-      return findLabelsByLibraryItemId(item.id, ctx.uid)
+      if (item.labelNames && item.labelNames.length > 0) {
+        return findLabelsByLibraryItemId(item.id, ctx.uid)
+      }
+
+      return []
     },
     async recommendations(
       item: {
         id: string
         recommendations?: Recommendation[]
+        recommenderNames?: string[] | null
       },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.recommendations) return item.recommendations
 
-      const recommendations = await findRecommendationsByLibraryItemId(
-        item.id,
-        ctx.uid
-      )
-      return recommendations.map(recommandationDataToRecommendation)
+      if (item.recommenderNames && item.recommenderNames.length > 0) {
+        const recommendations = await findRecommendationsByLibraryItemId(
+          item.id,
+          ctx.uid
+        )
+        return recommendations.map(recommandationDataToRecommendation)
+      }
+
+      return []
     },
   },
   Subscription: {

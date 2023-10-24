@@ -17,7 +17,7 @@ export type PartialCreateReactionSuccess = Merge<
 
 //   if ((!userArticleId && !highlightId) || (userArticleId && highlightId)) {
 //     // One reaction target is required
-//     // Higlight replies hasn't supported yet
+//     // Highlight replies hasn't supported yet
 //     return {
 //       errorCodes: [CreateReactionErrorCode.BadTarget],
 //     }

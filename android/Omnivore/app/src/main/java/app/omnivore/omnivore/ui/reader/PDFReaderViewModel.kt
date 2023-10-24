@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.EventTracker
+import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
@@ -21,11 +21,16 @@ import com.pspdfkit.document.download.DownloadJob
 import com.pspdfkit.document.download.DownloadRequest
 import com.pspdfkit.document.download.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 import java.lang.Double.max
 import java.lang.Double.min
+import java.lang.Exception
+import java.net.URLEncoder
+import java.nio.file.FileSystem
 import java.util.*
 import javax.inject.Inject
 
@@ -38,8 +43,8 @@ data class PDFReaderParams(
 @HiltViewModel
 class PDFReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
-  private val networker: Networker,
-  private val eventTracker: EventTracker,
+  private val dataService: DataService,
+  private val networker: Networker
 ): ViewModel() {
   var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
@@ -47,21 +52,51 @@ class PDFReaderViewModel @Inject constructor(
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
+      loadItemFromDB(slug)
+      loadItemFromNetwork(slug, context)
+    }
+  }
+
+  private suspend fun loadItemFromDB(slug: String) {
+    withContext(Dispatchers.IO) {
+      val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+      persistedItem?.let { persistedItem ->
+        persistedItem?.savedItem?.localPDF?.let { localPDF ->
+          val localFile = File(localPDF)
+
+          if (localFile.exists()) {
+            val articleContent = ArticleContent(
+              title = persistedItem.savedItem.title,
+              htmlContent = "",
+              highlights = persistedItem.highlights,
+              contentStatus = "SUCCEEDED",
+              objectID = "",
+              labelsJSONString = Gson().toJson(persistedItem.labels)
+            )
+
+            pdfReaderParamsLiveData.postValue(
+              PDFReaderParams(
+                persistedItem.savedItem,
+                articleContent,
+                Uri.fromFile(localFile)
+              )
+            )
+          }
+        }
+      }
+    }
+  }
+
+  private suspend fun loadItemFromNetwork(slug: String, context: Context) {
+    withContext(Dispatchers.IO) {
       val articleQueryResult = networker.savedItem(slug)
-
-      val article = articleQueryResult.item ?: return@launch
-
+      val article = articleQueryResult.item ?: return@withContext
       val request = DownloadRequest.Builder(context)
         .uri(article.pageURLString)
         .build()
 
       val job = DownloadJob.startDownload(request)
-
       job.setProgressListener(object : DownloadJob.ProgressListenerAdapter() {
-        override fun onProgress(progress: Progress) {
-//          progressBar.setProgress((100f * progress.bytesReceived / progress.totalBytes).toInt())
-        }
-
         override fun onComplete(output: File) {
           val articleContent = ArticleContent(
             title = article.title,
@@ -72,22 +107,18 @@ class PDFReaderViewModel @Inject constructor(
             labelsJSONString = Gson().toJson(articleQueryResult.labels)
           )
 
-          val pdfReaderParams = PDFReaderParams(article, articleContent, Uri.fromFile(output))
-
-          eventTracker.track("link_read",
-            com.posthog.android.Properties()
-              .putValue("linkID", pdfReaderParams.item.savedItemId)
-              .putValue("slug", pdfReaderParams.item.slug)
-              .putValue("originalArticleURL", pdfReaderParams.item.pageURLString)
-              .putValue("loaded_from", "network")
-          )
-
           currentReadingProgress = article.readingProgress
-          pdfReaderParamsLiveData.postValue(pdfReaderParams)
+          pdfReaderParamsLiveData.postValue(
+            PDFReaderParams(
+              article,
+              articleContent,
+              Uri.fromFile(output)
+            )
+          )
         }
 
         override fun onError(exception: Throwable) {
-//          handleDownloadError(exception)
+//      handleDownloadError(exception)
         }
       })
     }

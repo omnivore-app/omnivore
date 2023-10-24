@@ -280,3 +280,7 @@ export const getGroupsWhereUserCanPost = async (
     .innerJoinAndSelect('members.user', 'user')
     .getMany()
 }
+
+export const deleteGroup = async (groupId: string) => {
+  return getRepository(Group).delete(groupId)
+}

@@ -34,10 +34,6 @@ const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   : new Storage()
 const bucketName = env.fileUpload.gcsUploadBucket
 
-export const getFilePublicUrl = (filePathName: string): string => {
-  return storage.bucket(bucketName).file(filePathName).publicUrl()
-}
-
 export const countOfFilesWithPrefix = async (prefix: string) => {
   const [files] = await storage.bucket(bucketName).getFiles({ prefix })
   return files.length
@@ -79,22 +75,6 @@ export const generateDownloadSignedUrl = async (
     .getSignedUrl(options)
   logger.info(`generating download signed url: ${url}`)
   return url
-}
-
-export const makeStorageFilePublic = async (
-  id: string,
-  fileName: string
-): Promise<string> => {
-  // if (env.dev.isLocal) {
-  //   return 'http://localhost:3000/public/' + id + '/' + fileName
-  // }
-
-  // Makes the file public
-  const filePathName = generateUploadFilePathName(id, fileName)
-  await storage.bucket(bucketName).file(filePathName).makePublic()
-
-  const fileObj = storage.bucket(bucketName).file(filePathName)
-  return fileObj.publicUrl()
 }
 
 export const getStorageFileDetails = async (

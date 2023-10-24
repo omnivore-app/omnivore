@@ -2092,6 +2092,7 @@ export enum SaveArticleReadingProgressErrorCode {
 }
 
 export type SaveArticleReadingProgressInput = {
+  force?: InputMaybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   readingProgressAnchorIndex?: InputMaybe<Scalars['Int']>;
   readingProgressPercent: Scalars['Float'];
@@ -2616,9 +2617,8 @@ export enum SubscribeErrorCode {
 }
 
 export type SubscribeInput = {
-  name?: InputMaybe<Scalars['String']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
-  url?: InputMaybe<Scalars['String']>;
+  url: Scalars['String'];
 };
 
 export type SubscribeResult = SubscribeError | SubscribeSuccess;
@@ -2978,7 +2978,9 @@ export type UpdateSubscriptionInput = {
   description?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
+  lastFetchedChecksum?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
+  scheduledAt?: InputMaybe<Scalars['Date']>;
   status?: InputMaybe<SubscriptionStatus>;
 };
 

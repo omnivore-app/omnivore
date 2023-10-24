@@ -96,7 +96,18 @@ final class PDFViewerViewModel: ObservableObject {
         }
       }
 
-      return try await dataService.loadPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL)
+      if let result = try? await dataService.loadPDFData(slug: pdfItem.slug, downloadURL: pdfItem.downloadURL) {
+        return result
+      }
+
+      // Downloading failed, try to get the article again, and then download
+      if let content = try? await dataService.loadArticleContentWithRetries(itemID: pdfItem.itemID, username: "me") {
+        // refetched the content, now try one more time then throw
+        if let result = try await dataService.loadPDFData(slug: pdfItem.slug, downloadURL: content.downloadURL) {
+          return result
+        }
+      }
+      return nil
     } catch {
       print("error downloading PDF", error)
       return nil
