@@ -13,6 +13,7 @@ import {
   siteName,
   TitleStyle,
   MenuStyle,
+  FLAIR_ICON_NAMES,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LibraryHoverActions } from './LibraryHoverActions'
@@ -285,9 +286,14 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
               marginLeft: '-4px', // offset because the chips have margin
             }}
           >
-            {sortedLabels(props.item.labels).map(({ name, color }, index) => (
-              <LabelChip key={index} text={name || ''} color={color} />
-            ))}
+            {sortedLabels(props.item.labels)
+              .filter(
+                ({ name }) =>
+                  FLAIR_ICON_NAMES.indexOf(name.toLocaleLowerCase()) == -1
+              )
+              .map(({ name, color }, index) => (
+                <LabelChip key={index} text={name || ''} color={color} />
+              ))}
           </HStack>
         </HStack>
       </VStack>
