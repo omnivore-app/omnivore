@@ -3,6 +3,7 @@ import { gqlFetcher } from '../networkHelpers'
 
 export type ArticleReadingProgressMutationInput = {
   id: string
+  force?: boolean
   readingProgressPercent?: number
   readingProgressTopPercent?: number
   readingProgressAnchorIndex?: number
