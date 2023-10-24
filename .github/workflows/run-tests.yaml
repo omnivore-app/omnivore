@@ -77,7 +77,6 @@ jobs:
       - name: TypeScript Build and Lint
         run: |
           source ~/.nvm/nvm.sh
-          env
           yarn build
           yarn lint
       - name: Tests
