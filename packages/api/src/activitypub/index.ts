@@ -118,47 +118,26 @@ export class FirefishClient {
         }
       }
       return undefined
-      //   // Set the custom fields for the user
-      //   api/i/update
-
-      //   {
-      //     "fields": [
-      //       {
-      //         "name": "omnivore-user-id",
-      //         "value": "123456789AAAA"
-      //       }
-      //     ]
-      //   }
-      //   {
-      //     "isLocked": false,
-      //     "autoAcceptFollowed": true,
-      //     "noCrawle": false,
-      //     "isExplorable": true,
-      //     "hideOnlineStatus": false,
-      //     "publicReactions": false,
-      //     "preventAiLearning": true,
-      //     "ffVisibility": "private"
-      // }
     } catch (error) {
       console.log('failed to create user', { error })
       throw new Error(`Failed to create user actor`)
     }
   }
 
-  async createAppForActor(actorToken: string): Promise<string | undefined> {
-    try {
-      const response = await this.axiosInstance.post('/app/create', {
-        name: 'Omnivore',
-        description: 'Omnivore ActivityPub bridge',
-        permission: FIREFISH_APP_PERMISSIONS,
-      })
-      console.log('create app response: ', response.data)
-      return response.data['secret']
-    } catch (error) {
-      console.log('failed to create user', { error })
-      throw new Error(`Failed to create user actor`)
-    }
-  }
+  // async createAppForActor(actorToken: string): Promise<string | undefined> {
+  //   try {
+  //     const response = await this.axiosInstance.post('/app/create', {
+  //       name: 'Omnivore',
+  //       description: 'Omnivore ActivityPub bridge',
+  //       permission: FIREFISH_APP_PERMISSIONS,
+  //     })
+  //     console.log('create app response: ', response.data)
+  //     return response.data['secret']
+  //   } catch (error) {
+  //     console.log('failed to create user', { error })
+  //     throw new Error(`Failed to create user actor`)
+  //   }
+  // }
 
   // async createFeedActor(id, name): Promise<FeedActor> {
   //   try {
