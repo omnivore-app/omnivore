@@ -16,87 +16,87 @@ services:
     expose:
       - 5432
 
-  # migrate:
-  #   build:
-  #     context: .
-  #     dockerfile: ./packages/db/Dockerfile
-  #   container_name: "omnivore-migrate"
-  #   command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo
-  #   environment:
-  #     - PGPASSWORD=postgres
-  #     - PG_HOST=postgres
-  #     - PG_USER=postgres
-  #     - PG_PASSWORD=postgres
-  #     - PG_DB=omnivore
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  migrate:
+    build:
+      context: .
+      dockerfile: ./packages/db/Dockerfile
+    container_name: "omnivore-migrate"
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo
+    environment:
+      - PGPASSWORD=postgres
+      - PG_HOST=postgres
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=omnivore
+    depends_on:
+      postgres:
+        condition: service_healthy
 
-  # api:
-  #   build:
-  #     context: .
-  #     dockerfile: ./packages/api/Dockerfile
-  #   container_name: "omnivore-api"
-  #   ports:
-  #     - "4000:8080"
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
-  #     interval: 15s
-  #     timeout: 90s
-  #   environment:
-  #     - API_ENV=local
-  #     - PG_HOST=postgres
-  #     - PG_USER=app_user
-  #     - PG_PASSWORD=app_pass
-  #     - PG_DB=omnivore
-  #     - PG_PORT=5432
-  #     - PG_POOL_MAX=20
-  #     - JAEGER_HOST=jaeger
-  #     - IMAGE_PROXY_SECRET=some-secret
-  #     - JWT_SECRET=some_secret
-  #     - SSO_JWT_SECRET=some_sso_secret
-  #     - CLIENT_URL=http://localhost:3000
-  #     - GATEWAY_URL=http://localhost:8080/api
-  #     - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
-  #   depends_on:
-  #     migrate:
-  #       condition: service_completed_successfully
+  api:
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    container_name: "omnivore-api"
+    ports:
+      - "4000:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 0.0.0.0 8080 || exit 1"]
+      interval: 15s
+      timeout: 90s
+    environment:
+      - API_ENV=local
+      - PG_HOST=postgres
+      - PG_USER=app_user
+      - PG_PASSWORD=app_pass
+      - PG_DB=omnivore
+      - PG_PORT=5432
+      - PG_POOL_MAX=20
+      - JAEGER_HOST=jaeger
+      - IMAGE_PROXY_SECRET=some-secret
+      - JWT_SECRET=some_secret
+      - SSO_JWT_SECRET=some_sso_secret
+      - CLIENT_URL=http://localhost:3000
+      - GATEWAY_URL=http://localhost:8080/api
+      - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: ./packages/web/Dockerfile
-  #     args:
-  #       - APP_ENV=prod
-  #       - BASE_URL=http://localhost:3000
-  #       - SERVER_BASE_URL=http://localhost:4000
-  #       - HIGHLIGHTS_BASE_URL=http://localhost:3000
-  #   container_name: "omnivore-web"
-  #   ports:
-  #     - "3000:8080"
-  #   environment:
-  #     - NEXT_PUBLIC_APP_ENV=prod
-  #     - NEXT_PUBLIC_BASE_URL=http://localhost:3000
-  #     - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4000
-  #     - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
+  web:
+    build:
+      context: .
+      dockerfile: ./packages/web/Dockerfile
+      args:
+        - APP_ENV=prod
+        - BASE_URL=http://localhost:3000
+        - SERVER_BASE_URL=http://localhost:4000
+        - HIGHLIGHTS_BASE_URL=http://localhost:3000
+    container_name: "omnivore-web"
+    ports:
+      - "3000:8080"
+    environment:
+      - NEXT_PUBLIC_APP_ENV=prod
+      - NEXT_PUBLIC_BASE_URL=http://localhost:3000
+      - NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:4000
+      - NEXT_PUBLIC_HIGHLIGHTS_BASE_URL=http://localhost:3000
+    depends_on:
+      api:
+        condition: service_healthy
 
-  # content-fetch:
-  #   build:
-  #     context: .
-  #     dockerfile: ./packages/content-fetch/Dockerfile
-  #   container_name: "omnivore-content-fetch"
-  #   ports:
-  #     - "9090:8080"
-  #   environment:
-  #     - JWT_SECRET=some_secret
-  #     - VERIFICATION_TOKEN=some_token
-  #     - REST_BACKEND_ENDPOINT=http://api:8080/api
-  #   depends_on:
-  #     api:
-  #       condition: service_healthy
+  content-fetch:
+    build:
+      context: .
+      dockerfile: ./packages/content-fetch/Dockerfile
+    container_name: "omnivore-content-fetch"
+    ports:
+      - "9090:8080"
+    environment:
+      - JWT_SECRET=some_secret
+      - VERIFICATION_TOKEN=some_token
+      - REST_BACKEND_ENDPOINT=http://api:8080/api
+    depends_on:
+      api:
+        condition: service_healthy
 
   redis:
     image: "redis:6.2.7"
@@ -113,9 +113,6 @@ services:
     image: registry.joinfirefish.org/firefish/firefish
     container_name: firefish_web
     restart: unless-stopped
-    depends_on:
-      - postgres
-      # - redis
     ports:
       - "8000:8000"
     environment:
@@ -123,3 +120,8 @@ services:
     volumes:
       - ./files:/firefish/files
       - ./firefish-config:/firefish/.config:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
