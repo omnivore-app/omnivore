@@ -67,7 +67,7 @@ import Views
   let categories: [PrimaryContentCategory]
 
   var innerBody: some View {
-    List {
+    VStack(alignment: .leading, spacing: 20) {
       NavigationLink(
         destination: PrimaryContentCategory.feed.destinationView,
         tag: PrimaryContentCategory.feed,
@@ -75,17 +75,19 @@ import Views
         label: { PrimaryContentCategory.feed.listLabel }
       )
       .listRowBackground(Color.systemBackground.cornerRadius(8))
+      .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 20).padding(.leading, 20)
 
       Button(action: { showProfile = true }, label: {
         PrimaryContentCategory.profile.listLabel
-      })
+      }).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 5).padding(.leading, 20)
 
       Button(action: { addLinkPresented = true }, label: {
         Label("Add Link", systemImage: "plus.circle")
-      })
+      }).frame(maxWidth: .infinity, alignment: .leading).padding(.top, 5).padding(.leading, 20)
+
+      Spacer()
     }
     .dynamicTypeSize(.small ... .large)
-    .listStyle(.sidebar)
     .sheet(isPresented: $addLinkPresented) {
       NavigationView {
         LibraryAddLinkView()
