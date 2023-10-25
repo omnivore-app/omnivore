@@ -385,12 +385,22 @@ import Views
 
     if !selectedLabels.isEmpty {
       query.append(" label:")
-      query.append(selectedLabels.map { $0.name != nil ? "\"\(String(describing: $0.name))\"" : "" }.joined(separator: ","))
+      query.append(selectedLabels.compactMap { label in
+        if let name = label.name {
+          return "\"\(name)\""
+        }
+        return nil
+      }.joined(separator: ","))
     }
 
     if !negatedLabels.isEmpty {
       query.append(" !label:")
-      query.append(negatedLabels.map { $0.name != nil ? "\"\(String(describing: $0.name))\"" : "" }.joined(separator: ","))
+      query.append(negatedLabels.compactMap { label in
+        if let name = label.name {
+          return "\"\(name)\""
+        }
+        return nil
+      }.joined(separator: ","))
     }
 
     print("QUERY: `\(query)`")
