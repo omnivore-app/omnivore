@@ -233,7 +233,7 @@ struct WebReaderContainerView: View {
       )
       Button(
         action: {
-          dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+          dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0, force: true)
         },
         label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
       )
@@ -432,7 +432,7 @@ struct WebReaderContainerView: View {
         #endif
         .onAppear {
           if item.isUnread {
-            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
+            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0, force: false)
           }
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])

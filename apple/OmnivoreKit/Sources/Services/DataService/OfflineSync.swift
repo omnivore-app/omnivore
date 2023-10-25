@@ -154,7 +154,8 @@ public extension DataService {
         syncLinkReadingProgress(
           itemID: item.unwrappedID,
           readingProgress: item.readingProgress,
-          anchorIndex: Int(item.readingProgressAnchor)
+          anchorIndex: Int(item.readingProgressAnchor),
+          force: item.isPDF
         )
       }
     }

@@ -76,11 +76,12 @@ final class PDFViewerViewModel: ObservableObject {
     }
   }
 
-  func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int) {
+  func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int, force: Bool = false) {
     dataService.updateLinkReadingProgress(
       itemID: pdfItem.itemID,
       readingProgress: percent,
-      anchorIndex: anchorIndex
+      anchorIndex: anchorIndex,
+      force: force
     )
   }
 
