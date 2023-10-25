@@ -12,7 +12,7 @@ import { request } from '../util'
 describe('User Service Router', () => {
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
 
-  describe('cleanup', () => {
+  describe('prune', () => {
     let toDeleteUserIds: string[] = []
 
     before(async () => {
@@ -43,7 +43,7 @@ describe('User Service Router', () => {
       await deleteUsers({ id: In(toDeleteUserIds) })
     })
 
-    it('deletes soft deleted users a day ago', async () => {
+    it('prunes soft deleted users a day ago', async () => {
       const data = {
         message: {
           data: Buffer.from(
@@ -54,7 +54,7 @@ describe('User Service Router', () => {
       }
 
       await request
-        .post('/svc/pubsub/user/cleanup?token=' + token)
+        .post('/svc/pubsub/user/prune?token=' + token)
         .send(data)
         .expect(200)
 

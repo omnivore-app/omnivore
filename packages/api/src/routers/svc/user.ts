@@ -34,41 +34,37 @@ const getCleanupMessage = (msgStr: string): CleanupMessage => {
 export function userServiceRouter() {
   const router = express.Router()
 
-  router.post(
-    '/cleanup',
-    cors<express.Request>(corsConfig),
-    async (req, res) => {
-      logger.info('cleanup soft deleted users')
+  router.post('/prune', cors<express.Request>(corsConfig), async (req, res) => {
+    logger.info('prune soft deleted users')
 
-      const { message: msgStr, expired } = readPushSubscription(req)
+    const { message: msgStr, expired } = readPushSubscription(req)
 
-      if (!msgStr) {
-        return res.status(200).send('Bad Request')
-      }
-
-      if (expired) {
-        logger.info('discarding expired message')
-        return res.status(200).send('Expired')
-      }
-
-      const cleanupMessage = getCleanupMessage(msgStr)
-      const subTime = cleanupMessage.subDays * 1000 * 60 * 60 * 24 // convert days to milliseconds
-
-      try {
-        const result = await deleteUsers({
-          status: StatusType.Deleted,
-          updatedAt: LessThan(new Date(Date.now() - subTime)), // subDays ago
-        })
-        logger.info('cleanup result', result)
-
-        return res.sendStatus(200)
-      } catch (error) {
-        logger.error('error cleaning up users', error)
-
-        return res.sendStatus(500)
-      }
+    if (!msgStr) {
+      return res.status(200).send('Bad Request')
     }
-  )
+
+    if (expired) {
+      logger.info('discarding expired message')
+      return res.status(200).send('Expired')
+    }
+
+    const cleanupMessage = getCleanupMessage(msgStr)
+    const subTime = cleanupMessage.subDays * 1000 * 60 * 60 * 24 // convert days to milliseconds
+
+    try {
+      const result = await deleteUsers({
+        status: StatusType.Deleted,
+        updatedAt: LessThan(new Date(Date.now() - subTime)), // subDays ago
+      })
+      logger.info('prune result', result)
+
+      return res.sendStatus(200)
+    } catch (error) {
+      logger.error('error prune users', error)
+
+      return res.sendStatus(500)
+    }
+  })
 
   return router
 }
