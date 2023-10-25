@@ -60,6 +60,11 @@ const config: Configuration = {
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    fallback: {
+      stream: false,
+      fs: false,
+      zlib: false,
+    }
   },
   output: {
     path: path.resolve(__dirname, 'build'),

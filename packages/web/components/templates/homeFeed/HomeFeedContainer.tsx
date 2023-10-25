@@ -351,7 +351,7 @@ export function HomeFeedContainer(): JSX.Element {
   }, [libraryItems, activeCardId])
 
   const getItem = useCallback(
-    (itemId) => {
+    (itemId: string) => {
       return libraryItems.find((item) => item.node.id === itemId)
     },
     [libraryItems]

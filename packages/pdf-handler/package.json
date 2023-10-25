@@ -11,6 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
@@ -33,5 +34,8 @@
     "axios": "^0.27.2",
     "concurrently": "^7.0.0",
     "pdfjs-dist": "^2.9.359"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

@@ -86,7 +86,7 @@ export default function SubscriptionsPage(): JSX.Element {
                         at{' '}
                         <Link
                           href={`/settings/emails?address=${subscription.newsletterEmail}`}
-                        >
+                          legacyBehavior>
                           {subscription.newsletterEmail}
                         </Link>
                       </>
@@ -101,7 +101,7 @@ export default function SubscriptionsPage(): JSX.Element {
                   </StyledText>
                 }
               />
-            )
+            );
           })
         ) : (
           <EmptySettingsRow
@@ -125,5 +125,5 @@ export default function SubscriptionsPage(): JSX.Element {
         ) : null}
       </>
     </SettingsTable>
-  )
+  );
 }

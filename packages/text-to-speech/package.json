@@ -11,6 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
@@ -45,5 +46,8 @@
     "natural": "^6.2.0",
     "redis": "^4.3.1",
     "underscore": "^1.13.4"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

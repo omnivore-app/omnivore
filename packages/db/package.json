@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "migrate": "ts-node ./migrate.ts",
+    "test:typecheck": "tsc --noEmit",
     "generate": "plop"
   },
   "author": "",

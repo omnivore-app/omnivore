@@ -25,5 +25,8 @@
   },
   "scripts": {
     "test": "mocha test/*.js"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

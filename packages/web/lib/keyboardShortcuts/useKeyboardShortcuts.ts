@@ -105,7 +105,7 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
   )
 
   const keydownListener = useCallback(
-    (keydownEvent) => {
+    (keydownEvent: any) => {
       const { target } = keydownEvent
       if (!keydownEvent.key) return
       const key = keydownEvent.key.toLowerCase()
@@ -129,7 +129,7 @@ export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
   )
 
   const keyupListener = useCallback(
-    (keyupEvent) => {
+    (keyupEvent: any) => {
       if (!keyupEvent.key) return
       const key = keyupEvent.key.toLowerCase()
       if (keys[key] === undefined) return

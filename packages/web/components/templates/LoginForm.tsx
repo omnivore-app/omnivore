@@ -50,21 +50,21 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
       >
         Save articles and read them later in our distraction-free reader.
       </StyledText>
-      <Link passHref href="/about">
-        <a style={{ textDecoration: 'none' }}>
-          <StyledText
-            css={{
-              fontStyle: 'normal',
-              fontWeight: '400',
-              fontSize: '18px',
-              lineHeight: '120%',
-              m: '0px',
-              color: '$omnivoreGray',
-            }}
-          >
-            Learn More -&gt;
-          </StyledText>
-        </a>
+      <Link passHref href="/about" style={{ textDecoration: 'none' }}>
+
+        <StyledText
+          css={{
+            fontStyle: 'normal',
+            fontWeight: '400',
+            fontSize: '18px',
+            lineHeight: '120%',
+            m: '0px',
+            color: '$omnivoreGray',
+          }}
+        >
+          Learn More -&gt;
+        </StyledText>
+
       </Link>
 
       <SpanBox css={{ height: '24px' }} />
@@ -103,7 +103,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
             />
           </Box>
         )}
-        <Link href="/auth/email-login" passHref>
+        <Link href="/auth/email-login" passHref legacyBehavior>
           <StyledTextSpan
             style="actionLink"
             css={{ color: '$omnivoreGray', pt: '12px' }}
@@ -114,7 +114,7 @@ export function LoginForm(props: LoginFormProps): JSX.Element {
       </VStack>
       <TermAndConditionsFooter />
     </VStack>
-  )
+  );
 }
 
 function GoogleAuthButton() {
@@ -154,17 +154,17 @@ export function TermAndConditionsFooter(): JSX.Element {
       }}
     >
       By signing up, you agree to Omnivore’s{' '}
-      <Link href="/terms" passHref>
+      <Link href="/terms" passHref legacyBehavior>
         <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>
           Terms of Service
         </StyledTextSpan>
       </Link>{' '}
       and{' '}
-      <Link href="/privacy" passHref>
+      <Link href="/privacy" passHref legacyBehavior>
         <StyledTextSpan style="captionLink" css={{ color: '$omnivoreGray' }}>
           Privacy Policy
         </StyledTextSpan>
       </Link>
     </StyledText>
-  )
+  );
 }

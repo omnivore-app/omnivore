@@ -1,4 +1,4 @@
-import AutosizeInput from 'react-input-autosize'
+import AutosizeInput_, { AutosizeInputProps } from 'react-input-autosize'
 import { Box, SpanBox } from './LayoutPrimitives'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Label } from '../../lib/networking/fragments/labelFragment'
@@ -7,6 +7,11 @@ import { isTouchScreenDevice } from '../../lib/deviceType'
 import { EditLabelChip } from './EditLabelChip'
 import { LabelsDispatcher } from '../../lib/hooks/useSetPageLabels'
 import { EditLabelChipStack } from './EditLabelChipStack'
+
+// AutosizeInput is a Class component, but the types are broken in React 18.
+// TODO: Maybe move away from this component, since it hasn't been updated for 3 years.
+// https://github.com/JedWatson/react-input-autosize/issues
+const AutosizeInput = AutosizeInput_ as unknown as React.FunctionComponent<AutosizeInputProps>
 
 const MaxUnstackedLabels = 7
 

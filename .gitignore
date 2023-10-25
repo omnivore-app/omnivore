@@ -69,3 +69,5 @@ data.json
 # android
 *.aab
 *.apk
+
+tsconfig.tsbuildinfo

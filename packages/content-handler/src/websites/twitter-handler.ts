@@ -228,7 +228,7 @@ const getTweetIds = async (
       timeout: 60000, // 60 seconds
     })
 
-    return (await page.evaluate(async (author) => {
+    return await page.evaluate(async (author) => {
       /**
        * Wait for `ms` amount of milliseconds
        * @param {number} ms
@@ -278,7 +278,7 @@ const getTweetIds = async (
       }
 
       return ids
-    }, author)) as string[]
+    }, author)
   } catch (error) {
     console.error('Error getting tweets', error)
 

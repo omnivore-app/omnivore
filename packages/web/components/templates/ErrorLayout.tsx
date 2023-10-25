@@ -32,11 +32,11 @@ export function ErrorLayout(props: ErrorLayoutProps): JSX.Element {
         </StyledText>
       </HStack>
       <SpanBox css={{ height: '64px' }} />
-      <Link passHref href={viewerData?.me ? '/home' : '/login'}>
+      <Link passHref href={viewerData?.me ? '/home' : '/login'} legacyBehavior>
         <Button style="ctaDarkYellow">
           {viewerData?.me ? 'Go Home' : 'Login'}
         </Button>
       </Link>
     </VStack>
-  )
+  );
 }
