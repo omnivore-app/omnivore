@@ -1,9 +1,10 @@
-FROM node:18.16-alpine as builder
+FROM node:18.16 as builder
 
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
-RUN apk add g++ make python3
+RUN apt-get update && apt-get install -y g++ make python3
+
 
 COPY package.json .
 COPY yarn.lock .
@@ -32,7 +33,7 @@ RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-FROM node:18.16-alpine as runner
+FROM node:18.16 as runner
 
 WORKDIR /app
 
