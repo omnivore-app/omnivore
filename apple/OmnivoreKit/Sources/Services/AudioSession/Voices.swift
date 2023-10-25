@@ -29,6 +29,7 @@ public enum VoiceCategory: String, CaseIterable {
   case enIN = "English (India)"
   case enSG = "English (Singapore)"
   case enUK = "English (UK)"
+  case frFR = "French (France)"
   case deDE = "German (Germany)"
   case hiIN = "Hindi (India)"
   case itIT = "Italian (Italy)"
@@ -70,6 +71,7 @@ public enum Voices {
     English,
     VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN]),
     VoiceLanguage(key: "de", name: "German", defaultVoice: "de-CH-JanNeural", categories: [.deDE]),
+    VoiceLanguage(key: "fr", name: "French", defaultVoice: "fr-FR-HenriNeural", categories: [.frFR]),
     VoiceLanguage(key: "hi", name: "Hindi", defaultVoice: "hi-IN-MadhurNeural", categories: [.hiIN]),
     VoiceLanguage(key: "it", name: "Italian", defaultVoice: "it-IT-BenignoNeural", categories: [.itIT]),
     VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
@@ -88,6 +90,7 @@ public enum Voices {
     VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", language: "en-IE", category: .enIE),
     VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", language: "en-IN", category: .enIN),
     VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", language: "en-SG", category: .enSG),
+    VoicePair(firstKey: "fr-FR-HenriNeural", secondKey: "fr-FR-DeniseNeural", firstName: "Henri", secondName: "Denise", language: "en-FR", category: .frFR),
     VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", language: "zh-CN", category: .zhCN),
     VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", language: "zh-CN", category: .zhCN),
     VoicePair(firstKey: "es-ES-AlvaroNeural", secondKey: "es-ES-ElviraNeural", firstName: "Alvaro", secondName: "Elvira", language: "es-ES", category: .esES),
