@@ -74,7 +74,6 @@ import Views
         selection: $selectedCategory,
         label: { PrimaryContentCategory.feed.listLabel }
       )
-      .listRowBackground(Color.systemBackground.cornerRadius(8))
       .frame(maxWidth: .infinity, alignment: .leading).padding(.top, 20).padding(.leading, 20)
 
       Button(action: { showProfile = true }, label: {
