@@ -187,6 +187,7 @@ export function LandingSectionsContainer(
             height: 'auto',
           }}
           priority
+          blurDataURL="/static/images/landing/landing-00-hero-blurred.png"
         />
       </Box>
 
@@ -209,17 +210,20 @@ export function LandingSectionsContainer(
         )
       })}
 
-      <VStack alignment="center" css={{
-            width: "100vw",
-            backgroundColor: "#fff",
-            paddingBottom: "40px",
-            marginTop: "40px",
-            borderTop: "1px solid var(--colors-omnivoreYellow)",
-            borderBottom: "1px solid var(--colors-omnivoreYellow)",
-            "@md": {
-              marginTop: 0,
-            }
-      }}>
+      <VStack
+        alignment="center"
+        css={{
+          width: '100vw',
+          backgroundColor: '#fff',
+          paddingBottom: '40px',
+          marginTop: '40px',
+          borderTop: '1px solid var(--colors-omnivoreYellow)',
+          borderBottom: '1px solid var(--colors-omnivoreYellow)',
+          '@md': {
+            marginTop: 0,
+          },
+        }}
+      >
         {props.lang == 'en' && (
           <Box
             as="p"
