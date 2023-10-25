@@ -6,7 +6,7 @@ import {
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
 import { findProfile } from '../../src/services/profile'
-import { deleteUser, findUser } from '../../src/services/user'
+import { deleteUser, findActiveUser } from '../../src/services/user'
 import { hashPassword } from '../../src/utils/auth'
 import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
@@ -98,7 +98,7 @@ describe('User API', () => {
 
       it('updates user and responds with status code 200', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
-        const user = await findUser(response.body.data.updateUser.user.id)
+        const user = await findActiveUser(response.body.data.updateUser.user.id)
         expect(user?.name).to.eql(name)
       })
     })
