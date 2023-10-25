@@ -23,12 +23,16 @@ describe('User Service Router', () => {
           email: 'user_1@omnivore.app',
           status: StatusType.Deleted,
           updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+          source: 'GOOGLE',
+          sourceUserId: '123',
         },
         {
           name: 'user_2',
           email: 'user_2@omnivore.app',
           status: StatusType.Deleted,
           updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+          source: 'GOOGLE',
+          sourceUserId: '456',
         },
       ])
       toDeleteUserIds = users.map((u) => u.id)
@@ -50,7 +54,7 @@ describe('User Service Router', () => {
       }
 
       await request
-        .post('/api/user/cleanup?token=' + token)
+        .post('/svc/pubsub/user/cleanup?token=' + token)
         .send(data)
         .expect(200)
 
