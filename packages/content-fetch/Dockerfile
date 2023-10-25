@@ -1,13 +1,9 @@
-FROM node:18.16-alpine
+FROM node:18.16
 
 # Installs latest Chromium (92) package.
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     chromium \
-    nss \
-    freetype \
-    harfbuzz \
     ca-certificates \
-    ttf-freefont \
     nodejs \
     yarn \
     g++ \
