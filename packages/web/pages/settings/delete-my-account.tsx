@@ -96,9 +96,9 @@ export default function DeleteMyAccount(): JSX.Element {
               with the same username/email for at least 24hrs.
             </p>
             <p>
-              If you are deleting your account because you've imported too many
-              items, and want a "fresh start" you can try using the{' '}
-              <a href="/tools/bulk">bulk tool</a> to clean up your account
+              If you are deleting your account because you&apos;ve imported too
+              many items, and want a &quot;fresh start&quot; you can try using
+              the <a href="/tools/bulk">bulk tool</a> to clean up your account
               instead.
             </p>
             {viewer && router ? (
