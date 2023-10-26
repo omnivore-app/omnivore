@@ -8,7 +8,7 @@ import {
 } from '../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../components/elements/StyledText'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { styled } from '../../components/tokens/stitches.config'
+import { styled, theme } from '../../components/tokens/stitches.config'
 import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
@@ -18,6 +18,7 @@ import { useValidateUsernameQuery } from '../../lib/networking/queries/useValida
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import { ProgressBar } from '../../components/elements/ProgressBar'
 
 const StyledLabel = styled('label', {
   fontWeight: 600,
@@ -371,7 +372,7 @@ export default function Account(): JSX.Element {
             </form>
           </VStack>
 
-          {/* <VStack
+          <VStack
             css={{
               padding: '24px',
               width: '100%',
@@ -390,13 +391,16 @@ export default function Account(): JSX.Element {
                   backgroundColor={theme.colors.grayText.toString()}
                   borderRadius={'2px'}
                 />
-                <StyledText style="footnote" css={{ mt: '0px', mb: '20px' }}>
+                <StyledText style="footnote" css={{ mt: '0px' }}>
                   {`${libraryCount} of 50K library items used.`}
+                </StyledText>
+                <StyledText style="footnote" css={{ mt: '0px', mb: '20px' }}>
+                  {`NOTE: this is a soft limit, if you are approaching or have exceeded this limit please contact support to have your limit raised.`}
                 </StyledText>
               </>
             )}
             <Button style="ctaDarkYellow">Upgrade</Button>
-          </VStack> */}
+          </VStack>
 
           <VStack
             css={{
