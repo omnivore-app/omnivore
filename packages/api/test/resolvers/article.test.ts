@@ -1568,6 +1568,47 @@ describe('Article API', () => {
         ).to.eq(group.name)
       })
     })
+
+    context('when site:youtube.com is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'site:youtube.com'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl:
+                'https://www.youtube.com/watch?v=Omnivore',
+              itemType: PageType.Video,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns youtube videos', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
