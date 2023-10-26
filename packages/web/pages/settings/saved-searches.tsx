@@ -488,9 +488,19 @@ export default function SavedSearchesPage(): JSX.Element {
                 }
                 if (editingId == savedSearch.id) {
                   if (windowWidth >= breakpoint) {
-                    return <DesktopEditCard {...cardProps} />
+                    return (
+                      <DesktopEditCard
+                        key={`edit-${savedSearch.id}`}
+                        {...cardProps}
+                      />
+                    )
                   } else {
-                    return <MobileEditCard {...cardProps} />
+                    return (
+                      <MobileEditCard
+                        key={`edit-${savedSearch.id}`}
+                        {...cardProps}
+                      />
+                    )
                   }
                 }
 
@@ -569,15 +579,14 @@ function GenericTableCard(
     editingId === savedSearch?.id || (isCreateMode && !savedSearch)
   const iconColor = isDarkTheme() ? '#D8D7D5' : '#5F5E58'
   const DEFAULT_STYLE = { position: null }
-  const [style, setStyle] =
-    useState<
-      Partial<{
-        position: string | null
-        top: string
-        left: string
-        maxWidth: string
-      }>
-    >(DEFAULT_STYLE)
+  const [style, setStyle] = useState<
+    Partial<{
+      position: string | null
+      top: string
+      left: string
+      maxWidth: string
+    }>
+  >(DEFAULT_STYLE)
   const handleEdit = () => {
     editingId && updateSavedSearch(editingId)
     setEditingId(null)

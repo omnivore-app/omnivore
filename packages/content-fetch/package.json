@@ -20,5 +20,8 @@
     "start_gcf": "npx functions-framework --port=9090 --target=puppeteer",
     "start_preview": "npx functions-framework --target=preview",
     "test": "mocha test/*.js"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

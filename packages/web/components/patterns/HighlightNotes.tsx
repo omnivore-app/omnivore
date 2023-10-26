@@ -48,7 +48,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
 
   const saveText = useCallback(
-    (text, updateTime, interactive) => {
+    (text: string, updateTime: Date, interactive: boolean) => {
       ;(async () => {
         const success = await updateHighlightMutation({
           annotation: text,

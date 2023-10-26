@@ -171,7 +171,7 @@ struct SafariWebLink: Identifiable {
       return
     }
 
-    dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: readingProgress, anchorIndex: anchorIndex)
+    dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: readingProgress, anchorIndex: anchorIndex, force: false)
     replyHandler(["result": true], nil)
   }
 

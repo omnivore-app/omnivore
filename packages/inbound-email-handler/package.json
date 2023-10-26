@@ -11,6 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
@@ -42,5 +43,8 @@
     "parse-multipart-data": "^1.2.1",
     "rfc2047": "^4.0.1",
     "showdown": "^2.1.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

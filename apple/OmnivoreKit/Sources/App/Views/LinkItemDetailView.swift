@@ -39,7 +39,8 @@ import Views
     dataService.updateLinkReadingProgress(
       itemID: itemID,
       readingProgress: isItemRead ? 0 : 100,
-      anchorIndex: 0
+      anchorIndex: 0,
+      force: false
     )
   }
 

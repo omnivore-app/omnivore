@@ -292,7 +292,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
   })
 
   const handleFontSizeChange = useCallback(
-    (value) => {
+    (value: number) => {
       readerSettings.actionHandler('setFontSize', value)
     },
     [readerSettings]
@@ -399,7 +399,7 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
   const { readerSettings } = props
 
   const handleMarginWidthChange = useCallback(
-    (value) => {
+    (value: number) => {
       readerSettings.setMarginWidth(value)
     },
     [readerSettings]

@@ -356,34 +356,11 @@ import Views
   }
 
   func markRead(dataService: DataService, item: LinkedItem) {
-    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 100, anchorIndex: 0)
+    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 100, anchorIndex: 0, force: true)
   }
 
   func markUnread(dataService: DataService, item: LinkedItem) {
-    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
-  }
-
-  func snoozeUntil(dataService: DataService, linkId: String, until: Date, successMessage: String?) async {
-    isLoading = true
-
-    if let itemIndex = items.firstIndex(where: { $0.id == linkId }) {
-      items.remove(at: itemIndex)
-    }
-
-    do {
-      try await dataService.createReminder(
-        reminderItemId: .link(id: linkId),
-        remindAt: until
-      )
-
-      if let message = successMessage {
-        snackbar(message)
-      }
-    } catch {
-      NSNotification.operationFailed(message: "Failed to snooze")
-    }
-
-    isLoading = false
+    dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0, force: true)
   }
 
   private var queryContainsFilter: Bool {
@@ -408,12 +385,22 @@ import Views
 
     if !selectedLabels.isEmpty {
       query.append(" label:")
-      query.append(selectedLabels.map { $0.name != nil ? "\"\(String(describing: $0.name))\"" : "" }.joined(separator: ","))
+      query.append(selectedLabels.compactMap { label in
+        if let name = label.name {
+          return "\"\(name)\""
+        }
+        return nil
+      }.joined(separator: ","))
     }
 
     if !negatedLabels.isEmpty {
       query.append(" !label:")
-      query.append(negatedLabels.map { $0.name != nil ? "\"\(String(describing: $0.name))\"" : "" }.joined(separator: ","))
+      query.append(negatedLabels.compactMap { label in
+        if let name = label.name {
+          return "\"\(name)\""
+        }
+        return nil
+      }.joined(separator: ","))
     }
 
     print("QUERY: `\(query)`")

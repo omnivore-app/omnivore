@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
+    "test:typecheck": "tsc --noEmit",
     "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000",
     "copy-files": "copyfiles -u 1 src/**/*.html dist/"
   },
@@ -145,7 +146,6 @@
     "node": "18.16.1"
   },
   "volta": {
-    "node": "18.16.1",
-    "yarn": "1.22.19"
+    "extends": "../../package.json"
   }
 }

@@ -8,6 +8,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
@@ -26,5 +27,8 @@
     "dotenv": "^16.0.1",
     "jsonwebtoken": "^8.5.1",
     "search-query-parser": "^1.6.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

@@ -19,7 +19,7 @@ public extension DataService {
         status: try SubscriptionStatus.make(from: $0.status()),
         unsubscribeHttpUrl: try $0.unsubscribeHttpUrl(),
         unsubscribeMailTo: try $0.unsubscribeMailTo(),
-        updatedAt: try $0.updatedAt().value,
+        updatedAt: try $0.updatedAt()?.value ?? Date(),
         url: try $0.url(),
         icon: try $0.icon()
       )

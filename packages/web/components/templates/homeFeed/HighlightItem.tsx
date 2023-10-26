@@ -108,7 +108,7 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         <DropdownSeparator />
         <Link
           href={`/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`}
-        >
+          legacyBehavior>
           <StyledLinkItem
             onClick={(event) => {
               console.log('event.ctrlKey: ', event.ctrlKey, event.metaKey)
@@ -129,7 +129,7 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         </Link>
       </Dropdown>
     </VStack>
-  )
+  );
 }
 
 const sortHighlights = (highlights: Highlight[]) => {
