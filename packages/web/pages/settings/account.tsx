@@ -388,7 +388,7 @@ export default function Account(): JSX.Element {
             {!isValidating && (
               <>
                 <ProgressBar
-                  fillPercentage={(libraryCount ?? 0) / ACCOUNT_LIMIT}
+                  fillPercentage={((libraryCount ?? 0) / ACCOUNT_LIMIT) * 100}
                   fillColor={theme.colors.omnivoreCtaYellow.toString()}
                   backgroundColor={theme.colors.grayText.toString()}
                   borderRadius={'2px'}
