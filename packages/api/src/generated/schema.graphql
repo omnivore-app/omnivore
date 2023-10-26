@@ -1835,6 +1835,7 @@ input SetIntegrationInput {
   enabled: Boolean!
   id: ID
   name: String!
+  syncedAt: Date
   token: String!
   type: IntegrationType
 }

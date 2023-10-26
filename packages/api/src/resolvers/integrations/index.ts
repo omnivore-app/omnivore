@@ -45,6 +45,7 @@ export const setIntegrationResolver = authorized<
       user: { id: uid },
       id: input.id || undefined,
       type: input.type || IntegrationType.Export,
+      syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
     }
     if (input.id) {
       // Update

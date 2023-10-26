@@ -2376,6 +2376,7 @@ export type SetIntegrationInput = {
   enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
   name: Scalars['String'];
+  syncedAt?: InputMaybe<Scalars['Date']>;
   token: Scalars['String'];
   type?: InputMaybe<IntegrationType>;
 };

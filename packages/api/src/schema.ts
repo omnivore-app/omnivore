@@ -1978,6 +1978,7 @@ const schema = gql`
     type: IntegrationType
     token: String!
     enabled: Boolean!
+    syncedAt: Date
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError
