@@ -379,6 +379,57 @@ public struct ShareExtensionView: View {
   }
 
   public var body: some View {
+    VStack(alignment: .leading) {
+      HStack {
+        Text("Saved to Omnivore")
+          .font(Font.system(size: 22, weight: .bold))
+          .frame(maxWidth: .infinity, alignment: .leading)
+
+        Spacer()
+        Button(action: {}, label: {
+          ZStack {
+            Circle()
+              .foregroundColor(Color(hex: "#3D3D3D"))
+              .frame(width: 30, height: 30)
+
+            Image(systemName: "xmark")
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .foregroundColor(Color(hex: "#D9D9D9"))
+              .aspectRatio(contentMode: .fit)
+              .font(Font.title.weight(.medium))
+              .frame(width: 10, height: 10)
+          }
+        })
+        Button(action: {}, label: {
+          ZStack {
+            Circle()
+              .foregroundColor(Color(hex: "#3D3D3D"))
+              .frame(width: 30, height: 30)
+
+            Image(systemName: "xmark")
+              .resizable(resizingMode: Image.ResizingMode.stretch)
+              .foregroundColor(Color(hex: "#D9D9D9"))
+              .aspectRatio(contentMode: .fit)
+              .font(Font.title.weight(.medium))
+              .frame(width: 10, height: 10)
+          }
+        })
+      }.padding(20)
+
+      Spacer()
+
+      HStack {
+        Spacer()
+        Button(action: {}, label: { Text("Read Now").font(Font.system(size: 17, weight: .semibold)).padding(20).tint(Color.white) })
+          .frame(height: 50)
+          .background(Color.blue)
+          .cornerRadius(24)
+      }.frame(maxWidth: .infinity)
+        .padding(20)
+    }
+  }
+
+  public var oldbody: some View {
     VStack(alignment: .center) {
       Capsule()
         .fill(.gray)
