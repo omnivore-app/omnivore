@@ -46,7 +46,7 @@ const parseDate = (date: string): Date => {
 
 export const importCsv = async (ctx: ImportContext, stream: Stream) => {
   // create metrics in redis
-  await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, 'csv-importer')
+  await createMetrics(ctx.redisClient, ctx.userId, ctx.taskId, ctx.source)
 
   const parser = parse({
     headers: true,

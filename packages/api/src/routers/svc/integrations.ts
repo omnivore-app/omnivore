@@ -241,7 +241,7 @@ export function integrationsServiceRouter() {
         // path style: imports/<uid>/<date>/<type>-<uuid>.csv
         const dateStr = DateTime.now().toISODate()
         const fileUuid = uuidv4()
-        const fullPath = `imports/${userId}/${dateStr}/URL_LIST-${fileUuid}.csv`
+        const fullPath = `imports/${userId}/${dateStr}/${integrationService.name}-${fileUuid}.csv`
         // open a write_stream to the file
         const file = createGCSFile(fullPath)
         writeStream = file.createWriteStream({
