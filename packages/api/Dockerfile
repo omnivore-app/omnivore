@@ -5,7 +5,6 @@ WORKDIR /app
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 RUN apt-get update && apt-get install -y g++ make python3
 
-
 COPY package.json .
 COPY yarn.lock .
 COPY tsconfig.json .
@@ -34,6 +33,8 @@ RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
 FROM node:18.16 as runner
+
+RUN apt-get update && apt-get install -y netcat-openbsd
 
 WORKDIR /app
 
