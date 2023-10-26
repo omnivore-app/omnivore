@@ -89,8 +89,18 @@ export default function DeleteMyAccount(): JSX.Element {
             distribution="start"
             alignment="start"
           >
-            Deleting your account will delete all your saved items, notes, and
-            highlights. This operation can not be undone.
+            <p>
+              Deleting your account will delete all your saved items, notes, and
+              highlights. This operation can not be undone. Note that once your
+              account is deleted you will not be able to create a new account
+              with the same username/email for at least 24hrs.
+            </p>
+            <p>
+              If you are deleting your account because you've imported too many
+              items, and want a "fresh start" you can try using the{' '}
+              <a href="/tools/bulk">bulk tool</a> to clean up your account
+              instead.
+            </p>
             {viewer && router ? (
               <Button
                 style="ctaDarkYellow"
