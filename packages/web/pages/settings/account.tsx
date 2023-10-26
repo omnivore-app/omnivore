@@ -20,6 +20,8 @@ import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { ProgressBar } from '../../components/elements/ProgressBar'
 
+const ACCOUNT_LIMIT = 50_000
+
 const StyledLabel = styled('label', {
   fontWeight: 600,
   fontSize: '16px',
@@ -386,20 +388,22 @@ export default function Account(): JSX.Element {
             {!isValidating && (
               <>
                 <ProgressBar
-                  fillPercentage={(libraryCount ?? 0) / 50000}
+                  fillPercentage={(libraryCount ?? 0) / ACCOUNT_LIMIT}
                   fillColor={theme.colors.omnivoreCtaYellow.toString()}
                   backgroundColor={theme.colors.grayText.toString()}
                   borderRadius={'2px'}
                 />
                 <StyledText style="footnote" css={{ mt: '0px' }}>
-                  {`${libraryCount} of 50K library items used.`}
+                  {`${libraryCount} of ${ACCOUNT_LIMIT} library items used.`}
                 </StyledText>
-                <StyledText style="footnote" css={{ mt: '0px', mb: '20px' }}>
-                  {`NOTE: this is a soft limit, if you are approaching or have exceeded this limit please contact support to have your limit raised.`}
+                <StyledText style="footnote" css={{ m: '0px' }}>
+                  NOTE: this is a soft limit, if you are approaching or have
+                  exceeded this limit please contact support to have your limit
+                  raised.
                 </StyledText>
               </>
             )}
-            <Button style="ctaDarkYellow">Upgrade</Button>
+            {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
           </VStack>
 
           <VStack
