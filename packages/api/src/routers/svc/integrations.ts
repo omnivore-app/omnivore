@@ -5,9 +5,10 @@ import { stringify } from 'csv-stringify'
 import express from 'express'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { IntegrationType } from '../../entity/integration'
+import { Integration, IntegrationType } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
 import { EntityType, readPushSubscription } from '../../pubsub'
+import { getRepository } from '../../repository'
 import { Claims } from '../../resolvers/types'
 import {
   findIntegration,
@@ -19,9 +20,11 @@ import {
   searchLibraryItems,
 } from '../../services/library_item'
 import { getClaimsByToken } from '../../utils/auth'
+import { enqueueExportToIntegration } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 import { DateFilter } from '../../utils/search'
 import { createGCSFile } from '../../utils/uploads'
+import { createWebAuthTokenWithPayload } from '../auth/jwt_helpers'
 
 export interface Message {
   type?: EntityType
@@ -40,6 +43,63 @@ const isImportEvent = (event: any): event is ImportEvent =>
 
 export function integrationsServiceRouter() {
   const router = express.Router()
+
+  router.post('/export', async (req, res) => {
+    logger.info('start to sync with integration')
+
+    try {
+      const { message: msgStr, expired } = readPushSubscription(req)
+      if (!msgStr) {
+        return res.status(200).send('Bad Request')
+      }
+
+      if (expired) {
+        logger.info('discarding expired message')
+        return res.status(200).send('Expired')
+      }
+
+      // find all active integrations
+      const integrations = await getRepository(Integration).find({
+        where: {
+          enabled: true,
+          type: IntegrationType.Export,
+        },
+        relations: ['user'],
+      })
+
+      // create a task to sync with each integration
+      await Promise.all(
+        integrations.map(async (integration) => {
+          const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
+          const authToken = await createWebAuthTokenWithPayload({
+            uid: integration.user.id,
+            exp,
+            token: integration.token,
+          })
+
+          if (!authToken) {
+            logger.error('failed to create auth token', {
+              integrationId: integration.id,
+            })
+            return
+          }
+
+          const syncAt = integration.syncedAt?.getTime() || 0
+          return enqueueExportToIntegration(
+            integration.id,
+            integration.name,
+            syncAt,
+            authToken
+          )
+        })
+      )
+    } catch (err) {
+      logger.error('sync with integrations failed', err)
+      return res.status(500).send(err)
+    }
+
+    res.status(200).send('OK')
+  })
 
   router.post('/:integrationName/:action', async (req, res) => {
     logger.info('start to sync with integration', {

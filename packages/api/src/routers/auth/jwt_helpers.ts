@@ -85,3 +85,14 @@ export function suggestedUsername(name: string): string {
   const suffix = Math.floor(Math.random() * 10000)
   return `${prefix}${suffix}`
 }
+
+export async function createWebAuthTokenWithPayload(
+  payload: Record<string, unknown>
+): Promise<string | undefined> {
+  try {
+    const authToken = await signToken(payload, env.server.jwtSecret)
+    return authToken as string
+  } catch {
+    return undefined
+  }
+}
