@@ -148,6 +148,8 @@ export class ReadwiseIntegration extends IntegrationService {
       )
       return response.status === 200
     } catch (error) {
+      logger.error(error)
+
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 429 && retryCount < 3) {
           logger.info('Readwise API rate limit exceeded, retrying...')
@@ -157,10 +159,6 @@ export class ReadwiseIntegration extends IntegrationService {
           await wait(parseInt(retryAfter, 10) * 1000)
           return this.syncWithReadwise(token, highlights, retryCount + 1)
         }
-
-        logger.error(error.message)
-      } else {
-        logger.error(error)
       }
 
       return false
