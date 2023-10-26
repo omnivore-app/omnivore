@@ -13,6 +13,7 @@ import { HStack, VStack } from '../../components/elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { Loader } from '../../components/templates/SavingRequest'
 import { deleteAccountMutation } from '../../lib/networking/mutations/deleteAccountMutation'
+import Link from 'next/link'
 
 export default function DeleteMyAccount(): JSX.Element {
   const router = useRouter()
@@ -98,8 +99,8 @@ export default function DeleteMyAccount(): JSX.Element {
             <p>
               If you are deleting your account because you&apos;ve imported too
               many items, and want a &quot;fresh start&quot; you can try using
-              the <a href="/tools/bulk">bulk tool</a> to clean up your account
-              instead.
+              the <Link href="/tools/bulk">bulk tool</Link> to clean up your
+              account instead.
             </p>
             {viewer && router ? (
               <Button
