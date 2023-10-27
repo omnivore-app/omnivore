@@ -198,37 +198,25 @@ export default function PdfArticleContainer(
         return props.article.readingProgressAnchorIndex
       }
 
-      console.log('instnace config: ', {
+      const config = {
         container: container || '.pdf-container',
-        // toolbarItems,
-        // annotationPresets,
+        toolbarItems,
+        annotationPresets,
         document: props.article.url,
-        //       theme: isDarkTheme() ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT,
+        theme: isDarkTheme() ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT,
         baseUrl: `${window.location.protocol}//${window.location.host}/`,
         licenseKey: pspdfKitKey,
         styleSheets: ['/static/pspdfkit-lib.css'],
-        // annotationTooltipCallback: annotationTooltipCallback,
-        // initialViewState: new PSPDFKit.ViewState({
-        //   zoom: PSPDFKit.ZoomMode.FIT_TO_WIDTH,
-        //   currentPageIndex: initialPage() || 0,
-        // }),
-      })
+        annotationTooltipCallback: annotationTooltipCallback,
+        initialViewState: new PSPDFKit.ViewState({
+          zoom: PSPDFKit.ZoomMode.FIT_TO_WIDTH,
+          currentPageIndex: initialPage() || 0,
+        }),
+      }
 
-      instance = await PSPDFKit.load({
-        container: container || '.pdf-container',
-        // toolbarItems,
-        // annotationPresets,
-        document: props.article.url,
-        //       theme: isDarkTheme() ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT,
-        baseUrl: `${window.location.protocol}//${window.location.host}/`,
-        licenseKey: pspdfKitKey,
-        styleSheets: ['/static/pspdfkit-lib.css'],
-        // annotationTooltipCallback: annotationTooltipCallback,
-        // initialViewState: new PSPDFKit.ViewState({
-        //   zoom: PSPDFKit.ZoomMode.FIT_TO_WIDTH,
-        //   currentPageIndex: initialPage() || 0,
-        // }),
-      })
+      console.log('instnace config: ', config)
+
+      instance = await PSPDFKit.load(config)
       console.log('created PDF instance', instance)
 
       instance.addEventListener('annotations.willChange', async (event) => {
