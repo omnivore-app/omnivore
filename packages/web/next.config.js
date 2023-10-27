@@ -57,15 +57,6 @@ const moduleExports = {
           },
         ],
       },
-      {
-        source: '/(.*).wasm$',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/wasm',
-          },
-        ],
-      },
     ]
   },
   async redirects() {
