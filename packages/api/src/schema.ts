@@ -86,6 +86,7 @@ const schema = gql`
     followersCount: Int
     email: String
     source: String
+    intercomHash: String
   }
 
   type Profile {

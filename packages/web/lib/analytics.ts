@@ -2,10 +2,13 @@ import { UserBasicData } from './networking/queries/useGetViewerQuery'
 import { intercomAppID, posthogApiKey, webBaseURL } from './appConfig'
 import posthog from 'posthog-js'
 
-const userInfo = (user: UserBasicData): { user_id: string; name: string } => {
+const userInfo = (
+  user: UserBasicData
+): { user_id: string; name: string; user_hash: string } => {
   return {
     user_id: user.id,
     name: user.name,
+    user_hash: user.intercomHash,
   }
 }
 
