@@ -379,7 +379,7 @@ public struct ShareExtensionView: View {
         Text(self.viewModel.url ?? "")
           .font(Font.system(size: 12))
           .lineLimit(1)
-          .foregroundColor(Color(hex: "EBEBF5")?.opacity(0.85))
+          .foregroundColor(Color.extensionTextSubtle)
           .frame(height: 14)
 
         Text(self.viewModel.title)
