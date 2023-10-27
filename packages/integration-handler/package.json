@@ -30,6 +30,7 @@
     "@sentry/serverless": "^7.30.0",
     "axios": "^1.2.2",
     "csv-stringify": "^6.4.0",
+    "dotenv": "^16.0.1",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^3.2.1",
     "uuid": "^9.0.0"

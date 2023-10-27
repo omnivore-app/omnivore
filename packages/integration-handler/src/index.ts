@@ -1,11 +1,12 @@
+import { File, Storage } from '@google-cloud/storage'
 import * as Sentry from '@sentry/serverless'
-import * as jwt from 'jsonwebtoken'
-import { getIntegrationClient, updateIntegration } from './integrations'
-import { search } from './item'
 import { stringify } from 'csv-stringify'
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import * as jwt from 'jsonwebtoken'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { File, Storage } from '@google-cloud/storage'
+import { getIntegrationClient, updateIntegration } from './integrations'
+import { search } from './item'
 
 interface IntegrationRequest {
   integrationId: string
@@ -17,6 +18,8 @@ interface Claims {
   uid: string
   token: string
 }
+
+dotenv.config()
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -43,6 +46,8 @@ const createGCSFile = (bucket: string, filename: string): File => {
 
 export const exporter = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
+    console.log('start to export to integration')
+
     const JWT_SECRET = process.env.JWT_SECRET
     const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
 
@@ -50,8 +55,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(500).send('Environment not configured correctly')
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const token = (req.cookies?.token || req.headers.authorization) as string
+    const token = req.get('Omnivore-Authorization')
     if (!token) {
       return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
     }
@@ -77,9 +81,10 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       let hasMore = true
       let after = '0'
       while (hasMore) {
+        console.log('searching for items...')
         const response = await search(
           REST_BACKEND_ENDPOINT,
-          claims.token,
+          token,
           client.highlightOnly,
           new Date(syncAt),
           '50',
@@ -100,6 +105,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           break
         }
 
+        console.log('exporting items...')
         const synced = await client.export(claims.token, items)
         if (!synced) {
           console.error('failed to export item', {
@@ -108,6 +114,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           return res.status(400).send('Failed to sync')
         }
 
+        console.log('updating integration...')
         // update integration syncedAt if successful
         const updated = await updateIntegration(
           REST_BACKEND_ENDPOINT,
@@ -115,7 +122,8 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           items[items.length - 1].updatedAt,
           integrationName,
           claims.token,
-          token
+          token,
+          'EXPORT'
         )
 
         if (!updated) {
@@ -128,6 +136,8 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
         // avoid rate limiting
         await wait(500)
       }
+
+      console.log('done')
     } catch (err) {
       console.error('export with integration failed', err)
       return res.status(500).send(err)
@@ -139,16 +149,17 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
 
 export const importer = Sentry.GCPFunction.wrapHttpFunction(
   async (req, res) => {
+    console.log('start to import from integration')
+
     const JWT_SECRET = process.env.JWT_SECRET
     const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
-    const GCS_BUCKET = process.env.GCS_BUCKET
+    const GCS_BUCKET = process.env.GCS_UPLOAD_BUCKET
 
     if (!JWT_SECRET || !REST_BACKEND_ENDPOINT || !GCS_BUCKET) {
       return res.status(500).send('Environment not configured correctly')
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const token = (req.cookies?.token || req.headers.authorization) as string
+    const token = req.get('Omnivore-Authorization')
     if (!token) {
       return res.status(401).send({ errorCode: 'INVALID_TOKEN' })
     }
@@ -175,6 +186,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       let syncedAt = req.body.syncAt
       const since = syncedAt
 
+      console.log('importing pages from integration...')
       // get pages from integration
       const retrieved = await integrationClient.retrieve({
         token: claims.token,
@@ -182,6 +194,8 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         offset,
       })
       syncedAt = retrieved.since || Date.now()
+
+      console.log('uploading items...')
 
       let retrievedData = retrieved.data
       // if there are pages to import
@@ -224,6 +238,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             size: retrievedData.length,
           })
 
+          console.log('uploading integration...')
           // update the integration's syncedAt and remove taskName
           const result = await updateIntegration(
             REST_BACKEND_ENDPOINT,
@@ -231,7 +246,8 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             new Date(syncedAt),
             req.body.integrationName,
             claims.token,
-            token
+            token,
+            'IMPORT'
           )
           if (!result) {
             console.error('failed to update integration', {
@@ -241,10 +257,13 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
           }
         } while (retrievedData.length > 0 && offset < 20000) // limit to 20k pages
       }
+
+      console.log('done')
     } catch (err) {
       console.error('import pages from integration failed', err)
       return res.status(500).send(err)
     } finally {
+      console.log('closing write stream')
       writeStream?.end()
     }
 

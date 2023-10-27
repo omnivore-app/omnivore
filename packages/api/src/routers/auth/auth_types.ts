@@ -40,3 +40,8 @@ export function isPendingUserTokenPayload(
     'username' in object
   )
 }
+
+export type IntegrationTokenPayload = {
+  uid: string
+  token: string
+}

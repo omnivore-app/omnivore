@@ -59,11 +59,8 @@ export const search = async (
                     node {
                       id
                       slug
-                      labels {
-                        id
-                      }
-                      isArchived
-                      readingProgressPercent      
+                      url
+                      updatedAt
                       title
                       image
                       author
@@ -76,6 +73,10 @@ export const search = async (
                         createdAt
                       }
                     }
+                  }
+                  pageInfo {
+                    hasNextPage
+                    endCursor
                   }
                 }
                 ... on SearchError {

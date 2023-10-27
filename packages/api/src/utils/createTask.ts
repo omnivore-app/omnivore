@@ -328,47 +328,6 @@ export const enqueueReminder = async (
   return createdTasks[0].name
 }
 
-export const enqueueSyncWithIntegration = async (
-  userId: string,
-  integrationName: string
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
-  // use pubsub data format to send the userId to the task handler
-  const payload = {
-    message: {
-      data: Buffer.from(
-        JSON.stringify({
-          userId,
-        })
-      ).toString('base64'),
-      publishTime: new Date().toISOString(),
-    },
-  }
-
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    return nanoid()
-  }
-
-  const createdTasks = await createHttpTaskWithToken({
-    project: GOOGLE_CLOUD_PROJECT,
-    payload,
-    taskHandlerUrl: `${
-      env.queue.integrationTaskHandlerUrl
-    }/${integrationName.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
-    priority: 'low',
-  })
-
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
-    })
-    throw new CreateTaskError(`Unable to get the name of the task`)
-  }
-  return createdTasks[0].name
-}
-
 export const enqueueTextToSpeech = async ({
   userId,
   text,
@@ -498,23 +457,27 @@ export const enqueueRecommendation = async (
 
 export const enqueueImportFromIntegration = async (
   integrationId: string,
+  integrationName: string,
+  syncAt: number, // unix timestamp in milliseconds
   authToken: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     integrationId,
+    integrationName,
+    syncAt,
   }
 
   const headers = {
-    Cookie: `auth=${authToken}`,
+    [OmnivoreAuthorizationHeader]: authToken,
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.integrationTaskHandlerUrl) {
+    if (env.queue.integrationImporterUrl) {
       // Calling the handler function directly.
       setTimeout(() => {
         axios
-          .post(`${env.queue.integrationTaskHandlerUrl}/import`, payload, {
+          .post(env.queue.integrationImporterUrl, payload, {
             headers,
           })
           .catch((error) => {
@@ -528,7 +491,7 @@ export const enqueueImportFromIntegration = async (
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
     payload,
-    taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
+    taskHandlerUrl: env.queue.integrationImporterUrl,
     priority: 'low',
     requestHeaders: headers,
   })
@@ -557,15 +520,15 @@ export const enqueueExportToIntegration = async (
   }
 
   const headers = {
-    Cookie: `auth=${authToken}`,
+    [OmnivoreAuthorizationHeader]: authToken,
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.integrationTaskHandlerUrl) {
+    if (env.queue.integrationExporterUrl) {
       // Calling the handler function directly.
       setTimeout(() => {
         axios
-          .post(`${env.queue.integrationExporterUrl}`, payload, {
+          .post(env.queue.integrationExporterUrl, payload, {
             headers,
           })
           .catch((error) => {
@@ -579,7 +542,7 @@ export const enqueueExportToIntegration = async (
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
     payload,
-    taskHandlerUrl: `${env.queue.integrationExporterUrl}`,
+    taskHandlerUrl: env.queue.integrationExporterUrl,
     priority: 'low',
     requestHeaders: headers,
   })

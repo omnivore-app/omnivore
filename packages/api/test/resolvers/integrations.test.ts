@@ -11,7 +11,6 @@ import {
   saveIntegration,
   updateIntegration,
 } from '../../src/services/integrations'
-import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
@@ -19,6 +18,8 @@ import { generateFakeUuid, graphqlRequest, request } from '../util'
 chai.use(sinonChai)
 
 describe('Integrations resolvers', () => {
+  const READWISE_API_URL = 'https://readwise.io/api/v2'
+  
   let loginUser: User
   let authToken: string
 

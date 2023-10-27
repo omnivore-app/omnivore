@@ -30,7 +30,8 @@ export const updateIntegration = async (
   syncedAt: Date,
   name: string,
   integrationToken: string,
-  token: string
+  token: string,
+  type: string
 ): Promise<boolean> => {
   const requestData = JSON.stringify({
     query: `
@@ -48,11 +49,14 @@ export const updateIntegration = async (
         }
       }`,
     variables: {
-      id,
-      syncedAt,
-      name,
-      token: integrationToken,
-      enabled: true,
+      input: {
+        id,
+        syncedAt,
+        name,
+        token: integrationToken,
+        enabled: true,
+        type,
+      },
     },
   })
 

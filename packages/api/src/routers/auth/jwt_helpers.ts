@@ -4,6 +4,7 @@ import { promisify } from 'util'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import {
+  IntegrationTokenPayload,
   isPendingUserTokenPayload,
   PendingUserTokenPayload,
 } from './auth_types'
@@ -86,11 +87,19 @@ export function suggestedUsername(name: string): string {
   return `${prefix}${suffix}`
 }
 
-export async function createWebAuthTokenWithPayload(
-  payload: Record<string, unknown>
+export async function createIntegrationToken(
+  payload: IntegrationTokenPayload
 ): Promise<string | undefined> {
   try {
-    const authToken = await signToken(payload, env.server.jwtSecret)
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
+    const authToken = await signToken(
+      {
+        ...payload,
+        exp,
+      },
+      env.server.jwtSecret
+    )
+    logger.info('createIntegrationToken', payload)
     return authToken as string
   } catch {
     return undefined
