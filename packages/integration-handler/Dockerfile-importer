@@ -1,6 +1,4 @@
-FROM node:18.16
-
-RUN apt-get update && apt-get install -y g++ make python3
+FROM node:18.16-alpine
 
 # Run everything after as non-privileged user.
 WORKDIR /app
