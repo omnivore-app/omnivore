@@ -204,6 +204,7 @@ export default function PdfArticleContainer(
       )
 
       instance = await PSPDFKit.load({
+        disableWebAssemblyStreaming: true,
         container: container || '.pdf-container',
         toolbarItems,
         annotationPresets,
