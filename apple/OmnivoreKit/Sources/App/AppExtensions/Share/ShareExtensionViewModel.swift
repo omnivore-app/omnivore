@@ -9,6 +9,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""
   @Published public var url: String?
+  @Published public var iconURL: URL?
   @Published public var highlightData: HighlightData?
   @Published public var linkedItem: LinkedItem?
   @Published public var requestId = UUID().uuidString.lowercased()
@@ -88,9 +89,10 @@ public class ShareExtensionViewModel: ObservableObject {
           let hostname = URL(string: payload.url)?.host ?? ""
 
           switch payload.contentType {
-          case let .html(html: _, title: title, highlightData: highlightData):
+          case let .html(html: _, title: title, iconURL: iconURL, highlightData: highlightData):
             self.title = title ?? ""
             self.url = hostname
+            self.iconURL = iconURL
             self.highlightData = highlightData
           case .none:
             self.url = hostname
@@ -145,7 +147,7 @@ public class ShareExtensionViewModel: ObservableObject {
           localPdfURL: localUrl,
           url: pageScrapePayload.url
         )
-      case let .html(html, title, _):
+      case let .html(html, title, _, _):
         newRequestID = try await services.dataService.createPage(
           id: requestId,
           originalHtml: html,
@@ -187,7 +189,11 @@ public class ShareExtensionViewModel: ObservableObject {
         if let title = self.linkedItem?.title {
           self.title = title
         }
-        self.url = self.linkedItem?.pageURLString
+        if let urlStr = self.linkedItem?.pageURLString, let hostname = URL(string: urlStr)?.host {
+          self.url = hostname
+        } else {
+          self.url = self.linkedItem?.pageURLString
+        }
       }
     }
   }
