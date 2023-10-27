@@ -218,6 +218,7 @@ export default function PdfArticleContainer(
           currentPageIndex: initialPage() || 0,
         }),
       })
+      console.log('created PDF instance', instance)
 
       instance.addEventListener('annotations.willChange', async (event) => {
         const annotation = event.annotations.get(0)
