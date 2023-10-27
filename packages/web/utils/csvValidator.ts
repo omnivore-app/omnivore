@@ -1,4 +1,5 @@
 import CSVFileValidator, { ValidatorConfig } from 'csv-file-validator'
+import dayjs from 'dayjs'
 
 const isUrlValid = (url: string | number | boolean) => {
   if (typeof url !== 'string') {
@@ -20,6 +21,21 @@ const isStateValid = (state: string | number | boolean) => {
 
   const validStates = ['SUCCEEDED', 'ARCHIVED']
   return validStates.includes(state.toUpperCase())
+}
+
+const isDateValid = (date: string | number | boolean) => {
+  const dateString = date.toString()
+  // date is unix timestamp in milliseconds
+  if (dateString.length !== 13) {
+    return false
+  }
+
+  const timestamp = parseInt(dateString, 10)
+  if (isNaN(timestamp)) {
+    return false
+  }
+
+  return dayjs(timestamp).isValid()
 }
 
 const csvConfig: ValidatorConfig = {
@@ -57,12 +73,26 @@ const csvConfig: ValidatorConfig = {
       inputName: 'saved_at',
       required: false,
       optional: true,
+      validate: function (date) {
+        if (!date) {
+          return true
+        }
+
+        return isDateValid(date)
+      },
     },
     {
       name: 'published_at',
       inputName: 'published_at',
       required: false,
       optional: true,
+      validate: function (date) {
+        if (!date) {
+          return true
+        }
+
+        return isDateValid(date)
+      },
     },
   ],
 }
