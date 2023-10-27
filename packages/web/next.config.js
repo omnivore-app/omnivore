@@ -57,7 +57,7 @@ const moduleExports = {
           },
         ],
       },
-    ];
+    ]
   },
   async redirects() {
     return [

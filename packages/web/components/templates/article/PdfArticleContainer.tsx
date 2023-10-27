@@ -198,12 +198,7 @@ export default function PdfArticleContainer(
         return props.article.readingProgressAnchorIndex
       }
 
-      console.log(
-        'theme: ',
-        isDarkTheme() ? PSPDFKit.Theme.DARK : PSPDFKit.Theme.LIGHT
-      )
-
-      instance = await PSPDFKit.load({
+      const config = {
         container: container || '.pdf-container',
         toolbarItems,
         annotationPresets,
@@ -217,7 +212,12 @@ export default function PdfArticleContainer(
           zoom: PSPDFKit.ZoomMode.FIT_TO_WIDTH,
           currentPageIndex: initialPage() || 0,
         }),
-      })
+      }
+
+      console.log('instnace config: ', config)
+
+      instance = await PSPDFKit.load(config)
+      console.log('created PDF instance', instance)
 
       instance.addEventListener('annotations.willChange', async (event) => {
         const annotation = event.annotations.get(0)
@@ -243,7 +243,9 @@ export default function PdfArticleContainer(
           patch.customData.omnivoreHighight.annotation = highlight.annotation
         }
 
-        const annotation = PSPDFKit.Annotations.fromSerializableObject(patch)
+        const annotation = PSPDFKit.Annotations.fromSerializableObject(
+          patch
+        ) as Annotation
 
         try {
           await instance.create(annotation)
