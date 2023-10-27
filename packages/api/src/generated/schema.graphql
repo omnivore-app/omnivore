@@ -641,6 +641,18 @@ type Feature {
   updatedAt: Date
 }
 
+type Feed {
+  author: String
+  createdAt: Date!
+  description: String
+  id: ID!
+  image: String
+  publishedAt: Date
+  title: String!
+  updatedAt: Date!
+  url: String!
+}
+
 type FeedArticle {
   annotationsCount: Int
   article: Article!
@@ -671,6 +683,27 @@ union FeedArticlesResult = FeedArticlesError | FeedArticlesSuccess
 
 type FeedArticlesSuccess {
   edges: [FeedArticleEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FeedEdge {
+  cursor: String!
+  node: Feed!
+}
+
+type FeedsError {
+  errorCodes: [FeedsErrorCode!]!
+}
+
+enum FeedsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FeedsResult = FeedsError | FeedsSuccess
+
+type FeedsSuccess {
+  edges: [FeedEdge!]!
   pageInfo: PageInfo!
 }
 
@@ -1294,6 +1327,7 @@ type Query {
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   deviceTokens: DeviceTokensResult!
+  feeds(after: String, first: Int, query: String!, sort: SortParams): FeedsResult!
   filters: FiltersResult!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!

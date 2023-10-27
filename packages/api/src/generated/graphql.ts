@@ -725,6 +725,19 @@ export type Feature = {
   updatedAt?: Maybe<Scalars['Date']>;
 };
 
+export type Feed = {
+  __typename?: 'Feed';
+  author?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['Date']>;
+  title: Scalars['String'];
+  updatedAt: Scalars['Date'];
+  url: Scalars['String'];
+};
+
 export type FeedArticle = {
   __typename?: 'FeedArticle';
   annotationsCount?: Maybe<Scalars['Int']>;
@@ -759,6 +772,30 @@ export type FeedArticlesResult = FeedArticlesError | FeedArticlesSuccess;
 export type FeedArticlesSuccess = {
   __typename?: 'FeedArticlesSuccess';
   edges: Array<FeedArticleEdge>;
+  pageInfo: PageInfo;
+};
+
+export type FeedEdge = {
+  __typename?: 'FeedEdge';
+  cursor: Scalars['String'];
+  node: Feed;
+};
+
+export type FeedsError = {
+  __typename?: 'FeedsError';
+  errorCodes: Array<FeedsErrorCode>;
+};
+
+export enum FeedsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FeedsResult = FeedsError | FeedsSuccess;
+
+export type FeedsSuccess = {
+  __typename?: 'FeedsSuccess';
+  edges: Array<FeedEdge>;
   pageInfo: PageInfo;
 };
 
@@ -1725,6 +1762,7 @@ export type Query = {
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
   deviceTokens: DeviceTokensResult;
+  feeds: FeedsResult;
   filters: FiltersResult;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
@@ -1759,6 +1797,14 @@ export type QueryArticleArgs = {
 export type QueryArticleSavingRequestArgs = {
   id?: InputMaybe<Scalars['ID']>;
   url?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QueryFeedsArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  query: Scalars['String'];
+  sort?: InputMaybe<SortParams>;
 };
 
 
@@ -3459,12 +3505,18 @@ export type ResolversTypes = {
   DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
+  Feed: ResolverTypeWrapper<Feed>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
   FeedArticlesError: ResolverTypeWrapper<FeedArticlesError>;
   FeedArticlesErrorCode: FeedArticlesErrorCode;
   FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
+  FeedEdge: ResolverTypeWrapper<FeedEdge>;
+  FeedsError: ResolverTypeWrapper<FeedsError>;
+  FeedsErrorCode: FeedsErrorCode;
+  FeedsResult: ResolversTypes['FeedsError'] | ResolversTypes['FeedsSuccess'];
+  FeedsSuccess: ResolverTypeWrapper<FeedsSuccess>;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -3939,11 +3991,16 @@ export type ResolversParentTypes = {
   DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: DeviceTokensSuccess;
   Feature: Feature;
+  Feed: Feed;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
   FeedArticlesError: FeedArticlesError;
   FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: FeedArticlesSuccess;
+  FeedEdge: FeedEdge;
+  FeedsError: FeedsError;
+  FeedsResult: ResolversParentTypes['FeedsError'] | ResolversParentTypes['FeedsSuccess'];
+  FeedsSuccess: FeedsSuccess;
   Filter: Filter;
   FiltersError: FiltersError;
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
@@ -4734,6 +4791,19 @@ export type FeatureResolvers<ContextType = ResolverContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FeedResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feed'] = ResolversParentTypes['Feed']> = {
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeedArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticle'] = ResolversParentTypes['FeedArticle']> = {
   annotationsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
@@ -4765,6 +4835,27 @@ export type FeedArticlesResultResolvers<ContextType = ResolverContext, ParentTyp
 
 export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticlesSuccess'] = ResolversParentTypes['FeedArticlesSuccess']> = {
   edges?: Resolver<Array<ResolversTypes['FeedArticleEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FeedEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedEdge'] = ResolversParentTypes['FeedEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Feed'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FeedsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedsError'] = ResolversParentTypes['FeedsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FeedsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FeedsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedsResult'] = ResolversParentTypes['FeedsResult']> = {
+  __resolveType: TypeResolveFn<'FeedsError' | 'FeedsSuccess', ParentType, ContextType>;
+};
+
+export type FeedsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedsSuccess'] = ResolversParentTypes['FeedsSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['FeedEdge']>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5266,6 +5357,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
+  feeds?: Resolver<ResolversTypes['FeedsResult'], ParentType, ContextType, RequireFields<QueryFeedsArgs, 'query'>>;
   filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
@@ -6287,11 +6379,16 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
   DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
+  Feed?: FeedResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
   FeedArticleEdge?: FeedArticleEdgeResolvers<ContextType>;
   FeedArticlesError?: FeedArticlesErrorResolvers<ContextType>;
   FeedArticlesResult?: FeedArticlesResultResolvers<ContextType>;
   FeedArticlesSuccess?: FeedArticlesSuccessResolvers<ContextType>;
+  FeedEdge?: FeedEdgeResolvers<ContextType>;
+  FeedsError?: FeedsErrorResolvers<ContextType>;
+  FeedsResult?: FeedsResultResolvers<ContextType>;
+  FeedsSuccess?: FeedsSuccessResolvers<ContextType>;
   Filter?: FilterResolvers<ContextType>;
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;
