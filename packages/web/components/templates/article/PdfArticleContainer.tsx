@@ -244,7 +244,9 @@ export default function PdfArticleContainer(
           patch.customData.omnivoreHighight.annotation = highlight.annotation
         }
 
-        const annotation = PSPDFKit.Annotations.fromSerializableObject(patch)
+        const annotation = PSPDFKit.Annotations.fromSerializableObject(
+          patch
+        ) as Annotation
 
         try {
           await instance.create(annotation)
