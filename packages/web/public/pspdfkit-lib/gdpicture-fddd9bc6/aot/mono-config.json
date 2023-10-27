@@ -1,0 +1,364 @@
+{
+  "mainAssemblyName": "GdPicture.NET.PSPDFKit.Wasm.NET7.dll",
+  "assemblyRootFolder": "managed",
+  "debugLevel": 0,
+  "assets": [
+    {
+      "behavior": "assembly",
+      "name": "BouncyCastle.Cryptography.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "ChromeHtmlToPdfLib.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "DocumentFormat.OpenXml.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.API.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.barcode.1d.writer.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.barcode.2d.writer.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.CAD.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.Common.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.Document.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.Imaging.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.Imaging.Formats.Conversion.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.Imaging.Formats.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.Imaging.Rendering.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.MSOfficeBinary.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.OpenDocument.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.OpenXML.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.PDF.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.RTF.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.14.SVG.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.OpenXML.Templating.Wasm.NET7.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.PSPDFKit.Wasm.NET7.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "GdPicture.NET.Wasm.NET7.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "Microsoft.CSharp.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "Microsoft.Win32.Registry.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "MsgReader.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "Newtonsoft.Json.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "OpenMcdf.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "protobuf-net.Core.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "protobuf-net.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "RtfPipe.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Collections.Concurrent.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Collections.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Collections.Immutable.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Collections.NonGeneric.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Collections.Specialized.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.ComponentModel.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.ComponentModel.EventBasedAsync.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.ComponentModel.Primitives.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.ComponentModel.TypeConverter.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Console.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Data.Common.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Diagnostics.DiagnosticSource.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Diagnostics.Process.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Diagnostics.TraceSource.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Drawing.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Drawing.Primitives.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Formats.Asn1.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.IO.Compression.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.IO.Packaging.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Linq.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Linq.Expressions.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Memory.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Http.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Http.Formatting.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Mail.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.NetworkInformation.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Primitives.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Requests.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Security.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.ServicePoint.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.Sockets.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.WebHeaderCollection.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.WebSockets.Client.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Net.WebSockets.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.ObjectModel.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Private.CoreLib.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Private.Uri.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Private.Xml.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Private.Xml.Linq.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Runtime.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Runtime.InteropServices.JavaScript.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Runtime.Numerics.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Runtime.Serialization.Formatters.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Runtime.Serialization.Primitives.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Security.Cryptography.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Security.Cryptography.Pkcs.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Text.Encoding.CodePages.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Text.Encodings.Web.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Text.Json.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Text.RegularExpressions.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Threading.Tasks.Parallel.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Windows.Extensions.dll"
+    },
+    {
+      "behavior": "assembly",
+      "name": "System.Xml.Linq.dll"
+    },
+    {
+      "virtualPath": "runtimeconfig.bin",
+      "behavior": "vfs",
+      "name": "supportFiles/0_runtimeconfig.bin"
+    },
+    {
+      "loadRemote": false,
+      "behavior": "icu",
+      "name": "icudt.dat"
+    },
+    {
+      "virtualPath": "/usr/share/zoneinfo/",
+      "behavior": "vfs",
+      "name": "dotnet.timezones.blat"
+    },
+    {
+      "behavior": "dotnetwasm",
+      "name": "dotnet.wasm"
+    }
+  ],
+  "remoteSources": [],
+  "pthreadPoolSize": 0
+}

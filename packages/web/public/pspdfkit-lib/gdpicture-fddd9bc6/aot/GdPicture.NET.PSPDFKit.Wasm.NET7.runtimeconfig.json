@@ -1,0 +1,29 @@
+{
+  "runtimeOptions": {
+    "tfm": "net7.0",
+    "includedFrameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "7.0.12"
+      }
+    ],
+    "configProperties": {
+      "Microsoft.Extensions.DependencyInjection.VerifyOpenGenericServiceTrimmability": true,
+      "System.ComponentModel.TypeConverter.EnableUnsafeBinaryFormatterInDesigntimeLicenseContextSerialization": false,
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+      "System.Resources.ResourceManager.AllowCustomResourceTypes": false,
+      "System.Runtime.InteropServices.BuiltInComInterop.IsSupported": false,
+      "System.Runtime.InteropServices.EnableConsumingManagedCodeFromNativeHosting": false,
+      "System.Runtime.InteropServices.EnableCppCLIHostActivation": false,
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+      "System.StartupHookProvider.IsSupported": false,
+      "System.Threading.Thread.EnableAutoreleasePool": false,
+      "System.Text.Encoding.EnableUnsafeUTF7Encoding": false
+    },
+    "wasmHostProperties": {
+      "runtimeArgs": [],
+      "perHostConfig": [],
+      "mainAssembly": "GdPicture.NET.PSPDFKit.Wasm.NET7.dll"
+    }
+  }
+}

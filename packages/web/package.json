@@ -52,7 +52,7 @@
     "papaparse": "^5.4.1",
     "phosphor-react": "^1.4.0",
     "posthog-js": "^1.78.2",
-    "pspdfkit": "^2022.2.3",
+    "pspdfkit": "^2023.4.6",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-colorful": "^5.5.1",
