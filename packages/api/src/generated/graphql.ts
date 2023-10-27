@@ -3122,6 +3122,7 @@ export type User = {
   followersCount?: Maybe<Scalars['Int']>;
   friendsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
+  intercomHash?: Maybe<Scalars['String']>;
   /** @deprecated isFriend has been replaced with viewerIsFollowing */
   isFriend?: Maybe<Scalars['Boolean']>;
   isFullUser?: Maybe<Scalars['Boolean']>;
@@ -6076,6 +6077,7 @@ export type UserResolvers<ContextType = ResolverContext, ParentType extends Reso
   followersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   friendsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  intercomHash?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isFriend?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   isFullUser?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
