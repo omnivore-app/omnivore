@@ -10,14 +10,14 @@ public struct ShareExtensionView: View {
   @StateObject var labelsViewModel = LabelsViewModel()
   @StateObject private var viewModel = ShareExtensionViewModel()
 
+  @State var reminderTime: ReminderTime?
+  @State var hideUntilReminded = false
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
   @State var showSearchLabels = false
 
   @State var viewState = ViewState.mainView
   @State var showHighlightInstructionAlert = false
-
-  @State var showAddNoteModal = false
 
   enum FocusField: Hashable {
     case titleEditor
@@ -31,6 +31,16 @@ public struct ShareExtensionView: View {
   }
 
   @FocusState private var focusedField: FocusField?
+
+  private func handleReminderTimeSelection(_ selectedTime: ReminderTime) {
+    if selectedTime == reminderTime {
+      reminderTime = nil
+      hideUntilReminded = false
+    } else {
+      reminderTime = selectedTime
+      hideUntilReminded = true
+    }
+  }
 
   private var titleText: String {
     switch viewModel.status {
@@ -76,22 +86,22 @@ public struct ShareExtensionView: View {
     }
   }
 
-//  var titleBar: some View {
-//    HStack {
-//      Spacer()
-//
-//      Image(systemName: "checkmark.circle")
-//        .frame(width: 15, height: 15)
-//        .foregroundColor(.appGreenSuccess)
-//        .opacity(isSynced ? 1.0 : 0.0)
-//
-//      Text(messageText ?? titleText)
-//        .font(.appSubheadline)
-//        .foregroundColor(titleColor)
-//
-//      Spacer()
-//    }
-//  }
+  var titleBar: some View {
+    HStack {
+      Spacer()
+
+      Image(systemName: "checkmark.circle")
+        .frame(width: 15, height: 15)
+        .foregroundColor(.appGreenSuccess)
+        .opacity(isSynced ? 1.0 : 0.0)
+
+      Text(messageText ?? titleText)
+        .font(.appSubheadline)
+        .foregroundColor(titleColor)
+
+      Spacer()
+    }
+  }
 
   public var titleBox: some View {
     VStack(alignment: .trailing) {
@@ -198,7 +208,7 @@ public struct ShareExtensionView: View {
       }
     }
     .padding(viewState == .editingLabels ? 0 : 16)
-    .background(Color.extensionBackground)
+    .background(viewState == .editingLabels ? Color.clear : Color.appButtonBackground)
     .frame(maxWidth: .infinity, maxHeight: viewState == .editingLabels ? .infinity : 60)
     .cornerRadius(8)
   }
@@ -297,12 +307,12 @@ public struct ShareExtensionView: View {
 
   var moreActionsMenu: some View {
     Menu {
-      Button(action: {}, label: {
-        Label(
-          "Edit Info",
-          systemImage: "info.circle"
-        )
-      })
+      Button(
+        action: {},
+        label: {
+          Button(LocalText.dismissButton, role: .cancel, action: {})
+        }
+      )
       Button(action: {
         if let linkedItem = self.viewModel.linkedItem {
           self.viewModel.setLinkArchived(dataService: self.viewModel.services.dataService,
@@ -368,194 +378,7 @@ public struct ShareExtensionView: View {
     viewState = .mainView
   }
 
-  var articleInfoBox: some View {
-    HStack(alignment: .top, spacing: 15) {
-      AsyncImage(url: self.viewModel.iconURL)
-        .frame(width: 56, height: 56).overlay(
-          RoundedRectangle(cornerRadius: 14)
-            .stroke(.white, lineWidth: 1)
-        ).cornerRadius(14)
-      VStack(alignment: .leading) {
-        Text(self.viewModel.url ?? "")
-          .font(Font.system(size: 12))
-          .lineLimit(1)
-          .foregroundColor(Color(hex: "EBEBF5")?.opacity(0.85))
-          .frame(height: 14)
-
-        Text(self.viewModel.title)
-          .font(Font.system(size: 13, weight: .semibold))
-          .lineSpacing(1.25)
-          .foregroundColor(.appGrayTextContrast)
-          .fixedSize(horizontal: false, vertical: true)
-          .lineLimit(2)
-          .frame(height: 33)
-          .frame(maxWidth: .infinity, alignment: .leading)
-      }.padding(.vertical, 2)
-      // Spacer()
-      Image(systemName: "checkmark.circle")
-        .frame(width: 15, height: 15)
-        .foregroundColor(.appGreenSuccess)
-      // .opacity(isSynced ? 1.0 : 0.0)
-    }
-  }
-
-  var noteBox: some View {
-    Button(action: {
-      NotificationCenter.default.post(name: Notification.Name("ExpandForm"), object: nil)
-      // showAddNoteModal = true
-    }, label: { Text("Add note...") })
-      .foregroundColor(Color.extensionTextSubtle)
-      .font(Font.system(size: 13, weight: .semibold))
-      .frame(height: 50, alignment: .top)
-      .frame(maxWidth: .infinity, alignment: .leading)
-  }
-
-  var labelsBox: some View {
-    Button(action: {}, label: {
-      Label {
-        Text("Add Labels").font(Font.system(size: 12, weight: .medium)).tint(Color.white)
-      } icon: {
-        Image.label.resizable(resizingMode: .stretch).frame(width: 17, height: 17).tint(Color.white)
-      }.padding(.leading, 10).padding(.trailing, 12)
-    })
-      .frame(height: 28)
-      .background(Color.blue)
-      .cornerRadius(24)
-  }
-
-  var infoBox: some View {
-    VStack(alignment: .leading, spacing: 15) {
-      articleInfoBox
-
-      Divider()
-        .frame(maxWidth: .infinity)
-        .frame(height: 1)
-        .background(Color(hex: "545458")?.opacity(0.65))
-
-      noteBox
-
-      labelsBox
-    }.padding(15)
-      .background(Color.extensionPanelBackground)
-      .cornerRadius(14)
-  }
-
-  var moreMenuButton: some View {
-    Menu {
-      Button(action: {}, label: {
-        Label(
-          "Edit Info",
-          systemImage: "info.circle"
-        )
-      })
-      Button(action: {
-        if let linkedItem = self.viewModel.linkedItem {
-          self.viewModel.setLinkArchived(dataService: self.viewModel.services.dataService,
-                                         objectID: linkedItem.objectID,
-                                         archived: true)
-          messageText = "Link Archived"
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
-            extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-          }
-        }
-      }, label: {
-        Label(
-          "Archive",
-          systemImage: "archivebox"
-        )
-      })
-      Button(
-        action: {
-          if let linkedItem = self.viewModel.linkedItem {
-            self.viewModel.removeLink(dataService: self.viewModel.services.dataService, objectID: linkedItem.objectID)
-            messageText = "Link Removed"
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
-              extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-            }
-          }
-        },
-        label: {
-          Label("Remove", systemImage: "trash")
-        }
-      )
-    } label: {
-      ZStack {
-        Circle()
-          .foregroundColor(Color.circleButtonBackground)
-          .frame(width: 30, height: 30)
-
-        Image(systemName: "ellipsis")
-          .resizable(resizingMode: Image.ResizingMode.stretch)
-          .foregroundColor(Color.circleButtonForeground)
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 15, height: 15)
-      }
-    }
-  }
-
-  var closeButton: some View {
-    Button(action: {
-      extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-    }, label: {
-      ZStack {
-        Circle()
-          .foregroundColor(Color.circleButtonBackground)
-          .frame(width: 30, height: 30)
-
-        Image(systemName: "xmark")
-          .resizable(resizingMode: Image.ResizingMode.stretch)
-          .foregroundColor(Color.circleButtonForeground)
-          .aspectRatio(contentMode: .fit)
-          .font(Font.title.weight(.bold))
-          .frame(width: 12, height: 12)
-      }
-    })
-  }
-
-  var titleBar: some View {
-    HStack {
-      Text("Saved to Omnivore")
-        .font(Font.system(size: 22, weight: .bold))
-        .frame(maxWidth: .infinity, alignment: .leading)
-
-      Spacer()
-      moreMenuButton
-      closeButton
-    }
-  }
-
   public var body: some View {
-    VStack(alignment: .leading, spacing: 15) {
-      titleBar
-        .padding(.top, 15)
-
-      infoBox
-
-      Spacer(minLength: 1)
-
-      HStack {
-        Spacer()
-        Button(action: {
-          viewModel.handleReadNowAction(extensionContext: extensionContext)
-        }, label: {
-          Text("Read Now")
-            .font(Font.system(size: 17, weight: .semibold))
-            .tint(Color.white)
-            .padding(20)
-        })
-          .frame(height: 50)
-          .background(Color.blue)
-          .cornerRadius(24)
-          .padding(15)
-      }.frame(maxWidth: .infinity)
-    }.padding(.horizontal, 15)
-      .background(Color.extensionBackground)
-      .onAppear {
-        viewModel.savePage(extensionContext: extensionContext)
-      }
-  }
-
-  public var oldbody: some View {
     VStack(alignment: .center) {
       Capsule()
         .fill(.gray)
