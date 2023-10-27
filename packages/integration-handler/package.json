@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/luxon": "^1.25.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^14.11.2",
     "@types/uuid": "^9.0.0",
