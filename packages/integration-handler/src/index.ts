@@ -6,13 +6,14 @@ import * as jwt from 'jsonwebtoken'
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
 import { getIntegrationClient, updateIntegration } from './integrations'
+import { State } from './integrations/integration'
 import { search } from './item'
 
 interface IntegrationRequest {
   integrationId: string
   syncAt: number // unix timestamp in milliseconds
   integrationName: string
-  includeArchived?: boolean
+  state?: State
 }
 
 interface Claims {
@@ -230,7 +231,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             token: claims.token,
             since,
             offset,
-            includeArchived: req.body.includeArchived,
+            state: req.body.state,
           })
           syncedAt = retrieved.since || Date.now()
           retrievedData = retrieved.data

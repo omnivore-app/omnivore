@@ -1,5 +1,12 @@
 import { Item } from '../item'
 
+export enum State {
+  ARCHIVED = 'ARCHIVED',
+  UNREAD = 'UNREAD',
+  UNARCHIVED = 'UNARCHIVED',
+  ALL = 'ALL',
+}
+
 export interface RetrievedData {
   url: string
   labels?: string[]
@@ -16,7 +23,7 @@ export interface RetrieveRequest {
   since?: number // unix timestamp in milliseconds
   count?: number
   offset?: number
-  includeArchived?: boolean
+  state?: State
 }
 
 export abstract class IntegrationClient {

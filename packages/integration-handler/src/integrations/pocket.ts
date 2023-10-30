@@ -3,6 +3,7 @@ import {
   IntegrationClient,
   RetrievedResult,
   RetrieveRequest,
+  State,
 } from './integration'
 
 interface PocketResponse {
@@ -60,7 +61,8 @@ export class PocketClient extends IntegrationClient {
     accessToken: string,
     since: number, // unix timestamp in seconds
     count = 100,
-    offset = 0
+    offset = 0,
+    state = 'all'
   ): Promise<PocketResponse | null> => {
     const url = `${this.apiUrl}/get`
     try {
@@ -69,7 +71,7 @@ export class PocketClient extends IntegrationClient {
         {
           consumer_key: process.env.POCKET_CONSUMER_KEY,
           access_token: accessToken,
-          state: 'all',
+          state,
           detailType: 'complete',
           since,
           sort: 'oldest',
@@ -95,13 +97,25 @@ export class PocketClient extends IntegrationClient {
     since = 0,
     count = 100,
     offset = 0,
-    includeArchived = false,
+    state = State.UNARCHIVED,
   }: RetrieveRequest): Promise<RetrievedResult> => {
+    let pocketItemState = 'all'
+
+    switch (state) {
+      case State.ARCHIVED:
+        pocketItemState = 'archive'
+        break
+      case State.UNREAD:
+        pocketItemState = 'unread'
+        break
+    }
+
     const pocketData = await this.retrievePocketData(
       token,
       since / 1000,
       count,
-      offset
+      offset,
+      pocketItemState
     )
     if (!pocketData) {
       throw new Error('Error retrieving pocket data')
@@ -125,7 +139,8 @@ export class PocketClient extends IntegrationClient {
         if (item.state === 'DELETED') {
           return false
         }
-        return includeArchived || item.state !== 'ARCHIVED'
+
+        return state !== State.UNARCHIVED || item.state !== 'ARCHIVED'
       })
 
     if (pocketData.error) {
