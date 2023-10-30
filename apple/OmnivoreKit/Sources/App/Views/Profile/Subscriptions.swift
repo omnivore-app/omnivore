@@ -14,7 +14,7 @@ import Views
     isLoading = true
 
     do {
-      subscriptions = try await dataService.subscriptions()
+      subscriptions = try await dataService.subscriptions().filter { $0.status == SubscriptionStatus.active }
     } catch {
       hasNetworkError = true
     }
