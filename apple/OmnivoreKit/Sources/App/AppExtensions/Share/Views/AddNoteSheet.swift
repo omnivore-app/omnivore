@@ -48,7 +48,7 @@ public struct AddNoteSheet: View {
         .task {
           self.focusedField = .noteEditor
         }
-        .background(Color.extensionPanelBackground)
+        .background(Color.extensionBackground)
         .navigationTitle("Add Note")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading: Button(action: {

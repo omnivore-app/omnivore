@@ -32,6 +32,14 @@ import Views
         self.openSheet(AnyView(EditLabelsSheet(viewModel: self.viewModel, labelsViewModel: self.labelsViewModel)))
       }
 
+      NotificationCenter.default.addObserver(
+        forName: Notification.Name("ShowEditInfoSheet"),
+        object: nil,
+        queue: OperationQueue.main
+      ) { _ in
+        self.openSheet(AnyView(EditInfoSheet(viewModel: self.viewModel)))
+      }
+
       embed(
         childViewController: UIViewController.makeShareExtensionController(
           viewModel: viewModel,

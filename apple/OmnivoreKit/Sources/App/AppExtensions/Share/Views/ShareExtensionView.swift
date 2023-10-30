@@ -159,7 +159,9 @@ public struct ShareExtensionView: View {
 
   var moreMenuButton: some View {
     Menu {
-      Button(action: {}, label: {
+      Button(action: {
+        NotificationCenter.default.post(name: Notification.Name("ShowEditInfoSheet"), object: nil)
+      }, label: {
         Label(
           "Edit Info",
           systemImage: "info.circle"
