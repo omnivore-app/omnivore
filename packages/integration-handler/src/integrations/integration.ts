@@ -16,6 +16,7 @@ export interface RetrieveRequest {
   since?: number // unix timestamp in milliseconds
   count?: number
   offset?: number
+  includeArchived?: boolean
 }
 
 export abstract class IntegrationClient {

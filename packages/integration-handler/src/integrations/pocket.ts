@@ -95,6 +95,7 @@ export class PocketClient extends IntegrationClient {
     since = 0,
     count = 100,
     offset = 0,
+    includeArchived = false,
   }: RetrieveRequest): Promise<RetrievedResult> => {
     const pocketData = await this.retrievePocketData(
       token,
@@ -112,13 +113,20 @@ export class PocketClient extends IntegrationClient {
       '1': 'ARCHIVED',
       '2': 'DELETED',
     }
-    const data = pocketItems.map((item) => ({
-      url: item.given_url,
-      labels: item.tags
-        ? Object.values(item.tags).map((tag) => tag.tag)
-        : undefined,
-      state: statusToState[item.status],
-    }))
+    const data = pocketItems
+      .map((item) => ({
+        url: item.given_url,
+        labels: item.tags
+          ? Object.values(item.tags).map((tag) => tag.tag)
+          : undefined,
+        state: statusToState[item.status],
+      }))
+      .filter((item) => {
+        if (item.state === 'DELETED') {
+          return false
+        }
+        return includeArchived || item.state !== 'ARCHIVED'
+      })
 
     if (pocketData.error) {
       throw new Error(`Error retrieving pocket data: ${pocketData.error}`)

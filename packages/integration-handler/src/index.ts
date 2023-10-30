@@ -12,6 +12,7 @@ interface IntegrationRequest {
   integrationId: string
   syncAt: number // unix timestamp in milliseconds
   integrationName: string
+  includeArchived?: boolean
 }
 
 interface Claims {
@@ -229,6 +230,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             token: claims.token,
             since,
             offset,
+            includeArchived: req.body.includeArchived,
           })
           syncedAt = retrieved.since || Date.now()
           retrievedData = retrieved.data
