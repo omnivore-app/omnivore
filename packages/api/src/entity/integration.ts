@@ -15,10 +15,10 @@ export enum IntegrationType {
 }
 
 export enum ImportItemState {
-  UNREAD = 'UNREAD',
-  UNARCHIVED = 'UNARCHIVED',
-  ARCHIVED = 'ARCHIVED',
-  ALL = 'ALL',
+  Unread = 'UNREAD',
+  Unarchived = 'UNARCHIVED',
+  Archived = 'ARCHIVED',
+  All = 'ALL',
 }
 
 @Entity({ name: 'integrations' })

@@ -1,5 +1,9 @@
 import { DeepPartial } from 'typeorm'
-import { Integration, IntegrationType } from '../../entity/integration'
+import {
+  ImportItemState,
+  Integration,
+  IntegrationType,
+} from '../../entity/integration'
 import { env } from '../../env'
 import {
   DeleteIntegrationError,
@@ -47,6 +51,10 @@ export const setIntegrationResolver = authorized<
       id: input.id || undefined,
       type: input.type || IntegrationType.Export,
       syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
+      importItemState:
+        input.type === IntegrationType.Import
+          ? input.importItemState ?? ImportItemState.Unarchived // default to unarchived
+          : undefined,
     }
     if (input.id) {
       // Update
