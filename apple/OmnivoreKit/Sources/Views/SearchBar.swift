@@ -12,7 +12,7 @@ public struct SearchBar: View {
 
   public var body: some View {
     HStack(spacing: 0) {
-      TextField("Search", text: $searchTerm)
+      TextField("Add Labels", text: $searchTerm)
         .frame(height: 36)
         .frame(maxWidth: .infinity)
         .padding(.leading, 28)

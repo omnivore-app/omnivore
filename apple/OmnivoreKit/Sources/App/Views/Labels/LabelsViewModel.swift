@@ -4,7 +4,7 @@ import Services
 import SwiftUI
 import Views
 
-@MainActor final class LabelsViewModel: ObservableObject {
+@MainActor public final class LabelsViewModel: ObservableObject {
   let labelNameMaxLength = 64
 
   @Published var isLoading = false
@@ -13,6 +13,8 @@ import Views
   @Published var labels = [LinkedItemLabel]()
   @Published var showCreateLabelModal = false
   @Published var labelSearchFilter = ""
+
+  public init() {}
 
   func setLabels(_ labels: [LinkedItemLabel]) {
     self.labels = labels.sorted { left, right in

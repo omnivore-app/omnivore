@@ -7,8 +7,8 @@ import Views
 // swiftlint:disable file_length type_body_length
 public struct ShareExtensionView: View {
   let extensionContext: NSExtensionContext?
-  @StateObject var labelsViewModel = LabelsViewModel()
-  @StateObject private var viewModel = ShareExtensionViewModel()
+  @StateObject var viewModel: ShareExtensionViewModel
+  @StateObject var labelsViewModel: LabelsViewModel
 
   @State var previousLabels: [LinkedItemLabel]?
   @State var messageText: String?
@@ -31,6 +31,15 @@ public struct ShareExtensionView: View {
   }
 
   @FocusState private var focusedField: FocusField?
+
+  public init(viewModel: ShareExtensionViewModel,
+              labelsViewModel: LabelsViewModel,
+              extensionContext: NSExtensionContext?)
+  {
+    _viewModel = StateObject(wrappedValue: viewModel)
+    _labelsViewModel = StateObject(wrappedValue: labelsViewModel)
+    self.extensionContext = extensionContext
+  }
 
   private var titleText: String {
     switch viewModel.status {
@@ -132,76 +141,76 @@ public struct ShareExtensionView: View {
     }
   }
 
-  var labelsSection: some View {
-    HStack {
-      if viewState != .editingLabels {
-        ZStack {
-          Circle()
-            .foregroundColor(Color.blue)
-            .frame(width: 34, height: 34)
-
-          Image(systemName: "tag")
-            .font(.appCallout)
-            .frame(width: 34, height: 34)
-        }
-        .padding(.trailing, 8)
-
-        VStack {
-          Text(LocalText.labelsGeneric)
-            .font(.appSubheadline)
-            .foregroundColor(Color.appGrayTextContrast)
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-          let labelCount = labelsViewModel.selectedLabels.count
-          Text(labelCount > 0 ?
-            "\(labelCount) label\(labelCount > 1 ? "s" : "") selected"
-            : "Add labels to your saved link")
-            .font(.appFootnote)
-            .foregroundColor(Color.appGrayText)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-
-        Spacer()
-
-        Image(systemName: "chevron.right")
-          .font(.appCallout)
-      } else {
-        VStack(spacing: 15) {
-          SearchBar(searchTerm: $labelsViewModel.labelSearchFilter)
-
-          // swiftlint:disable line_length
-          ScrollView {
-            LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
-                               selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
-                               onLabelTap: onLabelTap)
-            Button(
-              action: { labelsViewModel.showCreateLabelModal = true },
-              label: {
-                HStack {
-                  let trimmedLabelName = labelsViewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-                  Image(systemName: "tag").foregroundColor(.blue)
-                  Text(
-                    labelsViewModel.labelSearchFilter.count > 0 ?
-                      "Create: \"\(trimmedLabelName)\" label" :
-                      LocalText.createLabelMessage
-                  ).foregroundColor(.blue)
-                    .font(Font.system(size: 14))
-                  Spacer()
-                }
-              }
-            )
-            .buttonStyle(PlainButtonStyle())
-            .padding(10)
-          }.background(Color.appButtonBackground)
-          // swiftlint:enable line_length
-        }
-      }
-    }
-    .padding(viewState == .editingLabels ? 0 : 16)
-    .background(Color.extensionBackground)
-    .frame(maxWidth: .infinity, maxHeight: viewState == .editingLabels ? .infinity : 60)
-    .cornerRadius(8)
-  }
+//  var labelsSection: some View {
+//    HStack {
+//      if viewState != .editingLabels {
+//        ZStack {
+//          Circle()
+//            .foregroundColor(Color.blue)
+//            .frame(width: 34, height: 34)
+//
+//          Image(systemName: "tag")
+//            .font(.appCallout)
+//            .frame(width: 34, height: 34)
+//        }
+//        .padding(.trailing, 8)
+//
+//        VStack {
+//          Text(LocalText.labelsGeneric)
+//            .font(.appSubheadline)
+//            .foregroundColor(Color.appGrayTextContrast)
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//
+//          let labelCount = labelsViewModel.selectedLabels.count
+//          Text(labelCount > 0 ?
+//            "\(labelCount) label\(labelCount > 1 ? "s" : "") selected"
+//            : "Add labels to your saved link")
+//            .font(.appFootnote)
+//            .foregroundColor(Color.appGrayText)
+//            .frame(maxWidth: .infinity, alignment: .leading)
+//        }
+//
+//        Spacer()
+//
+//        Image(systemName: "chevron.right")
+//          .font(.appCallout)
+//      } else {
+//        VStack(spacing: 15) {
+//          SearchBar(searchTerm: $labelsViewModel.labelSearchFilter)
+//
+//          // swiftlint:disable line_length
+//          ScrollView {
+//            LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
+//                               selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
+//                               onLabelTap: onLabelTap)
+//            Button(
+//              action: { labelsViewModel.showCreateLabelModal = true },
+//              label: {
+//                HStack {
+//                  let trimmedLabelName = labelsViewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
+//                  Image(systemName: "tag").foregroundColor(.blue)
+//                  Text(
+//                    labelsViewModel.labelSearchFilter.count > 0 ?
+//                      "Create: \"\(trimmedLabelName)\" label" :
+//                      LocalText.createLabelMessage
+//                  ).foregroundColor(.blue)
+//                    .font(Font.system(size: 14))
+//                  Spacer()
+//                }
+//              }
+//            )
+//            .buttonStyle(PlainButtonStyle())
+//            .padding(10)
+//          }.background(Color.appButtonBackground)
+//          // swiftlint:enable line_length
+//        }
+//      }
+//    }
+//    .padding(viewState == .editingLabels ? 0 : 16)
+//    .background(Color.extensionBackground)
+//    .frame(maxWidth: .infinity, maxHeight: viewState == .editingLabels ? .infinity : 60)
+//    .cornerRadius(8)
+//  }
 
   var highlightSection: some View {
     HStack {
@@ -247,52 +256,6 @@ public struct ShareExtensionView: View {
     .frame(maxWidth: .infinity, maxHeight: viewState == .viewingHighlight ? .infinity : 60)
     .background(Color.appButtonBackground)
     .cornerRadius(8)
-  }
-
-  func onLabelTap(label: LinkedItemLabel, textChip _: TextChip) {
-    if labelsViewModel.selectedLabels.contains(label) {
-      labelsViewModel.selectedLabels.remove(label)
-    } else {
-      labelsViewModel.selectedLabels.insert(label)
-    }
-
-    if let linkedItem = viewModel.linkedItem {
-      labelsViewModel.saveItemLabelChanges(itemID: linkedItem.unwrappedID, dataService: viewModel.services.dataService)
-    }
-  }
-
-  var primaryButtons: some View {
-    HStack {
-      Button(
-        action: { viewModel.handleReadNowAction(extensionContext: extensionContext) },
-        label: {
-          Label("Read Now", systemImage: "book")
-            .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-      )
-      .foregroundColor(.appGrayTextContrast)
-      .background(Color.appButtonBackground)
-      .frame(height: 52)
-      .cornerRadius(8)
-
-      Spacer(minLength: 8)
-
-      Button(
-        action: {
-          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-        },
-        label: {
-          Label(LocalText.readLaterGeneric, systemImage: "text.book.closed.fill")
-            .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-      )
-      .foregroundColor(.black)
-      .background(Color.appBackground)
-      .frame(height: 52)
-      .cornerRadius(8)
-    }
   }
 
   var moreActionsMenu: some View {
@@ -370,11 +333,21 @@ public struct ShareExtensionView: View {
 
   var articleInfoBox: some View {
     HStack(alignment: .top, spacing: 15) {
-      AsyncImage(url: self.viewModel.iconURL)
-        .frame(width: 56, height: 56).overlay(
-          RoundedRectangle(cornerRadius: 14)
-            .stroke(.white, lineWidth: 1)
-        ).cornerRadius(14)
+      AsyncImage(url: self.viewModel.iconURL) { phase in
+        if let image = phase.image {
+          image
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 56, height: 56)
+        } else {
+          Color.appButtonBackground
+            .frame(width: 56, height: 56)
+        }
+      }
+      .frame(width: 56, height: 56).overlay(
+        RoundedRectangle(cornerRadius: 14)
+          .stroke(.white, lineWidth: 1)
+      ).cornerRadius(14)
       VStack(alignment: .leading) {
         Text(self.viewModel.url ?? "")
           .font(Font.system(size: 12))
@@ -399,19 +372,31 @@ public struct ShareExtensionView: View {
     }
   }
 
+  var hasNoteText: Bool {
+    !viewModel.noteText.isEmpty
+  }
+
   var noteBox: some View {
     Button(action: {
-      NotificationCenter.default.post(name: Notification.Name("ExpandForm"), object: nil)
-      // showAddNoteModal = true
-    }, label: { Text("Add note...") })
-      .foregroundColor(Color.extensionTextSubtle)
+      NotificationCenter.default.post(name: Notification.Name("ShowAddNoteSheet"), object: nil)
+    }, label: {
+      Text(hasNoteText ? viewModel.noteText : "Add note...")
+        .frame(height: 50, alignment: .top)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    })
+      .foregroundColor(hasNoteText ?
+        Color.appGrayTextContrast : Color.extensionTextSubtle
+      )
       .font(Font.system(size: 13, weight: .semibold))
       .frame(height: 50, alignment: .top)
       .frame(maxWidth: .infinity, alignment: .leading)
+      .contentShape(Rectangle())
   }
 
   var labelsBox: some View {
-    Button(action: {}, label: {
+    Button(action: {
+      NotificationCenter.default.post(name: Notification.Name("ShowEditLabelsSheet"), object: nil)
+    }, label: {
       Label {
         Text("Add Labels").font(Font.system(size: 12, weight: .medium)).tint(Color.white)
       } icon: {
@@ -546,136 +531,12 @@ public struct ShareExtensionView: View {
           .frame(height: 50)
           .background(Color.blue)
           .cornerRadius(24)
-          .padding(15)
+          .padding(.bottom, 15)
       }.frame(maxWidth: .infinity)
     }.padding(.horizontal, 15)
       .background(Color.extensionBackground)
       .onAppear {
         viewModel.savePage(extensionContext: extensionContext)
       }
-  }
-
-  public var oldbody: some View {
-    VStack(alignment: .center) {
-      Capsule()
-        .fill(.gray)
-        .frame(width: 60, height: 4)
-        .padding(.top, 10)
-
-      if viewState == .mainView {
-        titleBar
-          .padding(.top, 10)
-          .padding(.bottom, 12)
-      } else {
-        ZStack {
-          Text(editingViewTitle).bold()
-            .frame(maxWidth: .infinity, alignment: .center)
-
-          Button(action: {
-            withAnimation {
-              submitEditTitle()
-            }
-          }, label: { Text(LocalText.doneGeneric).bold() })
-            .frame(maxWidth: .infinity, alignment: .trailing)
-        }
-        .padding(8)
-        .padding(.bottom, 4)
-      }
-
-      if viewState == .mainView {
-        titleBox
-      }
-
-      if viewState == .editingTitle {
-        ScrollView(showsIndicators: false) {
-          VStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-              TextEditor(text: $viewModel.title)
-                .textFieldStyle(.roundedBorder)
-                .lineSpacing(6)
-                .submitLabel(.done)
-                .accentColor(.appGraySolid)
-                .foregroundColor(.appGrayTextContrast)
-                .font(.appSubheadline)
-                .padding(8)
-                .background(
-                  RoundedRectangle(cornerRadius: 8)
-                    .strokeBorder(Color.appGrayBorder, lineWidth: 1)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.systemBackground))
-                )
-                .frame(height: 100)
-                .focused($focusedField, equals: .titleEditor)
-                .task {
-                  self.focusedField = .titleEditor
-                }
-                .onChange(of: viewModel.title) { text in
-                  if text.last?.isNewline == .some(true) {
-                    viewModel.title.removeLast()
-                    submitEditTitle()
-                  }
-                }
-            }
-          }
-          .padding(8)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-        Spacer()
-      }
-
-      if viewState != .editingTitle {
-        if viewState != .viewingHighlight {
-          labelsSection
-            .onTapGesture {
-              withAnimation {
-                previousLabels = Array(self.labelsViewModel.selectedLabels)
-                viewState = .editingLabels
-              }
-            }
-        }
-        if viewState != .editingLabels {
-          highlightSection
-            .onTapGesture {
-              withAnimation {
-                if viewModel.highlightData != nil {
-                  viewState = .viewingHighlight
-                } else {
-                  showHighlightInstructionAlert = true
-                }
-              }
-            }
-        }
-      }
-
-      Spacer()
-
-      if viewState == .mainView {
-        Divider()
-          .padding(.bottom, 20)
-
-        primaryButtons
-
-        moreActionsMenu
-      }
-    }
-    .frame(
-      maxWidth: .infinity,
-      maxHeight: .infinity,
-      alignment: .topLeading
-    )
-    .padding(.horizontal, 16)
-    .onAppear {
-      viewModel.savePage(extensionContext: extensionContext)
-    }
-    .sheet(isPresented: $labelsViewModel.showCreateLabelModal) {
-      CreateLabelView(viewModel: labelsViewModel, newLabelName: labelsViewModel.labelSearchFilter)
-    }
-    .alert("Before saving an article select text in Safari to create a highlight on save.",
-           isPresented: $showHighlightInstructionAlert) {
-      Button(LocalText.genericOk, role: .cancel) { showHighlightInstructionAlert = false }
-    }
-    .task {
-      await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
-    }.environmentObject(viewModel.services.dataService)
   }
 }

@@ -1,4 +1,5 @@
 import App
+import Services
 import SwiftUI
 import Utils
 import Views
@@ -6,32 +7,45 @@ import Views
 #if os(iOS)
   import UIKit
 
-  final class SheetViewController: UIViewController {}
-
   @objc(ShareExtensionViewController)
   final class ShareExtensionViewController: UIViewController {
+    let labelsViewModel = LabelsViewModel()
+    let viewModel = ShareExtensionViewModel()
+
     override func viewDidLoad() {
       super.viewDidLoad()
       view.backgroundColor = .clear
 
-      NotificationCenter.default.addObserver(forName: Notification.Name("ExpandForm"), object: nil, queue: OperationQueue.main) { _ in
+      NotificationCenter.default.addObserver(
+        forName: Notification.Name("ShowAddNoteSheet"),
+        object: nil,
+        queue: OperationQueue.main
+      ) { _ in
+        self.openSheet(AnyView(AddNoteSheet(viewModel: self.viewModel)))
+      }
 
-        self.openSheet()
+      NotificationCenter.default.addObserver(
+        forName: Notification.Name("ShowEditLabelsSheet"),
+        object: nil,
+        queue: OperationQueue.main
+      ) { _ in
+        self.openSheet(AnyView(EditLabelsSheet(viewModel: self.viewModel, labelsViewModel: self.labelsViewModel)))
       }
 
       embed(
-        childViewController: UIViewController.makeShareExtensionController(extensionContext: extensionContext),
+        childViewController: UIViewController.makeShareExtensionController(
+          viewModel: viewModel,
+          labelsViewModel: labelsViewModel,
+          extensionContext: extensionContext
+        ),
         heightRatio: 0.60
       )
     }
 
-    @IBAction func openSheet() {
-      let hostingController = UIHostingController(rootView: AddNoteSheet())
+    func openSheet(_ rootView: AnyView) {
+      let hostingController = UIHostingController(rootView: rootView)
 
       present(hostingController, animated: true, completion: nil)
-
-      // Present it w/o any adjustments so it uses the default sheet presentation.
-      // present(sheetViewController., animated: true, completion: nil)
     }
   }
 

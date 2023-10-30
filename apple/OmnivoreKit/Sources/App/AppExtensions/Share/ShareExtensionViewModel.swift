@@ -14,9 +14,12 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var linkedItem: LinkedItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
+  @Published var noteText: String = ""
 
   let services = Services()
   let queue = OperationQueue()
+
+  public init() {}
 
   func handleReadNowAction(extensionContext: NSExtensionContext?) {
     #if os(iOS)
