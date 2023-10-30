@@ -86,70 +86,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
       //    .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .barLeading) {
-          VStack(alignment: .leading) {
-            let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
-
-            Text(title)
-              .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
-
-            if prefersListLayout, isListScrolled {
-              Text(listTitle)
-                .font(Font.system(size: 15, weight: .regular))
-                .foregroundColor(Color.appGrayText)
-            }
-          }.frame(maxWidth: .infinity, alignment: .leading)
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button("", action: {})
-            .disabled(true)
-            .overlay {
-              if viewModel.isLoading, !prefersListLayout, enableGrid {
-                ProgressView()
-              }
-            }
-        }
-        ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
-          if enableGrid {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-              }
-            )
-          } else {
-            EmptyView()
-          }
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: { searchPresented = true },
-            label: {
-              Image(systemName: "magnifyingglass")
-                .resizable()
-                .frame(width: 18, height: 18)
-                .padding(.vertical)
-                .foregroundColor(.appGrayTextContrast)
-            }
-          )
-        }
-        ToolbarItem(placement: .barTrailing) {
-          if UIDevice.isIPhone {
-            Menu(content: {
-              Button(action: { settingsPresented = true }, label: {
-                Label(LocalText.genericProfile, systemImage: "person.circle")
-              })
-              Button(action: { addLinkPresented = true }, label: {
-                Label("Add Link", systemImage: "plus.circle")
-              })
-            }, label: {
-              Image.utilityMenu
-            })
-              .foregroundColor(.appGrayTextContrast)
-          } else {
-            EmptyView()
-          }
-        }
+        toolbarItems
       }
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         loadItems(isRefresh: false)
@@ -213,6 +150,92 @@ struct AnimatingCellHeight: AnimatableModifier {
         if viewModel.items.isEmpty {
           loadItems(isRefresh: false)
         }
+      }
+    }
+
+    var toolbarItems: some ToolbarContent {
+      Group {
+        ToolbarItem(placement: .barLeading) {
+          VStack(alignment: .leading) {
+            let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
+
+            Text(title)
+              .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
+
+            if prefersListLayout, isListScrolled {
+              Text(listTitle)
+                .font(Font.system(size: 15, weight: .regular))
+                .foregroundColor(Color.appGrayText)
+            }
+          }.frame(maxWidth: .infinity, alignment: .leading)
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button("", action: {})
+            .disabled(true)
+            .overlay {
+              if viewModel.isLoading, !prefersListLayout, enableGrid {
+                ProgressView()
+              }
+            }
+        }
+        ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
+          if enableGrid {
+            Button(
+              action: { prefersListLayout.toggle() },
+              label: {
+                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+              }
+            )
+          } else {
+            EmptyView()
+          }
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: { searchPresented = true },
+            label: {
+              Image(systemName: "magnifyingglass")
+                .resizable()
+                .frame(width: 18, height: 18)
+                .padding(.vertical)
+                .foregroundColor(.appGrayTextContrast)
+            }
+          )
+        }
+        ToolbarItem(placement: .barTrailing) {
+          if UIDevice.isIPhone {
+            Menu(content: {
+//              Button(action: {
+//                //  withAnimation {
+//                viewModel.isInMultiSelectMode.toggle()
+//                //  }
+//              }, label: {
+//                Label(viewModel.isInMultiSelectMode ? "End Multiselect" : "Select Multiple", systemImage: "checkmark.circle")
+//              })
+              Button(action: { addLinkPresented = true }, label: {
+                Label("Add Link", systemImage: "plus.circle")
+              })
+              Button(action: { settingsPresented = true }, label: {
+                Label(LocalText.genericProfile, systemImage: "person.circle")
+              })
+
+            }, label: {
+              Image.utilityMenu
+            })
+              .foregroundColor(.appGrayTextContrast)
+          } else {
+            EmptyView()
+          }
+        }
+//        if viewModel.isInMultiSelectMode {
+//          ToolbarItemGroup(placement: .bottomBar) {
+//            Button(action: {}, label: { Image(systemName: "archivebox") })
+//            Button(action: {}, label: { Image(systemName: "trash") })
+//            Button(action: {}, label: { Image.label })
+//            Spacer()
+//            Button(action: { viewModel.isInMultiSelectMode = false }, label: { Text("Cancel") })
+//          }
+//        }
       }
     }
   }
@@ -531,6 +554,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           ForEach(viewModel.items) { item in
             FeedCardNavigationLink(
               item: item,
+              isInMultiSelectMode: viewModel.isInMultiSelectMode,
               viewModel: viewModel
             )
             .background(GeometryReader { geometry in

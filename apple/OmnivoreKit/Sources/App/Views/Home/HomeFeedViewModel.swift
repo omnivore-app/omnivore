@@ -24,6 +24,7 @@ import Views
   @Published var itemToSnoozeID: String?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
+  @Published var isInMultiSelectMode = false
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only

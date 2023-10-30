@@ -34,7 +34,8 @@ public struct ShareExtensionView: View {
 
   public init(viewModel: ShareExtensionViewModel,
               labelsViewModel: LabelsViewModel,
-              extensionContext: NSExtensionContext?) {
+              extensionContext: NSExtensionContext?)
+  {
     _viewModel = StateObject(wrappedValue: viewModel)
     _labelsViewModel = StateObject(wrappedValue: labelsViewModel)
     self.extensionContext = extensionContext

@@ -281,3 +281,18 @@ public struct LibraryItemCard: View {
     LabelsFlowLayout(labels: nonFlairLabels)
   }
 }
+
+struct CircleCheckboxToggleStyle: ToggleStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    Button(action: {
+      configuration.isOn.toggle()
+    }, label: {
+      HStack {
+        Image(systemName: configuration.isOn ? "checkmark.circle" : "circle")
+          .font(Font.system(size: 18))
+          .foregroundColor(configuration.isOn ? Color.blue : Color.appGrayTextContrast)
+      }
+    })
+      .buttonStyle(.plain)
+  }
+}
