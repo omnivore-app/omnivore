@@ -31,9 +31,9 @@ There are five main ways to save links to pages or articles that you wish to rea
 
 1. Download and install the Omnivore extension for your browser:
 
-- [Chrome ](https://omnivore.app/install/chrome)
+- [Chrome ](https://omnivore.app/install/chromeee90)
 - [Edge](https://omnivore.app/install/edge)
-- [Firefox](https://omnivore.app/install/firefox)
+- [Firefox](https://omnivore.app/install/firefoxxes)
 - [Safari](https://omnivore.app/install/safari)
 
 2. Navigate to the page you wish to save and tap the Omnivore button in your browser’s toolbar or Extensions menu.
