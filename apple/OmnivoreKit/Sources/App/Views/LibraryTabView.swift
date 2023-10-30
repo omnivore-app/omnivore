@@ -12,6 +12,7 @@ import Services
 import SwiftUI
 import Views
 
+@MainActor
 struct LibraryTabView: View {
   @EnvironmentObject var dataService: DataService
 

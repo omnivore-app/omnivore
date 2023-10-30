@@ -18,17 +18,15 @@ import Views
   }
 
   func loadProfileData(dataService: DataService) async {
-    if let currentViewer = dataService.currentViewer {
-      loadProfileCardData(viewer: currentViewer)
-      return
+    if let currentViewer = dataService.currentViewer,
+       let name = currentViewer.name,
+       let username = currentViewer.username
+    {
+      loadProfileCardData(name: name, username: username, profileImageURL: currentViewer.profileImageURL)
     }
 
-    guard let viewerObjectID = try? await dataService.fetchViewer() else { return }
-
-    await dataService.viewContext.perform {
-      if let viewer = dataService.viewContext.object(with: viewerObjectID) as? Viewer {
-        self.loadProfileCardData(viewer: viewer)
-      }
+    if let viewer = try? await dataService.fetchViewer() {
+      loadProfileCardData(name: viewer.name, username: viewer.username, profileImageURL: viewer.profileImageURL)
     }
   }
 
@@ -47,11 +45,11 @@ import Views
     }
   }
 
-  private func loadProfileCardData(viewer: Viewer) {
+  private func loadProfileCardData(name: String, username: String, profileImageURL: String?) {
     profileCardData = ProfileCardData(
-      name: viewer.unwrappedName,
-      username: viewer.unwrappedUsername,
-      imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
+      name: name,
+      username: username,
+      imageURL: profileImageURL.flatMap { URL(string: $0) }
     )
   }
 }

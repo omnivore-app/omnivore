@@ -43,15 +43,18 @@ public final class RootViewModel: ObservableObject {
 public struct IntercomProvider {
   public init(
     registerIntercomUser: @escaping (String) -> Void,
+    setIntercomUserHash: @escaping (String) -> Void,
     unregisterIntercomUser: @escaping () -> Void,
     showIntercomMessenger: @escaping () -> Void
   ) {
     self.registerIntercomUser = registerIntercomUser
+    self.setIntercomUserHash = setIntercomUserHash
     self.unregisterIntercomUser = unregisterIntercomUser
     self.showIntercomMessenger = showIntercomMessenger
   }
 
   public let registerIntercomUser: (String) -> Void
+  public let setIntercomUserHash: (String) -> Void
   public let unregisterIntercomUser: () -> Void
   public let showIntercomMessenger: () -> Void
 }

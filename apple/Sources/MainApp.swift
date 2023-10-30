@@ -30,6 +30,7 @@ struct MainApp: App {
         RootView(
           intercomProvider: AppKeys.sharedInstance?.intercom != nil ? IntercomProvider(
             registerIntercomUser: { Intercom.registerUser(withUserId: $0) },
+            setIntercomUserHash: { Intercom.setUserHash($0) },
             unregisterIntercomUser: Intercom.logout,
             showIntercomMessenger: Intercom.presentMessenger
           ) : nil

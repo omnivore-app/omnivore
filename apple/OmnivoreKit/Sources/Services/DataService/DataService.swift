@@ -17,6 +17,8 @@ let logger = Logger(subsystem: "app.omnivore", category: "data-service")
 
 public final class DataService: ObservableObject {
   public static var registerIntercomUser: ((String) -> Void)?
+  public static var setIntercomUserHash: ((String) -> Void)?
+
   public static var showIntercomMessenger: (() -> Void)?
 
   public let appEnvironment: AppEnvironment
@@ -94,19 +96,6 @@ public final class DataService: ObservableObject {
     let fetchRequest: NSFetchRequest<Models.Viewer> = Viewer.fetchRequest()
     fetchRequest.fetchLimit = 1 // we should only have one viewer saved
     return try? persistentContainer.viewContext.fetch(fetchRequest).first
-  }
-
-  public func username() async -> String? {
-    if let cachedUsername = currentViewer?.username {
-      return cachedUsername
-    }
-
-    if let viewerObjectID = try? await fetchViewer() {
-      let viewer = backgroundContext.object(with: viewerObjectID) as? Viewer
-      return viewer?.unwrappedUsername
-    }
-
-    return nil
   }
 
   public func switchAppEnvironment(appEnvironment: AppEnvironment) {
