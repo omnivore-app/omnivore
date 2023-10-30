@@ -6,6 +6,7 @@ import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
+import { ImportItemState } from '../entity/integration'
 import { Recommendation } from '../entity/recommendation'
 import { env } from '../env'
 import {
@@ -459,13 +460,15 @@ export const enqueueImportFromIntegration = async (
   integrationId: string,
   integrationName: string,
   syncAt: number, // unix timestamp in milliseconds
-  authToken: string
+  authToken: string,
+  state: ImportItemState
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     integrationId,
     integrationName,
     syncAt,
+    state,
   }
 
   const headers = {

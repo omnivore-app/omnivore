@@ -23,7 +23,7 @@ export interface RetrieveRequest {
   since?: number // unix timestamp in milliseconds
   count?: number
   offset?: number
-  state?: State
+  state: State
 }
 
 export abstract class IntegrationClient {

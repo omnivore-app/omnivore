@@ -97,7 +97,7 @@ export class PocketClient extends IntegrationClient {
     since = 0,
     count = 100,
     offset = 0,
-    state = State.UNARCHIVED,
+    state,
   }: RetrieveRequest): Promise<RetrievedResult> => {
     let pocketItemState = 'all'
 

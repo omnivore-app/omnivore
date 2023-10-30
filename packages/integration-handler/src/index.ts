@@ -187,6 +187,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       let offset = 0
       let syncedAt = req.body.syncAt
       const since = syncedAt
+      const state = req.body.state || State.UNARCHIVED // default to unarchived
 
       console.log('importing pages from integration...')
       // get pages from integration
@@ -194,6 +195,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         token: claims.token,
         since,
         offset,
+        state,
       })
       syncedAt = retrieved.since || Date.now()
 
@@ -231,7 +233,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             token: claims.token,
             since,
             offset,
-            state: req.body.state,
+            state,
           })
           syncedAt = retrieved.since || Date.now()
           retrievedData = retrieved.data

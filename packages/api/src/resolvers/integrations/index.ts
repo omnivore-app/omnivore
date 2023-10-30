@@ -53,7 +53,7 @@ export const setIntegrationResolver = authorized<
       syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
       importItemState:
         input.type === IntegrationType.Import
-          ? input.importItemState ?? ImportItemState.Unarchived // default to unarchived
+          ? input.importItemState || ImportItemState.Unarchived // default to unarchived
           : undefined,
     }
     if (input.id) {
@@ -242,7 +242,8 @@ export const importFromIntegrationResolver = authorized<
       integration.id,
       integration.name,
       integration.syncedAt?.getTime() || 0,
-      authToken
+      authToken,
+      integration.importItemState || ImportItemState.Unarchived
     )
     // update task name in integration
     await updateIntegration(integration.id, { taskName }, uid)
