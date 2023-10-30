@@ -14,6 +14,13 @@ export enum IntegrationType {
   Import = 'IMPORT',
 }
 
+export enum ImportItemState {
+  UNREAD = 'UNREAD',
+  UNARCHIVED = 'UNARCHIVED',
+  ARCHIVED = 'ARCHIVED',
+  ALL = 'ALL',
+}
+
 @Entity({ name: 'integrations' })
 export class Integration {
   @PrimaryGeneratedColumn('uuid')
@@ -49,4 +56,7 @@ export class Integration {
 
   @Column('text', { nullable: true })
   taskName?: string | null
+
+  @Column('enum', { enum: ImportItemState, nullable: true })
+  importItemState?: ImportItemState | null
 }
