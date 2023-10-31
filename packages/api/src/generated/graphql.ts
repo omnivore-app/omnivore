@@ -794,7 +794,7 @@ export enum FeedsErrorCode {
 export type FeedsInput = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
-  query: Scalars['String'];
+  query?: InputMaybe<Scalars['String']>;
   sort?: InputMaybe<SortParams>;
 };
 
@@ -835,6 +835,50 @@ export type FiltersResult = FiltersError | FiltersSuccess;
 export type FiltersSuccess = {
   __typename?: 'FiltersSuccess';
   filters: Array<Filter>;
+};
+
+export type Following = {
+  __typename?: 'Following';
+  author?: Maybe<Scalars['String']>;
+  categories?: Maybe<Array<Scalars['String']>>;
+  content?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date'];
+  feedItemId: Scalars['ID'];
+  hiddenAt?: Maybe<Scalars['Date']>;
+  id: Scalars['ID'];
+  isHidden: Scalars['Boolean'];
+  isSaved: Scalars['Boolean'];
+  links: Array<Scalars['String']>;
+  previewContent?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['Date']>;
+  savedAt?: Maybe<Scalars['Date']>;
+  summary?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
+  updatedAt: Scalars['Date'];
+};
+
+export type FollowingEdge = {
+  __typename?: 'FollowingEdge';
+  cursor: Scalars['String'];
+  node: Following;
+};
+
+export type FollowingError = {
+  __typename?: 'FollowingError';
+  errorCodes: Array<FollowingErrorCode>;
+};
+
+export enum FollowingErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FollowingResult = FollowingError | FollowingSuccess;
+
+export type FollowingSuccess = {
+  __typename?: 'FollowingSuccess';
+  edges: Array<FollowingEdge>;
+  pageInfo: PageInfo;
 };
 
 export type GenerateApiKeyError = {
@@ -1771,6 +1815,7 @@ export type Query = {
   deviceTokens: DeviceTokensResult;
   feeds: FeedsResult;
   filters: FiltersResult;
+  following: FollowingResult;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
@@ -1809,6 +1854,14 @@ export type QueryArticleSavingRequestArgs = {
 
 export type QueryFeedsArgs = {
   input: FeedsInput;
+};
+
+
+export type QueryFollowingArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  since?: InputMaybe<Scalars['Date']>;
+  until?: InputMaybe<Scalars['Date']>;
 };
 
 
@@ -3528,6 +3581,12 @@ export type ResolversTypes = {
   FiltersResult: ResolversTypes['FiltersError'] | ResolversTypes['FiltersSuccess'];
   FiltersSuccess: ResolverTypeWrapper<FiltersSuccess>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  Following: ResolverTypeWrapper<Following>;
+  FollowingEdge: ResolverTypeWrapper<FollowingEdge>;
+  FollowingError: ResolverTypeWrapper<FollowingError>;
+  FollowingErrorCode: FollowingErrorCode;
+  FollowingResult: ResolversTypes['FollowingError'] | ResolversTypes['FollowingSuccess'];
+  FollowingSuccess: ResolverTypeWrapper<FollowingSuccess>;
   GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
   GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
   GenerateApiKeyInput: GenerateApiKeyInput;
@@ -4012,6 +4071,11 @@ export type ResolversParentTypes = {
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
   FiltersSuccess: FiltersSuccess;
   Float: Scalars['Float'];
+  Following: Following;
+  FollowingEdge: FollowingEdge;
+  FollowingError: FollowingError;
+  FollowingResult: ResolversParentTypes['FollowingError'] | ResolversParentTypes['FollowingSuccess'];
+  FollowingSuccess: FollowingSuccess;
   GenerateApiKeyError: GenerateApiKeyError;
   GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
@@ -4894,6 +4958,47 @@ export type FiltersSuccessResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FollowingResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Following'] = ResolversParentTypes['Following']> = {
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  categories?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  feedItemId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  hiddenAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isHidden?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isSaved?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  links?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  savedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  summary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FollowingEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FollowingEdge'] = ResolversParentTypes['FollowingEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Following'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FollowingErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FollowingError'] = ResolversParentTypes['FollowingError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FollowingErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FollowingResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FollowingResult'] = ResolversParentTypes['FollowingResult']> = {
+  __resolveType: TypeResolveFn<'FollowingError' | 'FollowingSuccess', ParentType, ContextType>;
+};
+
+export type FollowingSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FollowingSuccess'] = ResolversParentTypes['FollowingSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['FollowingEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GenerateApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyError'] = ResolversParentTypes['GenerateApiKeyError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['GenerateApiKeyErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5365,6 +5470,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
   feeds?: Resolver<ResolversTypes['FeedsResult'], ParentType, ContextType, RequireFields<QueryFeedsArgs, 'input'>>;
   filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
+  following?: Resolver<ResolversTypes['FollowingResult'], ParentType, ContextType, Partial<QueryFollowingArgs>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6399,6 +6505,11 @@ export type Resolvers<ContextType = ResolverContext> = {
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;
   FiltersSuccess?: FiltersSuccessResolvers<ContextType>;
+  Following?: FollowingResolvers<ContextType>;
+  FollowingEdge?: FollowingEdgeResolvers<ContextType>;
+  FollowingError?: FollowingErrorResolvers<ContextType>;
+  FollowingResult?: FollowingResultResolvers<ContextType>;
+  FollowingSuccess?: FollowingSuccessResolvers<ContextType>;
   GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
   GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
   GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;

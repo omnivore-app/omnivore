@@ -4,14 +4,18 @@ import { Feed } from '../entity/feed'
 
 export const feedRepository = appDataSource.getRepository(Feed).extend({
   async searchFeeds(
-    query: string,
+    query = '',
     take = 10,
     skip = 0,
-    orderBy = 'createdAt',
-    order = 'DESC'
+    orderBy = 'title',
+    order = 'ASC'
   ) {
-    query = `%${query}%`
-    const where = [{ title: ILike(query) }, { url: ILike(query) }]
+    const where = []
+    if (query !== '') {
+      query = `%${query}%`
+      where.push({ title: ILike(query) }, { url: ILike(query) })
+    }
+
     const feeds = await this.find({
       where,
       order: { [orderBy]: order },
