@@ -2605,6 +2605,13 @@ const schema = gql`
     email: String!
   }
 
+  input FeedsInput {
+    after: String
+    first: Int @sanitize(minLength: 1, maxLength: 100)
+    query: String! @sanitize(maxLength: 255)
+    sort: SortParams
+  }
+
   union FeedsResult = FeedsSuccess | FeedsError
 
   type FeedsSuccess {
@@ -2799,12 +2806,7 @@ const schema = gql`
     filters: FiltersResult!
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
-    feeds(
-      after: String
-      first: Int
-      query: String!
-      sort: SortParams
-    ): FeedsResult!
+    feeds(input: FeedsInput!): FeedsResult!
   }
 `
 

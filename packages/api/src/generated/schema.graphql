@@ -700,6 +700,13 @@ enum FeedsErrorCode {
   UNAUTHORIZED
 }
 
+input FeedsInput {
+  after: String
+  first: Int
+  query: String!
+  sort: SortParams
+}
+
 union FeedsResult = FeedsError | FeedsSuccess
 
 type FeedsSuccess {
@@ -1327,7 +1334,7 @@ type Query {
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   deviceTokens: DeviceTokensResult!
-  feeds(after: String, first: Int, query: String!, sort: SortParams): FeedsResult!
+  feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
