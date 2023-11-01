@@ -59,7 +59,7 @@ export const addRecommendation = async (
         color: highlight.color,
       }))
     if (highlights) {
-      await createHighlights(highlights, recommendedItem.id, userId)
+      await createHighlights(highlights, userId)
     }
 
     await createRecommendation(

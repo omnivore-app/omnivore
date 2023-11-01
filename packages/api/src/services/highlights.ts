@@ -22,27 +22,14 @@ export const getHighlightUrl = (slug: string, highlightId: string): string =>
 
 export const createHighlights = async (
   highlights: DeepPartial<Highlight>[],
-  libraryItemId: string,
-  userId: string,
-  pubsub = createPubSubClient()
+  userId: string
 ) => {
-  const newHighlights = await authTrx(
+  return authTrx(
     async (tx) =>
       tx.withRepository(highlightRepository).createAndSaves(highlights),
     undefined,
     userId
   )
-
-  await pubsub.entityCreated<CreateHighlightEvent[]>(
-    EntityType.HIGHLIGHT,
-    newHighlights.map((highlight) => ({
-      ...highlight,
-      pageId: libraryItemId,
-    })),
-    userId
-  )
-
-  return newHighlights
 }
 
 export const createHighlight = async (
