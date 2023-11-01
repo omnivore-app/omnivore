@@ -99,6 +99,7 @@ public struct EditLabelsSheet: View {
           Text("Done").bold()
         }))
     }
+    .environmentObject(viewModel.services.dataService)
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
     }
