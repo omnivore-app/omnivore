@@ -33,11 +33,13 @@ public struct EditLabelsSheet: View {
     UITextView.appearance().textContainerInset = UIEdgeInsets(top: 5, left: 2, bottom: 5, right: 2)
   }
 
+  @MainActor
   func onLabelTap(label: LinkedItemLabel, textChip _: TextChip) {
-    if labelsViewModel.selectedLabels.contains(label) {
-      labelsViewModel.selectedLabels.remove(label)
+    if let idx = labelsViewModel.selectedLabels.firstIndex(of: label) {
+      labelsViewModel.selectedLabels.remove(at: idx)
     } else {
-      labelsViewModel.selectedLabels.insert(label)
+      labelsViewModel.labelSearchFilter = ""
+      labelsViewModel.selectedLabels.append(label)
     }
 
     if let linkedItem = viewModel.linkedItem {
@@ -47,13 +49,19 @@ public struct EditLabelsSheet: View {
 
   var content: some View {
     VStack(spacing: 15) {
-      SearchBar(searchTerm: $labelsViewModel.labelSearchFilter)
+      LabelsEntryView(
+        searchTerm: $labelsViewModel.labelSearchFilter,
+        viewModel: labelsViewModel
+      )
 
       // swiftlint:disable line_length
       ScrollView {
-        LabelsMasonaryView(labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
-                           selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
-                           onLabelTap: onLabelTap)
+        LabelsMasonaryView(
+          labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
+          selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
+          onLabelTap: onLabelTap
+        )
+
         Button(
           action: { labelsViewModel.showCreateLabelModal = true },
           label: {

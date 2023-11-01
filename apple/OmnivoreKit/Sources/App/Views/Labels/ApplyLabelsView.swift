@@ -1,3 +1,4 @@
+
 import Models
 import Services
 import SwiftUI
@@ -49,9 +50,17 @@ struct ApplyLabelsView: View {
 
   var innerBody: some View {
     VStack {
-      SearchBar(searchTerm: $viewModel.labelSearchFilter)
+      if !viewModel.labels.isEmpty {
+        LabelsEntryView(
+          searchTerm: $viewModel.labelSearchFilter,
+          viewModel: viewModel
+        )
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
+      }
+      if viewModel.labelSearchFilter.count >= 63 {
+        Text("The maximum length of a label is 64 chars.").foregroundColor(Color.red).font(.footnote)
+      }
 
       List {
         Section {
@@ -59,9 +68,12 @@ struct ApplyLabelsView: View {
             Button(
               action: {
                 if isSelected(label) {
-                  viewModel.selectedLabels.remove(label)
+                  if let idx = viewModel.selectedLabels.firstIndex(of: label) {
+                    viewModel.selectedLabels.remove(at: idx)
+                  }
                 } else {
-                  viewModel.selectedLabels.insert(label)
+                  viewModel.labelSearchFilter = ""
+                  viewModel.selectedLabels.append(label)
                 }
               },
               label: {

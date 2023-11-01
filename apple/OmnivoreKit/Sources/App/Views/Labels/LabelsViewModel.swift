@@ -2,13 +2,12 @@ import CoreData
 import Models
 import Services
 import SwiftUI
-import Views
 
 @MainActor public final class LabelsViewModel: ObservableObject {
   let labelNameMaxLength = 64
 
   @Published var isLoading = false
-  @Published var selectedLabels = Set<LinkedItemLabel>()
+  @Published var selectedLabels = [LinkedItemLabel]()
   @Published var unselectedLabels = Set<LinkedItemLabel>()
   @Published var labels = [LinkedItemLabel]()
   @Published var showCreateLabelModal = false
@@ -36,7 +35,7 @@ import Views
     await loadLabelsFromStore(dataService: dataService)
     for label in labels {
       if selLabels.contains(label) {
-        selectedLabels.insert(label)
+        selectedLabels.append(label)
       } else {
         unselectedLabels.insert(label)
       }
@@ -50,7 +49,7 @@ import Views
           }
           for label in self.labels {
             if selLabels.contains(label) {
-              self.selectedLabels.insert(label)
+              self.selectedLabels.append(label)
             } else {
               self.unselectedLabels.insert(label)
             }
@@ -100,7 +99,7 @@ import Views
 
     if let label = dataService.viewContext.object(with: labelObjectID) as? LinkedItemLabel {
       labels.insert(label, at: 0)
-      selectedLabels.insert(label)
+      selectedLabels.append(label)
     }
 
     isLoading = false
