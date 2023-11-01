@@ -584,5 +584,5 @@ function EditButton(props: EditButtonProps): JSX.Element {
         {props.title}
       </SpanBox>
     </Link>
-  );
+  )
 }

@@ -58,7 +58,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
       }}
     >
       <Button
-        title="View Notebook (t)"
+        title="View notebook (t)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('open-notebook')
