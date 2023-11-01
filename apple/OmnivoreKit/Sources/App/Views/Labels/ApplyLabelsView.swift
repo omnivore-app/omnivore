@@ -179,7 +179,7 @@ struct ApplyLabelsView: View {
     Group {
       #if os(iOS)
         NavigationView {
-          if viewModel.isLoading {
+          if viewModel.labels.isEmpty, viewModel.isLoading {
             EmptyView()
           } else {
             innerBody
@@ -190,14 +190,16 @@ struct ApplyLabelsView: View {
           .frame(minWidth: 400, minHeight: 600)
       #endif
     }
-    .task {
-      switch mode {
-      case let .item(feedItem):
-        await viewModel.loadLabels(dataService: dataService, item: feedItem)
-      case let .highlight(highlight):
-        await viewModel.loadLabels(dataService: dataService, highlight: highlight)
-      case let .list(labels):
-        await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+    .onAppear {
+      Task {
+        switch mode {
+        case let .item(feedItem):
+          await viewModel.loadLabels(dataService: dataService, item: feedItem)
+        case let .highlight(highlight):
+          await viewModel.loadLabels(dataService: dataService, highlight: highlight)
+        case let .list(labels):
+          await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+        }
       }
     }
   }

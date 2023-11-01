@@ -42,6 +42,7 @@ import SwiftUI
         unselectedLabels.insert(label)
       }
     }
+    isLoading = false
 
     Task.detached(priority: .userInitiated) {
       if let labelIDs = try? await dataService.labels() {
@@ -58,11 +59,10 @@ import SwiftUI
               self.unselectedLabels.insert(label)
             }
           }
+          self.isLoading = false
         }
       }
     }
-
-    isLoading = false
   }
 
   func loadLabelsFromStore(dataService: DataService) async {
