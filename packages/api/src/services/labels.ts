@@ -1,4 +1,4 @@
-import { FindOptionsWhere, In } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Label } from '../entity/label'
@@ -7,6 +7,15 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { libraryItemRepository } from '../repository/library_item'
+
+type AddLabelsToLibraryItemEvent = {
+  pageId: string
+  labels: DeepPartial<Label>[]
+}
+type AddLabelsToHighlightEvent = {
+  highlightId: string
+  labels: DeepPartial<Label>[]
+}
 
 // const batchGetLabelsFromLinkIds = async (
 //   linkIds: readonly string[]
@@ -84,9 +93,9 @@ export const saveLabelsInLibraryItem = async (
   )
 
   // create pubsub event
-  await pubsub.entityCreated<(Label & { pageId: string })[]>(
+  await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
     EntityType.LABEL,
-    labels.map((l) => ({ ...l, pageId: libraryItemId })),
+    { pageId: libraryItemId, labels },
     userId
   )
 }
@@ -120,9 +129,9 @@ export const addLabelsToLibraryItem = async (
   )
 
   // create pubsub event
-  await pubsub.entityCreated<(Label & { pageId: string })[]>(
+  await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
     EntityType.LABEL,
-    labels.map((l) => ({ ...l, pageId: libraryItemId })),
+    { pageId: libraryItemId, labels },
     userId
   )
 }
@@ -151,9 +160,9 @@ export const saveLabelsInHighlight = async (
   })
 
   // create pubsub event
-  await pubsub.entityCreated<(Label & { highlightId: string })[]>(
+  await pubsub.entityCreated<AddLabelsToHighlightEvent>(
     EntityType.LABEL,
-    labels.map((l) => ({ ...l, highlightId })),
+    { highlightId, labels },
     userId
   )
 }
