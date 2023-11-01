@@ -2,6 +2,7 @@ import Foundation
 
 public enum LinkedItemFilter: String, CaseIterable {
   case inbox
+  case feeds
   case readlater
   case newsletters
   case recommended
@@ -17,6 +18,8 @@ public extension LinkedItemFilter {
     switch self {
     case .inbox:
       return "in:inbox"
+    case .feeds:
+      return "label:RSS"
     case .readlater:
       return "in:library"
     case .newsletters:
@@ -76,6 +79,11 @@ public extension LinkedItemFilter {
         format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+    case .feeds:
+      let feedLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"RSS\").@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, feedLabelPredicate])
     case .recommended:
       // non-archived or deleted items with the Newsletter label
       let recommendedPredicate = NSPredicate(

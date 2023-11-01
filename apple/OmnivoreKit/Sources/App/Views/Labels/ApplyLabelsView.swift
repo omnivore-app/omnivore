@@ -72,7 +72,7 @@ struct ApplyLabelsView: View {
                     viewModel.selectedLabels.remove(at: idx)
                   }
                 } else {
-                  viewModel.labelSearchFilter = ""
+                  viewModel.labelSearchFilter = ZWSP
                   viewModel.selectedLabels.append(label)
                 }
               },
@@ -204,9 +204,11 @@ struct ApplyLabelsView: View {
 
 extension Sequence where Element == LinkedItemLabel {
   func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
-    if searchFilter.isEmpty {
+    if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
     }
-    return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
+    let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
+    let trimmed = searchFilter.suffix(from: index).lowercased()
+    return filter { ($0.name ?? "").lowercased().contains(trimmed) }
   }
 }

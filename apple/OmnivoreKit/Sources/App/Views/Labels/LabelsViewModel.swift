@@ -11,7 +11,7 @@ import SwiftUI
   @Published var unselectedLabels = Set<LinkedItemLabel>()
   @Published var labels = [LinkedItemLabel]()
   @Published var showCreateLabelModal = false
-  @Published var labelSearchFilter = ""
+  @Published var labelSearchFilter = ZWSP
 
   public init() {}
 
@@ -35,7 +35,9 @@ import SwiftUI
     await loadLabelsFromStore(dataService: dataService)
     for label in labels {
       if selLabels.contains(label) {
-        selectedLabels.append(label)
+        if !selectedLabels.contains(label) {
+          selectedLabels.append(label)
+        }
       } else {
         unselectedLabels.insert(label)
       }
@@ -49,7 +51,9 @@ import SwiftUI
           }
           for label in self.labels {
             if selLabels.contains(label) {
-              self.selectedLabels.append(label)
+              if !self.selectedLabels.contains(label) {
+                self.selectedLabels.append(label)
+              }
             } else {
               self.unselectedLabels.insert(label)
             }

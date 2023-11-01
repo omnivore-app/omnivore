@@ -38,7 +38,7 @@ public struct EditLabelsSheet: View {
     if let idx = labelsViewModel.selectedLabels.firstIndex(of: label) {
       labelsViewModel.selectedLabels.remove(at: idx)
     } else {
-      labelsViewModel.labelSearchFilter = ""
+      labelsViewModel.labelSearchFilter = ZWSP
       labelsViewModel.selectedLabels.append(label)
     }
 

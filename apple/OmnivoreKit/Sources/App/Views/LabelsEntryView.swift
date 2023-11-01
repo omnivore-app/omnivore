@@ -3,6 +3,8 @@ import Services
 import SwiftUI
 import Views
 
+let ZWSP = "\u{200B}"
+
 @MainActor
 protocol Entry {
   func item(parent: LabelsEntryView) -> AnyView
@@ -24,14 +26,11 @@ private struct LabelEntry: Entry {
 public struct LabelsEntryView: View {
   @Binding var searchTerm: String
   @State var viewModel: LabelsViewModel
-  @State var lastSelected = false
-  @State var justInserted = false
 
   let entries: [Entry]
 
   @State private var totalHeight = CGFloat.zero
   @FocusState private var textFieldFocused: Bool
-  @FocusState private var neverFocused: Bool
 
   public init(
     searchTerm: Binding<String>,
@@ -44,22 +43,21 @@ public struct LabelsEntryView: View {
   }
 
   func onTextSubmit() {
-    if searchTerm.count < 1 {
+    let index = searchTerm.index(searchTerm.startIndex, offsetBy: 1)
+    let trimmed = searchTerm.suffix(from: index).lowercased()
+
+    if trimmed.count < 1 {
       return
     }
 
-    // first see if there is a matching label
-    let term = searchTerm.lowercased()
-    if let label = viewModel.labels.first(where: { $0.name?.lowercased() == term }) {
-      justInserted = true
-      searchTerm = ""
+    if let label = viewModel.labels.first(where: { $0.name?.lowercased() == trimmed }) {
       if !viewModel.selectedLabels.contains(label) {
         viewModel.selectedLabels.append(label)
       }
+
+      searchTerm = ZWSP
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-        lastSelected = false
         textFieldFocused = true
-        justInserted = false
       }
     }
   }
@@ -78,32 +76,20 @@ public struct LabelsEntryView: View {
       .padding(5)
       .font(Font.system(size: 14))
       .multilineTextAlignment(.leading)
-      .onChange(of: searchTerm, perform: { newValue in
-        print("NEW VALUE: ", newValue.count)
+      .onChange(of: searchTerm, perform: { _ in
         if searchTerm.count >= 64 {
           searchTerm = String(searchTerm.prefix(64))
         }
         if searchTerm.isEmpty {
-          // When we insert a new item we set the text to "" so this block is triggered
-          // we need to ignore that special case.
-          if justInserted {
-            justInserted = false
-            return
-          }
-          if lastSelected {
-            if viewModel.selectedLabels.count > 0 {
-              lastSelected = false
-              viewModel.selectedLabels.removeLast()
-              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                textFieldFocused = true
-              }
+          if viewModel.selectedLabels.count > 0 {
+            viewModel.selectedLabels.removeLast()
+            searchTerm = ZWSP
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+              textFieldFocused = true
             }
           } else {
-            lastSelected = true
-            searchTerm = "\u{200B}"
+            searchTerm = ZWSP
           }
-        } else if searchTerm != "\u{200B}" {
-          lastSelected = false
         }
       })
       .onSubmit {
@@ -112,21 +98,21 @@ public struct LabelsEntryView: View {
     return result
   }
 
-  func onTextDelete() -> Bool { if searchTerm.isEmpty {
-    if lastSelected {
-      if viewModel.selectedLabels.count > 0 {
-        viewModel.selectedLabels.removeLast()
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-          textFieldFocused = true
-        }
-      }
-    } else {
-      lastSelected = true
-    }
-    return true
-  }
-  return false
-  }
+//  func onTextDelete() -> Bool { if searchTerm.isEmpty {
+//    if lastSelected {
+//      if viewModel.selectedLabels.count > 0 {
+//        viewModel.selectedLabels.removeLast()
+//        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
+//          textFieldFocused = true
+//        }
+//      }
+//    } else {
+//      lastSelected = true
+//    }
+//    return true
+//  }
+//  return false
+//  }
 
   public var body: some View {
     // HStack(spacing: 0) {
