@@ -192,6 +192,16 @@ public class ShareExtensionViewModel: ObservableObject {
         if let title = self.linkedItem?.title {
           self.title = title
         }
+        if let iconURL = self.linkedItem?.imageURL {
+          self.iconURL = iconURL
+        }
+        if let noteHighlight = self.linkedItem?.highlights?
+          .compactMap({ $0 as? Highlight })
+          .first(where: { $0.type == "NOTE" }),
+          let noteText = noteHighlight.annotation
+        {
+          self.noteText = noteText
+        }
         if let urlStr = self.linkedItem?.pageURLString, let hostname = URL(string: urlStr)?.host {
           self.url = hostname
         } else {
