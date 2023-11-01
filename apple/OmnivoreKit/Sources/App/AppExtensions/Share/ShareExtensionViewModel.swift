@@ -64,6 +64,22 @@ public class ShareExtensionViewModel: ObservableObject {
     )
   }
 
+  func saveNote() {
+    if let linkedItem = linkedItem {
+      if let noteHighlight = linkedItem.noteHighlight, let noteHighlightID = noteHighlight.id {
+        services.dataService.updateHighlightAttributes(highlightID: noteHighlightID, annotation: noteText)
+      } else {
+        let createdHighlightId = UUID().uuidString.lowercased()
+        let createdShortId = NanoID.generate(alphabet: NanoID.Alphabet.urlSafe.rawValue, size: 8)
+
+        _ = services.dataService.createNote(shortId: createdShortId,
+                                            highlightID: createdHighlightId,
+                                            articleId: linkedItem.unwrappedID,
+                                            annotation: noteText)
+      }
+    }
+  }
+
   #if os(iOS)
     func queueSaveOperation(_ payload: PageScrapePayload) {
       ProcessInfo().performExpiringActivity(withReason: "app.omnivore.SaveActivity") { [self] expiring in

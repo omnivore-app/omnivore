@@ -15,8 +15,6 @@ public struct AddNoteSheet: View {
   @Environment(\.dismiss) private var dismiss
 
   @StateObject var viewModel: ShareExtensionViewModel
-  let highlightId = UUID().uuidString.lowercased()
-  let shortId = NanoID.generate(alphabet: NanoID.Alphabet.urlSafe.rawValue, size: 8)
 
   enum FocusField: Hashable {
     case noteEditor
@@ -30,14 +28,7 @@ public struct AddNoteSheet: View {
   }
 
   func saveNote() {
-    if let linkedItem = viewModel.linkedItem {
-      _ = viewModel.services.dataService.createNote(shortId: shortId,
-                                                    highlightID: highlightId,
-                                                    articleId: linkedItem.unwrappedID,
-                                                    annotation: viewModel.noteText)
-    } else {
-      // Maybe we shouldn't even allow this UI without linkeditem existing
-    }
+    viewModel.saveNote()
   }
 
   public var body: some View {

@@ -47,6 +47,10 @@ public struct EditLabelsSheet: View {
     }
   }
 
+  func isSelected(_ label: LinkedItemLabel) -> Bool {
+    labelsViewModel.selectedLabels.contains(where: { $0.id == label.id })
+  }
+
   var content: some View {
     VStack(spacing: 15) {
       LabelsEntryView(
@@ -54,33 +58,71 @@ public struct EditLabelsSheet: View {
         viewModel: labelsViewModel
       )
 
-      // swiftlint:disable line_length
-      ScrollView {
-        LabelsMasonaryView(
-          labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
-          selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
-          onLabelTap: onLabelTap
-        )
-
-        Button(
-          action: { labelsViewModel.showCreateLabelModal = true },
-          label: {
-            HStack {
-              let trimmedLabelName = labelsViewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-              Image(systemName: "tag").foregroundColor(.blue)
-              Text(
-                labelsViewModel.labelSearchFilter.count > 0 ?
-                  "Create: \"\(trimmedLabelName)\" label" :
-                  LocalText.createLabelMessage
-              ).foregroundColor(.blue)
-                .font(Font.system(size: 14))
-              Spacer()
-            }
+      List {
+        Section {
+          ForEach(labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter), id: \.self) { label in
+            Button(
+              action: {
+//                if labelsViewModel.selectedLabels.contains(label) {
+//                  if let idx = viewModel.selectedLabels.firstIndex(of: label) {
+//                    viewModel.selectedLabels.remove(at: idx)
+//                  }
+//                } else {
+//                  viewModel.labelSearchFilter = ZWSP
+//                  viewModel.selectedLabels.append(label)
+//                }
+              },
+              label: {
+                HStack {
+                  TextChip(feedItemLabel: label).allowsHitTesting(false)
+                  Spacer()
+                  if isSelected(label) {
+                    Image(systemName: "checkmark")
+                  }
+                }
+                .contentShape(Rectangle())
+              }
+            )
+            .padding(.vertical, 5)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            #if os(macOS)
+              .buttonStyle(PlainButtonStyle())
+            #endif
           }
-        )
-        .buttonStyle(PlainButtonStyle())
-        .padding(10)
+          // createLabelButton
+        }
       }
+      .listStyle(PlainListStyle())
+
+      Spacer()
+
+//      // swiftlint:disable line_length
+//      ScrollView {
+//        LabelsMasonaryView(
+//          labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
+//          selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
+//          onLabelTap: onLabelTap
+//        )
+//
+//        Button(
+//          action: { labelsViewModel.showCreateLabelModal = true },
+//          label: {
+//            HStack {
+//              let trimmedLabelName = labelsViewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
+//              Image(systemName: "tag").foregroundColor(.blue)
+//              Text(
+//                labelsViewModel.labelSearchFilter.count > 0 ?
+//                  "Create: \"\(trimmedLabelName)\" label" :
+//                  LocalText.createLabelMessage
+//              ).foregroundColor(.blue)
+//                .font(Font.system(size: 14))
+//              Spacer()
+//            }
+//          }
+//        )
+//        .buttonStyle(PlainButtonStyle())
+//        .padding(10)
+//      }
     }
     .background(Color.clear)
     .padding(20)

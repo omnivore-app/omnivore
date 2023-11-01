@@ -113,8 +113,9 @@ public struct ShareExtensionView: View {
       NotificationCenter.default.post(name: Notification.Name("ShowAddNoteSheet"), object: nil)
     }, label: {
       Text(hasNoteText ? viewModel.noteText : "Add note...")
-        .frame(height: 50, alignment: .top)
+        .frame(minHeight: 50, alignment: .top)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .multilineTextAlignment(.leading)
     })
       .foregroundColor(hasNoteText ?
         Color.appGrayTextContrast : Color.extensionTextSubtle
