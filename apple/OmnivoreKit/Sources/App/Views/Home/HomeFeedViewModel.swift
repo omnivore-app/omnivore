@@ -326,8 +326,8 @@ import Views
 
   func addLabel(dataService: DataService, item: LinkedItem, label: String, color: String) {
     if let label = getOrCreateLabel(dataService: dataService, named: "Pinned", color: color) {
-      let existingLabels = item.labels?.allObjects.compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
-      dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: existingLabels + [label.unwrappedID])
+      let existingLabels = item.labels?.allObjects.compactMap { $0 as? LinkedItemLabel } ?? []
+      dataService.setItemLabels(itemID: item.unwrappedID, labels: InternalLinkedItemLabel.make(Set(existingLabels + [label]) as NSSet))
 
       item.update(inContext: dataService.viewContext)
       updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
@@ -335,10 +335,10 @@ import Views
   }
 
   func removeLabel(dataService: DataService, item: LinkedItem, named: String) {
-    let labelIds = item.labels?
+    let labels = item.labels?
       .filter { ($0 as? LinkedItemLabel)?.name != named }
-      .compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
-    dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: labelIds)
+      .compactMap { $0 as? LinkedItemLabel } ?? []
+    dataService.setItemLabels(itemID: item.unwrappedID, labels: InternalLinkedItemLabel.make(Set(labels) as NSSet))
     item.update(inContext: dataService.viewContext)
   }
 

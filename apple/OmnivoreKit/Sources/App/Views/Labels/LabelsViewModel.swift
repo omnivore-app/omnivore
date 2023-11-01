@@ -116,7 +116,7 @@ import SwiftUI
   }
 
   func saveItemLabelChanges(itemID: String, dataService: DataService) {
-    dataService.updateItemLabels(itemID: itemID, labelIDs: selectedLabels.map(\.unwrappedID))
+    dataService.setItemLabels(itemID: itemID, labels: InternalLinkedItemLabel.make(Set(selectedLabels) as NSSet))
   }
 
   func saveHighlightLabelChanges(highlightID: String, dataService: DataService) {

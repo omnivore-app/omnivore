@@ -52,80 +52,50 @@ public struct EditLabelsSheet: View {
   }
 
   var content: some View {
-    VStack(spacing: 15) {
+    VStack {
       LabelsEntryView(
         searchTerm: $labelsViewModel.labelSearchFilter,
         viewModel: labelsViewModel
       )
+      .padding(.horizontal, 10)
+      .padding(.vertical, 20)
+
+      if labelsViewModel.labelSearchFilter.count >= 63 {
+        Text("The maximum length of a label is 64 chars.").foregroundColor(Color.red).font(.footnote)
+      }
 
       List {
-        Section {
-          ForEach(labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter), id: \.self) { label in
-            Button(
-              action: {
-//                if labelsViewModel.selectedLabels.contains(label) {
-//                  if let idx = viewModel.selectedLabels.firstIndex(of: label) {
-//                    viewModel.selectedLabels.remove(at: idx)
-//                  }
-//                } else {
-//                  viewModel.labelSearchFilter = ZWSP
-//                  viewModel.selectedLabels.append(label)
-//                }
-              },
-              label: {
-                HStack {
-                  TextChip(feedItemLabel: label).allowsHitTesting(false)
-                  Spacer()
-                  if isSelected(label) {
-                    Image(systemName: "checkmark")
-                  }
-                }
-                .contentShape(Rectangle())
+        ForEach(labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter), id: \.self) { label in
+          Button(
+            action: {
+              if let idx = labelsViewModel.selectedLabels.firstIndex(of: label) {
+                labelsViewModel.selectedLabels.remove(at: idx)
+              } else {
+                labelsViewModel.labelSearchFilter = ZWSP
+                labelsViewModel.selectedLabels.append(label)
               }
-            )
-            .padding(.vertical, 5)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            #if os(macOS)
-              .buttonStyle(PlainButtonStyle())
-            #endif
-          }
-          // createLabelButton
+            },
+            label: {
+              HStack {
+                TextChip(feedItemLabel: label).allowsHitTesting(false)
+                Spacer()
+                if isSelected(label) {
+                  Image(systemName: "checkmark")
+                }
+              }
+              .contentShape(Rectangle())
+            }
+          )
+          .padding(.vertical, 5)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          #if os(macOS)
+            .buttonStyle(PlainButtonStyle())
+          #endif
         }
       }
-      .listStyle(PlainListStyle())
-
-      Spacer()
-
-//      // swiftlint:disable line_length
-//      ScrollView {
-//        LabelsMasonaryView(
-//          labels: labelsViewModel.labels.applySearchFilter(labelsViewModel.labelSearchFilter),
-//          selectedLabels: labelsViewModel.selectedLabels.applySearchFilter(labelsViewModel.labelSearchFilter),
-//          onLabelTap: onLabelTap
-//        )
-//
-//        Button(
-//          action: { labelsViewModel.showCreateLabelModal = true },
-//          label: {
-//            HStack {
-//              let trimmedLabelName = labelsViewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-//              Image(systemName: "tag").foregroundColor(.blue)
-//              Text(
-//                labelsViewModel.labelSearchFilter.count > 0 ?
-//                  "Create: \"\(trimmedLabelName)\" label" :
-//                  LocalText.createLabelMessage
-//              ).foregroundColor(.blue)
-//                .font(Font.system(size: 14))
-//              Spacer()
-//            }
-//          }
-//        )
-//        .buttonStyle(PlainButtonStyle())
-//        .padding(10)
-//      }
+      .listStyle(.plain)
+      .background(Color.extensionBackground)
     }
-    .background(Color.clear)
-    .padding(20)
   }
 
   public var body: some View {
@@ -136,6 +106,12 @@ public struct EditLabelsSheet: View {
         .navigationTitle("Set Labels")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(trailing: Button(action: {
+          if let linkedItem = viewModel.linkedItem, let linkedItemId = linkedItem.id {
+            labelsViewModel.saveItemLabelChanges(
+              itemID: linkedItemId,
+              dataService: viewModel.services.dataService
+            )
+          }
           dismiss()
         }, label: {
           Text("Done").bold()

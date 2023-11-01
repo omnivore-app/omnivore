@@ -50,14 +50,13 @@ struct ApplyLabelsView: View {
 
   var innerBody: some View {
     VStack {
-      if !viewModel.labels.isEmpty {
-        LabelsEntryView(
-          searchTerm: $viewModel.labelSearchFilter,
-          viewModel: viewModel
-        )
-        .padding(.vertical, 8)
-        .padding(.horizontal, 16)
-      }
+      LabelsEntryView(
+        searchTerm: $viewModel.labelSearchFilter,
+        viewModel: viewModel
+      )
+      .padding(.horizontal, 10)
+      .padding(.vertical, 20)
+
       if viewModel.labelSearchFilter.count >= 63 {
         Text("The maximum length of a label is 64 chars.").foregroundColor(Color.red).font(.footnote)
       }
@@ -96,11 +95,13 @@ struct ApplyLabelsView: View {
           createLabelButton
         }
       }
-      .listStyle(PlainListStyle())
+      .listStyle(.plain)
+      .background(Color.extensionBackground)
 
       Spacer()
     }
     .navigationTitle(mode.navTitle)
+    .background(Color.extensionBackground)
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
