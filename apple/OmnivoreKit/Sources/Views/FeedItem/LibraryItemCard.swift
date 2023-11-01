@@ -77,8 +77,11 @@ public struct LibraryItemCard: View {
             .font(Font.system(size: 12))
             .multilineTextAlignment(.leading)
             .lineLimit(noteLineLimit)
+            .frame(minHeight: 20)
             .padding(.vertical, 10)
             .padding(.trailing, 10)
+
+          Spacer()
         }
         .frame(maxWidth: .infinity)
         .frame(alignment: .topLeading)
