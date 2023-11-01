@@ -47,6 +47,7 @@ public extension View {
 public struct LibraryItemCard: View {
   let viewer: Viewer?
   @ObservedObject var item: LinkedItem
+  @State var noteLineLimit: Int? = 3
 
   public init(item: LinkedItem, viewer: Viewer?) {
     self.item = item
@@ -64,6 +65,30 @@ public struct LibraryItemCard: View {
       if item.hasLabels {
         labels
       }
+
+      if let note = item.noteText {
+        HStack(alignment: .top, spacing: 10) {
+          avatarImage
+            .frame(width: 20, height: 20)
+            .padding(.vertical, 10)
+            .padding(.leading, 10)
+
+          Text(note)
+            .font(Font.system(size: 12))
+            .multilineTextAlignment(.leading)
+            .lineLimit(noteLineLimit)
+            .padding(.vertical, 10)
+            .padding(.trailing, 10)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(alignment: .topLeading)
+        .background(Color.noteContainer)
+        .cornerRadius(5)
+        .allowsHitTesting(noteLineLimit != nil)
+        .onTapGesture {
+          noteLineLimit = nil
+        }
+      }
     }
     .padding(5)
     .padding(.top, 10)
@@ -77,6 +102,16 @@ public struct LibraryItemCard: View {
 
   var isPartiallyRead: Bool {
     Int(item.readingProgress) > 0
+  }
+
+  var avatarImage: some View {
+    ZStack(alignment: .center) {
+      Circle()
+        .foregroundColor(Color.appCtaYellow)
+      Text((viewer?.name ?? "O").prefix(1))
+        .font(Font.system(size: 10))
+        .foregroundColor(Color.black)
+    }
   }
 
   var readIndicator: some View {

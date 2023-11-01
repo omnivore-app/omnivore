@@ -50,6 +50,7 @@ public extension Color {
   static var extensionPanelBackground: Color { Color("_extensionPanelBackground", bundle: .module) }
   static var extensionTextSubtle: Color { Color("_extensionTextSubtle", bundle: .module) }
 
+  static var noteContainer: Color { Color("_noteContainer", bundle: .module) }
   static var textFieldBackground: Color { Color("_textFieldBackground", bundle: .module) }
 
   // Apple system UIColor equivalents
