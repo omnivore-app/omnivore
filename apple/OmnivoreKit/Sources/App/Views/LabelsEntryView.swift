@@ -26,6 +26,7 @@ private struct LabelEntry: Entry {
 public struct LabelsEntryView: View {
   @Binding var searchTerm: String
   @State var viewModel: LabelsViewModel
+  @EnvironmentObject var dataService: DataService
 
   let entries: [Entry]
 
@@ -55,6 +56,17 @@ public struct LabelsEntryView: View {
         viewModel.selectedLabels.append(label)
       }
 
+      searchTerm = ZWSP
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+        textFieldFocused = true
+      }
+    } else {
+      viewModel.createLabel(
+        dataService: dataService,
+        name: trimmed,
+        color: Gradient.randomColor(str: trimmed, offset: 1),
+        description: nil
+      )
       searchTerm = ZWSP
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
         textFieldFocused = true
