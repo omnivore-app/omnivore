@@ -55,7 +55,7 @@ export const createHighlight = async (
 
   await pubsub.entityCreated<CreateHighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...newHighlight, pageId: libraryItemId, user: undefined },
+    { ...newHighlight, pageId: libraryItemId },
     userId
   )
 
@@ -85,7 +85,7 @@ export const mergeHighlights = async (
 
   await pubsub.entityCreated<CreateHighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...newHighlight, pageId: libraryItemId, user: undefined },
+    { ...newHighlight, pageId: libraryItemId },
     userId
   )
 

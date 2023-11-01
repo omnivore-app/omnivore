@@ -2,6 +2,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import express from 'express'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
+import { deepDelete } from './utils/helpers'
 import { buildLogger } from './utils/logger'
 
 const logger = buildLogger('pubsub')
@@ -9,9 +10,11 @@ const logger = buildLogger('pubsub')
 const client = new PubSub()
 
 export const createPubSubClient = (): PubsubClient => {
+  const fieldsToDelete = ['user'] as const
+
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
     if (env.dev.isLocal) {
-      logger.info(`Publishing ${topicName}`)
+      logger.info(`Publishing ${topicName}: ${msg.toString()}`)
       return Promise.resolve()
     }
 
@@ -43,9 +46,14 @@ export const createPubSubClient = (): PubsubClient => {
       data: T,
       userId: string
     ): Promise<void> => {
+      const cleanData = deepDelete(
+        data as T & Record<typeof fieldsToDelete[number], unknown>,
+        [...fieldsToDelete]
+      )
+
       return publish(
         'entityCreated',
-        Buffer.from(JSON.stringify({ type, userId, ...data }))
+        Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
       )
     },
     entityUpdated: <T>(
@@ -53,9 +61,14 @@ export const createPubSubClient = (): PubsubClient => {
       data: T,
       userId: string
     ): Promise<void> => {
+      const cleanData = deepDelete(
+        data as T & Record<typeof fieldsToDelete[number], unknown>,
+        [...fieldsToDelete]
+      )
+
       return publish(
         'entityUpdated',
-        Buffer.from(JSON.stringify({ type, userId, ...data }))
+        Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
       )
     },
     entityDeleted: (

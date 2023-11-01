@@ -387,3 +387,14 @@ export const cleanUrl = (url: string) => {
     removeQueryParameters: trackingParams,
   })
 }
+
+export const deepDelete = <T, K extends keyof T>(obj: T, keys: K[]) => {
+  // make a copy of the object
+  const copy = { ...obj }
+
+  keys.forEach((key) => {
+    delete copy[key]
+  })
+
+  return copy as Omit<T, K>
+}

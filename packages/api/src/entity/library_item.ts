@@ -104,9 +104,6 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   siteIcon?: string | null
 
-  @Column('json', { nullable: true })
-  metadata?: Record<string, unknown> | null
-
   @Column('integer')
   readingProgressLastReadAnchor!: number
 
@@ -142,18 +139,12 @@ export class LibraryItem {
   @Column('text')
   readableContent!: string
 
-  @Column('text', { nullable: true })
-  modelName?: string | null
-
   // NOT SUPPORTED IN TYPEORM
   // @Column('vector', { nullable: true })
   // embedding?: number[]
 
   @Column('text', { nullable: true })
   textContentHash?: string | null
-
-  @Column('text', { nullable: true })
-  gcsArchiveId?: string | null
 
   @Column('text', { nullable: true })
   subscription?: string | null
