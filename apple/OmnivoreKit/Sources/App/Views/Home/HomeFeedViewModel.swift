@@ -203,7 +203,8 @@ import Views
       await group.waitForAll()
     }
 
-    let shouldSearch = items.count < 1 || isRefresh
+    let filter = LinkedItemFilter(rawValue: appliedFilter)
+    let shouldSearch = items.count < 1 || isRefresh && filter != LinkedItemFilter.downloaded
     if shouldSearch {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     } else {
@@ -220,7 +221,10 @@ import Views
     isLoading = true
     showLoadingBar = true
 
-    await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+    let filter = LinkedItemFilter(rawValue: appliedFilter)
+    if filter != LinkedItemFilter.downloaded {
+      await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+    }
 
     isLoading = false
     showLoadingBar = false

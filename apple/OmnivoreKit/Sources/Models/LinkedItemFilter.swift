@@ -5,6 +5,7 @@ public enum LinkedItemFilter: String, CaseIterable {
   case feeds
   case readlater
   case newsletters
+  case downloaded
   case recommended
   case all
   case archived
@@ -22,6 +23,8 @@ public extension LinkedItemFilter {
       return "label:RSS"
     case .readlater:
       return "in:library"
+    case .downloaded:
+      return ""
     case .newsletters:
       return "in:inbox label:Newsletter"
     case .recommended:
@@ -73,6 +76,19 @@ public extension LinkedItemFilter {
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
         undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate, nonRSSPredicate
       ])
+    case .downloaded:
+      // include pdf only
+      let hasHTMLContent = NSPredicate(
+        format: "htmlContent.length > 0"
+      )
+      let isPDFPredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+      )
+      let localPDFURL = NSPredicate(
+        format: "localPDF.length > 0"
+      )
+      let downloadedPDF = NSCompoundPredicate(andPredicateWithSubpredicates: [isPDFPredicate, localPDFURL])
+      return NSCompoundPredicate(orPredicateWithSubpredicates: [hasHTMLContent, downloadedPDF])
     case .newsletters:
       // non-archived or deleted items with the Newsletter label
       let newsletterLabelPredicate = NSPredicate(
