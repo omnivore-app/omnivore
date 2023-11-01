@@ -385,6 +385,7 @@ export const cleanUrl = (url: string) => {
     stripHash: true,
     stripWWW: false,
     removeQueryParameters: trackingParams,
+    removeTrailingSlash: false,
   })
 }
 
