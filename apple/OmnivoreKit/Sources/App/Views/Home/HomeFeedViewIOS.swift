@@ -563,10 +563,8 @@ struct AnimatingCellHeight: AnimatableModifier {
             })
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
               if value.y < 100, value.y > 0 {
-                if let date = item.savedAt {
-                  if topItem != item {
-                    setTopItem(item)
-                  }
+                if item.savedAt != nil && topItem != item {
+                  setTopItem(item)
                 }
               }
             }
