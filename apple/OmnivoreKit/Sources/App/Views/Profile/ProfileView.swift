@@ -157,17 +157,23 @@ struct ProfileView: View {
           )
         #endif
 
-        NavigationLink(
-          destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
-        ) {
-          Text(LocalText.privacyPolicyGeneric)
-        }
+        Button(
+          action: {
+            if let url = URL(string: "https://omnivore.app/privacy") {
+              openURL(url)
+            }
+          },
+          label: { Text(LocalText.privacyPolicyGeneric) }
+        )
 
-        NavigationLink(
-          destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
-        ) {
-          Text(LocalText.termsAndConditionsGeneric)
-        }
+        Button(
+          action: {
+            if let url = URL(string: "https://omnivore.app/terms") {
+              openURL(url)
+            }
+          },
+          label: { Text(LocalText.termsAndConditionsGeneric) }
+        )
       }
 
       Section(footer: Text(viewModel.appVersionString)) {
@@ -200,11 +206,11 @@ struct ProfileView: View {
 
 extension BasicWebAppView {
   static func privacyPolicyWebView(baseURL: URL) -> BasicWebAppView {
-    omnivoreWebView(path: "/app/privacy", baseURL: baseURL)
+    omnivoreWebView(path: "/privacy", baseURL: baseURL)
   }
 
   static func termsConditionsWebView(baseURL: URL) -> BasicWebAppView {
-    omnivoreWebView(path: "/app/terms", baseURL: baseURL)
+    omnivoreWebView(path: "/terms", baseURL: baseURL)
   }
 
   private static func omnivoreWebView(path: String, baseURL: URL) -> BasicWebAppView {
