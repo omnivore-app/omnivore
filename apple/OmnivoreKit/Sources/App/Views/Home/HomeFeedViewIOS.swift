@@ -35,7 +35,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
-    @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = false
+    @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = true
     @AppStorage(UserDefaultKey.shouldPromptCommunityModal.rawValue) var shouldPromptCommunityModal = true
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -43,12 +43,23 @@ struct AnimatingCellHeight: AnimatableModifier {
       Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
+    var showFeatureCards: Bool {
+      viewModel.listConfig.hasFeatureCards &&
+        !viewModel.hideFeatureSection &&
+        viewModel.items.count > 0 &&
+        viewModel.searchTerm.isEmpty &&
+        viewModel.selectedLabels.isEmpty &&
+        viewModel.negatedLabels.isEmpty &&
+        LinkedItemFilter(rawValue: viewModel.appliedFilter) == .inbox
+    }
+
     var body: some View {
       HomeFeedView(
         listTitle: $listTitle,
         isListScrolled: $isListScrolled,
         prefersListLayout: $prefersListLayout,
-        viewModel: viewModel
+        viewModel: viewModel,
+        showFeatureCards: showFeatureCards
       )
       .refreshable {
         loadItems(isRefresh: true)
@@ -162,7 +173,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             Text(title)
               .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
 
-            if prefersListLayout, isListScrolled {
+            if prefersListLayout, isListScrolled || !showFeatureCards {
               Text(listTitle)
                 .font(Font.system(size: 15, weight: .regular))
                 .foregroundColor(Color.appGrayText)
@@ -249,6 +260,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var prefersListLayout: Bool
     @ObservedObject var viewModel: HomeFeedViewModel
 
+    let showFeatureCards: Bool
+
     var body: some View {
       VStack(spacing: 0) {
         if let linkRequest = viewModel.linkRequest {
@@ -260,12 +273,15 @@ struct AnimatingCellHeight: AnimatableModifier {
             EmptyView()
           }
         }
-        NavigationLink(destination: LinkDestination(selectedItem: viewModel.selectedItem), isActive: $viewModel.linkIsActive) {
+        NavigationLink(
+          destination: LinkDestination(selectedItem: viewModel.selectedItem),
+          isActive: $viewModel.linkIsActive
+        ) {
           EmptyView()
         }
 
         if prefersListLayout || !enableGrid {
-          HomeFeedListView(listTitle: $listTitle, isListScrolled: $isListScrolled, prefersListLayout: $prefersListLayout, viewModel: viewModel)
+          HomeFeedListView(listTitle: $listTitle, isListScrolled: $isListScrolled, prefersListLayout: $prefersListLayout, viewModel: viewModel, showFeatureCards: showFeatureCards)
         } else {
           HomeFeedGridView(viewModel: viewModel, isListScrolled: $isListScrolled)
         }
@@ -314,6 +330,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State private var showHideFeatureAlert = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
+
+    let showFeatureCards: Bool
 
     var filtersHeader: some View {
       GeometryReader { reader in
@@ -527,14 +545,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             .listRowSeparator(.hidden, edges: .all)
             .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset))
 
-          if viewModel.listConfig.hasFeatureCards,
-             !viewModel.hideFeatureSection,
-             viewModel.items.count > 0,
-             viewModel.searchTerm.isEmpty,
-             viewModel.selectedLabels.isEmpty,
-             viewModel.negatedLabels.isEmpty,
-             LinkedItemFilter(rawValue: viewModel.appliedFilter) == .inbox
-          {
+          if showFeatureCards {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
@@ -563,7 +574,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             })
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
               if value.y < 100, value.y > 0 {
-                if item.savedAt != nil && topItem != item {
+                if item.savedAt != nil, topItem != item {
                   setTopItem(item)
                 }
               }
