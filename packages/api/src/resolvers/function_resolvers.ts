@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { Subscription } from '../entity/subscription'
+import { env } from '../env'
 import {
   Article,
   Highlight,
@@ -11,6 +12,7 @@ import {
   PageType,
   Recommendation,
   SearchItem,
+  User,
 } from '../generated/graphql'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
@@ -126,6 +128,7 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
+import { createHmac } from 'crypto'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -247,141 +250,22 @@ export const functionResolvers = {
     groups: groupsResolver,
     recentEmails: recentEmailsResolver,
   },
-  // User: {
-  //   async sharedArticles(
-  //     user: User,
-  //     __: Record<string, unknown>,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     return ctx.models.userArticle.getUserSharedArticles(user.id, ctx.kx)
-  //   },
-  //   async sharedArticlesCount(
-  //     user: { id: string; sharedArticlesCount?: number },
-  //     __: Record<string, unknown>,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (user.sharedArticlesCount) return user.sharedArticlesCount
-  //     return ctx.models.userArticle.getSharedArticlesCount(user.id, ctx.kx)
-  //   },
-  //   async sharedHighlightsCount(
-  //     user: { id: string; sharedHighlightsCount?: number },
-  //     _: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     // #TODO: restructure highlightStats and sharedArticlesCount in order to get it within a single query
-  //     if (user.sharedHighlightsCount) return user.sharedHighlightsCount
-  //     const { sharedHighlightsCount } =
-  //       await ctx.models.user.getSharedHighlightsStats(user.id)
-  //     return sharedHighlightsCount
-  //   },
-  //   async sharedNotesCount(
-  //     user: User,
-  //     _: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (user.sharedNotesCount) return user.sharedNotesCount
-  //     const { sharedNotesCount } =
-  //       await ctx.models.user.getSharedHighlightsStats(user.id)
-  //     return sharedNotesCount
-  //   },
-  // },
-  // FeedArticle: {
-  //   async article(
-  //     feedArticle: { articleId: string; userId: string; article?: Article },
-  //     __: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (feedArticle.article) return feedArticle.article
+  User: {
+    async intercomHash(
+      user: User,
+      __: Record<string, unknown>,
+      ctx: WithDataSourcesContext
+    ) {
+      if (env.intercom.secretKey) {
+        const userIdentifier = user.id.toString()
 
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     let a: any
-
-  //     const savedArticle =
-  //       ctx.claims?.uid &&
-  //       (await ctx.models.userArticle.getForUser(
-  //         ctx.claims?.uid,
-  //         feedArticle.articleId,
-  //         ctx.kx
-  //       ))
-
-  //     if (savedArticle) {
-  //       // If user has saved the article, use his version (slug) then
-  //       a = {
-  //         ...savedArticle,
-  //         savedByViewer: true,
-  //         postedByViewer: !!savedArticle.sharedAt,
-  //       }
-  //     } else {
-  //       a = await ctx.models.userArticle.getForUser(
-  //         feedArticle.userId,
-  //         feedArticle.articleId,
-  //         ctx.kx
-  //       )
-  //     }
-
-  //     if (a && a.image) {
-  //       a.image = createImageProxyUrl(a.image, 0, 180)
-  //     } else {
-  //       logger.info(
-  //         'error getting article for feedItem',
-  //         feedArticle.userId,
-  //         feedArticle.articleId
-  //       )
-  //     }
-
-  //     return a
-  //   },
-  //   async sharedBy(
-  //     feedArticle: { userId: string; sharedBy?: User },
-  //     __: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (feedArticle.sharedBy) return feedArticle.sharedBy
-  //     return userDataToUser(await ctx.models.user.get(feedArticle.userId))
-  //   },
-  //   async highlight(
-  //     feedArticle: { highlightId?: string; highlight?: Highlight },
-  //     _: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (feedArticle.highlight) return feedArticle.highlight
-  //     return feedArticle.highlightId
-  //       ? await ctx.models.highlight.get(feedArticle.highlightId)
-  //       : null
-  //   },
-  //   async reactions(
-  //     feedArticle: { id: string; reactions?: Reaction[] },
-  //     _: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     const { reactions, id } = feedArticle
-  //     if (reactions) return reactions
-
-  //     return await ctx.models.reaction.batchGetFromArticle(id)
-  //   },
-  //   async highlightsCount(
-  //     feedArticle: { id: string; highlightsCount?: number },
-  //     _: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (feedArticle.highlightsCount) return feedArticle.highlightsCount
-  //     const { highlightsCount } = await ctx.models.userArticle.getStats(
-  //       feedArticle.id
-  //     )
-  //     return highlightsCount
-  //   },
-  //   async annotationsCount(
-  //     feedArticle: { id: string; annotationsCount?: number },
-  //     _: unknown,
-  //     ctx: WithDataSourcesContext
-  //   ) {
-  //     if (feedArticle.annotationsCount) return feedArticle.annotationsCount
-  //     const { annotationsCount } = await ctx.models.userArticle.getStats(
-  //       feedArticle.id
-  //     )
-  //     return annotationsCount
-  //   },
-  // },
+        return createHmac('sha256', env.intercom.secretKey)
+          .update(userIdentifier)
+          .digest('hex')
+      }
+      return undefined
+    },
+  },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
       if (

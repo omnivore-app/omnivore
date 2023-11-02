@@ -338,7 +338,7 @@ const parseFieldFilter = (
   }
 }
 
-const parseIds = (field: string, str?: string): string[] | undefined => {
+const parseIds = (str?: string): string[] | undefined => {
   if (str === undefined) {
     return undefined
   }
@@ -500,7 +500,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           break
         }
         case 'includes': {
-          const ids = parseIds(keyword.keyword, keyword.value)
+          const ids = parseIds(keyword.value)
           ids && result.ids.push(...ids)
           break
         }

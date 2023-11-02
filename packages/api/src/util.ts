@@ -41,6 +41,7 @@ interface BackendEnv {
   }
   intercom: {
     token: string
+    secretKey: string
   }
   sentry: {
     dsn: string
@@ -118,6 +119,7 @@ export function isAppEngine(): boolean {
 
 const nullableEnvVars = [
   'INTERCOM_TOKEN',
+  'INTERCOM_SECRET_KEY',
   'GAE_INSTANCE',
   'SENTRY_DSN',
   'SENTRY_AUTH_TOKEN',
@@ -229,6 +231,7 @@ export function getEnv(): BackendEnv {
   }
   const intercom = {
     token: parse('INTERCOM_TOKEN'),
+    secretKey: parse('INTERCOM_SECRET_KEY'),
   }
   const sentry = {
     dsn: parse('SENTRY_DSN'),

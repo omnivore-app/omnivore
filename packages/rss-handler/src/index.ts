@@ -165,9 +165,7 @@ const parser = new Parser({
       'created',
     ],
     feed: [
-      'dc:date',
       'lastBuildDate',
-      'pubDate',
       'syn:updatePeriod',
       'syn:updateFrequency',
       'sy:updatePeriod',
@@ -263,12 +261,13 @@ const processSubscription = async (
   const feed = await parser.parseString(fetchResult.content)
   console.log('Fetched feed', feed.title, new Date())
 
-  const feedPubDate = (feed['dc:date'] ||
-    feed.pubDate ||
-    feed.lastBuildDate) as string | undefined
-  console.log('Feed pub date', feedPubDate)
-  if (feedPubDate && new Date(feedPubDate) < new Date(lastFetchedAt)) {
-    console.log('Skipping old feed', feedPubDate)
+  const feedLastBuildDate = feed.lastBuildDate as string | undefined
+  console.log('Feed last build date', feedLastBuildDate)
+  if (
+    feedLastBuildDate &&
+    new Date(feedLastBuildDate) < new Date(lastFetchedAt)
+  ) {
+    console.log('Skipping old feed', feedLastBuildDate)
     return
   }
 

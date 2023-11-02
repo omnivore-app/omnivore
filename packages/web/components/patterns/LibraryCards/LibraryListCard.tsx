@@ -36,8 +36,6 @@ import { LoadingBar } from '../../elements/LoadingBar'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const router = useRouter()
-  const [isHovered, setIsHovered] = useState(false)
-
   const [isOpen, setIsOpen] = useState(false)
 
   const { refs, floatingStyles, context } = useFloating({
@@ -93,12 +91,6 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       }}
       alignment="start"
       distribution="start"
-      onMouseEnter={() => {
-        setIsHovered(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-      }}
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey) {
           window.open(
@@ -120,11 +112,11 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
             item={props.item}
             viewer={props.viewer}
             handleAction={props.handleAction}
-            isHovered={isHovered ?? false}
+            isHovered={isOpen ?? false}
           />
         </Box>
       )}
-      <LibraryListCardContent {...props} isHovered={isHovered} />
+      <LibraryListCardContent {...props} isHovered={isOpen} />
     </VStack>
   )
 }

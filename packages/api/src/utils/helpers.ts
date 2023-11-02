@@ -385,5 +385,17 @@ export const cleanUrl = (url: string) => {
     stripHash: true,
     stripWWW: false,
     removeQueryParameters: trackingParams,
+    removeTrailingSlash: false,
   })
+}
+
+export const deepDelete = <T, K extends keyof T>(obj: T, keys: K[]) => {
+  // make a copy of the object
+  const copy = { ...obj }
+
+  keys.forEach((key) => {
+    delete copy[key]
+  })
+
+  return copy as Omit<T, K>
 }
