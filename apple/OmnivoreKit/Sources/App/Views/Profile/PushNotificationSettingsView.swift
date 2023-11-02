@@ -66,6 +66,19 @@
       .task { viewModel.checkPushNotificationsStatus() }
     }
 
+    private var notificationsText: some View {
+      let markdown = "\(LocalText.notificationsExplainer)\n\n\(LocalText.notificationsTriggerExplainer)"
+      if let notificationsText = try? AttributedString(
+        markdown: markdown,
+        options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+      ) {
+        return Text(notificationsText)
+          .accentColor(.blue)
+      }
+      return Text(markdown)
+        .accentColor(.blue)
+    }
+
     private var innerBody: some View {
       Group {
         Section {
@@ -75,8 +88,7 @@
         }
 
         Section {
-          Text("\(LocalText.notificationsExplainer)\n\(LocalText.notificationsTriggerExplainer)")
-            .accentColor(.blue)
+          notificationsText
         }
 
         Section {
