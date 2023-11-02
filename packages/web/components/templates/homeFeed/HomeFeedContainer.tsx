@@ -163,15 +163,10 @@ export function HomeFeedContainer(): JSX.Element {
     }
     const mode = router.query['mode']
 
-    // intentionally not watching queryInputs here to prevent infinite looping
+    // intentionally not watching queryInputs and performActionOnItem
+    // here to prevent infinite looping
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    setMode,
-    setQueryInputs,
-    router.isReady,
-    router.query,
-    performActionOnItem,
-  ])
+  }, [setMode, setQueryInputs, router.isReady, router.query])
 
   const hasMore = useMemo(() => {
     if (!itemsPages) {
