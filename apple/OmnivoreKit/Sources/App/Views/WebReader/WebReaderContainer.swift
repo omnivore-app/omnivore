@@ -126,7 +126,7 @@ struct WebReaderContainerView: View {
 
   #if os(iOS)
     var audioNavbarItem: some View {
-      if audioController.isLoadingItem(itemID: item.unwrappedID) {
+      if !audioController.playbackError, audioController.isLoadingItem(itemID: item.unwrappedID) {
         return AnyView(ProgressView()
           .padding(.horizontal))
       } else {
@@ -157,7 +157,7 @@ struct WebReaderContainerView: View {
     }
 
     var textToSpeechButtonImage: some View {
-      if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
+      if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
         return AnyView(Image.headphones)
       }
       let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"

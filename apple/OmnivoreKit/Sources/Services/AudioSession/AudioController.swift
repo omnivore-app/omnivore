@@ -576,8 +576,7 @@
               let startOffset = index < document.utterances.count ? offset : 0.0
               self.startStreamingAudio(itemID: itemID, document: document, atIndex: startIndex, andOffset: startOffset)
             } else {
-              print("unable to load speech document")
-              // TODO: Post error to SnackBar
+              self.playbackError = true
             }
           }
         }
