@@ -742,46 +742,6 @@ type FiltersSuccess {
   filters: [Filter!]!
 }
 
-type Following {
-  author: String
-  categories: [String!]
-  content: String
-  createdAt: Date!
-  feedItemId: ID!
-  hiddenAt: Date
-  id: ID!
-  isHidden: Boolean!
-  isSaved: Boolean!
-  links: [String!]!
-  previewContent: String
-  publishedAt: Date
-  savedAt: Date
-  summary: String
-  title: String!
-  updatedAt: Date!
-}
-
-type FollowingEdge {
-  cursor: String!
-  node: Following!
-}
-
-type FollowingError {
-  errorCodes: [FollowingErrorCode!]!
-}
-
-enum FollowingErrorCode {
-  BAD_REQUEST
-  UNAUTHORIZED
-}
-
-union FollowingResult = FollowingError | FollowingSuccess
-
-type FollowingSuccess {
-  edges: [FollowingEdge!]!
-  pageInfo: PageInfo!
-}
-
 type GenerateApiKeyError {
   errorCodes: [GenerateApiKeyErrorCode!]!
 }
@@ -1376,7 +1336,6 @@ type Query {
   deviceTokens: DeviceTokensResult!
   feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
-  following(after: String, first: Int, since: Date, until: Date): FollowingResult!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String

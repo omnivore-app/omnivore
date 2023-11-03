@@ -2645,46 +2645,6 @@ const schema = gql`
     author: String
   }
 
-  union FollowingResult = FollowingSuccess | FollowingError
-
-  type FollowingSuccess {
-    edges: [FollowingEdge!]!
-    pageInfo: PageInfo!
-  }
-
-  type FollowingEdge {
-    cursor: String!
-    node: Following!
-  }
-
-  type FollowingError {
-    errorCodes: [FollowingErrorCode!]!
-  }
-
-  enum FollowingErrorCode {
-    UNAUTHORIZED
-    BAD_REQUEST
-  }
-
-  type Following {
-    id: ID!
-    feedItemId: ID!
-    title: String!
-    links: [String!]!
-    author: String
-    summary: String
-    categories: [String!]
-    content: String
-    previewContent: String
-    createdAt: Date!
-    updatedAt: Date!
-    savedAt: Date
-    hiddenAt: Date
-    publishedAt: Date
-    isHidden: Boolean!
-    isSaved: Boolean!
-  }
-
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2847,12 +2807,6 @@ const schema = gql`
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
     feeds(input: FeedsInput!): FeedsResult!
-    following(
-      after: String
-      first: Int
-      since: Date
-      until: Date
-    ): FollowingResult!
   }
 `
 
