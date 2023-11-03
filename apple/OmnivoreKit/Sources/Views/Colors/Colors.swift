@@ -44,6 +44,15 @@ public extension Color {
 
   static var thFeatureSeparator: Color { Color("featureSeparator", bundle: .module) }
 
+  static var circleButtonBackground: Color { Color("_circleButtonBackground", bundle: .module) }
+  static var circleButtonForeground: Color { Color("_circleButtonForeground", bundle: .module) }
+  static var extensionBackground: Color { Color("_extensionBackground", bundle: .module) }
+  static var extensionPanelBackground: Color { Color("_extensionPanelBackground", bundle: .module) }
+  static var extensionTextSubtle: Color { Color("_extensionTextSubtle", bundle: .module) }
+
+  static var noteContainer: Color { Color("_noteContainer", bundle: .module) }
+  static var textFieldBackground: Color { Color("_textFieldBackground", bundle: .module) }
+
   // Apple system UIColor equivalents
   #if os(iOS)
     static var systemBackground: Color { Color(.systemBackground) }

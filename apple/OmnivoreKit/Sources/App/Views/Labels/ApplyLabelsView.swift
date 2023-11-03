@@ -1,3 +1,4 @@
+
 import Models
 import Services
 import SwiftUI
@@ -49,9 +50,16 @@ struct ApplyLabelsView: View {
 
   var innerBody: some View {
     VStack {
-      SearchBar(searchTerm: $viewModel.labelSearchFilter)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 16)
+      LabelsEntryView(
+        searchTerm: $viewModel.labelSearchFilter,
+        viewModel: viewModel
+      )
+      .padding(.horizontal, 10)
+      .padding(.vertical, 20)
+
+      if viewModel.labelSearchFilter.count >= 63 {
+        Text("The maximum length of a label is 64 chars.").foregroundColor(Color.red).font(.footnote)
+      }
 
       List {
         Section {
@@ -59,9 +67,12 @@ struct ApplyLabelsView: View {
             Button(
               action: {
                 if isSelected(label) {
-                  viewModel.selectedLabels.remove(label)
+                  if let idx = viewModel.selectedLabels.firstIndex(of: label) {
+                    viewModel.selectedLabels.remove(at: idx)
+                  }
                 } else {
-                  viewModel.selectedLabels.insert(label)
+                  viewModel.labelSearchFilter = ZWSP
+                  viewModel.selectedLabels.append(label)
                 }
               },
               label: {
@@ -84,11 +95,13 @@ struct ApplyLabelsView: View {
           createLabelButton
         }
       }
-      .listStyle(PlainListStyle())
+      .listStyle(.plain)
+      .background(Color.extensionBackground)
 
       Spacer()
     }
     .navigationTitle(mode.navTitle)
+    .background(Color.extensionBackground)
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -166,7 +179,7 @@ struct ApplyLabelsView: View {
     Group {
       #if os(iOS)
         NavigationView {
-          if viewModel.isLoading {
+          if viewModel.labels.isEmpty, viewModel.isLoading {
             EmptyView()
           } else {
             innerBody
@@ -177,14 +190,16 @@ struct ApplyLabelsView: View {
           .frame(minWidth: 400, minHeight: 600)
       #endif
     }
-    .task {
-      switch mode {
-      case let .item(feedItem):
-        await viewModel.loadLabels(dataService: dataService, item: feedItem)
-      case let .highlight(highlight):
-        await viewModel.loadLabels(dataService: dataService, highlight: highlight)
-      case let .list(labels):
-        await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+    .onAppear {
+      Task {
+        switch mode {
+        case let .item(feedItem):
+          await viewModel.loadLabels(dataService: dataService, item: feedItem)
+        case let .highlight(highlight):
+          await viewModel.loadLabels(dataService: dataService, highlight: highlight)
+        case let .list(labels):
+          await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+        }
       }
     }
   }
@@ -192,9 +207,11 @@ struct ApplyLabelsView: View {
 
 extension Sequence where Element == LinkedItemLabel {
   func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
-    if searchFilter.isEmpty {
+    if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
     }
-    return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
+    let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
+    let trimmed = searchFilter.suffix(from: index).lowercased()
+    return filter { ($0.name ?? "").lowercased().contains(trimmed) }
   }
 }

@@ -23024,6 +23024,7 @@ extension Objects {
     let followersCount: [String: Int]
     let friendsCount: [String: Int]
     let id: [String: String]
+    let intercomHash: [String: String]
     let isFriend: [String: Bool]
     let isFullUser: [String: Bool]
     let name: [String: String]
@@ -23067,6 +23068,10 @@ extension Objects.User: Decodable {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "id":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "intercomHash":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -23128,6 +23133,7 @@ extension Objects.User: Decodable {
     followersCount = map["followersCount"]
     friendsCount = map["friendsCount"]
     id = map["id"]
+    intercomHash = map["intercomHash"]
     isFriend = map["isFriend"]
     isFullUser = map["isFullUser"]
     name = map["name"]
@@ -23203,6 +23209,21 @@ extension Fields where TypeLock == Objects.User {
       throw HttpError.badpayload
     case .mocking:
       return String.mockValue
+    }
+  }
+
+  func intercomHash() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "intercomHash",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.intercomHash[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 

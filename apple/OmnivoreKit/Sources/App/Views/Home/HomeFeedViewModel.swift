@@ -24,6 +24,7 @@ import Views
   @Published var itemToSnoozeID: String?
   @Published var linkRequest: LinkRequest?
   @Published var showLoadingBar = false
+  @Published var isInMultiSelectMode = false
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
@@ -202,7 +203,8 @@ import Views
       await group.waitForAll()
     }
 
-    let shouldSearch = items.count < 1 || isRefresh
+    let filter = LinkedItemFilter(rawValue: appliedFilter)
+    let shouldSearch = items.count < 1 || isRefresh && filter != LinkedItemFilter.downloaded
     if shouldSearch {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     } else {
@@ -219,7 +221,10 @@ import Views
     isLoading = true
     showLoadingBar = true
 
-    await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+    let filter = LinkedItemFilter(rawValue: appliedFilter)
+    if filter != LinkedItemFilter.downloaded {
+      await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+    }
 
     isLoading = false
     showLoadingBar = false
@@ -325,8 +330,8 @@ import Views
 
   func addLabel(dataService: DataService, item: LinkedItem, label: String, color: String) {
     if let label = getOrCreateLabel(dataService: dataService, named: "Pinned", color: color) {
-      let existingLabels = item.labels?.allObjects.compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
-      dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: existingLabels + [label.unwrappedID])
+      let existingLabels = item.labels?.allObjects.compactMap { $0 as? LinkedItemLabel } ?? []
+      dataService.setItemLabels(itemID: item.unwrappedID, labels: InternalLinkedItemLabel.make(Set(existingLabels + [label]) as NSSet))
 
       item.update(inContext: dataService.viewContext)
       updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
@@ -334,10 +339,10 @@ import Views
   }
 
   func removeLabel(dataService: DataService, item: LinkedItem, named: String) {
-    let labelIds = item.labels?
+    let labels = item.labels?
       .filter { ($0 as? LinkedItemLabel)?.name != named }
-      .compactMap { ($0 as? LinkedItemLabel)?.unwrappedID } ?? []
-    dataService.updateItemLabels(itemID: item.unwrappedID, labelIDs: labelIds)
+      .compactMap { $0 as? LinkedItemLabel } ?? []
+    dataService.setItemLabels(itemID: item.unwrappedID, labels: InternalLinkedItemLabel.make(Set(labels) as NSSet))
     item.update(inContext: dataService.viewContext)
   }
 

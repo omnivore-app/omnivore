@@ -213,7 +213,7 @@ export function AddBulkLabelsModal(
         <VStack distribution="start" css={{ height: '100%' }}>
           <SpanBox css={{ pt: '0px', px: '16px', width: '100%' }}>
             <ModalTitleBar
-              title="Add Labels to selected items"
+              title="Add labels to selected items"
               onOpenChange={props.onOpenChange}
             />
           </SpanBox>

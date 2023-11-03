@@ -2,8 +2,10 @@ import Foundation
 
 public enum LinkedItemFilter: String, CaseIterable {
   case inbox
+  case feeds
   case readlater
   case newsletters
+  case downloaded
   case recommended
   case all
   case archived
@@ -17,8 +19,12 @@ public extension LinkedItemFilter {
     switch self {
     case .inbox:
       return "in:inbox"
+    case .feeds:
+      return "label:RSS"
     case .readlater:
       return "in:library"
+    case .downloaded:
+      return ""
     case .newsletters:
       return "in:inbox label:Newsletter"
     case .recommended:
@@ -70,12 +76,30 @@ public extension LinkedItemFilter {
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
         undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate, nonRSSPredicate
       ])
+    case .downloaded:
+      // include pdf only
+      let hasHTMLContent = NSPredicate(
+        format: "htmlContent.length > 0"
+      )
+      let isPDFPredicate = NSPredicate(
+        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+      )
+      let localPDFURL = NSPredicate(
+        format: "localPDF.length > 0"
+      )
+      let downloadedPDF = NSCompoundPredicate(andPredicateWithSubpredicates: [isPDFPredicate, localPDFURL])
+      return NSCompoundPredicate(orPredicateWithSubpredicates: [hasHTMLContent, downloadedPDF])
     case .newsletters:
       // non-archived or deleted items with the Newsletter label
       let newsletterLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+    case .feeds:
+      let feedLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"RSS\").@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, feedLabelPredicate])
     case .recommended:
       // non-archived or deleted items with the Newsletter label
       let recommendedPredicate = NSPredicate(

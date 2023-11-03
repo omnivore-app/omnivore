@@ -107,7 +107,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
           <Button
             key={`color-${color}`}
             style="highlightBarIcon"
-            title={`Create Highlight (${color})`}
+            title={`Create highlight (${color})`}
             onClick={() => {
               if (!props.isNewHighlight && props.highlightColor != color) {
                 props.handleButtonClick('updateColor', color)
@@ -151,7 +151,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       {!props.isNewHighlight && (
         <>
           <Button
-            title={`Set Labels`}
+            title={`Set labels`}
             style="highlightBarIcon"
             onClick={() => props.handleButtonClick('setHighlightLabels')}
             onMouseEnter={() => {
@@ -174,7 +174,7 @@ function BarContent(props: HighlightBarProps): JSX.Element {
       )}
 
       <Button
-        title={props.isNewHighlight ? `Create Highlight w/note` : 'Add Note'}
+        title={props.isNewHighlight ? `Create highlight w/note` : 'Add note'}
         style="highlightBarIcon"
         onClick={() => props.handleButtonClick('comment')}
         onMouseEnter={() => {

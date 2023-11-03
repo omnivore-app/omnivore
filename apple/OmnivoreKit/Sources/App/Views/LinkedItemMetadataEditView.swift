@@ -95,13 +95,13 @@ struct LinkedItemMetadataEditView: View {
     var iOSBody: some View {
       NavigationView {
         editForm
-          .navigationTitle("Edit Title and Description")
+          .navigationTitle("Edit Info")
           .navigationBarTitleDisplayMode(.inline)
           .toolbar {
             ToolbarItem(placement: .barLeading) {
               Button(
                 action: { presentationMode.wrappedValue.dismiss() },
-                label: { Text(LocalText.cancelGeneric).foregroundColor(.appGrayTextContrast) }
+                label: { Text(LocalText.cancelGeneric) }
               )
             }
             ToolbarItem(placement: .barTrailing) {
@@ -113,7 +113,7 @@ struct LinkedItemMetadataEditView: View {
                   }
                   presentationMode.wrappedValue.dismiss()
                 },
-                label: { Text(LocalText.genericSave).foregroundColor(.appGrayTextContrast) }
+                label: { Text(LocalText.genericSave).bold() }
               )
             }
           }

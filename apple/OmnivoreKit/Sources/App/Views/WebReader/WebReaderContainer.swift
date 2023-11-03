@@ -614,7 +614,7 @@ struct WebReaderContainerView: View {
         .autohideIn(2)
         .position(.bottom)
         .animation(.spring())
-        .closeOnTapOutside(true)
+        .isOpaque(false)
     }
     .onReceive(NSNotification.readerSnackBarPublisher) { notification in
       if let message = notification.userInfo?["message"] as? String {

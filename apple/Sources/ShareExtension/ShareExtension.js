@@ -2,10 +2,16 @@ var ShareExtension = function() {};
 
 const iconURL = () => {
   try {
-    const previewImage = document.querySelector("meta[property='og:image'], meta[name='twitter:image']").content
-    if (previewImage) { return previewImage }
+    const previewImage = document.querySelector("meta[property='og:image'], meta[name='twitter:image']")
+    if (previewImage && previewImage.getAttribute("content")) { return previewImage.getAttribute("content") }
 
-    return document.querySelector("link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']").href
+    const appleImage = document.querySelector("link[rel='apple-touch-icon'], link[rel='shortcut icon'], link[rel='icon']")
+    if (appleImage && appleImage.getAttribute("href")) { return appleImage.getAttribute("href") }
+
+    const href = new URL(document.location.href)
+    href.pathname = '/favicon.ico'
+
+    return href.toString()
   } catch {}
   return undefined
 }

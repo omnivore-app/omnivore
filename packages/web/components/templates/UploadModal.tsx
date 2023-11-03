@@ -282,7 +282,7 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
       >
         <VStack distribution="start">
           <ModalTitleBar
-            title="Upload File"
+            title="Upload file"
             onOpenChange={props.onOpenChange}
           />
           <Dropzone

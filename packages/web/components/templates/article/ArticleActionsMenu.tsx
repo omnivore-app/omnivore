@@ -112,7 +112,7 @@ export function ArticleActionsMenu(
         </Button>
 
         <Button
-          title="View Notebook (t)"
+          title="View notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
           css={{
@@ -127,7 +127,7 @@ export function ArticleActionsMenu(
         </Button>
 
         <Button
-          title="Edit Info (i)"
+          title="Edit info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
           css={{

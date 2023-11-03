@@ -54,19 +54,20 @@ struct LabelsFlowLayout: View {
             return result
           })
       }
-    }.background(viewCalculator())
+    }.background(viewHeightReader($totalHeight))
   }
 
   private func item(for item: LinkedItemLabel) -> some View {
     LibraryItemLabelView(text: item.name!, color: Color(hex: item.color!)!)
   }
 
-  func viewCalculator() -> some View {
-    GeometryReader { geometry in
-      Color.clear.onAppear {
-        let rect = geometry.frame(in: .local)
-        self.totalHeight = rect.size.height
+  private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
+    GeometryReader { geometry -> Color in
+      let rect = geometry.frame(in: .local)
+      DispatchQueue.main.async {
+        binding.wrappedValue = rect.size.height
       }
+      return .clear
     }
   }
 }

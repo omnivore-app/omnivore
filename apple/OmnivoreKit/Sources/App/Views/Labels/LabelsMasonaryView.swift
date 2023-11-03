@@ -11,6 +11,7 @@ import SwiftUI
 import Models
 import Views
 
+@MainActor
 struct LabelsMasonaryView: View {
   var onLabelTap: (LinkedItemLabel, TextChip) -> Void
 

@@ -28,7 +28,7 @@ public struct PageScrapePayload {
   public enum ContentType {
     case none
     case pdf(localUrl: URL)
-    case html(html: String, title: String?, highlightData: HighlightData?)
+    case html(html: String, title: String?, iconURL: URL?, highlightData: HighlightData?)
   }
 
   public let url: String
@@ -49,9 +49,9 @@ public struct PageScrapePayload {
     self.contentType = .pdf(localUrl: localUrl)
   }
 
-  init(url: String, title: String?, html: String, highlightData: HighlightData?) {
+  init(url: String, title: String?, html: String, iconURL: URL?, highlightData: HighlightData?) {
     self.url = url
-    self.contentType = .html(html: html, title: title, highlightData: highlightData)
+    self.contentType = .html(html: html, title: title, iconURL: iconURL, highlightData: highlightData)
   }
 }
 
@@ -319,6 +319,11 @@ private extension PageScrapePayload {
     let html = results?["originalHTML"] as? String
     let title = results?["title"] as? String
     let contentType = results?["contentType"] as? String
+    var iconURL: URL?
+
+    if let urlStr = results?["iconURL"] as? String {
+      iconURL = URL(string: urlStr)
+    }
 
     // If we were not able to capture any HTML, treat this as a URL and
     // see if the backend can do better.
@@ -336,6 +341,7 @@ private extension PageScrapePayload {
       return PageScrapePayload(url: url,
                                title: title,
                                html: html,
+                               iconURL: iconURL,
                                highlightData: HighlightData.make(dict: results))
     }
 
