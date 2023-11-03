@@ -70,4 +70,10 @@ export class Subscription {
 
   @Column('timestamp', { nullable: true })
   scheduledAt?: Date | null
+
+  @Column('boolean')
+  isPublic?: boolean | null
+
+  @Column('boolean')
+  isFetchingContent?: boolean | null
 }

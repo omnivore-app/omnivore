@@ -196,4 +196,25 @@ export class LibraryItem {
 
   @Column('text', { nullable: true })
   recommenderNames?: string[] | null
+
+  @Column('timestamptz')
+  hiddenAt?: Date | null
+
+  @Column('timestamptz')
+  sharedAt?: Date | null
+
+  @Column('text')
+  sharedBy?: string | null
+
+  @Column('jsonb')
+  links?: Record<string, unknown>[] | null
+
+  @Column('text')
+  previewContent?: string | null
+
+  @Column('timestamptz')
+  seenAt?: Date | null
+
+  @Column('boolean')
+  isInLibrary!: boolean
 }

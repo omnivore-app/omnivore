@@ -2554,6 +2554,8 @@ const schema = gql`
   input SubscribeInput {
     url: String!
     subscriptionType: SubscriptionType
+    isPublic: Boolean
+    isFetchingContent: Boolean
   }
 
   input UpdateSubscriptionInput {
@@ -2564,6 +2566,8 @@ const schema = gql`
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
+    isPublic: Boolean
+    isFetchingContent: Boolean
   }
 
   union UpdateSubscriptionResult =

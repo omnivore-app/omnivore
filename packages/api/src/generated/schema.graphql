@@ -2112,6 +2112,8 @@ enum SubscribeErrorCode {
 }
 
 input SubscribeInput {
+  isFetchingContent: Boolean
+  isPublic: Boolean
   subscriptionType: SubscriptionType
   url: String!
 }
@@ -2443,6 +2445,8 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   description: String
   id: ID!
+  isFetchingContent: Boolean
+  isPublic: Boolean
   lastFetchedAt: Date
   lastFetchedChecksum: String
   name: String

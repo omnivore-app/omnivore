@@ -2678,6 +2678,8 @@ export enum SubscribeErrorCode {
 }
 
 export type SubscribeInput = {
+  isFetchingContent?: InputMaybe<Scalars['Boolean']>;
+  isPublic?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
   url: Scalars['String'];
 };
@@ -3038,6 +3040,8 @@ export enum UpdateSubscriptionErrorCode {
 export type UpdateSubscriptionInput = {
   description?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
+  isFetchingContent?: InputMaybe<Scalars['Boolean']>;
+  isPublic?: InputMaybe<Scalars['Boolean']>;
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
   lastFetchedChecksum?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;

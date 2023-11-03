@@ -14,6 +14,7 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
+  isFetchingContents: boolean[]
 }
 
 // link can be a string or an object
@@ -26,7 +27,8 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'lastFetchedTimestamps' in body &&
     'scheduledTimestamps' in body &&
     'userIds' in body &&
-    'lastFetchedChecksums' in body
+    'lastFetchedChecksums' in body &&
+    'isFetchingContents' in body
   )
 }
 

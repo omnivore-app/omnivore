@@ -213,6 +213,7 @@ export const subscribeResolver = authorized<
         scheduledDates: [new Date()], // fetch immediately
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
+        isFetchingContents: [!!updatedSubscription.isFetchingContent],
       })
 
       return {
@@ -228,7 +229,7 @@ export const subscribeResolver = authorized<
     // limit number of rss subscriptions to 150
     const results = (await getRepository(Subscription).query(
       `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
-          select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
+          select $1, $2, $3, $4, $5, $6, $8 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
           having count(*) < $7 
           returning *;`,
@@ -240,6 +241,7 @@ export const subscribeResolver = authorized<
         uid,
         feed.image?.url || null,
         MAX_RSS_SUBSCRIPTIONS,
+        !!input.isFetchingContent,
       ]
     )) as Subscription[]
 
@@ -259,6 +261,7 @@ export const subscribeResolver = authorized<
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
       checksums: [null],
+      isFetchingContents: [!!newSubscription.isFetchingContent],
     })
 
     return {

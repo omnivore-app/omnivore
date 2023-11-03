@@ -34,7 +34,8 @@ export function rssFeedRouter() {
           ARRAY_AGG(user_id) AS "userIds",
           ARRAY_AGG(last_fetched_at) AS "fetchedDates",
           ARRAY_AGG(coalesce(scheduled_at, NOW())) AS "scheduledDates",
-          ARRAY_AGG(last_fetched_checksum) AS checksums
+          ARRAY_AGG(last_fetched_checksum) AS checksums,
+          ARRAY_AGG(coalesce(is_fetching_content, false)) AS "isFetchingContents",
         FROM
           omnivore.subscriptions
         WHERE
