@@ -83,6 +83,7 @@ export function SplitPageLayout(props: PrimaryLayoutProps): JSX.Element {
           height: '100%',
           width: '100%',
           bg: '$readerBg',
+          '--separator-border': '$thNotebookBackground',
         }}
       >
         {props.children}
