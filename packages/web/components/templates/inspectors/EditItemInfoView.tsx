@@ -10,6 +10,7 @@ import {
   clampToPercent,
   getTopOmnivoreAnchorElement,
 } from '../../../lib/anchorElements'
+import { FormEvent } from 'react'
 
 type EditInfoProps = {
   item: ReadableItem
@@ -54,38 +55,23 @@ export const EditItemInfoView = (props: EditInfoProps): JSX.Element => {
           type="number"
           value={readingProgress}
           max={100}
-          onChange={(event) => {
-            console.log('event: ', event)
+          onChange={(event: FormEvent<HTMLSelectElement>) => {
             if (
-              !('value' in event.target) ||
               !props.containerRef.current?.scrollHeight ||
-              Number.isNaN(Number(event.target.value))
+              Number.isNaN(Number(event.currentTarget.value))
             ) {
               return
             }
-            const numberValue = Number(event.target.value)
+            const numberValue = Number(event.currentTarget.value)
             setReadingProgress(numberValue)
 
             const value = numberValue / 100.0
             props.item.readingProgressPercent = value
 
             const position = props.containerRef.current?.scrollHeight * value
-            console.log('position: ', position)
-
-            console.log(
-              'scrollHeight: ',
-              props.containerRef.current?.scrollHeight
-            )
-
-            console.log(
-              'scrolling container: ',
-              props.containerRef,
-              'tp',
-              position
-            )
             props.containerRef?.current.scrollTo({
               top: position,
-              behavior: 'instant',
+              //    behavior: 'instant',
             })
             ;(async () => {
               const articleContent = document.querySelector('#article-content')
@@ -297,7 +283,7 @@ type NumberSelectRowProps = {
   type: string
   value: number
   max: number
-  onChange: (event: ChangeEvent) => void
+  onChange: (event: FormEvent<HTMLSelectElement>) => void
 }
 
 const StyledSelect = styled('select', {
