@@ -54,48 +54,6 @@ export function VerticalArticleActionsMenu(
           />
         </Button>
 
-        <Button
-          title="Open notebook (t)"
-          style="articleActionIcon"
-          onClick={() => props.articleActionHandler('showNotebook')}
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            '@media (max-width: 300px)': {
-              display: 'none',
-            },
-          }}
-        >
-          <NotebookIcon
-            size={25}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        </Button>
-
-        <Button
-          title="Edit info (i)"
-          style="articleActionIcon"
-          onClick={() => props.articleActionHandler('showEditModal')}
-        >
-          <EditInfoIcon
-            size={25}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        </Button>
-
-        <Button
-          title="Remove (#)"
-          style="articleActionIcon"
-          onClick={() => {
-            props.articleActionHandler('delete')
-          }}
-        >
-          <TrashIcon
-            size={25}
-            color={theme.colors.thNotebookSubtle.toString()}
-          />
-        </Button>
-
         {!props.article?.isArchived ? (
           <Button
             title="Archive (e)"
@@ -133,18 +91,6 @@ export function VerticalArticleActionsMenu(
           />
         </Button>
 
-        {props.showReaderDisplaySettings && (
-          <Button
-            title="Display Settings (d)"
-            style="articleActionIcon"
-            onClick={() => props.articleActionHandler('editDisplaySettings')}
-          >
-            <ReaderSettingsIcon
-              size={24}
-              color={theme.colors.thHighContrast.toString()}
-            />
-          </Button>
-        )}
         <Button
           title="Display settings (d)"
           style="articleActionIcon"
@@ -156,7 +102,7 @@ export function VerticalArticleActionsMenu(
         >
           <ReaderSettingsIcon
             size={24}
-            color={theme.colors.thHighContrast.toString()}
+            color={theme.colors.thNotebookSubtle.toString()}
           />
         </Button>
 
