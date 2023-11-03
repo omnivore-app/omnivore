@@ -18,6 +18,7 @@ import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SearchViewModel
 import app.omnivore.omnivore.ui.root.RootView
+import app.omnivore.omnivore.ui.save.SaveViewModel
 import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import com.pspdfkit.PSPDFKit
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
     val settingsViewModel: SettingsViewModel by viewModels()
     val searchViewModel: SearchViewModel by viewModels()
     val labelsViewModel: LabelsViewModel by viewModels()
+    val saveViewModel: SaveViewModel by viewModels()
 
     val context = this
 
@@ -57,7 +59,13 @@ class MainActivity : ComponentActivity() {
             .fillMaxSize()
             .background(color = Color.Black)
         ) {
-          RootView(loginViewModel, searchViewModel, libraryViewModel, settingsViewModel, labelsViewModel)
+          RootView(
+            loginViewModel,
+            searchViewModel,
+            libraryViewModel,
+            settingsViewModel,
+            labelsViewModel,
+            saveViewModel)
         }
       }
     }

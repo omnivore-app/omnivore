@@ -29,6 +29,7 @@ import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighligh
 fun LibraryNavigationBar(
   savedItemViewModel: SavedItemViewModel,
   onSearchClicked: () -> Unit,
+  onAddLinkClicked: () -> Unit,
   onSettingsIconClick: () -> Unit
 ) {
     val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
@@ -97,6 +98,13 @@ fun LibraryNavigationBar(
                 IconButton(onClick = onSearchClicked) {
                     Icon(
                         imageVector = Icons.Filled.Search,
+                        contentDescription = null
+                    )
+                }
+
+                IconButton(onClick = onAddLinkClicked) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
                         contentDescription = null
                     )
                 }

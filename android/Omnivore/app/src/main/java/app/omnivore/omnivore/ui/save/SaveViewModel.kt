@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.save
 
 import android.content.ContentValues
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,7 +53,16 @@ class SaveViewModel @Inject constructor(
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
 
-  fun cleanUrl(text: String): String? {
+  /**
+   * Checks whether or not the provided URL is valid.
+   * @param url The potential URL to validate.
+   * @return true if valid, false otherwise.
+   */
+  fun validateUrl(url: String): Boolean {
+    return Patterns.WEB_URL.matcher(url).matches()
+  }
+
+  private fun cleanUrl(text: String): String? {
     val pattern = Pattern.compile("\\b(?:https?|ftp)://\\S+")
     val matcher = pattern.matcher(text)
 
