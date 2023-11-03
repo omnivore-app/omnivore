@@ -1,4 +1,4 @@
-FROM node:14.18-alpine as builder
+FROM node:18.16-alpine as builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY tsconfig.json .
 COPY .prettierrc .
 COPY .eslintrc .
 
-COPY selfhost.sh /app/selfhost.sh
+COPY /self-hosting/selfhost.sh /app/selfhost.sh
 COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/api/package.json ./packages/api/package.json
 COPY /packages/text-to-speech/package.json ./packages/text-to-speech/package.json
@@ -34,7 +34,7 @@ RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-FROM node:14.18-alpine as runner
+FROM node:18.16-alpine as runner
 
 WORKDIR /app
 
