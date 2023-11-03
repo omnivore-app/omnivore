@@ -25,7 +25,6 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.LabelChipColors
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryFilterBar(viewModel: LibraryViewModel) {
   var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }

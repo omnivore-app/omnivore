@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelCreationDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
   var labelName by rememberSaveable { mutableStateOf("") }

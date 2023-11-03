@@ -132,19 +132,19 @@ dependencies {
 
     implementation 'com.apollographql.apollo3:apollo-runtime:3.7.2'
 
-    implementation 'androidx.compose.material3:material3:1.1.0-alpha03'
-    implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha03'
+    implementation 'androidx.compose.material3:material3:1.1.2'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.1.2'
 
     implementation 'com.google.android.gms:play-services-auth:20.4.0'
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
     implementation "com.google.accompanist:accompanist-flowlayout:0.25.1"
 
-    implementation 'io.coil-kt:coil-compose:2.2.0'
+    implementation 'io.coil-kt:coil-compose:2.3.0'
 
-    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.pspdfkit:pspdfkit:8.4.1'
 
-    implementation 'com.posthog.android:posthog:1.+'
+    implementation 'com.posthog.android:posthog:2.0.3'
     implementation 'io.intercom.android:intercom-sdk:15.1.0'
 
     // Room Deps
