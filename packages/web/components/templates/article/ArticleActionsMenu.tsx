@@ -11,6 +11,7 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
+import { EditInfoIcon } from '../../elements/icons/EditInfoIcon'
 
 export type ArticleActionsMenuLayout = 'top' | 'side'
 
