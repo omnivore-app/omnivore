@@ -15,7 +15,7 @@ ALTER TABLE omnivore.library_item
     ADD COLUMN links jsonb,
     ADD COLUMN preview_content text,
     ADD COLUMN seen_at timestamptz,
-    ALTER COLUMN saved_at DROP NOT NULL;
+    ADD COLUMN is_in_library boolean NOT NULL DEFAULT true;
 
 CREATE TABLE omnivore.feed (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),

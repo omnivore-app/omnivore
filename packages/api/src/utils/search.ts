@@ -25,6 +25,7 @@ export enum InFilter {
   TRASH,
   SUBSCRIPTION,
   LIBRARY,
+  FOLLOWING,
 }
 
 export interface SearchFilter {

@@ -103,7 +103,9 @@ const buildWhereClause = (
     })
   }
 
-  if (args.inFilter !== InFilter.ALL) {
+  if (args.inFilter !== InFilter.FOLLOWING) {
+    queryBuilder.andWhere('library_item.is_in_library = true')
+
     switch (args.inFilter) {
       case InFilter.INBOX:
         queryBuilder.andWhere('library_item.archived_at IS NULL')
@@ -131,6 +133,10 @@ const buildWhereClause = (
           .andWhere('library_item.archived_at IS NULL')
         break
     }
+  } else {
+    queryBuilder
+      .andWhere('library_item.shared_by IS NOT NULL')
+      .andWhere('library_item.hidden_at IS NULL')
   }
 
   if (args.readFilter !== ReadFilter.ALL) {
@@ -318,7 +324,7 @@ export const searchLibraryItems = async (
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
-        .where({ user: { id: userId } })
+        .where('library_item.user_id = :userId', { userId })
 
       // build the where clause
       buildWhereClause(queryBuilder, args)
