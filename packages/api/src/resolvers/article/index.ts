@@ -46,7 +46,6 @@ import {
   TypeaheadSearchSuccess,
   UpdateReason,
   UpdatesSinceError,
-  UpdatesSinceErrorCode,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
 import { getColumns } from '../../repository'
@@ -54,6 +53,7 @@ import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
+import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   findLabelsByIds,
@@ -661,28 +661,40 @@ export const searchResolver = authorized<
     libraryItems.pop()
   }
 
-  const edges = libraryItems.map((libraryItem) => {
-    if (params.includeContent && libraryItem.readableContent) {
-      // convert html to the requested format
-      const format = params.format || ArticleFormat.Html
-      try {
-        const converter = contentConverter(format)
-        if (converter) {
-          libraryItem.readableContent = converter(
-            libraryItem.readableContent,
-            libraryItem.highlights
-          )
-        }
-      } catch (error) {
-        log.error('Error converting content', error)
+  const edges = await Promise.all(
+    libraryItems.map(async (libraryItem) => {
+      if (
+        libraryItem.highlightAnnotations &&
+        libraryItem.highlightAnnotations.length > 0
+      ) {
+        libraryItem.highlights = await findHighlightsByLibraryItemId(
+          libraryItem.id,
+          uid
+        )
       }
-    }
 
-    return {
-      node: libraryItemToSearchItem(libraryItem),
-      cursor: endCursor,
-    }
-  })
+      if (params.includeContent && libraryItem.readableContent) {
+        // convert html to the requested format
+        const format = params.format || ArticleFormat.Html
+        try {
+          const converter = contentConverter(format)
+          if (converter) {
+            libraryItem.readableContent = converter(
+              libraryItem.readableContent,
+              libraryItem.highlights
+            )
+          }
+        } catch (error) {
+          log.error('Error converting content', error)
+        }
+      }
+
+      return {
+        node: libraryItemToSearchItem(libraryItem),
+        cursor: endCursor,
+      }
+    })
+  )
 
   return {
     edges,

@@ -3,23 +3,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { createHmac } from 'crypto'
 import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import {
   Article,
-  Highlight,
   Label,
   PageType,
   Recommendation,
   SearchItem,
   User,
 } from '../generated/graphql'
-import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
-  highlightDataToHighlight,
   isBase64Image,
   recommandationDataToRecommendation,
   validatedDate,
@@ -128,7 +126,6 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
-import { createHmac } from 'crypto'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -377,24 +374,6 @@ export const functionResolvers = {
       }
 
       return item.siteIcon
-    },
-    async highlights(
-      item: {
-        id: string
-        highlights?: Highlight[]
-        highlightAnnotations?: string[] | null
-      },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      if (item.highlights) return item.highlights
-
-      if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
-        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
-        return highlights.map(highlightDataToHighlight)
-      }
-
-      return []
     },
     async labels(
       item: { id: string; labels?: Label[]; labelNames?: string[] | null },
