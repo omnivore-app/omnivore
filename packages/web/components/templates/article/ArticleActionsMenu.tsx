@@ -87,7 +87,7 @@ export function ArticleActionsMenu(
         >
           <NotebookIcon
             size={24}
-            color={theme.colors.thHighContrast.toString()}
+            color={theme.colors.thNotebookSubtle.toString()}
           />
         </Button>
 
