@@ -36,7 +36,12 @@ const FORCE_PUPPETEER_URLS = [
   TWEET_URL_REGEX,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
-const ALREADY_PARSED_SOURCES = ['puppeteer-parse', 'csv-importer', 'rss-feeder']
+const ALREADY_PARSED_SOURCES = [
+  'puppeteer-parse',
+  'csv-importer',
+  'rss-feeder',
+  'pocket',
+]
 
 const createSlug = (url: string, title?: Maybe<string> | undefined) => {
   const { pathname } = new URL(url)
@@ -93,7 +98,8 @@ export const savePage = async (
     state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
   })
-  const isImported = input.source === 'csv-importer'
+  const isImported =
+    input.source === 'csv-importer' || input.source === 'pocket'
 
   // always parse in backend if the url is in the force puppeteer list
   if (shouldParseInBackend(input)) {

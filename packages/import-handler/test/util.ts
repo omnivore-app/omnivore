@@ -28,5 +28,6 @@ export const stubImportCtx = async (): Promise<ImportContext> => {
     },
     redisClient,
     taskId: '',
+    source: 'csv-importer',
   }
 }

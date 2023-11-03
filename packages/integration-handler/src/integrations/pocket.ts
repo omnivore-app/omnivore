@@ -1,11 +1,9 @@
 import axios from 'axios'
-import { LibraryItemState } from '../../entity/library_item'
-import { env } from '../../env'
-import { logger } from '../../utils/logger'
 import {
   IntegrationClient,
   RetrievedResult,
   RetrieveRequest,
+  State,
 } from './integration'
 
 interface PocketResponse {
@@ -51,7 +49,7 @@ interface Author {
   name: string
 }
 
-export class PocketClient implements IntegrationClient {
+export class PocketClient extends IntegrationClient {
   name = 'POCKET'
   apiUrl = 'https://getpocket.com/v3'
   headers = {
@@ -59,45 +57,21 @@ export class PocketClient implements IntegrationClient {
     'X-Accept': 'application/json',
   }
 
-  accessToken = async (token: string): Promise<string | null> => {
-    const url = `${this.apiUrl}/oauth/authorize`
-    try {
-      const response = await axios.post<{ access_token: string }>(
-        url,
-        {
-          consumer_key: env.pocket.consumerKey,
-          code: token,
-        },
-        {
-          headers: this.headers,
-          timeout: 5000, // 5 seconds
-        }
-      )
-      return response.data.access_token
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        logger.error(error.response)
-      } else {
-        logger.error(error)
-      }
-      return null
-    }
-  }
-
   retrievePocketData = async (
     accessToken: string,
     since: number, // unix timestamp in seconds
     count = 100,
-    offset = 0
+    offset = 0,
+    state = 'all'
   ): Promise<PocketResponse | null> => {
     const url = `${this.apiUrl}/get`
     try {
       const response = await axios.post<PocketResponse>(
         url,
         {
-          consumer_key: env.pocket.consumerKey,
+          consumer_key: process.env.POCKET_CONSUMER_KEY,
           access_token: accessToken,
-          state: 'all',
+          state,
           detailType: 'complete',
           since,
           sort: 'oldest',
@@ -112,11 +86,7 @@ export class PocketClient implements IntegrationClient {
 
       return response.data
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        logger.error(error.response)
-      } else {
-        logger.error(error)
-      }
+      console.error('error retrievePocketData: ', error)
 
       return null
     }
@@ -127,30 +97,51 @@ export class PocketClient implements IntegrationClient {
     since = 0,
     count = 100,
     offset = 0,
+    state,
   }: RetrieveRequest): Promise<RetrievedResult> => {
+    let pocketItemState = 'all'
+
+    switch (state) {
+      case State.ARCHIVED:
+        pocketItemState = 'archive'
+        break
+      case State.UNREAD:
+        pocketItemState = 'unread'
+        break
+    }
+
     const pocketData = await this.retrievePocketData(
       token,
       since / 1000,
       count,
-      offset
+      offset,
+      pocketItemState
     )
     if (!pocketData) {
       throw new Error('Error retrieving pocket data')
     }
 
     const pocketItems = Object.values(pocketData.list)
-    const statusToState: Record<string, LibraryItemState> = {
-      '0': LibraryItemState.Succeeded,
-      '1': LibraryItemState.Archived,
-      '2': LibraryItemState.Deleted,
+    const statusToState: Record<string, string> = {
+      '0': 'SUCCEEDED',
+      '1': 'ARCHIVED',
+      '2': 'DELETED',
     }
-    const data = pocketItems.map((item) => ({
-      url: item.given_url,
-      labels: item.tags
-        ? Object.values(item.tags).map((tag) => tag.tag)
-        : undefined,
-      state: statusToState[item.status],
-    }))
+    const data = pocketItems
+      .map((item) => ({
+        url: item.given_url,
+        labels: item.tags
+          ? Object.values(item.tags).map((tag) => tag.tag)
+          : undefined,
+        state: statusToState[item.status],
+      }))
+      .filter((item) => {
+        if (item.state === 'DELETED') {
+          return false
+        }
+
+        return state !== State.UNARCHIVED || item.state !== 'ARCHIVED'
+      })
 
     if (pocketData.error) {
       throw new Error(`Error retrieving pocket data: ${pocketData.error}`)

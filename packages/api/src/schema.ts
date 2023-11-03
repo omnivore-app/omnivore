@@ -1972,12 +1972,21 @@ const schema = gql`
     ALREADY_EXISTS
   }
 
+  enum ImportItemState {
+    UNREAD
+    UNARCHIVED
+    ARCHIVED
+    ALL
+  }
+
   input SetIntegrationInput {
     id: ID
     name: String!
     type: IntegrationType
     token: String!
     enabled: Boolean!
+    syncedAt: Date
+    importItemState: ImportItemState
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError

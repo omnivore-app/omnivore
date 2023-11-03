@@ -970,6 +970,13 @@ export type ImportFromIntegrationSuccess = {
   success: Scalars['Boolean'];
 };
 
+export enum ImportItemState {
+  All = 'ALL',
+  Archived = 'ARCHIVED',
+  Unarchived = 'UNARCHIVED',
+  Unread = 'UNREAD'
+}
+
 export type Integration = {
   __typename?: 'Integration';
   createdAt: Scalars['Date'];
@@ -2375,7 +2382,9 @@ export enum SetIntegrationErrorCode {
 export type SetIntegrationInput = {
   enabled: Scalars['Boolean'];
   id?: InputMaybe<Scalars['ID']>;
+  importItemState?: InputMaybe<ImportItemState>;
   name: Scalars['String'];
+  syncedAt?: InputMaybe<Scalars['Date']>;
   token: Scalars['String'];
   type?: InputMaybe<IntegrationType>;
 };
@@ -3494,6 +3503,7 @@ export type ResolversTypes = {
   ImportFromIntegrationErrorCode: ImportFromIntegrationErrorCode;
   ImportFromIntegrationResult: ResolversTypes['ImportFromIntegrationError'] | ResolversTypes['ImportFromIntegrationSuccess'];
   ImportFromIntegrationSuccess: ResolverTypeWrapper<ImportFromIntegrationSuccess>;
+  ImportItemState: ImportItemState;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Integration: ResolverTypeWrapper<Integration>;
   IntegrationType: IntegrationType;

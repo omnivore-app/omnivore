@@ -1,5 +1,4 @@
-import { Integration } from '../../entity/integration'
-import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import { LibraryItemState } from '../../entity/library_item'
 
 export interface RetrievedData {
   url: string
@@ -19,19 +18,9 @@ export interface RetrieveRequest {
   offset?: number
 }
 
-export abstract class IntegrationService {
-  abstract name: string
+export interface IntegrationClient {
+  name: string
+  apiUrl: string
 
-  accessToken = async (token: string): Promise<string | null> => {
-    return Promise.resolve(null)
-  }
-  export = async (
-    integration: Integration,
-    items: LibraryItem[]
-  ): Promise<boolean> => {
-    return Promise.resolve(false)
-  }
-  retrieve = async (req: RetrieveRequest): Promise<RetrievedResult> => {
-    return Promise.resolve({ data: [] })
-  }
+  accessToken(token: string): Promise<string | null>
 }
