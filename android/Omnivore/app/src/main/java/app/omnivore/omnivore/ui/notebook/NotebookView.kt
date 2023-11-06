@@ -246,7 +246,6 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
     val highlights = item.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()

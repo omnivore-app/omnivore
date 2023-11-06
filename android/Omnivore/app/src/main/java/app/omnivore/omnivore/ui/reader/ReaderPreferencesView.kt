@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
   val isDark = isSystemInDarkTheme()

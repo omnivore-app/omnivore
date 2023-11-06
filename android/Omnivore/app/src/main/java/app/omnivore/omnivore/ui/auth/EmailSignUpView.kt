@@ -140,7 +140,6 @@ fun EmailSignUpForm(viewModel: LoginViewModel) {
   }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailSignUpFields(
   email: String,
