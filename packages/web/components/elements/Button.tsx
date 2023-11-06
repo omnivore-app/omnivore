@@ -174,6 +174,7 @@ export const Button = styled('button', {
         },
       },
       ctaPill: {
+        cursor: 'pointer',
         borderRadius: '15px',
         px: '10px',
         py: '4px',
@@ -184,7 +185,20 @@ export const Button = styled('button', {
         bg: '$grayBgActive',
         '&:hover': {
           bg: '$grayBgHover',
-          //         border: '1px solid $grayBorderHover',
+        },
+      },
+      ctaPillUnselected: {
+        cursor: 'pointer',
+        borderRadius: '15px',
+        px: '10px',
+        py: '4px',
+        font: '$inter',
+        fontSize: '12px',
+        fontWeight: 'medium',
+        border: '1px solid transparent',
+        bg: 'transparent',
+        '&:hover': {
+          bg: '$grayBgHover',
         },
       },
       link: {
