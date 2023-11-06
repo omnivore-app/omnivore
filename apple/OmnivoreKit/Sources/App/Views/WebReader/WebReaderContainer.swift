@@ -438,7 +438,8 @@ struct WebReaderContainerView: View {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
         }
-        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
+        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
+                            titleVisibility: .visible) {
           Button(action: {
             if let linkToOpen = linkToOpen {
               safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
