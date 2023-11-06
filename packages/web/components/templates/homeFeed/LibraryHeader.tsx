@@ -30,6 +30,7 @@ import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { ListViewIcon } from '../../elements/icons/ListViewIcon'
 import { GridViewIcon } from '../../elements/icons/GridViewIcon'
 import { CaretDownIcon } from '../../elements/icons/CaretDownIcon'
+import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -106,19 +107,34 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      <ControlButtonBox
-        layout={props.layout}
-        updateLayout={props.updateLayout}
-        numItemsSelected={props.numItemsSelected}
-        multiSelectMode={props.multiSelectMode}
-        setMultiSelectMode={props.setMultiSelectMode}
-        showAddLinkModal={props.showAddLinkModal}
-        performMultiSelectAction={props.performMultiSelectAction}
-        searchTerm={props.searchTerm}
-        applySearchQuery={props.applySearchQuery}
-        allowSelectMultiple={props.allowSelectMultiple}
-        handleLinkSubmission={props.handleLinkSubmission}
-      />
+      <VStack
+        alignment="start"
+        distribution="start"
+        css={
+          {
+            // width: '100%',
+            // height: '100%',
+            // '@mdDown': {
+            //   display: 'none',
+            // },
+          }
+        }
+      >
+        <ControlButtonBox
+          layout={props.layout}
+          updateLayout={props.updateLayout}
+          numItemsSelected={props.numItemsSelected}
+          multiSelectMode={props.multiSelectMode}
+          setMultiSelectMode={props.setMultiSelectMode}
+          showAddLinkModal={props.showAddLinkModal}
+          performMultiSelectAction={props.performMultiSelectAction}
+          searchTerm={props.searchTerm}
+          applySearchQuery={props.applySearchQuery}
+          allowSelectMultiple={props.allowSelectMultiple}
+          handleLinkSubmission={props.handleLinkSubmission}
+        />
+        <PinnedButtons />
+      </VStack>
     </HStack>
   )
 }
@@ -397,6 +413,29 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         )}
       </HStack>
     </Box>
+  )
+}
+
+const PinnedButtons = (): JSX.Element => {
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{ width: '100%', pt: '20px', pb: '0px', gap: '10px' }}
+    >
+      <Button style="ctaPill">Problem Solving</Button>
+      <Button style="ctaPill">Music</Button>
+      <Button style="ctaPill">Sleeping</Button>
+      <Button style="ctaPill">Productivity</Button>
+      <Button style="ctaPill">Movies</Button>
+      <Button style="ghost">
+        <MoreOptionsIcon
+          size={18}
+          strokeColor={'white'}
+          orientation={'horizontal'}
+        />
+      </Button>
+    </HStack>
   )
 }
 

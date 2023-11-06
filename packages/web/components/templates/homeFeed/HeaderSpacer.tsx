@@ -1,6 +1,6 @@
 import { Box } from '../../elements/LayoutPrimitives'
 
-export const HEADER_HEIGHT = '70px'
+export const HEADER_HEIGHT = '110px'
 
 export function HeaderSpacer(): JSX.Element {
   return (

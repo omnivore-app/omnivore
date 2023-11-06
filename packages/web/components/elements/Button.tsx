@@ -174,14 +174,17 @@ export const Button = styled('button', {
         },
       },
       ctaPill: {
-        borderRadius: '$3',
-        px: '$3',
-        py: '$2',
+        borderRadius: '15px',
+        px: '10px',
+        py: '4px',
+        font: '$inter',
+        fontSize: '12px',
+        fontWeight: 'medium',
         border: '1px solid $grayBorder',
         bg: '$grayBgActive',
         '&:hover': {
           bg: '$grayBgHover',
-          border: '1px solid $grayBorderHover',
+          //         border: '1px solid $grayBorderHover',
         },
       },
       link: {
@@ -246,7 +249,6 @@ export const Button = styled('button', {
         '&:hover': {
           opacity: 0.5,
         },
-
       },
       articleActionIcon: {
         bg: 'transparent',
