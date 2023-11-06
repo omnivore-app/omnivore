@@ -498,6 +498,7 @@ struct WebReaderContainerView: View {
               showErrorAlertMessage: $showErrorAlertMessage
             )
           }
+          .navigationViewStyle(StackNavigationViewStyle())
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
