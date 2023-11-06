@@ -117,7 +117,7 @@ struct LinkedItemMetadataEditView: View {
               )
             }
           }
-      }
+      }.navigationViewStyle(StackNavigationViewStyle())
     }
   #else
     var macOSBody: some View {

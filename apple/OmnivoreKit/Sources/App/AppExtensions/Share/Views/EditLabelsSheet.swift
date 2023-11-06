@@ -117,6 +117,7 @@ public struct EditLabelsSheet: View {
           Text("Done").bold()
         }))
     }
+    .navigationViewStyle(StackNavigationViewStyle())
     .environmentObject(viewModel.services.dataService)
     .task {
       await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
