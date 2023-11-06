@@ -507,6 +507,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
     >
       <label
         style={{
+          cursor: 'pointer',
           width: '100%',
           maxWidth: '170px',
           overflow: 'hidden',
@@ -516,11 +517,11 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         onClick={() => {
           const query = props.searchTerm?.replace(/label:\"(.*)\"/, '') ?? ''
           if (checkboxRef.current?.checked) {
+            props.applySearchQuery(query.trim())
+          } else {
             props.applySearchQuery(
               `${query.trim()} label:\"${props.label.name}\"`
             )
-          } else {
-            props.applySearchQuery(query.trim())
           }
         }}
       >
