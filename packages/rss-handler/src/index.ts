@@ -247,7 +247,20 @@ const processSubscription = async (
   fetchResult: { content: string; checksum: string },
   lastFetchedAt: number,
   scheduledAt: number,
-  lastFetchedChecksum: string
+  lastFetchedChecksum: string,
+  feed: {
+    lastBuildDate: any
+    'syn:updatePeriod': any
+    'syn:updateFrequency': any
+    'sy:updatePeriod': any
+    'sy:updateFrequency': any
+  } & Parser.Output<{
+    published: any
+    updated: any
+    created: any
+    link: any
+    links: any[]
+  }>
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -260,8 +273,6 @@ const processSubscription = async (
 
   // fetch feed
   let itemCount = 0
-  const feed = await parser.parseString(fetchResult.content)
-  console.log('Fetched feed', feed.title, new Date())
 
   const feedLastBuildDate = feed.lastBuildDate as string | undefined
   console.log('Feed last build date', feedLastBuildDate)
@@ -392,24 +403,23 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
+      const feed = await parser.parseString(fetchResult.content)
+      console.log('Fetched feed', feed.title, new Date())
 
-      for (let i = 0; i < subscriptionIds.length; i++) {
-        const subscriptionId = subscriptionIds[i]
-        const lastFetchedAt = lastFetchedTimestamps[i]
-        const scheduledAt = scheduledTimestamps[i]
-        const userId = userIds[i]
-        const lastFetchedChecksum = lastFetchedChecksums[i]
-
-        await processSubscription(
-          subscriptionId,
-          userId,
-          feedUrl,
-          fetchResult,
-          lastFetchedAt,
-          scheduledAt,
-          lastFetchedChecksum
+      await Promise.all(
+        subscriptionIds.map((_, i) =>
+          processSubscription(
+            subscriptionIds[i],
+            userIds[i],
+            feedUrl,
+            fetchResult,
+            lastFetchedTimestamps[i],
+            scheduledTimestamps[i],
+            lastFetchedChecksums[i],
+            feed
+          )
         )
-      }
+      )
 
       res.send('ok')
     } catch (e) {
