@@ -18,17 +18,15 @@ import Views
   }
 
   func loadProfileData(dataService: DataService) async {
-    if let currentViewer = dataService.currentViewer {
-      loadProfileCardData(viewer: currentViewer)
-      return
+    if let currentViewer = dataService.currentViewer,
+       let name = currentViewer.name,
+       let username = currentViewer.username
+    {
+      loadProfileCardData(name: name, username: username, profileImageURL: currentViewer.profileImageURL)
     }
 
-    guard let viewerObjectID = try? await dataService.fetchViewer() else { return }
-
-    await dataService.viewContext.perform {
-      if let viewer = dataService.viewContext.object(with: viewerObjectID) as? Viewer {
-        self.loadProfileCardData(viewer: viewer)
-      }
+    if let viewer = try? await dataService.fetchViewer() {
+      loadProfileCardData(name: viewer.name, username: viewer.username, profileImageURL: viewer.profileImageURL)
     }
   }
 
@@ -47,11 +45,11 @@ import Views
     }
   }
 
-  private func loadProfileCardData(viewer: Viewer) {
+  private func loadProfileCardData(name: String, username: String, profileImageURL: String?) {
     profileCardData = ProfileCardData(
-      name: viewer.unwrappedName,
-      username: viewer.unwrappedUsername,
-      imageURL: viewer.profileImageURL.flatMap { URL(string: $0) }
+      name: name,
+      username: username,
+      imageURL: profileImageURL.flatMap { URL(string: $0) }
     )
   }
 }
@@ -159,17 +157,23 @@ struct ProfileView: View {
           )
         #endif
 
-        NavigationLink(
-          destination: BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
-        ) {
-          Text(LocalText.privacyPolicyGeneric)
-        }
+        Button(
+          action: {
+            if let url = URL(string: "https://omnivore.app/privacy") {
+              openURL(url)
+            }
+          },
+          label: { Text(LocalText.privacyPolicyGeneric) }
+        )
 
-        NavigationLink(
-          destination: BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
-        ) {
-          Text(LocalText.termsAndConditionsGeneric)
-        }
+        Button(
+          action: {
+            if let url = URL(string: "https://omnivore.app/terms") {
+              openURL(url)
+            }
+          },
+          label: { Text(LocalText.termsAndConditionsGeneric) }
+        )
       }
 
       Section(footer: Text(viewModel.appVersionString)) {
@@ -202,11 +206,11 @@ struct ProfileView: View {
 
 extension BasicWebAppView {
   static func privacyPolicyWebView(baseURL: URL) -> BasicWebAppView {
-    omnivoreWebView(path: "/app/privacy", baseURL: baseURL)
+    omnivoreWebView(path: "/privacy", baseURL: baseURL)
   }
 
   static func termsConditionsWebView(baseURL: URL) -> BasicWebAppView {
-    omnivoreWebView(path: "/app/terms", baseURL: baseURL)
+    omnivoreWebView(path: "/terms", baseURL: baseURL)
   }
 
   private static func omnivoreWebView(path: String, baseURL: URL) -> BasicWebAppView {

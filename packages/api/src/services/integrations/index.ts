@@ -1,19 +1,19 @@
 import { DeepPartial, FindOptionsWhere } from 'typeorm'
 import { Integration } from '../../entity/integration'
 import { authTrx } from '../../repository'
-import { IntegrationService } from './integration'
-import { PocketIntegration } from './pocket'
-import { ReadwiseIntegration } from './readwise'
+import { IntegrationClient } from './integration'
+import { PocketClient } from './pocket'
+import { ReadwiseClient } from './readwise'
 
-const integrations: IntegrationService[] = [
-  new ReadwiseIntegration(),
-  new PocketIntegration(),
+const integrations: IntegrationClient[] = [
+  new ReadwiseClient(),
+  new PocketClient(),
 ]
 
-export const getIntegrationService = (name: string): IntegrationService => {
+export const getIntegrationClient = (name: string): IntegrationClient => {
   const service = integrations.find((s) => s.name === name)
   if (!service) {
-    throw new Error(`Integration service not found: ${name}`)
+    throw new Error(`Integration client not found: ${name}`)
   }
   return service
 }

@@ -438,7 +438,8 @@ struct WebReaderContainerView: View {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
         }
-        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
+        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
+                            titleVisibility: .visible) {
           Button(action: {
             if let linkToOpen = linkToOpen {
               safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
@@ -498,6 +499,7 @@ struct WebReaderContainerView: View {
               showErrorAlertMessage: $showErrorAlertMessage
             )
           }
+          .navigationViewStyle(StackNavigationViewStyle())
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
@@ -614,7 +616,7 @@ struct WebReaderContainerView: View {
         .autohideIn(2)
         .position(.bottom)
         .animation(.spring())
-        .closeOnTapOutside(true)
+        .isOpaque(false)
     }
     .onReceive(NSNotification.readerSnackBarPublisher) { notification in
       if let message = notification.userInfo?["message"] as? String {

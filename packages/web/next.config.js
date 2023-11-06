@@ -24,28 +24,34 @@ const moduleExports = {
       'proxy.omnivore-image-cache.app',
     ],
   },
-  rewrites: () => [
-    {
-      source: '/api/graphql',
-      destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/graphql`,
-    },
-    {
-      source: '/api/auth/:path*',
-      destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/auth/:path*`,
-    },
-    {
-      source: '/api/article/save',
-      destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/article/save`,
-    },
-    {
-      source: '/api/mobile-auth/:path*',
-      destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
-    },
-    {
+  rewrites: () => {
+    const rewrites = []
+    if (process.env.INCLUDE_LEGACY_REWRITES) {
+      rewrites.push(
+        {
+          source: '/api/graphql',
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/graphql`,
+        },
+        {
+          source: '/api/auth/:path*',
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/auth/:path*`,
+        },
+        {
+          source: '/api/article/save',
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/article/save`,
+        },
+        {
+          source: '/api/mobile-auth/:path*',
+          destination: `https://api-${process.env.NEXT_PUBLIC_APP_ENV}.omnivore.app/api/mobile-auth/:path*`,
+        }
+      )
+    }
+    rewrites.push({
       source: '/collect/:match*',
       destination: 'https://app.posthog.com/:match*',
-    },
-  ],
+    })
+    return rewrites
+  },
   async headers() {
     return [
       {

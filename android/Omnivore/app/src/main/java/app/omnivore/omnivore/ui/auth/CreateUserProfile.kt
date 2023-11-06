@@ -73,7 +73,6 @@ fun CreateUserProfileView(viewModel: LoginViewModel) {
   }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileFields(
   name: String,

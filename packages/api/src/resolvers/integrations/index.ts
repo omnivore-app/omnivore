@@ -1,5 +1,9 @@
 import { DeepPartial } from 'typeorm'
-import { Integration, IntegrationType } from '../../entity/integration'
+import {
+  ImportItemState,
+  Integration,
+  IntegrationType,
+} from '../../entity/integration'
 import { env } from '../../env'
 import {
   DeleteIntegrationError,
@@ -18,10 +22,11 @@ import {
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
 } from '../../generated/graphql'
+import { createIntegrationToken } from '../../routers/auth/jwt_helpers'
 import {
   findIntegration,
   findIntegrations,
-  getIntegrationService,
+  getIntegrationClient,
   removeIntegration,
   saveIntegration,
   updateIntegration,
@@ -29,8 +34,8 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
+  enqueueExportToIntegration,
   enqueueImportFromIntegration,
-  enqueueSyncWithIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
 
@@ -45,6 +50,11 @@ export const setIntegrationResolver = authorized<
       user: { id: uid },
       id: input.id || undefined,
       type: input.type || IntegrationType.Export,
+      syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
+      importItemState:
+        input.type === IntegrationType.Import
+          ? input.importItemState || ImportItemState.Unarchived // default to unarchived
+          : undefined,
     }
     if (input.id) {
       // Update
@@ -59,7 +69,7 @@ export const setIntegrationResolver = authorized<
       integrationToSave.taskName = existingIntegration.taskName
     } else {
       // Create
-      const integrationService = getIntegrationService(input.name)
+      const integrationService = getIntegrationClient(input.name)
       // authorize and get access token
       const token = await integrationService.accessToken(input.token)
       if (!token) {
@@ -73,12 +83,27 @@ export const setIntegrationResolver = authorized<
     // save integration
     const integration = await saveIntegration(integrationToSave, uid)
 
-    if (
-      integrationToSave.type === IntegrationType.Export &&
-      (!integrationToSave.id || integrationToSave.enabled)
-    ) {
+    if (integrationToSave.type === IntegrationType.Export && !input.id) {
+      const authToken = await createIntegrationToken({
+        uid,
+        token: integration.token,
+      })
+      if (!authToken) {
+        log.error('failed to create auth token', {
+          integrationId: integration.id,
+        })
+        return {
+          errorCodes: [SetIntegrationErrorCode.BadRequest],
+        }
+      }
+
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const taskName = await enqueueSyncWithIntegration(uid, input.name)
+      const taskName = await enqueueExportToIntegration(
+        integration.id,
+        integration.name,
+        0,
+        authToken
+      )
       log.info('enqueued task', taskName)
 
       // update task name in integration
@@ -190,7 +215,7 @@ export const importFromIntegrationResolver = authorized<
   ImportFromIntegrationSuccess,
   ImportFromIntegrationError,
   MutationImportFromIntegrationArgs
->(async (_, { integrationId }, { claims: { uid }, log, signToken }) => {
+>(async (_, { integrationId }, { claims: { uid }, log }) => {
   log.info('importFromIntegrationResolver')
 
   try {
@@ -202,15 +227,23 @@ export const importFromIntegrationResolver = authorized<
       }
     }
 
-    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
-    const authToken = (await signToken(
-      { uid, exp },
-      env.server.jwtSecret
-    )) as string
+    const authToken = await createIntegrationToken({
+      uid: integration.user.id,
+      token: integration.token,
+    })
+    if (!authToken) {
+      return {
+        errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
+      }
+    }
+
     // create a task to import all the pages
     const taskName = await enqueueImportFromIntegration(
       integration.id,
-      authToken
+      integration.name,
+      integration.syncedAt?.getTime() || 0,
+      authToken,
+      integration.importItemState || ImportItemState.Unarchived
     )
     // update task name in integration
     await updateIntegration(integration.id, { taskName }, uid)

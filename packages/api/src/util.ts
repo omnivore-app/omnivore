@@ -70,6 +70,8 @@ interface BackendEnv {
     recommendationTaskHandlerUrl: string
     thumbnailTaskHandlerUrl: string
     rssFeedTaskHandlerUrl: string
+    integrationExporterUrl: string
+    integrationImporterUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -163,6 +165,8 @@ const nullableEnvVars = [
   'SENDGRID_VERIFICATION_TEMPLATE_ID',
   'REMINDER_TASK_HANDLER_URL',
   'TRUST_PROXY',
+  'INTEGRATION_EXPORTER_URL',
+  'INTEGRATION_IMPORTER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -253,6 +257,8 @@ export function getEnv(): BackendEnv {
     recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
     thumbnailTaskHandlerUrl: parse('THUMBNAIL_TASK_HANDLER_URL'),
     rssFeedTaskHandlerUrl: parse('RSS_FEED_TASK_HANDLER_URL'),
+    integrationExporterUrl: parse('INTEGRATION_EXPORTER_URL'),
+    integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),

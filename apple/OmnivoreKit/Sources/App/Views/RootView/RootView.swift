@@ -16,6 +16,7 @@ public struct RootView: View {
     if let intercomProvider = intercomProvider {
       DataService.showIntercomMessenger = intercomProvider.showIntercomMessenger
       DataService.registerIntercomUser = intercomProvider.registerIntercomUser
+      DataService.setIntercomUserHash = intercomProvider.setIntercomUserHash
       Authenticator.unregisterIntercomUser = intercomProvider.unregisterIntercomUser
     }
 

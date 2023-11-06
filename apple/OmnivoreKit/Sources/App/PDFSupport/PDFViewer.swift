@@ -1,4 +1,5 @@
 import Combine
+import Models
 import SwiftUI
 import Utils
 
@@ -9,6 +10,7 @@ import Utils
   import Services
   import Views
 
+  @MainActor
   struct PDFViewer: View {
     enum SettingsKeys: String {
       case pageTransitionKey = "PDFViewer.pageTransition"
@@ -39,9 +41,16 @@ import Utils
     @StateObject var pdfStateObject = PDFStateObject()
     @State var readerView: Bool = false
     @State private var shareLink: ShareLink?
+
     @State private var errorMessage: String?
     @State private var showNotebookView = false
     @State private var hasPerformedHighlightMutations = false
+    @State private var errorAlertMessage: String?
+    @State private var showErrorAlertMessage = false
+
+    @State private var annotation = ""
+    @State private var addNoteHighlight: Highlight?
+    @State private var showAnnotationModal = false
 
     init(viewModel: PDFViewerViewModel) {
       self.viewModel = viewModel
@@ -150,12 +159,6 @@ import Utils
                 dataService: dataService
               )
             })
-//          let share = MenuItem(title: "Share", block: {
-//            let shortId = self.coordinator.highlightSelection(pageView: pageView, selectedText: selectedText)
-//            if let shareURL = viewModel.highlightShareURL(shortId: shortId) {
-//              shareLink = ShareLink(id: UUID(), url: shareURL)
-//            }
-//          })
             define?.title = "Lookup"
             return [copy, highlight, define].compactMap { $0 }
           })
@@ -164,17 +167,54 @@ import Utils
             if let copy = menuItems.first(where: { $0.identifier == "Copy" }) {
               result.append(copy)
             }
-
+            let note = MenuItem(title: "Note", block: {
+              if let highlight = annotations?.compactMap({ $0 as? HighlightAnnotation }).first,
+                 let customHighlight = highlight.customData?["omnivoreHighlight"] as? [String: String],
+                 let highlightID = customHighlight["id"]?.lowercased(),
+                 let selectedHighlight = viewModel.findHighlight(highlightID: highlightID)
+              {
+                addNoteHighlight = selectedHighlight
+                annotation = selectedHighlight.annotation ?? ""
+                showAnnotationModal = true
+              } else {
+                errorMessage = "Unable to find highlight"
+                showErrorAlertMessage = true
+              }
+            })
+            result.append(note)
             let remove = MenuItem(title: "Remove", block: {
               coordinator.remove(dataService: dataService, annotations: annotations)
             })
             result.append(remove)
 
-            let highlights = annotations?.compactMap { $0 as? HighlightAnnotation }
-            let shortId = highlights.flatMap { coordinator.shortHighlightIds($0).first }
-
             return result
           })
+          .sheet(isPresented: $showAnnotationModal) {
+            NavigationView {
+              HighlightAnnotationSheet(
+                annotation: $annotation,
+                onSave: {
+                  // annotationSaveTransactionID = UUID()
+                  if let highlightID = addNoteHighlight?.id {
+                    viewModel.updateAnnotation(
+                      highlightID: highlightID,
+                      annotation: annotation,
+                      dataService: dataService
+                    )
+                    showAnnotationModal = false
+                  }
+                },
+                onCancel: {
+                  annotation = ""
+                  addNoteHighlight = nil
+                  showAnnotationModal = false
+                },
+                errorAlertMessage: $errorAlertMessage,
+                showErrorAlertMessage: $showErrorAlertMessage
+              )
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+          }
           .fullScreenCover(isPresented: $readerView, content: {
             PDFReaderViewController(document: document)
           })
@@ -216,6 +256,7 @@ import Utils
       hasPerformedHighlightMutations.toggle()
     }
 
+    @MainActor
     class PDFViewCoordinator: NSObject, PDFDocumentViewControllerDelegate, PDFViewControllerDelegate {
       let document: Document
       let viewModel: PDFViewerViewModel

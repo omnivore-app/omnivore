@@ -11,7 +11,6 @@ import {
   saveIntegration,
   updateIntegration,
 } from '../../src/services/integrations'
-import { READWISE_API_URL } from '../../src/services/integrations/readwise'
 import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
@@ -19,6 +18,8 @@ import { generateFakeUuid, graphqlRequest, request } from '../util'
 chai.use(sinonChai)
 
 describe('Integrations resolvers', () => {
+  const READWISE_API_URL = 'https://readwise.io/api/v2'
+  
   let loginUser: User
   let authToken: string
 
@@ -264,17 +265,6 @@ describe('Integrations resolvers', () => {
               )
               expect(res.body.data.setIntegration.integration.enabled).to.be
                 .true
-            })
-
-            it('creates new cloud task to sync all existing articles and highlights', async () => {
-              const res = await graphqlRequest(
-                query(integrationId, integrationName, token, enabled),
-                authToken
-              )
-              const integration = await findIntegration({
-                id: res.body.data.setIntegration.integration.id,
-              }, loginUser.id)
-              expect(integration?.taskName).not.to.be.null
             })
           })
         })

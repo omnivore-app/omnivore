@@ -196,6 +196,7 @@
             showErrorAlertMessage: $showErrorAlertMessage
           )
         }
+        .navigationViewStyle(StackNavigationViewStyle())
       }
       .formSheet(isPresented: $showShareView) {
         ShareSheet(activityItems: [viewModel.highlightAsMarkdown(item: self.highlightParams)])

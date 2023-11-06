@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo } from 'react'
+import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -467,6 +467,7 @@ type LabelButtonProps = {
 
 function LabelButton(props: LabelButtonProps): JSX.Element {
   const labelId = `checkbox-label-${props.label.id}`
+  const checkboxRef = useRef<HTMLInputElement | null>(null)
   const state = useMemo(() => {
     const term = props.searchTerm ?? ''
     if (term.indexOf(`label:\"${props.label.name}\"`) >= 0) {
@@ -505,13 +506,23 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       distribution="start"
     >
       <label
-        htmlFor={labelId}
         style={{
+          cursor: 'pointer',
           width: '100%',
           maxWidth: '170px',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
+        }}
+        onClick={() => {
+          const query = props.searchTerm?.replace(/label:\"(.*)\"/, '') ?? ''
+          if (checkboxRef.current?.checked) {
+            props.applySearchQuery(query.trim())
+          } else {
+            props.applySearchQuery(
+              `${query.trim()} label:\"${props.label.name}\"`
+            )
+          }
         }}
       >
         <Circle size={9} color={props.label.color} weight="fill" />
@@ -524,6 +535,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       >
         <input
           id={labelId}
+          ref={checkboxRef}
           type="checkbox"
           checked={state === 'on'}
           onChange={(e) => {
@@ -584,5 +596,5 @@ function EditButton(props: EditButtonProps): JSX.Element {
         {props.title}
       </SpanBox>
     </Link>
-  );
+  )
 }

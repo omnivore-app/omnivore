@@ -79,6 +79,21 @@ public extension LinkedItem {
     (labels?.count ?? 0) > 0
   }
 
+  var noteHighlight: Highlight? {
+    if let highlights = highlights?.compactMap({ $0 as? Highlight }) {
+      let result = highlights
+        .filter { $0.type == "NOTE" }
+        .sorted(by: { $0.updatedAt ?? Date() < $1.updatedAt ?? Date() })
+        .first
+      return result
+    }
+    return nil
+  }
+
+  var noteText: String? {
+    noteHighlight?.annotation
+  }
+
   var isUnread: Bool {
     readingProgress <= 0
   }

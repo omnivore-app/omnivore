@@ -102,7 +102,7 @@ function ControlButtonBox(props: ReaderHeaderProps): JSX.Element {
         }}
       >
         <Button
-          title="Reader Preferences (d)"
+          title="Reader preferences (d)"
           style="articleActionIcon"
           onClick={() => {
             props.showDisplaySettingsModal(true)

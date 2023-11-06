@@ -87,37 +87,37 @@ struct WelcomeView: View {
       Spacer()
     }
     .sheet(isPresented: $showPrivacyModal) {
-      VStack {
-        HStack {
-          Spacer()
-          Button(
-            action: {
-              showPrivacyModal = false
-            },
-            label: {
-              Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast)
-            }
-          )
-        }
-        .padding()
+      NavigationView {
         BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(
+                action: {
+                  showPrivacyModal = false
+                },
+                label: {
+                  Text(LocalText.genericClose)
+                }
+              )
+            }
+          }
       }
     }
     .sheet(isPresented: $showTermsModal) {
-      VStack {
-        HStack {
-          Spacer()
-          Button(
-            action: {
-              showTermsModal = false
-            },
-            label: {
-              Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast)
-            }
-          )
-        }
-        .padding()
+      NavigationView {
         BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(
+                action: {
+                  showTermsModal = false
+                },
+                label: {
+                  Text(LocalText.genericClose)
+                }
+              )
+            }
+          }
       }
     }
     .sheet(isPresented: $showAboutPage) {

@@ -204,4 +204,14 @@
     <string name="settings_view_setting_row_terms_and_conditions">Terms and Conditions</string>
     <string name="settings_view_setting_row_manage_account">Manage Account</string>
     <string name="settings_view_setting_row_logout">Logout</string>
+
+    <!-- AddLinkSheet -->
+    <string name="add_link_sheet_title">Add Link</string>
+    <string name="add_link_sheet_text_field_placeholder">Add Link</string>
+    <string name="add_link_sheet_action_add_link">Add</string>
+    <string name="add_link_sheet_action_cancel">Cancel</string>
+    <string name="add_link_sheet_action_paste_from_clipboard">Get from clipboard</string>
+    <string name="add_link_sheet_invalid_url_error">Invalid URL</string>
+    <string name="add_link_sheet_save_url_error">Error while saving link!</string>
+    <string name="add_link_sheet_save_url_success">Link successfully saved!</string>
 </resources>

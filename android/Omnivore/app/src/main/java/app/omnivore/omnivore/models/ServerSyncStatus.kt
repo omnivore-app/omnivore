@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.models
 
-public enum class ServerSyncStatus(
-  public val rawValue: Int,
+enum class ServerSyncStatus(
+  val rawValue: Int,
 ) {
   IS_SYNCED(0),
   IS_SYNCING(1),

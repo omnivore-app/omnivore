@@ -44,35 +44,35 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         onSelect={() => {
           props.actionHandler('set-labels')
         }}
-        title="Set Labels"
+        title="Set labels"
       />
       <DropdownOption
         onSelect={() => {
           props.actionHandler('open-notebook')
         }}
-        title="Open Notebook"
+        title="Open notebook"
       />
       <DropdownOption
         onSelect={() => props.actionHandler('showOriginal')}
-        title="Open Original"
+        title="Open original"
       />
       <DropdownOption
         onSelect={() => props.actionHandler('editTitle')}
-        title="Edit Metadata"
+        title="Edit metadata"
       />
       {props.item.readingProgressPercent < 98 ? (
         <DropdownOption
           onSelect={() => {
             props.actionHandler('mark-read')
           }}
-          title="Mark Read"
+          title="Mark read"
         />
       ) : (
         <DropdownOption
           onSelect={() => {
             props.actionHandler('mark-unread')
           }}
-          title="Mark Unread"
+          title="Mark unread"
         />
       )}
       <DropdownOption

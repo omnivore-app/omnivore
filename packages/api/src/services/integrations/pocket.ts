@@ -3,7 +3,7 @@ import { LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import {
-  IntegrationService,
+  IntegrationClient,
   RetrievedResult,
   RetrieveRequest,
 } from './integration'
@@ -51,16 +51,16 @@ interface Author {
   name: string
 }
 
-export class PocketIntegration extends IntegrationService {
+export class PocketClient implements IntegrationClient {
   name = 'POCKET'
-  POCKET_API_URL = 'https://getpocket.com/v3'
+  apiUrl = 'https://getpocket.com/v3'
   headers = {
     'Content-Type': 'application/json',
     'X-Accept': 'application/json',
   }
 
   accessToken = async (token: string): Promise<string | null> => {
-    const url = `${this.POCKET_API_URL}/oauth/authorize`
+    const url = `${this.apiUrl}/oauth/authorize`
     try {
       const response = await axios.post<{ access_token: string }>(
         url,
@@ -90,7 +90,7 @@ export class PocketIntegration extends IntegrationService {
     count = 100,
     offset = 0
   ): Promise<PocketResponse | null> => {
-    const url = `${this.POCKET_API_URL}/get`
+    const url = `${this.apiUrl}/get`
     try {
       const response = await axios.post<PocketResponse>(
         url,

@@ -13,9 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.Routes
-import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.components.LabelsViewModel
@@ -23,6 +21,7 @@ import app.omnivore.omnivore.ui.library.LibraryView
 import app.omnivore.omnivore.ui.library.SearchView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SearchViewModel
+import app.omnivore.omnivore.ui.save.SaveViewModel
 import app.omnivore.omnivore.ui.settings.PolicyWebView
 import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -33,7 +32,8 @@ fun RootView(
   searchViewModel: SearchViewModel,
   libraryViewModel: LibraryViewModel,
   settingsViewModel: SettingsViewModel,
-  labelsViewModel: LabelsViewModel
+  labelsViewModel: LabelsViewModel,
+  saveViewModel: SaveViewModel,
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
   val systemUiController = rememberSystemUiController()
@@ -59,6 +59,7 @@ fun RootView(
         libraryViewModel = libraryViewModel,
         settingsViewModel = settingsViewModel,
         labelsViewModel = labelsViewModel,
+        saveViewModel = saveViewModel
       )
     } else {
       WelcomeScreen(viewModel = loginViewModel)
@@ -80,6 +81,7 @@ fun PrimaryNavigator(
   searchViewModel: SearchViewModel,
   settingsViewModel: SettingsViewModel,
   labelsViewModel: LabelsViewModel,
+  saveViewModel: SaveViewModel,
 ) {
   val navController = rememberNavController()
 
@@ -89,6 +91,7 @@ fun PrimaryNavigator(
         libraryViewModel = libraryViewModel,
         navController = navController,
         labelsViewModel = labelsViewModel,
+        saveViewModel = saveViewModel,
       )
     }
 

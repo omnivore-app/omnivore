@@ -110,7 +110,6 @@ fun SelfHostedView(viewModel: LoginViewModel) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfHostedFields(
     apiServer: String,

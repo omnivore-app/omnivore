@@ -19,11 +19,11 @@ export function ReaderDropdownMenu(props: DropdownMenuProps): JSX.Element {
       />
       <DropdownOption
         onSelect={() => props.articleActionHandler('setLabels')}
-        title="Edit Labels (l)"
+        title="Edit labels (l)"
       />
       <DropdownOption
         onSelect={() => props.articleActionHandler('showEditModal')}
-        title="Edit Info (i)"
+        title="Edit info (i)"
       />
       <DropdownOption
         onSelect={() => props.articleActionHandler('delete')}
