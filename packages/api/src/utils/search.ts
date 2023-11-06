@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { DateTime } from 'luxon'
 import {
   ISearchParserDictionary,
   parse,
@@ -244,20 +245,48 @@ const parseDateFilter = (
     return undefined
   }
 
+  switch (field.toLowerCase()) {
+    case 'published':
+      field = 'published_at'
+      break
+    case 'saved':
+      field = 'saved_at'
+      break
+    case 'updated':
+      field = 'updated_at'
+  }
+
+  // check for special date filters
+  switch (str.toLowerCase()) {
+    case 'today':
+      return {
+        field,
+        startDate: DateTime.local().startOf('day').toJSDate(),
+      }
+    case 'yesterday': {
+      const yesterday = DateTime.local().minus({ days: 1 })
+      return {
+        field,
+        startDate: yesterday.startOf('day').toJSDate(),
+        endDate: yesterday.endOf('day').toJSDate(),
+      }
+    }
+    case 'this week':
+      return {
+        field,
+        startDate: DateTime.local().startOf('week').toJSDate(),
+      }
+    case 'this month':
+      return {
+        field,
+        startDate: DateTime.local().startOf('month').toJSDate(),
+      }
+  }
+
+  // check for date ranges
   const [start, end] = str.split('..')
   const startDate = start && start !== '*' ? new Date(start) : undefined
   const endDate = end && end !== '*' ? new Date(end) : undefined
-
-  switch (field.toUpperCase()) {
-    case 'PUBLISHED':
-      field = 'published_at'
-      break
-    case 'SAVED':
-      field = 'saved_at'
-      break
-    case 'UPDATED':
-      field = 'updated_at'
-  }
 
   return {
     field,
