@@ -22,6 +22,10 @@ final class PDFViewerViewModel: ObservableObject {
     showSnackbar = true
   }
 
+  func findHighlight(highlightID: String) -> Highlight? {
+    pdfItem.highlights.first { $0.id == highlightID }
+  }
+
   func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
     onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }
@@ -73,6 +77,14 @@ final class PDFViewerViewModel: ObservableObject {
   func removeHighlights(dataService: DataService, highlightIds: [String]) {
     highlightIds.forEach { highlightID in
       dataService.deleteHighlight(highlightID: highlightID)
+    }
+  }
+
+  func updateAnnotation(highlightID: String, annotation: String, dataService: DataService) {
+    dataService.updateHighlightAttributes(highlightID: highlightID, annotation: annotation)
+
+    if let highlight = pdfItem.highlights.first(where: { $0.id == highlightID }) {
+      highlight.annotation = annotation
     }
   }
 

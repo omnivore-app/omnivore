@@ -182,6 +182,7 @@
             showErrorAlertMessage: $showErrorAlertMessage
           )
         }
+        .navigationViewStyle(StackNavigationViewStyle())
       }
     }
 

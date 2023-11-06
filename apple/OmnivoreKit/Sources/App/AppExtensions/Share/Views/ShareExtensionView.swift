@@ -255,6 +255,19 @@ public struct ShareExtensionView: View {
 
       HStack {
         Spacer()
+        if UIDevice.isIPad {
+          Button(action: {
+            extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+          }, label: {
+            Text("Dismiss")
+              .font(Font.system(size: 17, weight: .semibold))
+              .tint(Color.appGrayText)
+              .padding(20)
+          })
+            .frame(height: 50)
+            .cornerRadius(24)
+            .padding(.bottom, 15)
+        }
         Button(action: {
           viewModel.handleReadNowAction(extensionContext: extensionContext)
         }, label: {

@@ -53,6 +53,6 @@ public struct AddNoteSheet: View {
         }, label: {
           Text("Save").bold()
         }))
-    }
+    }.navigationViewStyle(StackNavigationViewStyle())
   }
 }
