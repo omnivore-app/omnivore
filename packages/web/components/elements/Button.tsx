@@ -249,6 +249,8 @@ export const Button = styled('button', {
 
       },
       articleActionIcon: {
+        display: 'flex',
+        alignItems: 'center',
         bg: 'transparent',
         border: 'none',
         cursor: 'pointer',

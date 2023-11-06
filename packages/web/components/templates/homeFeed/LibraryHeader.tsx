@@ -74,6 +74,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           zIndex: 5,
           position: 'fixed',
           height: HEADER_HEIGHT,
+          minHeight: HEADER_HEIGHT,
           bg: '$thLibraryBackground',
           '@mdDown': {
             left: '0px',

@@ -1,39 +1,41 @@
 import { Box, StyledLink } from './../elements/LayoutPrimitives'
 import { StyledText } from './../../components/elements/StyledText'
 import { formattedLongDate } from './../../lib/dateFormatting'
+import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { siteName } from './LibraryCards/LibraryCardStyles'
 
 type SubtitleStyle = 'footnote' | 'shareSubtitle'
 
 type ArticleSubtitleProps = {
-  href: string
+  item: ReadableItem
   author?: string
   style?: SubtitleStyle
-  hideButton?: boolean
 }
 
 export function ArticleSubtitle(props: ArticleSubtitleProps): JSX.Element {
   const textStyle = props.style || 'footnote'
-  const subtitle = articleSubtitle(props.href, props.author)
+  const subtitle = articleSubtitle(props.item, props.author)
 
   return (
     <Box>
       <StyledText style={textStyle} css={{ wordBreak: 'break-word' }}>
         {subtitle} {subtitle && <span style={{ bottom: 1 }}>• </span>}{' '}
-        {!props.hideButton && !shouldHideUrl(props.href) && (
-          <>
-            <StyledLink
-              href={props.href}
-              target="_blank"
-              rel="noreferrer"
-              css={{
-                textDecoration: 'underline',
-                color: '$grayTextContrast',
-              }}
-            >
-              See original
-            </StyledLink>
-          </>
-        )}
+        {props.item.originalArticleUrl &&
+          !shouldHideUrl(props.item.originalArticleUrl) && (
+            <>
+              <StyledLink
+                href={props.item.originalArticleUrl}
+                target="_blank"
+                rel="noreferrer"
+                css={{
+                  textDecoration: 'underline',
+                  color: '$grayTextContrast',
+                }}
+              >
+                See original
+              </StyledLink>
+            </>
+          )}
       </StyledText>
     </Box>
   )
@@ -76,12 +78,15 @@ function shouldHideUrl(url: string): boolean {
   return false
 }
 
-function articleSubtitle(url: string, author?: string): string | undefined {
-  const origin = new URL(url).origin
-  const hideUrl = shouldHideUrl(url)
+function articleSubtitle(
+  item: ReadableItem,
+  author?: string
+): string | undefined {
+  const origin = new URL(item.originalArticleUrl).origin
+  const hideUrl = shouldHideUrl(item.originalArticleUrl)
   if (author) {
     const auth = `${authoredByText(author)}`
-    return hideUrl ? auth : `${auth}, ${new URL(url).hostname}`
+    return hideUrl ? auth : `${auth}, ${siteName(item)}`
   } else {
     if (hideUrl) {
       return undefined

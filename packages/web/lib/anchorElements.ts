@@ -4,6 +4,10 @@ const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
   'data-instagram-id',
 ]
 
+export const clampToPercent = (float: number) => {
+  return Math.floor(Math.max(0, Math.min(100, float)))
+}
+
 // We search in reverse so we can find the last element
 // that is visible on the page
 export const getTopOmnivoreAnchorElement = (

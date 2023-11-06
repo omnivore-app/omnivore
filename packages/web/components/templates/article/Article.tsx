@@ -1,12 +1,10 @@
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
 import {
+  clampToPercent,
   getTopOmnivoreAnchorElement,
   parseDomTree,
 } from '../../../lib/anchorElements'
-import {
-  ScrollOffsetChangeset,
-  useScrollWatcher,
-} from '../../../lib/hooks/useScrollWatcher'
+import { useScrollWatcher } from '../../../lib/hooks/useScrollWatcher'
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
@@ -28,6 +26,7 @@ export type ArticleProps = {
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
   isAppleAppEmbed: boolean
+  containerRef?: MutableRefObject<HTMLDivElement | null>
 }
 
 export function Article(props: ArticleProps): JSX.Element {
@@ -42,10 +41,6 @@ export function Article(props: ArticleProps): JSX.Element {
 
   const articleContentRef = useRef<HTMLDivElement | null>(null)
 
-  const clampToPercent = (float: number) => {
-    return Math.floor(Math.max(0, Math.min(100, float)))
-  }
-
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
   const [lightboxIndex, setlightBoxIndex] = useState(0)
@@ -54,10 +49,10 @@ export function Article(props: ArticleProps): JSX.Element {
     ;(async () => {
       if (!readingProgress) return
       if (!articleContentRef.current) return
-      if (!window.document.scrollingElement) return
+      if (!props.containerRef?.current) return
       const anchor = getTopOmnivoreAnchorElement(articleContentRef.current)
       const topPositionPercent =
-        window.scrollY / window.document.scrollingElement.scrollHeight
+        window.scrollY / props.containerRef?.current.scrollHeight
       const anchorIndex = Number(anchor)
 
       await props.articleMutations.articleReadingProgressMutation({
@@ -84,15 +79,25 @@ export function Article(props: ArticleProps): JSX.Element {
     }
   }, [readingProgress])
 
-  useScrollWatcher((changeset: ScrollOffsetChangeset) => {
-    if (window && window.document.scrollingElement) {
-      const bottomProgress =
-        (window.scrollY + window.document.scrollingElement.clientHeight) /
-        window.document.scrollingElement.scrollHeight
+  useScrollWatcher(
+    props.containerRef,
+    () => {
+      if (props.containerRef?.current) {
+        const target = props.containerRef?.current
+        const bottomProgress =
+          (target.scrollTop + target.clientHeight) / target.scrollHeight
 
-      setReadingProgress(bottomProgress * 100)
-    }
-  }, 2500)
+        setReadingProgress(bottomProgress * 100)
+      } else if (window && window.document.scrollingElement) {
+        const bottomProgress =
+          (window.scrollY + window.document.scrollingElement.clientHeight) /
+          window.document.scrollingElement.scrollHeight
+
+        setReadingProgress(bottomProgress * 100)
+      }
+    },
+    2500
+  )
 
   // Scroll to initial anchor position
   useEffect(() => {
@@ -139,9 +144,11 @@ export function Article(props: ArticleProps): JSX.Element {
       }
 
       const calculatedOffset = calculateOffset(anchorElement)
-      window.document.documentElement.scroll(0, calculatedOffset - 100)
+
+      props.containerRef?.current?.scroll(0, calculatedOffset - 100)
     }
   }, [
+    props.content,
     props.initialAnchorIndex,
     props.initialReadingProgress,
     shouldScrollToInitialPosition,
@@ -274,6 +281,7 @@ export function Article(props: ArticleProps): JSX.Element {
         href={`/static/highlightjs/${highlightTheme}.min.css`}
       />
       <Box
+        id="article-content"
         ref={articleContentRef}
         css={{
           maxWidth: '100%',

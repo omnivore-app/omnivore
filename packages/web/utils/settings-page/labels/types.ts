@@ -31,7 +31,6 @@ export type GenericTableCardProps = {
   isCreateMode: boolean
   nameInputText: string
   descriptionInputText: string
-  isMobileView?: boolean
   handleGenerateRandomColor: (rowId?: string) => void
   setEditingLabelId: (id: string | null) => void
   setLabelColorHex: (color: string) => void

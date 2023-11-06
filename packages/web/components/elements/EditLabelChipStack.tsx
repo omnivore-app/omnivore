@@ -75,3 +75,34 @@ export function EditLabelChipStack(
     </SpanBox>
   )
 }
+
+type ColoredStackProps = {
+  colors: string[]
+}
+
+export const ColoredStack = (props: ColoredStackProps): JSX.Element => {
+  const colors = useMemo(() => {
+    if (props.colors.length > 7) {
+      const set = new Set(props.colors)
+      return Array.from(set).slice(0, 7)
+    }
+    return props.colors
+  }, [props])
+
+  return (
+    <>
+      {colors.map((color, idx) => (
+        <SpanBox
+          key={`label-color${idx}`}
+          css={{
+            marginLeft: -15,
+            height: '100%',
+            display: 'inline-flex',
+          }}
+        >
+          <Circle size={14} color={color} weight="fill" />
+        </SpanBox>
+      ))}
+    </>
+  )
+}

@@ -9,7 +9,14 @@ import {
 import { theme, ThemeId } from './../../tokens/stitches.config'
 import { HighlightsLayer } from '../../templates/article/HighlightsLayer'
 import { Button } from '../../elements/Button'
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  MutableRefObject,
+} from 'react'
 import { ReportIssuesModal } from './ReportIssuesModal'
 import { reportIssueMutation } from '../../../lib/networking/mutations/reportIssueMutation'
 import { updateTheme, updateThemeLocally } from '../../../lib/themeUpdater'
@@ -19,6 +26,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { OutlineItem } from '../inspectors/OutlineView'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -33,10 +41,10 @@ type ArticleContainerProps = {
   lineHeight?: number
   maxWidthPercentage?: number
   highContrastText?: boolean
-  showHighlightsModal: boolean
   highlightOnRelease?: boolean
   justifyText?: boolean
-  setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
+  setOutline?: (outline: OutlineItem) => void
+  containerRef?: MutableRefObject<HTMLDivElement | null>
 }
 
 type RecommendationCommentsProps = {
@@ -118,21 +126,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
-  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
@@ -269,6 +272,26 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       console.log('saving read position')
     }
 
+    const scrollToOutlineAnchorIdx = (event: Event) => {
+      const detail = (event as CustomEvent).detail
+      if (!detail) {
+        return
+      }
+      if (detail === -1 || detail === '-1') {
+        props.containerRef?.current?.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+
+      const element = document.querySelector(
+        `[data-omnivore-anchor-idx='${detail}']`
+      )
+      element?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      })
+    }
+
     document.addEventListener('saveReadPosition', saveReadPosition)
 
     document.addEventListener('updateFontFamily', updateFontFamily)
@@ -295,6 +318,11 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       updateHighlightMode
     )
 
+    document.addEventListener(
+      'scrollToOutlineAnchorIdx',
+      scrollToOutlineAnchorIdx
+    )
+
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
       document.removeEventListener('updateLineHeight', updateLineHeight)
@@ -318,8 +346,76 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         updateHighlightMode
       )
       document.removeEventListener('saveReadPosition', saveReadPosition)
+      document.removeEventListener(
+        'scrollToOutlineAnchorIdx',
+        scrollToOutlineAnchorIdx
+      )
     }
   })
+
+  useEffect(() => {
+    const headers = document
+      .getElementById('article-container')
+      ?.querySelectorAll('h1, h2, h3, h4')
+
+    const headerLevel = (node: Element) => {
+      switch (node.nodeName) {
+        case 'H1':
+          return 1
+        case 'H2':
+          return 2
+        case 'H3':
+          return 3
+        case 'H4':
+          return 4
+        case 'H5':
+          return 5
+        case 'H6':
+          return 6
+      }
+      return undefined
+    }
+
+    const root: OutlineItem = {
+      text: '',
+      level: 0,
+      anchor: '',
+      children: [],
+    }
+
+    const stack: OutlineItem[] = [root]
+
+    headers?.forEach((header) => {
+      const level = headerLevel(header)
+      if (!level) {
+        return
+      }
+
+      const item: OutlineItem = {
+        level,
+        text: header.textContent?.trim() ?? '',
+        anchor: header.getAttribute('data-omnivore-anchor-idx') ?? '',
+        children: [],
+      }
+
+      while (stack.length > level) {
+        stack.pop()
+      }
+
+      if (!stack[stack.length - 1].children) {
+        stack[stack.length - 1].children = []
+      }
+
+      stack[stack.length - 1].children.push(item)
+      stack.push(item)
+    })
+
+    console.log('outline: ', root, 'headers', headers)
+
+    if (props?.setOutline) {
+      props.setOutline(root)
+    }
+  }, [props.setOutline])
 
   const textColorValue = (isHighContrast: boolean) => {
     return isHighContrast
@@ -367,7 +463,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       <Box
         id="article-container"
         css={{
-          padding: 30,
+          px: 30,
           minHeight: '100vh',
           maxWidth: maxWidthStyles.default,
           background: theme.colors.readerBg.toString(),
@@ -417,10 +513,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           >
             {title}
           </StyledText>
-          <ArticleSubtitle
-            author={props.article.author}
-            href={props.article.url}
-          />
+          <ArticleSubtitle item={props.article} author={props.article.author} />
 
           {labels ? (
             <SpanBox
@@ -450,6 +543,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           articleId={props.article.id}
           content={props.article.content}
           highlightHref={highlightHref}
+          containerRef={props.containerRef}
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
@@ -485,8 +579,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         articleId={props.article.id}
         isAppleAppEmbed={props.isAppleAppEmbed}
         highlightBarDisabled={props.highlightBarDisabled}
-        showHighlightsModal={props.showHighlightsModal}
-        setShowHighlightsModal={props.setShowHighlightsModal}
         highlightOnRelease={highlightOnRelease}
         articleMutations={props.articleMutations}
       />

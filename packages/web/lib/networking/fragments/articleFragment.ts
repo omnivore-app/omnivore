@@ -16,6 +16,7 @@ export const articleFragment = gql`
     readingProgressTopPercent
     readingProgressAnchorIndex
     slug
+    siteName
     isArchived
     description
     linkId

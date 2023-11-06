@@ -19,7 +19,7 @@ import {
   timeAgo,
 } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
-import { NotebookContent } from '../article/Notebook'
+import { NotebookView } from '../inspectors/NotebookView'
 import { EmptyHighlights } from './EmptyHighlights'
 import { HEADER_HEIGHT } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
@@ -34,8 +34,9 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] =
-    useState<LibraryItem | undefined>(undefined)
+  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const listReducer = (
     state: LibraryItem[],
@@ -105,7 +106,7 @@ export function HighlightItemsLayout(
       <Box
         css={{
           width: '100%',
-          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          height: '100%',
         }}
       >
         <EmptyHighlights />
@@ -118,7 +119,7 @@ export function HighlightItemsLayout(
       <HStack
         css={{
           width: '100%',
-          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          height: '100%',
           '@lgDown': {
             overflowY: 'scroll',
           },
@@ -146,7 +147,7 @@ export function HighlightItemsLayout(
         >
           <VStack
             css={{
-              minHeight: `calc(100vh - ${HEADER_HEIGHT})`,
+              minHeight: '100%',
               bg: '$thBackground',
             }}
             distribution="start"
@@ -432,7 +433,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
         css={{ width: '100%', height: '100%', bg: '$thLibrarySearchbox' }}
       >
         {props.viewer && (
-          <NotebookContent
+          <NotebookView
             viewer={props.viewer}
             item={props.item.node}
             viewInReader={viewInReader}
