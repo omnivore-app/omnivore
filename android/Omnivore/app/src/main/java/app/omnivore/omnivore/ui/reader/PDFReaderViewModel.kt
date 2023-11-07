@@ -131,16 +131,15 @@ class PDFReaderViewModel @Inject constructor(
   fun syncPageChange(currentPageIndex: Int, totalPages: Int) {
     val rawProgress = ((currentPageIndex + 1).toDouble() / totalPages.toDouble()) * 100
     val percent = min(100.0, max(0.0, rawProgress))
-    if (percent > currentReadingProgress) {
-      currentReadingProgress = percent
-      viewModelScope.launch {
-        val params = ReadingProgressParams(
-          id = pdfReaderParamsLiveData.value?.item?.savedItemId,
-          readingProgressPercent = percent,
-          readingProgressAnchorIndex = currentPageIndex
-        )
-        networker.updateReadingProgress(params)
-      }
+    currentReadingProgress = percent
+    viewModelScope.launch {
+      val params = ReadingProgressParams(
+        id = pdfReaderParamsLiveData.value?.item?.savedItemId,
+        readingProgressPercent = percent,
+        readingProgressAnchorIndex = currentPageIndex,
+        force = true
+      )
+      networker.updateReadingProgress(params)
     }
   }
 
