@@ -53,4 +53,7 @@ export class UserPersonalization {
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt!: Date
+
+  @Column('json')
+  fields?: any | null
 }

@@ -14,9 +14,7 @@ export const setUserPersonalizationResolver = authorized<
   SetUserPersonalizationSuccess,
   SetUserPersonalizationError,
   MutationSetUserPersonalizationArgs
->(async (_, { input }, { authTrx, claims: { uid }, log }) => {
-  log.info('setUserPersonalizationResolver', { uid, input })
-
+>(async (_, { input }, { authTrx, uid }) => {
   const result = await authTrx(async (t) => {
     return t.getRepository(UserPersonalization).upsert(
       {
@@ -40,10 +38,8 @@ export const setUserPersonalizationResolver = authorized<
   )
 
   // Cast SortOrder from string to enum
-  const librarySortOrder = updatedUserPersonalization?.librarySortOrder as
-    | SortOrder
-    | null
-    | undefined
+  const librarySortOrder =
+    updatedUserPersonalization?.librarySortOrder as SortOrder
 
   return {
     updatedUserPersonalization: {
@@ -64,10 +60,7 @@ export const getUserPersonalizationResolver = authorized<
   )
 
   // Cast SortOrder from string to enum
-  const librarySortOrder = userPersonalization?.librarySortOrder as
-    | SortOrder
-    | null
-    | undefined
+  const librarySortOrder = userPersonalization?.librarySortOrder as SortOrder
 
   return { userPersonalization: { ...userPersonalization, librarySortOrder } }
 })
