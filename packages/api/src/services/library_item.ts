@@ -103,40 +103,41 @@ const buildWhereClause = (
     })
   }
 
-  if (args.inFilter !== InFilter.FOLLOWING) {
-    queryBuilder.andWhere('library_item.is_in_library = true')
+  if (args.inFilter !== InFilter.ALL) {
+    if (args.inFilter === InFilter.FOLLOWING) {
+      queryBuilder
+        .andWhere('library_item.shared_by IS NOT NULL')
+        .andWhere('library_item.hidden_at IS NULL')
+    } else {
+      queryBuilder.andWhere('library_item.is_in_library = true')
 
-    switch (args.inFilter) {
-      case InFilter.INBOX:
-        queryBuilder.andWhere('library_item.archived_at IS NULL')
-        break
-      case InFilter.ARCHIVE:
-        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
-        break
-      case InFilter.TRASH:
-        // return only deleted pages within 14 days
-        queryBuilder.andWhere(
-          "library_item.deleted_at >= now() - interval '14 days'"
-        )
-        break
-      case InFilter.SUBSCRIPTION:
-        queryBuilder
-          .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-          .andWhere('library_item.archived_at IS NULL')
-          .andWhere('library_item.subscription IS NOT NULL')
-        break
-      case InFilter.LIBRARY:
-        queryBuilder
-          .andWhere(
-            "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
+      switch (args.inFilter) {
+        case InFilter.INBOX:
+          queryBuilder.andWhere('library_item.archived_at IS NULL')
+          break
+        case InFilter.ARCHIVE:
+          queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+          break
+        case InFilter.TRASH:
+          // return only deleted pages within 14 days
+          queryBuilder.andWhere(
+            "library_item.deleted_at >= now() - interval '14 days'"
           )
-          .andWhere('library_item.archived_at IS NULL')
-        break
+          break
+        case InFilter.SUBSCRIPTION:
+          queryBuilder
+            .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
+            .andWhere('library_item.archived_at IS NULL')
+            .andWhere('library_item.subscription IS NOT NULL')
+          break
+        case InFilter.LIBRARY:
+          queryBuilder
+            .andWhere(
+              "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
+            )
+            .andWhere('library_item.archived_at IS NULL')
+      }
     }
-  } else {
-    queryBuilder
-      .andWhere('library_item.shared_by IS NOT NULL')
-      .andWhere('library_item.hidden_at IS NULL')
   }
 
   if (args.readFilter !== ReadFilter.ALL) {

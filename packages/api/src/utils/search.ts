@@ -138,6 +138,8 @@ const parseInFilter = (
       return InFilter.SUBSCRIPTION
     case 'LIBRARY':
       return InFilter.LIBRARY
+    case 'FOLLOWING':
+      return InFilter.FOLLOWING
   }
 
   return query ? InFilter.ALL : InFilter.INBOX
@@ -409,19 +411,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   }
 
   if (!searchQuery) {
-    return {
-      query: undefined,
-      inFilter: InFilter.INBOX,
-      readFilter: ReadFilter.ALL,
-      labelFilters: [],
-      hasFilters: [],
-      dateFilters: [],
-      termFilters: [],
-      matchFilters: [],
-      ids: [],
-      noFilters: [],
-      rangeFilters: [],
-    }
+    return result
   }
 
   const parsed = parse(searchQuery, {

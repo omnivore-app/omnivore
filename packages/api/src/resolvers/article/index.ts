@@ -95,7 +95,11 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
+import {
+  InFilter,
+  parseSearchQuery,
+  sortParamsToSort,
+} from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
@@ -736,7 +740,7 @@ export const updatesSinceResolver = authorized<
   const sort = sortParamsToSort(sortParams)
 
   const startCursor = after || ''
-  const size = first || 10
+  const size = Math.min(first || 10, 100) // limit to 100 items
   let startDate = new Date(since)
   if (isNaN(startDate.getTime())) {
     // for android app compatibility
