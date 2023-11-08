@@ -1,13 +1,11 @@
-import {
+import React, {
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useReducer,
-  useRef,
-  useState,
 } from 'react'
 import { Toaster } from 'react-hot-toast'
-import { Button } from '../../components/elements/Button'
 import {
   Box,
   HStack,
@@ -16,25 +14,13 @@ import {
 } from '../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../components/elements/StyledText'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { styled, theme } from '../../components/tokens/stitches.config'
-import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
-import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
-import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { ProgressBar } from '../../components/elements/ProgressBar'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
-import CheckboxComponent from '../../components/elements/Checkbox'
 import { Label } from '../../lib/networking/fragments/labelFragment'
-import { Circle, ToggleLeft } from 'phosphor-react'
+import { Circle } from 'phosphor-react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { StyledToggleButton } from '../../components/templates/PrimaryDropdown'
 
 export type PinnedSearch = {
   type: 'saved-search' | 'label'
@@ -162,92 +148,89 @@ export default function PinnedSearches(): JSX.Element {
           top: '5rem',
         }}
       />
-
-      <form>
+      <VStack
+        css={{ width: '100%', height: '100%' }}
+        distribution="start"
+        alignment="center"
+      >
         <VStack
-          css={{ width: '100%', height: '100%' }}
-          distribution="start"
-          alignment="center"
+          css={{
+            padding: '24px',
+            width: '100%',
+            height: '100%',
+            gap: '25px',
+            minWidth: '300px',
+            maxWidth: '865px',
+          }}
         >
+          <Box>
+            <StyledText style="fixedHeadline" css={{ my: '6px' }}>
+              Pinned Searches
+            </StyledText>
+            <StyledText style="caption" css={{}}>
+              Pin up to five searches from your labels or saved searches.
+            </StyledText>
+          </Box>
+
           <VStack
             css={{
               padding: '24px',
               width: '100%',
               height: '100%',
-              gap: '25px',
-              minWidth: '300px',
-              maxWidth: '865px',
+              bg: '$grayBg',
+              gap: '5px',
+              borderRadius: '5px',
             }}
+            distribution="start"
+            alignment="start"
           >
-            <Box>
-              <StyledText style="fixedHeadline" css={{ my: '6px' }}>
-                Pinned Searches
-              </StyledText>
-              <StyledText style="caption" css={{}}>
-                Pin up to five searches from your labels or saved searches.
-              </StyledText>
-            </Box>
+            <HStack alignment="center" css={{ gap: '5px', mb: '10px' }}>
+              <input
+                type="checkbox"
+                id="switch"
+                checked={!hidePinnedSearches}
+                onChange={(event) => {
+                  setHidePinnedSearches(!event.currentTarget.checked)
+                }}
+                style={{ padding: '0px', margin: '0px' }}
+              />
+              Enable Pinned Searches
+            </HStack>
 
-            <VStack
-              css={{
-                padding: '24px',
-                width: '100%',
-                height: '100%',
-                bg: '$grayBg',
-                gap: '5px',
-                borderRadius: '5px',
-              }}
-              distribution="start"
-              alignment="start"
-            >
-              <HStack alignment="center" css={{ gap: '5px', mb: '10px' }}>
-                <input
-                  type="checkbox"
-                  id="switch"
-                  checked={!hidePinnedSearches}
-                  onChange={(event) => {
-                    setHidePinnedSearches(!event.currentTarget.checked)
-                  }}
-                  style={{ padding: '0px', margin: '0px' }}
-                />
-                Enable Pinned Searches
-              </HStack>
+            {!hidePinnedSearches && (
+              <>
+                <StyledText style="modalTitle" css={{}}>
+                  Saved Searches
+                </StyledText>
+                {items.savedSearchItems.map((item) => {
+                  return (
+                    <SearchButton
+                      key={`search-${item.savedSearch.id}`}
+                      search={item.savedSearch}
+                      isSelected={item.isSelected}
+                      listAction={dispatchList}
+                    />
+                  )
+                })}
 
-              {!hidePinnedSearches && (
-                <>
-                  <StyledText style="modalTitle" css={{}}>
-                    Saved Searches
-                  </StyledText>
-                  {items.savedSearchItems.map((item) => {
-                    return (
-                      <SearchButton
-                        key={`search-${item.savedSearch.id}`}
-                        search={item.savedSearch}
-                        isSelected={item.isSelected}
-                        listAction={dispatchList}
-                      />
-                    )
-                  })}
-
-                  <StyledText style="modalTitle" css={{ mt: '20px' }}>
-                    Labels
-                  </StyledText>
-                  {items.labelItems.map((item) => {
-                    return (
-                      <LabelButton
-                        label={item.label}
-                        key={`label-${item.label.id}`}
-                        listAction={dispatchList}
-                        isSelected={item.isSelected}
-                      />
-                    )
-                  })}
-                </>
-              )}
-            </VStack>
+                <StyledText style="modalTitle" css={{ mt: '20px' }}>
+                  Labels
+                </StyledText>
+                {items.labelItems.map((item) => {
+                  return (
+                    <LabelButton
+                      label={item.label}
+                      key={`label-${item.label.id}`}
+                      listAction={dispatchList}
+                      isSelected={item.isSelected}
+                    />
+                  )
+                })}
+              </>
+            )}
           </VStack>
         </VStack>
-      </form>
+      </VStack>
     </SettingsLayout>
   )
 }
@@ -263,78 +246,28 @@ type LabelButtonProps = {
 
 function LabelButton(props: LabelButtonProps): JSX.Element {
   const labelId = `checkbox-label-${props.label.id}`
-
-  const changeState = useCallback(
-    (newState: boolean) => {
-      if (!newState) {
-        props.listAction({
-          type: 'REMOVE_ITEM',
-          item: {
-            type: 'label',
-            itemId: props.label.id,
-            name: props.label.name,
-            search: `label:\"${props.label.name}\"`,
-          },
-        })
-      } else {
-        props.listAction({
-          type: 'ADD_ITEM',
-          item: {
-            type: 'label',
-            itemId: props.label.id,
-            name: props.label.name,
-            search: `label:\"${props.label.name}\"`,
-          },
-        })
-      }
-    },
-    [props]
-  )
-
   return (
-    <HStack
+    <CheckboxButton
       key={labelId}
-      css={{
-        px: '10px',
-        pt: '2px',
-        height: '30px',
-        gap: '5px',
-
-        fontSize: '14px',
-        fontWeight: 'regular',
-        fontFamily: '$display',
-        color: props.isSelected
-          ? '$thLibraryMenuSecondary'
-          : '$thLibraryMenuUnselected',
-
-        verticalAlign: 'middle',
-        borderRadius: '3px',
-        cursor: 'pointer',
-
-        m: '0px',
-        '&:hover': {
-          backgroundColor: '$thBackground4',
-        },
-      }}
       title={props.label.name}
-      alignment="center"
-      distribution="start"
-      onClick={(event) => {
-        changeState(!props.isSelected)
-        event.preventDefault()
+      isSelected={props.isSelected}
+      item={{
+        type: 'label',
+        itemId: props.label.id,
+        name: props.label.name,
+        search: `label:\"${props.label.name}\"`,
       }}
+      listAction={props.listAction}
     >
       <input
         type="checkbox"
         checked={props.isSelected}
-        onChange={(event) => {
-          changeState(event.currentTarget.checked)
-          event.preventDefault()
-        }}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        onChange={(event) => {}}
       />
       <SpanBox css={{}}>{props.label.name}</SpanBox>
       <Circle size={9} color={props.label.color} weight="fill" />
-    </HStack>
+    </CheckboxButton>
   )
 }
 
@@ -350,9 +283,63 @@ type SearchButtonProps = {
 function SearchButton(props: SearchButtonProps): JSX.Element {
   const searchId = `checkbox-search-${props.search.id}`
   return (
-    <HStack
+    <CheckboxButton
       key={searchId}
       title={props.search.filter}
+      isSelected={props.isSelected}
+      item={{
+        type: 'saved-search',
+        itemId: props.search.id,
+        name: props.search.name,
+        search: props.search.filter,
+      }}
+      listAction={props.listAction}
+    >
+      <input
+        type="checkbox"
+        checked={props.isSelected}
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        onChange={(e) => {}}
+      />
+      <SpanBox css={{}}>{props.search.name}</SpanBox>
+    </CheckboxButton>
+  )
+}
+
+type CheckboxButtonProps = {
+  key: string
+  title: string
+  isSelected: boolean
+  item: PinnedSearch
+
+  listAction: (arg: {
+    type: ListAction
+    item?: PinnedSearch | undefined
+  }) => void
+  children: ReactNode
+}
+
+function CheckboxButton(props: CheckboxButtonProps): JSX.Element {
+  const handleChange = useCallback(
+    (selected: boolean) => {
+      if (!selected) {
+        props.listAction({
+          type: 'REMOVE_ITEM',
+          item: props.item,
+        })
+      } else {
+        props.listAction({
+          type: 'ADD_ITEM',
+          item: props.item,
+        })
+      }
+    },
+    [props]
+  )
+  return (
+    <HStack
+      key={props.key}
+      title={props.title}
       css={{
         px: '10px',
         pt: '2px',
@@ -378,32 +365,11 @@ function SearchButton(props: SearchButtonProps): JSX.Element {
       alignment="center"
       distribution="start"
       onClick={(event) => {
-        if (props.isSelected) {
-          props.listAction({
-            type: 'REMOVE_ITEM',
-            item: {
-              type: 'saved-search',
-              itemId: props.search.id,
-              name: props.search.name,
-              search: props.search.filter,
-            },
-          })
-        } else {
-          props.listAction({
-            type: 'ADD_ITEM',
-            item: {
-              type: 'saved-search',
-              itemId: props.search.id,
-              name: props.search.name,
-              search: props.search.filter,
-            },
-          })
-        }
+        handleChange(!props.isSelected)
         event.preventDefault()
       }}
     >
-      <input type="checkbox" checked={props.isSelected} onChange={(e) => {}} />
-      <SpanBox css={{}}>{props.search.name}</SpanBox>
+      {props.children}
     </HStack>
   )
 }
