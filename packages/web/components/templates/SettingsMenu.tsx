@@ -86,6 +86,8 @@ export function SettingsMenu(): JSX.Element {
     { name: 'Feeds', destination: '/settings/feeds' },
     { name: 'Subscriptions', destination: '/settings/subscriptions' },
     { name: 'Labels', destination: '/settings/labels' },
+    { name: 'Saved Searches', destination: '/settings/saved-searches' },
+    { name: 'Pinned Searches', destination: '/settings/pinned-searches' },
   ]
 
   const section2 = [
@@ -249,5 +251,5 @@ function SettingsButton(props: SettingsButtonProps): JSX.Element {
         {props.name}
       </SpanBox>
     </Link>
-  );
+  )
 }

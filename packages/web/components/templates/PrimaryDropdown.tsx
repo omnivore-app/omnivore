@@ -206,7 +206,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
   )
 }
 
-const StyledToggleButton = styled('button', {
+export const StyledToggleButton = styled('button', {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

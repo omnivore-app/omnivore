@@ -1,10 +1,9 @@
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { PrimaryDropdown } from '../PrimaryDropdown'
-import { TooltipWrapped } from '../../elements/Tooltip'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
-import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { useGetHeaderHeight } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
@@ -17,6 +16,7 @@ type ReaderHeaderProps = {
 }
 
 export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
+  const headerHeight = useGetHeaderHeight()
   return (
     <>
       <VStack
@@ -29,7 +29,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           pt: '0px',
           position: 'fixed',
           width: '100%',
-          height: HEADER_HEIGHT,
+          height: headerHeight,
           display: props.alwaysDisplayToolbar ? 'flex' : 'transparent',
           pointerEvents: props.alwaysDisplayToolbar ? 'unset' : 'none',
           borderBottom: '1px solid transparent',

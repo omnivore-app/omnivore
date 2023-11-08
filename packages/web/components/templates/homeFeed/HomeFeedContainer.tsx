@@ -1021,61 +1021,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   )
 }
 
-type PinnedItem = {
-  title: string
-  search: string
-}
-
-type PinnedButtonsProps = {
-  items: PinnedItem[]
-  searchTerm: string | undefined
-  applySearchQuery: (searchQuery: string) => void
-}
-
-const PinnedButtons = (props: PinnedButtonsProps): JSX.Element => {
-  if (!props.items.length) {
-    return <></>
-  }
-
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{
-        width: '100%',
-        pt: '0px',
-        pb: '15px',
-        gap: '10px',
-        bg: 'transparent',
-      }}
-    >
-      {props.items.map((item) => {
-        const style =
-          item.search == props.searchTerm ? 'ctaPill' : 'ctaPillUnselected'
-        return (
-          <Button
-            key={item.search}
-            style={style}
-            onClick={(event) => {
-              props.applySearchQuery(item.search)
-              event.preventDefault()
-            }}
-          >
-            {item.title}
-          </Button>
-        )
-      })}
-      <Button style="ghost" css={{ display: 'flex', pt: '1px' }}>
-        <MoreOptionsIcon
-          size={18}
-          strokeColor={theme.colors.grayText.toString()}
-          orientation={'horizontal'}
-        />
-      </Button>
-    </HStack>
-  )
-}
-
 type LibraryItemsLayoutProps = {
   layout: LayoutType
   viewer?: UserBasicData
@@ -1113,16 +1058,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         }}
       >
         <Toaster />
-
-        <PinnedButtons
-          items={[
-            { search: 'label:"Coding"', title: 'Coding' },
-            { search: 'label:"Hockey"', title: 'Hockey' },
-            { search: 'label:"Football"', title: 'Football' },
-          ]}
-          searchTerm={props.searchTerm}
-          applySearchQuery={props.applySearchQuery}
-        />
 
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <div
