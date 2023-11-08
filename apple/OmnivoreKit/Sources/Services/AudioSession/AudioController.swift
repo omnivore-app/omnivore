@@ -56,7 +56,7 @@
     var durations: [Double]?
     var lastReadUpdate = 0.0
 
-    var samplePlayer: AVAudioPlayer?
+    var samplePlayer: AVPlayer?
 
     public init(dataService: DataService) {
       self.dataService = dataService
@@ -475,36 +475,36 @@
       return "en-US-CoraNeural"
     }
 
+    func previewVoiceURL(_ voice: String) -> URL? {
+      URL(string: "https://storage.googleapis.com/omnivore_preview_bucket/tts-voice-previews/\(voice).mp3")
+    }
+
     public func playVoiceSample(voice: String) {
-      do {
-        pause()
+      pause()
 
-        if let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
-          try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
-
-          samplePlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-          if !(samplePlayer?.play() ?? false) {
-            throw BasicError.message(messageText: "Unable to playback audio")
-          }
-        } else {
-          NSNotification.operationFailed(message: "Error playing voice sample.")
+      if let url = previewVoiceURL(voice) {
+        samplePlayer = AVPlayer(playerItem: AVPlayerItem(url: url))
+        if let samplePlayer = samplePlayer {
+          samplePlayer.play()
         }
-      } catch {
-        print("ERROR", error)
+      } else {
         NSNotification.operationFailed(message: "Error playing voice sample.")
       }
     }
 
     public func isPlayingSample(voice: String) -> Bool {
-      if let samplePlayer = self.samplePlayer, let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
-        return samplePlayer.url == url && samplePlayer.isPlaying
+      if let samplePlayer = self.samplePlayer, let url = previewVoiceURL(voice) {
+        if let urlAsset = samplePlayer.currentItem?.asset as? AVURLAsset {
+          return urlAsset.url == url && samplePlayer.timeControlStatus == .playing
+        }
+        return false
       }
       return false
     }
 
     public func stopVoiceSample() {
       if let samplePlayer = self.samplePlayer {
-        samplePlayer.stop()
+        samplePlayer.pause()
         self.samplePlayer = nil
       }
     }
