@@ -84,6 +84,7 @@ jobs:
         run: |
           source ~/.nvm/nvm.sh
           yarn test
+        timeout-minutes: 10
         env:
           PG_HOST: localhost
           PG_PORT: ${{ job.services.postgres.ports[5432] }}
