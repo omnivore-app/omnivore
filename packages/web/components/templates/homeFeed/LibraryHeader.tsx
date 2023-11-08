@@ -162,7 +162,6 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         <SpanBox
           css={{
             ...controlWidths(props.layout, props.multiSelectMode),
-            width: '100%',
             maxWidth: '587px',
             alignSelf: 'flex-start',
             '-ms-overflow-style': 'none',
