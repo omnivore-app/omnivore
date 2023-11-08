@@ -4,7 +4,7 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { BulkActionType } from '../generated/graphql'
+import { BulkActionType, SaveFollowingInput } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
@@ -565,6 +565,28 @@ export const createLibraryItem = async (
   )
 
   return newLibraryItem
+}
+
+export const createFollowing = async (
+  input: SaveFollowingInput,
+  userId: string
+): Promise<LibraryItem> => {
+  return createLibraryItem(
+    {
+      ...input,
+      originalUrl: input.url,
+      isInLibrary: false,
+      state: LibraryItemState.Succeeded,
+      wordCount: 0,
+      user: { id: userId },
+      sharedAt: new Date(input.sharedAt),
+      sharedSource: input.sharedSource,
+      sharedBy: input.sharedBy,
+    },
+    userId,
+    undefined,
+    true
+  )
 }
 
 export const findLibraryItemsByPrefix = async (

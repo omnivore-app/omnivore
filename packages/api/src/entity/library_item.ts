@@ -207,7 +207,7 @@ export class LibraryItem {
   sharedBy?: string | null
 
   @Column('jsonb')
-  links?: Record<string, unknown>[] | null
+  links?: any | null
 
   @Column('text')
   previewContent?: string | null
@@ -217,4 +217,7 @@ export class LibraryItem {
 
   @Column('boolean')
   isInLibrary!: boolean
+
+  @Column('text')
+  sharedSource?: string | null
 }

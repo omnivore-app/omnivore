@@ -1568,7 +1568,6 @@ const schema = gql`
   union SearchResult = SearchSuccess | SearchError
 
   type SearchItem {
-    # used for pages
     id: ID!
     title: String!
     slug: String!
@@ -1590,16 +1589,8 @@ const schema = gql`
     # for uploaded file articles (PDFs), we track the original article URL separately!
     originalArticleUrl: String
     uploadFileId: ID
-    # used for highlights
-    pageId: ID
-    shortId: String
-    quote: String
-    annotation: String
-    color: String
     labels: [Label!]
     subscription: String
-    unsubMailTo: String
-    unsubHttpUrl: String
     state: ArticleSavingRequestStatus
     siteName: String
     language: String
@@ -2649,6 +2640,53 @@ const schema = gql`
     author: String
   }
 
+  union SaveFollowingResult = SaveFollowingSuccess | SaveFollowingError
+
+  type SaveFollowingSuccess {
+    following: Following!
+  }
+
+  type Following {
+    id: ID!
+    title: String!
+    url: String!
+    author: String
+    image: String
+    description: String
+    seenAt: Date
+    createdAt: Date!
+    updatedAt: Date!
+    publishedAt: Date
+    hiddenAt: Date
+    SharedAt: Date!
+    sharedBy: String!
+    links: JSON
+    previewContent: String
+    sharedSource: String!
+  }
+
+  type SaveFollowingError {
+    errorCodes: [SaveFollowingErrorCode!]!
+  }
+
+  enum SaveFollowingErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input SaveFollowingInput {
+    url: String!
+    title: String!
+    author: String
+    description: String
+    publishedAt: Date
+    sharedSource: String!
+    links: JSON
+    previewContent: String
+    sharedBy: String!
+    sharedAt: Date!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2752,6 +2790,7 @@ const schema = gql`
     updateSubscription(
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
+    saveFollowing(input: SaveFollowingInput!): SaveFollowingResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

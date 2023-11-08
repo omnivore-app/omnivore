@@ -15,6 +15,7 @@ ALTER TABLE omnivore.library_item
     ADD COLUMN links jsonb,
     ADD COLUMN preview_content text,
     ADD COLUMN seen_at timestamptz,
+    ADD COLUMN shared_source text,
     ADD COLUMN is_in_library boolean NOT NULL DEFAULT true;
 
 CREATE TABLE omnivore.feed (

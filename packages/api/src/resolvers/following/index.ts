@@ -3,9 +3,13 @@ import {
   FeedsError,
   FeedsErrorCode,
   FeedsSuccess,
+  MutationSaveFollowingArgs,
   QueryFeedsArgs,
+  SaveFollowingError,
+  SaveFollowingSuccess,
 } from '../../generated/graphql'
 import { feedRepository } from '../../repository/feed'
+import { createFollowing } from '../../services/library_item'
 import { authorized } from '../../utils/helpers'
 
 export const feedsResolve = authorized<
@@ -57,5 +61,24 @@ export const feedsResolve = authorized<
     return {
       errorCodes: [FeedsErrorCode.BadRequest],
     }
+  }
+})
+
+export const saveFollowingResolver = authorized<
+  SaveFollowingSuccess,
+  SaveFollowingError,
+  MutationSaveFollowingArgs
+>(async (_, { input }, { uid }) => {
+  const newItem = await createFollowing(input, uid)
+
+  return {
+    __typename: 'SaveFollowingSuccess',
+    following: {
+      ...newItem,
+      url: newItem.originalUrl,
+      SharedAt: new Date(input.sharedAt),
+      sharedBy: input.sharedBy,
+      sharedSource: input.sharedSource,
+    },
   }
 })

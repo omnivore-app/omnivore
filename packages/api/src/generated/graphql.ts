@@ -837,6 +837,26 @@ export type FiltersSuccess = {
   filters: Array<Filter>;
 };
 
+export type Following = {
+  __typename?: 'Following';
+  SharedAt: Scalars['Date'];
+  author?: Maybe<Scalars['String']>;
+  createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  hiddenAt?: Maybe<Scalars['Date']>;
+  id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
+  links?: Maybe<Scalars['JSON']>;
+  previewContent?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['Date']>;
+  seenAt?: Maybe<Scalars['Date']>;
+  sharedBy: Scalars['String'];
+  sharedSource: Scalars['String'];
+  title: Scalars['String'];
+  updatedAt: Scalars['Date'];
+  url: Scalars['String'];
+};
+
 export type GenerateApiKeyError = {
   __typename?: 'GenerateApiKeyError';
   errorCodes: Array<GenerateApiKeyErrorCode>;
@@ -1320,6 +1340,7 @@ export type Mutation = {
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
   saveFile: SaveResult;
   saveFilter: SaveFilterResult;
+  saveFollowing: SaveFollowingResult;
   savePage: SaveResult;
   saveUrl: SaveResult;
   setBookmarkArticle: SetBookmarkArticleResult;
@@ -1513,6 +1534,11 @@ export type MutationSaveFileArgs = {
 
 export type MutationSaveFilterArgs = {
   input: SaveFilterInput;
+};
+
+
+export type MutationSaveFollowingArgs = {
+  input: SaveFollowingInput;
 };
 
 
@@ -2211,6 +2237,36 @@ export type SaveFilterSuccess = {
   filter: Filter;
 };
 
+export type SaveFollowingError = {
+  __typename?: 'SaveFollowingError';
+  errorCodes: Array<SaveFollowingErrorCode>;
+};
+
+export enum SaveFollowingErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type SaveFollowingInput = {
+  author?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  links?: InputMaybe<Scalars['JSON']>;
+  previewContent?: InputMaybe<Scalars['String']>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  sharedAt: Scalars['Date'];
+  sharedBy: Scalars['String'];
+  sharedSource: Scalars['String'];
+  title: Scalars['String'];
+  url: Scalars['String'];
+};
+
+export type SaveFollowingResult = SaveFollowingError | SaveFollowingSuccess;
+
+export type SaveFollowingSuccess = {
+  __typename?: 'SaveFollowingSuccess';
+  following: Following;
+};
+
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
   labels?: InputMaybe<Array<CreateLabelInput>>;
@@ -2257,10 +2313,8 @@ export enum SearchErrorCode {
 
 export type SearchItem = {
   __typename?: 'SearchItem';
-  annotation?: Maybe<Scalars['String']>;
   archivedAt?: Maybe<Scalars['Date']>;
   author?: Maybe<Scalars['String']>;
-  color?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['String']>;
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
@@ -2273,25 +2327,20 @@ export type SearchItem = {
   language?: Maybe<Scalars['String']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   ownedByViewer?: Maybe<Scalars['Boolean']>;
-  pageId?: Maybe<Scalars['ID']>;
   pageType: PageType;
   publishedAt?: Maybe<Scalars['Date']>;
-  quote?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['Date']>;
   readingProgressAnchorIndex: Scalars['Int'];
   readingProgressPercent: Scalars['Float'];
   readingProgressTopPercent?: Maybe<Scalars['Float']>;
   recommendations?: Maybe<Array<Recommendation>>;
   savedAt: Scalars['Date'];
-  shortId?: Maybe<Scalars['String']>;
   siteIcon?: Maybe<Scalars['String']>;
   siteName?: Maybe<Scalars['String']>;
   slug: Scalars['String'];
   state?: Maybe<ArticleSavingRequestStatus>;
   subscription?: Maybe<Scalars['String']>;
   title: Scalars['String'];
-  unsubHttpUrl?: Maybe<Scalars['String']>;
-  unsubMailTo?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['Date']>;
   uploadFileId?: Maybe<Scalars['ID']>;
   url: Scalars['String'];
@@ -3532,6 +3581,7 @@ export type ResolversTypes = {
   FiltersResult: ResolversTypes['FiltersError'] | ResolversTypes['FiltersSuccess'];
   FiltersSuccess: ResolverTypeWrapper<FiltersSuccess>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
+  Following: ResolverTypeWrapper<Following>;
   GenerateApiKeyError: ResolverTypeWrapper<GenerateApiKeyError>;
   GenerateApiKeyErrorCode: GenerateApiKeyErrorCode;
   GenerateApiKeyInput: GenerateApiKeyInput;
@@ -3697,6 +3747,11 @@ export type ResolversTypes = {
   SaveFilterInput: SaveFilterInput;
   SaveFilterResult: ResolversTypes['SaveFilterError'] | ResolversTypes['SaveFilterSuccess'];
   SaveFilterSuccess: ResolverTypeWrapper<SaveFilterSuccess>;
+  SaveFollowingError: ResolverTypeWrapper<SaveFollowingError>;
+  SaveFollowingErrorCode: SaveFollowingErrorCode;
+  SaveFollowingInput: SaveFollowingInput;
+  SaveFollowingResult: ResolversTypes['SaveFollowingError'] | ResolversTypes['SaveFollowingSuccess'];
+  SaveFollowingSuccess: ResolverTypeWrapper<SaveFollowingSuccess>;
   SavePageInput: SavePageInput;
   SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
@@ -4016,6 +4071,7 @@ export type ResolversParentTypes = {
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
   FiltersSuccess: FiltersSuccess;
   Float: Scalars['Float'];
+  Following: Following;
   GenerateApiKeyError: GenerateApiKeyError;
   GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
@@ -4145,6 +4201,10 @@ export type ResolversParentTypes = {
   SaveFilterInput: SaveFilterInput;
   SaveFilterResult: ResolversParentTypes['SaveFilterError'] | ResolversParentTypes['SaveFilterSuccess'];
   SaveFilterSuccess: SaveFilterSuccess;
+  SaveFollowingError: SaveFollowingError;
+  SaveFollowingInput: SaveFollowingInput;
+  SaveFollowingResult: ResolversParentTypes['SaveFollowingError'] | ResolversParentTypes['SaveFollowingSuccess'];
+  SaveFollowingSuccess: SaveFollowingSuccess;
   SavePageInput: SavePageInput;
   SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
@@ -4898,6 +4958,26 @@ export type FiltersSuccessResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FollowingResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Following'] = ResolversParentTypes['Following']> = {
+  SharedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hiddenAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  links?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  seenAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  sharedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sharedSource?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GenerateApiKeyErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GenerateApiKeyError'] = ResolversParentTypes['GenerateApiKeyError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['GenerateApiKeyErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5263,6 +5343,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
   saveFile?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveFileArgs, 'input'>>;
   saveFilter?: Resolver<ResolversTypes['SaveFilterResult'], ParentType, ContextType, RequireFields<MutationSaveFilterArgs, 'input'>>;
+  saveFollowing?: Resolver<ResolversTypes['SaveFollowingResult'], ParentType, ContextType, RequireFields<MutationSaveFollowingArgs, 'input'>>;
   savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
   saveUrl?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveUrlArgs, 'input'>>;
   setBookmarkArticle?: Resolver<ResolversTypes['SetBookmarkArticleResult'], ParentType, ContextType, RequireFields<MutationSetBookmarkArticleArgs, 'input'>>;
@@ -5622,6 +5703,20 @@ export type SaveFilterSuccessResolvers<ContextType = ResolverContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type SaveFollowingErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveFollowingError'] = ResolversParentTypes['SaveFollowingError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SaveFollowingErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type SaveFollowingResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveFollowingResult'] = ResolversParentTypes['SaveFollowingResult']> = {
+  __resolveType: TypeResolveFn<'SaveFollowingError' | 'SaveFollowingSuccess', ParentType, ContextType>;
+};
+
+export type SaveFollowingSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveFollowingSuccess'] = ResolversParentTypes['SaveFollowingSuccess']> = {
+  following?: Resolver<ResolversTypes['Following'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SaveResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveResult'] = ResolversParentTypes['SaveResult']> = {
   __resolveType: TypeResolveFn<'SaveError' | 'SaveSuccess', ParentType, ContextType>;
 };
@@ -5638,10 +5733,8 @@ export type SearchErrorResolvers<ContextType = ResolverContext, ParentType exten
 };
 
 export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
-  annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   archivedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -5654,25 +5747,20 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   readingProgressAnchorIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   readingProgressPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   readingProgressTopPercent?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   recommendations?: Resolver<Maybe<Array<ResolversTypes['Recommendation']>>, ParentType, ContextType>;
   savedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
-  shortId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteIcon?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   siteName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   state?: Resolver<Maybe<ResolversTypes['ArticleSavingRequestStatus']>, ParentType, ContextType>;
   subscription?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  unsubHttpUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  unsubMailTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   uploadFileId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -6403,6 +6491,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;
   FiltersSuccess?: FiltersSuccessResolvers<ContextType>;
+  Following?: FollowingResolvers<ContextType>;
   GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
   GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
   GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
@@ -6513,6 +6602,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveFilterError?: SaveFilterErrorResolvers<ContextType>;
   SaveFilterResult?: SaveFilterResultResolvers<ContextType>;
   SaveFilterSuccess?: SaveFilterSuccessResolvers<ContextType>;
+  SaveFollowingError?: SaveFollowingErrorResolvers<ContextType>;
+  SaveFollowingResult?: SaveFollowingResultResolvers<ContextType>;
+  SaveFollowingSuccess?: SaveFollowingSuccessResolvers<ContextType>;
   SaveResult?: SaveResultResolvers<ContextType>;
   SaveSuccess?: SaveSuccessResolvers<ContextType>;
   SearchError?: SearchErrorResolvers<ContextType>;

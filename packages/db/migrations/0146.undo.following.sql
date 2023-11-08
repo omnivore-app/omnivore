@@ -13,6 +13,7 @@ ALTER TABLE omnivore.library_item
     DROP COLUMN links,
     DROP COLUMN preview_content,
     DROP COLUMN seen_at,
+    DROP COLUMN shared_source,
     DROP COLUMN is_in_library;
 
 ALTER TABLE omnivore.subscriptions

@@ -742,6 +742,25 @@ type FiltersSuccess {
   filters: [Filter!]!
 }
 
+type Following {
+  SharedAt: Date!
+  author: String
+  createdAt: Date!
+  description: String
+  hiddenAt: Date
+  id: ID!
+  image: String
+  links: JSON
+  previewContent: String
+  publishedAt: Date
+  seenAt: Date
+  sharedBy: String!
+  sharedSource: String!
+  title: String!
+  updatedAt: Date!
+  url: String!
+}
+
 type GenerateApiKeyError {
   errorCodes: [GenerateApiKeyErrorCode!]!
 }
@@ -1185,6 +1204,7 @@ type Mutation {
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
   saveFilter(input: SaveFilterInput!): SaveFilterResult!
+  saveFollowing(input: SaveFollowingInput!): SaveFollowingResult!
   savePage(input: SavePageInput!): SaveResult!
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
@@ -1678,6 +1698,34 @@ type SaveFilterSuccess {
   filter: Filter!
 }
 
+type SaveFollowingError {
+  errorCodes: [SaveFollowingErrorCode!]!
+}
+
+enum SaveFollowingErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input SaveFollowingInput {
+  author: String
+  description: String
+  links: JSON
+  previewContent: String
+  publishedAt: Date
+  sharedAt: Date!
+  sharedBy: String!
+  sharedSource: String!
+  title: String!
+  url: String!
+}
+
+union SaveFollowingResult = SaveFollowingError | SaveFollowingSuccess
+
+type SaveFollowingSuccess {
+  following: Following!
+}
+
 input SavePageInput {
   clientRequestId: ID!
   labels: [CreateLabelInput!]
@@ -1721,10 +1769,8 @@ enum SearchErrorCode {
 }
 
 type SearchItem {
-  annotation: String
   archivedAt: Date
   author: String
-  color: String
   content: String
   contentReader: ContentReader!
   createdAt: Date!
@@ -1737,25 +1783,20 @@ type SearchItem {
   language: String
   originalArticleUrl: String
   ownedByViewer: Boolean
-  pageId: ID
   pageType: PageType!
   publishedAt: Date
-  quote: String
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
   readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
-  shortId: String
   siteIcon: String
   siteName: String
   slug: String!
   state: ArticleSavingRequestStatus
   subscription: String
   title: String!
-  unsubHttpUrl: String
-  unsubMailTo: String
   updatedAt: Date
   uploadFileId: ID
   url: String!
