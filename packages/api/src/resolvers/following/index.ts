@@ -1,15 +1,23 @@
+import { IsNull, Not } from 'typeorm'
+import { LibraryItem } from '../../entity/library_item'
 import {
+  AddFollowingToLibraryError,
+  AddFollowingToLibraryErrorCode,
+  AddFollowingToLibrarySuccess,
   FeedEdge,
   FeedsError,
   FeedsErrorCode,
   FeedsSuccess,
+  MutationAddFollowingToLibraryArgs,
   MutationSaveFollowingArgs,
   QueryFeedsArgs,
   SaveFollowingError,
   SaveFollowingSuccess,
 } from '../../generated/graphql'
 import { feedRepository } from '../../repository/feed'
+import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { createFollowing } from '../../services/library_item'
+import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
 export const feedsResolve = authorized<
@@ -69,6 +77,14 @@ export const saveFollowingResolver = authorized<
   SaveFollowingError,
   MutationSaveFollowingArgs
 >(async (_, { input }, { uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'save_following',
+    properties: {
+      url: input.url,
+    },
+  })
+
   const newItem = await createFollowing(input, uid)
 
   return {
@@ -80,5 +96,51 @@ export const saveFollowingResolver = authorized<
       sharedBy: input.sharedBy,
       sharedSource: input.sharedSource,
     },
+  }
+})
+
+export const addFollowingToLibraryResolver = authorized<
+  AddFollowingToLibrarySuccess,
+  AddFollowingToLibraryError,
+  MutationAddFollowingToLibraryArgs
+>(async (_, { id }, { authTrx, pubsub, uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'add_following_to_library',
+    properties: {
+      id,
+    },
+  })
+
+  const item = await authTrx((tx) =>
+    tx.getRepository(LibraryItem).findOne({
+      where: {
+        id,
+        sharedAt: Not(IsNull()),
+        isInLibrary: false,
+      },
+      relations: ['user'],
+    })
+  )
+
+  if (!item) {
+    return {
+      errorCodes: [AddFollowingToLibraryErrorCode.NotFound],
+    }
+  }
+
+  const articleSavingRequest = await createPageSaveRequest({
+    userId: uid,
+    url: item.originalUrl,
+    articleSavingRequestId: id,
+    priority: 'high',
+    publishedAt: item.publishedAt || undefined,
+    savedAt: item.savedAt || undefined,
+    pubsub,
+  })
+
+  return {
+    __typename: 'AddFollowingToLibrarySuccess',
+    articleSavingRequest,
   }
 })

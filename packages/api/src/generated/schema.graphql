@@ -1,5 +1,21 @@
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
+type AddFollowingToLibraryError {
+  errorCodes: [AddFollowingToLibraryErrorCode!]!
+}
+
+enum AddFollowingToLibraryErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union AddFollowingToLibraryResult = AddFollowingToLibraryError | AddFollowingToLibrarySuccess
+
+type AddFollowingToLibrarySuccess {
+  articleSavingRequest: ArticleSavingRequest!
+}
+
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
 }
@@ -1169,6 +1185,7 @@ type MoveLabelSuccess {
 }
 
 type Mutation {
+  addFollowingToLibrary(id: ID!): AddFollowingToLibraryResult!
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!

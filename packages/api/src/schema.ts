@@ -2687,6 +2687,24 @@ const schema = gql`
     sharedAt: Date!
   }
 
+  union AddFollowingToLibraryResult =
+      AddFollowingToLibrarySuccess
+    | AddFollowingToLibraryError
+
+  type AddFollowingToLibrarySuccess {
+    articleSavingRequest: ArticleSavingRequest!
+  }
+
+  type AddFollowingToLibraryError {
+    errorCodes: [AddFollowingToLibraryErrorCode!]!
+  }
+
+  enum AddFollowingToLibraryErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2791,6 +2809,7 @@ const schema = gql`
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
     saveFollowing(input: SaveFollowingInput!): SaveFollowingResult!
+    addFollowingToLibrary(id: ID!): AddFollowingToLibraryResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

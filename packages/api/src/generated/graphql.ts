@@ -17,6 +17,24 @@ export type Scalars = {
   JSON: any;
 };
 
+export type AddFollowingToLibraryError = {
+  __typename?: 'AddFollowingToLibraryError';
+  errorCodes: Array<AddFollowingToLibraryErrorCode>;
+};
+
+export enum AddFollowingToLibraryErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type AddFollowingToLibraryResult = AddFollowingToLibraryError | AddFollowingToLibrarySuccess;
+
+export type AddFollowingToLibrarySuccess = {
+  __typename?: 'AddFollowingToLibrarySuccess';
+  articleSavingRequest: ArticleSavingRequest;
+};
+
 export type AddPopularReadError = {
   __typename?: 'AddPopularReadError';
   errorCodes: Array<AddPopularReadErrorCode>;
@@ -1305,6 +1323,7 @@ export type MoveLabelSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addFollowingToLibrary: AddFollowingToLibraryResult;
   addPopularRead: AddPopularReadResult;
   bulkAction: BulkActionResult;
   createArticle: CreateArticleResult;
@@ -1365,6 +1384,11 @@ export type Mutation = {
   updateUserProfile: UpdateUserProfileResult;
   uploadFileRequest: UploadFileRequestResult;
   uploadImportFile: UploadImportFileResult;
+};
+
+
+export type MutationAddFollowingToLibraryArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -3429,6 +3453,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AddFollowingToLibraryError: ResolverTypeWrapper<AddFollowingToLibraryError>;
+  AddFollowingToLibraryErrorCode: AddFollowingToLibraryErrorCode;
+  AddFollowingToLibraryResult: ResolversTypes['AddFollowingToLibraryError'] | ResolversTypes['AddFollowingToLibrarySuccess'];
+  AddFollowingToLibrarySuccess: ResolverTypeWrapper<AddFollowingToLibrarySuccess>;
   AddPopularReadError: ResolverTypeWrapper<AddPopularReadError>;
   AddPopularReadErrorCode: AddPopularReadErrorCode;
   AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
@@ -3953,6 +3981,9 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AddFollowingToLibraryError: AddFollowingToLibraryError;
+  AddFollowingToLibraryResult: ResolversParentTypes['AddFollowingToLibraryError'] | ResolversParentTypes['AddFollowingToLibrarySuccess'];
+  AddFollowingToLibrarySuccess: AddFollowingToLibrarySuccess;
   AddPopularReadError: AddPopularReadError;
   AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: AddPopularReadSuccess;
@@ -4366,6 +4397,20 @@ export type SanitizeDirectiveArgs = {
 };
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type AddFollowingToLibraryErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddFollowingToLibraryError'] = ResolversParentTypes['AddFollowingToLibraryError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['AddFollowingToLibraryErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddFollowingToLibraryResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddFollowingToLibraryResult'] = ResolversParentTypes['AddFollowingToLibraryResult']> = {
+  __resolveType: TypeResolveFn<'AddFollowingToLibraryError' | 'AddFollowingToLibrarySuccess', ParentType, ContextType>;
+};
+
+export type AddFollowingToLibrarySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddFollowingToLibrarySuccess'] = ResolversParentTypes['AddFollowingToLibrarySuccess']> = {
+  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type AddPopularReadErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadError'] = ResolversParentTypes['AddPopularReadError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['AddPopularReadErrorCode']>, ParentType, ContextType>;
@@ -5308,6 +5353,7 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addFollowingToLibrary?: Resolver<ResolversTypes['AddFollowingToLibraryResult'], ParentType, ContextType, RequireFields<MutationAddFollowingToLibraryArgs, 'id'>>;
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
@@ -6386,6 +6432,9 @@ export type WebhooksSuccessResolvers<ContextType = ResolverContext, ParentType e
 };
 
 export type Resolvers<ContextType = ResolverContext> = {
+  AddFollowingToLibraryError?: AddFollowingToLibraryErrorResolvers<ContextType>;
+  AddFollowingToLibraryResult?: AddFollowingToLibraryResultResolvers<ContextType>;
+  AddFollowingToLibrarySuccess?: AddFollowingToLibrarySuccessResolvers<ContextType>;
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
   AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
