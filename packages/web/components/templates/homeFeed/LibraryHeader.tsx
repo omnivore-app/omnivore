@@ -16,7 +16,11 @@ import {
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import { HeaderSpacer, useGetHeaderHeight } from './HeaderSpacer'
+import {
+  DEFAULT_HEADER_HEIGHT,
+  HeaderSpacer,
+  useGetHeaderHeight,
+} from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -104,6 +108,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           '@mdDown': {
             left: '0px',
             right: '0',
+            height: DEFAULT_HEADER_HEIGHT,
           },
         }}
       >

@@ -20,7 +20,7 @@ import {
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
 import { NotebookContent } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
-import { useGetHeaderHeight } from './HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT, useGetHeaderHeight } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
@@ -107,6 +107,9 @@ export function HighlightItemsLayout(
         css={{
           width: '100%',
           height: `calc(100vh - ${headerHeight})`,
+          '@mdDown': {
+            height: DEFAULT_HEADER_HEIGHT,
+          },
         }}
       >
         <EmptyHighlights />
@@ -125,6 +128,9 @@ export function HighlightItemsLayout(
           },
           bg: '$thBackground2',
           overflow: 'hidden',
+          '@mdDown': {
+            height: DEFAULT_HEADER_HEIGHT,
+          },
         }}
         distribution="start"
         alignment="start"
