@@ -83,23 +83,20 @@ export const PinnedButtons = (props: PinnedButtonsProps): JSX.Element => {
           </SpanBox>
         }
         css={{}}
-        children={
-          <>
-            <DropdownOption
-              onSelect={() => {
-                router.push('/settings/pinned-searches')
-              }}
-              title="Edit"
-            />
-            <DropdownOption
-              onSelect={() => {
-                setHidePinnedSearches(true)
-              }}
-              title="Hide"
-            />
-          </>
-        }
-      ></Dropdown>
+      >
+        <DropdownOption
+          onSelect={() => {
+            router.push('/settings/pinned-searches')
+          }}
+          title="Edit"
+        />
+        <DropdownOption
+          onSelect={() => {
+            setHidePinnedSearches(true)
+          }}
+          title="Hide"
+        />
+      </Dropdown>
     </HStack>
   )
 }
