@@ -17,6 +17,7 @@ struct UtteranceRequest: Codable {
   let language: String
   let rate: String
   let isUltraRealisticVoice: Bool
+  let isOpenAIVoice: Bool
 }
 
 struct Utterance: Decodable {
@@ -32,7 +33,8 @@ struct Utterance: Decodable {
                                    voice: usedVoice,
                                    language: document.language,
                                    rate: "1.1",
-                                   isUltraRealisticVoice: Voices.isUltraRealisticVoice(usedVoice))
+                                   isUltraRealisticVoice: Voices.isUltraRealisticVoice(usedVoice),
+                                   isOpenAIVoice: Voices.isOpenAIVoice(usedVoice))
     return try JSONEncoder().encode(request)
   }
 }

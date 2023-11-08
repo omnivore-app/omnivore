@@ -875,6 +875,7 @@
 
       let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
       guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        print("HTTP respooinse", result?.1 as? HTTPURLResponse)
         throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
       }
 
