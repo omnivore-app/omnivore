@@ -1786,8 +1786,10 @@ enum SearchErrorCode {
 }
 
 type SearchItem {
+  annotation: String
   archivedAt: Date
   author: String
+  color: String
   content: String
   contentReader: ContentReader!
   createdAt: Date!
@@ -1800,20 +1802,25 @@ type SearchItem {
   language: String
   originalArticleUrl: String
   ownedByViewer: Boolean
+  pageId: ID
   pageType: PageType!
   publishedAt: Date
+  quote: String
   readAt: Date
   readingProgressAnchorIndex: Int!
   readingProgressPercent: Float!
   readingProgressTopPercent: Float
   recommendations: [Recommendation!]
   savedAt: Date!
+  shortId: String
   siteIcon: String
   siteName: String
   slug: String!
   state: ArticleSavingRequestStatus
   subscription: String
   title: String!
+  unsubHttpUrl: String
+  unsubMailTo: String
   updatedAt: Date
   uploadFileId: ID
   url: String!

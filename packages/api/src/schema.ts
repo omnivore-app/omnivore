@@ -1568,6 +1568,7 @@ const schema = gql`
   union SearchResult = SearchSuccess | SearchError
 
   type SearchItem {
+    # used for pages
     id: ID!
     title: String!
     slug: String!
@@ -1589,8 +1590,16 @@ const schema = gql`
     # for uploaded file articles (PDFs), we track the original article URL separately!
     originalArticleUrl: String
     uploadFileId: ID
+    # used for highlights
+    pageId: ID
+    shortId: String
+    quote: String
+    annotation: String
+    color: String
     labels: [Label!]
     subscription: String
+    unsubMailTo: String
+    unsubHttpUrl: String
     state: ArticleSavingRequestStatus
     siteName: String
     language: String
