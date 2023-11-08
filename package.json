@@ -8,7 +8,7 @@
   ],
   "license": "AGPL-3.0-only",
   "scripts": {
-    "test": "lerna run --no-bail test --ignore @omnivore/api",
+    "test": "lerna run test --ignore @omnivore/api",
     "lint": "lerna run lint",
     "build": "lerna run build",
     "test:scoped:example": "lerna run test --scope={@omnivore/pdf-handler,@omnivore/web}",
