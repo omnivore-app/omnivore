@@ -61,9 +61,9 @@ public enum Voices {
       voice.firstKey == voiceKey || voice.secondKey == voiceKey
     })
   }
-  
+
   public static func isOpenAIVoice(_ voiceKey: String) -> Bool {
-    return voiceKey.starts(with: "openai-")
+    voiceKey.starts(with: "openai-")
   }
 
   public static let English = VoiceLanguage(key: "en",
