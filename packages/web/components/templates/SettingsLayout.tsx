@@ -5,13 +5,11 @@ import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortc
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
 import { applyStoredTheme } from '../../lib/themeUpdater'
-import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
 import { useCallback, useEffect, useState } from 'react'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
-import { HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
-import { deinitAnalytics } from '../../lib/analytics'
+import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { logout } from '../../lib/logout'
 import { SettingsMenu } from './SettingsMenu'
 
@@ -53,7 +51,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       <VStack css={{ width: '100%', height: '100%' }}>
         <Box
           css={{
-            height: HEADER_HEIGHT,
+            height: DEFAULT_HEADER_HEIGHT,
           }}
         ></Box>
         <HStack css={{ width: '100%', height: '100%' }} distribution="start">

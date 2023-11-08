@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
@@ -16,7 +16,7 @@ import {
 import { LayoutType } from './HomeFeedContainer'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import { HeaderSpacer, HEADER_HEIGHT } from './HeaderSpacer'
+import { HeaderSpacer, useGetHeaderHeight } from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -30,6 +30,9 @@ import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { ListViewIcon } from '../../elements/icons/ListViewIcon'
 import { GridViewIcon } from '../../elements/icons/GridViewIcon'
 import { CaretDownIcon } from '../../elements/icons/CaretDownIcon'
+import { PinnedButtons } from './PinnedButtons'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -61,7 +64,30 @@ type LibraryHeaderProps = {
   ) => Promise<void>
 }
 
+const controlWidths = (
+  layout: LayoutType,
+  multiSelectMode: MultiSelectMode
+) => {
+  return {
+    width: '95%',
+    '@mdDown': {
+      width: multiSelectMode !== 'off' ? '100%' : '95%',
+      display: multiSelectMode !== 'off' ? 'flex' : 'none',
+    },
+    '@media (min-width: 930px)': {
+      width: layout == 'GRID_LAYOUT' ? '660px' : '640px',
+    },
+    '@media (min-width: 1280px)': {
+      width: '1000px',
+    },
+    '@media (min-width: 1600px)': {
+      width: '1340px',
+    },
+  }
+}
+
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
+  const headerHeight = useGetHeaderHeight()
   return (
     <>
       <VStack
@@ -73,7 +99,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           left: LIBRARY_LEFT_MENU_WIDTH,
           zIndex: 5,
           position: 'fixed',
-          height: HEADER_HEIGHT,
+          height: headerHeight,
           bg: '$thLibraryBackground',
           '@mdDown': {
             left: '0px',
@@ -94,6 +120,14 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 }
 
 function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
+  const [pinnedSearches, setPinnedSearches] = usePersistedState<
+    PinnedSearch[] | null
+  >({
+    key: `--library-pinned-searches`,
+    initialValue: [],
+    isSessionStorage: false,
+  })
+
   return (
     <HStack
       alignment="center"
@@ -106,19 +140,40 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      <ControlButtonBox
-        layout={props.layout}
-        updateLayout={props.updateLayout}
-        numItemsSelected={props.numItemsSelected}
-        multiSelectMode={props.multiSelectMode}
-        setMultiSelectMode={props.setMultiSelectMode}
-        showAddLinkModal={props.showAddLinkModal}
-        performMultiSelectAction={props.performMultiSelectAction}
-        searchTerm={props.searchTerm}
-        applySearchQuery={props.applySearchQuery}
-        allowSelectMultiple={props.allowSelectMultiple}
-        handleLinkSubmission={props.handleLinkSubmission}
-      />
+      <VStack alignment="center" distribution="start">
+        <ControlButtonBox
+          layout={props.layout}
+          updateLayout={props.updateLayout}
+          numItemsSelected={props.numItemsSelected}
+          multiSelectMode={props.multiSelectMode}
+          setMultiSelectMode={props.setMultiSelectMode}
+          showAddLinkModal={props.showAddLinkModal}
+          performMultiSelectAction={props.performMultiSelectAction}
+          searchTerm={props.searchTerm}
+          applySearchQuery={props.applySearchQuery}
+          allowSelectMultiple={props.allowSelectMultiple}
+          handleLinkSubmission={props.handleLinkSubmission}
+        />
+        <SpanBox
+          css={{
+            ...controlWidths(props.layout, props.multiSelectMode),
+            width: '100%',
+            maxWidth: '587px',
+            alignSelf: 'flex-start',
+            '-ms-overflow-style': 'none',
+            scrollbarWidth: 'none',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}
+        >
+          <PinnedButtons
+            items={pinnedSearches ?? []}
+            searchTerm={props.searchTerm}
+            applySearchQuery={props.applySearchQuery}
+          />
+        </SpanBox>
+      </VStack>
     </HStack>
   )
 }
@@ -616,20 +671,7 @@ function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
         distribution={props.multiSelectMode !== 'off' ? 'center' : 'start'}
         css={{
           gap: '10px',
-          width: '95%',
-          '@mdDown': {
-            width: props.multiSelectMode !== 'off' ? '100%' : '95%',
-            display: props.multiSelectMode !== 'off' ? 'flex' : 'none',
-          },
-          '@media (min-width: 930px)': {
-            width: props.layout == 'GRID_LAYOUT' ? '660px' : '640px',
-          },
-          '@media (min-width: 1280px)': {
-            width: '1000px',
-          },
-          '@media (min-width: 1600px)': {
-            width: '1340px',
-          },
+          ...controlWidths(props.layout, props.multiSelectMode),
         }}
       >
         <MuliSelectControl {...props} />

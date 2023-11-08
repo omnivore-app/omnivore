@@ -16,7 +16,7 @@ import { pspdfKitKey } from '../../../lib/appConfig'
 import { NotebookModal } from './NotebookModal'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
-import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import Epub, { EpubCFI } from 'epubjs'
 import { Rendition, Contents } from 'epubjs/types'
@@ -294,7 +294,7 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
           paddingBottom: '0px',
         },
         width: '100%',
-        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        height: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
       }}
     >
       <Box

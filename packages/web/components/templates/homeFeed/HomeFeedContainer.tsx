@@ -51,6 +51,8 @@ import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { searchQuery } from '../../../lib/networking/queries/search'
+import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
+import { theme } from '../../tokens/stitches.config'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
