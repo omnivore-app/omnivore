@@ -184,21 +184,48 @@ export default function PinnedSearches(): JSX.Element {
             distribution="start"
             alignment="start"
           >
-            <HStack alignment="center" css={{ gap: '5px', mb: '10px' }}>
-              <input
-                type="checkbox"
-                id="switch"
-                checked={!hidePinnedSearches}
-                onChange={(event) => {
-                  setHidePinnedSearches(!event.currentTarget.checked)
-                }}
-                style={{ padding: '0px', margin: '0px' }}
-              />
-              Enable Pinned Searches
+            <HStack
+              css={{
+                px: '10px',
+                pt: '2px',
+                mb: '20px',
+                height: '30px',
+                gap: '5px',
+
+                fontSize: '14px',
+                fontWeight: 'regular',
+                fontFamily: '$display',
+                color: !hidePinnedSearches
+                  ? '$thLibraryMenuSecondary'
+                  : '$thLibraryMenuUnselected',
+
+                verticalAlign: 'middle',
+                borderRadius: '3px',
+                cursor: 'pointer',
+
+                '&:hover': {
+                  backgroundColor: '$thBackground4',
+                },
+              }}
+              alignment="center"
+              distribution="start"
+              onClick={(event) => {
+                setHidePinnedSearches(!hidePinnedSearches)
+                event.preventDefault()
+              }}
+            >
+              {!hidePinnedSearches ? (
+                <CheckSquare size={20} weight="duotone" />
+              ) : (
+                <Square size={20} weight="duotone" />
+              )}
+              <StyledText style="modalTitle" css={{}}>
+                Enable Pinned Searches
+              </StyledText>
             </HStack>
 
             {!hidePinnedSearches && (
-              <>
+              <Box css={{ pl: '10px' }}>
                 <StyledText style="modalTitle" css={{}}>
                   Saved Searches
                 </StyledText>
@@ -226,7 +253,7 @@ export default function PinnedSearches(): JSX.Element {
                     />
                   )
                 })}
-              </>
+              </Box>
             )}
           </VStack>
         </VStack>
