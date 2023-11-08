@@ -14,6 +14,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   Date: any;
+  JSON: any;
 };
 
 export type AddPopularReadError = {
@@ -2514,6 +2515,7 @@ export enum SetUserPersonalizationErrorCode {
 }
 
 export type SetUserPersonalizationInput = {
+  fields?: InputMaybe<Scalars['JSON']>;
   fontFamily?: InputMaybe<Scalars['String']>;
   fontSize?: InputMaybe<Scalars['Int']>;
   libraryLayoutType?: InputMaybe<Scalars['String']>;
@@ -3159,6 +3161,7 @@ export enum UserErrorCode {
 
 export type UserPersonalization = {
   __typename?: 'UserPersonalization';
+  fields?: Maybe<Scalars['JSON']>;
   fontFamily?: Maybe<Scalars['String']>;
   fontSize?: Maybe<Scalars['Int']>;
   id?: Maybe<Scalars['ID']>;
@@ -3511,6 +3514,7 @@ export type ResolversTypes = {
   IntegrationsErrorCode: IntegrationsErrorCode;
   IntegrationsResult: ResolversTypes['IntegrationsError'] | ResolversTypes['IntegrationsSuccess'];
   IntegrationsSuccess: ResolverTypeWrapper<IntegrationsSuccess>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']>;
   JoinGroupError: ResolverTypeWrapper<JoinGroupError>;
   JoinGroupErrorCode: JoinGroupErrorCode;
   JoinGroupResult: ResolversTypes['JoinGroupError'] | ResolversTypes['JoinGroupSuccess'];
@@ -3978,6 +3982,7 @@ export type ResolversParentTypes = {
   IntegrationsError: IntegrationsError;
   IntegrationsResult: ResolversParentTypes['IntegrationsError'] | ResolversParentTypes['IntegrationsSuccess'];
   IntegrationsSuccess: IntegrationsSuccess;
+  JSON: Scalars['JSON'];
   JoinGroupError: JoinGroupError;
   JoinGroupResult: ResolversParentTypes['JoinGroupError'] | ResolversParentTypes['JoinGroupSuccess'];
   JoinGroupSuccess: JoinGroupSuccess;
@@ -4954,6 +4959,10 @@ export type IntegrationsSuccessResolvers<ContextType = ResolverContext, ParentTy
   integrations?: Resolver<Array<ResolversTypes['Integration']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
 
 export type JoinGroupErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['JoinGroupError'] = ResolversParentTypes['JoinGroupError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['JoinGroupErrorCode']>, ParentType, ContextType>;
@@ -6108,6 +6117,7 @@ export type UserErrorResolvers<ContextType = ResolverContext, ParentType extends
 };
 
 export type UserPersonalizationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UserPersonalization'] = ResolversParentTypes['UserPersonalization']> = {
+  fields?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   fontFamily?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fontSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
@@ -6314,6 +6324,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   IntegrationsError?: IntegrationsErrorResolvers<ContextType>;
   IntegrationsResult?: IntegrationsResultResolvers<ContextType>;
   IntegrationsSuccess?: IntegrationsSuccessResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
   JoinGroupError?: JoinGroupErrorResolvers<ContextType>;
   JoinGroupResult?: JoinGroupResultResolvers<ContextType>;
   JoinGroupSuccess?: JoinGroupSuccessResolvers<ContextType>;
