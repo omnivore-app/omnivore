@@ -139,6 +139,8 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
 
   try {
     val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
+    Log.d("Loggo", "result: ${result.data}")
+
 
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 

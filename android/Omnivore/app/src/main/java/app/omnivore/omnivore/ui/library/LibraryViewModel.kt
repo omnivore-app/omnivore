@@ -20,6 +20,8 @@ import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 import app.omnivore.omnivore.ui.ResourceProvider
+import app.omnivore.omnivore.ui.setSavedItemLabels
+import coil.util.CoilUtils.result
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -305,43 +307,16 @@ class LibraryViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val input = SetLabelsInput(
-          pageId = savedItemID,
-          labels = Optional.presentIfNotNull(labels.map { CreateLabelInput(color = Optional.presentIfNotNull(it.color), name = it.name) }),
+        val result = setSavedItemLabels(
+          networker = networker,
+          dataService = dataService,
+          savedItemID = savedItemID,
+          labels = labels
         )
 
-        val updatedLabels = networker.updateLabelsForSavedItem(input)
-
-        // Figure out which of the labels are new
-        updatedLabels?.let { updatedLabels ->
-          val existingNamedLabels = dataService.db.savedItemLabelDao()
-            .namedLabels(updatedLabels.map { it.labelFields.name })
-          val existingNames = existingNamedLabels.map { it.name }
-          val newNamedLabels = updatedLabels.filter { !existingNames.contains(it.labelFields.name) }
-
-          dataService.db.savedItemLabelDao().insertAll(newNamedLabels.map {
-            SavedItemLabel(
-              savedItemLabelId = it.labelFields.id,
-              name = it.labelFields.name,
-              color = it.labelFields.color,
-              createdAt = null,
-              labelDescription = null
-            )
-          })
-
-          val allNamedLabels = dataService.db.savedItemLabelDao()
-            .namedLabels(updatedLabels.map { it.labelFields.name })
-          val crossRefs = allNamedLabels.map {
-            SavedItemAndSavedItemLabelCrossRef(
-              savedItemLabelId = it.savedItemLabelId,
-              savedItemId = savedItemID
-            )
-          }
-          dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
-          dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
-
+        if (result) {
           snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_success)
-        } ?: run {
+        } else {
           snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_error)
         }
 
