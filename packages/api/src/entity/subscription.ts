@@ -72,7 +72,7 @@ export class Subscription {
   scheduledAt?: Date | null
 
   @Column('boolean')
-  isPublic?: boolean | null
+  isPrivate?: boolean | null
 
   @Column('boolean')
   autoAddToLibrary?: boolean | null

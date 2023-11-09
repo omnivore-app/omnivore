@@ -3,6 +3,7 @@ import 'mocha'
 import Parser from 'rss-parser'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
+import { Feed } from '../../src/entity/feed'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
@@ -332,7 +333,9 @@ describe('Subscriptions API', () => {
       const updatedSubscription = await getRepository(Subscription).findOneBy({
         id: subscription.id,
       })
-      expect(updatedSubscription?.status).to.eql(SubscriptionStatus.Unsubscribed)
+      expect(updatedSubscription?.status).to.eql(
+        SubscriptionStatus.Unsubscribed
+      )
 
       // check if the email was sent
       expect(fake).to.have.been.calledOnceWith({
@@ -371,10 +374,15 @@ describe('Subscriptions API', () => {
 
       before(async () => {
         // fake rss parser
-        sinon.replace(Parser.prototype, 'parseURL', sinon.fake.resolves({
-          title: 'RSS Feed',
-          description: 'RSS Feed Description',
-        }))
+        sinon.replace(
+          Parser.prototype,
+          'parseURL',
+          sinon.fake.resolves({
+            title: 'RSS Feed',
+            description: 'RSS Feed Description',
+            feedUrl: url,
+          })
+        )
       })
 
       after(() => {
@@ -398,6 +406,7 @@ describe('Subscriptions API', () => {
 
         after(async () => {
           await deleteSubscription(existingSubscription.id)
+          await getRepository(Feed).delete({ url: existingSubscription.url })
         })
 
         it('returns an error', async () => {
@@ -439,11 +448,9 @@ describe('Subscriptions API', () => {
       })
 
       it('creates a rss subscription', async () => {
-        const res = await graphqlRequest(
-          query,
-          authToken,
-          { input: { url, subscriptionType } },
-        ).expect(200)
+        const res = await graphqlRequest(query, authToken, {
+          input: { url, subscriptionType },
+        }).expect(200)
         expect(res.body.data.subscribe.subscriptions).to.have.lengthOf(1)
         expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
 

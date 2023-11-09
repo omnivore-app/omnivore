@@ -2130,7 +2130,7 @@ enum SubscribeErrorCode {
 
 input SubscribeInput {
   autoAddToLibrary: Boolean
-  isPublic: Boolean
+  isPrivate: Boolean
   subscriptionType: SubscriptionType
   url: String!
 }
@@ -2142,11 +2142,13 @@ type SubscribeSuccess {
 }
 
 type Subscription {
+  autoAddToLibrary: Boolean
   count: Int!
   createdAt: Date!
   description: String
   icon: String
   id: ID!
+  isPrivate: Boolean
   lastFetchedAt: Date
   name: String!
   newsletterEmail: String
@@ -2463,7 +2465,7 @@ input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
   id: ID!
-  isPublic: Boolean
+  isPrivate: Boolean
   lastFetchedAt: Date
   lastFetchedChecksum: String
   name: String

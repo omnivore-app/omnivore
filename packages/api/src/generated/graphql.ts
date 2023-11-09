@@ -2703,7 +2703,7 @@ export enum SubscribeErrorCode {
 
 export type SubscribeInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
-  isPublic?: InputMaybe<Scalars['Boolean']>;
+  isPrivate?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
   url: Scalars['String'];
 };
@@ -2717,11 +2717,13 @@ export type SubscribeSuccess = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  autoAddToLibrary?: Maybe<Scalars['Boolean']>;
   count: Scalars['Int'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  isPrivate?: Maybe<Scalars['Boolean']>;
   lastFetchedAt?: Maybe<Scalars['Date']>;
   name: Scalars['String'];
   newsletterEmail?: Maybe<Scalars['String']>;
@@ -3065,7 +3067,7 @@ export type UpdateSubscriptionInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   description?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
-  isPublic?: InputMaybe<Scalars['Boolean']>;
+  isPrivate?: InputMaybe<Scalars['Boolean']>;
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
   lastFetchedChecksum?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
@@ -5948,11 +5950,13 @@ export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type SubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  autoAddToLibrary?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "autoAddToLibrary", ParentType, ContextType>;
   count?: SubscriptionResolver<ResolversTypes['Int'], "count", ParentType, ContextType>;
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
+  isPrivate?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "isPrivate", ParentType, ContextType>;
   lastFetchedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "lastFetchedAt", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
   newsletterEmail?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "newsletterEmail", ParentType, ContextType>;

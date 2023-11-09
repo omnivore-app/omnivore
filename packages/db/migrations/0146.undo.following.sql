@@ -19,7 +19,7 @@ ALTER TABLE omnivore.library_item
     DROP COLUMN added_to_library_at;
 
 ALTER TABLE omnivore.subscriptions
-    DROP COLUMN is_public,
+    DROP COLUMN is_private,
     DROP COLUMN auto_add_to_library;
 
 COMMIT;

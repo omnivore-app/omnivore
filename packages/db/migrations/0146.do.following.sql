@@ -5,7 +5,7 @@
 BEGIN;
 
 ALTER TABLE omnivore.subscriptions
-    ADD COLUMN is_public boolean,
+    ADD COLUMN is_private boolean,
     ADD COLUMN auto_add_to_library boolean;
 
 ALTER TABLE omnivore.library_item
@@ -40,6 +40,6 @@ CREATE INDEX feed_title_idx ON omnivore.feed(title);
 
 CREATE TRIGGER update_feed_modtime BEFORE UPDATE ON omnivore.feed FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
-GRANT SELECT, INSERT, UPDATE ON omnivore.feed TO omnivore_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.feed TO omnivore_user;
 
 COMMIT;

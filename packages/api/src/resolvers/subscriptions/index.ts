@@ -228,35 +228,37 @@ export const subscribeResolver = authorized<
     const feed = await parser.parseURL(input.url)
 
     const results = await authTrx(async (t) => {
-      await t.getRepository(Feed).upsert(
-        {
-          url: feed.feedUrl,
-          title: feed.title,
-          description: feed.description,
-          image: feed.image?.url,
-        },
-        {
-          conflictPaths: ['url'],
-          skipUpdateIfNoValuesChanged: true,
-        }
-      )
+      if (!input.isPrivate) {
+        await t.getRepository(Feed).upsert(
+          {
+            url: feed.feedUrl,
+            title: feed.title,
+            description: feed.description,
+            image: feed.image?.url,
+          },
+          {
+            conflictPaths: ['url'],
+            skipUpdateIfNoValuesChanged: true,
+          }
+        )
+      }
 
       // limit number of rss subscriptions to 150
       const results = (await t.getRepository(Subscription).query(
-        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_public) 
+        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
           select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
           having count(*) < $9
           returning *;`,
         [
           feed.title,
-          input.url,
+          feed.feedUrl,
           feed.description || null,
           SubscriptionType.Rss,
           uid,
           feed.image?.url || null,
           input.autoAddToLibrary ?? null,
-          input.isPublic ?? null,
+          input.isPrivate ?? null,
           MAX_RSS_SUBSCRIPTIONS,
         ]
       )) as Subscription[]
@@ -335,7 +337,7 @@ export const updateSubscriptionResolver = authorized<
           ? new Date(input.scheduledAt)
           : undefined,
         autoAddToLibrary: input.autoAddToLibrary ?? undefined,
-        isPublic: input.isPublic ?? undefined,
+        isPrivate: input.isPrivate ?? undefined,
       })
 
       return repo.findOneByOrFail({

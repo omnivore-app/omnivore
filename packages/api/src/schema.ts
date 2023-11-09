@@ -1658,6 +1658,8 @@ const schema = gql`
     lastFetchedAt: Date
     createdAt: Date!
     updatedAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   enum SubscriptionStatus {
@@ -2554,7 +2556,7 @@ const schema = gql`
   input SubscribeInput {
     url: String!
     subscriptionType: SubscriptionType
-    isPublic: Boolean
+    isPrivate: Boolean
     autoAddToLibrary: Boolean
   }
 
@@ -2566,7 +2568,7 @@ const schema = gql`
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
-    isPublic: Boolean
+    isPrivate: Boolean
     autoAddToLibrary: Boolean
   }
 
