@@ -126,6 +126,19 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
+const createTask = async (
+  userId: string,
+  feedUrl: string,
+  item: Item,
+  isFetchingContent: boolean
+) => {
+  if (isFetchingContent) {
+    return createSavingItemTask(userId, feedUrl, item)
+  }
+
+  return createFollowingTask(userId, feedUrl, item)
+}
+
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
@@ -284,6 +297,7 @@ const processSubscription = async (
   lastFetchedAt: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
+  isFetchingContent: boolean,
   feed: {
     lastBuildDate: any
     'syn:updatePeriod': any
@@ -366,7 +380,7 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createFollowingTask(userId, feedUrl, item)
+    const created = await createTask(userId, feedUrl, item, isFetchingContent)
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -389,7 +403,12 @@ const processSubscription = async (
     }
 
     // the feed has never been fetched, save at least the last valid item
-    const created = await createFollowingTask(userId, feedUrl, lastValidItem)
+    const created = await createTask(
+      userId,
+      feedUrl,
+      lastValidItem,
+      isFetchingContent
+    )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
       throw new Error('Failed to create task for feed item')
@@ -435,6 +454,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
+        isFetchingContents,
       } = req.body
       console.log('Processing feed', feedUrl)
 
@@ -452,6 +472,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
             lastFetchedTimestamps[i],
             scheduledTimestamps[i],
             lastFetchedChecksums[i],
+            isFetchingContents[i],
             feed
           )
         )

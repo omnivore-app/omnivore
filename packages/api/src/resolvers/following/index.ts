@@ -137,7 +137,7 @@ export const addFollowingToLibraryResolver = authorized<
   return {
     __typename: 'AddFollowingToLibrarySuccess',
     articleSavingRequest: libraryItemToArticleSavingRequest(
-      item.user,
+      updatedItem.user,
       updatedItem
     ),
   }
