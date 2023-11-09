@@ -201,10 +201,10 @@ export class LibraryItem {
   hiddenAt?: Date | null
 
   @Column('timestamptz')
-  sharedAt?: Date | null
+  addedToFollowingAt?: Date | null
 
   @Column('text')
-  sharedBy?: string | null
+  addedToFollowingBy?: string | null
 
   @Column('jsonb')
   links?: any | null
@@ -212,12 +212,12 @@ export class LibraryItem {
   @Column('text')
   previewContent?: string | null
 
-  @Column('timestamptz')
-  seenAt?: Date | null
-
-  @Column('boolean')
-  isInLibrary!: boolean
+  @Column('text')
+  previewContentType?: string | null
 
   @Column('text')
-  sharedSource?: string | null
+  addedToFollowingFrom?: string | null
+
+  @Column('timestamptz')
+  addedToLibraryAt?: Date | null
 }

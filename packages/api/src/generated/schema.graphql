@@ -1,21 +1,5 @@
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
-type AddFollowingToLibraryError {
-  errorCodes: [AddFollowingToLibraryErrorCode!]!
-}
-
-enum AddFollowingToLibraryErrorCode {
-  ALREADY_EXISTS
-  BAD_REQUEST
-  UNAUTHORIZED
-}
-
-union AddFollowingToLibraryResult = AddFollowingToLibraryError | AddFollowingToLibrarySuccess
-
-type AddFollowingToLibrarySuccess {
-  articleSavingRequest: ArticleSavingRequest!
-}
-
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
 }
@@ -225,6 +209,22 @@ enum ContentReader {
   EPUB
   PDF
   WEB
+}
+
+type CopyFromFollowingToLibraryError {
+  errorCodes: [CopyFromFollowingToLibraryErrorCode!]!
+}
+
+enum CopyFromFollowingToLibraryErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union CopyFromFollowingToLibraryResult = CopyFromFollowingToLibraryError | CopyFromFollowingToLibrarySuccess
+
+type CopyFromFollowingToLibrarySuccess {
+  articleSavingRequest: ArticleSavingRequest!
 }
 
 type CreateArticleError {
@@ -1166,9 +1166,9 @@ type MoveLabelSuccess {
 }
 
 type Mutation {
-  addFollowingToLibrary(id: ID!): AddFollowingToLibraryResult!
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
+  copyFromFollowingToLibrary(id: ID!): CopyFromFollowingToLibraryResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!

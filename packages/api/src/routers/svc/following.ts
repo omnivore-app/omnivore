@@ -3,20 +3,21 @@ import express from 'express'
 import { saveFeedItemInFollowing } from '../../services/library_item'
 import { logger } from '../../utils/logger'
 
-type SharedSource = 'feed' | 'newsletter' | 'user'
+type SourceOfFollowing = 'feed' | 'newsletter' | 'user'
 
 export interface SaveFollowingItemRequest {
   userIds: string[]
   title: string
   url: string
   itemId: string
-  sharedAt: Date
-  sharedBy: string
-  sharedSource: SharedSource
+  addedToFollowingAt: Date
+  addedToFollowingBy: string
+  addedToFollowingFrom: SourceOfFollowing
   author?: string
   description?: string
   links?: any
   previewContent?: string
+  previewContentType?: string
   publishedAt?: Date
   savedAt?: Date
 }
@@ -26,9 +27,9 @@ function isSaveFollowingItemRequest(
 ): body is SaveFollowingItemRequest {
   return (
     'userIds' in body &&
-    'sharedAt' in body &&
-    'sharedBy' in body &&
-    'sharedSource' in body &&
+    'addedToFollowingAt' in body &&
+    'addedToFollowingBy' in body &&
+    'addedToFollowingFrom' in body &&
     'url' in body &&
     'itemId' in body &&
     'title' in body
@@ -51,7 +52,7 @@ export function followingServiceRouter() {
       return res.status(400).send('INVALID_REQUEST_BODY')
     }
 
-    if (req.body.sharedSource === 'feed') {
+    if (req.body.addedToFollowingFrom === 'feed') {
       logger.info('saving feed item')
 
       const result = await saveFeedItemInFollowing(req.body)

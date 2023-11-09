@@ -75,5 +75,5 @@ export class Subscription {
   isPublic?: boolean | null
 
   @Column('boolean')
-  isFetchingContent?: boolean | null
+  autoAddToLibrary?: boolean | null
 }

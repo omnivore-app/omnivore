@@ -17,24 +17,6 @@ export type Scalars = {
   JSON: any;
 };
 
-export type AddFollowingToLibraryError = {
-  __typename?: 'AddFollowingToLibraryError';
-  errorCodes: Array<AddFollowingToLibraryErrorCode>;
-};
-
-export enum AddFollowingToLibraryErrorCode {
-  AlreadyExists = 'ALREADY_EXISTS',
-  BadRequest = 'BAD_REQUEST',
-  Unauthorized = 'UNAUTHORIZED'
-}
-
-export type AddFollowingToLibraryResult = AddFollowingToLibraryError | AddFollowingToLibrarySuccess;
-
-export type AddFollowingToLibrarySuccess = {
-  __typename?: 'AddFollowingToLibrarySuccess';
-  articleSavingRequest: ArticleSavingRequest;
-};
-
 export type AddPopularReadError = {
   __typename?: 'AddPopularReadError';
   errorCodes: Array<AddPopularReadErrorCode>;
@@ -270,6 +252,24 @@ export enum ContentReader {
   Pdf = 'PDF',
   Web = 'WEB'
 }
+
+export type CopyFromFollowingToLibraryError = {
+  __typename?: 'CopyFromFollowingToLibraryError';
+  errorCodes: Array<CopyFromFollowingToLibraryErrorCode>;
+};
+
+export enum CopyFromFollowingToLibraryErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type CopyFromFollowingToLibraryResult = CopyFromFollowingToLibraryError | CopyFromFollowingToLibrarySuccess;
+
+export type CopyFromFollowingToLibrarySuccess = {
+  __typename?: 'CopyFromFollowingToLibrarySuccess';
+  articleSavingRequest: ArticleSavingRequest;
+};
 
 export type CreateArticleError = {
   __typename?: 'CreateArticleError';
@@ -1303,9 +1303,9 @@ export type MoveLabelSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addFollowingToLibrary: AddFollowingToLibraryResult;
   addPopularRead: AddPopularReadResult;
   bulkAction: BulkActionResult;
+  copyFromFollowingToLibrary: CopyFromFollowingToLibraryResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createGroup: CreateGroupResult;
@@ -1366,11 +1366,6 @@ export type Mutation = {
 };
 
 
-export type MutationAddFollowingToLibraryArgs = {
-  id: Scalars['ID'];
-};
-
-
 export type MutationAddPopularReadArgs = {
   name: Scalars['String'];
 };
@@ -1382,6 +1377,11 @@ export type MutationBulkActionArgs = {
   expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   query: Scalars['String'];
+};
+
+
+export type MutationCopyFromFollowingToLibraryArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -3404,10 +3404,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  AddFollowingToLibraryError: ResolverTypeWrapper<AddFollowingToLibraryError>;
-  AddFollowingToLibraryErrorCode: AddFollowingToLibraryErrorCode;
-  AddFollowingToLibraryResult: ResolversTypes['AddFollowingToLibraryError'] | ResolversTypes['AddFollowingToLibrarySuccess'];
-  AddFollowingToLibrarySuccess: ResolverTypeWrapper<AddFollowingToLibrarySuccess>;
   AddPopularReadError: ResolverTypeWrapper<AddPopularReadError>;
   AddPopularReadErrorCode: AddPopularReadErrorCode;
   AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
@@ -3446,6 +3442,10 @@ export type ResolversTypes = {
   BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
   BulkActionType: BulkActionType;
   ContentReader: ContentReader;
+  CopyFromFollowingToLibraryError: ResolverTypeWrapper<CopyFromFollowingToLibraryError>;
+  CopyFromFollowingToLibraryErrorCode: CopyFromFollowingToLibraryErrorCode;
+  CopyFromFollowingToLibraryResult: ResolversTypes['CopyFromFollowingToLibraryError'] | ResolversTypes['CopyFromFollowingToLibrarySuccess'];
+  CopyFromFollowingToLibrarySuccess: ResolverTypeWrapper<CopyFromFollowingToLibrarySuccess>;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
   CreateArticleInput: CreateArticleInput;
@@ -3926,9 +3926,6 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  AddFollowingToLibraryError: AddFollowingToLibraryError;
-  AddFollowingToLibraryResult: ResolversParentTypes['AddFollowingToLibraryError'] | ResolversParentTypes['AddFollowingToLibrarySuccess'];
-  AddFollowingToLibrarySuccess: AddFollowingToLibrarySuccess;
   AddPopularReadError: AddPopularReadError;
   AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: AddPopularReadSuccess;
@@ -3957,6 +3954,9 @@ export type ResolversParentTypes = {
   BulkActionError: BulkActionError;
   BulkActionResult: ResolversParentTypes['BulkActionError'] | ResolversParentTypes['BulkActionSuccess'];
   BulkActionSuccess: BulkActionSuccess;
+  CopyFromFollowingToLibraryError: CopyFromFollowingToLibraryError;
+  CopyFromFollowingToLibraryResult: ResolversParentTypes['CopyFromFollowingToLibraryError'] | ResolversParentTypes['CopyFromFollowingToLibrarySuccess'];
+  CopyFromFollowingToLibrarySuccess: CopyFromFollowingToLibrarySuccess;
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
   CreateArticleResult: ResolversParentTypes['CreateArticleError'] | ResolversParentTypes['CreateArticleSuccess'];
@@ -4338,20 +4338,6 @@ export type SanitizeDirectiveArgs = {
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type AddFollowingToLibraryErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddFollowingToLibraryError'] = ResolversParentTypes['AddFollowingToLibraryError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['AddFollowingToLibraryErrorCode']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type AddFollowingToLibraryResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddFollowingToLibraryResult'] = ResolversParentTypes['AddFollowingToLibraryResult']> = {
-  __resolveType: TypeResolveFn<'AddFollowingToLibraryError' | 'AddFollowingToLibrarySuccess', ParentType, ContextType>;
-};
-
-export type AddFollowingToLibrarySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddFollowingToLibrarySuccess'] = ResolversParentTypes['AddFollowingToLibrarySuccess']> = {
-  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type AddPopularReadErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadError'] = ResolversParentTypes['AddPopularReadError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['AddPopularReadErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4525,6 +4511,20 @@ export type BulkActionResultResolvers<ContextType = ResolverContext, ParentType 
 
 export type BulkActionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['BulkActionSuccess'] = ResolversParentTypes['BulkActionSuccess']> = {
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CopyFromFollowingToLibraryErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CopyFromFollowingToLibraryError'] = ResolversParentTypes['CopyFromFollowingToLibraryError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['CopyFromFollowingToLibraryErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CopyFromFollowingToLibraryResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CopyFromFollowingToLibraryResult'] = ResolversParentTypes['CopyFromFollowingToLibraryResult']> = {
+  __resolveType: TypeResolveFn<'CopyFromFollowingToLibraryError' | 'CopyFromFollowingToLibrarySuccess', ParentType, ContextType>;
+};
+
+export type CopyFromFollowingToLibrarySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CopyFromFollowingToLibrarySuccess'] = ResolversParentTypes['CopyFromFollowingToLibrarySuccess']> = {
+  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5273,9 +5273,9 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  addFollowingToLibrary?: Resolver<ResolversTypes['AddFollowingToLibraryResult'], ParentType, ContextType, RequireFields<MutationAddFollowingToLibraryArgs, 'id'>>;
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
+  copyFromFollowingToLibrary?: Resolver<ResolversTypes['CopyFromFollowingToLibraryResult'], ParentType, ContextType, RequireFields<MutationCopyFromFollowingToLibraryArgs, 'id'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
@@ -6344,9 +6344,6 @@ export type WebhooksSuccessResolvers<ContextType = ResolverContext, ParentType e
 };
 
 export type Resolvers<ContextType = ResolverContext> = {
-  AddFollowingToLibraryError?: AddFollowingToLibraryErrorResolvers<ContextType>;
-  AddFollowingToLibraryResult?: AddFollowingToLibraryResultResolvers<ContextType>;
-  AddFollowingToLibrarySuccess?: AddFollowingToLibrarySuccessResolvers<ContextType>;
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
   AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
@@ -6372,6 +6369,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   BulkActionError?: BulkActionErrorResolvers<ContextType>;
   BulkActionResult?: BulkActionResultResolvers<ContextType>;
   BulkActionSuccess?: BulkActionSuccessResolvers<ContextType>;
+  CopyFromFollowingToLibraryError?: CopyFromFollowingToLibraryErrorResolvers<ContextType>;
+  CopyFromFollowingToLibraryResult?: CopyFromFollowingToLibraryResultResolvers<ContextType>;
+  CopyFromFollowingToLibrarySuccess?: CopyFromFollowingToLibrarySuccessResolvers<ContextType>;
   CreateArticleError?: CreateArticleErrorResolvers<ContextType>;
   CreateArticleResult?: CreateArticleResultResolvers<ContextType>;
   CreateArticleSavingRequestError?: CreateArticleSavingRequestErrorResolvers<ContextType>;

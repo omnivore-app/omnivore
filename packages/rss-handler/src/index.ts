@@ -18,7 +18,7 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
-  isFetchingContents: boolean[]
+  addToLibraryFlags: boolean[]
 }
 
 // link can be a string or an object
@@ -32,7 +32,7 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'scheduledTimestamps' in body &&
     'userIds' in body &&
     'lastFetchedChecksums' in body &&
-    'isFetchingContents' in body
+    'addToLibraryFlags' in body
   )
 }
 
@@ -130,9 +130,9 @@ const createTask = async (
   userId: string,
   feedUrl: string,
   item: Item,
-  isFetchingContent: boolean
+  autoAddToLibrary: boolean
 ) => {
-  if (isFetchingContent) {
+  if (autoAddToLibrary) {
     return createSavingItemTask(userId, feedUrl, item)
   }
 
@@ -179,12 +179,13 @@ const createFollowingTask = async (
     title: item.title,
     author: item.creator,
     description: item.summary,
-    sharedSource: 'feed',
-    previewContent: item.content,
-    sharedBy: feedUrl,
+    addedToFollowingFrom: 'feed',
+    previewContent: item.content || item.contentSnippet,
+    addedToFollowingBy: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
-    sharedAt: item.isoDate,
+    addedToFollowingAt: item.isoDate,
+    previewContentType: 'text/html', // TODO: get content type from feed
   }
 
   try {
@@ -297,7 +298,7 @@ const processSubscription = async (
   lastFetchedAt: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
-  isFetchingContent: boolean,
+  autoAddToLibrary: boolean,
   feed: {
     lastBuildDate: any
     'syn:updatePeriod': any
@@ -380,7 +381,7 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createTask(userId, feedUrl, item, isFetchingContent)
+    const created = await createTask(userId, feedUrl, item, autoAddToLibrary)
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -407,7 +408,7 @@ const processSubscription = async (
       userId,
       feedUrl,
       lastValidItem,
-      isFetchingContent
+      autoAddToLibrary
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
@@ -454,7 +455,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
-        isFetchingContents,
+        addToLibraryFlags,
       } = req.body
       console.log('Processing feed', feedUrl)
 
@@ -472,7 +473,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
             lastFetchedTimestamps[i],
             scheduledTimestamps[i],
             lastFetchedChecksums[i],
-            isFetchingContents[i],
+            addToLibraryFlags[i],
             feed
           )
         )

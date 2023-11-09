@@ -6,17 +6,17 @@ BEGIN;
 
 ALTER TABLE omnivore.subscriptions
     ADD COLUMN is_public boolean,
-    ADD COLUMN is_fetching_content boolean;
+    ADD COLUMN auto_add_to_library boolean;
 
 ALTER TABLE omnivore.library_item
     ADD COLUMN hidden_at timestamptz,
-    ADD COLUMN shared_at timestamptz,
-    ADD COLUMN shared_by text,
+    ADD COLUMN added_to_following_at timestamptz,
+    ADD COLUMN added_to_following_by text,
     ADD COLUMN links jsonb,
     ADD COLUMN preview_content text,
-    ADD COLUMN seen_at timestamptz,
-    ADD COLUMN shared_source text,
-    ADD COLUMN is_in_library boolean NOT NULL DEFAULT true;
+    ADD COLUMN preview_content_type text,
+    ADD COLUMN added_to_following_from text,
+    ADD COLUMN added_to_library_at timestamptz DEFAULT current_timestamp;
 
 CREATE POLICY library_item_admin_policy on omnivore.library_item
     FOR ALL

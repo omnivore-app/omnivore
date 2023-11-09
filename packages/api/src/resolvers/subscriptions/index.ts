@@ -213,7 +213,7 @@ export const subscribeResolver = authorized<
         scheduledDates: [new Date()], // fetch immediately
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
-        isFetchingContents: [!!updatedSubscription.isFetchingContent],
+        addToLibraryFlags: [!!updatedSubscription.autoAddToLibrary],
       })
 
       return {
@@ -261,7 +261,7 @@ export const subscribeResolver = authorized<
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
       checksums: [null],
-      isFetchingContents: [!!newSubscription.isFetchingContent],
+      addToLibraryFlags: [!!newSubscription.autoAddToLibrary],
     })
 
     return {

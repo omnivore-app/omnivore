@@ -144,7 +144,6 @@ export const savePage = async (
           ...itemToSave,
           id: undefined,
           slug: undefined,
-          isInLibrary: true,
         } as QueryDeepPartialEntity<LibraryItem>,
         user.id
       )
@@ -275,5 +274,6 @@ export const parsedContentToLibraryItem = ({
     subscription: rssFeedUrl,
     archivedAt:
       state === ArticleSavingRequestStatus.Archived ? new Date() : undefined,
+    addedToLibraryAt: validatedDate(saveTime),
   }
 }

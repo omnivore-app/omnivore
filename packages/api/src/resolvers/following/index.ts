@@ -1,14 +1,14 @@
 import { IsNull, Not } from 'typeorm'
 import { LibraryItem } from '../../entity/library_item'
 import {
-  AddFollowingToLibraryError,
-  AddFollowingToLibraryErrorCode,
-  AddFollowingToLibrarySuccess,
+  CopyFromFollowingToLibraryError,
+  CopyFromFollowingToLibraryErrorCode,
+  CopyFromFollowingToLibrarySuccess,
   FeedEdge,
   FeedsError,
   FeedsErrorCode,
   FeedsSuccess,
-  MutationAddFollowingToLibraryArgs,
+  MutationCopyFromFollowingToLibraryArgs,
   QueryFeedsArgs,
 } from '../../generated/graphql'
 import { feedRepository } from '../../repository/feed'
@@ -20,7 +20,7 @@ import {
   libraryItemToArticleSavingRequest,
 } from '../../utils/helpers'
 
-export const feedsResolve = authorized<
+export const feedsResolver = authorized<
   FeedsSuccess,
   FeedsError,
   QueryFeedsArgs
@@ -72,14 +72,14 @@ export const feedsResolve = authorized<
   }
 })
 
-export const addFollowingToLibraryResolver = authorized<
-  AddFollowingToLibrarySuccess,
-  AddFollowingToLibraryError,
-  MutationAddFollowingToLibraryArgs
+export const copyFromFollowingToLibraryResolver = authorized<
+  CopyFromFollowingToLibrarySuccess,
+  CopyFromFollowingToLibraryError,
+  MutationCopyFromFollowingToLibraryArgs
 >(async (_, { id }, { authTrx, pubsub, uid }) => {
   analytics.track({
     userId: uid,
-    event: 'add_following_to_library',
+    event: 'copy_from_following_to_library',
     properties: {
       id,
     },
@@ -89,7 +89,7 @@ export const addFollowingToLibraryResolver = authorized<
     tx.getRepository(LibraryItem).findOne({
       where: {
         id,
-        sharedAt: Not(IsNull()),
+        addedToFollowingAt: Not(IsNull()),
       },
       relations: ['user'],
     })
@@ -97,15 +97,17 @@ export const addFollowingToLibraryResolver = authorized<
 
   if (!item) {
     return {
-      errorCodes: [AddFollowingToLibraryErrorCode.Unauthorized],
+      errorCodes: [CopyFromFollowingToLibraryErrorCode.Unauthorized],
     }
   }
 
-  if (item.isInLibrary) {
+  if (item.addedToLibraryAt) {
     return {
-      errorCodes: [AddFollowingToLibraryErrorCode.AlreadyExists],
+      errorCodes: [CopyFromFollowingToLibraryErrorCode.AlreadyExists],
     }
   }
+
+  const addedToLibraryAt = new Date()
 
   // if the content is not fetched yet, create a page save request
   if (!item.readableContent) {
@@ -115,11 +117,12 @@ export const addFollowingToLibraryResolver = authorized<
       articleSavingRequestId: id,
       priority: 'high',
       publishedAt: item.publishedAt || undefined,
+      savedAt: addedToLibraryAt,
       pubsub,
     })
 
     return {
-      __typename: 'AddFollowingToLibrarySuccess',
+      __typename: 'CopyFromFollowingToLibrarySuccess',
       articleSavingRequest,
     }
   }
@@ -127,15 +130,15 @@ export const addFollowingToLibraryResolver = authorized<
   const updatedItem = await updateLibraryItem(
     item.id,
     {
-      isInLibrary: true,
-      savedAt: new Date(),
+      savedAt: addedToLibraryAt,
+      addedToLibraryAt,
     },
     uid,
     pubsub
   )
 
   return {
-    __typename: 'AddFollowingToLibrarySuccess',
+    __typename: 'CopyFromFollowingToLibrarySuccess',
     articleSavingRequest: libraryItemToArticleSavingRequest(
       updatedItem.user,
       updatedItem

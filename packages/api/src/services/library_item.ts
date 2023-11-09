@@ -576,9 +576,9 @@ export const saveFeedItemInFollowing = (input: SaveFollowingItemRequest) => {
         input.userIds.map((userId) => ({
           ...input,
           user: { id: userId },
-          isInLibrary: false,
           originalUrl: input.url,
-          subscription: input.sharedBy,
+          subscription: input.addedToFollowingBy,
+          addedToLibraryAt: null,
         }))
 
       return tx

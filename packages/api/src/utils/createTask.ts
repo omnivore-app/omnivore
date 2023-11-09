@@ -615,7 +615,7 @@ export interface RssSubscriptionGroup {
   fetchedDates: (Date | null)[]
   scheduledDates: Date[]
   checksums: (string | null)[]
-  isFetchingContents: boolean[]
+  addToLibraryFlags: boolean[]
 }
 
 export const enqueueRssFeedFetch = async (
@@ -633,7 +633,7 @@ export const enqueueRssFeedFetch = async (
       timestamp.getTime()
     ), // unix timestamp in milliseconds
     userIds: subscriptionGroup.userIds,
-    isFetchingContents: subscriptionGroup.isFetchingContents,
+    addToLibraryFlags: subscriptionGroup.addToLibraryFlags,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
