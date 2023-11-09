@@ -18,7 +18,7 @@ import { applyStoredTheme } from '../../lib/themeUpdater'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
 import { Label } from '../../lib/networking/fragments/labelFragment'
-import { Circle } from 'phosphor-react'
+import { CheckSquare, Circle, Square } from 'phosphor-react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 
@@ -184,21 +184,48 @@ export default function PinnedSearches(): JSX.Element {
             distribution="start"
             alignment="start"
           >
-            <HStack alignment="center" css={{ gap: '5px', mb: '10px' }}>
-              <input
-                type="checkbox"
-                id="switch"
-                checked={!hidePinnedSearches}
-                onChange={(event) => {
-                  setHidePinnedSearches(!event.currentTarget.checked)
-                }}
-                style={{ padding: '0px', margin: '0px' }}
-              />
-              Enable Pinned Searches
+            <HStack
+              css={{
+                px: '10px',
+                pt: '2px',
+                mb: '20px',
+                height: '30px',
+                gap: '5px',
+
+                fontSize: '14px',
+                fontWeight: 'regular',
+                fontFamily: '$display',
+                color: !hidePinnedSearches
+                  ? '$thLibraryMenuSecondary'
+                  : '$thLibraryMenuUnselected',
+
+                verticalAlign: 'middle',
+                borderRadius: '3px',
+                cursor: 'pointer',
+
+                '&:hover': {
+                  backgroundColor: '$thBackground4',
+                },
+              }}
+              alignment="center"
+              distribution="start"
+              onClick={(event) => {
+                setHidePinnedSearches(!hidePinnedSearches)
+                event.preventDefault()
+              }}
+            >
+              {!hidePinnedSearches ? (
+                <CheckSquare size={20} weight="duotone" />
+              ) : (
+                <Square size={20} weight="duotone" />
+              )}
+              <StyledText style="modalTitle" css={{}}>
+                Enable Pinned Searches
+              </StyledText>
             </HStack>
 
             {!hidePinnedSearches && (
-              <>
+              <Box css={{ pl: '10px' }}>
                 <StyledText style="modalTitle" css={{}}>
                   Saved Searches
                 </StyledText>
@@ -226,7 +253,7 @@ export default function PinnedSearches(): JSX.Element {
                     />
                   )
                 })}
-              </>
+              </Box>
             )}
           </VStack>
         </VStack>
@@ -248,7 +275,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
   const labelId = `checkbox-label-${props.label.id}`
   return (
     <CheckboxButton
-      key={labelId}
+      itemKey={labelId}
       title={props.label.name}
       isSelected={props.isSelected}
       item={{
@@ -259,12 +286,6 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
       }}
       listAction={props.listAction}
     >
-      <input
-        type="checkbox"
-        checked={props.isSelected}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        onChange={(event) => {}}
-      />
       <SpanBox css={{}}>{props.label.name}</SpanBox>
       <Circle size={9} color={props.label.color} weight="fill" />
     </CheckboxButton>
@@ -281,10 +302,11 @@ type SearchButtonProps = {
 }
 
 function SearchButton(props: SearchButtonProps): JSX.Element {
+  console.log(' ', props.search.name, props.isSelected)
   const searchId = `checkbox-search-${props.search.id}`
   return (
     <CheckboxButton
-      key={searchId}
+      itemKey={searchId}
       title={props.search.filter}
       isSelected={props.isSelected}
       item={{
@@ -295,19 +317,13 @@ function SearchButton(props: SearchButtonProps): JSX.Element {
       }}
       listAction={props.listAction}
     >
-      <input
-        type="checkbox"
-        checked={props.isSelected}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        onChange={(e) => {}}
-      />
       <SpanBox css={{}}>{props.search.name}</SpanBox>
     </CheckboxButton>
   )
 }
 
 type CheckboxButtonProps = {
-  key: string
+  itemKey: string
   title: string
   isSelected: boolean
   item: PinnedSearch
@@ -338,7 +354,7 @@ function CheckboxButton(props: CheckboxButtonProps): JSX.Element {
   )
   return (
     <HStack
-      key={props.key}
+      key={props.itemKey}
       title={props.title}
       css={{
         px: '10px',
@@ -369,6 +385,11 @@ function CheckboxButton(props: CheckboxButtonProps): JSX.Element {
         event.preventDefault()
       }}
     >
+      {props.isSelected ? (
+        <CheckSquare size={20} weight="duotone" />
+      ) : (
+        <Square size={20} weight="duotone" />
+      )}
       {props.children}
     </HStack>
   )

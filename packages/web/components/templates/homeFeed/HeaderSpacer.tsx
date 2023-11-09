@@ -29,6 +29,9 @@ export function HeaderSpacer(): JSX.Element {
       css={{
         height: headerHeight,
         bg: '$grayBase',
+        '@mdDown': {
+          height: DEFAULT_HEADER_HEIGHT,
+        },
       }}
     ></Box>
   )
