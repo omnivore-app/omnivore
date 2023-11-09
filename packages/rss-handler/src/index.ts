@@ -5,7 +5,11 @@ import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-d
 import * as jwt from 'jsonwebtoken'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
-import { CONTENT_FETCH_URL, createCloudTask } from './task'
+import {
+  CONTENT_FETCH_URL,
+  createCloudTask,
+  FOLLOWING_HANDLER_URL,
+} from './task'
 
 interface RssFeedRequest {
   subscriptionIds: string[]
@@ -142,6 +146,38 @@ const createSavingItemTask = async (
     console.log('Creating task', input.url)
     // save page
     const task = await createCloudTask(CONTENT_FETCH_URL, input)
+    console.log('Created task', task)
+
+    return !!task
+  } catch (error) {
+    console.error('Error while creating task', error)
+    return false
+  }
+}
+
+const createFollowingTask = async (
+  userId: string,
+  feedUrl: string,
+  item: Item
+) => {
+  const input = {
+    userId,
+    url: item.link,
+    title: item.title,
+    author: item.creator,
+    description: item.summary,
+    sharedSource: 'rss-feeder',
+    previewContent: item.content,
+    sharedBy: feedUrl,
+    savedAt: item.isoDate,
+    publishedAt: item.isoDate,
+    sharedAt: item.isoDate,
+  }
+
+  try {
+    console.log('Creating task', input.url)
+    // save page
+    const task = await createCloudTask(FOLLOWING_HANDLER_URL, input)
     console.log('Created task', task)
 
     return !!task
@@ -330,7 +366,7 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createSavingItemTask(userId, feedUrl, item)
+    const created = await createFollowingTask(userId, feedUrl, item)
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -353,7 +389,7 @@ const processSubscription = async (
     }
 
     // the feed has never been fetched, save at least the last valid item
-    const created = await createSavingItemTask(userId, feedUrl, lastValidItem)
+    const created = await createFollowingTask(userId, feedUrl, lastValidItem)
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
       throw new Error('Failed to create task for feed item')
