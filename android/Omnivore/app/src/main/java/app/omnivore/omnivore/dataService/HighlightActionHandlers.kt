@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.dataService
 
+import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
@@ -50,7 +51,7 @@ suspend fun DataService.createWebHighlight(jsonString: String, colorName: String
 }
 
 suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): String {
-  val shortId = UUID.randomUUID().toString()
+  val shortId = NanoId.generate(size=14)
   val createHighlightId = UUID.randomUUID().toString()
 
   withContext(Dispatchers.IO) {

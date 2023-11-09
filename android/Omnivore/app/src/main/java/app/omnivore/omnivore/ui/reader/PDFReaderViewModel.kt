@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.NanoId
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
@@ -146,11 +147,11 @@ class PDFReaderViewModel @Inject constructor(
   fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>, note: String? = null) {
     val itemID = pdfReaderParamsLiveData.value?.item?.savedItemId ?: return
     val highlightID = UUID.randomUUID().toString()
-    val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
+    val shortId = NanoId.generate(size=14)
 
     val jsonValues = JSONObject()
       .put("id", highlightID)
-      .put("shortId", shortID)
+      .put("shortId", shortId)
       .put("quote", quote)
       .put("articleId", itemID)
 
@@ -164,7 +165,7 @@ class PDFReaderViewModel @Inject constructor(
         overlapHighlightIdList = overlapIds,
         patch = newAnnotation.toInstantJson(),
         quote = quote,
-        shortId = shortID
+        shortId = shortId
       )
 
       viewModelScope.launch {
@@ -177,7 +178,7 @@ class PDFReaderViewModel @Inject constructor(
         id = highlightID,
         patch = Optional.presentIfNotNull(newAnnotation.toInstantJson()),
         quote = Optional.presentIfNotNull(quote),
-        shortId = shortID,
+        shortId = shortId,
       )
 
       viewModelScope.launch {

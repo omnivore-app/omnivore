@@ -23,6 +23,7 @@ import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCros
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.HighlightColor
 import app.omnivore.omnivore.ui.library.SavedItemAction
+import app.omnivore.omnivore.ui.setSavedItemLabels
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
@@ -500,38 +501,13 @@ class WebReaderViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val namedLabels = dataService.db.savedItemLabelDao().namedLabels(labels.map { it.name })
 
-        namedLabels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }.mapNotNull {
-          val result = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(it.color), name = it.name))
-          result?.let { it1 ->
-            SavedItemLabel(
-              savedItemLabelId = it1.id,
-              name = result.name,
-              color = result.color,
-              createdAt = result.createdAt.toString(),
-              labelDescription = result.description,
-              serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
-            )
-          }
-        }
-
-        val input = SetLabelsInput(labelIds = Optional.presentIfNotNull(namedLabels.map { it.savedItemLabelId }), pageId = savedItemID)
-        val networkResult = networker.updateLabelsForSavedItem(input)
-
-        // TODO: assign a server sync status to these
-        val crossRefs = namedLabels.map {
-          SavedItemAndSavedItemLabelCrossRef(
-            savedItemLabelId = it.savedItemLabelId,
-            savedItemId = savedItemID
-          )
-        }
-
-        // Remove all labels first
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
-
-        // Add back the current labels
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+       setSavedItemLabels(
+          networker = networker,
+          dataService = dataService,
+          savedItemID = savedItemID,
+          labels = labels
+        )
 
         slug?.let {
           loadItemFromDB(it)
