@@ -18,6 +18,11 @@ ALTER TABLE omnivore.library_item
     ADD COLUMN shared_source text,
     ADD COLUMN is_in_library boolean NOT NULL DEFAULT true;
 
+CREATE POLICY library_item_admin_policy on omnivore.library_item
+    FOR ALL
+    TO omnivore_admin
+    USING (true);
+
 CREATE TABLE omnivore.feed (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     title text NOT NULL,

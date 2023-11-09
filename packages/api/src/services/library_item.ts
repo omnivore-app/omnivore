@@ -4,10 +4,12 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { BulkActionType, SaveFollowingInput } from '../generated/graphql'
+import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
+import { SaveFollowingItemRequest } from '../routers/svc/following'
+import { SetClaimsRole } from '../utils/dictionary'
 import { wordsCount } from '../utils/helpers'
 import {
   DateFilter,
@@ -567,25 +569,30 @@ export const createLibraryItem = async (
   return newLibraryItem
 }
 
-export const createFollowing = async (
-  input: SaveFollowingInput,
-  userId: string
-): Promise<LibraryItem> => {
-  return createLibraryItem(
-    {
-      ...input,
-      originalUrl: input.url,
-      isInLibrary: false,
-      state: LibraryItemState.Succeeded,
-      wordCount: 0,
-      user: { id: userId },
-      sharedAt: new Date(input.sharedAt),
-      sharedSource: input.sharedSource,
-      sharedBy: input.sharedBy,
+export const saveFeedItemInFollowing = (input: SaveFollowingItemRequest) => {
+  return authTrx(
+    async (tx) => {
+      const libraryItems: QueryDeepPartialEntity<LibraryItem>[] =
+        input.userIds.map((userId) => ({
+          ...input,
+          user: { id: userId },
+          isInLibrary: false,
+          originalUrl: input.url,
+          subscription: input.sharedBy,
+        }))
+
+      return tx
+        .getRepository(LibraryItem)
+        .createQueryBuilder()
+        .insert()
+        .values(libraryItems)
+        .orIgnore() // ignore if the item already exists
+        .returning('*')
+        .execute()
     },
-    userId,
     undefined,
-    true
+    undefined,
+    SetClaimsRole.ADMIN
   )
 }
 

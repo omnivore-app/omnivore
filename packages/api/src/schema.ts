@@ -2649,53 +2649,6 @@ const schema = gql`
     author: String
   }
 
-  union SaveFollowingResult = SaveFollowingSuccess | SaveFollowingError
-
-  type SaveFollowingSuccess {
-    following: Following!
-  }
-
-  type Following {
-    id: ID!
-    title: String!
-    url: String!
-    author: String
-    image: String
-    description: String
-    seenAt: Date
-    createdAt: Date!
-    updatedAt: Date!
-    publishedAt: Date
-    hiddenAt: Date
-    SharedAt: Date!
-    sharedBy: String!
-    links: JSON
-    previewContent: String
-    sharedSource: String!
-  }
-
-  type SaveFollowingError {
-    errorCodes: [SaveFollowingErrorCode!]!
-  }
-
-  enum SaveFollowingErrorCode {
-    UNAUTHORIZED
-    BAD_REQUEST
-  }
-
-  input SaveFollowingInput {
-    url: String!
-    title: String!
-    author: String
-    description: String
-    publishedAt: Date
-    sharedSource: String!
-    links: JSON
-    previewContent: String
-    sharedBy: String!
-    sharedAt: Date!
-  }
-
   union AddFollowingToLibraryResult =
       AddFollowingToLibrarySuccess
     | AddFollowingToLibraryError
@@ -2711,7 +2664,7 @@ const schema = gql`
   enum AddFollowingToLibraryErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
-    NOT_FOUND
+    ALREADY_EXISTS
   }
 
   # Mutations
@@ -2817,7 +2770,6 @@ const schema = gql`
     updateSubscription(
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
-    saveFollowing(input: SaveFollowingInput!): SaveFollowingResult!
     addFollowingToLibrary(id: ID!): AddFollowingToLibraryResult!
   }
 

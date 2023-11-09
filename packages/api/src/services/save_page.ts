@@ -144,6 +144,7 @@ export const savePage = async (
           ...itemToSave,
           id: undefined,
           slug: undefined,
+          isInLibrary: true,
         } as QueryDeepPartialEntity<LibraryItem>,
         user.id
       )

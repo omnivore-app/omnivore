@@ -5,8 +5,8 @@ type AddFollowingToLibraryError {
 }
 
 enum AddFollowingToLibraryErrorCode {
+  ALREADY_EXISTS
   BAD_REQUEST
-  NOT_FOUND
   UNAUTHORIZED
 }
 
@@ -758,25 +758,6 @@ type FiltersSuccess {
   filters: [Filter!]!
 }
 
-type Following {
-  SharedAt: Date!
-  author: String
-  createdAt: Date!
-  description: String
-  hiddenAt: Date
-  id: ID!
-  image: String
-  links: JSON
-  previewContent: String
-  publishedAt: Date
-  seenAt: Date
-  sharedBy: String!
-  sharedSource: String!
-  title: String!
-  updatedAt: Date!
-  url: String!
-}
-
 type GenerateApiKeyError {
   errorCodes: [GenerateApiKeyErrorCode!]!
 }
@@ -1221,7 +1202,6 @@ type Mutation {
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
   saveFile(input: SaveFileInput!): SaveResult!
   saveFilter(input: SaveFilterInput!): SaveFilterResult!
-  saveFollowing(input: SaveFollowingInput!): SaveFollowingResult!
   savePage(input: SavePageInput!): SaveResult!
   saveUrl(input: SaveUrlInput!): SaveResult!
   setBookmarkArticle(input: SetBookmarkArticleInput!): SetBookmarkArticleResult!
@@ -1713,34 +1693,6 @@ union SaveFilterResult = SaveFilterError | SaveFilterSuccess
 
 type SaveFilterSuccess {
   filter: Filter!
-}
-
-type SaveFollowingError {
-  errorCodes: [SaveFollowingErrorCode!]!
-}
-
-enum SaveFollowingErrorCode {
-  BAD_REQUEST
-  UNAUTHORIZED
-}
-
-input SaveFollowingInput {
-  author: String
-  description: String
-  links: JSON
-  previewContent: String
-  publishedAt: Date
-  sharedAt: Date!
-  sharedBy: String!
-  sharedSource: String!
-  title: String!
-  url: String!
-}
-
-union SaveFollowingResult = SaveFollowingError | SaveFollowingSuccess
-
-type SaveFollowingSuccess {
-  following: Following!
 }
 
 input SavePageInput {

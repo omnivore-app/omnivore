@@ -161,12 +161,12 @@ const createFollowingTask = async (
   item: Item
 ) => {
   const input = {
-    userId,
+    userIds: [userId],
     url: item.link,
     title: item.title,
     author: item.creator,
     description: item.summary,
-    sharedSource: 'rss-feeder',
+    sharedSource: 'feed',
     previewContent: item.content,
     sharedBy: feedUrl,
     savedAt: item.isoDate,

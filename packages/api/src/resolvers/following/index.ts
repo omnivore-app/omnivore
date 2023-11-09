@@ -9,16 +9,16 @@ import {
   FeedsErrorCode,
   FeedsSuccess,
   MutationAddFollowingToLibraryArgs,
-  MutationSaveFollowingArgs,
   QueryFeedsArgs,
-  SaveFollowingError,
-  SaveFollowingSuccess,
 } from '../../generated/graphql'
 import { feedRepository } from '../../repository/feed'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
-import { createFollowing } from '../../services/library_item'
+import { updateLibraryItem } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import {
+  authorized,
+  libraryItemToArticleSavingRequest,
+} from '../../utils/helpers'
 
 export const feedsResolve = authorized<
   FeedsSuccess,
@@ -72,33 +72,6 @@ export const feedsResolve = authorized<
   }
 })
 
-export const saveFollowingResolver = authorized<
-  SaveFollowingSuccess,
-  SaveFollowingError,
-  MutationSaveFollowingArgs
->(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
-    event: 'save_following',
-    properties: {
-      url: input.url,
-    },
-  })
-
-  const newItem = await createFollowing(input, uid)
-
-  return {
-    __typename: 'SaveFollowingSuccess',
-    following: {
-      ...newItem,
-      url: newItem.originalUrl,
-      SharedAt: new Date(input.sharedAt),
-      sharedBy: input.sharedBy,
-      sharedSource: input.sharedSource,
-    },
-  }
-})
-
 export const addFollowingToLibraryResolver = authorized<
   AddFollowingToLibrarySuccess,
   AddFollowingToLibraryError,
@@ -117,7 +90,6 @@ export const addFollowingToLibraryResolver = authorized<
       where: {
         id,
         sharedAt: Not(IsNull()),
-        isInLibrary: false,
       },
       relations: ['user'],
     })
@@ -125,22 +97,48 @@ export const addFollowingToLibraryResolver = authorized<
 
   if (!item) {
     return {
-      errorCodes: [AddFollowingToLibraryErrorCode.NotFound],
+      errorCodes: [AddFollowingToLibraryErrorCode.Unauthorized],
     }
   }
 
-  const articleSavingRequest = await createPageSaveRequest({
-    userId: uid,
-    url: item.originalUrl,
-    articleSavingRequestId: id,
-    priority: 'high',
-    publishedAt: item.publishedAt || undefined,
-    savedAt: item.savedAt || undefined,
-    pubsub,
-  })
+  if (item.isInLibrary) {
+    return {
+      errorCodes: [AddFollowingToLibraryErrorCode.AlreadyExists],
+    }
+  }
+
+  // if the content is not fetched yet, create a page save request
+  if (!item.readableContent) {
+    const articleSavingRequest = await createPageSaveRequest({
+      userId: uid,
+      url: item.originalUrl,
+      articleSavingRequestId: id,
+      priority: 'high',
+      publishedAt: item.publishedAt || undefined,
+      pubsub,
+    })
+
+    return {
+      __typename: 'AddFollowingToLibrarySuccess',
+      articleSavingRequest,
+    }
+  }
+
+  const updatedItem = await updateLibraryItem(
+    item.id,
+    {
+      isInLibrary: true,
+      savedAt: new Date(),
+    },
+    uid,
+    pubsub
+  )
 
   return {
     __typename: 'AddFollowingToLibrarySuccess',
-    articleSavingRequest,
+    articleSavingRequest: libraryItemToArticleSavingRequest(
+      item.user,
+      updatedItem
+    ),
   }
 })

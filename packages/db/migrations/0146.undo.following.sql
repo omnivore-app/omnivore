@@ -6,6 +6,8 @@ BEGIN;
 
 DROP TABLE omnivore.feed;
 
+DROP policy library_item_admin_policy ON omnivore.library_item;
+
 ALTER TABLE omnivore.library_item
     DROP COLUMN hidden_at,
     DROP COLUMN shared_at,
