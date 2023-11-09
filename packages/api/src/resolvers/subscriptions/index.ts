@@ -228,7 +228,7 @@ export const subscribeResolver = authorized<
 
     // limit number of rss subscriptions to 150
     const results = (await getRepository(Subscription).query(
-      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, is_fetching_content) 
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library) 
           select $1, $2, $3, $4, $5, $6, $7 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
           having count(*) < $8
@@ -240,7 +240,7 @@ export const subscribeResolver = authorized<
         SubscriptionType.Rss,
         uid,
         feed.image?.url || null,
-        !!input.isFetchingContent,
+        !!input.autoAddToLibrary,
         MAX_RSS_SUBSCRIPTIONS,
       ]
     )) as Subscription[]
@@ -315,6 +315,7 @@ export const updateSubscriptionResolver = authorized<
         scheduledAt: input.scheduledAt
           ? new Date(input.scheduledAt)
           : undefined,
+        autoAddToLibrary: input.autoAddToLibrary || undefined,
       })
 
       return repo.findOneByOrFail({

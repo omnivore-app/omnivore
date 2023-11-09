@@ -2555,7 +2555,7 @@ const schema = gql`
     url: String!
     subscriptionType: SubscriptionType
     isPublic: Boolean
-    isFetchingContent: Boolean
+    autoAddToLibrary: Boolean
   }
 
   input UpdateSubscriptionInput {
@@ -2567,7 +2567,7 @@ const schema = gql`
     status: SubscriptionStatus
     scheduledAt: Date
     isPublic: Boolean
-    isFetchingContent: Boolean
+    autoAddToLibrary: Boolean
   }
 
   union UpdateSubscriptionResult =

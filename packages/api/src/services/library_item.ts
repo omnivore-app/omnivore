@@ -108,10 +108,10 @@ const buildWhereClause = (
   if (args.inFilter !== InFilter.ALL) {
     if (args.inFilter === InFilter.FOLLOWING) {
       queryBuilder
-        .andWhere('library_item.shared_by IS NOT NULL')
+        .andWhere('library_item.added_to_following_at IS NOT NULL')
         .andWhere('library_item.hidden_at IS NULL')
     } else {
-      queryBuilder.andWhere('library_item.is_in_library = true')
+      queryBuilder.andWhere('library_item.added_to_library_at IS NOT NULL')
 
       switch (args.inFilter) {
         case InFilter.INBOX:
