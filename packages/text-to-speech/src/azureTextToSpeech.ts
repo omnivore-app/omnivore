@@ -18,7 +18,7 @@ import {
 
 export class AzureTextToSpeech implements TextToSpeech {
   use(input: TextToSpeechInput): boolean {
-    return !input.isUltraRealisticVoice
+    return !input.isUltraRealisticVoice && !input.isOpenAIVoice
   }
 
   synthesizeTextToSpeech = async (

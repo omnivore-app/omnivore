@@ -14,7 +14,7 @@ import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeH
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
-import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
@@ -569,7 +569,7 @@ export default function PdfArticleContainer(
       id="article-wrapper"
       css={{
         width: '100%',
-        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        height: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
       }}
     >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />

@@ -19,6 +19,7 @@ import {
 } from './textToSpeech'
 import { createClient } from 'redis'
 import { RealisticTextToSpeech } from './realisticTextToSpeech'
+import { OpenAITextToSpeech } from './openaiTextToSpeech'
 
 // explicitly create the return type of RedisClient
 type RedisClient = ReturnType<typeof createClient>
@@ -63,6 +64,7 @@ const MAX_CHARACTER_COUNT = 50000
 const storage = new Storage()
 
 const textToSpeechHandlers = [
+  new OpenAITextToSpeech(),
   new AzureTextToSpeech(),
   new RealisticTextToSpeech(),
 ]

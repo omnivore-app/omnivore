@@ -7,6 +7,7 @@ export interface TextToSpeechInput {
   rate?: string
   secondaryVoice?: string
   audioStream?: NodeJS.ReadWriteStream
+  isOpenAIVoice?: boolean
   isUltraRealisticVoice?: boolean
 }
 

@@ -901,6 +901,8 @@ type IntegrationsSuccess {
   integrations: [Integration!]!
 }
 
+scalar JSON
+
 type JoinGroupError {
   errorCodes: [JoinGroupErrorCode!]!
 }
@@ -1963,6 +1965,7 @@ enum SetUserPersonalizationErrorCode {
 }
 
 input SetUserPersonalizationInput {
+  fields: JSON
   fontFamily: String
   fontSize: Int
   libraryLayoutType: String
@@ -2557,6 +2560,7 @@ enum UserErrorCode {
 }
 
 type UserPersonalization {
+  fields: JSON
   fontFamily: String
   fontSize: Int
   id: ID

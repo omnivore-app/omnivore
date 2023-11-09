@@ -135,10 +135,10 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
         try {
           const csvData = await validateCsvFile(file.file)
           urlCount = csvData.data.length
-          if (urlCount > 500) {
+          if (urlCount > 5000) {
             return {
               message:
-                'Due to an increase in traffic we are limiting CSV imports to 500 items.',
+                'Due to an increase in traffic we are limiting CSV imports to 5000 items.',
             }
           }
           if (csvData.inValidData.length > 0) {

@@ -5,17 +5,20 @@ import app.omnivore.omnivore.graphql.generated.type.SaveArticleReadingProgressIn
 
 
 import android.util.Log
+import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 
 data class ReadingProgressParams(
   val id: String?,
   val readingProgressPercent: Double?,
-  val readingProgressAnchorIndex: Int?
+  val readingProgressAnchorIndex: Int?,
+  val force: Boolean?
 ) {
   fun asSaveReadingProgressInput() = SaveArticleReadingProgressInput(
     id = id ?: "",
+    force = Optional.presentIfNotNull(force),
     readingProgressPercent = readingProgressPercent ?: 0.0,
-    readingProgressAnchorIndex = readingProgressAnchorIndex ?: 0
+    readingProgressAnchorIndex = Optional.presentIfNotNull(readingProgressAnchorIndex ?: 0)
   )
 }
 

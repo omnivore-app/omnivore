@@ -155,42 +155,45 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
     val annotation = rememberSaveable { mutableStateOf(initialValue ?: "") }
 
     BottomSheetUI() {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(stringResource(R.string.edit_note_modal_title)) },
-                    modifier = Modifier.statusBarsPadding(),
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-                    navigationIcon = {
-                        TextButton(onClick = {
-                            onDismiss(false, initialValue)
-                        }) {
-                            Text(text = stringResource(R.string.edit_note_modal_action_cancel))
+        MaterialTheme {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { Text(stringResource(R.string.edit_note_modal_title)) },
+                        modifier = Modifier.statusBarsPadding(),
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        ),
+                        navigationIcon = {
+                            TextButton(onClick = {
+                                onDismiss(false, initialValue)
+                            }) {
+                                Text(text = stringResource(R.string.edit_note_modal_action_cancel))
+                            }
+                        },
+                        actions = {
+                            TextButton(onClick = {
+                                onDismiss(true, annotation.value)
+                            }) {
+                                Text(text = stringResource(R.string.edit_note_modal_action_save))
+                            }
                         }
-                    },
-                    actions = {
-                        TextButton(onClick = {
-                            onDismiss(true, annotation.value)
-                        }) {
-                            Text(text = stringResource(R.string.edit_note_modal_action_save))
-                        }
-                    }
+                    )
+                }
+            ) { paddingValues ->
+
+                TextField(
+                    modifier = Modifier
+                        .padding(top = paddingValues.calculateTopPadding())
+                        .focusRequester(focusRequester)
+                        .fillMaxSize(),
+                    value = annotation.value, onValueChange = { annotation.value = it },
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    )
                 )
             }
-        ) { paddingValues ->
-            TextField(
-                modifier = Modifier
-                    .padding(top = paddingValues.calculateTopPadding())
-                    .focusRequester(focusRequester)
-                    .fillMaxSize(),
-                value = annotation.value, onValueChange = { annotation.value = it },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                )
-            )
         }
     }
 

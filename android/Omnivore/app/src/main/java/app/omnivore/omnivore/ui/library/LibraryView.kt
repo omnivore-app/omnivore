@@ -33,6 +33,7 @@ import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
+import app.omnivore.omnivore.ui.save.SaveState
 import app.omnivore.omnivore.ui.save.SaveViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -156,8 +157,14 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
     BottomSheetUI {
       AddLinkSheetContent(
         saveViewModel = saveViewModel,
-        onCancel = { libraryViewModel.showAddLinkSheetLiveData.value = false },
-        onLinkAdded = { libraryViewModel.showAddLinkSheetLiveData.value = false }
+        onCancel = {
+          libraryViewModel.showAddLinkSheetLiveData.value = false
+          saveViewModel.saveState.value = SaveState.NONE
+        },
+        onLinkAdded = {
+          libraryViewModel.showAddLinkSheetLiveData.value = false
+          saveViewModel.saveState.value = SaveState.NONE
+        }
       )
     }
   }

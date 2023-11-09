@@ -28,6 +28,9 @@
     }
 
     var playPauseButtonItem: some View {
+      if audioController.playbackError {
+        return AnyView(Color.clear)
+      }
       if let itemID = audioController.itemAudioProperties?.itemID, audioController.isLoadingItem(itemID: itemID) {
         return AnyView(ProgressView())
       } else {
@@ -349,6 +352,9 @@
 
     func playerContent(_: LinkedItemAudioProperties) -> some View {
       ZStack {
+        if audioController.playbackError {
+          Text("There was an error playing back your audio.").foregroundColor(Color.red).font(.footnote)
+        }
         audioCards
           .frame(maxHeight: .infinity)
 
@@ -422,12 +428,10 @@
 
     public var innerBody: some View {
       if let itemAudioProperties = self.audioController.itemAudioProperties {
-        return AnyView(playerContent(itemAudioProperties)
-          .tint(.appGrayTextContrast)
-          .alert("There was an error playing back your audio.",
-                 isPresented: $audioController.playbackError) {
-            Button(LocalText.dismissButton, role: .none) {}
-          })
+        return AnyView(
+          playerContent(itemAudioProperties)
+            .tint(.appGrayTextContrast)
+        )
       } else {
         return AnyView(EmptyView())
       }

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.NanoId
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
@@ -131,27 +132,26 @@ class PDFReaderViewModel @Inject constructor(
   fun syncPageChange(currentPageIndex: Int, totalPages: Int) {
     val rawProgress = ((currentPageIndex + 1).toDouble() / totalPages.toDouble()) * 100
     val percent = min(100.0, max(0.0, rawProgress))
-    if (percent > currentReadingProgress) {
-      currentReadingProgress = percent
-      viewModelScope.launch {
-        val params = ReadingProgressParams(
-          id = pdfReaderParamsLiveData.value?.item?.savedItemId,
-          readingProgressPercent = percent,
-          readingProgressAnchorIndex = currentPageIndex
-        )
-        networker.updateReadingProgress(params)
-      }
+    currentReadingProgress = percent
+    viewModelScope.launch {
+      val params = ReadingProgressParams(
+        id = pdfReaderParamsLiveData.value?.item?.savedItemId,
+        readingProgressPercent = percent,
+        readingProgressAnchorIndex = currentPageIndex,
+        force = true
+      )
+      networker.updateReadingProgress(params)
     }
   }
 
   fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>, note: String? = null) {
     val itemID = pdfReaderParamsLiveData.value?.item?.savedItemId ?: return
     val highlightID = UUID.randomUUID().toString()
-    val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
+    val shortId = NanoId.generate(size=14)
 
     val jsonValues = JSONObject()
       .put("id", highlightID)
-      .put("shortId", shortID)
+      .put("shortId", shortId)
       .put("quote", quote)
       .put("articleId", itemID)
 
@@ -165,7 +165,7 @@ class PDFReaderViewModel @Inject constructor(
         overlapHighlightIdList = overlapIds,
         patch = newAnnotation.toInstantJson(),
         quote = quote,
-        shortId = shortID
+        shortId = shortId
       )
 
       viewModelScope.launch {
@@ -178,7 +178,7 @@ class PDFReaderViewModel @Inject constructor(
         id = highlightID,
         patch = Optional.presentIfNotNull(newAnnotation.toInstantJson()),
         quote = Optional.presentIfNotNull(quote),
-        shortId = shortID,
+        shortId = shortId,
       )
 
       viewModelScope.launch {

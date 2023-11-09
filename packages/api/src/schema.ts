@@ -4,6 +4,7 @@ const schema = gql`
   # Scalars
 
   scalar Date
+  scalar JSON
 
   directive @sanitize(
     allowedTags: [String]
@@ -1050,6 +1051,7 @@ const schema = gql`
     speechSecondaryVoice: String
     speechRate: String
     speechVolume: String
+    fields: JSON
   }
 
   # Query: UserPersonalization
@@ -1091,6 +1093,7 @@ const schema = gql`
     speechSecondaryVoice: String
     speechRate: String
     speechVolume: String
+    fields: JSON
   }
 
   # Type: ArticleSavingRequest

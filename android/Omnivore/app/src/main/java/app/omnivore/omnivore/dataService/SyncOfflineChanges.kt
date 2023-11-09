@@ -66,6 +66,7 @@ private suspend fun DataService.syncSavedItem(item: SavedItem) {
       val isReadingProgressSynced = networker.updateReadingProgress(
         ReadingProgressParams(
           id = item.savedItemId,
+          force = item.contentReader == "PDF",
           readingProgressPercent = item.readingProgress,
           readingProgressAnchorIndex = item.readingProgressAnchor
         )
