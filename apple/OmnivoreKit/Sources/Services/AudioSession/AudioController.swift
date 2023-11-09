@@ -134,6 +134,12 @@
     public func stopWithError() {
       pause()
       playbackError = true
+
+      timer?.invalidate()
+      timer = nil
+      if let player = player {
+        player.removeAllItems()
+      }
     }
 
     public func generateVoiceList() -> [VoiceItem] {
@@ -576,7 +582,7 @@
               let startOffset = index < document.utterances.count ? offset : 0.0
               self.startStreamingAudio(itemID: itemID, document: document, atIndex: startIndex, andOffset: startOffset)
             } else {
-              self.playbackError = true
+              self.stopWithError()
             }
           }
         }
@@ -874,7 +880,6 @@
 
       let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
       guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
-        print("HTTP respooinse", result?.1 as? HTTPURLResponse)
         throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
       }
 
