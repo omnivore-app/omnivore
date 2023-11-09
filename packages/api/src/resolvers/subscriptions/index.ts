@@ -1,5 +1,6 @@
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
+import { Feed } from '../../entity/feed'
 import { Subscription } from '../../entity/subscription'
 import { env } from '../../env'
 import {
@@ -175,7 +176,7 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { uid, log }) => {
+>(async (_, { input }, { authTrx, uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -226,24 +227,42 @@ export const subscribeResolver = authorized<
     // validate rss feed
     const feed = await parser.parseURL(input.url)
 
-    // limit number of rss subscriptions to 150
-    const results = (await getRepository(Subscription).query(
-      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library) 
-          select $1, $2, $3, $4, $5, $6, $7 from omnivore.subscriptions 
+    const results = await authTrx(async (t) => {
+      await t.getRepository(Feed).upsert(
+        {
+          url: feed.feedUrl,
+          title: feed.title,
+          description: feed.description,
+          image: feed.image?.url,
+        },
+        {
+          conflictPaths: ['url'],
+          skipUpdateIfNoValuesChanged: true,
+        }
+      )
+
+      // limit number of rss subscriptions to 150
+      const results = (await t.getRepository(Subscription).query(
+        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_public) 
+          select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-          having count(*) < $8
+          having count(*) < $9
           returning *;`,
-      [
-        feed.title,
-        input.url,
-        feed.description || null,
-        SubscriptionType.Rss,
-        uid,
-        feed.image?.url || null,
-        !!input.autoAddToLibrary,
-        MAX_RSS_SUBSCRIPTIONS,
-      ]
-    )) as Subscription[]
+        [
+          feed.title,
+          input.url,
+          feed.description || null,
+          SubscriptionType.Rss,
+          uid,
+          feed.image?.url || null,
+          input.autoAddToLibrary ?? null,
+          input.isPublic ?? null,
+          MAX_RSS_SUBSCRIPTIONS,
+        ]
+      )) as Subscription[]
+
+      return results
+    })
 
     if (results.length === 0) {
       return {
@@ -315,7 +334,8 @@ export const updateSubscriptionResolver = authorized<
         scheduledAt: input.scheduledAt
           ? new Date(input.scheduledAt)
           : undefined,
-        autoAddToLibrary: input.autoAddToLibrary || undefined,
+        autoAddToLibrary: input.autoAddToLibrary ?? undefined,
+        isPublic: input.isPublic ?? undefined,
       })
 
       return repo.findOneByOrFail({
