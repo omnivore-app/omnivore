@@ -130,7 +130,7 @@ export const createPageSaveRequest = async ({
       pubsub
     )
   }
-  // reset state to processing if in following
+  // reset state to processing if not in following
   if (
     libraryItem.state !== LibraryItemState.Processing &&
     !libraryItem.sharedAt
