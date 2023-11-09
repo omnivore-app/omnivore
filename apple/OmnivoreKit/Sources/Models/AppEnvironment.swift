@@ -103,7 +103,7 @@ public extension AppEnvironment {
     case .prod:
       return URL(string: prodTtsURL)!
     case .test, .local:
-      return URL(string: "http://localhost:4000")!
+      return URL(string: "http://localhost:8080")!
     case .custom:
       guard
         let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.ttsBaseURL.rawValue),

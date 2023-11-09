@@ -34,7 +34,7 @@ public struct LibraryFeatureCard: View {
   var imageBox: some View {
     ZStack(alignment: .bottomLeading) {
       if let imageURL = item.imageURL {
-        AsyncImage(url: imageURL) { phase in
+        CachedAsyncImage(url: imageURL) { phase in
           switch phase {
           case .empty:
             Color.systemBackground

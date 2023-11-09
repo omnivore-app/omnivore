@@ -62,6 +62,10 @@ public enum Voices {
     })
   }
 
+  public static func isOpenAIVoice(_ voiceKey: String) -> Bool {
+    voiceKey.starts(with: "openai-")
+  }
+
   public static let English = VoiceLanguage(key: "en",
                                             name: "English",
                                             defaultVoice: "en-US-ChristopherNeural",
@@ -81,6 +85,10 @@ public enum Voices {
   ]
 
   public static let Pairs = [
+    VoicePair(firstKey: "openai-alloy", secondKey: "openai-echo", firstName: "Alloy", secondName: "Echo", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "openai-fable", secondKey: "openai-onyx", firstName: "Fable", secondName: "Onyx", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "openai-nova", secondKey: "openai-shimmer", firstName: "Nova", secondName: "Shimmer", language: "en-US", category: .enUS),
+
     VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", language: "en-US", category: .enUS),
     VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", language: "en-US", category: .enUS),
     VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", language: "en-US", category: .enUS),

@@ -34,6 +34,9 @@
     }
 
     var playPauseButtonItem: some View {
+      if audioController.playbackError {
+        return AnyView(Color.clear)
+      }
       if let itemID = audioController.itemAudioProperties?.itemID, audioController.isLoadingItem(itemID: itemID) {
         return AnyView(ProgressView())
       } else {
@@ -121,21 +124,25 @@
     func playerContent(_ itemAudioProperties: LinkedItemAudioProperties) -> some View {
       VStack(spacing: 0) {
         HStack(alignment: .center, spacing: 15) {
-          artwork(itemAudioProperties, forDimensions: 50)
+          if audioController.playbackError {
+            Text("There was an error playing back your audio.").foregroundColor(Color.red).font(.footnote)
+            Spacer(minLength: 0)
+          } else {
+            artwork(itemAudioProperties, forDimensions: 50)
 
-          Text(itemAudioProperties.title)
-            .font(Font.system(size: 17, weight: .medium))
-            .fixedSize(horizontal: false, vertical: true)
-            .lineLimit(2)
-            .foregroundColor(.appGrayTextContrast)
-            .frame(maxHeight: 40, alignment: .leading)
+            Text(itemAudioProperties.title)
+              .font(Font.system(size: 17, weight: .medium))
+              .fixedSize(horizontal: false, vertical: true)
+              .lineLimit(2)
+              .foregroundColor(.appGrayTextContrast)
+              .frame(maxHeight: 40, alignment: .leading)
 
-          Spacer(minLength: 0)
+            Spacer(minLength: 0)
 
-          playPauseButtonItem
-            .frame(width: 40, height: 40)
-            .foregroundColor(.themeAudioPlayerGray)
-
+            playPauseButtonItem
+              .frame(width: 40, height: 40)
+              .foregroundColor(.themeAudioPlayerGray)
+          }
           stopButton
             .frame(width: 40, height: 40)
             .foregroundColor(.themeAudioPlayerGray)
@@ -169,14 +176,9 @@
               Spacer(minLength: 0)
               playerContent(itemAudioProperties)
                 .frame(maxHeight: expanded ? 0 : 110)
-              //    .tint(.appGrayTextContrast)
-              // .background(Color.systemBackground)
             }
           }
         }
-      }.alert("There was an error playing back your audio.",
-              isPresented: $audioController.playbackError) {
-        Button(LocalText.dismissButton, role: .none) {}
       }
     }
   }
