@@ -691,7 +691,7 @@ describe('Article API', () => {
         200
       )
       const item = await findLibraryItemById(itemId, user.id)
-      expect(item?.state).to.eql(LibraryItemState.Deleted)
+      expect(item?.folder).to.eql('trash')
     })
   })
 
@@ -1169,14 +1169,6 @@ describe('Article API', () => {
             },
             {
               user,
-              title: 'test title 2',
-              readableContent: '<p>test 2</p>',
-              slug: 'test slug 2',
-              originalUrl: `${url}/test2`,
-              subscription: 'test subscription',
-            },
-            {
-              user,
               title: 'test title 3',
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
@@ -1188,7 +1180,6 @@ describe('Article API', () => {
         )
         await saveLabelsInLibraryItem([label], items[0].id, user.id)
         await saveLabelsInLibraryItem([label], items[1].id, user.id)
-        await saveLabelsInLibraryItem([label], items[2].id, user.id)
       })
 
       after(async () => {

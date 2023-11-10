@@ -229,9 +229,7 @@ const buildWhereClause = (
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere('library_item.folder <> :folder', {
-      folder: InFilter.TRASH,
-    })
+    queryBuilder.andWhere("library_item.folder <> 'trash'")
   }
 
   if (args.noFilters) {

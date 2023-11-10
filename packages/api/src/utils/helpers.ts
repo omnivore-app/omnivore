@@ -240,7 +240,7 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   state: item.state as unknown as ArticleSavingRequestStatus,
   content: item.readableContent,
   hash: item.textContentHash || '',
-  isArchived: item.folder != InFilter.ARCHIVE,
+  isArchived: item.folder === InFilter.ARCHIVE,
   recommendations: item.recommendations?.map(
     recommandationDataToRecommendation
   ),
@@ -259,7 +259,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   url: item.originalUrl,
   state: item.state as unknown as ArticleSavingRequestStatus,
   content: item.readableContent,
-  isArchived: item.folder != InFilter.ARCHIVE,
+  isArchived: item.folder === InFilter.ARCHIVE,
   pageType: item.itemType as unknown as PageType,
   readingProgressPercent: item.readingProgressBottomPercent,
   contentReader: item.contentReader as unknown as ContentReader,
