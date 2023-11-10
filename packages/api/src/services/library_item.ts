@@ -223,9 +223,7 @@ const buildWhereClause = (
   }
 
   if (!args.includePending) {
-    queryBuilder.andWhere('library_item.state <> :state', {
-      state: LibraryItemState.Processing,
-    })
+    queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
