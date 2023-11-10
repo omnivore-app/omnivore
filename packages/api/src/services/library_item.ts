@@ -31,7 +31,7 @@ export interface SearchArgs {
   size?: number
   sort?: Sort
   query?: string
-  inFilter?: InFilter
+  inFilter: InFilter
   readFilter?: ReadFilter
   typeFilter?: string
   labelFilters?: LabelFilter[]
@@ -64,7 +64,6 @@ export interface SearchResultItem {
   title: string
   uploadFileId?: string | null
   url: string
-  archivedAt?: Date | null
   readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
@@ -106,40 +105,9 @@ const buildWhereClause = (
   }
 
   if (args.inFilter !== InFilter.ALL) {
-    if (args.inFilter === InFilter.FOLLOWING) {
-      queryBuilder
-        .andWhere('library_item.added_to_following_at IS NOT NULL')
-        .andWhere('library_item.hidden_at IS NULL')
-    } else {
-      queryBuilder.andWhere('library_item.added_to_library_at IS NOT NULL')
-
-      switch (args.inFilter) {
-        case InFilter.INBOX:
-          queryBuilder.andWhere('library_item.archived_at IS NULL')
-          break
-        case InFilter.ARCHIVE:
-          queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
-          break
-        case InFilter.TRASH:
-          // return only deleted pages within 14 days
-          queryBuilder.andWhere(
-            "library_item.deleted_at >= now() - interval '14 days'"
-          )
-          break
-        case InFilter.SUBSCRIPTION:
-          queryBuilder
-            .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-            .andWhere('library_item.archived_at IS NULL')
-            .andWhere('library_item.subscription IS NOT NULL')
-          break
-        case InFilter.LIBRARY:
-          queryBuilder
-            .andWhere(
-              "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
-            )
-            .andWhere('library_item.archived_at IS NULL')
-      }
-    }
+    queryBuilder.andWhere('library_item.folder = :folder', {
+      folder: args.inFilter,
+    })
   }
 
   if (args.readFilter !== ReadFilter.ALL) {
@@ -171,6 +139,8 @@ const buildWhereClause = (
         case HasFilter.LABELS:
           queryBuilder.andWhere("library_item.label_names <> '{}'")
           break
+        case HasFilter.SUBSCRIPTIONS:
+          queryBuilder.andWhere('library_item.subscription is NOT NULL')
       }
     })
   }
@@ -259,8 +229,8 @@ const buildWhereClause = (
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere('library_item.state <> :state', {
-      state: LibraryItemState.Deleted,
+    queryBuilder.andWhere('library_item.folder <> :folder', {
+      folder: InFilter.TRASH,
     })
   }
 
@@ -397,8 +367,6 @@ export const restoreLibraryItem = async (
     {
       state: LibraryItemState.Succeeded,
       savedAt: new Date(),
-      archivedAt: null,
-      deletedAt: null,
     },
     userId,
     pubsub
@@ -414,22 +382,6 @@ export const updateLibraryItem = async (
   const updatedLibraryItem = await authTrx(
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
-
-      // reset deletedAt and archivedAt
-      switch (libraryItem.state) {
-        case LibraryItemState.Archived:
-          libraryItem.archivedAt = new Date()
-          break
-        case LibraryItemState.Deleted:
-          libraryItem.deletedAt = new Date()
-          break
-        case LibraryItemState.Processing:
-        case LibraryItemState.Succeeded:
-          libraryItem.archivedAt = null
-          libraryItem.deletedAt = null
-          break
-      }
-
       await itemRepo.update(id, libraryItem)
 
       return itemRepo.findOneByOrFail({ id })
@@ -578,7 +530,7 @@ export const saveFeedItemInFollowing = (input: SaveFollowingItemRequest) => {
           user: { id: userId },
           originalUrl: input.url,
           subscription: input.addedToFollowingBy,
-          addedToLibraryAt: null,
+          folder: InFilter.FOLLOWING,
         }))
 
       return tx
@@ -649,14 +601,14 @@ export const updateLibraryItems = async (
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        archivedAt: new Date(),
-        state: LibraryItemState.Archived,
+        folder: InFilter.ARCHIVE,
+        savedAt: new Date(),
       }
       break
     case BulkActionType.Delete:
       values = {
-        deletedAt: new Date(),
-        state: LibraryItemState.Deleted,
+        savedAt: new Date(),
+        folder: InFilter.TRASH,
       }
       break
     case BulkActionType.AddLabels:

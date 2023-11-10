@@ -1,4 +1,3 @@
-import { LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArchiveLinkError,
@@ -9,6 +8,7 @@ import {
 import { updateLibraryItem } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
+import { InFilter } from '../../utils/search'
 
 // export const updateLinkShareInfoResolver = authorized<
 //   UpdateLinkShareInfoSuccess,
@@ -66,10 +66,8 @@ export const setLinkArchivedResolver = authorized<
     await updateLibraryItem(
       args.input.linkId,
       {
-        archivedAt: args.input.archived ? new Date() : null,
-        state: args.input.archived
-          ? LibraryItemState.Archived
-          : LibraryItemState.Succeeded,
+        savedAt: new Date(),
+        folder: args.input.archived ? InFilter.ARCHIVE : InFilter.INBOX,
       },
       uid
     )

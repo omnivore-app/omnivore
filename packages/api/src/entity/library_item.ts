@@ -197,15 +197,6 @@ export class LibraryItem {
   @Column('text', { nullable: true })
   recommenderNames?: string[] | null
 
-  @Column('timestamptz')
-  hiddenAt?: Date | null
-
-  @Column('timestamptz')
-  addedToFollowingAt?: Date | null
-
-  @Column('text')
-  addedToFollowingBy?: string | null
-
   @Column('jsonb')
   links?: any | null
 
@@ -216,8 +207,5 @@ export class LibraryItem {
   previewContentType?: string | null
 
   @Column('text')
-  addedToFollowingFrom?: string | null
-
-  @Column('timestamptz')
-  addedToLibraryAt?: Date | null
+  folder!: string
 }

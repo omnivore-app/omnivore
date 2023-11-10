@@ -1,14 +1,13 @@
-import { IsNull, Not } from 'typeorm'
 import { LibraryItem } from '../../entity/library_item'
 import {
-  CopyFromFollowingToLibraryError,
-  CopyFromFollowingToLibraryErrorCode,
-  CopyFromFollowingToLibrarySuccess,
   FeedEdge,
   FeedsError,
   FeedsErrorCode,
   FeedsSuccess,
-  MutationCopyFromFollowingToLibraryArgs,
+  MoveToFolderError,
+  MoveToFolderErrorCode,
+  MoveToFolderSuccess,
+  MutationMoveToFolderArgs,
   QueryFeedsArgs,
 } from '../../generated/graphql'
 import { feedRepository } from '../../repository/feed'
@@ -72,16 +71,17 @@ export const feedsResolver = authorized<
   }
 })
 
-export const copyFromFollowingToLibraryResolver = authorized<
-  CopyFromFollowingToLibrarySuccess,
-  CopyFromFollowingToLibraryError,
-  MutationCopyFromFollowingToLibraryArgs
->(async (_, { id }, { authTrx, pubsub, uid }) => {
+export const moveToFolderResolver = authorized<
+  MoveToFolderSuccess,
+  MoveToFolderError,
+  MutationMoveToFolderArgs
+>(async (_, { id, folder }, { authTrx, pubsub, uid }) => {
   analytics.track({
     userId: uid,
-    event: 'copy_from_following_to_library',
+    event: 'move_to_folder',
     properties: {
       id,
+      folder,
     },
   })
 
@@ -89,7 +89,6 @@ export const copyFromFollowingToLibraryResolver = authorized<
     tx.getRepository(LibraryItem).findOne({
       where: {
         id,
-        addedToFollowingAt: Not(IsNull()),
       },
       relations: ['user'],
     })
@@ -97,17 +96,17 @@ export const copyFromFollowingToLibraryResolver = authorized<
 
   if (!item) {
     return {
-      errorCodes: [CopyFromFollowingToLibraryErrorCode.Unauthorized],
+      errorCodes: [MoveToFolderErrorCode.Unauthorized],
     }
   }
 
-  if (item.addedToLibraryAt) {
+  if (item.folder === folder) {
     return {
-      errorCodes: [CopyFromFollowingToLibraryErrorCode.AlreadyExists],
+      errorCodes: [MoveToFolderErrorCode.AlreadyExists],
     }
   }
 
-  const addedToLibraryAt = new Date()
+  const savedAt = new Date()
 
   // if the content is not fetched yet, create a page save request
   if (!item.readableContent) {
@@ -117,12 +116,12 @@ export const copyFromFollowingToLibraryResolver = authorized<
       articleSavingRequestId: id,
       priority: 'high',
       publishedAt: item.publishedAt || undefined,
-      savedAt: addedToLibraryAt,
+      savedAt,
       pubsub,
     })
 
     return {
-      __typename: 'CopyFromFollowingToLibrarySuccess',
+      __typename: 'MoveToFolderSuccess',
       articleSavingRequest,
     }
   }
@@ -130,15 +129,15 @@ export const copyFromFollowingToLibraryResolver = authorized<
   const updatedItem = await updateLibraryItem(
     item.id,
     {
-      savedAt: addedToLibraryAt,
-      addedToLibraryAt,
+      folder,
+      savedAt,
     },
     uid,
     pubsub
   )
 
   return {
-    __typename: 'CopyFromFollowingToLibrarySuccess',
+    __typename: 'MoveToFolderSuccess',
     articleSavingRequest: libraryItemToArticleSavingRequest(
       updatedItem.user,
       updatedItem

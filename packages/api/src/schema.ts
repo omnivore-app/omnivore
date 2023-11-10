@@ -2651,19 +2651,17 @@ const schema = gql`
     author: String
   }
 
-  union CopyFromFollowingToLibraryResult =
-      CopyFromFollowingToLibrarySuccess
-    | CopyFromFollowingToLibraryError
+  union MoveToFolderResult = MoveToFolderSuccess | MoveToFolderError
 
-  type CopyFromFollowingToLibrarySuccess {
+  type MoveToFolderSuccess {
     articleSavingRequest: ArticleSavingRequest!
   }
 
-  type CopyFromFollowingToLibraryError {
-    errorCodes: [CopyFromFollowingToLibraryErrorCode!]!
+  type MoveToFolderError {
+    errorCodes: [MoveToFolderErrorCode!]!
   }
 
-  enum CopyFromFollowingToLibraryErrorCode {
+  enum MoveToFolderErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     ALREADY_EXISTS
@@ -2772,7 +2770,7 @@ const schema = gql`
     updateSubscription(
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
-    copyFromFollowingToLibrary(id: ID!): CopyFromFollowingToLibraryResult!
+    moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

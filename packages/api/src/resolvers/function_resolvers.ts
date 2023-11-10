@@ -29,7 +29,7 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { optInFeatureResolver } from './features'
-import { copyFromFollowingToLibraryResolver, feedsResolver } from './following'
+import { feedsResolver, moveToFolderResolver } from './following'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -216,7 +216,7 @@ export const functionResolvers = {
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
-    copyFromFollowingToLibrary: copyFromFollowingToLibraryResolver,
+    moveToFolder: moveToFolderResolver,
   },
   Query: {
     me: getMeUserResolver,

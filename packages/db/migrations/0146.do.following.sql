@@ -9,14 +9,10 @@ ALTER TABLE omnivore.subscriptions
     ADD COLUMN auto_add_to_library boolean;
 
 ALTER TABLE omnivore.library_item
-    ADD COLUMN hidden_at timestamptz,
-    ADD COLUMN added_to_following_at timestamptz,
-    ADD COLUMN added_to_following_by text,
     ADD COLUMN links jsonb,
     ADD COLUMN preview_content text,
     ADD COLUMN preview_content_type text,
-    ADD COLUMN added_to_following_from text,
-    ADD COLUMN added_to_library_at timestamptz DEFAULT current_timestamp;
+    ADD COLUMN folder text NOT NULL DEFAULT 'inbox';
 
 CREATE POLICY library_item_admin_policy on omnivore.library_item
     FOR ALL

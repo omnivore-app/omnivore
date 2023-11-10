@@ -20,13 +20,11 @@ export enum ReadFilter {
 }
 
 export enum InFilter {
-  ALL,
-  INBOX,
-  ARCHIVE,
-  TRASH,
-  SUBSCRIPTION,
-  LIBRARY,
-  FOLLOWING,
+  ALL = 'all',
+  INBOX = 'inbox',
+  ARCHIVE = 'archive',
+  TRASH = 'trash',
+  FOLLOWING = 'following',
 }
 
 export interface SearchFilter {
@@ -59,6 +57,7 @@ export type LabelFilter = {
 export enum HasFilter {
   HIGHLIGHTS,
   LABELS,
+  SUBSCRIPTIONS,
 }
 
 export interface DateFilter {
@@ -134,10 +133,6 @@ const parseInFilter = (
       return InFilter.ARCHIVE
     case 'TRASH':
       return InFilter.TRASH
-    case 'SUBSCRIPTION':
-      return InFilter.SUBSCRIPTION
-    case 'LIBRARY':
-      return InFilter.LIBRARY
     case 'FOLLOWING':
       return InFilter.FOLLOWING
   }
@@ -236,6 +231,8 @@ const parseHasFilter = (str?: string): HasFilter | undefined => {
       return HasFilter.HIGHLIGHTS
     case 'LABELS':
       return HasFilter.LABELS
+    case 'SUBSCRIPTIONS':
+      return HasFilter.SUBSCRIPTIONS
   }
 }
 

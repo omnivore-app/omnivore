@@ -253,24 +253,6 @@ export enum ContentReader {
   Web = 'WEB'
 }
 
-export type CopyFromFollowingToLibraryError = {
-  __typename?: 'CopyFromFollowingToLibraryError';
-  errorCodes: Array<CopyFromFollowingToLibraryErrorCode>;
-};
-
-export enum CopyFromFollowingToLibraryErrorCode {
-  AlreadyExists = 'ALREADY_EXISTS',
-  BadRequest = 'BAD_REQUEST',
-  Unauthorized = 'UNAUTHORIZED'
-}
-
-export type CopyFromFollowingToLibraryResult = CopyFromFollowingToLibraryError | CopyFromFollowingToLibrarySuccess;
-
-export type CopyFromFollowingToLibrarySuccess = {
-  __typename?: 'CopyFromFollowingToLibrarySuccess';
-  articleSavingRequest: ArticleSavingRequest;
-};
-
 export type CreateArticleError = {
   __typename?: 'CreateArticleError';
   errorCodes: Array<CreateArticleErrorCode>;
@@ -1301,11 +1283,28 @@ export type MoveLabelSuccess = {
   label: Label;
 };
 
+export type MoveToFolderError = {
+  __typename?: 'MoveToFolderError';
+  errorCodes: Array<MoveToFolderErrorCode>;
+};
+
+export enum MoveToFolderErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess;
+
+export type MoveToFolderSuccess = {
+  __typename?: 'MoveToFolderSuccess';
+  articleSavingRequest: ArticleSavingRequest;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPopularRead: AddPopularReadResult;
   bulkAction: BulkActionResult;
-  copyFromFollowingToLibrary: CopyFromFollowingToLibraryResult;
   createArticle: CreateArticleResult;
   createArticleSavingRequest: CreateArticleSavingRequestResult;
   createGroup: CreateGroupResult;
@@ -1331,6 +1330,7 @@ export type Mutation = {
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
+  moveToFolder: MoveToFolderResult;
   optInFeature: OptInFeatureResult;
   recommend: RecommendResult;
   recommendHighlights: RecommendHighlightsResult;
@@ -1377,11 +1377,6 @@ export type MutationBulkActionArgs = {
   expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   query: Scalars['String'];
-};
-
-
-export type MutationCopyFromFollowingToLibraryArgs = {
-  id: Scalars['ID'];
 };
 
 
@@ -1497,6 +1492,12 @@ export type MutationMoveFilterArgs = {
 
 export type MutationMoveLabelArgs = {
   input: MoveLabelInput;
+};
+
+
+export type MutationMoveToFolderArgs = {
+  folder: Scalars['String'];
+  id: Scalars['ID'];
 };
 
 
@@ -3444,10 +3445,6 @@ export type ResolversTypes = {
   BulkActionSuccess: ResolverTypeWrapper<BulkActionSuccess>;
   BulkActionType: BulkActionType;
   ContentReader: ContentReader;
-  CopyFromFollowingToLibraryError: ResolverTypeWrapper<CopyFromFollowingToLibraryError>;
-  CopyFromFollowingToLibraryErrorCode: CopyFromFollowingToLibraryErrorCode;
-  CopyFromFollowingToLibraryResult: ResolversTypes['CopyFromFollowingToLibraryError'] | ResolversTypes['CopyFromFollowingToLibrarySuccess'];
-  CopyFromFollowingToLibrarySuccess: ResolverTypeWrapper<CopyFromFollowingToLibrarySuccess>;
   CreateArticleError: ResolverTypeWrapper<CreateArticleError>;
   CreateArticleErrorCode: CreateArticleErrorCode;
   CreateArticleInput: CreateArticleInput;
@@ -3648,6 +3645,10 @@ export type ResolversTypes = {
   MoveLabelInput: MoveLabelInput;
   MoveLabelResult: ResolversTypes['MoveLabelError'] | ResolversTypes['MoveLabelSuccess'];
   MoveLabelSuccess: ResolverTypeWrapper<MoveLabelSuccess>;
+  MoveToFolderError: ResolverTypeWrapper<MoveToFolderError>;
+  MoveToFolderErrorCode: MoveToFolderErrorCode;
+  MoveToFolderResult: ResolversTypes['MoveToFolderError'] | ResolversTypes['MoveToFolderSuccess'];
+  MoveToFolderSuccess: ResolverTypeWrapper<MoveToFolderSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
@@ -3956,9 +3957,6 @@ export type ResolversParentTypes = {
   BulkActionError: BulkActionError;
   BulkActionResult: ResolversParentTypes['BulkActionError'] | ResolversParentTypes['BulkActionSuccess'];
   BulkActionSuccess: BulkActionSuccess;
-  CopyFromFollowingToLibraryError: CopyFromFollowingToLibraryError;
-  CopyFromFollowingToLibraryResult: ResolversParentTypes['CopyFromFollowingToLibraryError'] | ResolversParentTypes['CopyFromFollowingToLibrarySuccess'];
-  CopyFromFollowingToLibrarySuccess: CopyFromFollowingToLibrarySuccess;
   CreateArticleError: CreateArticleError;
   CreateArticleInput: CreateArticleInput;
   CreateArticleResult: ResolversParentTypes['CreateArticleError'] | ResolversParentTypes['CreateArticleSuccess'];
@@ -4116,6 +4114,9 @@ export type ResolversParentTypes = {
   MoveLabelInput: MoveLabelInput;
   MoveLabelResult: ResolversParentTypes['MoveLabelError'] | ResolversParentTypes['MoveLabelSuccess'];
   MoveLabelSuccess: MoveLabelSuccess;
+  MoveToFolderError: MoveToFolderError;
+  MoveToFolderResult: ResolversParentTypes['MoveToFolderError'] | ResolversParentTypes['MoveToFolderSuccess'];
+  MoveToFolderSuccess: MoveToFolderSuccess;
   Mutation: {};
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
@@ -4513,20 +4514,6 @@ export type BulkActionResultResolvers<ContextType = ResolverContext, ParentType 
 
 export type BulkActionSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['BulkActionSuccess'] = ResolversParentTypes['BulkActionSuccess']> = {
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type CopyFromFollowingToLibraryErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CopyFromFollowingToLibraryError'] = ResolversParentTypes['CopyFromFollowingToLibraryError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['CopyFromFollowingToLibraryErrorCode']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type CopyFromFollowingToLibraryResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CopyFromFollowingToLibraryResult'] = ResolversParentTypes['CopyFromFollowingToLibraryResult']> = {
-  __resolveType: TypeResolveFn<'CopyFromFollowingToLibraryError' | 'CopyFromFollowingToLibrarySuccess', ParentType, ContextType>;
-};
-
-export type CopyFromFollowingToLibrarySuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CopyFromFollowingToLibrarySuccess'] = ResolversParentTypes['CopyFromFollowingToLibrarySuccess']> = {
-  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5274,10 +5261,23 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MoveToFolderErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderError'] = ResolversParentTypes['MoveToFolderError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['MoveToFolderErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MoveToFolderResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderResult'] = ResolversParentTypes['MoveToFolderResult']> = {
+  __resolveType: TypeResolveFn<'MoveToFolderError' | 'MoveToFolderSuccess', ParentType, ContextType>;
+};
+
+export type MoveToFolderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderSuccess'] = ResolversParentTypes['MoveToFolderSuccess']> = {
+  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
-  copyFromFollowingToLibrary?: Resolver<ResolversTypes['CopyFromFollowingToLibraryResult'], ParentType, ContextType, RequireFields<MutationCopyFromFollowingToLibraryArgs, 'id'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
   createArticleSavingRequest?: Resolver<ResolversTypes['CreateArticleSavingRequestResult'], ParentType, ContextType, RequireFields<MutationCreateArticleSavingRequestArgs, 'input'>>;
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
@@ -5303,6 +5303,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
+  moveToFolder?: Resolver<ResolversTypes['MoveToFolderResult'], ParentType, ContextType, RequireFields<MutationMoveToFolderArgs, 'folder' | 'id'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
@@ -6373,9 +6374,6 @@ export type Resolvers<ContextType = ResolverContext> = {
   BulkActionError?: BulkActionErrorResolvers<ContextType>;
   BulkActionResult?: BulkActionResultResolvers<ContextType>;
   BulkActionSuccess?: BulkActionSuccessResolvers<ContextType>;
-  CopyFromFollowingToLibraryError?: CopyFromFollowingToLibraryErrorResolvers<ContextType>;
-  CopyFromFollowingToLibraryResult?: CopyFromFollowingToLibraryResultResolvers<ContextType>;
-  CopyFromFollowingToLibrarySuccess?: CopyFromFollowingToLibrarySuccessResolvers<ContextType>;
   CreateArticleError?: CreateArticleErrorResolvers<ContextType>;
   CreateArticleResult?: CreateArticleResultResolvers<ContextType>;
   CreateArticleSavingRequestError?: CreateArticleSavingRequestErrorResolvers<ContextType>;
@@ -6515,6 +6513,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   MoveLabelError?: MoveLabelErrorResolvers<ContextType>;
   MoveLabelResult?: MoveLabelResultResolvers<ContextType>;
   MoveLabelSuccess?: MoveLabelSuccessResolvers<ContextType>;
+  MoveToFolderError?: MoveToFolderErrorResolvers<ContextType>;
+  MoveToFolderResult?: MoveToFolderResultResolvers<ContextType>;
+  MoveToFolderSuccess?: MoveToFolderSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   NewsletterEmail?: NewsletterEmailResolvers<ContextType>;
   NewsletterEmailsError?: NewsletterEmailsErrorResolvers<ContextType>;

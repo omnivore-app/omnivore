@@ -10,7 +10,6 @@ export interface SaveFollowingItemRequest {
   title: string
   url: string
   itemId: string
-  addedToFollowingAt: Date
   addedToFollowingBy: string
   addedToFollowingFrom: SourceOfFollowing
   author?: string
@@ -19,7 +18,7 @@ export interface SaveFollowingItemRequest {
   previewContent?: string
   previewContentType?: string
   publishedAt?: Date
-  savedAt?: Date
+  savedAt: Date
 }
 
 function isSaveFollowingItemRequest(
@@ -27,12 +26,12 @@ function isSaveFollowingItemRequest(
 ): body is SaveFollowingItemRequest {
   return (
     'userIds' in body &&
-    'addedToFollowingAt' in body &&
     'addedToFollowingBy' in body &&
     'addedToFollowingFrom' in body &&
     'url' in body &&
     'itemId' in body &&
-    'title' in body
+    'title' in body &&
+    'savedAt' in body
   )
 }
 

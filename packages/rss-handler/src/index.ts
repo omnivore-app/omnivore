@@ -184,7 +184,6 @@ const createFollowingTask = async (
     addedToFollowingBy: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
-    addedToFollowingAt: item.isoDate,
     previewContentType: 'text/html', // TODO: get content type from feed
   }
 

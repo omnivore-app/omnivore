@@ -131,10 +131,7 @@ export const createPageSaveRequest = async ({
     )
   }
   // reset state to processing if not in following
-  if (
-    libraryItem.state !== LibraryItemState.Processing &&
-    !libraryItem.addedToFollowingAt
-  ) {
+  if (libraryItem.state !== LibraryItemState.Processing) {
     libraryItem = await updateLibraryItem(
       libraryItem.id,
       {

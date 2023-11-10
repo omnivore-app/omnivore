@@ -211,22 +211,6 @@ enum ContentReader {
   WEB
 }
 
-type CopyFromFollowingToLibraryError {
-  errorCodes: [CopyFromFollowingToLibraryErrorCode!]!
-}
-
-enum CopyFromFollowingToLibraryErrorCode {
-  ALREADY_EXISTS
-  BAD_REQUEST
-  UNAUTHORIZED
-}
-
-union CopyFromFollowingToLibraryResult = CopyFromFollowingToLibraryError | CopyFromFollowingToLibrarySuccess
-
-type CopyFromFollowingToLibrarySuccess {
-  articleSavingRequest: ArticleSavingRequest!
-}
-
 type CreateArticleError {
   errorCodes: [CreateArticleErrorCode!]!
 }
@@ -1165,10 +1149,25 @@ type MoveLabelSuccess {
   label: Label!
 }
 
+type MoveToFolderError {
+  errorCodes: [MoveToFolderErrorCode!]!
+}
+
+enum MoveToFolderErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess
+
+type MoveToFolderSuccess {
+  articleSavingRequest: ArticleSavingRequest!
+}
+
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
-  copyFromFollowingToLibrary(id: ID!): CopyFromFollowingToLibraryResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
@@ -1194,6 +1193,7 @@ type Mutation {
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
+  moveToFolder(folder: String!, id: ID!): MoveToFolderResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
