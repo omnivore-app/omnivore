@@ -14,6 +14,7 @@ import Views
 @MainActor
 public struct EditLabelsSheet: View {
   @State var text = ""
+  @State var isLabelsEntryFocused = false
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject var dataService: DataService
 
@@ -56,6 +57,7 @@ public struct EditLabelsSheet: View {
     VStack {
       LabelsEntryView(
         searchTerm: $labelsViewModel.labelSearchFilter,
+        isFocused: $isLabelsEntryFocused,
         viewModel: labelsViewModel
       )
       .padding(.horizontal, 10)

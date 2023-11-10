@@ -25,6 +25,7 @@ private struct LabelEntry: Entry {
 @MainActor
 public struct LabelsEntryView: View {
   @Binding var searchTerm: String
+  @Binding var isFocused: Bool
   @State var viewModel: LabelsViewModel
   @EnvironmentObject var dataService: DataService
 
@@ -35,11 +36,13 @@ public struct LabelsEntryView: View {
 
   public init(
     searchTerm: Binding<String>,
+    isFocused: Binding<Bool>,
     viewModel: LabelsViewModel
   ) {
     self._searchTerm = searchTerm
-    self.viewModel = viewModel
+    self._isFocused = isFocused
 
+    self.viewModel = viewModel
     self.entries = Array(viewModel.selectedLabels.map { LabelEntry(label: $0) })
   }
 
@@ -100,6 +103,7 @@ public struct LabelsEntryView: View {
       .frame(height: 25)
       .frame(width: textWidth)
       .padding(5)
+      .accentColor(.blue)
       .font(Font.system(size: 14))
       .multilineTextAlignment(.leading)
       .onChange(of: searchTerm, perform: { _ in
@@ -121,6 +125,10 @@ public struct LabelsEntryView: View {
       .onSubmit {
         onTextSubmit()
       }
+    #if os(macOS)
+      .textFieldStyle(.plain)
+      .background(Color.clear)
+    #endif
     return result
   }
 
@@ -157,6 +165,7 @@ public struct LabelsEntryView: View {
         textFieldFocused = true
       }
       .transaction { $0.animation = nil }
+      .onChange(of: textFieldFocused) { self.isFocused = $0 }
   }
 
   private func generateLabelsContent(in geom: GeometryProxy) -> some View {

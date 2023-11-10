@@ -20,7 +20,8 @@ public struct ShareExtensionView: View {
   @State var showAddNoteModal = false
 
   enum FocusField: Hashable {
-    case titleEditor
+    case noteEditor
+    case labelEditor
   }
 
   enum ViewState {
@@ -39,6 +40,10 @@ public struct ShareExtensionView: View {
     _viewModel = StateObject(wrappedValue: viewModel)
     _labelsViewModel = StateObject(wrappedValue: labelsViewModel)
     self.extensionContext = extensionContext
+
+    #if os(iOS)
+      UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #endif
   }
 
   private func localImage(from url: URL) -> Image? {
@@ -55,12 +60,13 @@ public struct ShareExtensionView: View {
   }
 
   var isSynced: Bool {
-    switch viewModel.status {
-    case .synced:
-      return true
-    default:
-      return false
-    }
+    true
+//    switch viewModel.status {
+//    case .synced:
+//      return true
+//    default:
+//      return false
+//    }
   }
 
   var articleInfoBox: some View {
@@ -100,7 +106,7 @@ public struct ShareExtensionView: View {
       Image(systemName: "checkmark.circle")
         .frame(width: 15, height: 15)
         .foregroundColor(.appGreenSuccess)
-      // .opacity(isSynced ? 1.0 : 0.0)
+        .opacity(isSynced ? 1.0 : 0.0)
     }
   }
 
@@ -237,22 +243,32 @@ public struct ShareExtensionView: View {
       Text("Saved to Omnivore")
         .font(Font.system(size: 22, weight: .bold))
         .frame(maxWidth: .infinity, alignment: .leading)
-
-      Spacer()
-      moreMenuButton
-      closeButton
+      #if os(iOS)
+        Spacer()
+        moreMenuButton
+        closeButton
+      #endif
     }
   }
 
   var displayDismiss: Bool {
-#if os(iOS)
-    if UIDevice.isIPhone {
-      return true
-    }
-#endif
-    return false
+    #if os(iOS)
+      if UIDevice.isIPhone {
+        return false
+      }
+    #endif
+    return true
   }
+
   public var body: some View {
+    #if os(iOS)
+      iOSBody
+    #else
+      macOSBody
+    #endif
+  }
+
+  var iOSBody: some View {
     VStack(alignment: .leading, spacing: 15) {
       titleBar
         .padding(.top, 15)
@@ -262,37 +278,144 @@ public struct ShareExtensionView: View {
       Spacer(minLength: 1)
 
       HStack {
+        #if os(macOS)
+          moreMenuButton
+            .padding(.bottom, 15)
+        #endif
         Spacer()
         if displayDismiss {
           Button(action: {
             extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
           }, label: {
             Text("Dismiss")
+            #if os(iOS)
               .font(Font.system(size: 17, weight: .semibold))
               .tint(Color.appGrayText)
               .padding(20)
+            #endif
           })
+          #if os(iOS)
             .frame(height: 50)
             .cornerRadius(24)
-            .padding(.bottom, 15)
+          #endif
+          .padding(.bottom, 15)
         }
         Button(action: {
           viewModel.handleReadNowAction(extensionContext: extensionContext)
         }, label: {
           Text("Read Now")
+          #if os(iOS)
             .font(Font.system(size: 17, weight: .semibold))
             .tint(Color.white)
             .padding(20)
+          #endif
         })
+        #if os(iOS)
           .frame(height: 50)
           .background(Color.blue)
           .cornerRadius(24)
-          .padding(.bottom, 15)
+        #endif
+        .padding(.bottom, 15)
       }.frame(maxWidth: .infinity)
     }.padding(.horizontal, 15)
       .background(Color.extensionBackground)
       .onAppear {
         viewModel.savePage(extensionContext: extensionContext)
+      }
+  }
+
+  @State var notes = ""
+  @State var labelsSearch = ZWSP
+  @State var isLabelsEntryFocused = false
+
+  var macOSBody: some View {
+    VStack(alignment: .leading, spacing: 0) {
+      HStack(spacing: 10) {
+        Text("Saved to Omnivore")
+          .font(Font.system(size: 17))
+        Image(systemName: "checkmark.circle")
+          .foregroundColor(.appGreenSuccess)
+          .opacity(isSynced ? 1.0 : 0.0)
+        Spacer()
+      }.padding(15)
+
+      Divider()
+
+      ZStack(alignment: .topLeading) {
+        TextEditor(text: $notes)
+          .frame(maxWidth: .infinity)
+          .font(Font.system(size: 14))
+          .accentColor(.blue)
+          .introspectTextView { textView in
+            textView.textContainerInset = NSSize(width: 10, height: 10)
+          }
+          .focused($focusedField, equals: .noteEditor)
+        if notes.isEmpty {
+          Text("Notes")
+            .fontWeight(.light)
+            .font(Font.system(size: 14))
+            .foregroundColor(.black.opacity(0.25))
+            .padding(.leading, 15)
+            .padding(.top, 10)
+            .allowsHitTesting(false)
+        }
+      }
+
+      Divider()
+
+      ZStack(alignment: .topLeading) {
+        LabelsEntryView(searchTerm: $labelsSearch, isFocused: $isLabelsEntryFocused, viewModel: labelsViewModel)
+          .frame(maxWidth: .infinity)
+          .padding(.horizontal, 10)
+          .focused($focusedField, equals: .labelEditor)
+          .onHover { isHovered in
+            DispatchQueue.main.async {
+              if isHovered {
+                NSCursor.iBeam.push()
+              } else {
+                NSCursor.pop()
+              }
+            }
+          }
+        if !isLabelsEntryFocused, labelsViewModel.selectedLabels.isEmpty, labelsSearch == ZWSP {
+          Text("Add Labels")
+            .fontWeight(.light)
+            .font(Font.system(size: 14))
+            .foregroundColor(.black.opacity(0.25))
+            .padding(.leading, 15)
+            .padding(.top, 10)
+            .allowsHitTesting(false)
+        }
+      }
+
+      Divider()
+
+      HStack {
+        moreMenuButton
+          .padding(.bottom, 15)
+        Spacer()
+        Button(action: {
+          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        }, label: {
+          Text("Dismiss")
+        })
+          .padding(.bottom, 15)
+        Button(action: {
+          viewModel.handleReadNowAction(extensionContext: extensionContext)
+        }, label: {
+          Text("Read Now")
+        })
+          .padding(.bottom, 15)
+
+      }.padding(15)
+
+    }.frame(maxWidth: .infinity)
+      .background(Color.isDarkMode ? Color.systemBackground : Color.white)
+      .onAppear {
+        viewModel.savePage(extensionContext: extensionContext)
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+          focusedField = .noteEditor
+        }
       }
   }
 }

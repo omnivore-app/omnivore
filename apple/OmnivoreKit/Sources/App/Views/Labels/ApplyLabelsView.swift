@@ -36,6 +36,7 @@ struct ApplyLabelsView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
+  @State var isLabelsEntryFocused = false
 
   enum ViewState {
     case mainView
@@ -52,6 +53,7 @@ struct ApplyLabelsView: View {
     VStack {
       LabelsEntryView(
         searchTerm: $viewModel.labelSearchFilter,
+        isFocused: $isLabelsEntryFocused,
         viewModel: viewModel
       )
       .padding(.horizontal, 10)
