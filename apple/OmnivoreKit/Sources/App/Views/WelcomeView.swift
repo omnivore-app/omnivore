@@ -90,16 +90,18 @@ struct WelcomeView: View {
       NavigationView {
         BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
           .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-              Button(
-                action: {
-                  showPrivacyModal = false
-                },
-                label: {
-                  Text(LocalText.genericClose)
-                }
-              )
-            }
+            #if os(iOS)
+              ToolbarItem(placement: .navigationBarTrailing) {
+                Button(
+                  action: {
+                    showPrivacyModal = false
+                  },
+                  label: {
+                    Text(LocalText.genericClose)
+                  }
+                )
+              }
+            #endif
           }
       }
     }
@@ -107,16 +109,18 @@ struct WelcomeView: View {
       NavigationView {
         BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
           .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-              Button(
-                action: {
-                  showTermsModal = false
-                },
-                label: {
-                  Text(LocalText.genericClose)
-                }
-              )
-            }
+            #if os(iOS)
+              ToolbarItem(placement: .navigationBarTrailing) {
+                Button(
+                  action: {
+                    showTermsModal = false
+                  },
+                  label: {
+                    Text(LocalText.genericClose)
+                  }
+                )
+              }
+            #endif
           }
       }
     }

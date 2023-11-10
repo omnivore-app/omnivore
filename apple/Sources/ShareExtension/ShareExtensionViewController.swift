@@ -62,6 +62,9 @@ import Views
   import Cocoa
 
   class ShareViewController: NSViewController {
+    let labelsViewModel = LabelsViewModel()
+    let viewModel = ShareExtensionViewModel()
+
     override func loadView() {
       view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 600))
     }
@@ -69,7 +72,11 @@ import Views
     override func viewDidLoad() {
       super.viewDidLoad()
       embed(
-        childViewController: NSViewController.makeShareExtensionController(extensionContext: extensionContext)
+        childViewController: NSViewController.makeShareExtensionController(
+          viewModel: viewModel,
+          labelsViewModel: labelsViewModel,
+          extensionContext: extensionContext
+        )
       )
     }
   }

@@ -26,7 +26,9 @@ public struct EditInfoSheet: View {
 
   public init(viewModel: ShareExtensionViewModel) {
     _viewModel = StateObject(wrappedValue: viewModel)
-    UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #if os(iOS)
+      UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #endif
   }
 
 //  func saveInfo() {

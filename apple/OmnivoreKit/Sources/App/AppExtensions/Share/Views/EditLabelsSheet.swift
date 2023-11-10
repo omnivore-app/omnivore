@@ -29,8 +29,9 @@ public struct EditLabelsSheet: View {
   public init(viewModel: ShareExtensionViewModel, labelsViewModel: LabelsViewModel) {
     _viewModel = StateObject(wrappedValue: viewModel)
     _labelsViewModel = StateObject(wrappedValue: labelsViewModel)
-
-    UITextView.appearance().textContainerInset = UIEdgeInsets(top: 5, left: 2, bottom: 5, right: 2)
+    #if os(iOS)
+      UITextView.appearance().textContainerInset = UIEdgeInsets(top: 5, left: 2, bottom: 5, right: 2)
+    #endif
   }
 
   @MainActor
@@ -104,6 +105,7 @@ public struct EditLabelsSheet: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.extensionBackground)
         .navigationTitle("Set Labels")
+      #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(trailing: Button(action: {
           if let linkedItem = viewModel.linkedItem, let linkedItemId = linkedItem.id {
@@ -116,11 +118,14 @@ public struct EditLabelsSheet: View {
         }, label: {
           Text("Done").bold()
         }))
+      #endif
     }
-    .navigationViewStyle(StackNavigationViewStyle())
+    #if os(iOS)
+      .navigationViewStyle(StackNavigationViewStyle())
+    #endif
     .environmentObject(viewModel.services.dataService)
-    .task {
-      await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
-    }
+      .task {
+        await labelsViewModel.loadLabelsFromStore(dataService: viewModel.services.dataService)
+      }
   }
 }

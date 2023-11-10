@@ -74,13 +74,27 @@ public struct LabelsEntryView: View {
     }
   }
 
+  var textFieldString: NSAttributedString {
+    #if os(iOS)
+      NSAttributedString(
+        string: searchTerm,
+        attributes: [
+          NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14)
+        ]
+      )
+    #else
+      NSAttributedString(
+        string: searchTerm,
+        attributes: [
+          NSAttributedString.Key.font: NSFont.systemFont(ofSize: 14)
+        ]
+      )
+    #endif
+  }
+
   var deletableTextField: some View {
-    let str = NSAttributedString(
-      string: searchTerm,
-      attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14)]
-    )
     // Round it up to avoid jitter when typing
-    let textWidth = max(25.0, Double(Int(str.size().width + 1)))
+    let textWidth = max(25.0, Double(Int(textFieldString.size().width + 1)))
     let result = TextField("", text: $searchTerm)
       .frame(alignment: .topLeading)
       .frame(height: 25)
