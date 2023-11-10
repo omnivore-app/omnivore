@@ -65,33 +65,33 @@ public struct LibraryItemCard: View {
       if item.hasLabels {
         labels
       }
-//
-//      if let note = item.noteText {
-//        HStack(alignment: .top, spacing: 10) {
-//          avatarImage
-//            .frame(width: 20, height: 20)
-//            .padding(.vertical, 10)
-//            .padding(.leading, 10)
-//
-//          Text(note)
-//            .font(Font.system(size: 12))
-//            .multilineTextAlignment(.leading)
-//            .lineLimit(noteLineLimit)
-//            .frame(minHeight: 20)
-//            .padding(.vertical, 10)
-//            .padding(.trailing, 10)
-//
-//          Spacer()
-//        }
-//        .frame(maxWidth: .infinity)
-//        .frame(alignment: .topLeading)
-//        .background(Color.noteContainer)
-//        .cornerRadius(5)
-//        .allowsHitTesting(noteLineLimit != nil)
-//        .onTapGesture {
-//          noteLineLimit = nil
-//        }
-//      }
+
+      if let note = item.noteText {
+        HStack(alignment: .top, spacing: 10) {
+          avatarImage
+            .frame(width: 20, height: 20)
+            .padding(.vertical, 10)
+            .padding(.leading, 10)
+
+          Text(note)
+            .font(Font.system(size: 12))
+            .multilineTextAlignment(.leading)
+            .lineLimit(noteLineLimit)
+            .frame(minHeight: 20)
+            .padding(.vertical, 10)
+            .padding(.trailing, 10)
+
+          Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .frame(alignment: .topLeading)
+        .background(Color.noteContainer)
+        .cornerRadius(5)
+        .allowsHitTesting(noteLineLimit != nil)
+        .onTapGesture {
+          noteLineLimit = nil
+        }
+      }
     }
     .padding(5)
     .padding(.top, 10)
