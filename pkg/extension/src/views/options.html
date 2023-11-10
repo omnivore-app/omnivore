@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>API Key Storage</title>
+  <title>Omnivore Extension Settings</title>
   <script src="/scripts/common.js"></script>
 
 </head>
@@ -35,8 +35,16 @@
 
     <h1>Settings</h1>
 
-    <input type="checkbox" id="disable-auto-dismiss" />
-    <label for="auto-dismiss">Disable Auto Dismiss</label>
+    <p>
+      <input type="checkbox" id="disable-auto-dismiss" />
+      <label for="auto-dismiss">Disable Auto Dismiss</label>
+    </p>
+
+    <p>
+      <label for="auto-dismiss-time">Auto Dismiss time (ms)</label>
+      <input type="text" id="auto-dismiss-time" />
+      <button id="auto-dismiss-time-btn">Save</button>
+    </p>
 
   </div>
   <script src="/scripts/options.js"></script>

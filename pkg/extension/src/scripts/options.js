@@ -49,6 +49,21 @@ function autoDismissChanged(event) {
   })
 }
 
+function saveAutoDismissTime() {
+  const value = document.getElementById('auto-dismiss-time').value
+
+  if (value.length < 1 || Number.isNaN(Number(value))) {
+    alert('Invalid value')
+    return
+  }
+
+  setStorage({
+    autoDismissTime: value,
+  }).then(() => {
+    console.log('autoDismissTime updated', value)
+  })
+}
+
 ;(() => {
   document
     .getElementById('save-api-key-btn')
@@ -61,7 +76,6 @@ function autoDismissChanged(event) {
     .addEventListener('click', clearAPIKey)
 
   getStorageItem('disableAutoDismiss').then((value) => {
-    console.log('disableAutoDismiss updated', value)
     document.getElementById('disable-auto-dismiss').checked = value
       ? true
       : false
@@ -70,4 +84,11 @@ function autoDismissChanged(event) {
   document
     .getElementById('disable-auto-dismiss')
     .addEventListener('change', autoDismissChanged)
+
+  getStorageItem('autoDismissTime').then((value) => {
+    document.getElementById('auto-dismiss-time').value = value ?? '2500'
+  })
+  document
+    .getElementById('auto-dismiss-time-btn')
+    .addEventListener('click', saveAutoDismissTime)
 })()
