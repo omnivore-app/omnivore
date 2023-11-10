@@ -89,39 +89,61 @@ struct WelcomeView: View {
     .sheet(isPresented: $showPrivacyModal) {
       NavigationView {
         BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+        #if os(iOS)
           .toolbar {
-            #if os(iOS)
-              ToolbarItem(placement: .navigationBarTrailing) {
-                Button(
-                  action: {
-                    showPrivacyModal = false
-                  },
-                  label: {
-                    Text(LocalText.genericClose)
-                  }
-                )
-              }
-            #endif
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(
+                action: {
+                  showPrivacyModal = false
+                },
+                label: {
+                  Text(LocalText.genericClose)
+                }
+              )
+            }
           }
+        #else
+          .toolbar {
+            Button(
+              action: {
+                showPrivacyModal = false
+              },
+              label: {
+                Text(LocalText.genericClose)
+              }
+            )
+          }
+        #endif
       }
     }
     .sheet(isPresented: $showTermsModal) {
       NavigationView {
         BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+        #if os(iOS)
           .toolbar {
-            #if os(iOS)
-              ToolbarItem(placement: .navigationBarTrailing) {
-                Button(
-                  action: {
-                    showTermsModal = false
-                  },
-                  label: {
-                    Text(LocalText.genericClose)
-                  }
-                )
-              }
-            #endif
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(
+                action: {
+                  showTermsModal = false
+                },
+                label: {
+                  Text(LocalText.genericClose)
+                }
+              )
+            }
           }
+        #else
+          .toolbar {
+            Button(
+              action: {
+                showTermsModal = false
+              },
+              label: {
+                Text(LocalText.genericClose)
+              }
+            )
+          }
+        #endif
       }
     }
     .sheet(isPresented: $showAboutPage) {

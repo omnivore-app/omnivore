@@ -244,6 +244,14 @@ public struct ShareExtensionView: View {
     }
   }
 
+  var displayDismiss: Bool {
+#if os(iOS)
+    if UIDevice.isIPhone {
+      return true
+    }
+#endif
+    return false
+  }
   public var body: some View {
     VStack(alignment: .leading, spacing: 15) {
       titleBar
@@ -255,21 +263,19 @@ public struct ShareExtensionView: View {
 
       HStack {
         Spacer()
-        #if os(iOS)
-          if UIDevice.isIPad {
-            Button(action: {
-              extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-            }, label: {
-              Text("Dismiss")
-                .font(Font.system(size: 17, weight: .semibold))
-                .tint(Color.appGrayText)
-                .padding(20)
-            })
-              .frame(height: 50)
-              .cornerRadius(24)
-              .padding(.bottom, 15)
-          }
-        #endif
+        if displayDismiss {
+          Button(action: {
+            extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+          }, label: {
+            Text("Dismiss")
+              .font(Font.system(size: 17, weight: .semibold))
+              .tint(Color.appGrayText)
+              .padding(20)
+          })
+            .frame(height: 50)
+            .cornerRadius(24)
+            .padding(.bottom, 15)
+        }
         Button(action: {
           viewModel.handleReadNowAction(extensionContext: extensionContext)
         }, label: {

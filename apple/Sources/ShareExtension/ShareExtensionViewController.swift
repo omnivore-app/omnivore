@@ -66,7 +66,7 @@ import Views
     let viewModel = ShareExtensionViewModel()
 
     override func loadView() {
-      view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 600))
+      view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 400))
     }
 
     override func viewDidLoad() {
