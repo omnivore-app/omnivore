@@ -7,7 +7,7 @@
     "@google-cloud/storage": "^7.0.1",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
-    "axios": "^0.27.2",
+    "axios": "^1.6.0",
     "crypto": "^1.0.1",
     "dompurify": "^2.4.1",
     "jsonwebtoken": "^8.5.1",
