@@ -14,6 +14,9 @@ ALTER TABLE omnivore.library_item
     ADD COLUMN preview_content_type text,
     ADD COLUMN folder text NOT NULL DEFAULT 'inbox';
 
+UPDATE omnivore.library_item SET folder = 'archive' WHERE archived_at IS NOT NULL;
+UPDATE omnivore.library_item SET folder = 'trash' WHERE deleted_at IS NOT NULL;
+
 CREATE POLICY library_item_admin_policy on omnivore.library_item
     FOR ALL
     TO omnivore_admin
