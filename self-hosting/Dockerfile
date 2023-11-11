@@ -1,4 +1,4 @@
-FROM node:14.18-alpine as builder
+FROM node:18.16.1-alpine as builder
 
 WORKDIR /app
 
@@ -18,6 +18,7 @@ COPY /packages/text-to-speech/package.json ./packages/text-to-speech/package.jso
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 COPY /packages/db/package.json ./packages/db/package.json
 
+RUN yarn upgrade @npmcli/run-script@6.0.2   # https://github.com/omnivore-app/omnivore/issues/2640
 RUN yarn install --pure-lockfile
 
 ADD /packages/readabilityjs ./packages/readabilityjs
@@ -34,7 +35,7 @@ RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-FROM node:14.18-alpine as runner
+FROM node:18.16.1-alpine as runner
 
 WORKDIR /app
 
