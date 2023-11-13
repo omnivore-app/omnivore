@@ -31,7 +31,7 @@
     "@google-cloud/pubsub": "^4.0.0",
     "@google-cloud/storage": "^7.0.1",
     "@sentry/serverless": "^7.77.0",
-    "axios": "^0.27.2",
+    "axios": "^1.6.1",
     "concurrently": "^7.0.0",
     "pdfjs-dist": "^2.9.359"
   },
