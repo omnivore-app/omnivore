@@ -60,13 +60,12 @@ public struct ShareExtensionView: View {
   }
 
   var isSynced: Bool {
-    true
-//    switch viewModel.status {
-//    case .synced:
-//      return true
-//    default:
-//      return false
-//    }
+    switch viewModel.status {
+    case .synced:
+      return true
+    default:
+      return false
+    }
   }
 
   var articleInfoBox: some View {
@@ -166,14 +165,16 @@ public struct ShareExtensionView: View {
 
   var moreMenuButton: some View {
     Menu {
-      Button(action: {
-        NotificationCenter.default.post(name: Notification.Name("ShowEditInfoSheet"), object: nil)
-      }, label: {
-        Label(
-          "Edit Info",
-          systemImage: "info.circle"
-        )
-      })
+      #if os(iOS)
+        Button(action: {
+          NotificationCenter.default.post(name: Notification.Name("ShowEditInfoSheet"), object: nil)
+        }, label: {
+          Label(
+            "Edit Info",
+            systemImage: "info.circle"
+          )
+        })
+      #endif
       Button(action: {
         if let linkedItem = self.viewModel.linkedItem {
           self.viewModel.setLinkArchived(dataService: self.viewModel.services.dataService,
@@ -263,8 +264,10 @@ public struct ShareExtensionView: View {
   public var body: some View {
     #if os(iOS)
       iOSBody
+        .environmentObject(viewModel.services.dataService)
     #else
       macOSBody
+        .environmentObject(viewModel.services.dataService)
     #endif
   }
 
@@ -324,9 +327,17 @@ public struct ShareExtensionView: View {
       }
   }
 
-  @State var notes = ""
   @State var labelsSearch = ZWSP
   @State var isLabelsEntryFocused = false
+
+  func save() {
+    if !viewModel.noteText.isEmpty {
+      viewModel.saveNote()
+    }
+    if let itemID = viewModel.linkedItem?.id {
+      labelsViewModel.saveItemLabelChanges(itemID: itemID, dataService: viewModel.services.dataService)
+    }
+  }
 
   var macOSBody: some View {
     VStack(alignment: .leading, spacing: 0) {
@@ -342,7 +353,7 @@ public struct ShareExtensionView: View {
       Divider()
 
       ZStack(alignment: .topLeading) {
-        TextEditor(text: $notes)
+        TextEditor(text: $viewModel.noteText)
           .frame(maxWidth: .infinity)
           .font(Font.system(size: 14))
           .accentColor(.blue)
@@ -350,7 +361,7 @@ public struct ShareExtensionView: View {
             textView.textContainerInset = NSSize(width: 10, height: 10)
           }
           .focused($focusedField, equals: .noteEditor)
-        if notes.isEmpty {
+        if viewModel.noteText.isEmpty {
           Text("Notes")
             .fontWeight(.light)
             .font(Font.system(size: 14))
@@ -366,7 +377,7 @@ public struct ShareExtensionView: View {
       ZStack(alignment: .topLeading) {
         LabelsEntryView(searchTerm: $labelsSearch, isFocused: $isLabelsEntryFocused, viewModel: labelsViewModel)
           .frame(maxWidth: .infinity)
-          .padding(.horizontal, 10)
+          .padding(.horizontal, 8)
           .focused($focusedField, equals: .labelEditor)
           .onHover { isHovered in
             DispatchQueue.main.async {
@@ -377,8 +388,8 @@ public struct ShareExtensionView: View {
               }
             }
           }
-        if !isLabelsEntryFocused, labelsViewModel.selectedLabels.isEmpty, labelsSearch == ZWSP {
-          Text("Add Labels")
+        if labelsViewModel.selectedLabels.isEmpty, labelsSearch == ZWSP {
+          Text("Type to add labels")
             .fontWeight(.light)
             .font(Font.system(size: 14))
             .foregroundColor(.black.opacity(0.25))
@@ -395,12 +406,14 @@ public struct ShareExtensionView: View {
           .padding(.bottom, 15)
         Spacer()
         Button(action: {
+          save()
           extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
         }, label: {
           Text("Dismiss")
         })
           .padding(.bottom, 15)
         Button(action: {
+          save()
           viewModel.handleReadNowAction(extensionContext: extensionContext)
         }, label: {
           Text("Read Now")
@@ -412,9 +425,14 @@ public struct ShareExtensionView: View {
     }.frame(maxWidth: .infinity)
       .background(Color.isDarkMode ? Color.systemBackground : Color.white)
       .onAppear {
-        viewModel.savePage(extensionContext: extensionContext)
+        if let extensionContext = extensionContext {
+          viewModel.savePage(extensionContext: extensionContext)
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-          focusedField = .noteEditor
+          focusedField = .labelEditor
+        }
+        Task {
+          await labelsViewModel.loadLabels(dataService: viewModel.services.dataService, initiallySelectedLabels: [])
         }
       }
   }

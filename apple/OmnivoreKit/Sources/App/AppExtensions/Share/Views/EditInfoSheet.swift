@@ -31,14 +31,6 @@ public struct EditInfoSheet: View {
     #endif
   }
 
-//  func saveInfo() {
-//    if let linkedItem = viewModel.linkedItem {
-//      _ = viewModel.services.dataService.updateLinkedItemTitleAndDescription(itemID: linkedItem.unwrappedID, title: title, description: description, author: author)
-//    } else {
-//      // Maybe we shouldn't even allow this UI without linkeditem existing
-//    }
-//  }
-
   public var body: some View {
     if let item = viewModel.linkedItem {
       LinkedItemMetadataEditView(item: item) { title, _ in

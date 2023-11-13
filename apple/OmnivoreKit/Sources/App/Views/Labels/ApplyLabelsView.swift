@@ -212,8 +212,11 @@ extension Sequence where Element == LinkedItemLabel {
     if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
     }
-    let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
-    let trimmed = searchFilter.suffix(from: index).lowercased()
-    return filter { ($0.name ?? "").lowercased().contains(trimmed) }
+    if searchFilter.starts(with: ZWSP) {
+      let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
+      let trimmed = searchFilter.suffix(from: index).lowercased()
+      return filter { ($0.name ?? "").lowercased().contains(trimmed) }
+    }
+    return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
   }
 }

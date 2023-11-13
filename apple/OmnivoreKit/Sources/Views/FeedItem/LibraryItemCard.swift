@@ -66,7 +66,7 @@ public struct LibraryItemCard: View {
         labels
       }
 
-      if let note = item.noteText {
+      if let note = item.noteText, !note.isEmpty {
         HStack(alignment: .top, spacing: 10) {
           avatarImage
             .frame(width: 20, height: 20)
