@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle } from 'phosphor-react'
+import { Circle, NewspaperClipping } from "phosphor-react"
 import {
   Subscription,
   SubscriptionType,
@@ -19,6 +19,7 @@ import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragme
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
+import { Discover } from "../../elements/DiscoverMenu"
 
 export const LIBRARY_LEFT_MENU_WIDTH = '233px'
 
@@ -30,6 +31,7 @@ type LibraryFilterMenuProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
+
 }
 
 export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
@@ -118,6 +120,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         </Box>
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
+        <Discover />
         <Labels {...props} labels={labels} />
         <Box css={{ height: '250px ' }} />
       </Box>
