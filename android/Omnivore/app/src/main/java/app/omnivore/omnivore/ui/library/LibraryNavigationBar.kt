@@ -35,12 +35,11 @@ fun LibraryNavigationBar(
     val actionsMenuItem: SavedItemWithLabelsAndHighlights? by savedItemViewModel.actionsMenuItemLiveData.observeAsState(null)
 
   TopAppBar(
-    title = {
-        Text(if (actionsMenuItem == null)
-            stringResource(R.string.library_nav_bar_title) else
-            stringResource(R.string.library_nav_bar_title_alt))
-    },
-      modifier = Modifier.statusBarsPadding(),
+      title = {
+          Text(if (actionsMenuItem == null)
+                  stringResource(R.string.library_nav_bar_title) else
+                  stringResource(R.string.library_nav_bar_title_alt))
+              },
       colors = TopAppBarDefaults.topAppBarColors(
           containerColor = if (actionsMenuItem == null)  MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.surfaceVariant
         ),
