@@ -50,6 +50,7 @@ class PDFReaderViewModel @Inject constructor(
   var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
   private var currentReadingProgress = 0.0
+  private var currentReadingPageIndex = 0
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
@@ -109,6 +110,8 @@ class PDFReaderViewModel @Inject constructor(
           )
 
           currentReadingProgress = article.readingProgress
+          currentReadingPageIndex = article.readingProgressAnchor
+
           pdfReaderParamsLiveData.postValue(
             PDFReaderParams(
               article,
@@ -133,6 +136,7 @@ class PDFReaderViewModel @Inject constructor(
     val rawProgress = ((currentPageIndex + 1).toDouble() / totalPages.toDouble()) * 100
     val percent = min(100.0, max(0.0, rawProgress))
     currentReadingProgress = percent
+    currentReadingPageIndex = currentPageIndex
     viewModelScope.launch {
       val params = ReadingProgressParams(
         id = pdfReaderParamsLiveData.value?.item?.savedItemId,
@@ -179,6 +183,8 @@ class PDFReaderViewModel @Inject constructor(
         patch = Optional.presentIfNotNull(newAnnotation.toInstantJson()),
         quote = Optional.presentIfNotNull(quote),
         shortId = shortId,
+        highlightPositionAnchorIndex = Optional.presentIfNotNull(currentReadingPageIndex),
+        highlightPositionPercent = Optional.presentIfNotNull(currentReadingProgress)
       )
 
       viewModelScope.launch {
