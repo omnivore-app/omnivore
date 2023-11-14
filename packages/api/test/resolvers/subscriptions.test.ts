@@ -3,7 +3,6 @@ import 'mocha'
 import Parser from 'rss-parser'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
-import { Feed } from '../../src/entity/feed'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { Subscription } from '../../src/entity/subscription'
 import { User } from '../../src/entity/user'
@@ -406,7 +405,6 @@ describe('Subscriptions API', () => {
 
         after(async () => {
           await deleteSubscription(existingSubscription.id)
-          await getRepository(Feed).delete({ url: existingSubscription.url })
         })
 
         it('returns an error', async () => {

@@ -1,6 +1,5 @@
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
-import { Feed } from '../../entity/feed'
 import { Subscription } from '../../entity/subscription'
 import { env } from '../../env'
 import {
@@ -227,44 +226,25 @@ export const subscribeResolver = authorized<
     // validate rss feed
     const feed = await parser.parseURL(input.url)
 
-    const results = await authTrx(async (t) => {
-      if (!input.isPrivate) {
-        await t.getRepository(Feed).upsert(
-          {
-            url: feed.feedUrl,
-            title: feed.title,
-            description: feed.description,
-            image: feed.image?.url,
-          },
-          {
-            conflictPaths: ['url'],
-            skipUpdateIfNoValuesChanged: true,
-          }
-        )
-      }
-
-      // limit number of rss subscriptions to 150
-      const results = (await t.getRepository(Subscription).query(
-        `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
+    // limit number of rss subscriptions to 150
+    const results = (await getRepository(Subscription).query(
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
           select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
           having count(*) < $9
           returning *;`,
-        [
-          feed.title,
-          feed.feedUrl,
-          feed.description || null,
-          SubscriptionType.Rss,
-          uid,
-          feed.image?.url || null,
-          input.autoAddToLibrary ?? null,
-          input.isPrivate ?? null,
-          MAX_RSS_SUBSCRIPTIONS,
-        ]
-      )) as Subscription[]
-
-      return results
-    })
+      [
+        feed.title,
+        feed.feedUrl,
+        feed.description || null,
+        SubscriptionType.Rss,
+        uid,
+        feed.image?.url || null,
+        input.autoAddToLibrary ?? null,
+        input.isPrivate ?? null,
+        MAX_RSS_SUBSCRIPTIONS,
+      ]
+    )) as Subscription[]
 
     if (results.length === 0) {
       return {
