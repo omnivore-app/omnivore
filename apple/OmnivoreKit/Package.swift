@@ -73,6 +73,6 @@ var dependencies: [Package.Dependency] {
     .package(url: "https://github.com/PostHog/posthog-ios.git", from: "2.0.0")
   ]
   // Comment out following line for macOS build
-  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", from: "12.0.1"))
+  deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", from: "13.1.0"))
   return deps
 }
