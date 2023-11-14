@@ -75,6 +75,7 @@
     public func play(itemAudioProperties: LinkedItemAudioProperties) {
       stop()
 
+      playbackError = false
       self.itemAudioProperties = itemAudioProperties
       startAudio(atIndex: itemAudioProperties.startIndex, andOffset: itemAudioProperties.startOffset)
 
@@ -356,6 +357,7 @@
           currentOffset = CMTimeGetSeconds(player.currentTime())
         }
         player?.removeAllItems()
+        playbackError = false
 
         downloadAndPlayFrom(currentIdx, currentOffset)
       }
