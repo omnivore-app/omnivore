@@ -44,13 +44,16 @@ data class AnnotationWebViewMessage(
   val annotation: String?
 )
 
-enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroundColor: Long) {
-  SYSTEM("System", 0xFF000000, 0xFF000000),
-  LIGHT("Light", 0xFFFFFFFF, 0xFF000000),
-  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000),
-  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF),
-  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF),
-  BLACK("Black", 0xFF000000, 0xFFFFFFFF),
+enum class Themes(val themeKey: String, 
+                  val backgroundColor: Long, 
+                  val foregroundColor: Long,
+                  val scrollbarColor: Long) {
+  SYSTEM("System", 0xFF000000, 0xFF000000, 0xFF3A3939),
+  LIGHT("Light", 0xFFFFFFFF, 0xFF000000, 0xFF3A3939),
+  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000, 0xFF5F4B32),
+  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF, 0xFFD8D7D7),
+  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF, 0xFFF3F3F3),
+  BLACK("Black", 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF),
 }
 
 @HiltViewModel
