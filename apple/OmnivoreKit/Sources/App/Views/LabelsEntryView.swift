@@ -150,32 +150,38 @@ public struct LabelsEntryView: View {
         }
       })
         .onSubmit {
-          if popoverIndex == -1 || popoverIndex >= partialMatches.count {
+          #if os(iOS)
             onTextSubmit()
-          } else if popoverIndex >= 0, popoverIndex < partialMatches.count {
-            let matched = partialMatches[popoverIndex]
-            viewModel.selectedLabels.append(matched)
-            reset()
-          }
+          #else
+            if popoverIndex == -1 || popoverIndex >= partialMatches.count {
+              onTextSubmit()
+            } else if popoverIndex >= 0, popoverIndex < partialMatches.count {
+              let matched = partialMatches[popoverIndex]
+              viewModel.selectedLabels.append(matched)
+              reset()
+            }
+          #endif
         }
         .submitScope()
     )
 
-    if #available(macOS 14.0, *) {
-      result = AnyView(result
-        .onKeyPress(.downArrow) {
-          popoverIndex = ((popoverIndex + 1) % (partialMatches.count + 1))
-          return .handled
-        }
-        .onKeyPress(.upArrow) {
-          popoverIndex -= 1
-          return .handled
-        }
-        .onKeyPress(.tab) {
-          popoverIndex = ((popoverIndex + 1) % (partialMatches.count + 1))
-          return .handled
-        })
-    }
+    #if os(macOS)
+      if #available(macOS 14.0, *) {
+        result = AnyView(result
+          .onKeyPress(.downArrow) {
+            popoverIndex = ((popoverIndex + 1) % (partialMatches.count + 1))
+            return .handled
+          }
+          .onKeyPress(.upArrow) {
+            popoverIndex -= 1
+            return .handled
+          }
+          .onKeyPress(.tab) {
+            popoverIndex = ((popoverIndex + 1) % (partialMatches.count + 1))
+            return .handled
+          })
+      }
+    #endif
 
     return AnyView(result)
   }
@@ -204,26 +210,28 @@ public struct LabelsEntryView: View {
     viewModel.labels.applySearchFilter(searchTerm)
   }
 
-  private var createLabelButton: some View {
-    let count = partialMatches.count
-    return Button {
-      viewModel.createLabel(
-        dataService: dataService,
-        name: searchTerm,
-        color: Gradient.randomColor(str: searchTerm, offset: 1),
-        description: nil
-      )
-      reset()
-    } label: {
-      Text("Create new label")
-        .padding(6)
+  #if os(macOS)
+    private var createLabelButton: some View {
+      let count = partialMatches.count
+      return Button {
+        viewModel.createLabel(
+          dataService: dataService,
+          name: searchTerm,
+          color: Gradient.randomColor(str: searchTerm, offset: 1),
+          description: nil
+        )
+        reset()
+      } label: {
+        Text("Create new label")
+          .padding(6)
+      }
+      .background(popoverIndex == count ? Color.blue : Color.clear)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .cornerRadius(4)
+      .buttonStyle(.borderless)
+      .cornerRadius(4)
     }
-    .background(popoverIndex == count ? Color.blue : Color.clear)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .cornerRadius(4)
-    .buttonStyle(.borderless)
-    .cornerRadius(4)
-  }
+  #endif
 
   private func generateLabelsContent(in geom: GeometryProxy) -> some View {
     var width = CGFloat.zero

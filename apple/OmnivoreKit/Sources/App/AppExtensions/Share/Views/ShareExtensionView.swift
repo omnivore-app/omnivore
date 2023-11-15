@@ -357,10 +357,12 @@ public struct ShareExtensionView: View {
           .frame(maxWidth: .infinity)
           .font(Font.system(size: 14))
           .accentColor(.blue)
+        #if os(macos)
           .introspectTextView { textView in
             textView.textContainerInset = NSSize(width: 10, height: 10)
           }
-          .focused($focusedField, equals: .noteEditor)
+        #endif
+        .focused($focusedField, equals: .noteEditor)
         if viewModel.noteText.isEmpty {
           Text("Notes")
             .fontWeight(.light)
@@ -379,6 +381,7 @@ public struct ShareExtensionView: View {
           .frame(maxWidth: .infinity)
           .padding(.horizontal, 8)
           .focused($focusedField, equals: .labelEditor)
+        #if os(macOS)
           .onHover { isHovered in
             DispatchQueue.main.async {
               if isHovered {
@@ -388,6 +391,7 @@ public struct ShareExtensionView: View {
               }
             }
           }
+        #endif
         if labelsViewModel.selectedLabels.isEmpty, labelsSearch == ZWSP {
           Text("Type to add labels")
             .fontWeight(.light)
