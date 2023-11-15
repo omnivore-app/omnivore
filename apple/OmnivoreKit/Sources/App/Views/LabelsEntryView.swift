@@ -126,6 +126,8 @@ public struct LabelsEntryView: View {
       .frame(width: textWidth)
       .padding(.trailing, 5)
       .padding(.vertical, 5)
+      .padding(EdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6))
+      .cornerRadius(5)
       .accentColor(.blue)
       .font(Font.system(size: 14))
       .multilineTextAlignment(.leading)
@@ -162,8 +164,7 @@ public struct LabelsEntryView: View {
             }
           #endif
         }
-        .submitScope()
-    )
+        .submitScope())
 
     #if os(macOS)
       if #available(macOS 14.0, *) {
@@ -187,23 +188,21 @@ public struct LabelsEntryView: View {
   }
 
   public var body: some View {
-    Form {
-      VStack {
-        GeometryReader { geometry in
-          self.generateLabelsContent(in: geometry)
-        }
-      }.padding(0)
-        .frame(height: totalHeight)
-        .background(Color.extensionPanelBackground)
-        .cornerRadius(8)
-        .onAppear {
-          textFieldFocused = true
-        }
-        .onTapGesture {
-          textFieldFocused = true
-        }
-        .onChange(of: textFieldFocused) { self.isFocused = $0 }
-    }
+    VStack {
+      GeometryReader { geometry in
+        self.generateLabelsContent(in: geometry)
+      }
+    }.padding(0)
+      .frame(height: totalHeight)
+      .background(Color.extensionPanelBackground)
+      .cornerRadius(8)
+      .onAppear {
+        textFieldFocused = true
+      }
+      .onTapGesture {
+        textFieldFocused = true
+      }
+      .onChange(of: textFieldFocused) { self.isFocused = $0 }
   }
 
   var partialMatches: [LinkedItemLabel] {

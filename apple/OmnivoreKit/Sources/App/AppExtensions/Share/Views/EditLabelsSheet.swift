@@ -98,7 +98,9 @@ public struct EditLabelsSheet: View {
       }
       .listStyle(.plain)
       .background(Color.extensionBackground)
-    }
+
+      Spacer()
+    }.frame(maxHeight: .infinity)
   }
 
   public var body: some View {
