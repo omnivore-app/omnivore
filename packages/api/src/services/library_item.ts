@@ -10,7 +10,7 @@ import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { SaveFollowingItemRequest } from '../routers/svc/following'
 import { SetClaimsRole } from '../utils/dictionary'
-import { wordsCount } from '../utils/helpers'
+import { generateSlug, wordsCount } from '../utils/helpers'
 import {
   DateFilter,
   FieldFilter,
@@ -529,6 +529,7 @@ export const saveFeedItemInFollowing = (input: SaveFollowingItemRequest) => {
           originalUrl: input.url,
           subscription: input.addedToFollowingBy,
           folder: InFilter.FOLLOWING,
+          slug: generateSlug(input.title),
         }))
 
       return tx
