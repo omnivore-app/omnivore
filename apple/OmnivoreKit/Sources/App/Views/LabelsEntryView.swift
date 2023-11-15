@@ -196,6 +196,7 @@ public struct LabelsEntryView: View {
       .frame(height: totalHeight)
       .frame(maxWidth: .infinity)
       .background(Color.extensionPanelBackground)
+    #if os(macOS)
       .onHover { isHovered in
         DispatchQueue.main.async {
           if isHovered {
@@ -205,7 +206,8 @@ public struct LabelsEntryView: View {
           }
         }
       }
-      .cornerRadius(8)
+    #endif
+    .cornerRadius(8)
       .onAppear {
         textFieldFocused = true
       }
