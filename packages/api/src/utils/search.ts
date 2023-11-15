@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { DateTime } from 'luxon'
 import {
   ISearchParserDictionary,
   parse,
@@ -19,12 +20,11 @@ export enum ReadFilter {
 }
 
 export enum InFilter {
-  ALL,
-  INBOX,
-  ARCHIVE,
-  TRASH,
-  SUBSCRIPTION,
-  LIBRARY,
+  ALL = 'all',
+  INBOX = 'inbox',
+  ARCHIVE = 'archive',
+  TRASH = 'trash',
+  FOLLOWING = 'following',
 }
 
 export interface SearchFilter {
@@ -57,6 +57,7 @@ export type LabelFilter = {
 export enum HasFilter {
   HIGHLIGHTS,
   LABELS,
+  SUBSCRIPTIONS,
 }
 
 export interface DateFilter {
@@ -132,10 +133,8 @@ const parseInFilter = (
       return InFilter.ARCHIVE
     case 'TRASH':
       return InFilter.TRASH
-    case 'SUBSCRIPTION':
-      return InFilter.SUBSCRIPTION
-    case 'LIBRARY':
-      return InFilter.LIBRARY
+    case 'FOLLOWING':
+      return InFilter.FOLLOWING
   }
 
   return query ? InFilter.ALL : InFilter.INBOX
@@ -232,6 +231,8 @@ const parseHasFilter = (str?: string): HasFilter | undefined => {
       return HasFilter.HIGHLIGHTS
     case 'LABELS':
       return HasFilter.LABELS
+    case 'SUBSCRIPTIONS':
+      return HasFilter.SUBSCRIPTIONS
   }
 }
 
@@ -243,20 +244,48 @@ const parseDateFilter = (
     return undefined
   }
 
+  switch (field.toLowerCase()) {
+    case 'published':
+      field = 'published_at'
+      break
+    case 'saved':
+      field = 'saved_at'
+      break
+    case 'updated':
+      field = 'updated_at'
+  }
+
+  // check for special date filters
+  switch (str.toLowerCase()) {
+    case 'today':
+      return {
+        field,
+        startDate: DateTime.local().startOf('day').toJSDate(),
+      }
+    case 'yesterday': {
+      const yesterday = DateTime.local().minus({ days: 1 })
+      return {
+        field,
+        startDate: yesterday.startOf('day').toJSDate(),
+        endDate: yesterday.endOf('day').toJSDate(),
+      }
+    }
+    case 'this week':
+      return {
+        field,
+        startDate: DateTime.local().startOf('week').toJSDate(),
+      }
+    case 'this month':
+      return {
+        field,
+        startDate: DateTime.local().startOf('month').toJSDate(),
+      }
+  }
+
+  // check for date ranges
   const [start, end] = str.split('..')
   const startDate = start && start !== '*' ? new Date(start) : undefined
   const endDate = end && end !== '*' ? new Date(end) : undefined
-
-  switch (field.toUpperCase()) {
-    case 'PUBLISHED':
-      field = 'published_at'
-      break
-    case 'SAVED':
-      field = 'saved_at'
-      break
-    case 'UPDATED':
-      field = 'updated_at'
-  }
 
   return {
     field,
@@ -357,13 +386,20 @@ const parseNoFilter = (str?: string): NoFilter | undefined => {
       return { field: 'highlight_annotations' }
     case 'label':
       return { field: 'label_names' }
+    case 'subscription':
+      return { field: 'subscription' }
   }
 
   return undefined
 }
 
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
-  const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
+  const searchQuery = query
+    ? query
+        .replace(/\W\s":/g, '')
+        .replace('in:subscription', 'has:subscriptions') // compatibility with old search
+        .replace('in:library', 'no:subscription') // compatibility with old search
+    : undefined
   const result: SearchFilter = {
     query: searchQuery,
     readFilter: ReadFilter.ALL,
@@ -379,19 +415,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
   }
 
   if (!searchQuery) {
-    return {
-      query: undefined,
-      inFilter: InFilter.INBOX,
-      readFilter: ReadFilter.ALL,
-      labelFilters: [],
-      hasFilters: [],
-      dateFilters: [],
-      termFilters: [],
-      matchFilters: [],
-      ids: [],
-      noFilters: [],
-      rangeFilters: [],
-    }
+    return result
   }
 
   const parsed = parse(searchQuery, {

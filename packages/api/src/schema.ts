@@ -1658,6 +1658,8 @@ const schema = gql`
     lastFetchedAt: Date
     createdAt: Date!
     updatedAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   enum SubscriptionStatus {
@@ -2554,6 +2556,8 @@ const schema = gql`
   input SubscribeInput {
     url: String!
     subscriptionType: SubscriptionType
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   input UpdateSubscriptionInput {
@@ -2564,6 +2568,8 @@ const schema = gql`
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   union UpdateSubscriptionResult =
@@ -2603,6 +2609,62 @@ const schema = gql`
 
   input UpdateEmailInput {
     email: String!
+  }
+
+  input FeedsInput {
+    after: String
+    first: Int
+    query: String @sanitize(maxLength: 255)
+    sort: SortParams
+  }
+
+  union FeedsResult = FeedsSuccess | FeedsError
+
+  type FeedsSuccess {
+    edges: [FeedEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type FeedEdge {
+    cursor: String!
+    node: Feed!
+  }
+
+  type FeedsError {
+    errorCodes: [FeedsErrorCode!]!
+  }
+
+  enum FeedsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  type Feed {
+    id: ID!
+    title: String!
+    url: String!
+    description: String
+    image: String
+    createdAt: Date!
+    updatedAt: Date!
+    publishedAt: Date
+    author: String
+  }
+
+  union MoveToFolderResult = MoveToFolderSuccess | MoveToFolderError
+
+  type MoveToFolderSuccess {
+    articleSavingRequest: ArticleSavingRequest!
+  }
+
+  type MoveToFolderError {
+    errorCodes: [MoveToFolderErrorCode!]!
+  }
+
+  enum MoveToFolderErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    ALREADY_EXISTS
   }
 
   # Mutations
@@ -2708,6 +2770,7 @@ const schema = gql`
     updateSubscription(
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
+    moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2766,6 +2829,7 @@ const schema = gql`
     filters: FiltersResult!
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
+    feeds(input: FeedsInput!): FeedsResult!
   }
 `
 

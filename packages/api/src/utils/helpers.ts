@@ -30,6 +30,7 @@ import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
 import { logger } from './logger'
+import { InFilter } from './search'
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
@@ -239,7 +240,7 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   state: item.state as unknown as ArticleSavingRequestStatus,
   content: item.readableContent,
   hash: item.textContentHash || '',
-  isArchived: !!item.archivedAt,
+  isArchived: item.folder === InFilter.ARCHIVE,
   recommendations: item.recommendations?.map(
     recommandationDataToRecommendation
   ),
@@ -258,7 +259,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   url: item.originalUrl,
   state: item.state as unknown as ArticleSavingRequestStatus,
   content: item.readableContent,
-  isArchived: !!item.archivedAt,
+  isArchived: item.folder === InFilter.ARCHIVE,
   pageType: item.itemType as unknown as PageType,
   readingProgressPercent: item.readingProgressBottomPercent,
   contentReader: item.contentReader as unknown as ContentReader,

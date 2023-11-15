@@ -5,7 +5,11 @@ import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-d
 import * as jwt from 'jsonwebtoken'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
-import { CONTENT_FETCH_URL, createCloudTask } from './task'
+import {
+  CONTENT_FETCH_URL,
+  createCloudTask,
+  FOLLOWING_HANDLER_URL,
+} from './task'
 
 interface RssFeedRequest {
   subscriptionIds: string[]
@@ -14,6 +18,7 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
+  addToLibraryFlags: boolean[]
 }
 
 // link can be a string or an object
@@ -26,7 +31,8 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'lastFetchedTimestamps' in body &&
     'scheduledTimestamps' in body &&
     'userIds' in body &&
-    'lastFetchedChecksums' in body
+    'lastFetchedChecksums' in body &&
+    'addToLibraryFlags' in body
   )
 }
 
@@ -120,6 +126,19 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
+const createTask = async (
+  userId: string,
+  feedUrl: string,
+  item: Item,
+  autoAddToLibrary: boolean
+) => {
+  if (autoAddToLibrary) {
+    return createSavingItemTask(userId, feedUrl, item)
+  }
+
+  return createFollowingTask(userId, feedUrl, item)
+}
+
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
@@ -140,6 +159,38 @@ const createSavingItemTask = async (
     console.log('Creating task', input.url)
     // save page
     const task = await createCloudTask(CONTENT_FETCH_URL, input)
+    console.log('Created task', task)
+
+    return !!task
+  } catch (error) {
+    console.error('Error while creating task', error)
+    return false
+  }
+}
+
+const createFollowingTask = async (
+  userId: string,
+  feedUrl: string,
+  item: Item
+) => {
+  const input = {
+    userIds: [userId],
+    url: item.link,
+    title: item.title,
+    author: item.creator,
+    description: item.summary,
+    addedToFollowingFrom: 'feed',
+    previewContent: item.content || item.contentSnippet,
+    addedToFollowingBy: feedUrl,
+    savedAt: item.isoDate,
+    publishedAt: item.isoDate,
+    previewContentType: 'text/html', // TODO: get content type from feed
+  }
+
+  try {
+    console.log('Creating task', input.url)
+    // save page
+    const task = await createCloudTask(FOLLOWING_HANDLER_URL, input)
     console.log('Created task', task)
 
     return !!task
@@ -245,7 +296,21 @@ const processSubscription = async (
   fetchResult: { content: string; checksum: string },
   lastFetchedAt: number,
   scheduledAt: number,
-  lastFetchedChecksum: string
+  lastFetchedChecksum: string,
+  autoAddToLibrary: boolean,
+  feed: {
+    lastBuildDate: any
+    'syn:updatePeriod': any
+    'syn:updateFrequency': any
+    'sy:updatePeriod': any
+    'sy:updateFrequency': any
+  } & Parser.Output<{
+    published: any
+    updated: any
+    created: any
+    link: any
+    links: any[]
+  }>
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -258,8 +323,6 @@ const processSubscription = async (
 
   // fetch feed
   let itemCount = 0
-  const feed = await parser.parseString(fetchResult.content)
-  console.log('Fetched feed', feed.title, new Date())
 
   const feedLastBuildDate = feed.lastBuildDate as string | undefined
   console.log('Feed last build date', feedLastBuildDate)
@@ -317,7 +380,7 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createSavingItemTask(userId, feedUrl, item)
+    const created = await createTask(userId, feedUrl, item, autoAddToLibrary)
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -340,7 +403,12 @@ const processSubscription = async (
     }
 
     // the feed has never been fetched, save at least the last valid item
-    const created = await createSavingItemTask(userId, feedUrl, lastValidItem)
+    const created = await createTask(
+      userId,
+      feedUrl,
+      lastValidItem,
+      autoAddToLibrary
+    )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
       throw new Error('Failed to create task for feed item')
@@ -386,28 +454,29 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
+        addToLibraryFlags,
       } = req.body
       console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
+      const feed = await parser.parseString(fetchResult.content)
+      console.log('Fetched feed', feed.title, new Date())
 
-      for (let i = 0; i < subscriptionIds.length; i++) {
-        const subscriptionId = subscriptionIds[i]
-        const lastFetchedAt = lastFetchedTimestamps[i]
-        const scheduledAt = scheduledTimestamps[i]
-        const userId = userIds[i]
-        const lastFetchedChecksum = lastFetchedChecksums[i]
-
-        await processSubscription(
-          subscriptionId,
-          userId,
-          feedUrl,
-          fetchResult,
-          lastFetchedAt,
-          scheduledAt,
-          lastFetchedChecksum
+      await Promise.all(
+        subscriptionIds.map((_, i) =>
+          processSubscription(
+            subscriptionIds[i],
+            userIds[i],
+            feedUrl,
+            fetchResult,
+            lastFetchedTimestamps[i],
+            scheduledTimestamps[i],
+            lastFetchedChecksums[i],
+            addToLibraryFlags[i],
+            feed
+          )
         )
-      }
+      )
 
       res.send('ok')
     } catch (e) {

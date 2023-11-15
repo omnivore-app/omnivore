@@ -6,7 +6,7 @@
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArticleError,
@@ -95,7 +95,11 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
+import {
+  InFilter,
+  parseSearchQuery,
+  sortParamsToSort,
+} from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
@@ -401,7 +405,7 @@ export const getArticleResolver = authorized<
       })
     )
 
-    if (!libraryItem || libraryItem.state === LibraryItemState.Deleted) {
+    if (!libraryItem || libraryItem.folder === InFilter.TRASH) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
@@ -523,8 +527,8 @@ export const setBookmarkArticleResolver = authorized<
   const deletedLibraryItem = await updateLibraryItem(
     articleID,
     {
-      state: LibraryItemState.Deleted,
-      deletedAt: new Date(),
+      folder: InFilter.TRASH,
+      savedAt: new Date(),
     },
     uid,
     pubsub
@@ -736,7 +740,7 @@ export const updatesSinceResolver = authorized<
   const sort = sortParamsToSort(sortParams)
 
   const startCursor = after || ''
-  const size = first || 10
+  const size = Math.min(first || 10, 100) // limit to 100 items
   let startDate = new Date(since)
   if (isNaN(startDate.getTime())) {
     // for android app compatibility
@@ -750,6 +754,7 @@ export const updatesSinceResolver = authorized<
       includeDeleted: true,
       dateFilters: [{ field: 'updatedAt', startDate }],
       sort,
+      inFilter: InFilter.ALL,
     },
     uid
   )
@@ -861,7 +866,7 @@ export const setFavoriteArticleResolver = authorized<
 })
 
 const getUpdateReason = (libraryItem: LibraryItem, since: Date) => {
-  if (libraryItem.state === LibraryItemState.Deleted) {
+  if (libraryItem.folder === InFilter.TRASH) {
     return UpdateReason.Deleted
   }
   if (libraryItem.createdAt >= since) {

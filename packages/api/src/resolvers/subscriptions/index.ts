@@ -175,7 +175,7 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { uid, log }) => {
+>(async (_, { input }, { authTrx, uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -213,6 +213,7 @@ export const subscribeResolver = authorized<
         scheduledDates: [new Date()], // fetch immediately
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
+        addToLibraryFlags: [!!updatedSubscription.autoAddToLibrary],
       })
 
       return {
@@ -227,18 +228,20 @@ export const subscribeResolver = authorized<
 
     // limit number of rss subscriptions to 150
     const results = (await getRepository(Subscription).query(
-      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon) 
-          select $1, $2, $3, $4, $5, $6 from omnivore.subscriptions 
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
+          select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-          having count(*) < $7 
+          having count(*) < $9
           returning *;`,
       [
         feed.title,
-        input.url,
+        feed.feedUrl,
         feed.description || null,
         SubscriptionType.Rss,
         uid,
         feed.image?.url || null,
+        input.autoAddToLibrary ?? null,
+        input.isPrivate ?? null,
         MAX_RSS_SUBSCRIPTIONS,
       ]
     )) as Subscription[]
@@ -259,6 +262,7 @@ export const subscribeResolver = authorized<
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
       checksums: [null],
+      addToLibraryFlags: [!!newSubscription.autoAddToLibrary],
     })
 
     return {
@@ -312,6 +316,8 @@ export const updateSubscriptionResolver = authorized<
         scheduledAt: input.scheduledAt
           ? new Date(input.scheduledAt)
           : undefined,
+        autoAddToLibrary: input.autoAddToLibrary ?? undefined,
+        isPrivate: input.isPrivate ?? undefined,
       })
 
       return repo.findOneByOrFail({

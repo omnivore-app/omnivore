@@ -641,6 +641,18 @@ type Feature {
   updatedAt: Date
 }
 
+type Feed {
+  author: String
+  createdAt: Date!
+  description: String
+  id: ID!
+  image: String
+  publishedAt: Date
+  title: String!
+  updatedAt: Date!
+  url: String!
+}
+
 type FeedArticle {
   annotationsCount: Int
   article: Article!
@@ -671,6 +683,34 @@ union FeedArticlesResult = FeedArticlesError | FeedArticlesSuccess
 
 type FeedArticlesSuccess {
   edges: [FeedArticleEdge!]!
+  pageInfo: PageInfo!
+}
+
+type FeedEdge {
+  cursor: String!
+  node: Feed!
+}
+
+type FeedsError {
+  errorCodes: [FeedsErrorCode!]!
+}
+
+enum FeedsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input FeedsInput {
+  after: String
+  first: Int
+  query: String
+  sort: SortParams
+}
+
+union FeedsResult = FeedsError | FeedsSuccess
+
+type FeedsSuccess {
+  edges: [FeedEdge!]!
   pageInfo: PageInfo!
 }
 
@@ -1109,6 +1149,22 @@ type MoveLabelSuccess {
   label: Label!
 }
 
+type MoveToFolderError {
+  errorCodes: [MoveToFolderErrorCode!]!
+}
+
+enum MoveToFolderErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess
+
+type MoveToFolderSuccess {
+  articleSavingRequest: ArticleSavingRequest!
+}
+
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
@@ -1137,6 +1193,7 @@ type Mutation {
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
+  moveToFolder(folder: String!, id: ID!): MoveToFolderResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
@@ -1294,6 +1351,7 @@ type Query {
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   deviceTokens: DeviceTokensResult!
+  feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
@@ -2071,6 +2129,8 @@ enum SubscribeErrorCode {
 }
 
 input SubscribeInput {
+  autoAddToLibrary: Boolean
+  isPrivate: Boolean
   subscriptionType: SubscriptionType
   url: String!
 }
@@ -2082,11 +2142,13 @@ type SubscribeSuccess {
 }
 
 type Subscription {
+  autoAddToLibrary: Boolean
   count: Int!
   createdAt: Date!
   description: String
   icon: String
   id: ID!
+  isPrivate: Boolean
   lastFetchedAt: Date
   name: String!
   newsletterEmail: String
@@ -2400,8 +2462,10 @@ enum UpdateSubscriptionErrorCode {
 }
 
 input UpdateSubscriptionInput {
+  autoAddToLibrary: Boolean
   description: String
   id: ID!
+  isPrivate: Boolean
   lastFetchedAt: Date
   lastFetchedChecksum: String
   name: String

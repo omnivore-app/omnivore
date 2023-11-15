@@ -15,6 +15,7 @@ import {
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
+import { InFilter } from '../../src/utils/search'
 import * as util from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
@@ -607,7 +608,10 @@ describe('auth router', () => {
           'web'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems({}, user.id)
+        const { count } = await searchLibraryItems(
+          { inFilter: InFilter.ALL },
+          user.id
+        )
 
         expect(count).to.eql(3)
       })
@@ -628,7 +632,10 @@ describe('auth router', () => {
           'ios'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems({}, user.id)
+        const { count } = await searchLibraryItems(
+          { inFilter: InFilter.ALL },
+          user.id
+        )
 
         expect(count).to.eql(4)
       })

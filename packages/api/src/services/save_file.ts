@@ -1,7 +1,12 @@
 import { LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
-import { SaveErrorCode, SaveFileInput, SaveResult } from '../generated/graphql'
+import {
+  ArticleSavingRequestStatus,
+  SaveErrorCode,
+  SaveFileInput,
+  SaveResult,
+} from '../generated/graphql'
 import { getStorageFileDetails } from '../utils/uploads'
 import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
 import { updateLibraryItem } from './library_item'
@@ -32,9 +37,11 @@ export const saveFile = async (
     await updateLibraryItem(
       input.clientRequestId,
       {
-        state: input.state
-          ? (input.state as unknown as LibraryItemState)
-          : LibraryItemState.Succeeded,
+        state: LibraryItemState.Succeeded,
+        folder:
+          input.state === ArticleSavingRequestStatus.Archived
+            ? 'archive'
+            : 'inbox',
       },
       user.id
     )
