@@ -381,17 +381,7 @@ public struct ShareExtensionView: View {
           .frame(maxWidth: .infinity)
           .padding(.horizontal, 8)
           .focused($focusedField, equals: .labelEditor)
-        #if os(macOS)
-          .onHover { isHovered in
-            DispatchQueue.main.async {
-              if isHovered {
-                NSCursor.iBeam.push()
-              } else {
-                NSCursor.pop()
-              }
-            }
-          }
-        #endif
+
         if labelsViewModel.selectedLabels.isEmpty, labelsSearch == ZWSP {
           Text("Type to add labels")
             .fontWeight(.light)

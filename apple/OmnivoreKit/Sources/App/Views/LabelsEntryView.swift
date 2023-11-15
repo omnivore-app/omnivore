@@ -194,7 +194,17 @@ public struct LabelsEntryView: View {
       }
     }.padding(0)
       .frame(height: totalHeight)
+      .frame(maxWidth: .infinity)
       .background(Color.extensionPanelBackground)
+      .onHover { isHovered in
+        DispatchQueue.main.async {
+          if isHovered {
+            NSCursor.iBeam.push()
+          } else {
+            NSCursor.pop()
+          }
+        }
+      }
       .cornerRadius(8)
       .onAppear {
         textFieldFocused = true
@@ -299,6 +309,7 @@ public struct LabelsEntryView: View {
             createLabelButton
           }.padding(4)
         }
+
       #endif
     }.background(viewHeightReader($totalHeight))
   }
