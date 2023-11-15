@@ -1611,6 +1611,9 @@ const schema = gql`
     wordsCount: Int
     content: String
     archivedAt: Date
+    previewContent: String
+    previewContentType: String
+    links: JSON
   }
 
   type SearchItemEdge {

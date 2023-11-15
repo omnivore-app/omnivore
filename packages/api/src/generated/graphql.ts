@@ -2296,10 +2296,13 @@ export type SearchItem = {
   isArchived: Scalars['Boolean'];
   labels?: Maybe<Array<Label>>;
   language?: Maybe<Scalars['String']>;
+  links?: Maybe<Scalars['JSON']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
   pageType: PageType;
+  previewContent?: Maybe<Scalars['String']>;
+  previewContentType?: Maybe<Scalars['String']>;
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['Date']>;
@@ -5701,10 +5704,13 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  links?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
+  previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  previewContentType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;

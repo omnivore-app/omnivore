@@ -1752,10 +1752,13 @@ type SearchItem {
   isArchived: Boolean!
   labels: [Label!]
   language: String
+  links: JSON
   originalArticleUrl: String
   ownedByViewer: Boolean
   pageId: ID
   pageType: PageType!
+  previewContent: String
+  previewContentType: String
   publishedAt: Date
   quote: String
   readAt: Date
