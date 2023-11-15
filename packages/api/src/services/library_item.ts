@@ -232,7 +232,9 @@ const buildWhereClause = (
 
   if (args.noFilters) {
     args.noFilters.forEach((filter) => {
-      queryBuilder.andWhere(`library_item.${filter.field} = '{}'`)
+      queryBuilder.andWhere(
+        `library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL`
+      )
     })
   }
 

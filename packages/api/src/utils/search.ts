@@ -386,13 +386,20 @@ const parseNoFilter = (str?: string): NoFilter | undefined => {
       return { field: 'highlight_annotations' }
     case 'label':
       return { field: 'label_names' }
+    case 'subscription':
+      return { field: 'subscription' }
   }
 
   return undefined
 }
 
 export const parseSearchQuery = (query: string | undefined): SearchFilter => {
-  const searchQuery = query ? query.replace(/\W\s":/g, '') : undefined
+  const searchQuery = query
+    ? query
+        .replace(/\W\s":/g, '')
+        .replace('in:subscription', 'has:subscriptions') // compatibility with old search
+        .replace('in:library', 'no:subscription') // compatibility with old search
+    : undefined
   const result: SearchFilter = {
     query: searchQuery,
     readFilter: ReadFilter.ALL,
