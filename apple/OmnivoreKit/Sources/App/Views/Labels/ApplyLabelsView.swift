@@ -104,24 +104,6 @@ struct ApplyLabelsView: View {
     }
     .navigationTitle(mode.navTitle)
     .background(Color.extensionBackground)
-    #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          cancelButton
-        }
-        ToolbarItem(placement: .navigationBarTrailing) {
-          saveItemChangesButton
-        }
-      }
-    #else
-      .toolbar {
-        ToolbarItemGroup {
-          cancelButton
-          saveItemChangesButton
-        }
-      }
-    #endif
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
@@ -181,14 +163,25 @@ struct ApplyLabelsView: View {
     Group {
       #if os(iOS)
         NavigationView {
-          if viewModel.labels.isEmpty, viewModel.isLoading {
-            EmptyView()
-          } else {
             innerBody
-          }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+              ToolbarItem(placement: .navigationBarLeading) {
+                cancelButton
+              }
+              ToolbarItem(placement: .navigationBarTrailing) {
+                saveItemChangesButton
+              }
+            }
         }
       #elseif os(macOS)
         innerBody
+          .toolbar {
+            ToolbarItemGroup {
+              cancelButton
+              saveItemChangesButton
+            }
+          }
           .frame(minWidth: 400, minHeight: 600)
       #endif
     }
