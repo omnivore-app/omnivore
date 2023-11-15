@@ -193,7 +193,7 @@ export const createArticleResolver = authorized<
       let domContent = null
       let itemType = PageType.Unknown
 
-      const DUMMY_RESPONSE = {
+      const DUMMY_RESPONSE: CreateArticleSuccess = {
         user,
         created: false,
         createdArticle: {
@@ -215,6 +215,7 @@ export const createArticleResolver = authorized<
           highlights: [],
           savedAt: new Date(),
           updatedAt: new Date(),
+          folder: '',
         },
       }
 
