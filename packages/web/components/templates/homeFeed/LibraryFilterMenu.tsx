@@ -241,7 +241,7 @@ function Subscriptions(
     >
       {!collapsed ? (
         <>
-          <FilterButton filterTerm="has:subscriptions" text="All" {...props} />
+          <FilterButton filterTerm="in:inbox has:subscriptions" text="All" {...props} />
           <FilterButton filterTerm={`label:RSS`} text="Feeds" {...props} />
           <FilterButton
             filterTerm={`label:Newsletter`}
