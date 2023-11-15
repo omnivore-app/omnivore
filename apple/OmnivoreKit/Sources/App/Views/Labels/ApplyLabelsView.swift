@@ -163,7 +163,7 @@ struct ApplyLabelsView: View {
     Group {
       #if os(iOS)
         NavigationView {
-            innerBody
+          innerBody
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
               ToolbarItem(placement: .navigationBarLeading) {
