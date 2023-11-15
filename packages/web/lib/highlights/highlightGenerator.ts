@@ -68,9 +68,7 @@ function nodeAttributesFromHighlight(
   const id = highlight.id
   const withNote = !!highlight.annotation
   const tooltip = undefined
-  const customColor = highlight.createdByMe
-    ? undefined
-    : 'var(--colors-recommendedHighlightBackground)'
+  const customColor = highlight.color
 
   return makeHighlightNodeAttributes(patch, id, withNote, customColor, tooltip)
 }
@@ -142,15 +140,17 @@ export function makeHighlightNodeAttributes(
         }
 
         const newHighlightSpan = document.createElement('span')
-        newHighlightSpan.className = withNote
-          ? highlightWithNoteClassName
-          : highlightClassname
+        newHighlightSpan.className = highlightClassname
+
+        if (withNote) {
+          newHighlightSpan.className = `${newHighlightSpan.className} ${highlightWithNoteClassName}`
+        }
+
+        if (customColor) {
+          newHighlightSpan.className = `${newHighlightSpan.className} highlight__${customColor}`
+        }
+
         newHighlightSpan.setAttribute(highlightIdAttribute, id)
-        customColor &&
-          newHighlightSpan.setAttribute(
-            'style',
-            `background-color: ${customColor} !important`
-          )
         tooltip && newHighlightSpan.setAttribute('title', tooltip)
         newHighlightSpan.appendChild(newTextNode)
         lastElement = newHighlightSpan
@@ -162,7 +162,7 @@ export function makeHighlightNodeAttributes(
   if (withNote && lastElement) {
     lastElement.classList.add('last_element')
 
-    const svg = noteImage()
+    const svg = noteImage(customColor)
     svg.setAttribute(highlightNoteIdAttribute, id)
 
     const ctr = document.createElement('div')

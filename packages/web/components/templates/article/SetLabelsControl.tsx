@@ -202,6 +202,10 @@ function Footer(props: FooterProps): JSX.Element {
     return 'none'
   }, [props])
 
+  const trimmedLabelName = useMemo(() => {
+    return props.filterText.trim()
+  }, [props])
+
   return (
     <HStack
       ref={ref}
@@ -220,7 +224,7 @@ function Footer(props: FooterProps): JSX.Element {
         },
       }}
     >
-      {props.filterText.length > 0 ? (
+      {trimmedLabelName.length > 0 ? (
         <Button
           style="modalOption"
           css={{
@@ -251,14 +255,14 @@ function Footer(props: FooterProps): JSX.Element {
             {textMatch === 'available' && (
               <>
                 <Check size={18} color={theme.colors.grayText.toString()} />
-                Use Enter to add label &quot;{props.filterText}&quot;
+                Use Enter to add label &quot;{trimmedLabelName}&quot;
               </>
             )}
 
             {textMatch === 'none' && (
               <>
                 <Plus size={18} color={theme.colors.grayText.toString()} />
-                Use Enter to create new label &quot;{props.filterText}&quot;
+                Use Enter to create new label &quot;{trimmedLabelName}&quot;
               </>
             )}
           </HStack>
@@ -337,7 +341,12 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
 
   const createLabelFromFilterText = useCallback(
     async (text: string) => {
-      const label = await createLabelMutation(text, randomLabelColorHex(), '')
+      const trimmedLabelName = text.trim()
+      const label = await createLabelMutation(
+        trimmedLabelName,
+        randomLabelColorHex(),
+        ''
+      )
       if (label) {
         showSuccessToast(`Created label ${label.name}`, {
           position: 'bottom-right',

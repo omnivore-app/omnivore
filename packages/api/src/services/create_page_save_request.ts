@@ -1,38 +1,40 @@
 import * as privateIpLib from 'private-ip'
-import { v4 as uuidv4 } from 'uuid'
-import { createPubSubClient, PubsubClient } from '../datalayer/pubsub'
-import {
-  countByCreatedAt,
-  createPage,
-  getPageByParam,
-  updatePage,
-} from '../elastic/pages'
-import { ArticleSavingRequestStatus, Label, PageType } from '../elastic/types'
-import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
+import { LibraryItemState } from '../entity/library_item'
 import {
   ArticleSavingRequest,
+  ArticleSavingRequestStatus,
   CreateArticleSavingRequestErrorCode,
+  CreateLabelInput,
+  PageType,
 } from '../generated/graphql'
+import { createPubSubClient, PubsubClient } from '../pubsub'
+import { userRepository } from '../repository/user'
 import { enqueueParseRequest } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
-  pageToArticleSavingRequest,
+  libraryItemToArticleSavingRequest,
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
+import {
+  countByCreatedAt,
+  createLibraryItem,
+  findLibraryItemByUrl,
+  updateLibraryItem,
+} from './library_item'
 
 interface PageSaveRequest {
   userId: string
   url: string
   pubsub?: PubsubClient
   articleSavingRequestId?: string
-  archivedAt?: Date | null
-  labels?: Label[]
+  state?: ArticleSavingRequestStatus
+  labels?: CreateLabelInput[]
   priority?: 'low' | 'high'
-  user?: User | null
   locale?: string
   timezone?: string
+  savedAt?: Date
+  publishedAt?: Date
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -44,7 +46,7 @@ const isPrivateIP = privateIpLib.default
 const getPriorityByRateLimit = async (
   userId: string
 ): Promise<'low' | 'high'> => {
-  const count = await countByCreatedAt(userId, Date.now() - 60 * 1000)
+  const count = await countByCreatedAt(userId, new Date(Date.now() - 60 * 1000))
   return count >= 5 ? 'low' : 'high'
 }
 
@@ -79,105 +81,83 @@ export const createPageSaveRequest = async ({
   userId,
   url,
   pubsub = createPubSubClient(),
-  articleSavingRequestId = uuidv4(),
-  archivedAt,
+  articleSavingRequestId,
+  state,
   priority,
   labels,
-  user,
   locale,
   timezone,
+  savedAt,
+  publishedAt,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
   } catch (error) {
-    logger.info('invalid url', url, error)
+    logger.info('invalid url', { url, error })
     return Promise.reject({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
   }
   // if user is not specified, get it from the database
+  const user = await userRepository.findById(userId)
   if (!user) {
-    user = await getRepository(User).findOneBy({
-      id: userId,
+    logger.info(`User not found: ${userId}`)
+    return Promise.reject({
+      errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
-    if (!user) {
-      logger.info('User not found', userId)
-      return Promise.reject({
-        errorCode: CreateArticleSavingRequestErrorCode.BadData,
-      })
-    }
+  }
+
+  url = cleanUrl(url)
+  // look for existing library item
+  let libraryItem = await findLibraryItemByUrl(url, userId)
+  if (!libraryItem) {
+    logger.info('libraryItem does not exist', { url })
+
+    // create processing item
+    libraryItem = await createLibraryItem(
+      {
+        id: articleSavingRequestId,
+        user: { id: userId },
+        readableContent: SAVING_CONTENT,
+        itemType: PageType.Unknown,
+        slug: generateSlug(url),
+        title: url,
+        originalUrl: url,
+        state: LibraryItemState.Processing,
+        publishedAt,
+      },
+      userId,
+      pubsub
+    )
+  }
+  // reset state to processing
+  if (libraryItem.state !== LibraryItemState.Processing) {
+    libraryItem = await updateLibraryItem(
+      libraryItem.id,
+      {
+        state: LibraryItemState.Processing,
+      },
+      userId,
+      pubsub
+    )
   }
 
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
 
-  // look for existing page
-  url = cleanUrl(url)
-
-  const ctx = {
-    pubsub,
-    uid: userId,
-    refresh: true,
-  }
-  let page = await getPageByParam({
-    userId,
-    url,
-  })
-  if (!page) {
-    logger.info('Page not exists', url)
-    page = {
-      id: articleSavingRequestId,
-      userId,
-      content: SAVING_CONTENT,
-      hash: '',
-      pageType: PageType.Unknown,
-      readingProgressAnchorIndex: 0,
-      readingProgressPercent: 0,
-      slug: generateSlug(url),
-      title: url,
-      url,
-      state: ArticleSavingRequestStatus.Processing,
-      createdAt: new Date(),
-      savedAt: new Date(),
-      archivedAt,
-      labels,
-    }
-
-    // create processing page
-    const pageId = await createPage(page, ctx)
-    if (!pageId) {
-      logger.info('Failed to create page', url)
-      return Promise.reject({
-        errorCode: CreateArticleSavingRequestErrorCode.BadData,
-      })
-    }
-  }
-  // reset state to processing
-  if (page.state !== ArticleSavingRequestStatus.Processing) {
-    await updatePage(
-      page.id,
-      {
-        state: ArticleSavingRequestStatus.Processing,
-      },
-      ctx
-    )
-  }
-  const labelsInput = labels?.map((label) => ({
-    name: label.name,
-    color: label.color,
-    description: label.description,
-  }))
-  // enqueue task to parse page
+  // enqueue task to parse item
   await enqueueParseRequest({
     url,
     userId,
-    saveRequestId: page.id,
+    saveRequestId: libraryItem.id,
     priority,
-    state: archivedAt ? ArticleSavingRequestStatus.Archived : undefined,
-    labels: labelsInput,
+    state,
+    labels,
     locale,
     timezone,
+    savedAt,
+    publishedAt,
   })
 
-  return pageToArticleSavingRequest(user, page)
+  return libraryItemToArticleSavingRequest(user, libraryItem)
 }

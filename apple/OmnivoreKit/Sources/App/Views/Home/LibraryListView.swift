@@ -38,23 +38,21 @@ struct LibraryListView: View {
   )
 
   var body: some View {
-    ZStack {
-      NavigationLink(
-        destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
-        isActive: $libraryViewModel.linkIsActive
-      ) {
-        EmptyView()
-      }
-      HomeView(viewModel: libraryViewModel)
-        .tabItem {
-          Label {
-            Text("Library")
-          } icon: {
-            Image.tabLibrary
-          }
+//    ZStack {
+//      NavigationLink(
+//        destination: LinkDestination(selectedItem: libraryViewModel.selectedItem),
+//        isActive: $libraryViewModel.linkIsActive
+//      ) {
+//        EmptyView()
+//      }
+    HomeView(viewModel: libraryViewModel)
+      .tabItem {
+        Label {
+          Text("Library")
+        } icon: {
+          Image.tabLibrary
         }
-    }
-    .navigationViewStyle(.stack)
-    .navigationBarTitleDisplayMode(.inline)
+      }
+//    }
   }
 }

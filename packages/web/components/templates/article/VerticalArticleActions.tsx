@@ -52,7 +52,7 @@ export function VerticalArticleActionsMenu(
         </Button>
 
         <Button
-          title="Open Notebook (t)"
+          title="Open notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
           css={{
@@ -70,7 +70,7 @@ export function VerticalArticleActionsMenu(
         </Button>
 
         <Button
-          title="Edit Info (i)"
+          title="Edit info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
           css={{
@@ -142,7 +142,7 @@ export function VerticalArticleActionsMenu(
           </Button>
         )}
         <Button
-          title="Edit Info (i)"
+          title="Display settings (d)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('editDisplaySettings')}
           css={{

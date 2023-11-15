@@ -4,7 +4,7 @@
   "description": "Accepts URL of the article and parses its content",
   "main": "index.js",
   "dependencies": {
-    "@google-cloud/storage": "^5.18.1",
+    "@google-cloud/storage": "^7.0.1",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
     "axios": "^0.27.2",
@@ -25,5 +25,8 @@
   },
   "scripts": {
     "test": "mocha test/*.js"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

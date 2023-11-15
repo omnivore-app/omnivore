@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import useSWR from 'swr'
-import { publicGqlFetcher } from '../networkHelpers'
+import { makeGqlFetcher } from '../networkHelpers'
 
 export type SubscriptionStatus = 'ACTIVE' | 'DELETED' | 'UNSUBSCRIBED'
 
@@ -12,6 +12,7 @@ export enum SubscriptionType {
 export type Subscription = {
   id: string
   name: string
+  type: SubscriptionType
   newsletterEmail?: string
 
   url?: string
@@ -24,6 +25,8 @@ export type Subscription = {
 }
 
 type SubscriptionsQueryResponse = {
+  error: any
+  isLoading: boolean
   isValidating: boolean
   subscriptions: Subscription[]
   revalidate: () => void
@@ -38,16 +41,17 @@ type SubscriptionsData = {
 }
 
 export function useGetSubscriptionsQuery(
-  subscriptionType = SubscriptionType.NEWSLETTER,
+  type: SubscriptionType | undefined = undefined,
   sortBy = 'UPDATED_TIME'
 ): SubscriptionsQueryResponse {
   const query = gql`
-    query GetSubscriptions {
-      subscriptions(sort: { by: ${sortBy} }, type: ${subscriptionType}) {
+    query GetSubscriptions($type: SubscriptionType, $sort: SortParams) {
+      subscriptions(type: $type, sort: $sort) {
         ... on SubscriptionsSuccess {
           subscriptions {
             id
             name
+            type
             newsletterEmail
             url
             description
@@ -66,13 +70,24 @@ export function useGetSubscriptionsQuery(
     }
   `
 
-  const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
+  const variables = {
+    type,
+    sort: {
+      by: sortBy,
+    },
+  }
+  const { data, error, mutate, isValidating } = useSWR(
+    [query, variables],
+    makeGqlFetcher(variables)
+  )
 
   try {
     if (data) {
       const result = data as SubscriptionsResponseData
       const subscriptions = result.subscriptions.subscriptions as Subscription[]
       return {
+        error,
+        isLoading: !error && !data,
         isValidating,
         subscriptions,
         revalidate: () => {
@@ -84,6 +99,8 @@ export function useGetSubscriptionsQuery(
     console.log('error', error)
   }
   return {
+    error,
+    isLoading: !error && !data,
     isValidating: true,
     subscriptions: [],
     // eslint-disable-next-line @typescript-eslint/no-empty-function

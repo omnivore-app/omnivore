@@ -56,7 +56,7 @@
     var durations: [Double]?
     var lastReadUpdate = 0.0
 
-    var samplePlayer: AVAudioPlayer?
+    var samplePlayer: AVPlayer?
 
     public init(dataService: DataService) {
       self.dataService = dataService
@@ -75,6 +75,7 @@
     public func play(itemAudioProperties: LinkedItemAudioProperties) {
       stop()
 
+      playbackError = false
       self.itemAudioProperties = itemAudioProperties
       startAudio(atIndex: itemAudioProperties.startIndex, andOffset: itemAudioProperties.startOffset)
 
@@ -134,6 +135,12 @@
     public func stopWithError() {
       pause()
       playbackError = true
+
+      timer?.invalidate()
+      timer = nil
+      if let player = player {
+        player.removeAllItems()
+      }
     }
 
     public func generateVoiceList() -> [VoiceItem] {
@@ -350,6 +357,7 @@
           currentOffset = CMTimeGetSeconds(player.currentTime())
         }
         player?.removeAllItems()
+        playbackError = false
 
         downloadAndPlayFrom(currentIdx, currentOffset)
       }
@@ -357,6 +365,12 @@
 
     public var currentVoicePair: VoicePair? {
       let voice = currentVoice
+      if Voices.isUltraRealisticVoice(currentVoice) {
+        let ultraPair = Voices.UltraPairs.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
+        if let ultraPair = ultraPair {
+          return ultraPair
+        }
+      }
       return Voices.Pairs.first(where: { $0.firstKey == voice || $0.secondKey == voice })
     }
 
@@ -405,13 +419,15 @@
         currentItemOffset = max(currentItemOffset, 0)
 
         let idx = currentAudioIndex // item.speechItem.audioIdx
-        let currentItem = document?.utterances[idx].text ?? ""
-        let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
-        let lastItem = String(currentItem[..<currentReadIndex])
-        let lastItemAfter = String(currentItem[currentReadIndex...])
+        if idx < document?.utterances.count ?? 0 {
+          let currentItem = document?.utterances[idx].text ?? ""
+          let currentReadIndex = currentItem.index(currentItem.startIndex, offsetBy: min(currentItemOffset, currentItem.count))
+          let lastItem = String(currentItem[..<currentReadIndex])
+          let lastItemAfter = String(currentItem[currentReadIndex...])
 
-        readText = lastItem
-        unreadText = lastItemAfter
+          readText = lastItem
+          unreadText = lastItemAfter
+        }
       } else {
         readText = ""
       }
@@ -456,8 +472,7 @@
     }
 
     public var secondaryVoice: String {
-      let pair = Voices.Pairs.first { $0.firstKey == currentVoice || $0.secondKey == currentVoice }
-      if let pair = pair {
+      if let pair = currentVoicePair {
         if pair.firstKey == currentVoice {
           return pair.secondKey
         }
@@ -468,36 +483,36 @@
       return "en-US-CoraNeural"
     }
 
+    func previewVoiceURL(_ voice: String) -> URL? {
+      URL(string: "https://storage.googleapis.com/omnivore_preview_bucket/tts-voice-previews/\(voice).mp3")
+    }
+
     public func playVoiceSample(voice: String) {
-      do {
-        pause()
+      pause()
 
-        if let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
-          try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
-
-          samplePlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-          if !(samplePlayer?.play() ?? false) {
-            throw BasicError.message(messageText: "Unable to playback audio")
-          }
-        } else {
-          NSNotification.operationFailed(message: "Error playing voice sample.")
+      if let url = previewVoiceURL(voice) {
+        samplePlayer = AVPlayer(playerItem: AVPlayerItem(url: url))
+        if let samplePlayer = samplePlayer {
+          samplePlayer.play()
         }
-      } catch {
-        print("ERROR", error)
+      } else {
         NSNotification.operationFailed(message: "Error playing voice sample.")
       }
     }
 
     public func isPlayingSample(voice: String) -> Bool {
-      if let samplePlayer = self.samplePlayer, let url = Bundle(url: UtilsPackage.bundleURL)?.url(forResource: voice, withExtension: "mp3") {
-        return samplePlayer.url == url && samplePlayer.isPlaying
+      if let samplePlayer = self.samplePlayer, let url = previewVoiceURL(voice) {
+        if let urlAsset = samplePlayer.currentItem?.asset as? AVURLAsset {
+          return urlAsset.url == url && samplePlayer.timeControlStatus == .playing
+        }
+        return false
       }
       return false
     }
 
     public func stopVoiceSample() {
       if let samplePlayer = self.samplePlayer {
-        samplePlayer.stop()
+        samplePlayer.pause()
         self.samplePlayer = nil
       }
     }
@@ -569,8 +584,7 @@
               let startOffset = index < document.utterances.count ? offset : 0.0
               self.startStreamingAudio(itemID: itemID, document: document, atIndex: startIndex, andOffset: startOffset)
             } else {
-              print("unable to load speech document")
-              // TODO: Post error to SnackBar
+              self.stopWithError()
             }
           }
         }
@@ -733,7 +747,7 @@
         let anchorIndex = Int((player?.currentItem as? SpeechPlayerItem)?.speechItem.htmlIdx ?? "") ?? 0
 
         if let itemID = itemAudioProperties?.itemID {
-          dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex)
+          dataService.updateLinkReadingProgress(itemID: itemID, readingProgress: percentProgress, anchorIndex: anchorIndex, force: true)
         }
 
         if let itemID = itemAudioProperties?.itemID, let player = player, let currentItem = player.currentItem {

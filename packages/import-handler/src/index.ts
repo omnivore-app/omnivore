@@ -41,7 +41,9 @@ export type UrlHandler = (
   ctx: ImportContext,
   url: URL,
   state?: ArticleSavingRequestStatus,
-  labels?: string[]
+  labels?: string[],
+  savedAt?: Date,
+  publishedAt?: Date
 ) => Promise<void>
 export type ContentHandler = (
   ctx: ImportContext,
@@ -59,6 +61,7 @@ export type ImportContext = {
   contentHandler: ContentHandler
   redisClient: RedisClient
   taskId: string
+  source: string
 }
 
 type importHandlerFunc = (ctx: ImportContext, stream: Stream) => Promise<void>
@@ -98,7 +101,9 @@ const importURL = async (
   source: string,
   taskId: string,
   state?: ArticleSavingRequestStatus,
-  labels?: string[]
+  labels?: string[],
+  savedAt?: Date,
+  publishedAt?: Date
 ): Promise<string | undefined> => {
   return createCloudTask(CONTENT_FETCH_URL, {
     userId,
@@ -110,6 +115,8 @@ const importURL = async (
       return { name: l }
     }),
     taskId,
+    savedAt,
+    publishedAt,
   })
 }
 
@@ -170,28 +177,47 @@ const handlerForFile = (name: string): importHandlerFunc | undefined => {
   const fileName = path.parse(name).name
   if (fileName.startsWith('MATTER')) {
     return importMatterArchive
-  } else if (fileName.startsWith('URL_LIST')) {
+  } else if (fileName.startsWith('URL_LIST') || fileName.startsWith('POCKET')) {
     return importCsv
   }
 
   return undefined
 }
 
+const importSource = (name: string): string => {
+  const fileName = path.parse(name).name
+  if (fileName.startsWith('MATTER')) {
+    return 'matter-history'
+  }
+  if (fileName.startsWith('URL_LIST')) {
+    return 'csv-importer'
+  }
+  if (fileName.startsWith('POCKET')) {
+    return 'pocket'
+  }
+
+  return 'unknown'
+}
+
 const urlHandler = async (
   ctx: ImportContext,
   url: URL,
   state?: ArticleSavingRequestStatus,
-  labels?: string[]
+  labels?: string[],
+  savedAt?: Date,
+  publishedAt?: Date
 ): Promise<void> => {
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
     const result = await importURL(
       ctx.userId,
       url,
-      'csv-importer',
+      ctx.source,
       ctx.taskId,
       state,
-      labels && labels.length > 0 ? labels : undefined
+      labels && labels.length > 0 ? labels : undefined,
+      savedAt,
+      publishedAt
     )
     if (!result) {
       return Promise.reject('Failed to import url')
@@ -299,7 +325,7 @@ const handleEvent = async (data: StorageEvent, redisClient: RedisClient) => {
       .file(data.name)
       .createReadStream()
 
-    const ctx = {
+    const ctx: ImportContext = {
       userId,
       countImported: 0,
       countFailed: 0,
@@ -307,6 +333,7 @@ const handleEvent = async (data: StorageEvent, redisClient: RedisClient) => {
       contentHandler,
       redisClient,
       taskId: data.name,
+      source: importSource(data.name),
     }
 
     await handler(ctx, stream)

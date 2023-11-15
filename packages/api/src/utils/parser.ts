@@ -15,11 +15,11 @@ import { ElementNode } from 'node-html-markdown/dist/nodes'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
-import { Highlight } from '../elastic/types'
-import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
+import { Highlight } from '../entity/highlight'
+import { StatusType } from '../entity/user'
 import { env } from '../env'
 import { PageType, PreparedDocumentInput } from '../generated/graphql'
+import { userRepository } from '../repository/user'
 import { ArticleFormat } from '../resolvers/article'
 import {
   EmbeddedHighlightData,
@@ -176,6 +176,7 @@ const getReadabilityResult = async (
         debug: DEBUG_MODE,
         createImageProxyUrl,
         keepTables: isNewsletter,
+        ignoreLinkDensity: isNewsletter,
         url,
       }).parse()
 
@@ -183,7 +184,7 @@ const getReadabilityResult = async (
         return article
       }
     } catch (error) {
-      logger.info('parsing error for url', url, error)
+      logger.info('parsing error for url', { url, error })
     }
   }
 
@@ -223,7 +224,7 @@ export const parsePreparedContent = async (
     pageInfo.contentType &&
     !ALLOWED_CONTENT_TYPES.includes(pageInfo.contentType)
   ) {
-    logger.info('Not allowed content type', pageInfo.contentType)
+    logger.info(`Not allowed content type: ${pageInfo.contentType}`)
     return {
       canonicalUrl: url,
       parsedContent: null,
@@ -332,18 +333,13 @@ export const parsePreparedContent = async (
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
     const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
 
-    const jsonLdLinkMetadata = (async () => {
-      return getJSONLdLinkMetadata(dom)
-    })()
-
     Object.assign(article || {}, {
       content: clean,
-      title: article?.title || (await jsonLdLinkMetadata).title,
-      previewImage:
-        article?.previewImage || (await jsonLdLinkMetadata).previewImage,
-      siteName: article?.siteName || (await jsonLdLinkMetadata).siteName,
+      title: article?.title,
+      previewImage: article?.previewImage,
+      siteName: article?.siteName,
       siteIcon: article?.siteIcon,
-      byline: article?.byline || (await jsonLdLinkMetadata).byline,
+      byline: article?.byline,
       language: article?.language,
     })
     logRecord.parseSuccess = true
@@ -401,7 +397,7 @@ const getJSONLdLinkMetadata = async (
 
     return result
   } catch (error) {
-    logger.warning(`Unable to get JSONLD link of the article`, { error })
+    logger.error('Unable to get JSONLD link of the article')
     return result
   }
 }
@@ -468,8 +464,9 @@ export const isProbablyArticle = async (
   email: string,
   subject: string
 ): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
+  const user = await userRepository.findOneBy({
     email: ILike(email),
+    status: StatusType.Active,
   })
   return !!user || subject.includes(ARTICLE_PREFIX)
 }
@@ -505,9 +502,9 @@ export const fetchFavicon = async (
     return `https://api.faviconkit.com/${domain}/128`
   } catch (e) {
     if (axios.isAxiosError(e)) {
-      logger.error('failed to get favicon:', e.response?.status)
+      logger.info('failed to get favicon', e.response)
     } else {
-      logger.error('failed to get favicon:', e)
+      logger.info('failed to get favicon', e)
     }
     return undefined
   }
@@ -654,7 +651,7 @@ export const htmlToHighlightedMarkdown = (
 
   // wrap highlights in special tags
   highlights
-    .filter((h) => h.type == 'HIGHLIGHT' && h.patch)
+    .filter((h) => h.highlightType == 'HIGHLIGHT' && h.patch)
     .forEach((highlight) => {
       try {
         makeHighlightNodeAttributes(
@@ -689,7 +686,7 @@ export const getDistillerResult = async (
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 // 1 hour
     const auth = (await signToken({ uid, exp }, env.server.jwtSecret)) as string
 
-    logger.info('Parsing by distiller', url)
+    logger.info(`Parsing by distiller: ${url}`)
     const response = await axios.post<string>(url, html, {
       headers: {
         Authorization: auth,

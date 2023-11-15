@@ -1,12 +1,10 @@
-import { AppDataSource } from '../src/server'
+import { appDataSource } from '../src/data_source'
 import { stopApolloServer } from './util'
-import { kx } from '../src/datalayer/knex_config'
 
 export const mochaGlobalTeardown = async () => {
-  await AppDataSource.destroy()
-  await kx.destroy()
-  console.log('db connection closed')
-
   await stopApolloServer()
   console.log('apollo server stopped')
+
+  await appDataSource.destroy()
+  console.log('db connection closed')
 }

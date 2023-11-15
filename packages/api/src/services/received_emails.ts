@@ -1,5 +1,5 @@
 import { ReceivedEmail } from '../entity/received_email'
-import { getRepository } from '../entity/utils'
+import { authTrx } from '../repository'
 
 export const saveReceivedEmail = async (
   from: string,
@@ -10,20 +10,50 @@ export const saveReceivedEmail = async (
   userId: string,
   type: 'article' | 'non-article' = 'non-article'
 ): Promise<ReceivedEmail> => {
-  return getRepository(ReceivedEmail).save({
-    from,
-    to,
-    subject,
-    text,
-    html,
-    type,
-    user: { id: userId },
-  })
+  return authTrx(
+    (t) =>
+      t.getRepository(ReceivedEmail).save({
+        from,
+        to,
+        subject,
+        text,
+        html,
+        type,
+        user: { id: userId },
+      }),
+    undefined,
+    userId
+  )
 }
 
 export const updateReceivedEmail = async (
   id: string,
-  type: 'article' | 'non-article'
+  type: 'article' | 'non-article',
+  userId: string
 ) => {
-  await getRepository(ReceivedEmail).update(id, { type })
+  return authTrx(
+    (t) =>
+      t
+        .getRepository(ReceivedEmail)
+        .update({ id, user: { id: userId } }, { type }),
+    undefined,
+    userId
+  )
+}
+
+export const deleteReceivedEmail = async (id: string, userId: string) => {
+  return authTrx(
+    (t) => t.getRepository(ReceivedEmail).delete({ id, user: { id: userId } }),
+    undefined,
+    userId
+  )
+}
+
+export const findReceivedEmailById = async (id: string, userId: string) => {
+  return authTrx(
+    (t) =>
+      t.getRepository(ReceivedEmail).findOneBy({ id, user: { id: userId } }),
+    undefined,
+    userId
+  )
 }

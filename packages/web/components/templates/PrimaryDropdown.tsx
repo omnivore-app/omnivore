@@ -16,7 +16,6 @@ import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
-import { ListViewIcon } from '../elements/icons/ListViewIcon'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -26,17 +25,18 @@ type PrimaryDropdownProps = {
   updateLayout?: (layout: LayoutType) => void
 
   showAddLinkModal?: () => void
-  startSelectMultiple?: () => void
 }
 
 export type HeaderDropdownAction =
   | 'navigate-to-install'
+  | 'navigate-to-feeds'
   | 'navigate-to-emails'
   | 'navigate-to-labels'
   | 'navigate-to-profile'
   | 'navigate-to-subscriptions'
   | 'navigate-to-api'
   | 'navigate-to-integrations'
+  | 'navigate-to-saved-searches'
   | 'increaseFontSize'
   | 'decreaseFontSize'
   | 'logout'
@@ -50,6 +50,9 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
       switch (action) {
         case 'navigate-to-install':
           router.push('/settings/installation')
+          break
+        case 'navigate-to-feeds':
+          router.push('/settings/feeds')
           break
         case 'navigate-to-emails':
           router.push('/settings/emails')
@@ -65,6 +68,9 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           break
         case 'navigate-to-integrations':
           router.push('/settings/integrations')
+          break
+        case 'navigate-to-saved-searches':
+          router.push('/settings/saved-searches')
           break
         case 'logout':
           document.dispatchEvent(new Event('logout'))
@@ -99,6 +105,10 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           gap: '15px',
           cursor: 'pointer',
           mouseEvents: 'all',
+        }}
+        onClick={(event) => {
+          router.push('/settings/account')
+          event.preventDefault()
         }}
       >
         <Avatar
@@ -150,6 +160,10 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         title="Install"
       />
       <DropdownOption
+        onSelect={() => headerDropdownActionHandler('navigate-to-feeds')}
+        title="Feeds"
+      />
+      <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-emails')}
         title="Emails"
       />
@@ -165,17 +179,6 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
             onSelect={() => props.showAddLinkModal && props.showAddLinkModal()}
             title="Add Link"
           />
-        </>
-      )}
-      {props.startSelectMultiple && (
-        <>
-          <DropdownOption
-            onSelect={() =>
-              props.startSelectMultiple && props.startSelectMultiple()
-            }
-            title="Select Multiple"
-          />
-          <DropdownSeparator />
         </>
       )}
       <DropdownOption
@@ -203,7 +206,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
   )
 }
 
-const StyledToggleButton = styled('button', {
+export const StyledToggleButton = styled('button', {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -317,8 +320,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
                   props.updateLayout && props.updateLayout('LIST_LAYOUT')
                 }}
               >
-                <ListViewIcon
-                  size={30}
+                <ListLayoutIcon
                   color={theme.colors.thTextContrast2.toString()}
                 />
               </StyledToggleButton>

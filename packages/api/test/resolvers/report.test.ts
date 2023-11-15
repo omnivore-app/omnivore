@@ -1,16 +1,18 @@
-import { User } from '../../src/entity/user'
-import { Page } from '../../src/elastic/types'
-import { createTestUser, deleteTestUser } from '../db'
-import { createTestElasticPage, graphqlRequest, request } from '../util'
-import { ReportType } from '../../src/generated/graphql'
-import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
 import { expect } from 'chai'
-import { getRepository } from '../../src/entity/utils'
+import 'mocha'
+import { LibraryItem } from '../../src/entity/library_item'
+import { ContentDisplayReport } from '../../src/entity/reports/content_display_report'
+import { User } from '../../src/entity/user'
+import { ReportType } from '../../src/generated/graphql'
+import { getRepository } from '../../src/repository'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Report API', () => {
   let user: User
   let authToken: string
-  let page: Page
+  let item: LibraryItem
 
   before(async () => {
     // create test user and login
@@ -22,12 +24,12 @@ describe('Report API', () => {
     authToken = res.body.authToken
 
     // create a page
-    page = await createTestElasticPage(user.id)
+    item = await createTestLibraryItem(user.id)
   })
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('reportItem', () => {
@@ -54,18 +56,17 @@ describe('Report API', () => {
 
     context('when page exists and report is content display', () => {
       before(() => {
-        pageId = page.id
+        pageId = item.id
         reportTypes = [ReportType.ContentDisplay]
       })
 
       it('should report an item', async () => {
         await graphqlRequest(query, authToken).expect(200)
 
-        expect(
-          await getRepository(ContentDisplayReport).findBy({
-            elasticPageId: pageId,
-          })
-        ).to.exist
+        const report = await getRepository(ContentDisplayReport).findOneBy({
+          libraryItemId: item.id,
+        })
+        expect(report).to.exist
       })
     })
   })

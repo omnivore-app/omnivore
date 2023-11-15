@@ -1,7 +1,6 @@
 package app.omnivore.omnivore.dataService
 
 import android.util.Log
-import androidx.room.PrimaryKey
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
@@ -85,6 +84,9 @@ suspend fun DataService.sync(since: String, cursor: String?, limit: Int = 20): S
         suffix  = highlight.highlightFields.suffix,
         createdAt = null,
         updatedAt  = highlight.highlightFields.updatedAt as String?,
+        color = highlight.highlightFields.color,
+        highlightPositionPercent = highlight.highlightFields.highlightPositionPercent,
+        highlightPositionAnchorIndex = highlight.highlightFields.highlightPositionAnchorIndex,
       )
     } ?: listOf()
     SavedItemWithLabelsAndHighlights(

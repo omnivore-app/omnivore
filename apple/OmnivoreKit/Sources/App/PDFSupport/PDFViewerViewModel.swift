@@ -22,6 +22,10 @@ final class PDFViewerViewModel: ObservableObject {
     showSnackbar = true
   }
 
+  func findHighlight(highlightID: String) -> Highlight? {
+    pdfItem.highlights.first { $0.id == highlightID }
+  }
+
   func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {
     onComplete(pdfItem.highlights.map { $0.patch ?? "" })
   }
@@ -76,11 +80,20 @@ final class PDFViewerViewModel: ObservableObject {
     }
   }
 
-  func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int) {
+  func updateAnnotation(highlightID: String, annotation: String, dataService: DataService) {
+    dataService.updateHighlightAttributes(highlightID: highlightID, annotation: annotation)
+
+    if let highlight = pdfItem.highlights.first(where: { $0.id == highlightID }) {
+      highlight.annotation = annotation
+    }
+  }
+
+  func updateItemReadProgress(dataService: DataService, percent: Double, anchorIndex: Int, force: Bool = false) {
     dataService.updateLinkReadingProgress(
       itemID: pdfItem.itemID,
       readingProgress: percent,
-      anchorIndex: anchorIndex
+      anchorIndex: anchorIndex,
+      force: force
     )
   }
 
@@ -96,7 +109,18 @@ final class PDFViewerViewModel: ObservableObject {
         }
       }
 
-      return try await dataService.loadPDFData(slug: pdfItem.slug, pageURLString: pdfItem.originalArticleURL)
+      if let result = try? await dataService.loadPDFData(slug: pdfItem.slug, downloadURL: pdfItem.downloadURL) {
+        return result
+      }
+
+      // Downloading failed, try to get the article again, and then download
+      if let content = try? await dataService.loadArticleContentWithRetries(itemID: pdfItem.itemID, username: "me") {
+        // refetched the content, now try one more time then throw
+        if let result = try await dataService.loadPDFData(slug: pdfItem.slug, downloadURL: content.downloadURL) {
+          return result
+        }
+      }
+      return nil
     } catch {
       print("error downloading PDF", error)
       return nil

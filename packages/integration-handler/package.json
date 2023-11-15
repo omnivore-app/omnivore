@@ -1,0 +1,42 @@
+{
+  "name": "@omnivore/integration-handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "files": [
+    "build/src"
+  ],
+  "keywords": [],
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start_exporter": "functions-framework --target=exporter",
+    "start_importer": "functions-framework --target=importer"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/luxon": "^1.25.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^14.11.2",
+    "@types/uuid": "^9.0.0",
+    "eslint-plugin-prettier": "^4.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/storage": "^7.0.1",
+    "@sentry/serverless": "^7.77.0",
+    "axios": "^1.2.2",
+    "csv-stringify": "^6.4.0",
+    "dotenv": "^16.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "luxon": "^3.2.1",
+    "uuid": "^9.0.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

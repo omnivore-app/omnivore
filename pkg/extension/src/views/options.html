@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>API Key Storage</title>
+  <title>Omnivore Extension Settings</title>
   <script src="/scripts/common.js"></script>
-  <style>
-    div.wrapper: {
-      max-width: 480px;
-      padding: 20px;
-    }
-  </style>
+
 </head>
 <body>
   <div class='wrapper'>
@@ -35,6 +30,22 @@
     <button id="save-api-key-btn">Save API Key</button>
     <button id="load-api-key-btn">Load API Key</button>
     <button id="clear-api-key-btn">Clear API Key</button>
+
+    <p>&nbsp;</p>
+
+    <h1>Settings</h1>
+
+    <p>
+      <input type="checkbox" id="disable-auto-dismiss" />
+      <label for="auto-dismiss">Disable Auto Dismiss</label>
+    </p>
+
+    <p>
+      <label for="auto-dismiss-time">Auto Dismiss time (ms)</label>
+      <input type="text" id="auto-dismiss-time" />
+      <button id="auto-dismiss-time-btn">Save</button>
+    </p>
+
   </div>
   <script src="/scripts/options.js"></script>
 </body>

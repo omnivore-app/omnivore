@@ -20,7 +20,9 @@ data class CreateHighlightParams(
    val quote: String?,
    val patch: String?,
    val articleId: String?,
-   val `annotation`: String?
+   val `annotation`: String?,
+   val highlightPositionAnchorIndex: Int,
+   val highlightPositionPercent: Double
 ) {
   fun asCreateHighlightInput() = CreateHighlightInput(
     type = Optional.presentIfNotNull(type),
@@ -29,7 +31,9 @@ data class CreateHighlightParams(
     id = id ?: "",
     patch = Optional.presentIfNotNull(patch),
     quote = Optional.presentIfNotNull(quote),
-    shortId = shortId ?: ""
+    shortId = shortId ?: "",
+    highlightPositionAnchorIndex = Optional.presentIfNotNull(highlightPositionAnchorIndex),
+    highlightPositionPercent = Optional.presentIfNotNull(highlightPositionPercent)
   )
 }
 
@@ -135,6 +139,8 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
 
   try {
     val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
+    Log.d("Loggo", "result: ${result.data}")
+
 
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
@@ -150,8 +156,11 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         annotation = createdHighlight.highlightFields.annotation,
         createdAt =  createdHighlight.highlightFields.createdAt.toString(),
         updatedAt = createdHighlight.highlightFields.updatedAt.toString(),
-        createdByMe = createdHighlight.highlightFields.createdByMe
-      )
+        createdByMe = createdHighlight.highlightFields.createdByMe,
+        color = createdHighlight.highlightFields.color,
+        highlightPositionPercent = createdHighlight.highlightFields.highlightPositionPercent,
+        highlightPositionAnchorIndex = createdHighlight.highlightFields.highlightPositionAnchorIndex
+        )
     } else {
       return null
     }

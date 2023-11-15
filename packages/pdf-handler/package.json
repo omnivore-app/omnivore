@@ -11,6 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
@@ -27,11 +28,14 @@
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
-    "@google-cloud/pubsub": "^3.4.1",
-    "@google-cloud/storage": "^5.18.1",
-    "@sentry/serverless": "^7.30.0",
+    "@google-cloud/pubsub": "^4.0.0",
+    "@google-cloud/storage": "^7.0.1",
+    "@sentry/serverless": "^7.77.0",
     "axios": "^0.27.2",
     "concurrently": "^7.0.0",
     "pdfjs-dist": "^2.9.359"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

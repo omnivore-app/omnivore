@@ -1,14 +1,21 @@
 import express from 'express'
-import { setClaims } from '../../datalayer/helpers'
-import { kx } from '../../datalayer/knex_config'
-import { createPubSubClient } from '../../datalayer/pubsub'
-import { createPage } from '../../elastic/pages'
-import { ArticleSavingRequestStatus, Page } from '../../elastic/types'
+import { DeepPartial } from 'typeorm'
+import {
+  ContentReaderType,
+  LibraryItem,
+  LibraryItemState,
+} from '../../entity/library_item'
+import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import { PageType, UploadFileStatus } from '../../generated/graphql'
-import { initModels } from '../../server'
-import { getNewsletterEmail } from '../../services/newsletters'
+import { authTrx } from '../../repository'
+import { createLibraryItem } from '../../services/library_item'
+import { findNewsletterEmailByAddress } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
+import {
+  findUploadFileById,
+  setFileUploadComplete,
+} from '../../services/upload_file'
 import { analytics } from '../../utils/analytics'
 import { getClaimsByToken } from '../../utils/auth'
 import { generateSlug } from '../../utils/helpers'
@@ -17,7 +24,6 @@ import {
   generateUploadFilePathName,
   generateUploadSignedUrl,
   getStorageFileDetails,
-  makeStorageFilePublic,
 } from '../../utils/uploads'
 
 export function emailAttachmentRouter() {
@@ -38,7 +44,7 @@ export function emailAttachmentRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const newsletterEmail = await getNewsletterEmail(email)
+    const newsletterEmail = await findNewsletterEmailByAddress(email)
     if (!newsletterEmail || !newsletterEmail.user) {
       return res.status(401).send('UNAUTHORIZED')
     }
@@ -54,14 +60,18 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const models = initModels(kx, false)
-      const uploadFileData = await models.uploadFile.create({
-        url: '',
-        userId: user.id,
-        fileName: fileName,
-        status: UploadFileStatus.Initialized,
-        contentType: contentType,
-      })
+      const uploadFileData = await authTrx(
+        (tx) =>
+          tx.getRepository(UploadFile).save({
+            url: '',
+            fileName,
+            status: UploadFileStatus.Initialized,
+            contentType,
+            user: { id: user.id },
+          }),
+        undefined,
+        user.id
+      )
 
       if (uploadFileData.id) {
         const uploadFilePathName = generateUploadFilePathName(
@@ -101,7 +111,7 @@ export function emailAttachmentRouter() {
       return res.status(401).send('UNAUTHORIZED')
     }
 
-    const newsletterEmail = await getNewsletterEmail(email)
+    const newsletterEmail = await findNewsletterEmailByAddress(email)
     if (!newsletterEmail || !newsletterEmail.user) {
       return res.status(401).send('UNAUTHORIZED')
     }
@@ -117,11 +127,7 @@ export function emailAttachmentRouter() {
     })
 
     try {
-      const models = initModels(kx, false)
-      const uploadFile = await models.uploadFile.getWhere({
-        id: uploadFileId,
-        userId: user.id,
-      })
+      const uploadFile = await findUploadFileById(uploadFileId)
       if (!uploadFile) {
         return res.status(400).send('BAD REQUEST')
       }
@@ -131,51 +137,45 @@ export function emailAttachmentRouter() {
         uploadFile.fileName
       )
 
-      const uploadFileData = await kx.transaction(async (tx) => {
-        await setClaims(tx, user.id)
-        return models.uploadFile.setFileUploadComplete(uploadFileId, tx)
-      })
+      const uploadFileData = await setFileUploadComplete(uploadFileId, user.id)
       if (!uploadFileData || !uploadFileData.id || !uploadFileData.fileName) {
         return res.status(400).send('BAD REQUEST')
       }
 
-      const uploadFileUrlOverride = await makeStorageFilePublic(
-        uploadFileData.id,
-        uploadFileData.fileName
+      const uploadFilePathName = generateUploadFilePathName(
+        uploadFileId,
+        uploadFile.fileName
       )
 
+      const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFilePathName}`
       const uploadFileHash = uploadFileDetails.md5Hash
-      const pageType =
+      const itemType =
         uploadFile.contentType === 'application/pdf'
           ? PageType.File
           : PageType.Book
       const title = subject || uploadFileData.fileName
-      const articleToSave: Page = {
-        id: '',
-        url: uploadFileUrlOverride,
-        pageType,
-        hash: uploadFileHash,
-        uploadFileId,
+      const itemToCreate: DeepPartial<LibraryItem> = {
+        originalUrl: uploadFileUrlOverride,
+        itemType,
+        textContentHash: uploadFileHash,
+        uploadFile: { id: uploadFileData.id },
         title,
-        content: '',
-        userId: user.id,
+        readableContent: '',
         slug: generateSlug(title),
-        createdAt: new Date(),
-        savedAt: new Date(),
-        readingProgressPercent: 0,
-        readingProgressAnchorIndex: 0,
-        state: ArticleSavingRequestStatus.Succeeded,
+        state: LibraryItemState.Succeeded,
+        user: { id: user.id },
+        contentReader:
+          itemType === PageType.File
+            ? ContentReaderType.PDF
+            : ContentReaderType.EPUB,
       }
 
-      const pageId = await createPage(articleToSave, {
-        pubsub: createPubSubClient(),
-        uid: user.id,
-      })
+      const item = await createLibraryItem(itemToCreate, user.id)
 
       // update received email type
-      await updateReceivedEmail(receivedEmailId, 'article')
+      await updateReceivedEmail(receivedEmailId, 'article', user.id)
 
-      res.send({ id: pageId })
+      res.send({ id: item.id })
     } catch (err) {
       logger.info(err)
       res.status(500).send(err)

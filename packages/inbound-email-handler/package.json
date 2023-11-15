@@ -11,6 +11,7 @@
   "keywords": [],
   "scripts": {
     "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
     "build": "tsc",
@@ -24,21 +25,26 @@
     "@types/json-bigint": "^1.0.1",
     "@types/node": "^14.11.2",
     "@types/rfc2047": "^2.0.1",
+    "@types/showdown": "^2.0.1",
     "chai": "^4.3.6",
     "eslint-plugin-prettier": "^4.0.0",
     "mocha": "^10.0.0"
   },
   "dependencies": {
     "@google-cloud/functions-framework": "3.1.2",
-    "@google-cloud/pubsub": "^3.4.1",
+    "@google-cloud/pubsub": "^4.0.0",
     "@omnivore/content-handler": "1.0.0",
     "@sendgrid/client": "^7.6.0",
-    "@sentry/serverless": "^6.16.1",
+    "@sentry/serverless": "^7.77.0",
     "addressparser": "^1.0.1",
     "axios": "^0.27.2",
     "jsonwebtoken": "^8.5.1",
     "parse-headers": "^2.0.4",
     "parse-multipart-data": "^1.2.1",
-    "rfc2047": "^4.0.1"
+    "rfc2047": "^4.0.1",
+    "showdown": "^2.1.0"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }

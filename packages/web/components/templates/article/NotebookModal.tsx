@@ -49,7 +49,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
     props.onClose(allAnnotations ?? [], deletedHighlights ?? [])
   }, [props, allAnnotations])
 
-  const handleAnnotationsChange = useCallback((allAnnotations) => {
+  const handleAnnotationsChange = useCallback((allAnnotations: Highlight[]) => {
     setAllAnnotations(allAnnotations)
   }, [])
 
@@ -66,7 +66,7 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
   }, [allAnnotations])
 
   const viewInReader = useCallback(
-    (highlightId) => {
+    (highlightId: string) => {
       props.viewHighlightInReader(highlightId)
       handleClose()
     },
@@ -137,13 +137,13 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
                 onSelect={() => {
                   exportHighlights()
                 }}
-                title="Export Notebook"
+                title="Export notebook"
               />
               <DropdownOption
                 onSelect={() => {
                   setShowConfirmDeleteNote(true)
                 }}
-                title="Delete Article Note"
+                title="Delete article note"
               />
             </Dropdown>
             <CloseButton close={handleClose} />

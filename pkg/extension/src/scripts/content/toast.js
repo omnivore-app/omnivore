@@ -64,6 +64,7 @@
     const html = await file.text()
 
     const root = document.createElement('div')
+    root.tabIndex = 0
     root.attachShadow({ mode: 'open' })
     if (root.shadowRoot) {
       root.shadowRoot.innerHTML = `<style>:host {all initial;}</style>`
@@ -72,11 +73,12 @@
     const toastEl = document.createElement('div')
     toastEl.id = '#omnivore-toast'
     toastEl.innerHTML = html
+    toastEl.tabIndex = 0
     root.shadowRoot.appendChild(toastEl)
 
     document.body.appendChild(root)
     connectButtons(root)
-    // connectKeyboard(root)
+    connectKeyboard(root)
 
     return root
   }
@@ -190,8 +192,18 @@
   function updateLabelsFromCache(payload) {
     ;(async () => {
       await getStorageItem('labels').then((cachedLabels) => {
+        if (labels) {
+          const selectedLabels = labels.filter((l) => l.selected)
+          selectedLabels.forEach((l) => {
+            const cached = cachedLabels.find((cached) => cached.name == l.name)
+            if (cached) {
+              cached.selected = true
+            } else {
+              cachedLabels.push(l)
+            }
+          })
+        }
         labels = cachedLabels
-        console.log(' == updated labels', cachedLabels)
       })
     })()
   }
@@ -217,6 +229,10 @@
         toastEl.remove()
       }
     })
+
+    currentToastEl.focus({
+      preventScroll: true,
+    })
   }
 
   function updatePageStatus(status) {
@@ -230,13 +246,36 @@
       case 'success':
         // Auto hide if everything went well and the user
         // has not initiated any interaction.
-        hideToastTimeout = setTimeout(function () {
-          console.log('hiding: ', currentToastEl, doNotHide)
-          if (!doNotHide) {
-            currentToastEl.remove()
-            currentToastEl = undefined
+
+        const handleAutoDismiss = (autoDismissTime) => {
+          const dismissTime =
+            autoDismissTime && !Number.isNaN(Number(autoDismissTime))
+              ? Number(autoDismissTime)
+              : 2500
+          console.log('setting dismiss time: ', dismissTime)
+          hideToastTimeout = setTimeout(function () {
+            console.log('hiding toast timeout')
+            if (!doNotHide) {
+              currentToastEl.remove()
+              currentToastEl = undefined
+            }
+          }, dismissTime)
+        }
+
+        getStorageItem('autoDismissTime')
+          .then((autoDismissTime) => {
+            handleAutoDismiss(autoDismissTime)
+          })
+          .catch(() => {
+            handleAutoDismiss('2500')
+          })
+
+        getStorageItem('disableAutoDismiss').then((disable) => {
+          console.log('got disableAutoDismiss', disable)
+          if (disable) {
+            cancelAutoDismiss()
           }
-        }, 2500)
+        })
         statusBox.innerHTML = systemIcons.success
         break
       case 'failure':
@@ -273,7 +312,12 @@
   }
 
   function toggleRow(rowId) {
-    console.log('currentToastEl: ', currentToastEl)
+    if (!currentToastEl) {
+      // its possible this was called after closing the extension
+      // so just return
+      return
+    }
+
     const container = currentToastEl.shadowRoot.querySelector(rowId)
     const initialState = container?.getAttribute('data-state')
     const rows = currentToastEl.shadowRoot.querySelectorAll(
@@ -328,15 +372,7 @@
   }
 
   function connectKeyboard(root) {
-    console.log('connecting keyboard')
     root.addEventListener('keydown', (e) => {
-      console.log(
-        'root.addEventListener document code: ',
-        e.key,
-        'activeElement:',
-        document.activeElement
-      )
-
       switch (e.key) {
         case 'r':
           readNow()
@@ -347,17 +383,23 @@
         case 'm':
           openMenu()
           break
-        case 'i':
+        case 't':
           editTitle()
           break
-        case 't':
+        case 'n':
+          e.preventDefault()
           addNote()
           break
+      }
+
+      e.cancelBubble = true
+      if (e.stopPropogation) {
+        e.stopPropogation()
       }
     })
   }
 
-  function createLabelRow(label, idx) {
+  function createLabelRow(label) {
     const element = document.createElement('button')
     const dot = document.createElement('span')
     dot.style = 'width:10px;height:10px;border-radius:1000px;'
@@ -380,9 +422,8 @@
     element.appendChild(check)
 
     element.onclick = labelClick
-    element.onkeydown = labelKeyDown
+    element.onkeydown = labelEditorKeyDownHandler
     element.setAttribute('data-label-id', label.id)
-    element.setAttribute('data-label-idx', idx)
     element.setAttribute(
       'data-label-selected',
       label['selected'] ? 'on' : 'off'
@@ -417,63 +458,117 @@
     if (label) {
       label.selected = toggledValue
     }
+
+    const labelList = event.target.form.querySelector('#label-list')
+    const labelInput = event.target.form.querySelector(
+      '#omnivore-edit-label-input'
+    )
+    if (toggledValue) {
+      addLabel(labelList, labelInput, label.name)
+    } else {
+      removeLabel(labelList, label.id)
+    }
   }
 
-  function labelKeyDown(event) {
+  function backspaceOnLastItem(labelsList, labelsInput) {
+    // Get the last <li> item before the <li><input item
+    const lastItem =
+      labelsInput.closest('#label-entry-item').previousElementSibling
+    if (lastItem) {
+      const backspaced = lastItem.getAttribute('data-label-backspaced')
+      if (backspaced) {
+        removeLabel(
+          labelsInput.closest('#label-list'),
+          lastItem.getAttribute('data-label-id')
+        )
+      } else {
+        lastItem.setAttribute('data-label-backspaced', 'on')
+      }
+    }
+  }
+
+  function labelEditorClickHandler(event) {
+    const input = event.target.querySelector('#omnivore-edit-label-input')
+    if (input && event.target != input) {
+      input.focus()
+      return
+    }
+  }
+
+  function clearBackspacedLabels(form) {
+    const selected = form.querySelectorAll('.label[data-label-backspaced="on"]')
+    selected.forEach((node) => {
+      node.removeAttribute('data-label-backspaced')
+    })
+  }
+
+  function labelEditorKeyDownHandler(event) {
+    event.cancelBubble = true
+    if (event.stopPropogation) {
+      event.stopPropogation()
+    }
+
+    // If any labels have been backspaced into (so they have the selected outline), clear their state
+    if (event.target.form && event.key.toLowerCase() !== 'backspace') {
+      clearBackspacedLabels(event.target.form)
+    }
+
     switch (event.key.toLowerCase()) {
       case 'arrowup': {
-        if (
-          event.target ==
-          event.target.form.querySelector('#omnivore-edit-label-text')
-        ) {
+        if (event.target.id == 'omnivore-edit-label-input') {
           return
         }
 
-        const idx = event.target.getAttribute('data-label-idx')
-        let prevIdx = idx && Number(idx) != NaN ? Number(idx) - 1 : 0
-        if (
-          event.target ==
-          event.target.form.querySelector('#omnivore-save-button')
-        ) {
-          // Focus the last label index
-          const maxItemIdx = Math.max(
-            ...Array.from(
-              event.target.form.querySelectorAll(`button[data-label-idx]`)
-            ).map((b) => Number(b.getAttribute('data-label-idx')))
-          )
-          if (maxItemIdx != NaN) {
-            prevIdx = maxItemIdx
-          }
+        if (!event.target.getAttribute('data-label-id')) {
+          return
         }
 
-        const prev = event.target.form.querySelector(
-          `button[data-label-idx='${prevIdx}']`
-        )
-        if (prev) {
+        let prev = event.target.previousElementSibling
+        if (prev && prev.getAttribute('data-label-id')) {
           prev.focus()
         } else {
-          // Focus the text area
-          event.target.form.querySelector('#omnivore-edit-label-text')?.focus()
+          event.target.form.querySelector('#omnivore-edit-label-input')?.focus()
         }
         event.preventDefault()
         break
       }
       case 'arrowdown': {
-        const idx = event.target.getAttribute('data-label-idx')
-        const nextIdx = idx && Number(idx) != NaN ? Number(idx) + 1 : 0
-        const next = event.target.form.querySelector(
-          `button[data-label-idx='${nextIdx}']`
-        )
-        if (next) {
-          next.focus()
+        let next = undefined
+        if (event.target.id == 'omnivore-edit-label-input') {
+          idx = event.target.getAttribute('data-label-id')
+          next = event.target
+            .closest('#omnivore-edit-labels-form')
+            .querySelector('#omnivore-edit-labels-list')
+            .querySelector('[data-label-id]')
         } else {
-          // Focus the save button
-          event.target.form.querySelector('.omnivore-save-button')?.focus()
+          next = event.target.nextElementSibling
+        }
+
+        if (next && next.getAttribute('data-label-id')) {
+          next.focus()
         }
         event.preventDefault()
         break
       }
+      case 'backspace': {
+        if (
+          event.target.id == 'omnivore-edit-label-input' &&
+          event.target.value.length == 0
+        ) {
+          const labelList = event.target.form.querySelector('#label-list')
+          backspaceOnLastItem(labelList, event.target)
+        }
+        break
+      }
       case 'enter': {
+        if (event.target.id == 'omnivore-edit-label-input') {
+          if (event.target.value) {
+            const labelList = event.target.form.querySelector('#label-list')
+            addLabel(labelList, event.target, event.target.value)
+          }
+          event.preventDefault()
+          return
+        }
         const labelId = event.target.getAttribute('data-label-id')
         toggleLabel(event, labelId)
         event.preventDefault()
@@ -482,17 +577,69 @@
     }
   }
 
-  function addNote() {
+  function noteCacheKey() {
+    return document.location
+      ? `cached-note-${document.location.href}`
+      : undefined
+  }
+
+  async function addNote() {
+    const cachedNoteKey = noteCacheKey()
+
     cancelAutoDismiss()
     toggleRow('#omnivore-add-note-row')
-    currentToastEl.shadowRoot
-      .querySelector('#omnivore-add-note-textarea')
-      ?.focus()
+
+    const noteArea = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-add-note-textarea'
+    )
+
+    if (noteArea) {
+      if (cachedNoteKey) {
+        const existingNote = await getStorageItem(cachedNoteKey)
+        noteArea.value = existingNote
+      }
+
+      if (noteArea.value) {
+        noteArea.select()
+      } else {
+        noteArea.focus()
+      }
+
+      noteArea.addEventListener('input', (event) => {
+        ;(async () => {
+          const note = {}
+          note[cachedNoteKey] = event.target.value
+          await setStorage(note)
+        })()
+      })
+
+      noteArea.onkeydown = (e) => {
+        e.cancelBubble = true
+        if (e.stopPropogation) {
+          e.stopPropogation()
+        }
+        // Handle the enter key
+        if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+          updateStatusBox(
+            '#omnivore-add-note-status',
+            'loading',
+            'Adding note...'
+          )
+
+          browserApi.runtime.sendMessage({
+            action: ACTIONS.AddNote,
+            payload: {
+              ctx: ctx,
+              note: noteArea.value,
+            },
+          })
+        }
+      }
+    }
 
     currentToastEl.shadowRoot.querySelector(
       '#omnivore-add-note-form'
     ).onsubmit = (event) => {
-      console.log('submitting form: ', event)
       updateStatusBox('#omnivore-add-note-status', 'loading', 'Adding note...')
 
       browserApi.runtime.sendMessage({
@@ -504,17 +651,30 @@
       })
 
       event.preventDefault()
+      if (event.stopPropogation) {
+        event.stopPropogation()
+      }
     }
   }
 
   function editTitle() {
-    console.log('editing title')
-
     cancelAutoDismiss()
     toggleRow('#omnivore-edit-title-row')
-    currentToastEl.shadowRoot
-      .querySelector('#omnivore-edit-title-textarea')
-      ?.focus()
+
+    const titleArea = currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-title-textarea'
+    )
+
+    if (titleArea) {
+      titleArea.focus()
+
+      titleArea.onkeydown = (e) => {
+        e.cancelBubble = true
+        if (e.stopPropogation) {
+          e.stopPropogation()
+        }
+      }
+    }
 
     currentToastEl.shadowRoot.querySelector(
       '#omnivore-edit-title-form'
@@ -537,6 +697,162 @@
     }
   }
 
+  function getRandomColor() {
+    const colors = [
+      '#FF5D99',
+      '#7CFF7B',
+      '#FFD234',
+      '#7BE4FF',
+      '#CE88EF',
+      '#EF8C43',
+    ]
+    const randomIndex = Math.floor(Math.random() * colors.length)
+    return colors[randomIndex]
+  }
+
+  function getTempUUID() {
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+      (
+        c ^
+        (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+      ).toString(16)
+    )
+  }
+
+  function addLabel(labelList, labelInput, labelValue) {
+    // first check if the label is already entered:
+    const existingLabel = labels.find((l) => l.name === labelValue)
+    const labelID = existingLabel ? existingLabel.id : getTempUUID()
+    const labelEntryItem = labelList.querySelector('#label-entry-item')
+    const inputItem = labelEntryItem.querySelector('#omnivore-edit-label-input')
+
+    // Handle case where label is already selected
+    if (
+      existingLabel &&
+      labelList.querySelector(`[data-label-id='${existingLabel.id}']`)
+    ) {
+      const labelItem = labelList.querySelector(
+        `[data-label-id='${existingLabel.id}']`
+      )
+      labelItem.setAttribute('data-item-highlighted', 'on')
+      setTimeout(() => {
+        labelItem.style.borderColor = 'rgb(222, 222, 222)'
+      }, 500)
+
+      if (inputItem) {
+        inputItem.value = ''
+        inputItem.focus()
+        updateLabels(undefined)
+      }
+      return
+    }
+
+    const labelColor = existingLabel ? existingLabel.color : getRandomColor()
+    const labelElem = document.createElement('li')
+    labelElem.classList.add('label')
+    labelElem.innerHTML = `
+            <span style="width: 10px; height: 10px; border-radius: 1000px; background-color: ${labelColor};"></span>
+            ${labelValue}
+            <button class="label-remove-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#6A6968" viewBox="0 0 256 256">
+                <rect width="256" height="256" fill="none"></rect><line x1="200" y1="56" x2="56" y2="200" stroke="#6A6968" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></line>
+                <line x1="200" y1="200" x2="56" y2="56" stroke="#6A6968" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></line>
+              </svg>
+            </button>
+            `
+
+    labelList.insertBefore(labelElem, labelEntryItem)
+    labelInput.value = ''
+
+    const removeButton = labelElem.querySelector('.label-remove-button')
+    if (removeButton) {
+      removeButton.onclick = (event) => {
+        removeLabel(labelList, labelID)
+        event.preventDefault()
+      }
+    }
+
+    const form = labelList.closest('#omnivore-edit-labels-form')
+    if (existingLabel) {
+      const element = form.querySelector(
+        `[data-label-id='${existingLabel.id}']`
+      )
+      existingLabel.selected = true
+      element.setAttribute('data-label-selected', 'on')
+      labelElem.setAttribute('data-label-id', existingLabel.id)
+    } else {
+      // insert a toggle row at the top
+      const rowList = form.querySelector('#omnivore-edit-labels-list')
+      const newLabel = {
+        id: labelID,
+        color: labelColor,
+        name: labelValue,
+        temporary: true,
+        selected: true,
+      }
+      labels.push(newLabel)
+      labelElem.setAttribute('data-label-id', newLabel.id)
+
+      // Now prepend a label in the rows at the bottom
+      const rowHtml = createLabelRow(newLabel)
+      const firstRow = rowList.querySelector('button[data-label-id]')
+      rowHtml.setAttribute('data-label-selected', 'on')
+      rowList.insertBefore(rowHtml, firstRow)
+    }
+
+    if (inputItem) {
+      inputItem.focus()
+      updateLabels(undefined)
+    }
+
+    syncLabelChanges()
+  }
+
+  function removeLabel(labelList, labelID) {
+    const form = labelList.closest('#omnivore-edit-labels-form')
+    const element = labelList.querySelector(`[data-label-id='${labelID}']`)
+    if (element) {
+      element.remove()
+    }
+
+    const rowElement = form.querySelector(`[data-label-id='${labelID}']`)
+    if (rowElement) {
+      rowElement.setAttribute('data-label-selected', 'off')
+    }
+
+    const label = labels.find((l) => l.id === labelID)
+    if (label) {
+      label.selected = false
+    }
+
+    syncLabelChanges()
+  }
+
+  function syncLabelChanges() {
+    updateStatusBox(
+      '#omnivore-edit-labels-status',
+      'loading',
+      'Updating Labels...',
+      undefined
+    )
+    const setLabels = labels
+      .filter((l) => l['selected'])
+      .map((l) => {
+        return {
+          name: l.name,
+          color: l.color,
+        }
+      })
+
+    browserApi.runtime.sendMessage({
+      action: ACTIONS.SetLabels,
+      payload: {
+        ctx: ctx,
+        labels: setLabels,
+      },
+    })
+  }
+
   async function editLabels() {
     cancelAutoDismiss()
 
@@ -546,46 +862,36 @@
 
     toggleRow('#omnivore-edit-labels-row')
     currentToastEl.shadowRoot
-      .querySelector('#omnivore-edit-label-text')
+      .querySelector('#omnivore-edit-label-input')
       ?.focus()
     const list = currentToastEl.shadowRoot.querySelector(
       '#omnivore-edit-labels-list'
     )
-    currentToastEl.shadowRoot
-      .querySelector('#omnivore-edit-label-text')
-      .addEventListener('input', function () {
-        updateLabels(this.value)
-      })
 
     currentToastEl.shadowRoot.querySelector(
-      '#omnivore-edit-label-text'
-    ).onkeydown = labelKeyDown
+      '#omnivore-edit-label-input'
+    ).onkeydown = labelEditorKeyDownHandler
+
+    currentToastEl.shadowRoot.querySelector(
+      '#omnivore-edit-label-editor'
+    ).onclick = labelEditorClickHandler
+
+    currentToastEl.shadowRoot
+      .querySelector('#omnivore-edit-label-input')
+      .addEventListener('input', (event) => {
+        updateLabels(event.target.value)
+      })
 
     if (list) {
       list.innerHTML = ''
-      labels.forEach(function (label, idx) {
-        const rowHtml = createLabelRow(label, idx)
-        list.appendChild(rowHtml)
-      })
-    }
-
-    currentToastEl.shadowRoot.querySelector(
-      '#omnivore-edit-labels-form'
-    ).onsubmit = (event) => {
-      event.preventDefault()
-      const statusBox = currentToastEl.shadowRoot.querySelector(
-        '#omnivore-edit-labels-status'
-      )
-      statusBox.innerText = 'Updating labels...'
-      const labelIds = labels.filter((l) => l['selected']).map((l) => l.id)
-
-      browserApi.runtime.sendMessage({
-        action: ACTIONS.SetLabels,
-        payload: {
-          ctx: ctx,
-          labelIds: labelIds,
-        },
-      })
+      labels
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+        )
+        .forEach(function (label, idx) {
+          const rowHtml = createLabelRow(label)
+          list.appendChild(rowHtml)
+        })
     }
   }
 
@@ -600,15 +906,22 @@
           .filter(
             (l) => l.name.toLowerCase().indexOf(filterValue.toLowerCase()) > -1
           )
-          .forEach(function (label, idx) {
-            const rowHtml = createLabelRow(label, idx)
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+          )
+          .forEach(function (label) {
+            const rowHtml = createLabelRow(label)
             list.appendChild(rowHtml)
           })
       } else {
-        labels.forEach(function (label, idx) {
-          const rowHtml = createLabelRow(label, idx)
-          list.appendChild(rowHtml)
-        })
+        labels
+          .sort((a, b) =>
+            a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+          )
+          .forEach(function (label) {
+            const rowHtml = createLabelRow(label)
+            list.appendChild(rowHtml)
+          })
       }
     }
   }

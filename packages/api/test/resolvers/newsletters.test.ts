@@ -1,20 +1,21 @@
-import {
-  createTestNewsletterEmail,
-  createTestSubscription,
-  createTestUser,
-  deleteTestUser,
-  getNewsletterEmail,
-} from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
+import { expect } from 'chai'
+import 'mocha'
 import { NewsletterEmail } from '../../src/entity/newsletter_email'
 import { User } from '../../src/entity/user'
-import { expect } from 'chai'
 import {
   DeleteNewsletterEmailErrorCode,
   SubscriptionStatus,
 } from '../../src/generated/graphql'
-import 'mocha'
-import { getRepository } from '../../src/entity/utils'
+import { getRepository } from '../../src/repository'
+import {
+  createNewsletterEmail,
+  findNewsletterEmailByAddress,
+  findNewsletterEmailById,
+} from '../../src/services/newsletters'
+import { createSubscription } from '../../src/services/subscriptions'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 describe('Newsletters API', () => {
   let user: User
@@ -32,7 +33,7 @@ describe('Newsletters API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('Get newsletter emails', () => {
@@ -61,18 +62,18 @@ describe('Newsletters API', () => {
 
       before(async () => {
         //  create test newsletter emails
-        const newsletterEmail1 = await createTestNewsletterEmail(
-          user,
+        const newsletterEmail1 = await createNewsletterEmail(
+          user.id,
           'Test_email_address_1@omnivore.app'
         )
-        const newsletterEmail2 = await createTestNewsletterEmail(
-          user,
+        const newsletterEmail2 = await createNewsletterEmail(
+          user.id,
           'Test_email_address_2@omnivore.app'
         )
         newsletterEmails = [newsletterEmail1, newsletterEmail2]
 
         //  create testing subscriptions
-        await createTestSubscription(user, 'sub', newsletterEmail2)
+        await createSubscription(user.id, 'sub', newsletterEmail2)
       })
 
       after(async () => {
@@ -118,14 +119,14 @@ describe('Newsletters API', () => {
 
       before(async () => {
         //  create test newsletter emails
-        newsletterEmail = await createTestNewsletterEmail(
-          user,
+        newsletterEmail = await createNewsletterEmail(
+          user.id,
           'Test_email_address_1@omnivore.app'
         )
 
         //  create unsubscribed subscriptions
-        await createTestSubscription(
-          user,
+        await createSubscription(
+          user.id,
           'sub',
           newsletterEmail,
           SubscriptionStatus.Unsubscribed
@@ -181,7 +182,7 @@ describe('Newsletters API', () => {
 
     it('responds with status code 200', async () => {
       const response = await graphqlRequest(query, authToken).expect(200)
-      const newsletterEmail = await getNewsletterEmail(
+      const newsletterEmail = await findNewsletterEmailById(
         response.body.data.createNewsletterEmail.id
       )
       expect(newsletterEmail).not.to.be.undefined
@@ -227,8 +228,8 @@ describe('Newsletters API', () => {
     context('when newsletter email exists', () => {
       before(async () => {
         //  create test newsletter emails
-        const newsletterEmail = await createTestNewsletterEmail(
-          user,
+        const newsletterEmail = await createNewsletterEmail(
+          user.id,
           'Test_email_address_1@omnivore.app'
         )
         newsletterEmailId = newsletterEmail.id
@@ -241,7 +242,7 @@ describe('Newsletters API', () => {
 
       it('responds with status code 200', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
-        const newsletterEmail = await getNewsletterEmail(
+        const newsletterEmail = await findNewsletterEmailByAddress(
           response.body.data.deleteNewsletterEmail.newsletterEmail.id
         )
         expect(newsletterEmail).to.be.null

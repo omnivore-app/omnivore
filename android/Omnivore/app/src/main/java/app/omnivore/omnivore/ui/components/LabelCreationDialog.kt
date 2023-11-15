@@ -20,12 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import app.omnivore.omnivore.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelCreationDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
   var labelName by rememberSaveable { mutableStateOf("") }
@@ -59,13 +60,13 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit)
               .fillMaxWidth()
           ) {
             TextButton(onClick = onDismiss) {
-              Text(text = "Cancel")
+              Text(text = stringResource(R.string.label_creation_action_cancel))
             }
 
-            Text("Create New Label", fontWeight = FontWeight.ExtraBold)
+            Text(stringResource(R.string.label_creation_title), fontWeight = FontWeight.ExtraBold)
 
             TextButton(onClick = { onSave(labelName, selectedHex) }) {
-              Text(text = "Create")
+              Text(text = stringResource(R.string.label_creation_action_create))
             }
           }
 
@@ -76,7 +77,7 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit)
               .fillMaxWidth()
               .padding(vertical = 10.dp)
           ) {
-            Text("Assign a name and color.")
+            Text(stringResource(R.string.label_creation_content))
           }
 
           Row(
@@ -88,7 +89,7 @@ fun LabelCreationDialog(onDismiss: () -> Unit, onSave: (String, String) -> Unit)
           ) {
             OutlinedTextField(
               value = labelName,
-              placeholder = { Text(text = "Label Name") },
+              placeholder = { Text(stringResource(R.string.label_creation_label_placeholder)) },
               onValueChange = { labelName = it },
               keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
               keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })

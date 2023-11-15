@@ -7,6 +7,7 @@ type ValidateUsernameInput = {
 }
 
 type ValidateUsernameResponse = {
+  isLoading: boolean
   isUsernameValid: boolean
   usernameErrorMessage?: string
 }
@@ -20,12 +21,19 @@ export function useValidateUsernameQuery({
     }
   `
 
-  const { data } = useSWR([query, username], makePublicGqlFetcher({ username }))
+  // Don't fetch if username is empty
+  const { data, error, isValidating } = useSWR(
+    username ? [query, username] : null,
+    makePublicGqlFetcher({ username })
+  )
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isUsernameValid = (data as any)?.validateUsername ?? false
   if (isUsernameValid) {
-    return { isUsernameValid }
+    return {
+      isUsernameValid,
+      isLoading: !data && !error,
+    }
   }
 
   // Try to figure out why the username is invalid
@@ -33,12 +41,14 @@ export function useValidateUsernameQuery({
   if (usernameErrorMessage) {
     return {
       isUsernameValid: false,
+      isLoading: !data && !error,
       usernameErrorMessage,
     }
   }
 
   return {
     isUsernameValid: false,
+    isLoading: !data && !error,
     usernameErrorMessage: 'This username is not available',
   }
 }
@@ -48,8 +58,8 @@ function validationErrorMessage(username: string): string | undefined {
     return undefined
   }
 
-  if (username.length < 3) {
-    return 'Username should contain at least three characters'
+  if (username.length < 4) {
+    return 'Username should contain at least four characters'
   }
 
   if (username.length > 15) {

@@ -5,8 +5,6 @@ import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'
 import { NextRouter, useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { Analytics, AnalyticsBrowser } from '@segment/analytics-next'
-import { segmentApiKey } from '../lib/appConfig'
 import { TooltipProvider } from '../components/elements/Tooltip'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import {
@@ -24,6 +22,7 @@ import {
 } from '../components/elements/KBar'
 import { updateTheme } from '../lib/themeUpdater'
 import { ThemeId } from '../components/tokens/stitches.config'
+import { posthog } from 'posthog-js'
 
 TopBarProgress.config({
   barColors: {
@@ -69,35 +68,16 @@ const generateActions = (router: NextRouter) => {
 
 function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
-  const [analytics, setAnalytics] = useState<Analytics | undefined>(undefined)
-
-  useEffect(() => {
-    const loadAnalytics = async () => {
-      const writeKey = segmentApiKey
-      if (writeKey) {
-        try {
-          const [response] = await AnalyticsBrowser.load({ writeKey })
-          window.analytics = response
-          setAnalytics(response)
-          analytics?.track('init_session')
-        } catch (error) {
-          console.log('error loading analytics', error)
-        }
-      }
-    }
-    loadAnalytics()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      analytics?.page(url)
+      posthog.capture('$pageview')
     }
     router.events.on('routeChangeComplete', handleRouteChange)
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange)
     }
-  }, [router.events, analytics])
+  }, [router.events])
 
   return (
     <KBarProvider actions={generateActions(router)}>

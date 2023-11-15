@@ -16,6 +16,7 @@ public struct RootView: View {
     if let intercomProvider = intercomProvider {
       DataService.showIntercomMessenger = intercomProvider.showIntercomMessenger
       DataService.registerIntercomUser = intercomProvider.registerIntercomUser
+      DataService.setIntercomUserHash = intercomProvider.setIntercomUserHash
       Authenticator.unregisterIntercomUser = intercomProvider.unregisterIntercomUser
     }
 
@@ -49,22 +50,10 @@ struct InnerRootView: View {
 
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
-      GeometryReader { geo in
-        PrimaryContentView()
-        #if os(iOS)
-          .miniPlayer()
-          .formSheet(isPresented: $viewModel.showNewFeaturePrimer,
-                     modalSize: CGSize(width: geo.size.width * 0.66, height: geo.size.width * 0.66)) {
-            FeaturePrimer.recommendationsPrimer
-          }
-          .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
-              viewModel.showNewFeaturePrimer = viewModel.shouldShowNewFeaturePrimer
-              viewModel.shouldShowNewFeaturePrimer = false
-            }
-          }
-        #endif
-      }
+      PrimaryContentView()
+      #if os(iOS)
+        .miniPlayer()
+      #endif
     } else {
       WelcomeView()
         .accessibilityElement()
@@ -78,7 +67,7 @@ struct InnerRootView: View {
         innerBody
       #elseif os(macOS)
         innerBody
-          .frame(minWidth: 400, idealWidth: 1200, minHeight: 400, idealHeight: 1200)
+          .frame(minWidth: 400, idealWidth: 1200, minHeight: 600, idealHeight: 1200)
       #endif
     }
     .onOpenURL { Authenticator.handleGoogleURL(url: $0) }

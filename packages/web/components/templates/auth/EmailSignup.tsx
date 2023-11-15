@@ -18,9 +18,8 @@ export function EmailSignup(): JSX.Element {
   const [password, setPassword] = useState<string | undefined>()
   const [fullname, setFullname] = useState<string | undefined>()
   const [username, setUsername] = useState<string | undefined>()
-  const [debouncedUsername, setDebouncedUsername] = useState<
-    string | undefined
-  >()
+  const [debouncedUsername, setDebouncedUsername] =
+    useState<string | undefined>()
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export function EmailSignup(): JSX.Element {
       setUsername(event.target.value)
       setTimeout(() => {
         setDebouncedUsername(event.target.value)
-      }, 400)
+      }, 2000)
     },
     []
   )
@@ -70,6 +69,7 @@ export function EmailSignup(): JSX.Element {
           <SpanBox css={{ width: '100%' }}>
             <FormLabel className="required">Email</FormLabel>
             <BorderedFormInput
+              autoFocus={true}
               key="email"
               type="email"
               name="email"
@@ -155,6 +155,17 @@ export function EmailSignup(): JSX.Element {
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
 
+        <StyledText
+          style="caption"
+          css={{
+            p: '0px',
+            color: '$omnivoreLightGray',
+          }}
+        >
+          Omnivore will send you daily tips for your first week as a new user.
+          If you don&apos;t like them you can unsubscribe.
+        </StyledText>
+
         <HStack
           alignment="center"
           distribution="end"
@@ -195,7 +206,7 @@ export function EmailSignup(): JSX.Element {
           }}
         >
           Already have an account?{' '}
-          <Link href="/auth/email-login" passHref>
+          <Link href="/auth/email-login" passHref legacyBehavior>
             <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
               Login instead
             </StyledTextSpan>
@@ -204,5 +215,5 @@ export function EmailSignup(): JSX.Element {
         <TermAndConditionsFooter />
       </VStack>
     </form>
-  )
+  );
 }

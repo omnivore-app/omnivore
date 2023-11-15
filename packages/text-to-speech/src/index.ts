@@ -19,6 +19,7 @@ import {
 } from './textToSpeech'
 import { createClient } from 'redis'
 import { RealisticTextToSpeech } from './realisticTextToSpeech'
+import { OpenAITextToSpeech } from './openaiTextToSpeech'
 
 // explicitly create the return type of RedisClient
 type RedisClient = ReturnType<typeof createClient>
@@ -63,6 +64,7 @@ const MAX_CHARACTER_COUNT = 50000
 const storage = new Storage()
 
 const textToSpeechHandlers = [
+  new OpenAITextToSpeech(),
   new AzureTextToSpeech(),
   new RealisticTextToSpeech(),
 ]
@@ -347,12 +349,12 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
 
       const audioDataString = audioData.toString('hex')
-      // save audio data to cache for 24 hours for mainly the newsletters
+      // save audio data to cache for 72 hours for mainly the newsletters
       await redisClient.set(
         cacheKey,
         JSON.stringify({ audioDataString, speechMarks }),
         {
-          EX: 3600 * 24, // in seconds
+          EX: 3600 * 72, // in seconds
           NX: true,
         }
       )

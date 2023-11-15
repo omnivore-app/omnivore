@@ -13,6 +13,7 @@ import {
 import { Box, VStack } from '../../elements/LayoutPrimitives'
 
 import { styled, theme } from '../../tokens/stitches.config'
+import { getHighlightLocation } from '../article/Notebook'
 
 type HighlightsMenuProps = {
   viewer: UserBasicData
@@ -107,7 +108,7 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         <DropdownSeparator />
         <Link
           href={`/${props.viewer.profile.username}/${props.item.slug}#${props.highlight.id}`}
-        >
+          legacyBehavior>
           <StyledLinkItem
             onClick={(event) => {
               console.log('event.ctrlKey: ', event.ctrlKey, event.metaKey)
@@ -128,7 +129,37 @@ export function HighlightsMenu(props: HighlightsMenuProps): JSX.Element {
         </Link>
       </Dropdown>
     </VStack>
-  )
+  );
+}
+
+const sortHighlights = (highlights: Highlight[]) => {
+  const sorted = (a: number, b: number) => {
+    if (a < b) {
+      return -1
+    }
+    if (a > b) {
+      return 1
+    }
+    return 0
+  }
+
+  return (highlights ?? [])
+    .filter((h) => h.type === 'HIGHLIGHT')
+    .sort((a: Highlight, b: Highlight) => {
+      if (a.highlightPositionPercent && b.highlightPositionPercent) {
+        return sorted(a.highlightPositionPercent, b.highlightPositionPercent)
+      }
+      // We do this in a try/catch because it might be an invalid diff
+      // With PDF it will definitely be an invalid diff.
+      try {
+        const aPos = getHighlightLocation(a.patch)
+        const bPos = getHighlightLocation(b.patch)
+        if (aPos && bPos) {
+          return sorted(aPos, bPos)
+        }
+      } catch {}
+      return a.createdAt.localeCompare(b.createdAt)
+    })
 }
 
 export function highlightAsMarkdown(highlight: Highlight) {
@@ -143,14 +174,14 @@ export function highlightAsMarkdown(highlight: Highlight) {
 export function highlightsAsMarkdown(highlights: Highlight[]) {
   const noteMD = highlights.find((h) => h.type == 'NOTE')
 
-  const highlightMD = highlights
+  const highlightMD = sortHighlights(highlights)
     .filter((h) => h.type == 'HIGHLIGHT')
     .map((highlight) => {
       return highlightAsMarkdown(highlight)
     })
     .join('\n\n')
 
-  if (noteMD) {
+  if (noteMD?.annotation) {
     return `${noteMD.annotation}\n\n${highlightMD}`
   }
   return highlightMD

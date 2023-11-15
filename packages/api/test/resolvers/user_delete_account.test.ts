@@ -1,4 +1,4 @@
-import { createTestUser, deleteTestUser } from '../db'
+import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
@@ -6,6 +6,7 @@ import 'mocha'
 import { User } from '../../src/entity/user'
 import chaiString from 'chai-string'
 import { DeleteAccountErrorCode } from '../../src/generated/graphql'
+import { deleteUser } from '../../src/services/user'
 
 chai.use(chaiString)
 
@@ -42,7 +43,7 @@ describe('the deleteAccount API', () => {
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   context('deleting a user that exists', () => {

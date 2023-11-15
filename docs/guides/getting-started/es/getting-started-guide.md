@@ -4,56 +4,48 @@ Omnivore es una **aplicación tipo "leer más tarde"** (read-it-later) que te pe
 
 Esta guía le mostrará cómo usar las funciones básicas y características avanzadas de Omnivore, divididas en cuatro actividades principales:
 
-
-* Guardar
-* Leer
-* Organizar
-* Integraciones
+- Guardar
+- Leer
+- Organizar
+- Integraciones
 
 La **Biblioteca** es el centro de tu experiencia en Omnivore, donde puedes acceder rápidamente a cualquier enlace que hayas guardado. Los enlaces guardados permanecen en tu biblioteca para siempre a menos que los elimines.
 
-
 ## Guardar
-
 
 Hay cinco formas principales de guardar los enlaces a páginas o artículos que quieres leer más tarde:
 
-
-
-* Guardar desde tu biblioteca en Omnivore
-* Guardar desde un Navegador
-* Guardar desde un Teléfono o Tablet (iOS o Android)
-* Suscripciones a boletines (newsletters) por correo electrónico
-* Guardar archivos PDF desde un Mac
-
+- Guardar desde tu biblioteca en Omnivore
+- Guardar desde un Navegador
+- Guardar desde un Teléfono o Tablet (iOS o Android)
+- Suscripciones a boletines (newsletters) por correo electrónico
+- Guardar archivos PDF desde un Mac
 
 ### Guardar desde tu biblioteca en Omnivore
+
 1. En la esquina superior derecha de tu Biblioteca, haz clic en el botón **Agregar enlace**.
 2. Introduce la URL que quieres guardar y clic en **Agregar enlace**.
 3. El enlace aparecerá en tu Biblioteca la próxima vez que la actualices.
-
 
 ### Guardar desde un Navegador
 
 1. Descarga e instala la extensión Omnivore para tu navegador:
 
-* [Chrome ](https://omnivore.app/install/chrome)
-* [Edge](https://omnivore.app/install/edge)
-* [Firefox](https://omnivore.app/install/firefox)
-* [Safari](https://omnivore.app/install/safari)
+- [Chrome ](https://omnivore.app/install/chrome)
+- [Edge](https://omnivore.app/install/edge)
+- [Firefox](https://omnivore.app/install/firefox)
+- [Safari](https://omnivore.app/install/safari)
 
 2. Navega hasta la página que quieres guardar y toca el botón **Omnivore** en la barra de herramientas de tu navegador o en el menú Extensiones.
 3. Como alternativa, puedes hacer clic con el botón derecho (command+clic en Mac) en cualquier enlace y seleccionar **Guardar en Omnivore** en el menú.
 4. El enlace aparecerá en tu Biblioteca la próxima vez que la actualices.
 
-
-
 ### Guardar desde un teléfono o una tablet
 
 La mejor forma de guardar enlaces desde tu dispositivo móvil es a través de la aplicación Omnivore. Puedes descargar la aplicación aquí:
 
-* [iOS (iPhone or iPad)](https://omnivore.app/install/ios)
-* Android
+- [iOS (iPhone or iPad)](https://omnivore.app/install/ios)
+- Android
 
 Una vez instalada la aplicación móvil:
 
@@ -70,14 +62,12 @@ Una vez instalada la aplicación móvil:
 5. Pega la dirección de correo electrónico de Omnivore en el formulario de registro.
 6. Los nuevos boletines se enviarán automáticamente a tu bandeja de entrada de Omnivore.
 
-
 ### Guardar PDFs desde un Mac
 
 1. Instala la [aplicación Mac] (https://omnivore.app/install/mac).
 2. En tu Mac, busca el PDF que deseas guardar y haz clic con el botón derecho o ctrl+clic en el nombre del archivo.
 3. Selecciona **Compartir** en el menú y elige **Omnívore**.
 4. El enlace aparecerá en tu Biblioteca la próxima vez que la actualices.
-
 
 ## Leer
 
@@ -87,11 +77,11 @@ Omnivore da formato a las páginas para facilitar la lectura y el resaltado, eli
 
 Mientras lees, puedes:
 
-* <span style="text-decoration:underline;">Cambiar el Formato</span>
-* <span style="text-decoration:underline;">Marcar Texto</span>
-* <span style="text-decoration:underline;">Añadir Notas</span>
-* <span style="text-decoration:underline;">Ver todos los Textos Marcados y Notas Guardadas</span>
-* <span style="text-decoration:underline;">Seguimiento del progreso de lectura</span>
+- <span style="text-decoration:underline;">Cambiar el Formato</span>
+- <span style="text-decoration:underline;">Marcar Texto</span>
+- <span style="text-decoration:underline;">Añadir Notas</span>
+- <span style="text-decoration:underline;">Ver todos los Textos Marcados y Notas Guardadas</span>
+- <span style="text-decoration:underline;">Seguimiento del progreso de lectura</span>
 
 ### Cambiar el Formato
 
@@ -123,10 +113,10 @@ Omnivore realiza un seguimiento automático de tu progreso de lectura en todos t
 
 De forma predeterminada, la bandeja de entrada de la biblioteca muestra todos los enlaces que has guardado. Para administrar tu lista y mantener tu lectura organizada, Omnivore te ofrece las siguientes funciones:
 
-* <span style="text-decoration:underline;">Archivar</span>
-* <span style="text-decoration:underline;">Etiquetas</span>
-* <span style="text-decoration:underline;">Buscar</span>
-* <span style="text-decoration:underline;">Filtros</span>
+- <span style="text-decoration:underline;">Archivar</span>
+- <span style="text-decoration:underline;">Etiquetas</span>
+- <span style="text-decoration:underline;">Buscar</span>
+- <span style="text-decoration:underline;">Filtros</span>
 
 ### Archivar
 
@@ -145,7 +135,7 @@ De forma predeterminada, la bandeja de entrada de la biblioteca muestra todos lo
 ### Buscar
 
 1. Para buscar en todos sus enlaces guardados, escribe una palabra clave o frase en la barra de búsqueda.
-2. Puedes combinar palabras clave con etiquetas y filtros para refinar aún más tu búsqueda. [Saber más sobre búsqueda avanzada](https://omnivore.app/help/search).
+2. Puedes combinar palabras clave con etiquetas y filtros para refinar aún más tu búsqueda. [Saber más sobre búsqueda avanzada](https://docs.omnivore.app/using/search.html).
 
 ### Filtros
 
@@ -159,13 +149,12 @@ De forma predeterminada, la bandeja de entrada de la biblioteca muestra todos lo
 
 Omnivore permite integraciones con bases de conocimiento y aplicaciones para tomar notas, como:
 
-* Logseq
-* Webhooks
+- Logseq
+- Webhooks
 
 ### Logseq
 
-Con el *plugin* Logseq de Omnivore, puedes sincronizar todos tus artículos, textos marcados y notas guardadas en Logseq, una base de conocimiento muy popular. Para obtener información adicional sobre la configuración y el uso del plugin Logseq, consulta esta guía: [Omnivore for Logseq Plugin Guide](https://briansunter.com/graph/#/page/omnivore-logseq-guide).
-
+Con el _plugin_ Logseq de Omnivore, puedes sincronizar todos tus artículos, textos marcados y notas guardadas en Logseq, una base de conocimiento muy popular. Para obtener información adicional sobre la configuración y el uso del plugin Logseq, consulta esta guía: [Omnivore for Logseq Plugin Guide](https://briansunter.com/graph/#/page/omnivore-logseq-guide).
 
 ### Webhooks
 

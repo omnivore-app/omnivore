@@ -8,17 +8,17 @@
     "start": "node dist/server.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
+    "test:typecheck": "tsc --noEmit",
     "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000",
     "copy-files": "copyfiles -u 1 src/**/*.html dist/"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "~7.12.0",
-    "@google-cloud/logging-winston": "^5.1.1",
-    "@google-cloud/monitoring": "^3.0.0",
+    "@google-cloud/logging-winston": "^6.0.0",
+    "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
-    "@google-cloud/pubsub": "^3.2.1",
-    "@google-cloud/storage": "^5.18.1",
-    "@google-cloud/tasks": "^2.3.0",
+    "@google-cloud/pubsub": "^4.0.0",
+    "@google-cloud/storage": "^7.0.1",
+    "@google-cloud/tasks": "^4.0.0",
     "@graphql-tools/utils": "^9.1.1",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
@@ -33,7 +33,7 @@
     "@opentelemetry/instrumentation-http": "^0.27.0",
     "@opentelemetry/instrumentation-pg": "^0.35.1",
     "@opentelemetry/node": "^0.24.0",
-    "@opentelemetry/resources": "^0.24.0",
+    "@opentelemetry/resources": "^1.17.0",
     "@opentelemetry/semantic-conventions": "^1.0.1",
     "@opentelemetry/tracing": "^0.24.0",
     "@sendgrid/mail": "^7.6.0",
@@ -55,13 +55,12 @@
     "dompurify": "^2.0.17",
     "dot-case": "^3.0.4",
     "dotenv": "^8.2.0",
-    "elastic-ts": "^0.9.0",
     "express": "^4.17.1",
     "express-http-context2": "^1.0.0",
     "express-rate-limit": "^6.3.0",
     "fast-safe-stringify": "^2.1.1",
     "firebase-admin": "^11.5.0",
-    "googleapis": "^105.0.0",
+    "googleapis": "^125.0.0",
     "graphql": "^15.3.0",
     "graphql-fields": "^2.0.3",
     "graphql-middleware": "^6.0.10",
@@ -71,8 +70,6 @@
     "intercom-client": "^3.1.4",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.3",
-    "knex": "2.4.2",
-    "knex-stringcase": "^1.4.2",
     "linkedom": "^0.14.9",
     "lodash": "^4.17.21",
     "luxon": "^3.2.1",
@@ -149,7 +146,6 @@
     "node": "18.16.1"
   },
   "volta": {
-    "node": "18.16.1",
-    "yarn": "1.22.19"
+    "extends": "../../package.json"
   }
 }

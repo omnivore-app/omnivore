@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
-import { readPushSubscription } from '../../datalayer/pubsub'
 import { Subscription } from '../../entity/subscription'
-import { getRepository } from '../../entity/utils'
 import { SubscriptionStatus, SubscriptionType } from '../../generated/graphql'
-import { enqueueRssFeedFetch } from '../../utils/createTask'
+import { readPushSubscription } from '../../pubsub'
+import { getRepository } from '../../repository'
+import {
+  enqueueRssFeedFetch,
+  RssSubscriptionGroup,
+} from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 
 export function rssFeedRouter() {
@@ -13,41 +16,53 @@ export function rssFeedRouter() {
   router.post('/fetchAll', async (req, res) => {
     logger.info('fetch all rss feeds')
 
-    const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', msgStr, 'has expired', expired)
-
-    if (expired) {
-      logger.info('discarding expired message')
-      return res.status(200).send('Expired')
-    }
-
     try {
-      // get all active rss feed subscriptions
-      const subscriptions = await getRepository(Subscription).find({
-        select: ['id', 'url', 'user', 'lastFetchedAt'],
-        where: {
-          type: SubscriptionType.Rss,
-          status: SubscriptionStatus.Active,
-        },
-        relations: ['user'],
-      })
+      const { message: msgStr, expired } = readPushSubscription(req)
+      logger.info(`read pubsub message`, { msgStr, expired })
+
+      if (expired) {
+        logger.info('discarding expired message')
+        return res.status(200).send('Expired')
+      }
+
+      // get active rss feed subscriptions scheduled for fetch and group by feed url
+      const subscriptionGroups = (await getRepository(Subscription).query(
+        `
+        SELECT
+          url,
+          ARRAY_AGG(id) AS "subscriptionIds",
+          ARRAY_AGG(user_id) AS "userIds",
+          ARRAY_AGG(last_fetched_at) AS "fetchedDates",
+          ARRAY_AGG(coalesce(scheduled_at, NOW())) AS "scheduledDates",
+          ARRAY_AGG(last_fetched_checksum) AS checksums
+        FROM
+          omnivore.subscriptions
+        WHERE
+          type = $1
+          AND status = $2
+          AND (scheduled_at <= NOW() OR scheduled_at IS NULL)
+        GROUP BY
+          url
+        `,
+        [SubscriptionType.Rss, SubscriptionStatus.Active]
+      )) as RssSubscriptionGroup[]
 
       // create a cloud taks to fetch rss feed item for each subscription
       await Promise.all(
-        subscriptions.map((subscription) => {
+        subscriptionGroups.map((subscriptionGroup) => {
           try {
-            return enqueueRssFeedFetch(subscription.user.id, subscription)
+            return enqueueRssFeedFetch(subscriptionGroup)
           } catch (error) {
             logger.info('error creating rss feed fetch task', error)
           }
         })
       )
-
-      res.send('OK')
     } catch (error) {
       logger.info('error fetching rss feeds', error)
-      res.status(500).send('Internal Server Error')
+      return res.status(500).send('Internal Server Error')
     }
+
+    res.send('OK')
   })
 
   return router

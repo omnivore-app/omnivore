@@ -1,10 +1,6 @@
 package app.omnivore.omnivore.ui.auth
 
 import android.annotation.SuppressLint
-import android.view.ViewGroup
-import android.webkit.CookieManager
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
@@ -16,10 +12,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -27,8 +23,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.BuildConfig
+import app.omnivore.omnivore.R
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -55,28 +51,28 @@ fun EmailLoginView(viewModel: LoginViewModel) {
 
       // TODO: add a activity indicator (maybe after a delay?)
       if (viewModel.isLoading) {
-        Text("Loading...")
+        Text(stringResource(R.string.email_login_loading))
       }
 
       Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
       ) {
         ClickableText(
-          text = AnnotatedString("Return to Social Login"),
+          text = AnnotatedString(stringResource(R.string.email_login_action_back)),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
           onClick = { viewModel.showSocialLogin() }
         )
 
         ClickableText(
-          text = AnnotatedString("Don't have an account?"),
+          text = AnnotatedString(stringResource(R.string.email_login_action_no_account)),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
           onClick = { viewModel.showEmailSignUp() }
         )
 
         ClickableText(
-          text = AnnotatedString("Forgot your password?"),
+          text = AnnotatedString(stringResource(R.string.email_login_action_forgot_password)),
           style = MaterialTheme.typography.titleMedium
             .plus(TextStyle(textDecoration = TextDecoration.Underline)),
           onClick = {
@@ -90,7 +86,6 @@ fun EmailLoginView(viewModel: LoginViewModel) {
   }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginFields(
   email: String,
@@ -111,8 +106,8 @@ fun LoginFields(
   ) {
     OutlinedTextField(
       value = email,
-      placeholder = { Text(text = "user@email.com") },
-      label = { Text(text = "Email") },
+      placeholder = { Text(stringResource(R.string.email_login_field_placeholder_email)) },
+      label = { Text(stringResource(R.string.email_login_field_label_email)) },
       onValueChange = onEmailChange,
       keyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Done,
@@ -123,8 +118,8 @@ fun LoginFields(
 
     OutlinedTextField(
       value = password,
-      placeholder = { Text(text = "Password") },
-      label = { Text(text = "Password") },
+      placeholder = { Text(stringResource(R.string.email_login_field_placeholder_password)) },
+      label = { Text(stringResource(R.string.email_login_field_label_password)) },
       onValueChange = onPasswordChange,
       visualTransformation = PasswordVisualTransformation(),
       keyboardOptions = KeyboardOptions(
@@ -141,7 +136,7 @@ fun LoginFields(
       } else {
         Toast.makeText(
           context,
-          "Please enter an email address and password.",
+          context.getString(R.string.email_login_error_msg),
           Toast.LENGTH_SHORT
         ).show()
       }
@@ -151,7 +146,7 @@ fun LoginFields(
        )
     ) {
       Text(
-        text = "Login",
+        text = stringResource(R.string.email_login_action_login),
         modifier = Modifier.padding(horizontal = 100.dp)
       )
     }

@@ -258,7 +258,7 @@ private let libraryArticleSelection = Selection.Article {
     createdAt: try $0.createdAt().value ?? Date(),
     savedAt: try $0.savedAt().value ?? Date(),
     readAt: try $0.readAt()?.value,
-    updatedAt: try $0.updatedAt().value ?? Date(),
+    updatedAt: try $0.updatedAt()?.value ?? Date(),
     state: try $0.state()?.rawValue.asArticleContentStatus ?? .succeeded,
     readingProgress: try $0.readingProgressPercent(),
     readingProgressAnchor: try $0.readingProgressAnchorIndex(),
@@ -277,6 +277,7 @@ private let libraryArticleSelection = Selection.Article {
     originalHtml: nil,
     language: try $0.language(),
     wordsCount: try $0.wordsCount(),
+    downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )
@@ -316,6 +317,7 @@ private let searchItemSelection = Selection.SearchItem {
     originalHtml: nil,
     language: try $0.language(),
     wordsCount: try $0.wordsCount(),
+    downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
   )

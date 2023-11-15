@@ -8,14 +8,19 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import { SettingsLayout } from '../SettingsLayout'
+import { SuggestionBox } from '../../elements/SuggestionBox'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { FeatureHelpBox } from '../../elements/FeatureHelpBox'
 
 type SettingsTableProps = {
   pageId: string
-  pageInfoLink: string
+  pageInfoLink?: string | undefined
   headerTitle: string
 
   createTitle?: string
   createAction?: () => void
+
+  suggestionInfo: SuggestionInfo
 
   children: React.ReactNode
 }
@@ -50,6 +55,16 @@ type MoreOptionsProps = {
   dropdownItems?: JSX.Element
   editTitle?: string
   onEdit?: () => void
+}
+
+type SuggestionInfo = {
+  title: string
+  message: string
+  docs: string
+  key: string
+
+  CTAText?: string
+  onClickCTA?: () => void
 }
 
 const MoreOptions = (props: MoreOptionsProps) => (
@@ -197,7 +212,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
           }}
         >
           <VStack>
-            <StyledText
+            <SpanBox
               css={{
                 m: '0px',
                 fontSize: '18px',
@@ -208,7 +223,7 @@ export const SettingsTableRow = (props: SettingsTableRowProps): JSX.Element => {
               }}
             >
               {props.title}
-            </StyledText>
+            </SpanBox>
             {props.sublineElement}
           </VStack>
           <SpanBox css={{ marginLeft: 'auto' }}>{props.titleElement}</SpanBox>
@@ -273,6 +288,11 @@ const CreateButton = (props: CreateButtonProps): JSX.Element => {
 }
 
 export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
+  const [showSuggestion, setShowSuggestion] = usePersistedState<boolean>({
+    key: props.suggestionInfo.key,
+    initialValue: !!props.suggestionInfo,
+  })
+
   return (
     <SettingsLayout>
       <Toaster
@@ -282,10 +302,12 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
       />
       <HStack css={{ width: '100%' }} alignment="center">
         <VStack
+          alignment="start"
           distribution="center"
           css={{
             mx: '10px',
             width: '100%',
+            height: '100%',
             maxWidth: '865px',
             color: '$grayText',
             paddingBottom: '5rem',
@@ -299,6 +321,19 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
             },
           }}
         >
+          {props.suggestionInfo && showSuggestion && (
+            <FeatureHelpBox
+              helpTitle={props.suggestionInfo.title}
+              helpMessage={props.suggestionInfo.message}
+              docsMessage={'Read the Docs'}
+              docsDestination={props.suggestionInfo.docs}
+              onDismiss={() => {
+                setShowSuggestion(false)
+              }}
+              helpCTAText={props.suggestionInfo.CTAText}
+              onClickCTA={props.suggestionInfo.onClickCTA}
+            />
+          )}
           <Box
             css={{
               width: '100%',
@@ -342,7 +377,9 @@ export const SettingsTable = (props: SettingsTableProps): JSX.Element => {
                 >
                   {props.headerTitle}
                 </StyledText>
-                <InfoLink href={props.pageInfoLink}></InfoLink>
+                {props.pageInfoLink && (
+                  <InfoLink href={props.pageInfoLink}></InfoLink>
+                )}
               </HStack>
             </Box>
           </Box>

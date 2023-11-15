@@ -2,6 +2,35 @@ import Models
 import SwiftUI
 import Utils
 
+enum FlairLabels: String {
+  case pinned
+  case favorite
+  case recommended
+  case newsletter
+  case rss
+  case feed
+
+  var icon: Image {
+    switch self {
+    case .pinned: return Image.flairPinned
+    case .favorite: return Image.flairFavorite
+    case .recommended: return Image.flairRecommended
+    case .newsletter: return Image.flairNewsletter
+    case .feed, .rss: return Image.flairFeed
+    }
+  }
+
+  var sortOrder: Int {
+    switch self {
+    case .feed, .rss: return 0
+    case .favorite: return 1
+    case .newsletter: return 2
+    case .recommended: return 3
+    case .pinned: return 4
+    }
+  }
+}
+
 public extension View {
   func draggableItem(item: LinkedItem) -> some View {
     #if os(iOS)
@@ -18,6 +47,7 @@ public extension View {
 public struct LibraryItemCard: View {
   let viewer: Viewer?
   @ObservedObject var item: LinkedItem
+  @State var noteLineLimit: Int? = 3
 
   public init(item: LinkedItem, viewer: Viewer?) {
     self.item = item
@@ -35,8 +65,36 @@ public struct LibraryItemCard: View {
       if item.hasLabels {
         labels
       }
+
+      if let note = item.noteText {
+        HStack(alignment: .top, spacing: 10) {
+          avatarImage
+            .frame(width: 20, height: 20)
+            .padding(.vertical, 10)
+            .padding(.leading, 10)
+
+          Text(note)
+            .font(Font.system(size: 12))
+            .multilineTextAlignment(.leading)
+            .lineLimit(noteLineLimit)
+            .frame(minHeight: 20)
+            .padding(.vertical, 10)
+            .padding(.trailing, 10)
+
+          Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .frame(alignment: .topLeading)
+        .background(Color.noteContainer)
+        .cornerRadius(5)
+        .allowsHitTesting(noteLineLimit != nil)
+        .onTapGesture {
+          noteLineLimit = nil
+        }
+      }
     }
-    .padding(.bottom, 5)
+    .padding(5)
+    .padding(.top, 10)
     .draggableItem(item: item)
     .dynamicTypeSize(.xSmall ... .accessibility1)
   }
@@ -47,6 +105,16 @@ public struct LibraryItemCard: View {
 
   var isPartiallyRead: Bool {
     Int(item.readingProgress) > 0
+  }
+
+  var avatarImage: some View {
+    ZStack(alignment: .center) {
+      Circle()
+        .foregroundColor(Color.appCtaYellow)
+      Text((viewer?.name ?? "O").prefix(1))
+        .font(Font.system(size: 10))
+        .foregroundColor(Color.black)
+    }
   }
 
   var readIndicator: some View {
@@ -123,8 +191,30 @@ public struct LibraryItemCard: View {
     return ""
   }
 
+  var flairLabels: [FlairLabels] {
+    item.sortedLabels.compactMap { label in
+      if let name = label.name {
+        return FlairLabels(rawValue: name.lowercased())
+      }
+      return nil
+    }.sorted { $0.sortOrder < $1.sortOrder }
+  }
+
+  var nonFlairLabels: [LinkedItemLabel] {
+    item.sortedLabels.filter { label in
+      if let name = label.name, FlairLabels(rawValue: name.lowercased()) != nil {
+        return false
+      }
+      return true
+    }
+  }
+
   var readInfo: some View {
-    AnyView(HStack {
+    HStack(alignment: .center, spacing: 5.0) {
+      ForEach(flairLabels, id: \.self) {
+        $0.icon
+      }
+
       let fgcolor = Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray
       Text("\(estimatedReadingTime)")
         .font(.caption2).fontWeight(.medium)
@@ -145,29 +235,47 @@ public struct LibraryItemCard: View {
         .font(.caption2).fontWeight(.medium)
         .foregroundColor(fgcolor)
     }
-    .frame(maxWidth: .infinity, alignment: .leading))
+    .frame(maxWidth: .infinity, alignment: .leading)
   }
 
   var imageBox: some View {
-    Group {
+    ZStack(alignment: .bottomLeading) {
       if let imageURL = item.imageURL {
-        AsyncImage(url: imageURL) { phase in
+        CachedAsyncImage(url: imageURL) { phase in
           if let image = phase.image {
             image
               .resizable()
               .aspectRatio(contentMode: .fill)
-              .frame(width: 40, height: 40)
+              .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
             Color.systemBackground
-              .frame(width: 40, height: 40)
+              .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           }
         }
+      } else {
+        fallbackImage
       }
     }
+    .padding(.top, 10)
+    .cornerRadius(5)
+  }
+
+  var fallbackImage: some View {
+    HStack {
+      Text(item.unwrappedTitle.prefix(1))
+        .font(Font.system(size: 32, weight: .bold))
+        .frame(alignment: .bottomLeading)
+        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
+    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+    .cornerRadius(5)
+    .frame(width: 50, height: 75)
   }
 
   var bylineStr: String {
@@ -185,7 +293,7 @@ public struct LibraryItemCard: View {
   var byLine: some View {
     Text(bylineStr)
       .font(.caption2)
-      .foregroundColor(Color.isDarkMode ? Color.themeLightGray : Color.themeLightestGray)
+      .foregroundColor(Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
   }
@@ -208,6 +316,21 @@ public struct LibraryItemCard: View {
   }
 
   var labels: some View {
-    LabelsFlowLayout(labels: item.sortedLabels)
+    LabelsFlowLayout(labels: nonFlairLabels)
+  }
+}
+
+struct CircleCheckboxToggleStyle: ToggleStyle {
+  func makeBody(configuration: Configuration) -> some View {
+    Button(action: {
+      configuration.isOn.toggle()
+    }, label: {
+      HStack {
+        Image(systemName: configuration.isOn ? "checkmark.circle" : "circle")
+          .font(Font.system(size: 18))
+          .foregroundColor(configuration.isOn ? Color.blue : Color.appGrayTextContrast)
+      }
+    })
+      .buttonStyle(.plain)
   }
 }

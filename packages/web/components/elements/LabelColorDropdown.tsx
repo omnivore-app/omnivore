@@ -1,16 +1,18 @@
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { styled } from '../tokens/stitches.config'
 import { Box, HStack } from './LayoutPrimitives'
 import { StyledText } from './StyledText'
 import {
   LabelColorDropdownProps,
-  LabelColorObject,
   LabelOptionProps,
 } from '../../utils/settings-page/labels/types'
-import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { LabelColor } from '../../lib/networking/fragments/labelFragment'
-import { TwitterPicker } from 'react-color'
+import { TwitterPicker as TwitterPicker_, TwitterPickerProps } from 'react-color'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
+
+// TwitterPicker is a Class component, but the types are broken in React 18.
+// TODO: Maybe move away from this component, since it hasn't been updated for 3 years.
+// https://github.com/casesandberg/react-color/issues/883
+const TwitterPicker = TwitterPicker_ as unknown as React.FunctionComponent<TwitterPickerProps>
 
 const DropdownMenuContent = styled(DropdownMenuPrimitive.Content, {
   borderRadius: 6,

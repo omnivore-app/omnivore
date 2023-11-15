@@ -14,24 +14,19 @@ import express from 'express'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
 import { promisify } from 'util'
-import { kx } from '../../datalayer/knex_config'
-import UserModel from '../../datalayer/user'
-import {
-  RegistrationType,
-  StatusType,
-  UserData,
-} from '../../datalayer/user/model'
-import { User } from '../../entity/user'
-import { getRepository, setClaims } from '../../entity/utils'
+import { appDataSource } from '../../data_source'
+import { RegistrationType, StatusType, User } from '../../entity/user'
 import { env } from '../../env'
 import { LoginErrorCode, SignupErrorCode } from '../../generated/graphql'
+import { getRepository, setClaims } from '../../repository'
+import { userRepository } from '../../repository/user'
 import { isErrorWithCode } from '../../resolvers'
-import { AppDataSource } from '../../server'
-import { createUser, getUserByEmail } from '../../services/create_user'
+import { createUser } from '../../services/create_user'
 import {
   sendConfirmationEmail,
   sendPasswordResetEmail,
 } from '../../services/send_emails'
+import { analytics } from '../../utils/analytics'
 import {
   comparePassword,
   getClaimsByToken,
@@ -51,6 +46,7 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import rateLimit from 'express-rate-limit'
 
 export interface SignupRequest {
   email: string
@@ -85,6 +81,15 @@ export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
   )
 }
 
+// The hourly limiter is used on the create account,
+// and reset password endpoints
+// this limits users to five operations per an hour
+const hourlyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  skip: (req) => env.dev.isLocal,
+})
+
 export function authRouter() {
   const router = express.Router()
 
@@ -113,6 +118,7 @@ export function authRouter() {
   )
   router.post(
     '/create-account',
+    hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req, res) => {
       const { name, bio, username } = req.body
@@ -246,8 +252,7 @@ export function authRouter() {
       return { errorCodes: [SignupErrorCode.GoogleAuthError] }
     }
 
-    const model = new UserModel(kx)
-    const user = await model.getWhere({ email: userData.email })
+    const user = await userRepository.findOneBy({ email: userData.email })
 
     // eslint-disable-next @typescript-eslint/ban-ts-comment
     const secret = (await signToken(
@@ -323,6 +328,17 @@ export function authRouter() {
       )
     }
 
+    analytics.track({
+      userId: user.id,
+      event: 'login',
+      properties: {
+        method: 'google',
+        email: user.email,
+        username: user.profile.username,
+        env: env.server.apiEnv,
+      },
+    })
+
     res.setHeader('set-cookie', result.headers['set-cookie'])
 
     await handleSuccessfulLogin(req, res, user, data.googleLogin.newUser)
@@ -331,7 +347,7 @@ export function authRouter() {
   async function handleSuccessfulLogin(
     req: express.Request,
     res: express.Response,
-    user: UserData | User,
+    user: User,
     newUser: boolean
   ): Promise<void> {
     try {
@@ -342,7 +358,7 @@ export function authRouter() {
           const state = JSON.parse((req.query?.state || '') as string)
           redirectUri = state?.redirect_uri
         } catch (err) {
-          logger.warn(
+          logger.error(
             'handleSuccessfulLogin: failed to parse redirect query state param',
             err
           )
@@ -415,8 +431,8 @@ export function authRouter() {
       }
       const { email, password } = req.body
       try {
-        const user = await getUserByEmail(email.trim())
-        if (!user?.id) {
+        const user = await userRepository.findByEmail(email.trim())
+        if (!user || user.status === StatusType.Deleted) {
           return res.redirect(
             `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
           )
@@ -447,6 +463,17 @@ export function authRouter() {
           )
         }
 
+        analytics.track({
+          userId: user.id,
+          event: 'login',
+          properties: {
+            method: 'email',
+            email: user.email,
+            username: user.profile.username,
+            env: env.server.apiEnv,
+          },
+        })
+
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {
         logger.info('email-login exception:', e)
@@ -464,6 +491,7 @@ export function authRouter() {
 
   router.post(
     '/email-signup',
+    hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       if (!isValidSignupRequest(req.body)) {
@@ -532,7 +560,7 @@ export function authRouter() {
         }
 
         if (user.status === StatusType.Pending) {
-          const updated = await AppDataSource.transaction(
+          const updated = await appDataSource.transaction(
             async (entityManager) => {
               await setClaims(entityManager, user.id)
               return entityManager
@@ -547,6 +575,17 @@ export function authRouter() {
             )
           }
         }
+
+        analytics.track({
+          userId: user.id,
+          event: 'login',
+          properties: {
+            method: 'email_verification',
+            email: user.email,
+            username: user.profile.username,
+            env: env.server.apiEnv,
+          },
+        })
 
         res.set('Message', 'EMAIL_CONFIRMED')
         await handleSuccessfulLogin(req, res, user, false)
@@ -572,6 +611,7 @@ export function authRouter() {
 
   router.post(
     '/forgot-password',
+    hourlyLimiter,
     cors<express.Request>(corsConfig),
     async (req: express.Request, res: express.Response) => {
       const email = req.body.email?.trim() as string // trim whitespace
@@ -582,8 +622,8 @@ export function authRouter() {
       }
 
       try {
-        const user = await getUserByEmail(email)
-        if (!user) {
+        const user = await userRepository.findByEmail(email)
+        if (!user || user.status === StatusType.Deleted) {
           return res.redirect(`${env.client.url}/auth/reset-sent`)
         }
 
@@ -636,7 +676,9 @@ export function authRouter() {
           )
         }
 
-        const user = await getRepository(User).findOneBy({ id: claims.uid })
+        const user = await getRepository(User).findOneBy({
+          id: claims.uid,
+        })
         if (!user) {
           return res.redirect(
             `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`
@@ -650,12 +692,14 @@ export function authRouter() {
         }
 
         const hashedPassword = await hashPassword(password)
-        const updated = await AppDataSource.transaction(
+        const updated = await appDataSource.transaction(
           async (entityManager) => {
             await setClaims(entityManager, user.id)
-            return entityManager
-              .getRepository(User)
-              .update({ id: user.id }, { password: hashedPassword })
+            return entityManager.getRepository(User).update(user.id, {
+              password: hashedPassword,
+              email: claims.email ?? undefined, // update email address if it was provided
+              source: RegistrationType.Email, // reset password will always be email
+            })
           }
         )
         if (!updated.affected) {
@@ -663,6 +707,17 @@ export function authRouter() {
             `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`
           )
         }
+
+        analytics.track({
+          userId: user.id,
+          event: 'login',
+          properties: {
+            method: 'password_reset',
+            email: user.email,
+            username: user.profile.username,
+            env: env.server.apiEnv,
+          },
+        })
 
         await handleSuccessfulLogin(req, res, user, false)
       } catch (e) {

@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.save
 
 import android.content.ContentValues
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,8 +13,10 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.graphql.generated.SaveUrlMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveUrlInput
+import app.omnivore.omnivore.ui.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +35,8 @@ enum class SaveState {
 
 @HiltViewModel
 class SaveViewModel @Inject constructor(
-  private val datastoreRepo: DatastoreRepository
+  private val datastoreRepo: DatastoreRepository,
+  private val resourceProvider: ResourceProvider
 ) : ViewModel() {
   val saveState = MutableLiveData(SaveState.NONE)
 
@@ -49,7 +53,16 @@ class SaveViewModel @Inject constructor(
     datastoreRepo.getString(DatastoreKeys.omnivoreAuthToken)
   }
 
-  fun cleanUrl(text: String): String? {
+  /**
+   * Checks whether or not the provided URL is valid.
+   * @param url The potential URL to validate.
+   * @return true if valid, false otherwise.
+   */
+  fun validateUrl(url: String): Boolean {
+    return Patterns.WEB_URL.matcher(url).matches()
+  }
+
+  private fun cleanUrl(text: String): String? {
     val pattern = Pattern.compile("\\b(?:https?|ftp)://\\S+")
     val matcher = pattern.matcher(text)
 
@@ -62,13 +75,13 @@ class SaveViewModel @Inject constructor(
   fun saveURL(url: String) {
     viewModelScope.launch {
       isLoading = true
-      message = "Saving to Omnivore..."
+      message = resourceProvider.getString(R.string.save_view_model_msg)
       saveState.postValue(SaveState.SAVING)
 
       val authToken = getAuthToken()
 
       if (authToken == null) {
-        message = "You are not logged in. Please login before saving."
+        message = resourceProvider.getString(R.string.save_view_model_error_not_logged_in)
         isLoading = false
         return@launch
       }
@@ -103,15 +116,15 @@ class SaveViewModel @Inject constructor(
 
         val success = (response.data?.saveUrl?.onSaveSuccess?.url != null)
         message = if (success) {
-          "Page Saved"
+          resourceProvider.getString(R.string.save_view_model_page_saved_success)
         } else {
-          "There was an error saving your page"
+          resourceProvider.getString(R.string.save_view_model_page_saved_error)
         }
 
         saveState.postValue(SaveState.SAVED)
         Log.d(ContentValues.TAG, "Saved URL?: $success")
       } catch (e: java.lang.Exception) {
-        message = "There was an error saving your page"
+        message = resourceProvider.getString(R.string.save_view_model_page_saved_error)
       }
     }
   }

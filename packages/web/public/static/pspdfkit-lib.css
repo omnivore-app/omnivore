@@ -21,7 +21,8 @@
 .PSPDFKit-Text-Markup-Inline-Toolbar-Squiggle,
 .PSPDFKit-Text-Markup-Inline-Toolbar-Strike-Out,
 .PSPDFKit-Text-Markup-Inline-Toolbar-Redaction,
-.PSPDFKit-Text-Markup-Inline-Toolbar-Underline {
+.PSPDFKit-Text-Markup-Inline-Toolbar-Underline,
+.PSPDFKit-Text-Markup-Inline-Toolbar-Comment {
   display: none;
 }
 

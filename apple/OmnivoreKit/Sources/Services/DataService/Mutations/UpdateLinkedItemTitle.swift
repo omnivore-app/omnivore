@@ -39,7 +39,7 @@ extension DataService {
 
     let selection = Selection<MutationResult, Unions.UpdatePageResult> {
       try $0.on(
-        updatePageError: .init { .error(errorMessage: try $0.errorCodes().first.toString()) },
+        updatePageError: .init { .error(errorMessage: try $0.errorCodes().first?.rawValue ?? "Unknown Error") },
         updatePageSuccess: .init {
           .saved(title: try $0.updatedPage(selection: Selection.Article { try $0.title() }))
         }

@@ -1,10 +1,9 @@
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { debounce } from 'lodash'
 import { env } from '../env'
 import { Claims } from '../resolvers/types'
-import { getDeviceTokensByUserId } from '../services/user_device_tokens'
+import { findDeviceTokensByUserId } from '../services/user_device_tokens'
 import { corsConfig } from '../utils/corsConfig'
 import {
   PushNotificationType,
@@ -43,7 +42,7 @@ export function notificationRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const tokens = await getDeviceTokensByUserId(userId)
+    const tokens = await findDeviceTokensByUserId(userId)
     if (tokens.length === 0) {
       return res.status(400).send({ errorCode: 'NO_DEVICE_TOKENS' })
     }
@@ -58,17 +57,14 @@ export function notificationRouter() {
       tokens: tokens.map((token) => token.token),
     }
 
-    // Debounce the sendMulticastPushNotifications function with a delay of 1 minute
-    debounce(async () => {
-      const result = await sendMulticastPushNotifications(
-        userId,
-        message,
-        notificationType || 'rule'
-      )
-      if (!result) {
-        return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
-      }
-    }, 60 * 1000)
+    const result = await sendMulticastPushNotifications(
+      userId,
+      message,
+      notificationType || 'rule'
+    )
+    if (!result) {
+      return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })
+    }
 
     res.send('OK')
   })

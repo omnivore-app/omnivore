@@ -2,7 +2,6 @@ package app.omnivore.omnivore.ui.library
 
 import android.content.Intent
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,17 +10,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -29,18 +22,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.ui.components.AddLinkSheetContent
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
 import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
+import app.omnivore.omnivore.ui.save.SaveState
+import app.omnivore.omnivore.ui.save.SaveViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -50,10 +44,12 @@ import kotlinx.coroutines.launch
 fun LibraryView(
   libraryViewModel: LibraryViewModel,
   labelsViewModel: LabelsViewModel,
+  saveViewModel: SaveViewModel,
   navController: NavHostController
 ) {
   val scaffoldState: ScaffoldState = rememberScaffoldState()
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+  val showAddLinkSheet: Boolean by libraryViewModel.showAddLinkSheetLiveData.observeAsState(false)
 
   val coroutineScope = rememberCoroutineScope()
   val modalBottomSheetState = rememberModalBottomSheetState(
@@ -61,7 +57,7 @@ fun LibraryView(
     confirmStateChange = { it != ModalBottomSheetValue.Hidden }
   )
 
-  if (showLabelsSelectionSheet) {
+  if (showLabelsSelectionSheet || showAddLinkSheet) {
     coroutineScope.launch {
       modalBottomSheetState.show()
     }
@@ -82,7 +78,7 @@ fun LibraryView(
     sheetBackgroundColor = Color.Transparent,
     sheetState = modalBottomSheetState,
     sheetContent = {
-      BottomSheetContent(libraryViewModel, labelsViewModel)
+      BottomSheetContent(libraryViewModel, labelsViewModel, saveViewModel)
       Spacer(modifier = Modifier.weight(1.0F))
     }
   ) {
@@ -92,6 +88,7 @@ fun LibraryView(
         LibraryNavigationBar(
           savedItemViewModel = libraryViewModel,
           onSearchClicked = { navController.navigate(Routes.Search.route) },
+          onAddLinkClicked = { libraryViewModel.showAddLinkSheetLiveData.value = true },
           onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
         )
       },
@@ -106,8 +103,9 @@ fun LibraryView(
 }
 
 @Composable
-fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: LabelsViewModel) {
+fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: LabelsViewModel, saveViewModel: SaveViewModel) {
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
+  val showAddLinkSheet: Boolean by libraryViewModel.showAddLinkSheetLiveData.observeAsState(false)
   val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
   val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(listOf())
 
@@ -154,6 +152,20 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
           }
         )
       }
+    }
+  } else if (showAddLinkSheet) {
+    BottomSheetUI {
+      AddLinkSheetContent(
+        saveViewModel = saveViewModel,
+        onCancel = {
+          libraryViewModel.showAddLinkSheetLiveData.value = false
+          saveViewModel.saveState.value = SaveState.NONE
+        },
+        onLinkAdded = {
+          libraryViewModel.showAddLinkSheetLiveData.value = false
+          saveViewModel.saveState.value = SaveState.NONE
+        }
+      )
     }
   }
 }

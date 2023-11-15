@@ -23,12 +23,12 @@
 var REGEXPS = {
   // NOTE: These two regular expressions are duplicated in
   // Readability.js. Please keep both copies in sync.
-  articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist/i,
-  articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*/i,
-  unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs/i,
+  articleNegativeLookBehindCandidates: /breadcrumbs|breadcrumb|utils|trilist|_header/i,
+  articleNegativeLookAheadCandidates: /outstream(.?)_|sub(.?)_|m_|omeda-promo-|in-article-advert|block-ad-.*|tl_/i,
+  unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar|tl_article_header|mvp(-post)*-(add-story|soc(-mob)*-wrap)|w-condition-invisible|rich-text-block main w-richtext|rich-text-block_ataglance at-a-glance test w-richtext|PostsPage-commentsSection/i,
   // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
   get okMaybeItsACandidate() {
-    return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity`, 'i')
+    return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection`, 'i')
   },
 };
 
@@ -58,7 +58,7 @@ function isProbablyReaderable(doc, options = {}) {
   var defaultOptions = { minScore: 20, minContentLength: 140, visibilityChecker: isNodeVisible };
   options = Object.assign(defaultOptions, options);
 
-  var nodes = doc.querySelectorAll("p, pre");
+  var nodes = doc.querySelectorAll("p, pre, article");
 
   // Get <div> nodes which have <br> node(s) and append them into the `nodes` variable.
   // Some articles' DOM structures might look like

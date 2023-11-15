@@ -1,11 +1,10 @@
-import { User } from '../../entity/user'
 import { env } from '../../env'
 import {
   SendInstallInstructionsError,
   SendInstallInstructionsErrorCode,
   SendInstallInstructionsSuccess,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { userRepository } from '../../repository/user'
 import { authorized } from '../../utils/helpers'
 import { sendEmail } from '../../utils/sendEmail'
 
@@ -15,11 +14,9 @@ const INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID =
 export const sendInstallInstructionsResolver = authorized<
   SendInstallInstructionsSuccess,
   SendInstallInstructionsError
->(async (_parent, _args, { claims, log }) => {
+>(async (_parent, _args, { uid, log }) => {
   try {
-    const user = await AppDataSource.getRepository(User).findOneBy({
-      id: claims.uid,
-    })
+    const user = await userRepository.findById(uid)
 
     if (!user) {
       return { errorCodes: [SendInstallInstructionsErrorCode.Unauthorized] }

@@ -15,11 +15,9 @@ export type ReaderSettings = {
   setMarginWidth: (newMarginWidth: number) => void
 
   showSetLabelsModal: boolean
-  showDeleteConfirmation: boolean
   showEditDisplaySettingsModal: boolean
 
   setShowSetLabelsModal: (showSetLabelsModal: boolean) => void
-  setShowDeleteConfirmation: (showDeleteConfirmation: boolean) => void
   setShowEditDisplaySettingsModal: (
     showEditDisplaySettingsModal: boolean
   ) => void
@@ -70,7 +68,6 @@ export const useReaderSettings = (): ReaderSettings => {
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] =
     useState(false)
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   const updateFontSize = useCallback(
     (newFontSize: number) => {
@@ -90,19 +87,18 @@ export const useReaderSettings = (): ReaderSettings => {
       switch (action) {
         case 'setFontSize':
           const value = Number(arg)
-          if (value >= 10 && value <= 34) {
+          if (value >= 10 && value <= 48) {
             updateFontSize(value)
           }
           break
         case 'incrementFontSize':
-          updateFontSize(Math.min(fontSize + 2, 34))
+          updateFontSize(Math.min(fontSize + 2, 48))
           break
         case 'decrementFontSize':
           updateFontSize(Math.max(fontSize - 2, 10))
           break
         case 'setMarginWidth': {
           const value = Number(arg)
-          console.log('setMarginWidth: ', value)
           if (value >= 200 && value <= 560) {
             setMarginWidth(value)
           }
@@ -209,12 +205,10 @@ export const useReaderSettings = (): ReaderSettings => {
     setFontSize,
     setLineHeight,
     setMarginWidth,
-    showDeleteConfirmation,
     showSetLabelsModal,
     showEditDisplaySettingsModal,
     setShowSetLabelsModal,
     setShowEditDisplaySettingsModal,
-    setShowDeleteConfirmation,
     actionHandler,
     setFontFamily,
     fontFamily,

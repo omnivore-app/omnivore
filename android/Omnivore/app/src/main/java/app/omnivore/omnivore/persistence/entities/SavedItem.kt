@@ -40,7 +40,8 @@ data class SavedItem(
   @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val pdfData: ByteArray? = null,
   var serverSyncStatus: Int = 0,
   val tempPDFURL: String? = null,
-  val wordsCount: Int? = null
+  val wordsCount: Int? = null,
+  val localPDFPath: String? = null
 
 // hasMany highlights
 // hasMany labels

@@ -17,6 +17,7 @@ enum EmailAuthState {
   @Published var emailAuthState = EmailAuthState.signIn
   @Published var potentialUsernameStatus = PotentialUsernameStatus.noUsername
   @Published var potentialUsername = ""
+  @Published var isLoading = false
 
   var subscriptions = Set<AnyCancellable>()
 }
@@ -68,7 +69,7 @@ struct EmailAuthView: View {
       }
     #else
       innerBody
-        .frame(minWidth: 400, minHeight: 400)
+        .frame(minWidth: 400, minHeight: 600)
         .buttonStyle(PlainButtonStyle())
     #endif
   }

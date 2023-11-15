@@ -33,4 +33,5 @@ public enum UserDefaultKey: String {
   case userWordsPerMinute
   case hideFeatureSection
   case justifyText
+  case prefersHideStatusBarInReader
 }

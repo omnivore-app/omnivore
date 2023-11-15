@@ -6,13 +6,12 @@ import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItemAndHighlightCrossRef
-import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
 
-suspend fun DataService.createWebHighlight(jsonString: String) {
+suspend fun DataService.createWebHighlight(jsonString: String, colorName: String?) {
   val createHighlightInput = Gson().fromJson(jsonString, CreateHighlightParams::class.java).asCreateHighlightInput()
 
   withContext(Dispatchers.IO) {
@@ -27,7 +26,10 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
       annotation = createHighlightInput.annotation.getOrNull(),
       createdAt = null,
       updatedAt = null,
-      createdByMe = false
+      createdByMe = false,
+      color = colorName ?: createHighlightInput.color.getOrNull(),
+      highlightPositionPercent = createHighlightInput.highlightPositionPercent.getOrNull() ?: 0.0,
+      highlightPositionAnchorIndex = createHighlightInput.highlightPositionAnchorIndex.getOrNull() ?: 0
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -49,7 +51,7 @@ suspend fun DataService.createWebHighlight(jsonString: String) {
 }
 
 suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): String {
-  val shortId = UUID.randomUUID().toString()
+  val shortId = NanoId.generate(size=14)
   val createHighlightId = UUID.randomUUID().toString()
 
   withContext(Dispatchers.IO) {
@@ -64,7 +66,10 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
       annotation = note,
       createdAt = null,
       updatedAt = null,
-      createdByMe = true
+      createdByMe = true,
+      color = null,
+      highlightPositionAnchorIndex = 0,
+      highlightPositionPercent = 0.0
     )
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
@@ -78,13 +83,15 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
     val newHighlight = networker.createHighlight(input = CreateHighlightParams(
-       type = HighlightType.NOTE,
-       articleId = savedItemId,
-       id = createHighlightId,
-       shortId = shortId,
-       quote = null,
-       patch = null,
-       annotation = note,
+      type = HighlightType.NOTE,
+      articleId = savedItemId,
+      id = createHighlightId,
+      shortId = shortId,
+      quote = null,
+      patch = null,
+      annotation = note,
+      highlightPositionAnchorIndex = 0,
+      highlightPositionPercent = 0.0
     ).asCreateHighlightInput())
 
     newHighlight?.let {

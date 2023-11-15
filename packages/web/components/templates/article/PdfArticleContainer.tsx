@@ -11,11 +11,10 @@ import { createHighlightMutation } from '../../../lib/networking/mutations/creat
 import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
 import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
 import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { useCanShareNative } from '../../../lib/hooks/useCanShareNative'
 import { pspdfKitKey } from '../../../lib/appConfig'
 import { HighlightNoteModal } from './HighlightNoteModal'
 import { showErrorToast } from '../../../lib/toastHelpers'
-import { HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import SlidingPane from 'react-sliding-pane'
 import 'react-sliding-pane/dist/react-sliding-pane.css'
@@ -65,7 +64,12 @@ export default function PdfArticleContainer(
         'spacer',
         'search',
         'export-pdf',
+        'sidebar-bookmarks',
+        'sidebar-thumbnails',
+        'sidebar-document-outline',
       ]
+
+      console.log('PSPDFKit.defaultToolbarItems', PSPDFKit.defaultToolbarItems)
       const toolbarItems = PSPDFKit.defaultToolbarItems.filter(
         (i) => ALLOWED_TOOLBAR_ITEM_TYPES.indexOf(i.type) !== -1
       )
@@ -194,7 +198,7 @@ export default function PdfArticleContainer(
         return props.article.readingProgressAnchorIndex
       }
 
-      instance = await PSPDFKit.load({
+      const config = {
         container: container || '.pdf-container',
         toolbarItems,
         annotationPresets,
@@ -208,7 +212,12 @@ export default function PdfArticleContainer(
           zoom: PSPDFKit.ZoomMode.FIT_TO_WIDTH,
           currentPageIndex: initialPage() || 0,
         }),
-      })
+      }
+
+      console.log('instnace config: ', config)
+
+      instance = await PSPDFKit.load(config)
+      console.log('created PDF instance', instance)
 
       instance.addEventListener('annotations.willChange', async (event) => {
         const annotation = event.annotations.get(0)
@@ -234,7 +243,9 @@ export default function PdfArticleContainer(
           patch.customData.omnivoreHighight.annotation = highlight.annotation
         }
 
-        const annotation = PSPDFKit.Annotations.fromSerializableObject(patch)
+        const annotation = PSPDFKit.Annotations.fromSerializableObject(
+          patch
+        ) as Annotation
 
         try {
           await instance.create(annotation)
@@ -399,15 +410,93 @@ export default function PdfArticleContainer(
             100,
             Math.max(0, ((pageIndex + 1) / instance.totalPageCount) * 100)
           )
-          if (percent <= props.article.readingProgressPercent) {
-            return
-          }
           await articleReadingProgressMutation({
             id: props.article.id,
+            force: true,
             readingProgressPercent: percent,
             readingProgressAnchorIndex: pageIndex,
           })
         }
+      )
+
+      type PossibleInputEventTarget = KeyboardEvent & {
+        nodeName: string
+      }
+
+      function isPossibleInputEventTarget(
+        target: any
+      ): target is PossibleInputEventTarget {
+        return (
+          'nodeName' in target &&
+          typeof target.nodeName == 'string' &&
+          target.nodeName
+        )
+      }
+
+      function keyDownHandler(event: KeyboardEvent) {
+        const inputs = ['input', 'select', 'button', 'textarea']
+
+        if (event.target && isPossibleInputEventTarget(event.target)) {
+          const nodeName = event.target.nodeName.toLowerCase()
+          if (inputs.indexOf(nodeName) != -1) {
+            return
+          }
+        }
+
+        const key = event.key.toLowerCase()
+        switch (key) {
+          case 'o':
+            document.dispatchEvent(new Event('openOriginalArticle'))
+            break
+          case 'u':
+            const query = window.sessionStorage.getItem('q')
+            if (query) {
+              window.location.assign(`/home?${query}`)
+            } else {
+              window.location.replace(`/home`)
+            }
+            break
+          case 'e':
+            document.dispatchEvent(new Event('archive'))
+            break
+          case '#':
+            document.dispatchEvent(new Event('delete'))
+            break
+          case 'h':
+            const root = (event.target as HTMLElement).querySelector(
+              '.PSPDFKit-Root'
+            )
+            const highlight = root?.querySelector(
+              '.PSPDFKit-Text-Markup-Inline-Toolbar-Highlight'
+            )
+            if (highlight && highlight?.nodeName == 'BUTTON') {
+              const button = highlight as HTMLButtonElement
+              button.click()
+            }
+            break
+          // case 'n':
+          // TODO: need to set a post creation event here, then
+          // go through the regular highlight creation
+          //   document.dispatchEvent(new Event('annotate'))
+          //   break
+          case 't':
+            props.setShowHighlightsModal(true)
+            break
+          case 'i':
+            document.dispatchEvent(new Event('showEditModal'))
+            break
+        }
+      }
+
+      const isIE11 = navigator.userAgent.indexOf('Trident/') > -1
+      instance.contentDocument.addEventListener(
+        'keydown',
+        keyDownHandler,
+        isIE11
+          ? {
+              capture: true,
+            }
+          : true
       )
     })()
 
@@ -455,6 +544,15 @@ export default function PdfArticleContainer(
       }
     })
 
+    document.addEventListener('pdfReaderUpdateSettings', () => {
+      const show = localStorage.getItem('reader-show-pdf-tool-bar')
+      const showToolbarbar = show ? JSON.parse(show) == true : false
+
+      instance.setViewState((viewState) =>
+        viewState.set('showToolbar', showToolbarbar)
+      )
+    })
+
     return () => {
       PSPDFKit && container && PSPDFKit.unload(container)
     }
@@ -471,7 +569,7 @@ export default function PdfArticleContainer(
       id="article-wrapper"
       css={{
         width: '100%',
-        height: `calc(100vh - ${HEADER_HEIGHT})`,
+        height: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
       }}
     >
       <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
@@ -508,7 +606,11 @@ export default function PdfArticleContainer(
         }}
       >
         <>
-          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookHeader
+            viewer={props.viewer}
+            item={props.article}
+            setShowNotebook={props.setShowHighlightsModal}
+          />
           <NotebookContent
             viewer={props.viewer}
             item={props.article}

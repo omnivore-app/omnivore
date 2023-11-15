@@ -10,6 +10,7 @@ const FONT_FAMILIES = [
   'Merriweather',
   'Lora',
   'Open Sans',
+  'IBMPlexSans',
   'Roboto',
   'Newsreader',
   'Montserrat',

@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
   val isDark = isSystemInDarkTheme()
@@ -103,7 +103,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
       }
     }
 
-    Text("Font Size:", style = TextStyle(
+    Text(stringResource(R.string.reader_preferences_view_font_size), style = TextStyle(
       fontSize = 15.sp,
       fontWeight = FontWeight.Normal,
       color = Color(red = 137, green = 137, blue = 137)
@@ -115,10 +115,10 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         webReaderViewModel.setFontSize(it.toInt())
       },
       steps = 10,
-      valueRange = 8f..28f,
+      valueRange = 10f..48f,
     )
 
-    Text("Margin", style = TextStyle(
+    Text(stringResource(R.string.reader_preferences_view_margin), style = TextStyle(
       fontSize = 15.sp,
       fontWeight = FontWeight.Normal,
       color = Color(red = 137, green = 137, blue = 137)
@@ -133,7 +133,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
       valueRange = 60f..100f,
     )
 
-    Text("Line Spacing", style = TextStyle(
+    Text(stringResource(R.string.reader_preferences_view_line_spacing), style = TextStyle(
       fontSize = 15.sp,
       fontWeight = FontWeight.Normal,
       color = Color(red = 137, green = 137, blue = 137)
@@ -153,13 +153,13 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
       modifier = Modifier
         .padding(vertical = 4.dp)
     ) {
-      Text("Theme:", style = TextStyle(
+      Text(stringResource(R.string.reader_preferences_view_theme), style = TextStyle(
         fontSize = 15.sp,
         fontWeight = FontWeight.Normal,
         color = Color(red = 137, green = 137, blue = 137)
       ))
       Spacer(modifier = Modifier.weight(1.0F))
-      Text("Auto", style = TextStyle(
+      Text(stringResource(R.string.reader_preferences_view_auto), style = TextStyle(
         fontSize = 10.sp,
         fontWeight = FontWeight.Normal,
         color = Color(red = 137, green = 137, blue = 137)
@@ -208,7 +208,8 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-      Text("High Contrast Text",
+      Text(
+        stringResource(R.string.reader_preferences_view_high_constrast_text),
         style = TextStyle(
         fontSize = 15.sp,
         fontWeight = FontWeight.Normal,
@@ -225,7 +226,8 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-      Text("Justify Text",
+      Text(
+        stringResource(R.string.reader_preferences_view_justify_text),
         style = TextStyle(
           fontSize = 15.sp,
           fontWeight = FontWeight.Normal,

@@ -42,6 +42,7 @@ const FONT_FAMILIES = [
   'Source Serif Pro',
   'LXGWWenKai',
   'AtkinsonHyperlegible',
+  'IBMPlexSans',
 ]
 
 type SettingsProps = {
@@ -291,7 +292,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
   })
 
   const handleFontSizeChange = useCallback(
-    (value) => {
+    (value: number) => {
       readerSettings.actionHandler('setFontSize', value)
     },
     [readerSettings]
@@ -355,7 +356,7 @@ function FontControls(props: FontControlsProps): JSX.Element {
         </Button>
         <TickedRangeSlider
           min={10}
-          max={34}
+          max={48}
           step={2}
           value={props.readerSettings.fontSize}
           onChange={handleFontSizeChange}
@@ -398,7 +399,7 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
   const { readerSettings } = props
 
   const handleMarginWidthChange = useCallback(
-    (value) => {
+    (value: number) => {
       readerSettings.setMarginWidth(value)
     },
     [readerSettings]

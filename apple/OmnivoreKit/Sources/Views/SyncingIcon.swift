@@ -13,7 +13,7 @@ import Utils
 public struct SyncStatusIcon: View {
   let status: ServerSyncStatus
 
-  init(status: ServerSyncStatus) {
+  public init(status: ServerSyncStatus) {
     self.status = status
   }
 

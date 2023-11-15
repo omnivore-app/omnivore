@@ -19,6 +19,7 @@
 "labelsViewAssignNameColor" = "Asigna un nombre y un color.";
 "createLabelMessage" = "Crea una nueva Etiqueta";
 "labelsPurposeDescription" = "Usa Etiquetas para coleccione de enlaces organizadas.";
+"labelNamePlaceholder" = "Nombre de la etiqueta";
 
 // Manage Account View
 "manageAccountDelete" = "Borrar Cuenta";

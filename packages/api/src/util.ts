@@ -21,6 +21,7 @@ interface BackendEnv {
     gateway_url: string
     apiEnv: string
     instanceId: string
+    trustProxy: boolean
   }
   client: {
     url: string
@@ -40,6 +41,7 @@ interface BackendEnv {
   }
   intercom: {
     token: string
+    secretKey: string
   }
   sentry: {
     dsn: string
@@ -68,16 +70,13 @@ interface BackendEnv {
     recommendationTaskHandlerUrl: string
     thumbnailTaskHandlerUrl: string
     rssFeedTaskHandlerUrl: string
+    integrationExporterUrl: string
+    integrationImporterUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
     gcsUploadSAKeyFilePath: string
     gcsUploadPrivateBucket: string
-  }
-  elastic: {
-    url: string
-    username: string
-    password: string
   }
   sender: {
     message: string
@@ -89,6 +88,7 @@ interface BackendEnv {
     reminderTemplateId: string
     resetPasswordTemplateId: string
     installationTemplateId: string
+    verificationTemplateId: string
   }
   readwise: {
     apiUrl: string
@@ -121,6 +121,7 @@ export function isAppEngine(): boolean {
 
 const nullableEnvVars = [
   'INTERCOM_TOKEN',
+  'INTERCOM_SECRET_KEY',
   'GAE_INSTANCE',
   'SENTRY_DSN',
   'SENTRY_AUTH_TOKEN',
@@ -143,8 +144,6 @@ const nullableEnvVars = [
   'GAUTH_SECRET',
   'SEGMENT_WRITE_KEY',
   'TWITTER_BEARER_TOKEN',
-  'ELASTIC_USERNAME',
-  'ELASTIC_PASSWORD',
   'GCS_UPLOAD_PRIVATE_BUCKET',
   'SENDER_MESSAGE',
   'SENDER_FEEDBACK',
@@ -163,6 +162,11 @@ const nullableEnvVars = [
   'POCKET_CONSUMER_KEY',
   'THUMBNAIL_TASK_HANDLER_URL',
   'RSS_FEED_TASK_HANDLER_URL',
+  'SENDGRID_VERIFICATION_TEMPLATE_ID',
+  'REMINDER_TASK_HANDLER_URL',
+  'TRUST_PROXY',
+  'INTEGRATION_EXPORTER_URL',
+  'INTEGRATION_IMPORTER_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -211,6 +215,7 @@ export function getEnv(): BackendEnv {
     apiEnv: parse('API_ENV'),
     instanceId:
       parse('GAE_INSTANCE') || `x${os.userInfo().username}_${os.hostname()}`,
+    trustProxy: parse('TRUST_PROXY') === 'true',
   }
   const client = {
     url: parse('CLIENT_URL'),
@@ -230,6 +235,7 @@ export function getEnv(): BackendEnv {
   }
   const intercom = {
     token: parse('INTERCOM_TOKEN'),
+    secretKey: parse('INTERCOM_SECRET_KEY'),
   }
   const sentry = {
     dsn: parse('SENTRY_DSN'),
@@ -251,6 +257,8 @@ export function getEnv(): BackendEnv {
     recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
     thumbnailTaskHandlerUrl: parse('THUMBNAIL_TASK_HANDLER_URL'),
     rssFeedTaskHandlerUrl: parse('RSS_FEED_TASK_HANDLER_URL'),
+    integrationExporterUrl: parse('INTEGRATION_EXPORTER_URL'),
+    integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
@@ -264,11 +272,6 @@ export function getEnv(): BackendEnv {
     gcsUploadSAKeyFilePath: parse('GCS_UPLOAD_SA_KEY_FILE_PATH'),
     gcsUploadPrivateBucket: parse('GCS_UPLOAD_PRIVATE_BUCKET'),
   }
-  const elastic = {
-    url: parse('ELASTIC_URL'),
-    username: parse('ELASTIC_USERNAME'),
-    password: parse('ELASTIC_PASSWORD'),
-  }
   const sender = {
     message: parse('SENDER_MESSAGE'),
     feedback: parse('SENDER_FEEDBACK'),
@@ -280,6 +283,7 @@ export function getEnv(): BackendEnv {
     reminderTemplateId: parse('SENDGRID_REMINDER_TEMPLATE_ID'),
     resetPasswordTemplateId: parse('SENDGRID_RESET_PASSWORD_TEMPLATE_ID'),
     installationTemplateId: parse('SENDGRID_INSTALLATION_TEMPLATE_ID'),
+    verificationTemplateId: parse('SENDGRID_VERIFICATION_TEMPLATE_ID'),
   }
 
   const readwise = {
@@ -313,7 +317,6 @@ export function getEnv(): BackendEnv {
     dev,
     fileUpload,
     queue,
-    elastic,
     sender,
     sendgrid,
     readwise,

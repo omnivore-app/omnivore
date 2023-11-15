@@ -1,15 +1,15 @@
 import { nanoid } from 'nanoid'
+import { appDataSource } from '../data_source'
 import { Group } from '../entity/groups/group'
 import { GroupMembership } from '../entity/groups/group_membership'
 import { Invite } from '../entity/groups/invite'
 import { RuleActionType } from '../entity/rule'
 import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
 import { homePageURL } from '../env'
 import { RecommendationGroup, User as GraphqlUser } from '../generated/graphql'
-import { AppDataSource } from '../server'
+import { getRepository } from '../repository'
 import { userDataToUser } from '../utils/helpers'
-import { createLabel, getLabelByName } from './labels'
+import { findOrCreateLabels } from './labels'
 import { createRule } from './rules'
 
 export const createGroup = async (input: {
@@ -22,11 +22,11 @@ export const createGroup = async (input: {
   onlyAdminCanPost?: boolean | null
   onlyAdminCanSeeMembers?: boolean | null
 }): Promise<[Group, Invite]> => {
-  const [group, invite] = await AppDataSource.transaction<[Group, Invite]>(
+  const [group, invite] = await appDataSource.transaction<[Group, Invite]>(
     async (t) => {
       // Max number of groups a user can create
       const maxGroups = 3
-      const groupCount = await getRepository(Group).countBy({
+      const groupCount = await t.getRepository(Group).countBy({
         createdBy: { id: input.admin.id },
       })
       if (groupCount >= maxGroups) {
@@ -114,7 +114,7 @@ export const joinGroup = async (
   user: User,
   inviteCode: string
 ): Promise<RecommendationGroup> => {
-  const invite = await AppDataSource.transaction<Invite>(async (t) => {
+  const invite = await appDataSource.transaction<Invite>(async (t) => {
     // Check if the invite exists
     const invite = await t
       .getRepository(Invite)
@@ -132,12 +132,11 @@ export const joinGroup = async (
 
     // Check if exceeded max members considering concurrent requests
     await t.query(
-      `
-insert into omnivore.group_membership (user_id, group_id, invite_id)
-select $1, $2, $3
-from omnivore.group_membership
-where group_id = $2
-having count(*) < $4`,
+      `insert into omnivore.group_membership (user_id, group_id, invite_id)
+        select $1, $2, $3
+        from omnivore.group_membership
+        where group_id = $2
+        having count(*) < $4`,
       [user.id, invite.group.id, invite.id, invite.maxMembers]
     )
 
@@ -175,7 +174,7 @@ export const leaveGroup = async (
   user: User,
   groupId: string
 ): Promise<boolean> => {
-  return AppDataSource.transaction(async (t) => {
+  return appDataSource.transaction(async (t) => {
     const group = await t
       .getRepository(Group)
       .createQueryBuilder('group')
@@ -228,11 +227,7 @@ export const createLabelAndRuleForGroup = async (
   userId: string,
   groupName: string
 ) => {
-  let label = await getLabelByName(userId, groupName)
-  if (!label) {
-    // create a new label for the group
-    label = await createLabel(userId, { name: groupName })
-  }
+  const labels = await findOrCreateLabels([{ name: groupName }], userId)
 
   // create a rule to add the label to all pages in the group
   const addLabelPromise = createRule(userId, {
@@ -240,7 +235,7 @@ export const createLabelAndRuleForGroup = async (
     actions: [
       {
         type: RuleActionType.AddLabel,
-        params: [label.id],
+        params: [labels[0].id],
       },
     ],
     // always add the label to pages in the group
@@ -284,4 +279,8 @@ export const getGroupsWhereUserCanPost = async (
     .innerJoinAndSelect('group.members', 'members')
     .innerJoinAndSelect('members.user', 'user')
     .getMany()
+}
+
+export const deleteGroup = async (groupId: string) => {
+  return getRepository(Group).delete(groupId)
 }

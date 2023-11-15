@@ -4,6 +4,7 @@ import { promisify } from 'util'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import {
+  IntegrationTokenPayload,
   isPendingUserTokenPayload,
   PendingUserTokenPayload,
 } from './auth_types'
@@ -84,4 +85,23 @@ export function suggestedUsername(name: string): string {
   const prefix = username.substring(0, Math.min(maxLength, username.length))
   const suffix = Math.floor(Math.random() * 10000)
   return `${prefix}${suffix}`
+}
+
+export async function createIntegrationToken(
+  payload: IntegrationTokenPayload
+): Promise<string | undefined> {
+  try {
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
+    const authToken = await signToken(
+      {
+        ...payload,
+        exp,
+      },
+      env.server.jwtSecret
+    )
+    logger.info('createIntegrationToken', payload)
+    return authToken as string
+  } catch {
+    return undefined
+  }
 }

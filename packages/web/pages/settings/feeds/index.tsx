@@ -1,14 +1,13 @@
 import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
-import { HStack } from '../../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../../components/elements/StyledText'
+import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import {
   EmptySettingsRow,
   SettingsTable,
-  SettingsTableRow
+  SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { theme } from '../../../components/tokens/stitches.config'
 import { formattedDateTime } from '../../../lib/dateFormatting'
@@ -17,7 +16,7 @@ import { updateSubscriptionMutation } from '../../../lib/networking/mutations/up
 import {
   SubscriptionStatus,
   SubscriptionType,
-  useGetSubscriptionsQuery
+  useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
@@ -33,6 +32,15 @@ export default function Rss(): JSX.Element {
   const [onEditName, setOnEditName] = useState('')
   const [onPauseId, setOnPauseId] = useState('')
   const [onEditStatus, setOnEditStatus] = useState<SubscriptionStatus>()
+
+  const sortedSubscriptions = useMemo(() => {
+    if (!subscriptions) {
+      return []
+    }
+    return subscriptions
+      .filter((s) => s.status == 'ACTIVE')
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [subscriptions])
 
   async function updateSubscription(): Promise<void> {
     const result = await updateSubscriptionMutation({
@@ -90,19 +98,28 @@ export default function Rss(): JSX.Element {
   return (
     <SettingsTable
       pageId={'feeds'}
-      pageInfoLink={''} // TODO: https://docs.omnivore.app/settings/feeds.html
-      headerTitle={'Subscribed feeds'}
-      createTitle={'Add feed'}
+      pageInfoLink="https://docs.omnivore.app/using/feeds.html"
+      headerTitle="Subscribed feeds"
+      createTitle="Add a feed"
       createAction={() => {
         router.push('/settings/feeds/add')
       }}
+      suggestionInfo={{
+        title: 'Add RSS and Atom feeds to your Omnivore account',
+        message:
+          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every hour, and new items will be added to your library.',
+        docs: 'https://docs.omnivore.app/using/feeds.html',
+        key: '--settings-feeds-show-help',
+        CTAText: 'Add a feed',
+        onClickCTA: () => {
+          router.push('/settings/feeds/add')
+        },
+      }}
     >
-      {subscriptions.length === 0 ? (
-        <EmptySettingsRow
-          text={isValidating ? '-' : 'No feeds subscribed'}
-        />
+      {sortedSubscriptions.length === 0 ? (
+        <EmptySettingsRow text={isValidating ? '-' : 'No feeds subscribed'} />
       ) : (
-        subscriptions.map((subscription, i) => {
+        sortedSubscriptions.map((subscription, i) => {
           return (
             <SettingsTableRow
               key={subscription.id}
@@ -147,7 +164,7 @@ export default function Rss(): JSX.Element {
                   </HStack>
                 ) : (
                   <HStack alignment={'center'} distribution={'start'}>
-                    <StyledText
+                    <SpanBox
                       css={{
                         m: '0px',
                         fontSize: '18px',
@@ -158,7 +175,7 @@ export default function Rss(): JSX.Element {
                       }}
                     >
                       {subscription.name}
-                    </StyledText>
+                    </SpanBox>
                     <Pencil
                       style={{ cursor: 'pointer', marginLeft: '5px' }}
                       color={theme.colors.omnivoreLightGray.toString()}
@@ -171,7 +188,7 @@ export default function Rss(): JSX.Element {
                   </HStack>
                 )
               }
-              isLast={i === subscriptions.length - 1}
+              isLast={i === sortedSubscriptions.length - 1}
               onDelete={() => {
                 console.log('onDelete triggered: ', subscription.id)
                 setOnDeleteId(subscription.id)
@@ -182,10 +199,10 @@ export default function Rss(): JSX.Element {
                 )
                 setOnPauseId(subscription.id)
               }}
-              deleteTitle="Delete"
-              editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
+              deleteTitle="Unsubscribe"
+              // editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
-                <StyledText
+                <SpanBox
                   css={{
                     my: '8px',
                     fontSize: '11px',
@@ -197,19 +214,19 @@ export default function Rss(): JSX.Element {
                       ? formattedDateTime(subscription.lastFetchedAt)
                       : 'Never'
                   }`}
-                </StyledText>
+                </SpanBox>
               }
               onClick={() => {
                 router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
               }}
               extraElement={
-                <StyledText
+                <SpanBox
                   css={{
                     fontSize: '12px',
                   }}
                 >
                   {subscription.status === 'ACTIVE' ? 'Active' : 'Paused'}
-                </StyledText>
+                </SpanBox>
               }
             />
           )
@@ -218,9 +235,7 @@ export default function Rss(): JSX.Element {
 
       {onDeleteId && (
         <ConfirmationModal
-          message={
-            'Feed will be unsubscribed. This action cannot be undone.'
-          }
+          message={'Feed will be unsubscribed. This action cannot be undone.'}
           onAccept={async () => {
             await onDelete(onDeleteId)
             setOnDeleteId('')

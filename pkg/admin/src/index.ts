@@ -10,6 +10,9 @@ import {
   ReceivedEmail,
   Group,
   ContentDisplayReport,
+  Subscription,
+  Integration,
+  LibraryItem,
 } from './db'
 import { compare, hashSync } from 'bcryptjs'
 const readYamlFile = require('read-yaml-file')
@@ -37,6 +40,9 @@ const ADMIN_USER_EMAIL =
       { resource: UserArticle, options: { parent: { name: 'Users' } } },
       { resource: ReceivedEmail, options: { parent: { name: 'Users' } } },
       { resource: Group, options: { parent: { name: 'Users' } } },
+      { resource: Subscription, options: { parent: { name: 'Users' } } },
+      { resource: Integration, options: { parent: { name: 'Users' } } },
+      { resource: LibraryItem, options: { parent: { name: 'Users' } } },
       {
         resource: ContentDisplayReport,
       },

@@ -61,10 +61,15 @@ const colors = {
   debug: 'underline gray',
 }
 
+const MAX_LOG_SIZE = 250000
+
 const googleConfigs = {
   level: 'info',
   logName: 'logger',
   levels: config.syslog.levels,
+  maxEntrySize: MAX_LOG_SIZE,
+  useMessageField: false,
+  redirectToStdout: true,
 }
 
 function localConfig(id: string): ConsoleTransportOptions {
@@ -97,18 +102,23 @@ function localConfig(id: string): ConsoleTransportOptions {
 const truncateObjectDeep = (object: any, length: number): any => {
   const copyObj = cloneDeep(object) as never
 
-  const truncateDeep = (obj: any): any => {
+  const truncateDeep = (obj: any, level: number): any => {
+    // reach maximum call stack size
+    if (level >= 5) {
+      return undefined
+    }
+
     if (isString(obj) && obj.length > length) {
       return `${truncate(obj, { length })} [truncated]`
     }
 
     if (isArray(obj)) {
-      return obj.map((i) => truncateDeep(i) as never)
+      return obj.map((i) => truncateDeep(i, level + 1) as never)
     }
 
     if (isObject(obj)) {
       Object.entries(obj).forEach(([key, value]) => {
-        obj[key as keyof typeof obj] = truncateDeep(value) as never
+        obj[key as keyof typeof obj] = truncateDeep(value, level + 1) as never
       })
 
       return obj
@@ -118,14 +128,14 @@ const truncateObjectDeep = (object: any, length: number): any => {
     return obj
   }
 
-  return truncateDeep(copyObj)
+  return truncateDeep(copyObj, 1)
 }
 
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
     const sizeInfo = jsonStringify(info).length
-    if (sizeInfo > 250000) {
-      info = truncateObjectDeep(info, 5000) as never // the max length for string values is 5000
+    if (sizeInfo > MAX_LOG_SIZE) {
+      info = truncateObjectDeep(info, 500) as never // the max length for string values is 500
     }
     super.log(info, callback)
   }

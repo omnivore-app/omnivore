@@ -14,6 +14,9 @@ import Views
     @State private var itemToRemove: LinkedItem?
     @State private var confirmationShown = false
     @State private var presentProfileSheet = false
+    @State private var addLinkPresented = false
+
+    @Namespace var mainNamespace
 
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -23,6 +26,104 @@ import Views
           dataService: dataService,
           isRefresh: isRefresh
         )
+      }
+    }
+
+    func menuItems(_ item: LinkedItem) -> some View {
+      Group {
+        Button(
+          action: { viewModel.itemUnderTitleEdit = item },
+          label: { Label("Edit Info", systemImage: "info.circle") }
+        )
+        Button(
+          action: { viewModel.itemUnderLabelEdit = item },
+          label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+        )
+        Button(action: {
+          withAnimation(.linear(duration: 0.4)) {
+            viewModel.setLinkArchived(
+              dataService: dataService,
+              objectID: item.objectID,
+              archived: !item.isArchived
+            )
+          }
+        }, label: {
+          Label(
+            item.isArchived ? "Unarchive" : "Archive",
+            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+          )
+        })
+        Button(
+          action: {
+            itemToRemove = item
+            confirmationShown = true
+          },
+          label: { Label("Remove", systemImage: "trash") }
+        )
+      }
+    }
+
+    var addLinkButton: some View {
+      Button(
+        action: {
+          addLinkPresented = true
+        },
+        label: { Label("Add Link", systemImage: "plus") }
+      )
+    }
+
+    var refreshButton: some View {
+      Button(
+        action: {
+          loadItems(isRefresh: true)
+        },
+        label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
+      )
+      .disabled(viewModel.isLoading)
+      .opacity(viewModel.isLoading ? 0 : 1)
+      .overlay {
+        if viewModel.isLoading {
+          ProgressView()
+            .controlSize(.small)
+        }
+      }
+    }
+
+    var itemsList: some View {
+      VStack {
+        MacSearchBar(searchTerm: $viewModel.searchTerm)
+          .padding(.leading, 10)
+          .padding(.trailing, 10)
+          .prefersDefaultFocus(false, in: mainNamespace)
+
+        List {
+          ForEach(viewModel.items) { item in
+            MacFeedCardNavigationLink(
+              item: item,
+              viewModel: viewModel
+            )
+            .listRowInsets(EdgeInsets())
+            .contextMenu {
+              menuItems(item)
+            }
+            Divider().padding(5)
+          }
+
+          if viewModel.isLoading {
+            LoadingSection()
+          }
+        }
+        .padding(0)
+        .listStyle(InsetListStyle())
+        .navigationTitle("Library")
+        .onChange(of: viewModel.searchTerm) { _ in
+          loadItems(isRefresh: true)
+        }
+        .toolbar {
+          Spacer()
+          addLinkButton
+          refreshButton
+        }
       }
     }
 
@@ -37,97 +138,7 @@ import Views
             EmptyView()
           }
         }
-        List {
-          Spacer(minLength: 10)
-
-          ForEach(viewModel.items) { item in
-            MacFeedCardNavigationLink(
-              item: item,
-              viewModel: viewModel
-            )
-            .listRowInsets(EdgeInsets())
-            .contextMenu {
-              Button(
-                action: { viewModel.itemUnderTitleEdit = item },
-                label: { Label("Edit Info", systemImage: "info.circle") }
-              )
-              Button(
-                action: { viewModel.itemUnderLabelEdit = item },
-                label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-              )
-              Button(action: {
-                withAnimation(.linear(duration: 0.4)) {
-                  viewModel.setLinkArchived(
-                    dataService: dataService,
-                    objectID: item.objectID,
-                    archived: !item.isArchived
-                  )
-                }
-              }, label: {
-                Label(
-                  item.isArchived ? "Unarchive" : "Archive",
-                  systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-                )
-              })
-              Button(
-                action: {
-                  itemToRemove = item
-                  confirmationShown = true
-                },
-                label: { Label("Remove", systemImage: "trash") }
-              )
-              if FeatureFlag.enableSnooze {
-                Button {
-                  viewModel.itemToSnoozeID = item.id
-                  viewModel.snoozePresented = true
-                } label: {
-                  Label { Text(LocalText.genericSnooze) } icon: { Image.moon }
-                }
-              }
-            }
-            Divider().padding(5)
-          }
-
-          if viewModel.isLoading {
-            LoadingSection()
-          }
-        }
-        .listStyle(InsetListStyle())
-        .navigationTitle("Library")
-        .searchable(
-          text: $viewModel.searchTerm,
-          placement: .toolbar
-        ) {
-          if viewModel.searchTerm.isEmpty {
-            Text(LocalText.inboxGeneric).searchCompletion("in:inbox ")
-            Text(LocalText.allGeneric).searchCompletion("in:all ")
-            Text(LocalText.archivedGeneric).searchCompletion("in:archive ")
-            Text(LocalText.filesGeneric).searchCompletion("type:file ")
-          }
-        }
-        .onChange(of: viewModel.searchTerm) { _ in
-          loadItems(isRefresh: true)
-        }
-        .onSubmit(of: .search) {
-          loadItems(isRefresh: true)
-        }
-        .toolbar {
-          ToolbarItem {
-            Button(
-              action: {
-                loadItems(isRefresh: true)
-              },
-              label: { Label("Refresh Feed", systemImage: "arrow.clockwise") }
-            )
-            .disabled(viewModel.isLoading)
-            .opacity(viewModel.isLoading ? 0 : 1)
-            .overlay {
-              if viewModel.isLoading {
-                ProgressView()
-              }
-            }
-          }
-        }
+        itemsList
       }
       .alert("Are you sure?", isPresented: $confirmationShown) {
         Button("Remove Link", role: .destructive) {
@@ -149,6 +160,10 @@ import Views
       .sheet(isPresented: $presentProfileSheet) {
         ProfileView()
       }
+      .sheet(isPresented: $addLinkPresented) {
+        LibraryAddLinkView()
+          .frame(width: 450, height: 160)
+      }
       .onReceive(NSNotification.displayProfilePublisher) { _ in
         presentProfileSheet = true
       }
@@ -160,6 +175,7 @@ import Views
           loadItems(isRefresh: true)
         }
       }
+      .focusScope(mainNamespace)
       .handlesExternalEvents(preferring: Set(["shareExtensionRequestID"]), allowing: Set(["*"]))
       .onOpenURL { url in
         viewModel.linkRequest = nil

@@ -5,10 +5,12 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm'
 import { User } from './user'
 
 @Entity()
+@Unique('user_id_name', ['user', 'name'])
 export class ApiKey {
   @PrimaryGeneratedColumn('uuid')
   id!: string

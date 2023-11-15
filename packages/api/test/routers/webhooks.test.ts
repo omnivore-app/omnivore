@@ -1,11 +1,12 @@
-import { createTestUser, deleteTestUser } from '../db'
-import { request } from '../util'
-import { User } from '../../src/entity/user'
-import 'mocha'
-import { getRepository } from '../../src/entity/utils'
-import { Webhook } from '../../src/entity/webhook'
 import { expect } from 'chai'
+import 'mocha'
 import nock from 'nock'
+import { User } from '../../src/entity/user'
+import { Webhook } from '../../src/entity/webhook'
+import { deleteUser } from '../../src/services/user'
+import { createWebhook } from '../../src/services/webhook'
+import { createTestUser } from '../db'
+import { request } from '../util'
 
 describe('Webhooks Router', () => {
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
@@ -22,16 +23,19 @@ describe('Webhooks Router', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    webhook = await getRepository(Webhook).save({
-      url: webhookBaseUrl + webhookPath,
-      user: { id: user.id },
-      eventTypes: ['PAGE_CREATED'],
-    })
+    webhook = await createWebhook(
+      {
+        url: webhookBaseUrl + webhookPath,
+        user: { id: user.id },
+        eventTypes: ['PAGE_CREATED'],
+      },
+      user.id
+    )
   })
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('trigger webhooks', () => {

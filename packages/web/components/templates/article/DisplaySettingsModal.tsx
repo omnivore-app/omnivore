@@ -19,7 +19,7 @@ export function DisplaySettingsModal(
 ): JSX.Element {
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
-      <ModalOverlay />
+      <ModalOverlay css={{ backgroundColor: 'unset' }} />
       <ModalContent
         css={{
           width: '345px',

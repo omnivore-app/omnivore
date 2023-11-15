@@ -93,7 +93,6 @@ export const triggerActions = async (
     }
 
     const filteredPage = await filterPage(
-      userId,
       apiEndpoint,
       authToken,
       rule.filter,
@@ -137,7 +136,7 @@ export const triggerActions = async (
           )
         case RuleActionType.SendNotification: {
           const data: NotificationData = {
-            title: 'New page added to your library',
+            title: filteredPage.author || filteredPage.siteName || 'Omnivore',
             body: filteredPage.title,
             image: filteredPage.image || undefined,
           }

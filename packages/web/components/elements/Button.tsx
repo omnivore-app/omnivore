@@ -20,7 +20,7 @@ export const Button = styled('button', {
       },
       ctaDarkYellow: {
         border: '1px solid transparent',
-        fontSize: '13px',
+        fontSize: '14px',
         fontWeight: 500,
         fontFamily: 'Inter',
         borderRadius: '5px',
@@ -28,11 +28,9 @@ export const Button = styled('button', {
         color: '#3D3D3D',
         bg: '#FFEA9F',
         p: '10px 15px',
-        '&:hover': {
+        '&:hover, &:focus': {
           bg: '$omnivoreCtaYellow',
-        },
-        '&:focus': {
-          border: '1px solid $omnivoreCtaYellow',
+          outline: '1px solid $omnivoreCtaYellow',
         },
       },
       cancelGeneric: {
@@ -45,18 +43,13 @@ export const Button = styled('button', {
         border: '1px solid transparent',
         p: '10px 15px',
         bg: 'transparent',
-        '&:hover': {
+        '&:hover, &:focus': {
           bg: '#EBEBEB',
-        },
-        '&:focus': {
-          outline: 'none !important',
-          border: '1px solid $omnivoreCtaYellow',
+          outline: '1px solid $omnivoreCtaYellow',
         },
       },
       ctaOutlineYellow: {
         boxSizing: 'border-box',
-        '-moz-box-sizing': 'border-box',
-        '-webkit-box-sizing': 'border-box',
         borderColor: 'unset',
         border: '1px solid $omnivoreCtaYellow',
         fontSize: '14px',
@@ -77,9 +70,9 @@ export const Button = styled('button', {
         fontFamily: 'Inter',
         borderRadius: '8px',
         cursor: 'pointer',
-        color: '$grayTextContrast',
         p: '10px 12px',
-        bg: 'rgb(125, 125, 125, 0.1)',
+        color: '$thTextContrast2',
+        bg: 'rgb(125, 125, 125, 0.3)',
         '&:hover': {
           bg: 'rgb(47, 47, 47, 0.1)',
           '.ctaButtonIcon': {
@@ -159,7 +152,6 @@ export const Button = styled('button', {
         outlineColor: 'rgba(0, 0, 0, 0)',
         border: '1px solid rgba(0, 0, 0, 0.06)',
         cursor: 'pointer',
-        '&:focus': { outline: 'none' },
       },
       ctaModal: {
         height: '32px',
@@ -172,7 +164,6 @@ export const Button = styled('button', {
         border: '1px solid $grayBorder',
         cursor: 'pointer',
         borderRadius: '8px',
-        '&:focus': { outline: 'none' },
       },
       ctaSecondary: {
         color: '$grayText',
@@ -183,41 +174,46 @@ export const Button = styled('button', {
         },
       },
       ctaPill: {
-        borderRadius: '$3',
-        px: '$3',
-        py: '$2',
-        border: '1px solid $grayBorder',
-        bg: '$grayBgActive',
+        cursor: 'pointer',
+        borderRadius: '15px',
+        px: '12px',
+        py: '5px',
+        font: '$inter',
+        fontSize: '12px',
+        fontWeight: '700',
+        whiteSpace: 'nowrap',
+        color: '$thLibraryMenuPrimary',
+        border: '1px solid $thLeftMenuBackground',
+        backgroundColor: '$thLeftMenuBackground',
         '&:hover': {
-          bg: '$grayBgHover',
-          border: '1px solid $grayBorderHover',
+          bg: '$thBackgroundActive',
+          border: '1px solid $thBackgroundActive',
+        },
+      },
+      ctaPillUnselected: {
+        cursor: 'pointer',
+        borderRadius: '15px',
+        px: '12px',
+        py: '5px',
+        font: '$inter',
+        fontSize: '12px',
+        fontWeight: 'medium',
+        whiteSpace: 'nowrap',
+        border: '1px solid $thBackground4',
+        backgroundColor: '$thBackground4',
+        '&:hover': {
+          bg: '$thBackgroundActive',
+          border: '1px solid $thBackgroundActive',
         },
       },
       link: {
-        color: '$grayText',
         border: 'none',
         bg: 'transparent',
-        '&:hover': {
-          opacity: 0.8,
-        },
-      },
-      circularIcon: {
-        mx: '$1',
-        display: 'flex',
-        alignItems: 'center',
-        fontWeight: 500,
-        height: 44,
-        width: 44,
-        borderRadius: '50%',
-        justifyContent: 'center',
-        textAlign: 'center',
-        background: '$grayBase',
+        fontSize: '14px',
+        fontWeight: 'regular',
+        fontFamily: '$display',
+        color: '$thLibraryMenuUnselected',
         cursor: 'pointer',
-        border: 'none',
-        opacity: 0.9,
-        '&:hover': {
-          opacity: 1,
-        },
       },
       squareIcon: {
         mx: '$1',
@@ -244,7 +240,16 @@ export const Button = styled('button', {
         '&:hover': {
           opacity: 0.7,
         },
-        '&:focus': { outline: 'none' },
+      },
+      highlightBarIcon: {
+        p: '0px',
+        lineHeight: '0px',
+        bg: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        '&:hover': {
+          opacity: 0.5,
+        },
       },
       articleActionIcon: {
         bg: 'transparent',

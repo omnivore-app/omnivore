@@ -3,8 +3,8 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-extension DataService {
-  public func updateItemLabels(itemID: String, labelIDs: [String]) {
+public extension DataService {
+  func setItemLabels(itemID: String, labels: [InternalLinkedItemLabel]) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
       guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
@@ -13,21 +13,19 @@ extension DataService {
         linkedItem.removeFromLabels(existingLabels)
       }
 
-      for labelID in labelIDs {
-        if let labelObject = LinkedItemLabel.lookup(byID: labelID, inContext: self.backgroundContext) {
-          linkedItem.addToLabels(labelObject)
-        }
+      for label in labels {
+        linkedItem.addToLabels(label.asManagedObject(inContext: self.backgroundContext))
       }
 
       linkedItem.update(inContext: self.backgroundContext)
       try? self.backgroundContext.save()
 
       // Send update to server
-      self.syncLabelUpdates(itemID: itemID, labelIDs: labelIDs)
+      self.syncLabelUpdates(itemID: itemID, labels: labels)
     }
   }
 
-  func syncLabelUpdates(itemID: String, labelIDs: [String]) {
+  internal func syncLabelUpdates(itemID: String, labels: [InternalLinkedItemLabel]) {
     enum MutationResult {
       case saved(feedItem: [InternalLinkedItemLabel])
       case error(errorCode: Enums.SetLabelsErrorCode)
@@ -40,10 +38,18 @@ extension DataService {
       )
     }
 
+    let labelInputs = labels.compactMap { label in
+      InputObjects.CreateLabelInput(
+        color: OptionalArgument(label.color),
+        description: OptionalArgument(label.labelDescription),
+        name: label.name
+      )
+    }
+
     let mutation = Selection.Mutation {
       try $0.setLabels(
         input: InputObjects.SetLabelsInput(
-          labelIds: OptionalArgument(labelIDs),
+          labels: OptionalArgument(labelInputs),
           pageId: itemID
         ),
         selection: selection

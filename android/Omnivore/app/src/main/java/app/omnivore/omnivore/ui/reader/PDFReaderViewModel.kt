@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.NanoId
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
@@ -20,11 +22,16 @@ import com.pspdfkit.document.download.DownloadJob
 import com.pspdfkit.document.download.DownloadRequest
 import com.pspdfkit.document.download.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 import java.lang.Double.max
 import java.lang.Double.min
+import java.lang.Exception
+import java.net.URLEncoder
+import java.nio.file.FileSystem
 import java.util.*
 import javax.inject.Inject
 
@@ -37,29 +44,61 @@ data class PDFReaderParams(
 @HiltViewModel
 class PDFReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
+  private val dataService: DataService,
   private val networker: Networker
 ): ViewModel() {
   var annotationUnderNoteEdit: Annotation? = null
   val pdfReaderParamsLiveData = MutableLiveData<PDFReaderParams?>(null)
   private var currentReadingProgress = 0.0
+  private var currentReadingPageIndex = 0
 
   fun loadItem(slug: String, context: Context) {
     viewModelScope.launch {
+      loadItemFromDB(slug)
+      loadItemFromNetwork(slug, context)
+    }
+  }
+
+  private suspend fun loadItemFromDB(slug: String) {
+    withContext(Dispatchers.IO) {
+      val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
+      persistedItem?.let { persistedItem ->
+        persistedItem?.savedItem?.localPDF?.let { localPDF ->
+          val localFile = File(localPDF)
+
+          if (localFile.exists()) {
+            val articleContent = ArticleContent(
+              title = persistedItem.savedItem.title,
+              htmlContent = "",
+              highlights = persistedItem.highlights,
+              contentStatus = "SUCCEEDED",
+              objectID = "",
+              labelsJSONString = Gson().toJson(persistedItem.labels)
+            )
+
+            pdfReaderParamsLiveData.postValue(
+              PDFReaderParams(
+                persistedItem.savedItem,
+                articleContent,
+                Uri.fromFile(localFile)
+              )
+            )
+          }
+        }
+      }
+    }
+  }
+
+  private suspend fun loadItemFromNetwork(slug: String, context: Context) {
+    withContext(Dispatchers.IO) {
       val articleQueryResult = networker.savedItem(slug)
-
-      val article = articleQueryResult.item ?: return@launch
-
+      val article = articleQueryResult.item ?: return@withContext
       val request = DownloadRequest.Builder(context)
         .uri(article.pageURLString)
         .build()
 
       val job = DownloadJob.startDownload(request)
-
       job.setProgressListener(object : DownloadJob.ProgressListenerAdapter() {
-        override fun onProgress(progress: Progress) {
-//          progressBar.setProgress((100f * progress.bytesReceived / progress.totalBytes).toInt())
-        }
-
         override fun onComplete(output: File) {
           val articleContent = ArticleContent(
             title = article.title,
@@ -71,11 +110,19 @@ class PDFReaderViewModel @Inject constructor(
           )
 
           currentReadingProgress = article.readingProgress
-          pdfReaderParamsLiveData.postValue(PDFReaderParams(article, articleContent, Uri.fromFile(output)))
+          currentReadingPageIndex = article.readingProgressAnchor
+
+          pdfReaderParamsLiveData.postValue(
+            PDFReaderParams(
+              article,
+              articleContent,
+              Uri.fromFile(output)
+            )
+          )
         }
 
         override fun onError(exception: Throwable) {
-//          handleDownloadError(exception)
+//      handleDownloadError(exception)
         }
       })
     }
@@ -88,27 +135,27 @@ class PDFReaderViewModel @Inject constructor(
   fun syncPageChange(currentPageIndex: Int, totalPages: Int) {
     val rawProgress = ((currentPageIndex + 1).toDouble() / totalPages.toDouble()) * 100
     val percent = min(100.0, max(0.0, rawProgress))
-    if (percent > currentReadingProgress) {
-      currentReadingProgress = percent
-      viewModelScope.launch {
-        val params = ReadingProgressParams(
-          id = pdfReaderParamsLiveData.value?.item?.savedItemId,
-          readingProgressPercent = percent,
-          readingProgressAnchorIndex = currentPageIndex
-        )
-        networker.updateReadingProgress(params)
-      }
+    currentReadingProgress = percent
+    currentReadingPageIndex = currentPageIndex
+    viewModelScope.launch {
+      val params = ReadingProgressParams(
+        id = pdfReaderParamsLiveData.value?.item?.savedItemId,
+        readingProgressPercent = percent,
+        readingProgressAnchorIndex = currentPageIndex,
+        force = true
+      )
+      networker.updateReadingProgress(params)
     }
   }
 
   fun syncHighlightUpdates(newAnnotation: Annotation, quote: String, overlapIds: List<String>, note: String? = null) {
     val itemID = pdfReaderParamsLiveData.value?.item?.savedItemId ?: return
     val highlightID = UUID.randomUUID().toString()
-    val shortID = UUID.randomUUID().toString().replace("-","").substring(0,8)
+    val shortId = NanoId.generate(size=14)
 
     val jsonValues = JSONObject()
       .put("id", highlightID)
-      .put("shortId", shortID)
+      .put("shortId", shortId)
       .put("quote", quote)
       .put("articleId", itemID)
 
@@ -122,7 +169,7 @@ class PDFReaderViewModel @Inject constructor(
         overlapHighlightIdList = overlapIds,
         patch = newAnnotation.toInstantJson(),
         quote = quote,
-        shortId = shortID
+        shortId = shortId
       )
 
       viewModelScope.launch {
@@ -135,7 +182,9 @@ class PDFReaderViewModel @Inject constructor(
         id = highlightID,
         patch = Optional.presentIfNotNull(newAnnotation.toInstantJson()),
         quote = Optional.presentIfNotNull(quote),
-        shortId = shortID,
+        shortId = shortId,
+        highlightPositionAnchorIndex = Optional.presentIfNotNull(currentReadingPageIndex),
+        highlightPositionPercent = Optional.presentIfNotNull(currentReadingProgress)
       )
 
       viewModelScope.launch {

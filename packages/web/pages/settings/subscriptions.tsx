@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
+import {
+  Subscription,
+  SubscriptionType,
+  useGetSubscriptionsQuery,
+} from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { unsubscribeMutation } from '../../lib/networking/mutations/unsubscribeMutation'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import {
@@ -15,14 +19,13 @@ import { formattedShortDate } from '../../lib/dateFormatting'
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery()
-  const [confirmUnsubscribeName, setConfirmUnsubscribeName] = useState<
-    string | null
-  >(null)
+  const [confirmUnsubscribeSubscription, setConfirmUnsubscribeSubscription] =
+    useState<Subscription | null>(null)
 
   applyStoredTheme(false)
 
-  async function onUnsubscribe(name: string): Promise<void> {
-    const result = await unsubscribeMutation(name)
+  async function onUnsubscribe(subscription: Subscription): Promise<void> {
+    const result = await unsubscribeMutation(subscription.name, subscription.id)
     if (result) {
       showSuccessToast('Unsubscribed', { position: 'bottom-right' })
     } else {
@@ -35,14 +38,23 @@ export default function SubscriptionsPage(): JSX.Element {
     if (!subscriptions) {
       return []
     }
-    return subscriptions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    return subscriptions
+      .filter((s) => s.status == 'ACTIVE')
+      .sort((a, b) => a.name.localeCompare(b.name))
   }, [subscriptions])
 
   return (
     <SettingsTable
       pageId="settings-subscriptions-tag"
-      pageInfoLink="/help/newsletters"
+      pageInfoLink="https://docs.omnivore.app/using/feeds.html"
       headerTitle="Subscriptions"
+      suggestionInfo={{
+        title: 'View and manage all your Feed and Newsletter subscriptions',
+        message:
+          'Use this page to view and manage all the Feeds (RSS & Atom) and Newsletters you have subscribed to.',
+        docs: 'https://docs.omnivore.app/using/inbox.html',
+        key: '--settings-recent-subscriptions-show-help',
+      }}
     >
       <>
         {sortedSubscriptions.length > 0 ? (
@@ -52,13 +64,14 @@ export default function SubscriptionsPage(): JSX.Element {
                 key={subscription.id}
                 title={subscription.name}
                 isLast={i === sortedSubscriptions.length - 1}
-                onDelete={() => setConfirmUnsubscribeName(subscription.name)}
+                onDelete={() => setConfirmUnsubscribeSubscription(subscription)}
                 deleteTitle="Unsubscribe"
                 sublineElement={
                   <StyledText
                     css={{
                       my: '5px',
                       fontSize: '11px',
+
                       a: {
                         color: '$omnivoreCtaYellow',
                       },
@@ -66,36 +79,51 @@ export default function SubscriptionsPage(): JSX.Element {
                   >
                     {`Last received ${formattedShortDate(
                       subscription.updatedAt
-                    )} at `}
-                    <Link
-                      href={`/settings/emails?address=${subscription.newsletterEmail}`}
-                    >
-                      {subscription.newsletterEmail}
-                    </Link>
+                    )}`}
+                    {subscription.newsletterEmail && (
+                      <>
+                        {' '}
+                        at{' '}
+                        <Link
+                          href={`/settings/emails?address=${subscription.newsletterEmail}`}
+                          legacyBehavior>
+                          {subscription.newsletterEmail}
+                        </Link>
+                      </>
+                    )}
+                    {subscription.type == SubscriptionType.RSS &&
+                      subscription.url && (
+                        <>
+                          {' '}
+                          via <Link href={subscription.url}>RSS</Link>
+                        </>
+                      )}
                   </StyledText>
                 }
               />
-            )
+            );
           })
         ) : (
           <EmptySettingsRow
-            text={isValidating ? '-' : 'No Email Subscriptions Found'}
+            text={isValidating ? '-' : 'No Subscriptions Found'}
           />
         )}
 
-        {confirmUnsubscribeName ? (
+        {confirmUnsubscribeSubscription ? (
           <ConfirmationModal
             message={
-              'Are you sure? You will stop receiving newsletters from this subscription.'
+              confirmUnsubscribeSubscription.type == SubscriptionType.NEWSLETTER
+                ? 'Are you sure? You will stop receiving newsletters from this subscription.'
+                : 'Are you sure? You will stop receiving updates from this feed.'
             }
             onAccept={async () => {
-              await onUnsubscribe(confirmUnsubscribeName)
-              setConfirmUnsubscribeName(null)
+              await onUnsubscribe(confirmUnsubscribeSubscription)
+              setConfirmUnsubscribeSubscription(null)
             }}
-            onOpenChange={() => setConfirmUnsubscribeName(null)}
+            onOpenChange={() => setConfirmUnsubscribeSubscription(null)}
           />
         ) : null}
       </>
     </SettingsTable>
-  )
+  );
 }

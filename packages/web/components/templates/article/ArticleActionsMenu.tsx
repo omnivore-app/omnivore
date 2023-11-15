@@ -1,9 +1,7 @@
 import { Separator } from '@radix-ui/react-separator'
-import { ArchiveBox, Notebook, Info, Trash, Tray, Tag } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { Box, SpanBox } from '../../elements/LayoutPrimitives'
-import { TooltipWrapped } from '../../elements/Tooltip'
 import { styled, theme } from '../../tokens/stitches.config'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useRef } from 'react'
@@ -114,7 +112,7 @@ export function ArticleActionsMenu(
         </Button>
 
         <Button
-          title="View Notebook (t)"
+          title="View notebook (t)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showHighlights')}
           css={{
@@ -129,7 +127,7 @@ export function ArticleActionsMenu(
         </Button>
 
         <Button
-          title="Edit Info (i)"
+          title="Edit info (i)"
           style="articleActionIcon"
           onClick={() => props.articleActionHandler('showEditModal')}
           css={{
@@ -182,7 +180,7 @@ export function ArticleActionsMenu(
           </Button>
         ) : (
           <Button
-            title="Unarchive (u)"
+            title="Unarchive (e)"
             style="articleActionIcon"
             onClick={() => props.articleActionHandler('unarchive')}
           >

@@ -1,9 +1,9 @@
 import axios from 'axios'
-import { ArticleSavingRequestStatus } from '../../elastic/types'
+import { LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import {
-  IntegrationService,
+  IntegrationClient,
   RetrievedResult,
   RetrieveRequest,
 } from './integration'
@@ -51,16 +51,16 @@ interface Author {
   name: string
 }
 
-export class PocketIntegration extends IntegrationService {
+export class PocketClient implements IntegrationClient {
   name = 'POCKET'
-  POCKET_API_URL = 'https://getpocket.com/v3'
+  apiUrl = 'https://getpocket.com/v3'
   headers = {
     'Content-Type': 'application/json',
     'X-Accept': 'application/json',
   }
 
   accessToken = async (token: string): Promise<string | null> => {
-    const url = `${this.POCKET_API_URL}/oauth/authorize`
+    const url = `${this.apiUrl}/oauth/authorize`
     try {
       const response = await axios.post<{ access_token: string }>(
         url,
@@ -70,6 +70,7 @@ export class PocketIntegration extends IntegrationService {
         },
         {
           headers: this.headers,
+          timeout: 5000, // 5 seconds
         }
       )
       return response.data.access_token
@@ -89,7 +90,7 @@ export class PocketIntegration extends IntegrationService {
     count = 100,
     offset = 0
   ): Promise<PocketResponse | null> => {
-    const url = `${this.POCKET_API_URL}/get`
+    const url = `${this.apiUrl}/get`
     try {
       const response = await axios.post<PocketResponse>(
         url,
@@ -105,6 +106,7 @@ export class PocketIntegration extends IntegrationService {
         },
         {
           headers: this.headers,
+          timeout: 10000, // 10 seconds
         }
       )
 
@@ -137,10 +139,10 @@ export class PocketIntegration extends IntegrationService {
     }
 
     const pocketItems = Object.values(pocketData.list)
-    const statusToState: Record<string, ArticleSavingRequestStatus> = {
-      '0': ArticleSavingRequestStatus.Succeeded,
-      '1': ArticleSavingRequestStatus.Archived,
-      '2': ArticleSavingRequestStatus.Deleted,
+    const statusToState: Record<string, LibraryItemState> = {
+      '0': LibraryItemState.Succeeded,
+      '1': LibraryItemState.Archived,
+      '2': LibraryItemState.Deleted,
     }
     const data = pocketItems.map((item) => ({
       url: item.given_url,

@@ -1,17 +1,15 @@
-import 'mocha'
 import { expect } from 'chai'
-import { User } from '../../src/entity/user'
-import { PageContext } from '../../src/elastic/types'
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { getRepository } from '../../src/entity/utils'
+import 'mocha'
 import { SearchHistory } from '../../src/entity/search_history'
+import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('recent_searches resolver', () => {
   let user: User
   let authToken: string
-  let ctx: PageContext
 
   before(async () => {
     // create fake user and login
@@ -20,16 +18,11 @@ describe('recent_searches resolver', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
     authToken = res.body.authToken
-    ctx = {
-      pubsub: createPubSubClient(),
-      refresh: true,
-      uid: user.id,
-    }
   })
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('recentSearches API', () => {

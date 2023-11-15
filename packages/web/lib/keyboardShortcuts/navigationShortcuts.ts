@@ -15,7 +15,9 @@ export function navigationCommands(
       shortcutKeys: ['b'],
       actionDescription: 'Go back',
       shortcutKeyDescription: 'b',
-      callback: () => router?.back(),
+      callback: () => {
+        router?.back()
+      },
     },
   ]
 }

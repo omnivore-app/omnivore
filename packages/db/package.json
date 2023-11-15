@@ -4,12 +4,12 @@
   "description": "",
   "scripts": {
     "migrate": "ts-node ./migrate.ts",
+    "test:typecheck": "tsc --noEmit",
     "generate": "plop"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@elastic/elasticsearch": "~7.12.0",
     "dotenv": "^8.2.0",
     "pg": "^8.3.0",
     "postgrator": "^4.1.1",

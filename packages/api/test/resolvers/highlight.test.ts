@@ -1,18 +1,15 @@
-import { createTestUser, deleteTestUser } from '../db'
-import {
-  createTestElasticPage,
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
 import * as chai from 'chai'
 import { expect } from 'chai'
+import chaiString from 'chai-string'
 import 'mocha'
 import { User } from '../../src/entity/user'
-import chaiString from 'chai-string'
-import { createPubSubClient } from '../../src/datalayer/pubsub'
-import { HighlightType, PageContext } from '../../src/elastic/types'
-import { deletePage, updatePage } from '../../src/elastic/pages'
+import {
+  createHighlight,
+  deleteHighlightById,
+} from '../../src/services/highlights'
+import { deleteUser } from '../../src/services/user'
+import { createTestLibraryItem, createTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
 
@@ -20,8 +17,8 @@ const createHighlightQuery = (
   linkId: string,
   highlightId: string,
   shortHighlightId: string,
-  highlightPositionPercent = 0.0,
-  highlightPositionAnchorIndex = 0,
+  highlightPositionPercent: number | null = null,
+  highlightPositionAnchorIndex: number | null = null,
   annotation = '_annotation',
   html: string | null = null,
   prefix = '_prefix',
@@ -142,8 +139,7 @@ const updateHighlightQuery = ({
 describe('Highlights API', () => {
   let authToken: string
   let user: User
-  let pageId: string
-  let ctx: PageContext
+  let itemId: string
 
   before(async () => {
     // create test user and login
@@ -153,15 +149,11 @@ describe('Highlights API', () => {
       .send({ fakeEmail: user.email })
 
     authToken = res.body.authToken
-    pageId = (await createTestElasticPage(user.id)).id
-    ctx = { pubsub: createPubSubClient(), uid: user.id, refresh: true }
+    itemId = (await createTestLibraryItem(user.id)).id
   })
 
   after(async () => {
-    await deleteTestUser(user.id)
-    if (pageId) {
-      await deletePage(pageId, ctx)
-    }
+    await deleteUser(user.id)
   })
 
   context('createHighlightMutation', () => {
@@ -172,7 +164,7 @@ describe('Highlights API', () => {
       const highlightPositionAnchorIndex = 15
       const html = '<p>test</p>'
       const query = createHighlightQuery(
-        pageId,
+        itemId,
         highlightId,
         shortHighlightId,
         highlightPositionPercent,
@@ -192,6 +184,24 @@ describe('Highlights API', () => {
       expect(res.body.data.createHighlight.highlight.html).to.eq(html)
     })
 
+    context('when highlight position is null', () => {
+      it('sets highlight position = 0', async () => {
+        const newHighlightId = generateFakeUuid()
+        const newShortHighlightId = '_short_id_5'
+        const query = createHighlightQuery(
+          itemId,
+          newHighlightId,
+          newShortHighlightId
+        )
+        const res = await graphqlRequest(query, authToken).expect(200)
+        expect(
+          res.body.data.createHighlight.highlight.highlightPositionPercent
+        ).to.eq(0)
+
+        await deleteHighlightById(newHighlightId)
+      })
+    })
+
     context('when the annotation has HTML reserved characters', () => {
       it('unescapes the annotation and creates', async () => {
         const newHighlightId = generateFakeUuid()
@@ -199,7 +209,7 @@ describe('Highlights API', () => {
         const highlightPositionPercent = 50.0
         const highlightPositionAnchorIndex = 25
         const query = createHighlightQuery(
-          pageId,
+          itemId,
           newHighlightId,
           newShortHighlightId,
           highlightPositionPercent,
@@ -221,7 +231,7 @@ describe('Highlights API', () => {
       // create test highlight
       highlightId = generateFakeUuid()
       const shortHighlightId = '_short_id_1'
-      const query = createHighlightQuery(pageId, highlightId, shortHighlightId)
+      const query = createHighlightQuery(itemId, highlightId, shortHighlightId)
       await graphqlRequest(query, authToken).expect(200)
     })
 
@@ -231,7 +241,7 @@ describe('Highlights API', () => {
       const highlightPositionPercent = 50.0
       const highlightPositionAnchorIndex = 25
       const query = mergeHighlightQuery(
-        pageId,
+        itemId,
         newHighlightId,
         newShortHighlightId,
         [highlightId],
@@ -255,26 +265,16 @@ describe('Highlights API', () => {
 
     before(async () => {
       // create test highlight
-      highlightId = generateFakeUuid()
-      await updatePage(
-        pageId,
+      const highlight = await createHighlight(
         {
-          highlights: [
-            {
-              id: highlightId,
-              shortId: '_short_id_3',
-              annotation: '',
-              userId: user.id,
-              patch: '',
-              quote: '',
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              type: HighlightType.Highlight,
-            },
-          ],
+          libraryItem: { id: itemId },
+          shortId: '_short_id_3',
+          user,
         },
-        ctx
+        itemId,
+        user.id
       )
+      highlightId = highlight.id
     })
 
     it('updates the quote when the quote is in HTML format when the annotation has HTML reserved characters', async () => {

@@ -5,19 +5,20 @@
 import cors from 'cors'
 import express from 'express'
 import * as jwt from 'jsonwebtoken'
-import { kx } from '../datalayer/knex_config'
-import { createPubSubClient } from '../datalayer/pubsub'
-import { createPage, getPageByParam, updatePage } from '../elastic/pages'
-import { addRecommendation } from '../elastic/recommendation'
-import { Recommendation } from '../elastic/types'
+import { LibraryItemState } from '../entity/library_item'
+import { Recommendation } from '../entity/recommendation'
+import { UploadFile } from '../entity/upload_file'
 import { env } from '../env'
-import {
-  ArticleSavingRequestStatus,
-  PageType,
-  UploadFileStatus,
-} from '../generated/graphql'
+import { PageType, UploadFileStatus } from '../generated/graphql'
+import { authTrx } from '../repository'
 import { Claims } from '../resolvers/types'
-import { initModels } from '../server'
+import {
+  createLibraryItem,
+  findLibraryItemById,
+  findLibraryItemByUrl,
+  restoreLibraryItem,
+} from '../services/library_item'
+import { addRecommendation } from '../services/recommendation'
 import { getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import {
@@ -49,12 +50,7 @@ export function pageRouter() {
     const { url, clientRequestId } = req.query
     const contentType = req.headers['content-type']
     logger.info(
-      'contentType',
-      contentType,
-      'url',
-      url,
-      'clientRequestId',
-      clientRequestId
+      `creating page from pdf ${url} ${contentType} ${clientRequestId}`
     )
 
     if (
@@ -62,12 +58,11 @@ export function pageRouter() {
       !isString(contentType) ||
       !isString(clientRequestId)
     ) {
-      logger.info(
-        'creating page from pdf failed',
+      logger.info('creating page from pdf failed', {
         url,
         contentType,
-        clientRequestId
-      )
+        clientRequestId,
+      })
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
@@ -76,21 +71,20 @@ export function pageRouter() {
       return res.status(400).send({ errorCode: 'BAD_DATA' })
     }
 
-    const models = initModels(kx, false)
-    const ctx = {
-      uid: claims.uid,
-      pubsub: createPubSubClient(),
-    }
-
     const title = titleForFilePath(url)
     const fileName = fileNameForFilePath(url)
-    const uploadFileData = await models.uploadFile.create({
-      url: url,
-      userId: claims.uid,
-      fileName: fileName,
-      status: UploadFileStatus.Initialized,
-      contentType: 'application/pdf',
-    })
+    const uploadFileData = await authTrx(
+      (t) =>
+        t.getRepository(UploadFile).save({
+          url,
+          userId: claims.uid,
+          fileName,
+          status: UploadFileStatus.Initialized,
+          contentType: 'application/pdf',
+        }),
+      undefined,
+      claims.uid
+    )
 
     const uploadFilePathName = generateUploadFilePathName(
       uploadFileData.id,
@@ -102,48 +96,28 @@ export function pageRouter() {
       'application/pdf'
     )
 
-    const page = await getPageByParam({
-      userId: claims.uid,
-      url: url,
-    })
+    const item = await findLibraryItemByUrl(url, claims.uid)
 
-    if (page) {
-      logger.info('updating page')
-      await updatePage(
-        page.id,
-        {
-          savedAt: new Date(),
-          archivedAt: null,
-        },
-        ctx
-      )
+    if (item) {
+      await restoreLibraryItem(item.id, claims.uid)
     } else {
-      logger.info('creating page')
-      const pageId = await createPage(
+      await createLibraryItem(
         {
-          url: signedUrl,
+          originalUrl: signedUrl,
           id: clientRequestId,
-          userId: claims.uid,
-          title: title,
-          hash: uploadFilePathName,
-          content: '',
-          pageType: PageType.File,
-          uploadFileId: uploadFileData.id,
+          user: { id: claims.uid },
+          title,
+          originalContent: '',
+          itemType: PageType.File,
+          uploadFile: { id: uploadFileData.id },
           slug: generateSlug(uploadFilePathName),
-          createdAt: new Date(),
-          savedAt: new Date(),
-          readingProgressPercent: 0,
-          readingProgressAnchorIndex: 0,
-          state: ArticleSavingRequestStatus.Processing,
+          state: LibraryItemState.Processing,
         },
-        ctx
+        claims.uid
       )
-      if (!pageId) {
-        return res.sendStatus(500)
-      }
     }
 
-    logger.info('redirecting to signed URL', signedUrl)
+    logger.info(`redirecting to signed URL: ${signedUrl}`)
     return res.redirect(signedUrl)
   })
 
@@ -162,41 +136,33 @@ export function pageRouter() {
       }
       const claims = jwt.decode(token) as Claims
 
-      const { userId, pageId, recommendation, highlightIds } = req.body as {
+      const { userId, itemId, recommendation, highlightIds } = req.body as {
         userId: string
-        pageId: string
+        itemId: string
         recommendation: Recommendation
         highlightIds?: string[]
       }
-      if (!userId || !pageId || !recommendation) {
+      if (!userId || !itemId || !recommendation) {
         return res.status(400).send({ errorCode: 'BAD_DATA' })
       }
 
-      const ctx = {
-        uid: userId,
-        pubsub: createPubSubClient(),
-      }
-
-      const page = await getPageByParam({
-        userId: claims.uid,
-        _id: pageId,
-      })
-      if (!page) {
+      const item = await findLibraryItemById(itemId, claims.uid)
+      if (!item) {
         return res.status(404).send({ errorCode: 'NOT_FOUND' })
       }
 
-      const recommendedPageId = await addRecommendation(
-        ctx,
-        page,
+      const recommendedItem = await addRecommendation(
+        item,
         recommendation,
+        userId,
         highlightIds
       )
-      if (!recommendedPageId) {
+      if (!recommendedItem) {
         logger.error('Failed to add recommendation to page')
         return res.sendStatus(500)
       }
 
-      return res.send({ recommendedPageId })
+      return res.send('OK')
     }
   )
 

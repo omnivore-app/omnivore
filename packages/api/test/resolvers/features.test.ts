@@ -1,16 +1,16 @@
-import 'mocha'
 import { expect } from 'chai'
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
-import { getRepository } from '../../src/entity/utils'
-import { Feature } from '../../src/entity/feature'
 import * as jwt from 'jsonwebtoken'
+import 'mocha'
 import sinon, { SinonFakeTimers } from 'sinon'
+import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
-import { Like } from 'typeorm'
+import { userRepository } from '../../src/repository/user'
+import { createFeature, createFeatures, deleteFeature } from '../../src/services/features'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
-xdescribe('features resolvers', () => {
+describe('features resolvers', () => {
   let loginUser: User
   let authToken: string
 
@@ -25,7 +25,7 @@ xdescribe('features resolvers', () => {
   })
 
   after(async () => {
-    await deleteTestUser(loginUser.name)
+    await deleteUser(loginUser.id)
   })
 
   describe('optInFeature API', () => {
@@ -62,12 +62,10 @@ xdescribe('features resolvers', () => {
       clock.restore()
     })
 
-    context('when user is the first 1000 users', () => {
+    context('when user is the first 1500 users', () => {
       after(async () => {
         // reset feature
-        await getRepository(Feature).delete({
-          user: { id: loginUser.id },
-        })
+        await deleteFeature({ user: { id: loginUser.id } })
       })
 
       it('opts in to the feature', async () => {
@@ -95,10 +93,12 @@ xdescribe('features resolvers', () => {
       })
     })
 
-    context('when user is not the first 1000 users', () => {
+    context('when user is not the first 1500 users', () => {
+      let users: User[]
+
       before(async () => {
-        // create 1000 opt-in users
-        const usersToSave = Array.from(Array(1000).keys()).map((i) => {
+        // create 1500 opt-in users
+        const usersToSave = Array.from(Array(1500).keys()).map((i) => {
           return {
             name: `opt-in-user-${i}`,
             source: 'GOOGLE',
@@ -109,27 +109,24 @@ xdescribe('features resolvers', () => {
           }
         })
 
-        const users = await getRepository(User).save(usersToSave)
+        users = await userRepository.save(usersToSave)
 
         const features = users.map((user) => {
           return {
-            user: { id: user.id },
+            user,
             name: featureName,
             grantedAt: new Date(),
           }
         })
 
-        await getRepository(Feature).save(features)
+        await createFeatures(features)
       })
 
       after(async () => {
         // reset opt-in users
-        await getRepository(User).delete({
-          name: Like(`opt-in-user-%`),
-        })
-        await getRepository(Feature).delete({
-          name: featureName,
-        })
+        Promise.all(users.map((user) => deleteUser(user.id)))
+        // reset feature
+        await deleteFeature({ name: featureName })
       })
 
       it('does not opt in to the feature', async () => {
@@ -160,7 +157,7 @@ xdescribe('features resolvers', () => {
     context('when user is already opted in', () => {
       before(async () => {
         // opt in
-        await getRepository(Feature).save({
+        await createFeature({
           user: { id: loginUser.id },
           name: featureName,
           grantedAt: new Date(),
@@ -169,9 +166,7 @@ xdescribe('features resolvers', () => {
 
       after(async () => {
         // reset feature
-        await getRepository(Feature).delete({
-          user: { id: loginUser.id },
-        })
+        await deleteFeature({ user: { id: loginUser.id } })
       })
 
       it('returns the feature', async () => {

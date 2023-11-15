@@ -1,4 +1,4 @@
-FROM node:18.16-alpine
+FROM node:18.16
 
 WORKDIR /app
 
@@ -8,12 +8,13 @@ COPY tsconfig.json .
 
 COPY /packages/db/package.json ./packages/db/package.json
 
-RUN apk --no-cache --virtual build-dependencies add postgresql uuidgen
+RUN apt-get update && apt-get install -y \
+  postgresql \
+  uuid-runtime
 
 RUN yarn install
 
 ADD /packages/db ./packages/db
 ADD /packages/db/setup.sh ./packages/db/setup.sh
-ADD /packages/db/elastic_migrations ./packages/db/elastic_migrations
 
 CMD ["yarn", "workspace", "@omnivore/db", "migrate"]

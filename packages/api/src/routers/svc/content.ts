@@ -2,16 +2,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import express from 'express'
-import { setClaims } from '../../datalayer/helpers'
-import { kx } from '../../datalayer/knex_config'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import { readPushSubscription } from '../../pubsub'
+import { authTrx } from '../../repository'
+import { libraryItemRepository } from '../../repository/library_item'
+import { updateLibraryItem } from '../../services/library_item'
 import {
-  createPubSubClient,
-  readPushSubscription,
-} from '../../datalayer/pubsub'
-import { getPageByParam, updatePage } from '../../elastic/pages'
-import { Page } from '../../elastic/types'
-import { ArticleSavingRequestStatus } from '../../generated/graphql'
-import { initModels } from '../../server'
+  findUploadFileById,
+  setFileUploadComplete,
+} from '../../services/upload_file'
 import { logger } from '../../utils/logger'
 
 interface UpdateContentMessage {
@@ -26,12 +26,12 @@ export function contentServiceRouter() {
   const router = express.Router()
 
   router.post('/search', async (req, res) => {
-    logger.info('search req', req.query, req.body)
+    logger.info('search req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
-    logger.info('read pubsub message', msgStr, 'has expired', expired)
+    logger.info('read pubsub message', { msgStr, expired })
 
     if (!msgStr) {
-      res.status(400).send('Bad Request')
+      res.status(200).send('Bad Request')
       return
     }
 
@@ -44,7 +44,7 @@ export function contentServiceRouter() {
     const data = JSON.parse(msgStr)
     if (!('fileId' in data) || !('content' in data)) {
       logger.info('No file id or content found in message')
-      res.status(400).send('Bad Request')
+      res.status(200).send('Bad Request')
       return
     }
     const msg = data as UpdateContentMessage
@@ -54,48 +54,67 @@ export function contentServiceRouter() {
     const fileId = parts && parts.length > 1 ? parts[1] : undefined
     if (!fileId) {
       logger.info('No file id found in message')
-      res.status(400).send('Bad Request')
+      res.status(200).send('Bad Request')
       return
     }
 
-    const page = await getPageByParam({ uploadFileId: fileId })
-    if (!page) {
-      logger.info('No upload file found for id:', fileId)
-      res.status(400).send('Bad Request')
+    const uploadFile = await findUploadFileById(fileId)
+    if (!uploadFile) {
+      logger.info('No file found')
+      res.status(404).send('No file found')
       return
     }
 
-    const pageToUpdate: Partial<Page> = { content: msg.content }
-    if (msg.title) pageToUpdate.title = msg.title
-    if (msg.author) pageToUpdate.author = msg.author
-    if (msg.description) pageToUpdate.description = msg.description
+    const libraryItem = await authTrx(
+      async (tx) =>
+        tx
+          .withRepository(libraryItemRepository)
+          .createQueryBuilder('item')
+          .innerJoinAndSelect('item.uploadFile', 'file')
+          .where('item.user = :userId', { userId: uploadFile.user.id })
+          .andWhere('file.id = :fileId', { fileId })
+          .getOne(),
+      undefined,
+      uploadFile.user.id
+    )
+    if (!libraryItem) {
+      logger.info(`No upload file found for id: ${fileId}`)
+      res.status(404).send('Bad Request')
+      return
+    }
+
+    const itemToUpdate: QueryDeepPartialEntity<LibraryItem> = {
+      originalContent: msg.content,
+    }
+    if (msg.title) itemToUpdate.title = msg.title
+    if (msg.author) itemToUpdate.author = msg.author
+    if (msg.description) itemToUpdate.description = msg.description
 
     // This event is fired after the file is fully uploaded,
-    // so along with upadting content, we mark it as
+    // so along with updating content, we mark it as
     // succeeded.
-    pageToUpdate.state = ArticleSavingRequestStatus.Succeeded
+    itemToUpdate.state = LibraryItemState.Succeeded
 
     try {
-      const models = initModels(kx, false)
-      const uploadFileData = await kx.transaction(async (tx) => {
-        await setClaims(tx, page.userId)
-        return models.uploadFile.setFileUploadComplete(fileId, tx)
-      })
+      const uploadFileData = await setFileUploadComplete(
+        fileId,
+        uploadFile.user.id
+      )
       logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {
       logger.info('error marking file upload as completed', error)
     }
 
-    const result = await updatePage(page.id, pageToUpdate, {
-      pubsub: createPubSubClient(),
-      uid: page.userId,
-    })
-    logger.info(
-      'Updating article text',
-      page.id,
-      result,
-      msg.content.substring(0, 20)
+    const result = await updateLibraryItem(
+      libraryItem.id,
+      itemToUpdate,
+      uploadFile.user.id
     )
+    logger.info('Updating library item text', {
+      id: libraryItem.id,
+      result,
+      content: msg.content.substring(0, 20),
+    })
 
     res.status(200).send(msg)
   })

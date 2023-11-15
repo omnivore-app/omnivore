@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: "postgres:12.8"
+    image: "ankane/pgvector:v0.5.1"
     container_name: "omnivore-postgres"
     environment:
       - POSTGRES_USER=postgres
@@ -28,56 +28,9 @@ services:
       - PG_USER=postgres
       - PG_PASSWORD=postgres
       - PG_DB=omnivore
-      - ELASTIC_URL=http://elastic:9200
-      - ELASTIC_USERNAME=blank
-      - ELASTIC_PASSWORD=blank
     depends_on:
       postgres:
         condition: service_healthy
-      elastic:
-        condition: service_healthy
-
-  elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
-    container_name: "omnivore-elastic"
-    healthcheck:
-      test: curl 0.0.0.0:9200/_cat/health >/dev/null || exit 1
-      interval: 2s
-      timeout: 2s
-      retries: 5
-    environment:
-      - discovery.type=single-node
-      - http.cors.allow-origin=*
-      - http.cors.enabled=true
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
-    volumes:
-      - ./.docker/elastic-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.1
-    container_name: "omnivore-kibana"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elastic:9200
-    depends_on:
-      - elastic
-    ports:
-      - "5601:5601"
-    profiles:
-      - debug
-
-  redis:
-    image: "redis:6.2.7"
-    container_name: "omnivore-redis"
-    healthcheck:
-      test: "exit 0"
-      interval: 2s
-      timeout: 12s
-      retries: 3
-    ports:
-      - "6379:6379"
 
   api:
     build:
@@ -98,23 +51,16 @@ services:
       - PG_DB=omnivore
       - PG_PORT=5432
       - PG_POOL_MAX=20
-      - ELASTIC_URL=http://elastic:9200
       - JAEGER_HOST=jaeger
-      - IMAGE_PROXY_URL=http://localhost:9999
       - IMAGE_PROXY_SECRET=some-secret
       - JWT_SECRET=some_secret
       - SSO_JWT_SECRET=some_sso_secret
       - CLIENT_URL=http://localhost:3000
       - GATEWAY_URL=http://localhost:8080/api
       - CONTENT_FETCH_URL=http://content-fetch:8080/?token=some_token
-      - REMINDER_TASK_HANDLER_URL=/svc/reminders/trigger
     depends_on:
       migrate:
         condition: service_completed_successfully
-      elastic:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
   web:
     build:
@@ -151,16 +97,3 @@ services:
     depends_on:
       api:
         condition: service_healthy
-
-  rule-handler:
-    build:
-      context: .
-      dockerfile: ./packages/rule-handler/Dockerfile
-    container_name: "omnivore-rule-handler"
-    ports:
-      - "9091:8080"
-    environment:
-      - PUBSUB_VERIFICATION_TOKEN=some_token
-    depends_on:
-      migrate:
-        condition: service_completed_successfully

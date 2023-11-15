@@ -39,7 +39,6 @@ class AnnotationEditFragment : DialogFragment() {
     this.onCancel = onCancel
   }
 
-  @OptIn(ExperimentalMaterial3Api::class)
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,

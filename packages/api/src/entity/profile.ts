@@ -18,11 +18,11 @@ export class Profile {
   @Column('text')
   username!: string
 
-  @Column('text')
-  bio!: string
+  @Column('text', { nullable: true })
+  bio?: string | null
 
-  @Column('text')
-  pictureUrl!: string
+  @Column('text', { nullable: true })
+  pictureUrl?: string | null
 
   @OneToOne(() => User, (user) => user.profile)
   @JoinColumn({ name: 'user_id' })

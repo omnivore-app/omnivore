@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres-test:
-    image: "postgres:12.8"
+    image: "ankane/pgvector:v0.5.1"
     container_name: "omnivore-postgres-test"
     environment:
       - POSTGRES_USER=postgres
@@ -16,25 +16,21 @@ services:
     expose:
       - 5432
 
-  elastic-test:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
-    container_name: "omnivore-elastic-test"
-    healthcheck:
-      test: curl 0.0.0.0:9201/_cat/health >/dev/null || exit 1
-      interval: 2s
-      timeout: 2s
-      retries: 5
+  migrate-test:
+    build:
+      context: .
+      dockerfile: ./packages/db/Dockerfile
+    container_name: "omnivore-migrate-test"
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo
     environment:
-      - discovery.type=single-node
-      - http.cors.allow-origin=*
-      - http.cors.enabled=true
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
-      - http.port=9201
-    volumes:
-      - ./.docker/elastic-test-data:/usr/share/elasticsearch/data
-    ports:
-      - "9201:9201"
+      - PGPASSWORD=postgres
+      - PG_HOST=postgres-test
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=omnivore_test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
 
   api-test:
     build:
@@ -49,15 +45,12 @@ services:
       - PG_DB=omnivore_test
       - PG_PORT=5432
       - PG_POOL_MAX=20
-      - ELASTIC_URL=http://elastic-test:9201
-      - IMAGE_PROXY_URL=http://localhost:9999
       - IMAGE_PROXY_SECRET=some-secret
       - JWT_SECRET=some_secret
       - SSO_JWT_SECRET=some_sso_secret
       - CLIENT_URL=http://localhost:3000
       - GATEWAY_URL=http://localhost:8080/api
       - CONTENT_FETCH_URL=http://localhost:9090/
-      - REMINDER_TASK_HANDLER_URL=/svc/reminders/trigger
       - BOOKMARKLET_JWT_SECRET=some_bookmarklet_secret
       - BOOKMARKLET_VERSION=1.0.0
       - PREVIEW_IMAGE_WRAPPER_ID='selected_highlight_wrapper'
@@ -67,7 +60,5 @@ services:
       - SEGMENT_WRITE_KEY='test'
       - PUBSUB_VERIFICATION_TOKEN='123456'
     depends_on:
-      postgres-test:
-        condition: service_healthy
-      elastic-test:
-        condition: service_healthy
+      migrate-test:
+        condition: service_completed_successfully

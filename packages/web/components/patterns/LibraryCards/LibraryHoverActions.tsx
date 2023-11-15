@@ -58,7 +58,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
       }}
     >
       <Button
-        title="View Notebook (t)"
+        title="View notebook (t)"
         style="hoverActionIcon"
         onClick={(event) => {
           props.handleAction('open-notebook')
@@ -75,7 +75,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         />
       </Button>
       <Button
-        title="Archive (e)"
+        title={props.item.isArchived ? 'Unarchive (e)' : 'Archive (e)'}
         style="hoverActionIcon"
         onClick={(event) => {
           const action = props.item.isArchived ? 'unarchive' : 'archive'

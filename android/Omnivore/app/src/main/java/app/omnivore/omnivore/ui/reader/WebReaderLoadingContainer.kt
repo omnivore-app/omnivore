@@ -42,8 +42,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import app.omnivore.omnivore.ui.components.LabelsViewModel
 import app.omnivore.omnivore.ui.notebook.EditNoteModal
 
@@ -57,6 +57,8 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
     super.onCreate(savedInstanceState)
     val requestID = intent.getStringExtra("SAVED_ITEM_REQUEST_ID")
     val slug = intent.getStringExtra("SAVED_ITEM_SLUG")
+
+    viewModel.loadItem(slug = slug, requestID = requestID)
 
     setContent {
       val systemUiController = rememberSystemUiController()
@@ -78,7 +80,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
             .background(color = Color.Black)
         ) {
           if (viewModel.hasFetchError.value == true) {
-            Text("We were unable to fetch your content.")
+            Text(stringResource(R.string.web_reader_loading_container_error_msg))
           } else {
             WebReaderLoadingContainer(
               requestID = requestID,
@@ -140,7 +142,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
 
   val maxToolbarHeight = 48.dp
   webReaderViewModel.maxToolbarHeightPx = with(LocalDensity.current) { maxToolbarHeight.roundToPx().toFloat() }
-  webReaderViewModel.loadItem(slug = slug, requestID = requestID)
 
   val coroutineScope = rememberCoroutineScope()
 
@@ -199,13 +200,13 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     sheetContent = {
       when (bottomSheetState) {
         BottomSheetState.PREFERENCES -> {
-          BottomSheetUI("Reader Preferences") {
+          BottomSheetUI(stringResource(R.string.web_reader_loading_container_bottom_sheet_reader_preferences)) {
             ReaderPreferencesView(webReaderViewModel)
           }
         }
         BottomSheetState.NOTEBOOK -> {
           webReaderParams?.let { params ->
-            BottomSheetUI(title = "Notebook") {
+            BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_notebook)) {
               NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel, onEditNote = {
                 notebookViewModel.highlightUnderEdit = it
                 webReaderViewModel.setBottomSheet(BottomSheetState.EDITNOTE)
@@ -254,7 +255,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           )
         }
         BottomSheetState.LABELS -> {
-          BottomSheetUI(title = "Notebook") {
+          BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_notebook)) {
             LabelsSelectionSheetContent(
               labels = labels,
               labelsViewModel = labelsViewModel,
@@ -282,7 +283,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.LINK -> {
-          BottomSheetUI(title = "Open Link") {
+          BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_open_link)) {
             OpenLinkView(webReaderViewModel)
           }
         }
@@ -444,41 +445,6 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
     ) { paddingValues ->
       Box(modifier = Modifier.fillMaxSize()) {
         content()
-      }
-    }
-  }
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
-@Composable
-fun OpenLinkView(webReaderViewModel: WebReaderViewModel) {
-  val context = LocalContext.current
-
-  Column(modifier = Modifier
-    .padding(top = 50.dp)
-    .padding(horizontal = 50.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-    Row {
-      Button(onClick = { webReaderViewModel.openCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Open in Browser")
-
-      }
-    }
-    Row() {
-      Button(onClick = { webReaderViewModel.saveCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Save to Omnivore")
-
-      }
-    }
-    Row() {
-      Button(onClick = {webReaderViewModel.copyCurrentLink(context) }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Copy Link")
-
-      }
-    }
-    Row {
-      Button(onClick = {webReaderViewModel.resetBottomSheet() }, modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Cancel")
-
       }
     }
   }

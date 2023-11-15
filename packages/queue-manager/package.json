@@ -1,0 +1,36 @@
+{
+  "name": "@omnivore/queue-manager",
+  "version": "1.0.0",
+  "main": "build/src/index.js",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "compile": "tsc",
+    "build": "tsc",
+    "start": "functions-framework --target=queueManager",
+    "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\""
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.6",
+    "chai": "^4.3.6",
+    "eslint-plugin-prettier": "^4.0.0",
+    "mocha": "^10.0.0"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "3.1.2",
+    "@google-cloud/monitoring": "^4.0.0",
+    "@google-cloud/tasks": "^4.0.0",
+    "@sentry/serverless": "^7.77.0",
+    "axios": "^1.4.0",
+    "dotenv": "^16.0.1",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

@@ -14,11 +14,51 @@
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 
+class TaskQueue {
+  constructor() {
+    this.queue = []
+    this.isRunning = false
+    this.isReady = false
+  }
+
+  enqueue(task) {
+    this.queue.push(task)
+
+    // Only run the next task if the queue is ready
+    if (this.isReady) {
+      this.runNext()
+    }
+  }
+
+  async runNext() {
+    if (this.isRunning || this.queue.length === 0 || !this.isReady) return
+
+    this.isRunning = true
+    const task = this.queue.shift()
+
+    try {
+      await task()
+    } catch (err) {
+      console.error('Task failed:', err)
+    } finally {
+      this.isRunning = false
+      if (this.isReady) {
+        this.runNext()
+      }
+    }
+  }
+
+  setReady() {
+    this.isReady = true
+    this.runNext()
+  }
+}
+
 let authToken = undefined
+const queue = new TaskQueue()
 const omnivoreURL = process.env.OMNIVORE_URL
 const omnivoreGraphqlURL = process.env.OMNIVORE_GRAPHQL_URL
 
-let pendingRequests = []
 let completedRequests = {}
 
 function getCurrentTab() {
@@ -135,7 +175,6 @@ async function savePdfFile(
     contentType,
     contentObjUrl
   )
-  console.log(' uploadFileResult: ', uploadFileResult)
   URL.revokeObjectURL(contentObjUrl)
 
   if (uploadFileResult && uploadRequestResult.createdPageId) {
@@ -255,7 +294,7 @@ async function saveApiRequest(currentTab, query, field, input) {
     console.log('error saving: ', err)
   }
 
-  processPendingRequests(currentTab.id)
+  queue.setReady()
 }
 
 function updateClientStatus(tabId, target, status, message) {
@@ -312,11 +351,17 @@ async function setLabelsRequest(tabId, request, completedResponse) {
   return setLabels(
     omnivoreGraphqlURL + 'graphql',
     completedResponse.responseId,
-    request.labelIds
+    request.labels
   )
     .then(() => {
       updateClientStatus(tabId, 'labels', 'success', 'Labels updated.')
       return true
+    })
+    .then(() => {
+      browserApi.tabs.sendMessage(tabId, {
+        action: ACTIONS.LabelCacheUpdated,
+        payload: {},
+      })
     })
     .catch(() => {
       updateClientStatus(tabId, 'labels', 'failure', 'Error updating labels.')
@@ -351,48 +396,49 @@ async function deleteRequest(tabId, request, completedResponse) {
     })
 }
 
-async function processPendingRequests(tabId) {
-  const tabRequests = pendingRequests.filter((pr) => pr.tabId === tabId)
-
-  tabRequests.forEach(async (pr) => {
-    let handled = false
-    const completed = completedRequests[pr.clientRequestId]
-    if (completed) {
-      switch (pr.type) {
-        case 'EDIT_TITLE':
-          handled = await editTitleRequest(tabId, pr, completed)
-          break
-        case 'ADD_NOTE':
-          handled = await addNoteRequest(tabId, pr, completed)
-          break
-        case 'SET_LABELS':
-          handled = await setLabelsRequest(tabId, pr, completed)
-          break
-        case 'ARCHIVE':
-          handled = await archiveRequest(tabId, pr, completed)
-          break
-        case 'DELETE':
-          handled = await deleteRequest(tabId, pr, completed)
-          break
-      }
-    }
-
-    if (handled) {
-      const idx = pendingRequests.findIndex((opr) => pr.id === opr.id)
-      if (idx > -1) {
-        pendingRequests.splice(idx, 1)
-      }
-    }
-  })
-
-  // TODO: need to handle clearing completedRequests also
+async function processEditTitleRequest(tabId, pr) {
+  const completed = completedRequests[pr.clientRequestId]
+  handled = await editTitleRequest(tabId, pr, completed)
+  console.log('processEditTitleRequest: ', handled)
+  return handled
 }
 
-async function saveArticle(tab) {
+async function processAddNoteRequest(tabId, pr) {
+  const completed = completedRequests[pr.clientRequestId]
+  const handled = await addNoteRequest(tabId, pr, completed)
+  console.log('processAddNoteRequest: ', handled)
+  return handled
+}
+
+async function processSetLabelsRequest(tabId, pr) {
+  const completed = completedRequests[pr.clientRequestId]
+  const handled = await setLabelsRequest(tabId, pr, completed)
+  console.log('processSetLabelsRequest: ', handled)
+  return handled
+}
+
+async function processArchiveRequest(tabId, pr) {
+  const completed = completedRequests[pr.clientRequestId]
+  const handled = await archiveRequest(tabId, pr, completed)
+  console.log('processArchiveRequest: ', handled)
+  return handled
+}
+
+async function processDeleteRequest(tabId, pr) {
+  const completed = completedRequests[pr.clientRequestId]
+  const handled = await deleteRequest(tabId, pr, completed)
+  console.log('processDeleteRequest: ', handled)
+  return handled
+}
+
+async function saveArticle(tab, createHighlight) {
   browserApi.tabs.sendMessage(
     tab.id,
     {
       action: ACTIONS.GetContent,
+      payload: {
+        createHighlight: createHighlight,
+      },
     },
     async (response) => {
       if (!response || typeof response !== 'object') {
@@ -521,7 +567,8 @@ async function clearPreviousIntervalTimer(tabId) {
   clearTimeout(intervalTimeoutId)
 }
 
-function onExtensionClick(tabId) {
+function extensionSaveCurrentPage(tabId, createHighlight) {
+  createHighlight = createHighlight ? true : false
   /* clear any previous timers on each click */
   clearPreviousIntervalTimer(tabId)
 
@@ -544,7 +591,7 @@ function onExtensionClick(tabId) {
         if (onSuccess && typeof onSuccess === 'function') {
           onSuccess()
         }
-        await saveArticle(tab)
+        await saveArticle(tab, createHighlight)
         try {
           await updateLabelsCache(omnivoreGraphqlURL + 'graphql', tab)
           browserApi.tabs.sendMessage(tab.id, {
@@ -577,7 +624,7 @@ function onExtensionClick(tabId) {
            * post timeout, we proceed to save as some sites (people.com) take a
            * long time to reach complete state and remain in interactive state.
            */
-          await saveArticle(tab)
+          await saveArticle(tab, createHighlight)
         })
       },
       (intervalId, timeoutId) => {
@@ -597,7 +644,7 @@ function checkAuthOnFirstClickPostInstall(tabId) {
 
 function handleActionClick() {
   executeAction(function (currentTab) {
-    onExtensionClick(currentTab.id)
+    extensionSaveCurrentPage(currentTab.id)
   })
 }
 
@@ -637,49 +684,6 @@ function executeAction(action) {
   })
 }
 
-function getIconPath(active, dark) {
-  let iconPath = '/images/toolbar/icon'
-  if (ENV_IS_FIREFOX) {
-    iconPath += '_firefox'
-  } else if (ENV_IS_EDGE) {
-    iconPath += '_edge'
-  }
-  if (!active) {
-    iconPath += '_inactive'
-  }
-  /* we have to evaluate this every time as the onchange is not
-   * fired inside background pages, due to https://crbug.com/968651 */
-  const useDarkIcon =
-    typeof dark === 'boolean'
-      ? dark
-      : window.matchMedia('(prefers-color-scheme: dark)').matches
-
-  if (useDarkIcon) {
-    iconPath += '_dark'
-  }
-  if (ENV_IS_FIREFOX) {
-    return iconPath + '.svg'
-  }
-
-  const iconSizes = ['16', '24', '32', '48']
-  if (!ENV_IS_EDGE) {
-    iconSizes.push('19', '38')
-  }
-  const iconPaths = {}
-  for (let i = 0; i < iconSizes.length; i++) {
-    const iconSize = iconSizes[i]
-    iconPaths[iconSize] = iconPath + '-' + iconSize + '.png'
-  }
-  return iconPaths
-}
-
-function updateActionIcon(tabId, active, dark) {
-  browserActionApi.setIcon({
-    path: getIconPath(active, dark),
-    tabId: tabId,
-  })
-}
-
 function getActionableState(tab) {
   if (tab.status !== 'complete') return false
 
@@ -698,17 +702,7 @@ function getActionableState(tab) {
   return true
 }
 
-function reflectIconState(tab) {
-  const tabId = tab && tab.id
-  if (!tabId) return
-
-  const active = getActionableState(tab)
-
-  updateActionIcon(tabId, active)
-}
-
 function init() {
-  /* Extension icon switcher on page/tab load status */
   browserApi.tabs.onActivated.addListener(({ tabId }) => {
     // Due to a chrome bug, chrome.tabs.* may run into an error because onActivated is triggered too fast.
     function checkCurrentTab() {
@@ -716,19 +710,9 @@ function init() {
         if (browserApi.runtime.lastError) {
           setTimeout(checkCurrentTab, 150)
         }
-        reflectIconState(tab)
       })
     }
-
     checkCurrentTab()
-  })
-
-  /* Extension icon switcher on page/tab load status */
-  browserApi.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    /* Not an update while this tab is active so we skip updating icon */
-    if (!changeInfo.status || !tab || !tab.active) return
-
-    reflectIconState(tab)
   })
 
   browserApi.tabs.onRemoved.addListener((tabId) => {
@@ -746,76 +730,67 @@ function init() {
       return
     }
 
-    if (request.action === ACTIONS.RefreshDarkMode) {
-      updateActionIcon(sender.tab.id, request.payload.value)
-    }
-
     if (request.action === ACTIONS.EditTitle) {
-      pendingRequests.push({
-        id: uuidv4(),
-        type: 'EDIT_TITLE',
-        tabId: sender.tab.id,
-        title: request.payload.title,
-        clientRequestId: request.payload.ctx.requestId,
-      })
-
-      processPendingRequests(sender.tab.id)
+      queue.enqueue(() =>
+        processEditTitleRequest(sender.tab.id, {
+          id: uuidv4(),
+          type: 'EDIT_TITLE',
+          tabId: sender.tab.id,
+          title: request.payload.title,
+          clientRequestId: request.payload.ctx.requestId,
+        })
+      )
     }
 
     if (request.action === ACTIONS.Archive) {
-      pendingRequests.push({
-        id: uuidv4(),
-        type: 'ARCHIVE',
-        tabId: sender.tab.id,
-        clientRequestId: request.payload.ctx.requestId,
-      })
-
-      processPendingRequests(sender.tab.id)
+      queue.enqueue(() =>
+        processArchiveRequest(sender.tab.id, {
+          id: uuidv4(),
+          type: 'ARCHIVE',
+          tabId: sender.tab.id,
+          clientRequestId: request.payload.ctx.requestId,
+        })
+      )
     }
 
     if (request.action === ACTIONS.Delete) {
-      pendingRequests.push({
-        type: 'DELETE',
-        tabId: sender.tab.id,
-        clientRequestId: request.payload.ctx.requestId,
-      })
-
-      processPendingRequests(sender.tab.id)
+      queue.enqueue(() =>
+        processDeleteRequest(sender.tab.id, {
+          type: 'DELETE',
+          tabId: sender.tab.id,
+          clientRequestId: request.payload.ctx.requestId,
+        })
+      )
     }
 
     if (request.action === ACTIONS.AddNote) {
-      pendingRequests.push({
-        id: uuidv4(),
-        type: 'ADD_NOTE',
-        tabId: sender.tab.id,
-        note: request.payload.note,
-        clientRequestId: request.payload.ctx.requestId,
-      })
-
-      processPendingRequests(sender.tab.id)
+      queue.enqueue(() =>
+        processAddNoteRequest(sender.tab.id, {
+          id: uuidv4(),
+          type: 'ADD_NOTE',
+          tabId: sender.tab.id,
+          note: request.payload.note,
+          clientRequestId: request.payload.ctx.requestId,
+        })
+      )
     }
 
     if (request.action === ACTIONS.SetLabels) {
-      pendingRequests.push({
-        id: uuidv4(),
-        type: 'SET_LABELS',
-        tabId: sender.tab.id,
-        labelIds: request.payload.labelIds,
-        clientRequestId: request.payload.ctx.requestId,
-      })
-
-      processPendingRequests(sender.tab.id)
+      queue.enqueue(() =>
+        processSetLabelsRequest(sender.tab.id, {
+          id: uuidv4(),
+          type: 'SET_LABELS',
+          tabId: sender.tab.id,
+          labels: request.payload.labels,
+          clientRequestId: request.payload.ctx.requestId,
+        })
+      )
     }
   })
 
-  // set initial extension icon
-  browserActionApi.setIcon({
-    path: getIconPath(true),
-  })
-
   browserApi.contextMenus.create({
-    id: 'save-selection',
-    title: 'Save link to Omnivore',
+    id: 'save-link-selection',
+    title: 'Save this link to Omnivore',
     contexts: ['link'],
     onclick: async function (obj) {
       executeAction(async function (currentTab) {
@@ -825,12 +800,23 @@ function init() {
   })
 
   browserApi.contextMenus.create({
-    id: 'save-selection',
-    title: 'Save link to Omnivore',
-    contexts: ['link'],
+    id: 'save-page-selection',
+    title: 'Save this page to Omnivore',
+    contexts: ['page'],
     onclick: async function (obj) {
-      executeAction(async function (currentTab) {
-        await saveUrl(currentTab, obj.linkUrl)
+      executeAction(function (currentTab) {
+        extensionSaveCurrentPage(currentTab.id)
+      })
+    },
+  })
+
+  browserApi.contextMenus.create({
+    id: 'save-text-selection',
+    title: 'Create Highlight and Save to Omnivore',
+    contexts: ['selection'],
+    onclick: async function (obj) {
+      executeAction(function (currentTab) {
+        extensionSaveCurrentPage(currentTab.id, true)
       })
     },
   })

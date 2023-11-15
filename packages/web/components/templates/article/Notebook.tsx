@@ -3,7 +3,6 @@ import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { CaretDown, CaretRight } from 'phosphor-react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -164,7 +163,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   }, [highlights])
 
   const handleSaveNoteText = useCallback(
-    (text) => {
+    (text: string) => {
       const changeTime = new Date()
 
       setLastChanged(changeTime)
@@ -380,49 +379,5 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         />
       )}
     </VStack>
-  )
-}
-
-type SectionTitleProps = {
-  title: string
-  selected: boolean
-  setSelected: (set: boolean) => void
-}
-
-function SectionTitle(props: SectionTitleProps): JSX.Element {
-  return (
-    <>
-      <Button
-        style="plainIcon"
-        css={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px',
-          color: props.selected ? '$thTextContrast' : '$thTextSubtle',
-          borderBottom: props.selected
-            ? '1px solid $thTextContrast'
-            : '1px solid transparent',
-        }}
-        onClick={(event) => {
-          props.setSelected(true)
-          event.stopPropagation()
-        }}
-      >
-        <StyledText
-          css={{
-            m: '0px',
-            pt: '2px',
-            pb: '2px',
-            px: '5px',
-            fontFamily: '$inter',
-            fontWeight: '500',
-            fontSize: '13px',
-            color: '$thNotebookSubtle',
-          }}
-        >
-          {props.title}
-        </StyledText>
-      </Button>
-    </>
   )
 }

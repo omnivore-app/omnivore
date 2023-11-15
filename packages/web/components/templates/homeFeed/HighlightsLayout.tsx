@@ -13,7 +13,6 @@ import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { MenuTrigger } from '../../elements/MenuTrigger'
-import { StyledText } from '../../elements/StyledText'
 import {
   MetaStyle,
   timeAgo,
@@ -21,7 +20,7 @@ import {
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
 import { NotebookContent } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
-import { HEADER_HEIGHT } from './HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT, useGetHeaderHeight } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
 
 type HighlightItemsLayoutProps = {
@@ -34,8 +33,10 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  const [currentItem, setCurrentItem] =
-    useState<LibraryItem | undefined>(undefined)
+  const headerHeight = useGetHeaderHeight()
+  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const listReducer = (
     state: LibraryItem[],
@@ -105,7 +106,10 @@ export function HighlightItemsLayout(
       <Box
         css={{
           width: '100%',
-          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          height: `calc(100vh - ${headerHeight})`,
+          '@mdDown': {
+            height: DEFAULT_HEADER_HEIGHT,
+          },
         }}
       >
         <EmptyHighlights />
@@ -118,12 +122,15 @@ export function HighlightItemsLayout(
       <HStack
         css={{
           width: '100%',
-          height: `calc(100vh - ${HEADER_HEIGHT})`,
+          height: `calc(100vh - ${headerHeight})`,
           '@lgDown': {
             overflowY: 'scroll',
           },
           bg: '$thBackground2',
           overflow: 'hidden',
+          '@mdDown': {
+            height: DEFAULT_HEADER_HEIGHT,
+          },
         }}
         distribution="start"
         alignment="start"
@@ -146,7 +153,7 @@ export function HighlightItemsLayout(
         >
           <VStack
             css={{
-              minHeight: `calc(100vh - ${HEADER_HEIGHT})`,
+              minHeight: `calc(100vh - ${headerHeight})`,
               bg: '$thBackground',
             }}
             distribution="start"
@@ -368,7 +375,7 @@ function HighlightList(props: HighlightListProps): JSX.Element {
   }, [props.item.node.highlights])
 
   const viewInReader = useCallback(
-    (highlightId) => {
+    (highlightId: string) => {
       if (!router || !router.isReady || !props.viewer) {
         showErrorToast('Error navigating to highlight')
         return

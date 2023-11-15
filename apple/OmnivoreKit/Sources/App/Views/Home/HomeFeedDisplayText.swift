@@ -11,6 +11,10 @@ extension LinkedItemFilter {
       return LocalText.readLaterGeneric
     case .newsletters:
       return LocalText.newslettersGeneric
+    case .downloaded:
+      return "Downloaded"
+    case .feeds:
+      return "Feeds"
     case .recommended:
       return "Recommended"
     case .all:

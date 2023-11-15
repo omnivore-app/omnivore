@@ -1,7 +1,5 @@
 import { DateTime } from 'luxon'
 import { v4 as uuidv4 } from 'uuid'
-import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   MutationUploadImportFileArgs,
@@ -9,6 +7,7 @@ import {
   UploadImportFileErrorCode,
   UploadImportFileSuccess,
 } from '../../generated/graphql'
+import { userRepository } from '../../repository/user'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
@@ -17,7 +16,7 @@ import {
   generateUploadSignedUrl,
 } from '../../utils/uploads'
 
-const MAX_DAILY_UPLOADS = 4
+const MAX_DAILY_UPLOADS = 1
 const VALID_CONTENT_TYPES = ['text/csv', 'application/zip']
 
 const extensionForContentType = (contentType: string) => {
@@ -34,16 +33,14 @@ export const uploadImportFileResolver = authorized<
   UploadImportFileSuccess,
   UploadImportFileError,
   MutationUploadImportFileArgs
->(async (_, { type, contentType }, { claims: { uid }, log }) => {
-  log.info('uploadImportFileResolver')
-
+>(async (_, { type, contentType }, { uid }) => {
   if (!VALID_CONTENT_TYPES.includes(contentType)) {
     return {
       errorCodes: [UploadImportFileErrorCode.BadRequest],
     }
   }
 
-  const user = await getRepository(User).findOneBy({ id: uid })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return {
       errorCodes: [UploadImportFileErrorCode.Unauthorized],
@@ -64,7 +61,7 @@ export const uploadImportFileResolver = authorized<
   const dirPath = `imports/${uid}/${dateStr}/`
   const fileCount = await countOfFilesWithPrefix(dirPath)
 
-  if (fileCount > MAX_DAILY_UPLOADS) {
+  if (fileCount >= MAX_DAILY_UPLOADS) {
     return {
       errorCodes: [UploadImportFileErrorCode.UploadDailyLimitExceeded],
     }

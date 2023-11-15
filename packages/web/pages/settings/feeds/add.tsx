@@ -2,7 +2,6 @@ import { styled } from '@stitches/react'
 import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 import { Button } from '../../../components/elements/Button'
-import { FormInput } from '../../../components/elements/FormElements'
 import {
   Box,
   HStack,
@@ -20,14 +19,31 @@ import { formatMessage } from '../../../locales/en/messages'
 const Header = styled(Box, {
   color: '$utilityTextDefault',
   fontSize: 'x-large',
-  margin: '20px',
+})
+
+const FormInput = styled('input', {
+  border: '1px solid $textNonessential',
+  width: '100%',
+  bg: 'transparent',
+  fontSize: '16px',
+  fontFamily: 'inter',
+  fontWeight: 'normal',
+  lineHeight: '1.35',
+  borderRadius: '5px',
+  textIndent: '8px',
+  marginBottom: '2px',
+  height: '38px',
+  color: '$grayTextContrast',
+  '&:focus': {
+    border: '1px solid transparent',
+    outline: '2px solid $omnivoreCtaYellow',
+  },
 })
 
 export default function AddRssFeed(): JSX.Element {
   const router = useRouter()
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
   const [feedUrl, setFeedUrl] = useState<string>('')
 
   const subscribe = useCallback(async () => {
@@ -39,7 +55,7 @@ export default function AddRssFeed(): JSX.Element {
     let normailizedUrl: string
     // normalize the url
     try {
-      normailizedUrl = new URL(feedUrl).toString()
+      normailizedUrl = new URL(feedUrl.trim()).toString()
     } catch (e) {
       setErrorMessage('Please enter a valid feed URL')
       return
@@ -68,21 +84,21 @@ export default function AddRssFeed(): JSX.Element {
       <SettingsLayout>
         <VStack
           distribution={'start'}
-          alignment={'start'}
+          alignment={'center'}
           css={{
             margin: '0 auto',
             width: '80%',
+            padding: '24px',
+            maxWidth: '865px',
             height: '100%',
+            gap: '20px',
           }}
         >
           <HStack
             alignment={'start'}
             distribution={'start'}
             css={{
-              width: '80%',
-              pb: '$2',
-              borderBottom: '1px solid $utilityTextDefault',
-              pr: '$1',
+              width: '100%',
             }}
           >
             <Header>Add new Feed</Header>
@@ -91,47 +107,39 @@ export default function AddRssFeed(): JSX.Element {
           <FormInput
             type="url"
             key="feedUrl"
+            tabIndex={1}
+            autoFocus={true}
             value={feedUrl}
             placeholder={'Enter the feed URL here'}
             onChange={(e) => {
               setErrorMessage(undefined)
               setFeedUrl(e.target.value)
             }}
-            css={{
-              border: '1px solid $textNonessential',
-              borderRadius: '8px',
-              width: '80%',
-              bg: 'transparent',
-              fontSize: '16px',
-              textIndent: '8px',
-              my: '20px',
-              height: '38px',
-              color: '$grayTextContrast',
-              '&:focus': {
-                outline: 'none',
-                boxShadow: '0px 0px 2px 2px rgba(255, 234, 159, 0.56)',
-              },
-            }}
           />
           {errorMessage && (
             <StyledText style="error">{errorMessage}</StyledText>
           )}
-          <HStack>
+          <HStack
+            css={{ width: '100%', gap: '10px' }}
+            alignment="center"
+            distribution="end"
+          >
             <Button
-              style="ctaDarkYellow"
-              css={{ marginRight: '10px' }}
-              onClick={subscribe}
-            >
-              Add
-            </Button>
-            <Button
-              style="ctaGray"
+              style="cancelGeneric"
               css={{}}
               onClick={async () => {
                 router.push('/settings/feeds')
               }}
             >
               Back
+            </Button>
+            <Button
+              tabIndex={1}
+              style="ctaDarkYellow"
+              css={{ marginRight: '10px' }}
+              onClick={subscribe}
+            >
+              Add
             </Button>
           </HStack>
         </VStack>

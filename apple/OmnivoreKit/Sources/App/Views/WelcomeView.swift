@@ -7,7 +7,6 @@ import Views
 struct WelcomeView: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var authenticator: Authenticator
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @Environment(\.openURL) var openURL
 
   @StateObject private var viewModel = RegistrationViewModel()
@@ -88,37 +87,37 @@ struct WelcomeView: View {
       Spacer()
     }
     .sheet(isPresented: $showPrivacyModal) {
-      VStack {
-        HStack {
-          Spacer()
-          Button(
-            action: {
-              showPrivacyModal = false
-            },
-            label: {
-              Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast)
-            }
-          )
-        }
-        .padding()
+      NavigationView {
         BasicWebAppView.privacyPolicyWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(
+                action: {
+                  showPrivacyModal = false
+                },
+                label: {
+                  Text(LocalText.genericClose)
+                }
+              )
+            }
+          }
       }
     }
     .sheet(isPresented: $showTermsModal) {
-      VStack {
-        HStack {
-          Spacer()
-          Button(
-            action: {
-              showTermsModal = false
-            },
-            label: {
-              Image(systemName: "xmark.circle").foregroundColor(.appGrayTextContrast)
-            }
-          )
-        }
-        .padding()
+      NavigationView {
         BasicWebAppView.termsConditionsWebView(baseURL: dataService.appEnvironment.webAppBaseURL)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+              Button(
+                action: {
+                  showTermsModal = false
+                },
+                label: {
+                  Text(LocalText.genericClose)
+                }
+              )
+            }
+          }
       }
     }
     .sheet(isPresented: $showAboutPage) {
@@ -197,7 +196,7 @@ struct WelcomeView: View {
         if let loginError = viewModel.loginError {
           HStack {
             LoginErrorMessageView(loginError: loginError)
-            Spacer()
+              .frame(maxWidth: 400, alignment: .leading)
           }
         }
       }
@@ -249,13 +248,9 @@ struct WelcomeView: View {
         .sheet(isPresented: $showDebugModal) {
           DebugMenuView(selectedEnvironment: $selectedEnvironment)
         }
-        #if os(iOS)
-          .sheet(isPresented: $showAdvancedLogin) {
-            NavigationView {
-              SelfHostSettingsView()
-            }
-          }
-        #endif
+        .sheet(isPresented: $showAdvancedLogin) {
+          SelfHostSettingsView()
+        }
         .alert(deletedAccountConfirmationMessage, isPresented: $authenticator.showAppleRevokeTokenAlert) {
           Button("View Details") {
             openURL(URL(string: "https://support.apple.com/en-us/HT210426")!)

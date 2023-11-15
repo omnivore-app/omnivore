@@ -56,6 +56,9 @@ fragment HighlightFields on Highlight {
   createdAt
   updatedAt
   sharedAt
+  color
+  highlightPositionPercent
+  highlightPositionAnchorIndex
 }
 
 fragment LabelFields on Label {

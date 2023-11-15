@@ -1,10 +1,9 @@
 import {
   Separator,
   Item,
-  Trigger,
   Content,
   Root,
-  TriggerItem,
+  Trigger,
   Arrow,
   Label,
 } from '@radix-ui/react-dropdown-menu'
@@ -40,7 +39,7 @@ const DropdownTrigger = styled(Trigger, {
   },
 })
 
-const StyledTriggerItem = styled(TriggerItem, {
+const StyledTriggerItem = styled(Trigger, {
   '&[data-state="open"]': {
     outline: 'none',
     backgroundColor: '$grayBgHover',
@@ -53,7 +52,7 @@ export const DropdownContent = styled(Content, {
   borderRadius: '6px',
   outline: '1px solid #323232',
   border: '1px solid $grayBorder',
-  boxShadow: '$cardBoxShadow',
+  boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
   '--arrow-visibility': '',
   '&[data-side="top"]': {
     '--arrow-visibility': 'collapse',

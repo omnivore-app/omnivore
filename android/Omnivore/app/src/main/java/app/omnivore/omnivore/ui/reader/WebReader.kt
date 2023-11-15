@@ -6,6 +6,9 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RoundRectShape
+import android.os.Build
 import android.util.Log
 import android.view.*
 import android.view.View.OnScrollChangeListener
@@ -13,6 +16,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,8 +39,12 @@ fun WebReader(
   val javascriptActionLoopUUID: UUID by webReaderViewModel
     .javascriptActionLoopUUIDLiveData
     .observeAsState(UUID.randomUUID())
+  val isDarkMode = isSystemInDarkTheme()
 
   WebView.setWebContentsDebuggingEnabled(true)
+
+  val showHighlightColorPalette = webReaderViewModel.showHighlightColorPalette.observeAsState()
+  val highlightColor = webReaderViewModel.highlightColor.observeAsState()
 
   Box {
     AndroidView(factory = {
@@ -56,7 +64,39 @@ fun WebReader(
         alpha = 1.0f
         viewModel?.showNavBar()
         currentTheme?.let { theme ->
-          setBackgroundColor(theme.backgroundColor.toInt());
+          val bg = when (theme) {
+            Themes.SYSTEM -> {
+              if (isDarkMode) {
+                Color.BLACK
+              } else {
+                Color.WHITE
+              }
+            }
+            else -> {
+              theme.backgroundColor
+            }
+          }
+          setBackgroundColor(bg.toInt())
+
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val scrollbarColor = when (theme) {
+              Themes.SYSTEM -> {
+                if (isDarkMode) {
+                  Color.WHITE
+                } else {
+                  Color.BLACK
+                }
+              }
+              else -> {
+                theme.scrollbarColor
+              }
+            }
+
+            val rad = 8f
+            val shape = ShapeDrawable(RoundRectShape(floatArrayOf(rad, rad, rad, rad, rad, rad, rad, rad), null, null))
+            shape.paint.color = scrollbarColor.toInt()
+            verticalScrollbarThumbDrawable = shape
+          }
         }
 
         webViewClient = object : WebViewClient() {
@@ -130,6 +170,18 @@ fun WebReader(
         webReaderViewModel.resetJavascriptDispatchQueue()
       }
     })
+//    if (showHighlightColorPalette.value == true) {
+//      HighlightColorPalette(
+//        mode = if (isDarkMode) HighlightColorPaletteMode.Dark else HighlightColorPaletteMode.Light,
+//        selectedColorName = highlightColor.value?.name ?: "yellow",
+//        onColorSelected = {
+//          webReaderViewModel.setHighlightColor(it)
+//        },
+//        modifier = Modifier
+//          .align(Alignment.BottomCenter)
+//          .padding(12.dp, 12.dp, 12.dp, 36.dp)
+//      )
+//    }
   }
 }
 
@@ -150,6 +202,7 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
         Log.d("wv", "inflating existing highlight menu")
         mode.menuInflater.inflate(R.menu.highlight_selection_menu, menu)
       } else {
+        viewModel?.showHighlightColorPalette()
         mode.menuInflater.inflate(R.menu.text_selection_menu, menu)
       }
       return true
@@ -219,6 +272,7 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
     override fun onDestroyActionMode(mode: ActionMode) {
       Log.d("wv", "destroying menu: $mode")
       viewModel?.hasTappedExistingHighlight = false
+      viewModel?.hideHighlightColorPalette()
       actionMode = null
     }
 

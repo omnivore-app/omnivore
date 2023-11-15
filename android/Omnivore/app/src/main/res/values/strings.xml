@@ -12,4 +12,206 @@
     <string name="highlight_note">Note</string>
     <string name="copyTextSelection">Copy</string>
     <string name="pdf_highlight_menu_note">Note</string>
+
+    <!-- Apple Auth -->
+    <string name="apple_auth_text">Continue with Apple</string>
+    <string name="apple_auth_loading">Signing in...</string>
+
+    <!-- Create User Profile -->
+    <string name="create_user_profile_title">Create Your Profile</string>
+    <string name="create_user_profile_loading">Loading...</string>
+    <string name="create_user_profile_action_cancel">Cancel Sign Up</string>
+    <string name="create_user_profile_action_submit">Submit</string>
+    <string name="create_user_profile_field_placeholder_name">Name</string>
+    <string name="create_user_profile_field_label_name">Name</string>
+    <string name="create_user_profile_field_placeholder_username">Username</string>
+    <string name="create_user_profile_field_label_username">Username</string>
+    <string name="create_user_profile_error_msg">Please enter a valid name and username.</string>
+
+    <!-- Email Login -->
+    <string name="email_login_loading">Loading...</string>
+    <string name="email_login_action_back">Return to Social Login</string>
+    <string name="email_login_action_no_account">Don\'t have an account?</string>
+    <string name="email_login_action_forgot_password">Forgot your password?</string>
+    <string name="email_login_action_login">Login</string>
+    <string name="email_login_field_placeholder_email">user@email.com</string>
+    <string name="email_login_field_label_email">Email</string>
+    <string name="email_login_field_placeholder_password">Password</string>
+    <string name="email_login_field_label_password">Password</string>
+    <string name="email_login_error_msg">Please enter an email address and password.</string>
+
+    <!-- Email Sign Up -->
+    <string name="email_signup_verification_message">We\'ve sent a verification email to %1$s. Please verify your email and then tap the button below.</string>
+    <string name="email_signup_check_status">Check Status</string>
+    <string name="email_signup_action_use_different_email">Use a different email?</string>
+    <string name="email_signup_loading">Loading...</string>
+    <string name="email_signup_action_back">Return to Social Login</string>
+    <string name="email_signup_action_already_have_account">Already have an account?</string>
+    <string name="email_signup_action_sign_up">Sign Up</string>
+    <string name="email_signup_field_placeholder_email">user@email.com</string>
+    <string name="email_signup_field_label_email">Email</string>
+    <string name="email_signup_field_placeholder_password">Password</string>
+    <string name="email_signup_field_label_password">Password</string>
+    <string name="email_signup_field_placeholder_name">Name</string>
+    <string name="email_signup_field_label_name">Name</string>
+    <string name="email_signup_field_placeholder_username">Name</string>
+    <string name="email_signup_field_label_username">Name</string>
+    <string name="email_signup_error_msg">Please complete all fields.</string>
+
+    <!-- Google Auth -->
+    <string name="google_auth_text">Continue with Google</string>
+    <string name="google_auth_loading">Signing in...</string>
+
+    <!-- LoginViewModel -->
+    <string name="login_view_model_self_hosting_settings_updated">Self-hosting settings updated.</string>
+    <string name="login_view_model_self_hosting_settings_reset">Self-hosting settings reset.</string>
+    <string name="login_view_model_username_validation_length_error_msg">Username must be between 4 and 15 characters long.</string>
+    <string name="login_view_model_username_validation_alphanumeric_error_msg">Username can contain only letters and numbers.</string>
+    <string name="login_view_model_username_not_available_error_msg">This username is not available.</string>
+    <string name="login_view_model_connection_error_msg">Sorry we\'re having trouble connecting to the server.</string>
+    <string name="login_view_model_something_went_wrong_error_msg">Something went wrong. Please check your email/password and try again.</string>
+    <string name="login_view_model_something_went_wrong_two_error_msg">Something went wrong. Please check your credentials and try again.</string>
+    <string name="login_view_model_google_auth_error_msg">Failed to authenticate with Google.</string>
+    <string name="login_view_model_missing_auth_token_error_msg">No authentication token found.</string>
+
+    <!-- SelfHostedView -->
+    <string name="self_hosted_view_loading">Loading...</string>
+    <string name="self_hosted_view_action_reset">Reset</string>
+    <string name="self_hosted_view_action_back">Back</string>
+    <string name="self_hosted_view_action_save">Save</string>
+    <string name="self_hosted_view_action_learn_more">Learn more about self-hosting Omnivore</string>
+    <string name="self_hosted_view_field_api_url_label">API Server</string>
+    <string name="self_hosted_view_field_web_url_label">Web Server</string>
+    <string name="self_hosted_view_error_msg">Please enter API Server and Web server addresses.</string>
+
+    <!-- WelcomeScreen -->
+    <string name="welcome_screen_action_dismiss">Dismiss</string>
+    <string name="welcome_screen_action_continue_with_email">Continue with Email</string>
+    <string name="welcome_screen_action_self_hosting_options">Self-hosting options</string>
+
+    <!-- LabelCreationDialog -->
+    <string name="label_creation_title">Create New Label</string>
+    <string name="label_creation_content">Assign a name and color.</string>
+    <string name="label_creation_action_create">Create</string>
+    <string name="label_creation_action_cancel">Cancel</string>
+    <string name="label_creation_label_placeholder">Label Name</string>
+
+    <!-- LabelSelectionSheet -->
+    <string name="label_selection_sheet_title">Filter by Label</string>
+    <string name="label_selection_sheet_title_alt">Set Labels</string>
+    <string name="label_selection_sheet_action_cancel">Cancel</string>
+    <string name="label_selection_sheet_action_search">Search</string>
+    <string name="label_selection_sheet_action_save">Save</string>
+    <string name="label_selection_sheet_text_create">Create a new label named \"%1$s\"</string>
+    <string name="label_selection_sheet_label_too_long_error_msg">The name provided is too long (must be less or equal than %1$d characters)</string>
+
+    <!-- LibraryFilterBar -->
+    <string name="library_filter_bar_label_labels">Labels</string>
+
+    <!-- LibraryNavigationBar -->
+    <string name="library_nav_bar_title">Library</string>
+    <string name="library_nav_bar_title_alt"></string>
+    <string name="library_nav_bar_field_placeholder_search">Search</string>
+
+    <!-- LibraryViewModel -->
+    <string name="library_view_model_snackbar_success">Labels updated</string>
+    <string name="library_view_model_snackbar_error">Unable to set labels</string>
+
+    <!-- NotebookView -->
+    <string name="notebook_view_title">Notebook</string>
+    <string name="notebook_view_action_copy">Copy</string>
+    <string name="notebook_view_snackbar_msg">Notebook copied</string>
+
+    <!-- EditNoteModal -->
+    <string name="edit_note_modal_title">Note</string>
+    <string name="edit_note_modal_action_save">Save</string>
+    <string name="edit_note_modal_action_cancel">Cancel</string>
+
+    <!-- ArticleNotes -->
+    <string name="article_notes_title">Article Notes</string>
+    <string name="article_notes_action_add_notes">Add Notes...</string>
+
+    <!-- HighlightsList -->
+    <string name="highlights_list_title">Highlights</string>
+    <string name="highlights_list_action_copy">Copy</string>
+    <string name="highlights_list_snackbar_msg">Highlight copied</string>
+    <string name="highlights_list_action_add_note">Add Note...</string>
+    <string name="highlights_list_error_msg_no_highlights">You have not added any highlights to this page.</string>
+
+    <!-- ReaderPreferencesView -->
+    <string name="reader_preferences_view_font_size">Font Size:</string>
+    <string name="reader_preferences_view_margin">Margin</string>
+    <string name="reader_preferences_view_line_spacing">Line Spacing</string>
+    <string name="reader_preferences_view_theme">Theme:</string>
+    <string name="reader_preferences_view_auto">Auto</string>
+    <string name="reader_preferences_view_high_constrast_text">High Contrast Text</string>
+    <string name="reader_preferences_view_justify_text">Justify Text</string>
+
+    <!-- WebReaderLoadingContainer -->
+    <string name="web_reader_loading_container_error_msg">We were unable to fetch your content.</string>
+    <string name="web_reader_loading_container_bottom_sheet_reader_preferences">Reader Preferences</string>
+    <string name="web_reader_loading_container_bottom_sheet_notebook">Notebook</string>
+    <string name="web_reader_loading_container_bottom_sheet_open_link">Open Link</string>
+
+    <!-- OpenLinkView -->
+    <string name="open_link_view_action_open_in_browser">Open in Browser</string>
+    <string name="open_link_view_action_save_to_omnivore">Save to Omnivore</string>
+    <string name="open_link_view_action_copy_link">Copy Link</string>
+    <string name="open_link_view_action_cancel">Cancel</string>
+
+    <!-- WebReaderViewModel -->
+    <string name="web_reader_view_model_save_link_success">Link saved</string>
+    <string name="web_reader_view_model_save_link_error">Error saving link</string>
+    <string name="web_reader_view_model_copy_link_success">Link copied</string>
+
+    <!-- SaveContent -->
+    <string name="save_content_msg">Saving</string>
+    <string name="save_content_action_read_now">Read Now</string>
+    <string name="save_content_action_read_later">Read Later</string>
+    <string name="save_content_action_dismiss">Dismiss</string>
+
+    <!-- SaveViewModel -->
+    <string name="save_view_model_msg">Saving to Omnivore...</string>
+    <string name="save_view_model_error_not_logged_in">You are not logged in. Please login before saving.</string>
+    <string name="save_view_model_page_saved_success">Page Saved</string>
+    <string name="save_view_model_page_saved_error">There was an error saving your page</string>
+
+    <!-- SavedItemContextMenu -->
+    <string name="saved_item_context_menu_action_edit_labels">Edit Labels</string>
+    <string name="saved_item_context_menu_action_archive">Archive</string>
+    <string name="saved_item_context_menu_action_unarchive">Unarchive</string>
+    <string name="saved_item_context_menu_action_share_original">Share Original</string>
+    <string name="saved_item_context_menu_action_remove_item">Remove Item</string>
+
+    <!-- LogoutDialog -->
+    <string name="logout_dialog_title">Logout</string>
+    <string name="logout_dialog_confirm_msg">Are you sure you want to logout?</string>
+    <string name="logout_dialog_action_confirm">Confirm</string>
+    <string name="logout_dialog_action_cancel">Cancel</string>
+
+    <!-- ManageAccount -->
+    <string name="manage_account_title">Manage Account</string>
+    <string name="manage_account_action_reset_data_cache">Reset Data Cache</string>
+
+    <!-- PolicyWebView -->
+    <string name="policy_webview_title">Settings</string>
+
+    <!-- SettingsView -->
+    <string name="settings_view_title">Settings</string>
+    <string name="settings_view_setting_row_documentation">Documentation</string>
+    <string name="settings_view_setting_row_feedback">Feedback</string>
+    <string name="settings_view_setting_row_privacy_policy">Privacy Policy</string>
+    <string name="settings_view_setting_row_terms_and_conditions">Terms and Conditions</string>
+    <string name="settings_view_setting_row_manage_account">Manage Account</string>
+    <string name="settings_view_setting_row_logout">Logout</string>
+
+    <!-- AddLinkSheet -->
+    <string name="add_link_sheet_title">Add Link</string>
+    <string name="add_link_sheet_text_field_placeholder">Add Link</string>
+    <string name="add_link_sheet_action_add_link">Add</string>
+    <string name="add_link_sheet_action_cancel">Cancel</string>
+    <string name="add_link_sheet_action_paste_from_clipboard">Get from clipboard</string>
+    <string name="add_link_sheet_invalid_url_error">Invalid URL</string>
+    <string name="add_link_sheet_save_url_error">Error while saving link!</string>
+    <string name="add_link_sheet_save_url_success">Link successfully saved!</string>
 </resources>

@@ -1,4 +1,7 @@
-import { authorized } from '../../utils/helpers'
+import { isNil, mergeWith } from 'lodash'
+import { Between } from 'typeorm'
+import { Filter } from '../../entity/filter'
+import { env } from '../../env'
 import {
   DeleteFilterError,
   DeleteFilterErrorCode,
@@ -12,58 +15,42 @@ import {
   MutationDeleteFilterArgs,
   MutationMoveFilterArgs,
   MutationSaveFilterArgs,
+  MutationUpdateFilterArgs,
   SaveFilterError,
   SaveFilterErrorCode,
   SaveFilterSuccess,
+  UpdateFilterError,
+  UpdateFilterErrorCode,
+  UpdateFilterSuccess,
 } from '../../generated/graphql'
-import { Filter } from '../../entity/filter'
-import { getRepository, setClaims } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { AppDataSource } from '../../server'
-import { Between } from 'typeorm'
+import { authTrx } from '../../repository'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
+import { authorized } from '../../utils/helpers'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,
   SaveFilterError,
   MutationSaveFilterArgs
->(async (_, { input }, { claims, log }) => {
-  log.info('Saving filters', {
-    input,
-    labels: {
-      source: 'resolver',
-      resolver: 'saveFilterResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, { input }, { authTrx, log, uid }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: claims.uid })
-    if (!user) {
-      return {
-        errorCodes: [SaveFilterErrorCode.Unauthorized],
-      }
-    }
-
-    const filter = await getRepository(Filter).save({
-      ...input,
-      id: input.id ?? undefined,
-      user: { id: claims.uid },
+    const filter = await authTrx(async (t) => {
+      return t.getRepository(Filter).save({
+        user: { id: uid },
+        name: input.name,
+        category: 'Search',
+        description: '',
+        position: input.position ?? 0,
+        filter: input.filter,
+        defaultFilter: false,
+        visible: true,
+      })
     })
 
     return {
       filter,
     }
   } catch (error) {
-    log.error('Error saving filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'saveFilterResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error saving filters', error)
 
     return {
       errorCodes: [SaveFilterErrorCode.BadRequest],
@@ -75,48 +62,23 @@ export const deleteFilterResolver = authorized<
   DeleteFilterSuccess,
   DeleteFilterError,
   MutationDeleteFilterArgs
->(async (_, { id }, { claims, log }) => {
-  log.info('Deleting filters', {
-    id,
-    labels: {
-      source: 'resolver',
-      resolver: 'deleteFilterResolver',
-      uid: claims.uid,
-    },
-  })
-
+>(async (_, { id }, { authTrx, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: claims.uid })
-    if (!user) {
-      return {
-        errorCodes: [DeleteFilterErrorCode.Unauthorized],
-      }
-    }
+    const filter = await authTrx(async (t) => {
+      const repo = t.getRepository(Filter)
+      const filter = await repo.findOneByOrFail({
+        id,
+      })
 
-    const filter = await getRepository(Filter).findOneBy({
-      id,
-      user: { id: claims.uid },
+      await repo.delete(filter.id)
+      return filter
     })
-    if (!filter) {
-      return {
-        errorCodes: [DeleteFilterErrorCode.NotFound],
-      }
-    }
-
-    await getRepository(Filter).delete({ id })
 
     return {
       filter,
     }
   } catch (error) {
-    log.error('Error deleting filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'deleteFilterResolver',
-        uid: claims.uid,
-      },
-    })
+    log.error('Error deleting filters', error)
 
     return {
       errorCodes: [DeleteFilterErrorCode.BadRequest],
@@ -125,40 +87,20 @@ export const deleteFilterResolver = authorized<
 })
 
 export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
-  async (_, __, { claims, log }) => {
-    log.info('Getting filters', {
-      labels: {
-        source: 'resolver',
-        resolver: 'filtersResolver',
-        uid: claims.uid,
-      },
-    })
-
+  async (_, __, { authTrx, uid, log }) => {
     try {
-      const user = await getRepository(User).findOneBy({ id: claims.uid })
-      if (!user) {
-        return {
-          errorCodes: [FiltersErrorCode.Unauthorized],
-        }
-      }
-
-      const filters = await getRepository(Filter).find({
-        where: { user: { id: claims.uid } },
-        order: { position: 'ASC' },
-      })
+      const filters = await authTrx((t) =>
+        t.getRepository(Filter).find({
+          where: { user: { id: uid } },
+          order: { position: 'ASC' },
+        })
+      )
 
       return {
         filters,
       }
     } catch (error) {
-      log.error('Error getting filters', {
-        error,
-        labels: {
-          source: 'resolver',
-          resolver: 'filtersResolver',
-          uid: claims.uid,
-        },
-      })
+      log.error('Error getting filters', error)
 
       return {
         errorCodes: [FiltersErrorCode.BadRequest],
@@ -166,43 +108,109 @@ export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
     }
   }
 )
+const updatePosition = async (
+  uid: string,
+  filter: Filter,
+  newPosition: number
+) => {
+  const { position } = filter
+  const moveUp = newPosition < position
+
+  // move filter to the new position
+  const updated = await authTrx(async (t) => {
+    const repo = t.getRepository(Filter)
+    // update the position of the other filters
+    const updated = await repo.update(
+      {
+        user: { id: uid },
+        position: Between(
+          Math.min(newPosition, position),
+          Math.max(newPosition, position)
+        ),
+      },
+      {
+        position: () => `position + ${moveUp ? 1 : -1}`,
+      }
+    )
+
+    if (!updated.affected) {
+      return null
+    }
+
+    // update the position of the filter
+    return repo.save({
+      ...filter,
+      position: newPosition,
+    })
+  })
+
+  if (!updated) {
+    throw new Error('unable to update')
+  }
+
+  return updated
+}
+
+export const updateFilterResolver = authorized<
+  UpdateFilterSuccess,
+  UpdateFilterError,
+  MutationUpdateFilterArgs
+>(async (_, { input }, { authTrx, log, uid }) => {
+  const { id } = input
+
+  try {
+    const filter = await authTrx((t) =>
+      t.getRepository(Filter).findOneBy({ id })
+    )
+    if (!filter) {
+      return {
+        __typename: 'UpdateFilterError',
+        errorCodes: [UpdateFilterErrorCode.NotFound],
+      }
+    }
+
+    if (!isNil(input.position) && filter.position != input.position) {
+      await updatePosition(uid, filter, input.position)
+    }
+
+    const updated = await authTrx((t) =>
+      t.getRepository(Filter).save({
+        ...mergeWith({}, filter, input, (a: unknown, b: unknown) =>
+          isNil(b) ? a : undefined
+        ),
+      })
+    )
+
+    return {
+      __typename: 'UpdateFilterSuccess',
+      filter: updated,
+    }
+  } catch (error) {
+    log.error('Error Updating filters', error)
+
+    return {
+      __typename: 'UpdateFilterError',
+      errorCodes: [UpdateFilterErrorCode.BadRequest],
+    }
+  }
+})
 
 export const moveFilterResolver = authorized<
   MoveFilterSuccess,
   MoveFilterError,
   MutationMoveFilterArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('Moving filters', {
-    input,
-    filters: {
-      source: 'resolver',
-      resolver: 'moveFilterResolver',
-      uid,
-    },
-  })
-
+>(async (_, { input }, { authTrx, uid, log }) => {
   const { filterId, afterFilterId } = input
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [MoveFilterErrorCode.Unauthorized],
-      }
-    }
-
-    const filter = await getRepository(Filter).findOne({
-      where: { id: filterId },
-      relations: ['user'],
-    })
+    const filter = await authTrx((t) =>
+      t.getRepository(Filter).findOneBy({
+        id: filterId,
+      })
+    )
     if (!filter) {
       return {
         errorCodes: [MoveFilterErrorCode.NotFound],
-      }
-    }
-    if (filter.user.id !== uid) {
-      return {
-        errorCodes: [MoveFilterErrorCode.Unauthorized],
       }
     }
 
@@ -211,55 +219,23 @@ export const moveFilterResolver = authorized<
       return { filter }
     }
 
-    const oldPosition = filter.position
     // if afterFilterId is not provided, move to the top
-    let newPosition = 1
+    let newPosition = 0
     if (afterFilterId) {
-      const afterFilter = await getRepository(Filter).findOne({
-        where: { id: afterFilterId },
-        relations: ['user'],
-      })
+      const afterFilter = await authTrx((t) =>
+        t.getRepository(Filter).findOneBy({
+          id: afterFilterId,
+        })
+      )
       if (!afterFilter) {
         return {
           errorCodes: [MoveFilterErrorCode.NotFound],
         }
       }
-      if (afterFilter.user.id !== uid) {
-        return {
-          errorCodes: [MoveFilterErrorCode.Unauthorized],
-        }
-      }
+
       newPosition = afterFilter.position
     }
-    const moveUp = newPosition < oldPosition
-
-    // move filter to the new position
-    const updated = await AppDataSource.transaction(async (t) => {
-      await setClaims(t, uid)
-
-      // update the position of the other filters
-      const updated = await t.getRepository(Filter).update(
-        {
-          user: { id: uid },
-          position: Between(
-            Math.min(newPosition, oldPosition),
-            Math.max(newPosition, oldPosition)
-          ),
-        },
-        {
-          position: () => `position + ${moveUp ? 1 : -1}`,
-        }
-      )
-      if (!updated.affected) {
-        return null
-      }
-
-      // update the position of the filter
-      return t.getRepository(Filter).save({
-        ...filter,
-        position: newPosition,
-      })
-    })
+    const updated = await updatePosition(uid, filter, newPosition)
 
     if (!updated) {
       return {
@@ -281,14 +257,7 @@ export const moveFilterResolver = authorized<
       filter: updated,
     }
   } catch (error) {
-    log.error('Error moving filters', {
-      error,
-      labels: {
-        source: 'resolver',
-        resolver: 'moveFilterResolver',
-        uid,
-      },
-    })
+    log.error('Error moving filters', error)
 
     return {
       errorCodes: [MoveFilterErrorCode.BadRequest],

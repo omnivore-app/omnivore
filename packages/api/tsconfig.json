@@ -6,6 +6,10 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["src", "test"],
+  "include": [
+    "src",
+    "test",
+    "../integration-handler/test/integrations.test.ts"
+  ],
   "exclude": ["./src/generated", "./test"]
 }

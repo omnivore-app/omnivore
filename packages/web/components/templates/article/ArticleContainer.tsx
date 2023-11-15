@@ -208,7 +208,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
 
     const handleFontSizeChange = async (event: UpdateFontSizeEvent) => {
       const newFontSize = event.fontSize ?? 18
-      if (newFontSize >= 10 && newFontSize <= 28) {
+      if (newFontSize >= 10 && newFontSize <= 48) {
         updateFontSize(newFontSize)
       }
     }
@@ -258,7 +258,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const share = () => {
       if (navigator.share) {
         navigator.share({
-          title: title,
+          title: title ?? props.article.title,
+          text: title ?? props.article.title,
           url: props.article.originalArticleUrl,
         })
       }
@@ -398,7 +399,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         <VStack alignment="start" distribution="start">
           <ReaderSavedInfo
             rawDisplayDate={
-              props.article.publishedAt ?? props.article.createdAt
+              props.article.publishedAt ??
+              props.article.savedAt ??
+              props.article.createdAt
             }
             wordsCount={props.article.wordsCount}
           />
@@ -450,6 +453,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
           initialAnchorIndex={props.article.readingProgressAnchorIndex}
           initialReadingProgressTop={props.article.readingProgressTopPercent}
           articleMutations={props.articleMutations}
+          isAppleAppEmbed={props.isAppleAppEmbed}
         />
         <Button
           style="ghost"

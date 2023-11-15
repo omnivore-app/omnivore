@@ -5,8 +5,8 @@ import * as jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 import { ApiKey } from '../entity/api_key'
-import { getRepository } from '../entity/utils'
 import { env } from '../env'
+import { getRepository } from '../repository'
 import { Claims, ClaimsToSet } from '../resolvers/types'
 import { logger } from './logger'
 
@@ -33,7 +33,10 @@ export const hashApiKey = (apiKey: string) => {
 
 export const claimsFromApiKey = async (key: string): Promise<Claims> => {
   const hashedKey = hashApiKey(key)
-  const apiKey = await getRepository(ApiKey).findOne({
+
+  const apiKeyRepo = getRepository(ApiKey)
+
+  const apiKey = await apiKeyRepo.findOne({
     where: {
       key: hashedKey,
     },
@@ -50,7 +53,7 @@ export const claimsFromApiKey = async (key: string): Promise<Claims> => {
   }
 
   // update last used
-  await getRepository(ApiKey).update(apiKey.id, { usedAt: new Date() })
+  await apiKeyRepo.update(apiKey.id, { usedAt: new Date() })
 
   return {
     uid: apiKey.user.id,
@@ -91,15 +94,21 @@ export const getClaimsByToken = async (
 }
 
 export const generateVerificationToken = (
-  userId: string,
-  expireInDays = 1
+  user: {
+    id: string
+    email?: string
+  },
+  expireInSeconds = 60 * 60 * 24 // 1 day
 ): string => {
   const iat = Math.floor(Date.now() / 1000)
   const exp = Math.floor(
-    new Date(Date.now() + 1000 * 60 * 60 * 24 * expireInDays).getTime() / 1000
+    new Date(Date.now() + expireInSeconds * 1000).getTime() / 1000
   )
 
-  return jwt.sign({ uid: userId, iat, exp }, env.server.jwtSecret)
+  return jwt.sign(
+    { uid: user.id, iat, exp, email: user.email },
+    env.server.jwtSecret
+  )
 }
 
 export const setAuthInCookie = async (

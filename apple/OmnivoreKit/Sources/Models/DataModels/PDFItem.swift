@@ -14,7 +14,7 @@ public struct PDFItem {
   public let readingProgressAnchor: Int
   public let isArchived: Bool
   public let isRead: Bool
-  public let originalArticleURL: String
+  public let downloadURL: String
   public let highlights: [Highlight]
 
   public static func make(item: LinkedItem) -> PDFItem? {
@@ -32,7 +32,7 @@ public struct PDFItem {
       readingProgressAnchor: Int(item.readingProgressAnchor),
       isArchived: item.isArchived,
       isRead: item.isRead,
-      originalArticleURL: item.unwrappedPageURLString,
+      downloadURL: item.unwrappedPageURLString,
       highlights: item.highlights.asArray(of: Highlight.self)
     )
   }

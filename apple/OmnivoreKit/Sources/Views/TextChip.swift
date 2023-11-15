@@ -92,12 +92,12 @@ public struct TextChip: View {
 }
 
 public struct TextChipButton: View {
-  public static func makeAddLabelButton(onTap: @escaping () -> Void) -> TextChipButton {
-    TextChipButton(title: LocalText.labelsGeneric, color: .systemGray6, actionType: .show, negated: false, onTap: onTap)
+  public static func makeAddLabelButton(color: Color, onTap: @escaping () -> Void) -> TextChipButton {
+    TextChipButton(title: LocalText.labelsGeneric, color: color, actionType: .show, negated: false, onTap: onTap)
   }
 
-  public static func makeMenuButton(title: String) -> TextChipButton {
-    TextChipButton(title: title, color: .systemGray6, actionType: .show, negated: false, onTap: {})
+  public static func makeMenuButton(title: String, color: Color) -> TextChipButton {
+    TextChipButton(title: title, color: color, actionType: .show, negated: false, onTap: {})
   }
 
   public static func makeSearchFilterButton(title: String, onTap: @escaping () -> Void) -> TextChipButton {

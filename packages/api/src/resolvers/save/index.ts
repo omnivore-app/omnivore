@@ -1,5 +1,3 @@
-import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
 import { env } from '../../env'
 import {
   MutationSaveFileArgs,
@@ -9,21 +7,18 @@ import {
   SaveErrorCode,
   SaveSuccess,
 } from '../../generated/graphql'
+import { userRepository } from '../../repository/user'
 import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
 import { analytics } from '../../utils/analytics'
-import { authorized, userDataToUser } from '../../utils/helpers'
+import { authorized } from '../../utils/helpers'
 
 export const savePageResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSavePageArgs
->(async (_, { input }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
+>(async (_, { input }, { uid }) => {
   analytics.track({
     userId: uid,
     event: 'link_saved',
@@ -35,27 +30,19 @@ export const savePageResolver = authorized<
     },
   })
 
-  const user = userDataToUser(await models.user.get(uid))
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return savePage(
-    { ...ctx, uid },
-    { userId: user.id, username: user.profile.username },
-    input
-  )
+  return savePage(input, user)
 })
 
 export const saveUrlResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSaveUrlArgs
->(async (_, { input }, ctx) => {
-  const {
-    claims: { uid },
-  } = ctx
-
+>(async (_, { input }, { uid }) => {
   analytics.track({
     userId: uid,
     event: 'link_saved',
@@ -67,26 +54,19 @@ export const saveUrlResolver = authorized<
     },
   })
 
-  const user = await getRepository(User).findOneBy({
-    id: uid,
-  })
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return (await saveUrl({ ...ctx, uid }, user, input)) as SaveSuccess
+  return saveUrl(input, user)
 })
 
 export const saveFileResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSaveFileArgs
->(async (_, { input }, ctx) => {
-  const {
-    models,
-    claims: { uid },
-  } = ctx
-
+>(async (_, { input }, { uid }) => {
   analytics.track({
     userId: uid,
     event: 'link_saved',
@@ -98,10 +78,10 @@ export const saveFileResolver = authorized<
     },
   })
 
-  const user = userDataToUser(await models.user.get(uid))
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [SaveErrorCode.Unauthorized] }
   }
 
-  return (await saveFile({ ...ctx, uid }, user, input)) as SaveSuccess
+  return saveFile(input, user)
 })

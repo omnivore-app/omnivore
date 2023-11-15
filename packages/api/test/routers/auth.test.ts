@@ -3,19 +3,20 @@ import chai, { expect } from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
-import { StatusType } from '../../src/datalayer/user/model'
-import { searchPages } from '../../src/elastic/pages'
-import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/entity/utils'
+import { StatusType, User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
+import { userRepository } from '../../src/repository/user'
 import { AuthProvider } from '../../src/routers/auth/auth_types'
 import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
+import { searchLibraryItems } from '../../src/services/library_item'
+import { deleteUser, updateUser } from '../../src/services/user'
 import {
   comparePassword,
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
 import * as util from '../../src/utils/sendEmail'
-import { createTestUser, deleteTestUser, updateTestUser } from '../db'
+import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
 
 chai.use(sinonChai)
@@ -55,8 +56,8 @@ describe('auth router', () => {
       })
 
       afterEach(async () => {
-        const user = await getRepository(User).findOneBy({ name })
-        await deleteTestUser(user!.id)
+        const user = await userRepository.findOneBy({ name })
+        await deleteUser(user!.id)
       })
 
       context('when confirmation email sent', () => {
@@ -82,7 +83,7 @@ describe('auth router', () => {
 
         it('creates the user with pending status and correct name', async () => {
           await signupRequest(email, password, name, username).expect(302)
-          const user = await getRepository(User).findOneBy({ name })
+          const user = await userRepository.findOneBy({ name })
 
           expect(user?.status).to.eql(StatusType.Pending)
           expect(user?.name).to.eql(name)
@@ -123,7 +124,7 @@ describe('auth router', () => {
       })
 
       after(async () => {
-        await deleteTestUser(user.id)
+        await deleteUser(user.id)
       })
 
       it('redirects to sign up page with error code USER_EXISTS', async () => {
@@ -190,7 +191,7 @@ describe('auth router', () => {
     })
 
     after(async () => {
-      await deleteTestUser(user.id)
+      await deleteUser(user.id)
     })
 
     context('when email and password are valid', () => {
@@ -216,13 +217,13 @@ describe('auth router', () => {
 
       beforeEach(async () => {
         fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
-        await updateTestUser(user.id, { status: StatusType.Pending })
+        await updateUser(user.id, { status: StatusType.Pending })
         email = user.email
         password = correctPassword
       })
 
       afterEach(async () => {
-        await updateTestUser(user.id, { status: StatusType.Active })
+        await updateUser(user.id, { status: StatusType.Active })
         sinon.restore()
       })
 
@@ -254,13 +255,13 @@ describe('auth router', () => {
 
     context('when user has no password stored in db', async () => {
       before(async () => {
-        await updateTestUser(user.id, { password: '' })
+        await updateUser(user.id, { password: '' })
         email = user.email
         password = user.password!
       })
 
       after(async () => {
-        await updateTestUser(user.id, { password })
+        await updateUser(user.id, { password })
       })
 
       it('redirects with error code WrongSource', async () => {
@@ -301,12 +302,12 @@ describe('auth router', () => {
 
     after(async () => {
       sinon.restore()
-      await deleteTestUser(user.id)
+      await deleteUser(user.id)
     })
 
     context('when token is valid', () => {
       before(() => {
-        token = generateVerificationToken(user.id)
+        token = generateVerificationToken({ id: user.id })
       })
 
       it('set auth token in cookie', async () => {
@@ -340,7 +341,7 @@ describe('auth router', () => {
 
     context('when token is expired', () => {
       before(() => {
-        token = generateVerificationToken(user.id, -1)
+        token = generateVerificationToken({ id: user.id }, -1)
       })
 
       it('redirects to confirm-email page with error code TokenExpired', async () => {
@@ -354,7 +355,7 @@ describe('auth router', () => {
     context('when user is not found', () => {
       before(() => {
         const nonExistsUserId = generateFakeUuid()
-        token = generateVerificationToken(nonExistsUserId)
+        token = generateVerificationToken({ id: nonExistsUserId })
       })
 
       it('redirects to confirm-email page with error code UserNotFound', async () => {
@@ -389,14 +390,14 @@ describe('auth router', () => {
         })
 
         after(async () => {
-          await deleteTestUser(user.id)
+          await deleteUser(user.id)
         })
 
         context('when email is verified', () => {
           let fake: (msg: MailDataRequired) => Promise<boolean>
 
           before(async () => {
-            await updateTestUser(user.id, { status: StatusType.Active })
+            await updateUser(user.id, { status: StatusType.Active })
           })
 
           context('when reset password email sent', () => {
@@ -438,7 +439,7 @@ describe('auth router', () => {
 
         context('when email is not verified', () => {
           before(async () => {
-            await updateTestUser(user.id, { status: StatusType.Pending })
+            await updateUser(user.id, { status: StatusType.Pending })
           })
 
           it('redirects to email-login page with error code PENDING_VERIFICATION', async () => {
@@ -493,12 +494,12 @@ describe('auth router', () => {
     })
 
     after(async () => {
-      await deleteTestUser(user.id)
+      await deleteUser(user.id)
     })
 
     context('when token is valid', () => {
       before(async () => {
-        token = generateVerificationToken(user.id)
+        token = generateVerificationToken({ id: user.id })
       })
 
       context('when password is not empty', () => {
@@ -543,7 +544,7 @@ describe('auth router', () => {
 
       context('when token is expired', () => {
         before(() => {
-          token = generateVerificationToken(user.id, -1)
+          token = generateVerificationToken({ id: user.id }, -1)
         })
 
         it('redirects to reset-password page with error code ExpiredToken', async () => {
@@ -586,8 +587,8 @@ describe('auth router', () => {
       let provider: AuthProvider = 'EMAIL'
 
       afterEach(async () => {
-        const user = await getRepository(User).findOneBy({ name })
-        await deleteTestUser(user!.id)
+        const user = await userRepository.findOneByOrFail({ name })
+        await deleteUser(user.id)
       })
 
       it('adds popular reads to the library', async () => {
@@ -605,11 +606,8 @@ describe('auth router', () => {
           pendingUserToken!,
           'web'
         ).expect(200)
-        const user = await getRepository(User).findOneBy({ name })
-        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
-          [],
-          0,
-        ]
+        const user = await userRepository.findOneByOrFail({ name })
+        const { count } = await searchLibraryItems({}, user.id)
 
         expect(count).to.eql(3)
       })
@@ -629,11 +627,8 @@ describe('auth router', () => {
           pendingUserToken!,
           'ios'
         ).expect(200)
-        const user = await getRepository(User).findOneBy({ name })
-        const [popularReads, count] = (await searchPages({}, user?.id!)) || [
-          [],
-          0,
-        ]
+        const user = await userRepository.findOneByOrFail({ name })
+        const { count } = await searchLibraryItems({}, user.id)
 
         expect(count).to.eql(4)
       })

@@ -1,11 +1,29 @@
 import Foundation
-import Segment
+
+#if os(iOS)
+  import PostHog
+#endif
 
 public enum EventTracker {
-  public static func start() {
-    // invoke the closure that creates the segment instance
-    _ = segment?.version()
-  }
+  #if os(iOS)
+    public static var posthog: PHGPostHog? = {
+      guard let writeKey = AppKeys.sharedInstance?.posthogClientKey else {
+        return nil
+      }
+
+      guard let posthogInstanceAddress = AppKeys.sharedInstance?.posthogInstanceAddress else {
+        return nil
+      }
+
+      let configuration = PHGPostHogConfiguration(apiKey: writeKey, host: posthogInstanceAddress)
+
+      configuration.recordScreenViews = false
+      configuration.captureApplicationLifecycleEvents = true
+
+      PHGPostHog.setup(with: configuration)
+      return PHGPostHog.shared()
+    }()
+  #endif
 
   public static func trackForDebugging(_ message: String) {
     #if DEBUG
@@ -14,29 +32,20 @@ public enum EventTracker {
   }
 
   public static func track(_ event: TrackableEvent) {
-    segment?.track(name: event.name, properties: event.properties)
+    #if os(iOS)
+      posthog?.capture(event.name, properties: event.properties)
+    #endif
   }
 
   public static func registerUser(userID: String) {
-    segment?.identify(userId: userID)
+    #if os(iOS)
+      posthog?.identify(userID)
+    #endif
   }
 
-  public static func recordUserTraits(userID: String, traits: [String: String]) {
-    segment?.identify(userId: userID, traits: traits)
+  public static func reset() {
+    #if os(iOS)
+      posthog?.reset()
+    #endif
   }
 }
-
-private let segment: Analytics? = {
-  guard let writeKey = AppKeys.sharedInstance?.segmentClientKey else {
-    return nil
-  }
-
-  let config = Configuration(writeKey: writeKey)
-    .flushAt(20) // default is 20
-    .trackApplicationLifecycleEvents(true) // default is true
-    .autoAddSegmentDestination(true) // default is true
-    .flushInterval(30) // default is 30 seconds
-    .trackDeeplinks(true) // default is true
-
-  return Analytics(configuration: config)
-}()

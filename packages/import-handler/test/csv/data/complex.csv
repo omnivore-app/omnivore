@@ -1,3 +1,4 @@
-"https://omnivore.app",ARCHIVED,"[""test""]"
-"https://google.com",SUCCEEDED,"[""test"",""development""]"
-https://test.com,SUCCEEDED,"[test, development]"
+url,state,labels,saved_at,published_at
+"https://omnivore.app",ARCHIVED,"[""test""]",,
+"https://google.com",,"[""test"",""development""]",,
+https://test.com,SUCCEEDED,"[test, development]",1692093633000,1692093633000

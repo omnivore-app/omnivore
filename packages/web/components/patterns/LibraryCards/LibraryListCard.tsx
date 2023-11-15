@@ -11,6 +11,7 @@ import {
   siteName,
   TitleStyle,
   MenuStyle,
+  FLAIR_ICON_NAMES,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
@@ -31,11 +32,10 @@ import { ProgressBar } from '../../elements/ProgressBar'
 import { theme } from '../../tokens/stitches.config'
 import { FallbackImage } from './FallbackImage'
 import { useRouter } from 'next/router'
+import { LoadingBar } from '../../elements/LoadingBar'
 
 export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
   const router = useRouter()
-  const [isHovered, setIsHovered] = useState(false)
-
   const [isOpen, setIsOpen] = useState(false)
 
   const { refs, floatingStyles, context } = useFloating({
@@ -91,14 +91,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
       }}
       alignment="start"
       distribution="start"
-      onMouseEnter={() => {
-        setIsHovered(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-      }}
       onClick={(event) => {
-        console.log('click event: ', event)
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,
@@ -119,13 +112,21 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
             item={props.item}
             viewer={props.viewer}
             handleAction={props.handleAction}
-            isHovered={isHovered ?? false}
+            isHovered={isOpen ?? false}
           />
         </Box>
       )}
-      <LibraryListCardContent {...props} isHovered={isHovered} />
+      <LibraryListCardContent {...props} isHovered={isOpen} />
     </VStack>
   )
+}
+
+type LoadingBarOverlayProps = {
+  top: number
+  width: string
+  bottomRadius: string
+  fillColor?: string
+  percentFill?: number
 }
 
 type ProgressBarOverlayProps = {
@@ -133,6 +134,31 @@ type ProgressBarOverlayProps = {
   width: string
   value: number
   bottomRadius: string
+}
+
+export const LoadingBarOverlay = (
+  props: LoadingBarOverlayProps
+): JSX.Element => {
+  return (
+    <Box
+      css={{
+        position: 'absolute',
+        width: props.width,
+        top: props.top,
+        borderBottomLeftRadius: props.bottomRadius,
+        borderBottomRightRadius: props.bottomRadius,
+        overflow: 'clip',
+        zIndex: 2,
+      }}
+    >
+      <LoadingBar
+        fillColor={props.fillColor ?? theme.colors.thProgressFg.toString()}
+        backgroundColor="rgba(217, 217, 217, 0.65)"
+        borderRadius={'2px'}
+        percentFill={props.percentFill}
+      />
+    </Box>
+  )
 }
 
 export const ProgressBarOverlay = (
@@ -164,6 +190,7 @@ type ListImageProps = {
   src?: string
   title?: string
   readingProgress?: number
+  isLoading?: boolean
 }
 
 const ListImage = (props: ListImageProps): JSX.Element => {
@@ -171,7 +198,16 @@ const ListImage = (props: ListImageProps): JSX.Element => {
 
   return (
     <>
-      {(props.readingProgress ?? 0) > 0 && (
+      {props.isLoading && (
+        <LoadingBarOverlay
+          width="55px"
+          top={50}
+          bottomRadius="4px"
+          fillColor={'rgba(60, 179, 113, 1)'}
+          percentFill={30}
+        />
+      )}
+      {(props.readingProgress ?? 0) > 0 && !props.isLoading && (
         <ProgressBarOverlay
           width="55px"
           top={50}
@@ -241,6 +277,7 @@ export function LibraryListCardContent(
           src={props.item.image}
           title={props.item.title}
           readingProgress={item.readingProgressPercent}
+          isLoading={props.isLoading}
         />
       </Box>
       <VStack
@@ -250,7 +287,7 @@ export function LibraryListCardContent(
           height: '100%',
           width: '100%',
           lineHeight: 1,
-          gap: '5px',
+          gap: '3px',
           position: 'relative',
         }}
       >
@@ -310,9 +347,14 @@ export function LibraryListCardContent(
               display: 'block',
             }}
           >
-            {sortedLabels(props.item.labels).map(({ name, color }, index) => (
-              <LabelChip key={index} text={name || ''} color={color} />
-            ))}
+            {sortedLabels(props.item.labels)
+              .filter(
+                ({ name }) =>
+                  FLAIR_ICON_NAMES.indexOf(name.toLocaleLowerCase()) == -1
+              )
+              .map(({ name, color }, index) => (
+                <LabelChip key={index} text={name || ''} color={color} />
+              ))}
           </HStack>
         </HStack>
       </VStack>

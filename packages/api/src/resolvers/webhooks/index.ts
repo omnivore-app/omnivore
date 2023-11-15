@@ -1,4 +1,5 @@
-import { authorized } from '../../utils/helpers'
+import { Webhook } from '../../entity/webhook'
+import { env } from '../../env'
 import {
   DeleteWebhookError,
   DeleteWebhookErrorCode,
@@ -18,27 +19,19 @@ import {
   WebhooksSuccess,
   WebhookSuccess,
 } from '../../generated/graphql'
-import { getRepository } from '../../entity/utils'
-import { User } from '../../entity/user'
-import { Webhook } from '../../entity/webhook'
+import { authTrx } from '../../repository'
+import { deleteWebhook } from '../../services/webhook'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
+import { authorized } from '../../utils/helpers'
 
 export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
-  async (_obj, _params, { claims: { uid }, log }) => {
-    log.info('webhooksResolver')
-
+  async (_obj, _params, { uid, log }) => {
     try {
-      const user = await getRepository(User).findOneBy({ id: uid })
-      if (!user) {
-        return {
-          errorCodes: [WebhooksErrorCode.Unauthorized],
-        }
-      }
-
-      const webhooks = await getRepository(Webhook).findBy({
-        user: { id: uid },
-      })
+      const webhooks = await authTrx((t) =>
+        t.getRepository(Webhook).findBy({
+          user: { id: uid },
+        })
+      )
 
       return {
         webhooks: webhooks.map((webhook) => webhookDataToResponse(webhook)),
@@ -57,31 +50,18 @@ export const webhookResolver = authorized<
   WebhookSuccess,
   WebhookError,
   QueryWebhookArgs
->(async (_, { id }, { claims: { uid }, log }) => {
-  log.info('webhookResolver')
-
+>(async (_, { id }, { authTrx, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [WebhookErrorCode.Unauthorized],
-      }
-    }
-
-    const webhook = await getRepository(Webhook).findOne({
-      where: { id },
-      relations: ['user'],
-    })
+    const webhook = await authTrx((t) =>
+      t.getRepository(Webhook).findOne({
+        where: { id },
+        relations: ['user'],
+      })
+    )
 
     if (!webhook) {
       return {
         errorCodes: [WebhookErrorCode.NotFound],
-      }
-    }
-
-    if (webhook.user.id !== uid) {
-      return {
-        errorCodes: [WebhookErrorCode.Unauthorized],
       }
     }
 
@@ -101,52 +81,24 @@ export const deleteWebhookResolver = authorized<
   DeleteWebhookSuccess,
   DeleteWebhookError,
   MutationDeleteWebhookArgs
->(async (_, { id }, { claims: { uid }, log }) => {
-  log.info('deleteWebhookResolver')
-
+>(async (_, { id }, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [DeleteWebhookErrorCode.Unauthorized],
-      }
-    }
-
-    const webhook = await getRepository(Webhook).findOne({
-      where: { id },
-      relations: ['user'],
-    })
-
-    if (!webhook) {
-      return {
-        errorCodes: [DeleteWebhookErrorCode.NotFound],
-      }
-    }
-
-    if (webhook.user.id !== uid) {
-      return {
-        errorCodes: [DeleteWebhookErrorCode.Unauthorized],
-      }
-    }
-
-    const deletedWebhook = await getRepository(Webhook).remove(webhook)
-    deletedWebhook.id = id
+    const webhook = await deleteWebhook(id, uid)
 
     analytics.track({
       userId: uid,
       event: 'webhook_delete',
       properties: {
-        webhookId: webhook.id,
+        webhookId: id,
         env: env.server.apiEnv,
       },
     })
 
     return {
-      webhook: webhookDataToResponse(deletedWebhook),
+      webhook: webhookDataToResponse(webhook),
     }
   } catch (error) {
-    log.error(error)
-
+    log.error('Error deleting webhook', error)
     return {
       errorCodes: [DeleteWebhookErrorCode.BadRequest],
     }
@@ -157,17 +109,10 @@ export const setWebhookResolver = authorized<
   SetWebhookSuccess,
   SetWebhookError,
   MutationSetWebhookArgs
->(async (_, { input }, { claims: { uid }, log }) => {
+>(async (_, { input }, { authTrx, claims: { uid }, log }) => {
   log.info('setWebhookResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SetWebhookErrorCode.Unauthorized],
-      }
-    }
-
     const webhookToSave: Partial<Webhook> = {
       url: input.url,
       eventTypes: input.eventTypes as string[],
@@ -178,27 +123,26 @@ export const setWebhookResolver = authorized<
 
     if (input.id) {
       // Update
-      const existingWebhook = await getRepository(Webhook).findOne({
-        where: { id: input.id },
-        relations: ['user'],
-      })
+      const existingWebhook = await authTrx((t) =>
+        t.getRepository(Webhook).findOne({
+          where: { id: input.id || '' },
+          relations: ['user'],
+        })
+      )
       if (!existingWebhook) {
         return {
           errorCodes: [SetWebhookErrorCode.NotFound],
         }
       }
-      if (existingWebhook.user.id !== uid) {
-        return {
-          errorCodes: [SetWebhookErrorCode.Unauthorized],
-        }
-      }
 
       webhookToSave.id = input.id
     }
-    const webhook = await getRepository(Webhook).save({
-      user,
-      ...webhookToSave,
-    })
+    const webhook = await authTrx((t) =>
+      t.getRepository(Webhook).save({
+        user: { id: uid },
+        ...webhookToSave,
+      })
+    )
 
     analytics.track({
       userId: uid,

@@ -13,7 +13,6 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/ban-types
     Intercom: Function
     intercomSettings: IntercomSettings
-    analytics?: Analytics
     AndroidWebKitMessenger?: AndroidWebKitMessenger
     themeKey?: string
     twttr?: EmbedTweetWidget

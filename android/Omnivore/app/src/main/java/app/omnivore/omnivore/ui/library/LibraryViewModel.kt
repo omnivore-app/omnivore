@@ -19,6 +19,9 @@ import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
+import app.omnivore.omnivore.ui.ResourceProvider
+import app.omnivore.omnivore.ui.setSavedItemLabels
+import coil.util.CoilUtils.result
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +34,8 @@ import javax.inject.Inject
 class LibraryViewModel @Inject constructor(
   private val networker: Networker,
   private val dataService: DataService,
-  private val datastoreRepo: DatastoreRepository
+  private val datastoreRepo: DatastoreRepository,
+  private val resourceProvider: ResourceProvider
 ): ViewModel(), SavedItemViewModel {
   private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
@@ -58,6 +62,7 @@ class LibraryViewModel @Inject constructor(
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
+  val showAddLinkSheetLiveData = MutableLiveData(false)
   val labelsSelectionCurrentItemLiveData = MutableLiveData<String?>(null)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
@@ -302,55 +307,17 @@ class LibraryViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val syncedLabels = labels.filter { it.serverSyncStatus == ServerSyncStatus.IS_SYNCED.rawValue }
-        val unsyncedLabels = labels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }
+        val result = setSavedItemLabels(
+          networker = networker,
+          dataService = dataService,
+          savedItemID = savedItemID,
+          labels = labels
+        )
 
-        var labelCreationError = false
-        val createdLabels = unsyncedLabels.mapNotNull { label ->
-          val result = networker.createNewLabel(CreateLabelInput(
-            name = label.name,
-            color = presentIfNotNull(label.color),
-            description = presentIfNotNull(label.labelDescription),
-          ))
-          result?.let {
-            SavedItemLabel(
-              savedItemLabelId = result.id,
-              name = result.name,
-              color = result.color,
-              createdAt = result.createdAt.toString(),
-              labelDescription = result.description,
-              serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
-            )
-          } ?: run {
-            labelCreationError = true
-            null
-          }
-        }
-
-        dataService.db.savedItemLabelDao().insertAll(createdLabels)
-
-        val allLabels = syncedLabels + createdLabels
-
-        val input = SetLabelsInput(labelIds = allLabels.map { it.savedItemLabelId }, pageId = savedItemID)
-        val networkResult = networker.updateLabelsForSavedItem(input)
-
-        val crossRefs = allLabels.map {
-          SavedItemAndSavedItemLabelCrossRef(
-            savedItemLabelId = it.savedItemLabelId,
-            savedItemId = savedItemID
-          )
-        }
-
-        // Remove all labels first
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
-
-        // Add back the current labels
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
-
-        if (!networkResult || labelCreationError) {
-          snackbarMessage = "Unable to set labels"
+        if (result) {
+          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_success)
         } else {
-          snackbarMessage = "Labels updated"
+          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_error)
         }
 
         CoroutineScope(Dispatchers.Main).launch {

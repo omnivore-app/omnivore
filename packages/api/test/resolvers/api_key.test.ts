@@ -1,21 +1,22 @@
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
 import supertest from 'supertest'
-import { getRepository } from '../../src/entity/utils'
 import { ApiKey } from '../../src/entity/api_key'
+import { User } from '../../src/entity/user'
+import { findApiKeys } from '../../src/services/api_key'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 const testAPIKey = (apiKey: string): supertest.Test => {
   const query = `
     query {
-      articles(first: 1) {
-        ... on ArticlesSuccess {
+      search(first: 1) {
+        ... on SearchSuccess {
           edges {
             cursor
           }
         }
-        ... on ArticlesError {
+        ... on SearchError {
           errorCodes
         }
       }
@@ -44,7 +45,7 @@ describe('Api Key resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('generate api key', () => {
@@ -180,10 +181,7 @@ describe('Api Key resolver', () => {
       }
     `
 
-      apiKeys = await getRepository(ApiKey).find({
-        select: ['id', 'name'],
-        where: { user: { id: user.id } },
-      })
+      apiKeys = await findApiKeys(user.id, undefined, ['id', 'name'])
     })
 
     it('should get api keys', async () => {

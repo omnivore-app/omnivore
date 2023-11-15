@@ -1,28 +1,18 @@
-import { ChangeEvent, useCallback, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
-
-import {
-  Box,
-  HStack,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
-
 import 'antd/dist/antd.compact.css'
+import { ChangeEvent, useState } from 'react'
+import { SyncLoader } from 'react-spinners'
+import { Button } from '../../../components/elements/Button'
+import { FormLabel } from '../../../components/elements/FormElements'
+import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
 import { ProfileLayout } from '../../../components/templates/ProfileLayout'
+import { theme } from '../../../components/tokens/stitches.config'
 import {
   uploadImportFileRequestMutation,
   UploadImportFileType,
 } from '../../../lib/networking/mutations/uploadImportFileMutation'
-import { Button } from '../../../components/elements/Button'
-import { FormLabel } from '../../../components/elements/FormElements'
-import { Loader } from '../../../components/templates/SavingRequest'
-
-import { SyncLoader } from 'react-spinners'
-import { theme } from '../../../components/tokens/stitches.config'
+import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { validateCsvFile } from '../../../utils/csvValidator'
 
 type UploadState = 'none' | 'uploading' | 'completed'
 
@@ -58,6 +48,23 @@ export default function ImportUploader(): JSX.Element {
     setUploadState('uploading')
 
     try {
+      if (type == UploadImportFileType.URL_LIST) {
+        // validate csv file
+        try {
+          const csvData = await validateCsvFile(file)
+          if (csvData.inValidData.length > 0) {
+            setErrorMessage(csvData.inValidData[0].message)
+            setUploadState('none')
+            return
+          }
+        } catch (error) {
+          console.log(error)
+          setErrorMessage('Invalid CSV file.')
+          setUploadState('none')
+          return
+        }
+      }
+
       const result = await uploadImportFileRequestMutation(type, 'text/csv')
 
       if (result && result.uploadSignedUrl) {
@@ -209,6 +216,7 @@ export default function ImportUploader(): JSX.Element {
                     type="file"
                     onChange={onTypeChange}
                     disabled={uploadState == 'uploading'}
+                    accept=".csv"
                   />
                   {/* <Box>{file && `${file.name}`}</Box> */}
                 </HStack>

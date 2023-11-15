@@ -25,7 +25,6 @@ MdEditor.use(Plugins.TabInsert, {
   tabMapValue: 1, // note that 1 means a '\t' instead of ' '.
 })
 
-console.log()
 MdEditor.use(Counter)
 
 type NoteSectionProps = {
@@ -41,7 +40,7 @@ type NoteSectionProps = {
 
 export function ArticleNotes(props: NoteSectionProps): JSX.Element {
   const saveText = useCallback(
-    (text) => {
+    (text: string) => {
       props.saveText(text)
     },
     [props]
@@ -79,7 +78,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
   const [lastSaved, setLastSaved] = useState<Date | undefined>(undefined)
 
   const saveText = useCallback(
-    (text) => {
+    (text: string) => {
       ;(async () => {
         const success = await updateHighlightMutation({
           annotation: text,

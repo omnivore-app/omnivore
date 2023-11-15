@@ -1,9 +1,11 @@
 import * as Sentry from '@sentry/serverless'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
+import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import sizeOf from 'image-size'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
+import { encode } from 'urlsafe-base64'
 import { promisify } from 'util'
 
 interface ArticleResponse {
@@ -30,7 +32,12 @@ interface UpdatePageResponse {
 
 interface ThumbnailRequest {
   slug: string
-  content: string
+}
+
+interface ImageSize {
+  src: string
+  width: number
+  height: number
 }
 
 dotenv.config()
@@ -41,6 +48,28 @@ Sentry.GCPFunction.init({
 
 const signToken = promisify(jwt.sign)
 const REQUEST_TIMEOUT = 30000 // 30s
+
+const signImageProxyUrl = (url: string, secret: string): string => {
+  return encode(crypto.createHmac('sha256', secret).update(url).digest())
+}
+
+export function createImageProxyUrl(
+  url: string,
+  width = 0,
+  height = 0
+): string {
+  if (!process.env.IMAGE_PROXY_URL || !process.env.IMAGE_PROXY_SECRET) {
+    return url
+  }
+
+  const urlWithOptions = `${url}#${width}x${height}`
+  const signature = signImageProxyUrl(
+    urlWithOptions,
+    process.env.IMAGE_PROXY_SECRET
+  )
+
+  return `${process.env.IMAGE_PROXY_URL}/${width}x${height},s${signature}/${url}`
+}
 
 const articleQuery = async (
   userId: string,
@@ -158,17 +187,30 @@ const updatePageMutation = async (
 }
 
 const isThumbnailRequest = (body: any): body is ThumbnailRequest => {
-  return 'slug' in body && 'content' in body
+  return 'slug' in body
 }
 
-const getImageSize = async (url: string): Promise<[number, number] | null> => {
+const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
+  console.log('fetching image', url)
   try {
     // get image file by url
-    const response = await axios.get(url, {
+    return axios.get(url, {
       responseType: 'arraybuffer',
-      timeout: 5000, // 5s
-      maxContentLength: 10000000, // 10mb
+      timeout: 10000, // 10s
+      maxContentLength: 20000000, // 20mb
     })
+  } catch (e) {
+    console.log('fetch image error', e)
+    return null
+  }
+}
+
+const getImageSize = async (src: string): Promise<ImageSize | null> => {
+  try {
+    const response = await fetchImage(src)
+    if (!response) {
+      return null
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     const buffer = Buffer.from(response.data, 'binary')
@@ -180,64 +222,75 @@ const getImageSize = async (url: string): Promise<[number, number] | null> => {
       return null
     }
 
-    return [width, height]
+    return {
+      src,
+      width,
+      height,
+    }
   } catch (e) {
     console.log(e)
     return null
   }
 }
 
-// credit: https://github.com/reddit-archive/reddit/blob/753b17407e9a9dca09558526805922de24133d53/r2/r2/lib/media.py#L706
-export const findThumbnail = async (
-  content: string
-): Promise<string | null> => {
+export const fetchAllImageSizes = async (content: string) => {
   const dom = parseHTML(content).document
 
-  // find the largest and squarest image as the thumbnail
-  // and pre-cache all images
+  // fetch all images by src and get their sizes
   const images = dom.querySelectorAll('img[src]')
   if (!images || images.length === 0) {
-    console.debug('no images')
-    return null
+    console.log('no images')
+    return []
   }
 
+  return Promise.all(
+    Array.from(images).map((image) => {
+      const src = image.getAttribute('src')
+      if (!src) {
+        return null
+      }
+
+      return getImageSize(src)
+    })
+  )
+}
+
+// credit: https://github.com/reddit-archive/reddit/blob/753b17407e9a9dca09558526805922de24133d53/r2/r2/lib/media.py#L706
+export const findThumbnail = (imagesSizes: (ImageSize | null)[]) => {
+  // find the largest and squarest image as the thumbnail
   let thumbnail = null
   let largestArea = 0
-  for await (const image of Array.from(images)) {
-    const src = image.getAttribute('src')
-    if (!src) {
+  for (const imageSize of Array.from(imagesSizes)) {
+    if (!imageSize) {
       continue
     }
 
-    const size = await getImageSize(src)
-    if (!size) {
-      continue
-    }
-
-    let area = size[0] * size[1]
+    let area = imageSize.width * imageSize.height
 
     // ignore small images
     if (area < 5000) {
-      console.debug('ignore small', src)
+      console.log('ignore small', imageSize.src)
       continue
     }
 
     // penalize excessively long/wide images
-    const ratio = Math.max(...size) / Math.min(...size)
+    const ratio =
+      Math.max(imageSize.width, imageSize.height) /
+      Math.min(imageSize.width, imageSize.height)
     if (ratio > 1.5) {
-      console.debug('penalizing long/wide', src)
+      console.log('penalizing long/wide', imageSize.src)
       area /= ratio * 2
     }
 
     // penalize images with "sprite" in their name
-    if (src.toLowerCase().includes('sprite')) {
-      console.debug('penalizing sprite', src)
+    if (imageSize.src.toLowerCase().includes('sprite')) {
+      console.log('penalizing sprite', imageSize.src)
       area /= 10
     }
 
     if (area > largestArea) {
       largestArea = area
-      thumbnail = src
+      thumbnail = imageSize.src
     }
   }
 
@@ -280,30 +333,42 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(400).send('BAD_REQUEST')
     }
 
-    const { slug, content } = req.body
+    const { slug } = req.body
 
     try {
-      // find thumbnail from all images & pre-cache
-      const thumbnail = await findThumbnail(content)
-      if (!thumbnail) {
-        console.debug('no thumbnail')
-        return res.status(200).send('NOT_FOUND')
-      }
-
       const page = await articleQuery(uid, slug)
       if (!page) {
         console.info('page not found')
         return res.status(200).send('NOT_FOUND')
       }
 
-      // update page with thumbnail if not already set
       if (page.image) {
-        console.debug('thumbnail already set')
-        return res.status(200).send('OK')
+        console.log('thumbnail already set')
+        // pre-cache thumbnail first if exists
+        const imageProxyUrl = createImageProxyUrl(page.image, 320, 320)
+        const image = await fetchImage(imageProxyUrl)
+        if (!image) {
+          console.log('thumbnail image not found')
+          page.image = undefined
+        }
       }
 
-      const updated = await updatePageMutation(uid, page.id, thumbnail)
-      console.debug('thumbnail updated', updated)
+      console.log('pre-caching all images...')
+      // pre-cache all images in the content and get their sizes
+      const imageSizes = await fetchAllImageSizes(page.content)
+      // find thumbnail from all images if thumbnail not set
+      if (!page.image && imageSizes.length > 0) {
+        console.log('finding thumbnail...')
+        const thumbnail = findThumbnail(imageSizes)
+        if (!thumbnail) {
+          console.log('no thumbnail found from content')
+          return res.status(200).send('NOT_FOUND')
+        }
+
+        // update page with thumbnail
+        const updated = await updatePageMutation(uid, page.id, thumbnail)
+        console.log('thumbnail updated', updated)
+      }
 
       res.send('ok')
     } catch (e) {

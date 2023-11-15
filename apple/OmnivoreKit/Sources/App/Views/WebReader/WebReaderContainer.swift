@@ -10,6 +10,7 @@ import WebKit
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
   let item: LinkedItem
+  let pop: () -> Void
 
   @State private var showPreferencesPopover = false
   @State private var showPreferencesFormsheet = false
@@ -40,9 +41,11 @@ struct WebReaderContainerView: View {
 
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
-  @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
   @Environment(\.openURL) var openURL
   @StateObject var viewModel = WebReaderViewModel()
+  @Environment(\.dismiss) var dismiss
+
+  @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBarInReader = false
 
   func webViewActionHandler(message: WKScriptMessage, replyHandler: WKScriptMessageReplyHandler?) {
     if let replyHandler = replyHandler {
@@ -110,6 +113,12 @@ struct WebReaderContainerView: View {
         showBottomBar = navBarVisible
         showNavBarActionID = UUID()
       }
+    case "dismissNavBars":
+      withAnimation {
+        navBarVisible = false
+        showBottomBar = false
+        showNavBarActionID = UUID()
+      }
     default:
       break
     }
@@ -117,7 +126,7 @@ struct WebReaderContainerView: View {
 
   #if os(iOS)
     var audioNavbarItem: some View {
-      if audioController.isLoadingItem(itemID: item.unwrappedID) {
+      if !audioController.playbackError, audioController.isLoadingItem(itemID: item.unwrappedID) {
         return AnyView(ProgressView()
           .padding(.horizontal))
       } else {
@@ -148,7 +157,7 @@ struct WebReaderContainerView: View {
     }
 
     var textToSpeechButtonImage: some View {
-      if audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
+      if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
         return AnyView(Image.headphones)
       }
       let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
@@ -224,7 +233,7 @@ struct WebReaderContainerView: View {
       )
       Button(
         action: {
-          dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0)
+          dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0, force: true)
         },
         label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
       )
@@ -265,7 +274,9 @@ struct WebReaderContainerView: View {
     HStack(alignment: .center, spacing: 10) {
       #if os(iOS)
         Button(
-          action: { self.presentationMode.wrappedValue.dismiss() },
+          action: {
+            pop()
+          },
           label: {
             Image.chevronRight
               .padding(.horizontal, 10)
@@ -416,15 +427,19 @@ struct WebReaderContainerView: View {
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
+        #if os(iOS)
+          .statusBar(hidden: prefersHideStatusBarInReader)
+        #endif
         .onAppear {
           if item.isUnread {
-            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0)
+            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0, force: false)
           }
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
         }
-        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet) {
+        .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
+                            titleVisibility: .visible) {
           Button(action: {
             if let linkToOpen = linkToOpen {
               safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
@@ -484,6 +499,7 @@ struct WebReaderContainerView: View {
               showErrorAlertMessage: $showErrorAlertMessage
             )
           }
+          .navigationViewStyle(StackNavigationViewStyle())
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
@@ -600,7 +616,7 @@ struct WebReaderContainerView: View {
         .autohideIn(2)
         .position(.bottom)
         .animation(.spring())
-        .closeOnTapOutside(true)
+        .isOpaque(false)
     }
     .onReceive(NSNotification.readerSnackBarPublisher) { notification in
       if let message = notification.userInfo?["message"] as? String {
@@ -614,7 +630,7 @@ struct WebReaderContainerView: View {
   func archive() {
     dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
     #if os(iOS)
-      presentationMode.wrappedValue.dismiss()
+      pop()
     #endif
   }
 
@@ -645,7 +661,7 @@ struct WebReaderContainerView: View {
     removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-        presentationMode.wrappedValue.dismiss()
+        pop()
       }
     #endif
   }

@@ -6,6 +6,9 @@ interface SearchResponse {
       edges: Edge[]
     }
   }
+  errors?: {
+    message: string
+  }[]
 }
 
 interface Edge {
@@ -19,6 +22,8 @@ interface Page {
   readingProgressPercent: number
   title: string
   image: string | null
+  author: string | null
+  siteName: string | null
 }
 
 interface Label {
@@ -26,7 +31,6 @@ interface Label {
 }
 
 export const search = async (
-  userId: string,
   apiEndpoint: string,
   auth: string,
   query: string
@@ -45,6 +49,8 @@ export const search = async (
                       readingProgressPercent      
                       title
                       image
+                      author
+                      siteName
                     }
                   }
                 }
@@ -71,6 +77,12 @@ export const search = async (
       }
     )
 
+    if (response.data.errors) {
+      console.error(response.data.errors)
+
+      return []
+    }
+
     const edges = response.data.data.search.edges
     if (edges.length === 0) {
       return []
@@ -85,14 +97,13 @@ export const search = async (
 }
 
 export const filterPage = async (
-  userId: string,
   apiEndpoint: string,
   auth: string,
   filter: string,
   pageId: string
 ): Promise<Page | null> => {
   filter += ` includes:${pageId}`
-  const pages = await search(userId, apiEndpoint, auth, filter)
+  const pages = await search(apiEndpoint, auth, filter)
 
   return pages.length > 0 ? pages[0] : null
 }

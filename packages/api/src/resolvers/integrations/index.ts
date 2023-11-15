@@ -1,6 +1,9 @@
-import { Integration, IntegrationType } from '../../entity/integration'
-import { User } from '../../entity/user'
-import { getRepository } from '../../entity/utils'
+import { DeepPartial } from 'typeorm'
+import {
+  ImportItemState,
+  Integration,
+  IntegrationType,
+} from '../../entity/integration'
 import { env } from '../../env'
 import {
   DeleteIntegrationError,
@@ -19,12 +22,20 @@ import {
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
 } from '../../generated/graphql'
-import { getIntegrationService } from '../../services/integrations'
+import { createIntegrationToken } from '../../routers/auth/jwt_helpers'
+import {
+  findIntegration,
+  findIntegrations,
+  getIntegrationClient,
+  removeIntegration,
+  saveIntegration,
+  updateIntegration,
+} from '../../services/integrations'
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
+  enqueueExportToIntegration,
   enqueueImportFromIntegration,
-  enqueueSyncWithIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
 
@@ -32,37 +43,25 @@ export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
   SetIntegrationError,
   MutationSetIntegrationArgs
->(async (_, { input }, { claims: { uid }, log }) => {
-  log.info('setIntegrationResolver')
-
+>(async (_, { input }, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [SetIntegrationErrorCode.Unauthorized],
-      }
-    }
-
-    const integrationToSave: Partial<Integration> = {
+    const integrationToSave: DeepPartial<Integration> = {
       ...input,
-      user,
+      user: { id: uid },
       id: input.id || undefined,
       type: input.type || IntegrationType.Export,
+      syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
+      importItemState:
+        input.type === IntegrationType.Import
+          ? input.importItemState || ImportItemState.Unarchived // default to unarchived
+          : undefined,
     }
     if (input.id) {
       // Update
-      const existingIntegration = await getRepository(Integration).findOne({
-        where: { id: input.id },
-        relations: ['user'],
-      })
+      const existingIntegration = await findIntegration({ id: input.id }, uid)
       if (!existingIntegration) {
         return {
           errorCodes: [SetIntegrationErrorCode.NotFound],
-        }
-      }
-      if (existingIntegration.user.id !== uid) {
-        return {
-          errorCodes: [SetIntegrationErrorCode.Unauthorized],
         }
       }
 
@@ -70,7 +69,7 @@ export const setIntegrationResolver = authorized<
       integrationToSave.taskName = existingIntegration.taskName
     } else {
       // Create
-      const integrationService = getIntegrationService(input.name)
+      const integrationService = getIntegrationClient(input.name)
       // authorize and get access token
       const token = await integrationService.accessToken(input.token)
       if (!token) {
@@ -82,18 +81,33 @@ export const setIntegrationResolver = authorized<
     }
 
     // save integration
-    const integration = await getRepository(Integration).save(integrationToSave)
+    const integration = await saveIntegration(integrationToSave, uid)
 
-    if (
-      integrationToSave.type === IntegrationType.Export &&
-      (!integrationToSave.id || integrationToSave.enabled)
-    ) {
+    if (integrationToSave.type === IntegrationType.Export && !input.id) {
+      const authToken = await createIntegrationToken({
+        uid,
+        token: integration.token,
+      })
+      if (!authToken) {
+        log.error('failed to create auth token', {
+          integrationId: integration.id,
+        })
+        return {
+          errorCodes: [SetIntegrationErrorCode.BadRequest],
+        }
+      }
+
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const taskName = await enqueueSyncWithIntegration(user.id, input.name)
+      const taskName = await enqueueExportToIntegration(
+        integration.id,
+        integration.name,
+        0,
+        authToken
+      )
       log.info('enqueued task', taskName)
 
       // update task name in integration
-      await getRepository(Integration).update(integration.id, { taskName })
+      await updateIntegration(integration.id, { taskName }, uid)
       integration.taskName = taskName
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
@@ -101,9 +115,13 @@ export const setIntegrationResolver = authorized<
       log.info('task deleted', integrationToSave.taskName)
 
       // update task name in integration
-      await getRepository(Integration).update(integration.id, {
-        taskName: null,
-      })
+      await updateIntegration(
+        integration.id,
+        {
+          taskName: null,
+        },
+        uid
+      )
       integration.taskName = null
     }
 
@@ -131,19 +149,9 @@ export const setIntegrationResolver = authorized<
 export const integrationsResolver = authorized<
   IntegrationsSuccess,
   IntegrationsError
->(async (_, __, { claims: { uid }, log }) => {
-  log.info('integrationsResolver')
-
+>(async (_, __, { uid, log }) => {
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [IntegrationsErrorCode.Unauthorized],
-      }
-    }
-    const integrations = await getRepository(Integration).findBy({
-      user: { id: uid },
-    })
+    const integrations = await findIntegrations(uid)
 
     return {
       integrations,
@@ -165,27 +173,11 @@ export const deleteIntegrationResolver = authorized<
   log.info('deleteIntegrationResolver')
 
   try {
-    const user = await getRepository(User).findOneBy({ id: uid })
-    if (!user) {
-      return {
-        errorCodes: [DeleteIntegrationErrorCode.Unauthorized],
-      }
-    }
-
-    const integration = await getRepository(Integration).findOne({
-      where: { id },
-      relations: ['user'],
-    })
+    const integration = await findIntegration({ id }, uid)
 
     if (!integration) {
       return {
         errorCodes: [DeleteIntegrationErrorCode.NotFound],
-      }
-    }
-
-    if (integration.user.id !== uid) {
-      return {
-        errorCodes: [DeleteIntegrationErrorCode.Unauthorized],
       }
     }
 
@@ -195,9 +187,7 @@ export const deleteIntegrationResolver = authorized<
       log.info('task deleted', integration.taskName)
     }
 
-    const deletedIntegration = await getRepository(Integration).remove(
-      integration
-    )
+    const deletedIntegration = await removeIntegration(integration, uid)
     deletedIntegration.id = id
 
     analytics.track({
@@ -225,14 +215,11 @@ export const importFromIntegrationResolver = authorized<
   ImportFromIntegrationSuccess,
   ImportFromIntegrationError,
   MutationImportFromIntegrationArgs
->(async (_, { integrationId }, { claims: { uid }, log, signToken }) => {
+>(async (_, { integrationId }, { claims: { uid }, log }) => {
   log.info('importFromIntegrationResolver')
 
   try {
-    const integration = await getRepository(Integration).findOne({
-      where: { id: integrationId, user: { id: uid } },
-      relations: ['user'],
-    })
+    const integration = await findIntegration({ id: integrationId }, uid)
 
     if (!integration) {
       return {
@@ -240,18 +227,26 @@ export const importFromIntegrationResolver = authorized<
       }
     }
 
-    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
-    const authToken = (await signToken(
-      { uid, exp },
-      env.server.jwtSecret
-    )) as string
+    const authToken = await createIntegrationToken({
+      uid: integration.user.id,
+      token: integration.token,
+    })
+    if (!authToken) {
+      return {
+        errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
+      }
+    }
+
     // create a task to import all the pages
     const taskName = await enqueueImportFromIntegration(
       integration.id,
-      authToken
+      integration.name,
+      integration.syncedAt?.getTime() || 0,
+      authToken,
+      integration.importItemState || ImportItemState.Unarchived
     )
     // update task name in integration
-    await getRepository(Integration).update(integration.id, { taskName })
+    await updateIntegration(integration.id, { taskName }, uid)
 
     analytics.track({
       userId: uid,

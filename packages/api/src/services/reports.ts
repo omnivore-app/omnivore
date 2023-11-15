@@ -1,48 +1,60 @@
-import { getPageById } from '../elastic/pages'
 import { AbuseReport } from '../entity/reports/abuse_report'
 import { ContentDisplayReport } from '../entity/reports/content_display_report'
-import { getRepository } from '../entity/utils'
+import { env } from '../env'
 import { ReportItemInput, ReportType } from '../generated/graphql'
+import { authTrx, getRepository } from '../repository'
 import { logger } from '../utils/logger'
+import { sendEmail } from '../utils/sendEmail'
+import { findLibraryItemById } from './library_item'
 
 export const saveContentDisplayReport = async (
   uid: string,
   input: ReportItemInput
 ): Promise<boolean> => {
-  const repo = getRepository(ContentDisplayReport)
-
-  const page = await getPageById(input.pageId)
-
-  if (!page) {
-    logger.info('unable to submit report, page not found', input)
+  const item = await findLibraryItemById(input.pageId, uid)
+  if (!item) {
+    logger.info('unable to submit report, item not found', input)
     return false
   }
 
   // We capture the article content and original html now, in case it
   // reparsed or updated later, this gives us a view of exactly
   // what the user saw.
-  const result = await repo.save({
+  const report = await getRepository(ContentDisplayReport).save({
     user: { id: uid },
-    elasticPageId: input.pageId,
-    content: page.content,
-    originalHtml: page.originalHtml || undefined,
-    originalUrl: page.url,
+    content: item.readableContent,
+    originalHtml: item.originalContent || undefined,
+    originalUrl: item.originalUrl,
     reportComment: input.reportComment,
+    libraryItemId: item.id,
   })
 
-  return !!result
+  const message = `A new content display report was created by:
+                  ${report.user.id} for URL: ${report.originalUrl}
+                  ${report.reportComment}`
+
+  logger.info(message)
+
+  if (!env.dev.isLocal) {
+    // If we are in the local environment, just log a message, otherwise email the report
+    await sendEmail({
+      to: env.sender.feedback,
+      subject: 'New content display report',
+      text: message,
+      from: env.sender.message,
+    })
+  }
+
+  return !!report
 }
 
 export const saveAbuseReport = async (
   uid: string,
   input: ReportItemInput
 ): Promise<boolean> => {
-  const repo = getRepository(AbuseReport)
-
-  const page = await getPageById(input.pageId)
-
-  if (!page) {
-    logger.info('unable to submit report, page not found', input)
+  const item = await findLibraryItemById(input.pageId, uid)
+  if (!item) {
+    logger.info('unable to submit report, item not found', input)
     return false
   }
 
@@ -54,14 +66,16 @@ export const saveAbuseReport = async (
   // We capture the article content and original html now, in case it
   // reparsed or updated later, this gives us a view of exactly
   // what the user saw.
-  const result = await repo.save({
-    reportedBy: uid,
-    sharedBy: input.sharedBy,
-    elasticPageId: input.pageId,
-    itemUrl: input.itemUrl,
-    reportTypes: [ReportType.Abusive],
-    reportComment: input.reportComment,
-  })
+  const result = await authTrx((tx) =>
+    tx.getRepository(AbuseReport).save({
+      reportedBy: uid,
+      sharedBy: input.sharedBy || undefined,
+      itemUrl: input.itemUrl,
+      reportTypes: [ReportType.Abusive],
+      reportComment: input.reportComment,
+      libraryItemId: item.id,
+    })
+  )
 
   return !!result
 }

@@ -68,6 +68,9 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
       RegistrationState.EmailSignUp -> {
         EmailSignUpView(viewModel = viewModel)
       }
+      RegistrationState.SelfHosted -> {
+        SelfHostedView(viewModel = viewModel)
+      }
       RegistrationState.SocialLogin -> {
         Text(
           text = stringResource(id = R.string.welcome_title),
@@ -132,10 +135,21 @@ fun AuthProviderView(viewModel: LoginViewModel) {
       AppleAuthButton(viewModel)
 
       ClickableText(
-        text = AnnotatedString("Continue with Email"),
+        text = AnnotatedString(stringResource(R.string.welcome_screen_action_continue_with_email)),
         style = MaterialTheme.typography.titleMedium
           .plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = { viewModel.showEmailSignIn() }
+      )
+
+      Spacer(modifier = Modifier.weight(1.0F))
+
+      ClickableText(
+        text = AnnotatedString(stringResource(R.string.welcome_screen_action_self_hosting_options)),
+        style = MaterialTheme.typography.titleMedium
+          .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+        onClick = { viewModel.showSelfHostedSettings() },
+        modifier = Modifier
+          .padding(vertical = 10.dp)
       )
     }
     Spacer(modifier = Modifier.weight(1.0F))

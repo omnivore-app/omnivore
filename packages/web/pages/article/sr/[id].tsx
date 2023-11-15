@@ -125,7 +125,7 @@ export function PrimaryContent(props: PrimaryContentProps): JSX.Element {
     router.replace('/login')
   }
 
-  if (timedOut || error) {
+  if (timedOut) {
     return (
       <ErrorComponent errorMessage="Something went wrong while processing the link, please try again in a moment" />
     )

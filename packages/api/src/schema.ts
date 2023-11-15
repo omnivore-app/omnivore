@@ -4,6 +4,7 @@ const schema = gql`
   # Scalars
 
   scalar Date
+  scalar JSON
 
   directive @sanitize(
     allowedTags: [String]
@@ -84,6 +85,9 @@ const schema = gql`
     sharedNotesCount: Int
     friendsCount: Int
     followersCount: Int
+    email: String
+    source: String
+    intercomHash: String
   }
 
   type Profile {
@@ -289,7 +293,7 @@ const schema = gql`
     slug: String!
     savedBy: User!
     savedAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     savedByViewer: Boolean!
     postedByViewer: Boolean!
 
@@ -331,7 +335,7 @@ const schema = gql`
     originalHtml: String!
     readableHtml: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   type RecommendingUser {
@@ -366,7 +370,7 @@ const schema = gql`
     originalHtml: String
     createdAt: Date!
     savedAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     publishedAt: Date
     readingProgressTopPercent: Float
     readingProgressPercent: Float!
@@ -574,6 +578,8 @@ const schema = gql`
     labels: [CreateLabelInput!]
     locale: String
     timezone: String
+    savedAt: Date
+    publishedAt: Date
   }
 
   union SaveResult = SaveSuccess | SaveError
@@ -632,7 +638,8 @@ const schema = gql`
     id: ID!
     readingProgressTopPercent: Float
     readingProgressPercent: Float!
-    readingProgressAnchorIndex: Int!
+    readingProgressAnchorIndex: Int
+    force: Boolean
   }
   enum SaveArticleReadingProgressErrorCode {
     NOT_FOUND
@@ -701,7 +708,7 @@ const schema = gql`
     replies: [HighlightReply!]!
     sharedAt: Date
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     reactions: [Reaction!]!
     createdByMe: Boolean!
     highlightPositionPercent: Float
@@ -709,6 +716,7 @@ const schema = gql`
     labels: [Label!]
     type: HighlightType!
     html: String
+    color: String
   }
 
   input CreateHighlightInput {
@@ -725,6 +733,7 @@ const schema = gql`
     highlightPositionAnchorIndex: Int
     type: HighlightType
     html: String
+    color: String
   }
 
   type CreateHighlightSuccess {
@@ -753,11 +762,12 @@ const schema = gql`
     quote: String! @sanitize(maxLength: 12000, minLength: 1)
     prefix: String @sanitize
     suffix: String @sanitize
-    annotation: String @sanitize(maxLength: 8000)
+    annotation: String @sanitize(maxLength: 4000)
     overlapHighlightIdList: [String!]!
     highlightPositionPercent: Float
     highlightPositionAnchorIndex: Int
     html: String
+    color: String
   }
 
   type MergeHighlightSuccess {
@@ -785,6 +795,7 @@ const schema = gql`
     sharedAt: Date
     quote: String @sanitize(maxLength: 12000, minLength: 1)
     html: String
+    color: String
   }
 
   type UpdateHighlightSuccess {
@@ -827,7 +838,7 @@ const schema = gql`
     highlight: Highlight!
     text: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   input CreateHighlightReplyInput {
@@ -1040,6 +1051,7 @@ const schema = gql`
     speechSecondaryVoice: String
     speechRate: String
     speechVolume: String
+    fields: JSON
   }
 
   # Query: UserPersonalization
@@ -1081,6 +1093,7 @@ const schema = gql`
     speechSecondaryVoice: String
     speechRate: String
     speechVolume: String
+    fields: JSON
   }
 
   # Type: ArticleSavingRequest
@@ -1101,7 +1114,7 @@ const schema = gql`
     status: ArticleSavingRequestStatus!
     errorCode: CreateArticleErrorCode
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     url: String!
   }
 
@@ -1582,6 +1595,7 @@ const schema = gql`
     shortId: String
     quote: String
     annotation: String
+    color: String
     labels: [Label!]
     subscription: String
     unsubMailTo: String
@@ -1643,7 +1657,7 @@ const schema = gql`
     count: Int!
     lastFetchedAt: Date
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   enum SubscriptionStatus {
@@ -1748,7 +1762,7 @@ const schema = gql`
     method: String!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
   }
 
   type SetWebhookError {
@@ -1940,7 +1954,7 @@ const schema = gql`
     token: String!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     taskName: String
   }
 
@@ -1961,12 +1975,21 @@ const schema = gql`
     ALREADY_EXISTS
   }
 
+  enum ImportItemState {
+    UNREAD
+    UNARCHIVED
+    ARCHIVED
+    ALL
+  }
+
   input SetIntegrationInput {
     id: ID
     name: String!
     type: IntegrationType
     token: String!
     enabled: Boolean!
+    syncedAt: Date
+    importItemState: ImportItemState
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError
@@ -2038,7 +2061,7 @@ const schema = gql`
     name: String!
     token: String!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     grantedAt: Date
     expiresAt: Date
   }
@@ -2065,7 +2088,7 @@ const schema = gql`
     actions: [RuleAction!]!
     enabled: Boolean!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     eventTypes: [RuleEventType!]!
   }
 
@@ -2158,11 +2181,11 @@ const schema = gql`
   }
 
   input SaveFilterInput {
-    id: ID
     name: String!
     filter: String!
-    category: String!
+    category: String
     description: String
+    position: Int
   }
 
   union SaveFilterResult = SaveFilterSuccess | SaveFilterError
@@ -2179,7 +2202,9 @@ const schema = gql`
     category: String!
     description: String
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
+    defaultFilter: Boolean
+    visible: Boolean
   }
 
   type SaveFilterError {
@@ -2221,6 +2246,32 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
+  }
+
+  input UpdateFilterInput {
+    id: String!
+    name: String
+    filter: String
+    position: Int
+    category: String
+    description: String
+    visible: Boolean
+  }
+
+  enum UpdateFilterErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  union UpdateFilterResult = UpdateFilterSuccess | UpdateFilterError
+
+  type UpdateFilterSuccess {
+    filter: Filter!
+  }
+
+  type UpdateFilterError {
+    errorCodes: [UpdateFilterErrorCode!]!
   }
 
   input MoveFilterInput {
@@ -2267,7 +2318,7 @@ const schema = gql`
     admins: [User!]!
     members: [User!]!
     createdAt: Date!
-    updatedAt: Date!
+    updatedAt: Date
     canPost: Boolean!
     description: String
     topics: [String!]
@@ -2486,7 +2537,7 @@ const schema = gql`
     | SetFavoriteArticleError
 
   type SetFavoriteArticleSuccess {
-    favoriteArticle: Article!
+    success: Boolean!
   }
 
   type SetFavoriteArticleError {
@@ -2501,8 +2552,7 @@ const schema = gql`
   }
 
   input SubscribeInput {
-    url: String
-    name: String
+    url: String!
     subscriptionType: SubscriptionType
   }
 
@@ -2511,7 +2561,9 @@ const schema = gql`
     name: String
     description: String
     lastFetchedAt: Date
+    lastFetchedChecksum: String
     status: SubscriptionStatus
+    scheduledAt: Date
   }
 
   union UpdateSubscriptionResult =
@@ -2532,6 +2584,27 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union UpdateEmailResult = UpdateEmailSuccess | UpdateEmailError
+
+  type UpdateEmailSuccess {
+    email: String!
+    verificationEmailSent: Boolean
+  }
+
+  type UpdateEmailError {
+    errorCodes: [UpdateEmailErrorCode!]!
+  }
+
+  enum UpdateEmailErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    EMAIL_ALREADY_EXISTS
+  }
+
+  input UpdateEmailInput {
+    email: String!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2540,29 +2613,30 @@ const schema = gql`
     deleteAccount(userID: ID!): DeleteAccountResult!
     updateUser(input: UpdateUserInput!): UpdateUserResult!
     updateUserProfile(input: UpdateUserProfileInput!): UpdateUserProfileResult!
+    updateEmail(input: UpdateEmailInput!): UpdateEmailResult!
     createArticle(input: CreateArticleInput!): CreateArticleResult!
     createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
     mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
     updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
     deleteHighlight(highlightId: ID!): DeleteHighlightResult!
-    createHighlightReply(
-      input: CreateHighlightReplyInput!
-    ): CreateHighlightReplyResult!
-    updateHighlightReply(
-      input: UpdateHighlightReplyInput!
-    ): UpdateHighlightReplyResult!
-    deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
-    createReaction(input: CreateReactionInput!): CreateReactionResult!
-    deleteReaction(id: ID!): DeleteReactionResult!
+    # createHighlightReply(
+    #   input: CreateHighlightReplyInput!
+    # ): CreateHighlightReplyResult!
+    # updateHighlightReply(
+    #   input: UpdateHighlightReplyInput!
+    # ): UpdateHighlightReplyResult!
+    # deleteHighlightReply(highlightReplyId: ID!): DeleteHighlightReplyResult!
+    # createReaction(input: CreateReactionInput!): CreateReactionResult!
+    # deleteReaction(id: ID!): DeleteReactionResult!
     uploadFileRequest(input: UploadFileRequestInput!): UploadFileRequestResult!
     saveArticleReadingProgress(
       input: SaveArticleReadingProgressInput!
     ): SaveArticleReadingProgressResult!
-    setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
-    updateSharedComment(
-      input: UpdateSharedCommentInput!
-    ): UpdateSharedCommentResult!
-    setFollow(input: SetFollowInput!): SetFollowResult!
+    # setShareArticle(input: SetShareArticleInput!): SetShareArticleResult!
+    # updateSharedComment(
+    #   input: UpdateSharedCommentInput!
+    # ): UpdateSharedCommentResult!
+    # setFollow(input: SetFollowInput!): SetFollowResult!
     setBookmarkArticle(
       input: SetBookmarkArticleInput!
     ): SetBookmarkArticleResult!
@@ -2572,11 +2646,11 @@ const schema = gql`
     createArticleSavingRequest(
       input: CreateArticleSavingRequestInput!
     ): CreateArticleSavingRequestResult!
-    setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
+    # setShareHighlight(input: SetShareHighlightInput!): SetShareHighlightResult!
     reportItem(input: ReportItemInput!): ReportItemResult!
-    updateLinkShareInfo(
-      input: UpdateLinkShareInfoInput!
-    ): UpdateLinkShareInfoResult!
+    # updateLinkShareInfo(
+    #   input: UpdateLinkShareInfoInput!
+    # ): UpdateLinkShareInfoResult!
     setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
     createNewsletterEmail: CreateNewsletterEmailResult!
     deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
@@ -2584,9 +2658,9 @@ const schema = gql`
     savePage(input: SavePageInput!): SaveResult!
     updatePage(input: UpdatePageInput!): UpdatePageResult!
     saveFile(input: SaveFileInput!): SaveResult!
-    createReminder(input: CreateReminderInput!): CreateReminderResult!
-    updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
-    deleteReminder(id: ID!): DeleteReminderResult!
+    # createReminder(input: CreateReminderInput!): CreateReminderResult!
+    # updateReminder(input: UpdateReminderInput!): UpdateReminderResult!
+    # deleteReminder(id: ID!): DeleteReminderResult!
     setDeviceToken(input: SetDeviceTokenInput!): SetDeviceTokenResult!
     createLabel(input: CreateLabelInput!): CreateLabelResult!
     updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
@@ -2609,6 +2683,7 @@ const schema = gql`
     saveFilter(input: SaveFilterInput!): SaveFilterResult!
     deleteFilter(id: ID!): DeleteFilterResult!
     moveFilter(input: MoveFilterInput!): MoveFilterResult!
+    updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
     createGroup(input: CreateGroupInput!): CreateGroupResult!
     recommend(input: RecommendInput!): RecommendResult!
     joinGroup(inviteCode: String!): JoinGroupResult!
@@ -2641,34 +2716,26 @@ const schema = gql`
     hello: String
     me: User
     user(userId: ID, username: String): UserResult!
-    articles(
-      sharedOnly: Boolean
-      sort: SortParams
-      after: String
-      first: Int
-      query: String
-      includePending: Boolean
-    ): ArticlesResult!
     article(username: String!, slug: String!, format: String): ArticleResult!
-    sharedArticle(
-      username: String!
-      slug: String!
-      selectedHighlightId: String
-    ): SharedArticleResult!
-    feedArticles(
-      after: String
-      first: Int
-      sort: SortParams
-      sharedByUser: ID
-    ): FeedArticlesResult!
+    # sharedArticle(
+    #   username: String!
+    #   slug: String!
+    #   selectedHighlightId: String
+    # ): SharedArticleResult!
+    # feedArticles(
+    #   after: String
+    #   first: Int
+    #   sort: SortParams
+    #   sharedByUser: ID
+    # ): FeedArticlesResult!
     users: UsersResult!
     validateUsername(username: String!): Boolean!
-    getFollowers(userId: ID): GetFollowersResult!
-    getFollowing(userId: ID): GetFollowingResult!
+    # getFollowers(userId: ID): GetFollowersResult!
+    # getFollowing(userId: ID): GetFollowingResult!
     getUserPersonalization: GetUserPersonalizationResult!
     articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
     newsletterEmails: NewsletterEmailsResult!
-    reminder(linkId: ID!): ReminderResult!
+    # reminder(linkId: ID!): ReminderResult!
     labels: LabelsResult!
     search(
       after: String

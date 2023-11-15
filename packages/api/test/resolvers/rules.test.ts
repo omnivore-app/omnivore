@@ -1,10 +1,11 @@
-import 'mocha'
 import { expect } from 'chai'
-import { graphqlRequest, request } from '../util'
-import { User } from '../../src/entity/user'
-import { createTestUser, deleteTestUser } from '../db'
-import { getRepository } from '../../src/entity/utils'
+import 'mocha'
 import { Rule, RuleAction, RuleActionType } from '../../src/entity/rule'
+import { User } from '../../src/entity/user'
+import { createRule, deleteRules } from '../../src/services/rules'
+import { deleteUser } from '../../src/services/user'
+import { createTestUser } from '../db'
+import { graphqlRequest, request } from '../util'
 
 describe('Rules Resolver', () => {
   const username = 'fakeUser'
@@ -24,7 +25,7 @@ describe('Rules Resolver', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
+    await deleteUser(user.id)
   })
 
   describe('set rules', () => {
@@ -71,7 +72,7 @@ describe('Rules Resolver', () => {
     `
 
     after(async () => {
-      await getRepository(Rule).delete({ user: { id: user.id } })
+      await deleteRules(user.id)
     })
 
     it('should set rules', async () => {
@@ -89,17 +90,15 @@ describe('Rules Resolver', () => {
 
   describe('get rules', () => {
     before(async () => {
-      await getRepository(Rule).save({
-        user: { id: user.id },
-        name: 'test rule',
-        filter: 'test filter',
+      await createRule(user.id, {
+        name: 'test rule 2',
+        filter: 'test filter 2',
         actions: [{ type: RuleActionType.SendNotification, params: [] }],
-        enabled: true,
       })
     })
 
     after(async () => {
-      await getRepository(Rule).delete({ user: { id: user.id } })
+      await deleteRules(user.id)
     })
 
     const getRulesQuery = (enabled: boolean | null = null) => `
@@ -137,12 +136,10 @@ describe('Rules Resolver', () => {
     let rule: Rule
 
     before(async () => {
-      rule = await getRepository(Rule).save({
-        user: { id: user.id },
-        name: 'test rule',
-        filter: 'test filter',
+      rule = await createRule(user.id, {
+        name: 'test rule 3',
+        filter: 'test filter 3',
         actions: [{ type: RuleActionType.SendNotification, params: [] }],
-        enabled: true,
       })
     })
 

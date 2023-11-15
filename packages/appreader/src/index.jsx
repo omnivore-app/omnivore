@@ -52,8 +52,6 @@ const mutation = async (name, input) => {
 const App = () => {
   applyStoredTheme(false)
 
-  console.log('rerendering: ', window.omnivoreArticle)
-
   return (
     <>
       <Box

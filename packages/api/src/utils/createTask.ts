@@ -5,8 +5,9 @@ import { CloudTasksClient, protos } from '@google-cloud/tasks'
 import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import { Recommendation } from '../elastic/types'
-import { Subscription } from '../entity/subscription'
+import { DeepPartial } from 'typeorm'
+import { ImportItemState } from '../entity/integration'
+import { Recommendation } from '../entity/recommendation'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -21,7 +22,7 @@ import View = google.cloud.tasks.v2.Task.View
 // Instantiates a client.
 const client = new CloudTasksClient()
 
-const logError = (error: Error): void => {
+const logError = (error: any): void => {
   if (axios.isAxiosError(error)) {
     logger.error(error.response)
   } else {
@@ -102,7 +103,12 @@ const createHttpTaskWithToken = async ({
       : null,
   }
 
-  return client.createTask({ parent, task })
+  try {
+    return client.createTask({ parent, task })
+  } catch (error) {
+    logError(error)
+    return null
+  }
 }
 
 export const createAppEngineTask = async ({
@@ -224,6 +230,8 @@ export const enqueueParseRequest = async ({
   labels,
   locale,
   timezone,
+  savedAt,
+  publishedAt,
 }: {
   url: string
   userId: string
@@ -234,6 +242,8 @@ export const enqueueParseRequest = async ({
   labels?: CreateLabelInput[]
   locale?: string
   timezone?: string
+  savedAt?: Date
+  publishedAt?: Date
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -244,19 +254,23 @@ export const enqueueParseRequest = async ({
     labels,
     locale,
     timezone,
+    savedAt,
+    publishedAt,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
-        logError(error)
-        logger.warning(
-          `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
-        )
-      })
-    }, 0)
+    if (env.queue.contentFetchUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
+          logError(error)
+          logger.error(
+            `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
+          )
+        })
+      }, 0)
+    }
     return ''
   }
 
@@ -315,47 +329,6 @@ export const enqueueReminder = async (
   return createdTasks[0].name
 }
 
-export const enqueueSyncWithIntegration = async (
-  userId: string,
-  integrationName: string
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
-  // use pubsub data format to send the userId to the task handler
-  const payload = {
-    message: {
-      data: Buffer.from(
-        JSON.stringify({
-          userId,
-        })
-      ).toString('base64'),
-      publishTime: new Date().toISOString(),
-    },
-  }
-
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    return nanoid()
-  }
-
-  const createdTasks = await createHttpTaskWithToken({
-    project: GOOGLE_CLOUD_PROJECT,
-    payload,
-    taskHandlerUrl: `${
-      env.queue.integrationTaskHandlerUrl
-    }/${integrationName.toLowerCase()}/sync_all?token=${PUBSUB_VERIFICATION_TOKEN}`,
-    priority: 'low',
-  })
-
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
-    })
-    throw new CreateTaskError(`Unable to get the name of the task`)
-  }
-  return createdTasks[0].name
-}
-
 export const enqueueTextToSpeech = async ({
   userId,
   text,
@@ -402,12 +375,14 @@ export const enqueueTextToSpeech = async ({
   const taskHandlerUrl = `${env.queue.textToSpeechTaskHandlerUrl}?token=${token}`
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios.post(taskHandlerUrl, payload).catch((error) => {
-        logError(error)
-      })
-    }, 0)
+    if (env.queue.textToSpeechTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios.post(taskHandlerUrl, payload).catch((error) => {
+          logError(error)
+        })
+      }, 0)
+    }
     return ''
   }
   const createdTasks = await createHttpTaskWithToken({
@@ -431,15 +406,15 @@ export const enqueueTextToSpeech = async ({
 
 export const enqueueRecommendation = async (
   userId: string,
-  pageId: string,
-  recommendation: Recommendation,
+  itemId: string,
+  recommendation: DeepPartial<Recommendation>,
   authToken: string,
   highlightIds?: string[]
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
-    pageId,
+    itemId,
     recommendation,
     highlightIds,
   }
@@ -449,16 +424,18 @@ export const enqueueRecommendation = async (
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(env.queue.recommendationTaskHandlerUrl, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.recommendationTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.recommendationTaskHandlerUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return ''
   }
 
@@ -481,35 +458,94 @@ export const enqueueRecommendation = async (
 
 export const enqueueImportFromIntegration = async (
   integrationId: string,
-  authToken: string
+  integrationName: string,
+  syncAt: number, // unix timestamp in milliseconds
+  authToken: string,
+  state: ImportItemState
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     integrationId,
+    integrationName,
+    syncAt,
+    state,
   }
 
   const headers = {
-    Cookie: `auth=${authToken}`,
+    [OmnivoreAuthorizationHeader]: authToken,
   }
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(`${env.queue.integrationTaskHandlerUrl}/import`, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.integrationImporterUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.integrationImporterUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return nanoid()
   }
 
   const createdTasks = await createHttpTaskWithToken({
     project: GOOGLE_CLOUD_PROJECT,
     payload,
-    taskHandlerUrl: `${env.queue.integrationTaskHandlerUrl}/import`,
+    taskHandlerUrl: env.queue.integrationImporterUrl,
+    priority: 'low',
+    requestHeaders: headers,
+  })
+
+  if (!createdTasks || !createdTasks[0].name) {
+    logger.error(`Unable to get the name of the task`, {
+      payload,
+      createdTasks,
+    })
+    throw new CreateTaskError(`Unable to get the name of the task`)
+  }
+  return createdTasks[0].name
+}
+
+export const enqueueExportToIntegration = async (
+  integrationId: string,
+  integrationName: string,
+  syncAt: number, // unix timestamp in milliseconds
+  authToken: string
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT } = process.env
+  const payload = {
+    integrationId,
+    integrationName,
+    syncAt,
+  }
+
+  const headers = {
+    [OmnivoreAuthorizationHeader]: authToken,
+  }
+  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+    if (env.queue.integrationExporterUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.integrationExporterUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
+    return nanoid()
+  }
+
+  const createdTasks = await createHttpTaskWithToken({
+    project: GOOGLE_CLOUD_PROJECT,
+    payload,
+    taskHandlerUrl: env.queue.integrationExporterUrl,
     priority: 'low',
     requestHeaders: headers,
   })
@@ -526,32 +562,32 @@ export const enqueueImportFromIntegration = async (
 
 export const enqueueThumbnailTask = async (
   userId: string,
-  slug: string,
-  content: string
+  slug: string
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
     userId,
     slug,
-    content,
   }
 
   const headers = {
-    Cookie: `auth=${generateVerificationToken(userId)}`,
+    Cookie: `auth=${generateVerificationToken({ id: userId })}`,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(env.queue.thumbnailTaskHandlerUrl, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.thumbnailTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(env.queue.thumbnailTaskHandlerUrl, payload, {
+            headers,
+          })
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return ''
   }
 
@@ -572,33 +608,47 @@ export const enqueueThumbnailTask = async (
   return createdTasks[0].name
 }
 
-export const enqueueRssFeedFetch = async (
-  userId: string,
-  rssFeedSubscription: Subscription
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
-  const payload = {
-    subscriptionId: rssFeedSubscription.id,
-    feedUrl: rssFeedSubscription.url,
-    lastFetchedAt: rssFeedSubscription.lastFetchedAt?.getTime() || 0, // unix timestamp in milliseconds
-  }
+export interface RssSubscriptionGroup {
+  url: string
+  subscriptionIds: string[]
+  userIds: string[]
+  fetchedDates: (Date | null)[]
+  scheduledDates: Date[]
+  checksums: (string | null)[]
+}
 
-  const headers = {
-    [OmnivoreAuthorizationHeader]: generateVerificationToken(userId),
+export const enqueueRssFeedFetch = async (
+  subscriptionGroup: RssSubscriptionGroup
+): Promise<string> => {
+  const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
+  const payload = {
+    subscriptionIds: subscriptionGroup.subscriptionIds,
+    feedUrl: subscriptionGroup.url,
+    lastFetchedTimestamps: subscriptionGroup.fetchedDates.map(
+      (timestamp) => timestamp?.getTime() || 0
+    ), // unix timestamp in milliseconds
+    lastFetchedChecksums: subscriptionGroup.checksums,
+    scheduledTimestamps: subscriptionGroup.scheduledDates.map((timestamp) =>
+      timestamp.getTime()
+    ), // unix timestamp in milliseconds
+    userIds: subscriptionGroup.userIds,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    // Calling the handler function directly.
-    setTimeout(() => {
-      axios
-        .post(env.queue.rssFeedTaskHandlerUrl, payload, {
-          headers,
-        })
-        .catch((error) => {
-          logError(error)
-        })
-    }, 0)
+    if (env.queue.rssFeedTaskHandlerUrl) {
+      // Calling the handler function directly.
+      setTimeout(() => {
+        axios
+          .post(
+            `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
+            payload
+          )
+          .catch((error) => {
+            logError(error)
+          })
+      }, 0)
+    }
     return nanoid()
   }
 
@@ -606,8 +656,7 @@ export const enqueueRssFeedFetch = async (
     project: GOOGLE_CLOUD_PROJECT,
     queue: 'omnivore-rss-queue',
     payload,
-    taskHandlerUrl: env.queue.rssFeedTaskHandlerUrl,
-    requestHeaders: headers,
+    taskHandlerUrl: `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
   })
 
   if (!createdTasks || !createdTasks[0].name) {

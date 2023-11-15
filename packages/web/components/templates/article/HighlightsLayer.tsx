@@ -30,6 +30,7 @@ import 'react-sliding-pane/dist/react-sliding-pane.css'
 import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
+import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -88,20 +89,26 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
     undefined
   )
 
+  const [
+    confirmDeleteHighlightWithNoteId,
+    setConfirmDeleteHighlightWithNoteId,
+  ] = useState<string | undefined>(undefined)
+
   const windowDimensions = useGetWindowDimensions()
 
   const createHighlightFromSelection = useCallback(
     async (
       selection: SelectionAttributes,
-      note?: string
+      options: { annotation?: string; color?: string } | undefined
     ): Promise<Highlight | undefined> => {
       const result = await createHighlight(
         {
           selection: selection,
           articleId: props.articleId,
           existingHighlights: highlights,
+          color: options?.color,
           highlightStartEndOffsets: highlightLocations,
-          annotation: note,
+          annotation: options?.annotation,
           highlightPositionPercent: selectionPercentPos(selection.selection),
           highlightPositionAnchorIndex: selectionAnchorIndex(
             selection.selection
@@ -190,8 +197,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setHighlights(highlights.filter(($0) => $0.id !== highlightId))
         setFocusedHighlight(undefined)
         document.dispatchEvent(new Event('highlightsUpdated'))
+        showSuccessToast('Highlight removed')
       } else {
         console.error('Failed to delete highlight')
+        showErrorToast('Error removing highlight')
       }
     },
     [focusedHighlight, highlights, highlightLocations, props.articleMutations]
@@ -204,6 +213,27 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       setHighlights([...keptHighlights, highlight])
     },
     [highlights, highlightLocations]
+  )
+
+  const updateHighlightColor = useCallback(
+    (highlight: Highlight, color: string) => {
+      const initial = highlight.color
+      highlight.color = color
+      updateHighlightsCallback(highlight)
+      ;(async () => {
+        const update = await props.articleMutations.updateHighlightMutation({
+          highlightId: highlight.id,
+          color: color,
+        })
+        if (!update) {
+          highlight.color = initial
+          updateHighlightsCallback(highlight)
+          showErrorToast('Error updating highlight color')
+        }
+        document.dispatchEvent(new Event('highlightsUpdated'))
+      })()
+    },
+    [props, highlights, highlightLocations, updateHighlightsCallback]
   )
 
   const openNoteModal = useCallback(
@@ -227,10 +257,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           if (!inputs.selectionData) {
             return undefined
           }
-          return await createHighlightFromSelection(inputs.selectionData, note)
+          return await createHighlightFromSelection(inputs.selectionData, {
+            annotation: note,
+          })
         }
         setHighlightModalAction(inputs)
       }
+      document.dispatchEvent(new Event('highlightsUpdated'))
     },
     [props.highlightBarDisabled, createHighlightFromSelection]
   )
@@ -271,14 +304,14 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   }
 
   const createHighlightCallback = useCallback(
-    async (annotation?: string) => {
+    async (options: { annotation?: string; color?: string } | undefined) => {
       if (!selectionData) {
         return
       }
       try {
         const result = await createHighlightFromSelection(
           selectionData,
-          annotation
+          options
         )
         if (!result) {
           showErrorToast('Error saving highlight', { position: 'bottom-right' })
@@ -436,13 +469,26 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   }, [handleSingleClick, handleDoubleClick])
 
   const handleAction = useCallback(
-    async (action: HighlightAction) => {
+    async (action: HighlightAction, param?: string) => {
       switch (action) {
         case 'delete':
-          await removeHighlightCallback()
+          if ((focusedHighlight?.annotation ?? '').length === 0) {
+            await removeHighlightCallback()
+          } else {
+            setConfirmDeleteHighlightWithNoteId(focusedHighlight?.id)
+          }
           break
         case 'create':
-          await createHighlightCallback()
+          await createHighlightCallback({
+            color: param,
+          })
+          break
+        case 'updateColor':
+          if (focusedHighlight && param) {
+            updateHighlightColor(focusedHighlight, param)
+          } else {
+            showErrorToast('Error updating color')
+          }
           break
         case 'comment':
           if (props.highlightBarDisabled || focusedHighlight) {
@@ -479,9 +525,12 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           if (textToCopy) {
             try {
               await navigator.clipboard.writeText(textToCopy)
-              showSuccessToast('Highlight copied', {
-                position: 'bottom-right',
-              })
+              showSuccessToast(
+                focusedHighlight ? 'Highlight copied' : 'Text copied',
+                {
+                  position: 'bottom-right',
+                }
+              )
             } catch (error) {
               showErrorToast('Error copying highlight, permission denied.', {
                 position: 'bottom-right',
@@ -514,6 +563,8 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       removeHighlightCallback,
       selectionData,
       setSelectionData,
+      updateHighlightColor,
+      confirmDeleteHighlightWithNoteId,
     ]
   )
 
@@ -674,12 +725,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         dispatchHighlightMessage('noteCreated')
       } else {
         try {
-          await createHighlightCallback(event.annotation)
+          await createHighlightCallback({
+            annotation: event.annotation,
+          })
           dispatchHighlightMessage('noteCreated')
         } catch (error) {
           dispatchHighlightError('saveAnnotation', error)
         }
       }
+      document.dispatchEvent(new Event('highlightsUpdated'))
     }
 
     document.addEventListener('annotate', annotate)
@@ -748,6 +802,20 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           onOpenChange={() => setLabelsTarget(undefined)}
         />
       )}
+      {confirmDeleteHighlightWithNoteId && (
+        <ConfirmationModal
+          message="Are you sure you want to delete this highlight? The note associated with it will also be deleted."
+          onAccept={() => {
+            ;(async () => {
+              await removeHighlightCallback(confirmDeleteHighlightWithNoteId)
+              setConfirmDeleteHighlightWithNoteId(undefined)
+            })()
+          }}
+          onOpenChange={() => {
+            setConfirmDeleteHighlightWithNoteId(undefined)
+          }}
+        />
+      )}
       {/* // Display the button bar if we are not in the native app and there // is
       a focused highlight or selection data */}
       {!props.highlightBarDisabled && (focusedHighlight || selectionData) && (
@@ -758,6 +826,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
             handleButtonClick={handleAction}
             isSharedToFeed={focusedHighlight?.sharedAt != undefined}
             displayAtBottom={isTouchScreenDevice()}
+            highlightColor={focusedHighlight?.color ?? 'yellow'}
           />
         </>
       )}
@@ -773,7 +842,11 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         }}
       >
         <>
-          <NotebookHeader setShowNotebook={props.setShowHighlightsModal} />
+          <NotebookHeader
+            viewer={props.viewer}
+            item={props.item}
+            setShowNotebook={props.setShowHighlightsModal}
+          />
           <NotebookContent
             viewer={props.viewer}
             item={props.item}

@@ -32,7 +32,7 @@ export default function InvitePage(): JSX.Element {
   }, [isLoading, router, viewerData, viewerDataError])
 
   const acceptClicked = useCallback(
-    (event) => {
+    (event: any) => {
       event?.stopPropagation()
 
       if (!router.isReady) {
@@ -63,108 +63,106 @@ export default function InvitePage(): JSX.Element {
     [router, inviteCode]
   )
 
-  return (
-    <>
-      <PageMetaData title="Accept Invite - Omnivore" path="/invite" />
-      <ProfileLayout>
-        <VStack
-          alignment="center"
+  return <>
+    <PageMetaData title="Accept Invite - Omnivore" path="/invite" />
+    <ProfileLayout>
+      <VStack
+        alignment="center"
+        css={{
+          padding: '16px',
+          background: 'white',
+          minWidth: '340px',
+          width: '70vw',
+          maxWidth: '576px',
+          borderRadius: '8px',
+          border: '1px solid #3D3D3D',
+          boxShadow: '#B1B1B1 9px 9px 9px -9px',
+        }}
+      >
+        <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
+          You&apos;re invited
+        </StyledText>
+
+        <StyledText
+          style="action"
           css={{
-            padding: '16px',
-            background: 'white',
-            minWidth: '340px',
-            width: '70vw',
-            maxWidth: '576px',
-            borderRadius: '8px',
-            border: '1px solid #3D3D3D',
-            boxShadow: '#B1B1B1 9px 9px 9px -9px',
+            mt: '0px',
+            pt: '4px',
+            width: '100%',
+            color: '$omnivoreLightGray',
+            textAlign: 'center',
+            whiteSpace: 'normal',
           }}
         >
-          <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
-            You&apos;re invited
-          </StyledText>
-
+          You have been invited to join a recommendation group on Omnivore.
+          Recommendation groups allow you to share articles with other group
+          members.
+        </StyledText>
+        {errorMessage && (
           <StyledText
-            style="action"
+            style="error"
             css={{
               mt: '0px',
               pt: '4px',
               width: '100%',
-              color: '$omnivoreLightGray',
               textAlign: 'center',
               whiteSpace: 'normal',
             }}
           >
-            You have been invited to join a recommendation group on Omnivore.
-            Recommendation groups allow you to share articles with other group
-            members.
+            {errorMessage}
           </StyledText>
-          {errorMessage && (
-            <StyledText
-              style="error"
-              css={{
-                mt: '0px',
-                pt: '4px',
-                width: '100%',
-                textAlign: 'center',
-                whiteSpace: 'normal',
-              }}
-            >
-              {errorMessage}
-            </StyledText>
-          )}
+        )}
 
-          <HStack
-            alignment="center"
-            distribution="center"
-            css={{
-              gap: '10px',
-              width: '100%',
-              height: '80px',
-            }}
-          >
-            {viewerData?.me ? (
-              <Button
-                type="submit"
-                style={'ctaDarkYellow'}
-                onClick={acceptClicked}
-              >
-                Accept Invite
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                style={'ctaDarkYellow'}
-                onClick={() => router.push('/login')}
-              >
-                Login
-              </Button>
-            )}
-          </HStack>
-          <StyledText
-            style="action"
-            css={{
-              m: '0px',
-              pt: '16px',
-              width: '100%',
-              color: '$omnivoreLightGray',
-              textAlign: 'center',
-              whiteSpace: 'normal',
-            }}
-          >
-            Don&apos;t have an Omnivore account?{' '}
-            <Link href="/login" passHref>
-              <StyledTextSpan
-                style="actionLink"
-                css={{ color: '$omnivoreGray' }}
-              >
-                Signup
-              </StyledTextSpan>
-            </Link>
-          </StyledText>
-        </VStack>
-        <div data-testid="invite-page-tag" />
-      </ProfileLayout>
-    </>
-  )
+        <HStack
+          alignment="center"
+          distribution="center"
+          css={{
+            gap: '10px',
+            width: '100%',
+            height: '80px',
+          }}
+        >
+          {viewerData?.me ? (
+            <Button
+              type="submit"
+              style={'ctaDarkYellow'}
+              onClick={acceptClicked}
+            >
+              Accept Invite
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              style={'ctaDarkYellow'}
+              onClick={() => router.push('/login')}
+            >
+              Login
+            </Button>
+          )}
+        </HStack>
+        <StyledText
+          style="action"
+          css={{
+            m: '0px',
+            pt: '16px',
+            width: '100%',
+            color: '$omnivoreLightGray',
+            textAlign: 'center',
+            whiteSpace: 'normal',
+          }}
+        >
+          Don&apos;t have an Omnivore account?{' '}
+          <Link href="/login" passHref legacyBehavior>
+            <StyledTextSpan
+              style="actionLink"
+              css={{ color: '$omnivoreGray' }}
+            >
+              Signup
+            </StyledTextSpan>
+          </Link>
+        </StyledText>
+      </VStack>
+      <div data-testid="invite-page-tag" />
+    </ProfileLayout>
+  </>;
 }

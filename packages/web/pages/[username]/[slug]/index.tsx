@@ -13,8 +13,6 @@ import {
 } from './../../../components/templates/article/ArticleContainer'
 import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
 import { useCallback, useEffect, useState } from 'react'
-import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { navigationCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import dynamic from 'next/dynamic'
 import { Toaster } from 'react-hot-toast'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
@@ -27,20 +25,27 @@ import { ArticleActionsMenu } from '../../../components/templates/article/Articl
 import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
 import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { useSWRConfig } from 'swr'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithUndo,
+} from '../../../lib/toastHelpers'
 import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
 import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
 import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
 import { useRegisterActions } from 'kbar'
 import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
-import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
 import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
 import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
 import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
 import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
 import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
+import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
+import { State } from '../../../lib/networking/fragments/articleFragment'
+import { posthog } from 'posthog-js'
+import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),
@@ -73,7 +78,33 @@ export default function Home(): JSX.Element {
     })
   }, [articleData?.article.article])
 
-  useKeyboardShortcuts(navigationCommands(router))
+  const goNextOrHome = useCallback(() => {
+    // const listStr = localStorage.getItem('library-slug-list')
+    // if (article && listStr && viewerData?.me) {
+    //   const libraryList = JSON.parse(listStr) as string[]
+    //   const idx = libraryList.findIndex((slug) => slug == article.slug)
+    //   if (idx != -1 && idx < libraryList.length - 1) {
+    //     const nextSlug = libraryList[idx + 1] as string
+    //     router.push(`/${viewerData?.me.profile.username}/${nextSlug}`)
+    //     return
+    //   }
+    // }
+    router.push(`/home`)
+  }, [router, viewerData, article])
+
+  const goPreviousOrHome = useCallback(() => {
+    // const listStr = localStorage.getItem('library-slug-list')
+    // if (article && listStr && viewerData?.me) {
+    //   const libraryList = JSON.parse(listStr) as string[]
+    //   const idx = libraryList.findIndex((slug) => slug == article.slug)
+    //   if (idx > 0) {
+    //     const previousSlug = libraryList[idx - 1] as string
+    //     router.push(`/${viewerData?.me.profile.username}/${previousSlug}`)
+    //     return
+    //   }
+    // }
+    router.push(`/home`)
+  }, [router, viewerData, article])
 
   const actionHandler = useCallback(
     async (action: string, arg?: unknown) => {
@@ -96,8 +127,7 @@ export default function Home(): JSX.Element {
                 })
               }
             })
-
-            router.push(`/home`)
+            goNextOrHome()
           }
           break
         case 'archive':
@@ -113,7 +143,10 @@ export default function Home(): JSX.Element {
                   position: 'bottom-right',
                 })
               } else {
-                router.push(`/home`)
+                goNextOrHome()
+                showSuccessToast('Page archived', {
+                  position: 'bottom-right',
+                })
               }
             })
           }
@@ -132,13 +165,13 @@ export default function Home(): JSX.Element {
                   position: 'bottom-right',
                 })
               } else {
-                router.push(`/home`)
+                goNextOrHome()
               }
             })
           }
           break
         case 'delete':
-          readerSettings.setShowDeleteConfirmation(true)
+          await deleteCurrentItem()
           break
         case 'openOriginalArticle':
           const url = article?.url
@@ -163,7 +196,7 @@ export default function Home(): JSX.Element {
           break
       }
     },
-    [article, cache, mutate, router, readerSettings]
+    [article, viewerData, cache, mutate, router, readerSettings]
   )
 
   useEffect(() => {
@@ -181,35 +214,58 @@ export default function Home(): JSX.Element {
       actionHandler('mark-read')
     }
 
+    const showEditModal = () => {
+      actionHandler('showEditModal')
+    }
+
     document.addEventListener('archive', archive)
     document.addEventListener('delete', deletePage)
     document.addEventListener('mark-read', markRead)
     document.addEventListener('openOriginalArticle', openOriginalArticle)
+    document.addEventListener('showEditModal', showEditModal)
+
+    document.addEventListener('goNextOrHome', goNextOrHome)
+    document.addEventListener('goPreviousOrHome', goPreviousOrHome)
 
     return () => {
       document.removeEventListener('archive', archive)
       document.removeEventListener('mark-read', markRead)
+      document.removeEventListener('delete', deletePage)
       document.removeEventListener('openOriginalArticle', openOriginalArticle)
+      document.removeEventListener('showEditModal', showEditModal)
+      document.removeEventListener('goNextOrHome', goNextOrHome)
+      document.removeEventListener('goPreviousOrHome', goPreviousOrHome)
     }
-  }, [actionHandler])
+  }, [actionHandler, goNextOrHome, goPreviousOrHome])
 
   useEffect(() => {
     if (article && viewerData?.me) {
-      window.analytics?.track('link_read', {
+      posthog.capture('link_read', {
         link: article.id,
         slug: article.slug,
         url: article.originalArticleUrl,
-        userId: viewerData.me.id,
       })
     }
   }, [article, viewerData])
 
   const deleteCurrentItem = useCallback(async () => {
     if (article) {
-      removeItemFromCache(cache, mutate, article.id)
-      await deleteLinkMutation(article.id).then((res) => {
+      const pageId = article.id
+      removeItemFromCache(cache, mutate, pageId)
+      await deleteLinkMutation(pageId).then((res) => {
         if (res) {
-          showSuccessToast('Page deleted', { position: 'bottom-right' })
+          showSuccessToastWithUndo('Page deleted', async () => {
+            const result = await updatePageMutation({
+              pageId: pageId,
+              state: State.SUCCEEDED,
+            })
+            document.dispatchEvent(new Event('revalidateLibrary'))
+            if (result) {
+              showSuccessToast('Page recovered')
+            } else {
+              showErrorToast('Error recovering page, check your deleted items')
+            }
+          })
         } else {
           // todo: revalidate or put back in cache?
           showErrorToast('Error deleting page', { position: 'bottom-right' })
@@ -253,8 +309,6 @@ export default function Home(): JSX.Element {
         perform: () => {
           if (
             readerSettings.showSetLabelsModal ||
-            readerSettings.showDeleteConfirmation ||
-            readerSettings.showDeleteConfirmation ||
             readerSettings.showEditDisplaySettingsModal
           ) {
             return
@@ -364,6 +418,24 @@ export default function Home(): JSX.Element {
         shortcut: ['i'],
         perform: () => setShowEditModal(true),
       },
+      // {
+      //   id: 'go_previous',
+      //   section: 'Article',
+      //   name: 'Go to Previous',
+      //   shortcut: ['g', 'p'],
+      //   perform: () => {
+      //     document.dispatchEvent(new Event('goPreviousOrHome'))
+      //   },
+      // },
+      // {
+      //   id: 'go_next',
+      //   section: 'Article',
+      //   name: 'Go to Next',
+      //   shortcut: ['g', 'n'],
+      //   perform: () => {
+      //     document.dispatchEvent(new Event('goNextOrHome'))
+      //   },
+      // },
     ],
     [readerSettings, showHighlightsModal]
   )
@@ -541,22 +613,26 @@ export default function Home(): JSX.Element {
           onOpenChange={() => readerSettings.setShowSetLabelsModal(false)}
         />
       )}
-      {readerSettings.showEditDisplaySettingsModal && (
-        <DisplaySettingsModal
-          centerX={true}
-          readerSettings={readerSettings}
-          onOpenChange={() => {
-            readerSettings.setShowEditDisplaySettingsModal(false)
-          }}
-        />
-      )}
-      {readerSettings.showDeleteConfirmation && (
-        <ConfirmationModal
-          message={'Are you sure you want to delete this page?'}
-          onAccept={deleteCurrentItem}
-          onOpenChange={() => readerSettings.setShowDeleteConfirmation(false)}
-        />
-      )}
+      {article?.contentReader === 'PDF' &&
+        readerSettings.showEditDisplaySettingsModal && (
+          <PDFDisplaySettingsModal
+            centerX={true}
+            readerSettings={readerSettings}
+            onOpenChange={() => {
+              readerSettings.setShowEditDisplaySettingsModal(false)
+            }}
+          />
+        )}
+      {article?.contentReader !== 'PDF' &&
+        readerSettings.showEditDisplaySettingsModal && (
+          <DisplaySettingsModal
+            centerX={true}
+            readerSettings={readerSettings}
+            onOpenChange={() => {
+              readerSettings.setShowEditDisplaySettingsModal(false)
+            }}
+          />
+        )}
       {article && showEditModal && (
         <EditArticleModal
           article={article}

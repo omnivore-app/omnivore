@@ -1,16 +1,18 @@
 import { Box } from '../../elements/LayoutPrimitives'
 import { OmnivoreNameLogo } from '../../elements/images/OmnivoreNameLogo'
 import { Button } from '../../elements/Button'
+import Link from 'next/link'
 
 const LoginButton = (): JSX.Element => {
   return (
     <Button
+      as={Link}
+      href="/login"
       style="ctaDarkYellow"
       css={{
         display: 'flex',
         marginLeft: 'auto',
         borderRadius: 4,
-        border: 'unset',
         background: 'unset',
         color: '#3D3D3D',
         height: '42px',
@@ -19,10 +21,8 @@ const LoginButton = (): JSX.Element => {
         fontWeight: 'normal',
         alignItems: 'center',
         justifyContent: 'center',
-      }}
-      onClick={(e) => {
-        document.location.href = '/login'
-        e.preventDefault()
+        textDecoration: "none",
+        transition: "all ease-in 50ms"
       }}
     >
       Login

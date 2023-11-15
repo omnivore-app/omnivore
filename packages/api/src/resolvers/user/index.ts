@@ -1,7 +1,9 @@
 import * as jwt from 'jsonwebtoken'
-import { deletePagesByParam } from '../../elastic/pages'
-import { User as UserEntity } from '../../entity/user'
-import { setClaims } from '../../entity/utils'
+import {
+  RegistrationType,
+  StatusType,
+  User as UserEntity,
+} from '../../entity/user'
 import { env } from '../../env'
 import {
   DeleteAccountError,
@@ -15,12 +17,16 @@ import {
   MutationDeleteAccountArgs,
   MutationGoogleLoginArgs,
   MutationGoogleSignupArgs,
+  MutationUpdateEmailArgs,
   MutationUpdateUserArgs,
   MutationUpdateUserProfileArgs,
   QueryUserArgs,
   QueryValidateUsernameArgs,
   ResolverFn,
   SignupErrorCode,
+  UpdateEmailError,
+  UpdateEmailErrorCode,
+  UpdateEmailSuccess,
   UpdateUserError,
   UpdateUserErrorCode,
   UpdateUserProfileError,
@@ -33,8 +39,10 @@ import {
   UsersError,
   UsersSuccess,
 } from '../../generated/graphql'
-import { AppDataSource } from '../../server'
+import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
+import { sendVerificationEmail } from '../../services/send_emails'
+import { updateUser } from '../../services/user'
 import { authorized, userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
@@ -43,8 +51,8 @@ export const updateUserResolver = authorized<
   UpdateUserSuccess,
   UpdateUserError,
   MutationUpdateUserArgs
->(async (_, { input: { name, bio } }, { models, authTrx, claims }) => {
-  const user = await models.user.get(claims.uid)
+>(async (_, { input: { name, bio } }, { uid, authTrx }) => {
+  const user = await userRepository.findById(uid)
   if (!user) {
     return { errorCodes: [UpdateUserErrorCode.UserNotFound] }
   }
@@ -63,17 +71,16 @@ export const updateUserResolver = authorized<
     return { errorCodes }
   }
 
-  const updatedUser = await authTrx(async (tx) => {
-    const [updatedRecord, profile] = await Promise.all([
-      models.user.update(
-        claims.uid,
-        { name, source: user.source, sourceUserId: user.sourceUserId },
-        tx
-      ),
-      models.user.updateProfile(claims.uid, { bio }, tx),
-    ])
-    return { ...updatedRecord, profile }
-  })
+  const updatedUser = await authTrx((tx) =>
+    tx.getRepository(UserEntity).save({
+      ...user,
+      name,
+      profile: {
+        ...user.profile,
+        bio,
+      },
+    })
+  )
 
   return { user: userDataToUser(updatedUser) }
 })
@@ -82,69 +89,65 @@ export const updateUserProfileResolver = authorized<
   UpdateUserProfileSuccess,
   UpdateUserProfileError,
   MutationUpdateUserProfileArgs
->(
-  async (
-    _,
-    { input: { userId, username, pictureUrl } },
-    { models, authTrx, claims }
-  ) => {
-    const user = await models.user.get(userId)
-    if (user.id !== claims.uid) {
-      return {
-        errorCodes: [UpdateUserProfileErrorCode.Forbidden],
-      }
-    }
-
-    if (!(username || pictureUrl)) {
-      return {
-        errorCodes: [UpdateUserProfileErrorCode.BadData],
-      }
-    }
-
-    const lowerCasedUsername = username?.toLowerCase()
-    if (lowerCasedUsername) {
-      const existingUser = await models.user.getWhere({
-        username: lowerCasedUsername,
-      })
-      if (existingUser?.id) {
-        return {
-          errorCodes: [UpdateUserProfileErrorCode.UsernameExists],
-        }
-      }
-
-      if (!validateUsername(lowerCasedUsername)) {
-        return {
-          errorCodes: [UpdateUserProfileErrorCode.BadUsername],
-        }
-      }
-    }
-
-    const updatedProfile = await authTrx((tx) =>
-      models.user.updateProfile(
-        userId,
-        {
-          username: lowerCasedUsername,
-          picture_url: pictureUrl,
-        },
-        tx
-      )
-    )
-
-    user.profile = {
-      ...updatedProfile,
-      picture_url: updatedProfile.pictureUrl,
-    }
-
-    return { user: userDataToUser(user) }
+>(async (_, { input: { userId, username, pictureUrl } }, { uid, authTrx }) => {
+  const user = await userRepository.findById(userId)
+  if (!user) {
+    return { errorCodes: [UpdateUserProfileErrorCode.Unauthorized] }
   }
-)
+
+  if (user.id !== uid) {
+    return {
+      errorCodes: [UpdateUserProfileErrorCode.Forbidden],
+    }
+  }
+
+  if (!(username || pictureUrl)) {
+    return {
+      errorCodes: [UpdateUserProfileErrorCode.BadData],
+    }
+  }
+
+  const lowerCasedUsername = username?.toLowerCase()
+  if (lowerCasedUsername) {
+    const existingUser = await userRepository.findOneBy({
+      profile: {
+        username: lowerCasedUsername,
+      },
+      status: StatusType.Active,
+    })
+    if (existingUser?.id) {
+      return {
+        errorCodes: [UpdateUserProfileErrorCode.UsernameExists],
+      }
+    }
+
+    if (!validateUsername(lowerCasedUsername)) {
+      return {
+        errorCodes: [UpdateUserProfileErrorCode.BadUsername],
+      }
+    }
+  }
+
+  const updatedUser = await authTrx((tx) =>
+    tx.getRepository(UserEntity).save({
+      ...user,
+      profile: {
+        ...user.profile,
+        username: lowerCasedUsername,
+        pictureUrl,
+      },
+    })
+  )
+
+  return { user: userDataToUser(updatedUser) }
+})
 
 export const googleLoginResolver: ResolverFn<
   LoginResult,
   unknown,
   WithDataSourcesContext,
   MutationGoogleLoginArgs
-> = async (_obj, { input }, { models, setAuth }) => {
+> = async (_obj, { input }, { setAuth }) => {
   const { email, secret } = input
 
   try {
@@ -153,8 +156,9 @@ export const googleLoginResolver: ResolverFn<
     return { errorCodes: [LoginErrorCode.AuthFailed] }
   }
 
-  const user = await models.user.getWhere({
+  const user = await userRepository.findOneBy({
     email,
+    status: StatusType.Active,
   })
   if (!user?.id) {
     return { errorCodes: [LoginErrorCode.UserNotFound] }
@@ -170,13 +174,18 @@ export const validateUsernameResolver: ResolverFn<
   Record<string, unknown>,
   WithDataSourcesContext,
   QueryValidateUsernameArgs
-> = async (_obj, { username }, { models }) => {
+> = async (_obj, { username }) => {
   const lowerCasedUsername = username.toLowerCase()
   if (!validateUsername(lowerCasedUsername)) {
     return false
   }
 
-  return !(await models.user.exists({ username: lowerCasedUsername }))
+  const user = await userRepository.findOneBy({
+    profile: {
+      username: lowerCasedUsername,
+    },
+  })
+  return !user
 }
 
 export const googleSignupResolver: ResolverFn<
@@ -239,11 +248,18 @@ export const getMeUserResolver: ResolverFn<
   unknown,
   WithDataSourcesContext,
   unknown
-> = async (_obj, __, { models, claims }) => {
+> = async (_obj, __, { claims }) => {
   try {
-    return claims?.uid
-      ? userDataToUser(await models.user.get(claims.uid))
-      : undefined
+    if (!claims?.uid) {
+      return undefined
+    }
+
+    const user = await userRepository.findById(claims.uid)
+    if (!user) {
+      return undefined
+    }
+
+    return userDataToUser(user)
   } catch (error) {
     return undefined
   }
@@ -254,18 +270,25 @@ export const getUserResolver: ResolverFn<
   unknown,
   WithDataSourcesContext,
   QueryUserArgs
-> = async (_obj, { userId: id, username }, { models, claims }) => {
+> = async (_obj, { userId: id, username }, { uid }) => {
   if (!(id || username)) {
     return { errorCodes: [UserErrorCode.BadRequest] }
   }
 
   const userId =
-    id || (username && (await models.user.getWhere({ username }))?.id)
+    id ||
+    (username &&
+      (
+        await userRepository.findOneBy({
+          profile: { username },
+          status: StatusType.Active,
+        })
+      )?.id)
   if (!userId) {
     return { errorCodes: [UserErrorCode.UserNotFound] }
   }
 
-  const userRecord = await models.user.getUserDetails(claims?.uid, userId)
+  const userRecord = await userRepository.findById(userId)
   if (!userRecord) {
     return { errorCodes: [UserErrorCode.UserNotFound] }
   }
@@ -274,9 +297,8 @@ export const getUserResolver: ResolverFn<
 }
 
 export const getAllUsersResolver = authorized<UsersSuccess, UsersError>(
-  async (_obj, _params, { models, claims, authTrx }) => {
-    const users =
-      (await authTrx((tx) => models.user.getTopUsers(claims.uid, tx))) || []
+  async (_obj, _params) => {
+    const users = await userRepository.findTopUsers()
     const result = { users: users.map((userData) => userDataToUser(userData)) }
     return result
   }
@@ -297,32 +319,10 @@ export const deleteAccountResolver = authorized<
   DeleteAccountSuccess,
   DeleteAccountError,
   MutationDeleteAccountArgs
->(async (_, { userID }, { models, claims, log, pubsub }) => {
-  const user = await models.user.get(userID)
-  if (!user) {
-    return {
-      errorCodes: [DeleteAccountErrorCode.UserNotFound],
-    }
-  }
-
-  if (user.id !== claims.uid) {
-    return {
-      errorCodes: [DeleteAccountErrorCode.Unauthorized],
-    }
-  }
-
-  log.info('Deleting a user account', {
-    userID,
-    labels: {
-      source: 'resolver',
-      resolver: 'deleteAccountResolver',
-      uid: claims.uid,
-    },
-  })
-
-  const result = await AppDataSource.transaction(async (t) => {
-    await setClaims(t, claims.uid)
-    return t.getRepository(UserEntity).delete(userID)
+>(async (_, { userID }, { log }) => {
+  // soft delete user
+  const result = await updateUser(userID, {
+    status: StatusType.Deleted,
   })
   if (!result.affected) {
     log.error('Error deleting user account')
@@ -332,8 +332,49 @@ export const deleteAccountResolver = authorized<
     }
   }
 
-  // delete this user's pages in elastic
-  await deletePagesByParam({ userId: userID }, { uid: userID, pubsub })
-
   return { userID }
+})
+
+export const updateEmailResolver = authorized<
+  UpdateEmailSuccess,
+  UpdateEmailError,
+  MutationUpdateEmailArgs
+>(async (_, { input: { email } }, { authTrx, uid, log }) => {
+  try {
+    const user = await userRepository.findById(uid)
+
+    if (!user) {
+      return {
+        errorCodes: [UpdateEmailErrorCode.Unauthorized],
+      }
+    }
+
+    if (user.source === RegistrationType.Email) {
+      await authTrx(async (tx) =>
+        tx.withRepository(userRepository).update(user.id, {
+          email,
+        })
+      )
+
+      return { email }
+    }
+
+    const result = await sendVerificationEmail({
+      id: user.id,
+      name: user.name,
+      email,
+    })
+    if (!result) {
+      return {
+        errorCodes: [UpdateEmailErrorCode.BadRequest],
+      }
+    }
+
+    return { email, verificationEmailSent: true }
+  } catch (error) {
+    log.error('Error updating email', error)
+    return {
+      errorCodes: [UpdateEmailErrorCode.BadRequest],
+    }
+  }
 })

@@ -3,7 +3,6 @@ import Introspect
 import Models
 import Services
 import SwiftUI
-import UIKit
 import Views
 
 @MainActor final class FilterSelectorViewModel: NSObject, ObservableObject {
@@ -44,9 +43,11 @@ struct FilterSelectorView: View {
         .listStyle(.plain)
       #endif
     }
-    .navigationBarTitle("Library")
-    .navigationBarTitleDisplayMode(.inline)
-    .navigationBarItems(trailing: doneButton)
+    #if os(iOS)
+      .navigationBarTitle("Library")
+      .navigationBarTitleDisplayMode(.inline)
+      .navigationBarItems(trailing: doneButton)
+    #endif
   }
 
   private var innerBody: some View {

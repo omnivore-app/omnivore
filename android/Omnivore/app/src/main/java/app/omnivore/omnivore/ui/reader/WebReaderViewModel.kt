@@ -7,11 +7,12 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.*
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.EventTracker
+import app.omnivore.omnivore.R
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
@@ -20,16 +21,15 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
-import app.omnivore.omnivore.ui.components.LabelSwatchHelper
+import app.omnivore.omnivore.ui.components.HighlightColor
 import app.omnivore.omnivore.ui.library.SavedItemAction
+import app.omnivore.omnivore.ui.setSavedItemLabels
+import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
-import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
@@ -44,20 +44,24 @@ data class AnnotationWebViewMessage(
   val annotation: String?
 )
 
-enum class Themes(val themeKey: String, val backgroundColor: Long, val foregroundColor: Long) {
-  SYSTEM("System", 0xFFFFFFFF, 0xFF000000),
-  LIGHT("Light", 0xFFFFFFFF, 0xFF000000),
-  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000),
-  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF),
-  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF),
-  BLACK("Black", 0xFF000000, 0xFFFFFFFF),
+enum class Themes(val themeKey: String, 
+                  val backgroundColor: Long, 
+                  val foregroundColor: Long,
+                  val scrollbarColor: Long) {
+  SYSTEM("System", 0xFF000000, 0xFF000000, 0xFF3A3939),
+  LIGHT("Light", 0xFFFFFFFF, 0xFF000000, 0xFF3A3939),
+  SEPIA("Sepia", 0xFFFBF0D9, 0xFF000000, 0xFF5F4B32),
+  DARK("Dark", 0xFF2F3030, 0xFFFFFFFF, 0xFFD8D7D7),
+  APOLLO("Apollo", 0xFF6A6968, 0xFFFFFFFF, 0xFFF3F3F3),
+  BLACK("Black", 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF),
 }
 
 @HiltViewModel
 class WebReaderViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val dataService: DataService,
-  private val networker: Networker
+  private val networker: Networker,
+  private val eventTracker: EventTracker,
 ): ViewModel() {
   var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
   var javascriptDispatchQueue: MutableList<String> = mutableListOf()
@@ -78,7 +82,10 @@ class WebReaderViewModel @Inject constructor(
   var lastTapCoordinates: TapCoordinates? = null
   private var isLoading = false
   private var slug: String? = null
-  
+
+  val showHighlightColorPalette = MutableLiveData(false)
+  val highlightColor = MutableLiveData(HighlightColor())
+
   fun loadItem(slug: String?, requestID: String?) {
     this.slug = slug
     if (isLoading || webReaderParamsLiveData.value != null) { return }
@@ -141,7 +148,11 @@ class WebReaderViewModel @Inject constructor(
     currentLink?.let {
       viewModelScope.launch {
         val success = networker.saveUrl(it)
-        Toast.makeText(context, if (success) "Link saved" else "Error saving link" , Toast.LENGTH_SHORT).show()
+        Toast.makeText(context,
+          if (success)
+            context.getString(R.string.web_reader_view_model_save_link_success) else
+            context.getString(R.string.web_reader_view_model_save_link_error),
+          Toast.LENGTH_SHORT).show()
       }
     }
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
@@ -155,7 +166,9 @@ class WebReaderViewModel @Inject constructor(
       clipboard.setPrimaryClip(clip)
       clipboard?.let {
         clipboard?.setPrimaryClip(clip)
-        Toast.makeText(context, "Link Copied", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context,
+          context.getString(R.string.web_reader_view_model_copy_link_success),
+          Toast.LENGTH_SHORT).show()
       }
     }
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
@@ -173,6 +186,13 @@ class WebReaderViewModel @Inject constructor(
 
     if (webReaderParams != null) {
       Log.d("reader", "data loaded from server")
+      eventTracker.track("link_read",
+        com.posthog.android.Properties()
+          .putValue("linkID", webReaderParams.item.savedItemId)
+          .putValue("slug", webReaderParams.item.slug)
+          .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+          .putValue("loaded_from", "network")
+      )
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
     }
@@ -184,6 +204,13 @@ class WebReaderViewModel @Inject constructor(
 
     if (webReaderParams != null && isSuccessful) {
       this.slug = webReaderParams.item.slug
+      eventTracker.track("link_read",
+        com.posthog.android.Properties()
+          .putValue("linkID", webReaderParams.item.savedItemId)
+          .putValue("slug", webReaderParams.item.slug)
+          .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+          .putValue("loaded_from", "request_id")
+      )
       webReaderParamsLiveData.postValue(webReaderParams)
       isLoading = false
     } else if (requestCount < 7) {
@@ -209,14 +236,21 @@ class WebReaderViewModel @Inject constructor(
           labelsJSONString = Gson().toJson(persistedItem.labels)
         )
 
-        Log.d("sync", "data loaded from db")
-        webReaderParamsLiveData.postValue(
-          WebReaderParams(
-            persistedItem.savedItem,
-            articleContent,
-            persistedItem.labels
-          )
+        val webReaderParams = WebReaderParams(
+          persistedItem.savedItem,
+          articleContent,
+          persistedItem.labels
         )
+
+        Log.d("sync", "data loaded from db")
+        eventTracker.track("link_read",
+          com.posthog.android.Properties()
+            .putValue("linkID", webReaderParams.item.savedItemId)
+            .putValue("slug", webReaderParams.item.slug)
+            .putValue("originalArticleURL", webReaderParams.item.pageURLString)
+            .putValue("loaded_from", "db")
+        )
+        webReaderParamsLiveData.postValue(webReaderParams)
       }
       isLoading = false
     }
@@ -271,11 +305,30 @@ class WebReaderViewModel @Inject constructor(
     }
   }
 
+
+  fun showHighlightColorPalette() {
+    CoroutineScope(Dispatchers.Main).launch {
+      showHighlightColorPalette.postValue(true)
+    }
+  }
+
+  fun hideHighlightColorPalette() {
+    CoroutineScope(Dispatchers.Main).launch {
+      showHighlightColorPalette.postValue(false)
+    }
+  }
+
+  fun setHighlightColor(color: HighlightColor) {
+    CoroutineScope(Dispatchers.Main).launch {
+      highlightColor.postValue(color)
+    }
+  }
+
   fun handleIncomingWebMessage(actionID: String, jsonString: String) {
     when (actionID) {
       "createHighlight" -> {
         viewModelScope.launch {
-          dataService.createWebHighlight(jsonString)
+          dataService.createWebHighlight(jsonString, highlightColor.value?.name)
         }
       }
       "deleteHighlight" -> {
@@ -451,38 +504,13 @@ class WebReaderViewModel @Inject constructor(
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
     viewModelScope.launch {
       withContext(Dispatchers.IO) {
-        val namedLabels = dataService.db.savedItemLabelDao().namedLabels(labels.map { it.name })
 
-        namedLabels.filter { it.serverSyncStatus != ServerSyncStatus.IS_SYNCED.rawValue }.mapNotNull {
-          val result = networker.createNewLabel(CreateLabelInput(color = presentIfNotNull(it.color), name = it.name))
-          result?.let { it1 ->
-            SavedItemLabel(
-              savedItemLabelId = it1.id,
-              name = result.name,
-              color = result.color,
-              createdAt = result.createdAt.toString(),
-              labelDescription = result.description,
-              serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
-            )
-          }
-        }
-
-        val input = SetLabelsInput(labelIds = namedLabels.map { it.savedItemLabelId }, pageId = savedItemID)
-        val networkResult = networker.updateLabelsForSavedItem(input)
-
-        // TODO: assign a server sync status to these
-        val crossRefs = namedLabels.map {
-          SavedItemAndSavedItemLabelCrossRef(
-            savedItemLabelId = it.savedItemLabelId,
-            savedItemId = savedItemID
-          )
-        }
-
-        // Remove all labels first
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().deleteRefsBySavedItemId(savedItemID)
-
-        // Add back the current labels
-        dataService.db.savedItemAndSavedItemLabelCrossRefDao().insertAll(crossRefs)
+       setSavedItemLabels(
+          networker = networker,
+          dataService = dataService,
+          savedItemID = savedItemID,
+          labels = labels
+        )
 
         slug?.let {
           loadItemFromDB(it)

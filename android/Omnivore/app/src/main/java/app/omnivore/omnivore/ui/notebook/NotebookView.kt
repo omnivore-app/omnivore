@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.ui.theme.OmnivoreTheme
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.res.stringResource
 
 
 fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
@@ -80,6 +81,9 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val snackBarHostStateMsg = context.getString(R.string.notebook_view_snackbar_msg)
+
     val clipboard: ClipboardManager? =
         LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
 
@@ -89,7 +93,7 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notebook") },
+                title = { Text(stringResource(R.string.notebook_view_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
@@ -109,7 +113,7 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
                                 onDismissRequest = { isMenuOpen = false }
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("Copy") },
+                                    text = { Text(stringResource(R.string.notebook_view_action_copy)) },
                                     onClick = {
                                         val clip = ClipData.newPlainText("notebook", notebookMD(notes, highlights))
                                         clipboard?.let {
@@ -117,7 +121,7 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
                                         } ?: run {
                                             coroutineScope.launch {
                                                 snackBarHostState
-                                                    .showSnackbar("Notebook copied")
+                                                    .showSnackbar(snackBarHostStateMsg)
                                             }
                                         }
                                         isMenuOpen = false
@@ -151,42 +155,45 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
     val annotation = rememberSaveable { mutableStateOf(initialValue ?: "") }
 
     BottomSheetUI() {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text("Note") },
-                    modifier = Modifier.statusBarsPadding(),
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-                    navigationIcon = {
-                        TextButton(onClick = {
-                            onDismiss(false, initialValue)
-                        }) {
-                            Text(text = "Cancel")
+        MaterialTheme {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { Text(stringResource(R.string.edit_note_modal_title)) },
+                        modifier = Modifier.statusBarsPadding(),
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        ),
+                        navigationIcon = {
+                            TextButton(onClick = {
+                                onDismiss(false, initialValue)
+                            }) {
+                                Text(text = stringResource(R.string.edit_note_modal_action_cancel))
+                            }
+                        },
+                        actions = {
+                            TextButton(onClick = {
+                                onDismiss(true, annotation.value)
+                            }) {
+                                Text(text = stringResource(R.string.edit_note_modal_action_save))
+                            }
                         }
-                    },
-                    actions = {
-                        TextButton(onClick = {
-                            onDismiss(true, annotation.value)
-                        }) {
-                            Text(text = "Save")
-                        }
-                    }
+                    )
+                }
+            ) { paddingValues ->
+
+                TextField(
+                    modifier = Modifier
+                        .padding(top = paddingValues.calculateTopPadding())
+                        .focusRequester(focusRequester)
+                        .fillMaxSize(),
+                    value = annotation.value, onValueChange = { annotation.value = it },
+                    colors = TextFieldDefaults.textFieldColors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    )
                 )
             }
-        ) { paddingValues ->
-            TextField(
-                modifier = Modifier
-                    .padding(top = paddingValues.calculateTopPadding())
-                    .focusRequester(focusRequester)
-                    .fillMaxSize(),
-                value = annotation.value, onValueChange = { annotation.value = it },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                )
-            )
         }
     }
 
@@ -205,7 +212,7 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
         .padding(start = 15.dp)
         .padding(top = 20.dp, bottom = 50.dp)
     ) {
-        Text("Article Notes")
+        Text(stringResource(R.string.article_notes_title))
         Divider(modifier = Modifier.padding(bottom= 15.dp))
         notes.forEach { note ->
             MarkdownText(
@@ -231,7 +238,7 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
                 )
             ) {
                 Text(
-                    text = "Add Notes...",
+                    text = stringResource(R.string.article_notes_action_add_notes),
                     style = androidx.compose.material.MaterialTheme.typography.subtitle2,
                     modifier = Modifier
                         .padding(vertical = 2.dp, horizontal = 0.dp),
@@ -242,7 +249,6 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
     val highlights = item.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
@@ -250,6 +256,8 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
 
     val coroutineScope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val snackBarHostStateMsg = context.getString(R.string.highlights_list_snackbar_msg)
     val clipboard: ClipboardManager? =
         LocalContext.current.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
 
@@ -258,7 +266,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
         .padding(start = 15.dp)
         .padding(top = 40.dp, bottom = 100.dp)
     ) {
-        Text("Highlights")
+        Text(stringResource(R.string.highlights_list_title))
         Divider(modifier = Modifier.padding(bottom= 10.dp))
         highlights.forEach { highlight ->
             var isMenuOpen by remember { mutableStateOf(false) }
@@ -282,7 +290,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
                             onDismissRequest = { isMenuOpen = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Copy") },
+                                text = { Text(stringResource(R.string.highlights_list_action_copy)) },
                                 onClick = {
                                     val clip = ClipData.newPlainText("highlight", highlight.quote)
                                     clipboard?.let {
@@ -290,7 +298,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
                                     } ?: run {
                                         coroutineScope.launch {
                                             snackBarHostState
-                                                .showSnackbar("Highlight copied")
+                                                .showSnackbar(snackBarHostStateMsg)
                                         }
                                     }
                                     isMenuOpen = false
@@ -354,7 +362,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
                     )
                 ) {
                     Text(
-                        text = "Add Note...",
+                        text = stringResource(R.string.highlights_list_action_add_note),
                         style = androidx.compose.material.MaterialTheme.typography.subtitle2,
                         modifier = Modifier
                             .padding(vertical = 2.dp, horizontal = 0.dp),
@@ -365,7 +373,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
         }
         if (highlights.isEmpty()) {
             Text(
-                text = "You have not added any highlights to this page.",
+                text = stringResource(R.string.highlights_list_error_msg_no_highlights),
                 style = androidx.compose.material.MaterialTheme.typography.subtitle2,
                 modifier = Modifier.padding(vertical = 10.dp, horizontal = 10.dp)
             )

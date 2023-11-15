@@ -131,6 +131,9 @@
           "html": {
             "type": "text",
             "analyzer": "strip_html_analyzer"
+          },
+          "color": {
+            "type": "keyword"
           }
         }
       },

@@ -11,24 +11,10 @@ import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
-import { Knex } from 'knex'
-import { DataSource } from 'typeorm'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
-import ArticleModel from './datalayer/article'
-import ArticleSavingRequestModel from './datalayer/article_saving_request'
-import HighlightModel from './datalayer/highlight'
-import UserArticleModel from './datalayer/links'
-import ReactionModel from './datalayer/reaction'
-import ReminderModel from './datalayer/reminders'
-import UploadFileDataModel from './datalayer/upload_files'
-import UserModel from './datalayer/user'
-import UserFriendModel from './datalayer/user_friends'
-import UserPersonalizationModel from './datalayer/user_personalization'
-import { initElasticsearch } from './elastic'
+import { appDataSource } from './data_source'
 import { env } from './env'
-import { DataModels } from './resolvers/types'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -42,50 +28,19 @@ import { emailAttachmentRouter } from './routers/svc/email_attachment'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
-import { remindersServiceRouter } from './routers/svc/reminders'
+// import { remindersServiceRouter } from './routers/svc/reminders'
 import { rssFeedRouter } from './routers/svc/rss_feed'
 import { uploadServiceRouter } from './routers/svc/upload'
+import { userServiceRouter } from './routers/svc/user'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { getClaimsByToken, getTokenByRequest } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
-import {
-  buildLogger,
-  buildLoggerTransport,
-  CustomTypeOrmLogger,
-} from './utils/logger'
+import { buildLogger, buildLoggerTransport } from './utils/logger'
 
 const PORT = process.env.PORT || 4000
-
-export const initModels = (kx: Knex, cache = true): DataModels => ({
-  user: new UserModel(kx, cache),
-  article: new ArticleModel(kx, cache),
-  userArticle: new UserArticleModel(kx, cache),
-  userFriends: new UserFriendModel(kx, cache),
-  userPersonalization: new UserPersonalizationModel(kx, cache),
-  articleSavingRequest: new ArticleSavingRequestModel(kx, cache),
-  uploadFile: new UploadFileDataModel(kx, cache),
-  highlight: new HighlightModel(kx, cache),
-  reaction: new ReactionModel(kx, cache),
-  reminder: new ReminderModel(kx, cache),
-})
-
-export const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: env.pg.host,
-  port: env.pg.port,
-  schema: 'omnivore',
-  username: env.pg.userName,
-  password: env.pg.password,
-  database: env.pg.dbName,
-  logging: ['query', 'info'],
-  entities: [__dirname + '/entity/**/*{.js,.ts}'],
-  subscribers: [__dirname + '/events/**/*{.js,.ts}'],
-  namingStrategy: new SnakeNamingStrategy(),
-  logger: new CustomTypeOrmLogger(),
-})
 
 export const createApp = (): {
   app: Express
@@ -104,17 +59,20 @@ export const createApp = (): {
   app.use(json({ limit: '100mb' }))
   app.use(urlencoded({ limit: '100mb', extended: true }))
 
+  // set to true if behind a reverse proxy/load balancer
+  app.set('trust proxy', env.server.trustProxy)
+
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: async (req) => {
-      // 100 RPM for an authenticated request, 5 for a non-authenticated request
+      // 100 RPM for an authenticated request, 15 for a non-authenticated request
       const token = getTokenByRequest(req)
       try {
         const claims = await getClaimsByToken(token)
-        return claims ? 100 : 5
+        return claims ? 60 : 15
       } catch (e) {
         console.log('non-authenticated request')
-        return 5
+        return 15
       }
     },
     keyGenerator: (req) => {
@@ -164,7 +122,8 @@ export const createApp = (): {
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
   app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/pubsub/rss-feed', rssFeedRouter())
-  app.use('/svc/reminders', remindersServiceRouter())
+  app.use('/svc/pubsub/user', userServiceRouter())
+  // app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
 
   if (env.dev.isLocal) {
@@ -189,9 +148,7 @@ const main = async (): Promise<void> => {
   // If creating the DB entities fails, we want this to throw
   // so the container will be restarted and not come online
   // as healthy.
-  await AppDataSource.initialize()
-
-  await initElasticsearch()
+  await appDataSource.initialize()
 
   const { app, apollo, httpServer } = createApp()
 
@@ -210,8 +167,6 @@ const main = async (): Promise<void> => {
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
   })
 
-  listener.timeout = 1000 * 60 * 10 // 10 minutes
-
   // Avoid keepalive timeout-related connection drops manifesting in user-facing 502s.
   // See here: https://cloud.google.com/load-balancing/docs/https#timeouts_and_retries
   // and: https://cloud.google.com/appengine/docs/standard/nodejs/how-instances-are-managed#timeout
@@ -219,6 +174,7 @@ const main = async (): Promise<void> => {
   listener.keepAliveTimeout = 630 * 1000 // 30s more than the 10min keepalive used by appengine.
   // And a workaround for node.js bug: https://github.com/nodejs/node/issues/27363
   listener.headersTimeout = 640 * 1000 // 10s more than above
+  listener.timeout = 640 * 1000 // match headersTimeout
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

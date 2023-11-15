@@ -4,8 +4,8 @@ import Models
 import Utils
 
 public extension DataService {
-  func loadPDFData(slug: String, pageURLString: String) async throws -> URL? {
-    guard let url = URL(string: pageURLString) else {
+  func loadPDFData(slug: String, downloadURL: String) async throws -> URL? {
+    guard let url = URL(string: downloadURL) else {
       throw BasicError.message(messageText: "No PDF URL found")
     }
 

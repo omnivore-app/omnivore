@@ -1,3 +1,4 @@
+import { unstable_getImgProps as getImgProps } from 'next/image'
 import {
   Box,
   HStack,
@@ -8,6 +9,9 @@ import { LoginForm } from './LoginForm'
 import type { LoginFormProps } from './LoginForm'
 import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
 import { theme } from '../tokens/stitches.config'
+
+import featureFullWidthImage from '../../public/static/images/login/login-feature-image-full.png'
+import featureHalfWidthImage from '../../public/static/images/login/login-feature-image-half.png'
 
 export function LoginLayout(props: LoginFormProps): JSX.Element {
   return (
@@ -86,7 +90,30 @@ function MediumLoginLayout(props: LoginFormProps) {
   )
 }
 
+const srcSetToImageSet = (srcFallback: string, srcSet?: string): string => {
+  if (!srcSet) return `url(${srcFallback})`
+
+  return `image-set( ${srcSet
+    .split(', ')
+    .map((subSrc) => {
+      const [src, resolution] = subSrc.split(' ')
+      return `url("${decodeURIComponent(src)}") ${resolution}`
+    })
+    .join(',')}
+)`
+}
+
 function OmnivoreIllustration() {
+  const { props: halfWidthImgProps } = getImgProps({
+    src: featureHalfWidthImage,
+    alt: '',
+  })
+
+  const { props: fullWidthImgProps } = getImgProps({
+    src: featureFullWidthImage,
+    alt: '',
+  })
+
   return (
     <Box
       css={{
@@ -95,14 +122,12 @@ function OmnivoreIllustration() {
         marginLeft: 'auto',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
-        backgroundImage: `-webkit-image-set(
-          url('/static/images/landingPage-feature@1x.png') 1x,
-          url('/static/landing/landingPage-feature@2x.png') 2x
-        )`,
-        'background-image': `image-set(
-          url('/static/images/landingPage-feature@1x.png') 1x,
-          url('/static/landing/landingPage-feature@2x.png') 2x
-        )`,
+        backgroundPosition: 'left',
+        backgroundImage: srcSetToImageSet(halfWidthImgProps.src, halfWidthImgProps.srcSet),
+
+        '@media (min-aspect-ratio: 2/1)': {
+          backgroundImage: srcSetToImageSet(fullWidthImgProps.src, fullWidthImgProps.srcSet),
+        },
       }}
     />
   )

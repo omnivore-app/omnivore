@@ -13,22 +13,16 @@ struct MacFeedCardNavigationLink: View {
 
   var body: some View {
     ZStack {
-      NavigationLink(
-        destination: LinkItemDetailView(
-          linkedItemObjectID: item.objectID,
-          isPDF: item.isPDF
-        ),
-        tag: item.objectID,
-        selection: $viewModel.selectedLinkItem
-      ) {
-        EmptyView()
-      }
-      .opacity(0)
-      .buttonStyle(PlainButtonStyle())
-      .onAppear {
-        Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-      }
       LibraryItemCard(item: item, viewer: dataService.currentViewer)
+      NavigationLink(destination: LinkItemDetailView(
+        linkedItemObjectID: item.objectID,
+        isPDF: item.isPDF
+      ), label: {
+        EmptyView()
+      }).opacity(0)
+    }
+    .onAppear {
+      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
     }
   }
 }
@@ -38,25 +32,21 @@ struct FeedCardNavigationLink: View {
   @EnvironmentObject var audioController: AudioController
 
   let item: LinkedItem
-
+  let isInMultiSelectMode: Bool
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
     ZStack {
-      Button {
-        viewModel.selectedItem = item
-        viewModel.linkIsActive = true
-      } label: {
-        NavigationLink(destination: EmptyView()) {
-          EmptyView()
-        }
-        .opacity(0)
-        .buttonStyle(PlainButtonStyle())
-        .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-        }
-        LibraryItemCard(item: item, viewer: dataService.currentViewer)
-      }
+      LibraryItemCard(item: item, viewer: dataService.currentViewer)
+      NavigationLink(destination: LinkItemDetailView(
+        linkedItemObjectID: item.objectID,
+        isPDF: item.isPDF
+      ), label: {
+        EmptyView()
+      }).opacity(0)
+    }
+    .onAppear {
+      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
     }
   }
 }
@@ -75,28 +65,16 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
-      Button {
-        if isContextMenuOpen {
-          isContextMenuOpen = false
-        } else {
-          viewModel.selectedItem = item
-          viewModel.linkIsActive = true
-        }
-      } label: {
-        NavigationLink(destination: EmptyView()) {
-          EmptyView()
-        }
-        .opacity(0)
-        .buttonStyle(PlainButtonStyle())
-        .onAppear {
-          Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-        }
-        GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
-      }
+    NavigationLink(destination: LinkItemDetailView(
+      linkedItemObjectID: item.objectID,
+      isPDF: item.isPDF
+    )) {
+      GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
     }
-    .aspectRatio(1.8, contentMode: .fill)
-    .scaleEffect(scale)
+    .onAppear {
+      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    }
+    .aspectRatio(1.0, contentMode: .fill)
     .background(
       Color.secondarySystemGroupedBackground
         .onTapGesture {

@@ -1,155 +1,273 @@
-import DataLoader from 'dataloader'
-import { In } from 'typeorm'
-import { addLabelInPage } from '../elastic/labels'
-import { PageContext } from '../elastic/types'
+import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { EntityLabel } from '../entity/entity_label'
 import { Label } from '../entity/label'
-import { Link } from '../entity/link'
-import { User } from '../entity/user'
-import { getRepository } from '../entity/utils'
-import { CreateLabelInput } from '../generated/graphql'
-import { generateRandomColor } from '../utils/helpers'
-import { logger } from '../utils/logger'
+import { LibraryItem } from '../entity/library_item'
+import { createPubSubClient, EntityType } from '../pubsub'
+import { authTrx } from '../repository'
+import { CreateLabelInput, labelRepository } from '../repository/label'
+import { libraryItemRepository } from '../repository/library_item'
 
-const INTERNAL_LABELS_IN_LOWERCASE = [
-  'newsletters',
-  'favorites',
-  'rss',
-  'library',
-]
-
-const isLabelInternal = (name: string): boolean => {
-  return INTERNAL_LABELS_IN_LOWERCASE.includes(name.toLowerCase())
+type AddLabelsToLibraryItemEvent = {
+  pageId: string
+  labels: DeepPartial<Label>[]
+}
+type AddLabelsToHighlightEvent = {
+  highlightId: string
+  labels: DeepPartial<Label>[]
 }
 
-const batchGetLabelsFromLinkIds = async (
-  linkIds: readonly string[]
-): Promise<Label[][]> => {
-  const links = await getRepository(Link).find({
-    where: { id: In(linkIds as string[]) },
-    relations: ['labels'],
-  })
+// const batchGetLabelsFromLinkIds = async (
+//   linkIds: readonly string[]
+// ): Promise<Label[][]> => {
+//   const links = await getRepository(Link).find({
+//     where: { id: In(linkIds as string[]) },
+//     relations: ['labels'],
+//   })
 
-  return linkIds.map(
-    (linkId) => links.find((link) => link.id === linkId)?.labels || []
-  )
-}
+//   return linkIds.map(
+//     (linkId) => links.find((link) => link.id === linkId)?.labels || []
+//   )
+// }
 
-export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
+// export const labelsLoader = new DataLoader(batchGetLabelsFromLinkIds)
 
-export const addLabelToPage = async (
-  ctx: PageContext,
-  pageId: string,
-  label: {
-    name: string
-    color: string
-    description?: string
-  }
-): Promise<boolean> => {
-  const user = await getRepository(User).findOneBy({
-    id: ctx.uid,
-  })
-  if (!user) {
-    return false
-  }
-
-  let labelEntity = await getLabelByName(user.id, label.name)
-
-  if (!labelEntity) {
-    logger.info('creating new label', label.name)
-
-    labelEntity = await createLabel(user.id, label)
-  }
-
-  logger.info('adding label to page', label.name, pageId)
-
-  return addLabelInPage(
-    pageId,
-    {
-      id: labelEntity.id,
-      name: labelEntity.name,
-      color: labelEntity.color,
-      description: labelEntity.description,
-      createdAt: labelEntity.createdAt,
-    },
-    ctx
-  )
-}
-
-export const getLabelsByIds = async (
-  userId: string,
-  labelIds: string[]
+export const findOrCreateLabels = async (
+  labels: CreateLabelInput[],
+  userId: string
 ): Promise<Label[]> => {
-  return getRepository(Label).find({
-    where: { id: In(labelIds), user: { id: userId } },
-    select: ['id', 'name', 'color', 'description', 'createdAt'],
-  })
+  return authTrx(
+    async (tx) => {
+      const labelRepo = tx.withRepository(labelRepository)
+      // find existing labels
+      const labelEntities = await labelRepo.findByNames(
+        labels.map((l) => l.name),
+        userId
+      )
+
+      const existingLabelsInLowerCase = labelEntities.map((l) =>
+        l.name.toLowerCase()
+      )
+      const newLabels = labels.filter(
+        (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
+      )
+      if (newLabels.length === 0) {
+        return labelEntities
+      }
+
+      // create new labels
+      const newLabelEntities = await labelRepo.createLabels(newLabels, userId)
+
+      return [...labelEntities, ...newLabelEntities]
+    },
+    undefined,
+    userId
+  )
 }
 
-export const getLabelByName = async (
+export const saveLabelsInLibraryItem = async (
+  labels: Label[],
+  libraryItemId: string,
   userId: string,
-  name: string
-): Promise<Label | null> => {
-  return getRepository(Label)
-    .createQueryBuilder()
-    .where({ user: { id: userId } })
-    .andWhere('LOWER(name) = LOWER(:name)', { name })
-    .getOne()
+  pubsub = createPubSubClient()
+) => {
+  await authTrx(
+    async (tx) => {
+      const repo = tx.getRepository(EntityLabel)
+
+      // delete existing labels
+      await repo.delete({
+        libraryItemId,
+      })
+
+      // save new labels
+      await repo.save(
+        labels.map((l) => ({
+          labelId: l.id,
+          libraryItemId,
+        }))
+      )
+    },
+    undefined,
+    userId
+  )
+
+  // create pubsub event
+  await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
+    EntityType.LABEL,
+    { pageId: libraryItemId, labels },
+    userId
+  )
+}
+
+export const addLabelsToLibraryItem = async (
+  labels: Label[],
+  libraryItemId: string,
+  userId: string,
+  pubsub = createPubSubClient()
+) => {
+  await authTrx(
+    async (tx) => {
+      const libraryItem = await tx
+        .withRepository(libraryItemRepository)
+        .findOneByOrFail({ id: libraryItemId, user: { id: userId } })
+
+      if (libraryItem.labels) {
+        labels.push(...libraryItem.labels)
+      }
+
+      // save new labels
+      await tx.getRepository(EntityLabel).save(
+        labels.map((l) => ({
+          labelId: l.id,
+          libraryItemId,
+        }))
+      )
+    },
+    undefined,
+    userId
+  )
+
+  // create pubsub event
+  await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
+    EntityType.LABEL,
+    { pageId: libraryItemId, labels },
+    userId
+  )
+}
+
+export const saveLabelsInHighlight = async (
+  labels: Label[],
+  highlightId: string,
+  userId: string,
+  pubsub = createPubSubClient()
+) => {
+  await authTrx(async (tx) => {
+    const repo = tx.getRepository(EntityLabel)
+
+    // delete existing labels
+    await repo.delete({
+      highlightId,
+    })
+
+    // save new labels
+    await repo.save(
+      labels.map((l) => ({
+        labelId: l.id,
+        highlightId,
+      }))
+    )
+  })
+
+  // create pubsub event
+  await pubsub.entityCreated<AddLabelsToHighlightEvent>(
+    EntityType.LABEL,
+    { highlightId, labels },
+    userId
+  )
+}
+
+export const findLabelsByIds = async (
+  ids: string[],
+  userId: string
+): Promise<Label[]> => {
+  return authTrx(
+    async (tx) => {
+      return tx.withRepository(labelRepository).findBy({
+        id: In(ids),
+        user: { id: userId },
+      })
+    },
+    undefined,
+    userId
+  )
 }
 
 export const createLabel = async (
-  userId: string,
-  label: {
-    name: string
-    color?: string | null
-    description?: string | null
-  }
+  name: string,
+  color: string,
+  userId: string
 ): Promise<Label> => {
-  return getRepository(Label).save({
-    user: { id: userId },
-    name: label.name,
-    color: label.color || generateRandomColor(), // assign a random color if not provided
-    description: label.description,
-    internal: isLabelInternal(label.name),
-  })
+  return authTrx(
+    (t) =>
+      t.withRepository(labelRepository).createLabel({ name, color }, userId),
+    undefined,
+    userId
+  )
 }
 
-export const createLabels = async (
-  ctx: PageContext,
-  labels: CreateLabelInput[]
-): Promise<Label[]> => {
-  const user = await getRepository(User).findOneBy({
-    id: ctx.uid,
-  })
-  if (!user) {
-    logger.error('user not found')
-    return []
-  }
+export const deleteLabels = async (
+  criteria: string[] | FindOptionsWhere<Label>,
+  userId: string
+) => {
+  return authTrx(
+    async (t) => t.withRepository(labelRepository).delete(criteria),
+    undefined,
+    userId
+  )
+}
 
-  const labelEntities = await getRepository(Label)
-    .createQueryBuilder()
-    .where({
-      user: { id: user.id },
-    })
-    .andWhere('LOWER(name) IN (:...names)', {
-      names: labels.map((l) => l.name.toLowerCase()),
-    })
-    .getMany()
+export const updateLabel = async (
+  id: string,
+  label: QueryDeepPartialEntity<Label>,
+  userId: string
+) => {
+  return authTrx(
+    async (t) => {
+      const repo = t.withRepository(labelRepository)
+      await repo.updateLabel(id, label)
 
-  const existingLabelsInLowerCase = labelEntities.map((l) =>
-    l.name.toLowerCase()
+      return repo.findOneByOrFail({ id })
+    },
+    undefined,
+    userId
   )
-  const newLabels = labels.filter(
-    (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
+}
+
+export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {
+  return authTrx(
+    async (tx) =>
+      tx.withRepository(labelRepository).find({
+        where: { user: { id: userId } },
+        order: { position: 'ASC' },
+      }),
+    undefined,
+    userId
   )
-  // create new labels
-  const newLabelEntities = await getRepository(Label).save(
-    newLabels.map((l) => ({
-      name: l.name,
-      description: l.description,
-      color: l.color || generateRandomColor(),
-      internal: isLabelInternal(l.name),
-      user,
-    }))
+}
+
+export const findLabelById = async (id: string, userId: string) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .withRepository(labelRepository)
+        .findOneBy({ id, user: { id: userId } }),
+    undefined,
+    userId
   )
-  return [...labelEntities, ...newLabelEntities]
+}
+
+export const findLabelsByLibraryItemId = async (
+  libraryItemId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(Label, 'label')
+        .innerJoin(
+          EntityLabel,
+          'entityLabel',
+          'entityLabel.label_id = label.id'
+        )
+        .innerJoin(
+          LibraryItem,
+          'LibraryItem',
+          'LibraryItem.id = entityLabel.library_item_id'
+        )
+        .where('LibraryItem.id = :libraryItemId', { libraryItemId })
+        .getMany(),
+    undefined,
+    userId
+  )
 }

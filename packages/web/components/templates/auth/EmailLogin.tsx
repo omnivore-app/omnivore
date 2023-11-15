@@ -14,9 +14,8 @@ export function EmailLogin(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -51,6 +50,7 @@ export function EmailLogin(): JSX.Element {
           <SpanBox css={{ width: '100%' }}>
             <FormLabel>Email</FormLabel>
             <BorderedFormInput
+              autoFocus={true}
               key="email"
               type="email"
               name="email"
@@ -122,7 +122,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           Don&apos;t have an account?{' '}
-          <Link href="/auth/email-signup" passHref>
+          <Link href="/auth/email-signup" passHref legacyBehavior>
             <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
               Sign up
             </StyledTextSpan>
@@ -140,7 +140,7 @@ export function EmailLogin(): JSX.Element {
           }}
         >
           Forgot your password?{' '}
-          <Link href="/auth/forgot-password" passHref>
+          <Link href="/auth/forgot-password" passHref legacyBehavior>
             <StyledTextSpan style="actionLink" css={{ color: '$omnivoreGray' }}>
               Click here
             </StyledTextSpan>
@@ -148,5 +148,5 @@ export function EmailLogin(): JSX.Element {
         </StyledText>
       </VStack>
     </form>
-  )
+  );
 }

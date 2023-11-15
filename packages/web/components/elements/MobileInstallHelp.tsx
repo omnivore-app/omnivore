@@ -149,18 +149,19 @@ export default function MobileInstallHelp({
         share extension.
         <br />
         {!onboarding && (
-          <Link passHref href="/help/saving-links">
-            <StyledAnchor
-              css={{
-                color: '$grayTextContrast',
-                fontSize: '14px',
-                fontWeight: 600,
-                textDecoration: 'underline',
-              }}
-            >
-              Learn more about the iOS app -&gt;
-            </StyledAnchor>
-          </Link>
+          <StyledAnchor
+            href="https://docs.omnivore.app/using/saving.html"
+            target="_blank"
+            rel="noreferrer"
+            css={{
+              color: '$grayTextContrast',
+              fontSize: '14px',
+              fontWeight: 600,
+              textDecoration: 'underline',
+            }}
+          >
+            Learn more about the iOS app -&gt;
+          </StyledAnchor>
         )}
       </StyledText>
       <HStack

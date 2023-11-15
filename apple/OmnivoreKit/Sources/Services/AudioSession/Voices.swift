@@ -29,6 +29,7 @@ public enum VoiceCategory: String, CaseIterable {
   case enIN = "English (India)"
   case enSG = "English (Singapore)"
   case enUK = "English (UK)"
+  case frFR = "French (France)"
   case deDE = "German (Germany)"
   case hiIN = "Hindi (India)"
   case itIT = "Italian (Italy)"
@@ -61,6 +62,10 @@ public enum Voices {
     })
   }
 
+  public static func isOpenAIVoice(_ voiceKey: String) -> Bool {
+    voiceKey.starts(with: "openai-")
+  }
+
   public static let English = VoiceLanguage(key: "en",
                                             name: "English",
                                             defaultVoice: "en-US-ChristopherNeural",
@@ -70,6 +75,7 @@ public enum Voices {
     English,
     VoiceLanguage(key: "zh", name: "Chinese", defaultVoice: "zh-CN-XiaochenNeural", categories: [.zhCN]),
     VoiceLanguage(key: "de", name: "German", defaultVoice: "de-CH-JanNeural", categories: [.deDE]),
+    VoiceLanguage(key: "fr", name: "French", defaultVoice: "fr-FR-HenriNeural", categories: [.frFR]),
     VoiceLanguage(key: "hi", name: "Hindi", defaultVoice: "hi-IN-MadhurNeural", categories: [.hiIN]),
     VoiceLanguage(key: "it", name: "Italian", defaultVoice: "it-IT-BenignoNeural", categories: [.itIT]),
     VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
@@ -79,6 +85,10 @@ public enum Voices {
   ]
 
   public static let Pairs = [
+    VoicePair(firstKey: "openai-alloy", secondKey: "openai-echo", firstName: "Alloy", secondName: "Echo", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "openai-fable", secondKey: "openai-onyx", firstName: "Fable", secondName: "Onyx", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "openai-nova", secondKey: "openai-shimmer", firstName: "Nova", secondName: "Shimmer", language: "en-US", category: .enUS),
+
     VoicePair(firstKey: "en-US-JennyNeural", secondKey: "en-US-BrandonNeural", firstName: "Jenny", secondName: "Brandon", language: "en-US", category: .enUS),
     VoicePair(firstKey: "en-US-CoraNeural", secondKey: "en-US-ChristopherNeural", firstName: "Cora", secondName: "Christopher", language: "en-US", category: .enUS),
     VoicePair(firstKey: "en-US-ElizabethNeural", secondKey: "en-US-EricNeural", firstName: "Elizabeth", secondName: "Eric", language: "en-US", category: .enUS),
@@ -88,6 +98,7 @@ public enum Voices {
     VoicePair(firstKey: "en-IE-ConnorNeural", secondKey: "en-IE-EmilyNeural", firstName: "Connor", secondName: "Emily", language: "en-IE", category: .enIE),
     VoicePair(firstKey: "en-IN-NeerjaNeural", secondKey: "en-IN-PrabhatNeural", firstName: "Neerja", secondName: "Prabhat", language: "en-IN", category: .enIN),
     VoicePair(firstKey: "en-SG-LunaNeural", secondKey: "en-SG-WayneNeural", firstName: "Luna", secondName: "Wayne", language: "en-SG", category: .enSG),
+    VoicePair(firstKey: "fr-FR-HenriNeural", secondKey: "fr-FR-DeniseNeural", firstName: "Henri", secondName: "Denise", language: "en-FR", category: .frFR),
     VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", language: "zh-CN", category: .zhCN),
     VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", language: "zh-CN", category: .zhCN),
     VoicePair(firstKey: "es-ES-AlvaroNeural", secondKey: "es-ES-ElviraNeural", firstName: "Alvaro", secondName: "Elvira", language: "es-ES", category: .esES),
@@ -105,8 +116,9 @@ public enum Voices {
   ]
 
   public static let UltraPairs = [
+    VoicePair(firstKey: "Antoni", secondKey: "Serena", firstName: "Antoni", secondName: "Serena", language: "en-US", category: .enUS),
+    VoicePair(firstKey: "Daniel", secondKey: "Dorothy", firstName: "Daniel", secondName: "Dorothy", language: "en-GB", category: .enUK),
+    VoicePair(firstKey: "Michael", secondKey: "Matilda", firstName: "Michael", secondName: "Matilda", language: "en-US", category: .enUS),
     VoicePair(firstKey: "Josh", secondKey: "Bella", firstName: "Josh", secondName: "Bella", language: "en-US", category: .enUS)
-//    VoicePair(firstKey: "Arnold", secondKey: "Bella", firstName: "Arnold", secondName: "Bella", language: "en-US", category: .enUS),
-//    VoicePair(firstKey: "Adam", secondKey: "Elli", firstName: "Adam", secondName: "Elli", language: "en-US", category: .enUS)
   ]
 }

@@ -90,6 +90,7 @@ public enum WebFont: String, CaseIterable {
     @AppStorage(UserDefaultKey.preferredWebFont.rawValue) var preferredFont = WebFont.inter.rawValue
     @AppStorage(UserDefaultKey.prefersHighContrastWebFont.rawValue) var prefersHighContrastText = true
     @AppStorage(UserDefaultKey.justifyText.rawValue) var justifyText = false
+    @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBar = false
 
     public init(
       updateReaderPreferences: @escaping () -> Void,
@@ -151,6 +152,13 @@ public enum WebFont: String, CaseIterable {
             updateReaderPreferences()
           }
 
+        Toggle("Hide Status Bar", isOn: $prefersHideStatusBar)
+          .frame(height: 40)
+          .padding(.trailing, 6)
+          .onChange(of: prefersHideStatusBar) { _ in
+            updateReaderPreferences()
+          }
+
         Spacer()
       }
       .padding(.horizontal, 30)
@@ -203,7 +211,7 @@ public enum WebFont: String, CaseIterable {
 
         }, label: { Image(systemName: "textformat.size.smaller") })
           .frame(width: 25, height: 25, alignment: .center)
-        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 28) { _ in
+        CustomSlider(value: $storedFontSize, minValue: 10, maxValue: 48) { _ in
           if storedFontSize % 1 == 0 {
             updateReaderPreferences()
           }

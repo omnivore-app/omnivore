@@ -1,13 +1,15 @@
-import { createTestUser, deleteTestUser, getProfile, getUser } from '../db'
-import { graphqlRequest, request } from '../util'
 import { expect } from 'chai'
+import 'mocha'
+import { User } from '../../src/entity/user'
 import {
   UpdateUserErrorCode,
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
-import { User } from '../../src/entity/user'
+import { findProfile } from '../../src/services/profile'
+import { deleteUser, findActiveUser } from '../../src/services/user'
 import { hashPassword } from '../../src/utils/auth'
-import 'mocha'
+import { createTestUser } from '../db'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 describe('User API', () => {
   const correctPassword = 'fakePassword'
@@ -33,8 +35,8 @@ describe('User API', () => {
 
   after(async () => {
     // clean up
-    await deleteTestUser(user.id)
-    await deleteTestUser(anotherUser.id)
+    await deleteUser(user.id)
+    await deleteUser(anotherUser.id)
   })
 
   describe('Update user', () => {
@@ -96,7 +98,7 @@ describe('User API', () => {
 
       it('updates user and responds with status code 200', async () => {
         const response = await graphqlRequest(query, authToken).expect(200)
-        const user = await getUser(response.body.data.updateUser.user.id)
+        const user = await findActiveUser(response.body.data.updateUser.user.id)
         expect(user?.name).to.eql(name)
       })
     })
@@ -160,7 +162,7 @@ describe('User API', () => {
 
       it('updates user profile and responds with 200', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const profile = await getProfile(user)
+        const profile = await findProfile(user)
         expect(profile?.username).to.eql(newUsername)
       })
     })
@@ -196,7 +198,7 @@ describe('User API', () => {
     context('when username exists', () => {
       before(async () => {
         userId = user.id
-        const profile = await getProfile(user)
+        const profile = await findProfile(user)
         newUsername = profile?.username || 'new_username'
       })
 
@@ -234,6 +236,60 @@ describe('User API', () => {
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
+    })
+  })
+
+  describe('Delete account', () => {
+    const query = (userId: string) => `
+      mutation {
+        deleteAccount(
+          userID: "${userId}"
+        ) {
+          ... on DeleteAccountSuccess {
+            userID
+          }
+          ... on DeleteAccountError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    let userId: string
+    let authToken: string
+
+    before(async () => {
+      const user = await createTestUser('to_delete_user')
+      const res = await request
+        .post('/local/debug/fake-user-login')
+        .send({ fakeEmail: user.email })
+      userId = user.id
+      authToken = res.body.authToken
+    })
+
+    after(async () => {
+      await deleteUser(userId)
+    })
+
+    context('when user id is valid', () => {
+      it('deletes user and responds with 200', async () => {
+        const response = await graphqlRequest(query(userId), authToken).expect(
+          200
+        )
+        expect(response.body.data.deleteAccount.userID).to.eql(userId)
+      })
+    })
+
+    context('when user not found', () => {
+      it('responds with error code UserNotFound', async () => {
+        const response = await graphqlRequest(
+          query(generateFakeUuid()),
+          authToken
+        ).expect(200)
+        expect(response.body.data.deleteAccount.errorCodes).to.eql([
+          'USER_NOT_FOUND',
+        ])
+      })
     })
   })
 })

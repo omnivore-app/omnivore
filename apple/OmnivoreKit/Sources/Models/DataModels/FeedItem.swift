@@ -56,12 +56,14 @@ public struct JSONArticle: Decodable {
   public let isArchived: Bool
   public let language: String?
   public let wordsCount: Int?
+  public let downloadURL: String
 }
 
 public extension LinkedItem {
   var unwrappedID: String { id ?? "" }
   var unwrappedSlug: String { slug ?? "" }
   var unwrappedTitle: String { title ?? "" }
+  var unwrappedDownloadURLString: String { downloadURL ?? "" }
   var unwrappedPageURLString: String { pageURLString ?? "" }
   var unwrappedSavedAt: Date { savedAt ?? Date() }
   var unwrappedCreatedAt: Date { createdAt ?? Date() }
@@ -75,6 +77,21 @@ public extension LinkedItem {
 
   var hasLabels: Bool {
     (labels?.count ?? 0) > 0
+  }
+
+  var noteHighlight: Highlight? {
+    if let highlights = highlights?.compactMap({ $0 as? Highlight }) {
+      let result = highlights
+        .filter { $0.type == "NOTE" }
+        .sorted(by: { $0.updatedAt ?? Date() < $1.updatedAt ?? Date() })
+        .first
+      return result
+    }
+    return nil
+  }
+
+  var noteText: String? {
+    noteHighlight?.annotation
   }
 
   var isUnread: Bool {

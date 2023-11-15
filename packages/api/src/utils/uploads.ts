@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { File, GetSignedUrlConfig, Storage } from '@google-cloud/storage'
+import { ContentReaderType } from '../entity/library_item'
 import { env } from '../env'
-import { ContentReader, PageType } from '../generated/graphql'
+import { PageType } from '../generated/graphql'
 import { logger } from './logger'
 
-export const contentReaderForPage = (
-  pageType: PageType,
+export const contentReaderForLibraryItem = (
+  itemType: string,
   uploadFileId: string | null | undefined
 ) => {
   if (!uploadFileId) {
-    return ContentReader.Web
+    return ContentReaderType.WEB
   }
-  switch (pageType) {
+  switch (itemType) {
     case PageType.Book:
-      return ContentReader.Epub
+      return ContentReaderType.EPUB
     case PageType.File:
-      return ContentReader.Pdf
+      return ContentReaderType.PDF
     default:
-      return ContentReader.Web
+      return ContentReaderType.WEB
   }
 }
 
@@ -33,10 +34,6 @@ const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   : new Storage()
 const bucketName = env.fileUpload.gcsUploadBucket
 
-export const getFilePublicUrl = (filePathName: string): string => {
-  return storage.bucket(bucketName).file(filePathName).publicUrl()
-}
-
 export const countOfFilesWithPrefix = async (prefix: string) => {
   const [files] = await storage.bucket(bucketName).getFiles({ prefix })
   return files.length
@@ -47,10 +44,6 @@ export const generateUploadSignedUrl = async (
   contentType: string,
   selectedBucket?: string
 ): Promise<string> => {
-  // if (env.dev.isLocal) {
-  //   return 'http://localhost:3000/uploads/' + filePathName
-  // }
-
   // These options will allow temporary uploading of file with requested content type
   const options: GetSignedUrlConfig = {
     version: 'v4',
@@ -80,24 +73,8 @@ export const generateDownloadSignedUrl = async (
     .bucket(bucketName)
     .file(filePathName)
     .getSignedUrl(options)
-  logger.info('generating download signed url', url)
+  logger.info(`generating download signed url: ${url}`)
   return url
-}
-
-export const makeStorageFilePublic = async (
-  id: string,
-  fileName: string
-): Promise<string> => {
-  // if (env.dev.isLocal) {
-  //   return 'http://localhost:3000/public/' + id + '/' + fileName
-  // }
-
-  // Makes the file public
-  const filePathName = generateUploadFilePathName(id, fileName)
-  await storage.bucket(bucketName).file(filePathName).makePublic()
-
-  const fileObj = storage.bucket(bucketName).file(filePathName)
-  return fileObj.publicUrl()
 }
 
 export const getStorageFileDetails = async (
@@ -108,7 +85,7 @@ export const getStorageFileDetails = async (
   const file = storage.bucket(bucketName).file(filePathName)
   const [metadata] = await file.getMetadata()
   // GCS returns MD5 Hash in base64 encoding, we convert it here to hex string
-  const md5Hash = Buffer.from(metadata.md5Hash, 'base64').toString('hex')
+  const md5Hash = Buffer.from(metadata.md5Hash || '', 'base64').toString('hex')
 
   return { md5Hash, fileUrl: file.publicUrl() }
 }
@@ -129,7 +106,7 @@ export const uploadToBucket = async (
   await storage
     .bucket(selectedBucket || bucketName)
     .file(filePath)
-    .save(data, options)
+    .save(data, { ...options, timeout: 30000 })
 }
 
 export const createGCSFile = (filename: string): File => {
