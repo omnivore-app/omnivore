@@ -185,14 +185,14 @@ const createFollowingTask = async (
 
   try {
     console.log('Creating task', input.url)
-    const apiEndpoint = process.env.REST_BACKEND_ENDPOINT
+    const serviceBaseUrl = process.env.INTERNAL_SVC_ENDPOINT
     const token = process.env.PUBSUB_VERIFICATION_TOKEN
-    if (!apiEndpoint || !token) {
+    if (!serviceBaseUrl || !token) {
       throw 'Environment not configured correctly'
     }
 
     // save page
-    const taskHandlerUrl = `${apiEndpoint}/svc/following/save?token=${token}`
+    const taskHandlerUrl = `${serviceBaseUrl}svc/following/save?token=${token}`
     const task = await createCloudTask(taskHandlerUrl, input)
     console.log('Created task', task)
 
