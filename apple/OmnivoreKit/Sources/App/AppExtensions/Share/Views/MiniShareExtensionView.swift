@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 
 struct MiniShareExtensionView: View {
+  @StateObject var viewModel: ShareExtensionViewModel
+  @StateObject var labelsViewModel: LabelsViewModel
   let extensionContext: NSExtensionContext?
 
   @State var showToast = true

@@ -24,7 +24,9 @@ public struct AddNoteSheet: View {
 
   public init(viewModel: ShareExtensionViewModel) {
     _viewModel = StateObject(wrappedValue: viewModel)
-    UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #if os(iOS)
+      UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #endif
   }
 
   func saveNote() {
@@ -41,6 +43,7 @@ public struct AddNoteSheet: View {
         }
         .background(Color.extensionBackground)
         .navigationTitle("Add Note")
+      #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(leading: Button(action: {
           dismiss()
@@ -53,6 +56,10 @@ public struct AddNoteSheet: View {
         }, label: {
           Text("Save").bold()
         }))
-    }.navigationViewStyle(StackNavigationViewStyle())
+      #endif
+    }
+    #if os(iOS)
+      .navigationViewStyle(StackNavigationViewStyle())
+    #endif
   }
 }

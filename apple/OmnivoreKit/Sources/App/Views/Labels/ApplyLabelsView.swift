@@ -36,6 +36,7 @@ struct ApplyLabelsView: View {
   @EnvironmentObject var dataService: DataService
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LabelsViewModel()
+  @State var isLabelsEntryFocused = false
 
   enum ViewState {
     case mainView
@@ -52,6 +53,7 @@ struct ApplyLabelsView: View {
     VStack {
       LabelsEntryView(
         searchTerm: $viewModel.labelSearchFilter,
+        isFocused: $isLabelsEntryFocused,
         viewModel: viewModel
       )
       .padding(.horizontal, 10)
@@ -62,66 +64,59 @@ struct ApplyLabelsView: View {
       }
 
       List {
-        Section {
-          ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
-            Button(
-              action: {
-                if isSelected(label) {
-                  if let idx = viewModel.selectedLabels.firstIndex(of: label) {
-                    viewModel.selectedLabels.remove(at: idx)
-                  }
-                } else {
-                  viewModel.labelSearchFilter = ZWSP
-                  viewModel.selectedLabels.append(label)
+        ForEach(viewModel.labels.applySearchFilter(viewModel.labelSearchFilter), id: \.self) { label in
+          Button(
+            action: {
+              if isSelected(label) {
+                if let idx = viewModel.selectedLabels.firstIndex(of: label) {
+                  viewModel.selectedLabels.remove(at: idx)
                 }
-              },
-              label: {
-                HStack {
-                  TextChip(feedItemLabel: label).allowsHitTesting(false)
-                  Spacer()
-                  if isSelected(label) {
-                    Image(systemName: "checkmark")
-                  }
-                }
-                .contentShape(Rectangle())
+              } else {
+                viewModel.labelSearchFilter = ZWSP
+                viewModel.selectedLabels.append(label)
               }
-            )
-            .padding(.vertical, 5)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            #if os(macOS)
-              .buttonStyle(PlainButtonStyle())
-            #endif
-          }
+            },
+            label: {
+              HStack {
+                TextChip(feedItemLabel: label).allowsHitTesting(false)
+                Spacer()
+                if isSelected(label) {
+                  Image(systemName: "checkmark")
+                }
+              }
+              .contentShape(Rectangle())
+            }
+          )
+          .padding(.vertical, 5)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          #if os(macOS)
+            .buttonStyle(PlainButtonStyle())
+          #endif
+        }
+        if !viewModel.labelSearchFilter.isEmpty, viewModel.labelSearchFilter != ZWSP {
           createLabelButton
         }
       }
       .listStyle(.plain)
       .background(Color.extensionBackground)
-
-      Spacer()
+      .frame(maxHeight: .infinity)
     }
     .navigationTitle(mode.navTitle)
     .background(Color.extensionBackground)
-    #if os(iOS)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarLeading) {
-          cancelButton
-        }
-        ToolbarItem(placement: .navigationBarTrailing) {
-          saveItemChangesButton
-        }
-      }
-    #else
-      .toolbar {
-        ToolbarItemGroup {
-          cancelButton
-          saveItemChangesButton
-        }
-      }
-    #endif
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
+    }
+    .onAppear {
+      Task {
+        switch mode {
+        case let .item(feedItem):
+          await viewModel.loadLabels(dataService: dataService, item: feedItem)
+        case let .highlight(highlight):
+          await viewModel.loadLabels(dataService: dataService, highlight: highlight)
+        case let .list(labels):
+          await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
+        }
+      }
     }
   }
 
@@ -176,32 +171,29 @@ struct ApplyLabelsView: View {
   }
 
   var body: some View {
-    Group {
-      #if os(iOS)
-        NavigationView {
-          if viewModel.labels.isEmpty, viewModel.isLoading {
-            EmptyView()
-          } else {
-            innerBody
+    #if os(iOS)
+      NavigationView {
+        innerBody
+          .navigationBarTitleDisplayMode(.inline)
+          .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+              cancelButton
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+              saveItemChangesButton
+            }
+          }
+      }
+    #elseif os(macOS)
+      innerBody
+        .toolbar {
+          ToolbarItemGroup {
+            cancelButton
+            saveItemChangesButton
           }
         }
-      #elseif os(macOS)
-        innerBody
-          .frame(minWidth: 400, minHeight: 600)
-      #endif
-    }
-    .onAppear {
-      Task {
-        switch mode {
-        case let .item(feedItem):
-          await viewModel.loadLabels(dataService: dataService, item: feedItem)
-        case let .highlight(highlight):
-          await viewModel.loadLabels(dataService: dataService, highlight: highlight)
-        case let .list(labels):
-          await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
-        }
-      }
-    }
+        .frame(minWidth: 400, minHeight: 600)
+    #endif
   }
 }
 
@@ -210,8 +202,11 @@ extension Sequence where Element == LinkedItemLabel {
     if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
     }
-    let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
-    let trimmed = searchFilter.suffix(from: index).lowercased()
-    return filter { ($0.name ?? "").lowercased().contains(trimmed) }
+    if searchFilter.starts(with: ZWSP) {
+      let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
+      let trimmed = searchFilter.suffix(from: index).lowercased()
+      return filter { ($0.name ?? "").lowercased().contains(trimmed) }
+    }
+    return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
   }
 }

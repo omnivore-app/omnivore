@@ -62,15 +62,53 @@ import Views
   import Cocoa
 
   class ShareViewController: NSViewController {
+    let labelsViewModel = LabelsViewModel()
+    let viewModel = ShareExtensionViewModel()
+
     override func loadView() {
-      view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 600))
+      view = NSView(frame: NSRect(x: 0, y: 0, width: 400, height: 300))
     }
 
     override func viewDidLoad() {
       super.viewDidLoad()
+
+      NotificationCenter.default.addObserver(
+        forName: Notification.Name("ShowAddNoteSheet"),
+        object: nil,
+        queue: OperationQueue.main
+      ) { _ in
+        self.openSheet(AnyView(AddNoteSheet(viewModel: self.viewModel)))
+      }
+
+      NotificationCenter.default.addObserver(
+        forName: Notification.Name("ShowEditLabelsSheet"),
+        object: nil,
+        queue: OperationQueue.main
+      ) { _ in
+        self.openSheet(AnyView(EditLabelsSheet(viewModel: self.viewModel, labelsViewModel: self.labelsViewModel)))
+      }
+
+      NotificationCenter.default.addObserver(
+        forName: Notification.Name("ShowEditInfoSheet"),
+        object: nil,
+        queue: OperationQueue.main
+      ) { _ in
+        self.openSheet(AnyView(EditInfoSheet(viewModel: self.viewModel)))
+      }
+
       embed(
-        childViewController: NSViewController.makeShareExtensionController(extensionContext: extensionContext)
+        childViewController: NSViewController.makeShareExtensionController(
+          viewModel: viewModel,
+          labelsViewModel: labelsViewModel,
+          extensionContext: extensionContext
+        )
       )
+    }
+
+    func openSheet(_ rootView: AnyView) {
+      let hostingController = PlatformHostingController(rootView: rootView)
+
+      presentAsSheet(hostingController)
     }
   }
 

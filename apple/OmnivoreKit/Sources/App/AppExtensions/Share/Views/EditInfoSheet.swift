@@ -26,16 +26,10 @@ public struct EditInfoSheet: View {
 
   public init(viewModel: ShareExtensionViewModel) {
     _viewModel = StateObject(wrappedValue: viewModel)
-    UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #if os(iOS)
+      UITextView.appearance().textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 10, right: 4)
+    #endif
   }
-
-//  func saveInfo() {
-//    if let linkedItem = viewModel.linkedItem {
-//      _ = viewModel.services.dataService.updateLinkedItemTitleAndDescription(itemID: linkedItem.unwrappedID, title: title, description: description, author: author)
-//    } else {
-//      // Maybe we shouldn't even allow this UI without linkeditem existing
-//    }
-//  }
 
   public var body: some View {
     if let item = viewModel.linkedItem {
