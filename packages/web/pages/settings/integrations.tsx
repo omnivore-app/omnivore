@@ -6,6 +6,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
+  Dropdown,
+  DropdownOption,
+} from '../../components/elements/DropdownElements'
+import {
   Box,
   HStack,
   SpanBox,
@@ -15,7 +19,10 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
-import { setIntegrationMutation } from '../../lib/networking/mutations/setIntegrationMutation'
+import {
+  ImportItemState,
+  setIntegrationMutation,
+} from '../../lib/networking/mutations/setIntegrationMutation'
 import {
   Integration,
   useGetIntegrationsQuery,
@@ -47,6 +54,11 @@ interface Integrations {
   id: string
 }
 
+interface DropdownOption {
+  text: string
+  action: () => void
+}
+
 type integrationsCard = {
   icon: string
   title: string
@@ -57,6 +69,8 @@ type integrationsCard = {
     style: string
     action: () => void
     disabled?: boolean
+    isDropdown?: boolean
+    dropdownOptions?: DropdownOption[]
   }
 }
 export default function Integrations(): JSX.Element {
@@ -96,11 +110,16 @@ export default function Integrations(): JSX.Element {
     }
   }
 
-  const redirectToPocket = () => {
+  const redirectToPocket = (importItemState: ImportItemState) => {
     // create a form and submit it to the backend
     const form = document.createElement('form')
     form.method = 'POST'
     form.action = `${fetchEndpoint}/integration/pocket/auth`
+    const input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = 'state'
+    input.value = importItemState
+    form.appendChild(input)
     document.body.appendChild(form)
     form.submit()
   }
@@ -114,11 +133,13 @@ export default function Integrations(): JSX.Element {
       try {
         // get the token from query string
         const token = router.query.pocketToken as string
+        const importItemState = router.query.state as ImportItemState
         const result = await setIntegrationMutation({
           token,
           name: 'POCKET',
           type: 'IMPORT',
           enabled: true,
+          importItemState,
         })
         if (result) {
           revalidate()
@@ -138,7 +159,7 @@ export default function Integrations(): JSX.Element {
       }
     }
     if (!router.isReady) return
-    if (router.query.pocketToken && !pocketConnected) {
+    if (router.query.pocketToken && router.query.state && !pocketConnected) {
       connectToPocket()
     }
   }, [router])
@@ -179,7 +200,7 @@ export default function Integrations(): JSX.Element {
         subText:
           'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import.',
         button: {
-          text: pocketConnected ? 'Import' : 'Connect to Pocket',
+          text: pocketConnected ? 'Disconnect' : 'Import',
           icon: isImporting(pocketConnected) ? (
             <Spinner size={16} />
           ) : (
@@ -188,10 +209,25 @@ export default function Integrations(): JSX.Element {
           style: isImporting(pocketConnected) ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
             pocketConnected
-              ? importFromIntegration(pocketConnected.id)
-              : redirectToPocket()
+              ? deleteIntegration(pocketConnected.id)
+              : redirectToPocket(ImportItemState.Unarchived)
           },
           disabled: isImporting(pocketConnected),
+          isDropdown: !pocketConnected,
+          dropdownOptions: [
+            {
+              text: 'Import All',
+              action: () => {
+                redirectToPocket(ImportItemState.All)
+              },
+            },
+            {
+              text: 'Import Unarchived',
+              action: () => {
+                redirectToPocket(ImportItemState.Unarchived)
+              },
+            },
+          ],
         },
       },
       {
@@ -295,28 +331,71 @@ export default function Integrations(): JSX.Element {
                   <p>{item.subText}</p>
                 </Box>
                 <HStack css={{ '@smDown': { width: '100%' } }}>
-                  <Button
-                    style={
-                      item.button.style === 'ctaDarkYellow'
-                        ? 'ctaDarkYellow'
-                        : 'ctaWhite'
-                    }
-                    css={{
-                      py: '10px',
-                      px: '14px',
-                      minWidth: '230px',
-                      width: '100%',
-                    }}
-                    onClick={item.button.action}
-                    disabled={item.button.disabled}
-                  >
-                    {item.button.icon}
-                    <SpanBox
-                      css={{ pl: '10px', fontWeight: '600', fontSize: '16px' }}
+                  {item.button.isDropdown ? (
+                    <Dropdown
+                      triggerElement={
+                        <Button
+                          style={
+                            item.button.style === 'ctaDarkYellow'
+                              ? 'ctaDarkYellow'
+                              : 'ctaWhite'
+                          }
+                          css={{
+                            py: '10px',
+                            px: '14px',
+                            minWidth: '230px',
+                            width: '100%',
+                          }}
+                        >
+                          {item.button.icon}
+                          <SpanBox
+                            css={{
+                              pl: '10px',
+                              fontWeight: '600',
+                              fontSize: '16px',
+                            }}
+                          >
+                            {item.button.text}
+                          </SpanBox>
+                        </Button>
+                      }
                     >
-                      {item.button.text}
-                    </SpanBox>
-                  </Button>
+                      {item.button.dropdownOptions?.map((option) => (
+                        <DropdownOption
+                          key={option.text}
+                          onSelect={option.action}
+                          title={option.text}
+                        ></DropdownOption>
+                      ))}
+                    </Dropdown>
+                  ) : (
+                    <Button
+                      style={
+                        item.button.style === 'ctaDarkYellow'
+                          ? 'ctaDarkYellow'
+                          : 'ctaWhite'
+                      }
+                      css={{
+                        py: '10px',
+                        px: '14px',
+                        minWidth: '230px',
+                        width: '100%',
+                      }}
+                      onClick={item.button.action}
+                      disabled={item.button.disabled}
+                    >
+                      {item.button.icon}
+                      <SpanBox
+                        css={{
+                          pl: '10px',
+                          fontWeight: '600',
+                          fontSize: '16px',
+                        }}
+                      >
+                        {item.button.text}
+                      </SpanBox>
+                    </Button>
+                  )}
                 </HStack>
               </HStack>
             )
