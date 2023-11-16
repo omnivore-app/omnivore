@@ -252,7 +252,8 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             req.body.integrationName,
             claims.token,
             token,
-            'IMPORT'
+            'IMPORT',
+            null
           )
           if (!result) {
             console.error('failed to update integration', {
