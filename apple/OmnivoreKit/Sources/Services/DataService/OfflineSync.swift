@@ -5,11 +5,11 @@ import Utils
 
 public extension DataService {
   func syncOfflineItemsWithServerIfNeeded() async throws {
-    var unsyncedLinkedItems = [LinkedItem]()
+    var unsyncedLinkedItems = [LibraryItem]()
     var unsyncedHighlights = [Highlight]()
 
     // LinkedItems
-    let itemsFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    let itemsFetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
     itemsFetchRequest.predicate = NSPredicate(
       format: "serverSyncStatus != %i", Int64(ServerSyncStatus.isNSync.rawValue)
     )
@@ -37,7 +37,7 @@ public extension DataService {
 
   private func updateLinkedItemStatus(id: String, newId: String?, status: ServerSyncStatus) async throws {
     backgroundContext.performAndWait {
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", id)
 
       guard let linkedItem = (try? backgroundContext.fetch(fetchRequest))?.first else { return }
@@ -107,7 +107,7 @@ public extension DataService {
     }
   }
 
-  func syncLocalCreatedLinkedItem(item: LinkedItem) {
+  func syncLocalCreatedLinkedItem(item: LibraryItem) {
     switch item.contentReader {
     case "PDF":
       let id = item.unwrappedID
@@ -135,7 +135,7 @@ public extension DataService {
     }
   }
 
-  private func syncLinkedItems(unsyncedLinkedItems: [LinkedItem]) {
+  private func syncLinkedItems(unsyncedLinkedItems: [LibraryItem]) {
     for item in unsyncedLinkedItems {
       guard let syncStatus = ServerSyncStatus(rawValue: Int(item.serverSyncStatus)) else { continue }
 

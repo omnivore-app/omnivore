@@ -17,7 +17,7 @@ public struct PDFItem {
   public let downloadURL: String
   public let highlights: [Highlight]
 
-  public static func make(item: LinkedItem) -> PDFItem? {
+  public static func make(item: LibraryItem) -> PDFItem? {
     guard item.isPDF else { return nil }
 
     return PDFItem(

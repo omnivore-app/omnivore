@@ -54,6 +54,8 @@ public extension Color {
 
   static var noteContainer: Color { Color("_noteContainer", bundle: .module) }
   static var textFieldBackground: Color { Color("_textFieldBackground", bundle: .module) }
+  static var themeTabBarColor: Color { Color("_themeTabBarColor", bundle: .module) }
+  static var themeTabButtonColor: Color { Color("_themeTabButtonColor", bundle: .module) }
 
   // Apple system UIColor equivalents
   #if os(iOS)

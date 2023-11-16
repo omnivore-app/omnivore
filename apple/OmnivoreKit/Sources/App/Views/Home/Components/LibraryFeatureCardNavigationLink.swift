@@ -14,7 +14,7 @@ struct LibraryFeatureCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  let item: LinkedItem
+  let item: Models.LibraryItem
   @ObservedObject var viewModel: HomeFeedViewModel
 
   @State var showFeatureActions = false

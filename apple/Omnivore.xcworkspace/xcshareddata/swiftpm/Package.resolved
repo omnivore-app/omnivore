@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "engine",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/Engine",
+      "state" : {
+        "revision" : "31949c114698e4fd43fd76290913bca415fa87bc",
+        "version" : "1.1.0"
+      }
+    },
+    {
       "identity" : "files",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/Files",
@@ -208,6 +217,15 @@
       }
     },
     {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-syntax.git",
+      "state" : {
+        "revision" : "6ad4ea24b01559dde0773e3d091f1b9e36175036",
+        "version" : "509.0.2"
+      }
+    },
+    {
       "identity" : "swiftformat",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
@@ -223,6 +241,24 @@
       "state" : {
         "revision" : "f2616860a41f9d9932da412a8978fec79c06fe24",
         "version" : "0.1.4"
+      }
+    },
+    {
+      "identity" : "transmission",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/Transmission",
+      "state" : {
+        "revision" : "9517912f8f528c777f86f7896b5c35d7e43fa916",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "turbocharger",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nathantannar4/Turbocharger",
+      "state" : {
+        "revision" : "b4201ba0bc094facf6cabe3b36fd3763b51ccfc8",
+        "version" : "1.0.1"
       }
     },
     {

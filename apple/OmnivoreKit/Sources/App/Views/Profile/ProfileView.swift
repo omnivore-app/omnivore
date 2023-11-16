@@ -70,12 +70,7 @@ struct ProfileView: View {
         innerBody
       }
       .navigationTitle(LocalText.genericProfile)
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          dismissButton
-        }
-      }
+      .navigationBarTitleDisplayMode(.large)
     #elseif os(macOS)
       List {
         innerBody

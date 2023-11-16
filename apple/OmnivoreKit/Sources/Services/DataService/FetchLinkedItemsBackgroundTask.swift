@@ -48,7 +48,7 @@ extension DataService {
   }
 
   func itemsNotInStore(from itemIDs: [String]) async -> [String] {
-    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "id IN %@", itemIDs)
 
     return await backgroundContext.perform(schedule: .immediate) {

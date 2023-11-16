@@ -7,7 +7,7 @@ import Views
 @MainActor
 struct ApplyLabelsView: View {
   enum Mode {
-    case item(LinkedItem)
+    case item(Models.LibraryItem)
     case highlight(Highlight)
     case list([LinkedItemLabel])
 

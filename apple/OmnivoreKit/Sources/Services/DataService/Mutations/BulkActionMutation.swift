@@ -29,7 +29,7 @@ public extension DataService {
     // If the item is still available locally, update its state
     backgroundContext.performAndWait {
       items.forEach { itemID in
-        if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: backgroundContext) {
+        if let linkedItem = Models.LibraryItem.lookup(byID: itemID, inContext: backgroundContext) {
           if action == .delete {
             linkedItem.state = "DELETED"
             linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)

@@ -12,12 +12,12 @@ public enum GridCardAction {
 
 public struct GridCard: View {
   @Binding var isContextMenuOpen: Bool
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let actionHandler: (GridCardAction) -> Void
   // let tapAction: () -> Void
 
   public init(
-    item: LinkedItem,
+    item: Models.LibraryItem,
     isContextMenuOpen: Binding<Bool>,
     actionHandler: @escaping (GridCardAction) -> Void
   ) {

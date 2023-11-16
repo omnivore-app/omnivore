@@ -9,7 +9,7 @@ import WebKit
 
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let pop: () -> Void
 
   @State private var showPreferencesPopover = false
@@ -209,7 +209,7 @@ struct WebReaderContainerView: View {
     )
   }
 
-  func menuItems(for item: LinkedItem) -> some View {
+  func menuItems(for item: Models.LibraryItem) -> some View {
     let hasLabels = item.labels?.count != 0
     return Group {
       Button(

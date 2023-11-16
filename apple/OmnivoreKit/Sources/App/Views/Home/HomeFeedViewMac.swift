@@ -11,7 +11,7 @@ import Views
     @EnvironmentObject var audioController: AudioController
     @EnvironmentObject var authenticator: Authenticator
 
-    @State private var itemToRemove: LinkedItem?
+    @State private var itemToRemove: Models.LibraryItem?
     @State private var confirmationShown = false
     @State private var presentProfileSheet = false
     @State private var addLinkPresented = false
@@ -29,7 +29,7 @@ import Views
       }
     }
 
-    func menuItems(_ item: LinkedItem) -> some View {
+    func menuItems(_ item: Models.LibraryItem) -> some View {
       Group {
         Button(
           action: { viewModel.itemUnderTitleEdit = item },

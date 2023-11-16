@@ -11,7 +11,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published public var url: String?
   @Published public var iconURL: URL?
   @Published public var highlightData: HighlightData?
-  @Published public var linkedItem: LinkedItem?
+  @Published public var linkedItem: Models.LibraryItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
   @Published var noteText: String = ""
@@ -204,7 +204,7 @@ public class ShareExtensionViewModel: ObservableObject {
       }
 
       if let objectID = objectID {
-        self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? LinkedItem
+        self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? Models.LibraryItem
         if let title = self.linkedItem?.title {
           self.title = title
         }

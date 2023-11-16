@@ -32,7 +32,7 @@ enum FlairLabels: String {
 }
 
 public extension View {
-  func draggableItem(item: LinkedItem) -> some View {
+  func draggableItem(item: Models.LibraryItem) -> some View {
     #if os(iOS)
       if #available(iOS 16.0, *), let url = item.deepLink {
         return AnyView(self.draggable(url) {
@@ -46,10 +46,10 @@ public extension View {
 
 public struct LibraryItemCard: View {
   let viewer: Viewer?
-  @ObservedObject var item: LinkedItem
+  @ObservedObject var item: Models.LibraryItem
   @State var noteLineLimit: Int? = 3
 
-  public init(item: LinkedItem, viewer: Viewer?) {
+  public init(item: Models.LibraryItem, viewer: Viewer?) {
     self.item = item
     self.viewer = viewer
   }

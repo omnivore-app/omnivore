@@ -120,11 +120,11 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
 
     let undeletedPredicate = NSPredicate(
       format: "%K != %i AND %K != \"DELETED\"",
-      #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
-      #keyPath(LinkedItem.state)
+      #keyPath(Models.LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
+      #keyPath(Models.LibraryItem.state)
     )
     let notInArchivePredicate = NSPredicate(
-      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+      format: "%K == %@", #keyPath(Models.LibraryItem.isArchived), Int(truncating: false) as NSNumber
     )
 
     switch name {
@@ -148,7 +148,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
         format: "htmlContent.length > 0"
       )
       let isPDFPredicate = NSPredicate(
-        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+        format: "%K == %@", #keyPath(Models.LibraryItem.contentReader), "PDF"
       )
       let localPDFURL = NSPredicate(
         format: "localPDF.length > 0"
@@ -177,18 +177,18 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       return undeletedPredicate
     case "Archived":
       let inArchivePredicate = NSPredicate(
-        format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
+        format: "%K == %@", #keyPath(Models.LibraryItem.isArchived), Int(truncating: true) as NSNumber
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
     case "Deleted":
       let deletedPredicate = NSPredicate(
-        format: "%K == %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+        format: "%K == %i", #keyPath(Models.LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [deletedPredicate])
     case "Files":
       // include pdf only
       let isPDFPredicate = NSPredicate(
-        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+        format: "%K == %@", #keyPath(Models.LibraryItem.contentReader), "PDF"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
     case "Highlights":

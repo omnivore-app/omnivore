@@ -10,13 +10,13 @@ public extension DataService {
 
     var linkedItemID: String?
     viewContext.performAndWait {
-      guard let linkedItem = self.viewContext.object(with: objectID) as? LinkedItem else { return }
+      guard let linkedItem = self.viewContext.object(with: objectID) as? LibraryItem else { return }
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
       linkedItemID = linkedItem.id
     }
 
     viewContext.perform {
-      guard let linkedItem = self.viewContext.object(with: objectID) as? LinkedItem else { return }
+      guard let linkedItem = self.viewContext.object(with: objectID) as? LibraryItem else { return }
       linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsDeletion.rawValue)
       linkedItemID = linkedItem.id
 
@@ -78,7 +78,7 @@ public extension DataService {
       let isSyncSuccess = data != nil
 
       context.perform {
-        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
+        guard let linkedItem = LibraryItem.lookup(byID: itemID, inContext: context) else { return }
 
         if isSyncSuccess {
           linkedItem.remove(inContext: context)

@@ -25,8 +25,8 @@ public extension DataService {
       .appendingPathComponent(UUID().uuidString + ".pdf")
 
     try await backgroundContext.perform { [weak self] in
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
-      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LinkedItem.slug), slug)
+      let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.slug), slug)
 
       let linkedItem = try? self?.backgroundContext.fetch(fetchRequest).first
       guard let linkedItem = linkedItem else {

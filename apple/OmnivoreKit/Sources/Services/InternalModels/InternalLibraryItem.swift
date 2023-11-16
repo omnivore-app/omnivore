@@ -2,13 +2,14 @@ import CoreData
 import Foundation
 import Models
 
-struct InternalLinkedItem {
+struct InternalLibraryItem {
   let id: String
   let title: String
   let createdAt: Date
   let savedAt: Date
   let readAt: Date?
   let updatedAt: Date
+  let folder: String
   let state: ArticleContentStatus
   var readingProgress: Double
   var readingProgressAnchor: Int
@@ -38,9 +39,9 @@ struct InternalLinkedItem {
     return pageURLString.hasSuffix("pdf")
   }
 
-  func asManagedObject(inContext context: NSManagedObjectContext) -> LinkedItem {
-    let existingItem = LinkedItem.lookup(byID: id, inContext: context)
-    let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: context)
+  func asManagedObject(inContext context: NSManagedObjectContext) -> LibraryItem {
+    let existingItem = LibraryItem.lookup(byID: id, inContext: context)
+    let linkedItem = existingItem ?? LibraryItem(entity: LibraryItem.entity(), insertInto: context)
 
     linkedItem.id = id
     linkedItem.title = title
@@ -48,6 +49,7 @@ struct InternalLinkedItem {
     linkedItem.savedAt = savedAt
     linkedItem.updatedAt = updatedAt
     linkedItem.readAt = readAt
+    linkedItem.folder = folder
     linkedItem.state = state.rawValue
     linkedItem.readingProgress = readingProgress
     linkedItem.readingProgressAnchor = Int64(readingProgressAnchor)
@@ -89,9 +91,9 @@ struct InternalLinkedItem {
   }
 }
 
-extension Sequence where Element == InternalLinkedItem {
+extension Sequence where Element == InternalLibraryItem {
   func persist(context: NSManagedObjectContext) -> [NSManagedObjectID]? {
-    var linkedItems: [LinkedItem]?
+    var linkedItems: [LibraryItem]?
     context.performAndWait {
       linkedItems = map { $0.asManagedObject(inContext: context) }
 
@@ -123,13 +125,14 @@ extension JSONArticle {
   func persistAsLinkedItem(context: NSManagedObjectContext) -> NSManagedObjectID? {
     var objectID: NSManagedObjectID?
 
-    let internalLinkedItem = InternalLinkedItem(
+    let internalLinkedItem = InternalLibraryItem(
       id: id,
       title: title,
       createdAt: createdAt,
       savedAt: savedAt,
       readAt: readAt,
       updatedAt: updatedAt,
+      folder: folder,
       state: .succeeded,
       readingProgress: readingProgressPercent,
       readingProgressAnchor: readingProgressAnchorIndex,

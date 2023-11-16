@@ -91,7 +91,7 @@ struct InternalHighlight: Encodable {
       let highlight = asManagedObject(context: context)
 
       if let associatedItemID = associatedItemID {
-        let linkedItem = LinkedItem.lookup(byID: associatedItemID, inContext: context)
+        let linkedItem = LibraryItem.lookup(byID: associatedItemID, inContext: context)
         linkedItem?.addToHighlights(highlight)
       }
 

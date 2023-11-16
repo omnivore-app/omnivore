@@ -25,7 +25,7 @@ import SwiftUI
 
   func loadLabels(
     dataService: DataService,
-    item: LinkedItem? = nil,
+    item: Models.LibraryItem? = nil,
     highlight: Highlight? = nil,
     initiallySelectedLabels: [LinkedItemLabel]? = nil
   ) async {

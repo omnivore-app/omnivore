@@ -18,11 +18,11 @@ import Views
   public var innerBody: some View {
     #if os(iOS)
       if UIDevice.isIPad {
-        return AnyView(splitView)
+        return AnyView(LibraryTabView())
+        // return AnyView(splitView)
       } else {
         return AnyView(
           LibraryTabView()
-            .navigationViewStyle(.stack)
         )
       }
     #else

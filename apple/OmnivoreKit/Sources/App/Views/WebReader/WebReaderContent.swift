@@ -7,7 +7,7 @@ struct WebReaderContent {
   let textFontSize: Int
   let lineHeight: Int
   let maxWidthPercentage: Int
-  let item: LinkedItem
+  let item: LibraryItem
   let isDark: Bool
   let themeKey: String
   let fontFamily: WebFont
@@ -17,7 +17,7 @@ struct WebReaderContent {
   let justifyText: Bool
 
   init(
-    item: LinkedItem,
+    item: Models.LibraryItem,
     articleContent: ArticleContent,
     isDark: Bool,
     fontSize: Int,

@@ -16,7 +16,14 @@ import Views
 struct LibraryTabView: View {
   @EnvironmentObject var dataService: DataService
 
-  @StateObject private var subViewModel = HomeFeedViewModel(
+  @MainActor
+  public init() {
+    UITabBar.appearance().isHidden = true
+    UITabBar.appearance().backgroundColor = UIColor(Color.themeTabBarColor)
+  }
+
+  @StateObject private var followingViewModel = HomeFeedViewModel(
+    fetcher: InboxFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
       leadingSwipeActions: [.moveToInbox],
@@ -26,6 +33,7 @@ struct LibraryTabView: View {
   )
 
   @StateObject private var libraryViewModel = HomeFeedViewModel(
+    fetcher: InboxFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
@@ -35,6 +43,7 @@ struct LibraryTabView: View {
   )
 
   @StateObject private var highlightsViewModel = HomeFeedViewModel(
+    fetcher: InboxFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
@@ -43,12 +52,31 @@ struct LibraryTabView: View {
     )
   )
 
+  @State var selectedTab = "following"
+
   var body: some View {
-    NavigationView {
-      HomeView(viewModel: libraryViewModel)
-      #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-      #endif
+    VStack(spacing: 0) {
+      TabView(selection: $selectedTab) {
+        NavigationView {
+          HomeView(viewModel: followingViewModel)
+            .navigationViewStyle(.stack)
+        }
+        .tag("following")
+
+        NavigationView {
+          HomeView(viewModel: libraryViewModel)
+            .navigationViewStyle(.stack)
+        }
+        .tag("inbox")
+
+        NavigationView {
+          ProfileView()
+            .navigationViewStyle(.stack)
+        }
+        .tag("profile")
+      }
+      CustomTabBar(selectedTab: $selectedTab)
     }
+    .ignoresSafeArea()
   }
 }
