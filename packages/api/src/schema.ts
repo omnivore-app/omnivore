@@ -2190,7 +2190,7 @@ const schema = gql`
   input SaveFilterInput {
     name: String!
     filter: String!
-    category: String
+    folder: String
     description: String
     position: Int
   }
@@ -2206,7 +2206,7 @@ const schema = gql`
     name: String!
     filter: String!
     position: Int!
-    category: String!
+    folder: String!
     description: String
     createdAt: Date!
     updatedAt: Date
@@ -2260,7 +2260,7 @@ const schema = gql`
     name: String
     filter: String
     position: Int
-    category: String
+    folder: String
     description: String
     visible: Boolean
   }

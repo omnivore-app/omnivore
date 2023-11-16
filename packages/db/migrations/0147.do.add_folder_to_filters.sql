@@ -4,6 +4,6 @@
 
 BEGIN;
 
-UPDATE omnivore.filters SET category = 'inbox' WHERE category = 'Search';
+ALTER TABLE omnivore.filters ADD COLUMN folder text NOT NULL DEFAULT 'inbox';
 
 COMMIT;
