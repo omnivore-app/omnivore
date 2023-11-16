@@ -5,11 +5,7 @@ import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-d
 import * as jwt from 'jsonwebtoken'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
-import {
-  CONTENT_FETCH_URL,
-  createCloudTask,
-  FOLLOWING_HANDLER_URL,
-} from './task'
+import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 interface RssFeedRequest {
   subscriptionIds: string[]
@@ -189,8 +185,15 @@ const createFollowingTask = async (
 
   try {
     console.log('Creating task', input.url)
+    const serviceBaseUrl = process.env.INTERNAL_SVC_ENDPOINT
+    const token = process.env.PUBSUB_VERIFICATION_TOKEN
+    if (!serviceBaseUrl || !token) {
+      throw 'Environment not configured correctly'
+    }
+
     // save page
-    const task = await createCloudTask(FOLLOWING_HANDLER_URL, input)
+    const taskHandlerUrl = `${serviceBaseUrl}svc/following/save?token=${token}`
+    const task = await createCloudTask(taskHandlerUrl, input)
     console.log('Created task', task)
 
     return !!task

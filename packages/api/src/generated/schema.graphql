@@ -69,6 +69,7 @@ type Article {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  folder: String!
   hasContent: Boolean
   hash: String!
   highlights(input: ArticleHighlightsInput): [Highlight!]!
@@ -1746,16 +1747,20 @@ type SearchItem {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  folder: String!
   highlights: [Highlight!]
   id: ID!
   image: String
   isArchived: Boolean!
   labels: [Label!]
   language: String
+  links: JSON
   originalArticleUrl: String
   ownedByViewer: Boolean
   pageId: ID
   pageType: PageType!
+  previewContent: String
+  previewContentType: String
   publishedAt: Date
   quote: String
   readAt: Date
