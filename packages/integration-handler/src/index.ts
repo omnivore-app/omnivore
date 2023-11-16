@@ -189,7 +189,11 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       const since = syncedAt
       const state = req.body.state || State.UNARCHIVED // default to unarchived
 
-      console.log('importing pages from integration...')
+      console.log('importing pages from integration...', {
+        userId,
+        state,
+        since,
+      })
       // get pages from integration
       const retrieved = await integrationClient.retrieve({
         token: claims.token,
@@ -198,10 +202,14 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         state,
       })
       syncedAt = retrieved.since || Date.now()
-
-      console.log('uploading items...')
-
       let retrievedData = retrieved.data
+
+      console.log('retrieved data', {
+        userId,
+        total: offset,
+        size: retrievedData.length,
+      })
+
       // if there are pages to import
       if (retrievedData.length > 0) {
         // write the list of urls to a csv file and upload it to gcs
@@ -239,11 +247,16 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
           retrievedData = retrieved.data
 
           console.log('retrieved data', {
+            userId,
             total: offset,
             size: retrievedData.length,
           })
 
-          console.log('uploading integration...')
+          console.log('updating integration...', {
+            userId,
+            integrationId: req.body.integrationId,
+            syncedAt,
+          })
           // update the integration's syncedAt and remove taskName
           const result = await updateIntegration(
             REST_BACKEND_ENDPOINT,
@@ -257,6 +270,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
           )
           if (!result) {
             console.error('failed to update integration', {
+              userId,
               integrationId: req.body.integrationId,
             })
             return res.status(400).send('Failed to update integration')
@@ -266,7 +280,10 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
 
       console.log('done')
     } catch (err) {
-      console.error('import pages from integration failed', err)
+      console.error('import pages from integration failed', {
+        userId: claims.uid,
+        err,
+      })
       return res.status(500).send(err)
     } finally {
       console.log('closing write stream')
