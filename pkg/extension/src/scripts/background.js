@@ -643,9 +643,16 @@ function checkAuthOnFirstClickPostInstall(tabId) {
 }
 
 function handleActionClick() {
-  executeAction(function (currentTab) {
-    extensionSaveCurrentPage(currentTab.id)
-  })
+  getStorageItem('consentGranted')
+    .then((consentGranted) => {
+      console.log('consentGranted: ', consentGranted)
+      executeAction(function (currentTab) {
+        extensionSaveCurrentPage(currentTab.id)
+      })
+    })
+    .catch(() => {
+      console.log('extension consent not granted')
+    })
 }
 
 function executeAction(action) {
@@ -682,24 +689,6 @@ function executeAction(action) {
       }
     )
   })
-}
-
-function getActionableState(tab) {
-  if (tab.status !== 'complete') return false
-
-  const tabUrl = tab.pendingUrl || tab.url
-  if (!tabUrl) return false
-
-  if (!tabUrl.startsWith('https://') && !tabUrl.startsWith('http://'))
-    return false
-
-  if (
-    tabUrl.startsWith('https://omnivore.app/') &&
-    tabUrl.startsWith('https://dev.omnivore.app/')
-  )
-    return false
-
-  return true
 }
 
 function init() {
@@ -819,6 +808,22 @@ function init() {
         extensionSaveCurrentPage(currentTab.id, true)
       })
     },
+  })
+
+  browser.runtime.onInstalled.addListener(async ({ reason, temporary }) => {
+    // if (temporary) return // skip during development
+    console.log('onInstalled: ', reason, temporary)
+    switch (reason) {
+      case 'update':
+      case 'install':
+        {
+          const url = browser.runtime.getURL('views/installed.html')
+          await browser.tabs.create({ url })
+          // or: await browser.windows.create({ url, type: "popup", height: 600, width: 600, });
+        }
+        break
+      // see below
+    }
   })
 }
 
