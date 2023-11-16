@@ -206,7 +206,7 @@ export default function Integrations(): JSX.Element {
           ) : (
             <Link size={16} weight={'bold'} />
           ),
-          style: isImporting(pocketConnected) ? 'ctaWhite' : 'ctaDarkYellow',
+          style: pocketConnected ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
             pocketConnected
               ? deleteIntegration(pocketConnected.id)
