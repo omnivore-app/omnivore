@@ -20,12 +20,14 @@ interface UpdateSubscription {
   errorCodes?: UpdateSubscriptionErrorCode[]
 }
 
-interface UpdateSubscriptionInput {
+export interface UpdateSubscriptionInput {
   id: string
   lastFetchedAt?: Date
   name?: string
   description?: string
   status?: SubscriptionStatus
+  autoAddToLibrary?: boolean
+  isPrivate?: boolean
 }
 
 export async function updateSubscriptionMutation(
