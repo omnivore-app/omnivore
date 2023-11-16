@@ -397,6 +397,13 @@
         e.stopPropogation()
       }
     })
+
+    root.addEventListener('keyup', (e) => {
+      e.cancelBubble = true
+      if (e.stopPropogation) {
+        e.stopPropogation()
+      }
+    })
   }
 
   function createLabelRow(label) {
