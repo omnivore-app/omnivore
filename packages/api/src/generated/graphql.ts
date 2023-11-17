@@ -1867,6 +1867,7 @@ export type QueryTypeaheadSearchArgs = {
 export type QueryUpdatesSinceArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+  folder?: InputMaybe<Scalars['String']>;
   since: Scalars['Date'];
   sort?: InputMaybe<SortParams>;
 };

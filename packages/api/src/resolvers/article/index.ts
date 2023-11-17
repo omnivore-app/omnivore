@@ -737,7 +737,7 @@ export const updatesSinceResolver = authorized<
   UpdatesSinceSuccess,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
->(async (_obj, { since, first, after, sort: sortParams }, { uid }) => {
+>(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
   const sort = sortParamsToSort(sortParams)
 
   const startCursor = after || ''
@@ -755,7 +755,7 @@ export const updatesSinceResolver = authorized<
       includeDeleted: true,
       dateFilters: [{ field: 'updatedAt', startDate }],
       sort,
-      inFilter: InFilter.ALL,
+      inFilter: (folder as InFilter) || InFilter.ALL,
     },
     uid
   )

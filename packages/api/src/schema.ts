@@ -2826,6 +2826,7 @@ const schema = gql`
       first: Int
       since: Date!
       sort: SortParams
+      folder: String
     ): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!

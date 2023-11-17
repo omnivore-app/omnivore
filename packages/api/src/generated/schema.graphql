@@ -1368,7 +1368,7 @@ type Query {
   sendInstallInstructions: SendInstallInstructionsResult!
   subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
-  updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
+  updatesSince(after: String, first: Int, folder: String, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
