@@ -33,7 +33,6 @@ import Views
 
   @Published var showLabelsSheet = false
   @Published var showFiltersModal = false
-  @Published var showCommunityModal = false
   @Published var featureItems = [LinkedItem]()
 
   @Published var listConfig: LibraryListConfig

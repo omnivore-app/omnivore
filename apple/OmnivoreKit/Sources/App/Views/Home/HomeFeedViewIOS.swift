@@ -32,12 +32,14 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
+    @State var showOpenAIVoices = false
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = true
-    @AppStorage(UserDefaultKey.shouldPromptCommunityModal.rawValue) var shouldPromptCommunityModal = true
+    @AppStorage(UserDefaultKey.openAIPrimerDisplayed.rawValue) var openAIPrimerDisplayed = false
+
     @ObservedObject var viewModel: HomeFeedViewModel
 
     @State private var selection = Set<String>()
@@ -97,6 +99,17 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(isPresented: $viewModel.showFiltersModal) {
         NavigationView {
           FilterSelectorView(viewModel: viewModel)
+        }
+      }
+      .sheet(isPresented: $showOpenAIVoices) {
+        OpenAIVoicesModal(audioController: audioController)
+      }
+      .onAppear {
+        showOpenAIVoices = true
+
+        if !openAIPrimerDisplayed, !Voices.isOpenAIVoice(self.audioController.currentVoice) {
+          showOpenAIVoices = true
+          openAIPrimerDisplayed = true
         }
       }
       .toolbar {
