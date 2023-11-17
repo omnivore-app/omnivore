@@ -23,6 +23,8 @@ export function integrationRouter() {
 
       const consumerKey = env.pocket.consumerKey
       const redirectUri = `${env.client.url}/settings/integrations`
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const state = req.body.state as string
       try {
         // make a POST request to Pocket to get a request token
         const response = await axios.post<{ code: string }>(
@@ -41,7 +43,9 @@ export function integrationRouter() {
         const { code } = response.data
         // redirect the user to Pocket to authorize the request token
         res.redirect(
-          `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}?pocketToken=${code}`
+          `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}${encodeURIComponent(
+            `?pocketToken=${code}&state=${state}`
+          )}`
         )
       } catch (error) {
         if (axios.isAxiosError(error)) {
