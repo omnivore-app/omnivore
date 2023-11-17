@@ -273,5 +273,7 @@ export const parsedContentToLibraryItem = ({
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
     folder: 'inbox',
+    archivedAt:
+      state === ArticleSavingRequestStatus.Archived ? new Date() : null,
   }
 }

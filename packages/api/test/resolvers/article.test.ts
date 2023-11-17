@@ -692,7 +692,7 @@ describe('Article API', () => {
         200
       )
       const item = await findLibraryItemById(itemId, user.id)
-      expect(item?.folder).to.eql('trash')
+      expect(item?.state).to.eql(LibraryItemState.Deleted)
     })
   })
 
@@ -1153,12 +1153,12 @@ describe('Article API', () => {
       })
     })
 
-    context("when in:inbox label:test' is in the query", () => {
+    context('when in:inbox no:subscription label:test is in the query', () => {
       let items: LibraryItem[] = []
       let label: Label
 
       before(async () => {
-        keyword = 'in:inbox label:test'
+        keyword = 'in:inbox no:subscription label:test'
         // Create some test items
         label = await createLabel('test', '', user.id)
         items = await createLibraryItems(
@@ -1169,6 +1169,14 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              subscription: 'test subscription',
             },
             {
               user,
@@ -1184,6 +1192,7 @@ describe('Article API', () => {
         )
         await saveLabelsInLibraryItem([label], items[0].id, user.id)
         await saveLabelsInLibraryItem([label], items[1].id, user.id)
+        await saveLabelsInLibraryItem([label], items[2].id, user.id)
       })
 
       after(async () => {

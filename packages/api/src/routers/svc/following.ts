@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
+import {
+  findOrCreateLabels,
+  saveLabelsInLibraryItem,
+} from '../../services/labels'
 import { saveFeedItemInFollowing } from '../../services/library_item'
 import { logger } from '../../utils/logger'
 
@@ -49,16 +53,40 @@ export function followingServiceRouter() {
       return res.status(400).send('INVALID_REQUEST_BODY')
     }
 
-    if (req.body.addedToFollowingFrom === 'feed') {
-      logger.info('saving feed item')
+    if (
+      req.body.addedToFollowingFrom === 'feed' &&
+      req.body.userIds.length > 0
+    ) {
+      const userId = req.body.userIds[0]
+      logger.info('saving feed item', userId)
 
-      const result = await saveFeedItemInFollowing(req.body)
+      const result = await saveFeedItemInFollowing(req.body, userId)
       if (result.identifiers.length === 0) {
         logger.error('error saving feed item in following')
         return res.status(500).send('ERROR_SAVING_FEED_ITEM')
       }
 
       logger.info('feed item saved in following')
+
+      // add RSS label to the item
+      const labels = await findOrCreateLabels(
+        [
+          {
+            name: 'RSS',
+          },
+        ],
+        userId
+      )
+      await saveLabelsInLibraryItem(
+        labels,
+        result.identifiers[0].id,
+        userId,
+        undefined,
+        true
+      )
+
+      logger.info('RSS label added to the item')
+
       return res.sendStatus(200)
     }
 

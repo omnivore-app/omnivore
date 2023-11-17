@@ -9,7 +9,6 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { SaveFollowingItemRequest } from '../routers/svc/following'
-import { SetClaimsRole } from '../utils/dictionary'
 import { generateSlug, wordsCount } from '../utils/helpers'
 import {
   DateFilter,
@@ -248,7 +247,7 @@ const buildWhereClause = (
   if (args.noFilters) {
     args.noFilters.forEach((filter) => {
       queryBuilder.andWhere(
-        `library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL`
+        `(library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL)`
       )
     })
   }
@@ -397,7 +396,6 @@ export const updateLibraryItem = async (
   const updatedLibraryItem = await authTrx(
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
-      await itemRepo.update(id, libraryItem)
 
       // reset deletedAt and archivedAt
       switch (libraryItem.state) {
@@ -413,6 +411,7 @@ export const updateLibraryItem = async (
           libraryItem.deletedAt = null
           break
       }
+      await itemRepo.update(id, libraryItem)
 
       return itemRepo.findOneByOrFail({ id })
     },
@@ -551,31 +550,32 @@ export const createLibraryItem = async (
   return newLibraryItem
 }
 
-export const saveFeedItemInFollowing = (input: SaveFollowingItemRequest) => {
+export const saveFeedItemInFollowing = (
+  input: SaveFollowingItemRequest,
+  userId: string
+) => {
   return authTrx(
     async (tx) => {
-      const libraryItems: QueryDeepPartialEntity<LibraryItem>[] =
-        input.userIds.map((userId) => ({
-          ...input,
-          user: { id: userId },
-          originalUrl: input.url,
-          subscription: input.addedToFollowingBy,
-          folder: InFilter.FOLLOWING,
-          slug: generateSlug(input.title),
-        }))
+      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
+        ...input,
+        user: { id: userId },
+        originalUrl: input.url,
+        subscription: input.addedToFollowingBy,
+        folder: InFilter.FOLLOWING,
+        slug: generateSlug(input.title),
+      }
 
       return tx
         .getRepository(LibraryItem)
         .createQueryBuilder()
         .insert()
-        .values(libraryItems)
+        .values(itemToSave)
         .orIgnore() // ignore if the item already exists
         .returning('*')
         .execute()
     },
     undefined,
-    undefined,
-    SetClaimsRole.ADMIN
+    userId
   )
 }
 
