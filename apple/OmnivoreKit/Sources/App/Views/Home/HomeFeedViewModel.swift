@@ -368,6 +368,21 @@ import Views
     dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0, force: true)
   }
 
+  func bulkAction(dataService: DataService, action: BulkAction, items: [String]) {
+    if items.count < 1 {
+      snackbar("No items selected")
+      return
+    }
+    Task {
+      do {
+        try await dataService.bulkAction(action: action, items: items)
+        snackbar("Operation completed")
+      } catch {
+        snackbar("Error performing operation")
+      }
+    }
+  }
+
   private var queryContainsFilter: Bool {
     if searchTerm.contains("in:inbox") || searchTerm.contains("in:all") || searchTerm.contains("in:archive") {
       return true
