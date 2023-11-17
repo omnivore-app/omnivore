@@ -1,3 +1,4 @@
+import { LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArchiveLinkError,
@@ -8,7 +9,6 @@ import {
 import { updateLibraryItem } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
-import { InFilter } from '../../utils/search'
 
 // export const updateLinkShareInfoResolver = authorized<
 //   UpdateLinkShareInfoSuccess,
@@ -54,9 +54,20 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
 >(async (_obj, args, { uid }) => {
+  let state = LibraryItemState.Archived
+  let archivedAt: Date | null = new Date()
+  let event = 'link_archived'
+
+  const isUnarchive = !args.input.archived
+  if (isUnarchive) {
+    state = LibraryItemState.Succeeded
+    archivedAt = null
+    event = 'link_unarchived'
+  }
+
   analytics.track({
     userId: uid,
-    event: args.input.archived ? 'link_archived' : 'link_unarchived',
+    event,
     properties: {
       env: env.server.apiEnv,
     },
@@ -66,8 +77,8 @@ export const setLinkArchivedResolver = authorized<
     await updateLibraryItem(
       args.input.linkId,
       {
-        savedAt: new Date(),
-        folder: args.input.archived ? InFilter.ARCHIVE : InFilter.INBOX,
+        state,
+        archivedAt,
       },
       uid
     )
@@ -80,6 +91,6 @@ export const setLinkArchivedResolver = authorized<
 
   return {
     linkId: args.input.linkId,
-    message: 'Link Archived',
+    message: event,
   }
 })

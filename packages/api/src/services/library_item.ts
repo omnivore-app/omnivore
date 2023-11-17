@@ -105,9 +105,24 @@ const buildWhereClause = (
   }
 
   if (args.inFilter !== InFilter.ALL) {
-    queryBuilder.andWhere('library_item.folder = :folder', {
-      folder: args.inFilter,
-    })
+    switch (args.inFilter) {
+      case InFilter.INBOX:
+        queryBuilder.andWhere('library_item.archived_at IS NULL')
+        break
+      case InFilter.ARCHIVE:
+        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+        break
+      case InFilter.TRASH:
+        // return only deleted pages within 14 days
+        queryBuilder.andWhere(
+          "library_item.deleted_at >= now() - interval '14 days'"
+        )
+        break
+      default:
+        queryBuilder.andWhere('library_item.folder = :folder', {
+          folder: args.inFilter,
+        })
+    }
   }
 
   if (args.readFilter !== ReadFilter.ALL) {
@@ -227,7 +242,7 @@ const buildWhereClause = (
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere("library_item.folder <> 'trash'")
+    queryBuilder.andWhere("library_item.state <> 'DELETED'")
   }
 
   if (args.noFilters) {
@@ -365,6 +380,8 @@ export const restoreLibraryItem = async (
     {
       state: LibraryItemState.Succeeded,
       savedAt: new Date(),
+      archivedAt: null,
+      deletedAt: null,
     },
     userId,
     pubsub
@@ -381,6 +398,21 @@ export const updateLibraryItem = async (
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
       await itemRepo.update(id, libraryItem)
+
+      // reset deletedAt and archivedAt
+      switch (libraryItem.state) {
+        case LibraryItemState.Archived:
+          libraryItem.archivedAt = new Date()
+          break
+        case LibraryItemState.Deleted:
+          libraryItem.deletedAt = new Date()
+          break
+        case LibraryItemState.Processing:
+        case LibraryItemState.Succeeded:
+          libraryItem.archivedAt = null
+          libraryItem.deletedAt = null
+          break
+      }
 
       return itemRepo.findOneByOrFail({ id })
     },
@@ -600,14 +632,14 @@ export const updateLibraryItems = async (
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        folder: InFilter.ARCHIVE,
-        savedAt: new Date(),
+        archivedAt: new Date(),
+        state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
       values = {
-        savedAt: new Date(),
-        folder: InFilter.TRASH,
+        state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
       }
       break
     case BulkActionType.AddLabels:

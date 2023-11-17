@@ -5,8 +5,9 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
+import { IsNull } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { LibraryItem } from '../../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
   ArticleError,
@@ -390,7 +391,10 @@ export const getArticleResolver = authorized<
     const libraryItem = await authTrx((tx) =>
       tx.withRepository(libraryItemRepository).findOne({
         select: selectColumns,
-        where,
+        where: {
+          ...where,
+          deletedAt: IsNull(),
+        },
         relations: {
           labels: true,
           highlights: {
@@ -406,7 +410,7 @@ export const getArticleResolver = authorized<
       })
     )
 
-    if (!libraryItem || libraryItem.folder === InFilter.TRASH) {
+    if (!libraryItem) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
@@ -528,8 +532,8 @@ export const setBookmarkArticleResolver = authorized<
   const deletedLibraryItem = await updateLibraryItem(
     articleID,
     {
-      folder: InFilter.TRASH,
-      savedAt: new Date(),
+      state: LibraryItemState.Deleted,
+      deletedAt: new Date(),
     },
     uid,
     pubsub
@@ -867,7 +871,7 @@ export const setFavoriteArticleResolver = authorized<
 })
 
 const getUpdateReason = (libraryItem: LibraryItem, since: Date) => {
-  if (libraryItem.folder === InFilter.TRASH) {
+  if (libraryItem.deletedAt) {
     return UpdateReason.Deleted
   }
   if (libraryItem.createdAt >= since) {
