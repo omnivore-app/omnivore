@@ -105,8 +105,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         OpenAIVoicesModal(audioController: audioController)
       }
       .onAppear {
-        showOpenAIVoices = true
-
         if !openAIPrimerDisplayed, !Voices.isOpenAIVoice(self.audioController.currentVoice) {
           showOpenAIVoices = true
           openAIPrimerDisplayed = true
