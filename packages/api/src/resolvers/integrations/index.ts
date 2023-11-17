@@ -216,8 +216,6 @@ export const importFromIntegrationResolver = authorized<
   ImportFromIntegrationError,
   MutationImportFromIntegrationArgs
 >(async (_, { integrationId }, { claims: { uid }, log }) => {
-  log.info('importFromIntegrationResolver')
-
   try {
     const integration = await findIntegration({ id: integrationId }, uid)
 

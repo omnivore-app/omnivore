@@ -1909,6 +1909,7 @@ input SetIntegrationInput {
   importItemState: ImportItemState
   name: String!
   syncedAt: Date
+  taskName: String
   token: String!
   type: IntegrationType
 }

@@ -1997,6 +1997,7 @@ const schema = gql`
     enabled: Boolean!
     syncedAt: Date
     importItemState: ImportItemState
+    taskName: String
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError

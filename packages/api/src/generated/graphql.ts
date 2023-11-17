@@ -2467,6 +2467,7 @@ export type SetIntegrationInput = {
   importItemState?: InputMaybe<ImportItemState>;
   name: Scalars['String'];
   syncedAt?: InputMaybe<Scalars['Date']>;
+  taskName?: InputMaybe<Scalars['String']>;
   token: Scalars['String'];
   type?: InputMaybe<IntegrationType>;
 };
