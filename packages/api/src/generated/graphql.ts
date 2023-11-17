@@ -809,11 +809,11 @@ export type FeedsSuccess = {
 
 export type Filter = {
   __typename?: 'Filter';
-  category: Scalars['String'];
   createdAt: Scalars['Date'];
   defaultFilter?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
+  folder: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
   position: Scalars['Int'];
@@ -2223,9 +2223,9 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
-  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
+  folder?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
   position?: InputMaybe<Scalars['Int']>;
 };
@@ -2857,9 +2857,9 @@ export enum UpdateFilterErrorCode {
 }
 
 export type UpdateFilterInput = {
-  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter?: InputMaybe<Scalars['String']>;
+  folder?: InputMaybe<Scalars['String']>;
   id: Scalars['String'];
   name?: InputMaybe<Scalars['String']>;
   position?: InputMaybe<Scalars['Int']>;
@@ -4911,11 +4911,11 @@ export type FeedsSuccessResolvers<ContextType = ResolverContext, ParentType exte
 };
 
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
-  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   defaultFilter?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

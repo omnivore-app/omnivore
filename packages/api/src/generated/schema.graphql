@@ -716,11 +716,11 @@ type FeedsSuccess {
 }
 
 type Filter {
-  category: String!
   createdAt: Date!
   defaultFilter: Boolean
   description: String
   filter: String!
+  folder: String!
   id: ID!
   name: String!
   position: Int!
@@ -1683,9 +1683,9 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
-  category: String
   description: String
   filter: String!
+  folder: String
   name: String!
   position: Int
 }
@@ -2270,9 +2270,9 @@ enum UpdateFilterErrorCode {
 }
 
 input UpdateFilterInput {
-  category: String
   description: String
   filter: String
+  folder: String
   id: String!
   name: String
   position: Int
