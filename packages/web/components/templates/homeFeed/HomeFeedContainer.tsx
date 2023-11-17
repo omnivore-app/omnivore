@@ -1036,7 +1036,6 @@ export function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element 
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
-  const [, updateState] = useState({})
 
   const unsubscribe = () => {
     if (!props.linkToUnsubscribe) {

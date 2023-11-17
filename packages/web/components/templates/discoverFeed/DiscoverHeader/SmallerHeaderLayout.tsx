@@ -8,7 +8,6 @@ import { SmallTopicBar } from "./SmallTopicBar"
 import { PrimaryDropdown } from "../../PrimaryDropdown"
 
 export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
-
   return (
     <HStack
       alignment="center"
@@ -27,7 +26,7 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
     >
         <>
           <MenuHeaderButton {...props} />
-          <SmallTopicBar />
+          <SmallTopicBar {...props} />
           <PrimaryDropdown
             showThemeSection={true}
             showAddLinkModal={() => {}}

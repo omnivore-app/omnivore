@@ -7,6 +7,7 @@ import { TopicTabData } from "../DiscoverContainer"
 export type TopicBarProps = {
   activeTab: TopicTabData
   setActiveTab: (tab: TopicTabData) => void
+  topics: TopicTabData[]
 }
 
 export function TopicBar(props: TopicBarProps): JSX.Element {
@@ -14,15 +15,6 @@ export function TopicBar(props: TopicBarProps): JSX.Element {
   let scrollToken: NodeJS.Timer | null = null;
   const topicParent = useRef<HTMLDivElement>(null)
   const topicChild = useRef<HTMLDivElement>(null);
-
-  const topics = [
-    {title: "Popular", subTitle: "Stories that are popular on Omnivore right now..."},
-    {title: "Community Picks", subTitle: "What The Omnivore Community are reading right now..."},
-    {title: "Technology", subTitle: "Stories about Gadgets, AI, Software and other technology related topics"},
-    {title: "Society", subTitle: "Stories about Culture, Opinions, and Society at large."},
-    {title: "Health & Wellbeing", subTitle: "Stories about Physical, Mental and Preventative Health"},
-    {title: "Politics", subTitle: "Stories about Elections, Government, and Politics"}
-  ]
 
 
   useEffect(() => {
@@ -104,7 +96,7 @@ export function TopicBar(props: TopicBarProps): JSX.Element {
 
             <HStack alignment={"start"} distribution={"start"} css={{ pl: "15px", pr: "15px", overflow: "hidden" }} ref={topicChild}>
               {
-                topics.map(topic => {
+                props.topics.map(topic => {
                   return <TopicTab key={topic.title + props.activeTab.title} title={topic.title} selected={props.activeTab.title == topic.title}
                                    onClick={() => {
                                      props.setActiveTab(topic)

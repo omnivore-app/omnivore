@@ -43,7 +43,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             },
           }}
         >
-          <TopicBar setActiveTab={props.setActiveTab} activeTab={props.activeTab} />
+          <TopicBar setActiveTab={props.setActiveTab} activeTab={props.activeTab} topics={props.topics} />
           <Button
             style="plainIcon"
             css={{ display: 'flex', marginLeft: 'auto' }}

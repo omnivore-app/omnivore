@@ -1,0 +1,19 @@
+{
+  "compileOnSave": false,
+  "include": ["node_modules/pgvector/types"],
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "declaration": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "typeRoots": ["node_modules/@types", "node_modules"],
+    "lib": ["ES2022"]
+  },
+}

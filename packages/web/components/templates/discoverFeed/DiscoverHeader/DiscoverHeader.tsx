@@ -27,10 +27,11 @@ export type DiscoverHeaderProps = {
   activeTab: TopicTabData
   setActiveTab: (tab: TopicTabData) => void
 
+  topics: TopicTabData[]
+
   layout: LayoutType,
   setLayoutType: (layout: LayoutType) => void
 }
-
 
 function DiscoverHeaderSpace() {
   return (
