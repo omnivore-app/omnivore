@@ -64,6 +64,23 @@ function saveAutoDismissTime() {
   })
 }
 
+function handleConsent() {
+  var consentCheckbox = document.getElementById('consent-checkbox')
+  setStorage({
+    consentGranted: JSON.stringify(consentCheckbox.checked),
+  })
+    .then(() => {
+      console.log('consent granted')
+    })
+    .catch((err) => {
+      alert('Error setting consent: ' + err)
+    })
+
+  if (!consentCheckbox.checked) {
+    alert('This extension can not function without data collection consent.')
+  }
+}
+
 ;(() => {
   document
     .getElementById('save-api-key-btn')
@@ -79,6 +96,11 @@ function saveAutoDismissTime() {
     document.getElementById('disable-auto-dismiss').checked = value
       ? true
       : false
+  })
+
+  getStorageItem('consentGranted').then((value) => {
+    document.getElementById('consent-checkbox').checked =
+      value == 'true' ? true : false
   })
 
   document

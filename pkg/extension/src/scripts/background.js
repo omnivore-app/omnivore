@@ -642,17 +642,47 @@ function checkAuthOnFirstClickPostInstall(tabId) {
   return Promise.resolve(true)
 }
 
+function getConsentGranted() {
+  if (!process.env.CONSENT_REQUIRED) {
+    return new Promise((resolve) => {
+      resolve(true)
+    })
+  } else {
+    return getStorageItem('consentGranted').then((consentGrantedStr) => {
+      return consentGrantedStr == 'true'
+    })
+  }
+}
+
 function handleActionClick() {
-  getStorageItem('consentGranted')
+  console.log('process.env.CONSENT_REQUIRED', process.env.CONSENT_REQUIRED)
+  getConsentGranted()
     .then((consentGranted) => {
-      console.log('consentGranted: ', consentGranted)
-      executeAction(function (currentTab) {
-        extensionSaveCurrentPage(currentTab.id)
-      })
+      if (consentGranted) {
+        executeAction(function (currentTab) {
+          extensionSaveCurrentPage(currentTab.id)
+        })
+      } else {
+        getCurrentTab().then((currentTab) => {
+          browserApi.tabs.sendMessage(currentTab.id, {
+            action: ACTIONS.ShowConsentError,
+          })
+        })
+      }
     })
     .catch(() => {
       console.log('extension consent not granted')
+      getCurrentTab().then((currentTab) => {
+        browserApi.tabs.sendMessage(currentTab.id, {
+          action: ACTIONS.ShowConsentError,
+        })
+      })
     })
+  // } else {
+  //   executeAction(function (currentTab) {
+  //     extensionSaveCurrentPage(currentTab.id)
+  //   })
+  // }
 }
 
 function executeAction(action) {
@@ -815,11 +845,19 @@ function init() {
     console.log('onInstalled: ', reason, temporary)
     switch (reason) {
       case 'update':
+        getConsentGranted().then((consentGranted) => {
+          if (!consentGranted) {
+            const url = browser.runtime.getURL('views/installed.html')
+            return browser.tabs.create({ url })
+          } else {
+            console.log('consent already granted, not showing installer.')
+          }
+        })
+        break
       case 'install':
         {
           const url = browser.runtime.getURL('views/installed.html')
           await browser.tabs.create({ url })
-          // or: await browser.windows.create({ url, type: "popup", height: 600, width: 600, });
         }
         break
       // see below
