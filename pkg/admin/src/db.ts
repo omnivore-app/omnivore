@@ -248,6 +248,9 @@ export class Integration extends BaseEntity {
   @Column('varchar', { length: 40 })
   name!: string
 
+  @Column('varchar', { length: 255 })
+  token!: string
+
   @Column('boolean', { default: true })
   enabled!: boolean
 
