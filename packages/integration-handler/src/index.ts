@@ -251,31 +251,31 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             total: offset,
             size: retrievedData.length,
           })
-
-          console.log('updating integration...', {
-            userId,
-            integrationId: req.body.integrationId,
-            syncedAt,
-          })
-          // update the integration's syncedAt and remove taskName
-          const result = await updateIntegration(
-            REST_BACKEND_ENDPOINT,
-            req.body.integrationId,
-            new Date(syncedAt),
-            req.body.integrationName,
-            claims.token,
-            token,
-            'IMPORT',
-            null
-          )
-          if (!result) {
-            console.error('failed to update integration', {
-              userId,
-              integrationId: req.body.integrationId,
-            })
-            return res.status(400).send('Failed to update integration')
-          }
         } while (retrievedData.length > 0 && offset < 20000) // limit to 20k pages
+      }
+
+      console.log('updating integration...', {
+        userId,
+        integrationId: req.body.integrationId,
+        syncedAt,
+      })
+      // update the integration's syncedAt and remove taskName
+      const result = await updateIntegration(
+        REST_BACKEND_ENDPOINT,
+        req.body.integrationId,
+        new Date(syncedAt),
+        req.body.integrationName,
+        claims.token,
+        token,
+        'IMPORT',
+        null
+      )
+      if (!result) {
+        console.error('failed to update integration', {
+          userId,
+          integrationId: req.body.integrationId,
+        })
+        return res.status(500).send('Failed to update integration')
       }
 
       console.log('done')
