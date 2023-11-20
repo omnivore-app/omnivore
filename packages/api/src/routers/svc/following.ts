@@ -23,6 +23,7 @@ export interface SaveFollowingItemRequest {
   previewContentType?: string
   publishedAt?: Date
   savedAt?: Date
+  thumbnail?: string
 }
 
 function isSaveFollowingItemRequest(

@@ -10,6 +10,7 @@ import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { SaveFollowingItemRequest } from '../routers/svc/following'
 import { generateSlug, wordsCount } from '../utils/helpers'
+import { createThumbnailUrl } from '../utils/imageproxy'
 import {
   DateFilter,
   FieldFilter,
@@ -554,6 +555,8 @@ export const saveFeedItemInFollowing = (
   input: SaveFollowingItemRequest,
   userId: string
 ) => {
+  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
+
   return authTrx(
     async (tx) => {
       const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
@@ -563,6 +566,7 @@ export const saveFeedItemInFollowing = (
         subscription: input.addedToFollowingBy,
         folder: InFilter.FOLLOWING,
         slug: generateSlug(input.title),
+        thumbnail,
       }
 
       return tx
