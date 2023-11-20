@@ -642,10 +642,47 @@ function checkAuthOnFirstClickPostInstall(tabId) {
   return Promise.resolve(true)
 }
 
+function getConsentGranted() {
+  if (!process.env.CONSENT_REQUIRED) {
+    return new Promise((resolve) => {
+      resolve(true)
+    })
+  } else {
+    return getStorageItem('consentGranted').then((consentGrantedStr) => {
+      return consentGrantedStr == 'true'
+    })
+  }
+}
+
 function handleActionClick() {
-  executeAction(function (currentTab) {
-    extensionSaveCurrentPage(currentTab.id)
-  })
+  console.log('process.env.CONSENT_REQUIRED', process.env.CONSENT_REQUIRED)
+  getConsentGranted()
+    .then((consentGranted) => {
+      if (consentGranted) {
+        executeAction(function (currentTab) {
+          extensionSaveCurrentPage(currentTab.id)
+        })
+      } else {
+        getCurrentTab().then((currentTab) => {
+          browserApi.tabs.sendMessage(currentTab.id, {
+            action: ACTIONS.ShowConsentError,
+          })
+        })
+      }
+    })
+    .catch(() => {
+      console.log('extension consent not granted')
+      getCurrentTab().then((currentTab) => {
+        browserApi.tabs.sendMessage(currentTab.id, {
+          action: ACTIONS.ShowConsentError,
+        })
+      })
+    })
+  // } else {
+  //   executeAction(function (currentTab) {
+  //     extensionSaveCurrentPage(currentTab.id)
+  //   })
+  // }
 }
 
 function executeAction(action) {
@@ -682,24 +719,6 @@ function executeAction(action) {
       }
     )
   })
-}
-
-function getActionableState(tab) {
-  if (tab.status !== 'complete') return false
-
-  const tabUrl = tab.pendingUrl || tab.url
-  if (!tabUrl) return false
-
-  if (!tabUrl.startsWith('https://') && !tabUrl.startsWith('http://'))
-    return false
-
-  if (
-    tabUrl.startsWith('https://omnivore.app/') &&
-    tabUrl.startsWith('https://dev.omnivore.app/')
-  )
-    return false
-
-  return true
 }
 
 function init() {
@@ -819,6 +838,30 @@ function init() {
         extensionSaveCurrentPage(currentTab.id, true)
       })
     },
+  })
+
+  browser.runtime.onInstalled.addListener(async ({ reason, temporary }) => {
+    // if (temporary) return // skip during development
+    console.log('onInstalled: ', reason, temporary)
+    switch (reason) {
+      case 'update':
+        getConsentGranted().then((consentGranted) => {
+          if (!consentGranted) {
+            const url = browser.runtime.getURL('views/installed.html')
+            return browser.tabs.create({ url })
+          } else {
+            console.log('consent already granted, not showing installer.')
+          }
+        })
+        break
+      case 'install':
+        {
+          const url = browser.runtime.getURL('views/installed.html')
+          await browser.tabs.create({ url })
+        }
+        break
+      // see below
+    }
   })
 }
 

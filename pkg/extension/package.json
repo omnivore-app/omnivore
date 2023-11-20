@@ -8,6 +8,7 @@
     "build": "env EXT_ENV=local webpack --config webpack.js",
     "build-qa": "env EXT_ENV=qa webpack --config webpack.js",
     "build-demo": "env EXT_ENV=demo webpack --config webpack.js",
+    "build-firefox": "env EXT_ENV=firefox webpack --config webpack.js",
     "build-prod": "env EXT_ENV=production webpack --config webpack.js",
     "pack": "web-ext build --overwrite-dest --source-dir dist --artifacts-dir dist_packed --filename omnivore-v{version}.zip",
     "pack-stores": "webext-store-incompat-fixer -i dist_packed/omnivore-v{version}.zip"
