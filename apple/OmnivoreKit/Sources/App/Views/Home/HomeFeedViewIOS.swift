@@ -31,13 +31,18 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var settingsPresented = false
     @State var isListScrolled = false
     @State var listTitle = ""
+    @State var isEditMode: EditMode = .inactive
+    @State var showOpenAIVoices = false
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = true
-    @AppStorage(UserDefaultKey.shouldPromptCommunityModal.rawValue) var shouldPromptCommunityModal = true
+    @AppStorage(UserDefaultKey.openAIPrimerDisplayed.rawValue) var openAIPrimerDisplayed = false
+
     @ObservedObject var viewModel: HomeFeedViewModel
+
+    @State private var selection = Set<String>()
 
     func loadItems(isRefresh: Bool) {
       Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
@@ -58,6 +63,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         listTitle: $listTitle,
         isListScrolled: $isListScrolled,
         prefersListLayout: $prefersListLayout,
+        selection: $selection,
         viewModel: viewModel,
         showFeatureCards: showFeatureCards
       )
@@ -95,7 +101,15 @@ struct AnimatingCellHeight: AnimatableModifier {
           FilterSelectorView(viewModel: viewModel)
         }
       }
-      //    .navigationBarTitleDisplayMode(.inline)
+      .sheet(isPresented: $showOpenAIVoices) {
+        OpenAIVoicesModal(audioController: audioController)
+      }
+      .onAppear {
+        if !openAIPrimerDisplayed, !Voices.isOpenAIVoice(self.audioController.currentVoice) {
+          showOpenAIVoices = true
+          openAIPrimerDisplayed = true
+        }
+      }
       .toolbar {
         toolbarItems
       }
@@ -129,21 +143,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         }
       }
-//      .formSheet(isPresented: $viewModel.snoozePresented) {
-//        SnoozeView(
-//          snoozePresented: $viewModel.snoozePresented,
-//          itemToSnoozeID: $viewModel.itemToSnoozeID
-//        ) { snoozeParams in
-//          Task {
-//            await viewModel.snoozeUntil(
-//              dataService: dataService,
-//              linkId: snoozeParams.feedItemId,
-//              until: snoozeParams.snoozeUntilDate,
-//              successMessage: snoozeParams.successMessage
-//            )
-//          }
-//        }
-//      }
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
@@ -162,6 +161,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           loadItems(isRefresh: false)
         }
       }
+      .environment(\.editMode, self.$isEditMode)
     }
 
     var toolbarItems: some ToolbarContent {
@@ -216,13 +216,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         ToolbarItem(placement: .barTrailing) {
           if UIDevice.isIPhone {
             Menu(content: {
-//              Button(action: {
-//                //  withAnimation {
-//                viewModel.isInMultiSelectMode.toggle()
-//                //  }
-//              }, label: {
-//                Label(viewModel.isInMultiSelectMode ? "End Multiselect" : "Select Multiple", systemImage: "checkmark.circle")
-//              })
+              Button(action: {
+                isEditMode = isEditMode == .inactive ? .active : .inactive
+              }, label: {
+                Text(isEditMode == .inactive ? "Select Multiple" : "End Multiselect")
+              })
               Button(action: { addLinkPresented = true }, label: {
                 Label("Add Link", systemImage: "plus.circle")
               })
@@ -238,15 +236,22 @@ struct AnimatingCellHeight: AnimatableModifier {
             EmptyView()
           }
         }
-//        if viewModel.isInMultiSelectMode {
-//          ToolbarItemGroup(placement: .bottomBar) {
-//            Button(action: {}, label: { Image(systemName: "archivebox") })
-//            Button(action: {}, label: { Image(systemName: "trash") })
-//            Button(action: {}, label: { Image.label })
-//            Spacer()
-//            Button(action: { viewModel.isInMultiSelectMode = false }, label: { Text("Cancel") })
-//          }
-//        }
+        ToolbarItemGroup(placement: .bottomBar) {
+          if isEditMode == .active {
+            Button(action: {
+              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
+              isEditMode = .inactive
+            }, label: { Image(systemName: "archivebox") })
+            Button(action: {
+              viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
+              isEditMode = .inactive
+            }, label: { Image(systemName: "trash") })
+            Spacer()
+            Text("\(selection.count) selected").font(.footnote)
+            Spacer()
+            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+          }
+        }
       }
     }
   }
@@ -258,6 +263,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var listTitle: String
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
+    @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
     let showFeatureCards: Bool
@@ -281,7 +287,14 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         if prefersListLayout || !enableGrid {
-          HomeFeedListView(listTitle: $listTitle, isListScrolled: $isListScrolled, prefersListLayout: $prefersListLayout, viewModel: viewModel, showFeatureCards: showFeatureCards)
+          HomeFeedListView(
+            listTitle: $listTitle,
+            isListScrolled: $isListScrolled,
+            prefersListLayout: $prefersListLayout,
+            selection: $selection,
+            viewModel: viewModel,
+            showFeatureCards: showFeatureCards
+          )
         } else {
           HomeFeedGridView(viewModel: viewModel, isListScrolled: $isListScrolled)
         }
@@ -329,6 +342,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var prefersListLayout: Bool
     @State private var showHideFeatureAlert = false
 
+    @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
     let showFeatureCards: Bool
@@ -540,7 +554,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           Spacer(minLength: 2)
         }
 
-        List {
+        List(selection: $selection) {
           filtersHeader
             .listRowSeparator(.hidden, edges: .all)
             .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset))
@@ -562,7 +576,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               }
           }
 
-          ForEach(viewModel.items) { item in
+          ForEach(viewModel.items, id: \.self.unwrappedID) { item in
             FeedCardNavigationLink(
               item: item,
               isInMultiSelectMode: viewModel.isInMultiSelectMode,

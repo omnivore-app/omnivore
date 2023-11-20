@@ -33,7 +33,6 @@ import Views
 
   @Published var showLabelsSheet = false
   @Published var showFiltersModal = false
-  @Published var showCommunityModal = false
   @Published var featureItems = [LinkedItem]()
 
   @Published var listConfig: LibraryListConfig
@@ -366,6 +365,21 @@ import Views
 
   func markUnread(dataService: DataService, item: LinkedItem) {
     dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0, force: true)
+  }
+
+  func bulkAction(dataService: DataService, action: BulkAction, items: [String]) {
+    if items.count < 1 {
+      snackbar("No items selected")
+      return
+    }
+    Task {
+      do {
+        try await dataService.bulkAction(action: action, items: items)
+        snackbar("Operation completed")
+      } catch {
+        snackbar("Error performing operation")
+      }
+    }
   }
 
   private var queryContainsFilter: Bool {
