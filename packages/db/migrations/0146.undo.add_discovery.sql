@@ -2,8 +2,7 @@
 -- Name: add_discovery
 -- Description: Add Discovery Tables, including counts.
 
-BEGIN;
-
-ALTER TABLE omnivore.user_personalization ADD COLUMN fields json;
-
-COMMIT;
+DROP TABLE omnivore.discover_article_topic_link;
+DROP TABLE omnivore.discover_save_link;
+DROP TABLE omnivore.discover_topics;
+DROP TABLE omnivore.discover_articles;

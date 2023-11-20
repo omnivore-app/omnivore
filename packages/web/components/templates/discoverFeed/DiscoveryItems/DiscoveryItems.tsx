@@ -4,6 +4,7 @@ import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { DiscoveryItemCard } from './DiscoveryItemCard'
 import { DiscoveryItem } from '../../../../lib/networking/queries/useGetDiscoveryItems'
 import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { useFetchMore } from "../../../../lib/hooks/useFetchMoreScroll"
 
 type DiscoveryItemsProps = {
   items: DiscoveryItem[]
@@ -19,6 +20,7 @@ type DiscoveryItemsProps = {
 export function DiscoveryItems(props: DiscoveryItemsProps): JSX.Element {
   return (
     <Box
+      id={"DiscoverItems"}
       css={{
         py: '$3',
         display: 'grid',

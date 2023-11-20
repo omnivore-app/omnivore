@@ -1,5 +1,5 @@
-import { Pool } from "pg";
-import { env } from "../../env";
+import { Pool } from 'pg'
+import { env } from '../../env'
 
 export const sqlClient = new Pool({
   port: env.pg.port,
@@ -8,4 +8,4 @@ export const sqlClient = new Pool({
   password: env.pg.password,
   max: env.pg.pool.max,
   database: env.pg.dbName,
-});
+})

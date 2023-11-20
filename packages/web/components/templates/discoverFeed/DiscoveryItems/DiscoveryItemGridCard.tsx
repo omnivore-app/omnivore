@@ -22,16 +22,15 @@ import {
   siteName,
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { DiscoveryItemCardProps } from './DiscoveryItemCard'
+import { DiscoveryItemCardProps, DiscoveryItemSubCardProps } from "./DiscoveryItemCard"
 import { DiscoveryItemMetadata } from './DiscoveryItemMetadata'
 import { DiscoveryHoverActions } from './DiscoveryHoverActions'
 import { CheckCircle, Circle } from 'phosphor-react'
+import { DiscoveryItem } from "../../../../lib/networking/queries/useGetDiscoveryItems"
 
-export function DiscoveryGridCard(props: DiscoveryItemCardProps): JSX.Element {
+export function DiscoveryGridCard(props: DiscoveryItemSubCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [savedId, setSavedId] = useState(props.item.savedId)
-  const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -92,14 +91,15 @@ export function DiscoveryGridCard(props: DiscoveryItemCardProps): JSX.Element {
             viewer={props.viewer}
             isHovered={isHovered ?? false}
             handleLinkSubmission={props.handleLinkSubmission}
-            setSavedId={setSavedId}
-            savedId={savedId}
-            savedUrl={savedUrl}
-            setSavedUrl={setSavedUrl}
+            setSavedId={props.setSavedId}
+            savedId={props.savedId}
+            savedUrl={props.savedUrl}
+            setSavedUrl={props.setSavedUrl}
+            deleteDiscoveryItem={props.deleteDiscoveryItem}
           />
         </Box>
       )}
-      <DiscoveryGridCardContent {...props} savedId={savedId} savedUrl={savedUrl} isHovered={isHovered} />
+      <DiscoveryGridCardContent {...props} savedId={props.savedId} savedUrl={props.savedUrl} isHovered={isHovered} />
     </VStack>
   )
 }
@@ -116,9 +116,7 @@ const DiscoveryGridCardContent = (
 
   const goToUrl = () => {
     if (props.savedUrl) {
-      window.location.href = `/article?url=${encodeURIComponent(
-        props.savedUrl
-      )}`
+      window.location.href = props.savedUrl
     }
   }
 

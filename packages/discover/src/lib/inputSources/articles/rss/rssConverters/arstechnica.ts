@@ -1,18 +1,17 @@
-import { OmnivoreArticle } from "../../../../../types/OmnivoreArticle";
-import { slugify } from "voca";
-import { XMLParser } from "fast-xml-parser";
-import { JSDOM } from "jsdom";
-import {Observable} from "rxjs";
-import {fromArrayLike} from "rxjs/internal/observable/innerFrom";
-import {map} from "rxjs/operators";
-import {mapOrNull} from "../../../../utils/reactive";
+import { OmnivoreArticle } from '../../../../../types/OmnivoreArticle'
+import { slugify } from 'voca'
+import { XMLParser } from 'fast-xml-parser'
+import { JSDOM } from 'jsdom'
+import { Observable } from 'rxjs'
+import { fromArrayLike } from 'rxjs/internal/observable/innerFrom'
+import { mapOrNull } from '../../../../utils/reactive'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
   parseTagValue: true,
   ignoreDeclaration: false,
   ignorePiTags: false,
-});
+})
 
 /**
  * EXAMPLE:
@@ -50,22 +49,21 @@ const parser = new XMLParser({
  */
 
 export const convertArsTechnicasArticles = (
-  articleXml: string,
+  articleXml: string
 ): Observable<OmnivoreArticle> => {
-  return fromArrayLike(parser.parse(articleXml).rss.channel.item)
-      .pipe(
-          mapOrNull((article: any) => ({
-            authors: article["dc:creator"],
-            slug: slugify(article.link),
-            url: article.link,
-            title: article.title,
-            description: article.description,
-            image: new JSDOM(
-                article["content:encoded"],
-            )?.window?.document?.getElementsByTagName("img")[0]?.src,
-            site: new URL(article.link).host,
-            publishedAt: new Date(article.pubDate),
-            type: 'rss',
-          }))
-      );
+  return fromArrayLike(parser.parse(articleXml).rss.channel.item).pipe(
+    mapOrNull((article: any) => ({
+      authors: article['dc:creator'],
+      slug: slugify(article.link),
+      url: article.link,
+      title: article.title,
+      description: article.description,
+      image: new JSDOM(
+        article['content:encoded']
+      )?.window?.document?.getElementsByTagName('img')[0]?.src,
+      site: new URL(article.link).host,
+      publishedAt: new Date(article.pubDate),
+      type: 'rss',
+    }))
+  )
 }

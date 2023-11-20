@@ -1,5 +1,5 @@
-import { BedrockClient } from "./bedrock";
-import { AiClient } from "../../../types/AiClient";
-import { OpenAiClient } from "./openAi";
+import { BedrockClient } from './bedrock'
+import { AiClient } from '../../../types/AiClient'
+import { OpenAiClient } from './openAi'
 
-export const client: AiClient = new OpenAiClient();
+export const client: AiClient = new OpenAiClient()

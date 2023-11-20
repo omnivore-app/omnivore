@@ -2,7 +2,7 @@ import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
 import { LibraryFilterMenu } from '../homeFeed/LibraryFilterMenu'
 import { DiscoverHeader } from './DiscoverHeader/DiscoverHeader'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from "react"
 import { DiscoveryItemFeed } from './DiscoveryFeed/DiscoveryFeed'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import toast from 'react-hot-toast'
@@ -14,6 +14,7 @@ import {
   SaveDiscoveryArticleOutput
 } from "../../../lib/networking/mutations/saveDiscoverArticle"
 import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
+import { useFetchMore } from "../../../lib/hooks/useFetchMoreScroll"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -24,11 +25,6 @@ export function DiscoverContainer(): JSX.Element {
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [layoutType, setLayoutType] = useState<LayoutType>('GRID_LAYOUT')
-  const { discoveryItems, setTopic, activeTopic } = useGetDiscoveryItems({
-    title: 'Community Picks',
-    subTitle: 'What The Omnivore Community are reading right now...',
-  })
-
   const topics = [
     {
       title: 'Popular',
@@ -72,6 +68,15 @@ export function DiscoverContainer(): JSX.Element {
       subTitle: 'PC and Console gaming, reviews, and opinions',
     },
   ]
+
+  const { discoveryItems, setTopic, activeTopic, isLoading, hasMore, setPage, page } = useGetDiscoveryItems(topics[0])
+  const handleFetchMore = useCallback(() => {
+    if (isLoading || !hasMore) {
+      return
+    }
+    setPage(page + 1)
+  }, [page, isLoading])
+  useFetchMore(handleFetchMore)
 
   const handleSaveDiscover = async (
     discoveryArticleId: string,
@@ -149,6 +154,11 @@ export function DiscoverContainer(): JSX.Element {
     }
   }, [])
 
+  const setTopicAndReturnToTop = (topic: TopicTabData) => {
+    window.scroll(0,0);
+    setTopic(topic);
+  }
+
   return (
     <VStack
       css={{
@@ -163,7 +173,7 @@ export function DiscoverContainer(): JSX.Element {
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
         activeTab={activeTopic}
-        setActiveTab={setTopic}
+        setActiveTab={setTopicAndReturnToTop}
         layout={layoutType}
         setLayoutType={setLayoutType}
         topics={topics}

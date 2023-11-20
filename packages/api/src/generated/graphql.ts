@@ -509,6 +509,28 @@ export type DeleteAccountSuccess = {
   userID: Scalars['ID'];
 };
 
+export type DeleteDiscoveryArticleError = {
+  __typename?: 'DeleteDiscoveryArticleError';
+  errorCodes: Array<DeleteDiscoveryArticleErrorCode>;
+};
+
+export enum DeleteDiscoveryArticleErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteDiscoveryArticleInput = {
+  discoveryArticleId: Scalars['ID'];
+};
+
+export type DeleteDiscoveryArticleResult = DeleteDiscoveryArticleError | DeleteDiscoveryArticleSuccess;
+
+export type DeleteDiscoveryArticleSuccess = {
+  __typename?: 'DeleteDiscoveryArticleSuccess';
+  id: Scalars['ID'];
+};
+
 export type DeleteFilterError = {
   __typename?: 'DeleteFilterError';
   errorCodes: Array<DeleteFilterErrorCode>;
@@ -854,6 +876,7 @@ export type GetDiscoveryArticleResults = GetDiscoveryArticleError | GetDiscovery
 export type GetDiscoveryArticleSuccess = {
   __typename?: 'GetDiscoveryArticleSuccess';
   discoverArticles?: Maybe<Array<DiscoveryArticle>>;
+  pageInfo: PageInfo;
 };
 
 export type GetDiscoveryTopicError = {
@@ -1305,6 +1328,7 @@ export type Mutation = {
   createLabel: CreateLabelResult;
   createNewsletterEmail: CreateNewsletterEmailResult;
   deleteAccount: DeleteAccountResult;
+  deleteDiscoveryArticle: DeleteDiscoveryArticleResult;
   deleteFilter: DeleteFilterResult;
   deleteHighlight: DeleteHighlightResult;
   deleteIntegration: DeleteIntegrationResult;
@@ -1400,6 +1424,11 @@ export type MutationCreateLabelArgs = {
 
 export type MutationDeleteAccountArgs = {
   userID: Scalars['ID'];
+};
+
+
+export type MutationDeleteDiscoveryArticleArgs = {
+  input: DeleteDiscoveryArticleInput;
 };
 
 
@@ -3508,6 +3537,11 @@ export type ResolversTypes = {
   DeleteAccountErrorCode: DeleteAccountErrorCode;
   DeleteAccountResult: ResolversTypes['DeleteAccountError'] | ResolversTypes['DeleteAccountSuccess'];
   DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
+  DeleteDiscoveryArticleError: ResolverTypeWrapper<DeleteDiscoveryArticleError>;
+  DeleteDiscoveryArticleErrorCode: DeleteDiscoveryArticleErrorCode;
+  DeleteDiscoveryArticleInput: DeleteDiscoveryArticleInput;
+  DeleteDiscoveryArticleResult: ResolversTypes['DeleteDiscoveryArticleError'] | ResolversTypes['DeleteDiscoveryArticleSuccess'];
+  DeleteDiscoveryArticleSuccess: ResolverTypeWrapper<DeleteDiscoveryArticleSuccess>;
   DeleteFilterError: ResolverTypeWrapper<DeleteFilterError>;
   DeleteFilterErrorCode: DeleteFilterErrorCode;
   DeleteFilterResult: ResolversTypes['DeleteFilterError'] | ResolversTypes['DeleteFilterSuccess'];
@@ -4014,6 +4048,10 @@ export type ResolversParentTypes = {
   DeleteAccountError: DeleteAccountError;
   DeleteAccountResult: ResolversParentTypes['DeleteAccountError'] | ResolversParentTypes['DeleteAccountSuccess'];
   DeleteAccountSuccess: DeleteAccountSuccess;
+  DeleteDiscoveryArticleError: DeleteDiscoveryArticleError;
+  DeleteDiscoveryArticleInput: DeleteDiscoveryArticleInput;
+  DeleteDiscoveryArticleResult: ResolversParentTypes['DeleteDiscoveryArticleError'] | ResolversParentTypes['DeleteDiscoveryArticleSuccess'];
+  DeleteDiscoveryArticleSuccess: DeleteDiscoveryArticleSuccess;
   DeleteFilterError: DeleteFilterError;
   DeleteFilterResult: ResolversParentTypes['DeleteFilterError'] | ResolversParentTypes['DeleteFilterSuccess'];
   DeleteFilterSuccess: DeleteFilterSuccess;
@@ -4684,6 +4722,20 @@ export type DeleteAccountSuccessResolvers<ContextType = ResolverContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type DeleteDiscoveryArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoveryArticleError'] = ResolversParentTypes['DeleteDiscoveryArticleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteDiscoveryArticleErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteDiscoveryArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoveryArticleResult'] = ResolversParentTypes['DeleteDiscoveryArticleResult']> = {
+  __resolveType: TypeResolveFn<'DeleteDiscoveryArticleError' | 'DeleteDiscoveryArticleSuccess', ParentType, ContextType>;
+};
+
+export type DeleteDiscoveryArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoveryArticleSuccess'] = ResolversParentTypes['DeleteDiscoveryArticleSuccess']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type DeleteFilterErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteFilterError'] = ResolversParentTypes['DeleteFilterError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['DeleteFilterErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -4965,6 +5017,7 @@ export type GetDiscoveryArticleResultsResolvers<ContextType = ResolverContext, P
 
 export type GetDiscoveryArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryArticleSuccess'] = ResolversParentTypes['GetDiscoveryArticleSuccess']> = {
   discoverArticles?: Resolver<Maybe<Array<ResolversTypes['DiscoveryArticle']>>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5307,6 +5360,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
+  deleteDiscoveryArticle?: Resolver<ResolversTypes['DeleteDiscoveryArticleResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoveryArticleArgs, 'input'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
@@ -6441,6 +6495,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteAccountError?: DeleteAccountErrorResolvers<ContextType>;
   DeleteAccountResult?: DeleteAccountResultResolvers<ContextType>;
   DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
+  DeleteDiscoveryArticleError?: DeleteDiscoveryArticleErrorResolvers<ContextType>;
+  DeleteDiscoveryArticleResult?: DeleteDiscoveryArticleResultResolvers<ContextType>;
+  DeleteDiscoveryArticleSuccess?: DeleteDiscoveryArticleSuccessResolvers<ContextType>;
   DeleteFilterError?: DeleteFilterErrorResolvers<ContextType>;
   DeleteFilterResult?: DeleteFilterResultResolvers<ContextType>;
   DeleteFilterSuccess?: DeleteFilterSuccessResolvers<ContextType>;

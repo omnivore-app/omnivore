@@ -449,6 +449,26 @@ type DeleteAccountSuccess {
   userID: ID!
 }
 
+type DeleteDiscoveryArticleError {
+  errorCodes: [DeleteDiscoveryArticleErrorCode!]!
+}
+
+enum DeleteDiscoveryArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input DeleteDiscoveryArticleInput {
+  discoveryArticleId: ID!
+}
+
+union DeleteDiscoveryArticleResult = DeleteDiscoveryArticleError | DeleteDiscoveryArticleSuccess
+
+type DeleteDiscoveryArticleSuccess {
+  id: ID!
+}
+
 type DeleteFilterError {
   errorCodes: [DeleteFilterErrorCode!]!
 }
@@ -757,6 +777,7 @@ union GetDiscoveryArticleResults = GetDiscoveryArticleError | GetDiscoveryArticl
 
 type GetDiscoveryArticleSuccess {
   discoverArticles: [DiscoveryArticle!]
+  pageInfo: PageInfo!
 }
 
 type GetDiscoveryTopicError {
@@ -1168,6 +1189,7 @@ type Mutation {
   createLabel(input: CreateLabelInput!): CreateLabelResult!
   createNewsletterEmail: CreateNewsletterEmailResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
+  deleteDiscoveryArticle(input: DeleteDiscoveryArticleInput!): DeleteDiscoveryArticleResult!
   deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteIntegration(id: ID!): DeleteIntegrationResult!

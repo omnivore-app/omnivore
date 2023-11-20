@@ -1,19 +1,11 @@
-import { Label } from "../../types/OmnivoreSchema";
-import fs from "fs";
-import { EmbeddedOmnivoreLabel, rateLimiting } from "./embedding";
-import { mergeMap, Observable, of, pipe, switchMap } from "rxjs";
-import { fromPromise } from "rxjs/internal/observable/innerFrom";
-import { cosineSimilarity } from "../utils/math";
-import { OpenAiClient } from "../clients/ai/openAi";
-import { BedrockClient } from "../clients/ai/bedrock";
-import { client } from "../clients/ai/client";
+import { EmbeddedOmnivoreLabel } from './embedding'
 
 export type PredefinedEmbeds = Partial<
   EmbeddedOmnivoreLabel & {
-    children?: EmbeddedOmnivoreLabel[];
-    parent?: EmbeddedOmnivoreLabel;
+    children?: EmbeddedOmnivoreLabel[]
+    parent?: EmbeddedOmnivoreLabel
   }
->;
+>
 
 // const importedEmbeddedLabels = fs
 //   .readFileSync(`${__dirname}/../../resources/embeddings.json`)

@@ -2604,8 +2604,7 @@ const schema = gql`
   input UpdateEmailInput {
     email: String!
   }
-  
-  
+
   # Query: GetDiscoveryTopic
   union GetDiscoveryTopicResults =
       GetDiscoveryTopicSuccess
@@ -2624,18 +2623,18 @@ const schema = gql`
   }
 
   type DiscoveryTopic {
-    name: String!,
-    description: String!,
+    name: String!
+    description: String!
   }
-  
+
   # Query: GetDiscoveryArticle
   union GetDiscoveryArticleResults =
       GetDiscoveryArticleSuccess
     | GetDiscoveryArticleError
-    
+
   enum GetDiscoveryArticleErrorCode {
-    UNAUTHORIZED,
-    NOT_FOUND,
+    UNAUTHORIZED
+    NOT_FOUND
     BAD_REQUEST
   }
 
@@ -2645,14 +2644,15 @@ const schema = gql`
 
   type GetDiscoveryArticleSuccess {
     discoverArticles: [DiscoveryArticle!]
+    pageInfo: PageInfo!
   }
 
   type DiscoveryArticle {
     id: ID!
-    title: String! 
+    title: String!
     url: String!
     image: String
-    publishedDate: Date 
+    publishedDate: Date
     description: String!
     siteName: String
     slug: String!
@@ -2660,7 +2660,7 @@ const schema = gql`
     savedLinkUrl: String
     savedId: String
   }
-  
+
   # Mutation: SaveDiscoveryArticle
   input SaveDiscoveryArticleInput {
     discoveryArticleId: ID!
@@ -2668,7 +2668,9 @@ const schema = gql`
     timezone: String
   }
 
-  union SaveDiscoveryArticleResult = SaveDiscoveryArticleSuccess | SaveDiscoveryArticleError
+  union SaveDiscoveryArticleResult =
+      SaveDiscoveryArticleSuccess
+    | SaveDiscoveryArticleError
 
   type SaveDiscoveryArticleSuccess {
     url: String!
@@ -2680,6 +2682,29 @@ const schema = gql`
   }
 
   enum SaveDiscoveryArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  # Mutation: DeleteDiscoveryArticle
+  input DeleteDiscoveryArticleInput {
+    discoveryArticleId: ID!
+  }
+
+  union DeleteDiscoveryArticleResult =
+      DeleteDiscoveryArticleSuccess
+    | DeleteDiscoveryArticleError
+
+  type DeleteDiscoveryArticleSuccess {
+    id: ID!
+  }
+
+  type DeleteDiscoveryArticleError {
+    errorCodes: [DeleteDiscoveryArticleErrorCode!]!
+  }
+
+  enum DeleteDiscoveryArticleErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -2750,7 +2775,12 @@ const schema = gql`
     unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
     subscribe(input: SubscribeInput!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
-    saveDiscoveryArticle(input: SaveDiscoveryArticleInput!): SaveDiscoveryArticleResult!
+    saveDiscoveryArticle(
+      input: SaveDiscoveryArticleInput!
+    ): SaveDiscoveryArticleResult!
+    deleteDiscoveryArticle(
+      input: DeleteDiscoveryArticleInput!
+    ): DeleteDiscoveryArticleResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -2825,7 +2855,11 @@ const schema = gql`
       includeContent: Boolean
       format: String
     ): SearchResult!
-    getDiscoveryArticles(discoveryTopicId: String!, after: String, first: Int): GetDiscoveryArticleResults!
+    getDiscoveryArticles(
+      discoveryTopicId: String!
+      after: String
+      first: Int
+    ): GetDiscoveryArticleResults!
     discoveryTopics: GetDiscoveryTopicResults!
     subscriptions(
       sort: SortParams

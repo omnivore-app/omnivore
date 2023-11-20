@@ -27,6 +27,8 @@ type DiscoveryHoverActionsProps = {
 
   setSavedUrl: (url: string) => void
   savedUrl?: string
+
+  deleteDiscoveryItem: (item: DiscoveryItem) => Promise<void>,
 }
 
 export const DiscoveryHoverActions = (props: DiscoveryHoverActionsProps) => {
@@ -72,7 +74,7 @@ export const DiscoveryHoverActions = (props: DiscoveryHoverActionsProps) => {
                 }
               })
           } else {
-            console.log("TODO: Remove")
+            props.deleteDiscoveryItem(props.item)
           }
           event.preventDefault()
           event.stopPropagation()

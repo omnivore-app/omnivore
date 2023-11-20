@@ -1,30 +1,30 @@
-import { EmbeddedOmnivoreArticle } from "../ai/embedding";
-import { filter, map, mergeMap, bufferTime, buffer } from "rxjs/operators";
-import { toSql } from "pgvector/pg";
-import { OmnivoreArticle } from "../../types/OmnivoreArticle";
-import { from, pipe } from "rxjs";
-import { fromPromise } from "rxjs/internal/observable/innerFrom";
-import { sqlClient } from "./db";
-import pgformat from "pg-format";
-import { v4 } from 'uuid';
+import { EmbeddedOmnivoreArticle } from '../ai/embedding'
+import { filter, map, mergeMap, bufferTime, buffer } from 'rxjs/operators'
+import { toSql } from 'pgvector/pg'
+import { OmnivoreArticle } from '../../types/OmnivoreArticle'
+import { from, pipe } from 'rxjs'
+import { fromPromise } from 'rxjs/internal/observable/innerFrom'
+import { sqlClient } from './db'
+import pgformat from 'pg-format'
+import { v4 } from 'uuid'
 
 const hasStoredInDatabase = async (articleSlug: string) => {
   const { rows } = await sqlClient.query(
-    "SELECT slug FROM omnivore.discover_articles WHERE slug = $1",
-    [articleSlug],
-  );
-  return rows && rows.length === 0;
-};
+    'SELECT slug FROM omnivore.discover_articles WHERE slug = $1',
+    [articleSlug]
+  )
+  return rows && rows.length === 0
+}
 
-export const removeDuplicateArticles = mergeMap((x: OmnivoreArticle) =>
+export const removeDuplicateArticles$ = mergeMap((x: OmnivoreArticle) =>
   fromPromise(hasStoredInDatabase(x.slug)).pipe(
     filter(Boolean),
-    map(() => x),
-  ),
-);
+    map(() => x)
+  )
+)
 
 export const batchInsertArticlesSql = async (
-  articles: EmbeddedOmnivoreArticle[],
+  articles: EmbeddedOmnivoreArticle[]
 ) => {
   const params = articles.map((embedded) => [
     v4(),
@@ -36,36 +36,36 @@ export const batchInsertArticlesSql = async (
     embedded.article.image,
     embedded.article.publishedAt,
     toSql(embedded.embedding),
-  ]);
+  ])
 
   if (articles.length > 0) {
     const formattedMultiInsert = pgformat(
       `INSERT INTO omnivore.discover_articles(id, title, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING`,
-      params,
-    );
-    await sqlClient.query(formattedMultiInsert);
+      params
+    )
+    await sqlClient.query(formattedMultiInsert)
 
     const topicLinks = articles.flatMap((it, idx) => {
-      const [uuid] = params[idx];
-      return it.topics.map(topic => [topic, uuid])
+      const [uuid] = params[idx]
+      return it.topics.map((topic) => [topic, uuid])
     })
 
     const formattedTopicInsert = pgformat(
       `INSERT INTO omnivore.discover_article_topic_link(discover_topic_name, discover_article_id) VALUES %L ON CONFLICT DO NOTHING`,
-      topicLinks,
-    );
-    await sqlClient.query(formattedTopicInsert);
+      topicLinks
+    )
+    await sqlClient.query(formattedTopicInsert)
 
-    return articles;
+    return articles
   }
 
-  return articles;
-};
+  return articles
+}
 
-export const insertArticleToStore = pipe(
+export const insertArticleToStore$ = pipe(
   bufferTime<EmbeddedOmnivoreArticle>(5000, null, 100),
   mergeMap((x: EmbeddedOmnivoreArticle[]) =>
-    fromPromise(batchInsertArticlesSql(x)),
+    fromPromise(batchInsertArticlesSql(x))
   ),
-  mergeMap((it: EmbeddedOmnivoreArticle[]) => from(it)),
-);
+  mergeMap((it: EmbeddedOmnivoreArticle[]) => from(it))
+)

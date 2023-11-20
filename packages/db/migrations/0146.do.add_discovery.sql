@@ -21,7 +21,8 @@ CREATE TABLE omnivore.discover_save_link (
    article_save_id uuid NOT NULL REFERENCES omnivore.library_item(id) ON DELETE CASCADE,
    article_save_url text,
    created_at timestamptz NOT NULL DEFAULT current_timestamp,
-   UNIQUE(discover_article_id, user_id)
+   deleted bool NOT NULL DEFAULT false,
+   CONSTRAINT user_discovery_link UNIQUE(discover_article_id, user_id)
 );
 
 CREATE TABLE omnivore.discover_topics (

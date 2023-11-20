@@ -126,7 +126,11 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
-import { getDiscoveryArticlesResolver, saveDiscoveryArticleResolver } from "./discover_articles"
+import {
+  deleteDiscoveryArticleResolver,
+  getDiscoveryArticlesResolver,
+  saveDiscoveryArticleResolver,
+} from './discover_articles'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -217,6 +221,7 @@ export const functionResolvers = {
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
     saveDiscoveryArticle: saveDiscoveryArticleResolver,
+    deleteDiscoveryArticle: deleteDiscoveryArticleResolver,
   },
   Query: {
     me: getMeUserResolver,

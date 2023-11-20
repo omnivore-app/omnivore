@@ -24,16 +24,15 @@ import {
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
 import { CheckCircle, Circle } from 'phosphor-react'
-import { DiscoveryItemCardProps } from './DiscoveryItemCard'
+import { DiscoveryItemCardProps, DiscoveryItemSubCardProps } from "./DiscoveryItemCard"
 import { DiscoveryItemMetadata } from './DiscoveryItemMetadata'
 import { DiscoveryHoverActions } from './DiscoveryHoverActions'
+import { DiscoveryItem } from "../../../../lib/networking/queries/useGetDiscoveryItems"
 
 export function DiscoveryItemListCard(
-  props: DiscoveryItemCardProps
+  props: DiscoveryItemSubCardProps
 ): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
-  const [savedId, setSavedId] = useState(props.item.savedId)
-  const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -99,14 +98,15 @@ export function DiscoveryItemListCard(
             viewer={props.viewer}
             isHovered={isOpen ?? false}
             handleLinkSubmission={props.handleLinkSubmission}
-            setSavedId={setSavedId}
-            savedId={savedId}
-            savedUrl={savedUrl}
-            setSavedUrl={setSavedUrl}
+            setSavedId={props.setSavedId}
+            savedId={props.savedId}
+            savedUrl={props.savedUrl}
+            setSavedUrl={props.setSavedUrl}
+            deleteDiscoveryItem={props.deleteDiscoveryItem}
           />
         </Box>
       )}
-      <DiscoveryListCardContent {...props} savedId={savedId} isHovered={isOpen} />
+      <DiscoveryListCardContent {...props} savedId={props.savedId} isHovered={isOpen} />
     </VStack>
   )
 }
@@ -121,9 +121,7 @@ export function DiscoveryListCardContent(
 
   const goToUrl = () => {
     if (props.savedUrl) {
-      window.location.href = `/article?url=${encodeURIComponent(
-        props.savedUrl
-      )}`
+      window.location.href = props.savedUrl
     }
   }
 

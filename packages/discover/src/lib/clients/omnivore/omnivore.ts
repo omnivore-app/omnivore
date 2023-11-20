@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse } from "axios";
+import axios, { type AxiosResponse } from 'axios'
 import {
   type Article,
   type SearchItemEdge,
@@ -6,22 +6,22 @@ import {
   type SearchSuccess,
   Label,
   LabelsSuccess,
-} from "../../../types/OmnivoreSchema";
+} from '../../../types/OmnivoreSchema'
 
 const API_URL =
-  process.env.OMNIVORE_API_URL ?? "https://api-prod.omnivore.app/api";
+  process.env.OMNIVORE_API_URL ?? 'https://api-prod.omnivore.app/api'
 
 export class OmnivoreClient {
-  username: string;
-  token: string;
+  username: string
+  token: string
 
   private constructor(username: string, token: string) {
-    this.username = username;
-    this.token = token;
+    this.username = username
+    this.token = token
   }
 
   static async createOmnivoreClient(token: string): Promise<OmnivoreClient> {
-    return new OmnivoreClient(await this.getUsername(token), token);
+    return new OmnivoreClient(await this.getUsername(token), token)
   }
 
   private static async getUsername(token: string): Promise<string> {
@@ -34,21 +34,21 @@ export class OmnivoreClient {
           }
         }
     `,
-    });
+    })
 
     const response = await axios
       .post(`${API_URL}/graphql`, data, {
         headers: {
           Cookie: `auth=${token};`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       })
       .catch((error) => {
-        console.error(error);
-        throw error;
-      });
+        console.error(error)
+        throw error
+      })
 
-    return response.data.data.me.profile.username;
+    return response.data.data.me.profile.username
   }
 
   async fetchPages(): Promise<SearchItemEdge[]> {
@@ -104,22 +104,22 @@ export class OmnivoreClient {
                 }
               }
             }`,
-      variables: { query: "in:inbox", after: "0", first: 1000 },
-    };
+      variables: { query: 'in:inbox', after: '0', first: 1000 },
+    }
 
     const response = await axios
       .post(`${API_URL}/graphql`, data, {
         headers: {
           Cookie: `auth=${process.env.OMNIVORE_AUTH_TOKEN!};`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       })
       .catch((error) => {
-        console.error(error);
-        throw error;
-      });
+        console.error(error)
+        throw error
+      })
 
-    return response.data.data.search.edges;
+    return response.data.data.search.edges
   }
 
   async fetchPage(slug: string): Promise<Article> {
@@ -151,17 +151,17 @@ export class OmnivoreClient {
           }
         }
     `,
-    });
+    })
 
     const response: AxiosResponse<{ data: { article: ArticleSuccess } }> =
       await axios.post(`${API_URL}/graphql`, data, {
         headers: {
           Cookie: `auth=${this.token};`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
-    return response.data.data.article.article;
+    return response.data.data.article.article
   }
 
   async getUsersTags(): Promise<Label[]> {
@@ -185,17 +185,17 @@ export class OmnivoreClient {
           }
         }
     `,
-    });
+    })
 
     const response: AxiosResponse<{ data: { labels: LabelsSuccess } }> =
       await axios.post(`${API_URL}/graphql`, data, {
         headers: {
           Cookie: `auth=${this.token};`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-      });
+      })
 
-    return response.data.data.labels.labels;
+    return response.data.data.labels.labels
   }
 
   async archiveLink(id: string): Promise<boolean> {
@@ -210,7 +210,7 @@ export class OmnivoreClient {
                   errorCodes
               }
           }
-      }`;
+      }`
 
     return await axios
       .post(
@@ -219,10 +219,10 @@ export class OmnivoreClient {
         {
           headers: {
             Cookie: `auth=${this.token};`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-        },
+        }
       )
-      .then((_) => true);
+      .then((_) => true)
   }
 }
