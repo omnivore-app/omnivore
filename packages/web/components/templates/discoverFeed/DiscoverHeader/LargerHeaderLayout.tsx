@@ -1,12 +1,12 @@
-import { HStack, VStack } from "../../../elements/LayoutPrimitives"
-import { TopicBar } from "./TopicBar"
-import { Button } from "../../../elements/Button"
-import { GridViewIcon } from "../../../elements/icons/GridViewIcon"
-import { PrimaryDropdown } from "../../PrimaryDropdown"
-import { DiscoverHeaderProps } from "./DiscoverHeader"
-import { HeaderText } from "./HeaderText"
-import React from "react"
-import { ListViewIcon } from "../../../elements/icons/ListViewIcon"
+import { HStack, VStack } from '../../../elements/LayoutPrimitives'
+import { TopicBar } from './TopicBar'
+import { Button } from '../../../elements/Button'
+import { GridViewIcon } from '../../../elements/icons/GridViewIcon'
+import { PrimaryDropdown } from '../../PrimaryDropdown'
+import { DiscoverHeaderProps } from './DiscoverHeader'
+import { HeaderText } from './HeaderText'
+import React from 'react'
+import { ListViewIcon } from '../../../elements/icons/ListViewIcon'
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -21,7 +21,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
         },
       }}
     >
-      <VStack alignment={"center"} distribution={"center"} >
+      <VStack alignment={'center'} distribution={'center'}>
         <HStack
           alignment="center"
           distribution={'start'}
@@ -29,11 +29,11 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             gap: '10px',
             width: '95%',
             '@mdDown': {
-              width:  '95%',
-              display:  'none',
+              width: '95%',
+              display: 'none',
             },
             '@media (min-width: 930px)': {
-              width:  '660px',
+              width: '660px',
             },
             '@media (min-width: 1280px)': {
               width: '1000px',
@@ -43,7 +43,11 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             },
           }}
         >
-          <TopicBar setActiveTab={props.setActiveTab} activeTab={props.activeTab} topics={props.topics} />
+          <TopicBar
+            setActiveTab={props.setActiveTab}
+            activeTab={props.activeTab}
+            topics={props.topics}
+          />
           <Button
             style="plainIcon"
             css={{ display: 'flex', marginLeft: 'auto' }}
@@ -74,14 +78,14 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             width: '95%',
             display: 'block',
             '@mdDown': {
-              width:  '95%',
-              display:  'none',
+              width: '95%',
+              display: 'none',
             },
             '@media (max-width: 930px)': {
-              display:  'none',
+              display: 'none',
             },
             '@media (min-width: 930px)': {
-              width:  '660px',
+              width: '660px',
             },
             '@media (min-width: 1280px)': {
               width: '1000px',
@@ -89,16 +93,14 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             '@media (min-width: 1600px)': {
               width: '1340px',
             },
-
           }}
         >
-          <HeaderText title={props.activeTab.title} subTitle={props.activeTab.subTitle}/>
+          <HeaderText
+            title={props.activeTab.title}
+            subTitle={props.activeTab.subTitle}
+          />
         </HStack>
-
-
-
       </VStack>
-
     </HStack>
   )
 }

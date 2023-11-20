@@ -2604,6 +2604,86 @@ const schema = gql`
   input UpdateEmailInput {
     email: String!
   }
+  
+  
+  # Query: GetDiscoveryTopic
+  union GetDiscoveryTopicResults =
+      GetDiscoveryTopicSuccess
+    | GetDiscoveryTopicError
+
+  enum GetDiscoveryTopicErrorCode {
+    UNAUTHORIZED
+  }
+
+  type GetDiscoveryTopicError {
+    errorCodes: [GetDiscoveryTopicErrorCode!]!
+  }
+
+  type GetDiscoveryTopicSuccess {
+    discoverTopics: [DiscoveryTopic!]
+  }
+
+  type DiscoveryTopic {
+    name: String!,
+    description: String!,
+  }
+  
+  # Query: GetDiscoveryArticle
+  union GetDiscoveryArticleResults =
+      GetDiscoveryArticleSuccess
+    | GetDiscoveryArticleError
+    
+  enum GetDiscoveryArticleErrorCode {
+    UNAUTHORIZED,
+    NOT_FOUND,
+    BAD_REQUEST
+  }
+
+  type GetDiscoveryArticleError {
+    errorCodes: [GetDiscoveryArticleErrorCode!]!
+  }
+
+  type GetDiscoveryArticleSuccess {
+    discoverArticles: [DiscoveryArticle!]
+  }
+
+  type DiscoveryArticle {
+    id: ID!
+    title: String! 
+    url: String!
+    image: String
+    publishedDate: Date 
+    description: String!
+    siteName: String
+    slug: String!
+    author: String
+    savedLinkUrl: String
+    savedId: String
+  }
+  
+  # Mutation: SaveDiscoveryArticle
+  input SaveDiscoveryArticleInput {
+    discoveryArticleId: ID!
+    locale: String
+    timezone: String
+  }
+
+  union SaveDiscoveryArticleResult = SaveDiscoveryArticleSuccess | SaveDiscoveryArticleError
+
+  type SaveDiscoveryArticleSuccess {
+    url: String!
+    saveId: String!
+  }
+
+  type SaveDiscoveryArticleError {
+    errorCodes: [SaveDiscoveryArticleErrorCode!]!
+  }
+
+  enum SaveDiscoveryArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
 
   # Mutations
   type Mutation {
@@ -2670,6 +2750,7 @@ const schema = gql`
     unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
     subscribe(input: SubscribeInput!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
+    saveDiscoveryArticle(input: SaveDiscoveryArticleInput!): SaveDiscoveryArticleResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -2744,6 +2825,8 @@ const schema = gql`
       includeContent: Boolean
       format: String
     ): SearchResult!
+    getDiscoveryArticles(discoveryTopicId: String!, after: String, first: Int): GetDiscoveryArticleResults!
+    discoveryTopics: GetDiscoveryTopicResults!
     subscriptions(
       sort: SortParams
       type: SubscriptionType

@@ -1,6 +1,6 @@
-import { Button } from "../../../elements/Button"
-import { isDarkTheme } from "../../../../lib/themeUpdater"
-import { useEffect, useState } from "react"
+import { Button } from '../../../elements/Button'
+import { isDarkTheme } from '../../../../lib/themeUpdater'
+import { useEffect, useState } from 'react'
 
 export type TopicTabProps = {
   title: string
@@ -40,37 +40,52 @@ const unselectedStyle = {
 }
 
 export function TopicTab(props: TopicTabProps): JSX.Element {
-  const [style, setStyle] = useState(isDarkTheme() ? (props.selected ? unselectedStyle : selectedStyle) : (props.selected ? selectedStyle : unselectedStyle))
+  const [style, setStyle] = useState(
+    isDarkTheme()
+      ? props.selected
+        ? unselectedStyle
+        : selectedStyle
+      : props.selected
+      ? selectedStyle
+      : unselectedStyle
+  )
 
   useEffect(() => {
     const mutationObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.attributeName === "class") {
-          setStyle(isDarkTheme() ? (props.selected ? unselectedStyle : selectedStyle) : (props.selected ? selectedStyle : unselectedStyle))
+        if (mutation.attributeName === 'class') {
+          setStyle(
+            isDarkTheme()
+              ? props.selected
+                ? unselectedStyle
+                : selectedStyle
+              : props.selected
+              ? selectedStyle
+              : unselectedStyle
+          )
         }
-      });
-    });
+      })
+    })
 
-    mutationObserver.observe(document.getElementsByTagName("html")[0], { attributes: true });
+    mutationObserver.observe(document.getElementsByTagName('html')[0], {
+      attributes: true,
+    })
 
     return () => {
       mutationObserver.disconnect()
     }
   }, [])
 
-
-
   return (
-      <Button
-        key={props.title}
-        css={style}
-        onClick={(event) => {
-          event.preventDefault()
-          console.log(props);
-          props.onClick()
-        }}
-      >
-        {props.title}
-      </Button>
-    );
+    <Button
+      key={props.title}
+      css={style}
+      onClick={(event) => {
+        event.preventDefault()
+        props.onClick()
+      }}
+    >
+      {props.title}
+    </Button>
+  )
 }

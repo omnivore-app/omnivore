@@ -1,4 +1,4 @@
-import { UserBasicData } from "./networking/queries/useGetViewerQuery"
+import { UserBasicData } from './networking/queries/useGetViewerQuery'
 
 const VIP_USERS = ['jacksonh', 'satindar', 'hongbo', 'nat']
 

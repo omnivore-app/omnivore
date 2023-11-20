@@ -1,22 +1,39 @@
-import React, { useState } from "react"
-import { autoUpdate, offset, size, useFloating, useHover, useInteractions } from "@floating-ui/react"
-import { Box, HStack, SpanBox, VStack } from "../../../elements/LayoutPrimitives"
-import { LIBRARY_LEFT_MENU_WIDTH } from "../../homeFeed/LibraryFilterMenu"
-import { isTouchScreenDevice } from "../../../../lib/deviceType"
-import { FallbackImage } from "../../../patterns/LibraryCards/FallbackImage"
-import { CoverImage } from "../../../elements/CoverImage"
+import React, { useState } from 'react'
+import {
+  autoUpdate,
+  offset,
+  size,
+  useFloating,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react'
+import {
+  Box,
+  HStack,
+  SpanBox,
+  VStack,
+} from '../../../elements/LayoutPrimitives'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../../homeFeed/LibraryFilterMenu'
+import { isTouchScreenDevice } from '../../../../lib/deviceType'
+import { FallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
+import { CoverImage } from '../../../elements/CoverImage'
 import {
   AuthorInfoStyle,
   MetaStyle,
-  siteName, TitleStyle
-} from "../../../patterns/LibraryCards/LibraryCardStyles"
-import { CheckCircle, Circle } from "phosphor-react"
-import { DiscoveryItemCardProps } from "./DiscoveryItemCard"
-import { DiscoveryItemMetadata } from "./DiscoveryItemMetadata"
-import { DiscoveryHoverActions } from "./DiscoveryHoverActions"
+  siteName,
+  TitleStyle,
+} from '../../../patterns/LibraryCards/LibraryCardStyles'
+import { CheckCircle, Circle } from 'phosphor-react'
+import { DiscoveryItemCardProps } from './DiscoveryItemCard'
+import { DiscoveryItemMetadata } from './DiscoveryItemMetadata'
+import { DiscoveryHoverActions } from './DiscoveryHoverActions'
 
-export function DiscoveryItemListCard(props: DiscoveryItemCardProps): JSX.Element {
+export function DiscoveryItemListCard(
+  props: DiscoveryItemCardProps
+): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
+  const [savedId, setSavedId] = useState(props.item.savedId)
+  const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -82,26 +99,58 @@ export function DiscoveryItemListCard(props: DiscoveryItemCardProps): JSX.Elemen
             viewer={props.viewer}
             isHovered={isOpen ?? false}
             handleLinkSubmission={props.handleLinkSubmission}
+            setSavedId={setSavedId}
+            savedId={savedId}
+            savedUrl={savedUrl}
+            setSavedUrl={setSavedUrl}
           />
         </Box>
       )}
-      <DiscoveryListCardContent {...props} isHovered={isOpen} />
+      <DiscoveryListCardContent {...props} savedId={savedId} isHovered={isOpen} />
     </VStack>
   )
 }
 
 export function DiscoveryListCardContent(
-  props: DiscoveryItemCardProps
+  props: DiscoveryItemCardProps & { savedId?: string; savedUrl? : string }
 ): JSX.Element {
   const originText = siteName(props.item.url, props.item.url)
-  const [displayFallback, setDisplayFallback] = useState(props.item.image == undefined)
-  return (
-    <HStack css={{ gap: '15px', width: '100%' }}>
+  const [displayFallback, setDisplayFallback] = useState(
+    props.item.image == undefined
+  )
 
+  const goToUrl = () => {
+    if (props.savedUrl) {
+      window.location.href = `/article?url=${encodeURIComponent(
+        props.savedUrl
+      )}`
+    }
+  }
+
+  return (
+    <HStack css={{ gap: '15px', width: '100%', cursor: props.savedId ? 'pointer' : 'default' }} onClick={goToUrl} >
       <Box css={{ position: 'relative', width: '55px' }}>
-        <HStack css={{ position: "absolute", left: '0px', top: '0px',  color: "$thTextContrast2", opacity: props.item.isSaved ? 1 : 0.25}}>
-          <CheckCircle size={15} color="#669852" weight="fill" style={{ zIndex: 2 }}/>
-          <Circle size={15} color="white" weight="fill" style={{ position: "absolute", zIndex: 1}}/>
+        <HStack
+          css={{
+            position: 'absolute',
+            left: '0px',
+            top: '0px',
+            color: '$thTextContrast2',
+            opacity: props.savedId ? 1 : 0.25,
+          }}
+        >
+          <CheckCircle
+            size={15}
+            color="#669852"
+            weight="fill"
+            style={{ zIndex: 2 }}
+          />
+          <Circle
+            size={15}
+            color="white"
+            weight="fill"
+            style={{ position: 'absolute', zIndex: 1 }}
+          />
         </HStack>
         {displayFallback ? (
           <FallbackImage
@@ -136,7 +185,6 @@ export function DiscoveryListCardContent(
           position: 'relative',
         }}
       >
-
         <HStack
           css={{
             ...MetaStyle,
@@ -145,7 +193,6 @@ export function DiscoveryListCardContent(
         >
           <DiscoveryItemMetadata item={props.item} />
           {(props.item.author?.length ?? 0 + originText.length) > 0 && (
-
             <HStack
               css={{
                 ...AuthorInfoStyle,
@@ -158,7 +205,6 @@ export function DiscoveryListCardContent(
             </HStack>
           )}
         </HStack>
-
 
         <Box css={{ ...TitleStyle }}>{props.item.title}</Box>
 
@@ -181,10 +227,6 @@ export function DiscoveryListCardContent(
         >
           {props.item.description}
         </SpanBox>
-
-
-
-
       </VStack>
     </HStack>
   )

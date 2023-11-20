@@ -1,22 +1,37 @@
-import React, { useState } from "react"
-import { autoUpdate, offset, size, useFloating, useHover, useInteractions } from "@floating-ui/react"
-import { Box, HStack, SpanBox, VStack } from "../../../elements/LayoutPrimitives"
-import { isTouchScreenDevice } from "../../../../lib/deviceType"
-import { FallbackImage } from "../../../patterns/LibraryCards/FallbackImage"
-import { CoverImage } from "../../../elements/CoverImage"
+import React, { useState } from 'react'
+import {
+  autoUpdate,
+  offset,
+  size,
+  useFloating,
+  useHover,
+  useInteractions,
+} from '@floating-ui/react'
+import {
+  Box,
+  HStack,
+  SpanBox,
+  VStack,
+} from '../../../elements/LayoutPrimitives'
+import { isTouchScreenDevice } from '../../../../lib/deviceType'
+import { FallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
+import { CoverImage } from '../../../elements/CoverImage'
 import {
   AuthorInfoStyle,
   MetaStyle,
-  siteName, TitleStyle
-} from "../../../patterns/LibraryCards/LibraryCardStyles"
-import { DiscoveryItemCardProps } from "./DiscoveryItemCard"
-import { DiscoveryItemMetadata } from "./DiscoveryItemMetadata"
-import { DiscoveryHoverActions } from "./DiscoveryHoverActions"
-import { CheckCircle, Circle } from "phosphor-react"
+  siteName,
+  TitleStyle,
+} from '../../../patterns/LibraryCards/LibraryCardStyles'
+import { DiscoveryItemCardProps } from './DiscoveryItemCard'
+import { DiscoveryItemMetadata } from './DiscoveryItemMetadata'
+import { DiscoveryHoverActions } from './DiscoveryHoverActions'
+import { CheckCircle, Circle } from 'phosphor-react'
 
 export function DiscoveryGridCard(props: DiscoveryItemCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const [savedId, setSavedId] = useState(props.item.savedId)
+  const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -77,32 +92,65 @@ export function DiscoveryGridCard(props: DiscoveryItemCardProps): JSX.Element {
             viewer={props.viewer}
             isHovered={isHovered ?? false}
             handleLinkSubmission={props.handleLinkSubmission}
+            setSavedId={setSavedId}
+            savedId={savedId}
+            savedUrl={savedUrl}
+            setSavedUrl={setSavedUrl}
           />
         </Box>
       )}
-      <DiscoveryGridCardContent {...props} isHovered={isHovered} />
-
+      <DiscoveryGridCardContent {...props} savedId={savedId} savedUrl={savedUrl} isHovered={isHovered} />
     </VStack>
   )
 }
 
-const DiscoveryGridCardContent = (props: DiscoveryItemCardProps): JSX.Element => {
-  const {  item } = props
-  const [displayFallback, setDisplayFallback] = useState(props.item.image == undefined)
+const DiscoveryGridCardContent = (
+  props: DiscoveryItemCardProps & { savedId?: string; savedUrl?: string }
+): JSX.Element => {
+  const { item } = props
+
+  const [displayFallback, setDisplayFallback] = useState(
+    props.item.image == undefined
+  )
   const originText = siteName(props.item.url, props.item.url)
 
-  return (
-    <VStack css={{ p: '0px', m: '0px', width: '100%' }}>
+  const goToUrl = () => {
+    if (props.savedUrl) {
+      window.location.href = `/article?url=${encodeURIComponent(
+        props.savedUrl
+      )}`
+    }
+  }
 
-      <Box css={{ position: 'relative', width: '100%', height: '150px',  }}>
+  return (
+    <VStack css={{ p: '0px', m: '0px', width: '100%', cursor: props.savedId ? 'pointer' : 'default' }} onClick={goToUrl} >
+      <Box css={{ position: 'relative', width: '100%', height: '150px' }}>
         <>
-          <HStack css={{ position: "absolute", left: '5px', top: '5px',  color: "$thTextContrast2", opacity: props.item.isSaved ? 1 : 0.25}}>
-            <CheckCircle size={26} color="#669852" weight="fill" style={{ zIndex: 2 }}/>
-            <Circle size={26} color="white" weight="fill" style={{ position: "absolute", zIndex: 1}}/>
+          <HStack
+            css={{
+              position: 'absolute',
+              left: '5px',
+              top: '5px',
+              color: '$thTextContrast2',
+              opacity: props.savedId ? 1 : 0.25,
+            }}
+          >
+            <CheckCircle
+              size={26}
+              color="#669852"
+              weight="fill"
+              style={{ zIndex: 2 }}
+            />
+            <Circle
+              size={26}
+              color="white"
+              weight="fill"
+              style={{ position: 'absolute', zIndex: 1 }}
+            />
           </HStack>
           {displayFallback ? (
             <FallbackImage
-              title={item.title ?? "Omnivore Fallback"}
+              title={item.title ?? 'Omnivore Fallback'}
               width="100%"
               height="150px"
               fontSize="128px"
@@ -113,7 +161,8 @@ const DiscoveryGridCardContent = (props: DiscoveryItemCardProps): JSX.Element =>
               width="100%"
               height="150px"
               css={{
-                bg: "$thBackground"
+                bg: '$thBackground',
+                cursor: props.savedId ? 'pointer' : 'default'
               }}
               onError={(e) => {
                 setDisplayFallback(true)
@@ -121,13 +170,12 @@ const DiscoveryGridCardContent = (props: DiscoveryItemCardProps): JSX.Element =>
             />
           )}
         </>
-
       </Box>
 
       <HStack
         css={{
           ...MetaStyle,
-          mt: "15px",
+          mt: '15px',
           px: '15px',
         }}
         distribution="start"
@@ -191,9 +239,7 @@ const DiscoveryGridCardContent = (props: DiscoveryItemCardProps): JSX.Element =>
               minHeight: '0px',
               marginLeft: '-4px', // offset because the chips have margin
             }}
-          >
-
-          </HStack>
+          ></HStack>
         </HStack>
       </VStack>
     </VStack>

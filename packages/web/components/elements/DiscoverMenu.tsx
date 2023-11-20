@@ -1,19 +1,17 @@
-import { HStack, SpanBox, VStack } from "./LayoutPrimitives"
-import { StyledText } from "./StyledText"
-import { NewspaperClipping } from "phosphor-react"
-import { theme } from "../tokens/stitches.config"
-import { useEffect, useState } from "react"
+import { HStack, SpanBox, VStack } from './LayoutPrimitives'
+import { StyledText } from './StyledText'
+import { NewspaperClipping } from 'phosphor-react'
+import { theme } from '../tokens/stitches.config'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
-export function Discover(
-): JSX.Element {
-  const [isUsed, setIsUsed] = useState(false);
-  const router = useRouter();
+export function Discover(): JSX.Element {
+  const [isUsed, setIsUsed] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
-    setIsUsed(window.location.pathname.includes("/discover"))
+    setIsUsed(window.location.pathname.includes('/discover'))
   }, [])
-
 
   return (
     <VStack
@@ -26,9 +24,11 @@ export function Discover(
         '&:hover': {
           background: '$thLibrarySelectionColor',
           cursor: 'pointer',
-        }
+        },
       }}
-      onClick={() => { router.push('/discover') }}
+      onClick={() => {
+        router.push('/discover')
+      }}
       alignment="start"
       distribution="start"
     >
@@ -54,13 +54,15 @@ export function Discover(
             height: '100%',
             mt: '0px',
             marginLeft: 'auto',
-            position:'relative',
+            position: 'relative',
             left: '-5px',
             verticalAlign: 'middle',
           }}
         >
-          <NewspaperClipping size={15}  color={theme.colors.thLibraryMenuPrimary.toString()}/>
-
+          <NewspaperClipping
+            size={15}
+            color={theme.colors.thLibraryMenuPrimary.toString()}
+          />
         </SpanBox>
       </HStack>
     </VStack>

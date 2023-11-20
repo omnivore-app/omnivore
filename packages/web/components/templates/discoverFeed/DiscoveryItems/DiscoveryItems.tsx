@@ -1,18 +1,19 @@
-import { Box } from "../../../elements/LayoutPrimitives"
-import { UserBasicData } from "../../../../lib/networking/queries/useGetViewerQuery"
-import { LayoutType } from "../../homeFeed/HomeFeedContainer"
-import { DiscoveryItemCard } from "./DiscoveryItemCard"
-import { DiscoveryItem } from "../../../../lib/networking/queries/useGetDiscoveryItems"
+import { Box } from '../../../elements/LayoutPrimitives'
+import { UserBasicData } from '../../../../lib/networking/queries/useGetViewerQuery'
+import { LayoutType } from '../../homeFeed/HomeFeedContainer'
+import { DiscoveryItemCard } from './DiscoveryItemCard'
+import { DiscoveryItem } from '../../../../lib/networking/queries/useGetDiscoveryItems'
+import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 
 type DiscoveryItemsProps = {
   items: DiscoveryItem[]
   layout: LayoutType
-  viewer: UserBasicData
+  viewer?: UserBasicData
   handleLinkSubmission: (
     link: string,
     timezone: string,
     locale: string
-  ) => Promise<void>
+  ) => Promise<SaveDiscoveryArticleOutput | undefined>
 }
 
 export function DiscoveryItems(props: DiscoveryItemsProps): JSX.Element {
@@ -88,12 +89,12 @@ export function DiscoveryItems(props: DiscoveryItemsProps): JSX.Element {
             },
           }}
         >
-            <DiscoveryItemCard
-              layout={props.layout}
-              item={linkedItem}
-              handleLinkSubmission={props.handleLinkSubmission}
-              viewer={props.viewer}
-            />
+          <DiscoveryItemCard
+            layout={props.layout}
+            item={linkedItem}
+            handleLinkSubmission={props.handleLinkSubmission}
+            viewer={props.viewer}
+          />
         </Box>
       ))}
     </Box>

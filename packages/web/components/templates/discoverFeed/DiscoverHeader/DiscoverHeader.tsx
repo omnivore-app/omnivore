@@ -1,15 +1,16 @@
 import React, { useState } from 'react'
-import { Box, HStack, VStack } from "../../../elements/LayoutPrimitives"
+import { Box, HStack, VStack } from '../../../elements/LayoutPrimitives'
 import {
   DEFAULT_HEADER_HEIGHT,
   HeaderSpacer,
   useGetHeaderHeight,
 } from '../../homeFeed/HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../../templates/homeFeed/LibraryFilterMenu'
-import { LargeHeaderLayout } from "./LargerHeaderLayout"
-import { SmallHeaderLayout } from "./SmallerHeaderLayout"
-import { HeaderText } from "./HeaderText"
-import { LayoutType, TopicTabData } from "../DiscoverContainer"
+import { LargeHeaderLayout } from './LargerHeaderLayout'
+import { SmallHeaderLayout } from './SmallerHeaderLayout'
+import { HeaderText } from './HeaderText'
+import { LayoutType, TopicTabData } from '../DiscoverContainer'
+import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 
 export type DiscoverHeaderProps = {
   alwaysShowHeader: boolean
@@ -29,7 +30,7 @@ export type DiscoverHeaderProps = {
 
   topics: TopicTabData[]
 
-  layout: LayoutType,
+  layout: LayoutType
   setLayoutType: (layout: LayoutType) => void
 }
 
@@ -63,23 +64,18 @@ export function DiscoverHeader(props: DiscoverHeaderProps): JSX.Element {
           bg: '$thLibraryBackground',
           '@mdDown': {
             left: '0px',
-            pt: '0px'
+            pt: '0px',
           },
-
         }}
       >
-
         {/* These will display/hide depending on breakpoints */}
         <LargeHeaderLayout {...props} />
         <SmallHeaderLayout {...props} />
-
       </VStack>
 
       {/* This spacer is put in to push library content down
       below the fixed header height. */}
       <DiscoverHeaderSpace />
-
     </>
   )
 }
-

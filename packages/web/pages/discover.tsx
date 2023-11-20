@@ -1,7 +1,7 @@
 import { PrimaryLayout } from '../components/templates/PrimaryLayout'
 import { HomeFeedContainer } from '../components/templates/homeFeed/HomeFeedContainer'
 import { VStack } from './../components/elements/LayoutPrimitives'
-import { DiscoverContainer } from "../components/templates/discoverFeed/DiscoverContainer"
+import { DiscoverContainer } from '../components/templates/discoverFeed/DiscoverContainer'
 
 export default function Discover(): JSX.Element {
   return <LoadedContent />

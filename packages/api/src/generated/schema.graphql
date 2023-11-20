@@ -631,6 +631,25 @@ type DeviceTokensSuccess {
   deviceTokens: [DeviceToken!]!
 }
 
+type DiscoveryArticle {
+  author: String
+  description: String!
+  id: ID!
+  image: String
+  publishedDate: Date
+  savedId: String
+  savedLinkUrl: String
+  siteName: String
+  slug: String!
+  title: String!
+  url: String!
+}
+
+type DiscoveryTopic {
+  description: String!
+  name: String!
+}
+
 type Feature {
   createdAt: Date!
   expiresAt: Date
@@ -722,6 +741,36 @@ union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
 
 type GenerateApiKeySuccess {
   apiKey: ApiKey!
+}
+
+type GetDiscoveryArticleError {
+  errorCodes: [GetDiscoveryArticleErrorCode!]!
+}
+
+enum GetDiscoveryArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union GetDiscoveryArticleResults = GetDiscoveryArticleError | GetDiscoveryArticleSuccess
+
+type GetDiscoveryArticleSuccess {
+  discoverArticles: [DiscoveryArticle!]
+}
+
+type GetDiscoveryTopicError {
+  errorCodes: [GetDiscoveryTopicErrorCode!]!
+}
+
+enum GetDiscoveryTopicErrorCode {
+  UNAUTHORIZED
+}
+
+union GetDiscoveryTopicResults = GetDiscoveryTopicError | GetDiscoveryTopicSuccess
+
+type GetDiscoveryTopicSuccess {
+  discoverTopics: [DiscoveryTopic!]
 }
 
 type GetFollowersError {
@@ -1143,6 +1192,7 @@ type Mutation {
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
+  saveDiscoveryArticle(input: SaveDiscoveryArticleInput!): SaveDiscoveryArticleResult!
   saveFile(input: SaveFileInput!): SaveResult!
   saveFilter(input: SaveFilterInput!): SaveFilterResult!
   savePage(input: SavePageInput!): SaveResult!
@@ -1294,7 +1344,9 @@ type Query {
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   deviceTokens: DeviceTokensResult!
+  discoveryTopics: GetDiscoveryTopicResults!
   filters: FiltersResult!
+  getDiscoveryArticles(after: String, discoveryTopicId: String!, first: Int): GetDiscoveryArticleResults!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
@@ -1591,6 +1643,29 @@ union SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveA
 
 type SaveArticleReadingProgressSuccess {
   updatedArticle: Article!
+}
+
+type SaveDiscoveryArticleError {
+  errorCodes: [SaveDiscoveryArticleErrorCode!]!
+}
+
+enum SaveDiscoveryArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SaveDiscoveryArticleInput {
+  discoveryArticleId: ID!
+  locale: String
+  timezone: String
+}
+
+union SaveDiscoveryArticleResult = SaveDiscoveryArticleError | SaveDiscoveryArticleSuccess
+
+type SaveDiscoveryArticleSuccess {
+  saveId: String!
+  url: String!
 }
 
 type SaveError {

@@ -1,11 +1,11 @@
-import React from "react"
-import { HStack } from "../../../elements/LayoutPrimitives"
-import { OmnivoreSmallLogo } from "../../../elements/images/OmnivoreNameLogo"
-import { theme } from "../../../tokens/stitches.config"
-import { FunnelSimple } from "phosphor-react"
-import { DiscoverHeaderProps } from "./DiscoverHeader"
-import { SmallTopicBar } from "./SmallTopicBar"
-import { PrimaryDropdown } from "../../PrimaryDropdown"
+import React from 'react'
+import { HStack } from '../../../elements/LayoutPrimitives'
+import { OmnivoreSmallLogo } from '../../../elements/images/OmnivoreNameLogo'
+import { theme } from '../../../tokens/stitches.config'
+import { FunnelSimple } from 'phosphor-react'
+import { DiscoverHeaderProps } from './DiscoverHeader'
+import { SmallTopicBar } from './SmallTopicBar'
+import { PrimaryDropdown } from '../../PrimaryDropdown'
 
 export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -24,15 +24,11 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
         },
       }}
     >
-        <>
-          <MenuHeaderButton {...props} />
-          <SmallTopicBar {...props} />
-          <PrimaryDropdown
-            showThemeSection={true}
-            showAddLinkModal={() => {}}
-          />
-        </>
-
+      <>
+        <MenuHeaderButton {...props} />
+        <SmallTopicBar {...props} />
+        <PrimaryDropdown showThemeSection={true} showAddLinkModal={() => {}} />
+      </>
     </HStack>
   )
 }
