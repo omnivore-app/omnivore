@@ -9,6 +9,7 @@ data class Viewer(
   val name: String,
   val username: String,
   val profileImageURL: String?,
+  val intercomHash: String?,
 )
 
 @Dao

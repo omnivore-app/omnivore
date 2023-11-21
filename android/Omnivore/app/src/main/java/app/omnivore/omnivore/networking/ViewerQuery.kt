@@ -13,7 +13,8 @@ suspend fun Networker.viewer(): Viewer? {
         userID = me.id,
         name = me.name,
         username = me.profile.username,
-        profileImageURL = me.profile.pictureUrl
+        profileImageURL = me.profile.pictureUrl,
+        intercomHash = me.intercomHash,
       )
     } else {
       null
