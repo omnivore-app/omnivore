@@ -48,7 +48,7 @@ const addTopicsToArticle = async (
   const topics = await sqlClient.query(
     `SELECT name 
     FROM (SELECT name, (1 - (embed.embedding <=> $1) - 0.6) / 0.2 AS "similarity" FROM omnivore.discover_topics embed)  topics
-    WHERE topics.similarity > 0.8`,
+    WHERE topics.similarity > 0.75`,
     [toSql(articleEmbedding)]
   )
 
@@ -59,7 +59,7 @@ const addTopicsToArticle = async (
 
   return {
     ...it,
-    topics: topics.rows.map(({ name }) => name),
+    topics: topicNames,
   }
 }
 

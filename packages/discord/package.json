@@ -1,0 +1,15 @@
+{
+  "name": "@omnivore/discord-bot",
+  "version": "1.0.0",
+  "description": "A Discord Bot to extract features to add to Community Picks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "@google-cloud/pubsub": "^4.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
