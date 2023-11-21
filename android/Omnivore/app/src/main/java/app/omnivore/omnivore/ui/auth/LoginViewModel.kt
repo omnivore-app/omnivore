@@ -131,7 +131,7 @@ class LoginViewModel @Inject constructor(
     viewModelScope.launch {
       val viewer = networker.viewer()
       viewer?.let {
-        eventTracker.registerUser(viewer.userID)
+        eventTracker.registerUser(viewer.userID, viewer.intercomHash)
       }
     }
   }
