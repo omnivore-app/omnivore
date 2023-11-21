@@ -580,7 +580,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               }
           }
 
-          ForEach(Array(viewModel.items.enumerated()), id: \.1.unwrappedID) { idx, item in
+          ForEach(Array(viewModel.items.enumerated()), id: \.1.unwrappedID) { _, item in
             FeedCardNavigationLink(
               item: item,
               isInMultiSelectMode: viewModel.isInMultiSelectMode,
@@ -612,15 +612,15 @@ struct AnimatingCellHeight: AnimatableModifier {
                 swipeActionButton(action: action, item: item)
               }
             }
-            if idx > 0,
-               isEditMode != .active,
-               let savedAt = item.savedAt,
-               Calendar.current.isDateInToday(savedAt) || Calendar.current.isDateInYesterday(savedAt),
-               let previousSavedAt = viewModel.items[idx - 1].savedAt,
-               Calendar.current.isDate(previousSavedAt, equalTo: savedAt, toGranularity: .day)
-            {
-              dateSummaryCard(previousSavedAt)
-            }
+//            if idx > 0,
+//               isEditMode != .active,
+//               let savedAt = item.savedAt,
+//               Calendar.current.isDateInToday(savedAt) || Calendar.current.isDateInYesterday(savedAt),
+//               let previousSavedAt = viewModel.items[idx - 1].savedAt,
+//               Calendar.current.isDate(previousSavedAt, equalTo: savedAt, toGranularity: .day)
+//            {
+//              dateSummaryCard(previousSavedAt)
+//            }
           }
         }
         .padding(0)
