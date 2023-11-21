@@ -63,6 +63,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         listTitle: $listTitle,
         isListScrolled: $isListScrolled,
         prefersListLayout: $prefersListLayout,
+        isEditMode: $isEditMode,
         selection: $selection,
         viewModel: viewModel,
         showFeatureCards: showFeatureCards
@@ -263,6 +264,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var listTitle: String
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
+    @Binding var isEditMode: EditMode
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -291,6 +293,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             listTitle: $listTitle,
             isListScrolled: $isListScrolled,
             prefersListLayout: $prefersListLayout,
+            isEditMode: $isEditMode,
             selection: $selection,
             viewModel: viewModel,
             showFeatureCards: showFeatureCards
@@ -340,6 +343,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var listTitle: String
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
+    @Binding var isEditMode: EditMode
     @State private var showHideFeatureAlert = false
 
     @Binding var selection: Set<String>
@@ -576,7 +580,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               }
           }
 
-          ForEach(viewModel.items, id: \.self.unwrappedID) { item in
+          ForEach(Array(viewModel.items.enumerated()), id: \.1.unwrappedID) { _, item in
             FeedCardNavigationLink(
               item: item,
               isInMultiSelectMode: viewModel.isInMultiSelectMode,
@@ -608,6 +612,15 @@ struct AnimatingCellHeight: AnimatableModifier {
                 swipeActionButton(action: action, item: item)
               }
             }
+//            if idx > 0,
+//               isEditMode != .active,
+//               let savedAt = item.savedAt,
+//               Calendar.current.isDateInToday(savedAt) || Calendar.current.isDateInYesterday(savedAt),
+//               let previousSavedAt = viewModel.items[idx - 1].savedAt,
+//               Calendar.current.isDate(previousSavedAt, equalTo: savedAt, toGranularity: .day)
+//            {
+//              dateSummaryCard(previousSavedAt)
+//            }
           }
         }
         .padding(0)
@@ -622,6 +635,40 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
       }
+    }
+
+    func dateSummaryCard(_: Date) -> some View {
+      VStack(alignment: .center, spacing: 15) {
+        Text("3 articles saved today")
+          .frame(maxWidth: .infinity, alignment: .center)
+          .font(.body)
+        HStack {
+          Spacer()
+          HStack(spacing: 0) {
+            Button(action: {}, label: {
+              Text("Archive all")
+                .font(Font.system(size: 14))
+                .padding(.horizontal, 10)
+            })
+              .frame(height: 30)
+              .background(Color.blue)
+            Button(action: {}, label: {
+              Image(systemName: "chevron.down")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 10, height: 10)
+                .padding(.leading, 7.5)
+                .padding(.trailing, 7.5)
+                .foregroundColor(Color.white)
+            })
+              .frame(height: 30)
+              .background(Color(hex: "345BB8"))
+          }
+          .cornerRadius(2.5)
+          Spacer()
+        }
+      }
+      .padding(15)
     }
 
     func swipeActionButton(action: SwipeAction, item: LinkedItem) -> AnyView {
@@ -663,7 +710,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         return AnyView(Button(
           action: {
             // viewModel.addLabel(dataService: dataService, item: item, label: "Inbox", color)
-
           },
           label: {
             Label("Move to Inbox", systemImage: "tray.fill")

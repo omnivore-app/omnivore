@@ -82,9 +82,9 @@ public struct ShareExtensionView: View {
         }
       }
       .frame(width: 56, height: 56).overlay(
-        RoundedRectangle(cornerRadius: 14)
+        RoundedRectangle(cornerRadius: 5)
           .stroke(.white, lineWidth: 1)
-      ).cornerRadius(14)
+      ).cornerRadius(5)
       VStack(alignment: .leading) {
         Text(self.viewModel.url ?? "")
           .font(Font.system(size: 12))
@@ -117,21 +117,22 @@ public struct ShareExtensionView: View {
     Button(action: {
       NotificationCenter.default.post(name: Notification.Name("ShowAddNoteSheet"), object: nil)
     }, label: {
-      Text(hasNoteText ? viewModel.noteText : "Add note...")
-        .frame(minHeight: 50, alignment: .top)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .multilineTextAlignment(.leading)
+      VStack {
+        Text(hasNoteText ? viewModel.noteText : "Add note...")
+          .frame(maxWidth: .infinity, alignment: .topLeading)
+          .multilineTextAlignment(.leading)
+        Spacer()
+      }
     })
       .foregroundColor(hasNoteText ?
         Color.appGrayTextContrast : Color.extensionTextSubtle
       )
       .font(Font.system(size: 13, weight: .semibold))
-      .frame(height: 50, alignment: .top)
-      .frame(maxWidth: .infinity, alignment: .leading)
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
       .contentShape(Rectangle())
   }
 
-  var labelsBox: some View {
+  var labelsButton: some View {
     Button(action: {
       NotificationCenter.default.post(name: Notification.Name("ShowEditLabelsSheet"), object: nil)
     }, label: {
@@ -157,10 +158,35 @@ public struct ShareExtensionView: View {
 
       noteBox
 
-      labelsBox
+      labelsButton
     }.padding(15)
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
       .background(Color.extensionPanelBackground)
       .cornerRadius(14)
+  }
+
+  var labelsBox: some View {
+    ScrollView(.vertical) {
+      LabelsMasonaryView(labels: labelsViewModel.labels,
+                         selectedLabels: labelsViewModel.selectedLabels,
+                         onLabelTap: { label, _ in
+                           if !labelsViewModel.selectedLabels.contains(label) {
+                             labelsViewModel.selectedLabels += [label]
+                           } else {
+                             labelsViewModel.selectedLabels.removeAll { $0.unwrappedID == label.unwrappedID }
+                           }
+                           if let itemID = viewModel.linkedItem?.id {
+                             labelsViewModel.saveItemLabelChanges(
+                               itemID: itemID,
+                               dataService: viewModel.services.dataService
+                             )
+                           }
+                         })
+    }
+    .padding(.bottom, 15)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color.extensionPanelBackground)
+    .cornerRadius(14)
   }
 
   var moreMenuButton: some View {
@@ -253,12 +279,7 @@ public struct ShareExtensionView: View {
   }
 
   var displayDismiss: Bool {
-    #if os(iOS)
-      if UIDevice.isIPhone {
-        return false
-      }
-    #endif
-    return true
+    true
   }
 
   public var body: some View {
@@ -271,14 +292,25 @@ public struct ShareExtensionView: View {
     #endif
   }
 
+  @AppStorage(UserDefaultKey.visibleShareExtensionTab.rawValue) var visibleTab = "info"
+
   var iOSBody: some View {
     VStack(alignment: .leading, spacing: 15) {
       titleBar
         .padding(.top, 15)
 
-      infoBox
+      TabView(selection: $visibleTab) {
+        infoBox
+          .tag("info")
+          .padding(.horizontal, 15)
+        labelsBox
+          .tag("labels")
+          .padding(.horizontal, 15)
+      }
+      .tabViewStyle(.page(indexDisplayMode: .never))
+      .padding(.horizontal, -15)
 
-      Spacer(minLength: 1)
+      Spacer()
 
       HStack {
         #if os(macOS)
@@ -286,23 +318,21 @@ public struct ShareExtensionView: View {
             .padding(.bottom, 15)
         #endif
         Spacer()
-        if displayDismiss {
-          Button(action: {
-            extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-          }, label: {
-            Text("Dismiss")
-            #if os(iOS)
-              .font(Font.system(size: 17, weight: .semibold))
-              .tint(Color.appGrayText)
-              .padding(20)
-            #endif
-          })
+        Button(action: {
+          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+        }, label: {
+          Text("Dismiss")
           #if os(iOS)
-            .frame(height: 50)
-            .cornerRadius(24)
+            .font(Font.system(size: 17, weight: .semibold))
+            .tint(Color.appGrayText)
+            .padding(20)
           #endif
-          .padding(.bottom, 15)
-        }
+        })
+        #if os(iOS)
+          .frame(height: 50)
+          .cornerRadius(24)
+        #endif
+        .padding(.bottom, 15)
         Button(action: {
           viewModel.handleReadNowAction(extensionContext: extensionContext)
         }, label: {
@@ -324,6 +354,9 @@ public struct ShareExtensionView: View {
       .background(Color.extensionBackground)
       .onAppear {
         viewModel.savePage(extensionContext: extensionContext)
+        Task {
+          await labelsViewModel.loadLabels(dataService: viewModel.services.dataService, initiallySelectedLabels: [])
+        }
       }
   }
 
