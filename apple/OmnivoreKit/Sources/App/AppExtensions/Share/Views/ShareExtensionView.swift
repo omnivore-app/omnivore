@@ -170,7 +170,7 @@ public struct ShareExtensionView: View {
       LabelsMasonaryView(labels: labelsViewModel.labels,
                          selectedLabels: labelsViewModel.selectedLabels,
                          onLabelTap: { label, _ in
-                           if labelsViewModel.selectedLabels.contains(label) {
+                           if !labelsViewModel.selectedLabels.contains(label) {
                              labelsViewModel.selectedLabels += [label]
                            } else {
                              labelsViewModel.selectedLabels.removeAll { $0.unwrappedID == label.unwrappedID }
