@@ -1,9 +1,14 @@
 import { Observable, ObservableInput, pipe } from 'rxjs'
 import { map, mergeMap } from 'rxjs/operators'
 import { EmbeddedOmnivoreArticle } from '../../ai/embedding'
+import { env } from '../../../env'
+import { createImageProxyUrl } from '../../utils/imageproxy'
 
-export const addImageToProxy = async (imageUrl: string): Promise<string> => {
-  // I don't know how to do this right now, but maybe I can get help.
+export const addImageToProxy = (imageUrl: string): string => {
+  // For testing purposes, really.
+  if (env.imageProxy.url) {
+    return createImageProxyUrl(imageUrl)
+  }
   return imageUrl
 }
 
@@ -14,7 +19,7 @@ export const putImageInProxy$ = pipe(
         ...it,
         article: {
           ...it.article,
-          image: it.article.image && (await addImageToProxy(it.article.image)),
+          image: it.article.image && addImageToProxy(it.article.image),
         },
       }
     }
