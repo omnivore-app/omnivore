@@ -359,6 +359,20 @@ div#appleid-signin {
   src: url('/static/fonts/IBMPlexSans/IBMPlexSans-Italic.ttf');
 }
 
+@font-face {
+  font-family: 'Lexend';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Lexend/Lexend-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Lexend';
+  font-weight: 700;
+  font-style: normal;
+  src: url('/static/fonts/Lexend/Lexend-Bold.ttf');
+}
+
 .dropdown-arrow {
   display: inline-block;
   width: 0;

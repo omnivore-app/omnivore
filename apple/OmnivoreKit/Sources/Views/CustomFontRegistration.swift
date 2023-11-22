@@ -25,7 +25,8 @@ public func registerFonts() -> Bool {
     registerFont(bundle: .module, fontName: "SourceSerifPro-Regular", fontExtension: "ttf"),
     registerFont(bundle: .module, fontName: "SourceSansPro-Regular", fontExtension: "ttf"),
     registerFont(bundle: .module, fontName: "IBMPlexSans-Regular", fontExtension: "ttf"),
-    registerFont(bundle: .module, fontName: "LXGWWenKai-Regular", fontExtension: "ttf")
+    registerFont(bundle: .module, fontName: "LXGWWenKai-Regular", fontExtension: "ttf"),
+    registerFont(bundle: .module, fontName: "Lexend-Regular", fontExtension: "ttf")
   ]
   .allSatisfy { $0 }
 }
