@@ -1,3 +1,4 @@
+import axios from 'axios'
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
 import { Subscription } from '../../entity/subscription'
@@ -34,7 +35,7 @@ import { authorized } from '../../utils/helpers'
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
 const parser = new Parser({
-  timeout: 30000, // 30 seconds
+  timeout: 10000, // 10 seconds
   maxRedirects: 5,
   headers: {
     // some rss feeds require user agent
@@ -175,7 +176,7 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { authTrx, uid, log }) => {
+>(async (_, { input }, { uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -224,7 +225,18 @@ export const subscribeResolver = authorized<
     // create new rss subscription
     const MAX_RSS_SUBSCRIPTIONS = 150
     // validate rss feed
-    const feed = await parser.parseURL(input.url)
+    const response = await axios.get(input.url, {
+      responseType: 'text',
+      timeout: 10000, // 10 seconds
+      maxRedirects: 5,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+        Accept:
+          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
+      },
+    })
+    const feed = await parser.parseString(response.data)
 
     // limit number of rss subscriptions to 150
     const results = (await getRepository(Subscription).query(
@@ -269,7 +281,9 @@ export const subscribeResolver = authorized<
       subscriptions: [newSubscription],
     }
   } catch (error) {
-    log.error('failed to subscribe', error)
+    if (axios.isAxiosError(error)) {
+      log.info(error.response)
+    }
     if (error instanceof Error && error.message === 'Status code 404') {
       return {
         errorCodes: [SubscribeErrorCode.NotFound],
