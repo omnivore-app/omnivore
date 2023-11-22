@@ -1,15 +1,207 @@
 <resources>
     <string name="app_name">Omnivore</string>
-    <string name="welcome_title">不要错过任何精彩读物</string>
-    <string name="learn_more">了解更多</string>
-    <string name="welcome_subtitle">保存文章，稍后在我们的简洁、无干扰阅读器中阅读.</string>
+    <string name="welcome_title">绝不错过精彩阅读</string>
+    <string name="learn_more">深入了解</string>
+    <string name="welcome_subtitle">在无干扰的阅读器中储存文章，以便稍后阅读。</string>
     <string name="highlight_menu_action">荧光笔</string>
     <string name="copy_menu_action">复制</string>
     <string name="annotate_menu_action">注解</string>
-    <string name="pdf_remove_highlight">删除</string>
-    <string name="pdf_highlight_menu_action">荧光笔</string>
+    <string name="pdf_remove_highlight">移除</string>
+    <string name="pdf_highlight_menu_action">标记</string>
     <string name="pdf_highlight_copy">复制</string>
     <string name="highlight_note">注解</string>
     <string name="copyTextSelection">复制</string>
     <string name="pdf_highlight_menu_note">注解</string>
+
+    <!-- Apple Auth -->
+    <string name="apple_auth_text">使用 Apple 继续</string>
+    <string name="apple_auth_loading">正在登入...</string>
+
+    <!-- Create User Profile -->
+    <string name="create_user_profile_title">建立您的个人档案</string>
+    <string name="create_user_profile_loading">载入中...</string>
+    <string name="create_user_profile_action_cancel">取消注册</string>
+    <string name="create_user_profile_action_submit">送出</string>
+    <string name="create_user_profile_field_placeholder_name">名称</string>
+    <string name="create_user_profile_field_label_name">名称</string>
+    <string name="create_user_profile_field_placeholder_username">使用者名称</string>
+    <string name="create_user_profile_field_label_username">使用者名称</string>
+    <string name="create_user_profile_error_msg">请输入有效的名称和使用者名称。</string>
+
+    <!-- Email Login -->
+    <string name="email_login_loading">载入中...</string>
+    <string name="email_login_action_back">返回社交登入页面</string>
+    <string name="email_login_action_no_account">还没有帐户？</string>
+    <string name="email_login_action_forgot_password">忘记密码？</string>
+    <string name="email_login_action_login">登入</string>
+    <string name="email_login_field_placeholder_email">user@email.com</string>
+    <string name="email_login_field_label_email">电子邮件</string>
+    <string name="email_login_field_placeholder_password">密码</string>
+    <string name="email_login_field_label_password">密码</string>
+    <string name="email_login_error_msg">请输入电子邮件地址和密码。</string>
+
+    <!-- Email Sign Up -->
+    <string name="email_signup_verification_message">我们已向 %1$s 传送验证电子邮件。请验证您的电子邮件，然后点选下面的按钮。</string>
+    <string name="email_signup_check_status">检查状态</string>
+    <string name="email_signup_action_use_different_email">使用不同的电子邮件？</string>
+    <string name="email_signup_loading">载入中...</string>
+    <string name="email_signup_action_back">返回社交登入页面</string>
+    <string name="email_signup_action_already_have_account">已经有帐户？</string>
+    <string name="email_signup_action_sign_up">注册</string>
+    <string name="email_signup_field_placeholder_email">user@email.com</string>
+    <string name="email_signup_field_label_email">电子邮件</string>
+    <string name="email_signup_field_placeholder_password">密码</string>
+    <string name="email_signup_field_label_password">密码</string>
+    <string name="email_signup_field_placeholder_name">名称</string>
+    <string name="email_signup_field_label_name">名称</string>
+    <string name="email_signup_field_placeholder_username">使用者名称</string>
+    <string name="email_signup_field_label_username">使用者名称</string>
+    <string name="email_signup_error_msg">请完成所有栏位。</string>
+
+    <!-- Google Auth -->
+    <string name="google_auth_text">使用 Google 继续</string>
+    <string name="google_auth_loading">正在登入...</string>
+
+    <!-- LoginViewModel -->
+    <string name="login_view_model_self_hosting_settings_updated">自建伺服器设定已更新。</string>
+    <string name="login_view_model_self_hosting_settings_reset">自建伺服器设定已重设。</string>
+    <string name="login_view_model_username_validation_length_error_msg">使用者名称必须介于 4 到 15 个字元之间。</string>
+    <string name="login_view_model_username_validation_alphanumeric_error_msg">使用者名称只能包含字母和数字。</string>
+    <string name="login_view_model_username_not_available_error_msg">此使用者名称不可用。</string>
+    <string name="login_view_model_connection_error_msg">抱歉，我们无法连线到伺服器。</string>
+    <string name="login_view_model_something_went_wrong_error_msg">出了些问题。请检查您的电子邮件/密码，然后再试一次。</string>
+    <string name="login_view_model_something_went_wrong_two_error_msg">出了些问题。请检查您的登入资讯，然后再试一次。</string>
+    <string name="login_view_model_google_auth_error_msg">无法使用 Google 进行身份验证。</string>
+    <string name="login_view_model_missing_auth_token_error_msg">找不到身份验证权杖。</string>
+
+    <!-- SelfHostedView -->
+    <string name="self_hosted_view_loading">载入中...</string>
+    <string name="self_hosted_view_action_reset">重设</string>
+    <string name="self_hosted_view_action_back">返回</string>
+    <string name="self_hosted_view_action_save">储存</string>
+    <string name="self_hosted_view_action_learn_more">了解更多关于自建伺服器 Omnivore 的资讯</string>
+    <string name="self_hosted_view_field_api_url_label">API 伺服器</string>
+    <string name="self_hosted_view_field_web_url_label">Web 伺服器</string>
+    <string name="self_hosted_view_error_msg">请输入 API 伺服器和 Web 伺服器地址。</string>
+
+    <!-- WelcomeScreen -->
+    <string name="welcome_screen_action_dismiss">忽略</string>
+    <string name="welcome_screen_action_continue_with_email">使用电子邮件继续</string>
+    <string name="welcome_screen_action_self_hosting_options">自建伺服器选项</string>
+
+    <!-- LabelCreationDialog -->
+    <string name="label_creation_title">建立新标签</string>
+    <string name="label_creation_content">指定名称和颜色。</string>
+    <string name="label_creation_action_create">建立</string>
+    <string name="label_creation_action_cancel">取消</string>
+    <string name="label_creation_label_placeholder">标签名称</string>
+
+    <!-- LabelSelectionSheet -->
+    <string name="label_selection_sheet_title">按标签筛选</string>
+    <string name="label_selection_sheet_title_alt">设定标签</string>
+    <string name="label_selection_sheet_action_cancel">取消</string>
+    <string name="label_selection_sheet_action_search">搜寻</string>
+    <string name="label_selection_sheet_action_save">储存</string>
+    <string name="label_selection_sheet_text_create">建立名为 \"%1$s\" 的新标签</string>
+    <string name="label_selection_sheet_label_too_long_error_msg">提供的名称太长（必须小于或等于 %1$d 个字元）</string>
+
+    <!-- LibraryFilterBar -->
+    <string name="library_filter_bar_label_labels">标签</string>
+
+    <!-- LibraryNavigationBar -->
+    <string name="library_nav_bar_title">文库</string>
+    <string name="library_nav_bar_title_alt"></string>
+    <string name="library_nav_bar_field_placeholder_search">搜寻</string>
+
+    <!-- LibraryViewModel -->
+    <string name="library_view_model_snackbar_success">标签已更新</string>
+    <string name="library_view_model_snackbar_error">无法设定标签</string>
+
+    <!-- NotebookView -->
+    <string name="notebook_view_title">笔记本</string>
+    <string name="notebook_view_action_copy">复制</string>
+    <string name="notebook_view_snackbar_msg">笔记本已复制</string>
+
+    <!-- EditNoteModal -->
+    <string name="edit_note_modal_title">注解</string>
+    <string name="edit_note_modal_action_save">储存</string>
+    <string name="edit_note_modal_action_cancel">取消</string>
+
+    <!-- ArticleNotes -->
+    <string name="article_notes_title">文章注解</string>
+    <string name="article_notes_action_add_notes">新增注解...</string>
+
+    <!-- HighlightsList -->
+    <string name="highlights_list_title">标记</string>
+    <string name="highlights_list_action_copy">复制</string>
+    <string name="highlights_list_snackbar_msg">标记已复制</string>
+    <string name="highlights_list_action_add_note">新增注解...</string>
+    <string name="highlights_list_error_msg_no_highlights">您尚未在此页面新增任何标记。</string>
+
+    <!-- ReaderPreferencesView -->
+    <string name="reader_preferences_view_font_size">字型大小：</string>
+    <string name="reader_preferences_view_margin">边距</string>
+    <string name="reader_preferences_view_line_spacing">行距</string>
+    <string name="reader_preferences_view_theme">主题：</string>
+    <string name="reader_preferences_view_auto">自动</string>
+    <string name="reader_preferences_view_high_constrast_text">高对比文字</string>
+    <string name="reader_preferences_view_justify_text">对齐文字</string>
+
+    <!-- WebReaderLoadingContainer -->
+    <string name="web_reader_loading_container_error_msg">我们无法取得您的内容。</string>
+    <string name="web_reader_loading_container_bottom_sheet_reader_preferences">阅读器偏好设定</string>
+    <string name="web_reader_loading_container_bottom_sheet_notebook">笔记本</string>
+    <string name="web_reader_loading_container_bottom_sheet_open_link">开启连结</string>
+
+    <!-- OpenLinkView -->
+    <string name="open_link_view_action_open_in_browser">在浏览器中开启</string>
+    <string name="open_link_view_action_save_to_omnivore">储存到 Omnivore</string>
+    <string name="open_link_view_action_copy_link">复制连结</string>
+    <string name="open_link_view_action_cancel">取消</string>
+
+    <!-- WebReaderViewModel -->
+    <string name="web_reader_view_model_save_link_success">连结已储存</string>
+    <string name="web_reader_view_model_save_link_error">储存连结时出错</string>
+    <string name="web_reader_view_model_copy_link_success">连结已复制</string>
+
+    <!-- SaveContent -->
+    <string name="save_content_msg">储存中</string>
+    <string name="save_content_action_read_now">现在阅读</string>
+    <string name="save_content_action_read_later">稍后阅读</string>
+    <string name="save_content_action_dismiss">忽略</string>
+
+    <!-- SaveViewModel -->
+    <string name="save_view_model_msg">正在储存到 Omnivore...</string>
+    <string name="save_view_model_error_not_logged_in">您尚未登入。请在储存前登入。</string>
+    <string name="save_view_model_page_saved_success">页面已储存</string>
+    <string name="save_view_model_page_saved_error">储存您的页面时出错</string>
+
+    <!-- SavedItemContextMenu -->
+    <string name="saved_item_context_menu_action_edit_labels">编辑标签</string>
+    <string name="saved_item_context_menu_action_archive">封存</string>
+    <string name="saved_item_context_menu_action_unarchive">取消封存</string>
+    <string name="saved_item_context_menu_action_share_original">分享原始内容</string>
+    <string name="saved_item_context_menu_action_remove_item">移除项目</string>
+
+    <!-- LogoutDialog -->
+    <string name="logout_dialog_title">登出</string>
+    <string name="logout_dialog_confirm_msg">您确定要登出吗？</string>
+    <string name="logout_dialog_action_confirm">确认</string>
+    <string name="logout_dialog_action_cancel">取消</string>
+
+    <!-- ManageAccount -->
+    <string name="manage_account_title">管理帐户</string>
+    <string name="manage_account_action_reset_data_cache">重设资料快取</string>
+
+    <!-- PolicyWebView -->
+    <string name="policy_webview_title">设定</string>
+
+    <!-- SettingsView -->
+    <string name="settings_view_title">设定</string>
+    <string name="settings_view_setting_row_documentation">文件</string>
+    <string name="settings_view_setting_row_feedback">回馈</string>
+    <string name="settings_view_setting_row_privacy_policy">隐私策略</string>
+    <string name="settings_view_setting_row_terms_and_conditions">条款和条件</string>
+    <string name="settings_view_setting_row_manage_account">管理帐户</string>
+    <string name="settings_view_setting_row_logout">登出</string>
 </resources>
