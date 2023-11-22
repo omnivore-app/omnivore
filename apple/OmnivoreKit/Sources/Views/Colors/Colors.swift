@@ -29,6 +29,8 @@ public extension Color {
   static var themeLightestGray: Color { Color("_lightestGray", bundle: .module) }
   static var themeDarkWhiteGray: Color { Color("_darkWhiteGray", bundle: .module) }
   static var themeDarkGray: Color { Color("_darkGray", bundle: .module) }
+  static var themeLibraryItemSubtle: Color { Color("_themeLibraryItemSubtle", bundle: .module) }
+  static var themeFeatureBackground: Color { Color("_themeFeatureBackground", bundle: .module) }
 
   static var themeLabelOutline: Color { Color("_labelOutline", bundle: .module) }
   static var themeLabelForeground: Color { Color("_labelForeground", bundle: .module) }
