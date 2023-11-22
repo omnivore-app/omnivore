@@ -16,6 +16,7 @@ enum class WebFont(val displayText: String, val rawValue: String) {
   CRIMSON_TEXT("Crimson Text", "Crimson Text"),
   SOURCE_SERIF_PRO("Source Serif Pro", "Source Serif Pro"),
   NEWSREADER("Newsreader", "Newsreader"),
+  LEXEND("Lexend", "Lexend"),
   LXGWWENKAI("LXGW WenKai", "LXGWWenKai"),
   ATKINSON_HYPERLEGIBLE("Atkinson Hyperlegible", "AtkinsonHyperlegible"),
   SOURCE_SANS_PRO("Source Sans Pro", "SourceSansPro"),
