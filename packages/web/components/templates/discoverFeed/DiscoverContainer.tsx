@@ -35,6 +35,10 @@ export function DiscoverContainer(): JSX.Element {
       subTitle: 'What The Omnivore Community are reading right now...',
     },
     {
+      title: 'All',
+      subTitle: 'All the discover stories...',
+    },
+    {
       title: 'Technology',
       subTitle:
         'Stories about Gadgets, AI, Software and other technology related topics',

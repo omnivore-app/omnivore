@@ -22,7 +22,13 @@ const client = new Client({
 })
 
 const pubSubClient = new PubSub()
-const VALID_USERS = new Set(['podginator'])
+const VALID_USERS = new Set([
+  'danielprindii',
+  'riiku',
+  'hongbowu',
+  'mollydot',
+  'jackson.harper',
+]) // Will have missed people here
 const TOPIC_NAME = 'discordCommunityArticles'
 
 client.once(Events.ClientReady, () => {
@@ -36,7 +42,7 @@ const createMessageFromEmbed = (embed: Embed): OmnivoreArticle => {
     description: embed.description,
     image: embed.thumbnail.url,
     url: embed.url,
-    authors: '',
+    authors: embed.author.name ?? '',
     publishedAt: new Date(),
     site: embed.url,
     type: 'community',

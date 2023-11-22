@@ -22,7 +22,6 @@ import { userRepository } from '../../repository/user'
 import { v4 } from 'uuid'
 import { updateLibraryItem } from '../../services/library_item'
 import { LibraryItemState } from '../../entity/library_item'
-import { google } from '@google-cloud/pubsub/build/protos/protos'
 
 type DiscoverArticleDBRows = {
   rows: {
@@ -54,6 +53,25 @@ const getPopularTopics = (
       LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
       ORDER BY popularity_score DESC
+      LIMIT $2 OFFSET $3
+      `,
+    [uid, amt, after]
+  ) as Promise<DiscoverArticleDBRows>
+}
+
+const getAllTopics = (
+  queryRunner: QueryRunner,
+  uid: string,
+  after: string,
+  amt: number
+): Promise<DiscoverArticleDBRows> => {
+  return queryRunner.query(
+    `
+      SELECT id, title, slug, description, url, author, image, published_at, article_save_id, article_save_url
+      FROM omnivore.omnivore.discover_articles 
+      LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_save_link group by discover_article_id) sl on id=sl.article_id
+      LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
+      WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
       LIMIT $2 OFFSET $3
       `,
     [uid, amt, after]
@@ -107,22 +125,38 @@ export const getDiscoveryArticlesResolver = authorized<
       }
     }
 
-    const { rows: discoverArticles } =
-      discoveryTopicId != 'Popular'
-        ? await getTopicInformation(
-            queryRunner,
-            discoveryTopicId,
-            uid,
-            startCursor,
-            firstAmnt
-          )
-        : await getPopularTopics(queryRunner, uid, startCursor, firstAmnt)
+    let discoverArticles: DiscoverArticleDBRows = { rows: [] }
+    if (discoveryTopicId === 'Popular') {
+      discoverArticles = await getPopularTopics(
+        queryRunner,
+        uid,
+        startCursor,
+        firstAmnt
+      )
+    } else if (discoveryTopicId === 'All') {
+      console.log('What')
+      discoverArticles = await getAllTopics(
+        queryRunner,
+        uid,
+        startCursor,
+        firstAmnt
+      )
+      console.log(discoverArticles)
+    } else {
+      discoverArticles = await getTopicInformation(
+        queryRunner,
+        discoveryTopicId,
+        uid,
+        startCursor,
+        firstAmnt
+      )
+    }
 
     await queryRunner.release()
 
     return {
       __typename: 'GetDiscoveryArticleSuccess',
-      discoverArticles: discoverArticles.slice(0, firstAmnt).map((it) => ({
+      discoverArticles: discoverArticles.rows.slice(0, firstAmnt).map((it) => ({
         author: it.author,
         id: it.id,
         slug: it.slug,
@@ -139,12 +173,13 @@ export const getDiscoveryArticlesResolver = authorized<
       })),
       pageInfo: {
         endCursor: `${
-          Number(startCursor) + Math.min(discoverArticles.length, firstAmnt)
+          Number(startCursor) +
+          Math.min(discoverArticles.rows.length, firstAmnt)
         }`,
-        hasNextPage: discoverArticles.length > firstAmnt,
+        hasNextPage: discoverArticles.rows.length > firstAmnt,
         hasPreviousPage: Number(startCursor) != 0,
         startCursor: Number(startCursor).toString(),
-        totalCount: Math.min(discoverArticles.length, firstAmnt),
+        totalCount: Math.min(discoverArticles.rows.length, firstAmnt),
       },
     }
   } catch (error) {

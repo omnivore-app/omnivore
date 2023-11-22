@@ -1,6 +1,7 @@
 import { AiClient, Embedding } from '../../../types/AiClient'
 import { OpenAI } from 'openai'
 import { SUMMARISE_PROMPT } from './prompt'
+import { env } from '../../../env'
 
 export type OpenAiParams = {
   apiKey: string // defaults to process.env["OPEN_AI_KEY"]
@@ -11,9 +12,7 @@ export class OpenAiClient implements AiClient {
   tokenLimit = 4096
   embeddingLimit = 8191
 
-  constructor(
-    openAiParams: OpenAiParams = { apiKey: process.env['OPEN_AI_KEY']! }
-  ) {
+  constructor(openAiParams: OpenAiParams = { apiKey: env.openAiApiKey }) {
     this.client = new OpenAI(openAiParams)
   }
 

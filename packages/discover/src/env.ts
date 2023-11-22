@@ -14,10 +14,7 @@ interface BackendEnv {
     }
   }
   apiKey: string
-  aws: {
-    awsAccessKeyId: string
-    awsSecretAccessKey: string
-  }
+  openAiApiKey: string
   imageProxy: {
     url: string
     secretKey: string
@@ -55,10 +52,7 @@ export function getEnv(): BackendEnv {
   return {
     pg,
     apiKey: parse('OMNIVORE_API_KEY'),
-    aws: {
-      awsAccessKeyId: parse('AWS_ACCESS_KEY_ID'),
-      awsSecretAccessKey: parse('AWS_SECRET_ACCESS_KEY'),
-    },
+    openAiApiKey: parse('OPEN_AI_KEY'),
     imageProxy: {
       url: parse('IMAGE_PROXY_URL'),
       secretKey: parse('IMAGE_PROXY_SECRET'),

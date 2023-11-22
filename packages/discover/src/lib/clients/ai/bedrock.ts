@@ -27,10 +27,6 @@ export class BedrockClient implements AiClient {
         region: params.region,
         service: 'bedrock',
       },
-      credentials: {
-        accessKeyId: env.aws.awsAccessKeyId,
-        secretAccessKey: env.aws.awsSecretAccessKey,
-      },
     })
 
     this.client.interceptors.request.use(interceptor)
