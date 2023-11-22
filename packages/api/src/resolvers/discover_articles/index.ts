@@ -71,7 +71,7 @@ const getAllTopics = (
       FROM omnivore.omnivore.discover_articles 
       LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_save_link group by discover_article_id) sl on id=sl.article_id
       LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
-      WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
+      ORDER BY published_at DESC
       LIMIT $2 OFFSET $3
       `,
     [uid, amt, after]
@@ -125,6 +125,7 @@ export const getDiscoveryArticlesResolver = authorized<
       }
     }
 
+    log.info(discoveryTopicId)
     let discoverArticles: DiscoverArticleDBRows = { rows: [] }
     if (discoveryTopicId === 'Popular') {
       discoverArticles = await getPopularTopics(
@@ -134,14 +135,14 @@ export const getDiscoveryArticlesResolver = authorized<
         firstAmnt
       )
     } else if (discoveryTopicId === 'All') {
-      console.log('What')
+      log.info(discoveryTopicId)
       discoverArticles = await getAllTopics(
         queryRunner,
         uid,
         startCursor,
         firstAmnt
       )
-      console.log(discoverArticles)
+      log.info(discoverArticles)
     } else {
       discoverArticles = await getTopicInformation(
         queryRunner,
