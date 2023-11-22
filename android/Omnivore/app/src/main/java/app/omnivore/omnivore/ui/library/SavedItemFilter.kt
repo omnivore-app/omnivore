@@ -7,7 +7,8 @@ import androidx.compose.runtime.Composable
 
 enum class SavedItemFilter(val displayText: String, val rawValue: String, val queryString: String) {
   INBOX("Inbox", rawValue = "inbox", "in:inbox"),
-  READ_LATER("Read Later", "readlater", "in:inbox -label:Newsletter"),
+  READ_LATER("Non-Feed Items", "nonFeed", "no:subscription"),
+  FEEDS("Feeds", "feeds", "in:inbox label:RSS"),
   NEWSLETTERS("Newsletters", "newsletters", "in:inbox label:Newsletter"),
   RECOMMENDED("Recommended", "recommended", "recommendedBy:*"),
   ALL("All", "all", "in:all"),
@@ -32,6 +33,7 @@ fun SavedItemFilterContextMenu(
         SavedItemFilter.INBOX,
         SavedItemFilter.READ_LATER,
         SavedItemFilter.NEWSLETTERS,
+        SavedItemFilter.FEEDS,
         SavedItemFilter.ALL,
         SavedItemFilter.ARCHIVED,
         SavedItemFilter.FILES

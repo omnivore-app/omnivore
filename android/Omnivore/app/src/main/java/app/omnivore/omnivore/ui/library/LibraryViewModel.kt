@@ -211,15 +211,17 @@ class LibraryViewModel @Inject constructor(
 
       var requiredLabels = when(appliedFilterLiveData.value) {
         SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
+        SavedItemFilter.FEEDS -> listOf("RSS")
         else -> (activeLabelsLiveData.value ?: listOf()).map { it.name }
       }
+
      activeLabelsLiveData.value?.let {
        requiredLabels = requiredLabels + it.map { it.name }
      }
 
 
       val excludeLabels = when(appliedFilterLiveData.value) {
-        SavedItemFilter.READ_LATER -> listOf("Newsletter")
+        SavedItemFilter.READ_LATER -> listOf("Newsletter", "RSS")
         else -> listOf()
       }
 
