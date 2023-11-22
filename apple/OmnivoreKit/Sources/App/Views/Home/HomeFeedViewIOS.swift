@@ -482,7 +482,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           }
         }
-        .background(Color.isDarkMode ? Color(hex: "#1C1C1C") : Color.systemBackground)
+        .background(Color.themeFeatureBackground)
         .frame(height: 190)
 
         if !Color.isDarkMode {
@@ -567,7 +567,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             featureCard
               .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
               .listRowSeparator(.hidden, edges: .all)
-              .modifier(AnimatingCellHeight(height: 190 + (Color.isDarkMode ? 13 : 13)))
+              .modifier(AnimatingCellHeight(height: 190 + 13))
               .onDisappear {
                 withAnimation {
                   isListScrolled = true
