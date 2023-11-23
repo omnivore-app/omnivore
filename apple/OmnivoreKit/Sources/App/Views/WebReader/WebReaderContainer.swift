@@ -570,6 +570,7 @@ struct WebReaderContainerView: View {
             }
           }
       }
+
       #if os(iOS)
         VStack(spacing: 0) {
           navBar
@@ -620,6 +621,7 @@ struct WebReaderContainerView: View {
         .animation(.spring())
         .isOpaque(false)
     }
+    .ignoresSafeArea(.all, edges: .bottom)
     .onReceive(NSNotification.readerSnackBarPublisher) { notification in
       if let message = notification.userInfo?["message"] as? String {
         viewModel.snackbarOperation = SnackbarOperation(message: message,

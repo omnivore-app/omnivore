@@ -98,6 +98,7 @@ struct LinkItemDetailView: View {
         #endif
       }
     }
+    .ignoresSafeArea(.all, edges: .bottom)
     .task {
       await viewModel.loadItem(linkedItemObjectID: linkedItemObjectID, dataService: dataService)
     }
