@@ -69,7 +69,8 @@ export const saveLabelsInLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ) => {
   await authTrx(
     async (tx) => {
@@ -92,6 +93,10 @@ export const saveLabelsInLibraryItem = async (
     userId
   )
 
+  if (skipPubSub) {
+    return
+  }
+
   // create pubsub event
   await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
     EntityType.LABEL,
@@ -104,7 +109,8 @@ export const addLabelsToLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ) => {
   await authTrx(
     async (tx) => {
@@ -127,6 +133,10 @@ export const addLabelsToLibraryItem = async (
     undefined,
     userId
   )
+
+  if (skipPubSub) {
+    return
+  }
 
   // create pubsub event
   await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(

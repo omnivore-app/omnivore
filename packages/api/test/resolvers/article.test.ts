@@ -410,7 +410,8 @@ describe('Article API', () => {
             title,
             user: { id: user.id },
             originalUrl: url,
-            folder: 'archive',
+            archivedAt: new Date(),
+            state: LibraryItemState.Archived,
           },
           user.id
         )
@@ -608,7 +609,7 @@ describe('Article API', () => {
         ).expect(200)
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
-        expect(savedItem?.folder).to.eql('archive')
+        expect(savedItem?.archivedAt).to.not.be.null
         expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
     })
@@ -691,7 +692,7 @@ describe('Article API', () => {
         200
       )
       const item = await findLibraryItemById(itemId, user.id)
-      expect(item?.folder).to.eql('trash')
+      expect(item?.state).to.eql(LibraryItemState.Deleted)
     })
   })
 
@@ -1030,7 +1031,8 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
-              folder: 'archive',
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1038,7 +1040,8 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
-              folder: 'archive',
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1150,12 +1153,12 @@ describe('Article API', () => {
       })
     })
 
-    context("when in:inbox label:test' is in the query", () => {
+    context('when in:inbox no:subscription label:test is in the query', () => {
       let items: LibraryItem[] = []
       let label: Label
 
       before(async () => {
-        keyword = 'in:inbox label:test'
+        keyword = 'in:inbox no:subscription label:test'
         // Create some test items
         label = await createLabel('test', '', user.id)
         items = await createLibraryItems(
@@ -1169,17 +1172,27 @@ describe('Article API', () => {
             },
             {
               user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+              subscription: 'test subscription',
+            },
+            {
+              user,
               title: 'test title 3',
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
-              folder: 'archive',
+              archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
           ],
           user.id
         )
         await saveLabelsInLibraryItem([label], items[0].id, user.id)
         await saveLabelsInLibraryItem([label], items[1].id, user.id)
+        await saveLabelsInLibraryItem([label], items[2].id, user.id)
       })
 
       after(async () => {
@@ -1263,7 +1276,7 @@ describe('Article API', () => {
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
               itemType: PageType.File,
-              folder: 'archive',
+              archivedAt: new Date(),
             },
             {
               user,
@@ -1271,7 +1284,7 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
-              folder: 'archive',
+              archivedAt: new Date(),
               readingProgressBottomPercent: 100,
             },
             {
@@ -1313,7 +1326,7 @@ describe('Article API', () => {
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
               subscription: 'feed',
-              folder: 'archive',
+              archivedAt: new Date(),
             },
             {
               user,
@@ -1329,7 +1342,7 @@ describe('Article API', () => {
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
-              folder: 'archive',
+              archivedAt: new Date(),
             },
           ],
           user.id
@@ -1362,7 +1375,7 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
-              folder: 'trash',
+              deletedAt: new Date(),
             },
             {
               user,
@@ -1371,7 +1384,7 @@ describe('Article API', () => {
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
               readingProgressBottomPercent: 100,
-              folder: 'trash',
+              deletedAt: new Date(),
             },
             {
               user,
@@ -1733,7 +1746,7 @@ describe('Article API', () => {
       for (let i = 0; i < 3; i++) {
         await updateLibraryItem(
           items[i].id,
-          { folder: 'trash', savedAt: new Date() },
+          { state: LibraryItemState.Deleted, deletedAt: new Date() },
           user.id
         )
         deletedItems.push(items[i])

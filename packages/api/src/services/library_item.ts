@@ -9,8 +9,8 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { SaveFollowingItemRequest } from '../routers/svc/following'
-import { SetClaimsRole } from '../utils/dictionary'
 import { generateSlug, wordsCount } from '../utils/helpers'
+import { createThumbnailUrl } from '../utils/imageproxy'
 import {
   DateFilter,
   FieldFilter,
@@ -105,9 +105,24 @@ const buildWhereClause = (
   }
 
   if (args.inFilter !== InFilter.ALL) {
-    queryBuilder.andWhere('library_item.folder = :folder', {
-      folder: args.inFilter,
-    })
+    switch (args.inFilter) {
+      case InFilter.INBOX:
+        queryBuilder.andWhere('library_item.archived_at IS NULL')
+        break
+      case InFilter.ARCHIVE:
+        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+        break
+      case InFilter.TRASH:
+        // return only deleted pages within 14 days
+        queryBuilder.andWhere(
+          "library_item.deleted_at >= now() - interval '14 days'"
+        )
+        break
+      default:
+        queryBuilder.andWhere('library_item.folder = :folder', {
+          folder: args.inFilter,
+        })
+    }
   }
 
   if (args.readFilter !== ReadFilter.ALL) {
@@ -227,13 +242,13 @@ const buildWhereClause = (
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere("library_item.folder <> 'trash'")
+    queryBuilder.andWhere("library_item.state <> 'DELETED'")
   }
 
   if (args.noFilters) {
     args.noFilters.forEach((filter) => {
       queryBuilder.andWhere(
-        `library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL`
+        `(library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL)`
       )
     })
   }
@@ -365,6 +380,8 @@ export const restoreLibraryItem = async (
     {
       state: LibraryItemState.Succeeded,
       savedAt: new Date(),
+      archivedAt: null,
+      deletedAt: null,
     },
     userId,
     pubsub
@@ -380,6 +397,21 @@ export const updateLibraryItem = async (
   const updatedLibraryItem = await authTrx(
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
+
+      // reset deletedAt and archivedAt
+      switch (libraryItem.state) {
+        case LibraryItemState.Archived:
+          libraryItem.archivedAt = new Date()
+          break
+        case LibraryItemState.Deleted:
+          libraryItem.deletedAt = new Date()
+          break
+        case LibraryItemState.Processing:
+        case LibraryItemState.Succeeded:
+          libraryItem.archivedAt = null
+          libraryItem.deletedAt = null
+          break
+      }
       await itemRepo.update(id, libraryItem)
 
       return itemRepo.findOneByOrFail({ id })
@@ -519,31 +551,35 @@ export const createLibraryItem = async (
   return newLibraryItem
 }
 
-export const saveFeedItemInFollowing = (input: SaveFollowingItemRequest) => {
+export const saveFeedItemInFollowing = (
+  input: SaveFollowingItemRequest,
+  userId: string
+) => {
+  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
+
   return authTrx(
     async (tx) => {
-      const libraryItems: QueryDeepPartialEntity<LibraryItem>[] =
-        input.userIds.map((userId) => ({
-          ...input,
-          user: { id: userId },
-          originalUrl: input.url,
-          subscription: input.addedToFollowingBy,
-          folder: InFilter.FOLLOWING,
-          slug: generateSlug(input.title),
-        }))
+      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
+        ...input,
+        user: { id: userId },
+        originalUrl: input.url,
+        subscription: input.addedToFollowingBy,
+        folder: InFilter.FOLLOWING,
+        slug: generateSlug(input.title),
+        thumbnail,
+      }
 
       return tx
         .getRepository(LibraryItem)
         .createQueryBuilder()
         .insert()
-        .values(libraryItems)
+        .values(itemToSave)
         .orIgnore() // ignore if the item already exists
         .returning('*')
         .execute()
     },
     undefined,
-    undefined,
-    SetClaimsRole.ADMIN
+    userId
   )
 }
 
@@ -600,14 +636,14 @@ export const updateLibraryItems = async (
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        folder: InFilter.ARCHIVE,
-        savedAt: new Date(),
+        archivedAt: new Date(),
+        state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
       values = {
-        savedAt: new Date(),
-        folder: InFilter.TRASH,
+        state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
       }
       break
     case BulkActionType.AddLabels:

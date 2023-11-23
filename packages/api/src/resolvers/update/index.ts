@@ -1,3 +1,4 @@
+import { LibraryItemState } from '../../entity/library_item'
 import {
   MutationUpdatePageArgs,
   UpdatePageError,
@@ -20,6 +21,9 @@ export const updatePageResolver = authorized<
       savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
       publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
       thumbnail: input.previewImage ?? undefined,
+      state: input.state
+        ? (input.state as unknown as LibraryItemState)
+        : undefined,
     },
     uid
   )

@@ -19,6 +19,35 @@ interface RssFeedRequest {
 
 // link can be a string or an object
 type RssFeedItemLink = string | { $: { rel?: string; href: string } }
+type RssFeed = Parser.Output<{
+  published?: string
+  updated?: string
+  created?: string
+  link?: RssFeedItemLink
+  links?: RssFeedItemLink[]
+}> & {
+  lastBuildDate?: string
+  'syn:updatePeriod'?: string
+  'syn:updateFrequency'?: string
+  'sy:updatePeriod'?: string
+  'sy:updateFrequency'?: string
+}
+type RssFeedItemMedia = {
+  $: { url: string; width?: string; height?: string; medium?: string }
+}
+type RssFeedItem = Item & {
+  'media:thumbnail'?: RssFeedItemMedia
+  'media:content'?: RssFeedItemMedia[]
+}
+
+const getThumbnail = (item: RssFeedItem) => {
+  if (item['media:thumbnail']) {
+    return item['media:thumbnail'].$.url
+  }
+
+  return item['media:content']?.find((media) => media.$.medium === 'image')?.$
+    .url
+}
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
@@ -125,7 +154,7 @@ const sendUpdateSubscriptionMutation = async (
 const createTask = async (
   userId: string,
   feedUrl: string,
-  item: Item,
+  item: RssFeedItem,
   autoAddToLibrary: boolean
 ) => {
   if (autoAddToLibrary) {
@@ -138,7 +167,7 @@ const createTask = async (
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
-  item: Item
+  item: RssFeedItem
 ) => {
   const input = {
     userId,
@@ -167,7 +196,7 @@ const createSavingItemTask = async (
 const createFollowingTask = async (
   userId: string,
   feedUrl: string,
-  item: Item
+  item: RssFeedItem
 ) => {
   const input = {
     userIds: [userId],
@@ -181,6 +210,7 @@ const createFollowingTask = async (
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
     previewContentType: 'text/html', // TODO: get content type from feed
+    thumbnail: getThumbnail(item),
   }
 
   try {
@@ -217,6 +247,8 @@ const parser = new Parser({
       'published',
       'updated',
       'created',
+      ['media:content', 'media:content', { keepArray: true }],
+      ['media:thumbnail'],
     ],
     feed: [
       'lastBuildDate',
@@ -228,9 +260,9 @@ const parser = new Parser({
   },
 })
 
-const getUpdateFrequency = (feed: any) => {
-  const updateFrequency = (feed['syn:updateFrequency'] ||
-    feed['sy:updateFrequency']) as string | undefined
+const getUpdateFrequency = (feed: RssFeed) => {
+  const updateFrequency =
+    feed['syn:updateFrequency'] || feed['sy:updateFrequency']
 
   if (!updateFrequency) {
     return 1
@@ -244,10 +276,8 @@ const getUpdateFrequency = (feed: any) => {
   return frequency
 }
 
-const getUpdatePeriodInHours = (feed: any) => {
-  const updatePeriod = (feed['syn:updatePeriod'] || feed['sy:updatePeriod']) as
-    | string
-    | undefined
+const getUpdatePeriodInHours = (feed: RssFeed) => {
+  const updatePeriod = feed['syn:updatePeriod'] || feed['sy:updatePeriod']
 
   switch (updatePeriod) {
     case 'hourly':
@@ -301,19 +331,7 @@ const processSubscription = async (
   scheduledAt: number,
   lastFetchedChecksum: string,
   autoAddToLibrary: boolean,
-  feed: {
-    lastBuildDate: any
-    'syn:updatePeriod': any
-    'syn:updateFrequency': any
-    'sy:updatePeriod': any
-    'sy:updateFrequency': any
-  } & Parser.Output<{
-    published: any
-    updated: any
-    created: any
-    link: any
-    links: any[]
-  }>
+  feed: RssFeed
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -327,7 +345,7 @@ const processSubscription = async (
   // fetch feed
   let itemCount = 0
 
-  const feedLastBuildDate = feed.lastBuildDate as string | undefined
+  const feedLastBuildDate = feed.lastBuildDate
   console.log('Feed last build date', feedLastBuildDate)
   if (
     feedLastBuildDate &&
@@ -341,10 +359,7 @@ const processSubscription = async (
   for (const item of feed.items) {
     // use published or updated if isoDate is not available for atom feeds
     item.isoDate =
-      item.isoDate ||
-      (item.published as string) ||
-      (item.updated as string) ||
-      (item.created as string)
+      item.isoDate || item.published || item.updated || item.created
     console.log('Processing feed item', item.links, item.isoDate)
 
     if (!item.links || item.links.length === 0) {
@@ -352,7 +367,7 @@ const processSubscription = async (
       continue
     }
 
-    item.link = getLink(item.links as RssFeedItemLink[])
+    item.link = getLink(item.links)
     if (!item.link) {
       console.log('Invalid feed item links', item.links)
       continue

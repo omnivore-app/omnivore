@@ -261,6 +261,9 @@ export const parsedContentToLibraryItem = ({
     uploadFileId: uploadFileId || undefined,
     readingProgressTopPercent: 0,
     readingProgressHighestReadAnchor: 0,
+    state: state
+      ? (state as unknown as LibraryItemState)
+      : LibraryItemState.Succeeded,
     createdAt: validatedDate(saveTime),
     savedAt: validatedDate(saveTime),
     siteName: parsedContent?.siteName,
@@ -269,7 +272,8 @@ export const parsedContentToLibraryItem = ({
     wordCount: wordsCount(parsedContent?.textContent || ''),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
-    folder: state === ArticleSavingRequestStatus.Archived ? 'archive' : 'inbox',
-    state: LibraryItemState.Succeeded,
+    folder: 'inbox',
+    archivedAt:
+      state === ArticleSavingRequestStatus.Archived ? new Date() : null,
   }
 }
