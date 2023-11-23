@@ -171,22 +171,61 @@ const buildWhereClause = (
     if (includeLabels && includeLabels.length > 0) {
       includeLabels.forEach((includeLabel, i) => {
         const param = `includeLabels_${i}`
-        queryBuilder.andWhere(
-          `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
-          {
-            [param]: includeLabel.labels,
-          }
+        const hasWildcard = includeLabel.labels.some((label) =>
+          label.includes('*')
         )
+        if (hasWildcard) {
+          queryBuilder.andWhere(
+            new Brackets((qb) => {
+              includeLabel.labels.forEach((label, j) => {
+                const param = `includeLabels_${i}_${j}`
+                qb.orWhere(
+                  `array_to_string(array_cat(library_item.label_names, library_item.highlight_labels)::text[], ',') ILIKE :${param}`,
+                  {
+                    [param]: label.replace(/\*/g, '%'),
+                  }
+                )
+              })
+            })
+          )
+        } else {
+          queryBuilder.andWhere(
+            `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
+            {
+              [param]: includeLabel.labels,
+            }
+          )
+        }
       })
     }
 
     if (excludeLabels && excludeLabels.length > 0) {
-      queryBuilder.andWhere(
-        'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
-        {
-          excludeLabels: excludeLabels.flatMap((filter) => filter.labels),
-        }
-      )
+      const labels = excludeLabels.flatMap((filter) => filter.labels)
+
+      const hasWildcard = labels.some((label) => label.includes('*'))
+
+      if (hasWildcard) {
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            labels.forEach((label, i) => {
+              const param = `excludeLabels_${i}`
+              qb.andWhere(
+                `array_to_string(array_cat(library_item.label_names, library_item.highlight_labels)::text[], ',') NOT ILIKE :${param}`,
+                {
+                  [param]: label.replace(/\*/g, '%'),
+                }
+              )
+            })
+          })
+        )
+      } else {
+        queryBuilder.andWhere(
+          'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
+          {
+            excludeLabels: labels,
+          }
+        )
+      }
     }
   }
 
