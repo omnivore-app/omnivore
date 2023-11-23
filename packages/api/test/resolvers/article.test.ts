@@ -1222,6 +1222,13 @@ describe('Article API', () => {
               slug: 'test slug wildcard 1',
               originalUrl: `${url}/wildcard_1`,
             },
+            {
+              user,
+              title: 'test title wildcard 2',
+              readableContent: '<p>test wildcard</p>',
+              slug: 'test slug wildcard 2',
+              originalUrl: `${url}/wildcard_2`,
+            },
           ],
           user.id
         )
