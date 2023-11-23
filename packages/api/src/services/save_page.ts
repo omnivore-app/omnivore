@@ -97,6 +97,7 @@ export const savePage = async (
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
+    folder: input.folder,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
@@ -110,6 +111,7 @@ export const savePage = async (
         articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,
         labels: input.labels || undefined,
+        folder: input.folder || undefined,
       })
     } catch (e) {
       return {
@@ -216,6 +218,7 @@ export const parsedContentToLibraryItem = ({
   publishedAt,
   state,
   rssFeedUrl,
+  folder,
 }: {
   url: string
   userId: string
@@ -234,6 +237,7 @@ export const parsedContentToLibraryItem = ({
   publishedAt?: Date | null
   state?: ArticleSavingRequestStatus | null
   rssFeedUrl?: string | null
+  folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   return {
     id: itemId || undefined,
@@ -272,7 +276,7 @@ export const parsedContentToLibraryItem = ({
     wordCount: wordsCount(parsedContent?.textContent || ''),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
-    folder: 'inbox',
+    folder: folder || 'inbox',
     archivedAt:
       state === ArticleSavingRequestStatus.Archived ? new Date() : null,
   }

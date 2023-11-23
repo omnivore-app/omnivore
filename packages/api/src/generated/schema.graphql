@@ -228,6 +228,7 @@ enum CreateArticleErrorCode {
 
 input CreateArticleInput {
   articleSavingRequestId: ID
+  folder: String
   labels: [CreateLabelInput!]
   preparedDocument: PreparedDocumentInput
   skipParsing: Boolean
@@ -1665,6 +1666,7 @@ enum SaveErrorCode {
 
 input SaveFileInput {
   clientRequestId: ID!
+  folder: String
   labels: [CreateLabelInput!]
   source: String!
   state: ArticleSavingRequestStatus
@@ -1698,6 +1700,7 @@ type SaveFilterSuccess {
 
 input SavePageInput {
   clientRequestId: ID!
+  folder: String
   labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
@@ -1719,6 +1722,7 @@ type SaveSuccess {
 
 input SaveUrlInput {
   clientRequestId: ID!
+  folder: String
   labels: [CreateLabelInput!]
   locale: String
   publishedAt: Date

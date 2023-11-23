@@ -35,6 +35,7 @@ interface PageSaveRequest {
   timezone?: string
   savedAt?: Date
   publishedAt?: Date
+  folder?: string
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -89,6 +90,7 @@ export const createPageSaveRequest = async ({
   timezone,
   savedAt,
   publishedAt,
+  folder,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -125,6 +127,7 @@ export const createPageSaveRequest = async ({
         originalUrl: url,
         state: LibraryItemState.Processing,
         publishedAt,
+        folder,
       },
       userId,
       pubsub
@@ -157,6 +160,7 @@ export const createPageSaveRequest = async ({
     timezone,
     savedAt,
     publishedAt,
+    folder,
   })
 
   return libraryItemToArticleSavingRequest(user, libraryItem)

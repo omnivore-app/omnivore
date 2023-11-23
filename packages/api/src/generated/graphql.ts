@@ -271,6 +271,7 @@ export enum CreateArticleErrorCode {
 
 export type CreateArticleInput = {
   articleSavingRequestId?: InputMaybe<Scalars['ID']>;
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   preparedDocument?: InputMaybe<PreparedDocumentInput>;
   skipParsing?: InputMaybe<Scalars['Boolean']>;
@@ -2205,6 +2206,7 @@ export enum SaveErrorCode {
 
 export type SaveFileInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
@@ -2240,6 +2242,7 @@ export type SaveFilterSuccess = {
 
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
@@ -2262,6 +2265,7 @@ export type SaveSuccess = {
 
 export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   locale?: InputMaybe<Scalars['String']>;
   publishedAt?: InputMaybe<Scalars['Date']>;
