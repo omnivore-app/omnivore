@@ -2,20 +2,20 @@
   "name": "@omnivore/discover",
   "version": "0.0.1",
   "scripts": {
-    "execute": "ts-node ./src/index.ts",
-    "start-server": "ts-node ./api/index.ts"
+    "build": "tsc",
+    "dev": "ts-node-dev --files src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
+    "test:typecheck": "tsc --noEmit",
+    "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000"
   },
   "dependencies": {
-    "@types/jsdom": "^21.1.3",
-    "@types/pg-format": "^1.0.3",
     "aws4-axios": "^3.3.0",
     "axios": "^1.5.1",
     "dotenv": "^16.3.1",
     "fast-xml-parser": "^4.3.2",
     "html-to-text": "^9.0.5",
-    "jsdoc": "^4.0.2",
-    "jsdom": "^22.1.0",
-    "jsoup": "^1.0.0",
     "lodash": "^4.17.21",
     "openai": "^4.11.1",
     "pg": "^8.11.3",
@@ -23,10 +23,14 @@
     "pgvector": "^0.1.5",
     "postgres": "^3.4.0",
     "rxjs": "^7.8.1",
-    "voca": "^1.4.1",
-    "@google-cloud/pubsub": "^4.0.7"
+    "@google-cloud/pubsub": "^4.0.0",
+    "uuid": "^9.0.1",
+    "urlsafe-base64": "^1.0.0"
+
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.3",
+    "@types/pg-format": "^1.0.3",
     "@types/html-to-text": "^9.0.2",
     "@types/lodash": "^4.14.201",
     "@types/node": "^20.8.4",
@@ -35,6 +39,7 @@
     "ts-node": "^10.9.1",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
-    "uuid": "^9.0.1"
+    "@types/uuid": "^9.0.1",
+    "@types/urlsafe-base64": "^1.0.28"
   }
 }

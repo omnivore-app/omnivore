@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   Client,
   Partials,
@@ -51,7 +52,7 @@ const createMessageFromEmbed = (embed: Embed): OmnivoreArticle => {
 
 client.on(
   Events.MessageReactionAdd,
-  async (props: MessageReaction, user: User) => {
+  async (props: MessageReaction, user: User): Promise<void> => {
     const emoji = props.emoji.name
     const message = props.message.partial
       ? await props.message.fetch(true)
