@@ -1,12 +1,24 @@
+import axios from 'axios'
+import { parseHTML } from 'linkedom'
 import Parser from 'rss-parser'
 import { Brackets } from 'typeorm'
 import { Subscription } from '../../entity/subscription'
 import { env } from '../../env'
 import {
+  FeedEdge,
+  FeedsError,
+  FeedsErrorCode,
+  FeedsSuccess,
   MutationSubscribeArgs,
   MutationUnsubscribeArgs,
   MutationUpdateSubscriptionArgs,
+  QueryFeedsArgs,
+  QueryScanFeedsArgs,
   QuerySubscriptionsArgs,
+  ScanFeedsError,
+  ScanFeedsErrorCode,
+  ScanFeedsSuccess,
+  ScanFeedsType,
   SortBy,
   SortOrder,
   SubscribeError,
@@ -25,11 +37,13 @@ import {
   UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
+import { feedRepository } from '../../repository/feed'
 import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
+import { parseFeed, parseOpml } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -175,7 +189,7 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { authTrx, uid, log }) => {
+>(async (_, { input }, { uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -224,7 +238,12 @@ export const subscribeResolver = authorized<
     // create new rss subscription
     const MAX_RSS_SUBSCRIPTIONS = 150
     // validate rss feed
-    const feed = await parser.parseURL(input.url)
+    const feed = await parseFeed(input.url)
+    if (!feed) {
+      return {
+        errorCodes: [SubscribeErrorCode.NotFound],
+      }
+    }
 
     // limit number of rss subscriptions to 150
     const results = (await getRepository(Subscription).query(
@@ -235,11 +254,11 @@ export const subscribeResolver = authorized<
           returning *;`,
       [
         feed.title,
-        feed.feedUrl,
+        feed.url,
         feed.description || null,
         SubscriptionType.Rss,
         uid,
-        feed.image?.url || null,
+        feed.thumbnail || null,
         input.autoAddToLibrary ?? null,
         input.isPrivate ?? null,
         MAX_RSS_SUBSCRIPTIONS,
@@ -333,6 +352,135 @@ export const updateSubscriptionResolver = authorized<
     log.error('failed to update subscription', error)
     return {
       errorCodes: [UpdateSubscriptionErrorCode.BadRequest],
+    }
+  }
+})
+
+export const feedsResolver = authorized<
+  FeedsSuccess,
+  FeedsError,
+  QueryFeedsArgs
+>(async (_, { input }, { log }) => {
+  try {
+    const startCursor = input.after || ''
+    const start =
+      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+    const first = Math.min(input.first || 10, 100) // cap at 100
+
+    const { feeds, count } = await feedRepository.searchFeeds(
+      input.query || '',
+      first + 1, // fetch one extra to check if there is a next page
+      start,
+      input.sort?.by,
+      input.sort?.order || undefined
+    )
+
+    const hasNextPage = feeds.length > first
+    const endCursor = String(start + feeds.length - (hasNextPage ? 1 : 0))
+
+    if (hasNextPage) {
+      // remove an extra if exists
+      feeds.pop()
+    }
+
+    const edges: FeedEdge[] = feeds.map((feed) => ({
+      node: feed,
+      cursor: endCursor,
+    }))
+
+    return {
+      __typename: 'FeedsSuccess',
+      edges,
+      pageInfo: {
+        hasPreviousPage: start > 0,
+        hasNextPage,
+        startCursor,
+        endCursor,
+        totalCount: count,
+      },
+    }
+  } catch (error) {
+    log.error('Error fetching feeds', error)
+
+    return {
+      errorCodes: [FeedsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const scanFeedsResolver = authorized<
+  ScanFeedsSuccess,
+  ScanFeedsError,
+  QueryScanFeedsArgs
+>(async (_, { input: { type, opml, url } }, { log, uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'scan_feeds',
+    properties: {
+      type,
+    },
+  })
+
+  if (type === ScanFeedsType.Opml) {
+    if (!opml) {
+      return {
+        errorCodes: [ScanFeedsErrorCode.BadRequest],
+      }
+    }
+
+    // parse opml
+    const feeds = parseOpml(opml)
+    if (!feeds) {
+      return {
+        errorCodes: [ScanFeedsErrorCode.BadRequest],
+      }
+    }
+
+    return {
+      __typename: 'ScanFeedsSuccess',
+      feeds: feeds.map((feed) => ({
+        url: feed.url,
+        title: feed.title,
+        type: feed.type || 'rss',
+      })),
+    }
+  }
+
+  if (!url) {
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
+    }
+  }
+
+  try {
+    // fetch HTML and parse feeds
+    const response = await axios.get(url, {
+      timeout: 5000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        Accept: 'text/html',
+      },
+    })
+    const html = response.data as string
+    const dom = parseHTML(html).document
+    const links = dom.querySelectorAll('link[type="application/rss+xml"]')
+    const feeds = Array.from(links)
+      .map((link) => ({
+        url: link.getAttribute('href') || '',
+        title: link.getAttribute('title') || '',
+        type: 'rss',
+      }))
+      .filter((feed) => feed.url)
+
+    return {
+      __typename: 'ScanFeedsSuccess',
+      feeds,
+    }
+  } catch (error) {
+    log.error('Error scanning HTML', error)
+
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
     }
   }
 })

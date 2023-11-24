@@ -29,7 +29,6 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { optInFeatureResolver } from './features'
-import { feedsResolver, moveToFolderResolver } from './following'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -53,6 +52,7 @@ import {
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
+  feedsResolver,
   filtersResolver,
   generateApiKeyResolver,
   getAllUsersResolver,
@@ -76,6 +76,7 @@ import {
   mergeHighlightResolver,
   moveFilterResolver,
   moveLabelResolver,
+  moveToFolderResolver,
   newsletterEmailsResolver,
   recommendHighlightsResolver,
   recommendResolver,
@@ -88,6 +89,7 @@ import {
   saveFilterResolver,
   savePageResolver,
   saveUrlResolver,
+  scanFeedsResolver,
   searchResolver,
   sendInstallInstructionsResolver,
   setBookmarkArticleResolver,
@@ -249,6 +251,7 @@ export const functionResolvers = {
     groups: groupsResolver,
     recentEmails: recentEmailsResolver,
     feeds: feedsResolver,
+    scanFeeds: scanFeedsResolver,
   },
   User: {
     async intercomHash(

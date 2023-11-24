@@ -12,6 +12,7 @@ import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
 import { ElementNode } from 'node-html-markdown/dist/nodes'
+import Parser from 'rss-parser'
 import { parser } from 'sax'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
@@ -35,12 +36,22 @@ import { buildLogger, LogRecord } from './logger'
 interface Feed {
   title: string
   url: string
-  feedUrl: string
-  feedType: string
+  type: string
+  thumbnail?: string
+  description?: string
 }
 
 const logger = buildLogger('utils.parse')
 const signToken = promisify(jwt.sign)
+
+const axiosInstance = axios.create({
+  timeout: 5000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0',
+    Accept: 'text/html',
+  },
+  responseType: 'text',
+})
 
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
@@ -712,6 +723,16 @@ export const getDistillerResult = async (
   }
 }
 
+const fetchHtml = async (url: string): Promise<string | undefined> => {
+  try {
+    const response = await axiosInstance.get(url)
+    return response.data as string
+  } catch (error) {
+    logger.error('Error fetching html', error)
+    return undefined
+  }
+}
+
 export const parseOpml = (opml: string): Feed[] | undefined => {
   const xmlParser = parser(true, { lowercase: true })
   const feeds: Feed[] = []
@@ -723,13 +744,9 @@ export const parseOpml = (opml: string): Feed[] | undefined => {
       const feedUrl = node.attributes.xmlUrl.toString()
       if (feedUrl && !existingFeeds.has(feedUrl)) {
         feeds.push({
-          title:
-            node.attributes.title.toString() ||
-            node.attributes.text.toString() ||
-            node.attributes.description.toString(),
-          url: node.attributes.htmlUrl.toString(),
-          feedUrl: feedUrl.toString(),
-          feedType: node.attributes.type.toString(),
+          title: node.attributes.title.toString() || '',
+          url: feedUrl,
+          type: node.attributes.type.toString() || 'rss',
         })
         existingFeeds.set(feedUrl, true)
       }
@@ -744,6 +761,80 @@ export const parseOpml = (opml: string): Feed[] | undefined => {
     xmlParser.write(opml).close()
   } catch (error) {
     logger.error('Error parsing opml', error)
+    return undefined
+  }
+}
+
+export const parseHtml = async (url: string): Promise<Feed[] | undefined> => {
+  // fetch HTML and parse feeds
+  const html = await fetchHtml(url)
+  if (!html) return undefined
+
+  try {
+    const dom = parseHTML(html).document
+    const links = dom.querySelectorAll('link[type="application/rss+xml"]')
+    const feeds = Array.from(links)
+      .map((link) => ({
+        url: link.getAttribute('href') || '',
+        title: link.getAttribute('title') || '',
+        type: 'rss',
+      }))
+      .filter((feed) => feed.url)
+
+    return feeds
+  } catch (error) {
+    logger.error('Error parsing html', error)
+    return undefined
+  }
+}
+
+export const parseFeed = async (url: string): Promise<Feed | undefined> => {
+  try {
+    // check if url is a telegram channel
+    const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
+    const telegramMatch = url.match(telegramRegex)
+    if (telegramMatch) {
+      // fetch HTML and parse feeds
+      const html = await fetchHtml(url)
+      if (!html) return undefined
+
+      const dom = parseHTML(html).document
+      const title = dom.querySelector('meta[property="og:title"]')
+      const thumbnail = dom.querySelector('meta[property="og:image"]')
+      const description = dom.querySelector('meta[property="og:description"]')
+
+      return {
+        title: title?.getAttribute('content') || url,
+        url,
+        type: 'telegram',
+        thumbnail: thumbnail?.getAttribute('content') || '',
+        description: description?.getAttribute('content') || '',
+      }
+    }
+
+    const parser = new Parser({
+      timeout: 5000, // 5 seconds
+      headers: {
+        // some rss feeds require user agent
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+        Accept:
+          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
+      },
+    })
+
+    const feed = await parser.parseURL(url)
+    const feedUrl = feed.feedUrl || url
+
+    return {
+      title: feed.title || feedUrl,
+      url: feedUrl,
+      thumbnail: feed.image?.url,
+      type: 'rss',
+      description: feed.description,
+    }
+  } catch (error) {
+    logger.error('Error parsing feed', error)
     return undefined
   }
 }
