@@ -3,6 +3,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
+import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
@@ -84,6 +85,48 @@ export const fetchAndChecksum = async (url: string) => {
   } catch (error) {
     console.log(error)
     throw new Error(`Failed to fetch or hash content from ${url}.`)
+  }
+}
+
+const parseFeed = async (url: string, content: string) => {
+  try {
+    // check if url is a telegram channel
+    const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
+    const telegramMatch = url.match(telegramRegex)
+    if (telegramMatch) {
+      const dom = parseHTML(content).document
+      const title = dom.querySelector('meta[property="og:title"]')
+      // post has attribute data-post
+      const posts = dom.querySelectorAll('[data-post]')
+      const items = Array.from(posts)
+        .map((post) => {
+          const id = post.getAttribute('data-post')
+          if (!id) {
+            return null
+          }
+
+          const url = `https://t.me/${telegramMatch[1]}/${id}`
+          // find the <time> element
+          const time = post.querySelector('time')
+          const dateTime = time?.getAttribute('datetime') || undefined
+
+          return {
+            link: url,
+            isoDate: dateTime,
+          }
+        })
+        .filter((item) => !!item) as RssFeedItem[]
+
+      return {
+        title: title?.getAttribute('content') || dom.title,
+        items,
+      }
+    }
+
+    return parser.parseString(content)
+  } catch (error) {
+    console.log(error)
+    return null
   }
 }
 
@@ -477,7 +520,12 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
-      const feed = await parser.parseString(fetchResult.content)
+      const feed = await parseFeed(feedUrl, fetchResult.content)
+      if (!feed) {
+        console.error('Failed to parse RSS feed', feedUrl)
+        return res.status(500).send('INVALID_RSS_FEED')
+      }
+
       console.log('Fetched feed', feed.title, new Date())
 
       await Promise.all(
@@ -498,7 +546,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       res.send('ok')
     } catch (e) {
-      console.error('Error while parsing RSS feed', e)
+      console.error('Error while saving RSS feeds', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
     }
   }

@@ -723,13 +723,13 @@ export const getDistillerResult = async (
   }
 }
 
-const fetchHtml = async (url: string): Promise<string | undefined> => {
+const fetchHtml = async (url: string): Promise<string | null> => {
   try {
     const response = await axiosInstance.get(url)
     return response.data as string
   } catch (error) {
     logger.error('Error fetching html', error)
-    return undefined
+    return null
   }
 }
 
@@ -788,7 +788,7 @@ export const parseHtml = async (url: string): Promise<Feed[] | undefined> => {
   }
 }
 
-export const parseFeed = async (url: string): Promise<Feed | undefined> => {
+export const parseFeed = async (url: string): Promise<Feed | null> => {
   try {
     // check if url is a telegram channel
     const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
@@ -796,7 +796,7 @@ export const parseFeed = async (url: string): Promise<Feed | undefined> => {
     if (telegramMatch) {
       // fetch HTML and parse feeds
       const html = await fetchHtml(url)
-      if (!html) return undefined
+      if (!html) return null
 
       const dom = parseHTML(html).document
       const title = dom.querySelector('meta[property="og:title"]')
@@ -835,6 +835,6 @@ export const parseFeed = async (url: string): Promise<Feed | undefined> => {
     }
   } catch (error) {
     logger.error('Error parsing feed', error)
-    return undefined
+    return null
   }
 }
