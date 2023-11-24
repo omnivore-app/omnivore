@@ -644,13 +644,14 @@ type Feature {
 
 type Feed {
   author: String
-  createdAt: Date!
+  createdAt: Date
   description: String
-  id: ID!
+  id: ID
   image: String
   publishedAt: Date
   title: String!
-  updatedAt: Date!
+  type: String
+  updatedAt: Date
   url: String!
 }
 
@@ -1364,6 +1365,7 @@ type Query {
   recentEmails: RecentEmailsResult!
   recentSearches: RecentSearchesResult!
   rules(enabled: Boolean): RulesResult!
+  scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
@@ -1727,6 +1729,31 @@ input SaveUrlInput {
   state: ArticleSavingRequestStatus
   timezone: String
   url: String!
+}
+
+type ScanFeedsError {
+  errorCodes: [ScanFeedsErrorCode!]!
+}
+
+enum ScanFeedsErrorCode {
+  BAD_REQUEST
+}
+
+input ScanFeedsInput {
+  opml: String
+  type: ScanFeedsType!
+  url: String
+}
+
+union ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess
+
+type ScanFeedsSuccess {
+  feeds: [Feed!]!
+}
+
+enum ScanFeedsType {
+  HTML
+  OPML
 }
 
 type SearchError {

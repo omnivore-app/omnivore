@@ -12,6 +12,7 @@ import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
 import { ElementNode } from 'node-html-markdown/dist/nodes'
+import { parser } from 'sax'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
@@ -30,6 +31,13 @@ import {
 } from './highlightGenerator'
 import { createImageProxyUrl } from './imageproxy'
 import { buildLogger, LogRecord } from './logger'
+
+interface Feed {
+  title: string
+  url: string
+  feedUrl: string
+  feedType: string
+}
 
 const logger = buildLogger('utils.parse')
 const signToken = promisify(jwt.sign)
@@ -700,6 +708,42 @@ export const getDistillerResult = async (
     } else {
       logger.error(error)
     }
+    return undefined
+  }
+}
+
+export const parseOpml = (opml: string): Feed[] | undefined => {
+  const xmlParser = parser(true, { lowercase: true })
+  const feeds: Feed[] = []
+  const existingFeeds = new Map<string, boolean>()
+
+  xmlParser.onopentag = function (node) {
+    if (node.name === 'outline') {
+      // folders also are outlines, make sure an xmlUrl is available
+      const feedUrl = node.attributes.xmlUrl.toString()
+      if (feedUrl && !existingFeeds.has(feedUrl)) {
+        feeds.push({
+          title:
+            node.attributes.title.toString() ||
+            node.attributes.text.toString() ||
+            node.attributes.description.toString(),
+          url: node.attributes.htmlUrl.toString(),
+          feedUrl: feedUrl.toString(),
+          feedType: node.attributes.type.toString(),
+        })
+        existingFeeds.set(feedUrl, true)
+      }
+    }
+  }
+
+  xmlParser.onend = function () {
+    return feeds
+  }
+
+  try {
+    xmlParser.write(opml).close()
+  } catch (error) {
+    logger.error('Error parsing opml', error)
     return undefined
   }
 }

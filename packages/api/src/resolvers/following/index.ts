@@ -1,3 +1,5 @@
+import axios from 'axios'
+import { parseHTML } from 'linkedom'
 import { LibraryItem } from '../../entity/library_item'
 import {
   FeedEdge,
@@ -9,6 +11,11 @@ import {
   MoveToFolderSuccess,
   MutationMoveToFolderArgs,
   QueryFeedsArgs,
+  QueryScanFeedsArgs,
+  ScanFeedsError,
+  ScanFeedsErrorCode,
+  ScanFeedsSuccess,
+  ScanFeedsType,
 } from '../../generated/graphql'
 import { feedRepository } from '../../repository/feed'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
@@ -18,6 +25,7 @@ import {
   authorized,
   libraryItemToArticleSavingRequest,
 } from '../../utils/helpers'
+import { parseOpml } from '../../utils/parser'
 
 export const feedsResolver = authorized<
   FeedsSuccess,
@@ -142,5 +150,82 @@ export const moveToFolderResolver = authorized<
       updatedItem.user,
       updatedItem
     ),
+  }
+})
+
+export const scanFeedsResolver = authorized<
+  ScanFeedsSuccess,
+  ScanFeedsError,
+  QueryScanFeedsArgs
+>(async (_, { input: { type, opml, url } }, { log, uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'scan_feeds',
+    properties: {
+      type,
+    },
+  })
+
+  if (type === ScanFeedsType.Opml) {
+    if (!opml) {
+      return {
+        errorCodes: [ScanFeedsErrorCode.BadRequest],
+      }
+    }
+
+    // parse opml
+    const feeds = parseOpml(opml)
+    if (!feeds) {
+      return {
+        errorCodes: [ScanFeedsErrorCode.BadRequest],
+      }
+    }
+
+    return {
+      __typename: 'ScanFeedsSuccess',
+      feeds: feeds.map((feed) => ({
+        url: feed.feedUrl,
+        title: feed.title,
+        type: feed.feedType || 'rss',
+      })),
+    }
+  }
+
+  if (!url) {
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
+    }
+  }
+
+  try {
+    // fetch HTML and parse feeds
+    const response = await axios.get(url, {
+      timeout: 5000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        Accept: 'text/html',
+      },
+    })
+    const html = response.data as string
+    const dom = parseHTML(html).document
+    const links = dom.querySelectorAll('link[type="application/rss+xml"]')
+    const feeds = Array.from(links)
+      .map((link) => ({
+        url: link.getAttribute('href') || '',
+        title: link.getAttribute('title') || '',
+        type: 'rss',
+      }))
+      .filter((feed) => feed.url)
+
+    return {
+      __typename: 'ScanFeedsSuccess',
+      feeds,
+    }
+  } catch (error) {
+    log.error('Error scanning HTML', error)
+
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
+    }
   }
 })

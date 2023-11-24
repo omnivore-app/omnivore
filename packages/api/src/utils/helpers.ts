@@ -30,7 +30,6 @@ import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
 import { logger } from './logger'
-import { InFilter } from './search'
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
