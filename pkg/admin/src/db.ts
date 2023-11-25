@@ -422,7 +422,6 @@ export class GroupMembership extends BaseEntity {
   user!: User
 
   @JoinColumn({ name: 'group_id' })
-  @ManyToOne(() => User, (user) => user.articles, { eager: true })
   group!: Group
 
   @Column({ type: 'timestamp', name: 'created_at' })
