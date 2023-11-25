@@ -340,6 +340,9 @@ export class LibraryItem extends BaseEntity {
   @Column('text', { nullable: true })
   subscription?: string | null
 
+  @Column('text', { array: true, nullable: true })
+  recommender_names?: string[] | null
+
   @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'upload_file_id' })
   uploadFile?: UploadFile
