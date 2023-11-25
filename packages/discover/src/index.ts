@@ -10,17 +10,17 @@ import { putImageInProxy$ } from './lib/clients/omnivore/imageProxy'
 import { communityArticles$ } from './lib/inputSources/articles/communityArticles'
 
 const enrichedArticles$ = (): Observable<OmnivoreArticle> => {
-  return merge(communityArticles$, rss$)
+  return merge(communityArticles$, rss$) as Observable<OmnivoreArticle>
 }
 
-;(async () => {
+;(() => {
   enrichedArticles$()
     .pipe(
       removeDuplicateArticles$,
       addEmbeddingToArticle$,
       addTopicsToArticle$,
       putImageInProxy$,
-      insertArticleToStore$
+      insertArticleToStore$,
     )
-    .subscribe((it) => {})
+    .subscribe((_it) => {})
 })()

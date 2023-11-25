@@ -71,7 +71,7 @@ export class User {
 
   @OneToOne(
     () => UserPersonalization,
-    (userPersonalization) => userPersonalization.user
+    (userPersonalization) => userPersonalization.user,
   )
   userPersonalization!: UserPersonalization
 }

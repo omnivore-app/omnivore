@@ -7,7 +7,7 @@ import { createPageSaveRequest } from './create_page_save_request'
 
 export const saveUrl = async (
   input: SaveUrlInput,
-  user: User
+  user: User,
 ): Promise<SaveResult> => {
   try {
     const pageSaveRequest = await createPageSaveRequest({
@@ -40,7 +40,7 @@ export const saveUrl = async (
 export const saveUrlFromEmail = async (
   url: string,
   clientRequestId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
   const user = await userRepository.findById(userId)
   if (!user) {
@@ -53,7 +53,7 @@ export const saveUrlFromEmail = async (
       clientRequestId,
       source: 'email',
     },
-    user
+    user,
   )
   if (result.__typename === 'SaveError') {
     return false

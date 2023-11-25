@@ -1,6 +1,6 @@
-import { PageMetaData } from '../../../components/patterns/PageMetaData'
-import { Webhooks } from '../../../components/templates/integrations/Webhooks'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+import { PageMetaData } from "../../../components/patterns/PageMetaData"
+import { Webhooks } from "../../../components/templates/integrations/Webhooks"
+import { SettingsLayout } from "../../../components/templates/SettingsLayout"
 
 export default function ReadwisePage(): JSX.Element {
   return (

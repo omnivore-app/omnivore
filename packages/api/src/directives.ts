@@ -8,7 +8,7 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
       const sanitizeDirective = getDirective(
         schema,
         fieldConfig,
-        'sanitize'
+        'sanitize',
       )?.[0]
       if (!sanitizeDirective) {
         return fieldConfig
@@ -29,8 +29,8 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
             allowedTags,
             maxLength,
             minLength,
-            pattern
-          )
+            pattern,
+          ),
         )
       } else if (fieldConfig.type instanceof GraphQLScalarType) {
         fieldConfig.type = new SanitizedString(
@@ -38,7 +38,7 @@ export const sanitizeDirectiveTransformer = (schema: GraphQLSchema) => {
           allowedTags,
           maxLength,
           minLength,
-          pattern
+          pattern,
         )
       } else {
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

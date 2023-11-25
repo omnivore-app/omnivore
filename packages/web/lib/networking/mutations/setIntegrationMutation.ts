@@ -6,7 +6,7 @@ export enum ImportItemState {
   All = 'ALL',
   Archived = 'ARCHIVED',
   Unarchived = 'UNARCHIVED',
-  Unread = 'UNREAD'
+  Unread = 'UNREAD',
 }
 
 export type SetIntegrationInput = {

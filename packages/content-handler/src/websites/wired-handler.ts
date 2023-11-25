@@ -16,17 +16,17 @@ export class WiredHandler extends ContentHandler {
 
   removeNonArticleNodes(document: Document): Document {
     const genericCallouts = Array.from(
-      document.querySelectorAll('[data-testid="GenericCallout"]')
+      document.querySelectorAll('[data-testid="GenericCallout"]'),
     )
     const ads = Array.from(document.querySelectorAll('.ad__slot')).map(
-      (it) => it.parentElement
+      (it) => it.parentElement,
     )
     const mostPopularArticles = Array.from(
-      document.querySelectorAll('[data-most-popular-id]')
+      document.querySelectorAll('[data-most-popular-id]'),
     )
 
-    ;[...genericCallouts, ...ads, ...mostPopularArticles].forEach((it) =>
-      it?.remove()
+    ;[...genericCallouts, ...ads, ...mostPopularArticles].forEach(
+      (it) => it?.remove(),
     )
 
     return document

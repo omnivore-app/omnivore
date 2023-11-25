@@ -16,7 +16,7 @@ export const needsPopulating = (article: OmnivoreArticle) => {
 }
 
 const setArticleDescription = async (
-  article: OmnivoreArticle
+  article: OmnivoreArticle,
 ): Promise<OmnivoreArticle> => {
   const client = await omnivoreClient
   const { content } = await client.fetchPage(article.slug)
@@ -31,7 +31,7 @@ export const setArticleDescriptionAsSubsetOfContent: OperatorFunction<
   OmnivoreArticle
 > = mergeMap(
   (it: OmnivoreArticle) => fromPromise(setArticleDescription(it)),
-  10
+  10,
 )
 
 const enrichArticleWithAiSummary = (it: OmnivoreArticle) =>
@@ -43,7 +43,7 @@ const enrichArticleWithAiSummary = (it: OmnivoreArticle) =>
       try {
         const tokens = convert(content).slice(
           0,
-          Math.floor(client.tokenLimit * 0.75)
+          Math.floor(client.tokenLimit * 0.75),
         )
         const description = await client.summarizeText(tokens)
         return { ...article, description }
@@ -52,7 +52,7 @@ const enrichArticleWithAiSummary = (it: OmnivoreArticle) =>
         console.log(e)
         throw e
       }
-    })(it)
+    })(it),
   )
 
 export const enrichArticleWithAiGeneratedDescription: OperatorFunction<
@@ -61,6 +61,6 @@ export const enrichArticleWithAiGeneratedDescription: OperatorFunction<
 > = pipe(
   rateLimiter({ resetLimit: 50, timeMs: 60_000 }),
   mergeMap((it: OmnivoreArticle) =>
-    enrichArticleWithAiSummary(it).pipe(exponentialBackOff(30))
-  )
+    enrichArticleWithAiSummary(it).pipe(exponentialBackOff(30)),
+  ),
 )

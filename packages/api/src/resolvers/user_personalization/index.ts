@@ -21,7 +21,7 @@ export const setUserPersonalizationResolver = authorized<
         user: { id: uid },
         ...input,
       },
-      ['user']
+      ['user'],
     )
   })
 
@@ -34,7 +34,7 @@ export const setUserPersonalizationResolver = authorized<
   const updatedUserPersonalization = await authTrx((t) =>
     t
       .getRepository(UserPersonalization)
-      .findOneBy({ id: result.identifiers[0].id as string })
+      .findOneBy({ id: result.identifiers[0].id as string }),
   )
 
   // Cast SortOrder from string to enum
@@ -56,7 +56,7 @@ export const getUserPersonalizationResolver = authorized<
   const userPersonalization = await authTrx((t) =>
     t.getRepository(UserPersonalization).findOneBy({
       user: { id: uid },
-    })
+    }),
   )
 
   // Cast SortOrder from string to enum

@@ -84,7 +84,7 @@ export const subscriptionsResolver = authorized<
           }).orWhere({
             type: SubscriptionType.Rss,
           })
-        })
+        }),
       )
     }
 
@@ -243,7 +243,7 @@ export const subscribeResolver = authorized<
         input.autoAddToLibrary ?? null,
         input.isPrivate ?? null,
         MAX_RSS_SUBSCRIPTIONS,
-      ]
+      ],
     )) as Subscription[]
 
     if (results.length === 0) {

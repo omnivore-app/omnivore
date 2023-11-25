@@ -40,7 +40,7 @@ export const rss$ = (() => {
   const allRss$ = fromArrayLike(RSS_FEEDS).pipe(
     mergeMap((it) => rssToArticles(it)),
     filter((it: OmnivoreArticle) => it.publishedAt > lastUpdatedTime),
-    finalize(() => (lastUpdatedTime = new Date()))
+    finalize(() => (lastUpdatedTime = new Date())),
   )
 
   return timer(0, REFRESH_DELAY_MS).pipe(concatMap(() => allRss$))

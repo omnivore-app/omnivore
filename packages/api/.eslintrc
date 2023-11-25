@@ -4,6 +4,10 @@
     "project": "tsconfig.json"
   },
   "rules": {
-    "@typescript-eslint/no-unsafe-argument": 0
+    "@typescript-eslint/no-unsafe-argument": 0,
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-redundant-type-constituents": "off",
+    "@typescript-eslint/no-unsafe-enum-comparison": "off"
+
   }
 }

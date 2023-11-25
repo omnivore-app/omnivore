@@ -45,7 +45,7 @@ export const plainTextToHtml = (text: string): string => {
 
 export const publishMessage = async (
   topic: string,
-  message: any
+  message: any,
 ): Promise<string | undefined> => {
   return pubsub
     .topic(topic)
@@ -58,7 +58,7 @@ export const publishMessage = async (
 
 const saveReceivedEmail = async (
   email: string,
-  data: any
+  data: any,
 ): Promise<SaveReceivedEmailResponse> => {
   if (process.env.JWT_SECRET === undefined) {
     throw new Error('JWT_SECRET is not defined')
@@ -77,7 +77,7 @@ const saveReceivedEmail = async (
         Authorization: `${auth as string}`,
         'Content-Type': 'application/json',
       },
-    }
+    },
   )
 
   return response.data as SaveReceivedEmailResponse
@@ -203,7 +203,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
           from,
           to,
           subject,
-          error
+          error,
         )
         // queue error emails
         await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
@@ -223,5 +223,5 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log(e)
       res.send(e)
     }
-  }
+  },
 )

@@ -16,7 +16,7 @@ import { createMobileAuthPayload } from '../jwt_helpers'
 export async function createMobileSignInResponse(
   isAndroid: boolean,
   token?: string,
-  provider?: AuthProvider
+  provider?: AuthProvider,
 ): Promise<JsonResponsePayload> {
   try {
     if (token && provider === 'GOOGLE') {
@@ -38,7 +38,7 @@ export async function createMobileSignInResponse(
 
 export async function createMobileEmailSignInResponse(
   email?: string,
-  password?: string
+  password?: string,
 ): Promise<JsonResponsePayload> {
   try {
     if (!email || !password) {
@@ -89,7 +89,7 @@ const authFailedPayload = {
 
 async function createAuthResponsePayload(
   authProvider: AuthProvider,
-  decodedTokenResult: DecodeTokenResult
+  decodedTokenResult: DecodeTokenResult,
 ): Promise<JsonResponsePayload> {
   if (!decodedTokenResult.email || decodedTokenResult.errorCode) {
     return authFailedPayload

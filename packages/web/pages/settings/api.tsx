@@ -1,20 +1,16 @@
-import { useMemo, useState } from 'react'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useGetApiKeysQuery } from '../../lib/networking/queries/useGetApiKeysQuery'
-import { generateApiKeyMutation } from '../../lib/networking/mutations/generateApiKeyMutation'
-import { revokeApiKeyMutation } from '../../lib/networking/mutations/revokeApiKeyMutation'
+import { useMemo, useState } from "react"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { useGetApiKeysQuery } from "../../lib/networking/queries/useGetApiKeysQuery"
+import { generateApiKeyMutation } from "../../lib/networking/mutations/generateApiKeyMutation"
+import { revokeApiKeyMutation } from "../../lib/networking/mutations/revokeApiKeyMutation"
 
-import { FormInputProps } from '../../components/elements/FormElements'
-import { FormModal } from '../../components/patterns/FormModal'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../components/templates/settings/SettingsTable'
-import { StyledText } from '../../components/elements/StyledText'
-import { formattedShortDate } from '../../lib/dateFormatting'
+import { FormInputProps } from "../../components/elements/FormElements"
+import { FormModal } from "../../components/patterns/FormModal"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { EmptySettingsRow, SettingsTable, SettingsTableRow } from "../../components/templates/settings/SettingsTable"
+import { StyledText } from "../../components/elements/StyledText"
+import { formattedShortDate } from "../../lib/dateFormatting"
 
 export default function Api(): JSX.Element {
   const { apiKeys, revalidate, isValidating } = useGetApiKeysQuery()

@@ -1,7 +1,7 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { Label, labelFragment } from '../fragments/labelFragment'
-import { publicGqlFetcher } from '../networkHelpers'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { Label, labelFragment } from "../fragments/labelFragment"
+import { publicGqlFetcher } from "../networkHelpers"
 
 type LabelsQueryResponse = {
   error: any

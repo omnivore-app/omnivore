@@ -1,7 +1,7 @@
-import React from 'react'
-import ExtensionInstallHelp from '../../../components/elements/ExtensionsInstallHelp'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import { VStack } from '../../../components/elements/LayoutPrimitives'
+import React from "react"
+import ExtensionInstallHelp from "../../../components/elements/ExtensionsInstallHelp"
+import { SettingsLayout } from "../../../components/templates/SettingsLayout"
+import { VStack } from "../../../components/elements/LayoutPrimitives"
 
 export default function Extensions(): JSX.Element {
   return (

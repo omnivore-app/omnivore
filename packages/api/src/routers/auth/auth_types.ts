@@ -30,7 +30,7 @@ export type PendingUserTokenPayload = {
 // Type guard for PendingUserTokenPayload
 export function isPendingUserTokenPayload(
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  object: any
+  object: any,
 ): object is PendingUserTokenPayload {
   return (
     'email' in object &&

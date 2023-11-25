@@ -1,7 +1,7 @@
-import { PageMetaData } from '../../components/patterns/PageMetaData'
-import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import { EmailForgotPassword } from '../../components/templates/auth/EmailForgotPassword'
-import { Toaster } from 'react-hot-toast'
+import { PageMetaData } from "../../components/patterns/PageMetaData"
+import { ProfileLayout } from "../../components/templates/ProfileLayout"
+import { EmailForgotPassword } from "../../components/templates/auth/EmailForgotPassword"
+import { Toaster } from "react-hot-toast"
 
 export default function ForgotPassword(): JSX.Element {
   return (

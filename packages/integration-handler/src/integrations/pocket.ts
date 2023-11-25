@@ -62,7 +62,7 @@ export class PocketClient extends IntegrationClient {
     since: number, // unix timestamp in seconds
     count = 100,
     offset = 0,
-    state = 'all'
+    state = 'all',
   ): Promise<PocketResponse | null> => {
     const url = `${this.apiUrl}/get`
     try {
@@ -81,7 +81,7 @@ export class PocketClient extends IntegrationClient {
         {
           headers: this.headers,
           timeout: 10000, // 10 seconds
-        }
+        },
       )
 
       return response.data
@@ -115,7 +115,7 @@ export class PocketClient extends IntegrationClient {
       since / 1000,
       count,
       offset,
-      pocketItemState
+      pocketItemState,
     )
     if (!pocketData) {
       throw new Error('Error retrieving pocket data')

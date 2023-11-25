@@ -34,64 +34,64 @@ export const createPubSubClient = (): PubsubClient => {
       userId: string,
       email: string,
       name: string,
-      username: string
+      username: string,
     ): Promise<void> => {
       return publish(
         'userCreated',
-        Buffer.from(JSON.stringify({ userId, email, name, username }))
+        Buffer.from(JSON.stringify({ userId, email, name, username })),
       )
     },
     entityCreated: <T>(
       type: EntityType,
       data: T,
-      userId: string
+      userId: string,
     ): Promise<void> => {
       const cleanData = deepDelete(
-        data as T & Record<typeof fieldsToDelete[number], unknown>,
-        [...fieldsToDelete]
+        data as T & Record<(typeof fieldsToDelete)[number], unknown>,
+        [...fieldsToDelete],
       )
 
       return publish(
         'entityCreated',
-        Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
+        Buffer.from(JSON.stringify({ type, userId, ...cleanData })),
       )
     },
     entityUpdated: <T>(
       type: EntityType,
       data: T,
-      userId: string
+      userId: string,
     ): Promise<void> => {
       const cleanData = deepDelete(
-        data as T & Record<typeof fieldsToDelete[number], unknown>,
-        [...fieldsToDelete]
+        data as T & Record<(typeof fieldsToDelete)[number], unknown>,
+        [...fieldsToDelete],
       )
 
       return publish(
         'entityUpdated',
-        Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
+        Buffer.from(JSON.stringify({ type, userId, ...cleanData })),
       )
     },
     entityDeleted: (
       type: EntityType,
       id: string,
-      userId: string
+      userId: string,
     ): Promise<void> => {
       return publish(
         'entityDeleted',
-        Buffer.from(JSON.stringify({ type, id, userId }))
+        Buffer.from(JSON.stringify({ type, id, userId })),
       )
     },
     reportSubmitted: (
       submitterId: string,
       itemUrl: string,
       reportType: ReportType[],
-      reportComment: string
+      reportComment: string,
     ): Promise<void> => {
       return publish(
         'reportSubmitted',
         Buffer.from(
-          JSON.stringify({ submitterId, itemUrl, reportType, reportComment })
-        )
+          JSON.stringify({ submitterId, itemUrl, reportType, reportComment }),
+        ),
       )
     },
   }
@@ -108,7 +108,7 @@ export interface PubsubClient {
     userId: string,
     email: string,
     name: string,
-    username: string
+    username: string,
   ) => Promise<void>
   entityCreated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
   entityUpdated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
@@ -117,7 +117,7 @@ export interface PubsubClient {
     submitterId: string | undefined,
     itemUrl: string,
     reportType: ReportType[],
-    reportComment: string
+    reportComment: string,
   ): Promise<void>
 }
 
@@ -139,7 +139,7 @@ const expired = (body: PubSubRequestBody): boolean => {
 }
 
 export const readPushSubscription = (
-  req: express.Request
+  req: express.Request,
 ): { message: string | undefined; expired: boolean } => {
   if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
     logger.info('query does not include valid pubsub token')

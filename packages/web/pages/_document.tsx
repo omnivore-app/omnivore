@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable functional/no-class */
-import NextDocument, { Html, Head, Main, NextScript } from 'next/document'
-import { getCssText, globalStyles } from '../components/tokens/stitches.config'
+import NextDocument, { Head, Html, Main, NextScript } from "next/document"
+import { getCssText, globalStyles } from "../components/tokens/stitches.config"
 
 export default class Document extends NextDocument {
   render() {

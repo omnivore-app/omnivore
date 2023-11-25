@@ -76,7 +76,7 @@ export class ReadwiseClient extends IntegrationClient {
   syncWithReadwise = async (
     token: string,
     highlights: ReadwiseHighlight[],
-    retryCount = 0
+    retryCount = 0,
   ): Promise<boolean> => {
     const url = `${this.apiUrl}/highlights`
     try {
@@ -91,7 +91,7 @@ export class ReadwiseClient extends IntegrationClient {
             'Content-Type': 'application/json',
           },
           timeout: 5000, // 5 seconds
-        }
+        },
       )
       return response.status === 200
     } catch (error) {

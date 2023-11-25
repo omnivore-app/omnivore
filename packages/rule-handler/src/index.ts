@@ -45,7 +45,7 @@ const expired = (body: PubSubRequestBody): boolean => {
 }
 
 const readPushSubscription = (
-  req: express.Request
+  req: express.Request,
 ): { message: string | undefined; expired: boolean; subscription?: string } => {
   if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
     console.log('query does not include valid pubsub token')
@@ -70,7 +70,7 @@ const readPushSubscription = (
 
 export const getAuthToken = async (
   userId: string,
-  jwtSecret: string
+  jwtSecret: string,
 ): Promise<string> => {
   const auth = await signToken({ uid: userId }, jwtSecret)
   return auth as string
@@ -138,7 +138,7 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
         data,
         apiEndpoint,
         jwtSecret,
-        ruleEventType(eventType)
+        ruleEventType(eventType),
       )
       if (triggeredActions.length === 0) {
         console.log('No actions triggered')
@@ -151,5 +151,5 @@ export const ruleHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error(error)
       res.status(500).send('Internal server error')
     }
-  }
+  },
 )

@@ -6,19 +6,19 @@ import { analytics } from '../utils/analytics'
 
 export const findDeviceTokenById = async (
   id: string,
-  userId: string
+  userId: string,
 ): Promise<UserDeviceToken | null> => {
   return authTrx(
     (t) =>
       t.getRepository(UserDeviceToken).findOneBy({ id, user: { id: userId } }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findDeviceTokenByToken = async (
   token: string,
-  userId: string
+  userId: string,
 ): Promise<UserDeviceToken | null> => {
   return authTrx(
     (t) =>
@@ -26,12 +26,12 @@ export const findDeviceTokenByToken = async (
         .getRepository(UserDeviceToken)
         .findOneBy({ token, user: { id: userId } }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findDeviceTokensByUserId = async (
-  userId: string
+  userId: string,
 ): Promise<UserDeviceToken[]> => {
   return authTrx(
     (t) =>
@@ -39,13 +39,13 @@ export const findDeviceTokensByUserId = async (
         user: { id: userId },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const createDeviceToken = async (
   userId: string,
-  token: string
+  token: string,
 ): Promise<UserDeviceToken> => {
   analytics.track({
     userId: userId,
@@ -62,13 +62,13 @@ export const createDeviceToken = async (
         user: { id: userId },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const deleteDeviceToken = async (
   id: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
   analytics.track({
     userId: userId,
@@ -89,13 +89,13 @@ export const deleteDeviceToken = async (
 
 export const deleteDeviceTokens = async (
   userId: string,
-  criteria: string[] | FindOptionsWhere<UserDeviceToken>
+  criteria: string[] | FindOptionsWhere<UserDeviceToken>,
 ) => {
   return authTrx(
     async (t) => {
       await t.getRepository(UserDeviceToken).delete(criteria)
     },
     undefined,
-    userId
+    userId,
   )
 }

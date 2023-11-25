@@ -1,4 +1,4 @@
-import { config } from '../stitches.config'
+import { config } from "../stitches.config"
 
 type AngleDownIconProps = {
   color?: string;

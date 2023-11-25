@@ -17,7 +17,7 @@ type MobileAuthPayload = {
 }
 
 export async function createWebAuthToken(
-  userId: string
+  userId: string,
 ): Promise<string | undefined> {
   try {
     const authToken = await signToken({ uid: userId }, env.server.jwtSecret)
@@ -28,7 +28,7 @@ export async function createWebAuthToken(
 }
 
 export async function createMobileAuthPayload(
-  userId: string
+  userId: string,
 ): Promise<MobileAuthPayload> {
   const authToken = await signToken({ uid: userId }, env.server.jwtSecret)
   const authCookieString = cookie.serialize('auth', authToken as string, {
@@ -43,7 +43,7 @@ export async function createMobileAuthPayload(
 }
 
 export async function createPendingUserToken(
-  payload: PendingUserTokenPayload
+  payload: PendingUserTokenPayload,
 ): Promise<string | undefined> {
   try {
     const authToken = await signToken(payload, env.server.jwtSecret)
@@ -59,7 +59,7 @@ export async function createPendingUserToken(
 }
 
 export function decodePendingUserToken(
-  token: string
+  token: string,
 ): PendingUserTokenPayload | undefined {
   try {
     const decoded = jwt.verify(token, env.server.jwtSecret) as unknown
@@ -88,7 +88,7 @@ export function suggestedUsername(name: string): string {
 }
 
 export async function createIntegrationToken(
-  payload: IntegrationTokenPayload
+  payload: IntegrationTokenPayload,
 ): Promise<string | undefined> {
   try {
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
@@ -97,7 +97,7 @@ export async function createIntegrationToken(
         ...payload,
         exp,
       },
-      env.server.jwtSecret
+      env.server.jwtSecret,
     )
     logger.info('createIntegrationToken', payload)
     return authToken as string

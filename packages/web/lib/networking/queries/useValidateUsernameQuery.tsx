@@ -1,6 +1,6 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { makePublicGqlFetcher } from '../networkHelpers'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { makePublicGqlFetcher } from "../networkHelpers"
 
 type ValidateUsernameInput = {
   username: string

@@ -1,20 +1,15 @@
-import { gql } from 'graphql-request'
-import useSWRInfinite from 'swr/infinite'
-import { gqlFetcher } from '../networkHelpers'
-import { PageType, State } from '../fragments/articleFragment'
-import { ContentReader } from '../fragments/articleFragment'
-import { setLinkArchivedMutation } from '../mutations/setLinkArchivedMutation'
-import { deleteLinkMutation } from '../mutations/deleteLinkMutation'
-import { unsubscribeMutation } from '../mutations/unsubscribeMutation'
-import { articleReadingProgressMutation } from '../mutations/articleReadingProgressMutation'
-import { Label } from './../fragments/labelFragment'
-import {
-  showErrorToast,
-  showSuccessToast,
-  showSuccessToastWithUndo,
-} from '../../toastHelpers'
-import { Highlight, highlightFragment } from '../fragments/highlightFragment'
-import { updatePageMutation } from '../mutations/updatePageMutation'
+import { gql } from "graphql-request"
+import useSWRInfinite from "swr/infinite"
+import { gqlFetcher } from "../networkHelpers"
+import { ContentReader, PageType, State } from "../fragments/articleFragment"
+import { setLinkArchivedMutation } from "../mutations/setLinkArchivedMutation"
+import { deleteLinkMutation } from "../mutations/deleteLinkMutation"
+import { unsubscribeMutation } from "../mutations/unsubscribeMutation"
+import { articleReadingProgressMutation } from "../mutations/articleReadingProgressMutation"
+import { Label } from "./../fragments/labelFragment"
+import { showErrorToast, showSuccessToast, showSuccessToastWithUndo } from "../../toastHelpers"
+import { Highlight, highlightFragment } from "../fragments/highlightFragment"
+import { updatePageMutation } from "../mutations/updatePageMutation"
 
 export interface ReadableItem {
   id: string

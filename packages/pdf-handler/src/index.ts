@@ -18,8 +18,14 @@ interface StorageEventData {
   contentType: string
 }
 
-function isStorageEventData(event: any): event is StorageEventData {
-  return 'name' in event && 'bucket' in event && 'contentType' in event
+function isStorageEventData(event: unknown): event is StorageEventData {
+  return (
+    typeof event == 'object' &&
+    event != null &&
+    'name' in event &&
+    'bucket' in event &&
+    'contentType' in event
+  )
 }
 
 // Ensure this is a finalize event and that it is stored in the `u/` directory and is a PDF
@@ -31,7 +37,7 @@ const shouldHandle = (data: StorageEventData) => {
 }
 
 const getDocumentUrl = async (
-  data: StorageEventData
+  data: StorageEventData,
 ): Promise<URL | undefined> => {
   const options: GetSignedUrlConfig = {
     version: 'v4',
@@ -55,14 +61,14 @@ export const updatePageContent = (
   content: string,
   title?: string,
   author?: string,
-  description?: string
+  description?: string,
 ): Promise<string | undefined> => {
   return pubsub
     .topic(CONTENT_UPDATE_TOPIC)
     .publish(
       Buffer.from(
-        JSON.stringify({ fileId, content, title, author, description })
-      )
+        JSON.stringify({ fileId, content, title, author, description }),
+      ),
     )
     .catch((err) => {
       console.error('error publishing conentUpdate:', err)
@@ -71,7 +77,7 @@ export const updatePageContent = (
 }
 
 const getStorageEventData = (
-  pubSubMessage: string
+  pubSubMessage: string,
 ): StorageEventData | undefined => {
   try {
     const str = Buffer.from(pubSubMessage, 'base64').toString().trim()
@@ -109,7 +115,7 @@ export const pdfHandler = Sentry.GCPFunction.wrapHttpFunction(
               parsed.content,
               parsed.title,
               parsed.author,
-              parsed.description
+              parsed.description,
             )
             console.log(
               'publish result',
@@ -117,7 +123,7 @@ export const pdfHandler = Sentry.GCPFunction.wrapHttpFunction(
               'title',
               parsed.title,
               'author',
-              parsed.author
+              parsed.author,
             )
           } else {
             console.log('not handling pdf data', data)
@@ -131,5 +137,5 @@ export const pdfHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('no pubsub message')
     }
     res.send('ok')
-  }
+  },
 )

@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
-import { logoutMutation } from '../lib/networking/mutations/logoutMutation'
-import { webBaseURL } from '../lib/appConfig'
+import { useEffect } from "react"
+import { logoutMutation } from "../lib/networking/mutations/logoutMutation"
+import { webBaseURL } from "../lib/appConfig"
 
 export default function Logout(): JSX.Element {
   useEffect(() => {

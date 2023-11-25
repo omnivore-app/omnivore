@@ -27,6 +27,6 @@ export abstract class TextToSpeech {
   abstract use(input: TextToSpeechInput): boolean
 
   abstract synthesizeTextToSpeech(
-    input: TextToSpeechInput
+    input: TextToSpeechInput,
   ): Promise<TextToSpeechOutput>
 }

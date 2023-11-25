@@ -1,8 +1,8 @@
-import { useEffect, useCallback } from 'react'
-import { Button } from '../components/elements/Button'
-import { HStack } from '../components/elements/LayoutPrimitives'
-import { SettingsLayout } from '../components/templates/SettingsLayout'
-import { setupAnalytics } from '../lib/analytics'
+import { useCallback, useEffect } from "react"
+import { Button } from "../components/elements/Button"
+import { HStack } from "../components/elements/LayoutPrimitives"
+import { SettingsLayout } from "../components/templates/SettingsLayout"
+import { setupAnalytics } from "../lib/analytics"
 
 export default function Support(): JSX.Element {
   const initAnalytics = useCallback(() => {

@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import Router from 'next/router'
-import { Box } from '../../components/elements/LayoutPrimitives'
+import React, { useEffect } from "react"
+import Router from "next/router"
+import { Box } from "../../components/elements/LayoutPrimitives"
 
 export default function Extensions(): JSX.Element {
   useEffect(() => {

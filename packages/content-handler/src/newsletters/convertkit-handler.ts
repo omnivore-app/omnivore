@@ -27,14 +27,14 @@ export class ConvertkitHandler extends ContentHandler {
   }): Promise<boolean> {
     const dom = input.dom
     const icons = dom.querySelectorAll(
-      'img[src*="convertkit.com"], img[src*="convertkit-mail"]'
+      'img[src*="convertkit.com"], img[src*="convertkit-mail"]',
     )
     if (icons.length === 0) {
       return Promise.resolve(false)
     }
     // ignore newsletters that have a confirmation link to the newsletter in the body
     const links = dom.querySelectorAll(
-      'a[href*="convertkit.com"], a[href*="convertkit-mail"]'
+      'a[href*="convertkit.com"], a[href*="convertkit-mail"]',
     )
     const isConfirmation = Array.from(links).some((e) => {
       return e.textContent === 'Confirm your subscription'
@@ -45,7 +45,7 @@ export class ConvertkitHandler extends ContentHandler {
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     return this.findNewsletterUrl(html)
   }

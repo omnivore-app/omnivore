@@ -1,5 +1,5 @@
-import { render } from '@testing-library/react'
-import Login from '../../pages/login'
+import { render } from "@testing-library/react"
+import Login from "../../pages/login"
 
 // Details on mocking a next router
 // https://github.com/vercel/next.js/issues/7479

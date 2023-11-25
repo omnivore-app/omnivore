@@ -67,7 +67,7 @@ export const uploadFileRequestResolver = authorized<
     title = decodeURI(path.basename(new URL(url).pathname, '.pdf'))
     fileName = decodeURI(path.basename(new URL(url).pathname)).replace(
       /[^a-zA-Z0-9-_.]/g,
-      ''
+      '',
     )
 
     if (!fileName) {
@@ -95,18 +95,18 @@ export const uploadFileRequestResolver = authorized<
       fileName,
       status: UploadFileStatus.Initialized,
       contentType: input.contentType,
-    })
+    }),
   )
 
   if (uploadFileData.id) {
     const uploadFileId = uploadFileData.id
     const uploadFilePathName = generateUploadFilePathName(
       uploadFileId,
-      fileName
+      fileName,
     )
     const uploadSignedUrl = await generateUploadSignedUrl(
       uploadFilePathName,
-      input.contentType
+      input.contentType,
     )
 
     // If this is a file URL, we swap in a special URL
@@ -132,7 +132,7 @@ export const uploadFileRequestResolver = authorized<
           {
             state: LibraryItemState.Processing,
           },
-          uid
+          uid,
         )
         createdItemId = item.id
       } else {
@@ -151,7 +151,7 @@ export const uploadFileRequestResolver = authorized<
             state: LibraryItemState.Processing,
             contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
           },
-          uid
+          uid,
         )
         createdItemId = item.id
       }

@@ -122,7 +122,7 @@ const parseIsFilter = (str: string | undefined): ReadFilter => {
 
 const parseInFilter = (
   str: string | undefined,
-  query: string | undefined
+  query: string | undefined,
 ): InFilter => {
   switch (str?.toUpperCase()) {
     case 'ALL':
@@ -165,7 +165,7 @@ const parseTypeFilter = (str: string | undefined): string | undefined => {
 
 const parseLabelFilter = (
   str?: string,
-  exclude?: ISearchParserDictionary
+  exclude?: ISearchParserDictionary,
 ): LabelFilter | undefined => {
   if (str === undefined) {
     return undefined
@@ -238,7 +238,7 @@ const parseHasFilter = (str?: string): HasFilter | undefined => {
 
 const parseDateFilter = (
   field: string,
-  str?: string
+  str?: string,
 ): DateFilter | undefined => {
   if (str === undefined) {
     return undefined
@@ -296,7 +296,7 @@ const parseDateFilter = (
 
 const parseRangeFilter = (
   field: string,
-  str?: string
+  str?: string,
 ): RangeFilter | undefined => {
   if (str === undefined) {
     return undefined
@@ -333,7 +333,7 @@ const parseRangeFilter = (
 
 const parseFieldFilter = (
   field: string,
-  str?: string
+  str?: string,
 ): FieldFilter | undefined => {
   if (str === undefined) {
     return undefined
@@ -554,7 +554,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
 }
 
 export const sortParamsToSort = (
-  sortParams: InputMaybe<SortParams> | undefined
+  sortParams: InputMaybe<SortParams> | undefined,
 ) => {
   const sort = { by: SortBy.UPDATED, order: SortOrder.DESCENDING }
 

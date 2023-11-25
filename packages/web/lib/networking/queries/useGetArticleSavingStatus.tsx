@@ -1,9 +1,9 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { articleFragment } from '../fragments/articleFragment'
-import { highlightFragment } from '../fragments/highlightFragment'
-import { makeGqlFetcher } from '../networkHelpers'
-import { ArticleAttributes } from './useGetArticleQuery'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { articleFragment } from "../fragments/articleFragment"
+import { highlightFragment } from "../fragments/highlightFragment"
+import { makeGqlFetcher } from "../networkHelpers"
+import { ArticleAttributes } from "./useGetArticleQuery"
 
 type ArticleSavingStatusInput = {
   id?: string

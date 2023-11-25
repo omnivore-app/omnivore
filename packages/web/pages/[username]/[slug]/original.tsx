@@ -1,5 +1,5 @@
-import { useRouter } from 'next/router'
-import { useGetArticleOriginalHtmlQuery } from '../../../lib/networking/queries/useGetArticleOriginalHtmlQuery'
+import { useRouter } from "next/router"
+import { useGetArticleOriginalHtmlQuery } from "../../../lib/networking/queries/useGetArticleOriginalHtmlQuery"
 
 export default function Home(): JSX.Element {
   const router = useRouter()

@@ -11,13 +11,13 @@ export class BeehiivHandler extends ContentHandler {
     headers: Record<string, string | string[]>
   }): Promise<boolean> {
     return Promise.resolve(
-      input.headers['x-beehiiv-type']?.toString() === 'newsletter'
+      input.headers['x-beehiiv-type']?.toString() === 'newsletter',
     )
   }
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     return Promise.resolve(headers['x-newsletter']?.toString())
   }

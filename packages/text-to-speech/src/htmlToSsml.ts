@@ -89,7 +89,7 @@ function parseDomTree(pageNode: Element) {
       currentNode?.nodeType !== 1 /* Node.ELEMENT_NODE */ ||
       // Avoiding dynamic elements from being counted as anchor-allowed elements
       ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES.some((attrib) =>
-        currentNode.hasAttribute(attrib)
+        currentNode.hasAttribute(attrib),
       )
     ) {
       continue
@@ -124,7 +124,7 @@ function cleanTextNode(textNode: ChildNode): string {
 function emitTextNode(
   textItems: string[],
   cleanedText: string,
-  textNode: ChildNode
+  textNode: ChildNode,
 ) {
   const ssmlElement =
     textNode.parentNode?.nodeName === 'B' ? 'emphasis' : undefined
@@ -144,7 +144,7 @@ function emitTextNode(
 function emitElement(
   textItems: string[],
   element: Element,
-  isTopLevel: boolean
+  isTopLevel: boolean,
 ) {
   const SKIP_TAGS = [
     'SCRIPT',
@@ -222,7 +222,7 @@ export const ssmlItemText = (item: SSMLItem): string => {
 
 export const htmlToSsmlItems = (
   html: string,
-  options: SSMLOptions
+  options: SSMLOptions,
 ): SSMLItem[] => {
   console.log('creating ssml with options', options)
 

@@ -3,7 +3,6 @@ import {
   type Article,
   type SearchItemEdge,
   type ArticleSuccess,
-  type SearchSuccess,
   Label,
   LabelsSuccess,
 } from '../../../types/OmnivoreSchema'
@@ -48,7 +47,7 @@ export class OmnivoreClient {
         throw error
       })
 
-    return response.data.data.me.profile.username
+    return response.data.data.me.profile.username as string
   }
 
   async fetchPages(): Promise<SearchItemEdge[]> {
@@ -119,7 +118,7 @@ export class OmnivoreClient {
         throw error
       })
 
-    return response.data.data.search.edges
+    return response.data.data.search.edges as SearchItemEdge[]
   }
 
   async fetchPage(slug: string): Promise<Article> {
@@ -221,7 +220,7 @@ export class OmnivoreClient {
             Cookie: `auth=${this.token};`,
             'Content-Type': 'application/json',
           },
-        }
+        },
       )
       .then((_) => true)
   }

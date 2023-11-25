@@ -1,44 +1,23 @@
-import {
-  Dispatch,
-  MouseEventHandler,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Button } from '../../components/elements/Button'
-import { styled, theme } from '../../components/tokens/stitches.config'
-import {
-  Box,
-  SpanBox,
-  HStack,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
-import { Toaster } from 'react-hot-toast'
-import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { StyledText } from '../../components/elements/StyledText'
-import {
-  DotsThree,
-  PencilSimple,
-  Trash,
-  Plus,
-  ArrowsDownUp,
-} from 'phosphor-react'
-import {
-  Dropdown,
-  DropdownOption,
-} from '../../components/elements/DropdownElements'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { InfoLink } from '../../components/elements/InfoLink'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
-import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
-import CheckboxComponent from '../../components/elements/Checkbox'
-import { updateFilterMutation } from '../../lib/networking/mutations/updateFilterMutation'
-import { saveFilterMutation } from '../../lib/networking/mutations/saveFilterMutation'
-import { inRange } from 'lodash'
-import { deleteFilterMutation } from '../../lib/networking/mutations/deleteFilterMutation'
+import { Dispatch, MouseEventHandler, SetStateAction, useCallback, useEffect, useState } from "react"
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { Button } from "../../components/elements/Button"
+import { styled, theme } from "../../components/tokens/stitches.config"
+import { Box, HStack, SpanBox, VStack } from "../../components/elements/LayoutPrimitives"
+import { Toaster } from "react-hot-toast"
+import { applyStoredTheme, isDarkTheme } from "../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { StyledText } from "../../components/elements/StyledText"
+import { ArrowsDownUp, DotsThree, PencilSimple, Plus, Trash } from "phosphor-react"
+import { Dropdown, DropdownOption } from "../../components/elements/DropdownElements"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { InfoLink } from "../../components/elements/InfoLink"
+import { useGetSavedSearchQuery } from "../../lib/networking/queries/useGetSavedSearchQuery"
+import { SavedSearch } from "../../lib/networking/fragments/savedSearchFragment"
+import CheckboxComponent from "../../components/elements/Checkbox"
+import { updateFilterMutation } from "../../lib/networking/mutations/updateFilterMutation"
+import { saveFilterMutation } from "../../lib/networking/mutations/saveFilterMutation"
+import { inRange } from "lodash"
+import { deleteFilterMutation } from "../../lib/networking/mutations/deleteFilterMutation"
 
 const HeaderWrapper = styled(Box, {
   width: '100%',

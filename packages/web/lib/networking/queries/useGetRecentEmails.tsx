@@ -1,6 +1,6 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { publicGqlFetcher } from '../networkHelpers'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { publicGqlFetcher } from "../networkHelpers"
 
 export interface RecentEmail {
   id: string

@@ -1,18 +1,18 @@
-import 'antd/dist/antd.compact.css'
-import { ChangeEvent, useState } from 'react'
-import { SyncLoader } from 'react-spinners'
-import { Button } from '../../../components/elements/Button'
-import { FormLabel } from '../../../components/elements/FormElements'
-import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../../components/elements/StyledText'
-import { ProfileLayout } from '../../../components/templates/ProfileLayout'
-import { theme } from '../../../components/tokens/stitches.config'
+import "antd/dist/antd.compact.css"
+import { ChangeEvent, useState } from "react"
+import { SyncLoader } from "react-spinners"
+import { Button } from "../../../components/elements/Button"
+import { FormLabel } from "../../../components/elements/FormElements"
+import { HStack, VStack } from "../../../components/elements/LayoutPrimitives"
+import { StyledText } from "../../../components/elements/StyledText"
+import { ProfileLayout } from "../../../components/templates/ProfileLayout"
+import { theme } from "../../../components/tokens/stitches.config"
 import {
   uploadImportFileRequestMutation,
-  UploadImportFileType,
-} from '../../../lib/networking/mutations/uploadImportFileMutation'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
-import { validateCsvFile } from '../../../utils/csvValidator'
+  UploadImportFileType
+} from "../../../lib/networking/mutations/uploadImportFileMutation"
+import { applyStoredTheme } from "../../../lib/themeUpdater"
+import { validateCsvFile } from "../../../utils/csvValidator"
 
 type UploadState = 'none' | 'uploading' | 'completed'
 

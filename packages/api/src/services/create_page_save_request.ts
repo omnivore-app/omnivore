@@ -44,7 +44,7 @@ const isPrivateIP = privateIpLib.default
 // 5 articles added in the last minute: use low queue
 // default: use normal queue
 const getPriorityByRateLimit = async (
-  userId: string
+  userId: string,
 ): Promise<'low' | 'high'> => {
   const count = await countByCreatedAt(userId, new Date(Date.now() - 60 * 1000))
   return count >= 5 ? 'low' : 'high'
@@ -127,7 +127,7 @@ export const createPageSaveRequest = async ({
         publishedAt,
       },
       userId,
-      pubsub
+      pubsub,
     )
   }
   // reset state to processing if not in following
@@ -138,7 +138,7 @@ export const createPageSaveRequest = async ({
         state: LibraryItemState.Processing,
       },
       userId,
-      pubsub
+      pubsub,
     )
   }
 

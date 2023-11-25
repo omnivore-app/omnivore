@@ -20,7 +20,7 @@ export interface NewsletterMessage {
 // send the push but that is ok and we wont retry in that case.
 export const saveNewsletter = async (
   data: NewsletterMessage,
-  newsletterEmail: NewsletterEmail
+  newsletterEmail: NewsletterEmail,
 ): Promise<boolean> => {
   analytics.track({
     userId: newsletterEmail.user.id,

@@ -1,7 +1,7 @@
-import { useRegisterActions } from 'kbar'
-import { useCallback, useState } from 'react'
-import { applyStoredTheme } from '../themeUpdater'
-import { usePersistedState } from './usePersistedState'
+import { useRegisterActions } from "kbar"
+import { useCallback, useState } from "react"
+import { applyStoredTheme } from "../themeUpdater"
+import { usePersistedState } from "./usePersistedState"
 
 const DEFAULT_FONT = 'Inter'
 

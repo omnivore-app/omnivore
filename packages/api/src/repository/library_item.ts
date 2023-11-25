@@ -56,7 +56,7 @@ export const libraryItemRepository = appDataSource
           key = $3
         RETURNING *
     `,
-        ['ARTICLE', userId, name]
+        ['ARTICLE', userId, name],
       ) as Promise<LibraryItem[]>
     },
   })

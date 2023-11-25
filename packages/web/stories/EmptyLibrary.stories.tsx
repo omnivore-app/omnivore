@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { EmptyLibrary } from '../components/templates/homeFeed/EmptyLibrary'
+import { ComponentMeta, ComponentStory } from "@storybook/react"
+import { EmptyLibrary } from "../components/templates/homeFeed/EmptyLibrary"
 
 export default {
   title: 'Components/EmptyLibraryStory',

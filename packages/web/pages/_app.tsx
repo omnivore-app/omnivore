@@ -1,28 +1,17 @@
-import '../styles/globals.css'
-import '../styles/articleInnerStyling.css'
+import "../styles/globals.css"
+import "../styles/articleInnerStyling.css"
 
-import type { AppProps } from 'next/app'
-import { IdProvider } from '@radix-ui/react-id'
-import { NextRouter, useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import { TooltipProvider } from '../components/elements/Tooltip'
-import TopBarProgress from 'react-topbar-progress-indicator'
-import {
-  KBarProvider,
-  KBarPortal,
-  KBarPositioner,
-  KBarAnimator,
-  KBarSearch,
-  Priority,
-} from 'kbar'
-import {
-  animatorStyle,
-  KBarResultsComponents,
-  searchStyle,
-} from '../components/elements/KBar'
-import { updateTheme } from '../lib/themeUpdater'
-import { ThemeId } from '../components/tokens/stitches.config'
-import { posthog } from 'posthog-js'
+import type { AppProps } from "next/app"
+import { IdProvider } from "@radix-ui/react-id"
+import { NextRouter, useRouter } from "next/router"
+import { useEffect } from "react"
+import { TooltipProvider } from "../components/elements/Tooltip"
+import TopBarProgress from "react-topbar-progress-indicator"
+import { KBarAnimator, KBarPortal, KBarPositioner, KBarProvider, KBarSearch, Priority } from "kbar"
+import { animatorStyle, KBarResultsComponents, searchStyle } from "../components/elements/KBar"
+import { updateTheme } from "../lib/themeUpdater"
+import { ThemeId } from "../components/tokens/stitches.config"
+import { posthog } from "posthog-js"
 
 TopBarProgress.config({
   barColors: {

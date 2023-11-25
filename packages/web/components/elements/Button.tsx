@@ -1,4 +1,4 @@
-import { styled } from '../tokens/stitches.config'
+import { styled } from "../tokens/stitches.config"
 
 export const Button = styled('button', {
   fontFamily: 'inter',

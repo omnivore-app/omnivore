@@ -5,7 +5,7 @@ import { authTrx } from '../repository'
 export const findApiKeys = async (
   userId: string,
   where?: FindOptionsWhere<ApiKey>[] | FindOptionsWhere<ApiKey>,
-  select?: (keyof ApiKey)[]
+  select?: (keyof ApiKey)[],
 ) => {
   return authTrx(
     (t) =>
@@ -28,17 +28,17 @@ export const findApiKeys = async (
         },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const deleteApiKey = async (
   criteria: string[] | FindOptionsWhere<ApiKey>,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) => t.getRepository(ApiKey).delete(criteria),
     undefined,
-    userId
+    userId,
   )
 }

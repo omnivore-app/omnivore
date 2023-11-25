@@ -18,7 +18,7 @@ export async function createMobileSignUpResponse(
   isAndroid: boolean,
   token?: string,
   provider?: AuthProvider,
-  name?: string
+  name?: string,
 ): Promise<JsonResponsePayload> {
   try {
     if (token && provider === 'GOOGLE') {
@@ -26,7 +26,7 @@ export async function createMobileSignUpResponse(
       return createSignUpResponsePayload(
         provider,
         decodedTokenResult,
-        name ?? ''
+        name ?? '',
       )
     }
 
@@ -35,7 +35,7 @@ export async function createMobileSignUpResponse(
       return createSignUpResponsePayload(
         provider,
         decodedTokenResult,
-        name ?? ''
+        name ?? '',
       )
     }
 
@@ -47,7 +47,7 @@ export async function createMobileSignUpResponse(
 }
 
 export async function createMobileEmailSignUpResponse(
-  requestBody: any
+  requestBody: any,
 ): Promise<JsonResponsePayload> {
   try {
     if (!isValidSignupRequest(requestBody)) {
@@ -87,7 +87,7 @@ const signUpFailedPayload = {
 async function createSignUpResponsePayload(
   provider: AuthProvider,
   decodedTokenResult: DecodeTokenResult,
-  name: string
+  name: string,
 ): Promise<JsonResponsePayload> {
   const { errorCode, sourceUserId, email } = decodedTokenResult
 
@@ -117,7 +117,7 @@ async function createSignUpResponsePayload(
     }
 
     const pendingUserToken = await createPendingUserToken(
-      pendingUserTokenPayload
+      pendingUserTokenPayload,
     )
 
     const pendingUserProfile = {

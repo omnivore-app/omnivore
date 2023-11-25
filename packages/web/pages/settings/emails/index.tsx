@@ -1,28 +1,19 @@
-import { Button } from '../../../components/elements/Button'
-import { useGetNewsletterEmailsQuery } from '../../../lib/networking/queries/useGetNewsletterEmailsQuery'
-import { createNewsletterEmailMutation } from '../../../lib/networking/mutations/createNewsletterEmailMutation'
-import { deleteNewsletterEmailMutation } from '../../../lib/networking/mutations/deleteNewsletterEmailMutation'
-import { Copy } from 'phosphor-react'
-import { theme, styled } from '../../../components/tokens/stitches.config'
-import {
-  Box,
-  HStack,
-  SpanBox,
-} from '../../../components/elements/LayoutPrimitives'
-import { useCopyLink } from '../../../lib/hooks/useCopyLink'
-import { useCallback, useMemo, useState } from 'react'
-import { StyledText } from '../../../components/elements/StyledText'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { formattedShortDate } from '../../../lib/dateFormatting'
-import Link from 'next/link'
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../../components/templates/settings/SettingsTable'
-import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import { SuggestionBox } from '../../../components/elements/SuggestionBox'
+import { Button } from "../../../components/elements/Button"
+import { useGetNewsletterEmailsQuery } from "../../../lib/networking/queries/useGetNewsletterEmailsQuery"
+import { createNewsletterEmailMutation } from "../../../lib/networking/mutations/createNewsletterEmailMutation"
+import { deleteNewsletterEmailMutation } from "../../../lib/networking/mutations/deleteNewsletterEmailMutation"
+import { Copy } from "phosphor-react"
+import { styled, theme } from "../../../components/tokens/stitches.config"
+import { Box, HStack, SpanBox } from "../../../components/elements/LayoutPrimitives"
+import { useCopyLink } from "../../../lib/hooks/useCopyLink"
+import { useCallback, useMemo, useState } from "react"
+import { StyledText } from "../../../components/elements/StyledText"
+import { applyStoredTheme } from "../../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../../lib/toastHelpers"
+import { formattedShortDate } from "../../../lib/dateFormatting"
+import Link from "next/link"
+import { EmptySettingsRow, SettingsTable, SettingsTableRow } from "../../../components/templates/settings/SettingsTable"
+import { ConfirmationModal } from "../../../components/patterns/ConfirmationModal"
 
 enum TextType {
   EmailAddress,

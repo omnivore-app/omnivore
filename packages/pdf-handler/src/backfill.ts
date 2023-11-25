@@ -11,7 +11,7 @@ const postUpdate = async (
   content: string,
   title?: string,
   author?: string,
-  description?: string
+  description?: string,
 ) => {
   const url =
     'https://backend-dot-omnivore-production.wl.r.appspot.com/svc/pubsub/content/search?token=aYYLeK0kYlwnQg0wBMHO6EoAjf0LkoQ4Dyx0NGtpdjbh7F52EzHda8'
@@ -58,7 +58,7 @@ const listFiles = async () => {
         parsed.content,
         parsed.title,
         parsed.author,
-        parsed.description
+        parsed.description,
       )
     }
   }

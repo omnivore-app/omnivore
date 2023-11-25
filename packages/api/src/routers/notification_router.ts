@@ -60,7 +60,7 @@ export function notificationRouter() {
     const result = await sendMulticastPushNotifications(
       userId,
       message,
-      notificationType || 'rule'
+      notificationType || 'rule',
     )
     if (!result) {
       return res.status(400).send({ errorCode: 'SEND_NOTIFICATION_FAILED' })

@@ -1,4 +1,4 @@
-import { LabelColorObjects } from './types'
+import { LabelColorObjects } from "./types"
 
 export const labelColorObjects: LabelColorObjects = {
   '#FF5D99': {

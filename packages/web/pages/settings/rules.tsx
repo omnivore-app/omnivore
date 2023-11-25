@@ -1,23 +1,23 @@
-import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
+import { Button, Form, Input, Modal, Select, Space, Table, Tag } from "antd"
 // import 'antd/dist/antd.dark.css'
-import 'antd/dist/antd.compact.css'
-import { useCallback, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-import { Box, HStack } from '../../components/elements/LayoutPrimitives'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Label } from '../../lib/networking/fragments/labelFragment'
-import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
-import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
+import "antd/dist/antd.compact.css"
+import { useCallback, useMemo, useState } from "react"
+import { Toaster } from "react-hot-toast"
+import { Box, HStack } from "../../components/elements/LayoutPrimitives"
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { Label } from "../../lib/networking/fragments/labelFragment"
+import { deleteRuleMutation } from "../../lib/networking/mutations/deleteRuleMutation"
+import { setRuleMutation } from "../../lib/networking/mutations/setRuleMutation"
+import { useGetLabelsQuery } from "../../lib/networking/queries/useGetLabelsQuery"
 import {
   Rule,
   RuleAction,
   RuleActionType,
   RuleEventType,
-  useGetRulesQuery,
-} from '../../lib/networking/queries/useGetRulesQuery'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+  useGetRulesQuery
+} from "../../lib/networking/queries/useGetRulesQuery"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
 
 type CreateRuleModalProps = {
   isModalOpen: boolean

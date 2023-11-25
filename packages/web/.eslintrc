@@ -21,6 +21,8 @@
   "ignorePatterns": ["next.config.js", "jest.config.js"],
   "rules": {
     "functional/no-mixed-type": 0,
-    "react/react-in-jsx-scope": 0
+    "react/react-in-jsx-scope": 0,
+    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn"
   }
 }

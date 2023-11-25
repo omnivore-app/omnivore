@@ -4,7 +4,7 @@ export const setLabels = async (
   apiEndpoint: string,
   auth: string,
   pageId: string,
-  labelIds: string[]
+  labelIds: string[],
 ) => {
   const data = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {

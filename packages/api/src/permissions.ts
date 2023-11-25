@@ -3,11 +3,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { rule, shield } from 'graphql-shield'
 
-const isNotAuthenticated = rule({ cache: 'contextual' })(
-  async (_parent, _args, ctx, _info) => {
-    return ctx.claims?.uid === undefined
-  }
-)
+const isNotAuthenticated = rule({ cache: 'contextual' })(async (
+  _parent,
+  _args,
+  ctx,
+  _info,
+) => {
+  return ctx.claims?.uid === undefined
+})
 
 const permissions = shield({
   Query: {

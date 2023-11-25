@@ -17,7 +17,7 @@ export const createCloudTask = async (
   taskHandlerUrl: string | undefined,
   payload: unknown,
   requestHeaders?: Record<string, string>,
-  queue = 'omnivore-import-queue'
+  queue = 'omnivore-import-queue',
 ) => {
   const location = process.env.GCP_LOCATION
   const project = process.env.GCP_PROJECT_ID

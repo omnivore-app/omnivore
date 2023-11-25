@@ -40,7 +40,7 @@ export const highlightRepository = appDataSource
 
     updateAndSave(
       highlightId: string,
-      highlight: QueryDeepPartialEntity<Highlight>
+      highlight: QueryDeepPartialEntity<Highlight>,
     ) {
       if (highlight.annotation !== undefined && highlight.annotation !== null) {
         highlight.annotation = unescapeHtml(highlight.annotation.toString())

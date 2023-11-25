@@ -16,13 +16,13 @@ export class TheAtlanticHandler extends ContentHandler {
   removeRelatedContentLinks(articleContent: Element): Node[] {
     const content = Array.from(articleContent.children)
     return content.filter(
-      (paragraph) => !paragraph.className.startsWith('ArticleRelated')
+      (paragraph) => !paragraph.className.startsWith('ArticleRelated'),
     )
   }
 
   unfurlContent(content: Document): Document {
     const articleContentSection = content.querySelector(
-      '[data-event-module="article body"]'
+      '[data-event-module="article body"]',
     )
 
     // Remove the audio player.

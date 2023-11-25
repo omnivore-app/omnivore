@@ -1,9 +1,9 @@
-import { RouterContext } from 'next/dist/shared/lib/router-context';
-import * as NextImage from 'next/image';
-import { getCssText } from '../components/tokens/stitches.config';
-import "../styles/globals.css";
+import { RouterContext } from 'next/dist/shared/lib/router-context'
+import * as NextImage from 'next/image'
+import { getCssText } from '../components/tokens/stitches.config'
+import '../styles/globals.css'
 
-const OriginalNextImage = NextImage.default;
+const OriginalNextImage = NextImage.default
 
 Object.defineProperty(NextImage, 'default', {
   configurable: true,

@@ -10,7 +10,7 @@ describe('the parseErrorCodes function', () => {
 
   it('returns an the first error code from multiple codes', () => {
     const query = {
-      errorCodes: 'ACCESS_DENIED,AUTH_FAILED,INVALID_CREDENTIALS'
+      errorCodes: 'ACCESS_DENIED,AUTH_FAILED,INVALID_CREDENTIALS',
     }
     const parsedCodes = parseErrorCodes(query)
 

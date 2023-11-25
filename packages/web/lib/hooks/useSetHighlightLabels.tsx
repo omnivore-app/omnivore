@@ -1,8 +1,8 @@
-import { useReducer } from 'react'
-import { Label } from '../networking/fragments/labelFragment'
-import { showErrorToast } from '../toastHelpers'
-import { setLabelsForHighlight } from '../networking/mutations/setLabelsForHighlight'
-import { LabelsDispatcher } from './useSetPageLabels'
+import { useReducer } from "react"
+import { Label } from "../networking/fragments/labelFragment"
+import { showErrorToast } from "../toastHelpers"
+import { setLabelsForHighlight } from "../networking/mutations/setLabelsForHighlight"
+import { LabelsDispatcher } from "./useSetPageLabels"
 
 export const useSetHighlightLabels = (
   highlightId?: string

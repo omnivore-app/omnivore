@@ -1,19 +1,15 @@
-import { styled } from '@stitches/react'
-import { useRouter } from 'next/router'
-import { useCallback, useState } from 'react'
-import { Button } from '../../../components/elements/Button'
-import {
-  Box,
-  HStack,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../../components/elements/StyledText'
-import { PageMetaData } from '../../../components/patterns/PageMetaData'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import { subscribeMutation } from '../../../lib/networking/mutations/subscribeMutation'
-import { SubscriptionType } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { showSuccessToast } from '../../../lib/toastHelpers'
-import { formatMessage } from '../../../locales/en/messages'
+import { styled } from "@stitches/react"
+import { useRouter } from "next/router"
+import { useCallback, useState } from "react"
+import { Button } from "../../../components/elements/Button"
+import { Box, HStack, VStack } from "../../../components/elements/LayoutPrimitives"
+import { StyledText } from "../../../components/elements/StyledText"
+import { PageMetaData } from "../../../components/patterns/PageMetaData"
+import { SettingsLayout } from "../../../components/templates/SettingsLayout"
+import { subscribeMutation } from "../../../lib/networking/mutations/subscribeMutation"
+import { SubscriptionType } from "../../../lib/networking/queries/useGetSubscriptionsQuery"
+import { showSuccessToast } from "../../../lib/toastHelpers"
+import { formatMessage } from "../../../locales/en/messages"
 
 // Styles
 const Header = styled(Box, {

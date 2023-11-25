@@ -1,10 +1,10 @@
-interface PageToNotify {
-  title: string
-  url: string
-  byline: string | undefined | null
-  description: string | undefined | null
-  image: string | undefined | null
-}
+// interface PageToNotify {
+//   title: string
+//   url: string
+//   byline: string | undefined | null
+//   description: string | undefined | null
+//   image: string | undefined | null
+// }
 
 // export function remindersServiceRouter() {
 //   const router = express.Router()

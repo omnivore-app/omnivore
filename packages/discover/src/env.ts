@@ -30,7 +30,7 @@ const envParser =
     }
 
     throw new Error(
-      `Missing ${varName} with a non-empty value in process environment`
+      `Missing ${varName} with a non-empty value in process environment`,
     )
   }
 

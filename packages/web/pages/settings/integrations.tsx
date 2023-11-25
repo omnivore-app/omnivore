@@ -1,35 +1,21 @@
-import { styled } from '@stitches/react'
-import Image from 'next/image'
-import { useRouter } from 'next/router'
-import { DownloadSimple, Eye, Link, Spinner } from 'phosphor-react'
-import { useEffect, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-import { Button } from '../../components/elements/Button'
-import {
-  Dropdown,
-  DropdownOption,
-} from '../../components/elements/DropdownElements'
-import {
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { fetchEndpoint } from '../../lib/appConfig'
-import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
-import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
-import {
-  ImportItemState,
-  setIntegrationMutation,
-} from '../../lib/networking/mutations/setIntegrationMutation'
-import {
-  Integration,
-  useGetIntegrationsQuery,
-} from '../../lib/networking/queries/useGetIntegrationsQuery'
-import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
+import { styled } from "@stitches/react"
+import Image from "next/image"
+import { useRouter } from "next/router"
+import { DownloadSimple, Eye, Link, Spinner } from "phosphor-react"
+import { useEffect, useMemo, useState } from "react"
+import { Toaster } from "react-hot-toast"
+import { Button } from "../../components/elements/Button"
+import { Dropdown, DropdownOption } from "../../components/elements/DropdownElements"
+import { Box, HStack, SpanBox, VStack } from "../../components/elements/LayoutPrimitives"
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { fetchEndpoint } from "../../lib/appConfig"
+import { deleteIntegrationMutation } from "../../lib/networking/mutations/deleteIntegrationMutation"
+import { importFromIntegrationMutation } from "../../lib/networking/mutations/importFromIntegrationMutation"
+import { ImportItemState, setIntegrationMutation } from "../../lib/networking/mutations/setIntegrationMutation"
+import { Integration, useGetIntegrationsQuery } from "../../lib/networking/queries/useGetIntegrationsQuery"
+import { useGetWebhooksQuery } from "../../lib/networking/queries/useGetWebhooksQuery"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
 // Styles
 const Header = styled(Box, {
   color: '$utilityTextDefault',

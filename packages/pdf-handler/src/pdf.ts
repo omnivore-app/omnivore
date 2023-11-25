@@ -66,7 +66,7 @@ export const getDocument = (source: string): Promise<PDFDocumentProxy> => {
 
 const getMetadataItem = async (
   document: PDFDocumentProxy,
-  key: MetadataInfoKey
+  key: MetadataInfoKey,
 ): Promise<string | undefined> => {
   return await document
     .getMetadata()
@@ -77,7 +77,7 @@ const getMetadataItem = async (
 }
 
 export const getDocumentTitle = async (
-  document: PDFDocumentProxy
+  document: PDFDocumentProxy,
 ): Promise<string | undefined> => {
   const title = await getMetadataItem(document, 'Title')
   if (title) {
@@ -97,7 +97,7 @@ export const getDocumentTitle = async (
 }
 
 export const getDocumentText = async (
-  document: PDFDocumentProxy
+  document: PDFDocumentProxy,
 ): Promise<string> => {
   const pages = await readPdfText(document)
   return pages
@@ -105,7 +105,7 @@ export const getDocumentText = async (
 
 export const readPdfText = async (
   document: PDFDocumentProxy,
-  maxPages: number | undefined = undefined
+  maxPages: number | undefined = undefined,
 ): Promise<string> => {
   const pages: Page[] = []
   const numPages = maxPages || document.numPages
@@ -122,7 +122,7 @@ export const readPdfText = async (
 const parsePage = async (pdfPage: PDFPageProxy): Promise<Page> => {
   const rawContent = await pdfPage.getTextContent()
   return parsePageItems(
-    rawContent.items.filter((item): item is TextItem => 'str' in item)
+    rawContent.items.filter((item): item is TextItem => 'str' in item),
   )
 }
 
@@ -157,7 +157,7 @@ const parsePageItems = (pdfItems: TextItem[]): Page => {
         const currentLineHeight: number = lineData[currentY].reduce(
           (finalValue, current) =>
             finalValue > current.height ? finalValue : current.height,
-          -1
+          -1,
         )
 
         // currentY - nextY because currentY will be higher than nextY

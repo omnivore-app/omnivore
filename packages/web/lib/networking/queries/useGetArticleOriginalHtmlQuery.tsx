@@ -1,6 +1,6 @@
-import { gql } from 'graphql-request'
-import useSWRImmutable from 'swr'
-import { makeGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
+import { gql } from "graphql-request"
+import useSWRImmutable from "swr"
+import { makeGqlFetcher, RequestContext, ssrFetcher } from "../networkHelpers"
 
 type ArticleQueryInput = {
   username?: string

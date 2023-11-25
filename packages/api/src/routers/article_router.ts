@@ -117,7 +117,7 @@ export function articleRouter() {
         logger.error('Error getting article speech:', error)
         res.status(500).send({ errorCode: 'INTERNAL_ERROR' })
       }
-    }
+    },
   )
 
   return router

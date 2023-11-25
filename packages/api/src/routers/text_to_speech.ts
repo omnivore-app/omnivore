@@ -54,7 +54,7 @@ export function textToSpeechRouter() {
         })
       },
       undefined,
-      userId
+      userId,
     )
 
     res.send('OK')

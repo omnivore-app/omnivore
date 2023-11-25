@@ -42,7 +42,7 @@ const isStubUrl = (url: string): boolean => {
 }
 
 export const saveEmail = async (
-  input: SaveEmailInput
+  input: SaveEmailInput,
 ): Promise<LibraryItem | undefined> => {
   const url = input.url
   const parseResult = await parsePreparedContent(
@@ -54,7 +54,7 @@ export const saveEmail = async (
       },
     },
     null,
-    true
+    true,
   )
 
   const content = parseResult.parsedContent?.content || input.originalContent
@@ -69,12 +69,12 @@ export const saveEmail = async (
 
   const existingLibraryItem = await findLibraryItemByUrl(
     cleanedUrl,
-    input.userId
+    input.userId,
   )
   if (existingLibraryItem) {
     const updatedLibraryItem = await restoreLibraryItem(
       existingLibraryItem.id,
-      input.userId
+      input.userId,
     )
     logger.info('updated page from email', updatedLibraryItem)
 
@@ -101,7 +101,7 @@ export const saveEmail = async (
         parseResult.parsedContent?.previewImage ||
         undefined,
       publishedAt: validatedDate(
-        parseResult.parsedContent?.publishedDate ?? undefined
+        parseResult.parsedContent?.publishedDate ?? undefined,
       ),
       state: LibraryItemState.Succeeded,
       siteIcon,
@@ -109,7 +109,7 @@ export const saveEmail = async (
       wordCount: wordsCount(content),
       subscription: input.author,
     },
-    input.userId
+    input.userId,
   )
 
   if (input.newsletterEmailId) {

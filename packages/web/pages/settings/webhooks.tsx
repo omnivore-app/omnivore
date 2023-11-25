@@ -1,19 +1,16 @@
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Toaster } from 'react-hot-toast'
-import { Table } from '../../components/elements/Table'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import {
-  useGetWebhooksQuery,
-  WebhookEvent,
-} from '../../lib/networking/queries/useGetWebhooksQuery'
-import { useMemo, useState } from 'react'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { deleteWebhookMutation } from '../../lib/networking/mutations/deleteWebhookMutation'
-import { FormModal } from '../../components/patterns/FormModal'
-import { setWebhookMutation } from '../../lib/networking/mutations/setWebhookMutation'
-import { FormInputProps } from '../../components/elements/FormElements'
-import { Box } from '../../components/elements/LayoutPrimitives'
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { Toaster } from "react-hot-toast"
+import { Table } from "../../components/elements/Table"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { useGetWebhooksQuery, WebhookEvent } from "../../lib/networking/queries/useGetWebhooksQuery"
+import { useMemo, useState } from "react"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { deleteWebhookMutation } from "../../lib/networking/mutations/deleteWebhookMutation"
+import { FormModal } from "../../components/patterns/FormModal"
+import { setWebhookMutation } from "../../lib/networking/mutations/setWebhookMutation"
+import { FormInputProps } from "../../components/elements/FormElements"
+import { Box } from "../../components/elements/LayoutPrimitives"
 
 interface Webhook {
   id?: string

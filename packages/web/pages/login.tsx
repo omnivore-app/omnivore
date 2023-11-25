@@ -1,10 +1,10 @@
-import { useRouter } from 'next/router'
-import Script from 'next/script'
-import { useState, useEffect } from 'react'
-import { LoginLayout } from './../components/templates/LoginLayout'
-import { parseErrorCodes } from '../lib/queryParamParser'
-import { PageMetaData } from '../components/patterns/PageMetaData'
-import { formatMessage } from '../locales/en/messages'
+import { useRouter } from "next/router"
+import Script from "next/script"
+import { useEffect, useState } from "react"
+import { LoginLayout } from "./../components/templates/LoginLayout"
+import { parseErrorCodes } from "../lib/queryParamParser"
+import { PageMetaData } from "../components/patterns/PageMetaData"
+import { formatMessage } from "../locales/en/messages"
 
 export default function Login(): JSX.Element {
   const router = useRouter()

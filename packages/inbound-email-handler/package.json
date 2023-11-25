@@ -27,7 +27,6 @@
     "@types/rfc2047": "^2.0.1",
     "@types/showdown": "^2.0.1",
     "chai": "^4.3.6",
-    "eslint-plugin-prettier": "^4.0.0",
     "mocha": "^10.0.0"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import NextErrorComponent from 'next/error'
+import NextErrorComponent from "next/error"
 
-import * as Sentry from '@sentry/nextjs'
+import * as Sentry from "@sentry/nextjs"
 
 const MyError = ({ statusCode, hasGetInitialPropsRun, err }: any) => {
   if (!hasGetInitialPropsRun && err) {

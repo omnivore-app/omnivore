@@ -66,7 +66,7 @@ declare module '@omnivore/readability' {
       createImageProxyUrl?: (
         url: string,
         width?: number,
-        height?: number
+        height?: number,
       ) => string
 
       /**

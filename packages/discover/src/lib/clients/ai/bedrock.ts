@@ -7,7 +7,6 @@ import {
 import { aws4Interceptor } from 'aws4-axios'
 import { AiClient, Embedding } from '../../../types/AiClient'
 import { SUMMARISE_PROMPT } from './prompt'
-import { env } from '../../../env'
 
 export class BedrockClient implements AiClient {
   client: AxiosInstance
@@ -17,7 +16,7 @@ export class BedrockClient implements AiClient {
     params: BedrockClientParams = {
       region: 'us-west-2',
       endpoint: 'https://bedrock-runtime.us-west-2.amazonaws.com',
-    }
+    },
   ) {
     this.client = axios.create({
       baseURL: params.endpoint,
@@ -35,9 +34,9 @@ export class BedrockClient implements AiClient {
   }
 
   _extractHttpBody(
-    invokeParams: BedrockInvokeParams
+    invokeParams: BedrockInvokeParams,
   ): Partial<BedrockInvokeParams> {
-    const { model, prompt, ...httpCommands } = invokeParams
+    const { model: _, prompt, ...httpCommands } = invokeParams
     return { ...httpCommands, prompt: this._wrapPrompt(prompt) }
   }
 
@@ -48,7 +47,7 @@ export class BedrockClient implements AiClient {
   async getEmbeddings(text: string): Promise<Embedding> {
     const { data } = await this.client.post<BedrockClientResponse>(
       `/model/amazon.titan-embed-text-v1/invoke`,
-      { inputText: text }
+      { inputText: text },
     )
 
     return data.embedding
@@ -67,7 +66,7 @@ export class BedrockClient implements AiClient {
 
     const { data } = await this.client.post<BedrockClientResponse>(
       `/model/${summariseParams.model}/invoke`,
-      this._extractHttpBody(summariseParams)
+      this._extractHttpBody(summariseParams),
     )
     return data.completion
   }

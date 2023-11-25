@@ -23,14 +23,14 @@ export type EmbeddedOmnivoreLabel = {
 const prepareTitle = (article: OmnivoreArticle): string =>
   article.title
     .replace(article.site, '')
-    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+    .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>{}[]\\\/]/gi, '')
 
 const getEmbeddingForArticle = async (
-  it: OmnivoreArticle
+  it: OmnivoreArticle,
 ): Promise<EmbeddedOmnivoreArticle> => {
   console.log(`${prepareTitle(it)}: ${it.description}`)
   const embedding = await client.getEmbeddings(
-    `${prepareTitle(it)}: ${it.description}`
+    `${prepareTitle(it)}: ${it.description}`,
   )
 
   return {
@@ -41,7 +41,7 @@ const getEmbeddingForArticle = async (
 }
 
 const addTopicsToArticle = async (
-  it: EmbeddedOmnivoreArticle
+  it: EmbeddedOmnivoreArticle,
 ): Promise<EmbeddedOmnivoreArticle> => {
   const articleEmbedding = it.embedding
 
@@ -49,10 +49,10 @@ const addTopicsToArticle = async (
     `SELECT name 
     FROM (SELECT name, (1 - (embed.embedding <=> $1) - 0.6) / 0.2 AS "similarity" FROM omnivore.discover_topics embed)  topics
     WHERE topics.similarity > 0.75`,
-    [toSql(articleEmbedding)]
+    [toSql(articleEmbedding)],
   )
 
-  const topicNames = topics.rows.map(({ name }) => name)
+  const topicNames = topics.rows.map(({ name }) => name as string)
   if (it.article.type == 'community') {
     topicNames.push('Community Picks')
   }
@@ -64,10 +64,10 @@ const addTopicsToArticle = async (
 }
 
 const getEmbeddingForLabel = async (
-  label: Label
+  label: Label,
 ): Promise<EmbeddedOmnivoreLabel> => {
   const embedding = await client.getEmbeddings(
-    `${label.name}${label.description ? ':' + label.description : ''}`
+    `${label.name}${label.description ? ':' + label.description : ''}`,
   )
   return {
     embedding,
@@ -85,7 +85,7 @@ export const addEmbeddingToLabel: OperatorFunction<
   EmbeddedOmnivoreLabel
 > = pipe(
   rateLimiting,
-  mergeMap((it: Label) => fromPromise(getEmbeddingForLabel(it)))
+  mergeMap((it: Label) => fromPromise(getEmbeddingForLabel(it))),
 )
 
 export const addEmbeddingToArticle$: OperatorFunction<
@@ -93,12 +93,14 @@ export const addEmbeddingToArticle$: OperatorFunction<
   EmbeddedOmnivoreArticle
 > = pipe(
   rateLimiting,
-  mergeMap((it: OmnivoreArticle) => fromPromise(getEmbeddingForArticle(it)))
+  mergeMap((it: OmnivoreArticle) => fromPromise(getEmbeddingForArticle(it))),
 )
 
 export const addTopicsToArticle$: OperatorFunction<
   EmbeddedOmnivoreArticle,
   EmbeddedOmnivoreArticle
 > = pipe(
-  mergeMap((it: EmbeddedOmnivoreArticle) => fromPromise(addTopicsToArticle(it)))
+  mergeMap((it: EmbeddedOmnivoreArticle) =>
+    fromPromise(addTopicsToArticle(it)),
+  ),
 )

@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import type { SelectionAttributes } from './highlightHelpers'
+import type { HighlightLocation } from './highlightGenerator'
 import {
   generateDiffPatch,
   isValidLength,
   makeHighlightNodeAttributes,
 } from './highlightGenerator'
-import type { HighlightLocation } from './highlightGenerator'
 import { extendRangeToWordBoundaries } from './normalizeHighlightRange'
 import type { Highlight } from '../networking/fragments/highlightFragment'
 import { removeHighlights } from './deleteHighlight'

@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from "crypto"
 
 /**
  * Generates uuid using MD5 hash from the specified object

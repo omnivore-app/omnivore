@@ -1,21 +1,21 @@
-import { useState } from 'react'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { useState } from "react"
+import { applyStoredTheme } from "../../../lib/themeUpdater"
 
-import { Box, VStack } from '../../../components/elements/LayoutPrimitives'
+import { Box, VStack } from "../../../components/elements/LayoutPrimitives"
 
-import 'antd/dist/antd.compact.css'
-import { StyledText } from '../../../components/elements/StyledText'
-import { ProfileLayout } from '../../../components/templates/ProfileLayout'
+import "antd/dist/antd.compact.css"
+import { StyledText } from "../../../components/elements/StyledText"
+import { ProfileLayout } from "../../../components/templates/ProfileLayout"
 import {
   uploadImportFileRequestMutation,
-  UploadImportFileType,
-} from '../../../lib/networking/mutations/uploadImportFileMutation'
-import { Button } from '../../../components/elements/Button'
-import Dropzone from 'react-dropzone'
+  UploadImportFileType
+} from "../../../lib/networking/mutations/uploadImportFileMutation"
+import { Button } from "../../../components/elements/Button"
+import Dropzone from "react-dropzone"
 
-import { SyncLoader } from 'react-spinners'
-import { theme } from '../../../components/tokens/stitches.config'
-import { Tray } from 'phosphor-react'
+import { SyncLoader } from "react-spinners"
+import { theme } from "../../../components/tokens/stitches.config"
+import { Tray } from "phosphor-react"
 
 type UploadState = 'none' | 'uploading' | 'completed'
 

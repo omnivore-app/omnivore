@@ -75,7 +75,7 @@ export function contentServiceRouter() {
           .andWhere('file.id = :fileId', { fileId })
           .getOne(),
       undefined,
-      uploadFile.user.id
+      uploadFile.user.id,
     )
     if (!libraryItem) {
       logger.info(`No upload file found for id: ${fileId}`)
@@ -98,7 +98,7 @@ export function contentServiceRouter() {
     try {
       const uploadFileData = await setFileUploadComplete(
         fileId,
-        uploadFile.user.id
+        uploadFile.user.id,
       )
       logger.info('updated uploadFileData', uploadFileData)
     } catch (error) {
@@ -108,7 +108,7 @@ export function contentServiceRouter() {
     const result = await updateLibraryItem(
       libraryItem.id,
       itemToUpdate,
-      uploadFile.user.id
+      uploadFile.user.id,
     )
     logger.info('Updating library item text', {
       id: libraryItem.id,

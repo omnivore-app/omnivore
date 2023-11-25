@@ -20,29 +20,29 @@ export const getIntegrationClient = (name: string): IntegrationClient => {
 
 export const deleteIntegrations = async (
   userId: string,
-  criteria: string[] | FindOptionsWhere<Integration>
+  criteria: string[] | FindOptionsWhere<Integration>,
 ) => {
   return authTrx(
     async (t) => t.getRepository(Integration).delete(criteria),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const removeIntegration = async (
   integration: Integration,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) => t.getRepository(Integration).remove(integration),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findIntegration = async (
   where: FindOptionsWhere<Integration> | FindOptionsWhere<Integration>[],
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) =>
@@ -51,13 +51,13 @@ export const findIntegration = async (
         user: { id: userId },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findIntegrations = async (
   userId: string,
-  where?: FindOptionsWhere<Integration> | FindOptionsWhere<Integration>[]
+  where?: FindOptionsWhere<Integration> | FindOptionsWhere<Integration>[],
 ) => {
   return authTrx(
     async (t) =>
@@ -66,29 +66,29 @@ export const findIntegrations = async (
         user: { id: userId },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const saveIntegration = async (
   integration: DeepPartial<Integration>,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) => t.getRepository(Integration).save(integration),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const updateIntegration = async (
   id: string,
   integration: DeepPartial<Integration>,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) => t.getRepository(Integration).update(id, integration),
     undefined,
-    userId
+    userId,
   )
 }

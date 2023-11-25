@@ -1,32 +1,15 @@
-import { useMemo, useState } from 'react'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { useMemo, useState } from "react"
+import { applyStoredTheme } from "../../../lib/themeUpdater"
 
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../../components/templates/settings/SettingsTable'
-import { StyledText } from '../../../components/elements/StyledText'
-import {
-  RecentEmail,
-  useGetRecentEmailsQuery,
-} from '../../../lib/networking/queries/useGetRecentEmails'
-import {
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
-import { DropdownOption } from '../../../components/elements/DropdownElements'
-import { theme } from '../../../components/tokens/stitches.config'
-import {
-  ModalContent,
-  ModalOverlay,
-  ModalRoot,
-  ModalTitleBar,
-} from '../../../components/elements/ModalPrimitives'
-import { markEmailAsItemMutation } from '../../../lib/networking/mutations/markEmailAsItemMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import { EmptySettingsRow, SettingsTable, SettingsTableRow } from "../../../components/templates/settings/SettingsTable"
+import { StyledText } from "../../../components/elements/StyledText"
+import { RecentEmail, useGetRecentEmailsQuery } from "../../../lib/networking/queries/useGetRecentEmails"
+import { Box, HStack, SpanBox, VStack } from "../../../components/elements/LayoutPrimitives"
+import { DropdownOption } from "../../../components/elements/DropdownElements"
+import { theme } from "../../../components/tokens/stitches.config"
+import { ModalContent, ModalOverlay, ModalRoot, ModalTitleBar } from "../../../components/elements/ModalPrimitives"
+import { markEmailAsItemMutation } from "../../../lib/networking/mutations/markEmailAsItemMutation"
+import { showErrorToast, showSuccessToast } from "../../../lib/toastHelpers"
 
 type TypeChipProps = {
   type: string

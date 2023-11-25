@@ -56,7 +56,7 @@ const signImageProxyUrl = (url: string, secret: string): string => {
 export function createImageProxyUrl(
   url: string,
   width = 0,
-  height = 0
+  height = 0,
 ): string {
   if (!process.env.IMAGE_PROXY_URL || !process.env.IMAGE_PROXY_SECRET) {
     return url
@@ -65,7 +65,7 @@ export function createImageProxyUrl(
   const urlWithOptions = `${url}#${width}x${height}`
   const signature = signImageProxyUrl(
     urlWithOptions,
-    process.env.IMAGE_PROXY_SECRET
+    process.env.IMAGE_PROXY_SECRET,
   )
 
   return `${process.env.IMAGE_PROXY_URL}/${width}x${height},s${signature}/${url}`
@@ -73,7 +73,7 @@ export function createImageProxyUrl(
 
 const articleQuery = async (
   userId: string,
-  slug: string
+  slug: string,
 ): Promise<Page | null> => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
@@ -114,7 +114,7 @@ const articleQuery = async (
           'Content-Type': 'application/json',
         },
         timeout: REQUEST_TIMEOUT,
-      }
+      },
     )
 
     return response.data.data.article.article
@@ -131,7 +131,7 @@ const articleQuery = async (
 const updatePageMutation = async (
   userId: string,
   pageId: string,
-  image: string
+  image: string,
 ) => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
@@ -172,7 +172,7 @@ const updatePageMutation = async (
           'Content-Type': 'application/json',
         },
         timeout: REQUEST_TIMEOUT,
-      }
+      },
     )
 
     return !!response.data.data.updatePage
@@ -186,8 +186,8 @@ const updatePageMutation = async (
   }
 }
 
-const isThumbnailRequest = (body: any): body is ThumbnailRequest => {
-  return 'slug' in body
+const isThumbnailRequest = (body: unknown): body is ThumbnailRequest => {
+  return typeof body == 'object' && body != null && 'slug' in body
 }
 
 const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
@@ -251,7 +251,7 @@ export const fetchAllImageSizes = async (content: string) => {
       }
 
       return getImageSize(src)
-    })
+    }),
   )
 }
 
@@ -375,5 +375,5 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error(e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
     }
-  }
+  },
 )

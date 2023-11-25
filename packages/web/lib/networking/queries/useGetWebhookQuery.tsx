@@ -1,7 +1,7 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { makeGqlFetcher } from '../networkHelpers'
-import { Webhook } from './useGetWebhooksQuery'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { makeGqlFetcher } from "../networkHelpers"
+import { Webhook } from "./useGetWebhooksQuery"
 
 interface WebhookQueryResponse {
   isValidating?: boolean

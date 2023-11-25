@@ -34,7 +34,7 @@ type AddLabelsToHighlightEvent = {
 
 export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
-  userId: string
+  userId: string,
 ): Promise<Label[]> => {
   return authTrx(
     async (tx) => {
@@ -42,14 +42,14 @@ export const findOrCreateLabels = async (
       // find existing labels
       const labelEntities = await labelRepo.findByNames(
         labels.map((l) => l.name),
-        userId
+        userId,
       )
 
       const existingLabelsInLowerCase = labelEntities.map((l) =>
-        l.name.toLowerCase()
+        l.name.toLowerCase(),
       )
       const newLabels = labels.filter(
-        (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase())
+        (l) => !existingLabelsInLowerCase.includes(l.name.toLowerCase()),
       )
       if (newLabels.length === 0) {
         return labelEntities
@@ -61,7 +61,7 @@ export const findOrCreateLabels = async (
       return [...labelEntities, ...newLabelEntities]
     },
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -70,7 +70,7 @@ export const saveLabelsInLibraryItem = async (
   libraryItemId: string,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false
+  skipPubSub = false,
 ) => {
   await authTrx(
     async (tx) => {
@@ -86,11 +86,11 @@ export const saveLabelsInLibraryItem = async (
         labels.map((l) => ({
           labelId: l.id,
           libraryItemId,
-        }))
+        })),
       )
     },
     undefined,
-    userId
+    userId,
   )
 
   if (skipPubSub) {
@@ -101,7 +101,7 @@ export const saveLabelsInLibraryItem = async (
   await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
     EntityType.LABEL,
     { pageId: libraryItemId, labels },
-    userId
+    userId,
   )
 }
 
@@ -110,7 +110,7 @@ export const addLabelsToLibraryItem = async (
   libraryItemId: string,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false
+  skipPubSub = false,
 ) => {
   await authTrx(
     async (tx) => {
@@ -127,11 +127,11 @@ export const addLabelsToLibraryItem = async (
         labels.map((l) => ({
           labelId: l.id,
           libraryItemId,
-        }))
+        })),
       )
     },
     undefined,
-    userId
+    userId,
   )
 
   if (skipPubSub) {
@@ -142,7 +142,7 @@ export const addLabelsToLibraryItem = async (
   await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
     EntityType.LABEL,
     { pageId: libraryItemId, labels },
-    userId
+    userId,
   )
 }
 
@@ -150,7 +150,7 @@ export const saveLabelsInHighlight = async (
   labels: Label[],
   highlightId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
 ) => {
   await authTrx(async (tx) => {
     const repo = tx.getRepository(EntityLabel)
@@ -165,7 +165,7 @@ export const saveLabelsInHighlight = async (
       labels.map((l) => ({
         labelId: l.id,
         highlightId,
-      }))
+      })),
     )
   })
 
@@ -173,13 +173,13 @@ export const saveLabelsInHighlight = async (
   await pubsub.entityCreated<AddLabelsToHighlightEvent>(
     EntityType.LABEL,
     { highlightId, labels },
-    userId
+    userId,
   )
 }
 
 export const findLabelsByIds = async (
   ids: string[],
-  userId: string
+  userId: string,
 ): Promise<Label[]> => {
   return authTrx(
     async (tx) => {
@@ -189,38 +189,38 @@ export const findLabelsByIds = async (
       })
     },
     undefined,
-    userId
+    userId,
   )
 }
 
 export const createLabel = async (
   name: string,
   color: string,
-  userId: string
+  userId: string,
 ): Promise<Label> => {
   return authTrx(
     (t) =>
       t.withRepository(labelRepository).createLabel({ name, color }, userId),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const deleteLabels = async (
   criteria: string[] | FindOptionsWhere<Label>,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) => t.withRepository(labelRepository).delete(criteria),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const updateLabel = async (
   id: string,
   label: QueryDeepPartialEntity<Label>,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (t) => {
@@ -230,7 +230,7 @@ export const updateLabel = async (
       return repo.findOneByOrFail({ id })
     },
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -242,7 +242,7 @@ export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {
         order: { position: 'ASC' },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -253,13 +253,13 @@ export const findLabelById = async (id: string, userId: string) => {
         .withRepository(labelRepository)
         .findOneBy({ id, user: { id: userId } }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findLabelsByLibraryItemId = async (
   libraryItemId: string,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (tx) =>
@@ -268,16 +268,16 @@ export const findLabelsByLibraryItemId = async (
         .innerJoin(
           EntityLabel,
           'entityLabel',
-          'entityLabel.label_id = label.id'
+          'entityLabel.label_id = label.id',
         )
         .innerJoin(
           LibraryItem,
           'LibraryItem',
-          'LibraryItem.id = entityLabel.library_item_id'
+          'LibraryItem.id = entityLabel.library_item_id',
         )
         .where('LibraryItem.id = :libraryItemId', { libraryItemId })
         .getMany(),
     undefined,
-    userId
+    userId,
   )
 }

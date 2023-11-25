@@ -50,7 +50,7 @@ export function pageRouter() {
     const { url, clientRequestId } = req.query
     const contentType = req.headers['content-type']
     logger.info(
-      `creating page from pdf ${url} ${contentType} ${clientRequestId}`
+      `creating page from pdf ${url} ${contentType} ${clientRequestId}`,
     )
 
     if (
@@ -83,17 +83,17 @@ export function pageRouter() {
           contentType: 'application/pdf',
         }),
       undefined,
-      claims.uid
+      claims.uid,
     )
 
     const uploadFilePathName = generateUploadFilePathName(
       uploadFileData.id,
-      fileName
+      fileName,
     )
 
     const signedUrl = await generateUploadSignedUrl(
       uploadFilePathName,
-      'application/pdf'
+      'application/pdf',
     )
 
     const item = await findLibraryItemByUrl(url, claims.uid)
@@ -113,7 +113,7 @@ export function pageRouter() {
           slug: generateSlug(uploadFilePathName),
           state: LibraryItemState.Processing,
         },
-        claims.uid
+        claims.uid,
       )
     }
 
@@ -124,7 +124,7 @@ export function pageRouter() {
   // Add recommended pages to a user's library
   router.options(
     '/recommend',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
   router.post(
     '/recommend',
@@ -155,7 +155,7 @@ export function pageRouter() {
         item,
         recommendation,
         userId,
-        highlightIds
+        highlightIds,
       )
       if (!recommendedItem) {
         logger.error('Failed to add recommendation to page')
@@ -163,7 +163,7 @@ export function pageRouter() {
       }
 
       return res.send('OK')
-    }
+    },
   )
 
   return router

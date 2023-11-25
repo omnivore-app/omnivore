@@ -10,7 +10,7 @@ export const deleteUser = async (userId: string) => {
       await t.withRepository(userRepository).delete(userId)
     },
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -18,7 +18,7 @@ export const updateUser = async (userId: string, update: Partial<User>) => {
   return authTrx(
     async (t) => t.getRepository(User).update(userId, update),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -35,7 +35,7 @@ export const deleteUsers = async (criteria: FindOptionsWhere<User>) => {
     async (t) => t.getRepository(User).delete(criteria),
     undefined,
     undefined,
-    SetClaimsRole.ADMIN
+    SetClaimsRole.ADMIN,
   )
 }
 
@@ -44,6 +44,6 @@ export const createUsers = async (users: DeepPartial<User>[]) => {
     async (t) => t.getRepository(User).save(users),
     undefined,
     undefined,
-    SetClaimsRole.ADMIN
+    SetClaimsRole.ADMIN,
   )
 }

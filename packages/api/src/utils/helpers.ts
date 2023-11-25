@@ -30,7 +30,7 @@ import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
 import { logger } from './logger'
-import { InFilter } from './search'
+
 interface InputObject {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any
@@ -83,7 +83,7 @@ export function authorized<
   TError extends { errorCodes: string[] },
   /* eslint-disable @typescript-eslint/no-explicit-any */
   TArgs = any,
-  TParent = any
+  TParent = any,
   /* eslint-enable @typescript-eslint/no-explicit-any */
 >(
   resolver: ResolverFn<
@@ -91,7 +91,7 @@ export function authorized<
     TParent,
     WithDataSourcesContext & { claims: Claims },
     TArgs
-  >
+  >,
 ): ResolverFn<TSuccess | TError, TParent, WithDataSourcesContext, TArgs> {
   return (parent, args, ctx, info) => {
     const { claims } = ctx
@@ -105,7 +105,7 @@ export function authorized<
 export const findDelimiter = (
   text: string,
   delimiters = ['\t', ',', ':', ';'],
-  defaultDelimiter = '\t'
+  defaultDelimiter = '\t',
 ): string => {
   const textChunk = text
     // remove escaped sections that can contain false-positive delimiters
@@ -116,8 +116,8 @@ export const findDelimiter = (
     textChunk.every(
       (row, _, array) =>
         row.split(delimiter).length === array[0].split(delimiter).length &&
-        row.split(delimiter).length !== 1
-    )
+        row.split(delimiter).length !== 1,
+    ),
   )
 
   return delimiter || defaultDelimiter
@@ -136,7 +136,7 @@ export const userDataToUser = (
       sharedNotesCount?: number
       viewerIsFollowing?: boolean
     }
-  >
+  >,
 ): {
   id: string
   name: string
@@ -182,7 +182,7 @@ export const errorHandler = async (
   result: CreateArticleError,
   userId: string,
   pageId?: string | null,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
 ): Promise<CreateArticleError | CreateArticleSuccess> => {
   if (!pageId) return result
 
@@ -192,14 +192,14 @@ export const errorHandler = async (
       state: LibraryItemState.Failed,
     },
     userId,
-    pubsub
+    pubsub,
   )
 
   return result
 }
 
 export const highlightDataToHighlight = (
-  highlight: HighlightData
+  highlight: HighlightData,
 ): Highlight => ({
   ...highlight,
   createdByMe: false,
@@ -210,7 +210,7 @@ export const highlightDataToHighlight = (
 })
 
 export const recommandationDataToRecommendation = (
-  recommendation: RecommendationData
+  recommendation: RecommendationData,
 ): Recommendation => ({
   ...recommendation,
   user: {
@@ -225,7 +225,7 @@ export const recommandationDataToRecommendation = (
 
 export const libraryItemToArticleSavingRequest = (
   user: User,
-  item: LibraryItem
+  item: LibraryItem,
 ): ArticleSavingRequest => ({
   ...item,
   user: userDataToUser(user),
@@ -242,7 +242,7 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   hash: item.textContentHash || '',
   isArchived: !!item.archivedAt,
   recommendations: item.recommendations?.map(
-    recommandationDataToRecommendation
+    recommandationDataToRecommendation,
   ),
   image: item.thumbnail,
   contentReader: item.contentReader as unknown as ContentReader,
@@ -265,7 +265,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   contentReader: item.contentReader as unknown as ContentReader,
   readingProgressAnchorIndex: item.readingProgressHighestReadAnchor,
   recommendations: item.recommendations?.map(
-    recommandationDataToRecommendation
+    recommandationDataToRecommendation,
   ),
   image: item.thumbnail,
   highlights: item.highlights?.map(highlightDataToHighlight),
@@ -281,7 +281,7 @@ export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {
 }
 
 export const validatedDate = (
-  date: Date | string | undefined
+  date: Date | string | undefined,
 ): Date | undefined => {
   try {
     if (typeof date === 'string') {
@@ -308,7 +308,7 @@ export const fileNameForFilePath = (urlStr: string): string => {
   })
   const fileName = decodeURI(path.basename(new URL(url).pathname)).replace(
     /[^a-zA-Z0-9-_.]/g,
-    ''
+    '',
   )
   return fileName
 }

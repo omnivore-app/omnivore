@@ -19,7 +19,7 @@ initializeApp({
 export const sendPushNotification = async (
   userId: string,
   message: Message,
-  type: PushNotificationType
+  type: PushNotificationType,
 ): Promise<string | undefined> => {
   try {
     analytics.track({
@@ -46,7 +46,7 @@ export const sendPushNotification = async (
 export const sendMulticastPushNotifications = async (
   userId: string,
   message: MulticastMessage,
-  type: PushNotificationType
+  type: PushNotificationType,
 ): Promise<BatchResponse | undefined> => {
   try {
     analytics.track({
@@ -72,7 +72,7 @@ export const sendMulticastPushNotifications = async (
 }
 
 export const sendBatchPushNotifications = async (
-  messages: Message[]
+  messages: Message[],
 ): Promise<BatchResponse | undefined> => {
   try {
     const res = await getMessaging().sendAll(messages)

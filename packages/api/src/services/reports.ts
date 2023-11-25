@@ -9,7 +9,7 @@ import { findLibraryItemById } from './library_item'
 
 export const saveContentDisplayReport = async (
   uid: string,
-  input: ReportItemInput
+  input: ReportItemInput,
 ): Promise<boolean> => {
   const item = await findLibraryItemById(input.pageId, uid)
   if (!item) {
@@ -50,7 +50,7 @@ export const saveContentDisplayReport = async (
 
 export const saveAbuseReport = async (
   uid: string,
-  input: ReportItemInput
+  input: ReportItemInput,
 ): Promise<boolean> => {
   const item = await findLibraryItemById(input.pageId, uid)
   if (!item) {
@@ -74,7 +74,7 @@ export const saveAbuseReport = async (
       reportTypes: [ReportType.Abusive],
       reportComment: input.reportComment,
       libraryItemId: item.id,
-    })
+    }),
   )
 
   return !!result

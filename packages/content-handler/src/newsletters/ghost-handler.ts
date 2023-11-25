@@ -18,13 +18,13 @@ export class GhostHandler extends ContentHandler {
   }): Promise<boolean> {
     const dom = input.dom
     return Promise.resolve(
-      dom.querySelectorAll('img[src*="ghost.org"]').length > 0
+      dom.querySelectorAll('img[src*="ghost.org"]').length > 0,
     )
   }
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     return this.findNewsletterUrl(html)
   }

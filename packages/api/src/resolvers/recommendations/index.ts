@@ -131,7 +131,7 @@ export const groupsResolver = authorized<GroupsSuccess, GroupsError>(
         errorCodes: [GroupsErrorCode.BadRequest],
       }
     }
-  }
+  },
 )
 
 export const recommendResolver = authorized<
@@ -177,11 +177,11 @@ export const recommendResolver = authorized<
                 libraryItem: { id: item.id },
               },
               auth,
-              recommendedHighlightIds
-            )
-          )
+              recommendedHighlightIds,
+            ),
+          ),
         )
-        .flat()
+        .flat(),
     )
     log.info('taskNames', taskNames)
 
@@ -284,11 +284,11 @@ export const recommendHighlightsResolver = authorized<
                   libraryItem: { id: item.id },
                 },
                 auth,
-                input.highlightIds
-              )
-            )
+                input.highlightIds,
+              ),
+            ),
         )
-        .flat()
+        .flat(),
     )
 
     return {

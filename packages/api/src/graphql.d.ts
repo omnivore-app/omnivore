@@ -35,7 +35,7 @@ declare module 'knex-stringcase' {
     /* eslint-disable @typescript-eslint/no-explicit-any */
     beforePostProcessResponse?(
       result: any[] | object,
-      queryContext: object
+      queryContext: object,
     ): any[] | object
     beforeWrapIdentifier?(value: string, queryContext: object): string
     /* eslint-enable @typescript-eslint/no-explicit-any */

@@ -175,7 +175,7 @@ if (
   ['prod', 'qa', 'demo'].indexOf(process.env.API_ENV || '') === -1
 ) {
   nullableEnvVars.push(
-    ...['GCS_UPLOAD_BUCKET', 'PREVIEW_GENERATION_SERVICE_URL']
+    ...['GCS_UPLOAD_BUCKET', 'PREVIEW_GENERATION_SERVICE_URL'],
   )
 }
 
@@ -189,7 +189,7 @@ const envParser =
       return ''
     }
     throw new Error(
-      `Missing ${varName} with a non-empty value in process environment`
+      `Missing ${varName} with a non-empty value in process environment`,
     )
   }
 
@@ -328,7 +328,7 @@ export function getEnv(): BackendEnv {
 
 export type Merge<
   Target extends Record<string, any>,
-  Part extends Record<string, any>
+  Part extends Record<string, any>,
 > = Omit<Target, keyof Part> & Part
 
 /**
@@ -341,7 +341,7 @@ export type Partialize<T> = {
 
 export function exclude<A extends readonly any[], B extends readonly any[]>(
   a: A,
-  b: B
+  b: B,
 ): readonly Exclude<A[number], B[number]>[] {
   return a.filter((x) => b.includes(x)) as any
 }

@@ -1,8 +1,8 @@
-import { config } from '../components/tokens/stitches.config'
-import { Box, HStack, VStack } from '../components/elements/LayoutPrimitives'
-import { PrimaryLayout } from '../components/templates/PrimaryLayout'
-import { StyledText } from '../components/elements/StyledText'
-import { currentThemeName } from '../lib/themeUpdater'
+import { config } from "../components/tokens/stitches.config"
+import { Box, HStack, VStack } from "../components/elements/LayoutPrimitives"
+import { PrimaryLayout } from "../components/templates/PrimaryLayout"
+import { StyledText } from "../components/elements/StyledText"
+import { currentThemeName } from "../lib/themeUpdater"
 
 export default function Colors(): JSX.Element {
   const colors = config.theme.colors

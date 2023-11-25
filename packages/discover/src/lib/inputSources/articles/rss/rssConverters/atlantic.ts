@@ -8,7 +8,7 @@ import { mapOrNull } from '../../../../utils/reactive'
 const parser = new XMLParser({ ignoreAttributes: false, parseTagValue: true })
 
 export const convertAtlanticArticles = (
-  articleXml: string
+  articleXml: string,
 ): Observable<OmnivoreArticle> => {
   return fromArrayLike(parser.parse(articleXml).feed.entry).pipe(
     mapOrNull(
@@ -24,7 +24,7 @@ export const convertAtlanticArticles = (
         site: new URL(article.link['@_href']).host,
         publishedAt: new Date(article.published),
         type: 'rss',
-      })
-    )
+      }),
+    ),
   )
 }

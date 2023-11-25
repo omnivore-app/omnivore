@@ -83,7 +83,7 @@ export abstract class ContentHandler {
     const postHeader = input.headers['list-post']
     const unSubHeader = input.headers['list-unsubscribe']
     return Promise.resolve(
-      re.test(input.from) && (!!postHeader || !!unSubHeader)
+      re.test(input.from) && (!!postHeader || !!unSubHeader),
     )
   }
 
@@ -105,7 +105,7 @@ export abstract class ContentHandler {
         const response = await axios.head(href, { timeout: 5000 })
         return Promise.resolve(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          response.request.res.responseUrl as string | undefined
+          response.request.res.responseUrl as string | undefined,
         )
       } catch (e) {
         console.log('error making HEAD request', e)
@@ -118,7 +118,7 @@ export abstract class ContentHandler {
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     // get url from dom
     const url = await this.findNewsletterUrl(html)

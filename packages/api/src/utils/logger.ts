@@ -33,18 +33,18 @@ export class CustomTypeOrmLogger
     this.logger = buildLogger('typeorm')
   }
 
-  logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
+  logQuery(query: string, parameters?: any[], _queryRunner?: QueryRunner) {
     this.logger.info(
       `query: ${query} -- PARAMETERS: ${super.stringifyParams(
-        parameters || []
-      )}`
+        parameters || [],
+      )}`,
     )
   }
 
   log(
     level: 'log' | 'info' | 'warn',
     message: any,
-    queryRunner?: QueryRunner
+    _queryRunner?: QueryRunner,
   ): void {
     this.logger.log(level, message)
   }
@@ -80,9 +80,9 @@ function localConfig(id: string): ConsoleTransportOptions {
       format((info) =>
         Object.assign(info, {
           timestamp: DateTime.local().toLocaleString(
-            DateTime.TIME_24_WITH_SECONDS
+            DateTime.TIME_24_WITH_SECONDS,
           ),
-        })
+        }),
       )(),
       format.printf((info) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,7 +93,7 @@ function localConfig(id: string): ConsoleTransportOptions {
             ? '\n' + jsonStringify(meta, undefined, 4)
             : ''
         }`
-      })
+      }),
     ),
   }
 }

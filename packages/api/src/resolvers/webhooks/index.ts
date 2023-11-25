@@ -30,7 +30,7 @@ export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
       const webhooks = await authTrx((t) =>
         t.getRepository(Webhook).findBy({
           user: { id: uid },
-        })
+        }),
       )
 
       return {
@@ -43,7 +43,7 @@ export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
         errorCodes: [WebhooksErrorCode.BadRequest],
       }
     }
-  }
+  },
 )
 
 export const webhookResolver = authorized<
@@ -56,7 +56,7 @@ export const webhookResolver = authorized<
       t.getRepository(Webhook).findOne({
         where: { id },
         relations: ['user'],
-      })
+      }),
     )
 
     if (!webhook) {
@@ -127,7 +127,7 @@ export const setWebhookResolver = authorized<
         t.getRepository(Webhook).findOne({
           where: { id: input.id || '' },
           relations: ['user'],
-        })
+        }),
       )
       if (!existingWebhook) {
         return {
@@ -141,7 +141,7 @@ export const setWebhookResolver = authorized<
       t.getRepository(Webhook).save({
         user: { id: uid },
         ...webhookToSave,
-      })
+      }),
     )
 
     analytics.track({

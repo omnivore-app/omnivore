@@ -1,6 +1,6 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
-import MobileInstallHelp from '../components/elements/MobileInstallHelp'
-import { Box } from '../components/elements/LayoutPrimitives'
+import { ComponentMeta, ComponentStory } from "@storybook/react"
+import MobileInstallHelp from "../components/elements/MobileInstallHelp"
+import { Box } from "../components/elements/LayoutPrimitives"
 
 export default {
   title: 'Components/MobileInstallHelp',

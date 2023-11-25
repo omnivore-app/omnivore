@@ -62,7 +62,7 @@ const getRealisticVoiceId = (name: string | undefined) => {
 
 export class RealisticTextToSpeech implements TextToSpeech {
   synthesizeTextToSpeech = async (
-    input: TextToSpeechInput
+    input: TextToSpeechInput,
   ): Promise<TextToSpeechOutput> => {
     const voiceId = getRealisticVoiceId(input.voice)
     const apiKey = process.env.REALISTIC_VOICE_API_KEY
@@ -87,7 +87,7 @@ export class RealisticTextToSpeech implements TextToSpeech {
       {
         headers: HEADERS,
         responseType: 'arraybuffer',
-      }
+      },
     )
 
     if (response.data.length === 0) {

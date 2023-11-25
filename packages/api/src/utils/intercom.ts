@@ -10,7 +10,7 @@ export const IntercomClient =
 
 export async function createIntercomEvent(
   eventName: string,
-  userId: string
+  userId: string,
 ): Promise<void> {
   if (!IntercomClient) {
     return

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from "react"
 
 export const useFetchMore = (callback: () => void, delay = 500): void => {
   const [first, setFirst] = useState(true)

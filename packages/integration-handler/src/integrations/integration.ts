@@ -31,11 +31,11 @@ export abstract class IntegrationClient {
   abstract apiUrl: string
   highlightOnly = true
 
-  export = async (token: string, items: Item[]): Promise<boolean> => {
+  export = async (_token: string, _items: Item[]): Promise<boolean> => {
     return Promise.resolve(false)
   }
 
-  retrieve = async (req: RetrieveRequest): Promise<RetrievedResult> => {
+  retrieve = async (_req: RetrieveRequest): Promise<RetrievedResult> => {
     return Promise.resolve({ data: [] })
   }
 }

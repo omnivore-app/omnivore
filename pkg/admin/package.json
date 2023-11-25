@@ -24,8 +24,7 @@
     "@types/validator": "^13.6.0",
     "nodemon": "^2.0.15",
     "ts-node": "^10.0.0",
-    "ts-node-dev": "^1.1.8",
-    "typescript": "^4.4.3"
+    "ts-node-dev": "^1.1.8"
   },
   "dependencies": {
     "@adminjs/express": "^4.0.0",

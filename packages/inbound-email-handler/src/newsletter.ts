@@ -42,7 +42,7 @@ export const parseAuthor = (address: string): string => {
 
 export const handleGoogleConfirmationEmail = async (
   email: string,
-  subject: string
+  subject: string,
 ) => {
   console.log('confirmation email', email, subject)
 
@@ -52,7 +52,7 @@ export const handleGoogleConfirmationEmail = async (
       'confirmation email error, user email:',
       email,
       'confirmationCode',
-      confirmationCode
+      confirmationCode,
     )
     throw new Error('invalid confirmation email')
   }
@@ -73,7 +73,7 @@ export const getConfirmationCode = (subject: string): string | undefined => {
 
 export const isGoogleConfirmationEmail = (
   from: string,
-  subject: string
+  subject: string,
 ): boolean => {
   return (
     parseAddress(from) === GOOGLE_CONFIRMATION_EMAIL_SENDER_ADDRESS &&

@@ -1,10 +1,7 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { publicGqlFetcher } from '../networkHelpers'
-import {
-  SavedSearch,
-  savedSearchFragment,
-} from '../fragments/savedSearchFragment'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { publicGqlFetcher } from "../networkHelpers"
+import { SavedSearch, savedSearchFragment } from "../fragments/savedSearchFragment"
 
 type SavedSearchResponse = {
   error: any

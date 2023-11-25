@@ -1,24 +1,18 @@
-import { useCallback, useEffect, useState } from 'react'
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { useCallback, useEffect, useState } from "react"
+import { applyStoredTheme } from "../../lib/themeUpdater"
 
-import { VStack } from '../../components/elements/LayoutPrimitives'
+import { VStack } from "../../components/elements/LayoutPrimitives"
 
-import { StyledText } from '../../components/elements/StyledText'
-import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import {
-  BulkAction,
-  bulkActionMutation,
-} from '../../lib/networking/mutations/bulkActionMutation'
-import { Button } from '../../components/elements/Button'
-import { theme } from '../../components/tokens/stitches.config'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { useRouter } from 'next/router'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
-import {
-  BorderedFormInput,
-  FormLabel,
-} from '../../components/elements/FormElements'
+import { StyledText } from "../../components/elements/StyledText"
+import { ProfileLayout } from "../../components/templates/ProfileLayout"
+import { BulkAction, bulkActionMutation } from "../../lib/networking/mutations/bulkActionMutation"
+import { Button } from "../../components/elements/Button"
+import { theme } from "../../components/tokens/stitches.config"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { useRouter } from "next/router"
+import { useGetLibraryItemsQuery } from "../../lib/networking/queries/useGetLibraryItemsQuery"
+import { BorderedFormInput, FormLabel } from "../../components/elements/FormElements"
 
 type RunningState = 'none' | 'confirming' | 'running' | 'completed'
 

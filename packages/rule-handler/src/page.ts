@@ -3,7 +3,7 @@ import axios from 'axios'
 export const archivePage = async (
   apiEndpoint: string,
   auth: string,
-  pageId: string
+  pageId: string,
 ) => {
   const data = JSON.stringify({
     query: `mutation SetLinkArchived($input: ArchiveLinkInput!) {
@@ -41,7 +41,7 @@ export const archivePage = async (
 export const markPageAsRead = async (
   apiEndpoint: string,
   auth: string,
-  pageId: string
+  pageId: string,
 ) => {
   const data = JSON.stringify({
     query: `mutation SaveArticleReadingProgress($input: SaveArticleReadingProgressInput!) {

@@ -1,6 +1,6 @@
-import { KBarResults, useMatches } from 'kbar'
-import { theme } from '../tokens/stitches.config'
-import { Box, SpanBox } from './LayoutPrimitives'
+import { KBarResults, useMatches } from "kbar"
+import { theme } from "../tokens/stitches.config"
+import { Box, SpanBox } from "./LayoutPrimitives"
 
 export const searchStyle = {
   padding: '14px 16px',

@@ -38,7 +38,7 @@ export interface Rule {
 export const getEnabledRules = async (
   userId: string,
   apiEndpoint: string,
-  jwtSecret: string
+  jwtSecret: string,
 ): Promise<Rule[]> => {
   const auth = await getAuthToken(userId, jwtSecret)
 
@@ -81,10 +81,10 @@ export const triggerActions = async (
   data: PubSubData,
   apiEndpoint: string,
   jwtSecret: string,
-  eventType: RuleEventType
+  eventType: RuleEventType,
 ) => {
   const authToken = await getAuthToken(userId, jwtSecret)
-  const actionPromises: Promise<AxiosResponse<any, any> | undefined>[] = []
+  const actionPromises: Promise<AxiosResponse | undefined>[] = []
 
   for (const rule of rules) {
     // Check if the rule is enabled for the event type
@@ -96,7 +96,7 @@ export const triggerActions = async (
       apiEndpoint,
       authToken,
       rule.filter,
-      data.id
+      data.id,
     )
     if (!filteredPage) {
       continue
@@ -120,7 +120,7 @@ export const triggerActions = async (
           return (
             labelIdsToSet.length > existingLabelIds.length &&
             actionPromises.push(
-              setLabels(apiEndpoint, authToken, data.id, labelIdsToSet)
+              setLabels(apiEndpoint, authToken, data.id, labelIdsToSet),
             )
           )
         }
@@ -150,7 +150,7 @@ export const triggerActions = async (
           }
 
           return actionPromises.push(
-            sendNotification(apiEndpoint, authToken, data)
+            sendNotification(apiEndpoint, authToken, data),
           )
         }
       }

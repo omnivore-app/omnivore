@@ -63,7 +63,7 @@ export function newsletterServiceRouter() {
 
       const result = await updateConfirmationCode(
         data.emailAddress,
-        data.confirmationCode
+        data.confirmationCode,
       )
       if (!result) {
         logger.info(`Newsletter email not found: ${data.emailAddress}`)
@@ -116,7 +116,7 @@ export function newsletterServiceRouter() {
         const result = await saveUrlFromEmail(
           data.title,
           data.receivedEmailId,
-          newsletterEmail.user.id
+          newsletterEmail.user.id,
         )
         if (!result) {
           return res.status(500).send('Error saving url from email')
@@ -125,7 +125,7 @@ export function newsletterServiceRouter() {
         // do not subscribe if subscription already exists and is unsubscribed
         const existingSubscription = await getSubscriptionByName(
           data.author,
-          newsletterEmail.user.id
+          newsletterEmail.user.id,
         )
         if (existingSubscription?.status === SubscriptionStatus.Unsubscribed) {
           logger.info(`newsletter already unsubscribed: ${data.author}`)
@@ -145,7 +145,7 @@ export function newsletterServiceRouter() {
       await updateReceivedEmail(
         data.receivedEmailId,
         'article',
-        newsletterEmail.user.id
+        newsletterEmail.user.id,
       )
     } catch (e) {
       logger.error(e)

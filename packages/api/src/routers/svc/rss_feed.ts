@@ -45,7 +45,7 @@ export function rssFeedRouter() {
         GROUP BY
           url
         `,
-        [SubscriptionType.Rss, SubscriptionStatus.Active]
+        [SubscriptionType.Rss, SubscriptionStatus.Active],
       )) as RssSubscriptionGroup[]
 
       // create a cloud taks to fetch rss feed item for each subscription
@@ -56,7 +56,7 @@ export function rssFeedRouter() {
           } catch (error) {
             logger.info('error creating rss feed fetch task', error)
           }
-        })
+        }),
       )
     } catch (error) {
       logger.info('error fetching rss feeds', error)

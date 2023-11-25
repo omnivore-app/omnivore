@@ -14,7 +14,7 @@ import { findUploadFileById, setFileUploadComplete } from './upload_file'
 
 export const saveFile = async (
   input: SaveFileInput,
-  user: User
+  user: User,
 ): Promise<SaveResult> => {
   const uploadFile = await findUploadFileById(input.uploadFileId)
   if (!uploadFile) {
@@ -43,7 +43,7 @@ export const saveFile = async (
             ? 'archive'
             : 'inbox',
       },
-      user.id
+      user.id,
     )
     // add labels to item
     if (input.labels) {

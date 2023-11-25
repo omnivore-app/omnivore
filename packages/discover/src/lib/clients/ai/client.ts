@@ -1,4 +1,3 @@
-import { BedrockClient } from './bedrock'
 import { AiClient } from '../../../types/AiClient'
 import { OpenAiClient } from './openAi'
 

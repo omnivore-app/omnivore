@@ -27,7 +27,7 @@ export const setRuleResolver = authorized<
         ...input,
         id: input.id || undefined,
         user: { id: uid },
-      })
+      }),
     )
 
     return {
@@ -52,7 +52,7 @@ export const rulesResolver = authorized<
       t.getRepository(Rule).findBy({
         user: { id: uid },
         enabled: enabled === null ? undefined : enabled,
-      })
+      }),
     )
 
     return {

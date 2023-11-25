@@ -11,7 +11,7 @@ export const addRecommendation = async (
   item: LibraryItem,
   recommendation: Recommendation,
   userId: string,
-  highlightIds?: string[]
+  highlightIds?: string[],
 ) => {
   try {
     // check if the item is already recommended to the group
@@ -67,7 +67,7 @@ export const addRecommendation = async (
         ...recommendation,
         libraryItem: { id: recommendedItem.id },
       },
-      userId
+      userId,
     )
 
     return recommendedItem
@@ -79,18 +79,18 @@ export const addRecommendation = async (
 
 export const createRecommendation = async (
   recommendation: DeepPartial<Recommendation>,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (tx) => tx.getRepository(Recommendation).save(recommendation),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findRecommendationsByLibraryItemId = async (
   libraryItemId: string,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (tx) =>
@@ -102,6 +102,6 @@ export const findRecommendationsByLibraryItemId = async (
         },
       }),
     undefined,
-    userId
+    userId,
   )
 }

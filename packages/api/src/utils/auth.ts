@@ -67,7 +67,7 @@ export const claimsFromApiKey = async (key: string): Promise<Claims> => {
 // if expired then throw error
 // if not valid then verify api key
 export const getClaimsByToken = async (
-  token: string | undefined
+  token: string | undefined,
 ): Promise<Claims | undefined> => {
   let claims: Claims | undefined
 
@@ -98,23 +98,23 @@ export const generateVerificationToken = (
     id: string
     email?: string
   },
-  expireInSeconds = 60 * 60 * 24 // 1 day
+  expireInSeconds = 60 * 60 * 24, // 1 day
 ): string => {
   const iat = Math.floor(Date.now() / 1000)
   const exp = Math.floor(
-    new Date(Date.now() + expireInSeconds * 1000).getTime() / 1000
+    new Date(Date.now() + expireInSeconds * 1000).getTime() / 1000,
   )
 
   return jwt.sign(
     { uid: user.id, iat, exp, email: user.email },
-    env.server.jwtSecret
+    env.server.jwtSecret,
   )
 }
 
 export const setAuthInCookie = async (
   claims: ClaimsToSet,
   res: express.Response,
-  secret: string = env.server.jwtSecret
+  secret: string = env.server.jwtSecret,
 ) => {
   // set auth cookie in response header
   const token = await signToken(claims, secret)

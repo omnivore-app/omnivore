@@ -24,13 +24,13 @@ export class CooperPressHandler extends ContentHandler {
   }): Promise<boolean> {
     const dom = input.dom
     return Promise.resolve(
-      dom.querySelectorAll('a[href*="cooperpress.com"]').length > 0
+      dom.querySelectorAll('a[href*="cooperpress.com"]').length > 0,
     )
   }
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     return this.findNewsletterUrl(html)
   }

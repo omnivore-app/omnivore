@@ -23,7 +23,7 @@ export class PocketClient implements IntegrationClient {
         {
           headers: this.headers,
           timeout: 5000, // 5 seconds
-        }
+        },
       )
       return response.data.access_token
     } catch (error) {

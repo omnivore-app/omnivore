@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
-import { setLabelsMutation } from '../networking/mutations/setLabelsMutation'
-import { Label } from '../networking/fragments/labelFragment'
-import { showErrorToast } from '../toastHelpers'
-import throttle from 'lodash/throttle'
+import { useCallback, useEffect, useReducer } from "react"
+import { setLabelsMutation } from "../networking/mutations/setLabelsMutation"
+import { Label } from "../networking/fragments/labelFragment"
+import { showErrorToast } from "../toastHelpers"
+import throttle from "lodash/throttle"
 
 export type LabelAction = 'RESET' | 'TEMP' | 'SAVE'
 export type LabelsDispatcher = (action: {

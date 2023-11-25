@@ -22,13 +22,13 @@ export const getHighlightUrl = (slug: string, highlightId: string): string =>
 
 export const createHighlights = async (
   highlights: DeepPartial<Highlight>[],
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (tx) =>
       tx.withRepository(highlightRepository).createAndSaves(highlights),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -36,7 +36,7 @@ export const createHighlight = async (
   highlight: DeepPartial<Highlight>,
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
 ) => {
   const newHighlight = await authTrx(
     async (tx) => {
@@ -50,13 +50,13 @@ export const createHighlight = async (
       })
     },
     undefined,
-    userId
+    userId,
   )
 
   await pubsub.entityCreated<CreateHighlightEvent>(
     EntityType.HIGHLIGHT,
     { ...newHighlight, pageId: libraryItemId },
-    userId
+    userId,
   )
 
   return newHighlight
@@ -67,7 +67,7 @@ export const mergeHighlights = async (
   highlightToAdd: DeepPartial<Highlight>,
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
 ) => {
   const newHighlight = await authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
@@ -86,7 +86,7 @@ export const mergeHighlights = async (
   await pubsub.entityCreated<CreateHighlightEvent>(
     EntityType.HIGHLIGHT,
     { ...newHighlight, pageId: libraryItemId },
-    userId
+    userId,
   )
 
   return newHighlight
@@ -96,7 +96,7 @@ export const updateHighlight = async (
   highlightId: string,
   highlight: QueryDeepPartialEntity<Highlight>,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
 ) => {
   const updatedHighlight = await authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
@@ -114,7 +114,7 @@ export const updateHighlight = async (
   await pubsub.entityUpdated<UpdateHighlightEvent>(
     EntityType.HIGHLIGHT,
     { ...highlight, id: highlightId, pageId: updatedHighlight.libraryItem.id },
-    userId
+    userId,
   )
 
   return updatedHighlight
@@ -137,7 +137,7 @@ export const deleteHighlightById = async (highlightId: string) => {
 
 export const findHighlightById = async (
   highlightId: string,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (tx) => {
@@ -147,13 +147,13 @@ export const findHighlightById = async (
       })
     },
     undefined,
-    userId
+    userId,
   )
 }
 
 export const findHighlightsByLibraryItemId = async (
   libraryItemId: string,
-  userId: string
+  userId: string,
 ) => {
   return authTrx(
     async (tx) =>
@@ -165,6 +165,6 @@ export const findHighlightsByLibraryItemId = async (
         },
       }),
     undefined,
-    userId
+    userId,
   )
 }

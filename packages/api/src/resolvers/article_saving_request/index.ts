@@ -91,7 +91,7 @@ export const articleSavingRequestResolver = authorized<
     return {
       articleSavingRequest: libraryItemToArticleSavingRequest(
         user,
-        libraryItem
+        libraryItem,
       ),
     }
   } catch (error) {

@@ -1,8 +1,8 @@
 /* eslint-disable functional/no-class */
 /* eslint-disable functional/no-this-expression */
-import { IconProps } from './IconProps'
+import { IconProps } from "./IconProps"
 
-import React from 'react'
+import React from "react"
 
 export class RecommendedFlairIcon extends React.Component<IconProps> {
   render() {

@@ -50,7 +50,7 @@ export class ArsTechnicaHandler extends ContentHandler {
         ?.map(({ href }) => href) ?? []
 
     const pageContents = await Promise.all(
-      pageLinks.map(this.extractArticleContentsFromLink.bind(this))
+      pageLinks.map(this.extractArticleContentsFromLink.bind(this)),
     )
 
     for (const articleContents of pageContents) {

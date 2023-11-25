@@ -55,9 +55,9 @@ export function integrationsServiceRouter() {
             integration.id,
             integration.name,
             syncAt,
-            authToken
+            authToken,
           )
-        })
+        }),
       )
     } catch (err) {
       logger.error('sync with integrations failed', err)

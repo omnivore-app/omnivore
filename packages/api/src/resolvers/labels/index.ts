@@ -80,7 +80,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         errorCodes: [LabelsErrorCode.BadRequest],
       }
     }
-  }
+  },
 )
 
 export const createLabelResolver = authorized<
@@ -161,7 +161,7 @@ export const setLabelsResolver = authorized<
   async (
     _,
     { input: { pageId, labelIds, labels } },
-    { uid, log, authTrx, pubsub }
+    { uid, log, authTrx, pubsub },
   ) => {
     if (!labelIds && !labels) {
       log.error('labelIds or labels must be provided')
@@ -212,7 +212,7 @@ export const setLabelsResolver = authorized<
         errorCodes: [SetLabelsErrorCode.BadRequest],
       }
     }
-  }
+  },
 )
 
 export const updateLabelResolver = authorized<
@@ -336,12 +336,12 @@ export const moveLabelResolver = authorized<
         {
           position: Between(
             Math.min(newPosition, oldPosition),
-            Math.max(newPosition, oldPosition)
+            Math.max(newPosition, oldPosition),
           ),
         },
         {
           position: () => `position + ${moveUp ? 1 : -1}`,
-        }
+        },
       )
       if (!updated.affected) {
         return null

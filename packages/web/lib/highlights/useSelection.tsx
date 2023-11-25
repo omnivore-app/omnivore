@@ -1,10 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
-import {
-  wrapHighlightTagAroundRange,
-  getHighlightElements,
-  HighlightLocation,
-} from './highlightGenerator'
-import type { SelectionAttributes } from './highlightHelpers'
+import { useCallback, useEffect, useState } from "react"
+import { getHighlightElements, HighlightLocation, wrapHighlightTagAroundRange } from "./highlightGenerator"
+import type { SelectionAttributes } from "./highlightHelpers"
 
 export function useSelection(
   highlightLocations: HighlightLocation[]

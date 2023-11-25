@@ -61,7 +61,7 @@ export async function getTweets(ids: string[]): Promise<Map<string, Tweet>> {
         'user.fields': 'created_at,url,verified,profile_image_url',
         'media.fields': 'url',
       },
-    }
+    },
   )
 
   const authors = new Map<string, TwitterUser>()
@@ -96,7 +96,7 @@ export async function getTweets(ids: string[]): Promise<Map<string, Tweet>> {
       author: authors.get(tweet.author_id) as TwitterUser,
       media:
         tweet?.attachments?.media_keys.map(
-          (id) => media.get(id) as TweetMedia
+          (id) => media.get(id) as TweetMedia,
         ) || [],
       url: extractTweetUrl(tweet.text) || '',
     })
@@ -121,6 +121,6 @@ export function createTweetHtml(tweet: Tweet, template: string): string {
     {
       allowedTags: ['a', 'div', 'img', 'svg', 'g', 'circle', 'path', 'link'],
       allowedAttributes: false,
-    }
+    },
   )
 }

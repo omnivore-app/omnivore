@@ -1,5 +1,5 @@
-import { Observable, ObservableInput, pipe } from 'rxjs'
-import { map, mergeMap } from 'rxjs/operators'
+import { pipe } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { EmbeddedOmnivoreArticle } from '../../ai/embedding'
 import { env } from '../../../env'
 import { createImageProxyUrl } from '../../utils/imageproxy'
@@ -13,15 +13,13 @@ export const addImageToProxy = (imageUrl: string): string => {
 }
 
 export const putImageInProxy$ = pipe(
-  mergeMap<EmbeddedOmnivoreArticle, ObservableInput<EmbeddedOmnivoreArticle>>(
-    async (it: EmbeddedOmnivoreArticle, _idx: number) => {
-      return {
-        ...it,
-        article: {
-          ...it.article,
-          image: it.article.image && addImageToProxy(it.article.image),
-        },
-      }
+  map((it: EmbeddedOmnivoreArticle, _idx: number) => {
+    return {
+      ...it,
+      article: {
+        ...it.article,
+        image: it.article.image && addImageToProxy(it.article.image),
+      },
     }
-  )
+  }),
 )

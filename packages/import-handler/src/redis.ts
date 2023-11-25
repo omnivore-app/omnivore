@@ -6,7 +6,7 @@ import { createClient } from 'redis'
 export const lua = {
   script: readFileSync(
     path.resolve(__dirname, 'luaScripts/updateMetrics.lua'),
-    'utf8'
+    'utf8',
   ),
   sha: '',
 }

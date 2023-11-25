@@ -1,6 +1,6 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { makeGqlFetcher } from '../networkHelpers'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { makeGqlFetcher } from "../networkHelpers"
 
 export type SubscriptionStatus = 'ACTIVE' | 'DELETED' | 'UNSUBSCRIBED'
 

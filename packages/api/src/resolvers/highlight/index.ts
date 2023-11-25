@@ -53,7 +53,7 @@ export const createHighlightResolver = authorized<
       },
       input.articleId,
       uid,
-      pubsub
+      pubsub,
     )
 
     analytics.track({
@@ -89,7 +89,7 @@ export const mergeHighlightResolver = authorized<
   try {
     const existingHighlights = await highlightRepository.findByLibraryItemId(
       input.articleId,
-      uid
+      uid,
     )
 
     existingHighlights.forEach((highlight) => {
@@ -136,7 +136,7 @@ export const mergeHighlightResolver = authorized<
       highlight,
       input.articleId,
       uid,
-      pubsub
+      pubsub,
     )
 
     analytics.track({
@@ -175,7 +175,7 @@ export const updateHighlightResolver = authorized<
         color: input.color,
       },
       uid,
-      pubsub
+      pubsub,
     )
 
     return { highlight: highlightDataToHighlight(updatedHighlight) }

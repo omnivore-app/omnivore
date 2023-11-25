@@ -41,7 +41,7 @@ if (
   console.log(
     'Unknown environment / no JAEGER_HOST defined in apiEnv: ' +
       env.server.apiEnv +
-      '; not exporting traces'
+      '; not exporting traces',
   )
 }
 
@@ -73,13 +73,13 @@ export async function traceAs<A>(
     spanName,
     attributes = {},
   }: { spanName: string; attributes?: Record<string, any> },
-  fn: () => A
+  fn: () => A,
 ): Promise<A> {
   const childSpan = async (): Promise<A> => {
     const span = tracer.startSpan(spanName, { attributes })
     const result = await api.context.with(
       setSpan(api.context.active(), span),
-      fn
+      fn,
     )
     span.end()
 

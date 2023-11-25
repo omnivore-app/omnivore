@@ -13,7 +13,7 @@ export class EnergyWorldHandler extends ContentHandler {
     dom: Document
   }): Promise<boolean> {
     return Promise.resolve(
-      input.from === 'ETEnergyworld Latest News<newsletter@etenergyworld.com>'
+      input.from === 'ETEnergyworld Latest News<newsletter@etenergyworld.com>',
     )
   }
 

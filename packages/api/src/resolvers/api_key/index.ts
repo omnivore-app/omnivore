@@ -34,7 +34,7 @@ export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
         errorCodes: [ApiKeysErrorCode.BadRequest],
       }
     }
-  }
+  },
 )
 
 export const generateApiKeyResolver = authorized<

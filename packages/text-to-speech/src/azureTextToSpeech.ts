@@ -22,7 +22,7 @@ export class AzureTextToSpeech implements TextToSpeech {
   }
 
   synthesizeTextToSpeech = async (
-    input: TextToSpeechInput
+    input: TextToSpeechInput,
   ): Promise<TextToSpeechOutput> => {
     if (!process.env.AZURE_SPEECH_KEY || !process.env.AZURE_SPEECH_REGION) {
       throw new Error('Azure Speech Key or Region not set')
@@ -31,7 +31,7 @@ export class AzureTextToSpeech implements TextToSpeech {
     const audioStream = input.audioStream
     const speechConfig = SpeechConfig.fromSubscription(
       process.env.AZURE_SPEECH_KEY,
-      process.env.AZURE_SPEECH_REGION
+      process.env.AZURE_SPEECH_REGION,
     )
     speechConfig.speechSynthesisOutputFormat =
       SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3
@@ -52,7 +52,7 @@ export class AzureTextToSpeech implements TextToSpeech {
       console.info(
         `(synthesized) Reason: ${ResultReason[e.result.reason]} Audio length: ${
           e.result.audioData.byteLength
-        }`
+        }`,
       )
     }
 
@@ -93,7 +93,7 @@ export class AzureTextToSpeech implements TextToSpeech {
     }
 
     const speakSsmlAsyncPromise = (
-      ssml: string
+      ssml: string,
     ): Promise<SpeechSynthesisResult> => {
       return new Promise((resolve, reject) => {
         synthesizer.speakSsmlAsync(
@@ -103,7 +103,7 @@ export class AzureTextToSpeech implements TextToSpeech {
           },
           (error) => {
             reject(error)
-          }
+          },
         )
       })
     }

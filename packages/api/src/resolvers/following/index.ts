@@ -35,7 +35,7 @@ export const feedsResolver = authorized<
       first + 1, // fetch one extra to check if there is a next page
       start,
       input.sort?.by,
-      input.sort?.order || undefined
+      input.sort?.order || undefined,
     )
 
     const hasNextPage = feeds.length > first
@@ -91,7 +91,7 @@ export const moveToFolderResolver = authorized<
         id,
       },
       relations: ['user'],
-    })
+    }),
   )
 
   if (!item) {
@@ -133,14 +133,14 @@ export const moveToFolderResolver = authorized<
       savedAt,
     },
     uid,
-    pubsub
+    pubsub,
   )
 
   return {
     __typename: 'MoveToFolderSuccess',
     articleSavingRequest: libraryItemToArticleSavingRequest(
       updatedItem.user,
-      updatedItem
+      updatedItem,
     ),
   }
 })

@@ -1,7 +1,7 @@
-import { config } from '../../tokens/stitches.config'
-import Image from 'next/image'
-import { StyledText } from '../../elements/StyledText'
-import { OmnivoreLogoBase } from './OmnivoreLogoBase'
+import { config } from "../../tokens/stitches.config"
+import Image from "next/image"
+import { StyledText } from "../../elements/StyledText"
+import { OmnivoreLogoBase } from "./OmnivoreLogoBase"
 
 export function OmnivoreNameLogoImage(): JSX.Element {
   return (

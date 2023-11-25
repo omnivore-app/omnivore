@@ -22,7 +22,7 @@ export const getFeatureName = (name: string): FeatureName | undefined => {
 
 export const optInFeature = async (
   name: FeatureName,
-  uid: string
+  uid: string,
 ): Promise<Feature | undefined> => {
   if (name === FeatureName.UltraRealisticVoice) {
     return optInUltraRealisticVoice(uid)
@@ -48,7 +48,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const optedInFeatures = (await appDataSource.query(
+  const optedInFeatures = await appDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 
@@ -56,8 +56,8 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     on conflict (user_id, name) 
     do update set granted_at = $3 
     returning *, granted_at as "grantedAt", created_at as "createdAt", updated_at as "updatedAt";`,
-    [uid, FeatureName.UltraRealisticVoice, new Date(), MAX_USERS]
-  )) as Feature[]
+    [uid, FeatureName.UltraRealisticVoice, new Date(), MAX_USERS],
+  )
 
   // if no new features were created then user has exceeded max users
   if (optedInFeatures.length === 0) {
@@ -91,7 +91,7 @@ export const signFeatureToken = (
     name?: string
     grantedAt?: Date | null
   },
-  userId: string
+  userId: string,
 ): string => {
   logger.info('signing feature token', feature)
 
@@ -102,13 +102,13 @@ export const signFeatureToken = (
       grantedAt: feature.grantedAt ? feature.grantedAt.getTime() / 1000 : null,
     },
     env.server.jwtSecret,
-    { expiresIn: '1y' }
+    { expiresIn: '1y' },
   )
 }
 
 export const findFeatureByName = async (
   name: FeatureName,
-  userId: string
+  userId: string,
 ): Promise<Feature | null> => {
   return (await getRepository(Feature).findOneBy({
     name,
@@ -117,7 +117,7 @@ export const findFeatureByName = async (
 }
 
 export const deleteFeature = async (
-  criteria: string[] | FindOptionsWhere<Feature>
+  criteria: string[] | FindOptionsWhere<Feature>,
 ) => {
   return getRepository(Feature).delete(criteria)
 }

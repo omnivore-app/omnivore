@@ -80,7 +80,7 @@ export const setLinkArchivedResolver = authorized<
         state,
         archivedAt,
       },
-      uid
+      uid,
     )
   } catch (e) {
     return {

@@ -29,11 +29,11 @@ export interface RequestContext {
   setClaims: (em: EntityManager, uuid?: string | undefined) => Promise<void>
   signToken: (
     arg1: string | object | Buffer,
-    arg2: jwt.Secret
+    arg2: jwt.Secret,
   ) => Promise<unknown>
   authTrx: <TResult>(
     cb: (em: EntityManager) => TResult,
-    userRole?: string
+    userRole?: string,
   ) => Promise<TResult>
   tracingSpan: Span
 }

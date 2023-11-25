@@ -1,26 +1,15 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-} from 'react'
-import { Toaster } from 'react-hot-toast'
-import {
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../components/elements/StyledText'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
-import { Label } from '../../lib/networking/fragments/labelFragment'
-import { CheckSquare, Circle, Square } from 'phosphor-react'
-import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
-import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import React, { ReactNode, useCallback, useEffect, useMemo, useReducer } from "react"
+import { Toaster } from "react-hot-toast"
+import { Box, HStack, SpanBox, VStack } from "../../components/elements/LayoutPrimitives"
+import { StyledText } from "../../components/elements/StyledText"
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { useGetLabelsQuery } from "../../lib/networking/queries/useGetLabelsQuery"
+import { useGetSavedSearchQuery } from "../../lib/networking/queries/useGetSavedSearchQuery"
+import { Label } from "../../lib/networking/fragments/labelFragment"
+import { CheckSquare, Circle, Square } from "phosphor-react"
+import { SavedSearch } from "../../lib/networking/fragments/savedSearchFragment"
+import { usePersistedState } from "../../lib/hooks/usePersistedState"
 
 export type PinnedSearch = {
   type: 'saved-search' | 'label'

@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request'
-import { gqlEndpoint, fetchEndpoint } from '../appConfig'
+import { fetchEndpoint, gqlEndpoint } from '../appConfig'
 import { IncomingMessage } from 'http'
 
 declare type RequestCookies = {

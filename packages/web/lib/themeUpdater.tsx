@@ -1,11 +1,4 @@
-import {
-  ThemeId,
-  darkTheme,
-  sepiaTheme,
-  apolloTheme,
-  blackTheme,
-  theme,
-} from '../components/tokens/stitches.config'
+import { apolloTheme, blackTheme, darkTheme, sepiaTheme, theme, ThemeId } from "../components/tokens/stitches.config"
 
 const themeKey = 'theme'
 
@@ -88,7 +81,7 @@ export function currentTheme(): ThemeId | undefined {
   return ThemeId.Light
 }
 
-export function applyStoredTheme(syncWithServer = true): ThemeId | undefined {
+export function applyStoredTheme(_syncWithServer = true): ThemeId | undefined {
   if (typeof window === 'undefined') {
     return undefined
   }

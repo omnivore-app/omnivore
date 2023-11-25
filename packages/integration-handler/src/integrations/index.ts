@@ -32,7 +32,7 @@ export const updateIntegration = async (
   integrationToken: string,
   token: string,
   type: string,
-  taskName?: string | null
+  taskName?: string | null,
 ): Promise<boolean> => {
   const requestData = JSON.stringify({
     query: `
@@ -72,7 +72,7 @@ export const updateIntegration = async (
           'Content-Type': 'application/json',
           'X-OmnivoreClient': 'integration-handler',
         },
-      }
+      },
     )
 
     if (response.data.data.setIntegration.errorCodes) {

@@ -63,13 +63,13 @@ export const createGroup = async (input: {
         isAdmin: true,
       })
       return [group, invite]
-    }
+    },
   )
   return [group, invite]
 }
 
 export const getRecommendationGroups = async (
-  user: User
+  user: User,
 ): Promise<RecommendationGroup[]> => {
   const groupMembers = await getRepository(GroupMembership).find({
     where: { user: { id: user.id } },
@@ -112,7 +112,7 @@ export const getInviteUrl = (invite: Invite) => {
 
 export const joinGroup = async (
   user: User,
-  inviteCode: string
+  inviteCode: string,
 ): Promise<RecommendationGroup> => {
   const invite = await appDataSource.transaction<Invite>(async (t) => {
     // Check if the invite exists
@@ -137,7 +137,7 @@ export const joinGroup = async (
         from omnivore.group_membership
         where group_id = $2
         having count(*) < $4`,
-      [user.id, invite.group.id, invite.id, invite.maxMembers]
+      [user.id, invite.group.id, invite.id, invite.maxMembers],
     )
 
     return invite
@@ -172,7 +172,7 @@ export const joinGroup = async (
 
 export const leaveGroup = async (
   user: User,
-  groupId: string
+  groupId: string,
 ): Promise<boolean> => {
   return appDataSource.transaction(async (t) => {
     const group = await t
@@ -206,7 +206,7 @@ export const leaveGroup = async (
     if (membership.isAdmin) {
       // If the user is the only admin, we need to promote another user to admin
       const hasAdmin = group.members.some(
-        (m) => m.isAdmin && m.id !== membership.id
+        (m) => m.isAdmin && m.id !== membership.id,
       )
       if (!hasAdmin) {
         const newAdmin = group.members.find((m) => !m.isAdmin)
@@ -225,7 +225,7 @@ export const leaveGroup = async (
 
 export const createLabelAndRuleForGroup = async (
   userId: string,
-  groupName: string
+  groupName: string,
 ) => {
   const labels = await findOrCreateLabels([{ name: groupName }], userId)
 
@@ -268,7 +268,7 @@ export const createLabelAndRuleForGroup = async (
 // find groups where id is in the groupIds and the user is a member of the group and the user is allowed to post
 export const getGroupsWhereUserCanPost = async (
   userId: string,
-  groupIds: string[]
+  groupIds: string[],
 ): Promise<Group[]> => {
   return getRepository(Group)
     .createQueryBuilder('group')

@@ -9,13 +9,13 @@ export const createRule = async (
     description?: string
     actions: RuleAction[]
     filter: string
-  }
+  },
 ): Promise<Rule> => {
   const existingRule = await authTrx((t) =>
     t.getRepository(Rule).findOneBy({
       user: { id: userId },
       name: ILike(rule.name),
-    })
+    }),
   )
 
   if (existingRule) {
@@ -29,7 +29,7 @@ export const createRule = async (
         user: { id: userId },
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -42,7 +42,7 @@ export const deleteRule = async (id: string, userId: string) => {
       return rule
     },
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -50,6 +50,6 @@ export const deleteRules = async (userId: string) => {
   return authTrx(
     (t) => t.getRepository(Rule).delete({ user: { id: userId } }),
     undefined,
-    userId
+    userId,
   )
 }

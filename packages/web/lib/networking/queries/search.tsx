@@ -1,6 +1,6 @@
-import { gql } from 'graphql-request'
-import { gqlFetcher } from '../networkHelpers'
-import { LibraryItemsData } from './useGetLibraryItemsQuery'
+import { gql } from "graphql-request"
+import { gqlFetcher } from "../networkHelpers"
+import { LibraryItemsData } from "./useGetLibraryItemsQuery"
 
 export type LibraryItemsQueryInput = {
   limit?: number

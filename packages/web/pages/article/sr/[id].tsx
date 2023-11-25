@@ -1,19 +1,16 @@
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import TopBarProgress from 'react-topbar-progress-indicator'
-import { VStack } from '../../../components/elements/LayoutPrimitives'
-import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
-import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
-import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
-import {
-  ErrorComponent,
-  Loader,
-} from '../../../components/templates/SavingRequest'
-import { theme } from '../../../components/tokens/stitches.config'
-import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { useGetArticleSavingStatus } from '../../../lib/networking/queries/useGetArticleSavingStatus'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
-import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+import TopBarProgress from "react-topbar-progress-indicator"
+import { VStack } from "../../../components/elements/LayoutPrimitives"
+import { ArticleActionsMenu } from "../../../components/templates/article/ArticleActionsMenu"
+import { SkeletonArticleContainer } from "../../../components/templates/article/SkeletonArticleContainer"
+import { PrimaryLayout } from "../../../components/templates/PrimaryLayout"
+import { ErrorComponent, Loader } from "../../../components/templates/SavingRequest"
+import { theme } from "../../../components/tokens/stitches.config"
+import { useReaderSettings } from "../../../lib/hooks/useReaderSettings"
+import { useGetArticleSavingStatus } from "../../../lib/networking/queries/useGetArticleSavingStatus"
+import { applyStoredTheme } from "../../../lib/themeUpdater"
+import { ReaderHeader } from "../../../components/templates/reader/ReaderHeader"
 
 export default function ArticleSavingRequestPage(): JSX.Element {
   const router = useRouter()

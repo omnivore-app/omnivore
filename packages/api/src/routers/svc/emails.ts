@@ -75,7 +75,7 @@ export function emailsServiceRouter() {
       if (
         await isProbablyArticle(
           data.forwardedFrom || parsedFrom.address,
-          data.subject
+          data.subject,
         )
       ) {
         logger.info('handling as article')
@@ -88,7 +88,7 @@ export function emailsServiceRouter() {
             receivedEmailId: data.receivedEmailId,
             email: newsletterEmail.address,
           },
-          newsletterEmail
+          newsletterEmail,
         )
         if (!savedNewsletter) {
           logger.info('Failed to save email')
@@ -165,7 +165,7 @@ export function emailsServiceRouter() {
         req.body.subject,
         req.body.text,
         req.body.html,
-        user.id
+        user.id,
       )
 
       analytics.track({

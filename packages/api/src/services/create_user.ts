@@ -108,7 +108,7 @@ export const createUser = async (input: {
       await createDefaultFiltersForUser(t)(user.id)
 
       return [user, profile]
-    }
+    },
   )
 
   const customAttributes: { source_user_id: string } = {
@@ -128,7 +128,7 @@ export const createUser = async (input: {
     user.id,
     user.email,
     user.name,
-    profile.username
+    profile.username,
   )
 
   analytics.track({
@@ -179,7 +179,7 @@ const createDefaultFiltersForUser =
 // Maybe this should be moved into a service
 const validateInvite = async (
   entityManager: EntityManager,
-  invite: Invite
+  invite: Invite,
 ): Promise<boolean> => {
   if (invite.expirationTime < new Date()) {
     logger.info('rejecting invite, expired', invite)
@@ -188,7 +188,7 @@ const validateInvite = async (
   const numMembers = await authTrx(
     (t) =>
       t.getRepository(GroupMembership).countBy({ invite: { id: invite.id } }),
-    entityManager
+    entityManager,
   )
   if (numMembers >= invite.maxMembers) {
     logger.info('rejecting invite, too many users', { invite, numMembers })

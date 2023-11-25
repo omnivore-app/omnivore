@@ -1,15 +1,15 @@
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import TopBarProgress from 'react-topbar-progress-indicator'
-import { VStack } from '../../components/elements/LayoutPrimitives'
-import { ArticleActionsMenu } from '../../components/templates/article/ArticleActionsMenu'
-import { SkeletonArticleContainer } from '../../components/templates/article/SkeletonArticleContainer'
-import { PrimaryLayout } from '../../components/templates/PrimaryLayout'
-import { Loader } from '../../components/templates/SavingRequest'
-import { theme } from '../../components/tokens/stitches.config'
-import { useReaderSettings } from '../../lib/hooks/useReaderSettings'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { PrimaryContent } from '../article/sr/[id]'
+import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+import TopBarProgress from "react-topbar-progress-indicator"
+import { VStack } from "../../components/elements/LayoutPrimitives"
+import { ArticleActionsMenu } from "../../components/templates/article/ArticleActionsMenu"
+import { SkeletonArticleContainer } from "../../components/templates/article/SkeletonArticleContainer"
+import { PrimaryLayout } from "../../components/templates/PrimaryLayout"
+import { Loader } from "../../components/templates/SavingRequest"
+import { theme } from "../../components/tokens/stitches.config"
+import { useReaderSettings } from "../../lib/hooks/useReaderSettings"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { PrimaryContent } from "../article/sr/[id]"
 
 export default function ArticleSavingRequestPage(): JSX.Element {
   const router = useRouter()

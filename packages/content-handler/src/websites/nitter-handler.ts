@@ -77,7 +77,7 @@ export class NitterHandler extends ContentHandler {
   async incrementInstanceScore(
     redisClient: RedisClient,
     instance: string,
-    score = 1
+    score = 1,
   ) {
     await redisClient.zIncrBy(this.REDIS_KEY, score, instance)
   }
@@ -117,14 +117,14 @@ export class NitterHandler extends ContentHandler {
           url: i.getAttribute('src') ?? '',
           type: 'photo',
           previewUrl: i.getAttribute('src') ?? '',
-        })
+        }),
       )
       const videos = Array.from(attachments.querySelectorAll('video')).map(
         (i) => ({
           url: i.getAttribute('data-url') ?? '',
           type: 'video',
           previewUrl: i.getAttribute('poster') ?? '',
-        })
+        }),
       )
 
       return [...photos, ...videos]
@@ -179,7 +179,7 @@ export class NitterHandler extends ContentHandler {
 
     const redisClient = await createRedisClient(
       process.env.REDIS_URL,
-      process.env.REDIS_CERT
+      process.env.REDIS_CERT,
     )
 
     try {
@@ -207,7 +207,7 @@ export class NitterHandler extends ContentHandler {
           await this.incrementInstanceScore(
             redisClient,
             instance,
-            option.timeout
+            option.timeout,
           )
 
           if (axios.isAxiosError(error)) {
@@ -231,7 +231,7 @@ export class NitterHandler extends ContentHandler {
         return []
       }
       const timelineItems = Array.from(
-        mainThread.querySelectorAll('.timeline-item')
+        mainThread.querySelectorAll('.timeline-item'),
       )
       if (timelineItems.length === 0) {
         console.error('no timeline items found')
@@ -261,7 +261,7 @@ export class NitterHandler extends ContentHandler {
             // go to new url and wait for it to load
             const response = await axios.get(
               `${this.instance}${newUrl}`,
-              option
+              option,
             )
 
             html = response.data as string
@@ -279,7 +279,7 @@ export class NitterHandler extends ContentHandler {
 
           // get the new timeline items and add them to the list
           const newTimelineItems = Array.from(
-            nextThread.querySelectorAll('.timeline-item')
+            nextThread.querySelectorAll('.timeline-item'),
           )
 
           timelineItems.push(...newTimelineItems)
@@ -323,7 +323,7 @@ export class NitterHandler extends ContentHandler {
 
   formatTimestamp = (timestamp: string) => {
     return DateTime.fromJSDate(new Date(timestamp)).toLocaleString(
-      DateTime.DATETIME_FULL
+      DateTime.DATETIME_FULL,
     )
   }
 
@@ -348,7 +348,7 @@ export class NitterHandler extends ContentHandler {
     const escapedTitle = _.escape(title)
     const authorImage = `${this.instance}${author.profileImageUrl.replace(
       '_normal',
-      '_400x400'
+      '_400x400',
     )}`
     const description = _.escape(tweet.text) || escapedTitle
     const imageDomain =
@@ -362,7 +362,7 @@ export class NitterHandler extends ContentHandler {
       for (const urlObj of tweet.entities.urls) {
         text = text.replace(
           urlObj.displayUrl,
-          `<a href="${urlObj.url}">${urlObj.displayUrl}</a>`
+          `<a href="${urlObj.url}">${urlObj.displayUrl}</a>`,
         )
       }
 
@@ -370,14 +370,14 @@ export class NitterHandler extends ContentHandler {
         .map(
           (attachment) =>
             `<a class="media-link" href=${imageDomain}${decodeURIComponent(
-              attachment.url
+              attachment.url,
             ).replace('/pic', '')}>
           <picture>
             <img class="tweet-img" src=${imageDomain}${decodeURIComponent(
-              attachment.previewUrl
+              attachment.previewUrl,
             ).replace('/pic', '')} />
           </picture>
-          </a>`
+          </a>`,
         )
         .join('\n')
 
@@ -386,10 +386,10 @@ export class NitterHandler extends ContentHandler {
 
     const tweetUrl = `
        — <a href="https://${domain}/${author.username}">${
-      author.username
-    }</a> <span itemscope itemtype="https://schema.org/Person" itemprop="author">${
-      author.name
-    }</span> <a href="${url}">${this.formatTimestamp(tweet.createdAt)}</a>`
+         author.username
+       }</a> <span itemscope itemtype="https://schema.org/Person" itemprop="author">${
+         author.name
+       }</span> <a href="${url}">${this.formatTimestamp(tweet.createdAt)}</a>`
 
     const content = `
       <html>

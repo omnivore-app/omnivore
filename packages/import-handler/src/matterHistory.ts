@@ -24,7 +24,7 @@ const HISTORY_FILE = '_matter_history.csv'
 
 export const importMatterHistoryCsv = async (
   ctx: ImportContext,
-  stream: Stream
+  stream: Stream,
 ): Promise<void> => {
   const parser = parse({
     headers: true,
@@ -40,7 +40,7 @@ export const importMatterHistoryCsv = async (
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.TOTAL
+        ImportStatus.TOTAL,
       )
       await ctx.urlHandler(ctx, url)
       ctx.countImported += 1
@@ -49,7 +49,7 @@ export const importMatterHistoryCsv = async (
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.STARTED
+        ImportStatus.STARTED,
       )
     } catch (error) {
       console.log('invalid url', row, error)
@@ -115,7 +115,7 @@ function signImageProxyUrl(url: string) {
       crypto
         .createHmac('sha256', process.env.IMAGE_PROXY_SECRET)
         .update(url)
-        .digest()
+        .digest(),
     )
   }
   return url
@@ -156,7 +156,7 @@ const unarchive = async (stream: Stream): Promise<string> => {
             return
           }
 
-          const first = files.find((f) => true)
+          const first = files.find((_f) => true)
           console.log('first: ', first)
           if (!first) {
             reject('No files found')
@@ -177,7 +177,7 @@ const unarchive = async (stream: Stream): Promise<string> => {
 
 const getMatterHistoryContent = (
   archiveDir: string,
-  row: Record<string, string>
+  row: Record<string, string>,
 ) => {
   try {
     const contentKey = row['File Id']
@@ -209,7 +209,7 @@ const getURL = (str: string | undefined) => {
 const handleMatterHistoryRow = async (
   ctx: ImportContext,
   archiveDir: string,
-  row: Record<string, string>
+  row: Record<string, string>,
 ) => {
   const title = row['Title']
   const urlStr = row['URL']
@@ -222,7 +222,7 @@ const handleMatterHistoryRow = async (
       ctx.redisClient,
       ctx.userId,
       ctx.taskId,
-      ImportStatus.FAILED
+      ImportStatus.FAILED,
     )
     return
   }
@@ -238,7 +238,7 @@ const handleMatterHistoryRow = async (
       url,
       title,
       originalContent,
-      readabilityResult
+      readabilityResult,
     )
   } else {
     await ctx.urlHandler(ctx, url)
@@ -247,7 +247,7 @@ const handleMatterHistoryRow = async (
 
 export const importMatterArchive = async (
   ctx: ImportContext,
-  stream: Stream
+  stream: Stream,
 ): Promise<void> => {
   const archiveDir = await unarchive(stream)
 
@@ -257,7 +257,7 @@ export const importMatterArchive = async (
       ctx.redisClient,
       ctx.userId,
       ctx.taskId,
-      'matter-importer'
+      'matter-importer',
     )
 
     const historyFile = path.join(archiveDir, '_matter_history.csv')
@@ -276,7 +276,7 @@ export const importMatterArchive = async (
           ctx.redisClient,
           ctx.userId,
           ctx.taskId,
-          ImportStatus.TOTAL
+          ImportStatus.TOTAL,
         )
 
         await handleMatterHistoryRow(ctx, archiveDir, row)
@@ -287,7 +287,7 @@ export const importMatterArchive = async (
           ctx.redisClient,
           ctx.userId,
           ctx.taskId,
-          ImportStatus.STARTED
+          ImportStatus.STARTED,
         )
       } catch (error) {
         console.log('invalid url', row, error)
@@ -297,7 +297,7 @@ export const importMatterArchive = async (
           ctx.redisClient,
           ctx.userId,
           ctx.taskId,
-          ImportStatus.FAILED
+          ImportStatus.FAILED,
         )
       }
     }

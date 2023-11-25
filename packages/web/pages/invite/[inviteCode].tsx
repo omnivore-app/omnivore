@@ -1,17 +1,14 @@
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useCallback, useEffect, useState } from 'react'
-import { Button } from '../../components/elements/Button'
-import { HStack, VStack } from '../../components/elements/LayoutPrimitives'
-import {
-  StyledText,
-  StyledTextSpan,
-} from '../../components/elements/StyledText'
-import { PageMetaData } from '../../components/patterns/PageMetaData'
-import { ProfileLayout } from '../../components/templates/ProfileLayout'
-import { joinGroupMutation } from '../../lib/networking/mutations/joinGroupMutation'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { showSuccessToast } from '../../lib/toastHelpers'
+import Link from "next/link"
+import { useRouter } from "next/router"
+import { useCallback, useEffect, useState } from "react"
+import { Button } from "../../components/elements/Button"
+import { HStack, VStack } from "../../components/elements/LayoutPrimitives"
+import { StyledText, StyledTextSpan } from "../../components/elements/StyledText"
+import { PageMetaData } from "../../components/patterns/PageMetaData"
+import { ProfileLayout } from "../../components/templates/ProfileLayout"
+import { joinGroupMutation } from "../../lib/networking/mutations/joinGroupMutation"
+import { useGetViewerQuery } from "../../lib/networking/queries/useGetViewerQuery"
+import { showSuccessToast } from "../../lib/toastHelpers"
 
 export default function InvitePage(): JSX.Element {
   const router = useRouter()

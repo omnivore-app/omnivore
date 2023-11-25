@@ -1,7 +1,7 @@
-import { gql } from 'graphql-request'
-import { publicGqlFetcher } from '../networkHelpers'
-import { useEffect, useState } from 'react'
-import { TopicTabData } from '../../../components/templates/discoverFeed/DiscoverContainer'
+import { gql } from "graphql-request"
+import { publicGqlFetcher } from "../networkHelpers"
+import { useEffect, useState } from "react"
+import { TopicTabData } from "../../../components/templates/discoverFeed/DiscoverContainer"
 
 export type DiscoveryItem = {
   id: string

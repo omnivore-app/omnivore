@@ -49,7 +49,7 @@ const parser = new XMLParser({
  */
 
 export const convertArsTechnicasArticles = (
-  articleXml: string
+  articleXml: string,
 ): Observable<OmnivoreArticle> => {
   return fromArrayLike(parser.parse(articleXml).rss.channel.item).pipe(
     mapOrNull((article: any) => ({
@@ -59,11 +59,11 @@ export const convertArsTechnicasArticles = (
       title: article.title,
       description: article.description,
       image: new JSDOM(
-        article['content:encoded']
+        article['content:encoded'],
       )?.window?.document?.getElementsByTagName('img')[0]?.src,
       site: new URL(article.link).host,
       publishedAt: new Date(article.pubDate),
       type: 'rss',
-    }))
+    })),
   )
 }

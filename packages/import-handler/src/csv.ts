@@ -71,7 +71,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.TOTAL
+        ImportStatus.TOTAL,
       )
 
       await ctx.urlHandler(ctx, url, state, labels, savedAt, publishedAt)
@@ -82,7 +82,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.STARTED
+        ImportStatus.STARTED,
       )
 
       // limit import to 20k urls
@@ -99,7 +99,7 @@ export const importCsv = async (ctx: ImportContext, stream: Stream) => {
         ctx.redisClient,
         ctx.userId,
         ctx.taskId,
-        ImportStatus.INVALID
+        ImportStatus.INVALID,
       )
     }
   }

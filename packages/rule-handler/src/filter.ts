@@ -33,7 +33,7 @@ interface Label {
 export const search = async (
   apiEndpoint: string,
   auth: string,
-  query: string
+  query: string,
 ): Promise<Page[]> => {
   const requestData = JSON.stringify({
     query: `query Search($query: String) {
@@ -74,7 +74,7 @@ export const search = async (
           'Content-Type': 'application/json',
           'X-OmnivoreClient': 'rule-handler',
         },
-      }
+      },
     )
 
     if (response.data.errors) {
@@ -100,7 +100,7 @@ export const filterPage = async (
   apiEndpoint: string,
   auth: string,
   filter: string,
-  pageId: string
+  pageId: string,
 ): Promise<Page | null> => {
   filter += ` includes:${pageId}`
   const pages = await search(apiEndpoint, auth, filter)

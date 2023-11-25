@@ -62,7 +62,7 @@ export class ZhihuHandler extends ContentHandler {
       const link = author.querySelector(`.user-details a`)?.getAttribute('href')
       const reputation = author.querySelector(`.reputation-score`)?.textContent
       const badges = Array.from(
-        author.querySelectorAll(`span[title*='badges']`)
+        author.querySelectorAll(`span[title*='badges']`),
       )
         .map((badge) => badge.getAttribute('title'))
         .join(', ')

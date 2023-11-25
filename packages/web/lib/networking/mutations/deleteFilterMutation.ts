@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { SavedSearch } from "../fragments/savedSearchFragment"
+import { SavedSearch } from '../fragments/savedSearchFragment'
 
 export type DeleteFilterInput = string
 

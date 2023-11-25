@@ -3,14 +3,14 @@ import * as jwt from 'jsonwebtoken'
 
 export const createSsoToken = (
   authToken: string,
-  redirectTo: string
+  redirectTo: string,
 ): string => {
   const ssoToken = jwt.sign(
     { authToken, redirectTo },
     env.server.ssoJwtSecret,
     {
       expiresIn: '1d',
-    }
+    },
   )
   return ssoToken
 }

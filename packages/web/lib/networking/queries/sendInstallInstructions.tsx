@@ -1,5 +1,5 @@
-import { gql } from 'graphql-request'
-import { gqlFetcher } from '../networkHelpers'
+import { gql } from "graphql-request"
+import { gqlFetcher } from "../networkHelpers"
 
 type QueryResult = {
   sent: boolean

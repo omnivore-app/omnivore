@@ -44,7 +44,7 @@ async function fetchApplePublicKey(kid: string): Promise<string | null> {
 }
 
 export async function decodeAppleToken(
-  token: string
+  token: string,
 ): Promise<DecodeTokenResult> {
   const decodedToken = jwt.decode(token, { complete: true })
   const { kid, alg } = (decodedToken as any).header
@@ -95,7 +95,7 @@ export async function handleAppleWebAuth(
   idToken: string,
   appleUserData?: AppleUserData,
   isLocal = false,
-  isVercel = false
+  isVercel = false,
 ): Promise<AppleWebAuthResponse> {
   const baseURL = () => {
     if (isLocal) {
@@ -180,7 +180,7 @@ type CreateTempAppleUserPayloadInputs = {
 }
 
 async function createTempAppleUserPayload(
-  inputs: CreateTempAppleUserPayloadInputs
+  inputs: CreateTempAppleUserPayloadInputs,
 ): Promise<AppleWebAuthResponse> {
   if (!inputs.email || !inputs.sourceUserId) {
     throw new Error('missing email or sourceUserId')

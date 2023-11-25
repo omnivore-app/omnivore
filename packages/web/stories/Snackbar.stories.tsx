@@ -1,7 +1,7 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { Toaster, ToastPosition } from 'react-hot-toast'
-import { showErrorToast, showSuccessToast } from '../lib/toastHelpers'
-import { Button } from '../components/elements/Button'
+import { ComponentMeta, ComponentStory } from "@storybook/react"
+import { Toaster, ToastPosition } from "react-hot-toast"
+import { showErrorToast, showSuccessToast } from "../lib/toastHelpers"
+import { Button } from "../components/elements/Button"
 
 export default {
   title: 'Components/Snackbar',

@@ -1,20 +1,12 @@
-import { isDarkTheme } from '../../lib/themeUpdater'
-import {
-  Table as ResponsiveTable,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-} from 'react-super-responsive-table'
-import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css'
-import { PencilSimple, Plus, Trash } from 'phosphor-react'
-import { Box, SpanBox, VStack } from './LayoutPrimitives'
-import { styled } from '../tokens/stitches.config'
-import { StyledText } from './StyledText'
-import { InfoLink } from './InfoLink'
-import { Button } from './Button'
-import { IconButton } from './Button'
+import { isDarkTheme } from "../../lib/themeUpdater"
+import { Table as ResponsiveTable, Tbody, Td, Th, Thead, Tr } from "react-super-responsive-table"
+import "react-super-responsive-table/dist/SuperResponsiveTableStyle.css"
+import { PencilSimple, Plus, Trash } from "phosphor-react"
+import { Box, SpanBox, VStack } from "./LayoutPrimitives"
+import { styled } from "../tokens/stitches.config"
+import { StyledText } from "./StyledText"
+import { InfoLink } from "./InfoLink"
+import { Button, IconButton } from "./Button"
 
 interface TableProps {
   heading: string

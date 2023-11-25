@@ -43,14 +43,14 @@ export type UrlHandler = (
   state?: ArticleSavingRequestStatus,
   labels?: string[],
   savedAt?: Date,
-  publishedAt?: Date
+  publishedAt?: Date,
 ) => Promise<void>
 export type ContentHandler = (
   ctx: ImportContext,
   url: URL,
   title: string,
   originalContent: string,
-  parseResult: Readability.ParseResult
+  parseResult: Readability.ParseResult,
 ) => Promise<void>
 
 export type ImportContext = {
@@ -103,7 +103,7 @@ const importURL = async (
   state?: ArticleSavingRequestStatus,
   labels?: string[],
   savedAt?: Date,
-  publishedAt?: Date
+  publishedAt?: Date,
 ): Promise<string | undefined> => {
   return createCloudTask(CONTENT_FETCH_URL, {
     userId,
@@ -128,7 +128,7 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
   const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day
   const authToken = (await signToken(
     { uid: userId, exp },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
   )) as string
   const headers = {
     'Omnivore-Authorization': authToken,
@@ -138,7 +138,7 @@ const createEmailCloudTask = async (userId: string, payload: unknown) => {
     emailUserUrl(),
     payload,
     headers,
-    'omnivore-email-queue'
+    'omnivore-email-queue',
   )
 }
 
@@ -152,7 +152,7 @@ const sendImportFailedEmail = async (userId: string) => {
 export const sendImportStartedEmail = async (
   userId: string,
   urlsEnqueued: number,
-  urlsFailed: number
+  urlsFailed: number,
 ) => {
   return createEmailCloudTask(userId, {
     subject: 'Your Omnivore import has started',
@@ -163,7 +163,7 @@ export const sendImportStartedEmail = async (
 export const sendImportCompletedEmail = async (
   userId: string,
   urlsImported: number,
-  urlsFailed: number
+  urlsFailed: number,
 ) => {
   return createEmailCloudTask(userId, {
     subject: 'Your Omnivore import has finished',
@@ -205,7 +205,7 @@ const urlHandler = async (
   state?: ArticleSavingRequestStatus,
   labels?: string[],
   savedAt?: Date,
-  publishedAt?: Date
+  publishedAt?: Date,
 ): Promise<void> => {
   try {
     // Imports are stored in the format imports/<user id>/<type>-<uuid>.csv
@@ -217,7 +217,7 @@ const urlHandler = async (
       state,
       labels && labels.length > 0 ? labels : undefined,
       savedAt,
-      publishedAt
+      publishedAt,
     )
     if (!result) {
       return Promise.reject('Failed to import url')
@@ -264,7 +264,7 @@ const sendSavePageMutation = async (userId: string, input: unknown) => {
           'Content-Type': 'application/json',
         },
         timeout: 30000, // 30s
-      }
+      },
     )
 
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -284,7 +284,7 @@ const contentHandler = async (
   url: URL,
   title: string,
   originalContent: string,
-  parseResult: Readability.ParseResult
+  parseResult: Readability.ParseResult,
 ): Promise<void> => {
   const requestId = uuid()
   const apiResponse = await sendSavePageMutation(ctx.userId, {
@@ -369,7 +369,7 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
         // create redis client
         const redisClient = await createRedisClient(
           process.env.REDIS_URL,
-          process.env.REDIS_CERT
+          process.env.REDIS_CERT,
         )
         try {
           await handleEvent(obj, redisClient)
@@ -385,7 +385,7 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.log('no pubsub message')
     }
     res.send('ok')
-  }
+  },
 )
 
 export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
@@ -418,7 +418,7 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
 
     const redisClient = await createRedisClient(
       process.env.REDIS_URL,
-      process.env.REDIS_CERT
+      process.env.REDIS_CERT,
     )
     // update metrics
     await updateMetrics(redisClient, userId, req.body.taskId, req.body.status)
@@ -426,5 +426,5 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
     await redisClient.quit()
 
     res.send('ok')
-  }
+  },
 )

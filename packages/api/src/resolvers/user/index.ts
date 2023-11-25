@@ -79,7 +79,7 @@ export const updateUserResolver = authorized<
         ...user.profile,
         bio,
       },
-    })
+    }),
   )
 
   return { user: userDataToUser(updatedUser) }
@@ -136,7 +136,7 @@ export const updateUserProfileResolver = authorized<
         username: lowerCasedUsername,
         pictureUrl,
       },
-    })
+    }),
   )
 
   return { user: userDataToUser(updatedUser) }
@@ -301,7 +301,7 @@ export const getAllUsersResolver = authorized<UsersSuccess, UsersError>(
     const users = await userRepository.findTopUsers()
     const result = { users: users.map((userData) => userDataToUser(userData)) }
     return result
-  }
+  },
 )
 
 type ErrorWithCode = {
@@ -353,7 +353,7 @@ export const updateEmailResolver = authorized<
       await authTrx(async (tx) =>
         tx.withRepository(userRepository).update(user.id, {
           email,
-        })
+        }),
       )
 
       return { email }

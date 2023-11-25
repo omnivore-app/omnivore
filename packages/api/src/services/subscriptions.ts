@@ -39,7 +39,7 @@ export const parseUnsubscribeMailTo = (unsubscribeMailTo: string) => {
 
 const sendUnsubscribeEmail = async (
   unsubscribeMailTo: string,
-  newsletterEmail: string
+  newsletterEmail: string,
 ): Promise<boolean> => {
   try {
     // get subject from unsubscribe email address if exists
@@ -83,7 +83,7 @@ const sendUnsubscribeHttpRequest = async (url: string): Promise<boolean> => {
 
 export const getSubscriptionByName = async (
   name: string,
-  userId: string
+  userId: string,
 ): Promise<Subscription | null> => {
   return getRepository(Subscription).findOne({
     where: { name, type: SubscriptionType.Newsletter, user: { id: userId } },
@@ -114,7 +114,7 @@ export const saveSubscription = async ({
         .getRepository(Subscription)
         .update(
           { id: existingSubscription.id, user: { id: userId } },
-          subscriptionData
+          subscriptionData,
         )
 
       return existingSubscription
@@ -139,7 +139,7 @@ export const unsubscribe = async (subscription: Subscription) => {
       // unsubscribe by sending email
       const sent = await sendUnsubscribeEmail(
         subscription.unsubscribeMailTo,
-        subscription.newsletterEmail.address
+        subscription.newsletterEmail.address,
       )
 
       logger.info('Unsubscribe email sent', {
@@ -154,12 +154,12 @@ export const unsubscribe = async (subscription: Subscription) => {
   return authTrx((tx) =>
     tx.getRepository(Subscription).update(subscription.id, {
       status: SubscriptionStatus.Unsubscribed,
-    })
+    }),
   )
 }
 
 export const unsubscribeAll = async (
-  newsletterEmail: NewsletterEmail
+  newsletterEmail: NewsletterEmail,
 ): Promise<void> => {
   try {
     const subscriptions = await authTrx((t) =>
@@ -169,7 +169,7 @@ export const unsubscribeAll = async (
           newsletterEmail: { id: newsletterEmail.id },
         },
         relations: ['newsletterEmail'],
-      })
+      }),
     )
 
     for await (const subscription of subscriptions) {
@@ -191,7 +191,7 @@ export const createSubscription = async (
   status = SubscriptionStatus.Active,
   unsubscribeMailTo?: string,
   subscriptionType = SubscriptionType.Newsletter,
-  url?: string
+  url?: string,
 ): Promise<Subscription> => {
   return getRepository(Subscription).save({
     user: { id: userId },
@@ -210,7 +210,7 @@ export const deleteSubscription = async (id: string): Promise<DeleteResult> => {
 }
 
 export const createRssSubscriptions = async (
-  subscriptions: DeepPartial<Subscription>[]
+  subscriptions: DeepPartial<Subscription>[],
 ) => {
   return getRepository(Subscription).save(subscriptions)
 }

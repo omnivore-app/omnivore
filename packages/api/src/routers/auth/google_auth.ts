@@ -17,7 +17,7 @@ export const googleAuth = (redirectUrl?: string): OAuth2Client =>
   new google.auth.OAuth2(
     env.google.auth.clientId,
     env.google.auth.secret,
-    url.resolve(env.server.gateway_url, redirectUrl || '')
+    url.resolve(env.server.gateway_url, redirectUrl || ''),
   )
 
 const defaultScopes = [
@@ -28,7 +28,7 @@ const defaultScopes = [
 export const generateGoogleLoginURL = (
   auth: typeof google.auth.OAuth2.prototype,
   redirectUrl: string,
-  state: string
+  state: string,
 ): string => {
   return auth.generateAuthUrl({
     access_type: 'offline',
@@ -42,7 +42,7 @@ export const generateGoogleLoginURL = (
 export const validateGoogleUser = async (
   authCode: string,
   registerAction?: boolean | null,
-  isMobile?: boolean | null
+  isMobile?: boolean | null,
 ): Promise<oauthV2.Schema$Userinfo | undefined> => {
   try {
     const auth = isMobile
@@ -68,7 +68,7 @@ const googleIOSClient = new OAuth2Client(iosClientId)
 
 export async function decodeGoogleToken(
   idToken: string,
-  isAndroid: boolean
+  isAndroid: boolean,
 ): Promise<DecodeTokenResult> {
   try {
     const googleMobileClient = isAndroid ? googleWebClient : googleIOSClient
@@ -96,7 +96,7 @@ type GoogleWebAuthResponse = {
 export async function handleGoogleWebAuth(
   idToken: string,
   isLocal = false,
-  isVercel = false
+  isVercel = false,
 ): Promise<GoogleWebAuthResponse> {
   const baseURL = () => {
     if (isLocal) {

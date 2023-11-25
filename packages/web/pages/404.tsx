@@ -1,6 +1,6 @@
-import Head from 'next/head'
-import { ErrorLayout } from '../components/templates/ErrorLayout'
-import { SettingsLayout } from '../components/templates/SettingsLayout'
+import Head from "next/head"
+import { ErrorLayout } from "../components/templates/ErrorLayout"
+import { SettingsLayout } from "../components/templates/SettingsLayout"
 
 export default function Custom404(): JSX.Element {
   return (

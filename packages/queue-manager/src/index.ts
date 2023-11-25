@@ -94,7 +94,7 @@ const checkShouldPauseQueues = async () => {
       const avgLatency =
         ts.points.reduce(
           (acc, point) => acc + (point.value?.doubleValue ?? 0),
-          0
+          0,
         ) / ts.points.length
       if (avgLatency > LATENCY_THRESHOLD) {
         return { shouldPauseQueues: true, avgLatency: avgLatency }
@@ -166,13 +166,13 @@ async function checkMetricsAndPauseQueues() {
 
       if (rssQueueCount > RSS_QUEUE_THRESHOLD) {
         await postToDiscord(
-          `The RSS queue has exceeded it's threshold, it has ${rssQueueCount} items in it.`
+          `The RSS queue has exceeded it's threshold, it has ${rssQueueCount} items in it.`,
         )
       }
 
       if (importQueueCount > IMPORT_QUEUE_THRESHOLD) {
         await postToDiscord(
-          `The import queue has exceeded it's threshold, it has ${importQueueCount} items in it.`
+          `The import queue has exceeded it's threshold, it has ${importQueueCount} items in it.`,
         )
       }
     } catch (err) {
@@ -192,5 +192,5 @@ export const queueManager = Sentry.GCPFunction.wrapHttpFunction(
       console.error('Error while parsing RSS feed', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
     }
-  }
+  },
 )

@@ -43,7 +43,7 @@ const getPopularTopics = (
   queryRunner: QueryRunner,
   uid: string,
   after: string,
-  amt: number
+  amt: number,
 ): Promise<DiscoverArticleDBRows> => {
   return queryRunner.query(
     `
@@ -55,7 +55,7 @@ const getPopularTopics = (
       ORDER BY popularity_score DESC
       LIMIT $2 OFFSET $3
       `,
-    [uid, amt, after]
+    [uid, amt, after],
   ) as Promise<DiscoverArticleDBRows>
 }
 
@@ -63,7 +63,7 @@ const getAllTopics = (
   queryRunner: QueryRunner,
   uid: string,
   after: string,
-  amt: number
+  amt: number,
 ): Promise<DiscoverArticleDBRows> => {
   return queryRunner.query(
     `
@@ -74,7 +74,7 @@ const getAllTopics = (
       ORDER BY published_at DESC
       LIMIT $2 OFFSET $3
       `,
-    [uid, amt, after]
+    [uid, amt, after],
   ) as Promise<DiscoverArticleDBRows>
 }
 
@@ -83,7 +83,7 @@ const getTopicInformation = (
   discoveryTopicId: string,
   uid: string,
   after: string,
-  amt: number
+  amt: number,
 ): Promise<DiscoverArticleDBRows> => {
   return queryRunner.query(
     `
@@ -96,7 +96,7 @@ const getTopicInformation = (
       ORDER BY published_at DESC
       LIMIT $3 OFFSET $4
       `,
-    [uid, discoveryTopicId, amt + 1, Number(after)]
+    [uid, discoveryTopicId, amt + 1, Number(after)],
   ) as Promise<DiscoverArticleDBRows>
 }
 
@@ -115,7 +115,7 @@ export const getDiscoveryArticlesResolver = authorized<
 
     const { rows: topics } = (await queryRunner.query(
       `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
-      [discoveryTopicId]
+      [discoveryTopicId],
     )) as { rows: unknown[] }
 
     if (topics.length == 0) {
@@ -132,7 +132,7 @@ export const getDiscoveryArticlesResolver = authorized<
         queryRunner,
         uid,
         startCursor,
-        firstAmnt
+        firstAmnt,
       )
     } else if (discoveryTopicId === 'All') {
       log.info(discoveryTopicId)
@@ -140,7 +140,7 @@ export const getDiscoveryArticlesResolver = authorized<
         queryRunner,
         uid,
         startCursor,
-        firstAmnt
+        firstAmnt,
       )
       log.info(discoverArticles)
     } else {
@@ -149,7 +149,7 @@ export const getDiscoveryArticlesResolver = authorized<
         discoveryTopicId,
         uid,
         startCursor,
-        firstAmnt
+        firstAmnt,
       )
     }
 
@@ -201,7 +201,7 @@ export const saveDiscoveryArticleResolver = authorized<
   async (
     _,
     { input: { discoveryArticleId, timezone, locale } },
-    { uid, log }
+    { uid, log },
   ) => {
     try {
       const queryRunner = (await appDataSource
@@ -218,7 +218,7 @@ export const saveDiscoveryArticleResolver = authorized<
 
       const { rows: discoverArticles } = (await queryRunner.query(
         `SELECT url FROM omnivore.discover_articles WHERE id=$1`,
-        [discoveryArticleId]
+        [discoveryArticleId],
       )) as {
         rows: {
           url: string
@@ -241,7 +241,7 @@ export const saveDiscoveryArticleResolver = authorized<
           locale: locale as InputMaybe<string>,
           timezone: timezone as InputMaybe<string>,
         },
-        user
+        user,
       )
 
       if (savedArticle.__typename == 'SaveError') {
@@ -255,7 +255,7 @@ export const saveDiscoveryArticleResolver = authorized<
 
       await queryRunner.query(
         `insert into omnivore.discover_save_link (discover_article_id, user_id, article_save_id, article_save_url) VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT user_discovery_link DO UPDATE SET (article_save_id, article_save_url, deleted) = ($3, $4, false);`,
-        [discoveryArticleId, uid, saveSuccess.clientRequestId, saveSuccess.url]
+        [discoveryArticleId, uid, saveSuccess.clientRequestId, saveSuccess.url],
       )
 
       await queryRunner.release()
@@ -273,7 +273,7 @@ export const saveDiscoveryArticleResolver = authorized<
         errorCodes: [SaveDiscoveryArticleErrorCode.Unauthorized],
       }
     }
-  }
+  },
 )
 
 export const deleteDiscoveryArticleResolver = authorized<
@@ -296,7 +296,7 @@ export const deleteDiscoveryArticleResolver = authorized<
 
     const { rows: discoverArticles } = (await queryRunner.query(
       `SELECT article_save_id FROM omnivore.discover_save_link WHERE discover_article_id=$1 and user_id=$2`,
-      [discoveryArticleId, uid]
+      [discoveryArticleId, uid],
     )) as {
       rows: { article_save_id: string }[]
     }
@@ -310,7 +310,7 @@ export const deleteDiscoveryArticleResolver = authorized<
 
     await queryRunner.query(
       `UPDATE omnivore.discover_save_link set deleted = true WHERE discover_article_id=$1 and user_id=$2`,
-      [discoveryArticleId, uid]
+      [discoveryArticleId, uid],
     )
 
     await updateLibraryItem(
@@ -320,7 +320,7 @@ export const deleteDiscoveryArticleResolver = authorized<
         deletedAt: new Date(),
       },
       uid,
-      pubsub
+      pubsub,
     )
 
     await queryRunner.release()

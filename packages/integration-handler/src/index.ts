@@ -90,7 +90,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           client.highlightOnly,
           new Date(syncAt),
           '50',
-          after
+          after,
         )
 
         if (!response) {
@@ -125,7 +125,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           integrationName,
           claims.token,
           token,
-          'EXPORT'
+          'EXPORT',
         )
 
         if (!updated) {
@@ -146,7 +146,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     res.sendStatus(200)
-  }
+  },
 )
 
 export const importer = Sentry.GCPFunction.wrapHttpFunction(
@@ -268,7 +268,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         claims.token,
         token,
         'IMPORT',
-        null
+        null,
       )
       if (!result) {
         console.error('failed to update integration', {
@@ -291,5 +291,5 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     res.sendStatus(200)
-  }
+  },
 )

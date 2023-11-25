@@ -72,10 +72,10 @@ export class SubstackHandler extends ContentHandler {
     // If the article has a header link, and substack icons its probably a newsletter
     const href = this.findNewsletterHeaderHref(dom)
     const oldHeartIcon = dom.querySelector(
-      'table tbody td span a img[src*="HeartIcon"]'
+      'table tbody td span a img[src*="HeartIcon"]',
     )
     const oldRecommendIcon = dom.querySelector(
-      'table tbody td span a img[src*="RecommendIconRounded"]'
+      'table tbody td span a img[src*="RecommendIconRounded"]',
     )
     const heartIcon = dom.querySelector('a img[src*="LucideHeart"]')
     const commentsIcon = dom.querySelector('a img[src*="LucideComments"]')
@@ -83,13 +83,13 @@ export class SubstackHandler extends ContentHandler {
       !!(
         href &&
         (oldHeartIcon || oldRecommendIcon || heartIcon || commentsIcon)
-      )
+      ),
     )
   }
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
     // we need to get the real url from the raw url

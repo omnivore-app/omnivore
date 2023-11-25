@@ -29,7 +29,7 @@ export const recentEmailsResolver = authorized<
         },
         order: { createdAt: 'DESC' },
         take: 20,
-      })
+      }),
     )
 
     return {
@@ -55,7 +55,7 @@ export const markEmailAsItemResolver = authorized<
         id: recentEmailId,
         user: { id: uid },
         type: 'non-article',
-      })
+      }),
     )
     if (!recentEmail) {
       log.info('no recent email', recentEmailId)
@@ -72,7 +72,7 @@ export const markEmailAsItemResolver = authorized<
           address: ILike(recentEmail.to),
         },
         relations: ['user'],
-      })
+      }),
     )
     if (!newsletterEmail) {
       log.info('no newsletter email for', {
@@ -96,7 +96,7 @@ export const markEmailAsItemResolver = authorized<
         author: parseEmailAddress(recentEmail.from).name,
         receivedEmailId: recentEmail.id,
       },
-      newsletterEmail
+      newsletterEmail,
     )
     if (!success) {
       log.info('newsletter not created', recentEmail.id)

@@ -141,7 +141,7 @@ type ResultResolveType = {
 }
 
 const resultResolveTypeResolver = (
-  resolverName: string
+  resolverName: string,
 ): ResultResolveType => ({
   [`${resolverName}Result`]: {
     __resolveType: (obj) =>
@@ -262,7 +262,7 @@ export const functionResolvers = {
     async intercomHash(
       user: User,
       __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (env.intercom.secretKey) {
         const userIdentifier = user.id.toString()
@@ -339,7 +339,7 @@ export const functionResolvers = {
     createdByMe(
       highlight: { user: { id: string } },
       __: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       return highlight.user.id === ctx.uid
     },
@@ -389,7 +389,7 @@ export const functionResolvers = {
     async labels(
       item: { id: string; labels?: Label[]; labelNames?: string[] | null },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (item.labels) return item.labels
 
@@ -406,14 +406,14 @@ export const functionResolvers = {
         recommenderNames?: string[] | null
       },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (item.recommendations) return item.recommendations
 
       if (item.recommenderNames && item.recommenderNames.length > 0) {
         const recommendations = await findRecommendationsByLibraryItemId(
           item.id,
-          ctx.uid
+          ctx.uid,
         )
         return recommendations.map(recommandationDataToRecommendation)
       }

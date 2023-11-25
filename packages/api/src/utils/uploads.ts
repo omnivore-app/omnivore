@@ -8,7 +8,7 @@ import { logger } from './logger'
 
 export const contentReaderForLibraryItem = (
   itemType: string,
-  uploadFileId: string | null | undefined
+  uploadFileId: string | null | undefined,
 ) => {
   if (!uploadFileId) {
     return ContentReaderType.WEB
@@ -42,7 +42,7 @@ export const countOfFilesWithPrefix = async (prefix: string) => {
 export const generateUploadSignedUrl = async (
   filePathName: string,
   contentType: string,
-  selectedBucket?: string
+  selectedBucket?: string,
 ): Promise<string> => {
   // These options will allow temporary uploading of file with requested content type
   const options: GetSignedUrlConfig = {
@@ -62,7 +62,7 @@ export const generateUploadSignedUrl = async (
 }
 
 export const generateDownloadSignedUrl = async (
-  filePathName: string
+  filePathName: string,
 ): Promise<string> => {
   const options: GetSignedUrlConfig = {
     version: 'v4',
@@ -79,7 +79,7 @@ export const generateDownloadSignedUrl = async (
 
 export const getStorageFileDetails = async (
   id: string,
-  fileName: string
+  fileName: string,
 ): Promise<{ md5Hash: string; fileUrl: string }> => {
   const filePathName = generateUploadFilePathName(id, fileName)
   const file = storage.bucket(bucketName).file(filePathName)
@@ -92,7 +92,7 @@ export const getStorageFileDetails = async (
 
 export const generateUploadFilePathName = (
   id: string,
-  fileName: string
+  fileName: string,
 ): string => {
   return `u/${id}/${fileName}`
 }
@@ -101,7 +101,7 @@ export const uploadToBucket = async (
   filePath: string,
   data: Buffer,
   options?: { contentType?: string; public?: boolean },
-  selectedBucket?: string
+  selectedBucket?: string,
 ): Promise<void> => {
   await storage
     .bucket(selectedBucket || bucketName)

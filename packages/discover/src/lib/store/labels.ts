@@ -9,7 +9,7 @@ import { Label } from '../../types/OmnivoreSchema'
 const hasLabelsStoredInDatabase = async (label: string) => {
   const { rows } = await sqlClient.query(
     `SELECT label FROM label_embeddings where label = $1`,
-    [label]
+    [label],
   )
   return rows && rows.length === 0
 }
@@ -17,16 +17,16 @@ const hasLabelsStoredInDatabase = async (label: string) => {
 export const removeDuplicateLabels = mergeMap((x: Label) =>
   fromPromise(hasLabelsStoredInDatabase(x.name)).pipe(
     filter(Boolean),
-    map(() => x)
-  )
+    map(() => x),
+  ),
 )
 
 export const insertLabels = async (
-  label: EmbeddedOmnivoreLabel
+  label: EmbeddedOmnivoreLabel,
 ): Promise<EmbeddedOmnivoreLabel> => {
   await sqlClient.query(
     'INSERT INTO label_embeddings(label, embedding) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-    [label.label.name.toLowerCase(), toSql(label.embedding)]
+    [label.label.name.toLowerCase(), toSql(label.embedding)],
   )
   return label
 }

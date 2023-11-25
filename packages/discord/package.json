@@ -15,9 +15,6 @@
     "discord.js": "^14.14.1",
     "@google-cloud/pubsub": "^4.0.0"
   },
-  "devDependencies": {
-    "typescript": "^5.2.2"
-  },
   "author": "",
   "license": "ISC"
 }

@@ -1,51 +1,41 @@
-import { PrimaryLayout } from '../../../components/templates/PrimaryLayout'
-import { LoadingView } from '../../../components/patterns/LoadingView'
-import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import {
-  removeItemFromCache,
-  useGetArticleQuery,
-} from '../../../lib/networking/queries/useGetArticleQuery'
-import { useRouter } from 'next/router'
-import { VStack } from './../../../components/elements/LayoutPrimitives'
-import {
-  ArticleContainer,
-  UpdateTitleEvent,
-} from './../../../components/templates/article/ArticleContainer'
-import { PdfArticleContainerProps } from './../../../components/templates/article/PdfArticleContainer'
-import { useCallback, useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
-import { Toaster } from 'react-hot-toast'
-import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
-import { deleteHighlightMutation } from '../../../lib/networking/mutations/deleteHighlightMutation'
-import { mergeHighlightMutation } from '../../../lib/networking/mutations/mergeHighlightMutation'
-import { articleReadingProgressMutation } from '../../../lib/networking/mutations/articleReadingProgressMutation'
-import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
-import Script from 'next/script'
-import { ArticleActionsMenu } from '../../../components/templates/article/ArticleActionsMenu'
-import { setLinkArchivedMutation } from '../../../lib/networking/mutations/setLinkArchivedMutation'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { useSWRConfig } from 'swr'
-import {
-  showErrorToast,
-  showSuccessToast,
-  showSuccessToastWithUndo,
-} from '../../../lib/toastHelpers'
-import { SetLabelsModal } from '../../../components/templates/article/SetLabelsModal'
-import { DisplaySettingsModal } from '../../../components/templates/article/DisplaySettingsModal'
-import { useReaderSettings } from '../../../lib/hooks/useReaderSettings'
-import { SkeletonArticleContainer } from '../../../components/templates/article/SkeletonArticleContainer'
-import { useRegisterActions } from 'kbar'
-import { deleteLinkMutation } from '../../../lib/networking/mutations/deleteLinkMutation'
-import { ReaderHeader } from '../../../components/templates/reader/ReaderHeader'
-import { EditArticleModal } from '../../../components/templates/homeFeed/EditItemModals'
-import { VerticalArticleActionsMenu } from '../../../components/templates/article/VerticalArticleActions'
-import { PdfHeaderSpacer } from '../../../components/templates/article/PdfHeaderSpacer'
-import { EpubContainerProps } from '../../../components/templates/article/EpubContainer'
-import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
-import { updatePageMutation } from '../../../lib/networking/mutations/updatePageMutation'
-import { State } from '../../../lib/networking/fragments/articleFragment'
-import { posthog } from 'posthog-js'
-import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
+import { PrimaryLayout } from "../../../components/templates/PrimaryLayout"
+import { LoadingView } from "../../../components/patterns/LoadingView"
+import { useGetViewerQuery } from "../../../lib/networking/queries/useGetViewerQuery"
+import { removeItemFromCache, useGetArticleQuery } from "../../../lib/networking/queries/useGetArticleQuery"
+import { useRouter } from "next/router"
+import { VStack } from "./../../../components/elements/LayoutPrimitives"
+import { ArticleContainer, UpdateTitleEvent } from "./../../../components/templates/article/ArticleContainer"
+import { PdfArticleContainerProps } from "./../../../components/templates/article/PdfArticleContainer"
+import { useCallback, useEffect, useState } from "react"
+import dynamic from "next/dynamic"
+import { Toaster } from "react-hot-toast"
+import { createHighlightMutation } from "../../../lib/networking/mutations/createHighlightMutation"
+import { deleteHighlightMutation } from "../../../lib/networking/mutations/deleteHighlightMutation"
+import { mergeHighlightMutation } from "../../../lib/networking/mutations/mergeHighlightMutation"
+import { articleReadingProgressMutation } from "../../../lib/networking/mutations/articleReadingProgressMutation"
+import { updateHighlightMutation } from "../../../lib/networking/mutations/updateHighlightMutation"
+import Script from "next/script"
+import { ArticleActionsMenu } from "../../../components/templates/article/ArticleActionsMenu"
+import { setLinkArchivedMutation } from "../../../lib/networking/mutations/setLinkArchivedMutation"
+import { Label } from "../../../lib/networking/fragments/labelFragment"
+import { useSWRConfig } from "swr"
+import { showErrorToast, showSuccessToast, showSuccessToastWithUndo } from "../../../lib/toastHelpers"
+import { SetLabelsModal } from "../../../components/templates/article/SetLabelsModal"
+import { DisplaySettingsModal } from "../../../components/templates/article/DisplaySettingsModal"
+import { useReaderSettings } from "../../../lib/hooks/useReaderSettings"
+import { SkeletonArticleContainer } from "../../../components/templates/article/SkeletonArticleContainer"
+import { useRegisterActions } from "kbar"
+import { deleteLinkMutation } from "../../../lib/networking/mutations/deleteLinkMutation"
+import { ReaderHeader } from "../../../components/templates/reader/ReaderHeader"
+import { EditArticleModal } from "../../../components/templates/homeFeed/EditItemModals"
+import { VerticalArticleActionsMenu } from "../../../components/templates/article/VerticalArticleActions"
+import { PdfHeaderSpacer } from "../../../components/templates/article/PdfHeaderSpacer"
+import { EpubContainerProps } from "../../../components/templates/article/EpubContainer"
+import { useSetPageLabels } from "../../../lib/hooks/useSetPageLabels"
+import { updatePageMutation } from "../../../lib/networking/mutations/updatePageMutation"
+import { State } from "../../../lib/networking/fragments/articleFragment"
+import { posthog } from "posthog-js"
+import { PDFDisplaySettingsModal } from "../../../components/templates/article/PDFDisplaySettingsModal"
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),

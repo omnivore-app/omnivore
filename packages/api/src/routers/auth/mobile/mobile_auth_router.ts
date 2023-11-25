@@ -44,7 +44,7 @@ export function mobileAuthRouter() {
       isAndroid,
       token,
       provider,
-      name
+      name,
     )
     res.status(payload.statusCode).json(payload.json)
   })
@@ -53,7 +53,7 @@ export function mobileAuthRouter() {
     const { pendingUserToken, userProfile } = req.body
     const payload = await createMobileAccountCreationResponse(
       pendingUserToken,
-      userProfile
+      userProfile,
     )
     res.status(payload.statusCode).json(payload.json)
   })
@@ -61,13 +61,13 @@ export function mobileAuthRouter() {
   // Required since this will be called from Android WebView
   router.options(
     '/android-apple-redirect',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
 
   router.post('/android-apple-redirect', (req, res) => {
     const { id_token } = req.body
     return res.redirect(
-      `${env.client.url}/android-apple-token?token=${id_token as string}`
+      `${env.client.url}/android-apple-token?token=${id_token as string}`,
     )
   })
 

@@ -48,7 +48,7 @@ export function webhooksServiceRouter() {
             .andWhere('enabled = true')
             .getMany(),
         undefined,
-        userId
+        userId,
       )
 
       if (webhooks.length <= 0) {
@@ -56,7 +56,7 @@ export function webhooksServiceRouter() {
           'No active webhook found for user ' +
             userId +
             ' and eventType ' +
-            eventType
+            eventType,
         )
         res.status(200).send('No webhook found')
         return
@@ -95,7 +95,7 @@ export function webhooksServiceRouter() {
                 logger.info('webhook failed', error)
               }
             })
-        })
+        }),
       )
     } catch (err) {
       logger.error('trigger webhook failed', err)

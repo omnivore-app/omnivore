@@ -5,7 +5,7 @@ export type RedisClient = ReturnType<typeof createClient>
 
 export const createRedisClient = async (
   url?: string,
-  cert?: string
+  cert?: string,
 ): Promise<RedisClient> => {
   const redisClient = createClient({
     url,

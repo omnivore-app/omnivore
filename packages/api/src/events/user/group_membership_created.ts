@@ -21,7 +21,7 @@ export class FollowAllGroupMembers
       `insert into omnivore.user_friends (user_id, friend_user_id)
       select user_id, $1 from omnivore.group_membership where group_id = $2 and user_id != $1
         `,
-      [event.entity.user.id, event.entity.group.id]
+      [event.entity.user.id, event.entity.group.id],
     )
 
     // Make the new user follow all existing group members
@@ -29,7 +29,7 @@ export class FollowAllGroupMembers
       `insert into omnivore.user_friends (user_id, friend_user_id)
       select $1, user_id from omnivore.group_membership where group_id = $2 and user_id != $1
         `,
-      [event.entity.user.id, event.entity.group.id]
+      [event.entity.user.id, event.entity.group.id],
     )
   }
 }

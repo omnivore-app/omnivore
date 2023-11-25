@@ -87,7 +87,7 @@ export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
 const hourlyLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
-  skip: (req) => env.dev.isLocal,
+  skip: (_req) => env.dev.isLocal,
 })
 
 export function authRouter() {
@@ -97,24 +97,24 @@ export function authRouter() {
   router.post('/gauth-redirect', curriedAuthHandler('GOOGLE', false))
   router.post(
     '/vercel/apple-redirect',
-    curriedAuthHandler('APPLE', false, true)
+    curriedAuthHandler('APPLE', false, true),
   )
   router.post(
     '/vercel/gauth-redirect',
-    curriedAuthHandler('GOOGLE', false, true)
+    curriedAuthHandler('GOOGLE', false, true),
   )
   router.post(
     '/apple-redirect-localhost',
-    curriedAuthHandler('APPLE', true, true)
+    curriedAuthHandler('APPLE', true, true),
   )
   router.post(
     '/gauth-redirect-localhost',
-    curriedAuthHandler('GOOGLE', true, true)
+    curriedAuthHandler('GOOGLE', true, true),
   )
 
   router.options(
     '/create-account',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
   router.post(
     '/create-account',
@@ -138,13 +138,13 @@ export function authRouter() {
       }
 
       res.status(payload.statusCode).json({})
-    }
+    },
   )
 
   function curriedAuthHandler(
     provider: AuthProvider,
     isLocal: boolean,
-    isVercel = false
+    isVercel = false,
   ): (req: Request, res: Response) => void {
     return (req: Request, res: Response) =>
       authHandler(req, res, provider, isLocal, isVercel)
@@ -155,13 +155,13 @@ export function authRouter() {
     res: Response,
     provider: AuthProvider,
     isLocal: boolean,
-    isVercel: boolean
+    isVercel: boolean,
   ) {
     const completion = (
       res: Response,
       redirectURL: string,
       jwt?: string,
-      pendingUserJwt?: string
+      pendingUserJwt?: string,
     ) => {
       if (jwt) {
         res.cookie('auth', jwt, cookieParams)
@@ -180,13 +180,13 @@ export function authRouter() {
         id_token,
         user,
         isLocal,
-        isVercel
+        isVercel,
       )
       completion(
         res,
         authResponse.redirectURL,
         authResponse.authToken,
-        authResponse.pendingUserToken
+        authResponse.pendingUserToken,
       )
       return
     }
@@ -196,13 +196,13 @@ export function authRouter() {
       const authResponse = await handleGoogleWebAuth(
         credential,
         isLocal,
-        isVercel
+        isVercel,
       )
       completion(
         res,
         authResponse.redirectURL,
         authResponse.authToken,
-        authResponse.pendingUserAuth
+        authResponse.pendingUserAuth,
       )
       return
     }
@@ -212,7 +212,7 @@ export function authRouter() {
 
   router.options(
     '/verify',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
   router.get('/verify', cors<express.Request>(corsConfig), async (req, res) => {
     // return 'AUTHENTICATED', 'PENDING_USER', or 'NOT_AUTHENTICATED'
@@ -238,8 +238,8 @@ export function authRouter() {
       generateGoogleLoginURL(
         googleAuth(),
         `/api/auth/google-login/login`,
-        state
-      )
+        state,
+      ),
     )
   })
 
@@ -261,22 +261,22 @@ export function authRouter() {
       // @ts-ignore
       {
         expiresIn: 300,
-      }
+      },
     )) as string
 
     if (!user) {
       return res.redirect(
-        `${env.client.url}/join?email=${userData.email}&name=${userData.name}&sourceUserId=${userData.id}&pictureUrl=${userData.picture}&secret=${secret}`
+        `${env.client.url}/join?email=${userData.email}&name=${userData.name}&sourceUserId=${userData.id}&pictureUrl=${userData.picture}&secret=${secret}`,
       )
     }
 
     if (user.source !== RegistrationType.Google) {
       const errorCodes = [LoginErrorCode.WrongSource]
       return res.redirect(
-        `${env.client.url}/${
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (req.params as any)?.action
-        }?errorCodes=${errorCodes}`
+        `${
+          env.client.url
+        }/${// eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (req.params as any)?.action}?errorCodes=${errorCodes}`,
       )
     }
 
@@ -312,19 +312,19 @@ export function authRouter() {
 
       const errorCodes = data.googleLogin.errorCodes.join(',')
       return res.redirect(
-        `${env.client.url}/${
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (req.params as any)?.action
-        }?errorCodes=${errorCodes}`
+        `${
+          env.client.url
+        }/${// eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (req.params as any)?.action}?errorCodes=${errorCodes}`,
       )
     }
 
     if (!result.headers['set-cookie']) {
       return res.redirect(
-        `${env.client.url}/${
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (req.params as any)?.action
-        }?errorCodes=unknown`
+        `${
+          env.client.url
+        }/${// eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (req.params as any)?.action}?errorCodes=unknown`,
       )
     }
 
@@ -348,7 +348,7 @@ export function authRouter() {
     req: express.Request,
     res: express.Response,
     user: User,
-    newUser: boolean
+    newUser: boolean,
   ): Promise<void> {
     try {
       let redirectUri: string | null = null
@@ -360,7 +360,7 @@ export function authRouter() {
         } catch (err) {
           logger.error(
             'handleSuccessfulLogin: failed to parse redirect query state param',
-            err
+            err,
           )
         }
       }
@@ -369,7 +369,7 @@ export function authRouter() {
         if (redirectUri && redirectUri !== '/') {
           redirectUri = url.resolve(
             env.client.url,
-            decodeURIComponent(redirectUri)
+            decodeURIComponent(redirectUri),
           )
         } else {
           redirectUri = `${env.client.url}/home`
@@ -405,7 +405,7 @@ export function authRouter() {
 
   router.options(
     '/email-login',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
 
   router.post(
@@ -426,7 +426,7 @@ export function authRouter() {
       }
       if (!isValidLoginRequest(req.body)) {
         return res.redirect(
-          `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+          `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`,
         )
       }
       const { email, password } = req.body
@@ -434,7 +434,7 @@ export function authRouter() {
         const user = await userRepository.findByEmail(email.trim())
         if (!user || user.status === StatusType.Deleted) {
           return res.redirect(
-            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.UserNotFound}`,
           )
         }
 
@@ -445,21 +445,21 @@ export function authRouter() {
             name: user.name,
           })
           return res.redirect(
-            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`,
           )
         }
 
         if (!user?.password) {
           // user has no password, so they need to set one
           return res.redirect(
-            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.WrongSource}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.WrongSource}`,
           )
         }
         // check if password is correct
         const validPassword = await comparePassword(password, user.password)
         if (!validPassword) {
           return res.redirect(
-            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`
+            `${env.client.url}/auth/email-login?errorCodes=${LoginErrorCode.InvalidCredentials}`,
           )
         }
 
@@ -478,15 +478,15 @@ export function authRouter() {
       } catch (e) {
         logger.info('email-login exception:', e)
         res.redirect(
-          `${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`
+          `${env.client.url}/auth/email-login?errorCodes=AUTH_FAILED`,
         )
       }
-    }
+    },
   )
 
   router.options(
     '/email-signup',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
 
   router.post(
@@ -496,7 +496,7 @@ export function authRouter() {
     async (req: express.Request, res: express.Response) => {
       if (!isValidSignupRequest(req.body)) {
         return res.redirect(
-          `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
+          `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`,
         )
       }
       const { email, password, name, username, bio, pictureUrl } = req.body
@@ -518,23 +518,23 @@ export function authRouter() {
         })
 
         res.redirect(
-          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`
+          `${env.client.url}/auth/verify-email?message=SIGNUP_SUCCESS`,
         )
       } catch (e) {
         logger.info('email-signup exception:', e)
         if (isErrorWithCode(e)) {
           return res.redirect(
-            `${env.client.url}/auth/email-signup?errorCodes=${e.errorCode}`
+            `${env.client.url}/auth/email-signup?errorCodes=${e.errorCode}`,
           )
         }
         res.redirect(`${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`)
       }
-    }
+    },
   )
 
   router.options(
     '/confirm-email',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
 
   router.post(
@@ -548,14 +548,14 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`,
           )
         }
 
         const user = await getRepository(User).findOneBy({ id: claims.uid })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/auth/confirm-email?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/confirm-email?errorCodes=USER_NOT_FOUND`,
           )
         }
 
@@ -566,12 +566,12 @@ export function authRouter() {
               return entityManager
                 .getRepository(User)
                 .update({ id: user.id }, { status: StatusType.Active })
-            }
+            },
           )
 
           if (!updated.affected) {
             return res.redirect(
-              `${env.client.url}/auth/confirm-email?errorCodes=UNKNOWN`
+              `${env.client.url}/auth/confirm-email?errorCodes=UNKNOWN`,
             )
           }
         }
@@ -593,20 +593,20 @@ export function authRouter() {
         logger.info('confirm-email exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/auth/confirm-email?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/confirm-email?errorCodes=TOKEN_EXPIRED`,
           )
         }
 
         res.redirect(
-          `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`
+          `${env.client.url}/auth/confirm-email?errorCodes=INVALID_TOKEN`,
         )
       }
-    }
+    },
   )
 
   router.options(
     '/forgot-password',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
 
   router.post(
@@ -617,7 +617,7 @@ export function authRouter() {
       const email = req.body.email?.trim() as string // trim whitespace
       if (!email) {
         return res.redirect(
-          `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
+          `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`,
         )
       }
 
@@ -633,7 +633,7 @@ export function authRouter() {
 
         if (!(await sendPasswordResetEmail(user))) {
           return res.redirect(
-            `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`
+            `${env.client.url}/auth/forgot-password?errorCodes=INVALID_EMAIL`,
           )
         }
 
@@ -644,15 +644,15 @@ export function authRouter() {
         logger.info('forgot-password exception:', e)
 
         res.redirect(
-          `${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`
+          `${env.client.url}/auth/forgot-password?errorCodes=UNKNOWN`,
         )
       }
-    }
+    },
   )
 
   router.options(
     '/reset-password',
-    cors<express.Request>({ ...corsConfig, maxAge: 600 })
+    cors<express.Request>({ ...corsConfig, maxAge: 600 }),
   )
 
   router.post(
@@ -666,13 +666,13 @@ export function authRouter() {
         const claims = await getClaimsByToken(token)
         if (!claims) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_TOKEN`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_TOKEN`,
           )
         }
 
         if (!password || password.length < 8) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_PASSWORD`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=INVALID_PASSWORD`,
           )
         }
 
@@ -681,13 +681,13 @@ export function authRouter() {
         })
         if (!user) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=USER_NOT_FOUND`,
           )
         }
 
         if (user.status === StatusType.Pending) {
           return res.redirect(
-            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`
+            `${env.client.url}/auth/email-login?errorCodes=PENDING_VERIFICATION`,
           )
         }
 
@@ -700,11 +700,11 @@ export function authRouter() {
               email: claims.email ?? undefined, // update email address if it was provided
               source: RegistrationType.Email, // reset password will always be email
             })
-          }
+          },
         )
         if (!updated.affected) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`
+            `${env.client.url}/auth/reset-password/${token}?errorCodes=UNKNOWN`,
           )
         }
 
@@ -724,15 +724,15 @@ export function authRouter() {
         logger.info('reset-password exception:', e)
         if (e instanceof jwt.TokenExpiredError) {
           return res.redirect(
-            `${env.client.url}/auth/reset-password/?errorCodes=TOKEN_EXPIRED`
+            `${env.client.url}/auth/reset-password/?errorCodes=TOKEN_EXPIRED`,
           )
         }
 
         res.redirect(
-          `${env.client.url}/auth/reset-password/?errorCodes=INVALID_TOKEN`
+          `${env.client.url}/auth/reset-password/?errorCodes=INVALID_TOKEN`,
         )
       }
-    }
+    },
   )
 
   return router

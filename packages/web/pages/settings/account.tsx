@@ -1,24 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Toaster } from 'react-hot-toast'
-import { Button } from '../../components/elements/Button'
-import {
-  Box,
-  SpanBox,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../components/elements/StyledText'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { styled, theme } from '../../components/tokens/stitches.config'
-import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
-import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
-import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
-import { useGetLibraryItemsQuery } from '../../lib/networking/queries/useGetLibraryItemsQuery'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { ProgressBar } from '../../components/elements/ProgressBar'
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Toaster } from "react-hot-toast"
+import { Button } from "../../components/elements/Button"
+import { Box, SpanBox, VStack } from "../../components/elements/LayoutPrimitives"
+import { StyledText } from "../../components/elements/StyledText"
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { styled, theme } from "../../components/tokens/stitches.config"
+import { updateEmailMutation } from "../../lib/networking/mutations/updateEmailMutation"
+import { updateUserMutation } from "../../lib/networking/mutations/updateUserMutation"
+import { updateUserProfileMutation } from "../../lib/networking/mutations/updateUserProfileMutation"
+import { useGetLibraryItemsQuery } from "../../lib/networking/queries/useGetLibraryItemsQuery"
+import { useGetViewerQuery } from "../../lib/networking/queries/useGetViewerQuery"
+import { useValidateUsernameQuery } from "../../lib/networking/queries/useValidateUsernameQuery"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { ProgressBar } from "../../components/elements/ProgressBar"
 
 const ACCOUNT_LIMIT = 50_000
 

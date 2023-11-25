@@ -27,7 +27,7 @@ export interface SaveFollowingItemRequest {
 }
 
 function isSaveFollowingItemRequest(
-  body: any
+  body: any,
 ): body is SaveFollowingItemRequest {
   return (
     'userIds' in body &&
@@ -76,14 +76,14 @@ export function followingServiceRouter() {
             name: 'RSS',
           },
         ],
-        userId
+        userId,
       )
       await saveLabelsInLibraryItem(
         labels,
         result.identifiers[0].id,
         userId,
         undefined,
-        true
+        true,
       )
 
       logger.info('RSS label added to the item')

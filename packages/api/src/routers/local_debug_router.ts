@@ -57,10 +57,10 @@ export function localDebugRouter(): Router {
           }
         } catch {
           return res.redirect(
-            `${env.client.url}/login?errorCodes=${LoginErrorCode.AuthFailed}`
+            `${env.client.url}/login?errorCodes=${LoginErrorCode.AuthFailed}`,
           )
         }
-      }
+      },
     )
   }
 

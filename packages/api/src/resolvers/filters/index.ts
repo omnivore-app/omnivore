@@ -93,7 +93,7 @@ export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
         t.getRepository(Filter).find({
           where: { user: { id: uid } },
           order: { position: 'ASC' },
-        })
+        }),
       )
 
       return {
@@ -106,12 +106,12 @@ export const filtersResolver = authorized<FiltersSuccess, FiltersError>(
         errorCodes: [FiltersErrorCode.BadRequest],
       }
     }
-  }
+  },
 )
 const updatePosition = async (
   uid: string,
   filter: Filter,
-  newPosition: number
+  newPosition: number,
 ) => {
   const { position } = filter
   const moveUp = newPosition < position
@@ -125,12 +125,12 @@ const updatePosition = async (
         user: { id: uid },
         position: Between(
           Math.min(newPosition, position),
-          Math.max(newPosition, position)
+          Math.max(newPosition, position),
         ),
       },
       {
         position: () => `position + ${moveUp ? 1 : -1}`,
-      }
+      },
     )
 
     if (!updated.affected) {
@@ -160,7 +160,7 @@ export const updateFilterResolver = authorized<
 
   try {
     const filter = await authTrx((t) =>
-      t.getRepository(Filter).findOneBy({ id })
+      t.getRepository(Filter).findOneBy({ id }),
     )
     if (!filter) {
       return {
@@ -176,9 +176,9 @@ export const updateFilterResolver = authorized<
     const updated = await authTrx((t) =>
       t.getRepository(Filter).save({
         ...mergeWith({}, filter, input, (a: unknown, b: unknown) =>
-          isNil(b) ? a : undefined
+          isNil(b) ? a : undefined,
         ),
-      })
+      }),
     )
 
     return {
@@ -206,7 +206,7 @@ export const moveFilterResolver = authorized<
     const filter = await authTrx((t) =>
       t.getRepository(Filter).findOneBy({
         id: filterId,
-      })
+      }),
     )
     if (!filter) {
       return {
@@ -225,7 +225,7 @@ export const moveFilterResolver = authorized<
       const afterFilter = await authTrx((t) =>
         t.getRepository(Filter).findOneBy({
           id: afterFilterId,
-        })
+        }),
       )
       if (!afterFilter) {
         return {

@@ -1,6 +1,6 @@
-import { config } from '../../tokens/stitches.config'
-import Image from 'next/image'
-import Link from 'next/link'
+import { config } from "../../tokens/stitches.config"
+import Image from "next/image"
+import Link from "next/link"
 
 export type OmnivoreFestiveLogoProps = {
   color?: string

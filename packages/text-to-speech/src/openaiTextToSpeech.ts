@@ -10,7 +10,7 @@ const OPEN_AI_VOICES = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']
 
 export class OpenAITextToSpeech implements TextToSpeech {
   synthesizeTextToSpeech = async (
-    input: TextToSpeechInput
+    input: TextToSpeechInput,
   ): Promise<TextToSpeechOutput> => {
     const apiKey = process.env.OPENAI_API_KEY
     const voice = input.voice?.substring('openai-'.length)

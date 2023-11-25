@@ -1,5 +1,5 @@
-import { PageMetaData } from '../components/patterns/PageMetaData'
-import { About } from '../components/templates/About'
+import { PageMetaData } from "../components/patterns/PageMetaData"
+import { About } from "../components/templates/About"
 
 export default function LandingPage(): JSX.Element {
   return (

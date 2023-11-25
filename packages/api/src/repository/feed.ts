@@ -8,7 +8,7 @@ export const feedRepository = appDataSource.getRepository(Feed).extend({
     take = 10,
     skip = 0,
     orderBy = 'title',
-    order = 'ASC'
+    order = 'ASC',
   ) {
     const where = []
     if (query !== '') {

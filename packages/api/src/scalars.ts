@@ -10,13 +10,13 @@ export class SanitizedString extends GraphQLScalarType {
     allowedTags?: string[],
     maxLength?: number,
     minLength?: number,
-    pattern?: string
+    pattern?: string,
   ) {
     super({
       // Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ as per graphql-js
       name: `SanitizedString_${allowedTags}_${maxLength}_${pattern}`.replace(
         /\W/g,
-        ''
+        '',
       ),
       description: 'Source string that was sanitized',
 
@@ -47,12 +47,12 @@ export class SanitizedString extends GraphQLScalarType {
     function checkLength(value: any) {
       if (maxLength && maxLength < value.length) {
         throw new Error(
-          `Specified value cannot be longer than ${maxLength} characters`
+          `Specified value cannot be longer than ${maxLength} characters`,
         )
       }
       if (minLength && minLength > value.length) {
         throw new Error(
-          `Specified value cannot be shorter than ${minLength} characters`
+          `Specified value cannot be shorter than ${minLength} characters`,
         )
       }
     }
@@ -69,7 +69,7 @@ const ScalarResolvers = {
         return new Date(timestamp).toJSON()
       } else {
         throw new Error(
-          `Date resolver error - value provided is not a valid date: ${value}`
+          `Date resolver error - value provided is not a valid date: ${value}`,
         )
       }
     },

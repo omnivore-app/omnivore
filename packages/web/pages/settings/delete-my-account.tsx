@@ -1,19 +1,19 @@
-import { useState } from 'react'
-import { useRouter } from 'next/router'
-import { Toaster } from 'react-hot-toast'
+import { useState } from "react"
+import { useRouter } from "next/router"
+import { Toaster } from "react-hot-toast"
 
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { applyStoredTheme } from "../../lib/themeUpdater"
 
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
 
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { Button } from '../../components/elements/Button'
-import { HStack, VStack } from '../../components/elements/LayoutPrimitives'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { Loader } from '../../components/templates/SavingRequest'
-import { deleteAccountMutation } from '../../lib/networking/mutations/deleteAccountMutation'
-import Link from 'next/link'
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { Button } from "../../components/elements/Button"
+import { VStack } from "../../components/elements/LayoutPrimitives"
+import { useGetViewerQuery } from "../../lib/networking/queries/useGetViewerQuery"
+import { Loader } from "../../components/templates/SavingRequest"
+import { deleteAccountMutation } from "../../lib/networking/mutations/deleteAccountMutation"
+import Link from "next/link"
 
 export default function DeleteMyAccount(): JSX.Element {
   const router = useRouter()

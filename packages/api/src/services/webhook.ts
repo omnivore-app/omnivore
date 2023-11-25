@@ -5,24 +5,24 @@ import { authTrx } from '../repository'
 export const createWebhooks = async (
   webhooks: DeepPartial<Webhook>[],
   userId?: string,
-  entityManager?: EntityManager
+  entityManager?: EntityManager,
 ) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).save(webhooks),
     entityManager,
-    userId
+    userId,
   )
 }
 
 export const createWebhook = async (
   webhook: DeepPartial<Webhook>,
   userId?: string,
-  entityManager?: EntityManager
+  entityManager?: EntityManager,
 ) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).save(webhook),
     entityManager,
-    userId
+    userId,
   )
 }
 
@@ -30,7 +30,7 @@ export const findWebhooks = async (userId: string) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).findBy({ user: { id: userId } }),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -38,7 +38,7 @@ export const findWebhookById = async (id: string, userId: string) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).findOneBy({ id, user: { id: userId } }),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -51,6 +51,6 @@ export const deleteWebhook = async (id: string, userId: string) => {
       return webhook
     },
     undefined,
-    userId
+    userId,
   )
 }

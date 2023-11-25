@@ -8,7 +8,7 @@ import { SignupErrorCode } from '../../../generated/graphql'
 
 export async function createMobileAccountCreationResponse(
   pendingUserToken?: string,
-  userProfile?: UserProfile
+  userProfile?: UserProfile,
 ): Promise<JsonResponsePayload> {
   try {
     if (

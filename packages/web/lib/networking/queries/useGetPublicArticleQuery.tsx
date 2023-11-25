@@ -1,7 +1,7 @@
-import { gql } from 'graphql-request'
-import useSWR from 'swr'
-import { makePublicGqlFetcher, RequestContext, ssrFetcher } from '../networkHelpers'
-import { Highlight } from '../fragments/highlightFragment'
+import { gql } from "graphql-request"
+import useSWR from "swr"
+import { makePublicGqlFetcher, RequestContext, ssrFetcher } from "../networkHelpers"
+import { Highlight } from "../fragments/highlightFragment"
 
 type PublicArticleQueryInput = {
   username: string

@@ -1,43 +1,28 @@
-import { useEffect, useMemo, useState } from 'react'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { Button } from '../../components/elements/Button'
-import { styled } from '../../components/tokens/stitches.config'
-import {
-  Box,
-  SpanBox,
-  HStack,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
-import { Toaster } from 'react-hot-toast'
-import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
-import { createLabelMutation } from '../../lib/networking/mutations/createLabelMutation'
-import { updateLabelMutation } from '../../lib/networking/mutations/updateLabelMutation'
-import { deleteLabelMutation } from '../../lib/networking/mutations/deleteLabelMutation'
-import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
-import { StyledText } from '../../components/elements/StyledText'
-import {
-  ArrowClockwise,
-  DotsThree,
-  PencilSimple,
-  Trash,
-  Plus,
-} from 'phosphor-react'
-import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
-import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { TooltipWrapped } from '../../components/elements/Tooltip'
-import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
-import {
-  Dropdown,
-  DropdownOption,
-} from '../../components/elements/DropdownElements'
-import { LabelChip } from '../../components/elements/LabelChip'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { InfoLink } from '../../components/elements/InfoLink'
-import { SuggestionBox } from '../../components/elements/SuggestionBox'
-import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { FeatureHelpBox } from '../../components/elements/FeatureHelpBox'
+import { useEffect, useMemo, useState } from "react"
+import { SettingsLayout } from "../../components/templates/SettingsLayout"
+import { Button } from "../../components/elements/Button"
+import { styled } from "../../components/tokens/stitches.config"
+import { Box, HStack, SpanBox, VStack } from "../../components/elements/LayoutPrimitives"
+import { Toaster } from "react-hot-toast"
+import { useGetLabelsQuery } from "../../lib/networking/queries/useGetLabelsQuery"
+import { createLabelMutation } from "../../lib/networking/mutations/createLabelMutation"
+import { updateLabelMutation } from "../../lib/networking/mutations/updateLabelMutation"
+import { deleteLabelMutation } from "../../lib/networking/mutations/deleteLabelMutation"
+import { applyStoredTheme, isDarkTheme } from "../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { Label, LabelColor } from "../../lib/networking/fragments/labelFragment"
+import { StyledText } from "../../components/elements/StyledText"
+import { ArrowClockwise, DotsThree, PencilSimple, Trash } from "phosphor-react"
+import { GenericTableCardProps } from "../../utils/settings-page/labels/types"
+import { labelColorObjects } from "../../utils/settings-page/labels/labelColorObjects"
+import { TooltipWrapped } from "../../components/elements/Tooltip"
+import { LabelColorDropdown } from "../../components/elements/LabelColorDropdown"
+import { Dropdown, DropdownOption } from "../../components/elements/DropdownElements"
+import { LabelChip } from "../../components/elements/LabelChip"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
+import { InfoLink } from "../../components/elements/InfoLink"
+import { usePersistedState } from "../../lib/hooks/usePersistedState"
+import { FeatureHelpBox } from "../../components/elements/FeatureHelpBox"
 
 const HeaderWrapper = styled(Box, {
   width: '100%',

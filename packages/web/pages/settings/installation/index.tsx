@@ -1,8 +1,8 @@
-import React from 'react'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import MobileInstallHelp from '../../../components/elements/MobileInstallHelp'
-import ExtensionInstallHelp from '../../../components/elements/ExtensionsInstallHelp'
-import { Box } from '../../../components/elements/LayoutPrimitives'
+import React from "react"
+import { SettingsLayout } from "../../../components/templates/SettingsLayout"
+import MobileInstallHelp from "../../../components/elements/MobileInstallHelp"
+import ExtensionInstallHelp from "../../../components/elements/ExtensionsInstallHelp"
+import { Box } from "../../../components/elements/LayoutPrimitives"
 
 export default function Installation(): JSX.Element {
   return (

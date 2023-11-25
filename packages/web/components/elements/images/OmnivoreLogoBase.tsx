@@ -1,5 +1,6 @@
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import Link from "next/link"
+import { useRouter } from "next/router"
+
 export type OmnivoreLogoBaseProps = {
   color?: string
   href?: string

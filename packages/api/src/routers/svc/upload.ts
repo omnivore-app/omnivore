@@ -40,7 +40,7 @@ export function uploadServiceRouter() {
         filePath,
         Buffer.from(msgStr, 'utf8'),
         { contentType: 'application/json' },
-        env.fileUpload.gcsUploadPrivateBucket
+        env.fileUpload.gcsUploadPrivateBucket,
       )
     } catch (err) {
       logger.error('upload page data failed', err)

@@ -1,21 +1,17 @@
-import { useMemo, useState } from 'react'
-import { applyStoredTheme } from '../../lib/themeUpdater'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
+import { useMemo, useState } from "react"
+import { applyStoredTheme } from "../../lib/themeUpdater"
+import { ConfirmationModal } from "../../components/patterns/ConfirmationModal"
 import {
   Subscription,
   SubscriptionType,
-  useGetSubscriptionsQuery,
-} from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { unsubscribeMutation } from '../../lib/networking/mutations/unsubscribeMutation'
-import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../components/templates/settings/SettingsTable'
-import { StyledText } from '../../components/elements/StyledText'
-import Link from 'next/link'
-import { formattedShortDate } from '../../lib/dateFormatting'
+  useGetSubscriptionsQuery
+} from "../../lib/networking/queries/useGetSubscriptionsQuery"
+import { unsubscribeMutation } from "../../lib/networking/mutations/unsubscribeMutation"
+import { showErrorToast, showSuccessToast } from "../../lib/toastHelpers"
+import { EmptySettingsRow, SettingsTable, SettingsTableRow } from "../../components/templates/settings/SettingsTable"
+import { StyledText } from "../../components/elements/StyledText"
+import Link from "next/link"
+import { formattedShortDate } from "../../lib/dateFormatting"
 
 export default function SubscriptionsPage(): JSX.Element {
   const { subscriptions, revalidate, isValidating } = useGetSubscriptionsQuery()

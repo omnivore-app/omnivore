@@ -70,17 +70,17 @@ export function emailAttachmentRouter() {
             user: { id: user.id },
           }),
         undefined,
-        user.id
+        user.id,
       )
 
       if (uploadFileData.id) {
         const uploadFilePathName = generateUploadFilePathName(
           uploadFileData.id,
-          fileName
+          fileName,
         )
         const uploadSignedUrl = await generateUploadSignedUrl(
           uploadFilePathName,
-          contentType
+          contentType,
         )
         res.send({
           id: uploadFileData.id,
@@ -134,7 +134,7 @@ export function emailAttachmentRouter() {
 
       const uploadFileDetails = await getStorageFileDetails(
         uploadFileId,
-        uploadFile.fileName
+        uploadFile.fileName,
       )
 
       const uploadFileData = await setFileUploadComplete(uploadFileId, user.id)
@@ -144,7 +144,7 @@ export function emailAttachmentRouter() {
 
       const uploadFilePathName = generateUploadFilePathName(
         uploadFileId,
-        uploadFile.fileName
+        uploadFile.fileName,
       )
 
       const uploadFileUrlOverride = `https://omnivore.app/attachments/${uploadFilePathName}`

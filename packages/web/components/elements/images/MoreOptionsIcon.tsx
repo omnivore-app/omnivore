@@ -1,4 +1,4 @@
-import { DotsThree, DotsThreeVertical } from 'phosphor-react'
+import { DotsThree, DotsThreeVertical } from "phosphor-react"
 
 type Orientation = 'horizontal' | 'vertical'
 

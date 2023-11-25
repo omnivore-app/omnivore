@@ -38,14 +38,14 @@ export function integrationRouter() {
               'Content-Type': 'application/json',
               'X-Accept': 'application/json',
             },
-          }
+          },
         )
         const { code } = response.data
         // redirect the user to Pocket to authorize the request token
         res.redirect(
           `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}${encodeURIComponent(
-            `?pocketToken=${code}&state=${state}`
-          )}`
+            `?pocketToken=${code}&state=${state}`,
+          )}`,
         )
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -55,10 +55,10 @@ export function integrationRouter() {
         }
 
         res.redirect(
-          `${env.client.url}/settings/integrations?errorCodes=UNKNOWN`
+          `${env.client.url}/settings/integrations?errorCodes=UNKNOWN`,
         )
       }
-    }
+    },
   )
   return router
 }

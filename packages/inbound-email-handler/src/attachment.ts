@@ -27,7 +27,7 @@ export const handleAttachments = async (
   email: string,
   subject: string,
   attachments: Attachment[],
-  receivedEmailId: string
+  receivedEmailId: string,
 ): Promise<void> => {
   for await (const attachment of attachments) {
     const { contentType, data } = attachment
@@ -40,7 +40,7 @@ export const handleAttachments = async (
       const uploadResult = await getUploadIdAndSignedUrl(
         email,
         filename,
-        contentType
+        contentType,
       )
       if (!uploadResult.url || !uploadResult.id) {
         console.log('failed to create upload request', uploadResult)
@@ -57,7 +57,7 @@ export const handleAttachments = async (
 const getUploadIdAndSignedUrl = async (
   email: string,
   fileName: string,
-  contentType: string
+  contentType: string,
 ): Promise<UploadResponse> => {
   if (process.env.JWT_SECRET === undefined) {
     throw new Error('JWT_SECRET is not defined')
@@ -80,7 +80,7 @@ const getUploadIdAndSignedUrl = async (
         Authorization: `${auth as string}`,
         'Content-Type': 'application/json',
       },
-    }
+    },
   )
   return response.data as UploadResponse
 }
@@ -88,7 +88,7 @@ const getUploadIdAndSignedUrl = async (
 const uploadToSignedUrl = async (
   uploadUrl: string,
   data: Buffer,
-  contentType: string
+  contentType: string,
 ): Promise<AxiosResponse> => {
   return axios.put(uploadUrl, data, {
     headers: {
@@ -103,7 +103,7 @@ const createArticle = async (
   email: string,
   uploadFileId: string,
   subject: string,
-  receivedEmailId: string
+  receivedEmailId: string,
 ): Promise<AxiosResponse> => {
   const data = {
     email,
@@ -128,6 +128,6 @@ const createArticle = async (
         Authorization: `${auth as string}`,
         'Content-Type': 'application/json',
       },
-    }
+    },
   )
 }

@@ -160,7 +160,7 @@ export class LibraryItem {
   @OneToMany(
     () => Recommendation,
     (recommendation) => recommendation.libraryItem,
-    { cascade: true }
+    { cascade: true },
   )
   @JoinTable({
     name: 'recommendation',

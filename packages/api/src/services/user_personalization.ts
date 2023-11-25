@@ -9,7 +9,7 @@ export const findUserPersonalization = async (id: string, userId: string) => {
         id,
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
@@ -20,17 +20,17 @@ export const deleteUserPersonalization = async (id: string, userId: string) => {
         id,
       }),
     undefined,
-    userId
+    userId,
   )
 }
 
 export const saveUserPersonalization = async (
   userId: string,
-  userPersonalization: DeepPartial<UserPersonalization>
+  userPersonalization: DeepPartial<UserPersonalization>,
 ) => {
   return authTrx(
     (t) => t.getRepository(UserPersonalization).save(userPersonalization),
     undefined,
-    userId
+    userId,
   )
 }

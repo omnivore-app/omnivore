@@ -35,7 +35,7 @@ export class GenericHandler extends ContentHandler {
 
   async parseNewsletterUrl(
     headers: Record<string, string | string[]>,
-    html: string
+    html: string,
   ): Promise<string | undefined> {
     // raw SubStack newsletter url is like <https://hongbo130.substack.com/p/tldr>
     // we need to get the real url from the raw url

@@ -49,8 +49,10 @@ const getThumbnail = (item: RssFeedItem) => {
     .url
 }
 
-function isRssFeedRequest(body: any): body is RssFeedRequest {
+function isRssFeedRequest(body: unknown): body is RssFeedRequest {
   return (
+    typeof body == 'object' &&
+    body != null &&
     'subscriptionIds' in body &&
     'feedUrl' in body &&
     'lastFetchedTimestamps' in body &&
@@ -92,7 +94,7 @@ const sendUpdateSubscriptionMutation = async (
   subscriptionId: string,
   lastFetchedAt: Date,
   lastFetchedChecksum: string,
-  scheduledAt: Date
+  scheduledAt: Date,
 ) => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
@@ -136,7 +138,7 @@ const sendUpdateSubscriptionMutation = async (
           'Content-Type': 'application/json',
         },
         timeout: 30000, // 30s
-      }
+      },
     )
 
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -155,7 +157,7 @@ const createTask = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
-  autoAddToLibrary: boolean
+  autoAddToLibrary: boolean,
 ) => {
   if (autoAddToLibrary) {
     return createSavingItemTask(userId, feedUrl, item)
@@ -167,7 +169,7 @@ const createTask = async (
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
-  item: RssFeedItem
+  item: RssFeedItem,
 ) => {
   const input = {
     userId,
@@ -196,7 +198,7 @@ const createSavingItemTask = async (
 const createFollowingTask = async (
   userId: string,
   feedUrl: string,
-  item: RssFeedItem
+  item: RssFeedItem,
 ) => {
   const input = {
     userIds: [userId],
@@ -331,7 +333,7 @@ const processSubscription = async (
   scheduledAt: number,
   lastFetchedChecksum: string,
   autoAddToLibrary: boolean,
-  feed: RssFeed
+  feed: RssFeed,
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -425,7 +427,7 @@ const processSubscription = async (
       userId,
       feedUrl,
       lastValidItem,
-      autoAddToLibrary
+      autoAddToLibrary,
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
@@ -447,7 +449,7 @@ const processSubscription = async (
     subscriptionId,
     lastItemFetchedAt,
     updatedLastFetchedChecksum,
-    new Date(nextScheduledAt)
+    new Date(nextScheduledAt),
   )
   console.log('Updated subscription', updatedSubscription)
 }
@@ -491,9 +493,9 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
             scheduledTimestamps[i],
             lastFetchedChecksums[i],
             addToLibraryFlags[i],
-            feed
-          )
-        )
+            feed,
+          ),
+        ),
       )
 
       res.send('ok')
@@ -501,5 +503,5 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       console.error('Error while parsing RSS feed', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
     }
-  }
+  },
 )

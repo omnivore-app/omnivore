@@ -1,30 +1,26 @@
-import { useRouter } from 'next/router'
-import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
-import { useMemo, useState } from 'react'
-import CheckboxComponent from '../../../components/elements/Checkbox'
-import { FormInput } from '../../../components/elements/FormElements'
-import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
-import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../../components/templates/settings/SettingsTable'
-import { theme } from '../../../components/tokens/stitches.config'
-import { formattedDateTime } from '../../../lib/dateFormatting'
-import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
+import { useRouter } from "next/router"
+import { FloppyDisk, Pencil, XCircle } from "phosphor-react"
+import { useMemo, useState } from "react"
+import CheckboxComponent from "../../../components/elements/Checkbox"
+import { FormInput } from "../../../components/elements/FormElements"
+import { HStack, SpanBox } from "../../../components/elements/LayoutPrimitives"
+import { ConfirmationModal } from "../../../components/patterns/ConfirmationModal"
+import { EmptySettingsRow, SettingsTable, SettingsTableRow } from "../../../components/templates/settings/SettingsTable"
+import { theme } from "../../../components/tokens/stitches.config"
+import { formattedDateTime } from "../../../lib/dateFormatting"
+import { unsubscribeMutation } from "../../../lib/networking/mutations/unsubscribeMutation"
 import {
   UpdateSubscriptionInput,
-  updateSubscriptionMutation,
-} from '../../../lib/networking/mutations/updateSubscriptionMutation'
+  updateSubscriptionMutation
+} from "../../../lib/networking/mutations/updateSubscriptionMutation"
 import {
   SubscriptionStatus,
   SubscriptionType,
-  useGetSubscriptionsQuery,
-} from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { formatMessage } from '../../../locales/en/messages'
+  useGetSubscriptionsQuery
+} from "../../../lib/networking/queries/useGetSubscriptionsQuery"
+import { applyStoredTheme } from "../../../lib/themeUpdater"
+import { showErrorToast, showSuccessToast } from "../../../lib/toastHelpers"
+import { formatMessage } from "../../../locales/en/messages"
 
 export default function Rss(): JSX.Element {
   const router = useRouter()

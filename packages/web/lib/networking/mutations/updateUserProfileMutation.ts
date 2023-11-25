@@ -1,6 +1,5 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import { State } from '../fragments/articleFragment'
 
 export type UpdateUserProfileInput = {
   userId: string

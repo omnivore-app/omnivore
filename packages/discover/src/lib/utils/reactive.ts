@@ -11,7 +11,7 @@ import { retry } from 'rxjs/operators'
 import { OmnivoreArticle } from '../../types/OmnivoreArticle'
 
 export const exponentialBackOff = <T>(
-  count: number
+  count: number,
 ): MonoTypeOperatorFunction<T> =>
   retry({
     count,
@@ -31,12 +31,12 @@ export const rateLimiter = <T>(params: {
 
 export function mapOrNull(project: (article: any) => OmnivoreArticle) {
   return pipe(
-    concatMap((item: any, value: number) => {
+    concatMap((item: any, _value: number) => {
       try {
         return of(project(item))
       } catch (e) {
         return EMPTY
       }
-    })
+    }),
   )
 }

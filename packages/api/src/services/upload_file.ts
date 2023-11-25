@@ -19,6 +19,6 @@ export const setFileUploadComplete = async (id: string, userId?: string) => {
       return repo.findOneByOrFail({ id })
     },
     undefined,
-    userId
+    userId,
   )
 }

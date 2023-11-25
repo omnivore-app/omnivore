@@ -50,7 +50,7 @@ const createSlug = (url: string, title?: Maybe<string> | undefined) => {
       .split('/')
       [pathname.split('/').length - 1].split('.')
       .slice(0, -1)
-      .join('.')
+      .join('.'),
   ).replace(/_/gi, ' ')
 
   return [generateSlug(title || croppedPathname), croppedPathname]
@@ -65,7 +65,7 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 
 export const savePage = async (
   input: SavePageInput,
-  user: User
+  user: User,
 ): Promise<SaveResult> => {
   const parseResult = await parsePreparedContent(
     input.url,
@@ -76,7 +76,7 @@ export const savePage = async (
         canonicalUrl: input.url,
       },
     },
-    input.parseResult
+    input.parseResult,
   )
   const [newSlug, croppedPathname] = createSlug(input.url, input.title)
   let slug = newSlug
@@ -123,7 +123,7 @@ export const savePage = async (
       t.getRepository(LibraryItem).findOneBy({
         user: { id: user.id },
         originalUrl: itemToSave.originalUrl,
-      })
+      }),
     )
     if (existingLibraryItem) {
       clientRequestId = existingLibraryItem.id
@@ -145,7 +145,7 @@ export const savePage = async (
           id: undefined,
           slug: undefined,
         } as QueryDeepPartialEntity<LibraryItem>,
-        user.id
+        user.id,
       )
     } else {
       // do not publish a pubsub event if the item is imported
@@ -153,7 +153,7 @@ export const savePage = async (
         itemToSave,
         user.id,
         undefined,
-        isImported
+        isImported,
       )
       clientRequestId = newItem.id
     }
@@ -256,7 +256,7 @@ export const parsedContentToLibraryItem = ({
       uploadFileHash || stringToHash(parsedContent?.content || url),
     thumbnail: parsedContent?.previewImage ?? undefined,
     publishedAt: validatedDate(
-      publishedAt || parsedContent?.publishedDate || undefined
+      publishedAt || parsedContent?.publishedDate || undefined,
     ),
     uploadFileId: uploadFileId || undefined,
     readingProgressTopPercent: 0,

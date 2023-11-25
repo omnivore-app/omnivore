@@ -34,7 +34,7 @@ export const createMetrics = async (
   redisClient: RedisClient,
   userId: string,
   taskId: string,
-  source: string
+  source: string,
 ) => {
   const key = `import:${userId}:${taskId}`
   try {
@@ -53,7 +53,7 @@ export const updateMetrics = async (
   redisClient: RedisClient,
   userId: string,
   taskId: string,
-  status: ImportStatus
+  status: ImportStatus,
 ) => {
   const key = `import:${userId}:${taskId}`
 
@@ -79,7 +79,7 @@ export const updateMetrics = async (
 export const getMetrics = async (
   redisClient: RedisClient,
   userId: string,
-  taskId: string
+  taskId: string,
 ): Promise<ImportMetrics | null> => {
   const key = `import:${userId}:${taskId}`
   try {

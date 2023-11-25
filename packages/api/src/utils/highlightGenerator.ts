@@ -13,7 +13,7 @@ const nonParagraphTagsRegEx =
   /^(a|b|basefont|bdo|big|em|font|i|s|small|span|strike|strong|su[bp]|tt|u|code|mark)$/i
 const highlightContentRegex = new RegExp(
   `<${highlightTag}>([\\s\\S]*)<\\/${highlightTag}>`,
-  'i'
+  'i',
 )
 const maxDeepPatchDistance = 4000
 const maxDeepPatchThreshhold = 0.5
@@ -118,10 +118,10 @@ function getTextNodesBetween(rootNode: Node, startNode: Node, endNode: Node) {
 }
 
 export const findEmbeddedHighlight = (
-  dom: Element
+  dom: Element,
 ): EmbeddedHighlightData | undefined => {
   const startNode = dom.querySelector(
-    'span[data-omnivore-highlight-start="true"]'
+    'span[data-omnivore-highlight-start="true"]',
   )
   const endNode = dom.querySelector('span[data-omnivore-highlight-end="true"]')
 
@@ -134,21 +134,21 @@ export const findEmbeddedHighlight = (
     const beforeNodes = getTextNodesBetween(
       dom,
       articleContentElement,
-      startNode
+      startNode,
     )
     const highlightNodes = getTextNodesBetween(dom, startNode, endNode)
     const afterNodes = getTextNodesBetween(dom, endNode, articleContentElement)
     const allArticleNodes = getTextNodesBetween(
       dom,
       articleContentElement,
-      articleContentElement
+      articleContentElement,
     )
 
     const patch = generateDiffPatch(
       allArticleNodes,
       beforeNodes,
       highlightNodes,
-      afterNodes
+      afterNodes,
     )
 
     const id = uuidv4()
@@ -187,12 +187,12 @@ function generateDiffPatch(
   allArticleNodes: ArticleTextContent,
   beforeNodes: ArticleTextContent,
   highlightNodes: ArticleTextContent,
-  afterNodes: ArticleTextContent
+  afterNodes: ArticleTextContent,
 ): string {
   const textWithTags = `${beforeNodes.articleText}<${highlightTag}>${highlightNodes.articleText}</${highlightTag}>${afterNodes.articleText}`
   const diffMatchPatch = new DiffMatchPatch()
   const patch = diffMatchPatch.patch_toText(
-    diffMatchPatch.patch_make(allArticleNodes.articleText, textWithTags)
+    diffMatchPatch.patch_make(allArticleNodes.articleText, textWithTags),
   )
 
   if (!patch) throw new Error('Invalid patch')
@@ -201,7 +201,7 @@ function generateDiffPatch(
 
 function getPrefixAndSuffix(
   articleTextNodes: ArticleTextContent,
-  patch: string
+  patch: string,
 ): {
   prefix: string
   suffix: string
@@ -215,17 +215,17 @@ function getPrefixAndSuffix(
 
   const { highlightTextStart, highlightTextEnd } = selectionOffsetsFromPatch(
     articleTextNodes.articleText,
-    patch
+    patch,
   )
 
   // Searching for the starting text node using interpolation search algorithm
   const textNodeIndex = interpolationSearch(
     textNodes.map(({ startIndex: startIndex }) => startIndex),
-    highlightTextStart
+    highlightTextStart,
   )
   const endTextNodeIndex = interpolationSearch(
     textNodes.map(({ startIndex: startIndex }) => startIndex),
-    highlightTextEnd
+    highlightTextEnd,
   )
 
   const prefix = getSurroundingText({
@@ -308,14 +308,14 @@ const getSurroundingText = ({
     return truncateText(
       !textNodes[i + 1] || textNodes[i + 1].isParagraphStart
         ? text
-        : text + getTextPart()
+        : text + getTextPart(),
     )
   }
 }
 
 const selectionOffsetsFromPatch = (
   articleText: string,
-  patch: string
+  patch: string,
 ): {
   highlightTextStart: number
   highlightTextEnd: number
@@ -332,13 +332,13 @@ const selectionOffsetsFromPatch = (
     dmp.Match_Distance = maxDeepPatchDistance
     const deeperAppliedPatch = dmp.patch_apply(
       dmp.patch_fromText(patch),
-      articleText
+      articleText,
     )
     if (!deeperAppliedPatch[1][0]) {
       throw new Error('Unable to find the highlight')
     } else {
       matchingHighlightContent = highlightContentRegex.exec(
-        deeperAppliedPatch[0]
+        deeperAppliedPatch[0],
       )
     }
   } else {
@@ -402,7 +402,7 @@ const fillHighlight = ({
 }
 
 export function getArticleTextNodes(
-  document: Document
+  document: Document,
 ): ArticleTextContent | null {
   try {
     const rootNode = document.getRootNode()
@@ -416,19 +416,19 @@ export function getArticleTextNodes(
 export function makeHighlightNodeAttributes(
   id: string,
   patch: string,
-  articleTextNodes: ArticleTextContent
+  articleTextNodes: ArticleTextContent,
 ) {
   const document = parseHTML('').document
   const textNodes = articleTextNodes.textNodes
   const { highlightTextStart, highlightTextEnd } = selectionOffsetsFromPatch(
     articleTextNodes.articleText,
-    patch
+    patch,
   )
 
   // Searching for the starting text node using interpolation search algorithm
   let startingTextNodeIndex = interpolationSearch(
     textNodes.map(({ startIndex: startIndex }) => startIndex),
-    highlightTextStart
+    highlightTextStart,
   )
   let quote = ''
 

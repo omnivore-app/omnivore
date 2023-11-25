@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const validScheduleTime = (str: string): Date | undefined => {
   const scheduleTime = DateTime.fromISO(str, { setZone: true }).set({
     minute: 0,

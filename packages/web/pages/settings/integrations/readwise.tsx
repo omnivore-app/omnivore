@@ -1,6 +1,6 @@
-import { PageMetaData } from '../../../components/patterns/PageMetaData'
-import { Readwise } from '../../../components/templates/integrations/Readwise'
-import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+import { PageMetaData } from "../../../components/patterns/PageMetaData"
+import { Readwise } from "../../../components/templates/integrations/Readwise"
+import { SettingsLayout } from "../../../components/templates/SettingsLayout"
 
 export default function ReadwisePage(): JSX.Element {
   return (

@@ -18,7 +18,7 @@ export interface NotificationData {
 export const sendNotification = async (
   apiEndpoint: string,
   auth: string,
-  { body, title, image, data }: NotificationData
+  { body, title, data }: NotificationData,
 ) => {
   const requestData: RequestData = {
     body,

@@ -83,7 +83,7 @@ const getTweetThread = async (conversationId: string): Promise<Tweets> => {
       '?query=' +
       encodeURIComponent(`conversation_id:${conversationId}`) +
       getTweetFields() +
-      `&max_results=${MAX_THREAD_DEPTH}`
+      `&max_results=${MAX_THREAD_DEPTH}`,
   )
 
   if (!TWITTER_BEARER_TOKEN) {
@@ -148,15 +148,15 @@ const tweetIdFromStatusUrl = (url: string): string | undefined => {
 
 const formatTimestamp = (timestamp: string) => {
   return DateTime.fromJSDate(new Date(timestamp)).toLocaleString(
-    DateTime.DATETIME_FULL
+    DateTime.DATETIME_FULL,
   )
 }
 
 const getTweetsFromResponse = (response: Tweets): Tweet[] => {
   const tweets = []
   for (const t of response.data) {
-    const media = response.includes.media?.filter((m) =>
-      t.attachments?.media_keys?.includes(m.media_key)
+    const media = response.includes.media?.filter(
+      (m) => t.attachments?.media_keys?.includes(m.media_key),
     )
     const tweet: Tweet = {
       data: t,
@@ -173,7 +173,7 @@ const getTweetsFromResponse = (response: Tweets): Tweet[] => {
 const getOldTweets = async (
   browser: Browser,
   conversationId: string,
-  username: string
+  username: string,
 ): Promise<Tweet[]> => {
   const tweetIds = await getTweetIds(browser, conversationId, username)
   if (tweetIds.length === 0) {
@@ -208,7 +208,7 @@ const waitFor = (ms: number) =>
 const getTweetIds = async (
   browser: Browser,
   tweetId: string,
-  author: string
+  author: string,
 ): Promise<string[]> => {
   const pageURL = `https://twitter.com/${author}/status/${tweetId}`
 
@@ -240,10 +240,10 @@ const getTweetIds = async (
 
       // Find the first Show thread button and click it
       const showRepliesButton = Array.from(
-        document.querySelectorAll('div[dir]')
+        document.querySelectorAll('div[dir]'),
       )
         .filter(
-          (node) => node.children[0] && node.children[0].tagName === 'SPAN'
+          (node) => node.children[0] && node.children[0].tagName === 'SPAN',
         )
         .find((node) => node.children[0].innerHTML === 'Show replies')
 
@@ -332,7 +332,7 @@ export class TwitterHandler extends ContentHandler {
         for (const urlObj of tweetData.entities.urls) {
           text = text.replace(
             urlObj.url,
-            `<a href="${urlObj.expanded_url}">${urlObj.display_url}</a>`
+            `<a href="${urlObj.expanded_url}">${urlObj.display_url}</a>`,
           )
         }
       }
@@ -358,10 +358,10 @@ export class TwitterHandler extends ContentHandler {
 
     const tweetUrl = `
        — <a href="https://twitter.com/${author.username}">${
-      author.username
-    }</a> <span itemscope itemtype="https://schema.org/Person" itemprop="author">${
-      author.name
-    }</span> <a href="${url}">${formatTimestamp(tweetData.created_at)}</a>
+         author.username
+       }</a> <span itemscope itemtype="https://schema.org/Person" itemprop="author">${
+         author.name
+       }</span> <a href="${url}">${formatTimestamp(tweetData.created_at)}</a>
     `
 
     const content = `

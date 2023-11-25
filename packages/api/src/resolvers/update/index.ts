@@ -25,7 +25,7 @@ export const updatePageResolver = authorized<
         ? (input.state as unknown as LibraryItemState)
         : undefined,
     },
-    uid
+    uid,
   )
   return {
     updatedPage: libraryItemToArticle(updatedPage),

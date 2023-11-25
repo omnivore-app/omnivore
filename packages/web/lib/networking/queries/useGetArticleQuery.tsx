@@ -1,25 +1,11 @@
-import { gql } from 'graphql-request'
-import useSWRImmutable, { Cache } from 'swr'
-import {
-  gqlFetcher,
-  makeGqlFetcher,
-  RequestContext,
-  ssrFetcher,
-} from '../networkHelpers'
-import {
-  articleFragment,
-  ContentReader,
-  State,
-} from '../fragments/articleFragment'
-import { Highlight, highlightFragment } from '../fragments/highlightFragment'
-import { ScopedMutator } from 'swr/dist/types'
-import { Label, labelFragment } from '../fragments/labelFragment'
-import {
-  LibraryItems,
-  Recommendation,
-  recommendationFragment,
-} from './useGetLibraryItemsQuery'
-import useSWR from 'swr'
+import { gql } from "graphql-request"
+import useSWR, { Cache } from "swr"
+import { gqlFetcher, makeGqlFetcher } from "../networkHelpers"
+import { articleFragment, ContentReader, State } from "../fragments/articleFragment"
+import { Highlight, highlightFragment } from "../fragments/highlightFragment"
+import { ScopedMutator } from "swr/dist/types"
+import { Label, labelFragment } from "../fragments/labelFragment"
+import { LibraryItems, Recommendation, recommendationFragment } from "./useGetLibraryItemsQuery"
 
 type ArticleQueryInput = {
   username?: string

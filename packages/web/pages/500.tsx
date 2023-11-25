@@ -1,6 +1,6 @@
-import { ErrorLayout } from '../components/templates/ErrorLayout'
-import Head from 'next/head'
-import { SettingsLayout } from '../components/templates/SettingsLayout'
+import { ErrorLayout } from "../components/templates/ErrorLayout"
+import Head from "next/head"
+import { SettingsLayout } from "../components/templates/SettingsLayout"
 
 export default function Custom500(): JSX.Element {
   return (

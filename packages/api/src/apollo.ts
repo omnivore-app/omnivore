@@ -51,7 +51,7 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   async function setClaims(
     em: EntityManager,
     uuid?: string,
-    userRole?: string
+    userRole?: string,
   ): Promise<void> {
     const uid =
       (claims && claims.uid) || uuid || '00000000-0000-0000-0000-000000000000'
@@ -72,12 +72,12 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
     signToken,
     setAuth: async (
       claims: ClaimsToSet,
-      secret: string = env.server.jwtSecret
+      secret: string = env.server.jwtSecret,
     ) => await setAuthInCookie(claims, res, secret),
     setClaims,
     authTrx: <TResult>(
       cb: (em: EntityManager) => TResult,
-      userRole?: string
+      userRole?: string,
     ): Promise<TResult> =>
       appDataSource.transaction(async (tx) => {
         await setClaims(tx, undefined, userRole)

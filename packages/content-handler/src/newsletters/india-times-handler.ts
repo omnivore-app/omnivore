@@ -15,8 +15,8 @@ export class IndiaTimesHandler extends ContentHandler {
   }): Promise<boolean> {
     return Promise.resolve(
       addressparser(input.from).some(
-        (e) => e.address === 'newsletters@timesofindia.com'
-      )
+        (e) => e.address === 'newsletters@timesofindia.com',
+      ),
     )
   }
 

@@ -70,10 +70,10 @@ const textToSpeechHandlers = [
 ]
 
 const synthesizeTextToSpeech = async (
-  input: TextToSpeechInput
+  input: TextToSpeechInput,
 ): Promise<TextToSpeechOutput> => {
   const textToSpeechHandler = textToSpeechHandlers.find((handler) =>
-    handler.use(input)
+    handler.use(input),
   )
   if (!textToSpeechHandler) {
     throw new Error('No text to speech handler found')
@@ -85,7 +85,7 @@ const uploadToBucket = async (
   filePath: string,
   data: Buffer,
   bucket: string,
-  options?: { contentType?: string; public?: boolean }
+  options?: { contentType?: string; public?: boolean },
 ): Promise<void> => {
   await storage.bucket(bucket).file(filePath).save(data, options)
 }
@@ -99,7 +99,7 @@ const updateSpeech = async (
   token: string,
   state: 'COMPLETED' | 'FAILED',
   audioFileName?: string,
-  speechMarksFileName?: string
+  speechMarksFileName?: string,
 ): Promise<boolean> => {
   if (!process.env.REST_BACKEND_ENDPOINT) {
     throw new Error('backend rest api endpoint not exists')
@@ -111,7 +111,7 @@ const updateSpeech = async (
       audioFileName,
       speechMarksFileName,
       state,
-    }
+    },
   )
 
   return response.status === 200
@@ -119,7 +119,7 @@ const updateSpeech = async (
 
 const getCharacterCountFromRedis = async (
   redisClient: RedisClient,
-  uid: string
+  uid: string,
 ): Promise<number> => {
   const wordCount = await redisClient.get(`tts:charCount:${uid}`)
   return wordCount ? parseInt(wordCount) : 0
@@ -131,7 +131,7 @@ const getCharacterCountFromRedis = async (
 const updateCharacterCountInRedis = async (
   redisClient: RedisClient,
   uid: string,
-  wordCount: number
+  wordCount: number,
 ): Promise<void> => {
   await redisClient.set(`tts:charCount:${uid}`, wordCount.toString(), {
     EX: 3600 * 24, // in seconds
@@ -182,7 +182,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
         key: id,
       })
       console.info(
-        `Synthesize text to speech completed in ${Date.now() - startTime} ms`
+        `Synthesize text to speech completed in ${Date.now() - startTime} ms`,
       )
 
       // speech marks file to be saved in GCS
@@ -192,7 +192,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
         await uploadToBucket(
           speechMarksFileName,
           Buffer.from(JSON.stringify(speechMarks)),
-          bucket
+          bucket,
         )
       }
 
@@ -202,7 +202,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
         token,
         'COMPLETED',
         audioFileName,
-        speechMarksFileName
+        speechMarksFileName,
       )
       if (!updated) {
         console.error('Failed to update speech')
@@ -215,7 +215,7 @@ export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
       await updateSpeech(id, token, 'FAILED')
       return res.status(500).send({ errorCodes: 'SYNTHESIZER_ERROR' })
     }
-  }
+  },
 )
 
 export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -242,7 +242,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     // create redis client
     const redisClient = await createRedisClient(
       process.env.REDIS_URL,
-      process.env.REDIS_CERT
+      process.env.REDIS_CERT,
     )
 
     try {
@@ -317,7 +317,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         const [speechMarksExists] = await speechMarksFile.exists()
         if (speechMarksExists) {
           speechMarks = JSON.parse(
-            (await speechMarksFile.download()).toString()
+            (await speechMarksFile.download()).toString(),
           )
         }
       } else {
@@ -356,7 +356,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         {
           EX: 3600 * 72, // in seconds
           NX: true,
-        }
+        },
       )
       console.log('Cache saved')
 
@@ -375,7 +375,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       await redisClient.quit()
       console.log('Redis Client Disconnected')
     }
-  }
+  },
 )
 
 module.exports = {

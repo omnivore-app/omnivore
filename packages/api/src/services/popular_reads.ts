@@ -8,7 +8,7 @@ import { logger } from '../utils/logger'
 export const addPopularRead = async (
   userId: string,
   name: string,
-  entityManager?: EntityManager
+  entityManager?: EntityManager,
 ) => {
   return authTrx(
     async (tx) =>
@@ -16,14 +16,14 @@ export const addPopularRead = async (
         .withRepository(libraryItemRepository)
         .createByPopularRead(name, userId),
     entityManager,
-    userId
+    userId,
   )
 }
 
 const addPopularReads = async (
   names: string[],
   userId: string,
-  entityManager: EntityManager
+  entityManager: EntityManager,
 ) => {
   // insert one by one to ensure that the order is preserved
   for (const name of names) {
@@ -38,7 +38,7 @@ const addPopularReads = async (
 
 export const addPopularReadsForNewUser = async (
   userId: string,
-  em = appDataSource.manager
+  em = appDataSource.manager,
 ): Promise<void> => {
   const defaultReads = ['omnivore_organize', 'power_read_it_later']
 

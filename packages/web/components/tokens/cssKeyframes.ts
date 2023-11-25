@@ -3,7 +3,7 @@ import { keyframes } from './stitches.config'
 export function expandWidthAnim(startWidth: string, endWidth: string): unknown {
   return keyframes({
     from: { width: startWidth },
-    to: { width: endWidth }
+    to: { width: endWidth },
   })
 }
 

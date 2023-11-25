@@ -105,7 +105,7 @@ const newsletterHandlers: ContentHandler[] = [
 
 export const preHandleContent = async (
   url: string,
-  browser: Browser
+  browser: Browser,
 ): Promise<PreHandleResult | undefined> => {
   // Before we run the regular handlers we check to see if we need tp
   // pre-resolve the URL. TODO: This should probably happen recursively,
@@ -137,7 +137,7 @@ export const preHandleContent = async (
 
 export const preParseContent = async (
   url: string,
-  dom: Document
+  dom: Document,
 ): Promise<Document | undefined> => {
   // Before we parse the page we check the handlers, to see if they want
   // to perform a preParse action that can modify our dom.
@@ -167,7 +167,7 @@ export const getNewsletterHandler = async (input: {
 }
 
 export const handleNewsletter = async (
-  input: NewsletterInput
+  input: NewsletterInput,
 ): Promise<NewsletterResult | undefined> => {
   const handler = await getNewsletterHandler(input)
   if (handler) {
