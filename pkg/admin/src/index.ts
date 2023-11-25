@@ -13,6 +13,7 @@ import {
   Subscription,
   Integration,
   LibraryItem,
+  Recommendation,
 } from './db'
 import { compare, hashSync } from 'bcryptjs'
 const readYamlFile = require('read-yaml-file')
@@ -46,6 +47,7 @@ const ADMIN_USER_EMAIL =
       {
         resource: ContentDisplayReport,
       },
+      { resource: Recommendation, options: { parent: { name: 'Users' } } },
     ],
   })
 

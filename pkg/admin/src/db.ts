@@ -52,6 +52,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       Subscription,
       LibraryItem,
       UploadFile,
+      Recommendation,
     ],
   })
 
@@ -381,4 +382,28 @@ export class UploadFile extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'updated_at' })
   updatedAt!: Date
+}
+
+@Entity({ name: 'recommendation' })
+export class Recommendation extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'recommender_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  recommender!: User
+
+  @JoinColumn({ name: 'library_item_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  libraryItem!: LibraryItem
+
+  @JoinColumn({ name: 'group_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  group!: Group
+
+  @Column('text', { nullable: true })
+  note?: string | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
 }
