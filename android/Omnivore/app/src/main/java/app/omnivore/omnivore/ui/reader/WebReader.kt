@@ -1,12 +1,14 @@
 package app.omnivore.omnivore.ui.reader
 
-import HighlightColorPalette
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RoundRectShape
+import android.os.Build
 import android.util.Log
 import android.view.*
 import android.view.View.OnScrollChangeListener
@@ -19,12 +21,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.components.HighlightColorPaletteMode
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,7 +76,27 @@ fun WebReader(
               theme.backgroundColor
             }
           }
-          setBackgroundColor(bg.toInt());
+          setBackgroundColor(bg.toInt())
+
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val scrollbarColor = when (theme) {
+              Themes.SYSTEM -> {
+                if (isDarkMode) {
+                  Color.WHITE
+                } else {
+                  Color.BLACK
+                }
+              }
+              else -> {
+                theme.scrollbarColor
+              }
+            }
+
+            val rad = 8f
+            val shape = ShapeDrawable(RoundRectShape(floatArrayOf(rad, rad, rad, rad, rad, rad, rad, rad), null, null))
+            shape.paint.color = scrollbarColor.toInt()
+            verticalScrollbarThumbDrawable = shape
+          }
         }
 
         webViewClient = object : WebViewClient() {

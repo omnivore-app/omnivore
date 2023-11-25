@@ -69,6 +69,7 @@ type Article {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  folder: String!
   hasContent: Boolean
   hash: String!
   highlights(input: ArticleHighlightsInput): [Highlight!]!
@@ -680,6 +681,18 @@ type Feature {
   updatedAt: Date
 }
 
+type Feed {
+  author: String
+  createdAt: Date!
+  description: String
+  id: ID!
+  image: String
+  publishedAt: Date
+  title: String!
+  updatedAt: Date!
+  url: String!
+}
+
 type FeedArticle {
   annotationsCount: Int
   article: Article!
@@ -713,12 +726,40 @@ type FeedArticlesSuccess {
   pageInfo: PageInfo!
 }
 
+type FeedEdge {
+  cursor: String!
+  node: Feed!
+}
+
+type FeedsError {
+  errorCodes: [FeedsErrorCode!]!
+}
+
+enum FeedsErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input FeedsInput {
+  after: String
+  first: Int
+  query: String
+  sort: SortParams
+}
+
+union FeedsResult = FeedsError | FeedsSuccess
+
+type FeedsSuccess {
+  edges: [FeedEdge!]!
+  pageInfo: PageInfo!
+}
+
 type Filter {
-  category: String!
   createdAt: Date!
   defaultFilter: Boolean
   description: String
   filter: String!
+  folder: String!
   id: ID!
   name: String!
   position: Int!
@@ -1179,6 +1220,22 @@ type MoveLabelSuccess {
   label: Label!
 }
 
+type MoveToFolderError {
+  errorCodes: [MoveToFolderErrorCode!]!
+}
+
+enum MoveToFolderErrorCode {
+  ALREADY_EXISTS
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess
+
+type MoveToFolderSuccess {
+  articleSavingRequest: ArticleSavingRequest!
+}
+
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
@@ -1208,6 +1265,7 @@ type Mutation {
   mergeHighlight(input: MergeHighlightInput!): MergeHighlightResult!
   moveFilter(input: MoveFilterInput!): MoveFilterResult!
   moveLabel(input: MoveLabelInput!): MoveLabelResult!
+  moveToFolder(folder: String!, id: ID!): MoveToFolderResult!
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
@@ -1367,6 +1425,7 @@ type Query {
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   deviceTokens: DeviceTokensResult!
   discoveryTopics: GetDiscoveryTopicResults!
+  feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
   getDiscoveryArticles(after: String, discoveryTopicId: String!, first: Int): GetDiscoveryArticleResults!
   getUserPersonalization: GetUserPersonalizationResult!
@@ -1383,7 +1442,7 @@ type Query {
   sendInstallInstructions: SendInstallInstructionsResult!
   subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
   typeaheadSearch(first: Int, query: String!): TypeaheadSearchResult!
-  updatesSince(after: String, first: Int, since: Date!, sort: SortParams): UpdatesSinceResult!
+  updatesSince(after: String, first: Int, folder: String, since: Date!, sort: SortParams): UpdatesSinceResult!
   user(userId: ID, username: String): UserResult!
   users: UsersResult!
   validateUsername(username: String!): Boolean!
@@ -1721,9 +1780,9 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
-  category: String
   description: String
   filter: String!
+  folder: String
   name: String!
   position: Int
 }
@@ -1785,16 +1844,20 @@ type SearchItem {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  folder: String!
   highlights: [Highlight!]
   id: ID!
   image: String
   isArchived: Boolean!
   labels: [Label!]
   language: String
+  links: JSON
   originalArticleUrl: String
   ownedByViewer: Boolean
   pageId: ID
   pageType: PageType!
+  previewContent: String
+  previewContentType: String
   publishedAt: Date
   quote: String
   readAt: Date
@@ -1943,6 +2006,7 @@ input SetIntegrationInput {
   importItemState: ImportItemState
   name: String!
   syncedAt: Date
+  taskName: String
   token: String!
   type: IntegrationType
 }
@@ -2168,6 +2232,8 @@ enum SubscribeErrorCode {
 }
 
 input SubscribeInput {
+  autoAddToLibrary: Boolean
+  isPrivate: Boolean
   subscriptionType: SubscriptionType
   url: String!
 }
@@ -2179,11 +2245,13 @@ type SubscribeSuccess {
 }
 
 type Subscription {
+  autoAddToLibrary: Boolean
   count: Int!
   createdAt: Date!
   description: String
   icon: String
   id: ID!
+  isPrivate: Boolean
   lastFetchedAt: Date
   name: String!
   newsletterEmail: String
@@ -2300,9 +2368,9 @@ enum UpdateFilterErrorCode {
 }
 
 input UpdateFilterInput {
-  category: String
   description: String
   filter: String
+  folder: String
   id: String!
   name: String
   position: Int
@@ -2497,8 +2565,10 @@ enum UpdateSubscriptionErrorCode {
 }
 
 input UpdateSubscriptionInput {
+  autoAddToLibrary: Boolean
   description: String
   id: ID!
+  isPrivate: Boolean
   lastFetchedAt: Date
   lastFetchedChecksum: String
   name: String

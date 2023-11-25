@@ -1,5 +1,11 @@
 import * as jwt from 'jsonwebtoken'
-import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
+import {
+  DeepPartial,
+  FindOptionsWhere,
+  IsNull,
+  Not,
+  ObjectLiteral,
+} from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
@@ -26,14 +32,14 @@ export const optInFeature = async (
 }
 
 const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
-  const feature = await getRepository(Feature).findOne({
+  const feature = (await getRepository(Feature).findOne({
     where: {
       name: FeatureName.UltraRealisticVoice,
       grantedAt: Not(IsNull()),
       user: { id: uid },
     },
     relations: ['user'],
-  })
+  })) as Feature
   if (feature) {
     // already opted in
     logger.info('already opted in')
@@ -58,7 +64,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     logger.info('exceeded max users')
 
     // create/update an opt-in record with null grantedAt
-    const optInRecord = {
+    const optInRecord: ObjectLiteral = {
       user: { id: uid },
       name: FeatureName.UltraRealisticVoice,
       grantedAt: null,
@@ -104,10 +110,10 @@ export const findFeatureByName = async (
   name: FeatureName,
   userId: string
 ): Promise<Feature | null> => {
-  return await getRepository(Feature).findOneBy({
+  return (await getRepository(Feature).findOneBy({
     name,
     user: { id: userId },
-  })
+  })) as Feature
 }
 
 export const deleteFeature = async (

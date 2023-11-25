@@ -15,6 +15,7 @@ import {
 } from "../../../lib/networking/mutations/saveDiscoverArticle"
 import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
 import { useFetchMore } from "../../../lib/hooks/useFetchMoreScroll"
+import { AddLinkModal } from "../homeFeed/AddLinkModal"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -25,6 +26,7 @@ export function DiscoverContainer(): JSX.Element {
   const viewer = useGetViewerQuery()
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [layoutType, setLayoutType] = useState<LayoutType>('GRID_LAYOUT')
+  const [showAddLinkModal, setShowAddLinkModal] = useState(false);
   const topics = [
     {
       title: 'Popular',
@@ -179,14 +181,13 @@ export function DiscoverContainer(): JSX.Element {
         activeTab={activeTopic}
         setActiveTab={setTopicAndReturnToTop}
         layout={layoutType}
+        setShowAddLinkModal={setShowAddLinkModal}
         setLayoutType={setLayoutType}
         topics={topics}
       />
       <HStack css={{ width: '100%', height: '100%' }}>
         <LibraryFilterMenu
-          setShowAddLinkModal={() => {
-            return
-          }}
+          setShowAddLinkModal={setShowAddLinkModal}
           searchTerm={'NONE'} // This is done to stop the library filter menu actually having a highlight. Hacky.
           applySearchQuery={(searchQuery: string) => {
             router?.push(`/home?q=${searchQuery}`)
@@ -200,6 +201,12 @@ export function DiscoverContainer(): JSX.Element {
           items={discoveryItems ?? []}
           viewer={viewer.viewerData?.me}
         />
+        { showAddLinkModal &&
+          <AddLinkModal
+            handleLinkSubmission={handleLinkSave}
+            onOpenChange={() => setShowAddLinkModal(false)}
+          />
+        }
       </HStack>
     </VStack>
   )

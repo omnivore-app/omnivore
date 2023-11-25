@@ -1,6 +1,7 @@
 /* global
   browserApi
   showToolbar
+  showConsentError
   prepareContent
   getPageInfo
   ACTIONS
@@ -41,6 +42,8 @@
         sendResponse({ pong: true })
       } else if (action === ACTIONS.ShowToolbar) {
         showToolbar(payload)
+      } else if (action === ACTIONS.ShowConsentError) {
+        showConsentError()
       } else if (action === ACTIONS.UpdateStatus) {
         updateStatus(payload)
       } else if (action === ACTIONS.LabelCacheUpdated) {

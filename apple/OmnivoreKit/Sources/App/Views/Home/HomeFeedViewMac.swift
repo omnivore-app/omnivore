@@ -106,7 +106,6 @@ import Views
             .contextMenu {
               menuItems(item)
             }
-            Divider().padding(5)
           }
 
           if viewModel.isLoading {

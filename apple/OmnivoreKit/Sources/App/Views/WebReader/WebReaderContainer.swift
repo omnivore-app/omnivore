@@ -499,7 +499,9 @@ struct WebReaderContainerView: View {
               showErrorAlertMessage: $showErrorAlertMessage
             )
           }
-          .navigationViewStyle(StackNavigationViewStyle())
+          #if os(iOS)
+            .navigationViewStyle(StackNavigationViewStyle())
+          #endif
         }
         .sheet(isPresented: $showHighlightLabelsModal) {
           if let highlight = Highlight.lookup(byID: self.annotation, inContext: self.dataService.viewContext) {
@@ -568,6 +570,7 @@ struct WebReaderContainerView: View {
             }
           }
       }
+
       #if os(iOS)
         VStack(spacing: 0) {
           navBar
@@ -618,6 +621,7 @@ struct WebReaderContainerView: View {
         .animation(.spring())
         .isOpaque(false)
     }
+    .ignoresSafeArea(.all, edges: .bottom)
     .onReceive(NSNotification.readerSnackBarPublisher) { notification in
       if let message = notification.userInfo?["message"] as? String {
         viewModel.snackbarOperation = SnackbarOperation(message: message,

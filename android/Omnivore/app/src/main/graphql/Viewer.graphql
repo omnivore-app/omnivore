@@ -3,6 +3,7 @@ query Viewer {
     id
     name
     isFullUser
+    intercomHash
     profile {
       id
       username

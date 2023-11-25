@@ -66,7 +66,7 @@ public struct LibraryItemCard: View {
         labels
       }
 
-      if let note = item.noteText {
+      if let note = item.noteText, !note.isEmpty {
         HStack(alignment: .top, spacing: 10) {
           avatarImage
             .frame(width: 20, height: 20)
@@ -215,25 +215,24 @@ public struct LibraryItemCard: View {
         $0.icon
       }
 
-      let fgcolor = Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray
       Text("\(estimatedReadingTime)")
         .font(.caption2).fontWeight(.medium)
-        .foregroundColor(fgcolor)
+        .foregroundColor(Color.themeLibraryItemSubtle)
 
         +
         Text("\(readingProgress)")
         .font(.caption2).fontWeight(.medium)
-        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : fgcolor)
+        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeLibraryItemSubtle)
 
         +
         Text("\(highlightsText)")
         .font(.caption2).fontWeight(.medium)
-        .foregroundColor(fgcolor)
+        .foregroundColor(Color.themeLibraryItemSubtle)
 
         +
         Text("\(notesText)")
         .font(.caption2).fontWeight(.medium)
-        .foregroundColor(fgcolor)
+        .foregroundColor(Color.themeLibraryItemSubtle)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
   }
@@ -293,7 +292,7 @@ public struct LibraryItemCard: View {
   var byLine: some View {
     Text(bylineStr)
       .font(.caption2)
-      .foregroundColor(Color.isDarkMode ? Color.themeDarkWhiteGray : Color.themeMiddleGray)
+      .foregroundColor(Color.themeLibraryItemSubtle)
       .frame(maxWidth: .infinity, alignment: .leading)
       .lineLimit(1)
   }

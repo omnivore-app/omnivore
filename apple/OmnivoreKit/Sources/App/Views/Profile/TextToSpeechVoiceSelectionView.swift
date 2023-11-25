@@ -46,7 +46,7 @@
             }
           }
 
-          if audioController.useUltraRealisticVoices {
+          if viewModel.realisticVoicesToggle, !audioController.ultraRealisticFeatureKey.isEmpty {
             if showLanguageChanger {
               Section("Language") {
                 NavigationLink(destination: TextToSpeechLanguageView().navigationTitle("Language")) {

@@ -16,9 +16,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
+import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.networking.viewer
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.settings.LogoutDialog
 import app.omnivore.omnivore.ui.settings.ManageAccountDialog
@@ -27,6 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomSpace
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,7 +110,7 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
       }
       RowDivider()
       SettingRow(text = stringResource(R.string.settings_view_setting_row_feedback)) {
-        Intercom.client().present(space = IntercomSpace.Messages)
+        settingsViewModel.presentIntercom()
       }
       RowDivider()
       SettingRow(text = stringResource(R.string.settings_view_setting_row_privacy_policy)) {

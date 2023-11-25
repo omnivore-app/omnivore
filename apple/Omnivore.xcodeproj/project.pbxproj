@@ -14,7 +14,6 @@
 		042F48DC26DFD10E00BF98FC /* iOSLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */; };
 		045B1681279147E7005047F7 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 045B1680279147E7005047F7 /* FirebaseMessaging */; };
 		0465B9BE26CDD35F005558CD /* MainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81BE98F0CB588F5FC577A13 /* MainApp.swift */; };
-		046C5CD526A3F89A00AC5349 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 046C5CD426A3F89A00AC5349 /* icon.icns */; };
 		046C5CDF26A3F89A00AC5349 /* ShareExtension-Mac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		046C5CE626A3FE8C00AC5349 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 046C5CE526A3FE8C00AC5349 /* App */; };
 		047AD6F22724C934004FD5CF /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 047AD6F12724C934004FD5CF /* App */; };
@@ -34,12 +33,8 @@
 		260BBE4168E3C57D6D2E225D /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 7DD0EF4D497D71D248C7B0DF /* App */; };
 		4214F6EF2714D2260096B644 /* SafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B16271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4214F6F22714D28E0096B644 /* SafariExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42FF1B20271154A700B38C38 /* SafariExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		4225D59227164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
-		4225D59327164F82002A680F /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4225D59127164F82002A680F /* fonts */; };
 		42321E852714E6B00056429F /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 42321E822714E6B00056429F /* scripts */; };
 		42321E862714E6B00056429F /* scripts in Resources */ = {isa = PBXBuildFile; fileRef = 42321E822714E6B00056429F /* scripts */; };
-		42321E872714E6B00056429F /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 42321E832714E6B00056429F /* styles */; };
-		42321E882714E6B00056429F /* styles in Resources */ = {isa = PBXBuildFile; fileRef = 42321E832714E6B00056429F /* styles */; };
 		42321E892714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
 		42321E8A2714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
 		42704E7328E6BDB000C8C73E /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */; };
@@ -192,7 +187,6 @@
 		042F48DB26DFD10E00BF98FC /* iOSLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSLaunchTests.swift; sourceTree = "<group>"; };
 		042F48DD26DFD10E00BF98FC /* iOSUITests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = iOSUITests.plist; sourceTree = "<group>"; };
 		046C5CD226A3F89A00AC5349 /* ShareExtension-Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "ShareExtension-Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		046C5CD426A3F89A00AC5349 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		046C5CDB26A3F89A00AC5349 /* ShareExtensionMac.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = ShareExtensionMac.plist; sourceTree = "<group>"; };
 		046C5CDC26A3F89A00AC5349 /* ShareExtensionMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShareExtensionMac.entitlements; sourceTree = "<group>"; };
 		047AA41F297A17FB00F0BEBF /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -215,9 +209,7 @@
 		082449FB9F5F3730EE0D8D3F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0BE7F7C593222747A96AA4E7 /* Omnivore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Omnivore.plist; sourceTree = "<group>"; };
 		1A39D8FDA25447FDBF07E24B /* Omnivore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Omnivore.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4225D59127164F82002A680F /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fonts; sourceTree = "<group>"; };
 		42321E822714E6B00056429F /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
-		42321E832714E6B00056429F /* styles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = styles; sourceTree = "<group>"; };
 		42321E842714E6B00056429F /* views */ = {isa = PBXFileReference; lastKnownFileType = folder; path = views; sourceTree = "<group>"; };
 		42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
 		42E2BFB128E458E0007F29B2 /* AppStoreScreenshots.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppStoreScreenshots.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -473,9 +465,7 @@
 		42FF1AEC271154A600B38C38 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				4225D59127164F82002A680F /* fonts */,
 				42321E822714E6B00056429F /* scripts */,
-				42321E832714E6B00056429F /* styles */,
 				42321E842714E6B00056429F /* views */,
 				42FF1AED271154A600B38C38 /* _locales */,
 				42FF1AEE271154A600B38C38 /* images */,
@@ -511,7 +501,6 @@
 		B330B55BAF36E624637EE3BE /* ShareExtension */ = {
 			isa = PBXGroup;
 			children = (
-				046C5CD426A3F89A00AC5349 /* icon.icns */,
 				FF9F2334402E6B10A665F1A7 /* ShareExtensionViewController.swift */,
 				04E9706E26BDE47D002A523D /* ShareExtension.js */,
 			);
@@ -878,7 +867,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				04E9707226BDE5F1002A523D /* ShareExtension.js in Resources */,
-				046C5CD526A3F89A00AC5349 /* icon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -909,9 +897,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				42321E892714E6B00056429F /* views in Resources */,
-				42321E872714E6B00056429F /* styles in Resources */,
 				42321E852714E6B00056429F /* scripts in Resources */,
-				4225D59227164F82002A680F /* fonts in Resources */,
 				42FF1B37271154A700B38C38 /* images in Resources */,
 				42FF1B39271154A700B38C38 /* manifest.json in Resources */,
 				42FF1B35271154A700B38C38 /* _locales in Resources */,
@@ -923,9 +909,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				42321E8A2714E6B00056429F /* views in Resources */,
-				42321E882714E6B00056429F /* styles in Resources */,
 				42321E862714E6B00056429F /* scripts in Resources */,
-				4225D59327164F82002A680F /* fonts in Resources */,
 				42FF1B38271154A700B38C38 /* images in Resources */,
 				42FF1B3A271154A700B38C38 /* manifest.json in Resources */,
 				42FF1B36271154A700B38C38 /* _locales in Resources */,
@@ -1400,7 +1384,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.37.0;
+				MARKETING_VERSION = 1.39.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
@@ -1435,7 +1419,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.37.0;
+				MARKETING_VERSION = 1.39.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1490,7 +1474,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.37.0;
+				MARKETING_VERSION = 1.39.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1831,7 +1815,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.37.0;
+				MARKETING_VERSION = 1.39.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -19,6 +19,8 @@ export type DiscoverHeaderProps = {
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 
+  setShowAddLinkModal: (show: boolean) => void
+
   handleLinkSubmission: (
     link: string,
     timezone: string,

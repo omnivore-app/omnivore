@@ -8,7 +8,9 @@ import { BulkActionType } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { wordsCount } from '../utils/helpers'
+import { SaveFollowingItemRequest } from '../routers/svc/following'
+import { generateSlug, wordsCount } from '../utils/helpers'
+import { createThumbnailUrl } from '../utils/imageproxy'
 import {
   DateFilter,
   FieldFilter,
@@ -29,7 +31,7 @@ export interface SearchArgs {
   size?: number
   sort?: Sort
   query?: string
-  inFilter?: InFilter
+  inFilter: InFilter
   readFilter?: ReadFilter
   typeFilter?: string
   labelFilters?: LabelFilter[]
@@ -62,7 +64,6 @@ export interface SearchResultItem {
   title: string
   uploadFileId?: string | null
   url: string
-  archivedAt?: Date | null
   readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
@@ -117,19 +118,10 @@ const buildWhereClause = (
           "library_item.deleted_at >= now() - interval '14 days'"
         )
         break
-      case InFilter.SUBSCRIPTION:
-        queryBuilder
-          .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-          .andWhere('library_item.archived_at IS NULL')
-          .andWhere('library_item.subscription IS NOT NULL')
-        break
-      case InFilter.LIBRARY:
-        queryBuilder
-          .andWhere(
-            "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
-          )
-          .andWhere('library_item.archived_at IS NULL')
-        break
+      default:
+        queryBuilder.andWhere('library_item.folder = :folder', {
+          folder: args.inFilter,
+        })
     }
   }
 
@@ -162,6 +154,8 @@ const buildWhereClause = (
         case HasFilter.LABELS:
           queryBuilder.andWhere("library_item.label_names <> '{}'")
           break
+        case HasFilter.SUBSCRIPTIONS:
+          queryBuilder.andWhere('library_item.subscription is NOT NULL')
       }
     })
   }
@@ -177,22 +171,61 @@ const buildWhereClause = (
     if (includeLabels && includeLabels.length > 0) {
       includeLabels.forEach((includeLabel, i) => {
         const param = `includeLabels_${i}`
-        queryBuilder.andWhere(
-          `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
-          {
-            [param]: includeLabel.labels,
-          }
+        const hasWildcard = includeLabel.labels.some((label) =>
+          label.includes('*')
         )
+        if (hasWildcard) {
+          queryBuilder.andWhere(
+            new Brackets((qb) => {
+              includeLabel.labels.forEach((label, j) => {
+                const param = `includeLabels_${i}_${j}`
+                qb.orWhere(
+                  `array_to_string(array_cat(library_item.label_names, library_item.highlight_labels)::text[], ',') ILIKE :${param}`,
+                  {
+                    [param]: label.replace(/\*/g, '%'),
+                  }
+                )
+              })
+            })
+          )
+        } else {
+          queryBuilder.andWhere(
+            `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
+            {
+              [param]: includeLabel.labels,
+            }
+          )
+        }
       })
     }
 
     if (excludeLabels && excludeLabels.length > 0) {
-      queryBuilder.andWhere(
-        'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
-        {
-          excludeLabels: excludeLabels.flatMap((filter) => filter.labels),
-        }
-      )
+      const labels = excludeLabels.flatMap((filter) => filter.labels)
+
+      const hasWildcard = labels.some((label) => label.includes('*'))
+
+      if (hasWildcard) {
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            labels.forEach((label, i) => {
+              const param = `excludeLabels_${i}`
+              qb.andWhere(
+                `array_to_string(array_cat(library_item.label_names, library_item.highlight_labels)::text[], ',') NOT ILIKE :${param}`,
+                {
+                  [param]: label.replace(/\*/g, '%'),
+                }
+              )
+            })
+          })
+        )
+      } else {
+        queryBuilder.andWhere(
+          'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
+          {
+            excludeLabels: labels,
+          }
+        )
+      }
     }
   }
 
@@ -244,20 +277,18 @@ const buildWhereClause = (
   }
 
   if (!args.includePending) {
-    queryBuilder.andWhere('library_item.state <> :state', {
-      state: LibraryItemState.Processing,
-    })
+    queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
   }
 
   if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere('library_item.state <> :state', {
-      state: LibraryItemState.Deleted,
-    })
+    queryBuilder.andWhere("library_item.state <> 'DELETED'")
   }
 
   if (args.noFilters) {
     args.noFilters.forEach((filter) => {
-      queryBuilder.andWhere(`library_item.${filter.field} = '{}'`)
+      queryBuilder.andWhere(
+        `(library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL)`
+      )
     })
   }
 
@@ -318,7 +349,7 @@ export const searchLibraryItems = async (
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
-        .where({ user: { id: userId } })
+        .where('library_item.user_id = :userId', { userId })
 
       // build the where clause
       buildWhereClause(queryBuilder, args)
@@ -420,7 +451,6 @@ export const updateLibraryItem = async (
           libraryItem.deletedAt = null
           break
       }
-
       await itemRepo.update(id, libraryItem)
 
       return itemRepo.findOneByOrFail({ id })
@@ -560,6 +590,38 @@ export const createLibraryItem = async (
   return newLibraryItem
 }
 
+export const saveFeedItemInFollowing = (
+  input: SaveFollowingItemRequest,
+  userId: string
+) => {
+  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
+
+  return authTrx(
+    async (tx) => {
+      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
+        ...input,
+        user: { id: userId },
+        originalUrl: input.url,
+        subscription: input.addedToFollowingBy,
+        folder: InFilter.FOLLOWING,
+        slug: generateSlug(input.title),
+        thumbnail,
+      }
+
+      return tx
+        .getRepository(LibraryItem)
+        .createQueryBuilder()
+        .insert()
+        .values(itemToSave)
+        .orIgnore() // ignore if the item already exists
+        .returning('*')
+        .execute()
+    },
+    undefined,
+    userId
+  )
+}
+
 export const findLibraryItemsByPrefix = async (
   prefix: string,
   userId: string,
@@ -619,8 +681,8 @@ export const updateLibraryItems = async (
       break
     case BulkActionType.Delete:
       values = {
-        deletedAt: new Date(),
         state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
       }
       break
     case BulkActionType.AddLabels:

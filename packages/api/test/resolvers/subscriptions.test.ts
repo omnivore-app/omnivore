@@ -332,7 +332,9 @@ describe('Subscriptions API', () => {
       const updatedSubscription = await getRepository(Subscription).findOneBy({
         id: subscription.id,
       })
-      expect(updatedSubscription?.status).to.eql(SubscriptionStatus.Unsubscribed)
+      expect(updatedSubscription?.status).to.eql(
+        SubscriptionStatus.Unsubscribed
+      )
 
       // check if the email was sent
       expect(fake).to.have.been.calledOnceWith({
@@ -371,10 +373,15 @@ describe('Subscriptions API', () => {
 
       before(async () => {
         // fake rss parser
-        sinon.replace(Parser.prototype, 'parseURL', sinon.fake.resolves({
-          title: 'RSS Feed',
-          description: 'RSS Feed Description',
-        }))
+        sinon.replace(
+          Parser.prototype,
+          'parseURL',
+          sinon.fake.resolves({
+            title: 'RSS Feed',
+            description: 'RSS Feed Description',
+            feedUrl: url,
+          })
+        )
       })
 
       after(() => {
@@ -439,11 +446,9 @@ describe('Subscriptions API', () => {
       })
 
       it('creates a rss subscription', async () => {
-        const res = await graphqlRequest(
-          query,
-          authToken,
-          { input: { url, subscriptionType } },
-        ).expect(200)
+        const res = await graphqlRequest(query, authToken, {
+          input: { url, subscriptionType },
+        }).expect(200)
         expect(res.body.data.subscribe.subscriptions).to.have.lengthOf(1)
         expect(res.body.data.subscribe.subscriptions[0].id).to.be.a('string')
 

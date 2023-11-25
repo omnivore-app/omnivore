@@ -25,38 +25,54 @@ private struct LabelEntry: Entry {
 @MainActor
 public struct LabelsEntryView: View {
   @Binding var searchTerm: String
+  @Binding var isFocused: Bool
   @State var viewModel: LabelsViewModel
   @EnvironmentObject var dataService: DataService
 
   let entries: [Entry]
+
+  #if os(macOS)
+    @State var popoverIndex = -1
+    @State var presentPopover = false
+  #endif
 
   @State private var totalHeight = CGFloat.zero
   @FocusState private var textFieldFocused: Bool
 
   public init(
     searchTerm: Binding<String>,
+    isFocused: Binding<Bool>,
     viewModel: LabelsViewModel
   ) {
     self._searchTerm = searchTerm
-    self.viewModel = viewModel
+    self._isFocused = isFocused
 
+    self.viewModel = viewModel
     self.entries = Array(viewModel.selectedLabels.map { LabelEntry(label: $0) })
   }
 
-  func onTextSubmit() {
-    let index = searchTerm.index(searchTerm.startIndex, offsetBy: 1)
-    let trimmed = searchTerm.suffix(from: index).lowercased()
+  func getSearchTermText() -> String {
+    if searchTerm.starts(with: ZWSP) {
+      let index = searchTerm.index(searchTerm.startIndex, offsetBy: 1)
+      let trimmed = searchTerm.suffix(from: index)
+      return String(trimmed)
+    }
+    return searchTerm
+  }
 
+  func onTextSubmit() {
+    let trimmed = getSearchTermText()
     if trimmed.count < 1 {
       return
     }
 
-    if let label = viewModel.labels.first(where: { $0.name?.lowercased() == trimmed }) {
+    let lowercased = trimmed.lowercased()
+    if let label = viewModel.labels.first(where: { $0.name?.lowercased() == lowercased }) {
       if !viewModel.selectedLabels.contains(label) {
         viewModel.selectedLabels.append(label)
       }
 
-      searchTerm = ZWSP
+      reset()
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
         textFieldFocused = true
       }
@@ -67,27 +83,58 @@ public struct LabelsEntryView: View {
         color: Gradient.randomColor(str: trimmed, offset: 1),
         description: nil
       )
-      searchTerm = ZWSP
+      reset()
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
         textFieldFocused = true
       }
     }
   }
 
+  var textFieldString: NSAttributedString {
+    #if os(iOS)
+      NSAttributedString(
+        string: searchTerm,
+        attributes: [
+          NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14)
+        ]
+      )
+    #else
+      NSAttributedString(
+        string: searchTerm,
+        attributes: [
+          NSAttributedString.Key.font: NSFont.systemFont(ofSize: 14)
+        ]
+      )
+    #endif
+  }
+
+  func reset() {
+    searchTerm = ZWSP
+    #if os(macOS)
+      popoverIndex = -1
+      presentPopover = false
+    #endif
+  }
+
   var deletableTextField: some View {
-    let str = NSAttributedString(
-      string: searchTerm,
-      attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14)]
-    )
     // Round it up to avoid jitter when typing
-    let textWidth = max(25.0, Double(Int(str.size().width + 1)))
-    let result = TextField("", text: $searchTerm)
+    let textWidth = max(25.0, Double(Int(textFieldString.size().width + 28)))
+    var result = AnyView(TextField("", text: $searchTerm)
+      .id("deletableTextField")
       .frame(alignment: .topLeading)
       .frame(height: 25)
       .frame(width: textWidth)
-      .padding(5)
+      .padding(.trailing, 5)
+      .padding(.vertical, 5)
+      .padding(EdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6))
+      .cornerRadius(5)
+      .accentColor(.blue)
       .font(Font.system(size: 14))
       .multilineTextAlignment(.leading)
+      #if os(macOS)
+        .textFieldStyle(.plain)
+        .background(Color.clear)
+      #endif
       .onChange(of: searchTerm, perform: { _ in
         if searchTerm.count >= 64 {
           searchTerm = String(searchTerm.prefix(64))
@@ -95,55 +142,107 @@ public struct LabelsEntryView: View {
         if searchTerm.isEmpty {
           if viewModel.selectedLabels.count > 0 {
             viewModel.selectedLabels.removeLast()
-            searchTerm = ZWSP
+            reset()
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
               textFieldFocused = true
             }
           } else {
-            searchTerm = ZWSP
+            reset()
           }
         }
       })
-      .onSubmit {
-        onTextSubmit()
+        .onSubmit {
+          #if os(iOS)
+            onTextSubmit()
+          #else
+            if popoverIndex == -1 || popoverIndex >= partialMatches.count {
+              onTextSubmit()
+            } else if popoverIndex >= 0, popoverIndex < partialMatches.count {
+              let matched = partialMatches[popoverIndex]
+              viewModel.selectedLabels.append(matched)
+              reset()
+            }
+          #endif
+        }
+        .submitScope())
+
+    #if os(macOS)
+      if #available(macOS 14.0, *) {
+        result = AnyView(result
+          .onKeyPress(.downArrow) {
+            popoverIndex = ((popoverIndex + 1) % (partialMatches.count + 1))
+            return .handled
+          }
+          .onKeyPress(.upArrow) {
+            popoverIndex -= 1
+            return .handled
+          }
+          .onKeyPress(.tab) {
+            popoverIndex = ((popoverIndex + 1) % (partialMatches.count + 1))
+            return .handled
+          })
       }
-    return result
+    #endif
+
+    return AnyView(result)
   }
 
-//  func onTextDelete() -> Bool { if searchTerm.isEmpty {
-//    if lastSelected {
-//      if viewModel.selectedLabels.count > 0 {
-//        viewModel.selectedLabels.removeLast()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) {
-//          textFieldFocused = true
-//        }
-//      }
-//    } else {
-//      lastSelected = true
-//    }
-//    return true
-//  }
-//  return false
-//  }
-
   public var body: some View {
-    // HStack(spacing: 0) {
     VStack {
       GeometryReader { geometry in
         self.generateLabelsContent(in: geometry)
       }
     }.padding(0)
       .frame(height: totalHeight)
+      .frame(maxWidth: .infinity)
       .background(Color.extensionPanelBackground)
-      .cornerRadius(8)
+    #if os(macOS)
+      .onHover { isHovered in
+        DispatchQueue.main.async {
+          if isHovered {
+            NSCursor.iBeam.push()
+          } else {
+            NSCursor.pop()
+          }
+        }
+      }
+    #endif
+    .cornerRadius(8)
       .onAppear {
         textFieldFocused = true
       }
       .onTapGesture {
         textFieldFocused = true
       }
-      .transaction { $0.animation = nil }
+      .onChange(of: textFieldFocused) { self.isFocused = $0 }
   }
+
+  var partialMatches: [LinkedItemLabel] {
+    viewModel.labels.applySearchFilter(searchTerm)
+  }
+
+  #if os(macOS)
+    private var createLabelButton: some View {
+      let count = partialMatches.count
+      return Button {
+        viewModel.createLabel(
+          dataService: dataService,
+          name: searchTerm,
+          color: Gradient.randomColor(str: searchTerm, offset: 1),
+          description: nil
+        )
+        reset()
+      } label: {
+        Text("Create new label")
+          .padding(6)
+      }
+      .background(popoverIndex == count ? Color.blue : Color.clear)
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .cornerRadius(4)
+      .buttonStyle(.borderless)
+      .cornerRadius(4)
+    }
+  #endif
 
   private func generateLabelsContent(in geom: GeometryProxy) -> some View {
     var width = CGFloat.zero
@@ -183,6 +282,37 @@ public struct LabelsEntryView: View {
           height = 0
           return result
         }).focused($textFieldFocused)
+      #if os(macOS)
+        .onChange(of: searchTerm) { _ in
+          presentPopover = !searchTerm.isEmpty && searchTerm != ZWSP && partialMatches.count < 14
+          if popoverIndex >= partialMatches.count + 1 {
+            popoverIndex = partialMatches.count + 1
+          }
+        }
+        .popover(isPresented: $presentPopover, arrowEdge: .top) {
+          VStack(alignment: .leading, spacing: 4) {
+            ForEach(Array(partialMatches.enumerated()), id: \.offset) { idx, label in
+              if let name = label.name {
+                Button {
+                  reset()
+                  viewModel.selectedLabels.append(label)
+                } label: {
+                  Text(name)
+                    .padding(6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .background(idx == popoverIndex ? Color.blue : Color.clear)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cornerRadius(4)
+                .buttonStyle(.borderless)
+                .cornerRadius(4)
+              }
+            }
+            createLabelButton
+          }.padding(4)
+        }
+
+      #endif
     }.background(viewHeightReader($totalHeight))
   }
 

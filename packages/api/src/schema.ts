@@ -396,6 +396,7 @@ const schema = gql`
     readAt: Date
     recommendations: [Recommendation!]
     wordsCount: Int
+    folder: String!
   }
 
   # Query: article
@@ -1611,6 +1612,10 @@ const schema = gql`
     wordsCount: Int
     content: String
     archivedAt: Date
+    previewContent: String
+    previewContentType: String
+    links: JSON
+    folder: String!
   }
 
   type SearchItemEdge {
@@ -1658,6 +1663,8 @@ const schema = gql`
     lastFetchedAt: Date
     createdAt: Date!
     updatedAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   enum SubscriptionStatus {
@@ -1990,6 +1997,7 @@ const schema = gql`
     enabled: Boolean!
     syncedAt: Date
     importItemState: ImportItemState
+    taskName: String
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError
@@ -2183,7 +2191,7 @@ const schema = gql`
   input SaveFilterInput {
     name: String!
     filter: String!
-    category: String
+    folder: String
     description: String
     position: Int
   }
@@ -2199,7 +2207,7 @@ const schema = gql`
     name: String!
     filter: String!
     position: Int!
-    category: String!
+    folder: String!
     description: String
     createdAt: Date!
     updatedAt: Date
@@ -2253,7 +2261,7 @@ const schema = gql`
     name: String
     filter: String
     position: Int
-    category: String
+    folder: String
     description: String
     visible: Boolean
   }
@@ -2554,6 +2562,8 @@ const schema = gql`
   input SubscribeInput {
     url: String!
     subscriptionType: SubscriptionType
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   input UpdateSubscriptionInput {
@@ -2564,6 +2574,8 @@ const schema = gql`
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   union UpdateSubscriptionResult =
@@ -2710,6 +2722,62 @@ const schema = gql`
     NOT_FOUND
   }
 
+  input FeedsInput {
+    after: String
+    first: Int
+    query: String @sanitize(maxLength: 255)
+    sort: SortParams
+  }
+
+  union FeedsResult = FeedsSuccess | FeedsError
+
+  type FeedsSuccess {
+    edges: [FeedEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type FeedEdge {
+    cursor: String!
+    node: Feed!
+  }
+
+  type FeedsError {
+    errorCodes: [FeedsErrorCode!]!
+  }
+
+  enum FeedsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  type Feed {
+    id: ID!
+    title: String!
+    url: String!
+    description: String
+    image: String
+    createdAt: Date!
+    updatedAt: Date!
+    publishedAt: Date
+    author: String
+  }
+
+  union MoveToFolderResult = MoveToFolderSuccess | MoveToFolderError
+
+  type MoveToFolderSuccess {
+    articleSavingRequest: ArticleSavingRequest!
+  }
+
+  type MoveToFolderError {
+    errorCodes: [MoveToFolderErrorCode!]!
+  }
+
+  enum MoveToFolderErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    ALREADY_EXISTS
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2819,6 +2887,7 @@ const schema = gql`
     updateSubscription(
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
+    moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2875,6 +2944,7 @@ const schema = gql`
       first: Int
       since: Date!
       sort: SortParams
+      folder: String
     ): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
@@ -2883,6 +2953,7 @@ const schema = gql`
     filters: FiltersResult!
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
+    feeds(input: FeedsInput!): FeedsResult!
   }
 `
 

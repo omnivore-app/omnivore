@@ -66,7 +66,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
           </Button>
           <PrimaryDropdown
             showThemeSection={true}
-            showAddLinkModal={() => {}}
+            showAddLinkModal={() => props.setShowAddLinkModal(true)}
           />
         </HStack>
 

@@ -32,7 +32,10 @@ const convertToLabel = (label: CreateLabelInput, userId: string) => {
   return {
     user: { id: userId },
     name: label.name,
-    color: label.color || generateRandomColor(), // assign a random color if not provided
+    color:
+      label.color ||
+      getInternalLabelWithColor(label.name)?.color ||
+      generateRandomColor(), // assign a random color if not provided
     description: label.description,
     internal: isLabelInternal(label.name),
   }

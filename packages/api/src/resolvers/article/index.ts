@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
+import { IsNull } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
@@ -95,7 +96,11 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
+import {
+  InFilter,
+  parseSearchQuery,
+  sortParamsToSort,
+} from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
@@ -189,7 +194,7 @@ export const createArticleResolver = authorized<
       let domContent = null
       let itemType = PageType.Unknown
 
-      const DUMMY_RESPONSE = {
+      const DUMMY_RESPONSE: CreateArticleSuccess = {
         user,
         created: false,
         createdArticle: {
@@ -211,6 +216,7 @@ export const createArticleResolver = authorized<
           highlights: [],
           savedAt: new Date(),
           updatedAt: new Date(),
+          folder: '',
         },
       }
 
@@ -385,7 +391,10 @@ export const getArticleResolver = authorized<
     const libraryItem = await authTrx((tx) =>
       tx.withRepository(libraryItemRepository).findOne({
         select: selectColumns,
-        where,
+        where: {
+          ...where,
+          deletedAt: IsNull(),
+        },
         relations: {
           labels: true,
           highlights: {
@@ -401,7 +410,7 @@ export const getArticleResolver = authorized<
       })
     )
 
-    if (!libraryItem || libraryItem.state === LibraryItemState.Deleted) {
+    if (!libraryItem) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
@@ -732,11 +741,11 @@ export const updatesSinceResolver = authorized<
   UpdatesSinceSuccess,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
->(async (_obj, { since, first, after, sort: sortParams }, { uid }) => {
+>(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
   const sort = sortParamsToSort(sortParams)
 
   const startCursor = after || ''
-  const size = first || 10
+  const size = Math.min(first || 10, 100) // limit to 100 items
   let startDate = new Date(since)
   if (isNaN(startDate.getTime())) {
     // for android app compatibility
@@ -750,6 +759,7 @@ export const updatesSinceResolver = authorized<
       includeDeleted: true,
       dateFilters: [{ field: 'updatedAt', startDate }],
       sort,
+      inFilter: (folder as InFilter) || InFilter.ALL,
     },
     uid
   )
@@ -861,7 +871,7 @@ export const setFavoriteArticleResolver = authorized<
 })
 
 const getUpdateReason = (libraryItem: LibraryItem, since: Date) => {
-  if (libraryItem.state === LibraryItemState.Deleted) {
+  if (libraryItem.deletedAt) {
     return UpdateReason.Deleted
   }
   if (libraryItem.createdAt >= since) {

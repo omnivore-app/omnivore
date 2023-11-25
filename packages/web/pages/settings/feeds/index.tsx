@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
 import { useMemo, useState } from 'react'
+import CheckboxComponent from '../../../components/elements/Checkbox'
 import { FormInput } from '../../../components/elements/FormElements'
 import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
@@ -12,7 +13,10 @@ import {
 import { theme } from '../../../components/tokens/stitches.config'
 import { formattedDateTime } from '../../../lib/dateFormatting'
 import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
-import { updateSubscriptionMutation } from '../../../lib/networking/mutations/updateSubscriptionMutation'
+import {
+  UpdateSubscriptionInput,
+  updateSubscriptionMutation,
+} from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
   SubscriptionStatus,
   SubscriptionType,
@@ -42,11 +46,10 @@ export default function Rss(): JSX.Element {
       .sort((a, b) => a.name.localeCompare(b.name))
   }, [subscriptions])
 
-  async function updateSubscription(): Promise<void> {
-    const result = await updateSubscriptionMutation({
-      id: onEditId,
-      name: onEditName,
-    })
+  async function updateSubscription(
+    input: UpdateSubscriptionInput
+  ): Promise<void> {
+    const result = await updateSubscriptionMutation(input)
 
     if (result.updateSubscription.errorCodes) {
       const errorMessage = formatMessage({
@@ -107,7 +110,7 @@ export default function Rss(): JSX.Element {
       suggestionInfo={{
         title: 'Add RSS and Atom feeds to your Omnivore account',
         message:
-          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every hour, and new items will be added to your library.',
+          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every hour, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
         docs: 'https://docs.omnivore.app/using/feeds.html',
         key: '--settings-feeds-show-help',
         CTAText: 'Add a feed',
@@ -147,7 +150,10 @@ export default function Rss(): JSX.Element {
                         color={theme.colors.omnivoreCtaYellow.toString()}
                         onClick={async (e) => {
                           e.stopPropagation()
-                          await updateSubscription()
+                          await updateSubscription({
+                            id: onEditId,
+                            name: onEditName,
+                          })
                           setOnEditId('')
                         }}
                       />
@@ -193,12 +199,12 @@ export default function Rss(): JSX.Element {
                 console.log('onDelete triggered: ', subscription.id)
                 setOnDeleteId(subscription.id)
               }}
-              onEdit={() => {
-                setOnEditStatus(
-                  subscription.status == 'ACTIVE' ? 'UNSUBSCRIBED' : 'ACTIVE'
-                )
-                setOnPauseId(subscription.id)
-              }}
+              // onEdit={() => {
+              //   setOnEditStatus(
+              //     subscription.status == 'ACTIVE' ? 'UNSUBSCRIBED' : 'ACTIVE'
+              //   )
+              //   setOnPauseId(subscription.id)
+              // }}
               deleteTitle="Unsubscribe"
               // editTitle={subscription.status === 'ACTIVE' ? 'Pause' : 'Resume'}
               sublineElement={
@@ -216,18 +222,55 @@ export default function Rss(): JSX.Element {
                   }`}
                 </SpanBox>
               }
-              onClick={() => {
-                router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
-              }}
+              // onClick={() => {
+              //   router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
+              // }}
               extraElement={
-                <SpanBox
+                <HStack
+                  distribution="start"
+                  alignment="center"
                   css={{
-                    fontSize: '12px',
+                    padding: '0 5px',
                   }}
                 >
-                  {subscription.status === 'ACTIVE' ? 'Active' : 'Paused'}
-                </SpanBox>
+                  <CheckboxComponent
+                    checked={!!subscription.autoAddToLibrary}
+                    setChecked={async (checked) => {
+                      await updateSubscriptionMutation({
+                        id: subscription.id,
+                        autoAddToLibrary: checked,
+                      })
+                      revalidate()
+                    }}
+                  />
+                  <SpanBox
+                    css={{
+                      padding: '0 5px',
+                      fontSize: '12px',
+                    }}
+                  >
+                    Auto add to library
+                  </SpanBox>
+                </HStack>
+
+                // onChange={() => {
+                //   setOnEditStatus(
+                //     subscription.status == 'ACTIVE'
+                //       ? 'UNSUBSCRIBED'
+                //       : 'ACTIVE'
+                //   )
+                //   setOnPauseId(subscription.id)
+                // }}
               }
+              // extraElement={
+              //   <SpanBox
+              //     css={{
+              //       fontSize: '12px',
+              //     }}
+              //   >
+              //     {subscription.status === 'ACTIVE' ? 'Active' : 'Paused'}
+              //   </SpanBox>
+              // }
             />
           )
         })

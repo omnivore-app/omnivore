@@ -14,10 +14,40 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
+  addToLibraryFlags: boolean[]
 }
 
 // link can be a string or an object
 type RssFeedItemLink = string | { $: { rel?: string; href: string } }
+type RssFeed = Parser.Output<{
+  published?: string
+  updated?: string
+  created?: string
+  link?: RssFeedItemLink
+  links?: RssFeedItemLink[]
+}> & {
+  lastBuildDate?: string
+  'syn:updatePeriod'?: string
+  'syn:updateFrequency'?: string
+  'sy:updatePeriod'?: string
+  'sy:updateFrequency'?: string
+}
+type RssFeedItemMedia = {
+  $: { url: string; width?: string; height?: string; medium?: string }
+}
+type RssFeedItem = Item & {
+  'media:thumbnail'?: RssFeedItemMedia
+  'media:content'?: RssFeedItemMedia[]
+}
+
+const getThumbnail = (item: RssFeedItem) => {
+  if (item['media:thumbnail']) {
+    return item['media:thumbnail'].$.url
+  }
+
+  return item['media:content']?.find((media) => media.$.medium === 'image')?.$
+    .url
+}
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
@@ -26,7 +56,8 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'lastFetchedTimestamps' in body &&
     'scheduledTimestamps' in body &&
     'userIds' in body &&
-    'lastFetchedChecksums' in body
+    'lastFetchedChecksums' in body &&
+    'addToLibraryFlags' in body
   )
 }
 
@@ -40,7 +71,7 @@ export const fetchAndChecksum = async (url: string) => {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
         Accept:
-          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
+          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml, text/html;q=0.4',
       },
     })
 
@@ -120,10 +151,23 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
+const createTask = async (
+  userId: string,
+  feedUrl: string,
+  item: RssFeedItem,
+  autoAddToLibrary: boolean
+) => {
+  if (autoAddToLibrary) {
+    return createSavingItemTask(userId, feedUrl, item)
+  }
+
+  return createFollowingTask(userId, feedUrl, item)
+}
+
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
-  item: Item
+  item: RssFeedItem
 ) => {
   const input = {
     userId,
@@ -149,6 +193,46 @@ const createSavingItemTask = async (
   }
 }
 
+const createFollowingTask = async (
+  userId: string,
+  feedUrl: string,
+  item: RssFeedItem
+) => {
+  const input = {
+    userIds: [userId],
+    url: item.link,
+    title: item.title,
+    author: item.creator,
+    description: item.summary,
+    addedToFollowingFrom: 'feed',
+    previewContent: item.content || item.contentSnippet,
+    addedToFollowingBy: feedUrl,
+    savedAt: item.isoDate,
+    publishedAt: item.isoDate,
+    previewContentType: 'text/html', // TODO: get content type from feed
+    thumbnail: getThumbnail(item),
+  }
+
+  try {
+    console.log('Creating task', input.url)
+    const serviceBaseUrl = process.env.INTERNAL_SVC_ENDPOINT
+    const token = process.env.PUBSUB_VERIFICATION_TOKEN
+    if (!serviceBaseUrl || !token) {
+      throw 'Environment not configured correctly'
+    }
+
+    // save page
+    const taskHandlerUrl = `${serviceBaseUrl}svc/following/save?token=${token}`
+    const task = await createCloudTask(taskHandlerUrl, input)
+    console.log('Created task', task)
+
+    return !!task
+  } catch (error) {
+    console.error('Error while creating task', error)
+    return false
+  }
+}
+
 dotenv.config()
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -163,6 +247,8 @@ const parser = new Parser({
       'published',
       'updated',
       'created',
+      ['media:content', 'media:content', { keepArray: true }],
+      ['media:thumbnail'],
     ],
     feed: [
       'lastBuildDate',
@@ -174,9 +260,9 @@ const parser = new Parser({
   },
 })
 
-const getUpdateFrequency = (feed: any) => {
-  const updateFrequency = (feed['syn:updateFrequency'] ||
-    feed['sy:updateFrequency']) as string | undefined
+const getUpdateFrequency = (feed: RssFeed) => {
+  const updateFrequency =
+    feed['syn:updateFrequency'] || feed['sy:updateFrequency']
 
   if (!updateFrequency) {
     return 1
@@ -190,10 +276,8 @@ const getUpdateFrequency = (feed: any) => {
   return frequency
 }
 
-const getUpdatePeriodInHours = (feed: any) => {
-  const updatePeriod = (feed['syn:updatePeriod'] || feed['sy:updatePeriod']) as
-    | string
-    | undefined
+const getUpdatePeriodInHours = (feed: RssFeed) => {
+  const updatePeriod = feed['syn:updatePeriod'] || feed['sy:updatePeriod']
 
   switch (updatePeriod) {
     case 'hourly':
@@ -245,7 +329,9 @@ const processSubscription = async (
   fetchResult: { content: string; checksum: string },
   lastFetchedAt: number,
   scheduledAt: number,
-  lastFetchedChecksum: string
+  lastFetchedChecksum: string,
+  autoAddToLibrary: boolean,
+  feed: RssFeed
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -258,10 +344,8 @@ const processSubscription = async (
 
   // fetch feed
   let itemCount = 0
-  const feed = await parser.parseString(fetchResult.content)
-  console.log('Fetched feed', feed.title, new Date())
 
-  const feedLastBuildDate = feed.lastBuildDate as string | undefined
+  const feedLastBuildDate = feed.lastBuildDate
   console.log('Feed last build date', feedLastBuildDate)
   if (
     feedLastBuildDate &&
@@ -275,10 +359,7 @@ const processSubscription = async (
   for (const item of feed.items) {
     // use published or updated if isoDate is not available for atom feeds
     item.isoDate =
-      item.isoDate ||
-      (item.published as string) ||
-      (item.updated as string) ||
-      (item.created as string)
+      item.isoDate || item.published || item.updated || item.created
     console.log('Processing feed item', item.links, item.isoDate)
 
     if (!item.links || item.links.length === 0) {
@@ -286,7 +367,7 @@ const processSubscription = async (
       continue
     }
 
-    item.link = getLink(item.links as RssFeedItemLink[])
+    item.link = getLink(item.links)
     if (!item.link) {
       console.log('Invalid feed item links', item.links)
       continue
@@ -317,7 +398,7 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createSavingItemTask(userId, feedUrl, item)
+    const created = await createTask(userId, feedUrl, item, autoAddToLibrary)
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -340,7 +421,12 @@ const processSubscription = async (
     }
 
     // the feed has never been fetched, save at least the last valid item
-    const created = await createSavingItemTask(userId, feedUrl, lastValidItem)
+    const created = await createTask(
+      userId,
+      feedUrl,
+      lastValidItem,
+      autoAddToLibrary
+    )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
       throw new Error('Failed to create task for feed item')
@@ -386,28 +472,29 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
+        addToLibraryFlags,
       } = req.body
       console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
+      const feed = await parser.parseString(fetchResult.content)
+      console.log('Fetched feed', feed.title, new Date())
 
-      for (let i = 0; i < subscriptionIds.length; i++) {
-        const subscriptionId = subscriptionIds[i]
-        const lastFetchedAt = lastFetchedTimestamps[i]
-        const scheduledAt = scheduledTimestamps[i]
-        const userId = userIds[i]
-        const lastFetchedChecksum = lastFetchedChecksums[i]
-
-        await processSubscription(
-          subscriptionId,
-          userId,
-          feedUrl,
-          fetchResult,
-          lastFetchedAt,
-          scheduledAt,
-          lastFetchedChecksum
+      await Promise.all(
+        subscriptionIds.map((_, i) =>
+          processSubscription(
+            subscriptionIds[i],
+            userIds[i],
+            feedUrl,
+            fetchResult,
+            lastFetchedTimestamps[i],
+            scheduledTimestamps[i],
+            lastFetchedChecksums[i],
+            addToLibraryFlags[i],
+            feed
+          )
         )
-      }
+      )
 
       res.send('ok')
     } catch (e) {

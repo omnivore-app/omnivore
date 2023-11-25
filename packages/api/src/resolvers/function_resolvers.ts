@@ -29,6 +29,7 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { optInFeatureResolver } from './features'
+import { feedsResolver, moveToFolderResolver } from './following'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
   addPopularReadResolver,
@@ -222,6 +223,7 @@ export const functionResolvers = {
     updateEmail: updateEmailResolver,
     saveDiscoveryArticle: saveDiscoveryArticleResolver,
     deleteDiscoveryArticle: deleteDiscoveryArticleResolver,
+    moveToFolder: moveToFolderResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -254,6 +256,7 @@ export const functionResolvers = {
     filters: filtersResolver,
     groups: groupsResolver,
     recentEmails: recentEmailsResolver,
+    feeds: feedsResolver,
   },
   User: {
     async intercomHash(

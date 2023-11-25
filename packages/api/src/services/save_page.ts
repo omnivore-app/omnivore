@@ -272,7 +272,8 @@ export const parsedContentToLibraryItem = ({
     wordCount: wordsCount(parsedContent?.textContent || ''),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
+    folder: 'inbox',
     archivedAt:
-      state === ArticleSavingRequestStatus.Archived ? new Date() : undefined,
+      state === ArticleSavingRequestStatus.Archived ? new Date() : null,
   }
 }

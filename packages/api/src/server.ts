@@ -25,6 +25,7 @@ import { pageRouter } from './routers/page_router'
 import { contentServiceRouter } from './routers/svc/content'
 import { emailsServiceRouter } from './routers/svc/emails'
 import { emailAttachmentRouter } from './routers/svc/email_attachment'
+import { followingServiceRouter } from './routers/svc/following'
 import { integrationsServiceRouter } from './routers/svc/integrations'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
@@ -125,6 +126,7 @@ export const createApp = (): {
   app.use('/svc/pubsub/user', userServiceRouter())
   // app.use('/svc/reminders', remindersServiceRouter())
   app.use('/svc/email-attachment', emailAttachmentRouter())
+  app.use('/svc/following', followingServiceRouter())
 
   if (env.dev.isLocal) {
     app.use('/local/debug', localDebugRouter())

@@ -27,7 +27,7 @@ export function SmallHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
       <>
         <MenuHeaderButton {...props} />
         <SmallTopicBar {...props} />
-        <PrimaryDropdown showThemeSection={true} showAddLinkModal={() => {}} />
+        <PrimaryDropdown showThemeSection={true} showAddLinkModal={() => props.setShowAddLinkModal(true)} />
       </>
     </HStack>
   )
