@@ -432,5 +432,5 @@ export class GroupMembership extends BaseEntity {
   updatedAt!: Date
 
   @Column('boolean', { default: false })
-  isAdmin!: boolean
+  is_admin!: boolean
 }
