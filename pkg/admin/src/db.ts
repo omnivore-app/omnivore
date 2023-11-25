@@ -417,8 +417,8 @@ export class GroupMembership extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
-  @OneToOne(() => User)
-  @JoinColumn()
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
 
   @JoinColumn({ name: 'group_id' })
