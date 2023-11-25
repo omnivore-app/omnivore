@@ -53,6 +53,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       LibraryItem,
       UploadFile,
       Recommendation,
+      GroupMembership,
     ],
   })
 
@@ -215,7 +216,7 @@ export class Group extends BaseEntity {
   name!: string
 
   @OneToOne(() => User)
-  @JoinColumn({ name: 'created_by' })
+  @JoinColumn({ name: 'created_by_id' })
   createdBy!: User
 
   @Column({ type: 'timestamp', name: 'created_at' })
@@ -406,4 +407,27 @@ export class Recommendation extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
+}
+
+@Entity({ name: 'group_membership' })
+export class GroupMembership extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @OneToOne(() => User)
+  @JoinColumn()
+  user!: User
+
+  @JoinColumn({ name: 'group_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  group!: Group
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+
+  @Column('boolean', { default: false })
+  isAdmin!: boolean
 }

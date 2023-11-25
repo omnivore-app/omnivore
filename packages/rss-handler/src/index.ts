@@ -360,7 +360,7 @@ const processSubscription = async (
     // use published or updated if isoDate is not available for atom feeds
     item.isoDate =
       item.isoDate || item.published || item.updated || item.created
-    console.log('Processing feed item', item.links, item.isoDate)
+    console.log('Processing feed item', item.links, item.isoDate, feed.feedUrl)
 
     if (!item.links || item.links.length === 0) {
       console.log('Invalid feed item', item)
