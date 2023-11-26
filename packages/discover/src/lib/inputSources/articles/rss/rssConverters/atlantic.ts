@@ -7,6 +7,9 @@ import { mapOrNull } from '../../../../utils/reactive'
 
 const parser = new XMLParser({ ignoreAttributes: false, parseTagValue: true })
 
+const removeHTMLTag = (text: string): string => {
+  return text.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, '')
+}
 export const convertAtlanticArticles = (
   articleXml: string,
 ): Observable<OmnivoreArticle> => {
@@ -16,8 +19,8 @@ export const convertAtlanticArticles = (
         authors: article.author.name,
         slug: slugify(article.link['@_href']),
         url: article.link['@_href'],
-        title: article.title['#text'],
-        description: article.summary['#text'],
+        title: removeHTMLTag(article.title['#text']),
+        description: removeHTMLTag(article.summary['#text']),
         image: article['media:content']
           ? article['media:content']['@_url']
           : '',
