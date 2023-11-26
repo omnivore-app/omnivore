@@ -7,7 +7,7 @@
     "lib": ["es2020"],
     "module": "node16",
     "target": "es2020",
-
+    "noImplicitAny": false,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

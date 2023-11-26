@@ -55,7 +55,7 @@ const getPopularTopics = (
       ORDER BY popularity_score DESC
       LIMIT $2 OFFSET $3
       `,
-    [uid, amt, after],
+    [uid, amt + 1, after],
   ) as Promise<DiscoverArticleDBRows>
 }
 
@@ -74,7 +74,7 @@ const getAllTopics = (
       ORDER BY published_at DESC
       LIMIT $2 OFFSET $3
       `,
-    [uid, amt, after],
+    [uid, amt + 1, after],
   ) as Promise<DiscoverArticleDBRows>
 }
 
@@ -125,7 +125,6 @@ export const getDiscoveryArticlesResolver = authorized<
       }
     }
 
-    log.info(discoveryTopicId)
     let discoverArticles: DiscoverArticleDBRows = { rows: [] }
     if (discoveryTopicId === 'Popular') {
       discoverArticles = await getPopularTopics(
@@ -135,14 +134,12 @@ export const getDiscoveryArticlesResolver = authorized<
         firstAmnt,
       )
     } else if (discoveryTopicId === 'All') {
-      log.info(discoveryTopicId)
       discoverArticles = await getAllTopics(
         queryRunner,
         uid,
         startCursor,
         firstAmnt,
       )
-      log.info(discoverArticles)
     } else {
       discoverArticles = await getTopicInformation(
         queryRunner,

@@ -4,7 +4,7 @@ import { env } from '../../env'
 
 function signImageProxyUrl(url: string): string {
   return encode(
-    crypto.createHmac('sha256', env.imageProxy.secretKey).update(url).digest(),
+    crypto.createHmac('sha256', env.imageProxy.secretKey!).update(url).digest(),
   )
 }
 

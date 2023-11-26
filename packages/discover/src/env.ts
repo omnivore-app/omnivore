@@ -16,22 +16,26 @@ interface BackendEnv {
   apiKey: string
   openAiApiKey: string
   imageProxy: {
-    url: string
-    secretKey: string
+    url?: string
+    secretKey?: string
   }
 }
 
 const envParser =
   (env: { [key: string]: string | undefined }) =>
-  (varName: string): string => {
+  (varName: string, throwOnUndefined = true): string | undefined => {
     const value = env[varName]
     if (typeof value === 'string' && value) {
       return value
     }
 
-    throw new Error(
-      `Missing ${varName} with a non-empty value in process environment`,
-    )
+    if (throwOnUndefined) {
+      throw new Error(
+        `Missing ${varName} with a non-empty value in process environment`,
+      )
+    }
+
+    return
   }
 
 export function getEnv(): BackendEnv {
@@ -39,23 +43,23 @@ export function getEnv(): BackendEnv {
   dotenv.config({ path: __dirname + '/./../.env' })
   const parse = envParser(process.env)
   const pg = {
-    host: parse('PG_HOST'),
-    port: parseInt(parse('PG_PORT'), 10),
-    userName: parse('PG_USER'),
-    password: parse('PG_PASSWORD'),
-    dbName: parse('PG_DB'),
+    host: parse('PG_HOST')!,
+    port: parseInt(parse('PG_PORT')!, 10),
+    userName: parse('PG_USER')!,
+    password: parse('PG_PASSWORD')!,
+    dbName: parse('PG_DB')!,
     pool: {
-      max: parseInt(parse('PG_POOL_MAX'), 10),
+      max: parseInt(parse('PG_POOL_MAX')!, 10),
     },
   }
 
   return {
     pg,
-    apiKey: parse('OMNIVORE_API_KEY'),
-    openAiApiKey: parse('OPEN_AI_KEY'),
+    apiKey: parse('OMNIVORE_API_KEY')!,
+    openAiApiKey: parse('OPEN_AI_KEY')!,
     imageProxy: {
-      url: parse('IMAGE_PROXY_URL'),
-      secretKey: parse('IMAGE_PROXY_SECRET'),
+      url: parse('IMAGE_PROXY_URL', false),
+      secretKey: parse('IMAGE_PROXY_SECRET', false),
     },
   }
 }

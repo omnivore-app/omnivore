@@ -15,6 +15,8 @@ CREATE TABLE omnivore.discover_articles (
     UNIQUE(slug)
 );
 
+GRANT SELECT ON omnivore.discover_articles TO omnivore_user;
+
 CREATE TABLE omnivore.discover_save_link (
    discover_article_id uuid NOT NULL REFERENCES omnivore.discover_articles(id) ON DELETE CASCADE,
    user_id uuid NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE,
@@ -25,6 +27,8 @@ CREATE TABLE omnivore.discover_save_link (
    CONSTRAINT user_discovery_link UNIQUE(discover_article_id, user_id)
 );
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.discover_save_link to omnivore_user;
+
 CREATE TABLE omnivore.discover_topics (
     name text PRIMARY KEY NOT NULL,
     description text NOT NULL,
@@ -32,11 +36,15 @@ CREATE TABLE omnivore.discover_topics (
     embedding vector(1536)
 );
 
+GRANT SELECT ON omnivore.discover_topics to omnivore_user;
+
 CREATE TABLE omnivore.discover_article_topic_link (
     discover_article_id uuid NOT NULL REFERENCES omnivore.discover_articles(id) ON DELETE CASCADE,
     discover_topic_name text NOT NULL REFERENCES omnivore.discover_topics(name) ON DELETE CASCADE,
     UNIQUE (discover_article_id, discover_topic_name)
 );
+
+GRANT SELECT ON omnivore.discover_article_topic_link to omnivore_user;
 
 INSERT INTO omnivore.discover_topics(position, name, description)
 VALUES (1, 'Popular', 'Stories that are popular on Omnivore right now...');
