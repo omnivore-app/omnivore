@@ -157,13 +157,22 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           }
         }
 
-        const result = await uploadImportFileRequestMutation(
-          UploadImportFileType.URL_LIST,
-          contentType
-        )
-        return {
-          uploadSignedUrl: result?.uploadSignedUrl,
-          message: `Importing ${urlCount} URLs`,
+        try {
+          const result = await uploadImportFileRequestMutation(
+            UploadImportFileType.URL_LIST,
+            contentType
+          )
+          return {
+            uploadSignedUrl: result?.uploadSignedUrl,
+            message: `Importing ${urlCount} URLs`,
+          }
+        } catch (error) {
+          console.log('caught error', error)
+          if (error == 'UPLOAD_DAILY_LIMIT_EXCEEDED') {
+            return {
+              message: 'You have exceeded your maximum daily upload limit.',
+            }
+          }
         }
       }
       case 'application/zip': {
