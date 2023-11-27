@@ -55,7 +55,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.searchTerm.isEmpty &&
         viewModel.selectedLabels.isEmpty &&
         viewModel.negatedLabels.isEmpty &&
-        LinkedItemFilter(rawValue: viewModel.appliedFilter) == .inbox
+        viewModel.appliedFilterName == "inbox"
     }
 
     var body: some View {
@@ -97,11 +97,6 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(item: $viewModel.itemForHighlightsView) { item in
         NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
       }
-      .sheet(isPresented: $viewModel.showFiltersModal) {
-        NavigationView {
-          FilterSelectorView(viewModel: viewModel)
-        }
-      }
       .sheet(isPresented: $showOpenAIVoices) {
         OpenAIVoicesModal(audioController: audioController)
       }
@@ -132,8 +127,8 @@ struct AnimatingCellHeight: AnimatableModifier {
           case let .search(query):
             viewModel.searchTerm = query
           case let .savedSearch(named):
-            if let filter = LinkedItemFilter(rawValue: named) {
-              viewModel.appliedFilter = filter.rawValue
+            if let filter = viewModel.findFilter(dataService, named: named) {
+              viewModel.appliedFilter = filter
             }
           case let .webAppLinkRequest(requestID):
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
@@ -169,15 +164,15 @@ struct AnimatingCellHeight: AnimatableModifier {
       Group {
         ToolbarItem(placement: .barLeading) {
           VStack(alignment: .leading) {
-            let title = (LinkedItemFilter(rawValue: viewModel.appliedFilter) ?? LinkedItemFilter.inbox).displayName
+            if let title = viewModel.appliedFilter?.name {
+              Text(title)
+                .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
 
-            Text(title)
-              .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
-
-            if prefersListLayout, isListScrolled || !showFeatureCards {
-              Text(listTitle)
-                .font(Font.system(size: 15, weight: .regular))
-                .foregroundColor(Color.appGrayText)
+              if prefersListLayout, isListScrolled || !showFeatureCards {
+                Text(listTitle)
+                  .font(Font.system(size: 15, weight: .regular))
+                  .foregroundColor(Color.appGrayText)
+              }
             }
           }.frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -362,13 +357,13 @@ struct AnimatingCellHeight: AnimatableModifier {
             } else {
               Menu(
                 content: {
-                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
-                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                  ForEach(viewModel.filters) { filter in
+                    Button(filter.name, action: { viewModel.appliedFilter = filter })
                   }
                 },
                 label: {
                   TextChipButton.makeMenuButton(
-                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter",
+                    title: viewModel.appliedFilter?.name ?? "-",
                     color: .systemGray6
                   )
                 }
@@ -758,13 +753,13 @@ struct AnimatingCellHeight: AnimatableModifier {
             } else {
               Menu(
                 content: {
-                  ForEach(LinkedItemFilter.allCases, id: \.self) { filter in
-                    Button(filter.displayName, action: { viewModel.appliedFilter = filter.rawValue })
+                  ForEach(viewModel.filters, id: \.self) { filter in
+                    Button(filter.name, action: { viewModel.appliedFilter = filter })
                   }
                 },
                 label: {
                   TextChipButton.makeMenuButton(
-                    title: LinkedItemFilter(rawValue: viewModel.appliedFilter)?.displayName ?? "Filter",
+                    title: viewModel.appliedFilter?.name ?? "-",
                     color: .systemGray6
                   )
                 }

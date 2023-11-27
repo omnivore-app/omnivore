@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23B81" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Filter" representedClassName="Filter" syncable="YES" codeGenerationType="class">
+        <attribute name="defaultFilter" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="filter" optional="YES" attributeType="String"/>
+        <attribute name="folder" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="position" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="visible" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
     <entity name="Highlight" representedClassName="Highlight" syncable="YES" codeGenerationType="class">
         <attribute name="annotation" optional="YES" attributeType="String"/>
         <attribute name="color" optional="YES" attributeType="String"/>

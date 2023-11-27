@@ -40,6 +40,13 @@ import Views
   @Published var showSnackbar = false
   @Published var snackbarOperation: SnackbarOperation?
 
+  @Published var filters = [InternalFilter]()
+  @Published var appliedFilter: InternalFilter? {
+    didSet {
+      appliedFilterName = appliedFilter?.name.lowercased() ?? "inbox"
+    }
+  }
+
   var cursor: String?
 
   // These are used to make sure we handle search result
@@ -50,7 +57,7 @@ import Views
   var syncCursor: String?
 
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
-  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilter = LinkedItemFilter.inbox.rawValue
+  @AppStorage(UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) var appliedFilterName = "inbox"
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
   init(listConfig: LibraryListConfig) {
@@ -112,6 +119,33 @@ import Views
     }
   }
 
+  func loadFilters(dataService: DataService) async {
+    var hasLocalResults = false
+    let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+
+    // Load from disk
+    if let results = try? dataService.viewContext.fetch(fetchRequest) {
+      hasLocalResults = true
+      updateFilters(newFilters: InternalFilter.make(from: results))
+    }
+
+    let hasResults = hasLocalResults
+    Task.detached {
+      if let downloadedFilters = try? await dataService.filters() {
+        await self.updateFilters(newFilters: downloadedFilters)
+      } else if !hasResults {
+        await self.updateFilters(newFilters: InternalFilter.DefaultFilters)
+      }
+    }
+  }
+
+  func updateFilters(newFilters: [InternalFilter]) {
+    filters = newFilters.sorted(by: { $0.position < $1.position }) + [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter]
+    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
+      appliedFilter = newFilter
+    }
+  }
+
   func syncItems(dataService: DataService) async {
     let syncStart = Date.now
     let lastSyncDate = dataService.lastItemSyncTime
@@ -157,9 +191,7 @@ import Views
       cursor: isRefresh ? nil : cursor
     )
 
-    let filter = LinkedItemFilter(rawValue: appliedFilter)
-
-    if let queryResult = queryResult {
+    if let appliedFilter = appliedFilter, let queryResult = queryResult {
       let newItems: [LinkedItem] = {
         var itemObjects = [LinkedItem]()
         dataService.viewContext.performAndWait {
@@ -168,7 +200,7 @@ import Views
         return itemObjects
       }()
 
-      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, filter?.allowLocalFetch ?? false {
+      if searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, appliedFilter.predicate != nil {
         updateFetchController(dataService: dataService)
       } else {
         // Don't use FRC for searching. Use server results directly.
@@ -197,17 +229,19 @@ import Views
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
+      group.addTask { await self.loadFilters(dataService: dataService) }
       group.addTask { await self.syncItems(dataService: dataService) }
       group.addTask { await self.updateFetchController(dataService: dataService) }
       await group.waitForAll()
     }
 
-    let filter = LinkedItemFilter(rawValue: appliedFilter)
-    let shouldSearch = items.count < 1 || isRefresh && filter != LinkedItemFilter.downloaded
-    if shouldSearch {
-      await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
-    } else {
-      updateFetchController(dataService: dataService)
+    if let appliedFilter = appliedFilter {
+      let shouldRemoteSearch = items.count < 1 || isRefresh && appliedFilter.shouldRemoteSearch
+      if shouldRemoteSearch {
+        await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
+      } else {
+        updateFetchController(dataService: dataService)
+      }
     }
 
     updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
@@ -220,8 +254,7 @@ import Views
     isLoading = true
     showLoadingBar = true
 
-    let filter = LinkedItemFilter(rawValue: appliedFilter)
-    if filter != LinkedItemFilter.downloaded {
+    if let appliedFilter, appliedFilter.shouldRemoteSearch {
       await loadSearchQuery(dataService: dataService, isRefresh: isRefresh)
     }
 
@@ -243,7 +276,9 @@ import Views
 
     var subPredicates = [NSPredicate]()
 
-    subPredicates.append((LinkedItemFilter(rawValue: appliedFilter) ?? .inbox).predicate)
+    if let predicate = appliedFilter?.predicate {
+      subPredicates.append(predicate)
+    }
 
     if !selectedLabels.isEmpty {
       var labelSubPredicates = [NSPredicate]()
@@ -382,6 +417,10 @@ import Views
     }
   }
 
+  func findFilter(_: DataService, named: String) -> InternalFilter? {
+    filters.first(where: { $0.name == named })
+  }
+
   private var queryContainsFilter: Bool {
     if searchTerm.contains("in:inbox") || searchTerm.contains("in:all") || searchTerm.contains("in:archive") {
       return true
@@ -394,8 +433,8 @@ import Views
     let sort = LinkedItemSort(rawValue: appliedSort) ?? .newest
     var query = sort.queryString
 
-    if !queryContainsFilter, let filter = LinkedItemFilter(rawValue: appliedFilter) {
-      query = "\(filter.queryString) \(sort.queryString)"
+    if !queryContainsFilter, let filter = appliedFilter?.filter {
+      query = "\(filter) \(sort.queryString)"
     }
 
     if !searchTerm.isEmpty {
