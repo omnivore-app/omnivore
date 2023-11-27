@@ -3030,22 +3030,19 @@ Readability.prototype = {
     return false;
   },
 
-  _getLanguage: async function(locale, content, languageCode) {
+  _getLanguage: async function(content, locale, languageCode) {
     try {
-      if (!locale) {
-        // detect language from the html content
-        if (content) {
-          const languages = (await cld.detect(content, { isHTML: true })).languages;
-          console.log('Detected languages: ', languages);
-          if (languages.length > 0) {
-            return languages[0].name;
-          }
-        }
+      let code = locale || languageCode.replace('_', '-') || 'en';
+
+      // detect language from the html content
+      const languages = (await cld.detect(content, { isHTML: true })).languages;
+      console.log('Detected languages: ', languages);
+      if (languages.length > 0) {
+        code = languages[0].code;
       }
 
-      console.log('Trying to get language name from locale and language code: ', locale, languageCode);
+      console.log('Getting language name from code: ', code);
       let lang = new Intl.DisplayNames(['en'], {type: 'language'});
-      const code = locale || languageCode.replace('_', '-') || 'en';
       return lang.of(code);
     } catch (error) {
       console.error('Failed to get language', error);
@@ -3123,8 +3120,7 @@ Readability.prototype = {
 
     var textContent = articleContent.textContent;
     const content = this._serializer(articleContent);
-    console.log('language code', metadata.locale, this._languageCode);
-    const language = await this._getLanguage(metadata.locale, content, this._languageCode);
+    const language = await this._getLanguage(content, metadata.locale, this._languageCode);
     return {
       title: this._articleTitle,
       // remove \n and extra spaces and trim the string
