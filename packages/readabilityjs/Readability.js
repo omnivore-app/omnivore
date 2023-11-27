@@ -23,6 +23,7 @@
 var parseSrcset = require('parse-srcset');
 var htmlEntities = require('html-entities')
 const axios = require("axios");
+const cld = require('cld');
 
 /** Checks whether an element is a wrapper for tweet */
 const hasTweetInChildren = element => {
@@ -3029,17 +3030,26 @@ Readability.prototype = {
     return false;
   },
 
-  _getLanguage: function(code) {
-    if (!code) {
-      // Default to English
-      return 'English';
-    }
-
+  _getLanguage: async function(locale, content, languageCode) {
     try {
+      if (!locale) {
+        // detect language from the html content
+        if (content) {
+          const languages = (await cld.detect(content, { isHTML: true })).languages;
+          console.log('Detected languages: ', languages);
+          if (languages.length > 0) {
+            return languages[0].name;
+          }
+        }
+      }
+
+      console.log('Trying to get language name from locale and language code: ', locale, languageCode);
       let lang = new Intl.DisplayNames(['en'], {type: 'language'});
-      return lang.of(code.split('_')[0]);
-    } catch {
-      return 'English'
+      const code = locale || languageCode.replace('_', '-') || 'en';
+      return lang.of(code);
+    } catch (error) {
+      console.error('Failed to get language', error);
+      return 'English';
     }
   },
 
@@ -3112,12 +3122,15 @@ Readability.prototype = {
     }
 
     var textContent = articleContent.textContent;
+    const content = this._serializer(articleContent);
+    console.log('language code', metadata.locale, this._languageCode);
+    const language = await this._getLanguage(metadata.locale, content, this._languageCode);
     return {
       title: this._articleTitle,
       // remove \n and extra spaces and trim the string
       byline: author ? author.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim() : null,
       dir: this._articleDir,
-      content: this._serializer(articleContent),
+      content,
       textContent: textContent,
       length: textContent.length,
       excerpt: metadata.excerpt,
@@ -3125,7 +3138,7 @@ Readability.prototype = {
       siteIcon: metadata.siteIcon,
       previewImage: metadata.previewImage,
       publishedDate,
-      language: this._getLanguage(metadata.locale || this._languageCode),
+      language,
     };
   }
 };
