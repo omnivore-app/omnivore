@@ -1,16 +1,18 @@
 import { Item } from '../item'
 
 export enum State {
+  SUCCEEDED = 'SUCCEEDED',
   ARCHIVED = 'ARCHIVED',
   UNREAD = 'UNREAD',
   UNARCHIVED = 'UNARCHIVED',
+  DELETED = 'DELETED',
   ALL = 'ALL',
 }
 
 export interface RetrievedData {
   url: string
   labels?: string[]
-  state?: string
+  state?: State
 }
 export interface RetrievedResult {
   data: RetrievedData[]

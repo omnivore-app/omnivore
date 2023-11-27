@@ -57,7 +57,7 @@ export const updateIntegration = async (
         token: integrationToken,
         enabled: true,
         type,
-        taskName,
+        // taskName, // TODO: remove this
       },
     },
   })
