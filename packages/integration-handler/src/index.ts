@@ -187,11 +187,11 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       let offset = 0
       let syncedAt = req.body.syncAt
       const since = syncedAt
-      const state = req.body.state || State.UNARCHIVED // default to unarchived
+      const stateToImport = req.body.state || State.UNARCHIVED // default to unarchived
 
       console.log('importing pages from integration...', {
         userId,
-        state,
+        stateToImport,
         since,
       })
       // get pages from integration
@@ -199,7 +199,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         token: claims.token,
         since,
         offset,
-        state,
+        state: stateToImport,
       })
       syncedAt = retrieved.since || Date.now()
       let retrievedData = retrieved.data
@@ -231,8 +231,20 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
 
         // paginate api calls to the integration
         do {
+          // filter out items that are deleted or archived if the stateToImport is unarchived
           // write the list of urls, state and labels to the stream
-          retrievedData.forEach((row) => stringifier.write(row))
+          retrievedData
+            .filter((row) => {
+              if (row.state === State.DELETED) {
+                return false
+              }
+
+              return (
+                stateToImport !== State.UNARCHIVED ||
+                row.state !== State.ARCHIVED
+              )
+            })
+            .forEach((row) => stringifier.write(row))
 
           // get next pages from the integration
           offset += retrievedData.length
@@ -241,7 +253,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             token: claims.token,
             since,
             offset,
-            state,
+            state: stateToImport,
           })
           syncedAt = retrieved.since || Date.now()
           retrievedData = retrieved.data
