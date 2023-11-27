@@ -231,14 +231,15 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
 
         // paginate api calls to the integration
         do {
-          // filter out items that are deleted or archived if the stateToImport is unarchived
           // write the list of urls, state and labels to the stream
           retrievedData
             .filter((row) => {
+              // filter out items that are deleted
               if (row.state === State.DELETED) {
                 return false
               }
 
+              // filter out items that archived if the stateToImport is unarchived
               return (
                 stateToImport !== State.UNARCHIVED ||
                 row.state !== State.ARCHIVED
