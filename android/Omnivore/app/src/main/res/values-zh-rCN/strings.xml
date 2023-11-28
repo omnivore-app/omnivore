@@ -139,6 +139,7 @@
     <string name="highlights_list_error_msg_no_highlights">您尚未在此页面新增任何标记。</string>
 
     <!-- ReaderPreferencesView -->
+    <string name="reader_preferences_font">字体</string>
     <string name="reader_preferences_view_font_size">字型大小：</string>
     <string name="reader_preferences_view_margin">边距</string>
     <string name="reader_preferences_view_line_spacing">行距</string>
@@ -204,4 +205,21 @@
     <string name="settings_view_setting_row_terms_and_conditions">条款和条件</string>
     <string name="settings_view_setting_row_manage_account">管理帐户</string>
     <string name="settings_view_setting_row_logout">登出</string>
+
+    <!-- stock filters -->
+    <string name="library_filter_inbox">收集箱</string>
+    <string name="library_filter_non_feed">非订阅内容</string>
+    <string name="library_filter_feeds">订阅内容</string>
+    <string name="library_filter_newsletters">邮件简讯</string>
+    <string name="library_filter_recommended">推荐</string>
+    <string name="library_filter_all">所有内容</string>
+    <string name="library_filter_archived">已归档</string>
+    <string name="library_filter_highlighted">已高亮</string>
+    <string name="library_filter_files">文档</string>
+
+    <!-- stock sorts -->
+    <string name="library_sort_newest">从新到旧</string>
+    <string name="library_sort_oldest">从旧到新</string>
+    <string name="library_sort_recently_read">最近阅读</string>
+    <string name="library_sort_recently_published">最近发布</string>
 </resources>
