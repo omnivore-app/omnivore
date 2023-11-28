@@ -432,6 +432,7 @@ async function fetchContent(req, res) {
   } catch (e) {
     logRecord.error = e.message;
     console.error(`Error while retrieving page`, logRecord);
+    statusCode = 500;
 
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
@@ -442,6 +443,7 @@ async function fetchContent(req, res) {
       content = sbResult.domContent;
       title = sbResult.title;
       logRecord.fetchContentTime = Date.now() - fetchStartTime;
+      statusCode = 200;
     }
   } finally {
     // close browser context if it was opened
@@ -492,7 +494,7 @@ async function fetchContent(req, res) {
     // mark import failed on the last failed retry
     const retryCount = req.headers['x-cloudtasks-taskretrycount'];
     if (retryCount == MAX_RETRY_COUNT) {
-      console.debug('max retry count reached');
+      console.info('max retry count reached');
       importStatus = importStatus || 'failed';
     }
 
