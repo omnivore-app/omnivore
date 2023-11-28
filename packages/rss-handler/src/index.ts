@@ -200,17 +200,15 @@ const createTask = async (
   item: RssFeedItem,
   autoAddToLibrary: boolean
 ) => {
-  if (autoAddToLibrary) {
-    return createSavingItemTask(userId, feedUrl, item)
-  }
-
-  return createFollowingTask(userId, feedUrl, item)
+  const folder = autoAddToLibrary ? 'inbox' : 'following'
+  return createSavingItemTask(userId, feedUrl, item, folder)
 }
 
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
-  item: RssFeedItem
+  item: RssFeedItem,
+  folder: string
 ) => {
   const input = {
     userId,
@@ -221,6 +219,7 @@ const createSavingItemTask = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
+    folder,
   }
 
   try {

@@ -142,6 +142,7 @@ export const createArticleResolver = authorized<
         source,
         state,
         labels: inputLabels,
+        folder,
       },
     },
     { log, uid, pubsub }
@@ -255,6 +256,7 @@ export const createArticleResolver = authorized<
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
+          folder: folder || undefined,
         })
         return DUMMY_RESPONSE
       } else if (!skipParsing && preparedDocument?.document) {
@@ -276,6 +278,7 @@ export const createArticleResolver = authorized<
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
+          folder: folder || undefined,
         })
         return DUMMY_RESPONSE
       }
@@ -295,6 +298,7 @@ export const createArticleResolver = authorized<
         canonicalUrl,
         uploadFileId,
         state,
+        folder,
       })
 
       log.info('New article saving', {

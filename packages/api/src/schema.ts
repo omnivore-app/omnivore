@@ -496,6 +496,7 @@ const schema = gql`
     source: String
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    folder: String
   }
   enum CreateArticleErrorCode {
     UNABLE_TO_FETCH
@@ -540,6 +541,7 @@ const schema = gql`
     uploadFileId: ID!
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    folder: String
   }
 
   input ParseResult {
@@ -569,6 +571,7 @@ const schema = gql`
     rssFeedUrl: String
     savedAt: Date
     publishedAt: Date
+    folder: String
   }
 
   input SaveUrlInput {
@@ -581,6 +584,7 @@ const schema = gql`
     timezone: String
     savedAt: Date
     publishedAt: Date
+    folder: String
   }
 
   union SaveResult = SaveSuccess | SaveError

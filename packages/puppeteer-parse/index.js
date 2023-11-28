@@ -231,7 +231,7 @@ const sendCreateArticleMutation = async (userId, input) => {
       }
     }`,
     variables: {
-      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
+      input,
     },
   });
 
@@ -308,6 +308,10 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
       url: encodeURI(url),
       articleSavingRequestId,
       uploadFileId: uploadFileId,
+      state,
+      labels,
+      source,
+      folder,
     },
   );
 };
@@ -349,6 +353,7 @@ async function fetchContent(req, res) {
   const rssFeedUrl = req.body.rssFeedUrl;
   const savedAt = req.body.savedAt;
   const publishedAt = req.body.publishedAt;
+  const folder = req.body.folder;
 
   let logRecord = {
     url: urlStr,
@@ -365,6 +370,7 @@ async function fetchContent(req, res) {
     rssFeedUrl,
     savedAt,
     publishedAt,
+    folder,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -406,7 +412,15 @@ async function fetchContent(req, res) {
 
     if (contentType === 'application/pdf') {
       const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
-      const uploadedPdf = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
+      const uploadedPdf = await sendCreateArticleMutation(userId, {
+        url: encodeURI(finalUrl),
+        articleSavingRequestId,
+        uploadFileId: uploadedFileId,
+        state,
+        labels,
+        source,
+        folder,
+      });
       if (!uploadedPdf) {
         statusCode = 500;
         logRecord.error = 'error while saving uploaded pdf';
@@ -474,6 +488,7 @@ async function fetchContent(req, res) {
         savedAt,
         publishedAt,
         source,
+        folder,
       });
       if (!apiResponse) {
         logRecord.error = 'error while saving page';
