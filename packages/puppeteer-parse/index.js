@@ -415,11 +415,14 @@ async function fetchContent(req, res) {
       const uploadedPdf = await sendCreateArticleMutation(userId, {
         url: encodeURI(finalUrl),
         articleSavingRequestId,
-        uploadFileId: uploadedFileId,
+        uploadFileId,
         state,
         labels,
         source,
         folder,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
       });
       if (!uploadedPdf) {
         statusCode = 500;

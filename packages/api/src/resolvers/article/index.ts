@@ -138,6 +138,9 @@ export const createArticleResolver = authorized<
         state,
         labels: inputLabels,
         folder,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
       },
     },
     { log, uid, pubsub }
@@ -215,9 +218,11 @@ export const createArticleResolver = authorized<
           readingProgressAnchorIndex: 0,
           readingProgressPercent: 0,
           highlights: [],
-          savedAt: new Date(),
+          savedAt: savedAt || new Date(),
           updatedAt: new Date(),
           folder: '',
+          publishedAt,
+          subscription: rssFeedUrl,
         },
       }
 
@@ -252,6 +257,9 @@ export const createArticleResolver = authorized<
           state: state || undefined,
           labels: inputLabels || undefined,
           folder: folder || undefined,
+          savedAt,
+          publishedAt,
+          subscription: rssFeedUrl || undefined,
         })
         return DUMMY_RESPONSE
       } else if (!skipParsing && preparedDocument?.document) {
@@ -274,6 +282,9 @@ export const createArticleResolver = authorized<
           state: state || undefined,
           labels: inputLabels || undefined,
           folder: folder || undefined,
+          savedAt,
+          publishedAt,
+          subscription: rssFeedUrl || undefined,
         })
         return DUMMY_RESPONSE
       }
@@ -294,6 +305,9 @@ export const createArticleResolver = authorized<
         uploadFileId,
         state,
         folder,
+        publishedAt,
+        rssFeedUrl,
+        savedAt,
       })
 
       log.info('New article saving', {

@@ -497,6 +497,9 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
     folder: String
+    rssFeedUrl: String
+    savedAt: Date
+    publishedAt: Date
   }
   enum CreateArticleErrorCode {
     UNABLE_TO_FETCH

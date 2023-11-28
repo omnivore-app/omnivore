@@ -93,7 +93,7 @@ export const savePage = async (
     itemType: parseResult.pageType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
-    saveTime: input.savedAt ? new Date(input.savedAt) : new Date(),
+    savedAt: input.savedAt ? new Date(input.savedAt) : new Date(),
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
@@ -214,7 +214,7 @@ export const parsedContentToLibraryItem = ({
   itemType,
   uploadFileHash,
   uploadFileId,
-  saveTime,
+  savedAt,
   publishedAt,
   state,
   rssFeedUrl,
@@ -233,7 +233,7 @@ export const parsedContentToLibraryItem = ({
   canonicalUrl?: string | null
   uploadFileHash?: string | null
   uploadFileId?: string | null
-  saveTime?: Date
+  savedAt?: Date
   publishedAt?: Date | null
   state?: ArticleSavingRequestStatus | null
   rssFeedUrl?: string | null
@@ -268,8 +268,7 @@ export const parsedContentToLibraryItem = ({
     state: state
       ? (state as unknown as LibraryItemState)
       : LibraryItemState.Succeeded,
-    createdAt: validatedDate(saveTime),
-    savedAt: validatedDate(saveTime),
+    savedAt: validatedDate(savedAt),
     siteName: parsedContent?.siteName,
     itemLanguage: parsedContent?.language,
     siteIcon: parsedContent?.siteIcon,
