@@ -164,11 +164,12 @@ struct AnimatingCellHeight: AnimatableModifier {
       Group {
         ToolbarItem(placement: .barLeading) {
           VStack(alignment: .leading) {
+            let showDate = isListScrolled && !listTitle.isEmpty
             if let title = viewModel.appliedFilter?.name {
               Text(title)
-                .font(Font.system(size: isListScrolled ? 10 : 18, weight: .semibold))
+                .font(Font.system(size: showDate ? 10 : 18, weight: .semibold))
 
-              if prefersListLayout, isListScrolled || !showFeatureCards {
+              if showDate, prefersListLayout, isListScrolled || !showFeatureCards {
                 Text(listTitle)
                   .font(Font.system(size: 15, weight: .regular))
                   .foregroundColor(Color.appGrayText)
@@ -544,6 +545,8 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
+    @ObservedObject var networkMonitor = NetworkMonitor()
+
     var body: some View {
       let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
       VStack(spacing: 0) {
@@ -558,64 +561,71 @@ struct AnimatingCellHeight: AnimatableModifier {
             .listRowSeparator(.hidden, edges: .all)
             .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset))
 
-          if showFeatureCards {
-            featureCard
-              .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-              .listRowSeparator(.hidden, edges: .all)
-              .modifier(AnimatingCellHeight(height: 190 + 13))
-              .onDisappear {
-                withAnimation {
-                  isListScrolled = true
+          if let appliedFilter = viewModel.appliedFilter,
+             networkMonitor.status == .disconnected,
+             !appliedFilter.allowLocalFetch
+          {
+            HStack {
+              Text("This search requires an internet connection.")
+                .padding()
+                .foregroundColor(Color.white)
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .background(Color.blue)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .listRowSeparator(.hidden, edges: .all)
+            .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+          } else {
+            if showFeatureCards {
+              featureCard
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                .listRowSeparator(.hidden, edges: .all)
+                .modifier(AnimatingCellHeight(height: 190 + 13))
+                .onDisappear {
+                  withAnimation {
+                    isListScrolled = true
+                  }
                 }
-              }
-              .onAppear {
-                withAnimation {
-                  isListScrolled = false
+                .onAppear {
+                  withAnimation {
+                    isListScrolled = false
+                  }
                 }
-              }
-          }
+            }
 
-          ForEach(Array(viewModel.items.enumerated()), id: \.1.unwrappedID) { _, item in
-            FeedCardNavigationLink(
-              item: item,
-              isInMultiSelectMode: viewModel.isInMultiSelectMode,
-              viewModel: viewModel
-            )
-            .background(GeometryReader { geometry in
-              Color.clear
-                .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
-            })
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-              if value.y < 100, value.y > 0 {
-                if item.savedAt != nil, topItem != item {
-                  setTopItem(item)
+            ForEach(Array(viewModel.items.enumerated()), id: \.1.unwrappedID) { _, item in
+              FeedCardNavigationLink(
+                item: item,
+                isInMultiSelectMode: viewModel.isInMultiSelectMode,
+                viewModel: viewModel
+              )
+              .background(GeometryReader { geometry in
+                Color.clear
+                  .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
+              })
+              .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                if value.y < 100, value.y > 0 {
+                  if item.savedAt != nil, topItem != item {
+                    setTopItem(item)
+                  }
+                }
+              }
+              .listRowSeparatorTint(Color.thBorderColor)
+              .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
+              .contextMenu {
+                menuItems(for: item)
+              }
+              .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
+                  swipeActionButton(action: action, item: item)
+                }
+              }
+              .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
+                  swipeActionButton(action: action, item: item)
                 }
               }
             }
-            .listRowSeparatorTint(Color.thBorderColor)
-            .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
-            .contextMenu {
-              menuItems(for: item)
-            }
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
-              ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
-                swipeActionButton(action: action, item: item)
-              }
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-              ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
-                swipeActionButton(action: action, item: item)
-              }
-            }
-//            if idx > 0,
-//               isEditMode != .active,
-//               let savedAt = item.savedAt,
-//               Calendar.current.isDateInToday(savedAt) || Calendar.current.isDateInYesterday(savedAt),
-//               let previousSavedAt = viewModel.items[idx - 1].savedAt,
-//               Calendar.current.isDate(previousSavedAt, equalTo: savedAt, toGranularity: .day)
-//            {
-//              dateSummaryCard(previousSavedAt)
-//            }
           }
         }
         .padding(0)
