@@ -2646,15 +2646,16 @@ const schema = gql`
   }
 
   type Feed {
-    id: ID!
+    id: ID
     title: String!
     url: String!
     description: String
     image: String
-    createdAt: Date!
-    updatedAt: Date!
+    createdAt: Date
+    updatedAt: Date
     publishedAt: Date
     author: String
+    type: String
   }
 
   union MoveToFolderResult = MoveToFolderSuccess | MoveToFolderError
@@ -2671,6 +2672,31 @@ const schema = gql`
     UNAUTHORIZED
     BAD_REQUEST
     ALREADY_EXISTS
+  }
+
+  input ScanFeedsInput {
+    type: ScanFeedsType!
+    url: String
+    opml: String
+  }
+
+  enum ScanFeedsType {
+    OPML
+    HTML
+  }
+
+  union ScanFeedsResult = ScanFeedsSuccess | ScanFeedsError
+
+  type ScanFeedsSuccess {
+    feeds: [Feed!]!
+  }
+
+  type ScanFeedsError {
+    errorCodes: [ScanFeedsErrorCode!]!
+  }
+
+  enum ScanFeedsErrorCode {
+    BAD_REQUEST
   }
 
   # Mutations
@@ -2837,6 +2863,7 @@ const schema = gql`
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
     feeds(input: FeedsInput!): FeedsResult!
+    scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   }
 `
 

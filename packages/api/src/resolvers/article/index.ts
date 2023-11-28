@@ -21,8 +21,12 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  MoveToFolderError,
+  MoveToFolderErrorCode,
+  MoveToFolderSuccess,
   MutationBulkActionArgs,
   MutationCreateArticleArgs,
+  MutationMoveToFolderArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetFavoriteArticleArgs,
@@ -85,6 +89,7 @@ import {
   generateSlug,
   isParsingTimeout,
   libraryItemToArticle,
+  libraryItemToArticleSavingRequest,
   libraryItemToSearchItem,
   titleForFilePath,
   userDataToUser,
@@ -867,6 +872,80 @@ export const setFavoriteArticleResolver = authorized<
   } catch (error) {
     log.info('Error adding Favorites label', error)
     return { errorCodes: [SetFavoriteArticleErrorCode.BadRequest] }
+  }
+})
+
+export const moveToFolderResolver = authorized<
+  MoveToFolderSuccess,
+  MoveToFolderError,
+  MutationMoveToFolderArgs
+>(async (_, { id, folder }, { authTrx, pubsub, uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'move_to_folder',
+    properties: {
+      id,
+      folder,
+    },
+  })
+
+  const item = await authTrx((tx) =>
+    tx.getRepository(LibraryItem).findOne({
+      where: {
+        id,
+      },
+      relations: ['user'],
+    })
+  )
+
+  if (!item) {
+    return {
+      errorCodes: [MoveToFolderErrorCode.Unauthorized],
+    }
+  }
+
+  if (item.folder === folder) {
+    return {
+      errorCodes: [MoveToFolderErrorCode.AlreadyExists],
+    }
+  }
+
+  const savedAt = new Date()
+
+  // if the content is not fetched yet, create a page save request
+  if (!item.readableContent) {
+    const articleSavingRequest = await createPageSaveRequest({
+      userId: uid,
+      url: item.originalUrl,
+      articleSavingRequestId: id,
+      priority: 'high',
+      publishedAt: item.publishedAt || undefined,
+      savedAt,
+      pubsub,
+    })
+
+    return {
+      __typename: 'MoveToFolderSuccess',
+      articleSavingRequest,
+    }
+  }
+
+  const updatedItem = await updateLibraryItem(
+    item.id,
+    {
+      folder,
+      savedAt,
+    },
+    uid,
+    pubsub
+  )
+
+  return {
+    __typename: 'MoveToFolderSuccess',
+    articleSavingRequest: libraryItemToArticleSavingRequest(
+      updatedItem.user,
+      updatedItem
+    ),
   }
 })
 

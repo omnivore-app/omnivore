@@ -729,13 +729,14 @@ export type Feature = {
 export type Feed = {
   __typename?: 'Feed';
   author?: Maybe<Scalars['String']>;
-  createdAt: Scalars['Date'];
+  createdAt?: Maybe<Scalars['Date']>;
   description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
+  id?: Maybe<Scalars['ID']>;
   image?: Maybe<Scalars['String']>;
   publishedAt?: Maybe<Scalars['Date']>;
   title: Scalars['String'];
-  updatedAt: Scalars['Date'];
+  type?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Date']>;
   url: Scalars['String'];
 };
 
@@ -1807,6 +1808,7 @@ export type Query = {
   recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
   rules: RulesResult;
+  scanFeeds: ScanFeedsResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
   subscriptions: SubscriptionsResult;
@@ -1840,6 +1842,11 @@ export type QueryFeedsArgs = {
 
 export type QueryRulesArgs = {
   enabled?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type QueryScanFeedsArgs = {
+  input: ScanFeedsInput;
 };
 
 
@@ -2271,6 +2278,33 @@ export type SaveUrlInput = {
   timezone?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
 };
+
+export type ScanFeedsError = {
+  __typename?: 'ScanFeedsError';
+  errorCodes: Array<ScanFeedsErrorCode>;
+};
+
+export enum ScanFeedsErrorCode {
+  BadRequest = 'BAD_REQUEST'
+}
+
+export type ScanFeedsInput = {
+  opml?: InputMaybe<Scalars['String']>;
+  type: ScanFeedsType;
+  url?: InputMaybe<Scalars['String']>;
+};
+
+export type ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess;
+
+export type ScanFeedsSuccess = {
+  __typename?: 'ScanFeedsSuccess';
+  feeds: Array<Feed>;
+};
+
+export enum ScanFeedsType {
+  Html = 'HTML',
+  Opml = 'OPML'
+}
 
 export type SearchError = {
   __typename?: 'SearchError';
@@ -3739,6 +3773,12 @@ export type ResolversTypes = {
   SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
   SaveUrlInput: SaveUrlInput;
+  ScanFeedsError: ResolverTypeWrapper<ScanFeedsError>;
+  ScanFeedsErrorCode: ScanFeedsErrorCode;
+  ScanFeedsInput: ScanFeedsInput;
+  ScanFeedsResult: ResolversTypes['ScanFeedsError'] | ResolversTypes['ScanFeedsSuccess'];
+  ScanFeedsSuccess: ResolverTypeWrapper<ScanFeedsSuccess>;
+  ScanFeedsType: ScanFeedsType;
   SearchError: ResolverTypeWrapper<SearchError>;
   SearchErrorCode: SearchErrorCode;
   SearchItem: ResolverTypeWrapper<SearchItem>;
@@ -4190,6 +4230,10 @@ export type ResolversParentTypes = {
   SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
   SaveUrlInput: SaveUrlInput;
+  ScanFeedsError: ScanFeedsError;
+  ScanFeedsInput: ScanFeedsInput;
+  ScanFeedsResult: ResolversParentTypes['ScanFeedsError'] | ResolversParentTypes['ScanFeedsSuccess'];
+  ScanFeedsSuccess: ScanFeedsSuccess;
   SearchError: SearchError;
   SearchItem: SearchItem;
   SearchItemEdge: SearchItemEdge;
@@ -4845,13 +4889,14 @@ export type FeatureResolvers<ContextType = ResolverContext, ParentType extends R
 
 export type FeedResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feed'] = ResolversParentTypes['Feed']> = {
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5436,6 +5481,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
+  scanFeeds?: Resolver<ResolversTypes['ScanFeedsResult'], ParentType, ContextType, RequireFields<QueryScanFeedsArgs, 'input'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
@@ -5686,6 +5732,20 @@ export type SaveResultResolvers<ContextType = ResolverContext, ParentType extend
 export type SaveSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveSuccess'] = ResolversParentTypes['SaveSuccess']> = {
   clientRequestId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ScanFeedsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsError'] = ResolversParentTypes['ScanFeedsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ScanFeedsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ScanFeedsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsResult'] = ResolversParentTypes['ScanFeedsResult']> = {
+  __resolveType: TypeResolveFn<'ScanFeedsError' | 'ScanFeedsSuccess', ParentType, ContextType>;
+};
+
+export type ScanFeedsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsSuccess'] = ResolversParentTypes['ScanFeedsSuccess']> = {
+  feeds?: Resolver<Array<ResolversTypes['Feed']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6581,6 +6641,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveFilterSuccess?: SaveFilterSuccessResolvers<ContextType>;
   SaveResult?: SaveResultResolvers<ContextType>;
   SaveSuccess?: SaveSuccessResolvers<ContextType>;
+  ScanFeedsError?: ScanFeedsErrorResolvers<ContextType>;
+  ScanFeedsResult?: ScanFeedsResultResolvers<ContextType>;
+  ScanFeedsSuccess?: ScanFeedsSuccessResolvers<ContextType>;
   SearchError?: SearchErrorResolvers<ContextType>;
   SearchItem?: SearchItemResolvers<ContextType>;
   SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;
