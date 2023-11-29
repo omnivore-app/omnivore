@@ -73,6 +73,12 @@ struct WebReader: PlatformViewRepresentable {
       webView.setValue(false, forKey: "drawsBackground")
     #endif
 
+    #if DEBUG
+      if #available(iOS 16.4, *) {
+        webView.isInspectable = true
+      }
+    #endif
+
     for action in WebViewAction.allCases {
       webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
     }

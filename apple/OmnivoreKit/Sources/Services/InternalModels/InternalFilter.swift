@@ -110,7 +110,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
   }
 
   public var allowLocalFetch: Bool {
-    true
+    predicate != nil
   }
 
   public var predicate: NSPredicate? {
