@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: ./packages/db/Dockerfile
     container_name: "omnivore-migrate"
-    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo
+    command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     environment:
       - PGPASSWORD=postgres
       - PG_HOST=postgres
