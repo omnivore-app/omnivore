@@ -11,7 +11,7 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { BulkActionType } from '../generated/graphql'
+import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
@@ -28,9 +28,6 @@ import {
   NoFilter,
   RangeFilter,
   ReadFilter,
-  Sort,
-  SortBy,
-  SortOrder,
 } from '../utils/search'
 
 export interface SearchArgs {
@@ -90,6 +87,52 @@ export interface SearchResultItem {
   content?: string
 }
 
+export enum SortBy {
+  SAVED = 'saved_at',
+  UPDATED = 'updated_at',
+  PUBLISHED = 'published_at',
+  READ = 'read_at',
+  WORDS_COUNT = 'word_count',
+}
+
+export enum SortOrder {
+  ASCENDING = 'ASC',
+  DESCENDING = 'DESC',
+}
+
+export interface Sort {
+  by: SortBy
+  order?: SortOrder
+}
+
+interface Select {
+  column: string
+  alias: string
+}
+
+export const sortParamsToSort = (
+  sortParams: InputMaybe<SortParams> | undefined
+) => {
+  const sort = { by: SortBy.UPDATED, order: SortOrder.DESCENDING }
+
+  if (sortParams) {
+    sortParams.order === 'ASCENDING' && (sort.order = SortOrder.ASCENDING)
+    switch (sortParams.by) {
+      case 'UPDATED_TIME':
+        sort.by = SortBy.UPDATED
+        break
+      case 'PUBLISHED_AT':
+        sort.by = SortBy.PUBLISHED
+        break
+      case 'SAVED_AT':
+        sort.by = SortBy.SAVED
+        break
+    }
+  }
+
+  return sort
+}
+
 const getColumnName = (field: string) => {
   switch (field) {
     case 'language':
@@ -103,6 +146,11 @@ const getColumnName = (field: string) => {
       return 'word_count'
     case 'readPosition':
       return 'reading_progress_bottom_percent'
+    case 'saved':
+    case 'read':
+    case 'updated':
+    case 'published':
+      return `${field}_at`
     default:
       return field
   }
@@ -110,7 +158,8 @@ const getColumnName = (field: string) => {
 
 export const buildQuery = (
   searchQuery: LiqeQuery,
-  parameters: ObjectLiteral[]
+  parameters: ObjectLiteral[],
+  orders: Sort[]
 ) => {
   const escapeQueryWithParameters = (
     query: string,
@@ -120,7 +169,7 @@ export const buildQuery = (
     return query
   }
 
-  const serializeTagExpression = (ast: LiqeQuery): string => {
+  const serializeTagExpression = (ast: LiqeQuery): string | null => {
     if (ast.type !== 'Tag') {
       throw new Error('Expected a tag expression.')
     }
@@ -134,8 +183,8 @@ export const buildQuery = (
 
       const value = expression.value?.toString()
 
-      if (!value) {
-        return ''
+      if (value === undefined || value === '') {
+        return null
       }
 
       const param = `implicit_${parameters.length}`
@@ -153,7 +202,7 @@ export const buildQuery = (
 
           const folder = expression.value?.toString()
           if (!folder) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           switch (folder) {
@@ -181,7 +230,7 @@ export const buildQuery = (
 
           const value = expression.value?.toString()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           switch (value) {
@@ -202,7 +251,7 @@ export const buildQuery = (
 
           const value = expression.value?.toString()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const param = `type_${parameters.length}`
@@ -221,7 +270,7 @@ export const buildQuery = (
 
           const label = expression.value?.toString()?.toLowerCase()
           if (!label) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const param = `label_${parameters.length}`
@@ -243,9 +292,26 @@ export const buildQuery = (
             }
           )
         }
-        // case 'sort':
-        //   result.sort = parseSort(keyword.value)
-        //   break
+        case 'sort': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const [sort, sortOrder] = value.split('-')
+          const order =
+            sortOrder?.toUpperCase() === 'ASC'
+              ? SortOrder.ASCENDING
+              : SortOrder.DESCENDING
+
+          const column = getColumnName(sort)
+          orders.push({ by: column as SortBy, order })
+          return null
+        }
         case 'has': {
           if (expression.type !== 'LiteralExpression') {
             throw new Error('Expected a literal expression.')
@@ -253,7 +319,7 @@ export const buildQuery = (
 
           const value = expression.value?.toString()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           switch (value) {
@@ -277,7 +343,7 @@ export const buildQuery = (
 
           const date = expression.value?.toString()
           if (!date) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           let startDate: Date | undefined
@@ -328,7 +394,7 @@ export const buildQuery = (
 
           const value = expression.value?.toString()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const columnName = getColumnName(field.name)
@@ -354,7 +420,7 @@ export const buildQuery = (
           // normalize the term to lower case
           const value = expression.value?.toString()?.toLowerCase()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const columnName = getColumnName(field.name)
@@ -376,7 +442,7 @@ export const buildQuery = (
 
           const ids = expression.value?.toString()?.split(',')
           if (!ids || ids.length === 0) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const param = `includes_${parameters.length}`
@@ -385,10 +451,25 @@ export const buildQuery = (
             [param]: ids,
           })
         }
-        // case 'recommendedBy': {
-        //   result.recommendedBy = parseStringValue(keyword.value)
-        //   break
-        // }
+        case 'recommendedBy': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const param = `recommendedBy_${parameters.length}`
+
+          return escapeQueryWithParameters(
+            `:recommendedBy = ANY(lower(library_item.recommender_names::text)::text[])`,
+            {
+              [param]: value.toLowerCase(),
+            }
+          )
+        }
         case 'no': {
           if (expression.type !== 'LiteralExpression') {
             throw new Error('Expected a literal expression.')
@@ -396,7 +477,7 @@ export const buildQuery = (
 
           const value = expression.value?.toString()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           let column = ''
@@ -418,7 +499,7 @@ export const buildQuery = (
         }
         case 'mode':
           // mode is ignored and used only by the frontend
-          return ''
+          return null
         case 'readPosition':
         case 'wordsCount': {
           if (expression.type !== 'LiteralExpression') {
@@ -427,7 +508,7 @@ export const buildQuery = (
 
           let value = expression.value?.toString()
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const column = getColumnName(field.name)
@@ -435,12 +516,12 @@ export const buildQuery = (
           const operatorRegex = /([<>]=?)/
           const operator = value.match(operatorRegex)?.[0]
           if (!operator) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           value = value.replace(operatorRegex, '')
           if (!value) {
-            return ''
+            throw new Error('Expected a value.')
           }
 
           const param = `range_${field.name}_${parameters.length}`
@@ -458,7 +539,7 @@ export const buildQuery = (
     }
   }
 
-  const serialize = (ast: LiqeQuery): string => {
+  const serialize = (ast: LiqeQuery): string | null => {
     if (ast.type === 'Tag') {
       return serializeTagExpression(ast)
     }
@@ -473,14 +554,42 @@ export const buildQuery = (
         throw new Error('Unexpected operator.')
       }
 
-      return `${serialize(ast.left)} ${operator} ${serialize(ast.right)}`
+      const left = serialize(ast.left)
+      const right = serialize(ast.right)
+
+      if (!left && !right) {
+        return null
+      }
+
+      if (!left) {
+        return right
+      }
+
+      if (!right) {
+        return left
+      }
+
+      return `(${left} ${operator} ${right})`
     }
 
     if (ast.type === 'UnaryOperator') {
-      return `NOT ${serialize(ast.operand)}`
+      const serialized = serialize(ast.operand)
+
+      if (!serialized) {
+        return null
+      }
+
+      return `NOT ${serialized}`
     }
+
     if (ast.type === 'ParenthesizedExpression') {
-      return `(${serialize(ast.expression)})`
+      const serialized = serialize(ast.expression)
+
+      if (!serialized) {
+        return null
+      }
+
+      return `(${serialized})`
     }
 
     throw new Error('Missing AST type.')
@@ -763,22 +872,28 @@ export const searchLibraryItems = async (
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
         .where('library_item.user_id = :userId', { userId })
+        .orderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
 
       if (args.searchQuery) {
         const parameters: ObjectLiteral[] = []
-        const whereClause = buildQuery(args.searchQuery, parameters)
+        const orders: Sort[] = []
+        const whereClause = buildQuery(args.searchQuery, parameters, orders)
         whereClause &&
-          queryBuilder.andWhere(
-            whereClause,
-            parameters.reduce((a, b) => ({ ...a, ...b }), {})
+          queryBuilder
+            .andWhere(whereClause)
+            .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
+
+        // add order by
+        orders.forEach((order) => {
+          queryBuilder.addOrderBy(
+            `library_item.${order.by}`,
+            order.order,
+            'NULLS LAST'
           )
+        })
       }
 
-      const libraryItems = await queryBuilder
-        .addOrderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
-        .skip(from)
-        .take(size)
-        .getMany()
+      const libraryItems = await queryBuilder.skip(from).take(size).getMany()
 
       const count = await queryBuilder.getCount()
 

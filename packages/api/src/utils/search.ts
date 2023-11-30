@@ -6,7 +6,7 @@
 import { LiqeQuery, parse } from 'liqe'
 import { DateTime } from 'luxon'
 import { ISearchParserDictionary } from 'search-query-parser'
-import { InputMaybe, PageType, SortParams } from '../generated/graphql'
+import { PageType } from '../generated/graphql'
 
 export enum ReadFilter {
   ALL = 'all',
@@ -29,7 +29,6 @@ export interface SearchFilter {
   readFilter: ReadFilter
   typeFilter?: string
   labelFilters: LabelFilter[]
-  sort?: Sort
   hasFilters: HasFilter[]
   dateFilters: DateFilter[]
   termFilters: FieldFilter[]
@@ -67,24 +66,6 @@ export interface RangeFilter {
   field: string
   operator: string
   value: number
-}
-
-export enum SortBy {
-  SAVED = 'savedAt',
-  UPDATED = 'updatedAt',
-  PUBLISHED = 'publishedAt',
-  READ = 'readAt',
-  WORDS_COUNT = 'wordCount',
-}
-
-export enum SortOrder {
-  ASCENDING = 'ASC',
-  DESCENDING = 'DESC',
-}
-
-export interface Sort {
-  by: SortBy
-  order?: SortOrder
 }
 
 export interface FieldFilter {
@@ -177,44 +158,6 @@ const parseLabelFilter = (
     type: excluded ? LabelFilterType.EXCLUDE : LabelFilterType.INCLUDE,
     // use lower case for label names
     labels: labels.map((label) => label.toLowerCase()),
-  }
-}
-
-const parseSort = (str?: string): Sort | undefined => {
-  if (str === undefined) {
-    return undefined
-  }
-
-  const [sort, order] = str.split('-')
-  const sortOrder =
-    order?.toUpperCase() === 'ASC' ? SortOrder.ASCENDING : SortOrder.DESCENDING
-
-  switch (sort.toUpperCase()) {
-    case 'UPDATED':
-      return {
-        by: SortBy.UPDATED,
-        order: sortOrder,
-      }
-    case 'SAVED':
-      return {
-        by: SortBy.SAVED,
-        order: sortOrder,
-      }
-    case 'PUBLISHED':
-      return {
-        by: SortBy.PUBLISHED,
-        order: sortOrder,
-      }
-    case 'READ':
-      return {
-        by: SortBy.READ,
-        order: sortOrder,
-      }
-    case 'WORDSCOUNT':
-      return {
-        by: SortBy.WORDS_COUNT,
-        order: sortOrder,
-      }
   }
 }
 
@@ -548,27 +491,4 @@ export const parseSearchQuery = (query: string): LiqeQuery => {
   // }
 
   // return result
-}
-
-export const sortParamsToSort = (
-  sortParams: InputMaybe<SortParams> | undefined
-) => {
-  const sort = { by: SortBy.UPDATED, order: SortOrder.DESCENDING }
-
-  if (sortParams) {
-    sortParams.order === 'ASCENDING' && (sort.order = SortOrder.ASCENDING)
-    switch (sortParams.by) {
-      case 'UPDATED_TIME':
-        sort.by = SortBy.UPDATED
-        break
-      case 'PUBLISHED_AT':
-        sort.by = SortBy.PUBLISHED
-        break
-      case 'SAVED_AT':
-        sort.by = SortBy.SAVED
-        break
-    }
-  }
-
-  return sort
 }

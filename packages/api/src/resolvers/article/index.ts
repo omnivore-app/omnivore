@@ -70,6 +70,7 @@ import {
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
+  sortParamsToSort,
   updateLibraryItem,
   updateLibraryItemReadingProgress,
   updateLibraryItems,
@@ -101,11 +102,7 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import {
-  InFilter,
-  parseSearchQuery,
-  sortParamsToSort,
-} from '../../utils/search'
+import { InFilter, parseSearchQuery } from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
