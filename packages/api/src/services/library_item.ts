@@ -158,8 +158,9 @@ const getColumnName = (field: string) => {
 
 export const buildQuery = (
   searchQuery: LiqeQuery,
-  parameters: ObjectLiteral[],
-  orders: Sort[]
+  parameters: ObjectLiteral[] = [],
+  selects: Select[] = [],
+  orders: { by: string; order?: SortOrder }[] = []
 ) => {
   const escapeQueryWithParameters = (
     query: string,
@@ -187,7 +188,17 @@ export const buildQuery = (
         return null
       }
 
-      const param = `implicit_${parameters.length}`
+      const param = 'implicit_field'
+      const alias = 'rank'
+      selects.push({
+        column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
+        alias,
+      })
+
+      orders.push({
+        by: alias,
+        order: SortOrder.DESCENDING,
+      })
 
       return escapeQueryWithParameters(
         `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
@@ -206,6 +217,8 @@ export const buildQuery = (
           }
 
           switch (folder) {
+            case InFilter.ALL:
+              return null
             case InFilter.INBOX:
               return 'library_item.archived_at IS NULL'
             case InFilter.ARCHIVE:
@@ -309,7 +322,7 @@ export const buildQuery = (
               : SortOrder.DESCENDING
 
           const column = getColumnName(sort)
-          orders.push({ by: column as SortBy, order })
+          orders.push({ by: `library_item.${column}`, order })
           return null
         }
         case 'has': {
@@ -876,21 +889,35 @@ export const searchLibraryItems = async (
 
       if (args.searchQuery) {
         const parameters: ObjectLiteral[] = []
+        const selects: Select[] = []
         const orders: Sort[] = []
-        const whereClause = buildQuery(args.searchQuery, parameters, orders)
+        const whereClause = buildQuery(
+          args.searchQuery,
+          parameters,
+          selects,
+          orders
+        )
         whereClause &&
           queryBuilder
             .andWhere(whereClause)
             .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
 
+        selects.forEach((select) => {
+          queryBuilder.addSelect(select.column, select.alias)
+        })
+
         // add order by
         orders.forEach((order) => {
-          queryBuilder.addOrderBy(
-            `library_item.${order.by}`,
-            order.order,
-            'NULLS LAST'
-          )
+          queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
         })
+      }
+
+      if (!args.includePending) {
+        queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
+      }
+
+      if (!args.includeDeleted) {
+        queryBuilder.andWhere("library_item.state <> 'DELETED'")
       }
 
       const libraryItems = await queryBuilder.skip(from).take(size).getMany()

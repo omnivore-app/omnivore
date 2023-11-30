@@ -660,6 +660,7 @@ export const searchResolver = authorized<
       size: first + 1, // fetch one more item to get next cursor
       includePending: true,
       includeContent: !!params.includeContent,
+      includeDeleted: params.query?.includes('in:trash'),
       searchQuery,
     },
     uid
@@ -757,14 +758,18 @@ export const updatesSinceResolver = authorized<
     startDate = new Date(0)
   }
 
+  folder = folder || InFilter.ALL
+  const searchQuery = parseSearchQuery(
+    `in:${folder} updated:${startDate.toISOString()}`
+  )
+
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
-      dateFilters: [{ field: 'updatedAt', startDate }],
       sort,
-      inFilter: (folder as InFilter) || InFilter.ALL,
+      searchQuery,
     },
     uid
   )
