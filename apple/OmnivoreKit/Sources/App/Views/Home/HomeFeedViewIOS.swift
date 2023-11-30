@@ -43,20 +43,19 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
 
     @State private var selection = Set<String>()
-    @ObservedObject var filterState: FetcherFilterState
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var showFeatureCards: Bool {
       viewModel.listConfig.hasFeatureCards &&
         !viewModel.hideFeatureSection &&
         viewModel.fetcher.items.count > 0 &&
-        filterState.searchTerm.isEmpty &&
-        filterState.selectedLabels.isEmpty &&
-        filterState.negatedLabels.isEmpty &&
-        filterState.appliedFilter?.name == "inbox"
+        viewModel.filterState.searchTerm.isEmpty &&
+        viewModel.filterState.selectedLabels.isEmpty &&
+        viewModel.filterState.negatedLabels.isEmpty &&
+        viewModel.filterState.appliedFilter?.name == "inbox"
     }
 
     var body: some View {
@@ -67,27 +66,26 @@ struct AnimatingCellHeight: AnimatableModifier {
         isEditMode: $isEditMode,
         selection: $selection,
         viewModel: viewModel,
-        filterState: filterState,
         showFeatureCards: showFeatureCards
       )
       .refreshable {
         loadItems(isRefresh: true)
       }
-      .onChange(of: filterState.searchTerm) { _ in
+      .onChange(of: viewModel.filterState.searchTerm) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
         loadItems(isRefresh: true)
       }
-      .onChange(of: filterState.selectedLabels) { _ in
+      .onChange(of: viewModel.filterState.selectedLabels) { _ in
         loadItems(isRefresh: true)
       }
-      .onChange(of: filterState.negatedLabels) { _ in
+      .onChange(of: viewModel.filterState.negatedLabels) { _ in
         loadItems(isRefresh: true)
       }
-      .onChange(of: filterState.appliedFilter) { _ in
+      .onChange(of: viewModel.filterState.appliedFilter) { _ in
         loadItems(isRefresh: true)
       }
-      .onChange(of: filterState.appliedSort) { _ in
+      .onChange(of: viewModel.filterState.appliedSort) { _ in
         loadItems(isRefresh: true)
       }
       .sheet(item: $viewModel.itemUnderLabelEdit) { item in
@@ -127,10 +125,10 @@ struct AnimatingCellHeight: AnimatableModifier {
         if let deepLink = DeepLink.make(from: url) {
           switch deepLink {
           case let .search(query):
-            filterState.searchTerm = query
+            viewModel.filterState.searchTerm = query
           case let .savedSearch(named):
             if let filter = viewModel.findFilter(dataService, named: named) {
-              filterState.appliedFilter = filter
+              viewModel.filterState.appliedFilter = filter
             }
           case let .webAppLinkRequest(requestID):
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
@@ -158,6 +156,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         if viewModel.fetcher.items.isEmpty {
           loadItems(isRefresh: false)
         }
+        await viewModel.loadFilters(dataService: dataService, filterState: viewModel.filterState)
       }
       .environment(\.editMode, self.$isEditMode)
     }
@@ -167,7 +166,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         ToolbarItem(placement: .barLeading) {
           VStack(alignment: .leading) {
             let showDate = isListScrolled && !listTitle.isEmpty
-            if let title = filterState.appliedFilter?.name {
+            if let title = viewModel.filterState.appliedFilter?.name {
               Text(title)
                 .font(Font.system(size: showDate ? 10 : 18, weight: .semibold))
               if showDate, prefersListLayout, isListScrolled || !showFeatureCards {
@@ -264,7 +263,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isEditMode: EditMode
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
-    @ObservedObject var filterState: FetcherFilterState
 
     let showFeatureCards: Bool
 
@@ -294,23 +292,21 @@ struct AnimatingCellHeight: AnimatableModifier {
             isEditMode: $isEditMode,
             selection: $selection,
             viewModel: viewModel,
-            filterState: filterState,
             showFeatureCards: showFeatureCards
           )
         } else {
           HomeFeedGridView(
             viewModel: viewModel,
-            filterState: filterState,
             isListScrolled: $isListScrolled
           )
         }
       }.sheet(isPresented: $viewModel.showLabelsSheet) {
         FilterByLabelsView(
-          initiallySelected: filterState.selectedLabels,
-          initiallyNegated: filterState.negatedLabels
+          initiallySelected: viewModel.filterState.selectedLabels,
+          initiallyNegated: viewModel.filterState.negatedLabels
         ) {
-          self.filterState.selectedLabels = $0
-          self.filterState.negatedLabels = $1
+          viewModel.filterState.selectedLabels = $0
+          viewModel.filterState.negatedLabels = $1
         }
       }
       .popup(isPresented: $viewModel.showSnackbar) {
@@ -351,7 +347,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
-    @ObservedObject var filterState: FetcherFilterState
 
     let showFeatureCards: Bool
 
@@ -359,20 +354,20 @@ struct AnimatingCellHeight: AnimatableModifier {
       GeometryReader { reader in
         ScrollView(.horizontal, showsIndicators: false) {
           HStack {
-            if filterState.searchTerm.count > 0 {
-              TextChipButton.makeSearchFilterButton(title: filterState.searchTerm) {
-                filterState.searchTerm = ""
+            if viewModel.filterState.searchTerm.count > 0 {
+              TextChipButton.makeSearchFilterButton(title: viewModel.filterState.searchTerm) {
+                viewModel.filterState.searchTerm = ""
               }.frame(maxWidth: reader.size.width * 0.66)
             } else {
               Menu(
                 content: {
                   ForEach(viewModel.filters) { filter in
-                    Button(filter.name, action: { filterState.appliedFilter = filter })
+                    Button(filter.name, action: { viewModel.filterState.appliedFilter = filter })
                   }
                 },
                 label: {
                   TextChipButton.makeMenuButton(
-                    title: filterState.appliedFilter?.name ?? "-",
+                    title: viewModel.filterState.appliedFilter?.name ?? "-",
                     color: .systemGray6
                   )
                 }
@@ -381,25 +376,25 @@ struct AnimatingCellHeight: AnimatableModifier {
             Menu(
               content: {
                 ForEach(LinkedItemSort.allCases, id: \.self) { sort in
-                  Button(sort.displayName, action: { filterState.appliedSort = sort.rawValue })
+                  Button(sort.displayName, action: { viewModel.filterState.appliedSort = sort.rawValue })
                 }
               },
               label: {
                 TextChipButton.makeMenuButton(
-                  title: LinkedItemSort(rawValue: filterState.appliedSort)?.displayName ?? "Sort",
+                  title: LinkedItemSort(rawValue: viewModel.filterState.appliedSort)?.displayName ?? "Sort",
                   color: .systemGray6
                 )
               }
             )
             TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
-            ForEach(filterState.selectedLabels, id: \.self) { label in
+            ForEach(viewModel.filterState.selectedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
-                filterState.selectedLabels.removeAll { $0.id == label.id }
+                viewModel.filterState.selectedLabels.removeAll { $0.id == label.id }
               }
             }
-            ForEach(filterState.negatedLabels, id: \.self) { label in
+            ForEach(viewModel.filterState.negatedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
-                filterState.negatedLabels.removeAll { $0.id == label.id }
+                viewModel.filterState.negatedLabels.removeAll { $0.id == label.id }
               }
             }
             Spacer()
@@ -569,7 +564,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             .listRowSeparator(.hidden, edges: .all)
             .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 0, trailing: horizontalInset))
 
-          if let appliedFilter = filterState.appliedFilter,
+          if let appliedFilter = viewModel.filterState.appliedFilter,
              networkMonitor.status == .disconnected,
              !appliedFilter.allowLocalFetch
           {
@@ -706,7 +701,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var isContextMenuOpen = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
-    @ObservedObject var filterState: FetcherFilterState
 
     @Binding var isListScrolled: Bool
 
@@ -726,27 +720,27 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     func loadItems(isRefresh: Bool) {
-      Task { await viewModel.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh) }
+      Task { await viewModel.loadItems(dataService: dataService, isRefresh: isRefresh) }
     }
 
     var filtersHeader: some View {
       GeometryReader { reader in
         ScrollView(.horizontal, showsIndicators: false) {
           HStack {
-            if filterState.searchTerm.count > 0 {
-              TextChipButton.makeSearchFilterButton(title: filterState.searchTerm) {
-                filterState.searchTerm = ""
+            if viewModel.filterState.searchTerm.count > 0 {
+              TextChipButton.makeSearchFilterButton(title: viewModel.filterState.searchTerm) {
+                viewModel.filterState.searchTerm = ""
               }.frame(maxWidth: reader.size.width * 0.66)
             } else {
               Menu(
                 content: {
                   ForEach(viewModel.filters, id: \.self) { filter in
-                    Button(filter.name, action: { filterState.appliedFilter = filter })
+                    Button(filter.name, action: { viewModel.filterState.appliedFilter = filter })
                   }
                 },
                 label: {
                   TextChipButton.makeMenuButton(
-                    title: filterState.appliedFilter?.name ?? "-",
+                    title: viewModel.filterState.appliedFilter?.name ?? "-",
                     color: .systemGray6
                   )
                 }
@@ -755,25 +749,25 @@ struct AnimatingCellHeight: AnimatableModifier {
             Menu(
               content: {
                 ForEach(LinkedItemSort.allCases, id: \.self) { sort in
-                  Button(sort.displayName, action: { filterState.appliedSort = sort.rawValue })
+                  Button(sort.displayName, action: { viewModel.filterState.appliedSort = sort.rawValue })
                 }
               },
               label: {
                 TextChipButton.makeMenuButton(
-                  title: LinkedItemSort(rawValue: filterState.appliedSort)?.displayName ?? "Sort",
+                  title: LinkedItemSort(rawValue: viewModel.filterState.appliedSort)?.displayName ?? "Sort",
                   color: .systemGray6
                 )
               }
             )
             TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
-            ForEach(filterState.selectedLabels, id: \.self) { label in
+            ForEach(viewModel.filterState.selectedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
-                filterState.selectedLabels.removeAll { $0.id == label.id }
+                viewModel.filterState.selectedLabels.removeAll { $0.id == label.id }
               }
             }
-            ForEach(filterState.negatedLabels, id: \.self) { label in
+            ForEach(viewModel.filterState.negatedLabels, id: \.self) { label in
               TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
-                filterState.negatedLabels.removeAll { $0.id == label.id }
+                viewModel.filterState.negatedLabels.removeAll { $0.id == label.id }
               }
             }
             Spacer()

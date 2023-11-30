@@ -25,6 +25,7 @@ struct LibraryTabView: View {
 
   @StateObject private var followingViewModel = HomeFeedViewModel(
     fetcher: LibraryItemFetcher(),
+    filterState: FetcherFilterState(folder: "following"),
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
       leadingSwipeActions: [.moveToInbox],
@@ -35,6 +36,7 @@ struct LibraryTabView: View {
 
   @StateObject private var libraryViewModel = HomeFeedViewModel(
     fetcher: LibraryItemFetcher(),
+    filterState: FetcherFilterState(folder: "inbox"),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
@@ -47,19 +49,13 @@ struct LibraryTabView: View {
     VStack(spacing: 0) {
       TabView(selection: $selectedTab) {
         NavigationView {
-          HomeFeedContainerView(
-            viewModel: followingViewModel,
-            filterState: FetcherFilterState(folder: "following")
-          )
-          .navigationViewStyle(.stack)
+          HomeFeedContainerView(viewModel: followingViewModel)
+            .navigationViewStyle(.stack)
         }.tag("following")
 
         NavigationView {
-          HomeFeedContainerView(
-            viewModel: libraryViewModel,
-            filterState: FetcherFilterState(folder: "inbox")
-          )
-          .navigationViewStyle(.stack)
+          HomeFeedContainerView(viewModel: libraryViewModel)
+            .navigationViewStyle(.stack)
         }.tag("inbox")
 
         NavigationView {

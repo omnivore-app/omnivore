@@ -6,17 +6,13 @@ import Views
 struct HomeView: View {
   @State private var viewModel: HomeFeedViewModel
 
-  let inboxFilterState = FetcherFilterState(
-    folder: "inbox"
-  )
-
   init(viewModel: HomeFeedViewModel) {
     self.viewModel = viewModel
   }
 
   var body: some View {
     #if os(iOS)
-      HomeFeedContainerView(viewModel: viewModel, filterState: inboxFilterState)
+      HomeFeedContainerView(viewModel: viewModel)
     #elseif os(macOS)
       HomeFeedView(viewModel: viewModel)
         .frame(minWidth: 320)

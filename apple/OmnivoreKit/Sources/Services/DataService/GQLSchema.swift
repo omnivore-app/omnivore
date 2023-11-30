@@ -5643,6 +5643,7 @@ extension Objects {
     let image: [String: String]
     let publishedAt: [String: DateTime]
     let title: [String: String]
+    let type: [String: String]
     let updatedAt: [String: DateTime]
     let url: [String: String]
 
@@ -5692,6 +5693,10 @@ extension Objects.Feed: Decodable {
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "type":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "updatedAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -5717,6 +5722,7 @@ extension Objects.Feed: Decodable {
     image = map["image"]
     publishedAt = map["publishedAt"]
     title = map["title"]
+    type = map["type"]
     updatedAt = map["updatedAt"]
     url = map["url"]
   }
@@ -5738,7 +5744,7 @@ extension Fields where TypeLock == Objects.Feed {
     }
   }
 
-  func createdAt() throws -> DateTime {
+  func createdAt() throws -> DateTime? {
     let field = GraphQLField.leaf(
       name: "createdAt",
       arguments: []
@@ -5747,12 +5753,9 @@ extension Fields where TypeLock == Objects.Feed {
 
     switch response {
     case let .decoding(data):
-      if let data = data.createdAt[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.createdAt[field.alias!]
     case .mocking:
-      return DateTime.mockValue
+      return nil
     }
   }
 
@@ -5771,7 +5774,7 @@ extension Fields where TypeLock == Objects.Feed {
     }
   }
 
-  func id() throws -> String {
+  func id() throws -> String? {
     let field = GraphQLField.leaf(
       name: "id",
       arguments: []
@@ -5780,12 +5783,9 @@ extension Fields where TypeLock == Objects.Feed {
 
     switch response {
     case let .decoding(data):
-      if let data = data.id[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.id[field.alias!]
     case .mocking:
-      return String.mockValue
+      return nil
     }
   }
 
@@ -5837,7 +5837,22 @@ extension Fields where TypeLock == Objects.Feed {
     }
   }
 
-  func updatedAt() throws -> DateTime {
+  func type() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "type",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.type[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func updatedAt() throws -> DateTime? {
     let field = GraphQLField.leaf(
       name: "updatedAt",
       arguments: []
@@ -5846,12 +5861,9 @@ extension Fields where TypeLock == Objects.Feed {
 
     switch response {
     case let .decoding(data):
-      if let data = data.updatedAt[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.updatedAt[field.alias!]
     case .mocking:
-      return DateTime.mockValue
+      return nil
     }
   }
 
@@ -6643,11 +6655,11 @@ extension Selection where TypeLock == Never, Type == Never {
 extension Objects {
   struct Filter {
     let __typename: TypeName = .filter
-    let category: [String: String]
     let createdAt: [String: DateTime]
     let defaultFilter: [String: Bool]
     let description: [String: String]
     let filter: [String: String]
+    let folder: [String: String]
     let id: [String: String]
     let name: [String: String]
     let position: [String: Int]
@@ -6672,10 +6684,6 @@ extension Objects.Filter: Decodable {
       let field = GraphQLField.getFieldNameFromAlias(alias)
 
       switch field {
-      case "category":
-        if let value = try container.decode(String?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
       case "createdAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -6689,6 +6697,10 @@ extension Objects.Filter: Decodable {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "filter":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "folder":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -6722,11 +6734,11 @@ extension Objects.Filter: Decodable {
       }
     }
 
-    category = map["category"]
     createdAt = map["createdAt"]
     defaultFilter = map["defaultFilter"]
     description = map["description"]
     filter = map["filter"]
+    folder = map["folder"]
     id = map["id"]
     name = map["name"]
     position = map["position"]
@@ -6736,24 +6748,6 @@ extension Objects.Filter: Decodable {
 }
 
 extension Fields where TypeLock == Objects.Filter {
-  func category() throws -> String {
-    let field = GraphQLField.leaf(
-      name: "category",
-      arguments: []
-    )
-    select(field)
-
-    switch response {
-    case let .decoding(data):
-      if let data = data.category[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
-    case .mocking:
-      return String.mockValue
-    }
-  }
-
   func createdAt() throws -> DateTime {
     let field = GraphQLField.leaf(
       name: "createdAt",
@@ -6812,6 +6806,24 @@ extension Fields where TypeLock == Objects.Filter {
     switch response {
     case let .decoding(data):
       if let data = data.filter[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
+  func folder() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "folder",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.folder[field.alias!] {
         return data
       }
       throw HttpError.badpayload
@@ -13695,6 +13707,7 @@ extension Objects {
     let recentEmails: [String: Unions.RecentEmailsResult]
     let recentSearches: [String: Unions.RecentSearchesResult]
     let rules: [String: Unions.RulesResult]
+    let scanFeeds: [String: Unions.ScanFeedsResult]
     let search: [String: Unions.SearchResult]
     let sendInstallInstructions: [String: Unions.SendInstallInstructionsResult]
     let subscriptions: [String: Unions.SubscriptionsResult]
@@ -13788,6 +13801,10 @@ extension Objects.Query: Decodable {
         if let value = try container.decode(Unions.RulesResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "scanFeeds":
+        if let value = try container.decode(Unions.ScanFeedsResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "search":
         if let value = try container.decode(Unions.SearchResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -13854,6 +13871,7 @@ extension Objects.Query: Decodable {
     recentEmails = map["recentEmails"]
     recentSearches = map["recentSearches"]
     rules = map["rules"]
+    scanFeeds = map["scanFeeds"]
     search = map["search"]
     sendInstallInstructions = map["sendInstallInstructions"]
     subscriptions = map["subscriptions"]
@@ -14165,6 +14183,25 @@ extension Fields where TypeLock == Objects.Query {
     }
   }
 
+  func scanFeeds<Type>(input: InputObjects.ScanFeedsInput, selection: Selection<Type, Unions.ScanFeedsResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "scanFeeds",
+      arguments: [Argument(name: "input", type: "ScanFeedsInput!", value: input)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.scanFeeds[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
   func search<Type>(after: OptionalArgument<String> = .absent(), first: OptionalArgument<Int> = .absent(), format: OptionalArgument<String> = .absent(), includeContent: OptionalArgument<Bool> = .absent(), query: OptionalArgument<String> = .absent(), selection: Selection<Type, Unions.SearchResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "search",
@@ -14241,10 +14278,10 @@ extension Fields where TypeLock == Objects.Query {
     }
   }
 
-  func updatesSince<Type>(after: OptionalArgument<String> = .absent(), first: OptionalArgument<Int> = .absent(), since: DateTime, sort: OptionalArgument<InputObjects.SortParams> = .absent(), selection: Selection<Type, Unions.UpdatesSinceResult>) throws -> Type {
+  func updatesSince<Type>(after: OptionalArgument<String> = .absent(), first: OptionalArgument<Int> = .absent(), folder: OptionalArgument<String> = .absent(), since: DateTime, sort: OptionalArgument<InputObjects.SortParams> = .absent(), selection: Selection<Type, Unions.UpdatesSinceResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "updatesSince",
-      arguments: [Argument(name: "after", type: "String", value: after), Argument(name: "first", type: "Int", value: first), Argument(name: "since", type: "Date!", value: since), Argument(name: "sort", type: "SortParams", value: sort)],
+      arguments: [Argument(name: "after", type: "String", value: after), Argument(name: "first", type: "Int", value: first), Argument(name: "folder", type: "String", value: folder), Argument(name: "since", type: "Date!", value: since), Argument(name: "sort", type: "SortParams", value: sort)],
       selection: selection.selection
     )
     select(field)
@@ -17452,6 +17489,137 @@ extension Fields where TypeLock == Objects.SaveSuccess {
 
 extension Selection where TypeLock == Never, Type == Never {
   typealias SaveSuccess<T> = Selection<T, Objects.SaveSuccess>
+}
+
+extension Objects {
+  struct ScanFeedsError {
+    let __typename: TypeName = .scanFeedsError
+    let errorCodes: [String: [Enums.ScanFeedsErrorCode]]
+
+    enum TypeName: String, Codable {
+      case scanFeedsError = "ScanFeedsError"
+    }
+  }
+}
+
+extension Objects.ScanFeedsError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.ScanFeedsErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.ScanFeedsError {
+  func errorCodes() throws -> [Enums.ScanFeedsErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias ScanFeedsError<T> = Selection<T, Objects.ScanFeedsError>
+}
+
+extension Objects {
+  struct ScanFeedsSuccess {
+    let __typename: TypeName = .scanFeedsSuccess
+    let feeds: [String: [Objects.Feed]]
+
+    enum TypeName: String, Codable {
+      case scanFeedsSuccess = "ScanFeedsSuccess"
+    }
+  }
+}
+
+extension Objects.ScanFeedsSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "feeds":
+        if let value = try container.decode([Objects.Feed]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    feeds = map["feeds"]
+  }
+}
+
+extension Fields where TypeLock == Objects.ScanFeedsSuccess {
+  func feeds<Type>(selection: Selection<Type, [Objects.Feed]>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "feeds",
+      arguments: [],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.feeds[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias ScanFeedsSuccess<T> = Selection<T, Objects.ScanFeedsSuccess>
 }
 
 extension Objects {
@@ -29857,6 +30025,80 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct ScanFeedsResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.ScanFeedsErrorCode]]
+    let feeds: [String: [Objects.Feed]]
+
+    enum TypeName: String, Codable {
+      case scanFeedsError = "ScanFeedsError"
+      case scanFeedsSuccess = "ScanFeedsSuccess"
+    }
+  }
+}
+
+extension Unions.ScanFeedsResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.ScanFeedsErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "feeds":
+        if let value = try container.decode([Objects.Feed]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    feeds = map["feeds"]
+  }
+}
+
+extension Fields where TypeLock == Unions.ScanFeedsResult {
+  func on<Type>(scanFeedsError: Selection<Type, Objects.ScanFeedsError>, scanFeedsSuccess: Selection<Type, Objects.ScanFeedsSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "ScanFeedsError", selection: scanFeedsError.selection), GraphQLField.fragment(type: "ScanFeedsSuccess", selection: scanFeedsSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .scanFeedsError:
+        let data = Objects.ScanFeedsError(errorCodes: data.errorCodes)
+        return try scanFeedsError.decode(data: data)
+      case .scanFeedsSuccess:
+        let data = Objects.ScanFeedsSuccess(feeds: data.feeds)
+        return try scanFeedsSuccess.decode(data: data)
+      }
+    case .mocking:
+      return scanFeedsError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias ScanFeedsResult<T> = Selection<T, Unions.ScanFeedsResult>
+}
+
+extension Unions {
   struct SearchResult {
     let __typename: TypeName
     let edges: [String: [Objects.SearchItemEdge]]
@@ -33435,6 +33677,22 @@ extension Enums {
 }
 
 extension Enums {
+  /// ScanFeedsErrorCode
+  enum ScanFeedsErrorCode: String, CaseIterable, Codable {
+    case badRequest = "BAD_REQUEST"
+  }
+}
+
+extension Enums {
+  /// ScanFeedsType
+  enum ScanFeedsType: String, CaseIterable, Codable {
+    case html = "HTML"
+
+    case opml = "OPML"
+  }
+}
+
+extension Enums {
   /// SearchErrorCode
   enum SearchErrorCode: String, CaseIterable, Codable {
     case queryTooLong = "QUERY_TOO_LONG"
@@ -33997,6 +34255,8 @@ extension InputObjects {
   struct CreateArticleInput: Encodable, Hashable {
     var articleSavingRequestId: OptionalArgument<String> = .absent()
 
+    var folder: OptionalArgument<String> = .absent()
+
     var labels: OptionalArgument<[InputObjects.CreateLabelInput]> = .absent()
 
     var preparedDocument: OptionalArgument<InputObjects.PreparedDocumentInput> = .absent()
@@ -34014,6 +34274,7 @@ extension InputObjects {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if articleSavingRequestId.hasValue { try container.encode(articleSavingRequestId, forKey: .articleSavingRequestId) }
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       if labels.hasValue { try container.encode(labels, forKey: .labels) }
       if preparedDocument.hasValue { try container.encode(preparedDocument, forKey: .preparedDocument) }
       if skipParsing.hasValue { try container.encode(skipParsing, forKey: .skipParsing) }
@@ -34025,6 +34286,7 @@ extension InputObjects {
 
     enum CodingKeys: String, CodingKey {
       case articleSavingRequestId
+      case folder
       case labels
       case preparedDocument
       case skipParsing
@@ -34733,6 +34995,8 @@ extension InputObjects {
   struct SaveFileInput: Encodable, Hashable {
     var clientRequestId: String
 
+    var folder: OptionalArgument<String> = .absent()
+
     var labels: OptionalArgument<[InputObjects.CreateLabelInput]> = .absent()
 
     var source: String
@@ -34746,6 +35010,7 @@ extension InputObjects {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(clientRequestId, forKey: .clientRequestId)
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       if labels.hasValue { try container.encode(labels, forKey: .labels) }
       try container.encode(source, forKey: .source)
       if state.hasValue { try container.encode(state, forKey: .state) }
@@ -34755,6 +35020,7 @@ extension InputObjects {
 
     enum CodingKeys: String, CodingKey {
       case clientRequestId
+      case folder
       case labels
       case source
       case state
@@ -34766,11 +35032,11 @@ extension InputObjects {
 
 extension InputObjects {
   struct SaveFilterInput: Encodable, Hashable {
-    var category: OptionalArgument<String> = .absent()
-
     var description: OptionalArgument<String> = .absent()
 
     var filter: String
+
+    var folder: OptionalArgument<String> = .absent()
 
     var name: String
 
@@ -34778,17 +35044,17 @@ extension InputObjects {
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
-      if category.hasValue { try container.encode(category, forKey: .category) }
       if description.hasValue { try container.encode(description, forKey: .description) }
       try container.encode(filter, forKey: .filter)
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       try container.encode(name, forKey: .name)
       if position.hasValue { try container.encode(position, forKey: .position) }
     }
 
     enum CodingKeys: String, CodingKey {
-      case category
       case description
       case filter
+      case folder
       case name
       case position
     }
@@ -34798,6 +35064,8 @@ extension InputObjects {
 extension InputObjects {
   struct SavePageInput: Encodable, Hashable {
     var clientRequestId: String
+
+    var folder: OptionalArgument<String> = .absent()
 
     var labels: OptionalArgument<[InputObjects.CreateLabelInput]> = .absent()
 
@@ -34822,6 +35090,7 @@ extension InputObjects {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(clientRequestId, forKey: .clientRequestId)
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       if labels.hasValue { try container.encode(labels, forKey: .labels) }
       try container.encode(originalContent, forKey: .originalContent)
       if parseResult.hasValue { try container.encode(parseResult, forKey: .parseResult) }
@@ -34836,6 +35105,7 @@ extension InputObjects {
 
     enum CodingKeys: String, CodingKey {
       case clientRequestId
+      case folder
       case labels
       case originalContent
       case parseResult
@@ -34853,6 +35123,8 @@ extension InputObjects {
 extension InputObjects {
   struct SaveUrlInput: Encodable, Hashable {
     var clientRequestId: String
+
+    var folder: OptionalArgument<String> = .absent()
 
     var labels: OptionalArgument<[InputObjects.CreateLabelInput]> = .absent()
 
@@ -34873,6 +35145,7 @@ extension InputObjects {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(clientRequestId, forKey: .clientRequestId)
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       if labels.hasValue { try container.encode(labels, forKey: .labels) }
       if locale.hasValue { try container.encode(locale, forKey: .locale) }
       if publishedAt.hasValue { try container.encode(publishedAt, forKey: .publishedAt) }
@@ -34885,6 +35158,7 @@ extension InputObjects {
 
     enum CodingKeys: String, CodingKey {
       case clientRequestId
+      case folder
       case labels
       case locale
       case publishedAt
@@ -34892,6 +35166,29 @@ extension InputObjects {
       case source
       case state
       case timezone
+      case url
+    }
+  }
+}
+
+extension InputObjects {
+  struct ScanFeedsInput: Encodable, Hashable {
+    var opml: OptionalArgument<String> = .absent()
+
+    var type: Enums.ScanFeedsType
+
+    var url: OptionalArgument<String> = .absent()
+
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      if opml.hasValue { try container.encode(opml, forKey: .opml) }
+      try container.encode(type, forKey: .type)
+      if url.hasValue { try container.encode(url, forKey: .url) }
+    }
+
+    enum CodingKeys: String, CodingKey {
+      case opml
+      case type
       case url
     }
   }
@@ -34966,6 +35263,8 @@ extension InputObjects {
 
     var syncedAt: OptionalArgument<DateTime> = .absent()
 
+    var taskName: OptionalArgument<String> = .absent()
+
     var token: String
 
     var type: OptionalArgument<Enums.IntegrationType> = .absent()
@@ -34977,6 +35276,7 @@ extension InputObjects {
       if importItemState.hasValue { try container.encode(importItemState, forKey: .importItemState) }
       try container.encode(name, forKey: .name)
       if syncedAt.hasValue { try container.encode(syncedAt, forKey: .syncedAt) }
+      if taskName.hasValue { try container.encode(taskName, forKey: .taskName) }
       try container.encode(token, forKey: .token)
       if type.hasValue { try container.encode(type, forKey: .type) }
     }
@@ -34987,6 +35287,7 @@ extension InputObjects {
       case importItemState
       case name
       case syncedAt
+      case taskName
       case token
       case type
     }
@@ -35277,11 +35578,11 @@ extension InputObjects {
 
 extension InputObjects {
   struct UpdateFilterInput: Encodable, Hashable {
-    var category: OptionalArgument<String> = .absent()
-
     var description: OptionalArgument<String> = .absent()
 
     var filter: OptionalArgument<String> = .absent()
+
+    var folder: OptionalArgument<String> = .absent()
 
     var id: String
 
@@ -35293,9 +35594,9 @@ extension InputObjects {
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
-      if category.hasValue { try container.encode(category, forKey: .category) }
       if description.hasValue { try container.encode(description, forKey: .description) }
       if filter.hasValue { try container.encode(filter, forKey: .filter) }
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       try container.encode(id, forKey: .id)
       if name.hasValue { try container.encode(name, forKey: .name) }
       if position.hasValue { try container.encode(position, forKey: .position) }
@@ -35303,9 +35604,9 @@ extension InputObjects {
     }
 
     enum CodingKeys: String, CodingKey {
-      case category
       case description
       case filter
+      case folder
       case id
       case name
       case position

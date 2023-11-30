@@ -37,14 +37,17 @@ import Views
 
   @Published var filters = [InternalFilter]()
 
+  @ObservedObject var filterState: FetcherFilterState
+
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
   let fetcher: LibraryItemFetcher
 
-  init(fetcher: LibraryItemFetcher, listConfig: LibraryListConfig) {
+  init(fetcher: LibraryItemFetcher, filterState: FetcherFilterState, listConfig: LibraryListConfig) {
     self.fetcher = fetcher
     self.listConfig = listConfig
+    self.filterState = filterState
     super.init()
   }
 
@@ -64,7 +67,32 @@ import Views
     }
   }
 
-  func itemAppeared(item: Models.LibraryItem, dataService _: DataService) async {
+  func loadFilters(dataService: DataService, filterState: FetcherFilterState) async {
+    switch filterState.folder {
+    case "following":
+      updateFilters(filterState: filterState, newFilters: InternalFilter.DefaultFollowingFilters)
+    default:
+      var hasLocalResults = false
+      let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+
+      // Load from disk
+      if let results = try? dataService.viewContext.fetch(fetchRequest) {
+        hasLocalResults = true
+        updateFilters(filterState: filterState, newFilters: InternalFilter.make(from: results))
+      }
+
+      let hasResults = hasLocalResults
+      Task.detached {
+        if let downloadedFilters = try? await dataService.filters() {
+          await self.updateFilters(filterState: filterState, newFilters: downloadedFilters)
+        } else if !hasResults {
+          await self.updateFilters(filterState: filterState, newFilters: InternalFilter.DefaultInboxFilters)
+        }
+      }
+    }
+  }
+
+  func itemAppeared(item: Models.LibraryItem, dataService: DataService) async {
     if isLoading { return }
     let itemIndex = fetcher.items.firstIndex(where: { $0.id == item.id })
     let thresholdIndex = fetcher.items.index(fetcher.items.endIndex, offsetBy: -5)
@@ -72,9 +100,9 @@ import Views
     // Check if user has scrolled to the last five items in the list
     // Make sure we aren't currently loading though, as this would get triggered when the first set
     // of items are presented to the user.
-//    if let itemIndex = itemIndex, itemIndex > thresholdIndex {
-//      await loadMoreItems(dataService: dataService, isRefresh: false)
-//    }
+    if let itemIndex = itemIndex, itemIndex > thresholdIndex {
+      await loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: false)
+    }
   }
 
   func pushFeedItem(item _: Models.LibraryItem) {
@@ -98,38 +126,23 @@ import Views
     }
   }
 
-  func loadFilters(dataService: DataService) async {
-    var hasLocalResults = false
-    let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+  func updateFilters(filterState: FetcherFilterState, newFilters: [InternalFilter]) {
+    let appliedFilterName = UserDefaults.standard.string(forKey: "lastSelected-\(filterState.folder)-filter") ?? filterState.folder
 
-    // Load from disk
-    if let results = try? dataService.viewContext.fetch(fetchRequest) {
-      hasLocalResults = true
-      updateFilters(newFilters: InternalFilter.make(from: results))
-    }
+    filters = newFilters
+      .filter { $0.folder == filterState.folder }
+      .sorted(by: { $0.position < $1.position })
+      + [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter]
 
-    let hasResults = hasLocalResults
-    Task.detached {
-      if let downloadedFilters = try? await dataService.filters() {
-        await self.updateFilters(newFilters: downloadedFilters)
-      } else if !hasResults {
-        await self.updateFilters(newFilters: InternalFilter.DefaultFilters)
-      }
+    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != filterState.appliedFilter?.id {
+      filterState.appliedFilter = newFilter
     }
   }
 
-  func updateFilters(newFilters _: [InternalFilter]) {
-//    filters = newFilters.sorted(by: { $0.position < $1.position }) + [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter]
-//    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
-//      appliedFilter = newFilter
-//    }
-  }
-
-  func loadItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, isRefresh: Bool) async {
     isLoading = true
     showLoadingBar = true
 
-    // group.addTask { await self.loadFilters(dataService: dataService) }
     await fetcher.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
 
     updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))

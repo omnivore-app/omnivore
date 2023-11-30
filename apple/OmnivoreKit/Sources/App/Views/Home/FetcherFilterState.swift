@@ -12,18 +12,10 @@ class FetcherFilterState: ObservableObject {
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
 
+  @Published var appliedFilter: InternalFilter?
   @Published var appliedSort = LinkedItemSort.newest.rawValue
-
-  @Published var appliedFilter: InternalFilter? {
-    didSet {
-      let newValue = appliedFilter?.name.lowercased()
-      UserDefaults.standard.setValue(newValue, forKey: "lastSelected-\(folder)-filter")
-    }
-  }
 
   init(folder: String) {
     self.folder = folder
-    let newValue = appliedFilter?.name.lowercased()
-    let appliedFilterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter")
   }
 }

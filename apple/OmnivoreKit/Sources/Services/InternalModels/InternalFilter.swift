@@ -5,6 +5,7 @@ import Models
 public struct InternalFilter: Encodable, Identifiable, Hashable {
   public let id: String
   public let name: String
+  public let folder: String
   public let filter: String
   public let visible: Bool
   public let position: Int
@@ -14,6 +15,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
     InternalFilter(
       id: "downloaded",
       name: "Downloaded",
+      folder: "inbox",
       filter: "",
       visible: true,
       position: -1,
@@ -25,6 +27,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
     InternalFilter(
       id: "deleted",
       name: "Deleted",
+      folder: "inbox",
       filter: "in:trash",
       visible: true,
       position: -1,
@@ -32,11 +35,12 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
     )
   }
 
-  public static var DefaultFilters: [InternalFilter] {
+  public static var DefaultInboxFilters: [InternalFilter] {
     [
       InternalFilter(
         id: "inbox",
         name: "Inbox",
+        folder: "inbox",
         filter: "",
         visible: true,
         position: 0,
@@ -45,6 +49,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "non-feed-items",
         name: "Non-Feed Items",
+        folder: "inbox",
         filter: "",
         visible: true,
         position: 1,
@@ -53,6 +58,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "newsletters",
         name: "Newsletters",
+        folder: "inbox",
         filter: "",
         visible: true,
         position: 2,
@@ -61,6 +67,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "feeds",
         name: "Feeds",
+        folder: "inbox",
         filter: "",
         visible: true,
         position: 3,
@@ -69,6 +76,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "archived",
         name: "Archived",
+        folder: "inbox",
         filter: "is:archived",
         visible: true,
         position: 4,
@@ -77,6 +85,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "files",
         name: "Files",
+        folder: "inbox",
         filter: "type:file",
         visible: true,
         position: 5,
@@ -85,6 +94,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "highlighted",
         name: "Highlights",
+        folder: "inbox",
         filter: "has:highlights",
         visible: true,
         position: 6,
@@ -93,9 +103,33 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       InternalFilter(
         id: "all",
         name: "All",
+        folder: "inbox",
         filter: "in:all",
         visible: true,
         position: 7,
+        defaultFilter: true
+      )
+    ]
+  }
+
+  public static var DefaultFollowingFilters: [InternalFilter] {
+    [
+      InternalFilter(
+        id: "following",
+        name: "Following",
+        folder: "following",
+        filter: "in:following",
+        visible: true,
+        position: 0,
+        defaultFilter: true
+      ),
+      InternalFilter(
+        id: "rss",
+        name: "RSS",
+        folder: "following",
+        filter: "in:following label:RSS",
+        visible: true,
+        position: 1,
         defaultFilter: true
       )
     ]
@@ -182,7 +216,9 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
     case "Deleted":
       let deletedPredicate = NSPredicate(
-        format: "%K == %i", #keyPath(Models.LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+        format: "%K == %i",
+        #keyPath(Models.LibraryItem.serverSyncStatus),
+        Int64(ServerSyncStatus.needsDeletion.rawValue)
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [deletedPredicate])
     case "Files":
@@ -227,6 +263,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
     let newFilter = existing ?? Filter(entity: Filter.entity(), insertInto: context)
     newFilter.id = id
     newFilter.name = name
+    newFilter.folder = folder
     newFilter.filter = filter
     newFilter.visible = visible
     newFilter.position = Int64(position)
@@ -238,11 +275,13 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
     filters.compactMap { filter in
       if let id = filter.id,
          let name = filter.name,
+         let folder = filter.folder,
          let filterStr = filter.filter
       {
         return InternalFilter(
           id: id,
           name: name,
+          folder: folder,
           filter: filterStr,
           visible: filter.visible,
           position: Int(filter.position),
@@ -264,7 +303,6 @@ public extension Filter {
     )
 
     var filter: Filter?
-
     context.performAndWait {
       filter = (try? context.fetch(fetchRequest))?.first
     }
