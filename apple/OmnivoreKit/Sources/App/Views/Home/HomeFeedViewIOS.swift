@@ -43,10 +43,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
 
     @State private var selection = Set<String>()
-    @ObservedObject var filterState = FetcherFilterState(
-      appliedFilterName: UserDefaults.standard.string(forKey: UserDefaultKey.lastSelectedLinkedItemFilter.rawValue) ??
-        LinkedItemFilter.inbox.rawValue
-    )
+    @ObservedObject var filterState: FetcherFilterState
 
     func loadItems(isRefresh: Bool) {
       Task { await viewModel.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh) }
@@ -58,10 +55,8 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.fetcher.items.count > 0 &&
         filterState.searchTerm.isEmpty &&
         filterState.selectedLabels.isEmpty &&
-        filterState.negatedLabels.isEmpty
-      // MERGE TODO
-      //      &&
-//        viewModel.appliedFilterName == "inbox"
+        filterState.negatedLabels.isEmpty &&
+        filterState.appliedFilter?.name == "inbox"
     }
 
     var body: some View {
@@ -95,11 +90,8 @@ struct AnimatingCellHeight: AnimatableModifier {
       .onChange(of: filterState.appliedSort) { _ in
         loadItems(isRefresh: true)
       }
-      .sheet(item: $viewModel.itemUnderLabelEdit) { _ in
-        NavigationView {
-          BriefingView()
-        }
-        // ApplyLabelsView(mode: .item(item), onSave: nil)
+      .sheet(item: $viewModel.itemUnderLabelEdit) { item in
+        ApplyLabelsView(mode: .item(item), onSave: nil)
       }
       .sheet(item: $viewModel.itemUnderTitleEdit) { item in
         LinkedItemMetadataEditView(item: item)

@@ -1,9 +1,3 @@
-//
-//  InboxFetcher.swift
-//
-//
-//  Created by Jackson Harper on 11/16/23.
-//
 
 import Foundation
 
@@ -14,8 +8,8 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class InboxFetcher: NSObject, ObservableObject, LibraryItemFetcher {
-  var folder = "inbox"
+@MainActor final class LibraryItemFetcher: NSObject, ObservableObject {
+  let folder = "inbox"
 
   @Published var items = [Models.LibraryItem]()
   var itemsPublisher: Published<[Models.LibraryItem]>.Publisher { $items }
@@ -165,7 +159,7 @@ import Views
     var subPredicates = [NSPredicate]()
 
     let folderPredicate = NSPredicate(
-      format: "%K == %@", #keyPath(Models.LibraryItem.folder), folder
+      format: "%K == %@", #keyPath(Models.LibraryItem.folder), filterState.folder
     )
     subPredicates.append(folderPredicate)
 
@@ -220,22 +214,11 @@ import Views
     setItems(dataService.viewContext, fetchedResultsController.fetchedObjects ?? [])
   }
 
-  private func queryContainsFilter(_ filterState: FetcherFilterState) -> Bool {
-    if filterState.searchTerm.contains("in:inbox") ||
-      filterState.searchTerm.contains("in:all") ||
-      filterState.searchTerm.contains("in:archive")
-    {
-      return true
-    }
-
-    return false
-  }
-
   private func searchQuery(_ filterState: FetcherFilterState) -> String {
     let sort = LinkedItemSort(rawValue: filterState.appliedSort) ?? .newest
     var query = sort.queryString
 
-    if !queryContainsFilter(filterState), let queryString = filterState.appliedFilter?.filter {
+    if let queryString = filterState.appliedFilter?.filter {
       query = "\(queryString) \(sort.queryString)"
     }
 
@@ -269,7 +252,7 @@ import Views
   }
 }
 
-extension InboxFetcher: NSFetchedResultsControllerDelegate {
+extension LibraryItemFetcher: NSFetchedResultsControllerDelegate {
   func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
     setItems(controller.managedObjectContext, controller.fetchedObjects as? [Models.LibraryItem] ?? [])
   }

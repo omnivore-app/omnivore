@@ -37,15 +37,6 @@ import Views
 
   @Published var filters = [InternalFilter]()
 
-  var cursor: String?
-
-  // These are used to make sure we handle search result
-  // responses in the right order
-  var searchIdx = 0
-  var receivedIdx = 0
-
-  var syncCursor: String?
-
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
