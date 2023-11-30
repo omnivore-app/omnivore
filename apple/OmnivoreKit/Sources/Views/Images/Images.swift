@@ -11,6 +11,7 @@ public extension Image {
   static var tabLibrary: Image { Image("_tab_library", bundle: .module).renderingMode(.template) }
   static var tabSearch: Image { Image("_tab_search", bundle: .module).renderingMode(.template) }
   static var tabHighlights: Image { Image("_tab_highlights", bundle: .module).renderingMode(.template) }
+  static var tabProfile: Image { Image("_tab_profile", bundle: .module).renderingMode(.template) }
 
   static var pinRotated: Image { Image("pin-rotated", bundle: .module) }
 

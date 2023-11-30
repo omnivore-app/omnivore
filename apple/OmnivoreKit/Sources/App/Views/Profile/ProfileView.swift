@@ -70,7 +70,7 @@ struct ProfileView: View {
         innerBody
       }
       .navigationTitle(LocalText.genericProfile)
-      .navigationBarTitleDisplayMode(.large)
+      .navigationBarTitleDisplayMode(.inline)
     #elseif os(macOS)
       List {
         innerBody
