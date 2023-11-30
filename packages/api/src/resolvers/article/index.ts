@@ -655,16 +655,15 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const searchQuery = parseSearchQuery(params.query || undefined)
+  const searchQuery = params.query ? parseSearchQuery(params.query) : undefined
 
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      sort: searchQuery.sort,
       includePending: true,
       includeContent: !!params.includeContent,
-      ...searchQuery,
+      searchQuery,
     },
     uid
   )
@@ -826,11 +825,16 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      // parse query
-      const searchQuery = parseSearchQuery(query)
-      if (searchQuery.ids.length > 100) {
-        return { errorCodes: [BulkActionErrorCode.BadRequest] }
-      }
+    if (!query) {
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
+    }
+
+    // parse query
+    const searchQuery = parseSearchQuery(query)
+    const ids = searchQuery.getValue?.('includes') as string[]
+    if (!ids || ids.length === 0 || ids.length > 100) {
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
+    }
 
       // get labels if needed
       let labels = undefined

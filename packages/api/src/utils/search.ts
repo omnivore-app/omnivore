@@ -3,20 +3,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { LiqeQuery, parse } from 'liqe'
 import { DateTime } from 'luxon'
-import {
-  ISearchParserDictionary,
-  parse,
-  SearchParserKeyWordOffset,
-  SearchParserTextOffset,
-} from 'search-query-parser'
+import { ISearchParserDictionary } from 'search-query-parser'
 import { InputMaybe, PageType, SortParams } from '../generated/graphql'
 
 export enum ReadFilter {
-  ALL,
-  READ,
-  READING,
-  UNREAD,
+  ALL = 'all',
+  READ = 'read',
+  READING = 'reading',
+  UNREAD = 'unread',
 }
 
 export enum InFilter {
@@ -56,9 +52,9 @@ export type LabelFilter = {
 }
 
 export enum HasFilter {
-  HIGHLIGHTS,
-  LABELS,
-  SUBSCRIPTIONS,
+  HIGHLIGHTS = 'highlights',
+  LABELS = 'labels',
+  SUBSCRIPTIONS = 'subscriptions',
 }
 
 export interface DateFilter {
@@ -394,168 +390,164 @@ const parseNoFilter = (str?: string): NoFilter | undefined => {
   return undefined
 }
 
-export const parseSearchQuery = (query: string | undefined): SearchFilter => {
+export const parseSearchQuery = (query: string): LiqeQuery => {
   const searchQuery = query
-    ? query
-        .replace(/\W\s":/g, '')
-        .replace('in:subscription', 'has:subscriptions') // compatibility with old search
-        .replace('in:library', 'no:subscription') // compatibility with old search
-    : undefined
-  const result: SearchFilter = {
-    query: searchQuery,
-    readFilter: ReadFilter.ALL,
-    inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
-    labelFilters: [],
-    hasFilters: [],
-    dateFilters: [],
-    termFilters: [],
-    matchFilters: [],
-    ids: [],
-    noFilters: [],
-    rangeFilters: [],
-  }
+    .replace(/\W\s":/g, '')
+    .replace('in:subscription', 'has:subscriptions') // compatibility with old search
+    .replace('in:library', 'no:subscription') // compatibility with old search
+  // const result: SearchFilter = {
+  //   query: searchQuery,
+  //   readFilter: ReadFilter.ALL,
+  //   inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
+  //   labelFilters: [],
+  //   hasFilters: [],
+  //   dateFilters: [],
+  //   termFilters: [],
+  //   matchFilters: [],
+  //   ids: [],
+  //   noFilters: [],
+  //   rangeFilters: [],
+  // }
 
-  if (!searchQuery) {
-    return result
-  }
+  // if (!searchQuery) {
+  //   return result
+  // }
 
-  const parsed = parse(searchQuery, {
-    keywords: [
-      'in',
-      'is',
-      'type',
-      'label',
-      'sort',
-      'has',
-      'saved',
-      'author',
-      'published',
-      'subscription',
-      'language',
-      'title',
-      'description',
-      'content',
-      'updated',
-      'includes',
-      'recommendedBy',
-      'no',
-      'mode',
-      'site',
-      'note',
-      'rss',
-      'wordsCount',
-      'readPosition',
-      'use',
-    ],
-    tokenize: true,
-  })
-  if (parsed.offsets) {
-    const texts = parsed.offsets
-      .filter((offset) => 'text' in offset)
-      .map((offset) => offset as SearchParserTextOffset)
+  return parse(searchQuery)
 
-    if (texts.length > 0) {
-      result.query = texts
-        .map((offset: SearchParserTextOffset) => {
-          // TODO: the parser library doesn't let us accurately
-          // pull out quoted text, so we are just assuming
-          // anything with spaces is quoted.
-          if (offset.text.indexOf(' ') > -1) {
-            return `"${offset.text}"`
-          }
-          return offset.text
-        })
-        .join(' ')
-    } else {
-      result.query = undefined
-    }
+  // const parsed = parse(searchQuery, {
+  //   keywords: [
+  //     'in',
+  //     'is',
+  //     'type',
+  //     'label',
+  //     'sort',
+  //     'has',
+  //     'saved',
+  //     'author',
+  //     'published',
+  //     'subscription',
+  //     'language',
+  //     'title',
+  //     'description',
+  //     'content',
+  //     'updated',
+  //     'includes',
+  //     'recommendedBy',
+  //     'no',
+  //     'mode',
+  //     'site',
+  //     'note',
+  //     'rss',
+  //     'wordsCount',
+  //     'readPosition',
+  //   ],
+  //   tokenize: true,
+  // })
+  // if (parsed.offsets) {
+  //   const texts = parsed.offsets
+  //     .filter((offset) => 'text' in offset)
+  //     .map((offset) => offset as SearchParserTextOffset)
 
-    const keywords = parsed.offsets
-      .filter((offset) => 'keyword' in offset)
-      .map((offset) => offset as SearchParserKeyWordOffset)
+  //   if (texts.length > 0) {
+  //     result.query = texts
+  //       .map((offset: SearchParserTextOffset) => {
+  //         // TODO: the parser library doesn't let us accurately
+  //         // pull out quoted text, so we are just assuming
+  //         // anything with spaces is quoted.
+  //         if (offset.text.indexOf(' ') > -1) {
+  //           return `"${offset.text}"`
+  //         }
+  //         return offset.text
+  //       })
+  //       .join(' ')
+  //   } else {
+  //     result.query = undefined
+  //   }
 
-    for (const keyword of keywords) {
-      switch (keyword.keyword) {
-        case 'in':
-          result.inFilter = parseInFilter(keyword.value, result.query)
-          break
-        case 'is':
-          result.readFilter = parseIsFilter(keyword.value)
-          break
-        case 'type':
-          result.typeFilter = parseTypeFilter(keyword.value)
-          break
-        case 'label': {
-          const labelFilter = parseLabelFilter(keyword.value, parsed.exclude)
-          labelFilter && result.labelFilters.push(labelFilter)
-          break
-        }
-        case 'sort':
-          result.sort = parseSort(keyword.value)
-          break
-        case 'has': {
-          const hasFilter = parseHasFilter(keyword.value)
-          hasFilter !== undefined && result.hasFilters.push(hasFilter)
-          break
-        }
-        case 'saved':
-        case 'read':
-        case 'updated':
-        case 'published': {
-          const dateFilter = parseDateFilter(keyword.keyword, keyword.value)
-          dateFilter && result.dateFilters.push(dateFilter)
-          break
-        }
-        // term filters
-        case 'subscription':
-        case 'rss':
-        case 'language': {
-          const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
-          fieldFilter && result.termFilters.push(fieldFilter)
-          break
-        }
-        // match filters
-        case 'author':
-        case 'title':
-        case 'description':
-        case 'note':
-        case 'site':
-        case 'content': {
-          const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
-          fieldFilter && result.matchFilters.push(fieldFilter)
-          break
-        }
-        case 'includes': {
-          const ids = parseIds(keyword.value)
-          ids && result.ids.push(...ids)
-          break
-        }
-        case 'recommendedBy': {
-          result.recommendedBy = parseStringValue(keyword.value)
-          break
-        }
-        case 'no': {
-          const noFilter = parseNoFilter(keyword.value)
-          noFilter && result.noFilters.push(noFilter)
-          break
-        }
-        case 'mode':
-          // mode is ignored and used only by the frontend
-          break
-        case 'readPosition':
-        case 'wordsCount': {
-          const rangeFilter = parseRangeFilter(keyword.keyword, keyword.value)
-          rangeFilter && result.rangeFilters.push(rangeFilter)
-          break
-        }
-        case 'use':
-          result.useFolders = keyword.value === 'folders'
-          break
-      }
-    }
-  }
+  //   const keywords = parsed.offsets
+  //     .filter((offset) => 'keyword' in offset)
+  //     .map((offset) => offset as SearchParserKeyWordOffset)
 
-  return result
+  //   for (const keyword of keywords) {
+  //     switch (keyword.keyword) {
+  //       case 'in':
+  //         result.inFilter = parseInFilter(keyword.value, result.query)
+  //         break
+  //       case 'is':
+  //         result.readFilter = parseIsFilter(keyword.value)
+  //         break
+  //       case 'type':
+  //         result.typeFilter = parseTypeFilter(keyword.value)
+  //         break
+  //       case 'label': {
+  //         const labelFilter = parseLabelFilter(keyword.value, parsed.exclude)
+  //         labelFilter && result.labelFilters.push(labelFilter)
+  //         break
+  //       }
+  //       case 'sort':
+  //         result.sort = parseSort(keyword.value)
+  //         break
+  //       case 'has': {
+  //         const hasFilter = parseHasFilter(keyword.value)
+  //         hasFilter !== undefined && result.hasFilters.push(hasFilter)
+  //         break
+  //       }
+  //       case 'saved':
+  //       case 'read':
+  //       case 'updated':
+  //       case 'published': {
+  //         const dateFilter = parseDateFilter(keyword.keyword, keyword.value)
+  //         dateFilter && result.dateFilters.push(dateFilter)
+  //         break
+  //       }
+  //       // term filters
+  //       case 'subscription':
+  //       case 'rss':
+  //       case 'language': {
+  //         const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
+  //         fieldFilter && result.termFilters.push(fieldFilter)
+  //         break
+  //       }
+  //       // match filters
+  //       case 'author':
+  //       case 'title':
+  //       case 'description':
+  //       case 'note':
+  //       case 'site':
+  //       case 'content': {
+  //         const fieldFilter = parseFieldFilter(keyword.keyword, keyword.value)
+  //         fieldFilter && result.matchFilters.push(fieldFilter)
+  //         break
+  //       }
+  //       case 'includes': {
+  //         const ids = parseIds(keyword.value)
+  //         ids && result.ids.push(...ids)
+  //         break
+  //       }
+  //       case 'recommendedBy': {
+  //         result.recommendedBy = parseStringValue(keyword.value)
+  //         break
+  //       }
+  //       case 'no': {
+  //         const noFilter = parseNoFilter(keyword.value)
+  //         noFilter && result.noFilters.push(noFilter)
+  //         break
+  //       }
+  //       case 'mode':
+  //         // mode is ignored and used only by the frontend
+  //         break
+  //       case 'readPosition':
+  //       case 'wordsCount': {
+  //         const rangeFilter = parseRangeFilter(keyword.keyword, keyword.value)
+  //         rangeFilter && result.rangeFilters.push(rangeFilter)
+  //         break
+  //       }
+  //     }
+  //   }
+  // }
+
+  // return result
 }
 
 export const sortParamsToSort = (

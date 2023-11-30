@@ -18804,6 +18804,14 @@ linkify-it@^4.0.1:
   dependencies:
     uc.micro "^1.0.1"
 
+liqe@^3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/liqe/-/liqe-3.8.0.tgz#e96c0733ecd3efb613d4404023433f15ae4f5849"
+  integrity sha512-cZ1rDx4XzxONBTskSPBp7/KwJ9qbUdF8EPnY4VjKXwHF1Krz9lgnlMTh1G7kd+KtPYvUte1mhuZeQSnk7KiSBg==
+  dependencies:
+    nearley "^2.20.1"
+    ts-error "^1.0.6"
+
 listr-silent-renderer@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/listr-silent-renderer/-/listr-silent-renderer-1.1.1.tgz#924b5a3757153770bf1a8e3fbf74b8bbf3f9242e"
@@ -26918,6 +26926,11 @@ ts-dedent@^2.0.0, ts-dedent@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/ts-dedent/-/ts-dedent-2.2.0.tgz#39e4bd297cd036292ae2394eb3412be63f563bb5"
   integrity sha512-q5W7tVM71e2xjHZTlgfTDoPF/SmqKG5hddq9SzR49CH2hayqRKJtQ4mtRlSxKaJlR/+9rEM+mnBHf7I2/BQcpQ==
+
+ts-error@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/ts-error/-/ts-error-1.0.6.tgz#277496f2a28de6c184cfce8dfd5cdd03a4e6b0fc"
+  integrity sha512-tLJxacIQUM82IR7JO1UUkKlYuUTmoY9HBJAmNWFzheSlDS5SPMcNIepejHJa4BpPQLAcbRhRf3GDJzyj6rbKvA==
 
 ts-loader@^9.3.0:
   version "9.3.0"
