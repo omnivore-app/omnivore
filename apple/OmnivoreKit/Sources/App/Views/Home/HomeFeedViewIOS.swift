@@ -690,7 +690,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           .coordinateSpace(name: "scroll")
           .onChange(of: shouldScrollToTop) { _ in
             if shouldScrollToTop, let topItem = viewModel.fetcher.items.first {
-              print("READING POISTION: ", topItem)
               withAnimation { // add animation for scroll to top
                 reader.scrollTo(topItem.unwrappedID, anchor: .top) // scroll
               }
