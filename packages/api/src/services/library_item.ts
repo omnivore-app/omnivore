@@ -112,9 +112,7 @@ const buildWhereClause = (
         args.useFolders &&
           queryBuilder.andWhere("library_item.folder = 'inbox'")
         // for old clients, we return items that are not archived
-        queryBuilder.andWhere(
-          'library_item.archived_at IS NULL AND library_item.deleted_at IS NULL'
-        )
+        queryBuilder.andWhere('library_item.archived_at IS NULL')
         break
       }
       case InFilter.ARCHIVE:
