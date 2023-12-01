@@ -46,6 +46,7 @@ export interface SearchArgs {
   includeContent?: boolean
   noFilters?: NoFilter[]
   rangeFilters?: RangeFilter[]
+  useFolders?: boolean
 }
 
 export interface SearchResultItem {
@@ -106,9 +107,16 @@ const buildWhereClause = (
 
   if (args.inFilter !== InFilter.ALL) {
     switch (args.inFilter) {
-      case InFilter.INBOX:
-        queryBuilder.andWhere('library_item.archived_at IS NULL')
+      case InFilter.INBOX: {
+        // if useFolders is true, we only return items in the inbox folder
+        args.useFolders &&
+          queryBuilder.andWhere("library_item.folder = 'inbox'")
+        // for old clients, we return items that are not archived
+        queryBuilder.andWhere(
+          'library_item.archived_at IS NULL AND library_item.deleted_at IS NULL'
+        )
         break
+      }
       case InFilter.ARCHIVE:
         queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
         break

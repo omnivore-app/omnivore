@@ -42,6 +42,7 @@ export interface SearchFilter {
   recommendedBy?: string
   noFilters: NoFilter[]
   rangeFilters: RangeFilter[]
+  useFolders?: boolean
 }
 
 export enum LabelFilterType {
@@ -444,6 +445,7 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
       'rss',
       'wordsCount',
       'readPosition',
+      'use',
     ],
     tokenize: true,
   })
@@ -546,6 +548,9 @@ export const parseSearchQuery = (query: string | undefined): SearchFilter => {
           rangeFilter && result.rangeFilters.push(rangeFilter)
           break
         }
+        case 'use':
+          result.useFolders = keyword.value === 'folders'
+          break
       }
     }
   }
