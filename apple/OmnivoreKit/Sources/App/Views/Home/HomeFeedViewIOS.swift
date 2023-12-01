@@ -614,6 +614,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         ScrollViewReader { reader in
           List(selection: $selection) {
             Section(content: {
+              EmptyView().id("TOP")
               if let appliedFilter = viewModel.filterState.appliedFilter,
                  networkMonitor.status == .disconnected,
                  !appliedFilter.allowLocalFetch
@@ -689,9 +690,9 @@ struct AnimatingCellHeight: AnimatableModifier {
           .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
           .coordinateSpace(name: "scroll")
           .onChange(of: shouldScrollToTop) { _ in
-            if shouldScrollToTop, let topItem = viewModel.fetcher.items.first {
-              withAnimation { // add animation for scroll to top
-                reader.scrollTo(topItem.unwrappedID, anchor: .top) // scroll
+            if shouldScrollToTop {
+              withAnimation {
+                reader.scrollTo("TOP", anchor: .top)
               }
             }
             shouldScrollToTop = false
