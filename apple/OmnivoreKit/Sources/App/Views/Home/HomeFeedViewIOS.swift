@@ -2,6 +2,7 @@ import CoreData
 import Models
 import Services
 import SwiftUI
+import Transmission
 import UserNotifications
 import Utils
 import Views
@@ -80,6 +81,11 @@ struct AnimatingCellHeight: AnimatableModifier {
       .onChange(of: viewModel.filterState.appliedFilter?.id) { _ in
         loadItems(isRefresh: true)
       }
+      .onChange(of: viewModel.presentWebContainer) { _ in
+        if !viewModel.presentWebContainer {
+          viewModel.linkRequest = nil
+        }
+      }
       .onChange(of: viewModel.filterState.searchTerm) { _ in
         // Maybe we should debounce this, but
         // it feels like it works ok without
@@ -143,6 +149,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
               withoutAnimation {
                 viewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+                viewModel.presentWebContainer = true
               }
             }
           }
@@ -177,7 +184,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             let showDate = isListScrolled && !listTitle.isEmpty
             if let title = viewModel.filterState.appliedFilter?.name {
               Text(title)
-                .font(Font.system(size: showDate ? 10 : 32, weight: .semibold))
+                .font(Font.system(size: showDate ? 10 : 28, weight: .semibold))
               if showDate, prefersListLayout, isListScrolled || !showFeatureCards {
                 Text(listTitle)
                   .font(Font.system(size: 15, weight: .regular))
@@ -280,21 +287,22 @@ struct AnimatingCellHeight: AnimatableModifier {
     var body: some View {
       VStack(spacing: 0) {
         if let linkRequest = viewModel.linkRequest {
-          NavigationLink(
-            destination: WebReaderLoadingContainer(requestID: linkRequest.serverID),
-            tag: linkRequest,
-            selection: $viewModel.linkRequest
-          ) {
-            EmptyView()
-          }
+          PresentationLink(
+            transition: PresentationLinkTransition.slide(
+              options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                         options:
+                                                                         PresentationLinkTransition.Options(
+                                                                           modalPresentationCapturesStatusBarAppearance: true
+                                                                         ))),
+            isPresented: $viewModel.presentWebContainer,
+            destination: {
+              WebReaderLoadingContainer(requestID: linkRequest.serverID)
+                .background(ThemeManager.currentBgColor)
+            }, label: {
+              EmptyView()
+            }
+          )
         }
-        NavigationLink(
-          destination: LinkDestination(selectedItem: viewModel.selectedItem),
-          isActive: $viewModel.linkIsActive
-        ) {
-          EmptyView()
-        }
-
         if prefersListLayout || !enableGrid {
           HomeFeedListView(
             listTitle: $listTitle,
@@ -362,6 +370,10 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var filterState: FetcherFilterState
 
     let showFeatureCards: Bool
+
+    @State var shouldScrollToTop = false
+    @State var topItem: Models.LibraryItem?
+    @ObservedObject var networkMonitor = NetworkMonitor()
 
     init(listTitle: Binding<String>,
          isListScrolled: Binding<Bool>,
@@ -555,8 +567,6 @@ struct AnimatingCellHeight: AnimatableModifier {
       static func reduce(value _: inout CGPoint, nextValue _: () -> CGPoint) {}
     }
 
-    @State var topItem: Models.LibraryItem?
-
     func setTopItem(_ item: Models.LibraryItem) {
       print("setting top item: ", item)
       if let date = item.savedAt, let daysAgo = Calendar.current.dateComponents([.day], from: date, to: Date()).day {
@@ -592,8 +602,6 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
-    @ObservedObject var networkMonitor = NetworkMonitor()
-
     var body: some View {
       let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
       VStack(spacing: 0) {
@@ -603,83 +611,96 @@ struct AnimatingCellHeight: AnimatableModifier {
           Spacer(minLength: 2)
         }
 
-        List(selection: $selection) {
-          Section(content: {
-            if let appliedFilter = viewModel.filterState.appliedFilter,
-               networkMonitor.status == .disconnected,
-               !appliedFilter.allowLocalFetch
-            {
-              HStack {
-                Text("This search requires an internet connection.")
-                  .padding()
-                  .foregroundColor(Color.white)
-                  .frame(maxWidth: .infinity, alignment: .center)
-              }
-              .background(Color.blue)
-              .frame(maxWidth: .infinity, alignment: .center)
-              .listRowSeparator(.hidden, edges: .all)
-              .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-            } else {
-              if showFeatureCards {
-                featureCard
-                  .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-                  .listRowSeparator(.hidden, edges: .all)
-                  .modifier(AnimatingCellHeight(height: 190 + 13))
-                  .onDisappear {
-                    withAnimation {
-                      isListScrolled = true
+        ScrollViewReader { reader in
+          List(selection: $selection) {
+            Section(content: {
+              if let appliedFilter = viewModel.filterState.appliedFilter,
+                 networkMonitor.status == .disconnected,
+                 !appliedFilter.allowLocalFetch
+              {
+                HStack {
+                  Text("This search requires an internet connection.")
+                    .padding()
+                    .foregroundColor(Color.white)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .background(Color.blue)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .listRowSeparator(.hidden, edges: .all)
+                .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+              } else {
+                if showFeatureCards {
+                  featureCard
+                    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowSeparator(.hidden, edges: .all)
+                    .modifier(AnimatingCellHeight(height: 190 + 13))
+                    .onDisappear {
+                      withAnimation {
+                        isListScrolled = true
+                      }
                     }
-                  }
-                  .onAppear {
-                    withAnimation {
-                      isListScrolled = false
+                    .onAppear {
+                      withAnimation {
+                        isListScrolled = false
+                      }
                     }
-                  }
-              }
+                }
 
-              ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
-                FeedCardNavigationLink(
-                  item: item,
-                  isInMultiSelectMode: viewModel.isInMultiSelectMode,
-                  viewModel: viewModel
-                )
-                .background(GeometryReader { geometry in
-                  Color.clear
-                    .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
-                })
-                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                  print("ScrollOffsetPreferenceKey.self", value, item)
-                  if value.y < 100, value.y > 0 {
-                    if item.savedAt != nil, topItem != item {
-                      setTopItem(item)
+                ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
+                  FeedCardNavigationLink(
+                    item: item,
+                    isInMultiSelectMode: viewModel.isInMultiSelectMode,
+                    viewModel: viewModel
+                  )
+                  .background(GeometryReader { geometry in
+                    Color.clear
+                      .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
+                  })
+                  .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+                    if value.y < 100, value.y > 0 {
+                      if item.savedAt != nil, topItem != item {
+                        setTopItem(item)
+                      }
+                    }
+                  }
+                  .listRowSeparatorTint(Color.thBorderColor)
+                  .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
+                  .contextMenu {
+                    menuItems(for: item)
+                  }
+                  .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
+                      swipeActionButton(action: action, item: item)
+                    }
+                  }
+                  .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
+                      swipeActionButton(action: action, item: item)
                     }
                   }
                 }
-                .listRowSeparatorTint(Color.thBorderColor)
-                .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
-                .contextMenu {
-                  menuItems(for: item)
-                }
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                  ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
-                    swipeActionButton(action: action, item: item)
-                  }
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                  ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
-                    swipeActionButton(action: action, item: item)
-                  }
-                }
+              }
+            }, header: {
+              filtersHeader
+            })
+          }
+          .padding(0)
+          .listStyle(.plain)
+          .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+          .coordinateSpace(name: "scroll")
+          .onChange(of: shouldScrollToTop) { _ in
+            if shouldScrollToTop, let topItem = viewModel.fetcher.items.first {
+              print("READING POISTION: ", topItem)
+              withAnimation { // add animation for scroll to top
+                reader.scrollTo(topItem.unwrappedID, anchor: .top) // scroll
               }
             }
-          }, header: {
-            filtersHeader
-          })
+            shouldScrollToTop = false
+          }
         }
-        .padding(0)
-        .listStyle(.plain)
-        .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-        .coordinateSpace(name: "scroll")
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+          shouldScrollToTop = true
+        }
       }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
              isPresented: $showHideFeatureAlert) {

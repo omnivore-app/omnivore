@@ -22,6 +22,9 @@ struct TabBarButton: View {
 
   var body: some View {
     Button(action: {
+      if selectedTab == key {
+        NotificationCenter.default.post(Notification(name: Notification.Name("ScrollToTop")))
+      }
       selectedTab = key
     }, label: {
       image

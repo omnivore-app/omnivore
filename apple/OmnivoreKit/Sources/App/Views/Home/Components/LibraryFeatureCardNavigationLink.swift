@@ -8,6 +8,7 @@
 import Models
 import Services
 import SwiftUI
+import Transmission
 import Views
 
 struct LibraryFeatureCardNavigationLink: View {
@@ -20,12 +21,23 @@ struct LibraryFeatureCardNavigationLink: View {
   @State var showFeatureActions = false
 
   var body: some View {
-    NavigationLink(destination: LinkItemDetailView(
-      linkedItemObjectID: item.objectID,
-      isPDF: item.isPDF
-    )) {
-      LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
-    }
+    PresentationLink(
+      transition: PresentationLinkTransition.slide(
+        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                   options:
+                                                                   PresentationLinkTransition.Options(
+                                                                     modalPresentationCapturesStatusBarAppearance: true
+                                                                   ))),
+      destination: {
+        LinkItemDetailView(
+          linkedItemObjectID: item.objectID,
+          isPDF: item.isPDF
+        )
+        .background(ThemeManager.currentBgColor)
+      }, label: {
+        LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
+      }
+    )
     .confirmationDialog("", isPresented: $showFeatureActions) {
       if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .pinned {
         Button("Unpin", action: {

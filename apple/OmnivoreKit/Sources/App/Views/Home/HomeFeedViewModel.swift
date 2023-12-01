@@ -18,6 +18,7 @@ import Views
   @Published var snoozePresented = false
   @Published var itemToSnoozeID: String?
   @Published var linkRequest: LinkRequest?
+  @Published var presentWebContainer = false
   @Published var showLoadingBar = false
   @Published var isInMultiSelectMode = false
 

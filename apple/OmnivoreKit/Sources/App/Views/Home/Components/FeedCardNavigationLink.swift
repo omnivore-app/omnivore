@@ -39,26 +39,6 @@ struct FeedCardNavigationLink: View {
   var body: some View {
     ZStack {
       LibraryItemCard(item: item, viewer: dataService.currentViewer)
-//      PresentationLink({
-//        <#code#>
-//      } label: {
-//        EmptyView()
-//      }).opacity(0)
-
-//      public init(
-//          edge: Edge = .bottom,
-//          prefersScaleEffect: Bool = true,
-//          preferredCornerRadius: CGFloat? = nil,
-//          isInteractive: Bool = true,
-//          options: Options = .init(modalPresentationCapturesStatusBarAppearance: true)
-//      ) {
-//          self.edge = edge
-//          self.prefersScaleEffect = prefersScaleEffect
-//          self.preferredCornerRadius = preferredCornerRadius
-//          self.isInteractive = isInteractive
-//          self.options = options
-//      }
-//
       PresentationLink(
         transition: PresentationLinkTransition.slide(
           options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
@@ -75,7 +55,7 @@ struct FeedCardNavigationLink: View {
         }, label: {
           EmptyView()
         }
-      )
+      ).opacity(0)
     }
     .onAppear {
       Task { await viewModel.itemAppeared(item: item, dataService: dataService) }

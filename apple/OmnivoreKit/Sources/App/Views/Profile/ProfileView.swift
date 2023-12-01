@@ -88,7 +88,7 @@ struct ProfileView: View {
       ToolbarItem(placement: .barLeading) {
         VStack(alignment: .leading) {
           Text(LocalText.genericProfile)
-            .font(Font.system(size: 32, weight: .semibold))
+            .font(Font.system(size: 28, weight: .semibold))
         }
         .frame(maxWidth: .infinity, alignment: .bottomLeading)
       }
