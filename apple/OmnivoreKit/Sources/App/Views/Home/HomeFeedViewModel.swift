@@ -37,7 +37,7 @@ import Views
 
   @Published var filters = [InternalFilter]()
 
-  @ObservedObject var filterState: FetcherFilterState
+  @Published var filterState: FetcherFilterState
 
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue

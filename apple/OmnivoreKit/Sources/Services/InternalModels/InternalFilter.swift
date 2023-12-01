@@ -116,15 +116,6 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
     [
       InternalFilter(
         id: "following",
-        name: "Following",
-        folder: "following",
-        filter: "in:following",
-        visible: true,
-        position: 0,
-        defaultFilter: true
-      ),
-      InternalFilter(
-        id: "rss",
         name: "RSS",
         folder: "following",
         filter: "in:following label:RSS",
