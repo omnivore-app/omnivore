@@ -568,7 +568,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     func setTopItem(_ item: Models.LibraryItem) {
-      print("setting top item: ", item)
       if let date = item.savedAt, let daysAgo = Calendar.current.dateComponents([.day], from: date, to: Date()).day {
         if daysAgo < 1 {
           let formatter = DateFormatter()
