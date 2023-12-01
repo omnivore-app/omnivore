@@ -11,8 +11,8 @@ import SwiftUI
 
 struct LibraryListView: View {
   @StateObject private var libraryViewModel = HomeFeedViewModel(
+    folder: "inbox",
     fetcher: LibraryItemFetcher(),
-    filterState: FetcherFilterState(folder: "inbox"),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],

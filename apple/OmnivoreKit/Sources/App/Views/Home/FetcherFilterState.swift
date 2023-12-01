@@ -5,22 +5,13 @@ import SwiftUI
 import Utils
 
 @MainActor
-class FetcherFilterState: ObservableObject {
+struct FetcherFilterState {
   let folder: String
 
-  @Published var searchTerm = ""
-  @Published var selectedLabels = [LinkedItemLabel]()
-  @Published var negatedLabels = [LinkedItemLabel]()
-  @Published var appliedSort = LinkedItemSort.newest.rawValue
+  let searchTerm: String
+  let selectedLabels: [LinkedItemLabel]
+  let negatedLabels: [LinkedItemLabel]
+  let appliedSort: String
 
-  @Published var appliedFilter: InternalFilter? {
-    didSet {
-      let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter") ?? folder
-      UserDefaults.standard.setValue(appliedFilter?.name, forKey: filterKey)
-    }
-  }
-
-  init(folder: String) {
-    self.folder = folder
-  }
+  let appliedFilter: InternalFilter?
 }

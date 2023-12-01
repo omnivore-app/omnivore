@@ -24,8 +24,8 @@ struct LibraryTabView: View {
   }
 
   @StateObject private var followingViewModel = HomeFeedViewModel(
+    folder: "following",
     fetcher: LibraryItemFetcher(),
-    filterState: FetcherFilterState(folder: "following"),
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
       leadingSwipeActions: [.moveToInbox],
@@ -35,8 +35,8 @@ struct LibraryTabView: View {
   )
 
   @StateObject private var libraryViewModel = HomeFeedViewModel(
+    folder: "inbox",
     fetcher: LibraryItemFetcher(),
-    filterState: FetcherFilterState(folder: "inbox"),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],

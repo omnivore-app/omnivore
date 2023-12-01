@@ -69,8 +69,6 @@ struct ProfileView: View {
       Form {
         innerBody
       }
-//      .navigationTitle("LocalText.genericProfile")
-//      .navigationBarTitleDisplayMode(.)
       .toolbar {
         toolbarItems
       }
@@ -88,7 +86,7 @@ struct ProfileView: View {
       ToolbarItem(placement: .barLeading) {
         VStack(alignment: .leading) {
           Text(LocalText.genericProfile)
-            .font(Font.system(size: 28, weight: .semibold))
+            .font(Font.system(size: 24, weight: .semibold))
         }
         .frame(maxWidth: .infinity, alignment: .bottomLeading)
       }

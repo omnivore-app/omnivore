@@ -6,7 +6,9 @@ import Utils
 import Views
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDelegate {
-  var currentDetailViewModel: LinkItemDetailViewModel?
+  let folder: String
+  let fetcher: LibraryItemFetcher
+  let listConfig: LibraryListConfig
 
   private var fetchedResultsController: NSFetchedResultsController<Models.LibraryItem>?
 
@@ -31,24 +33,34 @@ import Views
   @Published var showCommunityModal = false
   @Published var featureItems = [Models.LibraryItem]()
 
-  @Published var listConfig: LibraryListConfig
-
   @Published var showSnackbar = false
   @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()
 
-  @Published var filterState: FetcherFilterState
+  @Published var searchTerm = ""
+  @Published var selectedLabels = [LinkedItemLabel]()
+  @Published var negatedLabels = [LinkedItemLabel]()
+  @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
-  let fetcher: LibraryItemFetcher
+  @Published var appliedFilter: InternalFilter? {
+    didSet {
+      let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter") ?? folder
+      UserDefaults.standard.setValue(appliedFilter?.name, forKey: filterKey)
+    }
+  }
 
-  init(fetcher: LibraryItemFetcher, filterState: FetcherFilterState, listConfig: LibraryListConfig) {
+  private var filterState: FetcherFilterState {
+    FetcherFilterState(folder: folder, searchTerm: searchTerm, selectedLabels: selectedLabels, negatedLabels: negatedLabels, appliedSort: appliedSort, appliedFilter: appliedFilter)
+  }
+
+  init(folder: String, fetcher: LibraryItemFetcher, listConfig: LibraryListConfig) {
+    self.folder = folder
     self.fetcher = fetcher
     self.listConfig = listConfig
-    self.filterState = filterState
     super.init()
   }
 
@@ -68,10 +80,10 @@ import Views
     }
   }
 
-  func loadFilters(dataService: DataService, filterState: FetcherFilterState) async {
+  func loadFilters(dataService: DataService) async {
     switch filterState.folder {
     case "following":
-      updateFilters(filterState: filterState, newFilters: InternalFilter.DefaultFollowingFilters)
+      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters)
     default:
       var hasLocalResults = false
       let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
@@ -79,15 +91,15 @@ import Views
       // Load from disk
       if let results = try? dataService.viewContext.fetch(fetchRequest) {
         hasLocalResults = true
-        updateFilters(filterState: filterState, newFilters: InternalFilter.make(from: results))
+        updateFilters(newFilters: InternalFilter.make(from: results))
       }
 
       let hasResults = hasLocalResults
       Task.detached {
         if let downloadedFilters = try? await dataService.filters() {
-          await self.updateFilters(filterState: filterState, newFilters: downloadedFilters)
+          await self.updateFilters(newFilters: downloadedFilters)
         } else if !hasResults {
-          await self.updateFilters(filterState: filterState, newFilters: InternalFilter.DefaultInboxFilters)
+          await self.updateFilters(newFilters: InternalFilter.DefaultInboxFilters)
         }
       }
     }
@@ -127,7 +139,7 @@ import Views
     }
   }
 
-  func updateFilters(filterState: FetcherFilterState, newFilters: [InternalFilter]) {
+  func updateFilters(newFilters: [InternalFilter]) {
     let appliedFilterName = UserDefaults.standard.string(forKey: "lastSelected-\(filterState.folder)-filter") ?? filterState.folder
 
     filters = newFilters
@@ -135,8 +147,8 @@ import Views
       .sorted(by: { $0.position < $1.position })
       + [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter]
 
-    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != filterState.appliedFilter?.id {
-      filterState.appliedFilter = newFilter
+    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
+      appliedFilter = newFilter
     }
   }
 

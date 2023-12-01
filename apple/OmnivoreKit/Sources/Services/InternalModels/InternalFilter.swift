@@ -2,7 +2,7 @@ import CoreData
 import Foundation
 import Models
 
-public struct InternalFilter: Encodable, Identifiable, Hashable {
+public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
   public let id: String
   public let name: String
   public let folder: String
@@ -10,6 +10,10 @@ public struct InternalFilter: Encodable, Identifiable, Hashable {
   public let visible: Bool
   public let position: Int
   public let defaultFilter: Bool
+
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    lhs.id == rhs.id
+  }
 
   public static var DownloadedFilter: InternalFilter {
     InternalFilter(
