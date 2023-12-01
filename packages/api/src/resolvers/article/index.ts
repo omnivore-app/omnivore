@@ -61,9 +61,9 @@ import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
+  createAndSaveLabelsInLibraryItem,
   findLabelsByIds,
   findOrCreateLabels,
-  saveLabelsInLibraryItem,
 } from '../../services/labels'
 import {
   createLibraryItem,
@@ -355,11 +355,13 @@ export const createArticleResolver = authorized<
         )
       }
 
-      // save labels in item
-      if (inputLabels) {
-        const labels = await findOrCreateLabels(inputLabels, user.id)
-        await saveLabelsInLibraryItem(labels, libraryItemToReturn.id, user.id)
-      }
+      await createAndSaveLabelsInLibraryItem(
+        libraryItemToReturn.id,
+        uid,
+        inputLabels,
+        rssFeedUrl,
+        pubsub
+      )
 
       log.info(
         'item created in database',

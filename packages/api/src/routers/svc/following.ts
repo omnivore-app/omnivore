@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
-import {
-  findOrCreateLabels,
-  saveLabelsInLibraryItem,
-} from '../../services/labels'
+import { createAndSaveLabelsInLibraryItem } from '../../services/labels'
 import { saveFeedItemInFollowing } from '../../services/library_item'
 import { logger } from '../../utils/logger'
 
@@ -69,19 +66,12 @@ export function followingServiceRouter() {
 
       logger.info('feed item saved in following')
 
-      // add RSS label to the item
-      const labels = await findOrCreateLabels(
-        [
-          {
-            name: 'RSS',
-          },
-        ],
-        userId
-      )
-      await saveLabelsInLibraryItem(
-        labels,
+      // save RSS label in the item
+      await createAndSaveLabelsInLibraryItem(
         result.identifiers[0].id,
         userId,
+        [{ name: 'RSS' }],
+        undefined,
         undefined,
         true
       )

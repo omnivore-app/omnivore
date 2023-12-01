@@ -28,7 +28,7 @@ import { parsePreparedContent } from '../utils/parser'
 import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
-import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
+import { createAndSaveLabelsInLibraryItem } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
@@ -160,11 +160,12 @@ export const savePage = async (
       clientRequestId = newItem.id
     }
 
-    // save labels in item
-    if (input.labels) {
-      const labels = await findOrCreateLabels(input.labels, user.id)
-      await saveLabelsInLibraryItem(labels, clientRequestId, user.id)
-    }
+    await createAndSaveLabelsInLibraryItem(
+      clientRequestId,
+      user.id,
+      input.labels,
+      input.rssFeedUrl
+    )
   }
 
   // we don't want to create thumbnail for imported pages

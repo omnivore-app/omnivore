@@ -3,7 +3,7 @@ import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import { SaveErrorCode, SaveFileInput, SaveResult } from '../generated/graphql'
 import { getStorageFileDetails } from '../utils/uploads'
-import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
+import { createAndSaveLabelsInLibraryItem } from './labels'
 import { updateLibraryItem } from './library_item'
 import { findUploadFileById, setFileUploadComplete } from './upload_file'
 
@@ -40,10 +40,11 @@ export const saveFile = async (
   }
 
   // add labels to item
-  if (input.labels) {
-    const labels = await findOrCreateLabels(input.labels, user.id)
-    await saveLabelsInLibraryItem(labels, input.clientRequestId, user.id)
-  }
+  await createAndSaveLabelsInLibraryItem(
+    input.clientRequestId,
+    user.id,
+    input.labels
+  )
 
   return {
     clientRequestId: input.clientRequestId,

@@ -1,5 +1,4 @@
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { getInternalLabelWithColor } from '../repository/label'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
   cleanUrl,
@@ -16,7 +15,7 @@ import {
   parsePreparedContent,
   parseUrlMetadata,
 } from '../utils/parser'
-import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
+import { createAndSaveLabelsInLibraryItem } from './labels'
 import {
   createLibraryItem,
   findLibraryItemByUrl,
@@ -81,8 +80,6 @@ export const saveEmail = async (
     return updatedLibraryItem
   }
 
-  const newsletterLabel = getInternalLabelWithColor('newsletter')
-
   // start a transaction to create the library item and update the received email
   const newLibraryItem = await createLibraryItem(
     {
@@ -123,11 +120,10 @@ export const saveEmail = async (
     })
   }
 
-  if (newsletterLabel) {
-    // add newsletter label
-    const labels = await findOrCreateLabels([newsletterLabel], input.userId)
-    await saveLabelsInLibraryItem(labels, newLibraryItem.id, input.userId)
-  }
+  // save newsletter label in the item
+  await createAndSaveLabelsInLibraryItem(newLibraryItem.id, input.userId, [
+    { name: 'Newsletter' },
+  ])
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)
 
