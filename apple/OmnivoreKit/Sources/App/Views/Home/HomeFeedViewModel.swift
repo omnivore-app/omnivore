@@ -83,7 +83,7 @@ import Views
   func loadFilters(dataService: DataService) async {
     switch filterState.folder {
     case "following":
-      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters)
+      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters, defaultName: "rss")
     default:
       var hasLocalResults = false
       let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
@@ -91,15 +91,15 @@ import Views
       // Load from disk
       if let results = try? dataService.viewContext.fetch(fetchRequest) {
         hasLocalResults = true
-        updateFilters(newFilters: InternalFilter.make(from: results))
+        updateFilters(newFilters: InternalFilter.make(from: results), defaultName: "inbox")
       }
 
       let hasResults = hasLocalResults
       Task.detached {
         if let downloadedFilters = try? await dataService.filters() {
-          await self.updateFilters(newFilters: downloadedFilters)
+          await self.updateFilters(newFilters: downloadedFilters, defaultName: "inbox")
         } else if !hasResults {
-          await self.updateFilters(newFilters: InternalFilter.DefaultInboxFilters)
+          await self.updateFilters(newFilters: InternalFilter.DefaultInboxFilters, defaultName: "inbox")
         }
       }
     }
@@ -139,8 +139,8 @@ import Views
     }
   }
 
-  func updateFilters(newFilters: [InternalFilter]) {
-    let appliedFilterName = UserDefaults.standard.string(forKey: "lastSelected-\(filterState.folder)-filter") ?? filterState.folder
+  func updateFilters(newFilters: [InternalFilter], defaultName: String) {
+    let appliedFilterName = UserDefaults.standard.string(forKey: "lastSelected-\(filterState.folder)-filter") ?? defaultName
 
     filters = newFilters
       .filter { $0.folder == filterState.folder }
