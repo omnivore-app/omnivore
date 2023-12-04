@@ -10992,7 +10992,7 @@ extension Selection where TypeLock == Never, Type == Never {
 extension Objects {
   struct MoveToFolderSuccess {
     let __typename: TypeName = .moveToFolderSuccess
-    let articleSavingRequest: [String: Objects.ArticleSavingRequest]
+    let success: [String: Bool]
 
     enum TypeName: String, Codable {
       case moveToFolderSuccess = "MoveToFolderSuccess"
@@ -11012,8 +11012,8 @@ extension Objects.MoveToFolderSuccess: Decodable {
       let field = GraphQLField.getFieldNameFromAlias(alias)
 
       switch field {
-      case "articleSavingRequest":
-        if let value = try container.decode(Objects.ArticleSavingRequest?.self, forKey: codingKey) {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       default:
@@ -11026,27 +11026,26 @@ extension Objects.MoveToFolderSuccess: Decodable {
       }
     }
 
-    articleSavingRequest = map["articleSavingRequest"]
+    success = map["success"]
   }
 }
 
 extension Fields where TypeLock == Objects.MoveToFolderSuccess {
-  func articleSavingRequest<Type>(selection: Selection<Type, Objects.ArticleSavingRequest>) throws -> Type {
-    let field = GraphQLField.composite(
-      name: "articleSavingRequest",
-      arguments: [],
-      selection: selection.selection
+  func success() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "success",
+      arguments: []
     )
     select(field)
 
     switch response {
     case let .decoding(data):
-      if let data = data.articleSavingRequest[field.alias!] {
-        return try selection.decode(data: data)
+      if let data = data.success[field.alias!] {
+        return data
       }
       throw HttpError.badpayload
     case .mocking:
-      return selection.mock()
+      return Bool.mockValue
     }
   }
 }
@@ -29053,8 +29052,8 @@ extension Selection where TypeLock == Never, Type == Never {
 extension Unions {
   struct MoveToFolderResult {
     let __typename: TypeName
-    let articleSavingRequest: [String: Objects.ArticleSavingRequest]
     let errorCodes: [String: [Enums.MoveToFolderErrorCode]]
+    let success: [String: Bool]
 
     enum TypeName: String, Codable {
       case moveToFolderError = "MoveToFolderError"
@@ -29075,12 +29074,12 @@ extension Unions.MoveToFolderResult: Decodable {
       let field = GraphQLField.getFieldNameFromAlias(alias)
 
       switch field {
-      case "articleSavingRequest":
-        if let value = try container.decode(Objects.ArticleSavingRequest?.self, forKey: codingKey) {
-          map.set(key: field, hash: alias, value: value as Any)
-        }
       case "errorCodes":
         if let value = try container.decode([Enums.MoveToFolderErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       default:
@@ -29095,8 +29094,8 @@ extension Unions.MoveToFolderResult: Decodable {
 
     __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
 
-    articleSavingRequest = map["articleSavingRequest"]
     errorCodes = map["errorCodes"]
+    success = map["success"]
   }
 }
 
@@ -29111,7 +29110,7 @@ extension Fields where TypeLock == Unions.MoveToFolderResult {
         let data = Objects.MoveToFolderError(errorCodes: data.errorCodes)
         return try moveToFolderError.decode(data: data)
       case .moveToFolderSuccess:
-        let data = Objects.MoveToFolderSuccess(articleSavingRequest: data.articleSavingRequest)
+        let data = Objects.MoveToFolderSuccess(success: data.success)
         return try moveToFolderSuccess.decode(data: data)
       }
     case .mocking:
