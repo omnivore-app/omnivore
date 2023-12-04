@@ -17,8 +17,6 @@ import Views
   @Published var itemUnderLabelEdit: Models.LibraryItem?
   @Published var itemUnderTitleEdit: Models.LibraryItem?
   @Published var itemForHighlightsView: Models.LibraryItem?
-  @Published var snoozePresented = false
-  @Published var itemToSnoozeID: String?
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
   @Published var showLoadingBar = false
@@ -193,7 +191,7 @@ import Views
     snackbar(archived ? "Link archived" : "Link moved to Inbox")
   }
 
-  func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
+  func removeLibraryItem(dataService: DataService, objectID: NSManagedObjectID) {
     removeLibraryItemAction(dataService: dataService, objectID: objectID)
   }
 

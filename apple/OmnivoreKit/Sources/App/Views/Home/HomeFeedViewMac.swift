@@ -143,7 +143,7 @@ import Views
         Button("Remove Link", role: .destructive) {
           if let itemToRemove = itemToRemove {
             withAnimation {
-              viewModel.removeLink(dataService: dataService, objectID: itemToRemove.objectID)
+              viewModel.removeLibraryItem(dataService: dataService, objectID: itemToRemove.objectID)
               self.itemToRemove = nil
             }
           }

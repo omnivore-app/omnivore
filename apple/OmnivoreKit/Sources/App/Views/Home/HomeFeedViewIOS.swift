@@ -731,7 +731,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .delete:
         return AnyView(Button(
           action: {
-            viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+            viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
           },
           label: {
             Label("Remove", systemImage: "trash")
@@ -768,7 +768,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .toggleArchiveStatus:
         viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived)
       case .delete:
-        viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+        viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
       case .editLabels:
         viewModel.itemUnderLabelEdit = item
       case .editTitle:

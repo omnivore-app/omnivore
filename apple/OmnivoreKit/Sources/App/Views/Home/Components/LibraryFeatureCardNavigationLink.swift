@@ -51,7 +51,7 @@ struct LibraryFeatureCardNavigationLink: View {
         viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
       })
       Button("Remove", action: {
-        viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+        viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
       })
       if FeaturedItemFilter(rawValue: viewModel.featureFilter) != .pinned {
         Button("Mark Read", action: {

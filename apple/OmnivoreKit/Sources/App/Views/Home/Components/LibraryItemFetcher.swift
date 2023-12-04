@@ -246,6 +246,7 @@ import Views
       }.joined(separator: ","))
     }
 
+    query.append(" use:folders")
     print("QUERY: `\(query)`")
 
     return query
