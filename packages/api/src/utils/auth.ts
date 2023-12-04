@@ -69,17 +69,12 @@ export const claimsFromApiKey = async (key: string): Promise<Claims> => {
 export const getClaimsByToken = async (
   token: string | undefined
 ): Promise<Claims | undefined> => {
-  let claims: Claims | undefined
-
   if (!token) {
     return undefined
   }
 
   try {
-    jwt.verify(token, env.server.jwtSecret) &&
-      (claims = jwt.decode(token) as Claims)
-
-    return claims
+    return jwt.verify(token, env.server.jwtSecret) as Claims
   } catch (e) {
     if (
       e instanceof jwt.JsonWebTokenError &&
@@ -141,7 +136,7 @@ export const isSystemRequest = (req: express.Request): boolean => {
   }
 
   try {
-    const claims = jwt.decode(token) as Claims
+    const claims = jwt.verify(token, env.server.jwtSecret) as Claims
     return !claims.system
   } catch (e) {
     return false

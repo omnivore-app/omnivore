@@ -111,8 +111,10 @@ export const setIntegrationResolver = authorized<
       integration.taskName = taskName
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
-      await deleteTask(integrationToSave.taskName)
-      log.info('task deleted', integrationToSave.taskName)
+      const result = await deleteTask(integrationToSave.taskName)
+      if (result) {
+        log.info('task deleted', integrationToSave.taskName)
+      }
 
       // update task name in integration
       await updateIntegration(
