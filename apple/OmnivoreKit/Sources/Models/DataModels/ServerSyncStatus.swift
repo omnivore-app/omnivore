@@ -6,4 +6,5 @@ public enum ServerSyncStatus: Int {
   case needsDeletion
   case needsCreation
   case needsUpdate
+  case needsMove
 }

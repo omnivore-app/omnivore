@@ -258,6 +258,17 @@ import Views
     dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0, anchorIndex: 0, force: true)
   }
 
+  func moveToFolder(dataService: DataService, item: Models.LibraryItem, folder: String) {
+    Task {
+      do {
+        try await dataService.moveItem(itemID: item.unwrappedID, folder: folder)
+        snackbar("Item moved")
+      } catch {
+        snackbar("Error performing operation")
+      }
+    }
+  }
+
   func bulkAction(dataService: DataService, action: BulkAction, items: [String]) {
     if items.count < 1 {
       snackbar("No items selected")

@@ -59,7 +59,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.searchTerm.isEmpty &&
         viewModel.selectedLabels.isEmpty &&
         viewModel.negatedLabels.isEmpty &&
-        viewModel.appliedFilter?.name == "inbox"
+        viewModel.appliedFilter?.name.lowercased() == "inbox"
     }
 
     var body: some View {
@@ -740,7 +740,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .moveToInbox:
         return AnyView(Button(
           action: {
-            // viewModel.addLabel(dataService: dataService, item: item, label: "Inbox", color)
+            viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
           },
           label: {
             Label(title: { Text("Move to Library") },

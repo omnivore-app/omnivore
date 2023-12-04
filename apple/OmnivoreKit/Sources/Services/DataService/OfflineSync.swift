@@ -157,6 +157,15 @@ public extension DataService {
           anchorIndex: Int(item.readingProgressAnchor),
           force: item.isPDF
         )
+      case .needsMove:
+        item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
+        syncLinkArchiveStatus(itemID: item.unwrappedID, archived: item.isArchived)
+        syncLinkReadingProgress(
+          itemID: item.unwrappedID,
+          readingProgress: item.readingProgress,
+          anchorIndex: Int(item.readingProgressAnchor),
+          force: item.isPDF
+        )
       }
     }
   }
@@ -184,6 +193,9 @@ public extension DataService {
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
         }
+      case .needsMove:
+        // Highlights can't be moved
+        break
       }
     }
   }
