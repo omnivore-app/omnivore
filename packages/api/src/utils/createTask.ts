@@ -196,7 +196,7 @@ export const getTask = async (
 
 export const deleteTask = async (
   taskName: string
-): Promise<google.protobuf.IEmpty> => {
+): Promise<google.protobuf.IEmpty | null> => {
   // If we are in local environment
   if (env.dev.isLocal) {
     return taskName
@@ -206,9 +206,13 @@ export const deleteTask = async (
     name: taskName,
   }
 
-  const [response] = await client.deleteTask(request)
-
-  return response
+  try {
+    const [response] = await client.deleteTask(request)
+    return response
+  } catch (error) {
+    logError(error)
+    return null
+  }
 }
 
 /**

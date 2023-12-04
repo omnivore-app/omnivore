@@ -4,6 +4,7 @@ import { stringify } from 'csv-stringify'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
 import { DateTime } from 'luxon'
+import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 import { getIntegrationClient, updateIntegration } from './integrations'
 import { State } from './integrations/integration'
@@ -29,6 +30,7 @@ Sentry.GCPFunction.init({
 })
 
 const storage = new Storage()
+const signToken = promisify(jwt.sign)
 
 export const wait = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
@@ -44,6 +46,19 @@ function isIntegrationRequest(body: any): body is IntegrationRequest {
 
 const createGCSFile = (bucket: string, filename: string): File => {
   return storage.bucket(bucket).file(filename)
+}
+
+const createSystemToken = async (
+  claims: Claims,
+  secret: string
+): Promise<string> => {
+  return signToken(
+    {
+      ...claims,
+      system: true,
+    },
+    secret
+  ) as Promise<string>
 }
 
 export const exporter = Sentry.GCPFunction.wrapHttpFunction(
@@ -76,20 +91,23 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(200).send('Bad Request')
       }
 
+      const systemToken = await createSystemToken(claims, JWT_SECRET)
+
       const { integrationId, syncAt, integrationName } = req.body
       const client = getIntegrationClient(integrationName)
 
       // get paginated items from the backend
+      const first = '50'
       let hasMore = true
       let after = '0'
       while (hasMore) {
         console.log('searching for items...')
         const response = await search(
           REST_BACKEND_ENDPOINT,
-          token,
+          systemToken,
           client.highlightOnly,
           new Date(syncAt),
-          '50',
+          first,
           after
         )
 
@@ -124,7 +142,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           items[items.length - 1].updatedAt,
           integrationName,
           claims.token,
-          token,
+          systemToken,
           'EXPORT'
         )
 
@@ -178,6 +196,8 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       console.error('Invalid message')
       return res.status(200).send('Bad Request')
     }
+
+    const systemToken = await createSystemToken(claims, JWT_SECRET)
 
     let writeStream: NodeJS.WritableStream | undefined
     try {
@@ -279,7 +299,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         new Date(syncedAt),
         req.body.integrationName,
         claims.token,
-        token,
+        systemToken,
         'IMPORT',
         null
       )
