@@ -187,25 +187,25 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       let localPDFURL = NSPredicate(
         format: "localPDF.length > 0"
       )
-      let downloadedPDF = NSCompoundPredicate(andPredicateWithSubpredicates: [isPDFPredicate, localPDFURL])
+      let downloadedPDF = NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate, localPDFURL])
       return NSCompoundPredicate(orPredicateWithSubpredicates: [hasHTMLContent, downloadedPDF])
     case "Newsletters":
       // non-archived or deleted items with the Newsletter label
       let newsletterLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, newsletterLabelPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, newsletterLabelPredicate])
     case "Feeds":
       let feedLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"RSS\").@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, feedLabelPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, feedLabelPredicate])
     case "Recommended":
       // non-archived or deleted items with the Newsletter label
       let recommendedPredicate = NSPredicate(
         format: "recommendations.@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, recommendedPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, recommendedPredicate])
     case "All":
       // include everything undeleted
       return undeletedPredicate
@@ -216,9 +216,9 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
     case "Deleted":
       let deletedPredicate = NSPredicate(
-        format: "%K == %i",
-        #keyPath(Models.LibraryItem.serverSyncStatus),
-        Int64(ServerSyncStatus.needsDeletion.rawValue)
+        format: "%K == %i OR %K == \"DELETED\"",
+        #keyPath(Models.LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
+        #keyPath(Models.LibraryItem.state)
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [deletedPredicate])
     case "Files":
@@ -232,6 +232,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         format: "highlights.@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        undeletedPredicate,
         hasHighlightsPredicate
       ])
     default:
