@@ -143,7 +143,7 @@ import Views
     filters = newFilters
       .filter { $0.folder == filterState.folder }
       .sorted(by: { $0.position < $1.position })
-      + [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter]
+      + (folder == "inbox" ? [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter] : [InternalFilter.DownloadedFilter])
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter
