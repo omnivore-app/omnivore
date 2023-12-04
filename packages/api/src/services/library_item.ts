@@ -671,10 +671,19 @@ export const countByCreatedAt = async (
 
 export const updateLibraryItems = async (
   action: BulkActionType,
-  args: SearchArgs,
+  searchArgs: SearchArgs,
   userId: string,
-  labels?: Label[]
+  labels?: Label[],
+  args?: unknown
 ) => {
+  interface FolderArguments {
+    folder: string
+  }
+
+  const isFolderArguments = (args: any): args is FolderArguments => {
+    return 'folder' in args
+  }
+
   // build the script
   let values: QueryDeepPartialEntity<LibraryItem> = {}
   let addLabels = false
@@ -701,6 +710,17 @@ export const updateLibraryItems = async (
         readingProgressBottomPercent: 100,
       }
       break
+    case BulkActionType.MoveToFolder:
+      if (!args || !isFolderArguments(args)) {
+        throw new Error('Invalid arguments')
+      }
+
+      values = {
+        folder: args.folder,
+        savedAt: new Date(),
+      }
+
+      break
     default:
       throw new Error('Invalid bulk action')
   }
@@ -711,7 +731,7 @@ export const updateLibraryItems = async (
       .where('library_item.user_id = :userId', { userId })
 
     // build the where clause
-    buildWhereClause(queryBuilder, args)
+    buildWhereClause(queryBuilder, searchArgs)
 
     if (addLabels) {
       if (!labels) {

@@ -810,41 +810,47 @@ export const bulkActionResolver = authorized<
   BulkActionSuccess,
   BulkActionError,
   MutationBulkActionArgs
->(async (_parent, { query, action, labelIds }, { uid, log }) => {
-  try {
-    analytics.track({
-      userId: uid,
-      event: 'BulkAction',
-      properties: {
-        env: env.server.apiEnv,
-        action,
-      },
-    })
+>(
+  async (
+    _parent,
+    { query, action, labelIds, arguments: args }, // arguments is a reserved keyword in JS
+    { uid, log }
+  ) => {
+    try {
+      analytics.track({
+        userId: uid,
+        event: 'BulkAction',
+        properties: {
+          env: env.server.apiEnv,
+          action,
+        },
+      })
 
-    // parse query
-    const searchQuery = parseSearchQuery(query)
-    if (searchQuery.ids.length > 100) {
-      return { errorCodes: [BulkActionErrorCode.BadRequest] }
-    }
-
-    // get labels if needed
-    let labels = undefined
-    if (action === BulkActionType.AddLabels) {
-      if (!labelIds || labelIds.length === 0) {
+      // parse query
+      const searchQuery = parseSearchQuery(query)
+      if (searchQuery.ids.length > 100) {
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
 
-      labels = await findLabelsByIds(labelIds, uid)
+      // get labels if needed
+      let labels = undefined
+      if (action === BulkActionType.AddLabels) {
+        if (!labelIds || labelIds.length === 0) {
+          return { errorCodes: [BulkActionErrorCode.BadRequest] }
+        }
+
+        labels = await findLabelsByIds(labelIds, uid)
+      }
+
+      await updateLibraryItems(action, searchQuery, uid, labels, args)
+
+      return { success: true }
+    } catch (error) {
+      log.error('bulkActionResolver error', error)
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
     }
-
-    await updateLibraryItems(action, searchQuery, uid, labels)
-
-    return { success: true }
-  } catch (error) {
-    log.error('bulkActionResolver error', error)
-    return { errorCodes: [BulkActionErrorCode.BadRequest] }
   }
-})
+)
 
 export const setFavoriteArticleResolver = authorized<
   SetFavoriteArticleSuccess,

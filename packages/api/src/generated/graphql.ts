@@ -245,7 +245,8 @@ export enum BulkActionType {
   AddLabels = 'ADD_LABELS',
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
-  MarkAsRead = 'MARK_AS_READ'
+  MarkAsRead = 'MARK_AS_READ',
+  MoveToFolder = 'MOVE_TO_FOLDER'
 }
 
 export enum ContentReader {
@@ -1376,6 +1377,7 @@ export type MutationAddPopularReadArgs = {
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
+  arguments?: InputMaybe<Scalars['JSON']>;
   async?: InputMaybe<Scalars['Boolean']>;
   expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
