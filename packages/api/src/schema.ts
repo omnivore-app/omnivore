@@ -2510,6 +2510,7 @@ const schema = gql`
     ARCHIVE
     MARK_AS_READ
     ADD_LABELS
+    MOVE_TO_FOLDER
   }
 
   union BulkActionResult = BulkActionSuccess | BulkActionError
@@ -2800,6 +2801,7 @@ const schema = gql`
       labelIds: [ID!]
       expectedCount: Int # max number of items to process
       async: Boolean # if true, return immediately and process in the background
+      arguments: JSON # additional arguments for the action
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
     setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
