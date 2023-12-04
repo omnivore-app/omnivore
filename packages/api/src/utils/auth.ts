@@ -133,3 +133,17 @@ export const getTokenByRequest = (req: express.Request): string | undefined => {
     (req.cookies?.auth as string)
   )
 }
+
+export const isSystemRequest = (req: express.Request): boolean => {
+  const token = getTokenByRequest(req)
+  if (!token) {
+    return false
+  }
+
+  try {
+    const claims = jwt.decode(token) as Claims
+    return !claims.system
+  } catch (e) {
+    return false
+  }
+}

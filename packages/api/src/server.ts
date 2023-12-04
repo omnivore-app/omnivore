@@ -37,7 +37,11 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
-import { getClaimsByToken, getTokenByRequest } from './utils/auth'
+import {
+  getClaimsByToken,
+  getTokenByRequest,
+  isSystemRequest,
+} from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
 
@@ -79,8 +83,9 @@ export const createApp = (): {
     keyGenerator: (req) => {
       return getTokenByRequest(req) || req.ip
     },
-    // skip preflight requests and test requests
-    skip: (req) => req.method === 'OPTIONS' || env.dev.isLocal,
+    // skip preflight requests and test requests and system requests
+    skip: (req) =>
+      req.method === 'OPTIONS' || env.dev.isLocal || isSystemRequest(req),
   })
 
   // Apply the rate limiting middleware to API calls only
