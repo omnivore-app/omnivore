@@ -10,6 +10,7 @@ import Models
 import PopupView
 import Services
 import SwiftUI
+import Transmission
 import Utils
 import Views
 
@@ -46,7 +47,7 @@ struct LibraryTabView: View {
   )
 
   var body: some View {
-    VStack(spacing: 0) {
+    VStack {
       TabView(selection: $selectedTab) {
         NavigationView {
           HomeFeedContainerView(viewModel: followingViewModel)
@@ -66,5 +67,6 @@ struct LibraryTabView: View {
       CustomTabBar(selectedTab: $selectedTab)
     }
     .ignoresSafeArea()
+    .navigationBarHidden(true)
   }
 }

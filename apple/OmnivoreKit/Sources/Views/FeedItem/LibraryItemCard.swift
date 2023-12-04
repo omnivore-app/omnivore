@@ -289,12 +289,45 @@ public struct LibraryItemCard: View {
     return ""
   }
 
+  func shouldHideUrl(_ url: String?) -> Bool {
+    if let url = url, let origin = URL(string: url)?.host {
+      let hideHosts = ["storage.googleapis.com", "omnivore.app"]
+      if hideHosts.contains(origin) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  func siteName(_ originalArticleUrl: String?) -> String? {
+    if shouldHideUrl(originalArticleUrl) {
+      return nil
+    }
+
+    if let url = originalArticleUrl,
+       let originalHost = URL(string: url)?.host?.replacingOccurrences(of: "^www\\.", with: "", options: .regularExpression)
+    {
+      return originalHost
+    }
+
+    return nil
+  }
+
   var byLine: some View {
-    Text(bylineStr)
-      .font(.caption2)
-      .foregroundColor(Color.themeLibraryItemSubtle)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .lineLimit(1)
+    if let origin = siteName(item.pageURLString) {
+      Text(bylineStr + " | " + origin)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    } else {
+      Text(bylineStr)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    }
   }
 
   public var articleInfo: some View {

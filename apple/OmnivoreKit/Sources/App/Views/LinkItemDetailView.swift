@@ -87,7 +87,10 @@ struct LinkItemDetailView: View {
   var body: some View {
     Group {
       if isPDF {
-        pdfContainerView
+        NavigationView {
+          pdfContainerView
+            .navigationBarBackButtonHidden(false)
+        }
       } else if let item = viewModel.item {
         WebReaderContainerView(item: item, pop: { dismiss() })
       }
