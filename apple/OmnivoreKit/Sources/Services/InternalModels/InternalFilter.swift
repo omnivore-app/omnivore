@@ -157,6 +157,11 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     )
 
     switch name {
+    case "RSS":
+      let feedLabelPredicate = NSPredicate(
+        format: "SUBQUERY(labels, $label, $label.name == \"RSS\").@count > 0"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, undeletedPredicate, feedLabelPredicate])
     case "Inbox":
       // non-archived items
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
