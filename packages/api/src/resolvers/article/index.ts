@@ -934,7 +934,7 @@ export const moveToFolderResolver = authorized<
   //   }
   // }
 
-  const updatedItem = await updateLibraryItem(
+  await updateLibraryItem(
     item.id,
     {
       folder,
@@ -946,10 +946,7 @@ export const moveToFolderResolver = authorized<
 
   return {
     __typename: 'MoveToFolderSuccess',
-    articleSavingRequest: libraryItemToArticleSavingRequest(
-      item.user,
-      updatedItem
-    ),
+    success: true,
   }
 })
 

@@ -2665,7 +2665,7 @@ const schema = gql`
   union MoveToFolderResult = MoveToFolderSuccess | MoveToFolderError
 
   type MoveToFolderSuccess {
-    articleSavingRequest: ArticleSavingRequest!
+    success: Boolean!
   }
 
   type MoveToFolderError {

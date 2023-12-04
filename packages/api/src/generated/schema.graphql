@@ -1165,7 +1165,7 @@ enum MoveToFolderErrorCode {
 union MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess
 
 type MoveToFolderSuccess {
-  articleSavingRequest: ArticleSavingRequest!
+  success: Boolean!
 }
 
 type Mutation {
