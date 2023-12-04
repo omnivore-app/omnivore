@@ -1301,7 +1301,7 @@ export type MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess;
 
 export type MoveToFolderSuccess = {
   __typename?: 'MoveToFolderSuccess';
-  articleSavingRequest: ArticleSavingRequest;
+  success: Scalars['Boolean'];
 };
 
 export type Mutation = {
@@ -5328,7 +5328,7 @@ export type MoveToFolderResultResolvers<ContextType = ResolverContext, ParentTyp
 };
 
 export type MoveToFolderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderSuccess'] = ResolversParentTypes['MoveToFolderSuccess']> = {
-  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

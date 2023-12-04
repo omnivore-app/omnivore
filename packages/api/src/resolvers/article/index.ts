@@ -916,25 +916,25 @@ export const moveToFolderResolver = authorized<
 
   const savedAt = new Date()
 
-  // if the content is not fetched yet, create a page save request
-  if (!item.readableContent) {
-    const articleSavingRequest = await createPageSaveRequest({
-      userId: uid,
-      url: item.originalUrl,
-      articleSavingRequestId: id,
-      priority: 'high',
-      publishedAt: item.publishedAt || undefined,
-      savedAt,
-      pubsub,
-    })
+  // // if the content is not fetched yet, create a page save request
+  // if (!item.readableContent) {
+  //   const articleSavingRequest = await createPageSaveRequest({
+  //     userId: uid,
+  //     url: item.originalUrl,
+  //     articleSavingRequestId: id,
+  //     priority: 'high',
+  //     publishedAt: item.publishedAt || undefined,
+  //     savedAt,
+  //     pubsub,
+  //   })
 
-    return {
-      __typename: 'MoveToFolderSuccess',
-      articleSavingRequest,
-    }
-  }
+  //   return {
+  //     __typename: 'MoveToFolderSuccess',
+  //     articleSavingRequest,
+  //   }
+  // }
 
-  const updatedItem = await updateLibraryItem(
+  await updateLibraryItem(
     item.id,
     {
       folder,
@@ -946,10 +946,7 @@ export const moveToFolderResolver = authorized<
 
   return {
     __typename: 'MoveToFolderSuccess',
-    articleSavingRequest: libraryItemToArticleSavingRequest(
-      updatedItem.user,
-      updatedItem
-    ),
+    success: true,
   }
 })
 
