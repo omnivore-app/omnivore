@@ -137,7 +137,7 @@ export const isSystemRequest = (req: express.Request): boolean => {
 
   try {
     const claims = jwt.verify(token, env.server.jwtSecret) as Claims
-    return !claims.system
+    return !!claims.system
   } catch (e) {
     return false
   }
