@@ -1,11 +1,6 @@
 import { LiqeQuery } from 'liqe'
 import { DateTime } from 'luxon'
-import {
-  Brackets,
-  DeepPartial,
-  ObjectLiteral,
-  SelectQueryBuilder,
-} from 'typeorm'
+import { DeepPartial, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -18,40 +13,38 @@ import { libraryItemRepository } from '../repository/library_item'
 import { SaveFollowingItemRequest } from '../routers/svc/following'
 import { generateSlug, wordsCount } from '../utils/helpers'
 import { createThumbnailUrl } from '../utils/imageproxy'
-import {
-  DateFilter,
-  FieldFilter,
-  HasFilter,
-  InFilter,
-  LabelFilter,
-  LabelFilterType,
-  NoFilter,
-  RangeFilter,
-  ReadFilter,
-} from '../utils/search'
+import { parseSearchQuery } from '../utils/search'
+
+enum ReadFilter {
+  ALL = 'all',
+  READ = 'read',
+  READING = 'reading',
+  UNREAD = 'unread',
+}
+
+enum InFilter {
+  ALL = 'all',
+  INBOX = 'inbox',
+  ARCHIVE = 'archive',
+  TRASH = 'trash',
+  FOLLOWING = 'following',
+}
+
+enum HasFilter {
+  HIGHLIGHTS = 'highlights',
+  LABELS = 'labels',
+  SUBSCRIPTIONS = 'subscriptions',
+}
 
 export interface SearchArgs {
   from?: number
   size?: number
   sort?: Sort
-  query?: string
-  inFilter?: InFilter
-  readFilter?: ReadFilter
-  typeFilter?: string
-  labelFilters?: LabelFilter[]
-  hasFilters?: HasFilter[]
-  dateFilters?: DateFilter[]
-  termFilters?: FieldFilter[]
-  matchFilters?: FieldFilter[]
   includePending?: boolean | null
   includeDeleted?: boolean
-  ids?: string[]
-  recommendedBy?: string
   includeContent?: boolean
-  noFilters?: NoFilter[]
-  rangeFilters?: RangeFilter[]
   useFolders?: boolean
-  searchQuery?: LiqeQuery
+  query?: string | null
 }
 
 export interface SearchResultItem {
@@ -624,254 +617,6 @@ export const buildQuery = (
   return serialize(searchQuery)
 }
 
-const buildWhereClause = (
-  queryBuilder: SelectQueryBuilder<LibraryItem>,
-  args: SearchArgs
-) => {
-  if (args.query) {
-    queryBuilder
-      .addSelect(
-        "ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :query))",
-        'rank'
-      )
-      .andWhere(
-        "websearch_to_tsquery('english', :query) @@ library_item.search_tsv"
-      )
-      .setParameter('query', args.query)
-      .orderBy('rank', 'DESC')
-  }
-
-  if (args.typeFilter) {
-    queryBuilder.andWhere('lower(library_item.item_type) = :typeFilter', {
-      typeFilter: args.typeFilter.toLowerCase(),
-    })
-  }
-
-  if (args.inFilter !== InFilter.ALL) {
-    switch (args.inFilter) {
-      case InFilter.INBOX: {
-        // if useFolders is true, we only return items in the inbox folder
-        args.useFolders &&
-          queryBuilder.andWhere("library_item.folder = 'inbox'")
-        // for old clients, we return items that are not archived
-        queryBuilder.andWhere('library_item.archived_at IS NULL')
-        break
-      }
-      case InFilter.ARCHIVE:
-        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
-        break
-      case InFilter.TRASH:
-        // return only deleted pages within 14 days
-        queryBuilder.andWhere(
-          "library_item.deleted_at >= now() - interval '14 days'"
-        )
-        break
-      default:
-        queryBuilder.andWhere('library_item.folder = :folder', {
-          folder: args.inFilter,
-        })
-    }
-  }
-
-  if (args.readFilter !== ReadFilter.ALL) {
-    switch (args.readFilter) {
-      case ReadFilter.READ:
-        queryBuilder.andWhere(
-          'library_item.reading_progress_bottom_percent > 98'
-        )
-        break
-      case ReadFilter.READING:
-        queryBuilder.andWhere(
-          'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
-        )
-        break
-      case ReadFilter.UNREAD:
-        queryBuilder.andWhere(
-          'library_item.reading_progress_bottom_percent < 2'
-        )
-        break
-    }
-  }
-
-  if (args.hasFilters && args.hasFilters.length > 0) {
-    args.hasFilters.forEach((filter) => {
-      switch (filter) {
-        case HasFilter.HIGHLIGHTS:
-          queryBuilder.andWhere("library_item.highlight_annotations <> '{}'")
-          break
-        case HasFilter.LABELS:
-          queryBuilder.andWhere("library_item.label_names <> '{}'")
-          break
-        case HasFilter.SUBSCRIPTIONS:
-          queryBuilder.andWhere('library_item.subscription is NOT NULL')
-      }
-    })
-  }
-
-  if (args.labelFilters && args.labelFilters.length > 0) {
-    const includeLabels = args.labelFilters?.filter(
-      (filter) => filter.type === LabelFilterType.INCLUDE
-    )
-    const excludeLabels = args.labelFilters?.filter(
-      (filter) => filter.type === LabelFilterType.EXCLUDE
-    )
-
-    if (includeLabels && includeLabels.length > 0) {
-      includeLabels.forEach((includeLabel, i) => {
-        const param = `includeLabels_${i}`
-        const hasWildcard = includeLabel.labels.some((label) =>
-          label.includes('*')
-        )
-        if (hasWildcard) {
-          queryBuilder.andWhere(
-            new Brackets((qb) => {
-              includeLabel.labels.forEach((label, j) => {
-                const param = `includeLabels_${i}_${j}`
-                qb.orWhere(
-                  `array_to_string(array_cat(library_item.label_names, library_item.highlight_labels)::text[], ',') ILIKE :${param}`,
-                  {
-                    [param]: label.replace(/\*/g, '%'),
-                  }
-                )
-              })
-            })
-          )
-        } else {
-          queryBuilder.andWhere(
-            `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
-            {
-              [param]: includeLabel.labels,
-            }
-          )
-        }
-      })
-    }
-
-    if (excludeLabels && excludeLabels.length > 0) {
-      const labels = excludeLabels.flatMap((filter) => filter.labels)
-
-      const hasWildcard = labels.some((label) => label.includes('*'))
-
-      if (hasWildcard) {
-        queryBuilder.andWhere(
-          new Brackets((qb) => {
-            labels.forEach((label, i) => {
-              const param = `excludeLabels_${i}`
-              qb.andWhere(
-                `array_to_string(array_cat(library_item.label_names, library_item.highlight_labels)::text[], ',') NOT ILIKE :${param}`,
-                {
-                  [param]: label.replace(/\*/g, '%'),
-                }
-              )
-            })
-          })
-        )
-      } else {
-        queryBuilder.andWhere(
-          'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
-          {
-            excludeLabels: labels,
-          }
-        )
-      }
-    }
-  }
-
-  if (args.dateFilters && args.dateFilters.length > 0) {
-    args.dateFilters.forEach((filter) => {
-      const startDate = `${filter.field}_start`
-      const endDate = `${filter.field}_end`
-      queryBuilder.andWhere(
-        `library_item.${filter.field} between :${startDate} and :${endDate}`,
-        {
-          [startDate]: filter.startDate ?? new Date(0),
-          [endDate]: filter.endDate ?? new Date(),
-        }
-      )
-    })
-  }
-
-  if (args.termFilters && args.termFilters.length > 0) {
-    args.termFilters.forEach((filter) => {
-      const param = `term_${filter.field}`
-      queryBuilder.andWhere(`lower(library_item.${filter.field}) = :${param}`, {
-        [param]: filter.value.toLowerCase(),
-      })
-    })
-  }
-
-  if (args.matchFilters && args.matchFilters.length > 0) {
-    args.matchFilters.forEach((filter) => {
-      const param = `match_${filter.field}`
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.andWhere(
-            `websearch_to_tsquery('english', :${param}) @@ library_item.${filter.field}_tsv`,
-            {
-              [param]: filter.value,
-            }
-          ).orWhere(`${filter.field} ILIKE :value`, {
-            value: `%${filter.value}%`,
-          })
-        })
-      )
-    })
-  }
-
-  if (args.ids && args.ids.length > 0) {
-    queryBuilder.andWhere('library_item.id = ANY(:ids)', {
-      ids: args.ids,
-    })
-  }
-
-  if (!args.includePending) {
-    queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
-  }
-
-  if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere("library_item.state <> 'DELETED'")
-  }
-
-  if (args.noFilters) {
-    args.noFilters.forEach((filter) => {
-      queryBuilder.andWhere(
-        `(library_item.${filter.field} = '{}' OR library_item.${filter.field} IS NULL)`
-      )
-    })
-  }
-
-  if (args.recommendedBy) {
-    if (args.recommendedBy === '*') {
-      // select all if * is provided
-      queryBuilder.andWhere(`library_item.recommender_names <> '{}'`)
-    } else {
-      // select only if the user is recommended by the provided user
-      queryBuilder.andWhere(
-        'lower(library_item.recommender_names::text)::text[] && ARRAY[:recommendedBy]::text[]',
-        {
-          recommendedBy: args.recommendedBy.toLowerCase(),
-        }
-      )
-    }
-  }
-
-  if (args.includeContent) {
-    queryBuilder.addSelect('library_item.readableContent')
-  }
-
-  if (args.rangeFilters && args.rangeFilters.length > 0) {
-    args.rangeFilters.forEach((filter, i) => {
-      const param = `range_${filter.field}_${i}`
-      queryBuilder.andWhere(
-        `library_item.${filter.field} ${filter.operator} :${param}`,
-        {
-          [param]: filter.value,
-        }
-      )
-    })
-  }
-}
-
 export const searchLibraryItems = async (
   args: SearchArgs,
   userId: string
@@ -891,6 +636,11 @@ export const searchLibraryItems = async (
         column !== 'library_item.originalContent'
     )
 
+  let searchQuery: LiqeQuery | undefined
+  if (args.query) {
+    searchQuery = parseSearchQuery(args.query)
+  }
+
   // add pagination and sorting
   return authTrx(
     async (tx) => {
@@ -899,16 +649,11 @@ export const searchLibraryItems = async (
         .select(selectColumns)
         .where('library_item.user_id = :userId', { userId })
 
-      if (args.searchQuery) {
+      if (searchQuery) {
         const parameters: ObjectLiteral[] = []
         const selects: Select[] = []
         const orders: Sort[] = []
-        const whereClause = buildQuery(
-          args.searchQuery,
-          parameters,
-          selects,
-          orders
-        )
+        const whereClause = buildQuery(searchQuery, parameters, selects, orders)
         whereClause &&
           queryBuilder
             .andWhere(whereClause)
@@ -1243,7 +988,7 @@ export const countByCreatedAt = async (
 
 export const updateLibraryItems = async (
   action: BulkActionType,
-  searchQuery: LiqeQuery,
+  query: string,
   userId: string,
   labels?: Label[],
   args?: unknown
@@ -1296,6 +1041,8 @@ export const updateLibraryItems = async (
     default:
       throw new Error('Invalid bulk action')
   }
+
+  const searchQuery = parseSearchQuery(query)
 
   await authTrx(async (tx) => {
     const queryBuilder = tx

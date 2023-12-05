@@ -101,7 +101,7 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import { InFilter, parseSearchQuery } from '../../utils/search'
+import { parseSearchQuery } from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
@@ -651,8 +651,6 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const searchQuery = params.query ? parseSearchQuery(params.query) : undefined
-
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
@@ -660,7 +658,7 @@ export const searchResolver = authorized<
       includePending: true,
       includeContent: !!params.includeContent,
       includeDeleted: params.query?.includes('in:trash'),
-      searchQuery,
+      query: params.query,
     },
     uid
   )
@@ -758,10 +756,9 @@ export const updatesSinceResolver = authorized<
   }
 
   // create a search query
-  folder = folder || InFilter.ALL
-  const searchQuery = parseSearchQuery(
-    `in:${folder} updated:${startDate.toISOString()}`
-  )
+  const query = `updated:${startDate.toISOString()}${
+    folder ? ' in:' + folder : ''
+  }`
 
   const { libraryItems, count } = await searchLibraryItems(
     {
@@ -769,7 +766,7 @@ export const updatesSinceResolver = authorized<
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
       sort,
-      searchQuery,
+      query,
     },
     uid
   )
@@ -842,8 +839,7 @@ export const bulkActionResolver = authorized<
         labels = await findLabelsByIds(labelIds, uid)
       }
 
-      const searchQuery = parseSearchQuery(query)
-      await updateLibraryItems(action, searchQuery, uid, labels, args)
+      await updateLibraryItems(action, query, uid, labels, args)
 
       return { success: true }
     } catch (error) {
