@@ -213,23 +213,23 @@ export const buildQuery = (
           switch (folder) {
             case InFilter.ALL:
               return null
-            case InFilter.INBOX:
-              return 'library_item.archived_at IS NULL'
             case InFilter.ARCHIVE:
               return 'library_item.archived_at IS NOT NULL'
             case InFilter.TRASH:
               // return only deleted pages within 14 days
               return "library_item.deleted_at >= now() - interval '14 days'"
             default: {
-              if (!useFolders) {
-                throw new Error(`Unexpected keyword: ${folder}`)
+              let sql = 'library_item.archived_at IS NULL'
+              if (useFolders) {
+                const param = `folder_${parameters.length}`
+                const folderSql = escapeQueryWithParameters(
+                  `library_item.folder = :${param}`,
+                  { [param]: folder }
+                )
+                sql = `(${sql} AND ${folderSql})`
               }
 
-              const param = `folder_${parameters.length}`
-              return escapeQueryWithParameters(
-                `(library_item.folder = :${param} AND library_item.archived_at IS NULL)`,
-                { [param]: folder }
-              )
+              return sql
             }
           }
         }
