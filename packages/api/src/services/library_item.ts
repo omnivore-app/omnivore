@@ -153,7 +153,8 @@ export const buildQuery = (
   searchQuery: LiqeQuery,
   parameters: ObjectLiteral[] = [],
   selects: Select[] = [],
-  orders: { by: string; order?: SortOrder }[] = []
+  orders: { by: string; order?: SortOrder }[] = [],
+  useFolders = false
 ) => {
   const escapeQueryWithParameters = (
     query: string,
@@ -220,9 +221,13 @@ export const buildQuery = (
               // return only deleted pages within 14 days
               return "library_item.deleted_at >= now() - interval '14 days'"
             default: {
+              if (!useFolders) {
+                throw new Error(`Unexpected keyword: ${folder}`)
+              }
+
               const param = `folder_${parameters.length}`
               return escapeQueryWithParameters(
-                `library_item.folder = :${param}`,
+                `(library_item.folder = :${param} AND library_item.archived_at IS NULL)`,
                 { [param]: folder }
               )
             }
@@ -653,7 +658,13 @@ export const searchLibraryItems = async (
         const parameters: ObjectLiteral[] = []
         const selects: Select[] = []
         const orders: Sort[] = []
-        const whereClause = buildQuery(searchQuery, parameters, selects, orders)
+        const whereClause = buildQuery(
+          searchQuery,
+          parameters,
+          selects,
+          orders,
+          args.useFolders
+        )
         whereClause &&
           queryBuilder
             .andWhere(whereClause)

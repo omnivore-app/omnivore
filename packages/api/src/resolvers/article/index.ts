@@ -658,6 +658,7 @@ export const searchResolver = authorized<
       includeContent: !!params.includeContent,
       includeDeleted: params.query?.includes('in:trash'),
       query: params.query,
+      useFolders: params.query?.includes('use:folders'),
     },
     uid
   )
