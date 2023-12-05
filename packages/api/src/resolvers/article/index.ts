@@ -90,7 +90,6 @@ import {
   generateSlug,
   isParsingTimeout,
   libraryItemToArticle,
-  libraryItemToArticleSavingRequest,
   libraryItemToSearchItem,
   titleForFilePath,
   userDataToUser,
@@ -758,6 +757,7 @@ export const updatesSinceResolver = authorized<
     startDate = new Date(0)
   }
 
+  // create a search query
   folder = folder || InFilter.ALL
   const searchQuery = parseSearchQuery(
     `in:${folder} updated:${startDate.toISOString()}`
@@ -827,16 +827,10 @@ export const bulkActionResolver = authorized<
         },
       })
 
-    if (!query) {
-      return { errorCodes: [BulkActionErrorCode.BadRequest] }
-    }
-
-    // parse query
-    const searchQuery = parseSearchQuery(query)
-    const ids = searchQuery.getValue?.('includes') as string[]
-    if (!ids || ids.length === 0 || ids.length > 100) {
-      return { errorCodes: [BulkActionErrorCode.BadRequest] }
-    }
+      // the query size is limited to 255 characters
+      if (!query || query.length > 255) {
+        return { errorCodes: [BulkActionErrorCode.BadRequest] }
+      }
 
       // get labels if needed
       let labels = undefined
@@ -848,6 +842,7 @@ export const bulkActionResolver = authorized<
         labels = await findLabelsByIds(labelIds, uid)
       }
 
+      const searchQuery = parseSearchQuery(query)
       await updateLibraryItems(action, searchQuery, uid, labels, args)
 
       return { success: true }

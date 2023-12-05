@@ -569,14 +569,14 @@ describe('Article API', () => {
         ).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
+        let allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(
           200
         )
         const justSavedId = allLinks.body.data.search.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
@@ -585,7 +585,7 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })

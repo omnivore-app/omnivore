@@ -281,28 +281,37 @@ export const buildQuery = (
             throw new Error('Expected a literal expression.')
           }
 
-          const label = expression.value?.toString()?.toLowerCase()
-          if (!label) {
+          const value = expression.value?.toString()?.toLowerCase()
+          if (!value) {
             throw new Error('Expected a value.')
           }
 
-          const param = `label_${parameters.length}`
+          const labels = value.split(',')
+          return (
+            labels
+              .map((label) => {
+                const param = `label_${parameters.length}`
 
-          const hasWildcard = label.includes('*')
-          if (hasWildcard) {
-            return escapeQueryWithParameters(
-              `exists (select 1 from unnest(array_cat(library_item.label_names, library_item.highlight_labels)::text[]) as label where label ILIKE :${param})`,
-              {
-                [param]: label.replace(/\*/g, '%'),
-              }
-            )
-          }
+                const hasWildcard = label.includes('*')
+                if (hasWildcard) {
+                  return escapeQueryWithParameters(
+                    `exists (select 1 from unnest(array_cat(library_item.label_names, library_item.highlight_labels)::text[]) as label where label ILIKE :${param})`,
+                    {
+                      [param]: label.replace(/\*/g, '%'),
+                    }
+                  )
+                }
 
-          return escapeQueryWithParameters(
-            `:${param} = ANY(lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[])`,
-            {
-              [param]: label,
-            }
+                return escapeQueryWithParameters(
+                  `:${param} = ANY(lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[])`,
+                  {
+                    [param]: label,
+                  }
+                )
+              })
+              .join(' OR ')
+              // wrap in brackets to avoid precedence issues
+              .replace(/^(.*)$/, '($1)')
           )
         }
         case 'sort': {
@@ -475,9 +484,13 @@ export const buildQuery = (
           }
 
           const param = `recommendedBy_${parameters.length}`
+          if (value === '*') {
+            // select all if * is provided
+            return "library_item.recommender_names <> '{}'"
+          }
 
           return escapeQueryWithParameters(
-            `:recommendedBy = ANY(lower(library_item.recommender_names::text)::text[])`,
+            `:${param} = ANY(lower(library_item.recommender_names::text)::text[])`,
             {
               [param]: value.toLowerCase(),
             }
@@ -582,7 +595,7 @@ export const buildQuery = (
         return left
       }
 
-      return `(${left} ${operator} ${right})`
+      return `${left} ${operator} ${right}`
     }
 
     if (ast.type === 'UnaryOperator') {
@@ -885,7 +898,6 @@ export const searchLibraryItems = async (
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
         .where('library_item.user_id = :userId', { userId })
-        .orderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
 
       if (args.searchQuery) {
         const parameters: ObjectLiteral[] = []
@@ -920,7 +932,11 @@ export const searchLibraryItems = async (
         queryBuilder.andWhere("library_item.state <> 'DELETED'")
       }
 
-      const libraryItems = await queryBuilder.skip(from).take(size).getMany()
+      const libraryItems = await queryBuilder
+        .addOrderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
+        .skip(from)
+        .take(size)
+        .getMany()
 
       const count = await queryBuilder.getCount()
 
@@ -1286,8 +1302,13 @@ export const updateLibraryItems = async (
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.user_id = :userId', { userId })
 
-    // build the where clause
-    // buildWhereClause(queryBuilder, searchQuery)
+    const parameters: ObjectLiteral[] = []
+    const whereClause = buildQuery(searchQuery, parameters)
+    if (whereClause) {
+      queryBuilder
+        .andWhere(whereClause)
+        .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
+    }
 
     if (addLabels) {
       if (!labels) {

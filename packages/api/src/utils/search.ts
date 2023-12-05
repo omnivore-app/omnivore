@@ -338,23 +338,8 @@ export const parseSearchQuery = (query: string): LiqeQuery => {
     .replace(/\W\s":/g, '')
     .replace('in:subscription', 'has:subscriptions') // compatibility with old search
     .replace('in:library', 'no:subscription') // compatibility with old search
-  // const result: SearchFilter = {
-  //   query: searchQuery,
-  //   readFilter: ReadFilter.ALL,
-  //   inFilter: searchQuery ? InFilter.ALL : InFilter.INBOX,
-  //   labelFilters: [],
-  //   hasFilters: [],
-  //   dateFilters: [],
-  //   termFilters: [],
-  //   matchFilters: [],
-  //   ids: [],
-  //   noFilters: [],
-  //   rangeFilters: [],
-  // }
-
-  // if (!searchQuery) {
-  //   return result
-  // }
+    // wrap the value behind colon in quotes if it's not already
+    .replace(/(\w+):([^"\s]+)/g, '$1:"$2"')
 
   return parse(searchQuery)
 
