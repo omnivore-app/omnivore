@@ -521,6 +521,7 @@ export const buildQuery = (
 
           return `(library_item.${column} = '{}' OR library_item.${column} IS NULL)`
         }
+        case 'use':
         case 'mode':
           // mode is ignored and used only by the frontend
           return null
