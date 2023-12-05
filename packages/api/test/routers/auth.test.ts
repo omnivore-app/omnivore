@@ -15,7 +15,6 @@ import {
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
-import { InFilter } from '../../src/utils/search'
 import * as util from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
@@ -609,7 +608,7 @@ describe('auth router', () => {
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
         const { count } = await searchLibraryItems(
-          { inFilter: InFilter.ALL },
+          { query: 'in:all' },
           user.id
         )
 
@@ -633,7 +632,7 @@ describe('auth router', () => {
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
         const { count } = await searchLibraryItems(
-          { inFilter: InFilter.ALL },
+          { query: 'in:all' },
           user.id
         )
 

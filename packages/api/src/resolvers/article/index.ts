@@ -70,6 +70,7 @@ import {
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
+  sortParamsToSort,
   updateLibraryItem,
   updateLibraryItemReadingProgress,
   updateLibraryItems,
@@ -89,7 +90,6 @@ import {
   generateSlug,
   isParsingTimeout,
   libraryItemToArticle,
-  libraryItemToArticleSavingRequest,
   libraryItemToSearchItem,
   titleForFilePath,
   userDataToUser,
@@ -101,11 +101,6 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import {
-  InFilter,
-  parseSearchQuery,
-  sortParamsToSort,
-} from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
@@ -655,16 +650,15 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const searchQuery = parseSearchQuery(params.query || undefined)
-
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      sort: searchQuery.sort,
       includePending: true,
       includeContent: !!params.includeContent,
-      ...searchQuery,
+      includeDeleted: params.query?.includes('in:trash'),
+      query: params.query,
+      useFolders: params.query?.includes('use:folders'),
     },
     uid
   )
@@ -761,14 +755,18 @@ export const updatesSinceResolver = authorized<
     startDate = new Date(0)
   }
 
+  // create a search query
+  const query = `updated:${startDate.toISOString()}${
+    folder ? ' in:' + folder : ''
+  }`
+
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
-      dateFilters: [{ field: 'updatedAt', startDate }],
       sort,
-      inFilter: (folder as InFilter) || InFilter.ALL,
+      query,
     },
     uid
   )
@@ -826,9 +824,8 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      // parse query
-      const searchQuery = parseSearchQuery(query)
-      if (searchQuery.ids.length > 100) {
+      // the query size is limited to 255 characters
+      if (!query || query.length > 255) {
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
 
@@ -842,7 +839,7 @@ export const bulkActionResolver = authorized<
         labels = await findLabelsByIds(labelIds, uid)
       }
 
-      await updateLibraryItems(action, searchQuery, uid, labels, args)
+      await updateLibraryItems(action, query, uid, labels, args)
 
       return { success: true }
     } catch (error) {
