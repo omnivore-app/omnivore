@@ -639,6 +639,7 @@ export const searchLibraryItems = async (
 ): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
   const { from = 0, size = 10 } = args
 
+  // select all columns except content
   const selects: Select[] = getColumns(libraryItemRepository)
     .map((column) => ({ column: `library_item.${column}` }))
     .filter(
@@ -653,6 +654,8 @@ export const searchLibraryItems = async (
 
   if (args.query) {
     const searchQuery = parseSearchQuery(args.query)
+
+    // build query and save parameters
     query = buildQuery(
       searchQuery,
       parameters,
