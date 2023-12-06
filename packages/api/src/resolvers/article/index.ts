@@ -822,8 +822,12 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      // the query size is limited to 255 characters
-      if (!query || query.length > 255) {
+      // the query size is limited to 1000 characters
+      if (!query || query.length > 1000) {
+        log.error('bulkActionResolver error', {
+          error: 'QueryTooLong',
+          query,
+        })
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
 
@@ -837,7 +841,16 @@ export const bulkActionResolver = authorized<
         labels = await findLabelsByIds(labelIds, uid)
       }
 
-      await updateLibraryItems(action, query, uid, labels, args)
+      await updateLibraryItems(
+        action,
+        {
+          query,
+          useFolders: query.includes('use:folders'),
+        },
+        uid,
+        labels,
+        args
+      )
 
       return { success: true }
     } catch (error) {

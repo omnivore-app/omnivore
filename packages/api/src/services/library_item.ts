@@ -80,11 +80,11 @@ export interface SearchResultItem {
 }
 
 export enum SortBy {
-  SAVED = 'saved_at',
-  UPDATED = 'updated_at',
-  PUBLISHED = 'published_at',
-  READ = 'read_at',
-  WORDS_COUNT = 'word_count',
+  SAVED = 'saved',
+  UPDATED = 'updated',
+  PUBLISHED = 'published',
+  READ = 'read',
+  WORDS_COUNT = 'wordsCount',
 }
 
 export enum SortOrder {
@@ -100,6 +100,10 @@ export interface Sort {
 interface Select {
   column: string
   alias?: string
+}
+
+const paramtersToObject = (parameters: ObjectLiteral[]) => {
+  return parameters.reduce((a, b) => ({ ...a, ...b }), {})
 }
 
 export const sortParamsToSort = (
@@ -688,7 +692,7 @@ export const searchLibraryItems = async (
         // add where clause from query
         queryBuilder
           .andWhere(query)
-          .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
+          .setParameters(paramtersToObject(parameters))
       }
 
       const count = await queryBuilder.getCount()
@@ -1011,7 +1015,7 @@ export const countByCreatedAt = async (
 
 export const updateLibraryItems = async (
   action: BulkActionType,
-  query: string,
+  searchArgs: SearchArgs,
   userId: string,
   labels?: Label[],
   args?: unknown
@@ -1065,19 +1069,21 @@ export const updateLibraryItems = async (
       throw new Error('Invalid bulk action')
   }
 
-  const searchQuery = parseSearchQuery(query)
+  if (!searchArgs.query) {
+    throw new Error('Search query is required')
+  }
+
+  const searchQuery = parseSearchQuery(searchArgs.query)
+  const parameters: ObjectLiteral[] = []
+  const query = buildQuery(searchQuery, parameters)
 
   await authTrx(async (tx) => {
     const queryBuilder = tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.user_id = :userId', { userId })
 
-    const parameters: ObjectLiteral[] = []
-    const whereClause = buildQuery(searchQuery, parameters)
-    if (whereClause) {
-      queryBuilder
-        .andWhere(whereClause)
-        .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
+    if (query) {
+      queryBuilder.andWhere(query).setParameters(paramtersToObject(parameters))
     }
 
     if (addLabels) {
