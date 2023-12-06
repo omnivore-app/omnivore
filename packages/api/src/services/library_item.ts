@@ -181,15 +181,14 @@ export const buildQuery = (
         return null
       }
 
-      const param = 'implicit_field'
-      const alias = 'rank'
+      const param = `implicit_field_${parameters.length}`
+      const alias = `rank_${parameters.length}`
       selects.push({
         column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
         alias,
       })
 
-      // always sort by rank first
-      orders.unshift({ by: alias, order: SortOrder.DESCENDING })
+      orders.push({ by: alias, order: SortOrder.DESCENDING })
 
       return escapeQueryWithParameters(
         `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
@@ -532,6 +531,7 @@ export const buildQuery = (
         }
         case 'use':
         case 'mode':
+        case 'event':
           // mode is ignored and used only by the frontend
           return null
         case 'readPosition':
