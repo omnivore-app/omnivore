@@ -39,7 +39,6 @@ enum HasFilter {
 export interface SearchArgs {
   from?: number
   size?: number
-  sort?: Sort
   includePending?: boolean | null
   includeDeleted?: boolean
   includeContent?: boolean
@@ -94,13 +93,13 @@ export enum SortOrder {
 }
 
 export interface Sort {
-  by: SortBy
+  by: string
   order?: SortOrder
 }
 
 interface Select {
   column: string
-  alias: string
+  alias?: string
 }
 
 export const sortParamsToSort = (
@@ -153,7 +152,7 @@ export const buildQuery = (
   searchQuery: LiqeQuery,
   parameters: ObjectLiteral[] = [],
   selects: Select[] = [],
-  orders: { by: string; order?: SortOrder }[] = [],
+  orders: Sort[] = [],
   useFolders = false
 ) => {
   const escapeQueryWithParameters = (
@@ -189,10 +188,8 @@ export const buildQuery = (
         alias,
       })
 
-      orders.push({
-        by: alias,
-        order: SortOrder.DESCENDING,
-      })
+      // always sort by rank first
+      orders.unshift({ by: alias, order: SortOrder.DESCENDING })
 
       return escapeQueryWithParameters(
         `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
@@ -388,8 +385,20 @@ export const buildQuery = (
             default: {
               // check for date ranges
               const [start, end] = date.split('..')
-              startDate = start && start !== '*' ? new Date(start) : undefined
-              endDate = end && end !== '*' ? new Date(end) : undefined
+              // validate date
+              if (start && start !== '*') {
+                startDate = new Date(start)
+                if (isNaN(startDate.getTime())) {
+                  throw new Error('Invalid start date.')
+                }
+              }
+
+              if (end && end !== '*') {
+                endDate = new Date(end)
+                if (isNaN(endDate.getTime())) {
+                  throw new Error('Invalid end date.')
+                }
+              }
             }
           }
 
@@ -627,24 +636,32 @@ export const searchLibraryItems = async (
   args: SearchArgs,
   userId: string
 ): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
-  const { from = 0, size = 10, sort } = args
+  const { from = 0, size = 10 } = args
 
-  // default order is descending
-  const sortOrder = sort?.order || SortOrder.DESCENDING
-  // default sort by saved_at
-  const sortField = sort?.by || SortBy.SAVED
-
-  const selectColumns = getColumns(libraryItemRepository)
-    .map((column) => `library_item.${column}`)
+  // select all columns except content
+  const selects: Select[] = getColumns(libraryItemRepository)
+    .map((column) => ({ column: `library_item.${column}` }))
     .filter(
-      (column) =>
-        column !== 'library_item.readableContent' &&
-        column !== 'library_item.originalContent'
+      (select) =>
+        select.column !== 'library_item.readableContent' &&
+        select.column !== 'library_item.originalContent'
     )
 
-  let searchQuery: LiqeQuery | undefined
+  const parameters: ObjectLiteral[] = []
+  const orders: Sort[] = []
+  let query: string | null = null
+
   if (args.query) {
-    searchQuery = parseSearchQuery(args.query)
+    const searchQuery = parseSearchQuery(args.query)
+
+    // build query and save parameters
+    query = buildQuery(
+      searchQuery,
+      parameters,
+      selects,
+      orders,
+      args.useFolders
+    )
   }
 
   // add pagination and sorting
@@ -652,34 +669,12 @@ export const searchLibraryItems = async (
     async (tx) => {
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .select(selectColumns)
         .where('library_item.user_id = :userId', { userId })
 
-      if (searchQuery) {
-        const parameters: ObjectLiteral[] = []
-        const selects: Select[] = []
-        const orders: Sort[] = []
-        const whereClause = buildQuery(
-          searchQuery,
-          parameters,
-          selects,
-          orders,
-          args.useFolders
-        )
-        whereClause &&
-          queryBuilder
-            .andWhere(whereClause)
-            .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
-
-        selects.forEach((select) => {
-          queryBuilder.addSelect(select.column, select.alias)
-        })
-
-        // add order by
-        orders.forEach((order) => {
-          queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
-        })
-      }
+      // add select
+      selects.forEach((select) => {
+        queryBuilder.addSelect(select.column, select.alias)
+      })
 
       if (!args.includePending) {
         queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
@@ -689,13 +684,29 @@ export const searchLibraryItems = async (
         queryBuilder.andWhere("library_item.state <> 'DELETED'")
       }
 
-      const libraryItems = await queryBuilder
-        .addOrderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
-        .skip(from)
-        .take(size)
-        .getMany()
+      if (query) {
+        // add where clause from query
+        queryBuilder
+          .andWhere(query)
+          .setParameters(parameters.reduce((a, b) => ({ ...a, ...b }), {}))
+      }
 
       const count = await queryBuilder.getCount()
+
+      // default order by saved at descending
+      if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+        orders.push({
+          by: 'library_item.saved_at',
+          order: SortOrder.DESCENDING,
+        })
+      }
+
+      // add order by
+      orders.forEach((order) => {
+        queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
+      })
+
+      const libraryItems = await queryBuilder.skip(from).take(size).getMany()
 
       return { libraryItems, count }
     },

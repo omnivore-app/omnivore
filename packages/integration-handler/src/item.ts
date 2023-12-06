@@ -44,7 +44,7 @@ export const search = async (
   token: string,
   highlightOnly: boolean,
   updatedSince: Date,
-  first = '50',
+  first = 50,
   after = '0'
 ): Promise<SearchResponse | null> => {
   const query = `updated:${updatedSince.toISOString()} ${
@@ -52,8 +52,8 @@ export const search = async (
   } sort:updated-asc`
 
   const requestData = JSON.stringify({
-    query: `query Search($query: String) {
-              search(query: $query) {
+    query: `query Search($query: String, $first: Int, $after: String) {
+              search(query: $query, first: $first, after: $after) {
                 ... on SearchSuccess {
                   edges {
                     node {
