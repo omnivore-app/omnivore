@@ -25,7 +25,7 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
       let canceled = Task.isCancelled
       if !canceled {
         print("syncing link deletion")
-        dataService.removeLink(objectID: objectID, sync: true)
+        dataService.removeLibraryItem(objectID: objectID, sync: true)
       }
     } catch {
       print("error running task: ", error)

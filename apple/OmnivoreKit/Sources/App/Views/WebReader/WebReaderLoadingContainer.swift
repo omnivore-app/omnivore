@@ -48,7 +48,7 @@ public struct WebReaderLoadingContainer: View {
             .navigationBarHidden(true)
             .navigationViewStyle(.stack)
             .accentColor(.appGrayTextContrast)
-            .task { viewModel.trackReadEvent() }
+            .onAppear { viewModel.trackReadEvent() }
         #else
           if let pdfURL = pdfItem.pdfURL {
             PDFWrapperView(pdfURL: pdfURL)
@@ -60,17 +60,19 @@ public struct WebReaderLoadingContainer: View {
           .navigationViewStyle(.stack)
         #endif
         .accentColor(.appGrayTextContrast)
-          .task { viewModel.trackReadEvent() }
+          .onAppear { viewModel.trackReadEvent() }
       }
     } else if let errorMessage = viewModel.errorMessage {
       Text(errorMessage)
     } else {
       ProgressView()
-        .task {
-          if let username = dataService.currentViewer?.username {
-            await viewModel.loadItem(dataService: dataService, username: username, requestID: requestID)
-          } else {
-            viewModel.errorMessage = "You are not logged in."
+        .onAppear {
+          Task {
+            if let username = dataService.currentViewer?.username {
+              await viewModel.loadItem(dataService: dataService, username: username, requestID: requestID)
+            } else {
+              viewModel.errorMessage = "You are not logged in."
+            }
           }
         }
     }

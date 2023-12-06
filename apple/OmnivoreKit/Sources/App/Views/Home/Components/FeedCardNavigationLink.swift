@@ -51,11 +51,10 @@ struct FeedCardNavigationLink: View {
             linkedItemObjectID: item.objectID,
             isPDF: item.isPDF
           )
-          .background(ThemeManager.currentBgColor)
         }, label: {
           EmptyView()
         }
-      ).opacity(0)
+      )
     }
     .onAppear {
       Task { await viewModel.itemAppeared(item: item, dataService: dataService) }

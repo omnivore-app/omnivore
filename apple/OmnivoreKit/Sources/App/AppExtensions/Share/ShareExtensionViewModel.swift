@@ -51,8 +51,8 @@ public class ShareExtensionViewModel: ObservableObject {
     dataService.archiveLink(objectID: objectID, archived: archived)
   }
 
-  func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
-    dataService.removeLink(objectID: objectID)
+  func removeLibraryItem(dataService: DataService, objectID: NSManagedObjectID) {
+    dataService.removeLibraryItem(objectID: objectID)
   }
 
   func submitTitleEdit(dataService: DataService, itemID: String, title: String, description: String) {

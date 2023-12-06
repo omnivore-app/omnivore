@@ -91,8 +91,10 @@ struct LinkItemDetailView: View {
           pdfContainerView
             .navigationBarBackButtonHidden(false)
         }
+        .navigationViewStyle(.stack)
       } else if let item = viewModel.item {
         WebReaderContainerView(item: item, pop: { dismiss() })
+          .background(ThemeManager.currentBgColor)
       }
     }
     .ignoresSafeArea(.all, edges: .bottom)

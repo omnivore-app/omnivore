@@ -188,14 +188,13 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
           .frame(maxWidth: .infinity, alignment: .bottomLeading)
         }
+
         ToolbarItem(placement: .barTrailing) {
-          Button("", action: {})
-            .disabled(true)
-            .overlay {
-              if viewModel.isLoading, !prefersListLayout, enableGrid {
-                ProgressView()
-              }
-            }
+          if UIDevice.isIPad, viewModel.folder == "inbox" {
+            Button(action: { addLinkPresented = true }, label: {
+              Label("Add Link", systemImage: "plus")
+            })
+          }
         }
         ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
           if enableGrid {

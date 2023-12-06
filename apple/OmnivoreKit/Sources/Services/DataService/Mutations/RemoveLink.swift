@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func removeLink(objectID: NSManagedObjectID, sync: Bool = true) {
+  func removeLibraryItem(objectID: NSManagedObjectID, sync: Bool = true) {
     // First try to get the item synchronously, this is used later to delete files
     // Then we can async update core data and make the API call to sync the deletion
 

@@ -79,7 +79,7 @@ import Views
   }
 
   func loadFilters(dataService: DataService) async {
-    switch filterState.folder {
+    switch folder {
     case "following":
       updateFilters(newFilters: InternalFilter.DefaultFollowingFilters, defaultName: "rss")
     default:

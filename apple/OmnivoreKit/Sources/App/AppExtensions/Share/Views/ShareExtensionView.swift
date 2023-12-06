@@ -220,7 +220,7 @@ public struct ShareExtensionView: View {
       Button(
         action: {
           if let linkedItem = self.viewModel.linkedItem {
-            self.viewModel.removeLink(dataService: self.viewModel.services.dataService, objectID: linkedItem.objectID)
+            self.viewModel.removeLibraryItem(dataService: self.viewModel.services.dataService, objectID: linkedItem.objectID)
             messageText = "Link Removed"
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
               extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
