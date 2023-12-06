@@ -10,7 +10,7 @@ struct CustomTabBar: View {
       TabBarButton(key: "profile", image: Image.tabProfile, selectedTab: $selectedTab)
     }
     .padding(.top, 10)
-    .padding(.bottom, 40)
+    .padding(.bottom, 10)
     .background(Color.themeTabBarColor)
   }
 }

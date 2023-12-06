@@ -39,6 +39,7 @@ public struct LibrarySplitView: View {
 
         HomeFeedContainerView(viewModel: inboxViewModel)
           .navigationViewStyle(.stack)
+          .navigationBarTitleDisplayMode(.inline)
           .tag("following")
       }
       .navigationBarTitleDisplayMode(.inline)

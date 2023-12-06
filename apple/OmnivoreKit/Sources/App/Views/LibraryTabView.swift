@@ -55,11 +55,13 @@ struct LibraryTabView: View {
       TabView(selection: $selectedTab) {
         NavigationView {
           HomeFeedContainerView(viewModel: followingViewModel)
+            .navigationBarTitleDisplayMode(.inline)
             .navigationViewStyle(.stack)
         }.tag("following")
 
         NavigationView {
           HomeFeedContainerView(viewModel: libraryViewModel)
+            .navigationBarTitleDisplayMode(.inline)
             .navigationViewStyle(.stack)
         }.tag("inbox")
 
@@ -84,7 +86,6 @@ struct LibraryTabView: View {
     .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
       ExpandedAudioPlayer()
     }
-    .ignoresSafeArea()
     .navigationBarHidden(true)
   }
 }
