@@ -56,8 +56,8 @@ struct FeedCardNavigationLink: View {
         }
       )
     }
-    .onAppear {
-      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    .task {
+      await viewModel.itemAppeared(item: item, dataService: dataService)
     }
   }
 }
@@ -92,14 +92,8 @@ struct GridCardNavigationLink: View {
         GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
       }
     )
-//    NavigationLink(destination: LinkItemDetailView(
-//      linkedItemObjectID: item.objectID,
-//      isPDF: item.isPDF
-//    )) {
-//
-//    }
-    .onAppear {
-      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    .task {
+      await viewModel.itemAppeared(item: item, dataService: dataService)
     }
     .aspectRatio(1.0, contentMode: .fill)
     .background(

@@ -262,7 +262,7 @@ import Views
         try await dataService.moveItem(itemID: item.unwrappedID, folder: folder)
         snackbar("Item moved")
       } catch {
-        snackbar("Error performing operation")
+        snackbar("Error moving item to \(folder)")
       }
     }
   }
@@ -277,6 +277,7 @@ import Views
         try await dataService.bulkAction(action: action, items: items)
         snackbar("Operation completed")
       } catch {
+        print("ERROR: ", error)
         snackbar("Error performing operation")
       }
     }

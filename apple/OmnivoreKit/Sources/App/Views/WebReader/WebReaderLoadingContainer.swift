@@ -66,13 +66,11 @@ public struct WebReaderLoadingContainer: View {
       Text(errorMessage)
     } else {
       ProgressView()
-        .onAppear {
-          Task {
-            if let username = dataService.currentViewer?.username {
-              await viewModel.loadItem(dataService: dataService, username: username, requestID: requestID)
-            } else {
-              viewModel.errorMessage = "You are not logged in."
-            }
+        .task {
+          if let username = dataService.currentViewer?.username {
+            await viewModel.loadItem(dataService: dataService, username: username, requestID: requestID)
+          } else {
+            viewModel.errorMessage = "You are not logged in."
           }
         }
     }

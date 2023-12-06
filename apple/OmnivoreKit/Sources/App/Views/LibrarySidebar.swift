@@ -154,16 +154,14 @@ import SwiftUI
             }
           }
       }
-    }.onAppear {
-      Task {
-        await inboxViewModel.loadFilters(dataService: dataService)
-        await followingViewModel.loadFilters(dataService: dataService)
+    }.task {
+      await inboxViewModel.loadFilters(dataService: dataService)
+      await followingViewModel.loadFilters(dataService: dataService)
 
-        if inboxActive {
-          selectedFilter = inboxViewModel.appliedFilter
-        } else {
-          selectedFilter = followingViewModel.appliedFilter
-        }
+      if inboxActive {
+        selectedFilter = inboxViewModel.appliedFilter
+      } else {
+        selectedFilter = followingViewModel.appliedFilter
       }
     }.onChange(of: inboxViewModel.appliedFilter) { filter in
       // When the user uses the dropdown menu to change filter we need to update in the sidebar
