@@ -44,7 +44,7 @@ export const search = async (
   token: string,
   highlightOnly: boolean,
   updatedSince: Date,
-  first = '50',
+  first = 50,
   after = '0'
 ): Promise<SearchResponse | null> => {
   const query = `updated:${updatedSince.toISOString()} ${

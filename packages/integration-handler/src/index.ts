@@ -97,7 +97,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       const client = getIntegrationClient(integrationName)
 
       // get paginated items from the backend
-      const first = '50'
+      const first = 50
       let hasMore = true
       let after = '0'
       while (hasMore) {

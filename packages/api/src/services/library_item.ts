@@ -39,7 +39,6 @@ enum HasFilter {
 export interface SearchArgs {
   from?: number
   size?: number
-  sort?: Sort
   includePending?: boolean | null
   includeDeleted?: boolean
   includeContent?: boolean
@@ -389,14 +388,14 @@ export const buildQuery = (
               // validate date
               if (start && start !== '*') {
                 startDate = new Date(start)
-                if (!startDate.getTime()) {
+                if (isNaN(startDate.getTime())) {
                   throw new Error('Invalid start date.')
                 }
               }
 
               if (end && end !== '*') {
                 endDate = new Date(end)
-                if (!endDate.getTime()) {
+                if (isNaN(endDate.getTime())) {
                   throw new Error('Invalid end date.')
                 }
               }
@@ -695,7 +694,7 @@ export const searchLibraryItems = async (
       const count = await queryBuilder.getCount()
 
       // default order by saved at descending
-      if (orders.length === 0) {
+      if (!orders.find((order) => order.by === 'library_item.saved_at')) {
         orders.push({
           by: 'library_item.saved_at',
           order: SortOrder.DESCENDING,
