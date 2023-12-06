@@ -101,12 +101,18 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
       let hasMore = true
       let after = '0'
       while (hasMore) {
-        console.log('searching for items...')
+        const updatedSince = new Date(syncAt)
+        console.log('searching for items...', {
+          userId: claims.uid,
+          first,
+          after,
+          updatedSince,
+        })
         const response = await search(
           REST_BACKEND_ENDPOINT,
           systemToken,
           client.highlightOnly,
-          new Date(syncAt),
+          updatedSince,
           first,
           after
         )
@@ -125,7 +131,10 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           break
         }
 
-        console.log('exporting items...')
+        console.log('exporting items...', {
+          userId: claims.uid,
+          total: items.length,
+        })
         const synced = await client.export(claims.token, items)
         if (!synced) {
           console.error('failed to export item', {
@@ -134,7 +143,11 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           return res.status(400).send('Failed to sync')
         }
 
-        console.log('updating integration...')
+        console.log('updating integration...', {
+          userId: claims.uid,
+          integrationId,
+          syncedAt: items[items.length - 1].updatedAt,
+        })
         // update integration syncedAt if successful
         const updated = await updateIntegration(
           REST_BACKEND_ENDPOINT,
