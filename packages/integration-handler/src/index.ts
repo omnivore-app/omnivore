@@ -134,6 +134,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
         console.log('exporting items...', {
           userId: claims.uid,
           total: items.length,
+          hasMore,
         })
         const synced = await client.export(claims.token, items)
         if (!synced) {
@@ -165,9 +166,6 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           })
           return res.status(400).send('Failed to update integration')
         }
-
-        // avoid rate limiting
-        await wait(500)
       }
 
       console.log('done')
