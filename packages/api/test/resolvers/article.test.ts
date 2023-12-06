@@ -1702,6 +1702,61 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
       })
     })
+
+    context('when label:test1,test2 is in the query', () => {
+      let items: LibraryItem[] = []
+      let label1: Label
+      let label2: Label
+
+      before(async () => {
+        keyword = 'label:test1,test2'
+        // Create some test items
+        label1 = await createLabel('test1', '', user.id)
+        label2 = await createLabel('test2', '', user.id)
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label1], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels({ id: label1.id }, user.id)
+        await deleteLabels({ id: label2.id }, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items with label test1 or test2', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[0].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
