@@ -15,7 +15,6 @@ public extension DataService {
       result = try await URLSession.shared.data(for: request)
     } catch {
       print("ERROR DOWNLOADING PDF DATA: ", error)
-      print("URL", url)
     }
 
     guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {

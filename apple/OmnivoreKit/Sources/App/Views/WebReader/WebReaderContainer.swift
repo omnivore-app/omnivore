@@ -25,6 +25,7 @@ struct WebReaderContainerView: View {
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
   @State var showNavBarActionID: UUID?
+  @State var showExpandedAudioPlayer = false
   @State var shareActionID: UUID?
   @State var annotation = String()
   @State var showBottomBar = false
@@ -463,6 +464,9 @@ struct WebReaderContainerView: View {
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
           }
+          .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+            ExpandedPlayer()
+          }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
           Button(LocalText.genericOk, role: .cancel, action: {
@@ -592,7 +596,17 @@ struct WebReaderContainerView: View {
                 self.bottomBarOpacity = 0
               }
           }
+          if let audioProperties = audioController.itemAudioProperties {
+            MiniPlayerViewer(itemAudioProperties: audioProperties)
+              .padding(.top, 10)
+              .padding(.bottom, 40)
+              .background(Color.themeTabBarColor)
+              .onTapGesture {
+                showExpandedAudioPlayer = true
+              }
+          }
         }
+
       #endif
     }
     #if os(macOS)
