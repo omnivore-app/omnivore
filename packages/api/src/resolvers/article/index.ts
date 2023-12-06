@@ -745,8 +745,6 @@ export const updatesSinceResolver = authorized<
   UpdatesSinceError,
   QueryUpdatesSinceArgs
 >(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
-  const sort = sortParamsToSort(sortParams)
-
   const startCursor = after || ''
   const size = Math.min(first || 10, 100) // limit to 100 items
   let startDate = new Date(since)
@@ -754,18 +752,18 @@ export const updatesSinceResolver = authorized<
     // for android app compatibility
     startDate = new Date(0)
   }
+  const sort = sortParamsToSort(sortParams)
 
   // create a search query
   const query = `updated:${startDate.toISOString()}${
     folder ? ' in:' + folder : ''
-  }`
+  } sort:${sort.by}-${sort.order}`
 
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
-      sort,
       query,
     },
     uid
