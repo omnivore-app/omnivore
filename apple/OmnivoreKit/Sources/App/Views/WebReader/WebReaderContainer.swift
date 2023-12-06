@@ -465,7 +465,7 @@ struct WebReaderContainerView: View {
             SafariView(url: $0.url)
           }
           .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-            ExpandedPlayer()
+            ExpandedAudioPlayer()
           }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {

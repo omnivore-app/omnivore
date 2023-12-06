@@ -1,8 +1,11 @@
 import Foundation
+import Services
 import SwiftUI
 
 @MainActor
 public struct LibrarySplitView: View {
+  @EnvironmentObject var audioController: AudioController
+
   @StateObject private var inboxViewModel = HomeFeedViewModel(
     folder: "inbox",
     fetcher: LibraryItemFetcher(),
@@ -24,6 +27,8 @@ public struct LibrarySplitView: View {
       cardStyle: .library
     )
   )
+
+  @State var selected = "home"
 
   #if os(iOS)
     public var body: some View {

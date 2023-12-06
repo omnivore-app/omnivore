@@ -82,7 +82,7 @@ struct LibraryTabView: View {
         .padding(0)
     }
     .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-      ExpandedPlayer()
+      ExpandedAudioPlayer()
     }
     .ignoresSafeArea()
     .navigationBarHidden(true)

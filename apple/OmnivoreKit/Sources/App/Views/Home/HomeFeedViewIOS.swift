@@ -34,6 +34,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
     @State var showOpenAIVoices = false
+    @State var showExpandedAudioPlayer = false
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
@@ -63,39 +64,57 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var body: some View {
-      HomeFeedView(
-        listTitle: $listTitle,
-        isListScrolled: $isListScrolled,
-        prefersListLayout: $prefersListLayout,
-        isEditMode: $isEditMode,
-        selection: $selection,
-        viewModel: viewModel,
-        showFeatureCards: showFeatureCards
-      )
-      .refreshable {
-        loadItems(isRefresh: true)
-      }
-      .onChange(of: viewModel.presentWebContainer) { _ in
-        if !viewModel.presentWebContainer {
-          viewModel.linkRequest = nil
+      ZStack {
+        HomeFeedView(
+          listTitle: $listTitle,
+          isListScrolled: $isListScrolled,
+          prefersListLayout: $prefersListLayout,
+          isEditMode: $isEditMode,
+          selection: $selection,
+          viewModel: viewModel,
+          showFeatureCards: showFeatureCards
+        )
+        .refreshable {
+          loadItems(isRefresh: true)
         }
-      }
-      .onChange(of: viewModel.searchTerm) { _ in
-        // Maybe we should debounce this, but
-        // it feels like it works ok without
-        loadItems(isRefresh: true)
-      }
-      .onChange(of: viewModel.selectedLabels) { _ in
-        loadItems(isRefresh: true)
-      }
-      .onChange(of: viewModel.negatedLabels) { _ in
-        loadItems(isRefresh: true)
-      }
-      .onChange(of: viewModel.appliedFilter) { _ in
-        loadItems(isRefresh: true)
-      }
-      .onChange(of: viewModel.appliedSort) { _ in
-        loadItems(isRefresh: true)
+        .onChange(of: viewModel.presentWebContainer) { _ in
+          if !viewModel.presentWebContainer {
+            viewModel.linkRequest = nil
+          }
+        }
+        .onChange(of: viewModel.searchTerm) { _ in
+          // Maybe we should debounce this, but
+          // it feels like it works ok without
+          loadItems(isRefresh: true)
+        }
+        .onChange(of: viewModel.selectedLabels) { _ in
+          loadItems(isRefresh: true)
+        }
+        .onChange(of: viewModel.negatedLabels) { _ in
+          loadItems(isRefresh: true)
+        }
+        .onChange(of: viewModel.appliedFilter) { _ in
+          loadItems(isRefresh: true)
+        }
+        .onChange(of: viewModel.appliedSort) { _ in
+          loadItems(isRefresh: true)
+        }
+
+        if UIDevice.isIPad {
+          VStack(spacing: 0) {
+            Spacer()
+
+            if let audioProperties = audioController.itemAudioProperties {
+              MiniPlayerViewer(itemAudioProperties: audioProperties)
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+                .background(Color.themeTabBarColor)
+                .onTapGesture {
+                  showExpandedAudioPlayer = true
+                }
+            }
+          }
+        }
       }
       .sheet(item: $viewModel.itemUnderLabelEdit) { item in
         ApplyLabelsView(mode: .item(item), onSave: nil)
@@ -105,6 +124,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
       .sheet(item: $viewModel.itemForHighlightsView) { item in
         NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
+      }
+      .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+        ExpandedAudioPlayer()
       }
       .sheet(isPresented: $showOpenAIVoices) {
         OpenAIVoicesModal(audioController: audioController)

@@ -97,7 +97,7 @@ import SwiftUI
         Section {
           Button(action: { followingMenuState = followingMenuState == "open" ? "closed" : "open" }, label: {
             HStack {
-              Image.tabLibrary
+              Image.tabFollowing
               Text("Following")
               Spacer()
 
