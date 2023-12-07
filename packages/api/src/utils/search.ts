@@ -1,4 +1,4 @@
-import { LiqeQuery, parse } from 'liqe'
+import { LiqeQuery, parse } from '@omnivore/liqe'
 
 export const parseSearchQuery = (query: string): LiqeQuery => {
   const searchQuery = query
@@ -9,10 +9,6 @@ export const parseSearchQuery = (query: string): LiqeQuery => {
     .replace(/(\w+):("([^"]+)"|([^")\s]+))/g, '$1:"$3$4"')
     // remove any quotes that are in the array value for example: label:"test","test2" -> label:"test,test2"
     .replace(/","/g, ',')
-    // wrap non-english words in quotes if they are not already
-    .replace(/([^":\s]+[\u0080-\uFFFF]+[^":\s]*)(?=\s|$|")/g, '"$1"')
-
-  console.log('searchQuery', searchQuery)
 
   return parse(searchQuery)
 }

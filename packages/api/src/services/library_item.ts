@@ -1,4 +1,4 @@
-import { LiqeQuery } from 'liqe'
+import { LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
 import { DeepPartial, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
