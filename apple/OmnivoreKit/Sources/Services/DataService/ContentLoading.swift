@@ -10,7 +10,7 @@ struct PendingLink {
 
 extension DataService {
   func prefetchPage(pendingLink: PendingLink, username: String) async {
-    let content = try? await loadArticleContent(username: username, itemID: pendingLink.itemID, useCache: false)
+    let content = try? await loadArticleContent(username: username, itemID: pendingLink.itemID, useCache: true)
 
     if content?.contentStatus == .processing, pendingLink.retryCount < 7 {
       let retryDelayInNanoSeconds = UInt64(pendingLink.retryCount * 2 * 1_000_000_000)
