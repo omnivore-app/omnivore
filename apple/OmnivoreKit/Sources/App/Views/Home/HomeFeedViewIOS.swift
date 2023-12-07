@@ -606,12 +606,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     var body: some View {
       let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
       VStack(spacing: 0) {
-        if viewModel.showLoadingBar {
-          ShimmeringLoader()
-        } else {
-          Spacer(minLength: 2)
-        }
-
+        Color.systemBackground.frame(height: 1)
         ScrollViewReader { reader in
           List(selection: $selection) {
             Section(content: {
@@ -851,12 +846,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var body: some View {
       VStack(alignment: .leading) {
-        if viewModel.showLoadingBar {
-          ShimmeringLoader()
-        } else {
-          Spacer(minLength: 2)
-        }
-
+        Color.systemBackground.frame(height: 1)
         filtersHeader
           .onAppear {
             withAnimation {

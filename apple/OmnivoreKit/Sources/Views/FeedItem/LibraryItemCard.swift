@@ -256,25 +256,14 @@ public struct LibraryItemCard: View {
           }
         }
       } else {
-        fallbackImage
+        Color.clear
+          .frame(width: 50, height: 75)
+          .cornerRadius(5)
+          .padding(.top, 2)
       }
     }
     .padding(.top, 10)
     .cornerRadius(5)
-  }
-
-  var fallbackImage: some View {
-    HStack {
-      Text(item.unwrappedTitle.prefix(1))
-        .font(Font.system(size: 32, weight: .bold))
-        .frame(alignment: .bottomLeading)
-        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
-    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
-    .cornerRadius(5)
-    .frame(width: 50, height: 75)
   }
 
   var bylineStr: String {
