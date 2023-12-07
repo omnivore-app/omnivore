@@ -226,8 +226,6 @@ struct AnimatingCellHeight: AnimatableModifier {
                 Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
               }
             )
-          } else {
-            EmptyView()
           }
         }
         ToolbarItem(placement: .barTrailing) {
@@ -235,10 +233,6 @@ struct AnimatingCellHeight: AnimatableModifier {
             action: { searchPresented = true },
             label: {
               Image(systemName: "magnifyingglass")
-                .resizable()
-                .frame(width: 18, height: 18)
-                .padding(.vertical)
-                .foregroundColor(.appGrayTextContrast)
             }
           )
         }
@@ -261,8 +255,6 @@ struct AnimatingCellHeight: AnimatableModifier {
               Image.utilityMenu
             })
               .foregroundColor(.appGrayTextContrast)
-          } else {
-            EmptyView()
           }
         }
         ToolbarItemGroup(placement: .bottomBar) {
