@@ -1,10 +1,5 @@
 {
   "name": "@omnivore/liqe",
-  "author": {
-    "email": "gajus@gajus.com",
-    "name": "Gajus Kuizinas",
-    "url": "http://gajus.com"
-  },
   "ava": {
     "extensions": [
       "ts"
