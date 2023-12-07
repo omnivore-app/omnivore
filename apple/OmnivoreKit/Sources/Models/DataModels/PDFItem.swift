@@ -15,7 +15,7 @@ public struct PDFItem {
   public let isArchived: Bool
   public let isRead: Bool
   public let downloadURL: String
-  public let highlights: [Highlight]
+  public var highlights: [Highlight]
 
   public static func make(item: LibraryItem) -> PDFItem? {
     guard item.isPDF else { return nil }

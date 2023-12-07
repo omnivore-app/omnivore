@@ -178,7 +178,7 @@ import Utils
               if let highlight = annotations?.compactMap({ $0 as? HighlightAnnotation }).first,
                  let customHighlight = highlight.customData?["omnivoreHighlight"] as? [String: String],
                  let highlightID = customHighlight["id"]?.lowercased(),
-                 let selectedHighlight = viewModel.findHighlight(highlightID: highlightID)
+                 let selectedHighlight = viewModel.findHighlight(dataService: dataService, highlightID: highlightID)
               {
                 addNoteHighlight = selectedHighlight
                 annotation = selectedHighlight.annotation ?? ""
