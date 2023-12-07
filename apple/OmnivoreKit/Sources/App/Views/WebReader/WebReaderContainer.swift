@@ -33,6 +33,7 @@ struct WebReaderContainerView: View {
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
+  @State private var showOpenArchiveSheet = false
   @State private var lastScrollPercentage: Int?
   @State private var isRecovering = false
 
@@ -246,6 +247,12 @@ struct WebReaderContainerView: View {
             openOriginalURL(urlString: item.pageURLString)
           },
           label: { Label("Open Original", systemImage: "safari") }
+        )
+        Button(
+          action: {
+            showOpenArchiveSheet = true
+          },
+          label: { Label("Open on Archive.today", systemImage: "globe") }
         )
         Button(
           action: share,
@@ -488,6 +495,9 @@ struct WebReaderContainerView: View {
             }.onDisappear {
               showRecommendSheet = false
             }
+          }
+          .formSheet(isPresented: $showOpenArchiveSheet) {
+            OpenArchiveTodayView(item: item)
           }
         #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
