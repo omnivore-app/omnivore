@@ -463,6 +463,7 @@ struct WebReaderContainerView: View {
         #if os(iOS)
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
+              .ignoresSafeArea(.all, edges: .bottom)
           }
           .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
             ExpandedAudioPlayer()
