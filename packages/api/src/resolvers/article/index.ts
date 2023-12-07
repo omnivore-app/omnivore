@@ -822,8 +822,8 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      // the query size is limited to 1000 characters
-      if (!query || query.length > 1000) {
+      // the query size is limited to 4000 characters to allow for 100 items
+      if (!query || query.length > 4000) {
         log.error('bulkActionResolver error', {
           error: 'QueryTooLong',
           query,
