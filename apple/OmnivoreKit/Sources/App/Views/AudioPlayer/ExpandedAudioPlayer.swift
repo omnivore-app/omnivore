@@ -416,14 +416,9 @@
       NavigationView {
         innerBody
           .background(Color.themeDisabledBG)
-          .navigationTitle(LocalText.textToSpeechGeneric)
+          .navigationTitle(audioController.itemAudioProperties?.title ?? LocalText.textToSpeechGeneric)
           .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text("Hide") }))
           .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
-        //          .searchable(text: $queryString, placement: .navigationBarDrawer(displayMode: .always)) {
-        //            // print("searching: ", queryString)
-        //            Text("content")
-        //          }
-        //          }
       }
     }
 
