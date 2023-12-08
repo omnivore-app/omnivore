@@ -368,23 +368,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var topItem: Models.LibraryItem?
     @ObservedObject var networkMonitor = NetworkMonitor()
 
-//    init(listTitle: Binding<String>,
-//         isListScrolled: Binding<Bool>,
-//         prefersListLayout: Binding<Bool>,
-//         isEditMode: Binding<EditMode>,
-//         selection: Binding<Set<String>>,
-//         viewModel: HomeFeedViewModel,
-//         showFeatureCards: Bool)
-//    {
-//      self._listTitle = listTitle
-//      self._isListScrolled = isListScrolled
-//      self._prefersListLayout = prefersListLayout
-//      self._isEditMode = isEditMode
-//      self._selection = selection
-//      self.viewModel = viewModel
-//      self.showFeatureCards = showFeatureCards
-//    }
-
     var filtersHeader: some View {
       GeometryReader { reader in
         ScrollView(.horizontal, showsIndicators: false) {
@@ -592,6 +575,15 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
+    var redactedItems: some View {
+      ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.unwrappedID) { _, item in
+        let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
+        LibraryItemCard(item: item, viewer: dataService.currentViewer)
+          .listRowSeparatorTint(Color.thBorderColor)
+          .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
+      }.redacted(reason: .placeholder)
+    }
+
     var listItems: some View {
       ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
@@ -670,11 +662,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 }
 
                 if viewModel.showLoadingBar {
-                  HStack(alignment: .center, spacing: 10) {
-                    ProgressView()
-                  }
-                  .frame(height: 100)
-                  .listRowSeparator(.hidden)
+                  redactedItems
                 } else {
                   listItems
                 }
@@ -865,13 +853,24 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
-            ForEach(viewModel.fetcher.items) { item in
-              GridCardNavigationLink(
-                item: item,
-                actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-                isContextMenuOpen: $isContextMenuOpen,
-                viewModel: viewModel
-              )
+            if viewModel.showLoadingBar {
+              ForEach(fakeLibraryItems(dataService: dataService)) { item in
+                GridCardNavigationLink(
+                  item: item,
+                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
+                  isContextMenuOpen: $isContextMenuOpen,
+                  viewModel: viewModel
+                )
+              }.redacted(reason: .placeholder)
+            } else {
+              ForEach(viewModel.fetcher.items) { item in
+                GridCardNavigationLink(
+                  item: item,
+                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
+                  isContextMenuOpen: $isContextMenuOpen,
+                  viewModel: viewModel
+                )
+              }
             }
             Spacer()
           }
@@ -950,4 +949,22 @@ struct LinkDestination: View {
       }
     }
   }
+}
+
+func fakeLibraryItems(dataService: DataService) -> [Models.LibraryItem] {
+  let temp = Models.LibraryItem(context: dataService.viewContext)
+  temp.id = UUID().uuidString
+  temp.wordsCount = 100
+  temp.author = "the author"
+  temp.siteName = "omnivore dot app"
+  temp.title = "This is a temporary title for a fake item"
+  temp.highlights = []
+  temp.imageURLString = "https://localhost/"
+  return Array(
+    repeatElement(temp, count: 20)
+      .map { item in
+        item.id = UUID().uuidString
+        return item
+      }
+  )
 }
