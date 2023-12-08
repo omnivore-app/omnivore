@@ -53,7 +53,8 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var showFeatureCards: Bool {
-      viewModel.listConfig.hasFeatureCards &&
+      isEditMode == .inactive &&
+        viewModel.listConfig.hasFeatureCards &&
         !viewModel.hideFeatureSection &&
         viewModel.fetcher.items.count > 0 &&
         viewModel.searchTerm.isEmpty &&
@@ -204,14 +205,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
           .frame(maxWidth: .infinity, alignment: .bottomLeading)
         }
-
-        ToolbarItem(placement: .barTrailing) {
-          if UIDevice.isIPad, viewModel.folder == "inbox" {
-            Button(action: { addLinkPresented = true }, label: {
-              Label("Add Link", systemImage: "plus")
-            })
-          }
-        }
         ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
           if enableGrid {
             Button(
@@ -226,26 +219,31 @@ struct AnimatingCellHeight: AnimatableModifier {
           Button(
             action: { searchPresented = true },
             label: {
-              Image(systemName: "magnifyingglass")
+              Image.magnifyingGlass
                 .foregroundColor(Color.appGrayTextContrast)
             }
           )
         }
         ToolbarItem(placement: .barTrailing) {
-          if UIDevice.isIPhone {
-            Menu(content: {
-              Button(action: {
-                isEditMode = isEditMode == .inactive ? .active : .inactive
-              }, label: {
-                Text(isEditMode == .inactive ? "Select Multiple" : "End Multiselect")
-              })
-              Button(action: { addLinkPresented = true }, label: {
-                Label("Add Link", systemImage: "plus.circle")
-              })
-            }, label: {
-              Image.utilityMenu
-            })
-              .foregroundColor(.appGrayTextContrast)
+          Button(
+            action: { isEditMode = isEditMode == .active ? .inactive : .active },
+            label: {
+              Image.selectMultiple
+                .foregroundColor(Color.appGrayTextContrast)
+            }
+          )
+        }
+        ToolbarItem(placement: .barTrailing) {
+          if viewModel.folder == "inbox" {
+            Button(
+              action: { addLinkPresented = true },
+              label: {
+                Image.addLink
+                  .foregroundColor(Color.appGrayTextContrast)
+              }
+            )
+          } else {
+            EmptyView()
           }
         }
         ToolbarItemGroup(placement: .bottomBar) {
@@ -594,8 +592,45 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
+    var listItems: some View {
+      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
+        let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
+
+        FeedCardNavigationLink(
+          item: item,
+          isInMultiSelectMode: viewModel.isInMultiSelectMode,
+          viewModel: viewModel
+        )
+        .background(GeometryReader { geometry in
+          Color.clear
+            .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
+        })
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
+          if value.y < 100, value.y > 0 {
+            if item.savedAt != nil, topItem != item {
+              setTopItem(item)
+            }
+          }
+        }
+        .listRowSeparatorTint(Color.thBorderColor)
+        .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
+        .contextMenu {
+          menuItems(for: item)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+          ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
+            swipeActionButton(action: action, item: item)
+          }
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+          ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
+            swipeActionButton(action: action, item: item)
+          }
+        }
+      }
+    }
+
     var body: some View {
-      let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
       VStack(spacing: 0) {
         Color.systemBackground.frame(height: 1)
         ScrollViewReader { reader in
@@ -634,38 +669,14 @@ struct AnimatingCellHeight: AnimatableModifier {
                     }
                 }
 
-                ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
-                  FeedCardNavigationLink(
-                    item: item,
-                    isInMultiSelectMode: viewModel.isInMultiSelectMode,
-                    viewModel: viewModel
-                  )
-                  .background(GeometryReader { geometry in
-                    Color.clear
-                      .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).origin)
-                  })
-                  .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                    if value.y < 100, value.y > 0 {
-                      if item.savedAt != nil, topItem != item {
-                        setTopItem(item)
-                      }
-                    }
+                if viewModel.showLoadingBar {
+                  HStack(alignment: .center, spacing: 10) {
+                    ProgressView()
                   }
-                  .listRowSeparatorTint(Color.thBorderColor)
-                  .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
-                  .contextMenu {
-                    menuItems(for: item)
-                  }
-                  .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
-                      swipeActionButton(action: action, item: item)
-                    }
-                  }
-                  .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
-                      swipeActionButton(action: action, item: item)
-                    }
-                  }
+                  .frame(height: 100)
+                  .listRowSeparator(.hidden)
+                } else {
+                  listItems
                 }
               }
             }, header: {
