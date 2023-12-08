@@ -44,6 +44,7 @@ public extension Color {
   static var themeSolidBackground: Color { Color("_themeSolidBackground", bundle: .module) }
   static var thBorderColor: Color { Color("thBorderColor", bundle: .module) }
   static var thLibrarySeparator: Color { Color("thLibrarySeparator", bundle: .module) }
+  static var thLightWhiteGrey: Color { Color("_themeLightWhiteGrey", bundle: .module) }
 
   static var thFeatureSeparator: Color { Color("featureSeparator", bundle: .module) }
 
