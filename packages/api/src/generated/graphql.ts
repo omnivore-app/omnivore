@@ -820,7 +820,7 @@ export type Filter = {
   defaultFilter?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
-  folder: Scalars['String'];
+  folder?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   position: Scalars['Int'];
@@ -4975,7 +4975,7 @@ export type FilterResolvers<ContextType = ResolverContext, ParentType extends Re
   defaultFilter?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  folder?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

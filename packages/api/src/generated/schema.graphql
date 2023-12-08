@@ -727,7 +727,7 @@ type Filter {
   defaultFilter: Boolean
   description: String
   filter: String!
-  folder: String!
+  folder: String
   id: ID!
   name: String!
   position: Int!

@@ -2215,7 +2215,7 @@ const schema = gql`
     name: String!
     filter: String!
     position: Int!
-    folder: String!
+    folder: String
     description: String
     createdAt: Date!
     updatedAt: Date
