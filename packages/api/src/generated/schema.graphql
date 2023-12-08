@@ -232,6 +232,9 @@ input CreateArticleInput {
   folder: String
   labels: [CreateLabelInput!]
   preparedDocument: PreparedDocumentInput
+  publishedAt: Date
+  rssFeedUrl: String
+  savedAt: Date
   skipParsing: Boolean
   source: String
   state: ArticleSavingRequestStatus

@@ -237,6 +237,7 @@ export const enqueueParseRequest = async ({
   savedAt,
   publishedAt,
   folder,
+  rssFeedUrl,
 }: {
   url: string
   userId: string
@@ -250,6 +251,7 @@ export const enqueueParseRequest = async ({
   savedAt?: Date
   publishedAt?: Date
   folder?: string
+  rssFeedUrl?: string
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -263,6 +265,7 @@ export const enqueueParseRequest = async ({
     savedAt,
     publishedAt,
     folder,
+    rssFeedUrl,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

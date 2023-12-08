@@ -275,6 +275,9 @@ export type CreateArticleInput = {
   folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   preparedDocument?: InputMaybe<PreparedDocumentInput>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  rssFeedUrl?: InputMaybe<Scalars['String']>;
+  savedAt?: InputMaybe<Scalars['Date']>;
   skipParsing?: InputMaybe<Scalars['Boolean']>;
   source?: InputMaybe<Scalars['String']>;
   state?: InputMaybe<ArticleSavingRequestStatus>;

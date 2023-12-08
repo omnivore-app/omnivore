@@ -36,6 +36,7 @@ interface PageSaveRequest {
   savedAt?: Date
   publishedAt?: Date
   folder?: string
+  subscription?: string
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -91,6 +92,7 @@ export const createPageSaveRequest = async ({
   savedAt,
   publishedAt,
   folder,
+  subscription,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -128,6 +130,8 @@ export const createPageSaveRequest = async ({
         state: LibraryItemState.Processing,
         publishedAt,
         folder,
+        subscription,
+        savedAt,
       },
       userId,
       pubsub
@@ -161,6 +165,7 @@ export const createPageSaveRequest = async ({
     savedAt,
     publishedAt,
     folder,
+    rssFeedUrl: subscription,
   })
 
   return libraryItemToArticleSavingRequest(user, libraryItem)

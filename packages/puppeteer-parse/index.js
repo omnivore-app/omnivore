@@ -411,15 +411,18 @@ async function fetchContent(req, res) {
     }
 
     if (contentType === 'application/pdf') {
-      const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
+      const uploadFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
       const uploadedPdf = await sendCreateArticleMutation(userId, {
         url: encodeURI(finalUrl),
         articleSavingRequestId,
-        uploadFileId: uploadedFileId,
+        uploadFileId,
         state,
         labels,
         source,
         folder,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
       });
       if (!uploadedPdf) {
         statusCode = 500;
