@@ -1083,7 +1083,9 @@ export const updateLibraryItems = async (
       .where('library_item.user_id = :userId', { userId })
 
     if (query) {
-      queryBuilder.andWhere(query).setParameters(paramtersToObject(parameters))
+      queryBuilder
+        .andWhere(`(${query})`)
+        .setParameters(paramtersToObject(parameters))
     }
 
     if (addLabels) {
