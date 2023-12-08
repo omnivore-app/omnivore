@@ -44,6 +44,8 @@ import Views
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
+  @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
+
   @Published var appliedFilter: InternalFilter? {
     didSet {
       let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter") ?? folder

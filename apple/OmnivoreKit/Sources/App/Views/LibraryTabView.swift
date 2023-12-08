@@ -19,6 +19,7 @@ struct LibraryTabView: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
+  @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
 
   @State var showExpandedAudioPlayer = false
@@ -53,11 +54,13 @@ struct LibraryTabView: View {
   var body: some View {
     VStack(spacing: 0) {
       TabView(selection: $selectedTab) {
-        NavigationView {
-          HomeFeedContainerView(viewModel: followingViewModel)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationViewStyle(.stack)
-        }.tag("following")
+        if !hideFollowingTab {
+          NavigationView {
+            HomeFeedContainerView(viewModel: followingViewModel)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("following")
+        }
 
         NavigationView {
           HomeFeedContainerView(viewModel: libraryViewModel)
@@ -80,7 +83,7 @@ struct LibraryTabView: View {
           .frame(height: 1)
           .frame(maxWidth: .infinity)
       }
-      CustomTabBar(selectedTab: $selectedTab)
+      CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
         .padding(0)
     }
     .fullScreenCover(isPresented: $showExpandedAudioPlayer) {

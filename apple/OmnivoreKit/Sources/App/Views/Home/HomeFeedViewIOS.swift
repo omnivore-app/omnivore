@@ -357,7 +357,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
+    @State private var showAddFeedView = false
     @State private var showHideFeatureAlert = false
+    @State private var showHideFollowingAlert = false
 
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -584,6 +586,46 @@ struct AnimatingCellHeight: AnimatableModifier {
       }.redacted(reason: .placeholder)
     }
 
+    var emptyState: some View {
+      if viewModel.folder == "following" {
+        return AnyView(
+          VStack(alignment: .center, spacing: 20) {
+            Text("You don't have any Feed items.")
+              .font(Font.system(size: 18, weight: .bold))
+
+            Text("Add an RSS/Atom feed")
+              .foregroundColor(Color.blue)
+              .onTapGesture {
+                showAddFeedView = true
+              }
+
+            Text("Hide the Following tab")
+              .foregroundColor(Color.blue)
+              .onTapGesture {
+                showHideFollowingAlert = true
+              }
+          }
+          .frame(minHeight: 400)
+          .frame(maxWidth: .infinity)
+          .padding()
+        )
+      } else {
+        return AnyView(Group {
+          Spacer()
+
+          VStack(alignment: .center, spacing: 20) {
+            Text("No results found for this query")
+              .font(Font.system(size: 18, weight: .bold))
+          }
+          .frame(minHeight: 400)
+          .frame(maxWidth: .infinity)
+          .padding()
+
+          Spacer()
+        })
+      }
+    }
+
     var listItems: some View {
       ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
@@ -663,6 +705,9 @@ struct AnimatingCellHeight: AnimatableModifier {
 
                 if viewModel.showLoadingBar {
                   redactedItems
+                } else if viewModel.fetcher.items.isEmpty {
+                  emptyState
+                    .listRowSeparator(.hidden, edges: .all)
                 } else {
                   listItems
                 }
@@ -688,13 +733,26 @@ struct AnimatingCellHeight: AnimatableModifier {
           shouldScrollToTop = true
         }
       }
+      .sheet(isPresented: $showAddFeedView) {
+        NavigationView {
+          LibraryAddFeedView()
+        }
+      }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
              isPresented: $showHideFeatureAlert) {
         Button("OK", role: .destructive) {
           viewModel.hideFeatureSection = true
         }
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
-      }.introspectNavigationController { nav in
+      }
+      .alert("The Following tab will be hidden. You can add it back from the filter settings in your profile.",
+             isPresented: $showHideFollowingAlert) {
+        Button("OK", role: .destructive) {
+          viewModel.hideFollowingTab = true
+        }
+        Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFollowingAlert = false }
+      }
+      .introspectNavigationController { nav in
         nav.navigationBar.shadowImage = UIImage()
         nav.navigationBar.setBackgroundImage(UIImage(), for: .default)
       }
