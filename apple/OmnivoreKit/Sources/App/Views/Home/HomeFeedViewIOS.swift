@@ -29,7 +29,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
     @State var addLinkPresented = false
-    @State var settingsPresented = false
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
@@ -179,11 +178,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           LibraryAddLinkView()
         }
       }
-      .sheet(isPresented: $settingsPresented) {
-        NavigationView {
-          ProfileView()
-        }
-      }
       .task {
         if viewModel.fetcher.items.isEmpty {
           loadItems(isRefresh: false)
@@ -248,10 +242,6 @@ struct AnimatingCellHeight: AnimatableModifier {
               Button(action: { addLinkPresented = true }, label: {
                 Label("Add Link", systemImage: "plus.circle")
               })
-              Button(action: { settingsPresented = true }, label: {
-                Label(LocalText.genericProfile, systemImage: "person.circle")
-              })
-
             }, label: {
               Image.utilityMenu
             })
