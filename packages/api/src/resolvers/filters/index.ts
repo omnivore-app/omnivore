@@ -37,12 +37,13 @@ export const saveFilterResolver = authorized<
       return t.getRepository(Filter).save({
         user: { id: uid },
         name: input.name,
-        folder: input.folder ?? undefined,
+        folder: input.folder ?? 'inbox',
         description: '',
         position: input.position ?? 0,
         filter: input.filter,
         defaultFilter: false,
         visible: true,
+        category: input.category ?? 'Search',
       })
     })
 
