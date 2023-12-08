@@ -691,7 +691,7 @@ export const searchLibraryItems = async (
       if (query) {
         // add where clause from query
         queryBuilder
-          .andWhere(query)
+          .andWhere(`(${query})`)
           .setParameters(paramtersToObject(parameters))
       }
 
