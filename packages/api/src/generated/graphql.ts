@@ -815,11 +815,12 @@ export type FeedsSuccess = {
 
 export type Filter = {
   __typename?: 'Filter';
+  category?: Maybe<Scalars['String']>;
   createdAt: Scalars['Date'];
   defaultFilter?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
-  folder: Scalars['String'];
+  folder?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   position: Scalars['Int'];
@@ -2238,6 +2239,7 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
+  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
   folder?: InputMaybe<Scalars['String']>;
@@ -2902,6 +2904,7 @@ export enum UpdateFilterErrorCode {
 }
 
 export type UpdateFilterInput = {
+  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter?: InputMaybe<Scalars['String']>;
   folder?: InputMaybe<Scalars['String']>;
@@ -4967,11 +4970,12 @@ export type FeedsSuccessResolvers<ContextType = ResolverContext, ParentType exte
 };
 
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
+  category?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   defaultFilter?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  folder?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

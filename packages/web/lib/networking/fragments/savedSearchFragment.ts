@@ -7,6 +7,8 @@ export type SavedSearch = {
   position: number
   visible: boolean
   defaultFilter: boolean
+  folder: string
+  category: string
 }
 
 export const savedSearchFragment = gql`
@@ -17,5 +19,7 @@ export const savedSearchFragment = gql`
     position
     visible
     defaultFilter
+    folder
+    category
   }
 `

@@ -7,6 +7,7 @@ export type AddFilterInput = {
   filter: string
   category: string
   position: number
+  folder?: string
 }
 
 type AddFilterOutput = {
@@ -27,6 +28,8 @@ export async function saveFilterMutation (
             position
             visible
             defaultFilter
+            folder
+            category
           }
         }
 
