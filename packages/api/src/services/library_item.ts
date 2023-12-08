@@ -691,7 +691,7 @@ export const searchLibraryItems = async (
       if (query) {
         // add where clause from query
         queryBuilder
-          .andWhere(query)
+          .andWhere(`(${query})`)
           .setParameters(paramtersToObject(parameters))
       }
 
@@ -1083,7 +1083,9 @@ export const updateLibraryItems = async (
       .where('library_item.user_id = :userId', { userId })
 
     if (query) {
-      queryBuilder.andWhere(query).setParameters(paramtersToObject(parameters))
+      queryBuilder
+        .andWhere(`(${query})`)
+        .setParameters(paramtersToObject(parameters))
     }
 
     if (addLabels) {
