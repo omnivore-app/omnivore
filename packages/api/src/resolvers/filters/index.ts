@@ -43,6 +43,7 @@ export const saveFilterResolver = authorized<
         filter: input.filter,
         defaultFilter: false,
         visible: true,
+        category: input.category ?? 'Search',
       })
     })
 

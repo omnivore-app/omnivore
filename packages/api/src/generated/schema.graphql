@@ -722,6 +722,7 @@ type FeedsSuccess {
 }
 
 type Filter {
+  category: String
   createdAt: Date!
   defaultFilter: Boolean
   description: String
@@ -1691,6 +1692,7 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
+  category: String
   description: String
   filter: String!
   folder: String
@@ -2306,6 +2308,7 @@ enum UpdateFilterErrorCode {
 }
 
 input UpdateFilterInput {
+  category: String
   description: String
   filter: String
   folder: String

@@ -2201,6 +2201,7 @@ const schema = gql`
     folder: String
     description: String
     position: Int
+    category: String
   }
 
   union SaveFilterResult = SaveFilterSuccess | SaveFilterError
@@ -2220,6 +2221,7 @@ const schema = gql`
     updatedAt: Date
     defaultFilter: Boolean
     visible: Boolean
+    category: String
   }
 
   type SaveFilterError {
@@ -2271,6 +2273,7 @@ const schema = gql`
     folder: String
     description: String
     visible: Boolean
+    category: String
   }
 
   enum UpdateFilterErrorCode {
