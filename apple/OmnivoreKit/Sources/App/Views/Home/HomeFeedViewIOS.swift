@@ -233,6 +233,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             action: { searchPresented = true },
             label: {
               Image(systemName: "magnifyingglass")
+                .foregroundColor(Color.appGrayTextContrast)
             }
           )
         }
