@@ -25,11 +25,10 @@ import SwiftUI
 
   func loadLabels(
     dataService: DataService,
-    item: LinkedItem? = nil,
+    item: Models.LibraryItem? = nil,
     highlight: Highlight? = nil,
     initiallySelectedLabels: [LinkedItemLabel]? = nil
   ) async {
-    isLoading = true
     let selLabels = initiallySelectedLabels ?? item?.sortedLabels ?? highlight?.sortedLabels ?? []
 
     await loadLabelsFromStore(dataService: dataService)
@@ -42,7 +41,6 @@ import SwiftUI
         unselectedLabels.insert(label)
       }
     }
-    isLoading = false
 
     Task.detached(priority: .userInitiated) {
       if let labelIDs = try? await dataService.labels() {
@@ -59,7 +57,6 @@ import SwiftUI
               self.unselectedLabels.insert(label)
             }
           }
-          self.isLoading = false
         }
       }
     }

@@ -33,11 +33,11 @@
       performTypeahead(searchTerm)
     }
 
-    func performSearch(_ searchTerm: String) {
-      let term = searchTerm.trimmingCharacters(in: Foundation.CharacterSet.whitespacesAndNewlines)
-      viewModel.saveRecentSearch(dataService: dataService, searchTerm: term)
-      recents = viewModel.recentSearches(dataService: dataService)
-      homeFeedViewModel.searchTerm = term
+    func performSearch(_: String) {
+//      let term = searchTerm.trimmingCharacters(in: Foundation.CharacterSet.whitespacesAndNewlines)
+//      viewModel.saveRecentSearch(dataService: dataService, searchTerm: term)
+//      recents = viewModel.recentSearches(dataService: dataService)
+//      homeFeedViewModel.searchTerm = term
 
       dismiss()
     }

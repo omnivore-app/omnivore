@@ -17,8 +17,8 @@ android {
         applicationId "app.omnivore.omnivore"
         minSdk 26
         targetSdk 33
-        versionCode 130
-        versionName "0.0.130"
+        versionCode 158
+        versionName "0.0.158"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -142,7 +142,7 @@ dependencies {
     implementation 'io.coil-kt:coil-compose:2.3.0'
 
     implementation 'com.google.code.gson:gson:2.9.0'
-    implementation 'com.pspdfkit:pspdfkit:8.4.1'
+    implementation 'com.pspdfkit:pspdfkit:8.9.1'
 
     implementation 'com.posthog.android:posthog:2.0.3'
     implementation 'io.intercom.android:intercom-sdk:15.1.0'

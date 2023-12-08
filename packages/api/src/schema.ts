@@ -396,6 +396,7 @@ const schema = gql`
     readAt: Date
     recommendations: [Recommendation!]
     wordsCount: Int
+    folder: String!
   }
 
   # Query: article
@@ -495,6 +496,10 @@ const schema = gql`
     source: String
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    folder: String
+    rssFeedUrl: String
+    savedAt: Date
+    publishedAt: Date
   }
   enum CreateArticleErrorCode {
     UNABLE_TO_FETCH
@@ -539,6 +544,7 @@ const schema = gql`
     uploadFileId: ID!
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
+    folder: String
   }
 
   input ParseResult {
@@ -568,6 +574,7 @@ const schema = gql`
     rssFeedUrl: String
     savedAt: Date
     publishedAt: Date
+    folder: String
   }
 
   input SaveUrlInput {
@@ -580,6 +587,7 @@ const schema = gql`
     timezone: String
     savedAt: Date
     publishedAt: Date
+    folder: String
   }
 
   union SaveResult = SaveSuccess | SaveError
@@ -1611,6 +1619,10 @@ const schema = gql`
     wordsCount: Int
     content: String
     archivedAt: Date
+    previewContent: String
+    previewContentType: String
+    links: JSON
+    folder: String!
   }
 
   type SearchItemEdge {
@@ -1658,6 +1670,8 @@ const schema = gql`
     lastFetchedAt: Date
     createdAt: Date!
     updatedAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   enum SubscriptionStatus {
@@ -1990,6 +2004,7 @@ const schema = gql`
     enabled: Boolean!
     syncedAt: Date
     importItemState: ImportItemState
+    taskName: String
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError
@@ -2183,7 +2198,7 @@ const schema = gql`
   input SaveFilterInput {
     name: String!
     filter: String!
-    category: String
+    folder: String
     description: String
     position: Int
   }
@@ -2199,7 +2214,7 @@ const schema = gql`
     name: String!
     filter: String!
     position: Int!
-    category: String!
+    folder: String!
     description: String
     createdAt: Date!
     updatedAt: Date
@@ -2253,7 +2268,7 @@ const schema = gql`
     name: String
     filter: String
     position: Int
-    category: String
+    folder: String
     description: String
     visible: Boolean
   }
@@ -2498,6 +2513,7 @@ const schema = gql`
     ARCHIVE
     MARK_AS_READ
     ADD_LABELS
+    MOVE_TO_FOLDER
   }
 
   union BulkActionResult = BulkActionSuccess | BulkActionError
@@ -2554,6 +2570,8 @@ const schema = gql`
   input SubscribeInput {
     url: String!
     subscriptionType: SubscriptionType
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   input UpdateSubscriptionInput {
@@ -2564,6 +2582,8 @@ const schema = gql`
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
+    isPrivate: Boolean
+    autoAddToLibrary: Boolean
   }
 
   union UpdateSubscriptionResult =
@@ -2603,6 +2623,88 @@ const schema = gql`
 
   input UpdateEmailInput {
     email: String!
+  }
+
+  input FeedsInput {
+    after: String
+    first: Int
+    query: String @sanitize(maxLength: 255)
+    sort: SortParams
+  }
+
+  union FeedsResult = FeedsSuccess | FeedsError
+
+  type FeedsSuccess {
+    edges: [FeedEdge!]!
+    pageInfo: PageInfo!
+  }
+
+  type FeedEdge {
+    cursor: String!
+    node: Feed!
+  }
+
+  type FeedsError {
+    errorCodes: [FeedsErrorCode!]!
+  }
+
+  enum FeedsErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  type Feed {
+    id: ID
+    title: String!
+    url: String!
+    description: String
+    image: String
+    createdAt: Date
+    updatedAt: Date
+    publishedAt: Date
+    author: String
+    type: String
+  }
+
+  union MoveToFolderResult = MoveToFolderSuccess | MoveToFolderError
+
+  type MoveToFolderSuccess {
+    success: Boolean!
+  }
+
+  type MoveToFolderError {
+    errorCodes: [MoveToFolderErrorCode!]!
+  }
+
+  enum MoveToFolderErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    ALREADY_EXISTS
+  }
+
+  input ScanFeedsInput {
+    type: ScanFeedsType!
+    url: String
+    opml: String
+  }
+
+  enum ScanFeedsType {
+    OPML
+    HTML
+  }
+
+  union ScanFeedsResult = ScanFeedsSuccess | ScanFeedsError
+
+  type ScanFeedsSuccess {
+    feeds: [Feed!]!
+  }
+
+  type ScanFeedsError {
+    errorCodes: [ScanFeedsErrorCode!]!
+  }
+
+  enum ScanFeedsErrorCode {
+    BAD_REQUEST
   }
 
   # Mutations
@@ -2702,12 +2804,14 @@ const schema = gql`
       labelIds: [ID!]
       expectedCount: Int # max number of items to process
       async: Boolean # if true, return immediately and process in the background
+      arguments: JSON # additional arguments for the action
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
     setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
     updateSubscription(
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
+    moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -2758,6 +2862,7 @@ const schema = gql`
       first: Int
       since: Date!
       sort: SortParams
+      folder: String
     ): UpdatesSinceResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
@@ -2766,6 +2871,8 @@ const schema = gql`
     filters: FiltersResult!
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
+    feeds(input: FeedsInput!): FeedsResult!
+    scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   }
 `
 

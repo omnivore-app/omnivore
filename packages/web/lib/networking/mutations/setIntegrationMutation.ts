@@ -2,12 +2,20 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 import { IntegrationType } from '../queries/useGetIntegrationsQuery'
 
+export enum ImportItemState {
+  All = 'ALL',
+  Archived = 'ARCHIVED',
+  Unarchived = 'UNARCHIVED',
+  Unread = 'UNREAD'
+}
+
 export type SetIntegrationInput = {
   id?: string
   name: string
   type: IntegrationType
   token: string
   enabled: boolean
+  importItemState?: ImportItemState
 }
 
 type SetIntegrationResult = {

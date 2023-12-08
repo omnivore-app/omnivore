@@ -569,14 +569,14 @@ describe('Article API', () => {
         ).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
+        let allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(
           200
         )
         const justSavedId = allLinks.body.data.search.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
@@ -585,7 +585,7 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })
@@ -1153,12 +1153,12 @@ describe('Article API', () => {
       })
     })
 
-    context("when in:library label:test' is in the query", () => {
+    context('when in:inbox no:subscription label:test is in the query', () => {
       let items: LibraryItem[] = []
       let label: Label
 
       before(async () => {
-        keyword = 'in:library label:test'
+        keyword = 'in:inbox no:subscription label:test'
         // Create some test items
         label = await createLabel('test', '', user.id)
         items = await createLibraryItems(
@@ -1205,6 +1205,61 @@ describe('Article API', () => {
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
         expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when wildcard search for labels', () => {
+      let items: LibraryItem[] = []
+      let labelIds: string[]
+
+      before(async () => {
+        keyword = 'label:test/*'
+        // Create some test items
+        const label1 = await createLabel('test/one', '', user.id)
+        const label2 = await createLabel('test/two', '', user.id)
+        labelIds = [label1.id, label2.id]
+
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title wildcard',
+              readableContent: '<p>test wildcard</p>',
+              slug: 'test slug wildcard',
+              originalUrl: `${url}/wildcard`,
+            },
+            {
+              user,
+              title: 'test title wildcard 1',
+              readableContent: '<p>test wildcard</p>',
+              slug: 'test slug wildcard 1',
+              originalUrl: `${url}/wildcard_1`,
+            },
+            {
+              user,
+              title: 'test title wildcard 2',
+              readableContent: '<p>test wildcard</p>',
+              slug: 'test slug wildcard 2',
+              originalUrl: `${url}/wildcard_2`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label1], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels(labelIds, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns library items with label test/one and test/two', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
       })
     })
 
@@ -1325,8 +1380,8 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
-              archivedAt: new Date(),
               subscription: 'feed',
+              archivedAt: new Date(),
             },
             {
               user,
@@ -1383,8 +1438,8 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
-              deletedAt: new Date(),
               readingProgressBottomPercent: 100,
+              deletedAt: new Date(),
             },
             {
               user,
@@ -1645,6 +1700,61 @@ describe('Article API', () => {
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
         expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when label:test1,test2 is in the query', () => {
+      let items: LibraryItem[] = []
+      let label1: Label
+      let label2: Label
+
+      before(async () => {
+        keyword = 'label:test1,test2'
+        // Create some test items
+        label1 = await createLabel('test1', '', user.id)
+        label2 = await createLabel('test2', '', user.id)
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label1], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels({ id: label1.id }, user.id)
+        await deleteLabels({ id: label2.id }, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items with label test1 or test2', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[0].id)
       })
     })
   })

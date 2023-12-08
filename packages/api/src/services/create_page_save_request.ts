@@ -35,6 +35,8 @@ interface PageSaveRequest {
   timezone?: string
   savedAt?: Date
   publishedAt?: Date
+  folder?: string
+  subscription?: string
 }
 
 const SAVING_CONTENT = 'Your link is being saved...'
@@ -89,6 +91,8 @@ export const createPageSaveRequest = async ({
   timezone,
   savedAt,
   publishedAt,
+  folder,
+  subscription,
 }: PageSaveRequest): Promise<ArticleSavingRequest> => {
   try {
     validateUrl(url)
@@ -125,12 +129,15 @@ export const createPageSaveRequest = async ({
         originalUrl: url,
         state: LibraryItemState.Processing,
         publishedAt,
+        folder,
+        subscription,
+        savedAt,
       },
       userId,
       pubsub
     )
   }
-  // reset state to processing
+  // reset state to processing if not in following
   if (libraryItem.state !== LibraryItemState.Processing) {
     libraryItem = await updateLibraryItem(
       libraryItem.id,
@@ -157,6 +164,8 @@ export const createPageSaveRequest = async ({
     timezone,
     savedAt,
     publishedAt,
+    folder,
+    rssFeedUrl: subscription,
   })
 
   return libraryItemToArticleSavingRequest(user, libraryItem)

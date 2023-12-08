@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
+import { IsNull } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
@@ -20,8 +21,12 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  MoveToFolderError,
+  MoveToFolderErrorCode,
+  MoveToFolderSuccess,
   MutationBulkActionArgs,
   MutationCreateArticleArgs,
+  MutationMoveToFolderArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
   MutationSetFavoriteArticleArgs,
@@ -56,15 +61,16 @@ import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
+  createAndSaveLabelsInLibraryItem,
   findLabelsByIds,
   findOrCreateLabels,
-  saveLabelsInLibraryItem,
 } from '../../services/labels'
 import {
   createLibraryItem,
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
+  sortParamsToSort,
   updateLibraryItem,
   updateLibraryItemReadingProgress,
   updateLibraryItems,
@@ -95,7 +101,6 @@ import {
   ParsedContentPuppeteer,
   parsePreparedContent,
 } from '../../utils/parser'
-import { parseSearchQuery, sortParamsToSort } from '../../utils/search'
 import { getStorageFileDetails } from '../../utils/uploads'
 import { itemTypeForContentType } from '../upload_files'
 
@@ -132,6 +137,10 @@ export const createArticleResolver = authorized<
         source,
         state,
         labels: inputLabels,
+        folder,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
       },
     },
     { log, uid, pubsub }
@@ -189,7 +198,7 @@ export const createArticleResolver = authorized<
       let domContent = null
       let itemType = PageType.Unknown
 
-      const DUMMY_RESPONSE = {
+      const DUMMY_RESPONSE: CreateArticleSuccess = {
         user,
         created: false,
         createdArticle: {
@@ -209,8 +218,11 @@ export const createArticleResolver = authorized<
           readingProgressAnchorIndex: 0,
           readingProgressPercent: 0,
           highlights: [],
-          savedAt: new Date(),
+          savedAt: savedAt || new Date(),
           updatedAt: new Date(),
+          folder: '',
+          publishedAt,
+          subscription: rssFeedUrl,
         },
       }
 
@@ -244,6 +256,10 @@ export const createArticleResolver = authorized<
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
+          folder: folder || undefined,
+          savedAt,
+          publishedAt,
+          subscription: rssFeedUrl || undefined,
         })
         return DUMMY_RESPONSE
       } else if (!skipParsing && preparedDocument?.document) {
@@ -265,6 +281,10 @@ export const createArticleResolver = authorized<
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
+          folder: folder || undefined,
+          savedAt,
+          publishedAt,
+          subscription: rssFeedUrl || undefined,
         })
         return DUMMY_RESPONSE
       }
@@ -284,6 +304,10 @@ export const createArticleResolver = authorized<
         canonicalUrl,
         uploadFileId,
         state,
+        folder,
+        publishedAt,
+        rssFeedUrl,
+        savedAt,
       })
 
       log.info('New article saving', {
@@ -331,11 +355,13 @@ export const createArticleResolver = authorized<
         )
       }
 
-      // save labels in item
-      if (inputLabels) {
-        const labels = await findOrCreateLabels(inputLabels, user.id)
-        await saveLabelsInLibraryItem(labels, libraryItemToReturn.id, user.id)
-      }
+      await createAndSaveLabelsInLibraryItem(
+        libraryItemToReturn.id,
+        uid,
+        inputLabels,
+        rssFeedUrl,
+        pubsub
+      )
 
       log.info(
         'item created in database',
@@ -385,7 +411,10 @@ export const getArticleResolver = authorized<
     const libraryItem = await authTrx((tx) =>
       tx.withRepository(libraryItemRepository).findOne({
         select: selectColumns,
-        where,
+        where: {
+          ...where,
+          deletedAt: IsNull(),
+        },
         relations: {
           labels: true,
           highlights: {
@@ -401,7 +430,7 @@ export const getArticleResolver = authorized<
       })
     )
 
-    if (!libraryItem || libraryItem.state === LibraryItemState.Deleted) {
+    if (!libraryItem) {
       return { errorCodes: [ArticleErrorCode.NotFound] }
     }
 
@@ -637,16 +666,15 @@ export const searchResolver = authorized<
     return { errorCodes: [SearchErrorCode.QueryTooLong] }
   }
 
-  const searchQuery = parseSearchQuery(params.query || undefined)
-
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: first + 1, // fetch one more item to get next cursor
-      sort: searchQuery.sort,
       includePending: true,
       includeContent: !!params.includeContent,
-      ...searchQuery,
+      includeDeleted: params.query?.includes('in:trash'),
+      query: params.query,
+      useFolders: params.query?.includes('use:folders'),
     },
     uid
   )
@@ -732,24 +760,27 @@ export const updatesSinceResolver = authorized<
   UpdatesSinceSuccess,
   UpdatesSinceError,
   QueryUpdatesSinceArgs
->(async (_obj, { since, first, after, sort: sortParams }, { uid }) => {
-  const sort = sortParamsToSort(sortParams)
-
+>(async (_obj, { since, first, after, sort: sortParams, folder }, { uid }) => {
   const startCursor = after || ''
-  const size = first || 10
+  const size = Math.min(first || 10, 100) // limit to 100 items
   let startDate = new Date(since)
   if (isNaN(startDate.getTime())) {
     // for android app compatibility
     startDate = new Date(0)
   }
+  const sort = sortParamsToSort(sortParams)
+
+  // create a search query
+  const query = `updated:${startDate.toISOString()}${
+    folder ? ' in:' + folder : ''
+  } sort:${sort.by}-${sort.order}`
 
   const { libraryItems, count } = await searchLibraryItems(
     {
       from: Number(startCursor),
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
-      dateFilters: [{ field: 'updatedAt', startDate }],
-      sort,
+      query,
     },
     uid
   )
@@ -791,41 +822,59 @@ export const bulkActionResolver = authorized<
   BulkActionSuccess,
   BulkActionError,
   MutationBulkActionArgs
->(async (_parent, { query, action, labelIds }, { uid, log }) => {
-  try {
-    analytics.track({
-      userId: uid,
-      event: 'BulkAction',
-      properties: {
-        env: env.server.apiEnv,
-        action,
-      },
-    })
+>(
+  async (
+    _parent,
+    { query, action, labelIds, arguments: args }, // arguments is a reserved keyword in JS
+    { uid, log }
+  ) => {
+    try {
+      analytics.track({
+        userId: uid,
+        event: 'BulkAction',
+        properties: {
+          env: env.server.apiEnv,
+          action,
+        },
+      })
 
-    // parse query
-    const searchQuery = parseSearchQuery(query)
-    if (searchQuery.ids.length > 100) {
-      return { errorCodes: [BulkActionErrorCode.BadRequest] }
-    }
-
-    // get labels if needed
-    let labels = undefined
-    if (action === BulkActionType.AddLabels) {
-      if (!labelIds || labelIds.length === 0) {
+      // the query size is limited to 4000 characters to allow for 100 items
+      if (!query || query.length > 4000) {
+        log.error('bulkActionResolver error', {
+          error: 'QueryTooLong',
+          query,
+        })
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
 
-      labels = await findLabelsByIds(labelIds, uid)
+      // get labels if needed
+      let labels = undefined
+      if (action === BulkActionType.AddLabels) {
+        if (!labelIds || labelIds.length === 0) {
+          return { errorCodes: [BulkActionErrorCode.BadRequest] }
+        }
+
+        labels = await findLabelsByIds(labelIds, uid)
+      }
+
+      await updateLibraryItems(
+        action,
+        {
+          query,
+          useFolders: query.includes('use:folders'),
+        },
+        uid,
+        labels,
+        args
+      )
+
+      return { success: true }
+    } catch (error) {
+      log.error('bulkActionResolver error', error)
+      return { errorCodes: [BulkActionErrorCode.BadRequest] }
     }
-
-    await updateLibraryItems(action, searchQuery, uid, labels)
-
-    return { success: true }
-  } catch (error) {
-    log.error('bulkActionResolver error', error)
-    return { errorCodes: [BulkActionErrorCode.BadRequest] }
   }
-})
+)
 
 export const setFavoriteArticleResolver = authorized<
   SetFavoriteArticleSuccess,
@@ -860,8 +909,79 @@ export const setFavoriteArticleResolver = authorized<
   }
 })
 
+export const moveToFolderResolver = authorized<
+  MoveToFolderSuccess,
+  MoveToFolderError,
+  MutationMoveToFolderArgs
+>(async (_, { id, folder }, { authTrx, pubsub, uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'move_to_folder',
+    properties: {
+      id,
+      folder,
+    },
+  })
+
+  const item = await authTrx((tx) =>
+    tx.getRepository(LibraryItem).findOne({
+      where: {
+        id,
+      },
+      relations: ['user'],
+    })
+  )
+
+  if (!item) {
+    return {
+      errorCodes: [MoveToFolderErrorCode.Unauthorized],
+    }
+  }
+
+  if (item.folder === folder) {
+    return {
+      errorCodes: [MoveToFolderErrorCode.AlreadyExists],
+    }
+  }
+
+  const savedAt = new Date()
+
+  // // if the content is not fetched yet, create a page save request
+  // if (!item.readableContent) {
+  //   const articleSavingRequest = await createPageSaveRequest({
+  //     userId: uid,
+  //     url: item.originalUrl,
+  //     articleSavingRequestId: id,
+  //     priority: 'high',
+  //     publishedAt: item.publishedAt || undefined,
+  //     savedAt,
+  //     pubsub,
+  //   })
+
+  //   return {
+  //     __typename: 'MoveToFolderSuccess',
+  //     articleSavingRequest,
+  //   }
+  // }
+
+  await updateLibraryItem(
+    item.id,
+    {
+      folder,
+      savedAt,
+    },
+    uid,
+    pubsub
+  )
+
+  return {
+    __typename: 'MoveToFolderSuccess',
+    success: true,
+  }
+})
+
 const getUpdateReason = (libraryItem: LibraryItem, since: Date) => {
-  if (libraryItem.state === LibraryItemState.Deleted) {
+  if (libraryItem.deletedAt) {
     return UpdateReason.Deleted
   }
   if (libraryItem.createdAt >= since) {

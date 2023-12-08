@@ -13,7 +13,7 @@ public extension DataService {
   ) async throws -> LinkedItemSyncResult {
     let fetchResult = try await linkedItemUpdates(since: since, limit: 20, cursor: cursor, descending: descending)
 
-    LinkedItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
+    LibraryItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
 
     if fetchResult.items.persist(context: backgroundContext) == nil {
       throw BasicError.message(messageText: "CoreData error")

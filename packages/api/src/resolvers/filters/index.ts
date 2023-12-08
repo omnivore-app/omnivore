@@ -37,7 +37,7 @@ export const saveFilterResolver = authorized<
       return t.getRepository(Filter).save({
         user: { id: uid },
         name: input.name,
-        category: 'Search',
+        folder: input.folder ?? undefined,
         description: '',
         position: input.position ?? 0,
         filter: input.filter,

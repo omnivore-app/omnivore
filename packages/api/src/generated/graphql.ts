@@ -94,6 +94,7 @@ export type Article = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  folder: Scalars['String'];
   hasContent?: Maybe<Scalars['Boolean']>;
   hash: Scalars['String'];
   highlights: Array<Highlight>;
@@ -244,7 +245,8 @@ export enum BulkActionType {
   AddLabels = 'ADD_LABELS',
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
-  MarkAsRead = 'MARK_AS_READ'
+  MarkAsRead = 'MARK_AS_READ',
+  MoveToFolder = 'MOVE_TO_FOLDER'
 }
 
 export enum ContentReader {
@@ -270,8 +272,12 @@ export enum CreateArticleErrorCode {
 
 export type CreateArticleInput = {
   articleSavingRequestId?: InputMaybe<Scalars['ID']>;
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   preparedDocument?: InputMaybe<PreparedDocumentInput>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  rssFeedUrl?: InputMaybe<Scalars['String']>;
+  savedAt?: InputMaybe<Scalars['Date']>;
   skipParsing?: InputMaybe<Scalars['Boolean']>;
   source?: InputMaybe<Scalars['String']>;
   state?: InputMaybe<ArticleSavingRequestStatus>;
@@ -725,6 +731,20 @@ export type Feature = {
   updatedAt?: Maybe<Scalars['Date']>;
 };
 
+export type Feed = {
+  __typename?: 'Feed';
+  author?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['Date']>;
+  description?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['ID']>;
+  image?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['Date']>;
+  title: Scalars['String'];
+  type?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Date']>;
+  url: Scalars['String'];
+};
+
 export type FeedArticle = {
   __typename?: 'FeedArticle';
   annotationsCount?: Maybe<Scalars['Int']>;
@@ -762,13 +782,44 @@ export type FeedArticlesSuccess = {
   pageInfo: PageInfo;
 };
 
+export type FeedEdge = {
+  __typename?: 'FeedEdge';
+  cursor: Scalars['String'];
+  node: Feed;
+};
+
+export type FeedsError = {
+  __typename?: 'FeedsError';
+  errorCodes: Array<FeedsErrorCode>;
+};
+
+export enum FeedsErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FeedsInput = {
+  after?: InputMaybe<Scalars['String']>;
+  first?: InputMaybe<Scalars['Int']>;
+  query?: InputMaybe<Scalars['String']>;
+  sort?: InputMaybe<SortParams>;
+};
+
+export type FeedsResult = FeedsError | FeedsSuccess;
+
+export type FeedsSuccess = {
+  __typename?: 'FeedsSuccess';
+  edges: Array<FeedEdge>;
+  pageInfo: PageInfo;
+};
+
 export type Filter = {
   __typename?: 'Filter';
-  category: Scalars['String'];
   createdAt: Scalars['Date'];
   defaultFilter?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
+  folder: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
   position: Scalars['Int'];
@@ -1239,6 +1290,24 @@ export type MoveLabelSuccess = {
   label: Label;
 };
 
+export type MoveToFolderError = {
+  __typename?: 'MoveToFolderError';
+  errorCodes: Array<MoveToFolderErrorCode>;
+};
+
+export enum MoveToFolderErrorCode {
+  AlreadyExists = 'ALREADY_EXISTS',
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess;
+
+export type MoveToFolderSuccess = {
+  __typename?: 'MoveToFolderSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addPopularRead: AddPopularReadResult;
@@ -1268,6 +1337,7 @@ export type Mutation = {
   mergeHighlight: MergeHighlightResult;
   moveFilter: MoveFilterResult;
   moveLabel: MoveLabelResult;
+  moveToFolder: MoveToFolderResult;
   optInFeature: OptInFeatureResult;
   recommend: RecommendResult;
   recommendHighlights: RecommendHighlightsResult;
@@ -1310,6 +1380,7 @@ export type MutationAddPopularReadArgs = {
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
+  arguments?: InputMaybe<Scalars['JSON']>;
   async?: InputMaybe<Scalars['Boolean']>;
   expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
@@ -1429,6 +1500,12 @@ export type MutationMoveFilterArgs = {
 
 export type MutationMoveLabelArgs = {
   input: MoveLabelInput;
+};
+
+
+export type MutationMoveToFolderArgs = {
+  folder: Scalars['String'];
+  id: Scalars['ID'];
 };
 
 
@@ -1725,6 +1802,7 @@ export type Query = {
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
   deviceTokens: DeviceTokensResult;
+  feeds: FeedsResult;
   filters: FiltersResult;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
@@ -1736,6 +1814,7 @@ export type Query = {
   recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
   rules: RulesResult;
+  scanFeeds: ScanFeedsResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
   subscriptions: SubscriptionsResult;
@@ -1762,8 +1841,18 @@ export type QueryArticleSavingRequestArgs = {
 };
 
 
+export type QueryFeedsArgs = {
+  input: FeedsInput;
+};
+
+
 export type QueryRulesArgs = {
   enabled?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type QueryScanFeedsArgs = {
+  input: ScanFeedsInput;
 };
 
 
@@ -1791,6 +1880,7 @@ export type QueryTypeaheadSearchArgs = {
 export type QueryUpdatesSinceArgs = {
   after?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
+  folder?: InputMaybe<Scalars['String']>;
   since: Scalars['Date'];
   sort?: InputMaybe<SortParams>;
 };
@@ -2128,6 +2218,7 @@ export enum SaveErrorCode {
 
 export type SaveFileInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
@@ -2147,9 +2238,9 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
-  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
+  folder?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
   position?: InputMaybe<Scalars['Int']>;
 };
@@ -2163,6 +2254,7 @@ export type SaveFilterSuccess = {
 
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
@@ -2185,6 +2277,7 @@ export type SaveSuccess = {
 
 export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   locale?: InputMaybe<Scalars['String']>;
   publishedAt?: InputMaybe<Scalars['Date']>;
@@ -2194,6 +2287,33 @@ export type SaveUrlInput = {
   timezone?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
 };
+
+export type ScanFeedsError = {
+  __typename?: 'ScanFeedsError';
+  errorCodes: Array<ScanFeedsErrorCode>;
+};
+
+export enum ScanFeedsErrorCode {
+  BadRequest = 'BAD_REQUEST'
+}
+
+export type ScanFeedsInput = {
+  opml?: InputMaybe<Scalars['String']>;
+  type: ScanFeedsType;
+  url?: InputMaybe<Scalars['String']>;
+};
+
+export type ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess;
+
+export type ScanFeedsSuccess = {
+  __typename?: 'ScanFeedsSuccess';
+  feeds: Array<Feed>;
+};
+
+export enum ScanFeedsType {
+  Html = 'HTML',
+  Opml = 'OPML'
+}
 
 export type SearchError = {
   __typename?: 'SearchError';
@@ -2215,16 +2335,20 @@ export type SearchItem = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  folder: Scalars['String'];
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   isArchived: Scalars['Boolean'];
   labels?: Maybe<Array<Label>>;
   language?: Maybe<Scalars['String']>;
+  links?: Maybe<Scalars['JSON']>;
   originalArticleUrl?: Maybe<Scalars['String']>;
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
   pageType: PageType;
+  previewContent?: Maybe<Scalars['String']>;
+  previewContentType?: Maybe<Scalars['String']>;
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
   readAt?: Maybe<Scalars['Date']>;
@@ -2386,6 +2510,7 @@ export type SetIntegrationInput = {
   importItemState?: InputMaybe<ImportItemState>;
   name: Scalars['String'];
   syncedAt?: InputMaybe<Scalars['Date']>;
+  taskName?: InputMaybe<Scalars['String']>;
   token: Scalars['String'];
   type?: InputMaybe<IntegrationType>;
 };
@@ -2628,6 +2753,8 @@ export enum SubscribeErrorCode {
 }
 
 export type SubscribeInput = {
+  autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
+  isPrivate?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
   url: Scalars['String'];
 };
@@ -2641,11 +2768,13 @@ export type SubscribeSuccess = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  autoAddToLibrary?: Maybe<Scalars['Boolean']>;
   count: Scalars['Int'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  isPrivate?: Maybe<Scalars['Boolean']>;
   lastFetchedAt?: Maybe<Scalars['Date']>;
   name: Scalars['String'];
   newsletterEmail?: Maybe<Scalars['String']>;
@@ -2773,9 +2902,9 @@ export enum UpdateFilterErrorCode {
 }
 
 export type UpdateFilterInput = {
-  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter?: InputMaybe<Scalars['String']>;
+  folder?: InputMaybe<Scalars['String']>;
   id: Scalars['String'];
   name?: InputMaybe<Scalars['String']>;
   position?: InputMaybe<Scalars['Int']>;
@@ -2986,8 +3115,10 @@ export enum UpdateSubscriptionErrorCode {
 }
 
 export type UpdateSubscriptionInput = {
+  autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   description?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
+  isPrivate?: InputMaybe<Scalars['Boolean']>;
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
   lastFetchedChecksum?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
@@ -3459,12 +3590,19 @@ export type ResolversTypes = {
   DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
+  Feed: ResolverTypeWrapper<Feed>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
   FeedArticleEdge: ResolverTypeWrapper<FeedArticleEdge>;
   FeedArticlesError: ResolverTypeWrapper<FeedArticlesError>;
   FeedArticlesErrorCode: FeedArticlesErrorCode;
   FeedArticlesResult: ResolversTypes['FeedArticlesError'] | ResolversTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: ResolverTypeWrapper<FeedArticlesSuccess>;
+  FeedEdge: ResolverTypeWrapper<FeedEdge>;
+  FeedsError: ResolverTypeWrapper<FeedsError>;
+  FeedsErrorCode: FeedsErrorCode;
+  FeedsInput: FeedsInput;
+  FeedsResult: ResolversTypes['FeedsError'] | ResolversTypes['FeedsSuccess'];
+  FeedsSuccess: ResolverTypeWrapper<FeedsSuccess>;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -3557,6 +3695,10 @@ export type ResolversTypes = {
   MoveLabelInput: MoveLabelInput;
   MoveLabelResult: ResolversTypes['MoveLabelError'] | ResolversTypes['MoveLabelSuccess'];
   MoveLabelSuccess: ResolverTypeWrapper<MoveLabelSuccess>;
+  MoveToFolderError: ResolverTypeWrapper<MoveToFolderError>;
+  MoveToFolderErrorCode: MoveToFolderErrorCode;
+  MoveToFolderResult: ResolversTypes['MoveToFolderError'] | ResolversTypes['MoveToFolderSuccess'];
+  MoveToFolderSuccess: ResolverTypeWrapper<MoveToFolderSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
@@ -3640,6 +3782,12 @@ export type ResolversTypes = {
   SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
   SaveUrlInput: SaveUrlInput;
+  ScanFeedsError: ResolverTypeWrapper<ScanFeedsError>;
+  ScanFeedsErrorCode: ScanFeedsErrorCode;
+  ScanFeedsInput: ScanFeedsInput;
+  ScanFeedsResult: ResolversTypes['ScanFeedsError'] | ResolversTypes['ScanFeedsSuccess'];
+  ScanFeedsSuccess: ResolverTypeWrapper<ScanFeedsSuccess>;
+  ScanFeedsType: ScanFeedsType;
   SearchError: ResolverTypeWrapper<SearchError>;
   SearchErrorCode: SearchErrorCode;
   SearchItem: ResolverTypeWrapper<SearchItem>;
@@ -3939,11 +4087,17 @@ export type ResolversParentTypes = {
   DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: DeviceTokensSuccess;
   Feature: Feature;
+  Feed: Feed;
   FeedArticle: FeedArticle;
   FeedArticleEdge: FeedArticleEdge;
   FeedArticlesError: FeedArticlesError;
   FeedArticlesResult: ResolversParentTypes['FeedArticlesError'] | ResolversParentTypes['FeedArticlesSuccess'];
   FeedArticlesSuccess: FeedArticlesSuccess;
+  FeedEdge: FeedEdge;
+  FeedsError: FeedsError;
+  FeedsInput: FeedsInput;
+  FeedsResult: ResolversParentTypes['FeedsError'] | ResolversParentTypes['FeedsSuccess'];
+  FeedsSuccess: FeedsSuccess;
   Filter: Filter;
   FiltersError: FiltersError;
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
@@ -4016,6 +4170,9 @@ export type ResolversParentTypes = {
   MoveLabelInput: MoveLabelInput;
   MoveLabelResult: ResolversParentTypes['MoveLabelError'] | ResolversParentTypes['MoveLabelSuccess'];
   MoveLabelSuccess: MoveLabelSuccess;
+  MoveToFolderError: MoveToFolderError;
+  MoveToFolderResult: ResolversParentTypes['MoveToFolderError'] | ResolversParentTypes['MoveToFolderSuccess'];
+  MoveToFolderSuccess: MoveToFolderSuccess;
   Mutation: {};
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
@@ -4082,6 +4239,10 @@ export type ResolversParentTypes = {
   SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
   SaveUrlInput: SaveUrlInput;
+  ScanFeedsError: ScanFeedsError;
+  ScanFeedsInput: ScanFeedsInput;
+  ScanFeedsResult: ResolversParentTypes['ScanFeedsError'] | ResolversParentTypes['ScanFeedsSuccess'];
+  ScanFeedsSuccess: ScanFeedsSuccess;
   SearchError: SearchError;
   SearchItem: SearchItem;
   SearchItemEdge: SearchItemEdge;
@@ -4301,6 +4462,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasContent?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   highlights?: Resolver<Array<ResolversTypes['Highlight']>, ParentType, ContextType, Partial<ArticleHighlightsArgs>>;
@@ -4734,6 +4896,20 @@ export type FeatureResolvers<ContextType = ResolverContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FeedResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feed'] = ResolversParentTypes['Feed']> = {
+  author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeedArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedArticle'] = ResolversParentTypes['FeedArticle']> = {
   annotationsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   article?: Resolver<ResolversTypes['Article'], ParentType, ContextType>;
@@ -4769,12 +4945,33 @@ export type FeedArticlesSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FeedEdgeResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedEdge'] = ResolversParentTypes['FeedEdge']> = {
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Feed'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FeedsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedsError'] = ResolversParentTypes['FeedsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FeedsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FeedsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedsResult'] = ResolversParentTypes['FeedsResult']> = {
+  __resolveType: TypeResolveFn<'FeedsError' | 'FeedsSuccess', ParentType, ContextType>;
+};
+
+export type FeedsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FeedsSuccess'] = ResolversParentTypes['FeedsSuccess']> = {
+  edges?: Resolver<Array<ResolversTypes['FeedEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
-  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   defaultFilter?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -5126,6 +5323,20 @@ export type MoveLabelSuccessResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MoveToFolderErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderError'] = ResolversParentTypes['MoveToFolderError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['MoveToFolderErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MoveToFolderResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderResult'] = ResolversParentTypes['MoveToFolderResult']> = {
+  __resolveType: TypeResolveFn<'MoveToFolderError' | 'MoveToFolderSuccess', ParentType, ContextType>;
+};
+
+export type MoveToFolderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderSuccess'] = ResolversParentTypes['MoveToFolderSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
@@ -5154,6 +5365,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   mergeHighlight?: Resolver<ResolversTypes['MergeHighlightResult'], ParentType, ContextType, RequireFields<MutationMergeHighlightArgs, 'input'>>;
   moveFilter?: Resolver<ResolversTypes['MoveFilterResult'], ParentType, ContextType, RequireFields<MutationMoveFilterArgs, 'input'>>;
   moveLabel?: Resolver<ResolversTypes['MoveLabelResult'], ParentType, ContextType, RequireFields<MutationMoveLabelArgs, 'input'>>;
+  moveToFolder?: Resolver<ResolversTypes['MoveToFolderResult'], ParentType, ContextType, RequireFields<MutationMoveToFolderArgs, 'folder' | 'id'>>;
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
@@ -5266,6 +5478,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
+  feeds?: Resolver<ResolversTypes['FeedsResult'], ParentType, ContextType, RequireFields<QueryFeedsArgs, 'input'>>;
   filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
@@ -5277,6 +5490,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
+  scanFeeds?: Resolver<ResolversTypes['ScanFeedsResult'], ParentType, ContextType, RequireFields<QueryScanFeedsArgs, 'input'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
@@ -5530,6 +5744,20 @@ export type SaveSuccessResolvers<ContextType = ResolverContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ScanFeedsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsError'] = ResolversParentTypes['ScanFeedsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ScanFeedsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ScanFeedsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsResult'] = ResolversParentTypes['ScanFeedsResult']> = {
+  __resolveType: TypeResolveFn<'ScanFeedsError' | 'ScanFeedsSuccess', ParentType, ContextType>;
+};
+
+export type ScanFeedsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsSuccess'] = ResolversParentTypes['ScanFeedsSuccess']> = {
+  feeds?: Resolver<Array<ResolversTypes['Feed']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type SearchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchError'] = ResolversParentTypes['SearchError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['SearchErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5544,16 +5772,20 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   labels?: Resolver<Maybe<Array<ResolversTypes['Label']>>, ParentType, ContextType>;
   language?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  links?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   originalArticleUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
+  previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  previewContentType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   readAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -5800,11 +6032,13 @@ export type SubscribeSuccessResolvers<ContextType = ResolverContext, ParentType 
 };
 
 export type SubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  autoAddToLibrary?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "autoAddToLibrary", ParentType, ContextType>;
   count?: SubscriptionResolver<ResolversTypes['Int'], "count", ParentType, ContextType>;
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
+  isPrivate?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "isPrivate", ParentType, ContextType>;
   lastFetchedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "lastFetchedAt", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
   newsletterEmail?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "newsletterEmail", ParentType, ContextType>;
@@ -6287,11 +6521,16 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
   DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
+  Feed?: FeedResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
   FeedArticleEdge?: FeedArticleEdgeResolvers<ContextType>;
   FeedArticlesError?: FeedArticlesErrorResolvers<ContextType>;
   FeedArticlesResult?: FeedArticlesResultResolvers<ContextType>;
   FeedArticlesSuccess?: FeedArticlesSuccessResolvers<ContextType>;
+  FeedEdge?: FeedEdgeResolvers<ContextType>;
+  FeedsError?: FeedsErrorResolvers<ContextType>;
+  FeedsResult?: FeedsResultResolvers<ContextType>;
+  FeedsSuccess?: FeedsSuccessResolvers<ContextType>;
   Filter?: FilterResolvers<ContextType>;
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;
@@ -6355,6 +6594,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   MoveLabelError?: MoveLabelErrorResolvers<ContextType>;
   MoveLabelResult?: MoveLabelResultResolvers<ContextType>;
   MoveLabelSuccess?: MoveLabelSuccessResolvers<ContextType>;
+  MoveToFolderError?: MoveToFolderErrorResolvers<ContextType>;
+  MoveToFolderResult?: MoveToFolderResultResolvers<ContextType>;
+  MoveToFolderSuccess?: MoveToFolderSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   NewsletterEmail?: NewsletterEmailResolvers<ContextType>;
   NewsletterEmailsError?: NewsletterEmailsErrorResolvers<ContextType>;
@@ -6408,6 +6650,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveFilterSuccess?: SaveFilterSuccessResolvers<ContextType>;
   SaveResult?: SaveResultResolvers<ContextType>;
   SaveSuccess?: SaveSuccessResolvers<ContextType>;
+  ScanFeedsError?: ScanFeedsErrorResolvers<ContextType>;
+  ScanFeedsResult?: ScanFeedsResultResolvers<ContextType>;
+  ScanFeedsSuccess?: ScanFeedsSuccessResolvers<ContextType>;
   SearchError?: SearchErrorResolvers<ContextType>;
   SearchItem?: SearchItemResolvers<ContextType>;
   SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;

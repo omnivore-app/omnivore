@@ -3,6 +3,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
+import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
@@ -14,10 +15,40 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
+  addToLibraryFlags: boolean[]
 }
 
 // link can be a string or an object
 type RssFeedItemLink = string | { $: { rel?: string; href: string } }
+type RssFeed = Parser.Output<{
+  published?: string
+  updated?: string
+  created?: string
+  link?: RssFeedItemLink
+  links?: RssFeedItemLink[]
+}> & {
+  lastBuildDate?: string
+  'syn:updatePeriod'?: string
+  'syn:updateFrequency'?: string
+  'sy:updatePeriod'?: string
+  'sy:updateFrequency'?: string
+}
+type RssFeedItemMedia = {
+  $: { url: string; width?: string; height?: string; medium?: string }
+}
+type RssFeedItem = Item & {
+  'media:thumbnail'?: RssFeedItemMedia
+  'media:content'?: RssFeedItemMedia[]
+}
+
+const getThumbnail = (item: RssFeedItem) => {
+  if (item['media:thumbnail']) {
+    return item['media:thumbnail'].$.url
+  }
+
+  return item['media:content']?.find((media) => media.$.medium === 'image')?.$
+    .url
+}
 
 function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
@@ -26,7 +57,8 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'lastFetchedTimestamps' in body &&
     'scheduledTimestamps' in body &&
     'userIds' in body &&
-    'lastFetchedChecksums' in body
+    'lastFetchedChecksums' in body &&
+    'addToLibraryFlags' in body
   )
 }
 
@@ -40,7 +72,7 @@ export const fetchAndChecksum = async (url: string) => {
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
         Accept:
-          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
+          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml, text/html;q=0.4',
       },
     })
 
@@ -53,6 +85,48 @@ export const fetchAndChecksum = async (url: string) => {
   } catch (error) {
     console.log(error)
     throw new Error(`Failed to fetch or hash content from ${url}.`)
+  }
+}
+
+const parseFeed = async (url: string, content: string) => {
+  try {
+    // check if url is a telegram channel
+    const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
+    const telegramMatch = url.match(telegramRegex)
+    if (telegramMatch) {
+      const dom = parseHTML(content).document
+      const title = dom.querySelector('meta[property="og:title"]')
+      // post has attribute data-post
+      const posts = dom.querySelectorAll('[data-post]')
+      const items = Array.from(posts)
+        .map((post) => {
+          const id = post.getAttribute('data-post')
+          if (!id) {
+            return null
+          }
+
+          const url = `https://t.me/${telegramMatch[1]}/${id}`
+          // find the <time> element
+          const time = post.querySelector('time')
+          const dateTime = time?.getAttribute('datetime') || undefined
+
+          return {
+            link: url,
+            isoDate: dateTime,
+          }
+        })
+        .filter((item) => !!item) as RssFeedItem[]
+
+      return {
+        title: title?.getAttribute('content') || dom.title,
+        items,
+      }
+    }
+
+    return parser.parseString(content)
+  } catch (error) {
+    console.log(error)
+    return null
   }
 }
 
@@ -120,10 +194,21 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
+const createTask = async (
+  userId: string,
+  feedUrl: string,
+  item: RssFeedItem,
+  autoAddToLibrary: boolean
+) => {
+  const folder = autoAddToLibrary ? 'inbox' : 'following'
+  return createSavingItemTask(userId, feedUrl, item, folder)
+}
+
 const createSavingItemTask = async (
   userId: string,
   feedUrl: string,
-  item: Item
+  item: RssFeedItem,
+  folder: string
 ) => {
   const input = {
     userId,
@@ -134,12 +219,53 @@ const createSavingItemTask = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
+    folder,
   }
 
   try {
     console.log('Creating task', input.url)
     // save page
     const task = await createCloudTask(CONTENT_FETCH_URL, input)
+    console.log('Created task', task)
+
+    return !!task
+  } catch (error) {
+    console.error('Error while creating task', error)
+    return false
+  }
+}
+
+const createFollowingTask = async (
+  userId: string,
+  feedUrl: string,
+  item: RssFeedItem
+) => {
+  const input = {
+    userIds: [userId],
+    url: item.link,
+    title: item.title,
+    author: item.creator,
+    description: item.summary,
+    addedToFollowingFrom: 'feed',
+    previewContent: item.content || item.contentSnippet,
+    addedToFollowingBy: feedUrl,
+    savedAt: item.isoDate,
+    publishedAt: item.isoDate,
+    previewContentType: 'text/html', // TODO: get content type from feed
+    thumbnail: getThumbnail(item),
+  }
+
+  try {
+    console.log('Creating task', input.url)
+    const serviceBaseUrl = process.env.INTERNAL_SVC_ENDPOINT
+    const token = process.env.PUBSUB_VERIFICATION_TOKEN
+    if (!serviceBaseUrl || !token) {
+      throw 'Environment not configured correctly'
+    }
+
+    // save page
+    const taskHandlerUrl = `${serviceBaseUrl}svc/following/save?token=${token}`
+    const task = await createCloudTask(taskHandlerUrl, input)
     console.log('Created task', task)
 
     return !!task
@@ -163,6 +289,8 @@ const parser = new Parser({
       'published',
       'updated',
       'created',
+      ['media:content', 'media:content', { keepArray: true }],
+      ['media:thumbnail'],
     ],
     feed: [
       'lastBuildDate',
@@ -174,9 +302,9 @@ const parser = new Parser({
   },
 })
 
-const getUpdateFrequency = (feed: any) => {
-  const updateFrequency = (feed['syn:updateFrequency'] ||
-    feed['sy:updateFrequency']) as string | undefined
+const getUpdateFrequency = (feed: RssFeed) => {
+  const updateFrequency =
+    feed['syn:updateFrequency'] || feed['sy:updateFrequency']
 
   if (!updateFrequency) {
     return 1
@@ -190,10 +318,8 @@ const getUpdateFrequency = (feed: any) => {
   return frequency
 }
 
-const getUpdatePeriodInHours = (feed: any) => {
-  const updatePeriod = (feed['syn:updatePeriod'] || feed['sy:updatePeriod']) as
-    | string
-    | undefined
+const getUpdatePeriodInHours = (feed: RssFeed) => {
+  const updatePeriod = feed['syn:updatePeriod'] || feed['sy:updatePeriod']
 
   switch (updatePeriod) {
     case 'hourly':
@@ -245,7 +371,9 @@ const processSubscription = async (
   fetchResult: { content: string; checksum: string },
   lastFetchedAt: number,
   scheduledAt: number,
-  lastFetchedChecksum: string
+  lastFetchedChecksum: string,
+  autoAddToLibrary: boolean,
+  feed: RssFeed
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -258,10 +386,8 @@ const processSubscription = async (
 
   // fetch feed
   let itemCount = 0
-  const feed = await parser.parseString(fetchResult.content)
-  console.log('Fetched feed', feed.title, new Date())
 
-  const feedLastBuildDate = feed.lastBuildDate as string | undefined
+  const feedLastBuildDate = feed.lastBuildDate
   console.log('Feed last build date', feedLastBuildDate)
   if (
     feedLastBuildDate &&
@@ -275,18 +401,15 @@ const processSubscription = async (
   for (const item of feed.items) {
     // use published or updated if isoDate is not available for atom feeds
     item.isoDate =
-      item.isoDate ||
-      (item.published as string) ||
-      (item.updated as string) ||
-      (item.created as string)
-    console.log('Processing feed item', item.links, item.isoDate)
+      item.isoDate || item.published || item.updated || item.created
+    console.log('Processing feed item', item.links, item.isoDate, feed.feedUrl)
 
     if (!item.links || item.links.length === 0) {
       console.log('Invalid feed item', item)
       continue
     }
 
-    item.link = getLink(item.links as RssFeedItemLink[])
+    item.link = getLink(item.links)
     if (!item.link) {
       console.log('Invalid feed item links', item.links)
       continue
@@ -317,7 +440,7 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createSavingItemTask(userId, feedUrl, item)
+    const created = await createTask(userId, feedUrl, item, autoAddToLibrary)
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -340,7 +463,12 @@ const processSubscription = async (
     }
 
     // the feed has never been fetched, save at least the last valid item
-    const created = await createSavingItemTask(userId, feedUrl, lastValidItem)
+    const created = await createTask(
+      userId,
+      feedUrl,
+      lastValidItem,
+      autoAddToLibrary
+    )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
       throw new Error('Failed to create task for feed item')
@@ -386,32 +514,38 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
+        addToLibraryFlags,
       } = req.body
       console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
-
-      for (let i = 0; i < subscriptionIds.length; i++) {
-        const subscriptionId = subscriptionIds[i]
-        const lastFetchedAt = lastFetchedTimestamps[i]
-        const scheduledAt = scheduledTimestamps[i]
-        const userId = userIds[i]
-        const lastFetchedChecksum = lastFetchedChecksums[i]
-
-        await processSubscription(
-          subscriptionId,
-          userId,
-          feedUrl,
-          fetchResult,
-          lastFetchedAt,
-          scheduledAt,
-          lastFetchedChecksum
-        )
+      const feed = await parseFeed(feedUrl, fetchResult.content)
+      if (!feed) {
+        console.error('Failed to parse RSS feed', feedUrl)
+        return res.status(500).send('INVALID_RSS_FEED')
       }
+
+      console.log('Fetched feed', feed.title, new Date())
+
+      await Promise.all(
+        subscriptionIds.map((_, i) =>
+          processSubscription(
+            subscriptionIds[i],
+            userIds[i],
+            feedUrl,
+            fetchResult,
+            lastFetchedTimestamps[i],
+            scheduledTimestamps[i],
+            lastFetchedChecksums[i],
+            addToLibraryFlags[i],
+            feed
+          )
+        )
+      )
 
       res.send('ok')
     } catch (e) {
-      console.error('Error while parsing RSS feed', e)
+      console.error('Error while saving RSS feeds', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
     }
   }

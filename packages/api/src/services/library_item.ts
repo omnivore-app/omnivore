@@ -1,49 +1,49 @@
-import { Brackets, DeepPartial, SelectQueryBuilder } from 'typeorm'
+import { LiqeQuery } from '@omnivore/liqe'
+import { DateTime } from 'luxon'
+import { DeepPartial, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { BulkActionType } from '../generated/graphql'
+import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { wordsCount } from '../utils/helpers'
-import {
-  DateFilter,
-  FieldFilter,
-  HasFilter,
-  InFilter,
-  LabelFilter,
-  LabelFilterType,
-  NoFilter,
-  RangeFilter,
-  ReadFilter,
-  Sort,
-  SortBy,
-  SortOrder,
-} from '../utils/search'
+import { SaveFollowingItemRequest } from '../routers/svc/following'
+import { generateSlug, wordsCount } from '../utils/helpers'
+import { createThumbnailUrl } from '../utils/imageproxy'
+import { parseSearchQuery } from '../utils/search'
+
+enum ReadFilter {
+  ALL = 'all',
+  READ = 'read',
+  READING = 'reading',
+  UNREAD = 'unread',
+}
+
+enum InFilter {
+  ALL = 'all',
+  INBOX = 'inbox',
+  ARCHIVE = 'archive',
+  TRASH = 'trash',
+  FOLLOWING = 'following',
+}
+
+enum HasFilter {
+  HIGHLIGHTS = 'highlights',
+  LABELS = 'labels',
+  SUBSCRIPTIONS = 'subscriptions',
+}
 
 export interface SearchArgs {
   from?: number
   size?: number
-  sort?: Sort
-  query?: string
-  inFilter?: InFilter
-  readFilter?: ReadFilter
-  typeFilter?: string
-  labelFilters?: LabelFilter[]
-  hasFilters?: HasFilter[]
-  dateFilters?: DateFilter[]
-  termFilters?: FieldFilter[]
-  matchFilters?: FieldFilter[]
   includePending?: boolean | null
   includeDeleted?: boolean
-  ids?: string[]
-  recommendedBy?: string
   includeContent?: boolean
-  noFilters?: NoFilter[]
-  rangeFilters?: RangeFilter[]
+  useFolders?: boolean
+  query?: string | null
 }
 
 export interface SearchResultItem {
@@ -62,7 +62,6 @@ export interface SearchResultItem {
   title: string
   uploadFileId?: string | null
   url: string
-  archivedAt?: Date | null
   readingProgressTopPercent?: number
   readingProgressPercent: number
   readingProgressAnchorIndex: number
@@ -80,256 +79,638 @@ export interface SearchResultItem {
   content?: string
 }
 
-const buildWhereClause = (
-  queryBuilder: SelectQueryBuilder<LibraryItem>,
-  args: SearchArgs
+export enum SortBy {
+  SAVED = 'saved',
+  UPDATED = 'updated',
+  PUBLISHED = 'published',
+  READ = 'read',
+  WORDS_COUNT = 'wordsCount',
+}
+
+export enum SortOrder {
+  ASCENDING = 'ASC',
+  DESCENDING = 'DESC',
+}
+
+export interface Sort {
+  by: string
+  order?: SortOrder
+}
+
+interface Select {
+  column: string
+  alias?: string
+}
+
+const paramtersToObject = (parameters: ObjectLiteral[]) => {
+  return parameters.reduce((a, b) => ({ ...a, ...b }), {})
+}
+
+export const sortParamsToSort = (
+  sortParams: InputMaybe<SortParams> | undefined
 ) => {
-  if (args.query) {
-    queryBuilder
-      .addSelect(
-        "ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :query))",
-        'rank'
-      )
-      .andWhere(
-        "websearch_to_tsquery('english', :query) @@ library_item.search_tsv"
-      )
-      .setParameter('query', args.query)
-      .orderBy('rank', 'DESC')
-  }
+  const sort = { by: SortBy.UPDATED, order: SortOrder.DESCENDING }
 
-  if (args.typeFilter) {
-    queryBuilder.andWhere('lower(library_item.item_type) = :typeFilter', {
-      typeFilter: args.typeFilter.toLowerCase(),
-    })
-  }
-
-  if (args.inFilter !== InFilter.ALL) {
-    switch (args.inFilter) {
-      case InFilter.INBOX:
-        queryBuilder.andWhere('library_item.archived_at IS NULL')
+  if (sortParams) {
+    sortParams.order === 'ASCENDING' && (sort.order = SortOrder.ASCENDING)
+    switch (sortParams.by) {
+      case 'UPDATED_TIME':
+        sort.by = SortBy.UPDATED
         break
-      case InFilter.ARCHIVE:
-        queryBuilder.andWhere('library_item.archived_at IS NOT NULL')
+      case 'PUBLISHED_AT':
+        sort.by = SortBy.PUBLISHED
         break
-      case InFilter.TRASH:
-        // return only deleted pages within 14 days
-        queryBuilder.andWhere(
-          "library_item.deleted_at >= now() - interval '14 days'"
-        )
-        break
-      case InFilter.SUBSCRIPTION:
-        queryBuilder
-          .andWhere("NOT ('library' ILIKE ANY (library_item.label_names))")
-          .andWhere('library_item.archived_at IS NULL')
-          .andWhere('library_item.subscription IS NOT NULL')
-        break
-      case InFilter.LIBRARY:
-        queryBuilder
-          .andWhere(
-            "(library_item.subscription IS NULL OR 'library' ILIKE ANY (library_item.label_names))"
-          )
-          .andWhere('library_item.archived_at IS NULL')
+      case 'SAVED_AT':
+        sort.by = SortBy.SAVED
         break
     }
   }
 
-  if (args.readFilter !== ReadFilter.ALL) {
-    switch (args.readFilter) {
-      case ReadFilter.READ:
-        queryBuilder.andWhere(
-          'library_item.reading_progress_bottom_percent > 98'
-        )
-        break
-      case ReadFilter.READING:
-        queryBuilder.andWhere(
-          'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
-        )
-        break
-      case ReadFilter.UNREAD:
-        queryBuilder.andWhere(
-          'library_item.reading_progress_bottom_percent < 2'
-        )
-        break
-    }
+  return sort
+}
+
+const getColumnName = (field: string) => {
+  switch (field) {
+    case 'language':
+      return 'item_language'
+    case 'subscription':
+    case 'rss':
+      return 'subscription'
+    case 'site':
+      return 'site_name'
+    case 'wordsCount':
+      return 'word_count'
+    case 'readPosition':
+      return 'reading_progress_bottom_percent'
+    case 'saved':
+    case 'read':
+    case 'updated':
+    case 'published':
+      return `${field}_at`
+    default:
+      return field
+  }
+}
+
+export const buildQuery = (
+  searchQuery: LiqeQuery,
+  parameters: ObjectLiteral[] = [],
+  selects: Select[] = [],
+  orders: Sort[] = [],
+  useFolders = false
+) => {
+  const escapeQueryWithParameters = (
+    query: string,
+    parameter: ObjectLiteral
+  ) => {
+    parameters.push(parameter)
+    return query
   }
 
-  if (args.hasFilters && args.hasFilters.length > 0) {
-    args.hasFilters.forEach((filter) => {
-      switch (filter) {
-        case HasFilter.HIGHLIGHTS:
-          queryBuilder.andWhere("library_item.highlight_annotations <> '{}'")
-          break
-        case HasFilter.LABELS:
-          queryBuilder.andWhere("library_item.label_names <> '{}'")
-          break
+  const serializeTagExpression = (ast: LiqeQuery): string | null => {
+    if (ast.type !== 'Tag') {
+      throw new Error('Expected a tag expression.')
+    }
+
+    const { field, expression } = ast
+
+    if (field.type === 'ImplicitField') {
+      if (expression.type !== 'LiteralExpression') {
+        throw new Error('Expected a literal expression.')
       }
-    })
-  }
 
-  if (args.labelFilters && args.labelFilters.length > 0) {
-    const includeLabels = args.labelFilters?.filter(
-      (filter) => filter.type === LabelFilterType.INCLUDE
-    )
-    const excludeLabels = args.labelFilters?.filter(
-      (filter) => filter.type === LabelFilterType.EXCLUDE
-    )
+      const value = expression.value?.toString()
 
-    if (includeLabels && includeLabels.length > 0) {
-      includeLabels.forEach((includeLabel, i) => {
-        const param = `includeLabels_${i}`
-        queryBuilder.andWhere(
-          `lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...${param}]::text[]`,
-          {
-            [param]: includeLabel.labels,
-          }
-        )
+      if (value === undefined || value === '') {
+        return null
+      }
+
+      const param = `implicit_field_${parameters.length}`
+      const alias = `rank_${parameters.length}`
+      selects.push({
+        column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
+        alias,
       })
-    }
 
-    if (excludeLabels && excludeLabels.length > 0) {
-      queryBuilder.andWhere(
-        'NOT lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[] && ARRAY[:...excludeLabels]::text[]',
-        {
-          excludeLabels: excludeLabels.flatMap((filter) => filter.labels),
-        }
+      orders.push({ by: alias, order: SortOrder.DESCENDING })
+
+      return escapeQueryWithParameters(
+        `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
+        { [param]: value }
       )
-    }
-  }
-
-  if (args.dateFilters && args.dateFilters.length > 0) {
-    args.dateFilters.forEach((filter) => {
-      const startDate = `${filter.field}_start`
-      const endDate = `${filter.field}_end`
-      queryBuilder.andWhere(
-        `library_item.${filter.field} between :${startDate} and :${endDate}`,
-        {
-          [startDate]: filter.startDate ?? new Date(0),
-          [endDate]: filter.endDate ?? new Date(),
-        }
-      )
-    })
-  }
-
-  if (args.termFilters && args.termFilters.length > 0) {
-    args.termFilters.forEach((filter) => {
-      const param = `term_${filter.field}`
-      queryBuilder.andWhere(`lower(library_item.${filter.field}) = :${param}`, {
-        [param]: filter.value.toLowerCase(),
-      })
-    })
-  }
-
-  if (args.matchFilters && args.matchFilters.length > 0) {
-    args.matchFilters.forEach((filter) => {
-      const param = `match_${filter.field}`
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.andWhere(
-            `websearch_to_tsquery('english', :${param}) @@ library_item.${filter.field}_tsv`,
-            {
-              [param]: filter.value,
-            }
-          ).orWhere(`${filter.field} ILIKE :value`, {
-            value: `%${filter.value}%`,
-          })
-        })
-      )
-    })
-  }
-
-  if (args.ids && args.ids.length > 0) {
-    queryBuilder.andWhere('library_item.id = ANY(:ids)', {
-      ids: args.ids,
-    })
-  }
-
-  if (!args.includePending) {
-    queryBuilder.andWhere('library_item.state <> :state', {
-      state: LibraryItemState.Processing,
-    })
-  }
-
-  if (!args.includeDeleted && args.inFilter !== InFilter.TRASH) {
-    queryBuilder.andWhere('library_item.state <> :state', {
-      state: LibraryItemState.Deleted,
-    })
-  }
-
-  if (args.noFilters) {
-    args.noFilters.forEach((filter) => {
-      queryBuilder.andWhere(`library_item.${filter.field} = '{}'`)
-    })
-  }
-
-  if (args.recommendedBy) {
-    if (args.recommendedBy === '*') {
-      // select all if * is provided
-      queryBuilder.andWhere(`library_item.recommender_names <> '{}'`)
     } else {
-      // select only if the user is recommended by the provided user
-      queryBuilder.andWhere(
-        'lower(library_item.recommender_names::text)::text[] && ARRAY[:recommendedBy]::text[]',
-        {
-          recommendedBy: args.recommendedBy.toLowerCase(),
+      switch (field.name) {
+        case 'in': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const folder = expression.value?.toString()
+          if (!folder) {
+            throw new Error('Expected a value.')
+          }
+
+          switch (folder) {
+            case InFilter.ALL:
+              return null
+            case InFilter.ARCHIVE:
+              return 'library_item.archived_at IS NOT NULL'
+            case InFilter.TRASH:
+              // return only deleted pages within 14 days
+              return "library_item.deleted_at >= now() - interval '14 days'"
+            default: {
+              let sql = 'library_item.archived_at IS NULL'
+              if (useFolders) {
+                const param = `folder_${parameters.length}`
+                const folderSql = escapeQueryWithParameters(
+                  `library_item.folder = :${param}`,
+                  { [param]: folder }
+                )
+                sql = `(${sql} AND ${folderSql})`
+              }
+
+              return sql
+            }
+          }
         }
-      )
+
+        case 'is': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          switch (value) {
+            case ReadFilter.READ:
+              return 'library_item.reading_progress_bottom_percent > 98'
+            case ReadFilter.READING:
+              return 'library_item.reading_progress_bottom_percent BETWEEN 2 AND 98'
+            case ReadFilter.UNREAD:
+              return 'library_item.reading_progress_bottom_percent < 2'
+            default:
+              throw new Error(`Unexpected keyword: ${value}`)
+          }
+        }
+        case 'type': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const param = `type_${parameters.length}`
+
+          return escapeQueryWithParameters(
+            `LOWER(library_item.item_type) = :${param}`,
+            {
+              [param]: value.toLowerCase(),
+            }
+          )
+        }
+        case 'label': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()?.toLowerCase()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const labels = value.split(',')
+          return (
+            labels
+              .map((label) => {
+                const param = `label_${parameters.length}`
+
+                const hasWildcard = label.includes('*')
+                if (hasWildcard) {
+                  return escapeQueryWithParameters(
+                    `exists (select 1 from unnest(array_cat(library_item.label_names, library_item.highlight_labels)::text[]) as label where label ILIKE :${param})`,
+                    {
+                      [param]: label.replace(/\*/g, '%'),
+                    }
+                  )
+                }
+
+                return escapeQueryWithParameters(
+                  `:${param} = ANY(lower(array_cat(library_item.label_names, library_item.highlight_labels)::text)::text[])`,
+                  {
+                    [param]: label,
+                  }
+                )
+              })
+              .join(' OR ')
+              // wrap in brackets to avoid precedence issues
+              .replace(/^(.*)$/, '($1)')
+          )
+        }
+        case 'sort': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const [sort, sortOrder] = value.split('-')
+          const order =
+            sortOrder?.toUpperCase() === 'ASC'
+              ? SortOrder.ASCENDING
+              : SortOrder.DESCENDING
+
+          const column = getColumnName(sort)
+          orders.push({ by: `library_item.${column}`, order })
+          return null
+        }
+        case 'has': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          switch (value) {
+            case HasFilter.HIGHLIGHTS:
+              return "library_item.highlight_annotations <> '{}'"
+            case HasFilter.LABELS:
+              return "library_item.label_names <> '{}'"
+            case HasFilter.SUBSCRIPTIONS:
+              return 'library_item.subscription is NOT NULL'
+            default:
+              throw new Error(`Unexpected keyword: ${value}`)
+          }
+        }
+        case 'saved':
+        case 'read':
+        case 'updated':
+        case 'published': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const date = expression.value?.toString()
+          if (!date) {
+            throw new Error('Expected a value.')
+          }
+
+          let startDate: Date | undefined
+          let endDate: Date | undefined
+          // check for special date filters
+          switch (date.toLowerCase()) {
+            case 'today':
+              startDate = DateTime.local().startOf('day').toJSDate()
+              break
+            case 'yesterday': {
+              const yesterday = DateTime.local().minus({ days: 1 })
+              startDate = yesterday.startOf('day').toJSDate()
+              endDate = yesterday.endOf('day').toJSDate()
+              break
+            }
+            case 'this week':
+              startDate = DateTime.local().startOf('week').toJSDate()
+              break
+            case 'this month':
+              startDate = DateTime.local().startOf('month').toJSDate()
+              break
+            default: {
+              // check for date ranges
+              const [start, end] = date.split('..')
+              // validate date
+              if (start && start !== '*') {
+                startDate = new Date(start)
+                if (isNaN(startDate.getTime())) {
+                  throw new Error('Invalid start date.')
+                }
+              }
+
+              if (end && end !== '*') {
+                endDate = new Date(end)
+                if (isNaN(endDate.getTime())) {
+                  throw new Error('Invalid end date.')
+                }
+              }
+            }
+          }
+
+          const startParam = `${field.name}_start_${parameters.length}`
+          const endParam = `${field.name}_end_${parameters.length}`
+
+          return escapeQueryWithParameters(
+            `library_item.${field.name}_at BETWEEN :${startParam} AND :${endParam}`,
+            {
+              [startParam]: startDate ?? new Date(0),
+              [endParam]: endDate ?? new Date(),
+            }
+          )
+        }
+        // term filters
+        case 'subscription':
+        case 'rss':
+        case 'language': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const columnName = getColumnName(field.name)
+          const param = `term_${field.name}_${parameters.length}`
+
+          return escapeQueryWithParameters(
+            `library_item.${columnName} = :${param}`,
+            {
+              [param]: value,
+            }
+          )
+        }
+        // match filters
+        case 'author':
+        case 'title':
+        case 'description':
+        case 'note':
+        case 'site': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          // normalize the term to lower case
+          const value = expression.value?.toString()?.toLowerCase()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const columnName = getColumnName(field.name)
+          const param = `match_${field.name}_${parameters.length}`
+          const wildcardParam = `match_${field.name}_wildcard_${parameters.length}`
+
+          return escapeQueryWithParameters(
+            `(websearch_to_tsquery('english', :${param}) @@ library_item.${columnName}_tsv OR library_item.${columnName} ILIKE :${wildcardParam})`,
+            {
+              [param]: value,
+              [wildcardParam]: `%${value}%`,
+            }
+          )
+        }
+        case 'includes': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const ids = expression.value?.toString()?.split(',')
+          if (!ids || ids.length === 0) {
+            throw new Error('Expected a value.')
+          }
+
+          const param = `includes_${parameters.length}`
+
+          return escapeQueryWithParameters(`library_item.id = ANY(:${param})`, {
+            [param]: ids,
+          })
+        }
+        case 'recommendedBy': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const param = `recommendedBy_${parameters.length}`
+          if (value === '*') {
+            // select all if * is provided
+            return "library_item.recommender_names <> '{}'"
+          }
+
+          return escapeQueryWithParameters(
+            `:${param} = ANY(lower(library_item.recommender_names::text)::text[])`,
+            {
+              [param]: value.toLowerCase(),
+            }
+          )
+        }
+        case 'no': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          const value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          let column = ''
+          switch (value) {
+            case 'highlight':
+              column = 'highlight_annotations'
+              break
+            case 'label':
+              column = 'label_names'
+              break
+            case 'subscription':
+              column = 'subscription'
+              break
+            default:
+              throw new Error(`Unexpected keyword: ${value}`)
+          }
+
+          return `(library_item.${column} = '{}' OR library_item.${column} IS NULL)`
+        }
+        case 'use':
+        case 'mode':
+        case 'event':
+          // mode is ignored and used only by the frontend
+          return null
+        case 'readPosition':
+        case 'wordsCount': {
+          if (expression.type !== 'LiteralExpression') {
+            throw new Error('Expected a literal expression.')
+          }
+
+          let value = expression.value?.toString()
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const column = getColumnName(field.name)
+
+          const operatorRegex = /([<>]=?)/
+          const operator = value.match(operatorRegex)?.[0]
+          if (!operator) {
+            throw new Error('Expected a value.')
+          }
+
+          value = value.replace(operatorRegex, '')
+          if (!value) {
+            throw new Error('Expected a value.')
+          }
+
+          const param = `range_${field.name}_${parameters.length}`
+
+          return escapeQueryWithParameters(
+            `library_item.${column} ${operator} :${param}`,
+            {
+              [param]: parseInt(value, 10),
+            }
+          )
+        }
+        default:
+          throw new Error(`Unexpected keyword: ${field.name}`)
+      }
     }
   }
 
-  if (args.includeContent) {
-    queryBuilder.addSelect('library_item.readableContent')
+  const serialize = (ast: LiqeQuery): string | null => {
+    if (ast.type === 'Tag') {
+      return serializeTagExpression(ast)
+    }
+
+    if (ast.type === 'LogicalExpression') {
+      let operator = ''
+      if (ast.operator.operator === 'AND') {
+        operator = 'AND'
+      } else if (ast.operator.operator === 'OR') {
+        operator = 'OR'
+      } else {
+        throw new Error('Unexpected operator.')
+      }
+
+      const left = serialize(ast.left)
+      const right = serialize(ast.right)
+
+      if (!left && !right) {
+        return null
+      }
+
+      if (!left) {
+        return right
+      }
+
+      if (!right) {
+        return left
+      }
+
+      return `${left} ${operator} ${right}`
+    }
+
+    if (ast.type === 'UnaryOperator') {
+      const serialized = serialize(ast.operand)
+
+      if (!serialized) {
+        return null
+      }
+
+      return `NOT ${serialized}`
+    }
+
+    if (ast.type === 'ParenthesizedExpression') {
+      const serialized = serialize(ast.expression)
+
+      if (!serialized) {
+        return null
+      }
+
+      return `(${serialized})`
+    }
+
+    throw new Error('Missing AST type.')
   }
 
-  if (args.rangeFilters && args.rangeFilters.length > 0) {
-    args.rangeFilters.forEach((filter, i) => {
-      const param = `range_${filter.field}_${i}`
-      queryBuilder.andWhere(
-        `library_item.${filter.field} ${filter.operator} :${param}`,
-        {
-          [param]: filter.value,
-        }
-      )
-    })
-  }
+  return serialize(searchQuery)
 }
 
 export const searchLibraryItems = async (
   args: SearchArgs,
   userId: string
 ): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
-  const { from = 0, size = 10, sort } = args
+  const { from = 0, size = 10 } = args
 
-  // default order is descending
-  const sortOrder = sort?.order || SortOrder.DESCENDING
-  // default sort by saved_at
-  const sortField = sort?.by || SortBy.SAVED
-
-  const selectColumns = getColumns(libraryItemRepository)
-    .map((column) => `library_item.${column}`)
+  // select all columns except content
+  const selects: Select[] = getColumns(libraryItemRepository)
+    .map((column) => ({ column: `library_item.${column}` }))
     .filter(
-      (column) =>
-        column !== 'library_item.readableContent' &&
-        column !== 'library_item.originalContent'
+      (select) =>
+        select.column !== 'library_item.readableContent' &&
+        select.column !== 'library_item.originalContent'
     )
+
+  const parameters: ObjectLiteral[] = []
+  const orders: Sort[] = []
+  let query: string | null = null
+
+  if (args.query) {
+    const searchQuery = parseSearchQuery(args.query)
+
+    // build query and save parameters
+    query = buildQuery(
+      searchQuery,
+      parameters,
+      selects,
+      orders,
+      args.useFolders
+    )
+  }
 
   // add pagination and sorting
   return authTrx(
     async (tx) => {
       const queryBuilder = tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .select(selectColumns)
-        .where({ user: { id: userId } })
+        .where('library_item.user_id = :userId', { userId })
 
-      // build the where clause
-      buildWhereClause(queryBuilder, args)
+      // add select
+      selects.forEach((select) => {
+        queryBuilder.addSelect(select.column, select.alias)
+      })
 
-      const libraryItems = await queryBuilder
-        .addOrderBy(`library_item.${sortField}`, sortOrder, 'NULLS LAST')
-        .skip(from)
-        .take(size)
-        .getMany()
+      if (!args.includePending) {
+        queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
+      }
+
+      if (!args.includeDeleted) {
+        queryBuilder.andWhere("library_item.state <> 'DELETED'")
+      }
+
+      if (query) {
+        // add where clause from query
+        queryBuilder
+          .andWhere(query)
+          .setParameters(paramtersToObject(parameters))
+      }
 
       const count = await queryBuilder.getCount()
+
+      // default order by saved at descending
+      if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+        orders.push({
+          by: 'library_item.saved_at',
+          order: SortOrder.DESCENDING,
+        })
+      }
+
+      // add order by
+      orders.forEach((order) => {
+        queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
+      })
+
+      const libraryItems = await queryBuilder.skip(from).take(size).getMany()
 
       return { libraryItems, count }
     },
@@ -420,7 +801,6 @@ export const updateLibraryItem = async (
           libraryItem.deletedAt = null
           break
       }
-
       await itemRepo.update(id, libraryItem)
 
       return itemRepo.findOneByOrFail({ id })
@@ -560,6 +940,38 @@ export const createLibraryItem = async (
   return newLibraryItem
 }
 
+export const saveFeedItemInFollowing = (
+  input: SaveFollowingItemRequest,
+  userId: string
+) => {
+  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
+
+  return authTrx(
+    async (tx) => {
+      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
+        ...input,
+        user: { id: userId },
+        originalUrl: input.url,
+        subscription: input.addedToFollowingBy,
+        folder: InFilter.FOLLOWING,
+        slug: generateSlug(input.title),
+        thumbnail,
+      }
+
+      return tx
+        .getRepository(LibraryItem)
+        .createQueryBuilder()
+        .insert()
+        .values(itemToSave)
+        .orIgnore() // ignore if the item already exists
+        .returning('*')
+        .execute()
+    },
+    undefined,
+    userId
+  )
+}
+
 export const findLibraryItemsByPrefix = async (
   prefix: string,
   userId: string,
@@ -603,10 +1015,19 @@ export const countByCreatedAt = async (
 
 export const updateLibraryItems = async (
   action: BulkActionType,
-  args: SearchArgs,
+  searchArgs: SearchArgs,
   userId: string,
-  labels?: Label[]
+  labels?: Label[],
+  args?: unknown
 ) => {
+  interface FolderArguments {
+    folder: string
+  }
+
+  const isFolderArguments = (args: any): args is FolderArguments => {
+    return 'folder' in args
+  }
+
   // build the script
   let values: QueryDeepPartialEntity<LibraryItem> = {}
   let addLabels = false
@@ -619,8 +1040,8 @@ export const updateLibraryItems = async (
       break
     case BulkActionType.Delete:
       values = {
-        deletedAt: new Date(),
         state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
       }
       break
     case BulkActionType.AddLabels:
@@ -633,17 +1054,37 @@ export const updateLibraryItems = async (
         readingProgressBottomPercent: 100,
       }
       break
+    case BulkActionType.MoveToFolder:
+      if (!args || !isFolderArguments(args)) {
+        throw new Error('Invalid arguments')
+      }
+
+      values = {
+        folder: args.folder,
+        savedAt: new Date(),
+      }
+
+      break
     default:
       throw new Error('Invalid bulk action')
   }
+
+  if (!searchArgs.query) {
+    throw new Error('Search query is required')
+  }
+
+  const searchQuery = parseSearchQuery(searchArgs.query)
+  const parameters: ObjectLiteral[] = []
+  const query = buildQuery(searchQuery, parameters)
 
   await authTrx(async (tx) => {
     const queryBuilder = tx
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.user_id = :userId', { userId })
 
-    // build the where clause
-    buildWhereClause(queryBuilder, args)
+    if (query) {
+      queryBuilder.andWhere(query).setParameters(paramtersToObject(parameters))
+    }
 
     if (addLabels) {
       if (!labels) {

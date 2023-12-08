@@ -29,6 +29,8 @@ public extension Color {
   static var themeLightestGray: Color { Color("_lightestGray", bundle: .module) }
   static var themeDarkWhiteGray: Color { Color("_darkWhiteGray", bundle: .module) }
   static var themeDarkGray: Color { Color("_darkGray", bundle: .module) }
+  static var themeLibraryItemSubtle: Color { Color("_themeLibraryItemSubtle", bundle: .module) }
+  static var themeFeatureBackground: Color { Color("_themeFeatureBackground", bundle: .module) }
 
   static var themeLabelOutline: Color { Color("_labelOutline", bundle: .module) }
   static var themeLabelForeground: Color { Color("_labelForeground", bundle: .module) }
@@ -41,6 +43,7 @@ public extension Color {
   static var themeDisabledBG: Color { Color("_themeDisabledBG", bundle: .module) }
   static var themeSolidBackground: Color { Color("_themeSolidBackground", bundle: .module) }
   static var thBorderColor: Color { Color("thBorderColor", bundle: .module) }
+  static var thLibrarySeparator: Color { Color("thLibrarySeparator", bundle: .module) }
 
   static var thFeatureSeparator: Color { Color("featureSeparator", bundle: .module) }
 
@@ -52,6 +55,8 @@ public extension Color {
 
   static var noteContainer: Color { Color("_noteContainer", bundle: .module) }
   static var textFieldBackground: Color { Color("_textFieldBackground", bundle: .module) }
+  static var themeTabBarColor: Color { Color("_themeTabBarColor", bundle: .module) }
+  static var themeTabButtonColor: Color { Color("_themeTabButtonColor", bundle: .module) }
 
   // Apple system UIColor equivalents
   #if os(iOS)

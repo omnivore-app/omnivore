@@ -36,6 +36,7 @@ const FONT_FAMILIES = [
   'Open Sans',
   'Roboto',
   'Newsreader',
+  'Lexend',
   'Montserrat',
   'Crimson Text',
   'OpenDyslexic',

@@ -101,6 +101,7 @@ public enum Voices {
     VoicePair(firstKey: "fr-FR-HenriNeural", secondKey: "fr-FR-DeniseNeural", firstName: "Henri", secondName: "Denise", language: "en-FR", category: .frFR),
     VoicePair(firstKey: "zh-CN-XiaochenNeural", secondKey: "zh-CN-XiaohanNeural", firstName: "Xiaochen", secondName: "Xiaohan", language: "zh-CN", category: .zhCN),
     VoicePair(firstKey: "zh-CN-XiaoxiaoNeural", secondKey: "zh-CN-YunyangNeural", firstName: "Xiaoxiao", secondName: "Yunyang", language: "zh-CN", category: .zhCN),
+    VoicePair(firstKey: "zh-CN-YunxiNeural", secondKey: "zh-CN-XiaoyiNeural", firstName: "Yunxi", secondName: "Xiaoyi", language: "zh-CN", category: .zhCN),
     VoicePair(firstKey: "es-ES-AlvaroNeural", secondKey: "es-ES-ElviraNeural", firstName: "Alvaro", secondName: "Elvira", language: "es-ES", category: .esES),
     VoicePair(firstKey: "de-CH-LeniNeural", secondKey: "de-DE-KatjaNeural", firstName: "Leni", secondName: "Katja", language: "de-DE", category: .deDE),
     VoicePair(firstKey: "de-DE-AmalaNeural", secondKey: "de-DE-BerndNeural", firstName: "Amala", secondName: "Bernd", language: "de-DE", category: .deDE),

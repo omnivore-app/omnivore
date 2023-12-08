@@ -14,9 +14,6 @@ import Views
 public final class RootViewModel: ObservableObject {
   let services = Services()
 
-  @Published public var showNewFeaturePrimer = false
-  @AppStorage(UserDefaultKey.shouldShowNewFeaturePrimer.rawValue) var shouldShowNewFeaturePrimer = false
-
   public init() {
     registerFonts()
 

@@ -31,7 +31,8 @@ export const updateIntegration = async (
   name: string,
   integrationToken: string,
   token: string,
-  type: string
+  type: string,
+  taskName?: string | null
 ): Promise<boolean> => {
   const requestData = JSON.stringify({
     query: `
@@ -56,6 +57,7 @@ export const updateIntegration = async (
         token: integrationToken,
         enabled: true,
         type,
+        // taskName, // TODO: remove this
       },
     },
   })

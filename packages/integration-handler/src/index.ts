@@ -4,6 +4,7 @@ import { stringify } from 'csv-stringify'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
 import { DateTime } from 'luxon'
+import { promisify } from 'util'
 import { v4 as uuidv4 } from 'uuid'
 import { getIntegrationClient, updateIntegration } from './integrations'
 import { State } from './integrations/integration'
@@ -29,6 +30,7 @@ Sentry.GCPFunction.init({
 })
 
 const storage = new Storage()
+const signToken = promisify(jwt.sign)
 
 export const wait = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
@@ -44,6 +46,19 @@ function isIntegrationRequest(body: any): body is IntegrationRequest {
 
 const createGCSFile = (bucket: string, filename: string): File => {
   return storage.bucket(bucket).file(filename)
+}
+
+const createSystemToken = async (
+  claims: Claims,
+  secret: string
+): Promise<string> => {
+  return signToken(
+    {
+      ...claims,
+      system: true,
+    },
+    secret
+  ) as Promise<string>
 }
 
 export const exporter = Sentry.GCPFunction.wrapHttpFunction(
@@ -76,20 +91,29 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(200).send('Bad Request')
       }
 
+      const systemToken = await createSystemToken(claims, JWT_SECRET)
+
       const { integrationId, syncAt, integrationName } = req.body
       const client = getIntegrationClient(integrationName)
 
       // get paginated items from the backend
+      const first = 50
       let hasMore = true
       let after = '0'
       while (hasMore) {
-        console.log('searching for items...')
+        const updatedSince = new Date(syncAt)
+        console.log('searching for items...', {
+          userId: claims.uid,
+          first,
+          after,
+          updatedSince,
+        })
         const response = await search(
           REST_BACKEND_ENDPOINT,
-          token,
+          systemToken,
           client.highlightOnly,
-          new Date(syncAt),
-          '50',
+          updatedSince,
+          first,
           after
         )
 
@@ -107,7 +131,11 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           break
         }
 
-        console.log('exporting items...')
+        console.log('exporting items...', {
+          userId: claims.uid,
+          total: items.length,
+          hasMore,
+        })
         const synced = await client.export(claims.token, items)
         if (!synced) {
           console.error('failed to export item', {
@@ -116,7 +144,11 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           return res.status(400).send('Failed to sync')
         }
 
-        console.log('updating integration...')
+        console.log('updating integration...', {
+          userId: claims.uid,
+          integrationId,
+          syncedAt: items[items.length - 1].updatedAt,
+        })
         // update integration syncedAt if successful
         const updated = await updateIntegration(
           REST_BACKEND_ENDPOINT,
@@ -124,7 +156,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           items[items.length - 1].updatedAt,
           integrationName,
           claims.token,
-          token,
+          systemToken,
           'EXPORT'
         )
 
@@ -134,9 +166,6 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           })
           return res.status(400).send('Failed to update integration')
         }
-
-        // avoid rate limiting
-        await wait(500)
       }
 
       console.log('done')
@@ -179,6 +208,8 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(200).send('Bad Request')
     }
 
+    const systemToken = await createSystemToken(claims, JWT_SECRET)
+
     let writeStream: NodeJS.WritableStream | undefined
     try {
       const userId = claims.uid
@@ -187,21 +218,29 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
       let offset = 0
       let syncedAt = req.body.syncAt
       const since = syncedAt
-      const state = req.body.state || State.UNARCHIVED // default to unarchived
+      const stateToImport = req.body.state || State.UNARCHIVED // default to unarchived
 
-      console.log('importing pages from integration...')
+      console.log('importing pages from integration...', {
+        userId,
+        stateToImport,
+        since,
+      })
       // get pages from integration
       const retrieved = await integrationClient.retrieve({
         token: claims.token,
         since,
         offset,
-        state,
+        state: stateToImport,
       })
       syncedAt = retrieved.since || Date.now()
-
-      console.log('uploading items...')
-
       let retrievedData = retrieved.data
+
+      console.log('retrieved data', {
+        userId,
+        total: offset,
+        size: retrievedData.length,
+      })
+
       // if there are pages to import
       if (retrievedData.length > 0) {
         // write the list of urls to a csv file and upload it to gcs
@@ -224,7 +263,20 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         // paginate api calls to the integration
         do {
           // write the list of urls, state and labels to the stream
-          retrievedData.forEach((row) => stringifier.write(row))
+          retrievedData
+            .filter((row) => {
+              // filter out items that are deleted
+              if (row.state === State.DELETED) {
+                return false
+              }
+
+              // filter out items that archived if the stateToImport is unarchived
+              return (
+                stateToImport !== State.UNARCHIVED ||
+                row.state !== State.ARCHIVED
+              )
+            })
+            .forEach((row) => stringifier.write(row))
 
           // get next pages from the integration
           offset += retrievedData.length
@@ -233,39 +285,49 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
             token: claims.token,
             since,
             offset,
-            state,
+            state: stateToImport,
           })
           syncedAt = retrieved.since || Date.now()
           retrievedData = retrieved.data
 
           console.log('retrieved data', {
+            userId,
             total: offset,
             size: retrievedData.length,
           })
-
-          console.log('uploading integration...')
-          // update the integration's syncedAt and remove taskName
-          const result = await updateIntegration(
-            REST_BACKEND_ENDPOINT,
-            req.body.integrationId,
-            new Date(syncedAt),
-            req.body.integrationName,
-            claims.token,
-            token,
-            'IMPORT'
-          )
-          if (!result) {
-            console.error('failed to update integration', {
-              integrationId: req.body.integrationId,
-            })
-            return res.status(400).send('Failed to update integration')
-          }
         } while (retrievedData.length > 0 && offset < 20000) // limit to 20k pages
+      }
+
+      console.log('updating integration...', {
+        userId,
+        integrationId: req.body.integrationId,
+        syncedAt,
+      })
+      // update the integration's syncedAt and remove taskName
+      const result = await updateIntegration(
+        REST_BACKEND_ENDPOINT,
+        req.body.integrationId,
+        new Date(syncedAt),
+        req.body.integrationName,
+        claims.token,
+        systemToken,
+        'IMPORT',
+        null
+      )
+      if (!result) {
+        console.error('failed to update integration', {
+          userId,
+          integrationId: req.body.integrationId,
+        })
+        return res.status(500).send('Failed to update integration')
       }
 
       console.log('done')
     } catch (err) {
-      console.error('import pages from integration failed', err)
+      console.error('import pages from integration failed', {
+        userId: claims.uid,
+        err,
+      })
       return res.status(500).send(err)
     } finally {
       console.log('closing write stream')

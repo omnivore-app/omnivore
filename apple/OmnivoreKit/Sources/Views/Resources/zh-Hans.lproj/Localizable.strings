@@ -25,12 +25,12 @@
 // Manage Account View
 "manageAccountDelete" = "删除帐户";
 "manageAccountResetCache" = "重置数据缓存";
-"manageAccountConfirmDeleteMessage" = "您确定要删除您的帐户吗? 此操作无法撤消。";
+"manageAccountConfirmDeleteMessage" = "您确定要彻底删除您的帐户吗? 此操作无法撤消。";
 
 // Newsletter Emails View
-"newsletterEmailsExisting" = "现有电子邮件 (点击复制)";
-"createNewEmailMessage" = "创建新的电子邮件地址";
-"newslettersDescription" = "将 PDF 添加到您的文库，或使用 Omnivore 电子邮件地址订阅新闻稿件。";
+"newsletterEmailsExisting" = "现有电子邮箱 (点击复制)";
+"createNewEmailMessage" = "创建新的电子邮箱地址";
+"newslettersDescription" = "将 PDF 添加到您的文库，或使用 Omnivore 电子邮箱地址订阅新闻资讯。";
 "noCurrentSubscriptionsMessage" = "您当前没有任何订阅。";
 
 // Profile View
@@ -42,12 +42,12 @@
 
 // Push Notification Settings
 "notificationsEnabled" = "启用通知";
-"notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限，\n但由您负责发送哪些通知。";
-"notificationsTriggerExplainer" = "推送通知使用您的 \n[account rules](https://omnivore.app/settings/rules) 您可以在线编辑。";
+"notificationsExplainer" = "启用推送通知将授予 Omnivore 设备发送通知的权限，但由您负责发送哪些通知。";
+"notificationsTriggerExplainer" = "推送通知使用您的[帐户规则](https://omnivore.app/settings/rules) 您可以在线编辑。";
 "notificationsEnable" = "确定启用推送通知?";
- "notificationsGeneralExplainer" = "当新闻稿件链接到达您的收集箱时收到通知。或者接收您从我们的分享扩展中设置的提醒。";
-"notificationsOptionDeny" = "不了,谢谢";
-"notificationsOptionEnable" = "好的,谢谢";
+"notificationsGeneralExplainer" = "当新闻资讯链接到达您的收集箱时收到通知。或者接收您从我们的分享扩展中设置的提醒。";
+"notificationsOptionDeny" = "不用了";
+"notificationsOptionEnable" = "好的";
 
 // Community Modal
 "communityHeadline" = "帮助建立 Omnivore 社区";
@@ -58,17 +58,17 @@
 "communityStarGithub" = "点亮我们的 GitHub 星标";
 
 // Clubs View
-"clubsLearnTitle" = "了解有关读书俱乐部的更多信息";
-"clubsName" = "读书俱乐部名称";
-"clubsCreate" = "创建新读书俱乐部";
-"clubsYours" = "您的读书俱乐部";
-"clubsNotAMemberMessage" = "您不是任何读书俱乐部的成员。\n创建新读书俱乐部并将邀请链接发送给您的朋友开始使用。\n\n在测试期间您只能创建三个读书俱乐部，且每个读书俱乐部最多可以\n有 12 个用户。";
+"clubsLearnTitle" = "了解有关阅读俱乐部的更多信息";
+"clubsName" = "阅读俱乐部名称";
+"clubsCreate" = "创建新阅读俱乐部";
+"clubsYours" = "您的阅读俱乐部";
+"clubsNotAMemberMessage" = "您不是任何阅读俱乐部的成员。\n创建新阅读俱乐部并将邀请链接发送给您的朋友开始使用。\n\n在测试期间您只能创建三个阅读俱乐部，且每个阅读俱乐部最多可以\n有 12 个用户。";
 "clubsErrorCopying" = "复制邀请 URL 时出错";
-"clubsAdminDenyViewing" = "此读书俱乐部的管理员不允许查看所有成员.";
-"clubsNoMembers" = "此读书俱乐部没有任何成员。通过向用户发送邀请链接将用户添加到\n您的读书俱乐部。";
-"clubsLeave" = "退出读书俱乐部";
-"clubsLeaveConfirm" = "你确定要退出此读书俱乐部吗? 不会删除任何数据，但您将停止收到此读书俱乐部的推荐。";
-"clubsNoneJoined" = "您没有任何可以发帖的读书俱乐部。\n加入俱乐部或创建自己的俱乐部以开始推荐文章。";
+"clubsAdminDenyViewing" = "此阅读俱乐部的管理员不允许查看所有成员.";
+"clubsNoMembers" = "此阅读俱乐部没有任何成员。通过向用户发送邀请链接将用户添加到\n您的阅读俱乐部。";
+"clubsLeave" = "退出阅读俱乐部";
+"clubsLeaveConfirm" = "你确定要退出此阅读俱乐部吗? 不会删除任何数据，但您将停止收到此阅读俱乐部的推荐。";
+"clubsNoneJoined" = "您没有任何可以发帖的阅读俱乐部。\n加入俱乐部或创建自己的俱乐部以开始推荐文章。";
 
 // Subscriptions
 "subscriptionsErrorRetrieving" = "抱歉，我们无法检索您的订阅。";
@@ -85,7 +85,7 @@
 "texttospeechBetaWaitlist" = "超级真实的声音目前处于有限测试阶段，仅适用于英语。启用该功能会将您添加到测试队列中。";
 
 // Sign in/up
-"registrationNoAccount" = "还没有账号?";
+"registrationNoAccount" = "还没有帐号?";
 "registrationForgotPassword" = "忘记密码了?";
 "registrationStatusCheck" = "检查状态";
 "registrationUseDifferentEmail" = "使用其他电子邮箱?";
@@ -93,11 +93,11 @@
 "registrationUsername" = "用户名";
 "registrationAlreadyHaveAccount" = "已有帐户?";
 "registrationBio" = "个人简介 (可选)";
-"registrationWelcome" = "读万卷书，行万里路。"; // From Chinese verse, Similar to the old saying: study, every day.
+"registrationWelcome" = "绝不错过精彩阅读";
 "registrationUsernameAssignedPrefix" = "您的用户名是:";
 "registrationChangeUsername" = "更改用户名";
 "registrationEdit" = "编辑";
-"googleAuthButton" = "使用 Google 账号";
+"googleAuthButton" = "使用 Google 帐号";
 "registrationViewSignUpHeadline" = "注册";
 "loginErrorInvalidCreds" = "提供的登录凭据无效.";
 
@@ -126,7 +126,7 @@
 "welcomeSignupAgreement" = "您使用我们的服务即表示您已同意本条款 Omnivore\n";
 "welcomeTitleTermsOfService" = "服务条款";
 "welcomeTitleAndJoiner" = " 和 ";
-"welcomeTitleEmailContinue" = "继续使用电子邮件";
+"welcomeTitleEmailContinue" = "继续使用电子邮箱";
 
 // Keyboard Commands
 "keyboardCommandDecreaseFont" = "减小字体大小";
@@ -171,7 +171,7 @@
 "genericFont" = "字体";
 "genericHighlight" = "荧光笔";
 "labelsGeneric" = "标签";
-"emailsGeneric" = "电子邮件";
+"emailsGeneric" = "电子邮箱";
 "subscriptionsGeneric" = "订阅";
 "textToSpeechGeneric" = "文章转语音";
 "privacyPolicyGeneric" = "隐私策略";
@@ -184,7 +184,7 @@
 "exportGeneric" = "导出";
 "inboxGeneric" = "收集箱";
 "readLaterGeneric" = "稍后阅读";
-"newslettersGeneric" = "新闻稿件";
+"newslettersGeneric" = "新闻资讯";
 "allGeneric" = "全部";
 "archivedGeneric" = "存档";
 "highlightedGeneric" = "荧光笔";
@@ -193,13 +193,13 @@
 "oldestGeneric" = "最早";
 "recentlyReadGeneric" = "最近阅读";
 "recentlyPublishedGeneric" = "最近发布";
-"clubsGeneric" = "读书俱乐部";
-"filterGeneric" = "筛选";
+"clubsGeneric" = "阅读俱乐部";
+"filterGeneric" = "特色功能";
 "errorGeneric" = "哦！出现了小问题，请您重试。";
 "pushNotificationsGeneric" = "推送通知";
 "dismissButton" = "返回或撤销";
 "errorNetwork" = "我们在连接到互联网时遇到问题。";
-"documentationGeneric" = "使用文档";
+"documentationGeneric" = "使用手册";
 
 // Unreferenced
 // "signInScreenHeadline" = "保存并分享喜爱的网页.";
@@ -245,7 +245,7 @@
 //"filter to inbox, archive, or all" = "筛选到收集箱、存档或全部";
 //"search for a specific title" = "搜索特定标题";
 //"any saved read with highlights" = "任何带有荧光笔高亮显示的已保存文章";
-//"[More on Advanced Search](https://docs.omnivore.app/using/search.html)" = "[了解更多高级搜索](https://docs.omnivore.app/using/search.html)";
+//"[More on Advanced Search](https://docs.omnivore.app/using/search.html)" = "[了解更多高级搜索](https://docs.omnivore.app/zh/using/search.html)";
 //
 //// Views/AudioPlayer/ExpandedPlayer.swift
 //"Playback Speed (%.1f×)" = "播放速度 (%.1f×)";
@@ -270,7 +270,7 @@
 //"Create New Label" = "创建新标签";
 //
 //// Views/Profile/NewsletterEmailsView.swift
-//"Email copied" = "电子邮件已复制";
+//"Email copied" = "电子邮箱已复制";
 //
 //// Views/Profile/ProfileView.swift
 //"Omnivore Version \(appVersion)" = "Omnivore 版本 \(appVersion)";

@@ -46,4 +46,7 @@ export class Filter {
 
   @Column('boolean', { default: true })
   visible!: boolean
+
+  @Column('text')
+  folder!: string
 }

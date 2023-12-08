@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "canonical",
+    "canonical/node",
+    "canonical/typescript"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "root": true,
+  "rules": {
+    "@typescript-eslint/no-parameter-properties": 0
+  }
+}

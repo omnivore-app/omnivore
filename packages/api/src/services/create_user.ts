@@ -159,7 +159,7 @@ const createDefaultFiltersForUser =
         name: 'Continue Reading',
         filter: 'in:inbox sort:read-desc is:reading',
       },
-      { name: 'Non-Feed Items', filter: 'in:library' },
+      { name: 'Non-Feed Items', filter: 'no:subscription' },
       { name: 'Highlights', filter: 'has:highlights mode:highlights' },
       { name: 'Unlabeled', filter: 'no:label' },
       { name: 'Oldest First', filter: 'sort:saved-asc' },

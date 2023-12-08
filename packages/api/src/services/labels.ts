@@ -3,7 +3,7 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import { EntityLabel } from '../entity/entity_label'
 import { Label } from '../entity/label'
 import { LibraryItem } from '../entity/library_item'
-import { createPubSubClient, EntityType } from '../pubsub'
+import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { libraryItemRepository } from '../repository/library_item'
@@ -65,11 +65,39 @@ export const findOrCreateLabels = async (
   )
 }
 
+export const createAndSaveLabelsInLibraryItem = async (
+  libraryItemId: string,
+  userId: string,
+  labels?: CreateLabelInput[] | null,
+  rssFeedUrl?: string | null,
+  pubsub?: PubsubClient,
+  skipPubSub?: boolean
+) => {
+  if (rssFeedUrl) {
+    // add rss label to labels
+    labels = (labels || []).concat({ name: 'RSS' })
+  }
+
+  // save labels in item
+  if (labels && labels.length > 0) {
+    const newLabels = await findOrCreateLabels(labels, userId)
+
+    await saveLabelsInLibraryItem(
+      newLabels,
+      libraryItemId,
+      userId,
+      pubsub,
+      skipPubSub
+    )
+  }
+}
+
 export const saveLabelsInLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ) => {
   await authTrx(
     async (tx) => {
@@ -92,6 +120,10 @@ export const saveLabelsInLibraryItem = async (
     userId
   )
 
+  if (skipPubSub) {
+    return
+  }
+
   // create pubsub event
   await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
     EntityType.LABEL,
@@ -104,7 +136,8 @@ export const addLabelsToLibraryItem = async (
   labels: Label[],
   libraryItemId: string,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ) => {
   await authTrx(
     async (tx) => {
@@ -127,6 +160,10 @@ export const addLabelsToLibraryItem = async (
     undefined,
     userId
   )
+
+  if (skipPubSub) {
+    return
+  }
 
   // create pubsub event
   await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(

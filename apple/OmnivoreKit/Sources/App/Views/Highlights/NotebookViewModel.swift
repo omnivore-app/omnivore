@@ -25,7 +25,7 @@ struct NoteItemParams: Identifiable {
   @Published var highlightItems = [HighlightListItemParams]()
 
   func load(itemObjectID: NSManagedObjectID, dataService: DataService) {
-    if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? LinkedItem {
+    if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? Models.LibraryItem {
       loadHighlights(item: linkedItem)
     }
   }
@@ -53,7 +53,7 @@ struct NoteItemParams: Identifiable {
       let highlightId = UUID().uuidString.lowercased()
       let shortId = NanoID.generate(alphabet: NanoID.Alphabet.urlSafe.rawValue, size: 8)
 
-      if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? LinkedItem {
+      if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? Models.LibraryItem {
         noteItem = NoteItemParams(highlightID: highlightId, annotation: annotation)
         let highlight = dataService.createNote(shortId: shortId,
                                                highlightID: highlightId,
@@ -105,7 +105,7 @@ struct NoteItemParams: Identifiable {
     highlightItems.map { highlightAsMarkdown(item: $0) }.lazy.joined(separator: "\n\n")
   }
 
-  private func loadHighlights(item: LinkedItem) {
+  private func loadHighlights(item: Models.LibraryItem) {
     let unsortedHighlights = item.highlights.asArray(of: Highlight.self)
       .filter { $0.type == "HIGHLIGHT" && $0.serverSyncStatus != ServerSyncStatus.needsDeletion.rawValue }
 

@@ -196,4 +196,16 @@ export class LibraryItem {
 
   @Column('text', { nullable: true })
   recommenderNames?: string[] | null
+
+  @Column('jsonb')
+  links?: any | null
+
+  @Column('text')
+  previewContent?: string | null
+
+  @Column('text')
+  previewContentType?: string | null
+
+  @Column('text')
+  folder!: string
 }

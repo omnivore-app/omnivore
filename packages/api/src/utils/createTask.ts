@@ -196,7 +196,7 @@ export const getTask = async (
 
 export const deleteTask = async (
   taskName: string
-): Promise<google.protobuf.IEmpty> => {
+): Promise<google.protobuf.IEmpty | null> => {
   // If we are in local environment
   if (env.dev.isLocal) {
     return taskName
@@ -206,9 +206,13 @@ export const deleteTask = async (
     name: taskName,
   }
 
-  const [response] = await client.deleteTask(request)
-
-  return response
+  try {
+    const [response] = await client.deleteTask(request)
+    return response
+  } catch (error) {
+    logError(error)
+    return null
+  }
 }
 
 /**
@@ -232,6 +236,8 @@ export const enqueueParseRequest = async ({
   timezone,
   savedAt,
   publishedAt,
+  folder,
+  rssFeedUrl,
 }: {
   url: string
   userId: string
@@ -244,6 +250,8 @@ export const enqueueParseRequest = async ({
   timezone?: string
   savedAt?: Date
   publishedAt?: Date
+  folder?: string
+  rssFeedUrl?: string
 }): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -256,6 +264,8 @@ export const enqueueParseRequest = async ({
     timezone,
     savedAt,
     publishedAt,
+    folder,
+    rssFeedUrl,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
@@ -615,6 +625,7 @@ export interface RssSubscriptionGroup {
   fetchedDates: (Date | null)[]
   scheduledDates: Date[]
   checksums: (string | null)[]
+  addToLibraryFlags: boolean[]
 }
 
 export const enqueueRssFeedFetch = async (
@@ -632,6 +643,7 @@ export const enqueueRssFeedFetch = async (
       timestamp.getTime()
     ), // unix timestamp in milliseconds
     userIds: subscriptionGroup.userIds,
+    addToLibraryFlags: subscriptionGroup.addToLibraryFlags,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

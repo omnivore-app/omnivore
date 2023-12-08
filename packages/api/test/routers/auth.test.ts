@@ -607,7 +607,10 @@ describe('auth router', () => {
           'web'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems({}, user.id)
+        const { count } = await searchLibraryItems(
+          { query: 'in:all' },
+          user.id
+        )
 
         expect(count).to.eql(3)
       })
@@ -628,7 +631,10 @@ describe('auth router', () => {
           'ios'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems({}, user.id)
+        const { count } = await searchLibraryItems(
+          { query: 'in:all' },
+          user.id
+        )
 
         expect(count).to.eql(4)
       })

@@ -51,6 +51,9 @@ import Utils
     @State private var annotation = ""
     @State private var addNoteHighlight: Highlight?
     @State private var showAnnotationModal = false
+    @State private var showSettingsModal = false
+
+    @Environment(\.dismiss) private var dismiss
 
     init(viewModel: PDFViewerViewModel) {
       self.viewModel = viewModel
@@ -103,19 +106,13 @@ import Utils
             guard pdfStateObject.controllerNeedsConfig else { return }
             coordinator.setController(controller: controller, dataService: dataService)
 
-            // Disable the Document Editor
-            controller.navigationItem.setRightBarButtonItems(
-              [controller.thumbnailsButtonItem],
-              for: .thumbnails,
-              animated: false
-            )
-
             let barButtonItems = [
               UIBarButtonItem(
                 image: UIImage(systemName: "textformat"),
                 style: .plain,
-                target: controller.settingsButtonItem.target,
-                action: controller.settingsButtonItem.action
+                target: coordinator,
+                action: #selector(PDFViewCoordinator.displaySettingsSheet)
+
               ),
               UIBarButtonItem(
                 image: UIImage(systemName: "book"),
@@ -137,6 +134,15 @@ import Utils
               )
             ]
 
+            let leftButtonItems = [
+              UIBarButtonItem(
+                image: UIImage(named: "chevron-right", in: Bundle(url: ViewsPackage.bundleURL), with: nil),
+                style: .plain,
+                target: coordinator,
+                action: #selector(PDFViewCoordinator.pop)
+              )
+            ]
+
             document.areAnnotationsEnabled = true
 
             coordinator.viewer = self
@@ -146,6 +152,7 @@ import Utils
               controller.setPageIndex(pageIndex, animated: false)
             }
 
+            controller.navigationItem.setLeftBarButtonItems(leftButtonItems, for: .document, animated: false)
             controller.navigationItem.setRightBarButtonItems(barButtonItems, for: .document, animated: false)
             pdfStateObject.controllerNeedsConfig = false
           }
@@ -171,7 +178,7 @@ import Utils
               if let highlight = annotations?.compactMap({ $0 as? HighlightAnnotation }).first,
                  let customHighlight = highlight.customData?["omnivoreHighlight"] as? [String: String],
                  let highlightID = customHighlight["id"]?.lowercased(),
-                 let selectedHighlight = viewModel.findHighlight(highlightID: highlightID)
+                 let selectedHighlight = viewModel.findHighlight(dataService: dataService, highlightID: highlightID)
               {
                 addNoteHighlight = selectedHighlight
                 annotation = selectedHighlight.annotation ?? ""
@@ -212,6 +219,12 @@ import Utils
                 errorAlertMessage: $errorAlertMessage,
                 showErrorAlertMessage: $showErrorAlertMessage
               )
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
+          }
+          .formSheet(isPresented: $showSettingsModal, modalSize: CGSize(width: 400, height: 475)) {
+            NavigationView {
+              PDFSettingsView(pdfViewController: coordinator.controller)
             }
             .navigationViewStyle(StackNavigationViewStyle())
           }
@@ -263,7 +276,7 @@ import Utils
       var subscriptions = Set<AnyCancellable>()
 
       public var viewer: PDFViewer?
-      var controller: PDFViewController?
+      public var controller: PDFViewController?
 
       init(document: Document, viewModel: PDFViewerViewModel) {
         self.document = document
@@ -446,9 +459,21 @@ import Utils
         }
       }
 
+      @objc public func pop() {
+        if let viewer = self.viewer {
+          viewer.dismiss()
+        }
+      }
+
       @objc public func toggleReaderView() {
         if let viewer = self.viewer {
           viewer.readerView = !viewer.readerView
+        }
+      }
+
+      @objc public func displaySettingsSheet() {
+        if let viewer = self.viewer {
+          viewer.showSettingsModal = true
         }
       }
 

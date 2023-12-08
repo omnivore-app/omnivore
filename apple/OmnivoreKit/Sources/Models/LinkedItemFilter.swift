@@ -54,11 +54,11 @@ public extension LinkedItemFilter {
   var predicate: NSPredicate {
     let undeletedPredicate = NSPredicate(
       format: "%K != %i AND %K != \"DELETED\"",
-      #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
-      #keyPath(LinkedItem.state)
+      #keyPath(LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
+      #keyPath(LibraryItem.state)
     )
     let notInArchivePredicate = NSPredicate(
-      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+      format: "%K == %@", #keyPath(LibraryItem.isArchived), Int(truncating: false) as NSNumber
     )
 
     switch self {
@@ -82,7 +82,7 @@ public extension LinkedItemFilter {
         format: "htmlContent.length > 0"
       )
       let isPDFPredicate = NSPredicate(
-        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+        format: "%K == %@", #keyPath(LibraryItem.contentReader), "PDF"
       )
       let localPDFURL = NSPredicate(
         format: "localPDF.length > 0"
@@ -111,18 +111,18 @@ public extension LinkedItemFilter {
       return undeletedPredicate
     case .archived:
       let inArchivePredicate = NSPredicate(
-        format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: true) as NSNumber
+        format: "%K == %@", #keyPath(LibraryItem.isArchived), Int(truncating: true) as NSNumber
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
     case .deleted:
       let deletedPredicate = NSPredicate(
-        format: "%K == %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+        format: "%K == %i", #keyPath(LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [deletedPredicate])
     case .files:
       // include pdf only
       let isPDFPredicate = NSPredicate(
-        format: "%K == %@", #keyPath(LinkedItem.contentReader), "PDF"
+        format: "%K == %@", #keyPath(LibraryItem.contentReader), "PDF"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
     case .hasHighlights:
@@ -172,10 +172,10 @@ public extension FeaturedItemFilter {
 
   var predicate: NSPredicate {
     let undeletedPredicate = NSPredicate(
-      format: "%K != %i", #keyPath(LinkedItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+      format: "%K != %i", #keyPath(LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
     )
     let notInArchivePredicate = NSPredicate(
-      format: "%K == %@", #keyPath(LinkedItem.isArchived), Int(truncating: false) as NSNumber
+      format: "%K == %@", #keyPath(LibraryItem.isArchived), Int(truncating: false) as NSNumber
     )
 
     switch self {
@@ -214,12 +214,12 @@ public extension FeaturedItemFilter {
   }
 
   var sortDescriptor: NSSortDescriptor {
-    let savedAtSort = NSSortDescriptor(key: #keyPath(LinkedItem.savedAt), ascending: false)
+    let savedAtSort = NSSortDescriptor(key: #keyPath(LibraryItem.savedAt), ascending: false)
     switch self {
     case .continueReading:
-      return NSSortDescriptor(key: #keyPath(LinkedItem.readAt), ascending: false)
+      return NSSortDescriptor(key: #keyPath(LibraryItem.readAt), ascending: false)
     case .pinned:
-      return NSSortDescriptor(key: #keyPath(LinkedItem.updatedAt), ascending: false)
+      return NSSortDescriptor(key: #keyPath(LibraryItem.updatedAt), ascending: false)
     default:
       return savedAtSort
     }

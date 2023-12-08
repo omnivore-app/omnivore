@@ -8,7 +8,7 @@ public extension DataService {
     var itemUpdatedLocal = false
     // If the item is still available locally, update its state
     backgroundContext.performAndWait {
-      if let linkedItem = LinkedItem.lookup(byID: itemID, inContext: backgroundContext) {
+      if let linkedItem = LibraryItem.lookup(byID: itemID, inContext: backgroundContext) {
         linkedItem.serverSyncStatus = Int64(ServerSyncStatus.needsUpdate.rawValue)
 
         do {

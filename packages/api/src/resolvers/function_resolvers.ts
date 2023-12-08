@@ -52,6 +52,7 @@ import {
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
+  feedsResolver,
   filtersResolver,
   generateApiKeyResolver,
   getAllUsersResolver,
@@ -75,6 +76,7 @@ import {
   mergeHighlightResolver,
   moveFilterResolver,
   moveLabelResolver,
+  moveToFolderResolver,
   newsletterEmailsResolver,
   recommendHighlightsResolver,
   recommendResolver,
@@ -87,6 +89,7 @@ import {
   saveFilterResolver,
   savePageResolver,
   saveUrlResolver,
+  scanFeedsResolver,
   searchResolver,
   sendInstallInstructionsResolver,
   setBookmarkArticleResolver,
@@ -215,6 +218,7 @@ export const functionResolvers = {
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
+    moveToFolder: moveToFolderResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -246,6 +250,8 @@ export const functionResolvers = {
     filters: filtersResolver,
     groups: groupsResolver,
     recentEmails: recentEmailsResolver,
+    feeds: feedsResolver,
+    scanFeeds: scanFeedsResolver,
   },
   User: {
     async intercomHash(

@@ -7,11 +7,11 @@ import Views
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   @Published var pdfItem: PDFItem?
-  @Published var item: LinkedItem?
+  @Published var item: Models.LibraryItem?
 
   func loadItem(linkedItemObjectID: NSManagedObjectID, dataService: DataService) async {
     let item = await dataService.viewContext.perform {
-      dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem
+      dataService.viewContext.object(with: linkedItemObjectID) as? Models.LibraryItem
     }
 
     if let item = item {
@@ -85,19 +85,19 @@ struct LinkItemDetailView: View {
   }
 
   var body: some View {
-    ZStack {
+    Group {
       if isPDF {
-        pdfContainerView
+        NavigationView {
+          pdfContainerView
+            .navigationBarBackButtonHidden(false)
+        }
+        .navigationViewStyle(.stack)
       } else if let item = viewModel.item {
         WebReaderContainerView(item: item, pop: { dismiss() })
-        #if os(iOS)
-          .navigationBarHidden(true)
-          .lazyPop(pop: {
-            dismiss()
-          }, isEnabled: $isEnabled)
-        #endif
+          .background(ThemeManager.currentBgColor)
       }
     }
+    .ignoresSafeArea(.all, edges: .bottom)
     .task {
       await viewModel.loadItem(linkedItemObjectID: linkedItemObjectID, dataService: dataService)
     }

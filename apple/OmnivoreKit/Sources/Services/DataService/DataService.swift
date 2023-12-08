@@ -69,7 +69,7 @@ public final class DataService: ObservableObject {
   }
 
   public func cleanupDeletedItems(in context: NSManagedObjectContext) {
-    let fetchRequest: NSFetchRequest<LinkedItem> = LinkedItem.fetchRequest()
+    let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
 
     let calendar = Calendar.current
     let oneDayAgo = calendar.date(byAdding: .day, value: -1, to: Date())!
@@ -219,12 +219,12 @@ public final class DataService: ObservableObject {
 
     try await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "pageURLString = %@", normalizedURL)
 
       let currentTime = Date()
       let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
-      let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
+      let linkedItem = existingItem ?? LibraryItem(entity: LibraryItem.entity(), insertInto: self.backgroundContext)
 
       linkedItem.createdId = requestId
       linkedItem.id = existingItem?.unwrappedID ?? requestId

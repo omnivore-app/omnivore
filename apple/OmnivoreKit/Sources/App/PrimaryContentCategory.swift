@@ -35,15 +35,6 @@ enum PrimaryContentCategory: Identifiable, Hashable, Equatable {
     Label { Text(title) } icon: { image.renderingMode(.template) }
   }
 
-  @MainActor @ViewBuilder var destinationView: some View {
-    switch self {
-    case .feed:
-      LibraryListView()
-    case .profile:
-      ProfileView()
-    }
-  }
-
   func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }

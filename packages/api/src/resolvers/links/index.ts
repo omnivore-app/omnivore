@@ -54,9 +54,20 @@ export const setLinkArchivedResolver = authorized<
   ArchiveLinkError,
   MutationSetLinkArchivedArgs
 >(async (_obj, args, { uid }) => {
+  let state = LibraryItemState.Archived
+  let archivedAt: Date | null = new Date()
+  let event = 'link_archived'
+
+  const isUnarchive = !args.input.archived
+  if (isUnarchive) {
+    state = LibraryItemState.Succeeded
+    archivedAt = null
+    event = 'link_unarchived'
+  }
+
   analytics.track({
     userId: uid,
-    event: args.input.archived ? 'link_archived' : 'link_unarchived',
+    event,
     properties: {
       env: env.server.apiEnv,
     },
@@ -66,10 +77,8 @@ export const setLinkArchivedResolver = authorized<
     await updateLibraryItem(
       args.input.linkId,
       {
-        archivedAt: args.input.archived ? new Date() : null,
-        state: args.input.archived
-          ? LibraryItemState.Archived
-          : LibraryItemState.Succeeded,
+        state,
+        archivedAt,
       },
       uid
     )
@@ -82,6 +91,6 @@ export const setLinkArchivedResolver = authorized<
 
   return {
     linkId: args.input.linkId,
-    message: 'Link Archived',
+    message: event,
   }
 })

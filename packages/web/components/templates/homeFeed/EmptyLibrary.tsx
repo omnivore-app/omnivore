@@ -169,7 +169,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
           return 'inbox'
         case 'in:inbox sort:read-desc is:reading':
           return 'continue'
-        case 'in:library':
+        case 'no:subscription':
           return 'non-feed'
         case 'has:highlights mode:highlights':
           return 'highlight'
@@ -181,7 +181,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
           return 'archive'
         case 'label:RSS':
           return 'feed'
-        case 'in:subscription':
+        case 'has:subscriptions':
           return 'subscription'
         case 'label:Newsletter':
           return 'newsletter'

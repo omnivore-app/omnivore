@@ -6,7 +6,7 @@ import WebKit
 
 @MainActor
 struct WebReader: PlatformViewRepresentable {
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let viewModel: WebReaderViewModel
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
@@ -71,6 +71,12 @@ struct WebReader: PlatformViewRepresentable {
         UIScrollView.IndicatorStyle.black
     #else
       webView.setValue(false, forKey: "drawsBackground")
+    #endif
+
+    #if DEBUG
+      if #available(iOS 16.4, *) {
+        webView.isInspectable = true
+      }
     #endif
 
     for action in WebViewAction.allCases {

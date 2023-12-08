@@ -70,4 +70,10 @@ export class Subscription {
 
   @Column('timestamp', { nullable: true })
   scheduledAt?: Date | null
+
+  @Column('boolean')
+  isPrivate?: boolean | null
+
+  @Column('boolean')
+  autoAddToLibrary?: boolean | null
 }

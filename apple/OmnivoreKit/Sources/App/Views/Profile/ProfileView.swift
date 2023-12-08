@@ -69,12 +69,8 @@ struct ProfileView: View {
       Form {
         innerBody
       }
-      .navigationTitle(LocalText.genericProfile)
-      .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          dismissButton
-        }
+        toolbarItems
       }
     #elseif os(macOS)
       List {
@@ -85,11 +81,16 @@ struct ProfileView: View {
     #endif
   }
 
-  var dismissButton: some View {
-    Button(
-      action: { dismiss() },
-      label: { Text(LocalText.genericClose) }
-    )
+  var toolbarItems: some ToolbarContent {
+    Group {
+      ToolbarItem(placement: .barLeading) {
+        VStack(alignment: .leading) {
+          Text(LocalText.genericProfile)
+            .font(Font.system(size: 24, weight: .semibold))
+        }
+        .frame(maxWidth: .infinity, alignment: .bottomLeading)
+      }
+    }
   }
 
   private var accountSection: some View {

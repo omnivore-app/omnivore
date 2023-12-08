@@ -189,6 +189,12 @@
     )
   }
 
+  function showConsentError() {
+    alert(
+      'You have not granted the Omnivore extension consent to save pages. Check the extension options page to grant consent.'
+    )
+  }
+
   function updateLabelsFromCache(payload) {
     ;(async () => {
       await getStorageItem('labels').then((cachedLabels) => {
@@ -247,13 +253,29 @@
         // Auto hide if everything went well and the user
         // has not initiated any interaction.
 
-        hideToastTimeout = setTimeout(function () {
-          console.log('hiding: ', currentToastEl, doNotHide)
-          if (!doNotHide) {
-            currentToastEl.remove()
-            currentToastEl = undefined
-          }
-        }, 2500)
+        const handleAutoDismiss = (autoDismissTime) => {
+          const dismissTime =
+            autoDismissTime && !Number.isNaN(Number(autoDismissTime))
+              ? Number(autoDismissTime)
+              : 2500
+          console.log('setting dismiss time: ', dismissTime)
+          hideToastTimeout = setTimeout(function () {
+            console.log('hiding toast timeout')
+            if (!doNotHide) {
+              currentToastEl.remove()
+              currentToastEl = undefined
+            }
+          }, dismissTime)
+        }
+
+        getStorageItem('autoDismissTime')
+          .then((autoDismissTime) => {
+            handleAutoDismiss(autoDismissTime)
+          })
+          .catch(() => {
+            handleAutoDismiss('2500')
+          })
+
         getStorageItem('disableAutoDismiss').then((disable) => {
           console.log('got disableAutoDismiss', disable)
           if (disable) {
@@ -376,6 +398,13 @@
           break
       }
 
+      e.cancelBubble = true
+      if (e.stopPropogation) {
+        e.stopPropogation()
+      }
+    })
+
+    root.addEventListener('keyup', (e) => {
       e.cancelBubble = true
       if (e.stopPropogation) {
         e.stopPropogation()
@@ -972,5 +1001,6 @@
 
   window.showToolbar = showToolbar
   window.updateStatus = updateStatus
+  window.showConsentError = showConsentError
   window.updateLabelsFromCache = updateLabelsFromCache
 })()

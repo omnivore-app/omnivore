@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23B81" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Filter" representedClassName="Filter" syncable="YES" codeGenerationType="class">
+        <attribute name="defaultFilter" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="filter" optional="YES" attributeType="String"/>
+        <attribute name="folder" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="position" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="visible" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
     <entity name="Highlight" representedClassName="Highlight" syncable="YES" codeGenerationType="class">
         <attribute name="annotation" optional="YES" attributeType="String"/>
         <attribute name="color" optional="YES" attributeType="String"/>
@@ -19,20 +28,21 @@
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="createdBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItemLabel" inverseName="highlights" inverseEntity="LinkedItemLabel"/>
-        <relationship name="linkedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="highlights" inverseEntity="LinkedItem"/>
+        <relationship name="linkedItem" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="highlights" inverseEntity="LibraryItem"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <entity name="LinkedItem" representedClassName="LinkedItem" syncable="YES" codeGenerationType="class">
+    <entity name="LibraryItem" representedClassName="LibraryItem" syncable="YES" codeGenerationType="class">
         <attribute name="author" optional="YES" attributeType="String"/>
         <attribute name="contentReader" optional="YES" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="createdId" optional="YES" attributeType="String"/>
         <attribute name="descriptionText" optional="YES" attributeType="String"/>
         <attribute name="downloadURL" optional="YES" attributeType="String"/>
+        <attribute name="folder" optional="YES" attributeType="String"/>
         <attribute name="htmlContent" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="imageURLString" optional="YES" attributeType="String"/>
@@ -77,7 +87,7 @@
         <attribute name="name" attributeType="String"/>
         <attribute name="serverSyncStatus" attributeType="Integer 64" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="highlights" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Highlight" inverseName="labels" inverseEntity="Highlight"/>
-        <relationship name="linkedItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="labels" inverseEntity="LinkedItem"/>
+        <relationship name="linkedItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="labels" inverseEntity="LibraryItem"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="id"/>
@@ -104,7 +114,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="note" optional="YES" attributeType="String"/>
         <attribute name="recommendedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="linkeditem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LinkedItem" inverseName="recommendations" inverseEntity="LinkedItem"/>
+        <relationship name="linkeditem" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LibraryItem" inverseName="recommendations" inverseEntity="LibraryItem"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserProfile"/>
     </entity>
     <entity name="RecommendationGroup" representedClassName="RecommendationGroup" syncable="YES" codeGenerationType="class">
