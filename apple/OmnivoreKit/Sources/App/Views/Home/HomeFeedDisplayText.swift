@@ -38,6 +38,10 @@ public extension LinkedItemSort {
       return LocalText.newestGeneric
     case .oldest:
       return LocalText.oldestGeneric
+    case .longest:
+      return LocalText.longestGeneric
+    case .shortest:
+      return LocalText.shortestGeneric
     case .recentlyRead:
       return LocalText.recentlyReadGeneric
     case .recentlyPublished:

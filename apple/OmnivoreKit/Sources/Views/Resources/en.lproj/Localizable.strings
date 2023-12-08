@@ -189,6 +189,8 @@
 "filesGeneric" = "Files";
 "newestGeneric" = "Newest";
 "oldestGeneric" = "Oldest";
+"longestGeneric" = "Longest";
+"shortestGeneric" = "Shortest";
 "recentlyReadGeneric" = "Recently Read";
 "recentlyPublishedGeneric" = "Recently Published";
 "clubsGeneric" = "Clubs";

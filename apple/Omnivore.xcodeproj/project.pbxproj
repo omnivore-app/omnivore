@@ -38,6 +38,7 @@
 		42321E892714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
 		42321E8A2714E6B00056429F /* views in Resources */ = {isa = PBXBuildFile; fileRef = 42321E842714E6B00056429F /* views */; };
 		42704E7328E6BDB000C8C73E /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */; };
+		42B4483A2B1DD8AC00CEC5A0 /* AppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B448392B1DD8AC00CEC5A0 /* AppIntents.swift */; };
 		42E2BFB428E458E0007F29B2 /* AppStoreScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E2BFB328E458E0007F29B2 /* AppStoreScreenshots.swift */; };
 		42FF1B33271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
 		42FF1B34271154A700B38C38 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */; };
@@ -212,6 +213,7 @@
 		42321E822714E6B00056429F /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = scripts; sourceTree = "<group>"; };
 		42321E842714E6B00056429F /* views */ = {isa = PBXFileReference; lastKnownFileType = folder; path = views; sourceTree = "<group>"; };
 		42704E7228E6BDAF00C8C73E /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
+		42B448392B1DD8AC00CEC5A0 /* AppIntents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppIntents.swift; sourceTree = "<group>"; };
 		42E2BFB128E458E0007F29B2 /* AppStoreScreenshots.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppStoreScreenshots.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		42E2BFB328E458E0007F29B2 /* AppStoreScreenshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreScreenshots.swift; sourceTree = "<group>"; };
 		42FF1AEB271154A600B38C38 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
@@ -489,6 +491,7 @@
 		7C54279684D6252C9CD18562 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				42B448392B1DD8AC00CEC5A0 /* AppIntents.swift */,
 				0480E71B26D95096006CAE2F /* AppDelegate.swift */,
 				D81BE98F0CB588F5FC577A13 /* MainApp.swift */,
 				42FF1AEA271154A600B38C38 /* SafariExtension */,
@@ -1073,6 +1076,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0480E71C26D95096006CAE2F /* AppDelegate.swift in Sources */,
+				42B4483A2B1DD8AC00CEC5A0 /* AppIntents.swift in Sources */,
 				04920CC6279671EF003EC1B6 /* PushNotificationConfig.swift in Sources */,
 				CA7EE773095F267516D7AC98 /* MainApp.swift in Sources */,
 			);
@@ -1384,7 +1388,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.39.0;
+				MARKETING_VERSION = 1.40.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
@@ -1419,7 +1423,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
-				MARKETING_VERSION = 1.39.0;
+				MARKETING_VERSION = 1.40.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1474,7 +1478,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.39.0;
+				MARKETING_VERSION = 1.40.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1815,7 +1819,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.39.0;
+				MARKETING_VERSION = 1.40.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.omnivore.app;
 				PRODUCT_NAME = Omnivore;
 				PROVISIONING_PROFILE_SPECIFIER = "";

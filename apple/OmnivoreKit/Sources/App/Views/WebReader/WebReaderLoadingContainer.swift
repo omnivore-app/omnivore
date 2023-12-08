@@ -6,7 +6,7 @@ import Utils
 import Views
 
 @MainActor final class WebReaderLoadingContainerViewModel: ObservableObject {
-  @Published var item: LinkedItem?
+  @Published var item: Models.LibraryItem?
   @Published var errorMessage: String?
 
   func loadItem(dataService: DataService, username: String, requestID: String) async {
@@ -15,7 +15,7 @@ import Views
     else {
       return
     }
-    item = dataService.viewContext.object(with: objectID) as? LinkedItem
+    item = dataService.viewContext.object(with: objectID) as? Models.LibraryItem
   }
 
   func trackReadEvent() {
@@ -38,7 +38,6 @@ public struct WebReaderLoadingContainer: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  @State var lazyPopIsEnabled = true
   @StateObject var viewModel = WebReaderLoadingContainerViewModel()
 
   public var body: some View {
@@ -49,7 +48,7 @@ public struct WebReaderLoadingContainer: View {
             .navigationBarHidden(true)
             .navigationViewStyle(.stack)
             .accentColor(.appGrayTextContrast)
-            .task { viewModel.trackReadEvent() }
+            .onAppear { viewModel.trackReadEvent() }
         #else
           if let pdfURL = pdfItem.pdfURL {
             PDFWrapperView(pdfURL: pdfURL)
@@ -59,11 +58,9 @@ public struct WebReaderLoadingContainer: View {
         WebReaderContainerView(item: item, pop: { dismiss() })
         #if os(iOS)
           .navigationViewStyle(.stack)
-          .navigationBarHidden(true)
-          .lazyPop(pop: { dismiss() }, isEnabled: $lazyPopIsEnabled)
         #endif
         .accentColor(.appGrayTextContrast)
-          .task { viewModel.trackReadEvent() }
+          .onAppear { viewModel.trackReadEvent() }
       }
     } else if let errorMessage = viewModel.errorMessage {
       Text(errorMessage)

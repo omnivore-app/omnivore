@@ -32,7 +32,7 @@ enum FlairLabels: String {
 }
 
 public extension View {
-  func draggableItem(item: LinkedItem) -> some View {
+  func draggableItem(item: Models.LibraryItem) -> some View {
     #if os(iOS)
       if #available(iOS 16.0, *), let url = item.deepLink {
         return AnyView(self.draggable(url) {
@@ -46,10 +46,10 @@ public extension View {
 
 public struct LibraryItemCard: View {
   let viewer: Viewer?
-  @ObservedObject var item: LinkedItem
+  @ObservedObject var item: Models.LibraryItem
   @State var noteLineLimit: Int? = 3
 
-  public init(item: LinkedItem, viewer: Viewer?) {
+  public init(item: Models.LibraryItem, viewer: Viewer?) {
     self.item = item
     self.viewer = viewer
   }
@@ -256,25 +256,14 @@ public struct LibraryItemCard: View {
           }
         }
       } else {
-        fallbackImage
+        Color.clear
+          .frame(width: 50, height: 75)
+          .cornerRadius(5)
+          .padding(.top, 2)
       }
     }
     .padding(.top, 10)
     .cornerRadius(5)
-  }
-
-  var fallbackImage: some View {
-    HStack {
-      Text(item.unwrappedTitle.prefix(1))
-        .font(Font.system(size: 32, weight: .bold))
-        .frame(alignment: .bottomLeading)
-        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
-    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
-    .cornerRadius(5)
-    .frame(width: 50, height: 75)
   }
 
   var bylineStr: String {
@@ -290,11 +279,19 @@ public struct LibraryItemCard: View {
   }
 
   var byLine: some View {
-    Text(bylineStr)
-      .font(.caption2)
-      .foregroundColor(Color.themeLibraryItemSubtle)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .lineLimit(1)
+    if let origin = cardSiteName(item.pageURLString) {
+      Text(bylineStr + " | " + origin)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    } else {
+      Text(bylineStr)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    }
   }
 
   public var articleInfo: some View {

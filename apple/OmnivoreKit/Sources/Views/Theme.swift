@@ -19,7 +19,7 @@ public enum Theme: String, CaseIterable {
   public var bgColor: Color {
     switch self {
     case .system:
-      return Color.isDarkMode ? .systemBackground : .white
+      return Color.isDarkMode ? .black : .white
     case .light:
       return .white
     case .dark:

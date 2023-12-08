@@ -1,12 +1,4 @@
 // swiftlint:disable line_length
-
-//
-//  CommunityModal.swift
-//
-//
-//  Created by Jackson Harper on 12/7/22.
-//
-
 #if os(iOS)
   import Foundation
   import Models

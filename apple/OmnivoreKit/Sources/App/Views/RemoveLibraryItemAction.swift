@@ -8,7 +8,7 @@ import Views
 
 func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObjectID) {
   dataService.viewContext.performAndWait {
-    if let item = dataService.viewContext.object(with: objectID) as? LinkedItem {
+    if let item = dataService.viewContext.object(with: objectID) as? Models.LibraryItem {
       item.state = "DELETED"
       try? dataService.viewContext.save()
 
@@ -25,7 +25,7 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
       let canceled = Task.isCancelled
       if !canceled {
         print("syncing link deletion")
-        dataService.removeLink(objectID: objectID, sync: true)
+        dataService.removeLibraryItem(objectID: objectID, sync: true)
       }
     } catch {
       print("error running task: ", error)
@@ -37,7 +37,7 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
     print("canceling task", syncTask)
     syncTask.cancel()
     dataService.viewContext.performAndWait {
-      if let item = dataService.viewContext.object(with: objectID) as? LinkedItem {
+      if let item = dataService.viewContext.object(with: objectID) as? Models.LibraryItem {
         item.state = "SUCCEEDED"
         try? dataService.viewContext.save()
       }

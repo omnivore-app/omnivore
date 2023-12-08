@@ -6,7 +6,7 @@
   import Views
 
   // swiftlint:disable file_length type_body_length
-  public struct ExpandedPlayer: View {
+  public struct ExpandedAudioPlayer: View {
     @EnvironmentObject var audioController: AudioController
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @Environment(\.dismiss) private var dismiss
@@ -416,14 +416,9 @@
       NavigationView {
         innerBody
           .background(Color.themeDisabledBG)
-          .navigationTitle(LocalText.textToSpeechGeneric)
+          .navigationTitle(audioController.itemAudioProperties?.title ?? LocalText.textToSpeechGeneric)
           .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text("Hide") }))
           .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
-        //          .searchable(text: $queryString, placement: .navigationBarDrawer(displayMode: .always)) {
-        //            // print("searching: ", queryString)
-        //            Text("content")
-        //          }
-        //          }
       }
     }
 

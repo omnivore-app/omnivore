@@ -7,7 +7,7 @@ extension DataService {
   public func updateLinkedItemTitleAndDescription(itemID: String, title: String, description: String, author: String?) {
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
-      guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
+      guard let linkedItem = LibraryItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
       linkedItem.update(
         inContext: self.backgroundContext,
@@ -65,7 +65,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
+        guard let linkedItem = LibraryItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
 
         do {

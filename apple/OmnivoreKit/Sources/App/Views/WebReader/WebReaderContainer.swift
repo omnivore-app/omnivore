@@ -9,7 +9,7 @@ import WebKit
 
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let pop: () -> Void
 
   @State private var showPreferencesPopover = false
@@ -25,6 +25,7 @@ struct WebReaderContainerView: View {
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
   @State var showNavBarActionID: UUID?
+  @State var showExpandedAudioPlayer = false
   @State var shareActionID: UUID?
   @State var annotation = String()
   @State var showBottomBar = false
@@ -32,6 +33,7 @@ struct WebReaderContainerView: View {
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
   @State private var showRecommendSheet = false
+  @State private var showOpenArchiveSheet = false
   @State private var lastScrollPercentage: Int?
   @State private var isRecovering = false
 
@@ -209,7 +211,7 @@ struct WebReaderContainerView: View {
     )
   }
 
-  func menuItems(for item: LinkedItem) -> some View {
+  func menuItems(for item: Models.LibraryItem) -> some View {
     let hasLabels = item.labels?.count != 0
     return Group {
       Button(
@@ -245,6 +247,12 @@ struct WebReaderContainerView: View {
             openOriginalURL(urlString: item.pageURLString)
           },
           label: { Label("Open Original", systemImage: "safari") }
+        )
+        Button(
+          action: {
+            showOpenArchiveSheet = true
+          },
+          label: { Label("Open on Archive.today", systemImage: "globe") }
         )
         Button(
           action: share,
@@ -462,6 +470,10 @@ struct WebReaderContainerView: View {
         #if os(iOS)
           .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
+              .ignoresSafeArea(.all, edges: .bottom)
+          }
+          .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+            ExpandedAudioPlayer()
           }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
@@ -483,6 +495,9 @@ struct WebReaderContainerView: View {
             }.onDisappear {
               showRecommendSheet = false
             }
+          }
+          .formSheet(isPresented: $showOpenArchiveSheet) {
+            OpenArchiveTodayView(item: item)
           }
         #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
@@ -592,7 +607,17 @@ struct WebReaderContainerView: View {
                 self.bottomBarOpacity = 0
               }
           }
+          if let audioProperties = audioController.itemAudioProperties {
+            MiniPlayerViewer(itemAudioProperties: audioProperties)
+              .padding(.top, 10)
+              .padding(.bottom, 40)
+              .background(Color.themeTabBarColor)
+              .onTapGesture {
+                showExpandedAudioPlayer = true
+              }
+          }
         }
+
       #endif
     }
     #if os(macOS)

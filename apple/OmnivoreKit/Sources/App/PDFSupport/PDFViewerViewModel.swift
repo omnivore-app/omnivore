@@ -12,9 +12,11 @@ final class PDFViewerViewModel: ObservableObject {
   var snackbarMessage: String?
 
   let pdfItem: PDFItem
+  var highlights: [Highlight]
 
   init(pdfItem: PDFItem) {
     self.pdfItem = pdfItem
+    self.highlights = pdfItem.highlights
   }
 
   func snackbar(message: String) {
@@ -22,8 +24,9 @@ final class PDFViewerViewModel: ObservableObject {
     showSnackbar = true
   }
 
-  func findHighlight(highlightID: String) -> Highlight? {
-    pdfItem.highlights.first { $0.id == highlightID }
+  func findHighlight(dataService: DataService, highlightID: String) -> Highlight? {
+    let libraryItem = LibraryItem.lookup(byID: pdfItem.itemID, inContext: dataService.viewContext)
+    return libraryItem?.highlights.asArray(of: Highlight.self).first { $0.id == highlightID }
   }
 
   func loadHighlightPatches(completion onComplete: @escaping ([String]) -> Void) {

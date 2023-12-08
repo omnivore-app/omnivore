@@ -19,22 +19,18 @@ public struct SyncStatusIcon: View {
 
   private var cloudIconName: String {
     switch status {
-//    case .isNSync:
-//      return "checkmark.icloud"
     case .isNSync:
       return "exclamationmark.icloud"
-    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate:
+    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate, .needsMove:
       return "icloud"
     }
   }
 
   private var cloudIconColor: Color {
     switch status {
-//    case .isNSync:
-//      return .blue
     case .isNSync:
       return .red
-    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate:
+    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate, .needsMove:
       return .appGrayText
     }
   }

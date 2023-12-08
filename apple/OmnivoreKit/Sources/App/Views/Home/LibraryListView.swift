@@ -10,30 +10,14 @@ import Models
 import SwiftUI
 
 struct LibraryListView: View {
-  @StateObject private var subViewModel = HomeFeedViewModel(
-    listConfig: LibraryListConfig(
-      hasFeatureCards: false,
-      leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
-  )
-
   @StateObject private var libraryViewModel = HomeFeedViewModel(
+    folder: "inbox",
+    fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
       trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
-    )
-  )
-
-  @StateObject private var highlightsViewModel = HomeFeedViewModel(
-    listConfig: LibraryListConfig(
-      hasFeatureCards: true,
-      leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .highlights
     )
   )
 

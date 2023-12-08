@@ -5,9 +5,9 @@ import Utils
 public struct LibraryFeatureCard: View {
   let viewer: Viewer?
   let tapHandler: () -> Void
-  @ObservedObject var item: LinkedItem
+  @ObservedObject var item: Models.LibraryItem
 
-  public init(item: LinkedItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
+  public init(item: Models.LibraryItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
     self.item = item
     self.viewer = viewer
     self.tapHandler = tapHandler

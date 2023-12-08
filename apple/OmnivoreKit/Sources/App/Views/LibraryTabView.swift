@@ -10,13 +10,27 @@ import Models
 import PopupView
 import Services
 import SwiftUI
+import Transmission
+import Utils
 import Views
 
 @MainActor
 struct LibraryTabView: View {
   @EnvironmentObject var dataService: DataService
+  @EnvironmentObject var audioController: AudioController
 
-  @StateObject private var subViewModel = HomeFeedViewModel(
+  @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
+
+  @State var showExpandedAudioPlayer = false
+
+  @MainActor
+  public init() {
+    UITabBar.appearance().isHidden = true
+  }
+
+  @StateObject private var followingViewModel = HomeFeedViewModel(
+    folder: "following",
+    fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
       leadingSwipeActions: [.moveToInbox],
@@ -26,6 +40,8 @@ struct LibraryTabView: View {
   )
 
   @StateObject private var libraryViewModel = HomeFeedViewModel(
+    folder: "inbox",
+    fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
       leadingSwipeActions: [.pin],
@@ -34,21 +50,42 @@ struct LibraryTabView: View {
     )
   )
 
-  @StateObject private var highlightsViewModel = HomeFeedViewModel(
-    listConfig: LibraryListConfig(
-      hasFeatureCards: true,
-      leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .highlights
-    )
-  )
-
   var body: some View {
-    NavigationView {
-      HomeView(viewModel: libraryViewModel)
-      #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-      #endif
+    VStack(spacing: 0) {
+      TabView(selection: $selectedTab) {
+        NavigationView {
+          HomeFeedContainerView(viewModel: followingViewModel)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationViewStyle(.stack)
+        }.tag("following")
+
+        NavigationView {
+          HomeFeedContainerView(viewModel: libraryViewModel)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationViewStyle(.stack)
+        }.tag("inbox")
+
+        NavigationView {
+          ProfileView()
+            .navigationViewStyle(.stack)
+        }.tag("profile")
+      }
+      if let audioProperties = audioController.itemAudioProperties {
+        MiniPlayerViewer(itemAudioProperties: audioProperties)
+          .onTapGesture {
+            showExpandedAudioPlayer = true
+          }
+          .padding(0)
+        Color(hex: "#3D3D3D")
+          .frame(height: 1)
+          .frame(maxWidth: .infinity)
+      }
+      CustomTabBar(selectedTab: $selectedTab)
+        .padding(0)
     }
+    .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+      ExpandedAudioPlayer()
+    }
+    .navigationBarHidden(true)
   }
 }

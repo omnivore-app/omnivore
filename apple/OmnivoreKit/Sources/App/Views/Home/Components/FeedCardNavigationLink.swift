@@ -1,13 +1,14 @@
 import Models
 import Services
 import SwiftUI
+import Transmission
 import Views
 
 struct MacFeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  let item: LinkedItem
+  let item: Models.LibraryItem
 
   @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -31,22 +32,32 @@ struct FeedCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let isInMultiSelectMode: Bool
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
     ZStack {
       LibraryItemCard(item: item, viewer: dataService.currentViewer)
-      NavigationLink(destination: LinkItemDetailView(
-        linkedItemObjectID: item.objectID,
-        isPDF: item.isPDF
-      ), label: {
-        EmptyView()
-      }).opacity(0)
+      PresentationLink(
+        transition: PresentationLinkTransition.slide(
+          options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                     options:
+                                                                     PresentationLinkTransition.Options(
+                                                                       modalPresentationCapturesStatusBarAppearance: true
+                                                                     ))),
+        destination: {
+          LinkItemDetailView(
+            linkedItemObjectID: item.objectID,
+            isPDF: item.isPDF
+          )
+        }, label: {
+          EmptyView()
+        }
+      )
     }
-    .onAppear {
-      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    .task {
+      await viewModel.itemAppeared(item: item, dataService: dataService)
     }
   }
 }
@@ -57,7 +68,7 @@ struct GridCardNavigationLink: View {
 
   @State private var scale = 1.0
 
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let actionHandler: (GridCardAction) -> Void
 
   @Binding var isContextMenuOpen: Bool
@@ -65,14 +76,24 @@ struct GridCardNavigationLink: View {
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
-    NavigationLink(destination: LinkItemDetailView(
-      linkedItemObjectID: item.objectID,
-      isPDF: item.isPDF
-    )) {
-      GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
-    }
-    .onAppear {
-      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
+    PresentationLink(
+      transition: PresentationLinkTransition.slide(
+        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                   options:
+                                                                   PresentationLinkTransition.Options(
+                                                                     modalPresentationCapturesStatusBarAppearance: true
+                                                                   ))),
+      destination: {
+        LinkItemDetailView(
+          linkedItemObjectID: item.objectID,
+          isPDF: item.isPDF
+        )
+      }, label: {
+        GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
+      }
+    )
+    .task {
+      await viewModel.itemAppeared(item: item, dataService: dataService)
     }
     .aspectRatio(1.0, contentMode: .fill)
     .background(

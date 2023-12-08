@@ -12,6 +12,7 @@ public extension NSNotification {
   static let SpeakingReaderItem = Notification.Name("SpeakingReaderItem")
   static let DisplayProfile = Notification.Name("DisplayProfile")
   static let Logout = Notification.Name("Logout")
+  static let ScrollToTop = Notification.Name("ScrollToTop")
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: PushJSONArticle)
@@ -47,6 +48,10 @@ public extension NSNotification {
 
   static var logoutPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: Logout)
+  }
+
+  static var scrollToTopPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: ScrollToTop)
   }
 
   internal var operationMessage: String? {

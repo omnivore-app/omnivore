@@ -7,7 +7,7 @@ import Views
 @MainActor
 struct ApplyLabelsView: View {
   enum Mode {
-    case item(LinkedItem)
+    case item(Models.LibraryItem)
     case highlight(Highlight)
     case list([LinkedItemLabel])
 
@@ -106,16 +106,14 @@ struct ApplyLabelsView: View {
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
-    .onAppear {
-      Task {
-        switch mode {
-        case let .item(feedItem):
-          await viewModel.loadLabels(dataService: dataService, item: feedItem)
-        case let .highlight(highlight):
-          await viewModel.loadLabels(dataService: dataService, highlight: highlight)
-        case let .list(labels):
-          await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
-        }
+    .task {
+      switch mode {
+      case let .item(feedItem):
+        await viewModel.loadLabels(dataService: dataService, item: feedItem)
+      case let .highlight(highlight):
+        await viewModel.loadLabels(dataService: dataService, highlight: highlight)
+      case let .list(labels):
+        await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
       }
     }
   }

@@ -12,12 +12,12 @@ public enum GridCardAction {
 
 public struct GridCard: View {
   @Binding var isContextMenuOpen: Bool
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let actionHandler: (GridCardAction) -> Void
   // let tapAction: () -> Void
 
   public init(
-    item: LinkedItem,
+    item: Models.LibraryItem,
     isContextMenuOpen: Binding<Bool>,
     actionHandler: @escaping (GridCardAction) -> Void
   ) {
@@ -123,6 +123,34 @@ public struct GridCard: View {
     }
   }
 
+  var bylineStr: String {
+    // It seems like it could be cleaner just having author, instead of
+    // concating, maybe we fall back
+    if let author = item.author {
+      return author
+    } else if let publisherDisplayName = item.publisherDisplayName {
+      return publisherDisplayName
+    }
+
+    return ""
+  }
+
+  var byLine: some View {
+    if let origin = cardSiteName(item.pageURLString) {
+      Text(bylineStr + " | " + origin)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    } else {
+      Text(bylineStr)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    }
+  }
+
   public var body: some View {
     GeometryReader { geo in
       VStack(alignment: .leading, spacing: 0) {
@@ -138,23 +166,7 @@ public struct GridCard: View {
                 .lineLimit(1)
             }
 
-            HStack {
-              if let author = item.author {
-                Text("by \(author)")
-                  .font(.appCaptionTwo)
-                  .foregroundColor(.appGrayText)
-                  .lineLimit(1)
-              }
-
-              if let publisherDisplayName = item.publisherDisplayName {
-                Text(publisherDisplayName)
-                  .font(.appCaptionTwo)
-                  .foregroundColor(.appGrayText)
-                  .lineLimit(1)
-              }
-
-              Spacer()
-            }
+            byLine
           }
           .frame(height: 30)
           .padding(.horizontal, 10)

@@ -6,7 +6,7 @@ import WebKit
 
 @MainActor
 struct WebReader: PlatformViewRepresentable {
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let viewModel: WebReaderViewModel
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
