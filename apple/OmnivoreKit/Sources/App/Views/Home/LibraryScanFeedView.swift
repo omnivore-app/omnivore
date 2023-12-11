@@ -130,15 +130,23 @@ public struct LibraryScanFeedView: View {
     }
     .toolbar {
       ToolbarItem(placement: .barTrailing) {
-        Button(action: {
-          dismiss()
-          showInLibrarySnackbar("Adding feeds...")
-          Task {
-            await viewModel.addFeeds()
-          }
-        }, label: {
-          Text("Done").bold()
-        })
+        if viewModel.selected.count > 0 {
+          Button(action: {
+            dismiss()
+            showInLibrarySnackbar("Adding feeds...")
+            Task {
+              await viewModel.addFeeds()
+            }
+          }, label: {
+            Text("Add").bold()
+          })
+        } else {
+          Button(action: {
+            dismiss()
+          }, label: {
+            Text("Done").bold()
+          })
+        }
       }
     }
   }
