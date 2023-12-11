@@ -1751,7 +1751,6 @@ enum ScanFeedsErrorCode {
 
 input ScanFeedsInput {
   opml: String
-  type: ScanFeedsType!
   url: String
 }
 
@@ -1759,11 +1758,6 @@ union ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess
 
 type ScanFeedsSuccess {
   feeds: [Feed!]!
-}
-
-enum ScanFeedsType {
-  HTML
-  OPML
 }
 
 type SearchError {

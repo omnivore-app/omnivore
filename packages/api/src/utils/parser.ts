@@ -75,6 +75,16 @@ const DOM_PURIFY_CONFIG = {
 const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+export const RSS_PARSER_CONFIG = {
+  timeout: 5000, // 5 seconds
+  headers: {
+    // some rss feeds require user agent
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    Accept:
+      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4, text/html;q=0.2',
+  },
+}
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
 const domPurifySanitizeHook = (
@@ -812,16 +822,7 @@ export const parseFeed = async (url: string): Promise<Feed | null> => {
       }
     }
 
-    const parser = new Parser({
-      timeout: 5000, // 5 seconds
-      headers: {
-        // some rss feeds require user agent
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-        Accept:
-          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
-      },
-    })
+    const parser = new Parser(RSS_PARSER_CONFIG)
 
     const feed = await parser.parseURL(url)
     const feedUrl = feed.feedUrl || url

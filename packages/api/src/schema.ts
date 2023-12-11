@@ -2686,14 +2686,8 @@ const schema = gql`
   }
 
   input ScanFeedsInput {
-    type: ScanFeedsType!
     url: String
     opml: String
-  }
-
-  enum ScanFeedsType {
-    OPML
-    HTML
   }
 
   union ScanFeedsResult = ScanFeedsSuccess | ScanFeedsError

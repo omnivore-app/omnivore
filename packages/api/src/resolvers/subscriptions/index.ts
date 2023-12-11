@@ -17,7 +17,6 @@ import {
   ScanFeedsError,
   ScanFeedsErrorCode,
   ScanFeedsSuccess,
-  ScanFeedsType,
   SortBy,
   SortOrder,
   SubscribeError,
@@ -42,7 +41,7 @@ import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
 import { authorized } from '../../utils/helpers'
-import { parseFeed, parseOpml } from '../../utils/parser'
+import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -399,22 +398,17 @@ export const scanFeedsResolver = authorized<
   ScanFeedsSuccess,
   ScanFeedsError,
   QueryScanFeedsArgs
->(async (_, { input: { type, opml, url } }, { log, uid }) => {
+>(async (_, { input: { opml, url } }, { log, uid }) => {
   analytics.track({
     userId: uid,
     event: 'scan_feeds',
     properties: {
-      type,
+      opml,
+      url,
     },
   })
 
-  if (type === ScanFeedsType.Opml) {
-    if (!opml) {
-      return {
-        errorCodes: [ScanFeedsErrorCode.BadRequest],
-      }
-    }
-
+  if (opml) {
     // parse opml
     const feeds = parseOpml(opml)
     if (!feeds) {
@@ -434,37 +428,52 @@ export const scanFeedsResolver = authorized<
   }
 
   if (!url) {
+    log.error('Missing opml and url')
+
     return {
       errorCodes: [ScanFeedsErrorCode.BadRequest],
     }
   }
 
   try {
-    // fetch HTML and parse feeds
-    const response = await axios.get(url, {
-      timeout: 5000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        Accept: 'text/html',
-      },
-    })
-    const html = response.data as string
-    const dom = parseHTML(html).document
-    const links = dom.querySelectorAll('link[type="application/rss+xml"]')
-    const feeds = Array.from(links)
-      .map((link) => ({
-        url: link.getAttribute('href') || '',
-        title: link.getAttribute('title') || '',
-        type: 'rss',
-      }))
-      .filter((feed) => feed.url)
+    // fetch page content and parse feeds
+    const response = await axios.get(url, RSS_PARSER_CONFIG)
+    const content = response.data as string
+    // check if the content is html or xml
+    const contentType = response.headers['content-type']
+    const isHtml = contentType?.includes('text/html')
+    if (isHtml) {
+      // this is an html page, parse rss feed links
+      const dom = parseHTML(content).document
+      const links = dom.querySelectorAll('link[type="application/rss+xml"]')
+      const feeds = Array.from(links)
+        .map((link) => ({
+          url: link.getAttribute('href') || '',
+          title: link.getAttribute('title') || '',
+          type: 'rss',
+        }))
+        .filter((feed) => feed.url)
+
+      return {
+        __typename: 'ScanFeedsSuccess',
+        feeds,
+      }
+    }
+
+    // this is the url to an RSS feed
+    const feed = await parseFeed(url)
+    if (!feed) {
+      return {
+        errorCodes: [ScanFeedsErrorCode.BadRequest],
+      }
+    }
 
     return {
       __typename: 'ScanFeedsSuccess',
-      feeds,
+      feeds: [feed],
     }
   } catch (error) {
-    log.error('Error scanning HTML', error)
+    log.error('Error scanning URL', error)
 
     return {
       errorCodes: [ScanFeedsErrorCode.BadRequest],

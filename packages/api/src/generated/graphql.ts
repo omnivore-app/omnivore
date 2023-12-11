@@ -2301,7 +2301,6 @@ export enum ScanFeedsErrorCode {
 
 export type ScanFeedsInput = {
   opml?: InputMaybe<Scalars['String']>;
-  type: ScanFeedsType;
   url?: InputMaybe<Scalars['String']>;
 };
 
@@ -2311,11 +2310,6 @@ export type ScanFeedsSuccess = {
   __typename?: 'ScanFeedsSuccess';
   feeds: Array<Feed>;
 };
-
-export enum ScanFeedsType {
-  Html = 'HTML',
-  Opml = 'OPML'
-}
 
 export type SearchError = {
   __typename?: 'SearchError';
@@ -3790,7 +3784,6 @@ export type ResolversTypes = {
   ScanFeedsInput: ScanFeedsInput;
   ScanFeedsResult: ResolversTypes['ScanFeedsError'] | ResolversTypes['ScanFeedsSuccess'];
   ScanFeedsSuccess: ResolverTypeWrapper<ScanFeedsSuccess>;
-  ScanFeedsType: ScanFeedsType;
   SearchError: ResolverTypeWrapper<SearchError>;
   SearchErrorCode: SearchErrorCode;
   SearchItem: ResolverTypeWrapper<SearchItem>;
