@@ -75,6 +75,16 @@ const DOM_PURIFY_CONFIG = {
 const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+export const RSS_PARSER_CONFIG = {
+  timeout: 5000, // 5 seconds
+  headers: {
+    // some rss feeds require user agent
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    Accept:
+      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4, text/html;q=0.2',
+  },
+}
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
 const domPurifySanitizeHook = (
@@ -788,17 +798,23 @@ export const parseHtml = async (url: string): Promise<Feed[] | undefined> => {
   }
 }
 
-export const parseFeed = async (url: string): Promise<Feed | null> => {
+export const parseFeed = async (
+  url: string,
+  content?: string | null
+): Promise<Feed | null> => {
   try {
     // check if url is a telegram channel
     const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
     const telegramMatch = url.match(telegramRegex)
     if (telegramMatch) {
-      // fetch HTML and parse feeds
-      const html = await fetchHtml(url)
-      if (!html) return null
+      if (!content) {
+        // fetch HTML and parse feeds
+        content = await fetchHtml(url)
+      }
 
-      const dom = parseHTML(html).document
+      if (!content) return null
+
+      const dom = parseHTML(content).document
       const title = dom.querySelector('meta[property="og:title"]')
       const thumbnail = dom.querySelector('meta[property="og:image"]')
       const description = dom.querySelector('meta[property="og:description"]')
@@ -812,18 +828,12 @@ export const parseFeed = async (url: string): Promise<Feed | null> => {
       }
     }
 
-    const parser = new Parser({
-      timeout: 5000, // 5 seconds
-      headers: {
-        // some rss feeds require user agent
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-        Accept:
-          'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
-      },
-    })
+    const parser = new Parser(RSS_PARSER_CONFIG)
 
-    const feed = await parser.parseURL(url)
+    const feed = content
+      ? await parser.parseString(content)
+      : await parser.parseURL(url)
+
     const feedUrl = feed.feedUrl || url
 
     return {
