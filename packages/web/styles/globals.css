@@ -373,6 +373,52 @@ div#appleid-signin {
   src: url('/static/fonts/Lexend/Lexend-Bold.ttf');
 }
 
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Fraunces/Fraunces-Variable.ttf');
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 700;
+  font-style: bold;
+  src: url('/static/fonts/Fraunces/Fraunces-Variable.ttf');
+}
+
+
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Fraunces/Fraunces-Italic.ttf');
+}
+
+
+@font-face {
+  font-family: 'Literata';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/static/fonts/Literata/Literata-Variable.ttf');
+}
+
+@font-face {
+  font-family: 'Literata';
+  font-weight: 700;
+  font-style: bold;
+  src: url('/static/fonts/Literata/Literata-Variable.ttf');
+}
+
+
+@font-face {
+  font-family: 'Literata';
+  font-weight: 400;
+  font-style: italic;
+  src: url('/static/fonts/Literata/Literata-Italic.ttf');
+}
+
+
 .dropdown-arrow {
   display: inline-block;
   width: 0;
