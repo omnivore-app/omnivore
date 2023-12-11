@@ -20,7 +20,6 @@ import Views
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
   @Published var showLoadingBar = false
-  @Published var isInMultiSelectMode = false
 
   @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
   @Published var selectedItem: Models.LibraryItem?

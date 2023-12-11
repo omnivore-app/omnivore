@@ -28,7 +28,8 @@ struct AnimatingCellHeight: AnimatableModifier {
   struct HomeFeedContainerView: View {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
-    @State var addLinkPresented = false
+    @State var showAddLinkView = false
+    @State var showAddFeedView = false
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
@@ -70,6 +71,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           isListScrolled: $isListScrolled,
           prefersListLayout: $prefersListLayout,
           isEditMode: $isEditMode,
+          showAddFeedView: $showAddFeedView,
           selection: $selection,
           viewModel: viewModel,
           showFeatureCards: showFeatureCards
@@ -174,7 +176,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
-      .sheet(isPresented: $addLinkPresented) {
+      .sheet(isPresented: $showAddLinkView) {
         NavigationView {
           LibraryAddLinkView()
         }
@@ -186,6 +188,54 @@ struct AnimatingCellHeight: AnimatableModifier {
         await viewModel.loadFilters(dataService: dataService)
       }
       .environment(\.editMode, self.$isEditMode)
+    }
+
+    var trailingItems: some ToolbarContent {
+      Group {
+        ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
+          if enableGrid {
+            Button(
+              action: { prefersListLayout.toggle() },
+              label: {
+                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+              }
+            )
+          }
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: {
+              if viewModel.folder == "inbox" {
+                showAddLinkView = true
+              } else if viewModel.folder == "following" {
+                showAddFeedView = true
+              }
+            },
+            label: {
+              Image.addLink
+                .foregroundColor(Color.appGrayTextContrast)
+            }
+          )
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: { isEditMode = isEditMode == .active ? .inactive : .active },
+            label: {
+              Image.selectMultiple
+                .foregroundColor(Color.appGrayTextContrast)
+            }
+          )
+        }
+        ToolbarItem(placement: .barTrailing) {
+          Button(
+            action: { searchPresented = true },
+            label: {
+              Image.magnifyingGlass
+                .foregroundColor(Color.appGrayTextContrast)
+            }
+          )
+        }
+      }
     }
 
     var toolbarItems: some ToolbarContent {
@@ -205,47 +255,9 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
           .frame(maxWidth: .infinity, alignment: .bottomLeading)
         }
-        ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
-          if enableGrid {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-              }
-            )
-          }
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: { searchPresented = true },
-            label: {
-              Image.magnifyingGlass
-                .foregroundColor(Color.appGrayTextContrast)
-            }
-          )
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: { isEditMode = isEditMode == .active ? .inactive : .active },
-            label: {
-              Image.selectMultiple
-                .foregroundColor(Color.appGrayTextContrast)
-            }
-          )
-        }
-        ToolbarItem(placement: .barTrailing) {
-          if viewModel.folder == "inbox" {
-            Button(
-              action: { addLinkPresented = true },
-              label: {
-                Image.addLink
-                  .foregroundColor(Color.appGrayTextContrast)
-              }
-            )
-          } else {
-            EmptyView()
-          }
-        }
+
+        trailingItems
+
         ToolbarItemGroup(placement: .bottomBar) {
           if isEditMode == .active {
             Button(action: {
@@ -274,6 +286,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
+    @Binding var showAddFeedView: Bool
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -304,6 +317,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             isListScrolled: $isListScrolled,
             prefersListLayout: $prefersListLayout,
             isEditMode: $isEditMode,
+            showAddFeedView: $showAddFeedView,
             selection: $selection,
             viewModel: viewModel,
             showFeatureCards: showFeatureCards
@@ -357,7 +371,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
-    @State private var showAddFeedView = false
+    @Binding var showAddFeedView: Bool
     @State private var showHideFeatureAlert = false
     @State private var showHideFollowingAlert = false
 
@@ -632,7 +646,6 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         FeedCardNavigationLink(
           item: item,
-          isInMultiSelectMode: viewModel.isInMultiSelectMode,
           viewModel: viewModel
         )
         .background(GeometryReader { geometry in
@@ -735,7 +748,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
       .sheet(isPresented: $showAddFeedView) {
         NavigationView {
-          LibraryAddFeedView()
+          LibraryAddFeedView(dismiss: {
+            showAddFeedView = false
+          })
         }
       }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",

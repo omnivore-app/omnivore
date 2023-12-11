@@ -5,43 +5,10 @@ import Services
 import SwiftUI
 import Views
 
-@MainActor final class LibraryAddFeedViewModel: NSObject, ObservableObject {
-  @Published var isLoading = false
-  @Published var errorMessage: String = ""
-  @Published var showErrorMessage: Bool = false
-
-  @Environment(\.dismiss) private var dismiss
-
-  func addLink(dataService: DataService, newLinkURL: String, dismiss: DismissAction) {
-    isLoading = true
-    Task {
-      if URL(string: newLinkURL) == nil {
-        error("Invalid link")
-      } else {
-        let result = try? await dataService.saveURL(id: UUID().uuidString, url: newLinkURL)
-        if result == nil {
-          error("Error adding link")
-        } else {
-          dismiss()
-        }
-      }
-      isLoading = false
-    }
-  }
-
-  func error(_ msg: String) {
-    errorMessage = msg
-    showErrorMessage = true
-    isLoading = false
-  }
-}
-
 struct LibraryAddFeedView: View {
-  @StateObject var viewModel = LibraryAddFeedViewModel()
-
+  let dismiss: () -> Void
   @State var newLinkURL: String = ""
   @EnvironmentObject var dataService: DataService
-  @Environment(\.dismiss) private var dismiss
 
   enum FocusField: Hashable {
     case addLinkEditor
@@ -54,7 +21,7 @@ struct LibraryAddFeedView: View {
       #if os(iOS)
         Form {
           innerBody
-            .navigationTitle("Add Link")
+            .navigationTitle("Add Feed URL")
             .navigationBarTitleDisplayMode(.inline)
         }
       #else
@@ -67,7 +34,6 @@ struct LibraryAddFeedView: View {
     .onAppear {
       focusedField = .addLinkEditor
     }
-    .navigationTitle("Add Link")
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -75,14 +41,13 @@ struct LibraryAddFeedView: View {
           dismissButton
         }
         ToolbarItem(placement: .navigationBarTrailing) {
-          viewModel.isLoading ? AnyView(ProgressView()) : AnyView(addButton)
+          NavigationLink(
+            destination: LibraryScanFeedView(dismiss: self.dismiss, viewModel: LibraryAddFeedViewModel(dataService: dataService, feedURL: newLinkURL)),
+            label: { Text("Add").bold() }
+          )
         }
       }
     #endif
-    .alert(viewModel.errorMessage,
-           isPresented: $viewModel.showErrorMessage) {
-      Button(LocalText.genericOk, role: .cancel) { viewModel.showErrorMessage = false }
-    }
   }
 
   var cancelButton: some View {
@@ -102,48 +67,24 @@ struct LibraryAddFeedView: View {
 
   var innerBody: some View {
     Group {
-      TextField("Add Link", text: $newLinkURL)
+      TextField("Feed or site URL", text: $newLinkURL)
       #if os(iOS)
         .keyboardType(.URL)
       #endif
       .autocorrectionDisabled(true)
         .textFieldStyle(StandardTextFieldStyle())
-        .focused($focusedField, equals: .addLinkEditor)
+//        .focused($focusedField, equals: .addLinkEditor)
 
       Button(action: {
         if let url = pasteboardString {
           newLinkURL = url
         } else {
-          viewModel.error("No URL on pasteboard")
+          //        viewModel.error("No URL on pasteboard")
         }
       }, label: {
         Text("Get from pasteboard")
       })
-
-      #if os(macOS)
-        Spacer()
-        HStack {
-          cancelButton
-          Spacer()
-          addButton
-        }
-        .frame(maxWidth: .infinity)
-      #endif
     }
-  }
-
-  var addButton: some View {
-    Button(
-      action: {
-        viewModel.addLink(dataService: dataService, newLinkURL: newLinkURL, dismiss: dismiss)
-      },
-      label: { Text("Add").bold() }
-    )
-    .keyboardShortcut(.defaultAction)
-    .onSubmit {
-      viewModel.addLink(dataService: dataService, newLinkURL: newLinkURL, dismiss: dismiss)
-    }
-    .disabled(viewModel.isLoading)
   }
 
   var dismissButton: some View {
@@ -151,6 +92,5 @@ struct LibraryAddFeedView: View {
       action: { dismiss() },
       label: { Text(LocalText.genericClose) }
     )
-    .disabled(viewModel.isLoading)
   }
 }

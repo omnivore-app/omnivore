@@ -33,7 +33,6 @@ struct FeedCardNavigationLink: View {
   @EnvironmentObject var audioController: AudioController
 
   let item: Models.LibraryItem
-  let isInMultiSelectMode: Bool
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {

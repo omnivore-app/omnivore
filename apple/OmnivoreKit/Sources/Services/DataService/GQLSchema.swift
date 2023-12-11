@@ -6655,6 +6655,7 @@ extension Selection where TypeLock == Never, Type == Never {
 extension Objects {
   struct Filter {
     let __typename: TypeName = .filter
+    let category: [String: String]
     let createdAt: [String: DateTime]
     let defaultFilter: [String: Bool]
     let description: [String: String]
@@ -6684,6 +6685,10 @@ extension Objects.Filter: Decodable {
       let field = GraphQLField.getFieldNameFromAlias(alias)
 
       switch field {
+      case "category":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "createdAt":
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
@@ -6734,6 +6739,7 @@ extension Objects.Filter: Decodable {
       }
     }
 
+    category = map["category"]
     createdAt = map["createdAt"]
     defaultFilter = map["defaultFilter"]
     description = map["description"]
@@ -6748,6 +6754,21 @@ extension Objects.Filter: Decodable {
 }
 
 extension Fields where TypeLock == Objects.Filter {
+  func category() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "category",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.category[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
   func createdAt() throws -> DateTime {
     let field = GraphQLField.leaf(
       name: "createdAt",
@@ -6814,7 +6835,7 @@ extension Fields where TypeLock == Objects.Filter {
     }
   }
 
-  func folder() throws -> String {
+  func folder() throws -> String? {
     let field = GraphQLField.leaf(
       name: "folder",
       arguments: []
@@ -6823,12 +6844,9 @@ extension Fields where TypeLock == Objects.Filter {
 
     switch response {
     case let .decoding(data):
-      if let data = data.folder[field.alias!] {
-        return data
-      }
-      throw HttpError.badpayload
+      return data.folder[field.alias!]
     case .mocking:
-      return String.mockValue
+      return nil
     }
   }
 
@@ -11469,10 +11487,10 @@ extension Fields where TypeLock == Objects.Mutation {
     }
   }
 
-  func bulkAction<Type>(action: Enums.BulkActionType, async: OptionalArgument<Bool> = .absent(), expectedCount: OptionalArgument<Int> = .absent(), labelIds: OptionalArgument<[String]> = .absent(), query: String, selection: Selection<Type, Unions.BulkActionResult>) throws -> Type {
+  func bulkAction<Type>(action: Enums.BulkActionType, arguments: OptionalArgument<String> = .absent(), async: OptionalArgument<Bool> = .absent(), expectedCount: OptionalArgument<Int> = .absent(), labelIds: OptionalArgument<[String]> = .absent(), query: String, selection: Selection<Type, Unions.BulkActionResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "bulkAction",
-      arguments: [Argument(name: "action", type: "BulkActionType!", value: action), Argument(name: "async", type: "Boolean", value: async), Argument(name: "expectedCount", type: "Int", value: expectedCount), Argument(name: "labelIds", type: "[ID!]", value: labelIds), Argument(name: "query", type: "String!", value: query)],
+      arguments: [Argument(name: "action", type: "BulkActionType!", value: action), Argument(name: "arguments", type: "JSON", value: arguments), Argument(name: "async", type: "Boolean", value: async), Argument(name: "expectedCount", type: "Int", value: expectedCount), Argument(name: "labelIds", type: "[ID!]", value: labelIds), Argument(name: "query", type: "String!", value: query)],
       selection: selection.selection
     )
     select(field)
@@ -32984,6 +33002,8 @@ extension Enums {
     case delete = "DELETE"
 
     case markAsRead = "MARK_AS_READ"
+
+    case moveToFolder = "MOVE_TO_FOLDER"
   }
 }
 
@@ -33683,15 +33703,6 @@ extension Enums {
 }
 
 extension Enums {
-  /// ScanFeedsType
-  enum ScanFeedsType: String, CaseIterable, Codable {
-    case html = "HTML"
-
-    case opml = "OPML"
-  }
-}
-
-extension Enums {
   /// SearchErrorCode
   enum SearchErrorCode: String, CaseIterable, Codable {
     case queryTooLong = "QUERY_TOO_LONG"
@@ -34260,6 +34271,12 @@ extension InputObjects {
 
     var preparedDocument: OptionalArgument<InputObjects.PreparedDocumentInput> = .absent()
 
+    var publishedAt: OptionalArgument<DateTime> = .absent()
+
+    var rssFeedUrl: OptionalArgument<String> = .absent()
+
+    var savedAt: OptionalArgument<DateTime> = .absent()
+
     var skipParsing: OptionalArgument<Bool> = .absent()
 
     var source: OptionalArgument<String> = .absent()
@@ -34276,6 +34293,9 @@ extension InputObjects {
       if folder.hasValue { try container.encode(folder, forKey: .folder) }
       if labels.hasValue { try container.encode(labels, forKey: .labels) }
       if preparedDocument.hasValue { try container.encode(preparedDocument, forKey: .preparedDocument) }
+      if publishedAt.hasValue { try container.encode(publishedAt, forKey: .publishedAt) }
+      if rssFeedUrl.hasValue { try container.encode(rssFeedUrl, forKey: .rssFeedUrl) }
+      if savedAt.hasValue { try container.encode(savedAt, forKey: .savedAt) }
       if skipParsing.hasValue { try container.encode(skipParsing, forKey: .skipParsing) }
       if source.hasValue { try container.encode(source, forKey: .source) }
       if state.hasValue { try container.encode(state, forKey: .state) }
@@ -34288,6 +34308,9 @@ extension InputObjects {
       case folder
       case labels
       case preparedDocument
+      case publishedAt
+      case rssFeedUrl
+      case savedAt
       case skipParsing
       case source
       case state
@@ -35031,6 +35054,8 @@ extension InputObjects {
 
 extension InputObjects {
   struct SaveFilterInput: Encodable, Hashable {
+    var category: OptionalArgument<String> = .absent()
+
     var description: OptionalArgument<String> = .absent()
 
     var filter: String
@@ -35043,6 +35068,7 @@ extension InputObjects {
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
+      if category.hasValue { try container.encode(category, forKey: .category) }
       if description.hasValue { try container.encode(description, forKey: .description) }
       try container.encode(filter, forKey: .filter)
       if folder.hasValue { try container.encode(folder, forKey: .folder) }
@@ -35051,6 +35077,7 @@ extension InputObjects {
     }
 
     enum CodingKeys: String, CodingKey {
+      case category
       case description
       case filter
       case folder
@@ -35174,20 +35201,16 @@ extension InputObjects {
   struct ScanFeedsInput: Encodable, Hashable {
     var opml: OptionalArgument<String> = .absent()
 
-    var type: Enums.ScanFeedsType
-
     var url: OptionalArgument<String> = .absent()
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if opml.hasValue { try container.encode(opml, forKey: .opml) }
-      try container.encode(type, forKey: .type)
       if url.hasValue { try container.encode(url, forKey: .url) }
     }
 
     enum CodingKeys: String, CodingKey {
       case opml
-      case type
       case url
     }
   }
@@ -35577,6 +35600,8 @@ extension InputObjects {
 
 extension InputObjects {
   struct UpdateFilterInput: Encodable, Hashable {
+    var category: OptionalArgument<String> = .absent()
+
     var description: OptionalArgument<String> = .absent()
 
     var filter: OptionalArgument<String> = .absent()
@@ -35593,6 +35618,7 @@ extension InputObjects {
 
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
+      if category.hasValue { try container.encode(category, forKey: .category) }
       if description.hasValue { try container.encode(description, forKey: .description) }
       if filter.hasValue { try container.encode(filter, forKey: .filter) }
       if folder.hasValue { try container.encode(folder, forKey: .folder) }
@@ -35603,6 +35629,7 @@ extension InputObjects {
     }
 
     enum CodingKeys: String, CodingKey {
+      case category
       case description
       case filter
       case folder
