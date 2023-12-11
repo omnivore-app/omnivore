@@ -44,6 +44,8 @@ import Views
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
+  @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
+
   @Published var appliedFilter: InternalFilter? {
     didSet {
       let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter") ?? folder
@@ -152,10 +154,9 @@ import Views
 
   func loadItems(dataService: DataService, isRefresh: Bool) async {
     isLoading = true
-    showLoadingBar = true
+    showLoadingBar = isRefresh
 
     await fetcher.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
-
     updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
 
     isLoading = false
@@ -164,12 +165,10 @@ import Views
 
   func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
     isLoading = true
-    showLoadingBar = true
 
     await fetcher.loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
 
     isLoading = false
-    showLoadingBar = false
   }
 
   func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [Models.LibraryItem] {
