@@ -798,17 +798,23 @@ export const parseHtml = async (url: string): Promise<Feed[] | undefined> => {
   }
 }
 
-export const parseFeed = async (url: string): Promise<Feed | null> => {
+export const parseFeed = async (
+  url: string,
+  content?: string | null
+): Promise<Feed | null> => {
   try {
     // check if url is a telegram channel
     const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
     const telegramMatch = url.match(telegramRegex)
     if (telegramMatch) {
-      // fetch HTML and parse feeds
-      const html = await fetchHtml(url)
-      if (!html) return null
+      if (!content) {
+        // fetch HTML and parse feeds
+        content = await fetchHtml(url)
+      }
 
-      const dom = parseHTML(html).document
+      if (!content) return null
+
+      const dom = parseHTML(content).document
       const title = dom.querySelector('meta[property="og:title"]')
       const thumbnail = dom.querySelector('meta[property="og:image"]')
       const description = dom.querySelector('meta[property="og:description"]')
@@ -824,7 +830,10 @@ export const parseFeed = async (url: string): Promise<Feed | null> => {
 
     const parser = new Parser(RSS_PARSER_CONFIG)
 
-    const feed = await parser.parseURL(url)
+    const feed = content
+      ? await parser.parseString(content)
+      : await parser.parseURL(url)
+
     const feedUrl = feed.feedUrl || url
 
     return {

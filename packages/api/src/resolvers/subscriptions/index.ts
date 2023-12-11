@@ -40,7 +40,7 @@ import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import { authorized } from '../../utils/helpers'
+import { authorized, getAbsoluteUrl } from '../../utils/helpers'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
@@ -418,7 +418,6 @@ export const scanFeedsResolver = authorized<
     }
 
     return {
-      __typename: 'ScanFeedsSuccess',
       feeds: feeds.map((feed) => ({
         url: feed.url,
         title: feed.title,
@@ -445,31 +444,39 @@ export const scanFeedsResolver = authorized<
     if (isHtml) {
       // this is an html page, parse rss feed links
       const dom = parseHTML(content).document
-      const links = dom.querySelectorAll('link[type="application/rss+xml"]')
+      // type is application/rss+xml or application/atom+xml
+      const links = dom.querySelectorAll(
+        'link[type="application/rss+xml"], link[type="application/atom+xml"]'
+      )
+
       const feeds = Array.from(links)
-        .map((link) => ({
-          url: link.getAttribute('href') || '',
-          title: link.getAttribute('title') || '',
-          type: 'rss',
-        }))
+        .map((link) => {
+          const href = link.getAttribute('href') || ''
+          const feedUrl = getAbsoluteUrl(href, url)
+
+          return {
+            url: feedUrl,
+            title: link.getAttribute('title') || '',
+            type: 'rss',
+          }
+        })
         .filter((feed) => feed.url)
 
       return {
-        __typename: 'ScanFeedsSuccess',
         feeds,
       }
     }
 
     // this is the url to an RSS feed
-    const feed = await parseFeed(url)
+    const feed = await parseFeed(url, content)
     if (!feed) {
+      log.error('Failed to parse RSS feed')
       return {
-        errorCodes: [ScanFeedsErrorCode.BadRequest],
+        feeds: [],
       }
     }
 
     return {
-      __typename: 'ScanFeedsSuccess',
       feeds: [feed],
     }
   } catch (error) {

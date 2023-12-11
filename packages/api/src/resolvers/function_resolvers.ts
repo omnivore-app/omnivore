@@ -517,4 +517,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('SetFavoriteArticle'),
   ...resultResolveTypeResolver('UpdateSubscription'),
   ...resultResolveTypeResolver('UpdateEmail'),
+  ...resultResolveTypeResolver('ScanFeeds'),
 }
