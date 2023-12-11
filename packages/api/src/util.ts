@@ -104,6 +104,11 @@ interface BackendEnv {
   pocket: {
     consumerKey: string
   }
+  subscription: {
+    feed: {
+      max: number
+    }
+  }
 }
 
 /***
@@ -167,6 +172,7 @@ const nullableEnvVars = [
   'TRUST_PROXY',
   'INTEGRATION_EXPORTER_URL',
   'INTEGRATION_IMPORTER_URL',
+  'SUBSCRIPTION_FEED_MAX',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -303,6 +309,14 @@ export function getEnv(): BackendEnv {
     consumerKey: parse('POCKET_CONSUMER_KEY'),
   }
 
+  const subscription = {
+    feed: {
+      max: parse('SUBSCRIPTION_FEED_MAX')
+        ? parseInt(parse('SUBSCRIPTION_FEED_MAX'), 10)
+        : 256, // default to 256
+    },
+  }
+
   return {
     pg,
     client,
@@ -323,6 +337,7 @@ export function getEnv(): BackendEnv {
     azure,
     gcp,
     pocket,
+    subscription,
   }
 }
 

@@ -223,7 +223,7 @@ export const subscribeResolver = authorized<
     }
 
     // create new rss subscription
-    const MAX_RSS_SUBSCRIPTIONS = 150
+    const MAX_RSS_SUBSCRIPTIONS = env.subscription.feed.max
     // validate rss feed
     const feed = await parseFeed(input.url)
     if (!feed) {
@@ -232,7 +232,7 @@ export const subscribeResolver = authorized<
       }
     }
 
-    // limit number of rss subscriptions to 150
+    // limit number of rss subscriptions to max
     const results = (await getRepository(Subscription).query(
       `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
           select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
@@ -263,7 +263,7 @@ export const subscribeResolver = authorized<
     // create a cloud task to fetch rss feed item for the new subscription
     await enqueueRssFeedFetch({
       userIds: [uid],
-      url: input.url,
+      url: feed.url,
       subscriptionIds: [newSubscription.id],
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
