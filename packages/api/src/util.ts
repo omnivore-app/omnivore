@@ -311,7 +311,9 @@ export function getEnv(): BackendEnv {
 
   const subscription = {
     feed: {
-      max: parseInt(parse('SUBSCRIPTION_FEED_MAX'), 10),
+      max: parse('SUBSCRIPTION_FEED_MAX')
+        ? parseInt(parse('SUBSCRIPTION_FEED_MAX'), 10)
+        : 256, // default to 256
     },
   }
 
