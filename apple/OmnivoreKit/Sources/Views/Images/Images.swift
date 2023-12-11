@@ -13,6 +13,12 @@ public extension Image {
   static var tabHighlights: Image { Image("_tab_highlights", bundle: .module).renderingMode(.template) }
   static var tabProfile: Image { Image("_tab_profile", bundle: .module).renderingMode(.template) }
 
+  static var toolbarArchive: Image { Image("toolbar-archive", bundle: .module).renderingMode(.template) }
+  static var toolbarUnarchive: Image { Image("toolbar-unarchive", bundle: .module).renderingMode(.template) }
+
+  static var toolbarShare: Image { Image("toolbar-share", bundle: .module).renderingMode(.template) }
+  static var toolbarTrash: Image { Image("toolbar-trash", bundle: .module).renderingMode(.template) }
+
   static var pinRotated: Image { Image("pin-rotated", bundle: .module) }
 
   static var chevronRight: Image { Image("chevron-right", bundle: .module) }

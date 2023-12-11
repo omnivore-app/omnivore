@@ -28,7 +28,7 @@ struct WebReaderContainerView: View {
   @State var showExpandedAudioPlayer = false
   @State var shareActionID: UUID?
   @State var annotation = String()
-  @State var showBottomBar = false
+  @State var showBottomBar = true
   @State private var bottomBarOpacity = 0.0
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
@@ -160,7 +160,7 @@ struct WebReaderContainerView: View {
 
     var textToSpeechButtonImage: some View {
       if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-        return AnyView(Image.headphones)
+        return AnyView(Image.headphones.frame(width: 48, height: 48))
       }
       let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
       return AnyView(Image(systemName: name).font(.appNavbarIcon))
@@ -361,7 +361,7 @@ struct WebReaderContainerView: View {
     .tint(Color(hex: "#2A2A2A"))
     .frame(height: readerViewNavBarHeight)
     .frame(maxWidth: .infinity)
-    .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
+    .foregroundColor(ThemeManager.currentTheme.toolbarColor)
     .background(ThemeManager.currentBgColor)
     .sheet(isPresented: $showLabelsModal) {
       ApplyLabelsView(mode: .item(item), onSave: { labels in
@@ -592,29 +592,23 @@ struct WebReaderContainerView: View {
             .offset(y: navBarVisible ? 0 : -150)
 
           Spacer()
-          if showBottomBar {
-            bottomButtons
-              .frame(height: 48)
-              .background(Color.webControlButtonBackground)
-              .cornerRadius(6)
-              .padding(.bottom, 34)
-              .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
-              .opacity(bottomBarOpacity)
-              .onAppear {
-                withAnimation(Animation.linear(duration: 0.25)) { self.bottomBarOpacity = 1 }
-              }
-              .onDisappear {
-                self.bottomBarOpacity = 0
-              }
-          }
           if let audioProperties = audioController.itemAudioProperties {
             MiniPlayerViewer(itemAudioProperties: audioProperties)
               .padding(.top, 10)
-              .padding(.bottom, 40)
+              .padding(.bottom, showBottomBar ? 10 : 40)
               .background(Color.themeTabBarColor)
               .onTapGesture {
                 showExpandedAudioPlayer = true
               }
+          }
+          if showBottomBar {
+            CustomToolBar(
+              isArchived: item.isArchived,
+              archiveAction: archive,
+              unarchiveAction: archive,
+              shareAction: share,
+              deleteAction: delete
+            )
           }
         }
 
@@ -657,7 +651,8 @@ struct WebReaderContainerView: View {
   }
 
   func archive() {
-    dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+    let isArchived = item.isArchived
+    dataService.archiveLink(objectID: item.objectID, archived: !isArchived)
     #if os(iOS)
       pop()
     #endif
