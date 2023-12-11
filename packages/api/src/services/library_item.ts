@@ -323,6 +323,11 @@ export const buildQuery = (
           }
 
           const [sort, sortOrder] = value.split('-')
+          if (sort.toLowerCase() === 'score') {
+            // score is not a column and is handled separately
+            return null
+          }
+
           const order =
             sortOrder?.toUpperCase() === 'ASC'
               ? SortOrder.ASCENDING
