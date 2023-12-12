@@ -40,7 +40,11 @@ import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import { authorized, getAbsoluteUrl } from '../../utils/helpers'
+import {
+  authorized,
+  getAbsoluteUrl,
+  keysToCamelCase,
+} from '../../utils/helpers'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
@@ -249,7 +253,7 @@ export const subscribeResolver = authorized<
         input.isPrivate ?? null,
         MAX_RSS_SUBSCRIPTIONS,
       ]
-    )) as Subscription[]
+    )) as any[]
 
     if (results.length === 0) {
       return {
@@ -257,7 +261,8 @@ export const subscribeResolver = authorized<
       }
     }
 
-    const newSubscription = results[0]
+    // convert to camel case
+    const newSubscription = keysToCamelCase(results[0]) as Subscription
 
     // create a cloud task to fetch rss feed item for the new subscription
     await enqueueRssFeedFetch({
@@ -439,7 +444,7 @@ export const scanFeedsResolver = authorized<
     const response = await axios.get(url, RSS_PARSER_CONFIG)
     const content = response.data as string
     // check if the content is html or xml
-    const contentType = response.headers['content-type']
+    const contentType = response.headers['content-type'] as string
     const isHtml = contentType?.includes('text/html')
     if (isHtml) {
       // this is an html page, parse rss feed links

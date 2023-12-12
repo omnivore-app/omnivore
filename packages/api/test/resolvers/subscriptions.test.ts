@@ -289,6 +289,7 @@ describe('Subscriptions API', () => {
           ... on UnsubscribeSuccess {
             subscription {
               id
+              createdAt
             }
           }
           ... on UnsubscribeError {
