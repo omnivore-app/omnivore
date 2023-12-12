@@ -540,7 +540,7 @@ export const buildQuery = (
       return `(${serialized})`
     }
 
-    throw new Error('Missing AST type.')
+    return null
   }
 
   return serialize(searchQuery)
