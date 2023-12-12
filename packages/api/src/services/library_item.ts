@@ -171,7 +171,7 @@ export const buildQuery = (
     expression: ExpressionToken
   ): string | null => {
     if (expression.type !== 'LiteralExpression') {
-      throw new Error('Expected a literal expression.')
+      throw new Error('Expected a literal expression')
     }
 
     const value = expression.value?.toString()
@@ -197,7 +197,7 @@ export const buildQuery = (
 
   const serializeTagExpression = (ast: LiqeQuery): string | null => {
     if (ast.type !== 'Tag') {
-      throw new Error('Expected a tag expression.')
+      throw new Error('Expected a tag expression')
     }
 
     const { field, expression } = ast
@@ -351,14 +351,14 @@ export const buildQuery = (
               if (start && start !== '*') {
                 startDate = new Date(start)
                 if (isNaN(startDate.getTime())) {
-                  throw new Error('Invalid start date.')
+                  throw new Error('Invalid start date')
                 }
               }
 
               if (end && end !== '*') {
                 endDate = new Date(end)
                 if (isNaN(endDate.getTime())) {
-                  throw new Error('Invalid end date.')
+                  throw new Error('Invalid end date')
                 }
               }
             }
@@ -410,7 +410,7 @@ export const buildQuery = (
         case 'includes': {
           const ids = value.split(',')
           if (!ids || ids.length === 0) {
-            throw new Error('Expected a value.')
+            throw new Error('Expected ids')
           }
 
           const param = `includes_${parameters.length}`
@@ -463,7 +463,7 @@ export const buildQuery = (
           const operatorRegex = /([<>]=?)/
           const operator = value.match(operatorRegex)?.[0]
           if (!operator) {
-            throw new Error('Expected a value.')
+            throw new Error('Expected operator')
           }
 
           const newValue = value.replace(operatorRegex, '')
@@ -499,7 +499,7 @@ export const buildQuery = (
       } else if (ast.operator.operator === 'OR') {
         operator = 'OR'
       } else {
-        throw new Error('Unexpected operator.')
+        throw new Error('Unexpected operator')
       }
 
       const left = serialize(ast.left)
