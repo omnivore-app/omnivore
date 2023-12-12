@@ -121,6 +121,12 @@ extension WebReaderCoordinator: WKNavigationDelegate {
         scrollView.contentInset.top = navBarVisible ? readerViewNavBarHeight : 0
       }
 
+      // if at bottom show the controls
+      if yOffset + scrollView.visibleSize.height > scrollView.contentSize.height - 140 {
+        navBarVisible = true
+        scrollView.contentInset.top = navBarVisible ? readerViewNavBarHeight : 0
+      }
+
       let percent = Int(((yOffset + scrollView.visibleSize.height) / scrollView.contentSize.height) * 100)
       scrollPercentHandler(max(0, min(percent, 100)))
     }
