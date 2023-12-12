@@ -205,7 +205,7 @@ export const buildQuery = (
     if (field.type === 'ImplicitField') {
       return serializeImplicitField(expression)
     } else {
-      switch (field.name) {
+      switch (field.name.toLowerCase()) {
         case 'in': {
           if (expression.type !== 'LiteralExpression') {
             throw new Error('Expected a literal expression.')
