@@ -393,21 +393,23 @@ struct AnimatingCellHeight: AnimatableModifier {
                 viewModel.searchTerm = ""
               }.frame(maxWidth: reader.size.width * 0.66)
             } else {
-              Menu(
-                content: {
-                  ForEach(viewModel.filters) { filter in
-                    Button(filter.name, action: {
-                      viewModel.appliedFilter = filter
-                    })
+              if UIDevice.isIPhone {
+                Menu(
+                  content: {
+                    ForEach(viewModel.filters) { filter in
+                      Button(filter.name, action: {
+                        viewModel.appliedFilter = filter
+                      })
+                    }
+                  },
+                  label: {
+                    TextChipButton.makeMenuButton(
+                      title: viewModel.appliedFilter?.name ?? "-",
+                      color: .systemGray6
+                    )
                   }
-                },
-                label: {
-                  TextChipButton.makeMenuButton(
-                    title: viewModel.appliedFilter?.name ?? "-",
-                    color: .systemGray6
-                  )
-                }
-              )
+                )
+              }
             }
             Menu(
               content: {
