@@ -1,11 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "three-dots.svg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "header-pause.svg",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -17,5 +17,8 @@
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "template-rendering-intent" : "template"
   }
 }

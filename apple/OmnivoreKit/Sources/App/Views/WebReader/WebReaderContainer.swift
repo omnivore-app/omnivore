@@ -28,7 +28,6 @@ struct WebReaderContainerView: View {
   @State var showExpandedAudioPlayer = false
   @State var shareActionID: UUID?
   @State var annotation = String()
-  @State var showBottomBar = true
   @State private var bottomBarOpacity = 0.0
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
@@ -88,7 +87,6 @@ struct WebReaderContainerView: View {
   private func tapHandler() {
     withAnimation(.easeIn(duration: 0.08)) {
       navBarVisible = !navBarVisible
-      showBottomBar = navBarVisible
       showNavBarActionID = UUID()
     }
   }
@@ -112,13 +110,11 @@ struct WebReaderContainerView: View {
     case "pageTapped":
       withAnimation {
         navBarVisible = !navBarVisible
-        showBottomBar = navBarVisible
         showNavBarActionID = UUID()
       }
     case "dismissNavBars":
       withAnimation {
         navBarVisible = false
-        showBottomBar = false
         showNavBarActionID = UUID()
       }
     default:
@@ -160,44 +156,14 @@ struct WebReaderContainerView: View {
 
     var textToSpeechButtonImage: some View {
       if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-        return AnyView(Image.headphones.frame(width: 48, height: 48))
+        return AnyView(Image.audioPlay.frame(width: 48, height: 48))
       }
-      let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-      return AnyView(Image(systemName: name).font(.appNavbarIcon))
+      if audioController.isPlayingItem(itemID: item.unwrappedID) {
+        return AnyView(Image.audioPause.frame(width: 48, height: 48))
+      }
+      return AnyView(Image.audioPlay.frame(width: 48, height: 48))
     }
   #endif
-
-  var bottomButtons: some View {
-    HStack(alignment: .center) {
-      Button(action: archive, label: {
-        item.isArchived ? Image.unarchive : Image.archive
-      }).frame(width: 48, height: 48)
-        .padding(.leading, 8)
-      Divider().opacity(0.8)
-
-      Button(action: delete, label: {
-        Image.remove
-      }).frame(width: 48, height: 48)
-      Divider().opacity(0.8)
-
-      Button(action: editLabels, label: {
-        Image.label
-      }).frame(width: 48, height: 48)
-      Divider().opacity(0.8)
-
-      Button(action: recommend, label: {
-        Image(systemName: "sparkles")
-      }).frame(width: 48, height: 48)
-
-        // We don't have a single note function yet
-//      Divider()
-//
-//      Button(action: addNote, label: {
-//        Image(systemName: "note")
-//      }).frame(width: 48, height: 48)
-        .padding(.trailing, 8)
-    }.foregroundColor(.appGrayTextContrast)
-  }
 
   func audioMenuItem() -> some View {
     Button(
@@ -431,7 +397,6 @@ struct WebReaderContainerView: View {
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
           annotation: $annotation,
-          showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
@@ -595,13 +560,13 @@ struct WebReaderContainerView: View {
           if let audioProperties = audioController.itemAudioProperties {
             MiniPlayerViewer(itemAudioProperties: audioProperties)
               .padding(.top, 10)
-              .padding(.bottom, showBottomBar ? 10 : 40)
+              .padding(.bottom, navBarVisible ? 10 : 40)
               .background(Color.themeTabBarColor)
               .onTapGesture {
                 showExpandedAudioPlayer = true
               }
           }
-          if showBottomBar {
+          if navBarVisible {
             CustomToolBar(
               isArchived: item.isArchived,
               archiveAction: archive,

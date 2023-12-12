@@ -40,7 +40,7 @@ struct CustomToolBar: View {
       }
       .padding(.top, 8)
     }
-    .padding(.bottom, 30)
+    .padding(.bottom, 35)
     .background(ThemeManager.currentBgColor)
   }
 }
@@ -54,9 +54,6 @@ struct ToolBarButton: View {
       action()
     }, label: {
       image
-        .resizable()
-        .renderingMode(.template)
-        .aspectRatio(contentMode: .fit)
         .frame(width: 28, height: 28)
         .foregroundColor(ThemeManager.currentTheme.toolbarColor)
         .frame(maxWidth: .infinity)

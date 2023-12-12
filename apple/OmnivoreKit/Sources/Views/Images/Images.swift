@@ -24,6 +24,9 @@ public extension Image {
   static var chevronRight: Image { Image("chevron-right", bundle: .module) }
   static var notebook: Image { Image("notebook", bundle: .module) }
   static var headphones: Image { Image("headphones", bundle: .module) }
+
+  static var audioPlay: Image { Image("header-play", bundle: .module) }
+  static var audioPause: Image { Image("header-pause", bundle: .module) }
   static var readerSettings: Image { Image("reader-settings", bundle: .module) }
   static var utilityMenu: Image { Image("utility-menu", bundle: .module) }
 

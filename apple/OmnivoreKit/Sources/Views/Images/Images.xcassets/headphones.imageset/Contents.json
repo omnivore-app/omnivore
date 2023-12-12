@@ -1,15 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "headphones.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "PlayCircle.svg",
+      "filename" : "headphones@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "headphones@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
