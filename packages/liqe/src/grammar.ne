@@ -8,14 +8,14 @@ __ -> whitespace_character:+ {% (data) => data[0].length %}
 
 whitespace_character -> [ \t\n\v\f] {% id %}
 
-# Numbers
-decimal -> "-":? [0-9]:+ ("." [0-9]:+):? {%
-  (data) => parseFloat(
-    (data[0] || "") +
-    data[1].join("") +
-    (data[2] ? "."+data[2][1].join("") : "")
-  )
-%}
+# # Numbers
+# decimal -> "-":? [0-9]:+ ("." [0-9]:+):? {%
+#   (data) => parseFloat(
+#     (data[0] || "") +
+#     data[1].join("") +
+#     (data[2] ? "."+data[2][1].join("") : "")
+#   )
+# %}
 
 # Double-quoted string
 dqstring -> "\"" dstrchar:* "\"" {% (data) => data[1].join('') %}
@@ -198,9 +198,9 @@ field ->
   | dqstring {% (data, start) => ({type: 'LiteralExpression', name: data[0], quoted: true, quotes: 'double', location: {start, end: start + data[0].length + 2}}) %}
 
 expression ->
-    decimal {% (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length}, type: 'LiteralExpression', quoted: false, value: Number(data.join(''))}}) %}
-  | regex {% (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length}, type: 'RegexExpression', value: data.join('')}}) %}
-  | range {% (data) => data[0] %}
+#     decimal {% (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length}, type: 'LiteralExpression', quoted: false, value: Number(data.join(''))}}) %}
+  regex {% (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length}, type: 'RegexExpression', value: data.join('')}}) %}
+#   | range {% (data) => data[0] %}
   | unquoted_value {% (data, start, reject) => {
     const value = data.join('');
 
@@ -236,36 +236,36 @@ expression ->
   | sqstring {% (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length + 2}, type: 'LiteralExpression', quoted: true, quotes: 'single', value: data.join('')}}) %}
   | dqstring {% (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length + 2}, type: 'LiteralExpression', quoted: true, quotes: 'double', value: data.join('')}}) %}
 
-range ->
-    range_open decimal " TO " decimal range_close {% (data, start) => {
-    return {
-      location: {
-        start,
-      },
-      type: 'Tag',
-      expression: {
-        location: {
-          start: data[0].location.start,
-          end: data[4].location.start + 1,
-        },
-        type: 'RangeExpression',
-        range: {
-          min: data[1],
-          minInclusive: data[0].inclusive,
-          maxInclusive: data[4].inclusive,
-          max: data[3],
-        }
-      }
-    }
-  } %}
-
-range_open ->
-  "[" {% (data, start) => ({location: {start}, inclusive: true}) %}
-  | "{" {% (data, start) => ({location: {start}, inclusive: false}) %}
-
-range_close ->
-  "]" {% (data, start) => ({location: {start}, inclusive: true}) %}
-  | "}" {% (data, start) => ({location: {start}, inclusive: false}) %}
+# range ->
+#     range_open decimal " TO " decimal range_close {% (data, start) => {
+#     return {
+#       location: {
+#         start,
+#       },
+#       type: 'Tag',
+#       expression: {
+#         location: {
+#           start: data[0].location.start,
+#           end: data[4].location.start + 1,
+#         },
+#         type: 'RangeExpression',
+#         range: {
+#           min: data[1],
+#           minInclusive: data[0].inclusive,
+#           maxInclusive: data[4].inclusive,
+#           max: data[3],
+#         }
+#       }
+#     }
+#   } %}
+# 
+# range_open ->
+#   "[" {% (data, start) => ({location: {start}, inclusive: true}) %}
+#   | "{" {% (data, start) => ({location: {start}, inclusive: false}) %}
+# 
+# range_close ->
+#   "]" {% (data, start) => ({location: {start}, inclusive: true}) %}
+#   | "}" {% (data, start) => ({location: {start}, inclusive: false}) %}
 
 comparison_operator ->
     (

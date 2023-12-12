@@ -42,22 +42,6 @@ const grammar: Grammar = {
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "whitespace_character"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": (data) => data[0].length},
     {"name": "whitespace_character", "symbols": [/[ \t\n\v\f]/], "postprocess": id},
-    {"name": "decimal$ebnf$1", "symbols": [{"literal":"-"}], "postprocess": id},
-    {"name": "decimal$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "decimal$ebnf$2", "symbols": [/[0-9]/]},
-    {"name": "decimal$ebnf$2", "symbols": ["decimal$ebnf$2", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "decimal$ebnf$3$subexpression$1$ebnf$1", "symbols": [/[0-9]/]},
-    {"name": "decimal$ebnf$3$subexpression$1$ebnf$1", "symbols": ["decimal$ebnf$3$subexpression$1$ebnf$1", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "decimal$ebnf$3$subexpression$1", "symbols": [{"literal":"."}, "decimal$ebnf$3$subexpression$1$ebnf$1"]},
-    {"name": "decimal$ebnf$3", "symbols": ["decimal$ebnf$3$subexpression$1"], "postprocess": id},
-    {"name": "decimal$ebnf$3", "symbols": [], "postprocess": () => null},
-    {"name": "decimal", "symbols": ["decimal$ebnf$1", "decimal$ebnf$2", "decimal$ebnf$3"], "postprocess": 
-        (data) => parseFloat(
-          (data[0] || "") +
-          data[1].join("") +
-          (data[2] ? "."+data[2][1].join("") : "")
-        )
-        },
     {"name": "dqstring$ebnf$1", "symbols": []},
     {"name": "dqstring$ebnf$1", "symbols": ["dqstring$ebnf$1", "dstrchar"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "dqstring", "symbols": [{"literal":"\""}, "dqstring$ebnf$1", {"literal":"\""}], "postprocess": (data) => data[1].join('')},
@@ -213,9 +197,7 @@ const grammar: Grammar = {
     {"name": "field", "symbols": [/[_a-zA-Z$]/, "field$ebnf$1"], "postprocess": (data, start) => ({type: 'LiteralExpression', name: data[0] + data[1].join(''), quoted: false, location: {start, end: start + (data[0] + data[1].join('')).length}})},
     {"name": "field", "symbols": ["sqstring"], "postprocess": (data, start) => ({type: 'LiteralExpression', name: data[0], quoted: true, quotes: 'single', location: {start, end: start + data[0].length + 2}})},
     {"name": "field", "symbols": ["dqstring"], "postprocess": (data, start) => ({type: 'LiteralExpression', name: data[0], quoted: true, quotes: 'double', location: {start, end: start + data[0].length + 2}})},
-    {"name": "expression", "symbols": ["decimal"], "postprocess": (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length}, type: 'LiteralExpression', quoted: false, value: Number(data.join(''))}})},
     {"name": "expression", "symbols": ["regex"], "postprocess": (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length}, type: 'RegexExpression', value: data.join('')}})},
-    {"name": "expression", "symbols": ["range"], "postprocess": (data) => data[0]},
     {"name": "expression", "symbols": ["unquoted_value"], "postprocess":  (data, start, reject) => {
           const value = data.join('');
         
@@ -250,32 +232,6 @@ const grammar: Grammar = {
         } },
     {"name": "expression", "symbols": ["sqstring"], "postprocess": (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length + 2}, type: 'LiteralExpression', quoted: true, quotes: 'single', value: data.join('')}})},
     {"name": "expression", "symbols": ["dqstring"], "postprocess": (data, start) => ({type: 'Tag', expression: {location: {start, end: start + data.join('').length + 2}, type: 'LiteralExpression', quoted: true, quotes: 'double', value: data.join('')}})},
-    {"name": "range$string$1", "symbols": [{"literal":" "}, {"literal":"T"}, {"literal":"O"}, {"literal":" "}], "postprocess": (d) => d.join('')},
-    {"name": "range", "symbols": ["range_open", "decimal", "range$string$1", "decimal", "range_close"], "postprocess":  (data, start) => {
-          return {
-            location: {
-              start,
-            },
-            type: 'Tag',
-            expression: {
-              location: {
-                start: data[0].location.start,
-                end: data[4].location.start + 1,
-              },
-              type: 'RangeExpression',
-              range: {
-                min: data[1],
-                minInclusive: data[0].inclusive,
-                maxInclusive: data[4].inclusive,
-                max: data[3],
-              }
-            }
-          }
-        } },
-    {"name": "range_open", "symbols": [{"literal":"["}], "postprocess": (data, start) => ({location: {start}, inclusive: true})},
-    {"name": "range_open", "symbols": [{"literal":"{"}], "postprocess": (data, start) => ({location: {start}, inclusive: false})},
-    {"name": "range_close", "symbols": [{"literal":"]"}], "postprocess": (data, start) => ({location: {start}, inclusive: true})},
-    {"name": "range_close", "symbols": [{"literal":"}"}], "postprocess": (data, start) => ({location: {start}, inclusive: false})},
     {"name": "comparison_operator$subexpression$1", "symbols": [{"literal":":"}]},
     {"name": "comparison_operator$subexpression$1$string$1", "symbols": [{"literal":":"}, {"literal":"="}], "postprocess": (d) => d.join('')},
     {"name": "comparison_operator$subexpression$1", "symbols": ["comparison_operator$subexpression$1$string$1"]},
