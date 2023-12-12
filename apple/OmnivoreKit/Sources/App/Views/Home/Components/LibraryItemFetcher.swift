@@ -216,10 +216,14 @@ import Views
 
   private func searchQuery(_ filterState: FetcherFilterState) -> String {
     let sort = LinkedItemSort(rawValue: filterState.appliedSort) ?? .newest
-    var query = sort.queryString
+    var query = ""
 
     if let queryString = filterState.appliedFilter?.filter {
-      query = "\(queryString) \(sort.queryString)"
+      query = "\(queryString)"
+    }
+
+    if !query.contains("sort:") {
+      query = "\(query) \(sort.queryString)"
     }
 
     if !filterState.searchTerm.isEmpty {
