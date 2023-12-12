@@ -82,7 +82,7 @@ import Views
   func loadFilters(dataService: DataService) async {
     switch folder {
     case "following":
-      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters, defaultName: "rss")
+      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters, defaultName: "following")
     default:
       var hasLocalResults = false
       let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
