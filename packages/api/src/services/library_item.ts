@@ -1,4 +1,4 @@
-import { LiqeQuery } from '@omnivore/liqe'
+import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
 import { DeepPartial, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
@@ -130,7 +130,8 @@ export const sortParamsToSort = (
 }
 
 const getColumnName = (field: string) => {
-  switch (field) {
+  const lowerCaseField = field.toLowerCase()
+  switch (lowerCaseField) {
     case 'language':
       return 'item_language'
     case 'subscription':
@@ -138,17 +139,17 @@ const getColumnName = (field: string) => {
       return 'subscription'
     case 'site':
       return 'site_name'
-    case 'wordsCount':
+    case 'wordscount':
       return 'word_count'
-    case 'readPosition':
+    case 'readposition':
       return 'reading_progress_bottom_percent'
     case 'saved':
     case 'read':
     case 'updated':
     case 'published':
-      return `${field}_at`
+      return `${lowerCaseField}_at`
     default:
-      return field
+      return lowerCaseField
   }
 }
 
@@ -167,50 +168,58 @@ export const buildQuery = (
     return query
   }
 
+  const serializeImplicitField = (
+    expression: ExpressionToken
+  ): string | null => {
+    if (expression.type !== 'LiteralExpression') {
+      throw new Error('Expected a literal expression')
+    }
+
+    const value = expression.value?.toString()
+
+    if (value === undefined || value === '') {
+      return null
+    }
+
+    const param = `implicit_field_${parameters.length}`
+    const alias = `rank_${parameters.length}`
+    selects.push({
+      column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
+      alias,
+    })
+
+    orders.push({ by: alias, order: SortOrder.DESCENDING })
+
+    return escapeQueryWithParameters(
+      `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
+      { [param]: value }
+    )
+  }
+
   const serializeTagExpression = (ast: LiqeQuery): string | null => {
     if (ast.type !== 'Tag') {
-      throw new Error('Expected a tag expression.')
+      throw new Error('Expected a tag expression')
     }
 
     const { field, expression } = ast
 
     if (field.type === 'ImplicitField') {
+      return serializeImplicitField(expression)
+    } else {
       if (expression.type !== 'LiteralExpression') {
-        throw new Error('Expected a literal expression.')
-      }
-
-      const value = expression.value?.toString()
-
-      if (value === undefined || value === '') {
+        // ignore empty values
         return null
       }
 
-      const param = `implicit_field_${parameters.length}`
-      const alias = `rank_${parameters.length}`
-      selects.push({
-        column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
-        alias,
-      })
+      const value = expression.value?.toString()
+      if (!value) {
+        // ignore empty values
+        return null
+      }
 
-      orders.push({ by: alias, order: SortOrder.DESCENDING })
-
-      return escapeQueryWithParameters(
-        `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
-        { [param]: value }
-      )
-    } else {
-      switch (field.name) {
+      switch (field.name.toLowerCase()) {
         case 'in': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const folder = expression.value?.toString()
-          if (!folder) {
-            throw new Error('Expected a value.')
-          }
-
-          switch (folder) {
+          switch (value.toLowerCase()) {
             case InFilter.ALL:
               return null
             case InFilter.ARCHIVE:
@@ -224,7 +233,7 @@ export const buildQuery = (
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
                   `library_item.folder = :${param}`,
-                  { [param]: folder }
+                  { [param]: value }
                 )
                 sql = `(${sql} AND ${folderSql})`
               }
@@ -235,16 +244,7 @@ export const buildQuery = (
         }
 
         case 'is': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
-          switch (value) {
+          switch (value.toLowerCase()) {
             case ReadFilter.READ:
               return 'library_item.reading_progress_bottom_percent > 98'
             case ReadFilter.READING:
@@ -256,15 +256,6 @@ export const buildQuery = (
           }
         }
         case 'type': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
           const param = `type_${parameters.length}`
 
           return escapeQueryWithParameters(
@@ -275,16 +266,7 @@ export const buildQuery = (
           )
         }
         case 'label': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()?.toLowerCase()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
-          const labels = value.split(',')
+          const labels = value.toLowerCase().split(',')
           return (
             labels
               .map((label) => {
@@ -313,15 +295,6 @@ export const buildQuery = (
           )
         }
         case 'sort': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
           const [sort, sortOrder] = value.split('-')
           if (sort.toLowerCase() === 'score') {
             // score is not a column and is handled separately
@@ -329,7 +302,7 @@ export const buildQuery = (
           }
 
           const order =
-            sortOrder?.toUpperCase() === 'ASC'
+            sortOrder?.toLowerCase() === 'asc'
               ? SortOrder.ASCENDING
               : SortOrder.DESCENDING
 
@@ -338,16 +311,7 @@ export const buildQuery = (
           return null
         }
         case 'has': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
-          switch (value) {
+          switch (value.toLowerCase()) {
             case HasFilter.HIGHLIGHTS:
               return "library_item.highlight_annotations <> '{}'"
             case HasFilter.LABELS:
@@ -362,19 +326,10 @@ export const buildQuery = (
         case 'read':
         case 'updated':
         case 'published': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const date = expression.value?.toString()
-          if (!date) {
-            throw new Error('Expected a value.')
-          }
-
           let startDate: Date | undefined
           let endDate: Date | undefined
           // check for special date filters
-          switch (date.toLowerCase()) {
+          switch (value.toLowerCase()) {
             case 'today':
               startDate = DateTime.local().startOf('day').toJSDate()
               break
@@ -392,19 +347,19 @@ export const buildQuery = (
               break
             default: {
               // check for date ranges
-              const [start, end] = date.split('..')
+              const [start, end] = value.split('..')
               // validate date
               if (start && start !== '*') {
                 startDate = new Date(start)
                 if (isNaN(startDate.getTime())) {
-                  throw new Error('Invalid start date.')
+                  throw new Error('Invalid start date')
                 }
               }
 
               if (end && end !== '*') {
                 endDate = new Date(end)
                 if (isNaN(endDate.getTime())) {
-                  throw new Error('Invalid end date.')
+                  throw new Error('Invalid end date')
                 }
               }
             }
@@ -425,15 +380,6 @@ export const buildQuery = (
         case 'subscription':
         case 'rss':
         case 'language': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
           const columnName = getColumnName(field.name)
           const param = `term_${field.name}_${parameters.length}`
 
@@ -450,16 +396,6 @@ export const buildQuery = (
         case 'description':
         case 'note':
         case 'site': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          // normalize the term to lower case
-          const value = expression.value?.toString()?.toLowerCase()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
           const columnName = getColumnName(field.name)
           const param = `match_${field.name}_${parameters.length}`
           const wildcardParam = `match_${field.name}_wildcard_${parameters.length}`
@@ -473,13 +409,9 @@ export const buildQuery = (
           )
         }
         case 'includes': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const ids = expression.value?.toString()?.split(',')
+          const ids = value.split(',')
           if (!ids || ids.length === 0) {
-            throw new Error('Expected a value.')
+            throw new Error('Expected ids')
           }
 
           const param = `includes_${parameters.length}`
@@ -488,16 +420,7 @@ export const buildQuery = (
             [param]: ids,
           })
         }
-        case 'recommendedBy': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
+        case 'recommendedby': {
           const param = `recommendedBy_${parameters.length}`
           if (value === '*') {
             // select all if * is provided
@@ -512,17 +435,8 @@ export const buildQuery = (
           )
         }
         case 'no': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          const value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
           let column = ''
-          switch (value) {
+          switch (value.toLowerCase()) {
             case 'highlight':
               column = 'highlight_annotations'
               break
@@ -543,41 +457,33 @@ export const buildQuery = (
         case 'event':
           // mode is ignored and used only by the frontend
           return null
-        case 'readPosition':
-        case 'wordsCount': {
-          if (expression.type !== 'LiteralExpression') {
-            throw new Error('Expected a literal expression.')
-          }
-
-          let value = expression.value?.toString()
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
-
+        case 'readposition':
+        case 'wordscount': {
           const column = getColumnName(field.name)
 
           const operatorRegex = /([<>]=?)/
           const operator = value.match(operatorRegex)?.[0]
           if (!operator) {
-            throw new Error('Expected a value.')
+            throw new Error('Expected operator')
           }
 
-          value = value.replace(operatorRegex, '')
-          if (!value) {
-            throw new Error('Expected a value.')
-          }
+          const newValue = value.replace(operatorRegex, '')
 
           const param = `range_${field.name}_${parameters.length}`
 
           return escapeQueryWithParameters(
             `library_item.${column} ${operator} :${param}`,
             {
-              [param]: parseInt(value, 10),
+              [param]: parseInt(newValue, 10),
             }
           )
         }
         default:
-          throw new Error(`Unexpected keyword: ${field.name}`)
+          // treat unknown fields as implicit fields
+          return serializeImplicitField({
+            ...expression,
+            value: `${field.name}:${value}`,
+          })
       }
     }
   }
@@ -594,7 +500,7 @@ export const buildQuery = (
       } else if (ast.operator.operator === 'OR') {
         operator = 'OR'
       } else {
-        throw new Error('Unexpected operator.')
+        throw new Error('Unexpected operator')
       }
 
       const left = serialize(ast.left)
@@ -635,7 +541,7 @@ export const buildQuery = (
       return `(${serialized})`
     }
 
-    throw new Error('Missing AST type.')
+    return null
   }
 
   return serialize(searchQuery)

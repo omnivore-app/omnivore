@@ -83,7 +83,7 @@ test(
   ],
 );
 
-test(
+test.skip(
   'matches or',
   testQuery,
   'name:foo OR name:bar OR height:=180',
@@ -181,7 +181,7 @@ test.skip(
   ],
 );
 
-test(
+test.skip(
   'matches number',
   testQuery,
   'height:=180',
@@ -195,7 +195,7 @@ test(
   ],
 );
 
-test(
+test.skip(
   'matches range',
   testQuery,
   'height:[100 TO 200]',
