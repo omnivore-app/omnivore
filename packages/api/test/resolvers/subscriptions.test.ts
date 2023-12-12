@@ -289,7 +289,6 @@ describe('Subscriptions API', () => {
           ... on UnsubscribeSuccess {
             subscription {
               id
-              createdAt
             }
           }
           ... on UnsubscribeError {
@@ -359,6 +358,7 @@ describe('Subscriptions API', () => {
           ... on SubscribeSuccess {
             subscriptions {
               id
+              createdAt
             }
           }
           ... on SubscribeError {
