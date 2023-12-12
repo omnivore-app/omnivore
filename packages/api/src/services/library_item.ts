@@ -130,7 +130,8 @@ export const sortParamsToSort = (
 }
 
 const getColumnName = (field: string) => {
-  switch (field.toLowerCase()) {
+  const lowerCaseField = field.toLowerCase()
+  switch (lowerCaseField) {
     case 'language':
       return 'item_language'
     case 'subscription':
@@ -138,17 +139,17 @@ const getColumnName = (field: string) => {
       return 'subscription'
     case 'site':
       return 'site_name'
-    case 'wordsCount':
+    case 'wordscount':
       return 'word_count'
-    case 'readPosition':
+    case 'readposition':
       return 'reading_progress_bottom_percent'
     case 'saved':
     case 'read':
     case 'updated':
     case 'published':
-      return `${field}_at`
+      return `${lowerCaseField}_at`
     default:
-      return field
+      return lowerCaseField
   }
 }
 
@@ -419,7 +420,7 @@ export const buildQuery = (
             [param]: ids,
           })
         }
-        case 'recommendedBy': {
+        case 'recommendedby': {
           const param = `recommendedBy_${parameters.length}`
           if (value === '*') {
             // select all if * is provided
@@ -456,8 +457,8 @@ export const buildQuery = (
         case 'event':
           // mode is ignored and used only by the frontend
           return null
-        case 'readPosition':
-        case 'wordsCount': {
+        case 'readposition':
+        case 'wordscount': {
           const column = getColumnName(field.name)
 
           const operatorRegex = /([<>]=?)/
