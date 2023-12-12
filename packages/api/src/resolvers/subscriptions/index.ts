@@ -444,7 +444,7 @@ export const scanFeedsResolver = authorized<
     const response = await axios.get(url, RSS_PARSER_CONFIG)
     const content = response.data as string
     // check if the content is html or xml
-    const contentType = response.headers['content-type'] as string
+    const contentType = response.headers['Content-Type'] as string
     const isHtml = contentType?.includes('text/html')
     if (isHtml) {
       // this is an html page, parse rss feed links
