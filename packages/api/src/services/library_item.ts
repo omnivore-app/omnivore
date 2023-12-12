@@ -1,4 +1,4 @@
-import { LiqeQuery } from '@omnivore/liqe'
+import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
 import { DeepPartial, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
@@ -167,6 +167,34 @@ export const buildQuery = (
     return query
   }
 
+  const serializeImplicitField = (
+    expression: ExpressionToken
+  ): string | null => {
+    if (expression.type !== 'LiteralExpression') {
+      throw new Error('Expected a literal expression.')
+    }
+
+    const value = expression.value?.toString()
+
+    if (value === undefined || value === '') {
+      return null
+    }
+
+    const param = `implicit_field_${parameters.length}`
+    const alias = `rank_${parameters.length}`
+    selects.push({
+      column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
+      alias,
+    })
+
+    orders.push({ by: alias, order: SortOrder.DESCENDING })
+
+    return escapeQueryWithParameters(
+      `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
+      { [param]: value }
+    )
+  }
+
   const serializeTagExpression = (ast: LiqeQuery): string | null => {
     if (ast.type !== 'Tag') {
       throw new Error('Expected a tag expression.')
@@ -175,29 +203,7 @@ export const buildQuery = (
     const { field, expression } = ast
 
     if (field.type === 'ImplicitField') {
-      if (expression.type !== 'LiteralExpression') {
-        throw new Error('Expected a literal expression.')
-      }
-
-      const value = expression.value?.toString()
-
-      if (value === undefined || value === '') {
-        return null
-      }
-
-      const param = `implicit_field_${parameters.length}`
-      const alias = `rank_${parameters.length}`
-      selects.push({
-        column: `ts_rank_cd(library_item.search_tsv, websearch_to_tsquery('english', :${param}))`,
-        alias,
-      })
-
-      orders.push({ by: alias, order: SortOrder.DESCENDING })
-
-      return escapeQueryWithParameters(
-        `websearch_to_tsquery('english', :${param}) @@ library_item.search_tsv`,
-        { [param]: value }
-      )
+      return serializeImplicitField(expression)
     } else {
       switch (field.name) {
         case 'in': {
@@ -576,8 +582,24 @@ export const buildQuery = (
             }
           )
         }
-        default:
-          throw new Error(`Unexpected keyword: ${field.name}`)
+        default: {
+          if (expression.type !== 'LiteralExpression') {
+            // ignore unknown fields without values
+            return null
+          }
+
+          const fieldValue = expression.value?.toString()
+          if (!fieldValue) {
+            // ignore empty values
+            return null
+          }
+
+          // treat all other unknown fields as implicit fields
+          return serializeImplicitField({
+            ...expression,
+            value: `${field.name}:${fieldValue}`,
+          })
+        }
       }
     }
   }
