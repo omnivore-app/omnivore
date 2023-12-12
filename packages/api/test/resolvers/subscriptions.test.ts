@@ -358,6 +358,7 @@ describe('Subscriptions API', () => {
           ... on SubscribeSuccess {
             subscriptions {
               id
+              createdAt
             }
           }
           ... on SubscribeError {
