@@ -15,7 +15,7 @@ extension DataService {
       // Send update to server
       self.syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, archived: archived)
 
-      let message = archived ? "Link archived" : "Link moved to Inbox"
+      let message = archived ? "Link archived" : "Link unarchived"
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
         showInLibrarySnackbar(message)
       }

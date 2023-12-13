@@ -5,8 +5,12 @@ import SwiftGraphQL
 public extension DataService {
   func subscribeToFeed(feedURL: String) async throws -> Bool {
     enum MutationResult {
-      case success(subscriptions: [Subscription])
+      case success(subscriptionIds: [String])
       case error(errorMessage: String)
+    }
+
+    let subscriptionIdSelection = Selection.Subscription {
+      try $0.id()
     }
 
     let selection = Selection<MutationResult, Unions.SubscribeResult> {
@@ -14,7 +18,9 @@ public extension DataService {
         subscribeError: .init {
           .error(errorMessage: try $0.errorCodes().first?.rawValue ?? "unknown error")
         },
-        subscribeSuccess: .init { .success(subscriptions: try $0.subscriptions(selection: subscriptionSelection.list)) }
+        subscribeSuccess: .init {
+          .success(subscriptionIds: try $0.subscriptions(selection: subscriptionIdSelection.list))
+        }
       )
     }
 

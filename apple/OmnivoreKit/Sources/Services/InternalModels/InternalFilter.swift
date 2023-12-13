@@ -39,6 +39,18 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     )
   }
 
+  public static var UnreadFilter: InternalFilter {
+    InternalFilter(
+      id: "unread",
+      name: "Unread",
+      folder: "inbox",
+      filter: "in:inbox is:unread",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
   public static var DefaultInboxFilters: [InternalFilter] {
     [
       InternalFilter(
@@ -177,8 +189,12 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     case "Following":
       return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, notInArchivePredicate, undeletedPredicate])
     case "Inbox":
-      // non-archived items
       return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate])
+    case "Unread":
+      let isUnread = NSPredicate(
+        format: "readAt == nil"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate, isUnread])
     case "Non-Feed Items":
       // non-archived or deleted items without the Newsletter label
       let nonNewsletterLabelPredicate = NSPredicate(
@@ -316,6 +332,20 @@ public extension Filter {
     let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "id == %@", id
+    )
+
+    var filter: Filter?
+    context.performAndWait {
+      filter = (try? context.fetch(fetchRequest))?.first
+    }
+
+    return filter
+  }
+
+  static func lookup(byFilter filter: String, inContext context: NSManagedObjectContext) -> Filter? {
+    let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "filter == %@", filter
     )
 
     var filter: Filter?

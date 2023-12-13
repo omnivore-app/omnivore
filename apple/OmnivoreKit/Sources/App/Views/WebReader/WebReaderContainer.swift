@@ -647,10 +647,10 @@ struct WebReaderContainerView: View {
   }
 
   func delete() {
-    removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
+    pop()
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-        pop()
+        removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
       }
     #endif
   }

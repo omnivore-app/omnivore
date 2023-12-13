@@ -25,8 +25,10 @@ import Views
       loadProfileCardData(name: name, username: username, profileImageURL: currentViewer.profileImageURL)
     }
 
-    if let viewer = try? await dataService.fetchViewer() {
-      loadProfileCardData(name: viewer.name, username: viewer.username, profileImageURL: viewer.profileImageURL)
+    if profileCardData.name.isEmpty {
+      if let viewer = try? await dataService.fetchViewer() {
+        loadProfileCardData(name: viewer.name, username: viewer.username, profileImageURL: viewer.profileImageURL)
+      }
     }
   }
 

@@ -35,6 +35,7 @@ public enum VoiceCategory: String, CaseIterable {
   case itIT = "Italian (Italy)"
   case esES = "Spanish (Spain)"
   case jaJP = "Japanese (Japan)"
+  case nlNL = "Dutch (Netherlands)"
   case ptBR = "Portuguese (Brazil)"
   case taIN = "Tamil (India)"
   case taLK = "Tamil (Sri Lanka)"
@@ -80,6 +81,7 @@ public enum Voices {
     VoiceLanguage(key: "it", name: "Italian", defaultVoice: "it-IT-BenignoNeural", categories: [.itIT]),
     VoiceLanguage(key: "ja", name: "Japanese", defaultVoice: "ja-JP-NanamiNeural", categories: [.jaJP]),
     VoiceLanguage(key: "es", name: "Spanish", defaultVoice: "es-ES-AlvaroNeural", categories: [.esES]),
+    VoiceLanguage(key: "nl", name: "Dutch", defaultVoice: "nl-NL-XiaochenNeural", categories: [.nlNL]),
     VoiceLanguage(key: "pt", name: "Portuguese", defaultVoice: "pt-BR-AntonioNeural", categories: [.ptBR]),
     VoiceLanguage(key: "ta", name: "Tamil", defaultVoice: "ta-IN-PallaviNeural", categories: [.taIN, .taLK, .taMY, .taSG])
   ]
@@ -113,7 +115,8 @@ public enum Voices {
     VoicePair(firstKey: "ta-LK-KumarNeural", secondKey: "ta-LK-SaranyaNeural", firstName: "Kumar", secondName: "Saranya", language: "ta-LK", category: .taLK),
     VoicePair(firstKey: "ta-MY-KaniNeural", secondKey: "ta-MY-SuryaNeural", firstName: "Kani", secondName: "Surya", language: "ta-MY", category: .taMY),
     VoicePair(firstKey: "ta-SG-AnbuNeural", secondKey: "ta-SG-VenbaNeural", firstName: "Anbu", secondName: "Venba", language: "ta-SG", category: .taSG),
-    VoicePair(firstKey: "it-IT-BenignoNeural", secondKey: "it-IT-IsabellaNeural", firstName: "Benigno", secondName: "Isabella", language: "it-IT", category: .itIT)
+    VoicePair(firstKey: "it-IT-BenignoNeural", secondKey: "it-IT-IsabellaNeural", firstName: "Benigno", secondName: "Isabella", language: "it-IT", category: .itIT),
+    VoicePair(firstKey: "nl-NL-MaartenNeural", secondKey: "nl-NL-FennaNeural", firstName: "Maarten", secondName: "Fenna", language: "nl-NL", category: .nlNL)
   ]
 
   public static let UltraPairs = [

@@ -136,6 +136,8 @@ import Views
         updateFetchController(dataService: dataService, filterState: filterState)
       }
     }
+
+    BadgeCountHandler.updateBadgeCount(dataService: dataService)
   }
 
   func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {

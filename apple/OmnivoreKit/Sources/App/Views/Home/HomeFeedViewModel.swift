@@ -144,7 +144,7 @@ import Views
     filters = newFilters
       .filter { $0.folder == filterState.folder }
       .sorted(by: { $0.position < $1.position })
-      + (folder == "inbox" ? [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter] : [InternalFilter.DownloadedFilter])
+      + (folder == "inbox" ? [InternalFilter.UnreadFilter, InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter] : [InternalFilter.DownloadedFilter])
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter
@@ -186,7 +186,7 @@ import Views
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
     dataService.archiveLink(objectID: objectID, archived: archived)
-    snackbar(archived ? "Link archived" : "Link moved to Inbox")
+    snackbar(archived ? "Link archived" : "Link unarchived")
   }
 
   func removeLibraryItem(dataService: DataService, objectID: NSManagedObjectID) {

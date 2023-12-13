@@ -38,12 +38,14 @@ public final class Authenticator: ObservableObject {
   }
 
   public func logout(dataService: DataService, isAccountDeletion: Bool = false) {
-    dataService.resetLocalStorage()
     clearCreds()
     Authenticator.unregisterIntercomUser?()
     isLoggedIn = false
     showAppleRevokeTokenAlert = isAccountDeletion
     EventTracker.reset()
+    DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
+      dataService.resetLocalStorage()
+    }
   }
 
   public func clearCreds() {

@@ -1,17 +1,36 @@
 import Foundation
+import Models
+import Services
 import SwiftUI
 
-struct SelectBadgeFilterView: View {
+@MainActor
+public struct SelectBadgeFilterView: View {
   @ObservedObject var viewModel: FiltersViewModel
 
-  var body: some View {
+  public var body: some View {
     List {
-      ForEach(viewModel.libraryFilters) { filter in
-        HStack {
-          Text(filter.name)
-          Spacer()
+      Section(header: Text("Filter")) {
+        ForEach(viewModel.libraryFilters) { filter in
+          Button {
+            viewModel.badgeFilter = filter.filter
+          } label: {
+            HStack {
+              Text(filter.name)
+              Spacer()
+              if isSelected(filter) {
+                Image(systemName: "checkmark")
+              }
+            }.onTapGesture {}
+          }.contentShape(Rectangle())
         }
       }
-    }
+      Section {
+        Text("Your selected filter will be used to display a badge value on the application icon.")
+      }
+    }.navigationTitle("Badge Filter")
+  }
+
+  func isSelected(_ filter: InternalFilter) -> Bool {
+    viewModel.badgeFilter == filter.filter
   }
 }
