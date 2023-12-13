@@ -13,4 +13,7 @@ export class EntityLabel {
 
   @Column('uuid')
   highlightId?: string | null
+
+  @Column('text')
+  source!: string
 }
