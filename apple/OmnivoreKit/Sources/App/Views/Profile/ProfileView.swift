@@ -196,7 +196,7 @@ struct ProfileView: View {
               primaryButton: .destructive(Text(LocalText.genericConfirm)) {
                 dismiss()
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                  authenticator.logout(dataService: dataService)
+                  authenticator.beginLogout()
                 }
               },
               secondaryButton: .cancel()
