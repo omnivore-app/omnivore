@@ -1812,6 +1812,51 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[1].node.id).to.eq(items[0].id)
       })
     })
+
+    context('when sort:score is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'sort:score score'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'score',
+              slug: 'test 1',
+              originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'score score',
+              slug: 'test 2',
+              originalUrl: `${url}/test2`,
+            },
+            {
+              user,
+              title: 'score score score',
+              slug: 'test 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items in descending order of score', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eql(3)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {

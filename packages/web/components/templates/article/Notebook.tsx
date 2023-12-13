@@ -122,6 +122,8 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       noteState.current.note = note
       noteState.current.isCreating = false
       setNoteText(note.annotation || '')
+    } else {
+      setNoteText('')
     }
     return result
   }, [articleData])

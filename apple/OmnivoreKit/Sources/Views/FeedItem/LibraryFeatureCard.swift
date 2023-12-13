@@ -66,17 +66,25 @@ public struct LibraryFeatureCard: View {
     .cornerRadius(5)
   }
 
+  var fallbackFont: Font {
+    if let uifont = UIFont(name: "Futura Bold", size: 16) {
+      return Font(uifont)
+    }
+    return Font.system(size: 16)
+  }
+
   var fallbackImage: some View {
     HStack {
-      Text(item.unwrappedTitle.prefix(1))
-        .font(Font.system(size: 128, weight: .bold))
-        .offset(CGSize(width: -48, height: 12))
-        .frame(alignment: .bottomLeading)
-        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+      Text(item.unwrappedTitle)
+        .font(fallbackFont)
+        .frame(alignment: .center)
+        .multilineTextAlignment(.leading)
+        .lineLimit(2)
+        .padding(10)
+        .foregroundColor(Color.themeMiddleGray)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
-    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+    .background(Color.thLightWhiteGrey)
     .frame(width: 146, height: 90)
   }
 

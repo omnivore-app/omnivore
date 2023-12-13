@@ -11,6 +11,7 @@ import Views
   @Published var networkError = false
   @Published var libraryFilters = [InternalFilter]()
 
+  @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
 
   func loadFilters(dataService: DataService) async {
@@ -50,7 +51,8 @@ struct FiltersView: View {
   private var innerBody: some View {
     List {
       Section {
-        Toggle("Hide Feature Section", isOn: $viewModel.hideFeatureSection)
+        Toggle("Hide following tab", isOn: $viewModel.hideFollowingTab)
+        Toggle("Hide feature section", isOn: $viewModel.hideFeatureSection)
       }
 
       Section(header: Text("Saved Searches")) {

@@ -3,9 +3,13 @@ import SwiftUI
 
 struct CustomTabBar: View {
   @Binding var selectedTab: String
+  let hideFollowingTab: Bool
+
   var body: some View {
     HStack(spacing: 0) {
-      TabBarButton(key: "following", image: Image.tabFollowing, selectedTab: $selectedTab)
+      if !hideFollowingTab {
+        TabBarButton(key: "following", image: Image.tabFollowing, selectedTab: $selectedTab)
+      }
       TabBarButton(key: "inbox", image: Image.tabLibrary, selectedTab: $selectedTab)
       TabBarButton(key: "profile", image: Image.tabProfile, selectedTab: $selectedTab)
     }

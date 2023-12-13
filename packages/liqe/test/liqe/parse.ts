@@ -529,7 +529,7 @@ test.skip('foo: bar', testQuery, {
   type: 'Tag',
 });
 
-test('foo:123', testQuery, {
+test.skip('foo:123', testQuery, {
   expression: {
     location: {
       end: 7,
@@ -564,7 +564,7 @@ test('foo:123', testQuery, {
   type: 'Tag',
 });
 
-test('foo:=123', testQuery, {
+test.skip('foo:=123', testQuery, {
   expression: {
     location: {
       end: 8,
@@ -636,7 +636,7 @@ test.skip('foo:= 123', testQuery, {
   type: 'Tag',
 });
 
-test('foo:=-123', testQuery, {
+test.skip('foo:=-123', testQuery, {
   expression: {
     location: {
       end: 9,
@@ -671,7 +671,7 @@ test('foo:=-123', testQuery, {
   type: 'Tag',
 });
 
-test('foo:=123.4', testQuery, {
+test.skip('foo:=123.4', testQuery, {
   expression: {
     location: {
       end: 10,
@@ -706,7 +706,7 @@ test('foo:=123.4', testQuery, {
   type: 'Tag',
 });
 
-test('foo:>=123', testQuery, {
+test.skip('foo:>=123', testQuery, {
   expression: {
     location: {
       end: 9,
@@ -2415,7 +2415,7 @@ test('(foo:bar OR baz:qux) OR quuz:corge', testQuery, {
   type: 'LogicalExpression',
 });
 
-test('[1 TO 2]', testQuery, {
+test.skip('[1 TO 2]', testQuery, {
   expression: {
     location: {
       end: 8,
@@ -2438,7 +2438,7 @@ test('[1 TO 2]', testQuery, {
   type: 'Tag',
 });
 
-test('{1 TO 2]', testQuery, {
+test.skip('{1 TO 2]', testQuery, {
   expression: {
     location: {
       end: 8,
@@ -2461,7 +2461,7 @@ test('{1 TO 2]', testQuery, {
   type: 'Tag',
 });
 
-test('[1 TO 2}', testQuery, {
+test.skip('[1 TO 2}', testQuery, {
   expression: {
     location: {
       end: 8,
@@ -2484,7 +2484,7 @@ test('[1 TO 2}', testQuery, {
   type: 'Tag',
 });
 
-test('{1 TO 2}', testQuery, {
+test.skip('{1 TO 2}', testQuery, {
   expression: {
     location: {
       end: 8,

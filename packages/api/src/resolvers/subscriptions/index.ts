@@ -17,7 +17,6 @@ import {
   ScanFeedsError,
   ScanFeedsErrorCode,
   ScanFeedsSuccess,
-  ScanFeedsType,
   SortBy,
   SortOrder,
   SubscribeError,
@@ -41,8 +40,12 @@ import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import { authorized } from '../../utils/helpers'
-import { parseFeed, parseOpml } from '../../utils/parser'
+import {
+  authorized,
+  getAbsoluteUrl,
+  keysToCamelCase,
+} from '../../utils/helpers'
+import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -223,7 +226,7 @@ export const subscribeResolver = authorized<
     }
 
     // create new rss subscription
-    const MAX_RSS_SUBSCRIPTIONS = 150
+    const MAX_RSS_SUBSCRIPTIONS = env.subscription.feed.max
     // validate rss feed
     const feed = await parseFeed(input.url)
     if (!feed) {
@@ -232,7 +235,7 @@ export const subscribeResolver = authorized<
       }
     }
 
-    // limit number of rss subscriptions to 150
+    // limit number of rss subscriptions to max
     const results = (await getRepository(Subscription).query(
       `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
           select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
@@ -250,7 +253,7 @@ export const subscribeResolver = authorized<
         input.isPrivate ?? null,
         MAX_RSS_SUBSCRIPTIONS,
       ]
-    )) as Subscription[]
+    )) as any[]
 
     if (results.length === 0) {
       return {
@@ -258,12 +261,13 @@ export const subscribeResolver = authorized<
       }
     }
 
-    const newSubscription = results[0]
+    // convert to camel case
+    const newSubscription = keysToCamelCase(results[0]) as Subscription
 
     // create a cloud task to fetch rss feed item for the new subscription
     await enqueueRssFeedFetch({
       userIds: [uid],
-      url: input.url,
+      url: feed.url,
       subscriptionIds: [newSubscription.id],
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
@@ -399,22 +403,17 @@ export const scanFeedsResolver = authorized<
   ScanFeedsSuccess,
   ScanFeedsError,
   QueryScanFeedsArgs
->(async (_, { input: { type, opml, url } }, { log, uid }) => {
+>(async (_, { input: { opml, url } }, { log, uid }) => {
   analytics.track({
     userId: uid,
     event: 'scan_feeds',
     properties: {
-      type,
+      opml,
+      url,
     },
   })
 
-  if (type === ScanFeedsType.Opml) {
-    if (!opml) {
-      return {
-        errorCodes: [ScanFeedsErrorCode.BadRequest],
-      }
-    }
-
+  if (opml) {
     // parse opml
     const feeds = parseOpml(opml)
     if (!feeds) {
@@ -424,7 +423,6 @@ export const scanFeedsResolver = authorized<
     }
 
     return {
-      __typename: 'ScanFeedsSuccess',
       feeds: feeds.map((feed) => ({
         url: feed.url,
         title: feed.title,
@@ -434,37 +432,60 @@ export const scanFeedsResolver = authorized<
   }
 
   if (!url) {
+    log.error('Missing opml and url')
+
     return {
       errorCodes: [ScanFeedsErrorCode.BadRequest],
     }
   }
 
   try {
-    // fetch HTML and parse feeds
-    const response = await axios.get(url, {
-      timeout: 5000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        Accept: 'text/html',
-      },
-    })
-    const html = response.data as string
-    const dom = parseHTML(html).document
-    const links = dom.querySelectorAll('link[type="application/rss+xml"]')
-    const feeds = Array.from(links)
-      .map((link) => ({
-        url: link.getAttribute('href') || '',
-        title: link.getAttribute('title') || '',
-        type: 'rss',
-      }))
-      .filter((feed) => feed.url)
+    // fetch page content and parse feeds
+    const response = await axios.get(url, RSS_PARSER_CONFIG)
+    const content = response.data as string
+    // check if the content is html or xml
+    const contentType = response.headers['Content-Type']
+    const isHtml = contentType?.includes('text/html')
+    if (isHtml) {
+      // this is an html page, parse rss feed links
+      const dom = parseHTML(content).document
+      // type is application/rss+xml or application/atom+xml
+      const links = dom.querySelectorAll(
+        'link[type="application/rss+xml"], link[type="application/atom+xml"]'
+      )
+
+      const feeds = Array.from(links)
+        .map((link) => {
+          const href = link.getAttribute('href') || ''
+          const feedUrl = getAbsoluteUrl(href, url)
+
+          return {
+            url: feedUrl,
+            title: link.getAttribute('title') || '',
+            type: 'rss',
+          }
+        })
+        .filter((feed) => feed.url)
+
+      return {
+        feeds,
+      }
+    }
+
+    // this is the url to an RSS feed
+    const feed = await parseFeed(url, content)
+    if (!feed) {
+      log.error('Failed to parse RSS feed')
+      return {
+        feeds: [],
+      }
+    }
 
     return {
-      __typename: 'ScanFeedsSuccess',
-      feeds,
+      feeds: [feed],
     }
   } catch (error) {
-    log.error('Error scanning HTML', error)
+    log.error('Error scanning URL', error)
 
     return {
       errorCodes: [ScanFeedsErrorCode.BadRequest],

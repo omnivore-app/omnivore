@@ -21,6 +21,10 @@ public extension Image {
   static var readerSettings: Image { Image("reader-settings", bundle: .module) }
   static var utilityMenu: Image { Image("utility-menu", bundle: .module) }
 
+  static var addLink: Image { Image("add-link", bundle: .module) }
+  static var selectMultiple: Image { Image("select-multiple", bundle: .module) }
+  static var magnifyingGlass: Image { Image("magnifying-glass", bundle: .module) }
+
   static var archive: Image { Image("archive", bundle: .module) }
   static var unarchive: Image { Image("unarchive", bundle: .module) }
   static var remove: Image { Image("remove", bundle: .module) }

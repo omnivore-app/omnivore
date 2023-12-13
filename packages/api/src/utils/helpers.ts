@@ -399,3 +399,11 @@ export const deepDelete = <T, K extends keyof T>(obj: T, keys: K[]) => {
 
   return copy as Omit<T, K>
 }
+
+export const isRelativeUrl = (url: string): boolean => {
+  return url.startsWith('/')
+}
+
+export const getAbsoluteUrl = (url: string, baseUrl: string): string => {
+  return new URL(url, baseUrl).href
+}
