@@ -1532,6 +1532,7 @@ const schema = gql`
     pageId: ID!
     labelIds: [ID!]
     labels: [CreateLabelInput!]
+    source: String
   }
 
   union SetLabelsResult = SetLabelsSuccess | SetLabelsError

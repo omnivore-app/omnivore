@@ -2539,6 +2539,7 @@ export type SetLabelsInput = {
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   pageId: Scalars['ID'];
+  source?: InputMaybe<Scalars['String']>;
 };
 
 export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;

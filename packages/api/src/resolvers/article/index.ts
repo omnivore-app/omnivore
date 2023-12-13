@@ -359,8 +359,7 @@ export const createArticleResolver = authorized<
         libraryItemToReturn.id,
         uid,
         inputLabels,
-        rssFeedUrl,
-        pubsub
+        rssFeedUrl
       )
 
       log.info(

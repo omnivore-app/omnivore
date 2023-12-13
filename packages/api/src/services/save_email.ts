@@ -121,9 +121,13 @@ export const saveEmail = async (
   }
 
   // save newsletter label in the item
-  await createAndSaveLabelsInLibraryItem(newLibraryItem.id, input.userId, [
-    { name: 'Newsletter' },
-  ])
+  await createAndSaveLabelsInLibraryItem(
+    newLibraryItem.id,
+    input.userId,
+    [{ name: 'Newsletter' }],
+    undefined,
+    'system'
+  )
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)
 
