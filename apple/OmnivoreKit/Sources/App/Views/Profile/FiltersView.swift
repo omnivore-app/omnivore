@@ -98,6 +98,8 @@ struct FiltersView: View {
           .onChange(of: viewModel.hasBadgePermission) { _ in
             if viewModel.hasBadgePermission {
               viewModel.requestBadgePermission()
+            } else {
+              UIApplication.shared.applicationIconBadgeNumber = 0
             }
           }
 
