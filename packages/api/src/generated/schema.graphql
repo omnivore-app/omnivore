@@ -975,6 +975,7 @@ type Label {
   internal: Boolean
   name: String!
   position: Int
+  source: String
 }
 
 type LabelsError {
@@ -1971,6 +1972,7 @@ input SetLabelsInput {
   labelIds: [ID!]
   labels: [CreateLabelInput!]
   pageId: ID!
+  source: String
 }
 
 union SetLabelsResult = SetLabelsError | SetLabelsSuccess

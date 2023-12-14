@@ -13,6 +13,7 @@ import {
   createLabel,
   deleteLabels,
   findLabelById,
+  findLabelsByLibraryItemId,
   findLabelsByUserId,
   saveLabelsInHighlight,
 } from '../../src/services/labels'
@@ -320,6 +321,7 @@ describe('Labels API', () => {
     let labelIds: string[] = []
     let labels: Label[]
     let item: LibraryItem
+    let source: string
 
     before(async () => {
       //  create testing labels
@@ -327,6 +329,7 @@ describe('Labels API', () => {
       const label2 = await createLabel('label_2', '#eeeeee', user.id)
       labels = [label1, label2]
       item = await createTestLibraryItem(user.id)
+      source = 'user'
     })
 
     after(async () => {
@@ -347,7 +350,8 @@ describe('Labels API', () => {
               labelIds: [
                 "${labelIds[0]}",
                 "${labelIds[1]}"
-              ]
+              ],
+              source: "${source}"
             }
           ) {
             ... on SetLabelsSuccess {
@@ -368,12 +372,14 @@ describe('Labels API', () => {
       before(() => {
         itemId = item.id
         labelIds = [labels[0].id, labels[1].id]
+        source = 'rule:my-rule'
       })
 
-      it('should set labels', async () => {
+      it('sets labels', async () => {
         await graphqlRequest(query, authToken).expect(200)
-        const page = await findLibraryItemById(itemId, user.id)
-        expect(page?.labels?.map((l) => l.id)).to.eql(labelIds)
+        const labels = await findLabelsByLibraryItemId(itemId, user.id)
+        expect(labels.map((l) => l.id)).to.eql(labelIds)
+        expect(labels[0].source).to.eql(source)
       })
     })
 

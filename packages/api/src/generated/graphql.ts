@@ -1091,6 +1091,7 @@ export type Label = {
   internal?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   position?: Maybe<Scalars['Int']>;
+  source?: Maybe<Scalars['String']>;
 };
 
 export type LabelsError = {
@@ -2539,6 +2540,7 @@ export type SetLabelsInput = {
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   pageId: Scalars['ID'];
+  source?: InputMaybe<Scalars['String']>;
 };
 
 export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;
@@ -5180,6 +5182,7 @@ export type LabelResolvers<ContextType = ResolverContext, ParentType extends Res
   internal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  source?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

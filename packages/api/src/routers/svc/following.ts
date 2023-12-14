@@ -71,9 +71,7 @@ export function followingServiceRouter() {
         result.identifiers[0].id,
         userId,
         [{ name: 'RSS' }],
-        undefined,
-        undefined,
-        true
+        req.body.addedToFollowingBy
       )
 
       logger.info('RSS label added to the item')
