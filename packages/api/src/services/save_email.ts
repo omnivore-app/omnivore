@@ -34,6 +34,7 @@ export type SaveEmailInput = {
   unsubHttpUrl?: string
   newsletterEmailId?: string
   receivedEmailId: string
+  folder: string
 }
 
 const isStubUrl = (url: string): boolean => {
@@ -105,6 +106,7 @@ export const saveEmail = async (
       siteName: parseResult.parsedContent?.siteName ?? undefined,
       wordCount: wordsCount(content),
       subscription: input.author,
+      folder: input.folder,
     },
     input.userId
   )

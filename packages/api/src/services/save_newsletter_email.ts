@@ -1,8 +1,10 @@
 import { NewsletterEmail } from '../entity/newsletter_email'
+import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import { analytics } from '../utils/analytics'
 import { logger } from '../utils/logger'
 import { saveEmail, SaveEmailInput } from './save_email'
+import { getSubscriptionByName } from './subscriptions'
 
 export interface NewsletterMessage {
   email: string
@@ -20,7 +22,8 @@ export interface NewsletterMessage {
 // send the push but that is ok and we wont retry in that case.
 export const saveNewsletter = async (
   data: NewsletterMessage,
-  newsletterEmail: NewsletterEmail
+  newsletterEmail: NewsletterEmail,
+  existingSubscription?: Subscription
 ): Promise<boolean> => {
   analytics.track({
     userId: newsletterEmail.user.id,
@@ -38,6 +41,16 @@ export const saveNewsletter = async (
     return false
   }
 
+  // find existing subscription if not provided
+  if (!existingSubscription) {
+    existingSubscription =
+      (await getSubscriptionByName(data.author, newsletterEmail.user.id)) ||
+      undefined
+  }
+
+  // subscription's folder takes precedence over newsletter email's folder
+  const folder = existingSubscription?.folder || newsletterEmail.folder
+
   const input: SaveEmailInput = {
     userId: newsletterEmail.user.id,
     url: data.url,
@@ -48,6 +61,7 @@ export const saveNewsletter = async (
     unsubHttpUrl: data.unsubHttpUrl,
     newsletterEmailId: newsletterEmail.id,
     receivedEmailId: data.receivedEmailId,
+    folder,
   }
   const savedLibraryItem = await saveEmail(input)
   if (!savedLibraryItem) {
