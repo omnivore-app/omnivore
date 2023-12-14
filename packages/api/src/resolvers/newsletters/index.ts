@@ -7,6 +7,7 @@ import {
   DeleteNewsletterEmailError,
   DeleteNewsletterEmailErrorCode,
   DeleteNewsletterEmailSuccess,
+  MutationCreateNewsletterEmailArgs,
   MutationDeleteNewsletterEmailArgs,
   NewsletterEmailsError,
   NewsletterEmailsErrorCode,
@@ -24,8 +25,9 @@ import { authorized } from '../../utils/helpers'
 
 export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailSuccess,
-  CreateNewsletterEmailError
->(async (_parent, _args, { claims, log }) => {
+  CreateNewsletterEmailError,
+  MutationCreateNewsletterEmailArgs
+>(async (_parent, { input }, { claims, log }) => {
   log.info('createNewsletterEmailResolver')
   analytics.track({
     userId: claims.uid,
@@ -36,7 +38,13 @@ export const createNewsletterEmailResolver = authorized<
   })
 
   try {
-    const newsletterEmail = await createNewsletterEmail(claims.uid)
+    const newsletterEmail = await createNewsletterEmail(
+      claims.uid,
+      undefined,
+      input?.folder || undefined,
+      input?.name || undefined,
+      input?.description || undefined
+    )
 
     return {
       newsletterEmail: {
@@ -45,7 +53,7 @@ export const createNewsletterEmailResolver = authorized<
       },
     }
   } catch (e) {
-    log.info(e)
+    log.error('createNewsletterEmailResolver', e)
 
     return {
       errorCodes: [CreateNewsletterEmailErrorCode.BadRequest],
@@ -67,7 +75,7 @@ export const newsletterEmailsResolver = authorized<
       })),
     }
   } catch (e) {
-    log.info(e)
+    log.error('newsletterEmailsResolver', e)
 
     return {
       errorCodes: [NewsletterEmailsErrorCode.BadRequest],
