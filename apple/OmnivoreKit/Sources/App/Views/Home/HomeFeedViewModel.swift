@@ -19,7 +19,7 @@ import Views
   @Published var itemForHighlightsView: Models.LibraryItem?
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
-  @Published var showLoadingBar = false
+  @Published var showLoadingBar = true
 
   @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
   @Published var selectedItem: Models.LibraryItem?
