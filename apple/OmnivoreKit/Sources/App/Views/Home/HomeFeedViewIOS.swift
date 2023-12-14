@@ -245,7 +245,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     var toolbarItems: some ToolbarContent {
       Group {
         ToolbarItem(placement: .barLeading) {
-          if horizontalSizeClass != .compact {
+          if UIDevice.isIPhone || horizontalSizeClass != .compact {
             VStack(alignment: .leading) {
               let showDate = isListScrolled && !listTitle.isEmpty
               if let title = viewModel.appliedFilter?.name {
