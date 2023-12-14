@@ -81,10 +81,10 @@ public struct LibraryFeatureCard: View {
         .multilineTextAlignment(.leading)
         .lineLimit(2)
         .padding(10)
-        .foregroundColor(Color.themeMiddleGray)
+        .foregroundColor(Color.thFallbackImageForeground)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.thLightWhiteGrey)
+    .background(Color.thFallbackImageBackground)
     .frame(width: 146, height: 90)
   }
 
