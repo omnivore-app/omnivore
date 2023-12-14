@@ -438,6 +438,12 @@ export enum CreateNewsletterEmailErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
+export type CreateNewsletterEmailInput = {
+  description?: InputMaybe<Scalars['String']>;
+  folder?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+};
+
 export type CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess;
 
 export type CreateNewsletterEmailSuccess = {
@@ -1415,6 +1421,11 @@ export type MutationCreateLabelArgs = {
 };
 
 
+export type MutationCreateNewsletterEmailArgs = {
+  input?: InputMaybe<CreateNewsletterEmailInput>;
+};
+
+
 export type MutationDeleteAccountArgs = {
   userID: Scalars['ID'];
 };
@@ -1677,7 +1688,10 @@ export type NewsletterEmail = {
   address: Scalars['String'];
   confirmationCode?: Maybe<Scalars['String']>;
   createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  folder: Scalars['String'];
   id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
   subscriptionCount: Scalars['Int'];
 };
 
@@ -2752,6 +2766,8 @@ export enum SubscribeErrorCode {
 
 export type SubscribeInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
+  fetchContent?: InputMaybe<Scalars['Boolean']>;
+  folder?: InputMaybe<Scalars['String']>;
   isPrivate?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
   url: Scalars['String'];
@@ -2770,6 +2786,8 @@ export type Subscription = {
   count: Scalars['Int'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  fetchContent: Scalars['Boolean'];
+  folder: Scalars['String'];
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: Maybe<Scalars['Boolean']>;
@@ -3116,6 +3134,8 @@ export enum UpdateSubscriptionErrorCode {
 export type UpdateSubscriptionInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   description?: InputMaybe<Scalars['String']>;
+  fetchContent?: InputMaybe<Scalars['Boolean']>;
+  folder?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: InputMaybe<Scalars['Boolean']>;
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
@@ -3526,6 +3546,7 @@ export type ResolversTypes = {
   CreateLabelSuccess: ResolverTypeWrapper<CreateLabelSuccess>;
   CreateNewsletterEmailError: ResolverTypeWrapper<CreateNewsletterEmailError>;
   CreateNewsletterEmailErrorCode: CreateNewsletterEmailErrorCode;
+  CreateNewsletterEmailInput: CreateNewsletterEmailInput;
   CreateNewsletterEmailResult: ResolversTypes['CreateNewsletterEmailError'] | ResolversTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: ResolverTypeWrapper<CreateNewsletterEmailSuccess>;
   CreateReactionError: ResolverTypeWrapper<CreateReactionError>;
@@ -4036,6 +4057,7 @@ export type ResolversParentTypes = {
   CreateLabelResult: ResolversParentTypes['CreateLabelError'] | ResolversParentTypes['CreateLabelSuccess'];
   CreateLabelSuccess: CreateLabelSuccess;
   CreateNewsletterEmailError: CreateNewsletterEmailError;
+  CreateNewsletterEmailInput: CreateNewsletterEmailInput;
   CreateNewsletterEmailResult: ResolversParentTypes['CreateNewsletterEmailError'] | ResolversParentTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: CreateNewsletterEmailSuccess;
   CreateReactionError: CreateReactionError;
@@ -5345,7 +5367,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
-  createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
+  createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType, Partial<MutationCreateNewsletterEmailArgs>>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
@@ -5404,7 +5426,10 @@ export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType e
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   confirmationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   subscriptionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -6036,6 +6061,8 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   count?: SubscriptionResolver<ResolversTypes['Int'], "count", ParentType, ContextType>;
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
+  fetchContent?: SubscriptionResolver<ResolversTypes['Boolean'], "fetchContent", ParentType, ContextType>;
+  folder?: SubscriptionResolver<ResolversTypes['String'], "folder", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   isPrivate?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "isPrivate", ParentType, ContextType>;

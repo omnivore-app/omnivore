@@ -206,6 +206,9 @@ export const subscribeResolver = authorized<
       // re-subscribe
       const updatedSubscription = await getRepository(Subscription).save({
         ...existingSubscription,
+        fetchContent: input.fetchContent ?? undefined,
+        folder: input.folder ?? undefined,
+        isPrivate: input.isPrivate,
         status: SubscriptionStatus.Active,
       })
 
@@ -217,7 +220,8 @@ export const subscribeResolver = authorized<
         scheduledDates: [new Date()], // fetch immediately
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
-        addToLibraryFlags: [!!updatedSubscription.autoAddToLibrary],
+        fetchContents: [updatedSubscription.fetchContent],
+        folders: [updatedSubscription.folder],
       })
 
       return {
@@ -238,19 +242,20 @@ export const subscribeResolver = authorized<
     // limit number of rss subscriptions to max
     const results = (await getRepository(Subscription).query(
       `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
-          select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
+          select $1, $2, $3, $4, $5, $6, $7, $8, $9 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-          having count(*) < $9
+          having count(*) < $10
           returning *;`,
       [
         feed.title,
         feed.url,
-        feed.description || null,
+        feed.description,
         SubscriptionType.Rss,
         uid,
-        feed.thumbnail || null,
-        input.autoAddToLibrary ?? null,
-        input.isPrivate ?? null,
+        feed.thumbnail,
+        input.isPrivate,
+        input.fetchContent,
+        input.folder,
         MAX_RSS_SUBSCRIPTIONS,
       ]
     )) as any[]
@@ -272,7 +277,8 @@ export const subscribeResolver = authorized<
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
       checksums: [null],
-      addToLibraryFlags: [!!newSubscription.autoAddToLibrary],
+      fetchContents: [newSubscription.fetchContent],
+      folders: [newSubscription.folder],
     })
 
     return {

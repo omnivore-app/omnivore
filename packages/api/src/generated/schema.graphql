@@ -383,6 +383,12 @@ enum CreateNewsletterEmailErrorCode {
   UNAUTHORIZED
 }
 
+input CreateNewsletterEmailInput {
+  description: String
+  folder: String
+  name: String
+}
+
 union CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess
 
 type CreateNewsletterEmailSuccess {
@@ -1182,7 +1188,7 @@ type Mutation {
   createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
-  createNewsletterEmail: CreateNewsletterEmailResult!
+  createNewsletterEmail(input: CreateNewsletterEmailInput): CreateNewsletterEmailResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
   deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
@@ -1241,7 +1247,10 @@ type NewsletterEmail {
   address: String!
   confirmationCode: String
   createdAt: Date!
+  description: String
+  folder: String!
   id: ID!
+  name: String
   subscriptionCount: Int!
 }
 
@@ -2169,6 +2178,8 @@ enum SubscribeErrorCode {
 
 input SubscribeInput {
   autoAddToLibrary: Boolean
+  fetchContent: Boolean
+  folder: String
   isPrivate: Boolean
   subscriptionType: SubscriptionType
   url: String!
@@ -2185,6 +2196,8 @@ type Subscription {
   count: Int!
   createdAt: Date!
   description: String
+  fetchContent: Boolean!
+  folder: String!
   icon: String
   id: ID!
   isPrivate: Boolean
@@ -2504,6 +2517,8 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
+  fetchContent: Boolean
+  folder: String
   id: ID!
   isPrivate: Boolean
   lastFetchedAt: Date
