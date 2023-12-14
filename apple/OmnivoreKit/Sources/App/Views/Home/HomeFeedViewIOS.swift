@@ -188,6 +188,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         await viewModel.loadFilters(dataService: dataService)
       }
       .environment(\.editMode, self.$isEditMode)
+      .navigationBarTitleDisplayMode(.inline)
     }
 
     var trailingItems: some ToolbarContent {
