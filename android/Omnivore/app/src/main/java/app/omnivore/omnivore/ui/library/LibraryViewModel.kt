@@ -62,8 +62,9 @@ class LibraryViewModel @Inject constructor(
   val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
   val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
   val showLabelsSelectionSheetLiveData = MutableLiveData(false)
+  val showEditInfoSheetLiveData = MutableLiveData(false)
   val showAddLinkSheetLiveData = MutableLiveData(false)
-  val labelsSelectionCurrentItemLiveData = MutableLiveData<String?>(null)
+  val currentItemLiveData = MutableLiveData<String?>(null)
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
   val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
@@ -296,8 +297,12 @@ class LibraryViewModel @Inject constructor(
         }
       }
       SavedItemAction.EditLabels -> {
-        labelsSelectionCurrentItemLiveData.value = itemID
+        currentItemLiveData.value = itemID
         showLabelsSelectionSheetLiveData.value = true
+      }
+      SavedItemAction.EditInfo -> {
+        currentItemLiveData.value = itemID
+        showEditInfoSheetLiveData.value = true
       }
       else -> {
 
@@ -350,7 +355,7 @@ class LibraryViewModel @Inject constructor(
   }
 
   fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
-    labelsSelectionCurrentItemLiveData.value?.let { itemID ->
+    currentItemLiveData.value?.let { itemID ->
       return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
     }
 
@@ -376,4 +381,5 @@ enum class SavedItemAction {
   Archive,
   Unarchive,
   EditLabels,
+  EditInfo,
 }

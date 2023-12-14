@@ -296,6 +296,9 @@ class WebReaderViewModel @Inject constructor(
       SavedItemAction.EditLabels -> {
         bottomSheetStateLiveData.postValue(BottomSheetState.LABELS)
       }
+      SavedItemAction.EditInfo -> {
+        bottomSheetStateLiveData.postValue(BottomSheetState.EDIT_INFO)
+      }
     }
   }
 
@@ -522,6 +525,25 @@ class WebReaderViewModel @Inject constructor(
           enqueueScript(script)
         }
       }
+    }
+  }
+
+  fun updateItemTitle() {
+    viewModelScope.launch {
+      slug?.let {
+        loadItemFromDB(it)
+      }
+
+      webReaderParamsLiveData.value?.item?.title?.let {
+        updateItemTitleInWebView(it)
+      }
+    }
+  }
+
+  private fun updateItemTitleInWebView(title: String) {
+    val script = "var event = new Event('updateTitle');event.title = '${title}';document.dispatchEvent(event);"
+    CoroutineScope(Dispatchers.Main).launch {
+      enqueueScript(script)
     }
   }
 

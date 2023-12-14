@@ -44,7 +44,9 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import app.omnivore.omnivore.ui.editinfo.EditInfoSheetContent
 import app.omnivore.omnivore.ui.components.LabelsViewModel
+import app.omnivore.omnivore.ui.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.ui.notebook.EditNoteModal
 
 @AndroidEntryPoint
@@ -52,6 +54,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
   val viewModel: WebReaderViewModel by viewModels()
   private val notebookViewModel: NotebookViewModel by viewModels()
   private val labelsViewModel: LabelsViewModel by viewModels()
+  private val editInfoViewModel: EditInfoViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -89,6 +92,7 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
               webReaderViewModel = viewModel,
               notebookViewModel = notebookViewModel,
               labelsViewModel = labelsViewModel,
+              editInfoViewModel = editInfoViewModel,
             )
           }
         }
@@ -119,7 +123,8 @@ enum class BottomSheetState(
   EDITNOTE(),
   HIGHLIGHTNOTE(),
   LABELS(),
-  LINK()
+  LINK(),
+  EDIT_INFO(),
 }
 
 
@@ -129,7 +134,8 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
                               onLibraryIconTap: (() -> Unit)? = null,
                               webReaderViewModel: WebReaderViewModel,
                               notebookViewModel: NotebookViewModel,
-                              labelsViewModel: LabelsViewModel) {
+                              labelsViewModel: LabelsViewModel,
+                              editInfoViewModel: EditInfoViewModel) {
   val currentThemeKey = webReaderViewModel.currentThemeKey.observeAsState()
   val currentTheme = Themes.values().find { it.themeKey == currentThemeKey.value }
   val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -181,7 +187,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
         }
       }
       BottomSheetState.NOTEBOOK, BottomSheetState.EDITNOTE,
-      BottomSheetState.HIGHLIGHTNOTE, BottomSheetState.LABELS,
+      BottomSheetState.HIGHLIGHTNOTE, BottomSheetState.LABELS, BottomSheetState.EDIT_INFO,
       BottomSheetState.LINK,  -> {
         showMenu()
       }
@@ -278,6 +284,28 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
               },
               onCreateLabel = { newLabelName, labelHexValue ->
                 webReaderViewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+              }
+            )
+          }
+        }
+        BottomSheetState.EDIT_INFO -> {
+          BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_edit_info)) {
+            EditInfoSheetContent(
+              savedItemId = webReaderParams?.item?.savedItemId,
+              title = webReaderParams?.item?.title,
+              author = webReaderParams?.item?.author,
+              description = webReaderParams?.item?.descriptionText,
+              viewModel = editInfoViewModel,
+              onCancel = {
+                coroutineScope.launch {
+                  webReaderViewModel.resetBottomSheet()
+                }
+              },
+              onUpdated = {
+                coroutineScope.launch {
+                  webReaderViewModel.updateItemTitle()
+                  webReaderViewModel.resetBottomSheet()
+                }
               }
             )
           }
