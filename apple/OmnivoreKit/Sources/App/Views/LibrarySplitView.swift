@@ -35,12 +35,11 @@ public struct LibrarySplitView: View {
       NavigationView {
         LibrarySidebar(inboxViewModel: inboxViewModel, followingViewModel: followingViewModel)
           .navigationBarTitleDisplayMode(.inline)
-          .tag("inbox")
+          .navigationTitle("")
 
         HomeFeedContainerView(viewModel: inboxViewModel)
           .navigationViewStyle(.stack)
           .navigationBarTitleDisplayMode(.inline)
-          .tag("following")
       }
       .navigationBarTitleDisplayMode(.inline)
       .accentColor(.appGrayTextContrast)

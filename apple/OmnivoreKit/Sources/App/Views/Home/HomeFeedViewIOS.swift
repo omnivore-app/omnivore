@@ -38,6 +38,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = true
     @AppStorage(UserDefaultKey.openAIPrimerDisplayed.rawValue) var openAIPrimerDisplayed = false
@@ -193,6 +194,17 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var trailingItems: some ToolbarContent {
       Group {
+        ToolbarItem(placement: .barTrailing) {
+          if prefersListLayout {
+            Button(
+              action: { isEditMode = isEditMode == .active ? .inactive : .active },
+              label: {
+                Image.selectMultiple
+                  .foregroundColor(Color.appGrayTextContrast)
+              }
+            )
+          }
+        }
         ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
           if enableGrid {
             Button(
@@ -220,15 +232,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         ToolbarItem(placement: .barTrailing) {
           Button(
-            action: { isEditMode = isEditMode == .active ? .inactive : .active },
-            label: {
-              Image.selectMultiple
-                .foregroundColor(Color.appGrayTextContrast)
-            }
-          )
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button(
             action: { searchPresented = true },
             label: {
               Image.magnifyingGlass
@@ -242,19 +245,21 @@ struct AnimatingCellHeight: AnimatableModifier {
     var toolbarItems: some ToolbarContent {
       Group {
         ToolbarItem(placement: .barLeading) {
-          VStack(alignment: .leading) {
-            let showDate = isListScrolled && !listTitle.isEmpty
-            if let title = viewModel.appliedFilter?.name {
-              Text(title)
-                .font(Font.system(size: showDate ? 10 : 24, weight: .semibold))
-              if showDate, prefersListLayout, isListScrolled || !showFeatureCards {
-                Text(listTitle)
-                  .font(Font.system(size: 15, weight: .regular))
-                  .foregroundColor(Color.appGrayText)
+          if horizontalSizeClass != .compact {
+            VStack(alignment: .leading) {
+              let showDate = isListScrolled && !listTitle.isEmpty
+              if let title = viewModel.appliedFilter?.name {
+                Text(title)
+                  .font(Font.system(size: showDate ? 10 : 24, weight: .semibold))
+                if showDate, prefersListLayout, isListScrolled || !showFeatureCards {
+                  Text(listTitle)
+                    .font(Font.system(size: 15, weight: .regular))
+                    .foregroundColor(Color.appGrayText)
+                }
               }
             }
+            .frame(maxWidth: .infinity, alignment: .bottomLeading)
           }
-          .frame(maxWidth: .infinity, alignment: .bottomLeading)
         }
 
         trailingItems
