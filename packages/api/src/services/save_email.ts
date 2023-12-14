@@ -34,7 +34,7 @@ export type SaveEmailInput = {
   unsubHttpUrl?: string
   newsletterEmailId?: string
   receivedEmailId: string
-  folder: string
+  folder?: string
 }
 
 const isStubUrl = (url: string): boolean => {

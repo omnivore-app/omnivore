@@ -415,7 +415,6 @@ export const getArticleResolver = authorized<
           deletedAt: IsNull(),
         },
         relations: {
-          labels: true,
           highlights: {
             user: true,
             labels: true,
@@ -912,7 +911,7 @@ export const moveToFolderResolver = authorized<
   MoveToFolderSuccess,
   MoveToFolderError,
   MutationMoveToFolderArgs
->(async (_, { id, folder }, { authTrx, pubsub, uid }) => {
+>(async (_, { id, folder }, { authTrx, log, pubsub, uid }) => {
   analytics.track({
     userId: uid,
     event: 'move_to_folder',
@@ -945,24 +944,6 @@ export const moveToFolderResolver = authorized<
 
   const savedAt = new Date()
 
-  // // if the content is not fetched yet, create a page save request
-  // if (!item.readableContent) {
-  //   const articleSavingRequest = await createPageSaveRequest({
-  //     userId: uid,
-  //     url: item.originalUrl,
-  //     articleSavingRequestId: id,
-  //     priority: 'high',
-  //     publishedAt: item.publishedAt || undefined,
-  //     savedAt,
-  //     pubsub,
-  //   })
-
-  //   return {
-  //     __typename: 'MoveToFolderSuccess',
-  //     articleSavingRequest,
-  //   }
-  // }
-
   await updateLibraryItem(
     item.id,
     {
@@ -973,8 +954,29 @@ export const moveToFolderResolver = authorized<
     pubsub
   )
 
+  // if the content is not fetched yet, create a page save request
+  if (!item.readableContent) {
+    try {
+      await createPageSaveRequest({
+        userId: uid,
+        url: item.originalUrl,
+        articleSavingRequestId: id,
+        priority: 'high',
+        publishedAt: item.publishedAt || undefined,
+        savedAt,
+        folder,
+        pubsub,
+      })
+    } catch (error) {
+      log.error('moveToFolderResolver error', error)
+
+      return {
+        errorCodes: [MoveToFolderErrorCode.BadRequest],
+      }
+    }
+  }
+
   return {
-    __typename: 'MoveToFolderSuccess',
     success: true,
   }
 })

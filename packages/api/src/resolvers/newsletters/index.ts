@@ -41,7 +41,7 @@ export const createNewsletterEmailResolver = authorized<
     const newsletterEmail = await createNewsletterEmail(
       claims.uid,
       undefined,
-      input?.folder || undefined,
+      input?.folder || 'following',
       input?.name || undefined,
       input?.description || undefined
     )
