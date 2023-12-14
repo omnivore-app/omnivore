@@ -76,4 +76,10 @@ export class Subscription {
 
   @Column('boolean')
   autoAddToLibrary?: boolean | null
+
+  @Column('boolean')
+  fetchContent!: boolean
+
+  @Column('text')
+  folder!: string
 }
