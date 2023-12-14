@@ -35,7 +35,8 @@ export function rssFeedRouter() {
           ARRAY_AGG(last_fetched_at) AS "fetchedDates",
           ARRAY_AGG(coalesce(scheduled_at, NOW())) AS "scheduledDates",
           ARRAY_AGG(last_fetched_checksum) AS checksums,
-          ARRAY_AGG(coalesce(auto_add_to_library, false)) AS "addToLibraryFlags"
+          ARRAY_AGG(fetch_content) AS "fetchContents",
+          ARRAY_AGG(folder) AS folders
         FROM
           omnivore.subscriptions
         WHERE

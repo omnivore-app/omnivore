@@ -8,6 +8,8 @@ import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
+type FolderType = 'following' | 'inbox'
+
 interface RssFeedRequest {
   subscriptionIds: string[]
   feedUrl: string
@@ -15,7 +17,8 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
-  addToLibraryFlags: boolean[]
+  fetchContents: boolean[]
+  folders: FolderType[]
 }
 
 // link can be a string or an object
@@ -58,7 +61,8 @@ function isRssFeedRequest(body: any): body is RssFeedRequest {
     'scheduledTimestamps' in body &&
     'userIds' in body &&
     'lastFetchedChecksums' in body &&
-    'addToLibraryFlags' in body
+    'fetchContents' in body &&
+    'folders' in body
   )
 }
 
@@ -198,13 +202,17 @@ const createTask = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
-  autoAddToLibrary: boolean
+  fetchContent: boolean,
+  folder: FolderType
 ) => {
-  const folder = autoAddToLibrary ? 'inbox' : 'following'
-  return createSavingItemTask(userId, feedUrl, item, folder)
+  if (folder === 'following' && !fetchContent) {
+    return createItemWithPreviewContent(userId, feedUrl, item)
+  }
+
+  return fetchContentAndCreateItem(userId, feedUrl, item, folder)
 }
 
-const createSavingItemTask = async (
+const fetchContentAndCreateItem = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
@@ -235,7 +243,7 @@ const createSavingItemTask = async (
   }
 }
 
-const createFollowingTask = async (
+const createItemWithPreviewContent = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem
@@ -247,7 +255,7 @@ const createFollowingTask = async (
     author: item.creator,
     description: item.summary,
     addedToFollowingFrom: 'feed',
-    previewContent: item.content || item.contentSnippet,
+    previewContent: item.content || item.contentSnippet || item.summary,
     addedToFollowingBy: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
@@ -372,7 +380,8 @@ const processSubscription = async (
   lastFetchedAt: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
-  autoAddToLibrary: boolean,
+  fetchContent: boolean,
+  folder: FolderType,
   feed: RssFeed
 ) => {
   let lastItemFetchedAt: Date | null = null
@@ -440,7 +449,13 @@ const processSubscription = async (
       continue
     }
 
-    const created = await createTask(userId, feedUrl, item, autoAddToLibrary)
+    const created = await createTask(
+      userId,
+      feedUrl,
+      item,
+      fetchContent,
+      folder
+    )
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -467,7 +482,8 @@ const processSubscription = async (
       userId,
       feedUrl,
       lastValidItem,
-      autoAddToLibrary
+      fetchContent,
+      folder
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
@@ -514,7 +530,8 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
-        addToLibraryFlags,
+        fetchContents,
+        folders,
       } = req.body
       console.log('Processing feed', feedUrl)
 
@@ -537,7 +554,8 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
             lastFetchedTimestamps[i],
             scheduledTimestamps[i],
             lastFetchedChecksums[i],
-            addToLibraryFlags[i],
+            fetchContents[i],
+            folders[i],
             feed
           )
         )
