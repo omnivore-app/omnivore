@@ -334,6 +334,8 @@ export const updateSubscriptionResolver = authorized<
           : undefined,
         autoAddToLibrary: input.autoAddToLibrary ?? undefined,
         isPrivate: input.isPrivate ?? undefined,
+        fetchContent: input.fetchContent ?? undefined,
+        folder: input.folder ?? undefined,
       })
 
       return repo.findOneByOrFail({
