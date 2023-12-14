@@ -975,6 +975,7 @@ type Label {
   internal: Boolean
   name: String!
   position: Int
+  source: String
 }
 
 type LabelsError {

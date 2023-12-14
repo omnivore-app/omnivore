@@ -1446,6 +1446,7 @@ const schema = gql`
     createdAt: Date
     position: Int
     internal: Boolean
+    source: String
   }
 
   type LabelsSuccess {

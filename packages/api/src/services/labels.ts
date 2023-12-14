@@ -287,23 +287,19 @@ export const findLabelById = async (id: string, userId: string) => {
 export const findLabelsByLibraryItemId = async (
   libraryItemId: string,
   userId: string
-) => {
+): Promise<(Label & { source: string })[]> => {
   return authTrx(
-    async (tx) =>
-      tx
-        .createQueryBuilder(Label, 'label')
-        .innerJoin(
-          EntityLabel,
-          'entityLabel',
-          'entityLabel.label_id = label.id'
-        )
-        .innerJoin(
-          LibraryItem,
-          'LibraryItem',
-          'LibraryItem.id = entityLabel.library_item_id'
-        )
-        .where('LibraryItem.id = :libraryItemId', { libraryItemId })
-        .getMany(),
+    async (tx) => {
+      const entityLabels = await tx.getRepository(EntityLabel).find({
+        where: { libraryItemId },
+        relations: ['label'],
+      })
+
+      return entityLabels.map((el) => ({
+        ...el.label,
+        source: el.source,
+      }))
+    },
     undefined,
     userId
   )

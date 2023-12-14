@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm'
+import { Label } from './label'
 
 // for labels created by rules, we use the rule name as the source, for example: 'rule:my-rule'
 // for labels created by users, we use 'user'
@@ -17,6 +24,10 @@ export class EntityLabel {
 
   @Column('uuid')
   labelId!: string
+
+  @ManyToOne(() => Label)
+  @JoinColumn({ name: 'label_id' })
+  label!: Label
 
   @Column('uuid')
   libraryItemId?: string | null
