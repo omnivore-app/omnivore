@@ -183,9 +183,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
       }
       .task {
-        if viewModel.fetcher.items.isEmpty {
-          loadItems(isRefresh: false)
-        }
         await viewModel.loadFilters(dataService: dataService)
       }
       .environment(\.editMode, self.$isEditMode)
