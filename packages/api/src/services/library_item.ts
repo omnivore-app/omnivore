@@ -317,18 +317,18 @@ export const buildQuery = (
           )
         }
         case 'sort': {
-          const [sort, sortOrder] = value.split('-')
-          if (sort.toLowerCase() === 'score') {
-            // score is not a column and is handled separately
+          const [sort, sortOrder] = value.toLowerCase().split('-')
+          const matchingSortBy = Object.values(SortBy).find(
+            (sortBy) => sortBy === sort
+          )
+          if (!matchingSortBy) {
             return null
           }
+          const column = getColumnName(matchingSortBy)
 
           const order =
-            sortOrder?.toLowerCase() === 'asc'
-              ? SortOrder.ASCENDING
-              : SortOrder.DESCENDING
+            sortOrder === 'asc' ? SortOrder.ASCENDING : SortOrder.DESCENDING
 
-          const column = getColumnName(sort)
           orders.push({ by: `library_item.${column}`, order })
           return null
         }
