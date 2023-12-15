@@ -933,6 +933,16 @@ struct AnimatingCellHeight: AnimatableModifier {
                 GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: { _ in
 
                 })
+                  .aspectRatio(1.0, contentMode: .fill)
+                  .background(
+                    Color.secondarySystemGroupedBackground
+                      .onTapGesture {
+                        if isContextMenuOpen {
+                          isContextMenuOpen = false
+                        }
+                      }
+                  )
+                  .cornerRadius(6)
               }.redacted(reason: .placeholder)
             } else {
               ForEach(viewModel.fetcher.items) { item in
