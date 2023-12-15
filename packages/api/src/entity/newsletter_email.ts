@@ -34,4 +34,13 @@ export class NewsletterEmail {
 
   @OneToMany(() => Subscription, (subscription) => subscription.newsletterEmail)
   subscriptions!: Subscription[]
+
+  @Column('text')
+  folder!: string
+
+  @Column('text')
+  name?: string | null
+
+  @Column('text')
+  description?: string | null
 }

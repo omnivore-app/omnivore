@@ -19,7 +19,10 @@ const parsedAddress = (emailAddress: string) => {
 
 export const createNewsletterEmail = async (
   userId: string,
-  confirmationCode?: string
+  confirmationCode?: string,
+  folder?: string,
+  name?: string,
+  description?: string
 ): Promise<NewsletterEmail> => {
   const user = await userRepository.findById(userId)
   if (!user) {
@@ -34,6 +37,9 @@ export const createNewsletterEmail = async (
     address: emailAddress,
     user,
     confirmationCode,
+    name,
+    description,
+    folder,
   })
 }
 

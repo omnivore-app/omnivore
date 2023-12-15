@@ -319,6 +319,19 @@ export const functionResolvers = {
       if (article.wordCount) return article.wordCount
       return article.content ? wordsCount(article.content) : undefined
     },
+    async labels(
+      article: { id: string; labels?: Label[]; labelNames?: string[] | null },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (article.labels) return article.labels
+
+      if (article.labelNames && article.labelNames.length > 0) {
+        return findLabelsByLibraryItemId(article.id, ctx.uid)
+      }
+
+      return []
+    },
   },
   Highlight: {
     // async reactions(
@@ -518,4 +531,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateSubscription'),
   ...resultResolveTypeResolver('UpdateEmail'),
   ...resultResolveTypeResolver('ScanFeeds'),
+  ...resultResolveTypeResolver('MoveToFolder'),
 }

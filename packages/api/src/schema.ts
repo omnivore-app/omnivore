@@ -1254,6 +1254,9 @@ const schema = gql`
     confirmationCode: String
     createdAt: Date!
     subscriptionCount: Int!
+    folder: String!
+    name: String
+    description: String
   }
 
   type NewsletterEmailsSuccess {
@@ -1265,6 +1268,12 @@ const schema = gql`
   }
 
   union NewsletterEmailsResult = NewsletterEmailsSuccess | NewsletterEmailsError
+
+  input CreateNewsletterEmailInput {
+    name: String
+    description: String
+    folder: String
+  }
 
   # Mutation: CreateNewsletterEmail
   enum CreateNewsletterEmailErrorCode {
@@ -1674,6 +1683,8 @@ const schema = gql`
     updatedAt: Date
     isPrivate: Boolean
     autoAddToLibrary: Boolean
+    fetchContent: Boolean!
+    folder: String!
   }
 
   enum SubscriptionStatus {
@@ -2577,6 +2588,8 @@ const schema = gql`
     subscriptionType: SubscriptionType
     isPrivate: Boolean
     autoAddToLibrary: Boolean
+    fetchContent: Boolean
+    folder: String
   }
 
   input UpdateSubscriptionInput {
@@ -2589,6 +2602,8 @@ const schema = gql`
     scheduledAt: Date
     isPrivate: Boolean
     autoAddToLibrary: Boolean
+    fetchContent: Boolean
+    folder: String
   }
 
   union UpdateSubscriptionResult =
@@ -2753,7 +2768,9 @@ const schema = gql`
     #   input: UpdateLinkShareInfoInput!
     # ): UpdateLinkShareInfoResult!
     setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
-    createNewsletterEmail: CreateNewsletterEmailResult!
+    createNewsletterEmail(
+      input: CreateNewsletterEmailInput
+    ): CreateNewsletterEmailResult!
     deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
     saveUrl(input: SaveUrlInput!): SaveResult!
     savePage(input: SavePageInput!): SaveResult!
