@@ -156,14 +156,14 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
   } else if (showAddLinkSheet) {
     BottomSheetUI {
       AddLinkSheetContent(
-        saveViewModel = saveViewModel,
+        viewModel = saveViewModel,
         onCancel = {
           libraryViewModel.showAddLinkSheetLiveData.value = false
-          saveViewModel.saveState.value = SaveState.NONE
+          saveViewModel.state.value = SaveState.DEFAULT
         },
         onLinkAdded = {
           libraryViewModel.showAddLinkSheetLiveData.value = false
-          saveViewModel.saveState.value = SaveState.NONE
+          saveViewModel.state.value = SaveState.DEFAULT
         }
       )
     }

@@ -81,12 +81,12 @@ abstract class SaveSheetActivityBase : AppCompatActivity() {
     }
 
     setContent {
-      val saveState: SaveState by viewModel.saveState.observeAsState(SaveState.NONE)
+      val saveState: SaveState by viewModel.state.observeAsState(SaveState.DEFAULT)
       val scaffoldState: ScaffoldState = rememberScaffoldState()
 
 
       val message = when (saveState) {
-        SaveState.NONE -> ""
+        SaveState.DEFAULT -> ""
         SaveState.SAVING -> "Saved to Omnivore"
         SaveState.ERROR -> "Error Saving Article"
         SaveState.SAVED -> "Saved to Omnivore"
