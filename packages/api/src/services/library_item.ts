@@ -148,8 +148,13 @@ const getColumnName = (field: string) => {
     case 'updated':
     case 'published':
       return `${lowerCaseField}_at`
-    default:
+    case 'author':
+    case 'title':
+    case 'description':
+    case 'note':
       return lowerCaseField
+    default:
+      throw new Error(`Unexpected field: ${field}`)
   }
 }
 
