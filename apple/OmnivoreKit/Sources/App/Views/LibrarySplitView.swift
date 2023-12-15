@@ -4,7 +4,7 @@ import SwiftUI
 
 @MainActor
 public struct LibrarySplitView: View {
-  @EnvironmentObject var audioController: AudioController
+  @EnvironmentObject var dataService: DataService
 
   @StateObject private var inboxViewModel = HomeFeedViewModel(
     folder: "inbox",
@@ -28,7 +28,7 @@ public struct LibrarySplitView: View {
     )
   )
 
-  @State var selected = "home"
+  private let syncManager = LibrarySyncManager()
 
   #if os(iOS)
     public var body: some View {
@@ -46,6 +46,11 @@ public struct LibrarySplitView: View {
       .introspectSplitViewController {
         $0.preferredPrimaryColumnWidth = 230
         $0.displayModeButtonVisibility = .always
+      }
+      .onReceive(NSNotification.performSyncPublisher) { _ in
+        Task {
+          await syncManager.syncItems(dataService: dataService)
+        }
       }
     }
   #endif

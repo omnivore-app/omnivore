@@ -92,9 +92,6 @@ struct LibraryTabView: View {
       ExpandedAudioPlayer()
     }
     .navigationBarHidden(true)
-    .task {
-      await syncManager.syncItems(dataService: dataService)
-    }
     .onReceive(NSNotification.performSyncPublisher) { _ in
       Task {
         await syncManager.syncItems(dataService: dataService)
