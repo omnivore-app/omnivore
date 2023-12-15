@@ -391,7 +391,7 @@ const processSubscription = async (
   console.log('Feed last build date', feedLastBuildDate)
   if (
     feedLastBuildDate &&
-    new Date(feedLastBuildDate) < new Date(lastFetchedAt)
+    new Date(feedLastBuildDate) <= new Date(lastFetchedAt)
   ) {
     console.log('Skipping old feed', feedLastBuildDate)
     return
@@ -433,7 +433,7 @@ const processSubscription = async (
 
     // skip old items and items that were published before 24h
     if (
-      publishedAt < new Date(lastFetchedAt) ||
+      publishedAt <= new Date(lastFetchedAt) ||
       publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
     ) {
       console.log('Skipping old feed item', item.link)
