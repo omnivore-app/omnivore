@@ -41,6 +41,15 @@ type RssFeedItem = Item & {
   'media:content'?: RssFeedItemMedia[]
 }
 
+export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
+  // existing items and items that were published before 24h
+  const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
+  return (
+    publishedAt <= new Date(lastFetchedAt) ||
+    publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
+  )
+}
+
 const getThumbnail = (item: RssFeedItem) => {
   if (item['media:thumbnail']) {
     return item['media:thumbnail'].$.url
@@ -431,11 +440,8 @@ const processSubscription = async (
       continue
     }
 
-    // skip old items and items that were published before 24h
-    if (
-      publishedAt <= new Date(lastFetchedAt) ||
-      publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
-    ) {
+    // skip old items
+    if (isOldItem(item, lastFetchedAt)) {
       console.log('Skipping old feed item', item.link)
       continue
     }
