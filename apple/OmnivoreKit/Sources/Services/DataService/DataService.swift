@@ -196,6 +196,8 @@ public final class DataService: ObservableObject {
       }
     }
 
+    UserDefaults.standard.set(nil, forKey: UserDefaultKey.lastSelectedTabItem.rawValue)
+
     lastItemSyncTime = Date(timeIntervalSinceReferenceDate: 0)
 
     clearCoreData()
