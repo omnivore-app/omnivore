@@ -312,7 +312,7 @@ public struct LibraryItemCard: View {
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
-            Color.systemBackground
+            Color.clear
               .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)

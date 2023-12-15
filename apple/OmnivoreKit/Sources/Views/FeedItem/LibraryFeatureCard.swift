@@ -37,7 +37,7 @@ public struct LibraryFeatureCard: View {
         CachedAsyncImage(url: imageURL) { phase in
           switch phase {
           case .empty:
-            Color.systemBackground
+            Color.clear
               .frame(width: 146, height: 90)
           case let .success(image):
             image.resizable()

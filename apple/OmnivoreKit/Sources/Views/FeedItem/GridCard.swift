@@ -77,7 +77,7 @@ public struct GridCard: View {
           CachedAsyncImage(url: imageURL) { phase in
             switch phase {
             case .empty:
-              Color.systemBackground
+              Color.clear
                 .frame(maxWidth: .infinity, maxHeight: geo.size.height)
             case let .success(image):
               image.resizable()
@@ -93,7 +93,7 @@ public struct GridCard: View {
               // we need to add this currently unused fallback
               // to handle any new cases that might be added
               // in the future:
-              Color.systemBackground
+              Color.clear
                 .frame(maxWidth: .infinity, maxHeight: geo.size.height)
             }
           }
