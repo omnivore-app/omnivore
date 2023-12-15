@@ -30,12 +30,6 @@ enum InFilter {
   FOLLOWING = 'following',
 }
 
-enum HasFilter {
-  HIGHLIGHTS = 'highlights',
-  LABELS = 'labels',
-  SUBSCRIPTIONS = 'subscriptions',
-}
-
 export interface SearchArgs {
   from?: number
   size?: number
@@ -102,6 +96,25 @@ interface Select {
   alias?: string
 }
 
+const handleNoCase = (value: string) => {
+  const keywordRegexMap: Record<string, RegExp> = {
+    highlight: /^highlight(s)?$/i,
+    label: /^label(s)?$/i,
+    subscription: /^subscription(s)?$/i,
+  }
+
+  const matchingKeyword = Object.keys(keywordRegexMap).find((keyword) =>
+    value.match(keywordRegexMap[keyword])
+  )
+
+  if (matchingKeyword) {
+    const column = getColumnName(matchingKeyword)
+    return `(library_item.${column} IS NULL OR library_item.${column} = '{}')`
+  }
+
+  throw new Error(`Unexpected keyword: ${value}`)
+}
+
 const paramtersToObject = (parameters: ObjectLiteral[]) => {
   return parameters.reduce((a, b) => ({ ...a, ...b }), {})
 }
@@ -148,8 +161,17 @@ const getColumnName = (field: string) => {
     case 'updated':
     case 'published':
       return `${lowerCaseField}_at`
-    default:
+    case 'author':
+    case 'title':
+    case 'description':
+    case 'note':
       return lowerCaseField
+    case 'highlight':
+      return 'highlight_annotations'
+    case 'label':
+      return 'label_names'
+    default:
+      throw new Error(`Unexpected field: ${field}`)
   }
 }
 
@@ -295,33 +317,23 @@ export const buildQuery = (
           )
         }
         case 'sort': {
-          const [sort, sortOrder] = value.split('-')
-          if (sort.toLowerCase() === 'score') {
-            // score is not a column and is handled separately
+          const [sort, sortOrder] = value.toLowerCase().split('-')
+          const matchingSortBy = Object.values(SortBy).find(
+            (sortBy) => sortBy === sort
+          )
+          if (!matchingSortBy) {
             return null
           }
+          const column = getColumnName(matchingSortBy)
 
           const order =
-            sortOrder?.toLowerCase() === 'asc'
-              ? SortOrder.ASCENDING
-              : SortOrder.DESCENDING
+            sortOrder === 'asc' ? SortOrder.ASCENDING : SortOrder.DESCENDING
 
-          const column = getColumnName(sort)
           orders.push({ by: `library_item.${column}`, order })
           return null
         }
-        case 'has': {
-          switch (value.toLowerCase()) {
-            case HasFilter.HIGHLIGHTS:
-              return "library_item.highlight_annotations <> '{}'"
-            case HasFilter.LABELS:
-              return "library_item.label_names <> '{}'"
-            case HasFilter.SUBSCRIPTIONS:
-              return 'library_item.subscription is NOT NULL'
-            default:
-              throw new Error(`Unexpected keyword: ${value}`)
-          }
-        }
+        case 'has':
+          return `NOT (${handleNoCase(value)})`
         case 'saved':
         case 'read':
         case 'updated':
@@ -434,24 +446,8 @@ export const buildQuery = (
             }
           )
         }
-        case 'no': {
-          let column = ''
-          switch (value.toLowerCase()) {
-            case 'highlight':
-              column = 'highlight_annotations'
-              break
-            case 'label':
-              column = 'label_names'
-              break
-            case 'subscription':
-              column = 'subscription'
-              break
-            default:
-              throw new Error(`Unexpected keyword: ${value}`)
-          }
-
-          return `(library_item.${column} = '{}' OR library_item.${column} IS NULL)`
-        }
+        case 'no':
+          return handleNoCase(value)
         case 'use':
         case 'mode':
         case 'event':
