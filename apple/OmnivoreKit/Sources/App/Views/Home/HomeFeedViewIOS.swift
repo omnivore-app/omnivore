@@ -131,15 +131,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
         ExpandedAudioPlayer()
       }
-      .sheet(isPresented: $showOpenAIVoices) {
-        OpenAIVoicesModal(audioController: audioController)
-      }
-      .onAppear {
-        if !openAIPrimerDisplayed, !Voices.isOpenAIVoice(self.audioController.currentVoice) {
-          showOpenAIVoices = true
-          openAIPrimerDisplayed = true
-        }
-      }
+//      .onAppear {
+//        viewModel.refreshFeatureItems(dataService: dataService)
+//      }
       .toolbar {
         toolbarItems
       }
@@ -181,6 +175,9 @@ struct AnimatingCellHeight: AnimatableModifier {
         NavigationView {
           LibraryAddLinkView()
         }
+      }
+      .introspectNavigationController { nav in
+        nav.delegate = viewModel
       }
       .task {
         await viewModel.loadFilters(dataService: dataService)
@@ -469,17 +466,17 @@ struct AnimatingCellHeight: AnimatableModifier {
           HStack {
             Menu(content: {
               Button(action: {
-                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
+                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
               }, label: {
                 Text("Continue Reading")
               })
               Button(action: {
-                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
               }, label: {
                 Text("Pinned")
               })
               Button(action: {
-                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
+                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
               }, label: {
                 Text("Newsletters")
               })
@@ -493,7 +490,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 HStack(alignment: .center) {
                   Image(systemName: "line.3.horizontal.decrease")
                     .font(Font.system(size: 13, weight: .regular))
-                  Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
+                  Text((FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) ?? .continueReading).title)
                     .font(Font.system(size: 13, weight: .medium))
                 }
                 .tint(Color(hex: "#007AFF"))
@@ -510,17 +507,17 @@ struct AnimatingCellHeight: AnimatableModifier {
 
           GeometryReader { geo in
             ScrollView(.horizontal, showsIndicators: false) {
-              if viewModel.featureItems.count > 0 {
+              if viewModel.fetcher.featureItems.count > 0 {
                 HStack(alignment: .top, spacing: 15) {
                   Spacer(minLength: 1).frame(width: 1)
-                  ForEach(viewModel.featureItems) { item in
+                  ForEach(viewModel.fetcher.featureItems) { item in
                     LibraryFeatureCardNavigationLink(item: item, viewModel: viewModel)
                   }
                   Spacer(minLength: 1).frame(width: 1)
                 }
                 .padding(.top, 0)
               } else {
-                Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).emptyMessage)
+                Text((FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) ?? .continueReading).emptyMessage)
                   .padding(.horizontal, UIDevice.isIPad ? 20 : 10)
                   .font(Font.system(size: 14, weight: .regular))
                   .foregroundColor(Color(hex: "#898989"))
@@ -1034,10 +1031,10 @@ struct LinkDestination: View {
 
 func fakeLibraryItems(dataService _: DataService) -> [LibraryItemData] {
   Array(
-    repeatElement(UUID().uuidString, count: 20)
-      .map { uuid in
+    repeatElement(0, count: 20)
+      .map { _ in
         LibraryItemData(
-          id: uuid,
+          id: UUID().uuidString,
           title: "fake title that is kind of long so it looks better",
           pageURLString: "",
           isArchived: false,

@@ -9,12 +9,12 @@ import Utils
 import Views
 
 @MainActor final class LibraryItemFetcher: NSObject, ObservableObject {
-  let folder = "inbox"
-
   @Published var items = [Models.LibraryItem]()
-  var itemsPublisher: Published<[Models.LibraryItem]>.Publisher { $items }
+  @Published var featureItems = [Models.LibraryItem]()
 
   private var fetchedResultsController: NSFetchedResultsController<Models.LibraryItem>?
+
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
   var cursor: String?
 
@@ -23,8 +23,11 @@ import Views
   var searchIdx = 0
   var receivedIdx = 0
 
-  func setItems(_: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
+  func setItems(_ context: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
     self.items = items
+    if let filter = FeaturedItemFilter(rawValue: featureFilter) {
+      updateFeatureFilter(context: context, filter: filter)
+    }
   }
 
   func loadCurrentViewer(dataService: DataService) async {
@@ -225,6 +228,29 @@ import Views
     print("QUERY: `\(query)`")
 
     return query
+  }
+
+  func refreshFeatureItems(dataService: DataService) {
+    if let featureFilter = FeaturedItemFilter(rawValue: self.featureFilter) {
+      updateFeatureFilter(context: dataService.viewContext, filter: featureFilter)
+    }
+  }
+
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
+    if let filter = filter {
+      Task {
+        featureFilter = filter.rawValue
+
+        featureItems = await loadFeatureItems(
+          context: context,
+          predicate: filter.predicate,
+          sort: filter.sortDescriptor
+        )
+        print("FEATURE ITEMS: ", featureItems)
+      }
+    } else {
+      featureItems = []
+    }
   }
 }
 

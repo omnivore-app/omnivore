@@ -39,7 +39,7 @@ struct LibraryFeatureCardNavigationLink: View {
       }
     )
     .confirmationDialog("", isPresented: $showFeatureActions) {
-      if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .pinned {
+      if FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) == .pinned {
         Button("Unpin", action: {
           viewModel.unpinItem(dataService: dataService, item: item)
         })
@@ -53,7 +53,7 @@ struct LibraryFeatureCardNavigationLink: View {
       Button("Remove", action: {
         viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
       })
-      if FeaturedItemFilter(rawValue: viewModel.featureFilter) != .pinned {
+      if FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) != .pinned {
         Button("Mark Read", action: {
           viewModel.markRead(dataService: dataService, item: item)
         })

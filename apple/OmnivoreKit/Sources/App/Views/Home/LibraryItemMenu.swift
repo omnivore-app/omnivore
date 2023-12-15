@@ -17,33 +17,6 @@ import Views
         action: { viewModel.itemUnderLabelEdit = item },
         label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
       )
-//      Button(action: {
-//        withAnimation(.linear(duration: 0.4)) {
-//          viewModel.setLinkArchived(
-//            dataService: dataService,
-//            objectID: item.objectID,
-//            archived: !item.isArchived
-//          )
-//        }
-//      }, label: {
-//        Label(
-//          item.isArchived ? "Unarchive" : "Archive",
-//          systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-//        )
-//      })
-//      Button("Remove Item", role: .destructive) {
-//        viewModel.removeLink(dataService: dataService, objectID: item.objectID)
-//      }
-//      if let author = item.author {
-//        Button(
-//          action: {
-//            viewModel.filterState.searchTerm = "author:\"\(author)\""
-//          },
-//          label: {
-//            Label(String("More by \(author)"), systemImage: "person")
-//          }
-//        )
-//      }
     } else {
       Button(
         action: { viewModel.recoverItem(dataService: dataService, itemID: item.unwrappedID) },

@@ -22,28 +22,6 @@ import Views
     trackReadEvent()
   }
 
-  func handleArchiveAction(dataService: DataService) {
-    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    dataService.archiveLink(objectID: objectID, archived: !isItemArchived)
-    showInLibrarySnackbar(!isItemArchived ? "Link archived" : "Link unarchived")
-  }
-
-  func handleDeleteAction(dataService: DataService) {
-    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    removeLibraryItemAction(dataService: dataService, objectID: objectID)
-  }
-
-  func updateItemReadStatus(dataService: DataService) {
-    guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
-
-    dataService.updateLinkReadingProgress(
-      itemID: itemID,
-      readingProgress: isItemRead ? 0 : 100,
-      anchorIndex: 0,
-      force: false
-    )
-  }
-
   private func trackReadEvent() {
     guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
     guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }

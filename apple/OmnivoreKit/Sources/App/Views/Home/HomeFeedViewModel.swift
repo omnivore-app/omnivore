@@ -5,7 +5,7 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class HomeFeedViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDelegate {
+@MainActor final class HomeFeedViewModel: NSObject, ObservableObject, UINavigationControllerDelegate {
   let folder: String
   let fetcher: LibraryItemFetcher
   let listConfig: LibraryListConfig
@@ -21,15 +21,10 @@ import Views
   @Published var presentWebContainer = false
   @Published var showLoadingBar = true
 
-  @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
   @Published var selectedItem: Models.LibraryItem?
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
-  @Published var showFiltersModal = false
-  @Published var showCommunityModal = false
-  @Published var featureItems = [Models.LibraryItem]()
-
   @Published var showSnackbar = false
   @Published var snackbarOperation: SnackbarOperation?
 
@@ -41,8 +36,6 @@ import Views
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
-  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
-
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
   @Published var appliedFilter: InternalFilter? {
@@ -61,22 +54,6 @@ import Views
     self.fetcher = fetcher
     self.listConfig = listConfig
     super.init()
-  }
-
-  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
-    if let filter = filter {
-      Task {
-        featureFilter = filter.rawValue
-
-        featureItems = await loadFeatureItems(
-          context: context,
-          predicate: filter.predicate,
-          sort: filter.sortDescriptor
-        )
-      }
-    } else {
-      featureItems = []
-    }
   }
 
   func loadFilters(dataService: DataService) async {
@@ -156,7 +133,6 @@ import Views
     showLoadingBar = isRefresh
 
     await fetcher.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
-    updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
 
     isLoading = false
     showLoadingBar = false
@@ -176,7 +152,16 @@ import Views
     fetchRequest.predicate = predicate
     fetchRequest.sortDescriptors = [sort]
 
-    return (try? context.fetch(fetchRequest)) ?? []
+    print("using predicate to load feature items: ", predicate)
+
+    do {
+      let fetched = try context.fetch(fetchRequest)
+      return fetched
+    } catch {
+      print("ERROR FETCHING: ", error)
+    }
+    return []
+//    return (try? context.fetch(fetchRequest)) ?? []
   }
 
   func snackbar(_ message: String, undoAction: SnackbarUndoAction? = nil) {
@@ -220,7 +205,7 @@ import Views
       dataService.setItemLabels(itemID: item.unwrappedID, labels: InternalLinkedItemLabel.make(Set(existingLabels + [label]) as NSSet))
 
       item.update(inContext: dataService.viewContext)
-      updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
+      fetcher.refreshFeatureItems(dataService: dataService)
     }
   }
 
@@ -234,16 +219,12 @@ import Views
 
   func pinItem(dataService: DataService, item: Models.LibraryItem) {
     addLabel(dataService: dataService, item: item, label: "Pinned", color: "#0A84FF")
-    if featureFilter == FeaturedItemFilter.pinned.rawValue {
-      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
-    }
+    fetcher.refreshFeatureItems(dataService: dataService)
   }
 
   func unpinItem(dataService: DataService, item: Models.LibraryItem) {
     removeLabel(dataService: dataService, item: item, named: "Pinned")
-    if featureFilter == FeaturedItemFilter.pinned.rawValue {
-      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
-    }
+    fetcher.refreshFeatureItems(dataService: dataService)
   }
 
   func markRead(dataService: DataService, item: Models.LibraryItem) {
