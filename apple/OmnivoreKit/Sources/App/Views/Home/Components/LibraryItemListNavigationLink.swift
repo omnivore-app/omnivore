@@ -14,7 +14,7 @@ struct MacFeedCardNavigationLink: View {
 
   var body: some View {
     ZStack {
-      LibraryItemCard(item: item, viewer: dataService.currentViewer)
+      LibraryItemCard(item: LibraryItemData.make(from: item), viewer: dataService.currentViewer)
       NavigationLink(destination: LinkItemDetailView(
         linkedItemObjectID: item.objectID,
         isPDF: item.isPDF
@@ -28,7 +28,7 @@ struct MacFeedCardNavigationLink: View {
   }
 }
 
-struct FeedCardNavigationLink: View {
+struct LibraryItemListNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
@@ -37,7 +37,7 @@ struct FeedCardNavigationLink: View {
 
   var body: some View {
     ZStack {
-      LibraryItemCard(item: item, viewer: dataService.currentViewer)
+      LibraryItemCard(item: LibraryItemData.make(from: item), viewer: dataService.currentViewer)
       PresentationLink(
         transition: PresentationLinkTransition.slide(
           options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
@@ -61,7 +61,7 @@ struct FeedCardNavigationLink: View {
   }
 }
 
-struct GridCardNavigationLink: View {
+struct LibraryItemGridCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
@@ -88,7 +88,7 @@ struct GridCardNavigationLink: View {
           isPDF: item.isPDF
         )
       }, label: {
-        GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
+        GridCard(item: LibraryItemData.make(from: item), isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
       }
     )
     .task {

@@ -172,7 +172,9 @@ public extension FeaturedItemFilter {
 
   var predicate: NSPredicate {
     let undeletedPredicate = NSPredicate(
-      format: "%K != %i", #keyPath(LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue)
+      format: "%K != %i AND %K != \"DELETED\"",
+      #keyPath(LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
+      #keyPath(LibraryItem.state)
     )
     let notInArchivePredicate = NSPredicate(
       format: "%K == %@", #keyPath(LibraryItem.isArchived), Int(truncating: false) as NSNumber

@@ -600,7 +600,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var redactedItems: some View {
-      ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.unwrappedID) { _, item in
+      ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.id) { _, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
         LibraryItemCard(item: item, viewer: dataService.currentViewer)
           .listRowSeparatorTint(Color.thBorderColor)
@@ -652,7 +652,7 @@ struct AnimatingCellHeight: AnimatableModifier {
       ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
 
-        FeedCardNavigationLink(
+        LibraryItemListNavigationLink(
           item: item,
           viewModel: viewModel
         )
@@ -935,17 +935,20 @@ struct AnimatingCellHeight: AnimatableModifier {
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
             if viewModel.showLoadingBar {
-              ForEach(fakeLibraryItems(dataService: dataService)) { item in
-                GridCardNavigationLink(
-                  item: item,
-                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-                  isContextMenuOpen: $isContextMenuOpen,
-                  viewModel: viewModel
-                )
-              }.redacted(reason: .placeholder)
+              // JACKSON TODO
+
+              EmptyView()
+//              ForEach(fakeLibraryItems(dataService: dataService)) { item in
+//                GridCardNavigationLink(
+//                  item: item,
+//                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
+//                  isContextMenuOpen: $isContextMenuOpen,
+//                  viewModel: viewModel
+//                )
+//              }.redacted(reason: .placeholder)
             } else {
               ForEach(viewModel.fetcher.items) { item in
-                GridCardNavigationLink(
+                LibraryItemGridCardNavigationLink(
                   item: item,
                   actionHandler: { contextMenuActionHandler(item: item, action: $0) },
                   isContextMenuOpen: $isContextMenuOpen,
@@ -1032,20 +1035,27 @@ struct LinkDestination: View {
   }
 }
 
-func fakeLibraryItems(dataService: DataService) -> [Models.LibraryItem] {
-  let temp = Models.LibraryItem(context: dataService.viewContext)
-  temp.id = UUID().uuidString
-  temp.wordsCount = 100
-  temp.author = "the author"
-  temp.siteName = "omnivore dot app"
-  temp.title = "This is a temporary title for a fake item"
-  temp.highlights = []
-  temp.imageURLString = "https://localhost/"
-  return Array(
-    repeatElement(temp, count: 20)
-      .map { item in
-        item.id = UUID().uuidString
-        return item
-      }
-  )
+func fakeLibraryItems(dataService _: DataService) -> [LibraryItemData] {
+  Array(
+    repeatElement(UUID().uuidString, count: 20)
+      .map { uuid in
+        LibraryItemData(
+          id: uuid,
+          title: "fake title that is kind of long so it looks better",
+          pageURLString: "",
+          isArchived: false,
+          author: "fake author",
+          deepLink: nil,
+          hasLabels: false,
+          noteText: nil,
+          readingProgress: 10,
+          wordsCount: 10,
+          isPDF: false,
+          highlights: nil,
+          sortedLabels: [],
+          imageURL: nil,
+          publisherDisplayName: "fake publisher",
+          descriptionText: "This is a fake description"
+        )
+      })
 }
