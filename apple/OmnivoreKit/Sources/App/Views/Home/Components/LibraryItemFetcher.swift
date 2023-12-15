@@ -246,7 +246,6 @@ import Views
           predicate: filter.predicate,
           sort: filter.sortDescriptor
         )
-        print("FEATURE ITEMS: ", featureItems)
       }
     } else {
       featureItems = []

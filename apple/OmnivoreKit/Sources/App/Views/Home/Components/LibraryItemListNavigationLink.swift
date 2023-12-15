@@ -32,7 +32,7 @@ struct LibraryItemListNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  let item: Models.LibraryItem
+  @ObservedObject var item: Models.LibraryItem
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
@@ -67,7 +67,8 @@ struct LibraryItemGridCardNavigationLink: View {
 
   @State private var scale = 1.0
 
-  let item: Models.LibraryItem
+  @ObservedObject var item: Models.LibraryItem
+
   let actionHandler: (GridCardAction) -> Void
 
   @Binding var isContextMenuOpen: Bool

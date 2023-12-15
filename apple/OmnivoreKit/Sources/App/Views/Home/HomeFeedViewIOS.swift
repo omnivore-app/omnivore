@@ -929,17 +929,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
             if viewModel.showLoadingBar {
-              // JACKSON TODO
+              ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.id) { _, item in
+                GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: { _ in
 
-              EmptyView()
-//              ForEach(fakeLibraryItems(dataService: dataService)) { item in
-//                GridCardNavigationLink(
-//                  item: item,
-//                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-//                  isContextMenuOpen: $isContextMenuOpen,
-//                  viewModel: viewModel
-//                )
-//              }.redacted(reason: .placeholder)
+                })
+              }.redacted(reason: .placeholder)
             } else {
               ForEach(viewModel.fetcher.items) { item in
                 LibraryItemGridCardNavigationLink(
