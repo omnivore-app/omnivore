@@ -23,8 +23,6 @@ import Views
   var searchIdx = 0
   var receivedIdx = 0
 
-  var syncCursor: String?
-
   func setItems(_: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
     self.items = items
   }
@@ -42,36 +40,6 @@ import Views
 
     if (try? dataService.viewContext.count(for: fetchRequest)) == 0 {
       _ = try? await dataService.labels()
-    }
-  }
-
-  func syncItems(dataService: DataService) async {
-    let syncStart = Date.now
-    let lastSyncDate = dataService.lastItemSyncTime
-
-    try? await dataService.syncOfflineItemsWithServerIfNeeded()
-
-    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
-                                                            cursor: nil)
-
-    syncCursor = syncResult?.cursor
-    if let syncResult = syncResult, syncResult.hasMore {
-      dataService.syncLinkedItemsInBackground(since: lastSyncDate) {
-        // do nothing
-      }
-    } else {
-      dataService.lastItemSyncTime = syncStart
-    }
-
-    // If possible start prefetching new pages in the background
-    if
-      let itemIDs = syncResult?.updatedItemIDs,
-      let username = dataService.currentViewer?.username,
-      !itemIDs.isEmpty
-    {
-      Task.detached(priority: .background) {
-        await dataService.prefetchPages(itemIDs: itemIDs, username: username)
-      }
     }
   }
 
@@ -123,7 +91,6 @@ import Views
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
-      group.addTask { await self.syncItems(dataService: dataService) }
       group.addTask { await self.updateFetchController(dataService: dataService, filterState: filterState) }
       await group.waitForAll()
     }
@@ -136,6 +103,8 @@ import Views
         updateFetchController(dataService: dataService, filterState: filterState)
       }
     }
+
+    NotificationCenter.default.post(name: NSNotification.PerformSync, object: nil, userInfo: nil)
 
     BadgeCountHandler.updateBadgeCount(dataService: dataService)
   }

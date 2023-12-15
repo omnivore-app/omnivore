@@ -51,6 +51,8 @@ struct LibraryTabView: View {
     )
   )
 
+  private let syncManager = LibrarySyncManager()
+
   var body: some View {
     VStack(spacing: 0) {
       TabView(selection: $selectedTab) {
@@ -90,5 +92,13 @@ struct LibraryTabView: View {
       ExpandedAudioPlayer()
     }
     .navigationBarHidden(true)
+    .task {
+      await syncManager.syncItems(dataService: dataService)
+    }
+    .onReceive(NSNotification.performSyncPublisher) { _ in
+      Task {
+        await syncManager.syncItems(dataService: dataService)
+      }
+    }
   }
 }
