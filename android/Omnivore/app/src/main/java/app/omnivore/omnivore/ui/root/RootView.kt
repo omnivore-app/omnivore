@@ -17,6 +17,7 @@ import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.auth.WelcomeScreen
 import app.omnivore.omnivore.ui.components.LabelsViewModel
+import app.omnivore.omnivore.ui.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.ui.library.LibraryView
 import app.omnivore.omnivore.ui.library.SearchView
 import app.omnivore.omnivore.ui.library.LibraryViewModel
@@ -34,6 +35,7 @@ fun RootView(
   settingsViewModel: SettingsViewModel,
   labelsViewModel: LabelsViewModel,
   saveViewModel: SaveViewModel,
+  editInfoViewModel: EditInfoViewModel,
 ) {
   val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
   val systemUiController = rememberSystemUiController()
@@ -59,7 +61,8 @@ fun RootView(
         libraryViewModel = libraryViewModel,
         settingsViewModel = settingsViewModel,
         labelsViewModel = labelsViewModel,
-        saveViewModel = saveViewModel
+        saveViewModel = saveViewModel,
+        editInfoViewModel = editInfoViewModel,
       )
     } else {
       WelcomeScreen(viewModel = loginViewModel)
@@ -82,6 +85,7 @@ fun PrimaryNavigator(
   settingsViewModel: SettingsViewModel,
   labelsViewModel: LabelsViewModel,
   saveViewModel: SaveViewModel,
+  editInfoViewModel: EditInfoViewModel,
 ) {
   val navController = rememberNavController()
 
@@ -92,6 +96,7 @@ fun PrimaryNavigator(
         navController = navController,
         labelsViewModel = labelsViewModel,
         saveViewModel = saveViewModel,
+        editInfoViewModel = editInfoViewModel,
       )
     }
 

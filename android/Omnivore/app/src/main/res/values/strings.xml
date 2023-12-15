@@ -151,6 +151,8 @@
     <string name="web_reader_loading_container_error_msg">We were unable to fetch your content.</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">Reader Preferences</string>
     <string name="web_reader_loading_container_bottom_sheet_notebook">Notebook</string>
+    <string name="web_reader_loading_container_bottom_sheet_edit_info">Edit Info</string>
+    <string name="web_reader_loading_container_bottom_sheet_e">Notebook</string>
     <string name="web_reader_loading_container_bottom_sheet_open_link">Open Link</string>
 
     <!-- OpenLinkView -->
@@ -177,6 +179,7 @@
     <string name="save_view_model_page_saved_error">There was an error saving your page</string>
 
     <!-- SavedItemContextMenu -->
+    <string name="saved_item_context_menu_action_edit_info">Edit Info</string>
     <string name="saved_item_context_menu_action_edit_labels">Edit Labels</string>
     <string name="saved_item_context_menu_action_archive">Archive</string>
     <string name="saved_item_context_menu_action_unarchive">Unarchive</string>
@@ -214,4 +217,17 @@
     <string name="add_link_sheet_invalid_url_error">Invalid URL</string>
     <string name="add_link_sheet_save_url_error">Error while saving link!</string>
     <string name="add_link_sheet_save_url_success">Link successfully saved!</string>
+
+    <!-- EditInfoViewModel -->
+    <string name="edit_info_view_model_error_not_logged_in">You are not logged in. Please login before saving.</string>
+
+    <!-- EditInfoSheet -->
+    <string name="edit_info_sheet_title">Edit Info</string>
+    <string name="edit_info_sheet_text_field_label_title">Title</string>
+    <string name="edit_info_sheet_text_field_label_author">Author</string>
+    <string name="edit_info_sheet_text_field_label_description">Description</string>
+    <string name="edit_info_sheet_action_save">Save</string>
+    <string name="edit_info_sheet_action_cancel">Cancel</string>
+    <string name="edit_info_sheet_error">Error while editing article!</string>
+    <string name="edit_info_sheet_success">Article info successfully updated!</string>
 </resources>

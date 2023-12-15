@@ -15,6 +15,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.ui.auth.LoginViewModel
 import app.omnivore.omnivore.ui.components.LabelsViewModel
+import app.omnivore.omnivore.ui.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SearchViewModel
 import app.omnivore.omnivore.ui.root.RootView
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
     val searchViewModel: SearchViewModel by viewModels()
     val labelsViewModel: LabelsViewModel by viewModels()
     val saveViewModel: SaveViewModel by viewModels()
+    val editInfoViewModel: EditInfoViewModel by viewModels()
 
     val context = this
 
@@ -65,7 +67,8 @@ class MainActivity : ComponentActivity() {
             libraryViewModel,
             settingsViewModel,
             labelsViewModel,
-            saveViewModel)
+            saveViewModel,
+            editInfoViewModel)
         }
       }
     }

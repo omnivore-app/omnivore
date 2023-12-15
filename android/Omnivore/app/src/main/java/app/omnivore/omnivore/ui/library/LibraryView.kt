@@ -28,8 +28,10 @@ import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.AddLinkSheetContent
+import app.omnivore.omnivore.ui.editinfo.EditInfoSheetContent
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
 import app.omnivore.omnivore.ui.components.LabelsViewModel
+import app.omnivore.omnivore.ui.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
@@ -45,11 +47,13 @@ fun LibraryView(
   libraryViewModel: LibraryViewModel,
   labelsViewModel: LabelsViewModel,
   saveViewModel: SaveViewModel,
+  editInfoViewModel: EditInfoViewModel,
   navController: NavHostController
 ) {
   val scaffoldState: ScaffoldState = rememberScaffoldState()
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
   val showAddLinkSheet: Boolean by libraryViewModel.showAddLinkSheetLiveData.observeAsState(false)
+  val showEditInfoSheet: Boolean by libraryViewModel.showEditInfoSheetLiveData.observeAsState(false)
 
   val coroutineScope = rememberCoroutineScope()
   val modalBottomSheetState = rememberModalBottomSheetState(
@@ -57,7 +61,7 @@ fun LibraryView(
     confirmStateChange = { it != ModalBottomSheetValue.Hidden }
   )
 
-  if (showLabelsSelectionSheet || showAddLinkSheet) {
+  if (showLabelsSelectionSheet || showAddLinkSheet || showEditInfoSheet) {
     coroutineScope.launch {
       modalBottomSheetState.show()
     }
@@ -78,7 +82,7 @@ fun LibraryView(
     sheetBackgroundColor = Color.Transparent,
     sheetState = modalBottomSheetState,
     sheetContent = {
-      BottomSheetContent(libraryViewModel, labelsViewModel, saveViewModel)
+      BottomSheetContent(libraryViewModel, labelsViewModel, saveViewModel,editInfoViewModel)
       Spacer(modifier = Modifier.weight(1.0F))
     }
   ) {
@@ -103,9 +107,13 @@ fun LibraryView(
 }
 
 @Composable
-fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: LabelsViewModel, saveViewModel: SaveViewModel) {
+fun BottomSheetContent(libraryViewModel: LibraryViewModel,
+                       labelsViewModel: LabelsViewModel,
+                       saveViewModel: SaveViewModel,
+                       editInfoViewModel: EditInfoViewModel) {
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
   val showAddLinkSheet: Boolean by libraryViewModel.showAddLinkSheetLiveData.observeAsState(false)
+  val showEditInfoSheet: Boolean by libraryViewModel.showEditInfoSheetLiveData.observeAsState(false)
   val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
   val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(listOf())
 
@@ -118,7 +126,7 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
           initialSelectedLabels = currentSavedItemData.labels,
           onCancel = {
             libraryViewModel.showLabelsSelectionSheetLiveData.value = false
-            libraryViewModel.labelsSelectionCurrentItemLiveData.value = null
+            libraryViewModel.currentItemLiveData.value = null
           },
           isLibraryMode = false,
           onSave = {
@@ -128,7 +136,7 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
                 labels = it
               )
             }
-            libraryViewModel.labelsSelectionCurrentItemLiveData.value = null
+            libraryViewModel.currentItemLiveData.value = null
             libraryViewModel.showLabelsSelectionSheetLiveData.value = false
           },
           onCreateLabel = { newLabelName, labelHexValue ->
@@ -144,7 +152,7 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
           isLibraryMode = true,
           onSave = {
             libraryViewModel.updateAppliedLabels(it)
-            libraryViewModel.labelsSelectionCurrentItemLiveData.value = null
+            libraryViewModel.currentItemLiveData.value = null
             libraryViewModel.showLabelsSelectionSheetLiveData.value = false
           },
           onCreateLabel = { newLabelName, labelHexValue ->
@@ -164,6 +172,25 @@ fun BottomSheetContent(libraryViewModel: LibraryViewModel, labelsViewModel: Labe
         onLinkAdded = {
           libraryViewModel.showAddLinkSheetLiveData.value = false
           saveViewModel.saveState.value = SaveState.NONE
+        }
+      )
+    }
+  } else if (showEditInfoSheet) {
+    BottomSheetUI {
+      EditInfoSheetContent(
+        savedItemId = currentSavedItemData?.savedItem?.savedItemId,
+        title = currentSavedItemData?.savedItem?.title,
+        author = currentSavedItemData?.savedItem?.author,
+        description = currentSavedItemData?.savedItem?.descriptionText,
+        viewModel = editInfoViewModel,
+        onCancel = {
+          libraryViewModel.showEditInfoSheetLiveData.value = false
+          libraryViewModel.currentItemLiveData.value = null
+        },
+        onUpdated = {
+          libraryViewModel.showEditInfoSheetLiveData.value = false
+          libraryViewModel.currentItemLiveData.value = null
+          libraryViewModel.refresh()
         }
       )
     }
