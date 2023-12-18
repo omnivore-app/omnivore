@@ -155,6 +155,7 @@ union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequ
 
 enum ArticleSavingRequestStatus {
   ARCHIVED
+  CONTENT_NOT_FETCHED
   DELETED
   FAILED
   PROCESSING

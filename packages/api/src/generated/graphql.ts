@@ -191,6 +191,7 @@ export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavi
 
 export enum ArticleSavingRequestStatus {
   Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
   Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',

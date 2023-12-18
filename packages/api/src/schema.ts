@@ -1111,6 +1111,7 @@ const schema = gql`
     FAILED
     DELETED
     ARCHIVED
+    CONTENT_NOT_FETCHED
   }
 
   type ArticleSavingRequest {
