@@ -148,26 +148,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.selectedItem = linkedItem
         viewModel.linkIsActive = true
       }
-      .onOpenURL { url in
-        viewModel.linkRequest = nil
-        if let deepLink = DeepLink.make(from: url) {
-          switch deepLink {
-          case let .search(query):
-            viewModel.searchTerm = query
-          case let .savedSearch(named):
-            if let filter = viewModel.findFilter(dataService, named: named) {
-              viewModel.appliedFilter = filter
-            }
-          case let .webAppLinkRequest(requestID):
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-              withoutAnimation {
-                viewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
-                viewModel.presentWebContainer = true
-              }
-            }
-          }
-        }
-      }
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
@@ -294,7 +274,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var body: some View {
       VStack(spacing: 0) {
-        if let linkRequest = viewModel.linkRequest {
+        if let linkRequest = viewModel.linkRequest, viewModel.listConfig.hasReadNowSection {
           PresentationLink(
             transition: PresentationLinkTransition.slide(
               options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
@@ -998,7 +978,7 @@ struct ScrollViewOffsetPreferenceKey: PreferenceKey {
 #if os(iOS)
   // Allows us to present a sheet without animation
   // Used to configure full screen modal view coming from share extension read now button action
-  private extension View {
+  public extension View {
     func withoutAnimation(_ completion: @escaping () -> Void) {
       UIView.setAnimationsEnabled(false)
       completion()

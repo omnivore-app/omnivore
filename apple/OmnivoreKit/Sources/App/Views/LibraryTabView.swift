@@ -29,23 +29,25 @@ struct LibraryTabView: View {
     UITabBar.appearance().isHidden = true
   }
 
-  @StateObject private var followingViewModel = HomeFeedViewModel(
-    folder: "following",
-    fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: false,
-      leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
-  )
-
   @StateObject private var libraryViewModel = HomeFeedViewModel(
     folder: "inbox",
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
+      hasReadNowSection: true,
       leadingSwipeActions: [.pin],
+      trailingSwipeActions: [.archive, .delete],
+      cardStyle: .library
+    )
+  )
+
+  @StateObject private var followingViewModel = HomeFeedViewModel(
+    folder: "following",
+    fetcher: LibraryItemFetcher(),
+    listConfig: LibraryListConfig(
+      hasFeatureCards: false,
+      hasReadNowSection: false,
+      leadingSwipeActions: [.moveToInbox],
       trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
     )
@@ -96,6 +98,27 @@ struct LibraryTabView: View {
       Task {
         await syncManager.syncItems(dataService: dataService)
       }
+    }
+    .onOpenURL { url in
+      libraryViewModel.linkRequest = nil
+      if let deepLink = DeepLink.make(from: url) {
+        switch deepLink {
+        case let .search(query):
+          libraryViewModel.searchTerm = query
+        case let .savedSearch(named):
+          if let filter = libraryViewModel.findFilter(dataService, named: named) {
+            libraryViewModel.appliedFilter = filter
+          }
+        case let .webAppLinkRequest(requestID):
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+            withoutAnimation {
+              libraryViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+              libraryViewModel.presentWebContainer = true
+            }
+          }
+        }
+      }
+      selectedTab = "inbox"
     }
   }
 }

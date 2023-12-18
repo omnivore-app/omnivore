@@ -11,6 +11,7 @@ public struct LibrarySplitView: View {
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
+      hasReadNowSection: true,
       leadingSwipeActions: [.pin],
       trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
@@ -22,6 +23,7 @@ public struct LibrarySplitView: View {
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
+      hasReadNowSection: false,
       leadingSwipeActions: [.moveToInbox],
       trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
