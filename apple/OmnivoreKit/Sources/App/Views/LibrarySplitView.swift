@@ -1,4 +1,5 @@
 import Foundation
+import Models
 import Services
 import SwiftUI
 
@@ -25,7 +26,7 @@ public struct LibrarySplitView: View {
       hasFeatureCards: false,
       hasReadNowSection: false,
       leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
+      trailingSwipeActions: [.delete],
       cardStyle: .library
     )
   )
@@ -48,6 +49,27 @@ public struct LibrarySplitView: View {
       .introspectSplitViewController {
         $0.preferredPrimaryColumnWidth = 230
         $0.displayModeButtonVisibility = .always
+      }
+      .onOpenURL { url in
+        inboxViewModel.linkRequest = nil
+        if let deepLink = DeepLink.make(from: url) {
+          switch deepLink {
+          case let .search(query):
+            inboxViewModel.searchTerm = query
+          case let .savedSearch(named):
+            if let filter = inboxViewModel.findFilter(dataService, named: named) {
+              inboxViewModel.appliedFilter = filter
+            }
+          case let .webAppLinkRequest(requestID):
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+              withoutAnimation {
+                inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+                inboxViewModel.presentWebContainer = true
+              }
+            }
+          }
+        }
+        // selectedTab = "inbox"
       }
       .onReceive(NSNotification.performSyncPublisher) { _ in
         Task {

@@ -29,7 +29,7 @@ struct LibraryTabView: View {
     UITabBar.appearance().isHidden = true
   }
 
-  @StateObject private var libraryViewModel = HomeFeedViewModel(
+  @StateObject private var inboxViewModel = HomeFeedViewModel(
     folder: "inbox",
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
@@ -48,7 +48,7 @@ struct LibraryTabView: View {
       hasFeatureCards: false,
       hasReadNowSection: false,
       leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
+      trailingSwipeActions: [.delete],
       cardStyle: .library
     )
   )
@@ -67,7 +67,7 @@ struct LibraryTabView: View {
         }
 
         NavigationView {
-          HomeFeedContainerView(viewModel: libraryViewModel)
+          HomeFeedContainerView(viewModel: inboxViewModel)
             .navigationBarTitleDisplayMode(.inline)
             .navigationViewStyle(.stack)
         }.tag("inbox")
@@ -100,20 +100,20 @@ struct LibraryTabView: View {
       }
     }
     .onOpenURL { url in
-      libraryViewModel.linkRequest = nil
+      inboxViewModel.linkRequest = nil
       if let deepLink = DeepLink.make(from: url) {
         switch deepLink {
         case let .search(query):
-          libraryViewModel.searchTerm = query
+          inboxViewModel.searchTerm = query
         case let .savedSearch(named):
-          if let filter = libraryViewModel.findFilter(dataService, named: named) {
-            libraryViewModel.appliedFilter = filter
+          if let filter = inboxViewModel.findFilter(dataService, named: named) {
+            inboxViewModel.appliedFilter = filter
           }
         case let .webAppLinkRequest(requestID):
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
             withoutAnimation {
-              libraryViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
-              libraryViewModel.presentWebContainer = true
+              inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+              inboxViewModel.presentWebContainer = true
             }
           }
         }
