@@ -955,7 +955,7 @@ export const moveToFolderResolver = authorized<
   )
 
   // if the content is not fetched yet, create a page save request
-  if (!item.readableContent) {
+  if (item.state === LibraryItemState.ContentNotFetched) {
     try {
       await createPageSaveRequest({
         userId: uid,
