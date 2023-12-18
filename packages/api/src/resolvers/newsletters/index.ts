@@ -1,4 +1,7 @@
-import { NewsletterEmail } from '../../entity/newsletter_email'
+import {
+  DEFAULT_NEWSLETTER_FOLDER,
+  NewsletterEmail,
+} from '../../entity/newsletter_email'
 import { env } from '../../env'
 import {
   CreateNewsletterEmailError,
@@ -46,7 +49,7 @@ export const createNewsletterEmailResolver = authorized<
     const newsletterEmail = await createNewsletterEmail(
       claims.uid,
       undefined,
-      input?.folder || 'following',
+      input?.folder || DEFAULT_NEWSLETTER_FOLDER,
       input?.name || undefined,
       input?.description || undefined
     )
