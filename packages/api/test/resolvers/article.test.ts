@@ -1857,6 +1857,54 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
       })
     })
+
+    context('when sort:wordscount is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'wordscount:>=10000 sort:wordscount'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test 1',
+              slug: 'test 1',
+              originalUrl: `${url}/test1`,
+              wordCount: 10000,
+            },
+            {
+              user,
+              title: 'test 2',
+              slug: 'test 2',
+              originalUrl: `${url}/test2`,
+              wordCount: 20000,
+            },
+            {
+              user,
+              title: 'test 3',
+              slug: 'test 3',
+              originalUrl: `${url}/test3`,
+              wordCount: 30000,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items in descending order of word count', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eql(3)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
