@@ -78,7 +78,7 @@ export enum SortBy {
   UPDATED = 'updated',
   PUBLISHED = 'published',
   READ = 'read',
-  WORDS_COUNT = 'wordsCount',
+  WORDS_COUNT = 'wordscount',
 }
 
 export enum SortOrder {
