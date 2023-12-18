@@ -9,6 +9,7 @@ let subscriptionSelection = Selection.Subscription {
     description: try $0.description(),
     subscriptionID: try $0.id(),
     name: try $0.name(),
+    type: try SubscriptionType.from($0.type()),
     newsletterEmailAddress: try $0.newsletterEmail(),
     status: try SubscriptionStatus.make(from: $0.status()),
     unsubscribeHttpUrl: try $0.unsubscribeHttpUrl(),
@@ -28,6 +29,17 @@ extension SubscriptionStatus {
       return .deleted
     case .unsubscribed:
       return .unsubscribed
+    }
+  }
+}
+
+extension SubscriptionType {
+  static func from(_ other: Enums.SubscriptionType) -> SubscriptionType {
+    switch other {
+    case .rss:
+      return .feed
+    case .newsletter:
+      return .newsletter
     }
   }
 }

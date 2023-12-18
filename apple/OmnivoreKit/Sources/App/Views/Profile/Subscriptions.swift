@@ -5,8 +5,8 @@ import Views
 
 @MainActor final class SubscriptionsViewModel: ObservableObject {
   @Published var isLoading = true
-  @Published var subscriptions = [Subscription]()
-  @Published var popularSubscriptions = [Subscription]()
+  @Published var feeds = [Subscription]()
+  @Published var newsletters = [Subscription]()
   @Published var hasNetworkError = false
   @Published var subscriptionNameToCancel: String?
 
@@ -14,7 +14,9 @@ import Views
     isLoading = true
 
     do {
-      subscriptions = try await dataService.subscriptions().filter { $0.status == SubscriptionStatus.active }
+      let subscriptions = try await dataService.subscriptions().filter { $0.status == SubscriptionStatus.active }
+      feeds = subscriptions.filter { $0.type == .feed }
+      newsletters = subscriptions.filter { $0.type == .newsletter }
     } catch {
       hasNetworkError = true
     }
@@ -27,10 +29,10 @@ import Views
 
     do {
       try await dataService.deleteSubscription(subscriptionName: subscriptionName)
-      let index = subscriptions.firstIndex { $0.name == subscriptionName }
-      if let index = index {
-        subscriptions.remove(at: index)
-      }
+//      let index = subscriptions.firstIndex { $0.name == subscriptionName }
+//      if let index = index {
+//        subscriptions.remove(at: index)
+//      }
       return true
     } catch {
       appLogger.debug("failed to remove subscription")
@@ -49,13 +51,6 @@ struct SubscriptionsView: View {
     Group {
       if viewModel.isLoading {
         ProgressView()
-          .opacity(progressViewOpacity)
-          .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
-              progressViewOpacity = 1
-            }
-          }
-          .task { await viewModel.loadSubscriptions(dataService: dataService) }
       } else if viewModel.hasNetworkError {
         VStack {
           Text(LocalText.subscriptionsErrorRetrieving).multilineTextAlignment(.center)
@@ -65,26 +60,27 @@ struct SubscriptionsView: View {
           )
           .buttonStyle(RoundedRectButtonStyle())
         }
-      } else if viewModel.subscriptions.isEmpty {
+      } else if viewModel.feeds.isEmpty, viewModel.newsletters.isEmpty {
         VStack(alignment: .center) {
           Spacer()
           Text(LocalText.subscriptionsNone)
           Spacer()
         }
       } else {
-        Group {
-          #if os(iOS)
-            Form {
-              innerBody
-            }
-          #elseif os(macOS)
-            List {
-              innerBody
-            }
-            .listStyle(InsetListStyle())
-          #endif
-        }
+        #if os(iOS)
+          Form {
+            innerBody
+          }
+        #elseif os(macOS)
+          List {
+            innerBody
+          }
+          .listStyle(InsetListStyle())
+        #endif
       }
+    }
+    .task {
+      await viewModel.loadSubscriptions(dataService: dataService)
     }
     .navigationTitle("Subscriptions")
     #if os(iOS)
@@ -94,20 +90,39 @@ struct SubscriptionsView: View {
 
   private var innerBody: some View {
     Group {
-      ForEach(viewModel.subscriptions, id: \.subscriptionID) { subscription in
-        SubscriptionCell(subscription: subscription)
-          .swipeActions(edge: .trailing) {
-            Button(
-              role: .destructive,
-              action: {
-                deleteConfirmationShown = true
-                viewModel.subscriptionNameToCancel = subscription.name
-              },
-              label: {
-                Image(systemName: "trash")
-              }
-            )
-          }
+      Section("Feeds") {
+        ForEach(viewModel.feeds, id: \.subscriptionID) { subscription in
+          SubscriptionCell(subscription: subscription)
+            .swipeActions(edge: .trailing) {
+              Button(
+                role: .destructive,
+                action: {
+                  deleteConfirmationShown = true
+                  viewModel.subscriptionNameToCancel = subscription.name
+                },
+                label: {
+                  Image(systemName: "trash")
+                }
+              )
+            }
+        }
+      }
+      Section("Newsletters") {
+        ForEach(viewModel.newsletters, id: \.subscriptionID) { subscription in
+          SubscriptionCell(subscription: subscription)
+            .swipeActions(edge: .trailing) {
+              Button(
+                role: .destructive,
+                action: {
+                  deleteConfirmationShown = true
+                  viewModel.subscriptionNameToCancel = subscription.name
+                },
+                label: {
+                  Image(systemName: "trash")
+                }
+              )
+            }
+        }
       }
     }
     .alert("Are you sure you want to cancel this subscription?", isPresented: $deleteConfirmationShown) {
