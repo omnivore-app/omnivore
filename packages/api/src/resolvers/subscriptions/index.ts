@@ -1,7 +1,10 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
 import { Brackets } from 'typeorm'
-import { Subscription } from '../../entity/subscription'
+import {
+  DEFAULT_SUBSCRIPTION_FOLDER,
+  Subscription,
+} from '../../entity/subscription'
 import { env } from '../../env'
 import {
   FeedEdge,
@@ -221,7 +224,7 @@ export const subscribeResolver = authorized<
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
         fetchContents: [updatedSubscription.fetchContent],
-        folders: [updatedSubscription.folder],
+        folders: [updatedSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
       })
 
       return {
@@ -278,7 +281,7 @@ export const subscribeResolver = authorized<
       fetchedDates: [null],
       checksums: [null],
       fetchContents: [newSubscription.fetchContent],
-      folders: [newSubscription.folder],
+      folders: [newSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
     })
 
     return {
