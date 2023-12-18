@@ -1,4 +1,7 @@
-import { NewsletterEmail } from '../entity/newsletter_email'
+import {
+  EXISTING_NEWSLETTER_FOLDER,
+  NewsletterEmail,
+} from '../entity/newsletter_email'
 import { Subscription } from '../entity/subscription'
 import { env } from '../env'
 import { analytics } from '../utils/analytics'
@@ -49,7 +52,10 @@ export const saveNewsletter = async (
   }
 
   // subscription's folder takes precedence over newsletter email's folder
-  const folder = existingSubscription?.folder || newsletterEmail.folder
+  const folder =
+    existingSubscription?.folder ||
+    newsletterEmail.folder ||
+    EXISTING_NEWSLETTER_FOLDER
 
   const input: SaveEmailInput = {
     userId: newsletterEmail.user.id,

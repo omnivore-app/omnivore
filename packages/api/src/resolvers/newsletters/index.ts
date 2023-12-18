@@ -20,11 +20,16 @@ import {
   getNewsletterEmails,
 } from '../../services/newsletters'
 import { unsubscribeAll } from '../../services/subscriptions'
+import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { authorized } from '../../utils/helpers'
 
-export const createNewsletterEmailResolver = authorized<
+export type CreateNewsletterEmailSuccessPartial = Merge<
   CreateNewsletterEmailSuccess,
+  { newsletterEmail: NewsletterEmail }
+>
+export const createNewsletterEmailResolver = authorized<
+  CreateNewsletterEmailSuccessPartial,
   CreateNewsletterEmailError,
   MutationCreateNewsletterEmailArgs
 >(async (_parent, { input }, { claims, log }) => {
@@ -47,10 +52,7 @@ export const createNewsletterEmailResolver = authorized<
     )
 
     return {
-      newsletterEmail: {
-        ...newsletterEmail,
-        subscriptionCount: 0,
-      },
+      newsletterEmail,
     }
   } catch (e) {
     log.error('createNewsletterEmailResolver', e)
@@ -61,18 +63,19 @@ export const createNewsletterEmailResolver = authorized<
   }
 })
 
-export const newsletterEmailsResolver = authorized<
+export type NewsletterEmailsSuccessPartial = Merge<
   NewsletterEmailsSuccess,
+  { newsletterEmails: NewsletterEmail[] }
+>
+export const newsletterEmailsResolver = authorized<
+  NewsletterEmailsSuccessPartial,
   NewsletterEmailsError
 >(async (_parent, _args, { uid, log }) => {
   try {
     const newsletterEmails = await getNewsletterEmails(uid)
 
     return {
-      newsletterEmails: newsletterEmails.map((newsletterEmail) => ({
-        ...newsletterEmail,
-        subscriptionCount: newsletterEmail.subscriptions.length,
-      })),
+      newsletterEmails,
     }
   } catch (e) {
     log.error('newsletterEmailsResolver', e)
@@ -83,8 +86,12 @@ export const newsletterEmailsResolver = authorized<
   }
 })
 
-export const deleteNewsletterEmailResolver = authorized<
+export type DeleteNewsletterEmailSuccessPartial = Merge<
   DeleteNewsletterEmailSuccess,
+  { newsletterEmail: NewsletterEmail }
+>
+export const deleteNewsletterEmailResolver = authorized<
+  DeleteNewsletterEmailSuccessPartial,
   DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs
 >(async (_parent, args, { uid, log }) => {
@@ -117,10 +124,7 @@ export const deleteNewsletterEmailResolver = authorized<
     const deleted = await deleteNewsletterEmail(args.newsletterEmailId)
     if (deleted) {
       return {
-        newsletterEmail: {
-          ...newsletterEmail,
-          subscriptionCount: newsletterEmail.subscriptions.length,
-        },
+        newsletterEmail,
       }
     } else {
       // when user tries to delete other's newsletters emails or email already deleted

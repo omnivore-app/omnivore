@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
 import { ImportItemState } from '../entity/integration'
 import { Recommendation } from '../entity/recommendation'
+import { DEFAULT_SUBSCRIPTION_FOLDER } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,

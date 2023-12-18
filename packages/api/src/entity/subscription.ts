@@ -11,6 +11,8 @@ import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
 import { NewsletterEmail } from './newsletter_email'
 import { User } from './user'
 
+export const DEFAULT_SUBSCRIPTION_FOLDER = 'following'
+
 @Entity({ name: 'subscriptions' })
 export class Subscription {
   @PrimaryGeneratedColumn('uuid')
@@ -81,5 +83,5 @@ export class Subscription {
   fetchContent!: boolean
 
   @Column('text')
-  folder!: string
+  folder?: string | null
 }

@@ -4,7 +4,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
-import { Subscription } from '../entity/subscription'
+import { NewsletterEmail } from '../entity/newsletter_email'
+import {
+  DEFAULT_SUBSCRIPTION_FOLDER,
+  Subscription,
+} from '../entity/subscription'
 import { env } from '../env'
 import {
   Article,
@@ -437,6 +441,14 @@ export const functionResolvers = {
       return (
         subscription.icon && createImageProxyUrl(subscription.icon, 128, 128)
       )
+    },
+    folder(subscription: { folder?: string | null }) {
+      return subscription.folder || DEFAULT_SUBSCRIPTION_FOLDER
+    },
+  },
+  NewsletterEmail: {
+    subscriptionCount(newsletterEmail: NewsletterEmail) {
+      return newsletterEmail.subscriptions?.length || 0
     },
   },
   ...resultResolveTypeResolver('Login'),
