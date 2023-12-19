@@ -3,19 +3,9 @@ import Foundation
 import Models
 import SwiftGraphQL
 
-// input SetRuleInput {
-//  id: ID
-//  name: String!
-//  description: String
-//  filter: String!
-//  actions: [RuleActionInput!]!
-//  enabled: Boolean!
-//  eventTypes: [RuleEventType!]!
-// }
-
 public struct Rule {
-  let id: String
-  let name: String
+  public let id: String
+  public let name: String
 }
 
 let ruleSelection = Selection.Rule {

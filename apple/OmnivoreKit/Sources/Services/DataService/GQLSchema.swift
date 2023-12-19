@@ -6653,6 +6653,136 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Objects {
+  struct FetchContentError {
+    let __typename: TypeName = .fetchContentError
+    let errorCodes: [String: [Enums.FetchContentErrorCode]]
+
+    enum TypeName: String, Codable {
+      case fetchContentError = "FetchContentError"
+    }
+  }
+}
+
+extension Objects.FetchContentError: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.FetchContentErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    errorCodes = map["errorCodes"]
+  }
+}
+
+extension Fields where TypeLock == Objects.FetchContentError {
+  func errorCodes() throws -> [Enums.FetchContentErrorCode] {
+    let field = GraphQLField.leaf(
+      name: "errorCodes",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.errorCodes[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return []
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias FetchContentError<T> = Selection<T, Objects.FetchContentError>
+}
+
+extension Objects {
+  struct FetchContentSuccess {
+    let __typename: TypeName = .fetchContentSuccess
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case fetchContentSuccess = "FetchContentSuccess"
+    }
+  }
+}
+
+extension Objects.FetchContentSuccess: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Objects.FetchContentSuccess {
+  func success() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "success",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.success[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias FetchContentSuccess<T> = Selection<T, Objects.FetchContentSuccess>
+}
+
+extension Objects {
   struct Filter {
     let __typename: TypeName = .filter
     let category: [String: String]
@@ -11112,6 +11242,7 @@ extension Objects {
     let deleteNewsletterEmail: [String: Unions.DeleteNewsletterEmailResult]
     let deleteRule: [String: Unions.DeleteRuleResult]
     let deleteWebhook: [String: Unions.DeleteWebhookResult]
+    let fetchContent: [String: Unions.FetchContentResult]
     let generateApiKey: [String: Unions.GenerateApiKeyResult]
     let googleLogin: [String: Unions.LoginResult]
     let googleSignup: [String: Unions.GoogleSignupResult]
@@ -11237,6 +11368,10 @@ extension Objects.Mutation: Decodable {
         }
       case "deleteWebhook":
         if let value = try container.decode(Unions.DeleteWebhookResult?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "fetchContent":
+        if let value = try container.decode(Unions.FetchContentResult?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "generateApiKey":
@@ -11441,6 +11576,7 @@ extension Objects.Mutation: Decodable {
     deleteNewsletterEmail = map["deleteNewsletterEmail"]
     deleteRule = map["deleteRule"]
     deleteWebhook = map["deleteWebhook"]
+    fetchContent = map["fetchContent"]
     generateApiKey = map["generateApiKey"]
     googleLogin = map["googleLogin"]
     googleSignup = map["googleSignup"]
@@ -11785,6 +11921,25 @@ extension Fields where TypeLock == Objects.Mutation {
     switch response {
     case let .decoding(data):
       if let data = data.deleteWebhook[field.alias!] {
+        return try selection.decode(data: data)
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return selection.mock()
+    }
+  }
+
+  func fetchContent<Type>(id: String, selection: Selection<Type, Unions.FetchContentResult>) throws -> Type {
+    let field = GraphQLField.composite(
+      name: "fetchContent",
+      arguments: [Argument(name: "id", type: "ID!", value: id)],
+      selection: selection.selection
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.fetchContent[field.alias!] {
         return try selection.decode(data: data)
       }
       throw HttpError.badpayload
@@ -27865,6 +28020,80 @@ extension Selection where TypeLock == Never, Type == Never {
 }
 
 extension Unions {
+  struct FetchContentResult {
+    let __typename: TypeName
+    let errorCodes: [String: [Enums.FetchContentErrorCode]]
+    let success: [String: Bool]
+
+    enum TypeName: String, Codable {
+      case fetchContentError = "FetchContentError"
+      case fetchContentSuccess = "FetchContentSuccess"
+    }
+  }
+}
+
+extension Unions.FetchContentResult: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
+
+    var map = HashMap()
+    for codingKey in container.allKeys {
+      if codingKey.isTypenameKey { continue }
+
+      let alias = codingKey.stringValue
+      let field = GraphQLField.getFieldNameFromAlias(alias)
+
+      switch field {
+      case "errorCodes":
+        if let value = try container.decode([Enums.FetchContentErrorCode]?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "success":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      default:
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: "Unknown key \(field)."
+          )
+        )
+      }
+    }
+
+    __typename = try container.decode(TypeName.self, forKey: DynamicCodingKeys(stringValue: "__typename")!)
+
+    errorCodes = map["errorCodes"]
+    success = map["success"]
+  }
+}
+
+extension Fields where TypeLock == Unions.FetchContentResult {
+  func on<Type>(fetchContentError: Selection<Type, Objects.FetchContentError>, fetchContentSuccess: Selection<Type, Objects.FetchContentSuccess>) throws -> Type {
+    select([GraphQLField.fragment(type: "FetchContentError", selection: fetchContentError.selection), GraphQLField.fragment(type: "FetchContentSuccess", selection: fetchContentSuccess.selection)])
+
+    switch response {
+    case let .decoding(data):
+      switch data.__typename {
+      case .fetchContentError:
+        let data = Objects.FetchContentError(errorCodes: data.errorCodes)
+        return try fetchContentError.decode(data: data)
+      case .fetchContentSuccess:
+        let data = Objects.FetchContentSuccess(success: data.success)
+        return try fetchContentSuccess.decode(data: data)
+      }
+    case .mocking:
+      return fetchContentError.mock()
+    }
+  }
+}
+
+extension Selection where TypeLock == Never, Type == Never {
+  typealias FetchContentResult<T> = Selection<T, Unions.FetchContentResult>
+}
+
+extension Unions {
   struct FiltersResult {
     let __typename: TypeName
     let errorCodes: [String: [Enums.FiltersErrorCode]]
@@ -33101,6 +33330,8 @@ extension Enums {
   enum ArticleSavingRequestStatus: String, CaseIterable, Codable {
     case archived = "ARCHIVED"
 
+    case contentNotFetched = "CONTENT_NOT_FETCHED"
+
     case deleted = "DELETED"
 
     case failed = "FAILED"
@@ -33408,6 +33639,15 @@ extension Enums {
 extension Enums {
   /// FeedsErrorCode
   enum FeedsErrorCode: String, CaseIterable, Codable {
+    case badRequest = "BAD_REQUEST"
+
+    case unauthorized = "UNAUTHORIZED"
+  }
+}
+
+extension Enums {
+  /// FetchContentErrorCode
+  enum FetchContentErrorCode: String, CaseIterable, Codable {
     case badRequest = "BAD_REQUEST"
 
     case unauthorized = "UNAUTHORIZED"

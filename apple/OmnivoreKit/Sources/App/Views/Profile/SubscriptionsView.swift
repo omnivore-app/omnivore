@@ -23,6 +23,7 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
   @Published var isLoading = true
   @Published var feeds = [Subscription]()
   @Published var newsletters = [Subscription]()
+  @Published var rules = [Rule]()
   @Published var hasNetworkError = false
   @Published var subscriptionNameToCancel: String?
   @Published var presentingSubscription: Subscription?
@@ -41,6 +42,9 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
     } catch {
       hasNetworkError = true
     }
+
+    // Also try to get the rules for auto labeling
+    rules = (try? await dataService.rules()) ?? []
 
     isLoading = false
   }
@@ -84,6 +88,21 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
     } catch {
       operationMessage = "Failed to update subscription"
       operationStatus = .failure
+    }
+  }
+
+  func setLabelsRule(dataService: DataService, ruleName: String, filter: String, labelIDs: [String]) async {
+    async {
+      operationMessage = "Creating label rule..."
+      operationStatus = .isPerforming
+      do {
+        try await dataService.createAddLabelsRule(name: ruleName, filter: filter, labelIDs: labelIDs)
+        operationMessage = "Rule created"
+        operationStatus = .success
+      } catch {
+        operationMessage = "Failed to create label rule"
+        operationStatus = .failure
+      }
     }
   }
 }
@@ -362,6 +381,20 @@ struct SubscriptionSettingsView: View {
 
   @Environment(\.dismiss) private var dismiss
 
+  var ruleName: String {
+    if let url = subscription.url, subscription.type == .newsletter {
+      return "system.autoLabel.(\(url))"
+    }
+    return "system.autoLabel.(\(subscription.name))"
+  }
+
+  var ruleFilter: String {
+    if let url = subscription.url, subscription.type == .newsletter {
+      return "rss:\"\(url)\""
+    }
+    return "subscription:\"\(subscription.name)\""
+  }
+
   var folderRow: some View {
     HStack {
       Picker("Destination Folder", selection: $folderSelection) {
@@ -395,6 +428,7 @@ struct SubscriptionSettingsView: View {
       Text("Add Labels")
       Spacer()
       Button(action: { showLabelsSelector = true }, label: {
+        let rule = viewModel.rules.first { $0.name == ruleName }
         Text("[none]")
       })
     }
@@ -451,10 +485,18 @@ struct SubscriptionSettingsView: View {
     }
     .sheet(isPresented: $showLabelsSelector) {
       ApplyLabelsView(mode: .list([]), onSave: { labels in
-        print("APPLIED LABELSL: ", labels)
-//        showLabelsModal = false
-//        item.labels = NSSet(array: labels)
-//        readerSettingsChangedTransactionID = UUID()
+        Task {
+          viewModel.showOperationToast = true
+          await viewModel.setLabelsRule(
+            dataService: dataService,
+            ruleName: ruleName,
+            filter: ruleFilter,
+            labelIDs: labels.map(\.unwrappedID)
+          )
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            viewModel.showOperationToast = false
+          }
+        }
       })
     }
   }
