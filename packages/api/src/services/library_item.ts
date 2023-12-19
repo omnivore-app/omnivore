@@ -1,6 +1,6 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, ObjectLiteral } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -1060,5 +1060,16 @@ export const deleteLibraryItemsByUserId = async (userId: string) => {
       }),
     undefined,
     userId
+  )
+}
+
+export const deleteLibraryItemsByAdmin = async (
+  criteria: FindOptionsWhere<LibraryItem>
+) => {
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).delete(criteria),
+    undefined,
+    undefined,
+    'admin'
   )
 }
