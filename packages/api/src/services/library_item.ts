@@ -10,9 +10,7 @@ import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { SaveFollowingItemRequest } from '../routers/svc/following'
-import { generateSlug, wordsCount } from '../utils/helpers'
-import { createThumbnailUrl } from '../utils/imageproxy'
+import { wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
 
 enum ReadFilter {
@@ -845,38 +843,6 @@ export const createLibraryItem = async (
   )
 
   return newLibraryItem
-}
-
-export const saveFeedItemInFollowing = (
-  input: SaveFollowingItemRequest,
-  userId: string
-) => {
-  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
-
-  return authTrx(
-    async (tx) => {
-      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
-        ...input,
-        user: { id: userId },
-        originalUrl: input.url,
-        subscription: input.addedToFollowingBy,
-        folder: InFilter.FOLLOWING,
-        slug: generateSlug(input.title),
-        thumbnail,
-      }
-
-      return tx
-        .getRepository(LibraryItem)
-        .createQueryBuilder()
-        .insert()
-        .values(itemToSave)
-        .orIgnore() // ignore if the item already exists
-        .returning('*')
-        .execute()
-    },
-    undefined,
-    userId
-  )
 }
 
 export const findLibraryItemsByPrefix = async (

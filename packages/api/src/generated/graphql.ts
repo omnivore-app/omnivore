@@ -191,6 +191,7 @@ export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavi
 
 export enum ArticleSavingRequestStatus {
   Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
   Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',
@@ -819,6 +820,23 @@ export type FeedsSuccess = {
   pageInfo: PageInfo;
 };
 
+export type FetchContentError = {
+  __typename?: 'FetchContentError';
+  errorCodes: Array<FetchContentErrorCode>;
+};
+
+export enum FetchContentErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FetchContentResult = FetchContentError | FetchContentSuccess;
+
+export type FetchContentSuccess = {
+  __typename?: 'FetchContentSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Filter = {
   __typename?: 'Filter';
   category?: Maybe<Scalars['String']>;
@@ -1334,6 +1352,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
+  fetchContent: FetchContentResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
@@ -1462,6 +1481,11 @@ export type MutationDeleteRuleArgs = {
 
 
 export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationFetchContentArgs = {
   id: Scalars['ID'];
 };
 
@@ -3623,6 +3647,10 @@ export type ResolversTypes = {
   FeedsInput: FeedsInput;
   FeedsResult: ResolversTypes['FeedsError'] | ResolversTypes['FeedsSuccess'];
   FeedsSuccess: ResolverTypeWrapper<FeedsSuccess>;
+  FetchContentError: ResolverTypeWrapper<FetchContentError>;
+  FetchContentErrorCode: FetchContentErrorCode;
+  FetchContentResult: ResolversTypes['FetchContentError'] | ResolversTypes['FetchContentSuccess'];
+  FetchContentSuccess: ResolverTypeWrapper<FetchContentSuccess>;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -4118,6 +4146,9 @@ export type ResolversParentTypes = {
   FeedsInput: FeedsInput;
   FeedsResult: ResolversParentTypes['FeedsError'] | ResolversParentTypes['FeedsSuccess'];
   FeedsSuccess: FeedsSuccess;
+  FetchContentError: FetchContentError;
+  FetchContentResult: ResolversParentTypes['FetchContentError'] | ResolversParentTypes['FetchContentSuccess'];
+  FetchContentSuccess: FetchContentSuccess;
   Filter: Filter;
   FiltersError: FiltersError;
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
@@ -4986,6 +5017,20 @@ export type FeedsSuccessResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FetchContentErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchContentError'] = ResolversParentTypes['FetchContentError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FetchContentErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FetchContentResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchContentResult'] = ResolversParentTypes['FetchContentResult']> = {
+  __resolveType: TypeResolveFn<'FetchContentError' | 'FetchContentSuccess', ParentType, ContextType>;
+};
+
+export type FetchContentSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchContentSuccess'] = ResolversParentTypes['FetchContentSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
   category?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
@@ -5376,6 +5421,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
+  fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
@@ -6558,6 +6604,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   FeedsError?: FeedsErrorResolvers<ContextType>;
   FeedsResult?: FeedsResultResolvers<ContextType>;
   FeedsSuccess?: FeedsSuccessResolvers<ContextType>;
+  FetchContentError?: FetchContentErrorResolvers<ContextType>;
+  FetchContentResult?: FetchContentResultResolvers<ContextType>;
+  FetchContentSuccess?: FetchContentSuccessResolvers<ContextType>;
   Filter?: FilterResolvers<ContextType>;
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;

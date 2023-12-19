@@ -21,11 +21,15 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  FetchContentError,
+  FetchContentErrorCode,
+  FetchContentSuccess,
   MoveToFolderError,
   MoveToFolderErrorCode,
   MoveToFolderSuccess,
   MutationBulkActionArgs,
   MutationCreateArticleArgs,
+  MutationFetchContentArgs,
   MutationMoveToFolderArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
@@ -67,6 +71,7 @@ import {
 } from '../../services/labels'
 import {
   createLibraryItem,
+  findLibraryItemById,
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
@@ -955,7 +960,7 @@ export const moveToFolderResolver = authorized<
   )
 
   // if the content is not fetched yet, create a page save request
-  if (!item.readableContent) {
+  if (item.state === LibraryItemState.ContentNotFetched) {
     try {
       await createPageSaveRequest({
         userId: uid,
@@ -972,6 +977,50 @@ export const moveToFolderResolver = authorized<
 
       return {
         errorCodes: [MoveToFolderErrorCode.BadRequest],
+      }
+    }
+  }
+
+  return {
+    success: true,
+  }
+})
+
+export const fetchContentResolver = authorized<
+  FetchContentSuccess,
+  FetchContentError,
+  MutationFetchContentArgs
+>(async (_, { id }, { uid, log, pubsub }) => {
+  analytics.track({
+    userId: uid,
+    event: 'fetch_content',
+    properties: {
+      id,
+    },
+  })
+
+  const item = await findLibraryItemById(id, uid)
+  if (!item) {
+    return {
+      errorCodes: [FetchContentErrorCode.Unauthorized],
+    }
+  }
+
+  // if the content is not fetched yet, create a page save request
+  if (item.state === LibraryItemState.ContentNotFetched) {
+    try {
+      await createPageSaveRequest({
+        userId: uid,
+        url: item.originalUrl,
+        articleSavingRequestId: id,
+        priority: 'high',
+        pubsub,
+      })
+    } catch (error) {
+      log.error('fetchContentResolver error', error)
+
+      return {
+        errorCodes: [FetchContentErrorCode.BadRequest],
       }
     }
   }

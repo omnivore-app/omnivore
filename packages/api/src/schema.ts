@@ -1111,6 +1111,7 @@ const schema = gql`
     FAILED
     DELETED
     ARCHIVED
+    CONTENT_NOT_FETCHED
   }
 
   type ArticleSavingRequest {
@@ -2721,6 +2722,21 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union FetchContentResult = FetchContentSuccess | FetchContentError
+
+  type FetchContentSuccess {
+    success: Boolean!
+  }
+
+  type FetchContentError {
+    errorCodes: [FetchContentErrorCode!]!
+  }
+
+  enum FetchContentErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2828,6 +2844,7 @@ const schema = gql`
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
     moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
+    fetchContent(id: ID!): FetchContentResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
