@@ -346,6 +346,7 @@ struct SubscriptionCell: View {
   }
 }
 
+@MainActor
 struct SubscriptionSettingsView: View {
   let subscription: Subscription
   let viewModel: SubscriptionsViewModel
@@ -355,11 +356,49 @@ struct SubscriptionSettingsView: View {
   @State var deleteConfirmationShown = false
   @State var showDeleteCompleted = false
   @State var folderSelection: String = ""
+  @State var showLabelsSelector = false
 
-  // let dismiss: () -> Void
   let unsubscribe: (_: Subscription) -> Void
 
   @Environment(\.dismiss) private var dismiss
+
+  var folderRow: some View {
+    HStack {
+      Picker("Destination Folder", selection: $folderSelection) {
+        Text("Inbox").tag("inbox")
+        Text("Following").tag("following")
+      }
+      .pickerStyle(MenuPickerStyle())
+      .onChange(of: folderSelection) { newValue in
+        Task {
+          viewModel.showOperationToast = true
+          await viewModel.updateSubscription(dataService: dataService, subscription: subscription, folder: newValue)
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            viewModel.showOperationToast = false
+          }
+        }
+      }
+      .onChange(of: prefetchContent) { newValue in
+        Task {
+          viewModel.showOperationToast = true
+          await viewModel.updateSubscription(dataService: dataService, subscription: subscription, fetchContent: newValue)
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            viewModel.showOperationToast = false
+          }
+        }
+      }
+    }
+  }
+
+  var labelRuleRow: some View {
+    HStack {
+      Text("Add Labels")
+      Spacer()
+      Button(action: { showLabelsSelector = true }, label: {
+        Text("[none]")
+      })
+    }
+  }
 
   var body: some View {
     VStack {
@@ -385,35 +424,14 @@ struct SubscriptionSettingsView: View {
         .padding(.horizontal, 15)
 
       List {
-        Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
-          .onAppear {
-            prefetchContent = subscription.fetchContent
-          }
-        HStack {
-          Picker("Destination Folder", selection: $folderSelection) {
-            Text("Inbox").tag("inbox")
-            Text("Following").tag("following")
-          }
-          .pickerStyle(MenuPickerStyle())
-          .onChange(of: folderSelection) { newValue in
-            Task {
-              viewModel.showOperationToast = true
-              await viewModel.updateSubscription(dataService: dataService, subscription: subscription, folder: newValue)
-              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-                viewModel.showOperationToast = false
-              }
+        if subscription.type != .newsletter {
+          Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
+            .onAppear {
+              prefetchContent = subscription.fetchContent
             }
-          }
-          .onChange(of: prefetchContent) { newValue in
-            Task {
-              viewModel.showOperationToast = true
-              await viewModel.updateSubscription(dataService: dataService, subscription: subscription, fetchContent: newValue)
-              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-                viewModel.showOperationToast = false
-              }
-            }
-          }
         }
+        folderRow
+        labelRuleRow
       }.listStyle(.insetGrouped)
 
       Spacer()
@@ -430,6 +448,14 @@ struct SubscriptionSettingsView: View {
       Button("No", role: .cancel) {
         viewModel.subscriptionNameToCancel = nil
       }
+    }
+    .sheet(isPresented: $showLabelsSelector) {
+      ApplyLabelsView(mode: .list([]), onSave: { labels in
+        print("APPLIED LABELSL: ", labels)
+//        showLabelsModal = false
+//        item.labels = NSSet(array: labels)
+//        readerSettingsChangedTransactionID = UUID()
+      })
     }
   }
 }
