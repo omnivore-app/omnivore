@@ -73,6 +73,19 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
       operationStatus = .failure
     }
   }
+
+  func updateSubscription(dataService: DataService, subscription: Subscription, folder: String? = nil, fetchContent: Bool? = nil) async {
+    operationMessage = "Updating subscription..."
+    operationStatus = .isPerforming
+    do {
+      try await dataService.updateSubscription(subscription.subscriptionID, folder: folder, fetchContent: fetchContent)
+      operationMessage = "Subscription updated"
+      operationStatus = .success
+    } catch {
+      operationMessage = "Failed to update subscription"
+      operationStatus = .failure
+    }
+  }
 }
 
 struct OperationToast: View {
@@ -186,6 +199,8 @@ struct SubscriptionsView: View {
           subscription: presentingSubscription,
           viewModel: viewModel,
           dataService: dataService,
+          prefetchContent: presentingSubscription.fetchContent,
+          folderSelection: presentingSubscription.folder,
           dismiss: { showSubscriptionsSheet = false },
           unsubscribe: { subscription in
             showSubscriptionsSheet = false
@@ -365,13 +380,24 @@ struct SubscriptionSettingsView: View {
             Text("Inbox").tag("inbox")
             Text("Following").tag("following")
           }
-          .pickerStyle(MenuPickerStyle()) // makes the picker appear as a menu
-          .onAppear {
-            folderSelection = subscription.folder
-            print("FOLDER: ", folderSelection)
+          .pickerStyle(MenuPickerStyle())
+          .onChange(of: folderSelection) { newValue in
+            Task {
+              viewModel.showOperationToast = true
+              await viewModel.updateSubscription(dataService: dataService, subscription: subscription, folder: newValue)
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+                viewModel.showOperationToast = false
+              }
+            }
           }
-          .onChange(of: folderSelection) { _ in
-            print("CHANGED FOLDER: ", folderSelection)
+          .onChange(of: prefetchContent) { newValue in
+            Task {
+              viewModel.showOperationToast = true
+              await viewModel.updateSubscription(dataService: dataService, subscription: subscription, fetchContent: newValue)
+              DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+                viewModel.showOperationToast = false
+              }
+            }
           }
         }
       }.listStyle(.insetGrouped)

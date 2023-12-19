@@ -57,7 +57,7 @@ struct LabelsView: View {
           let trimmedLabelName = viewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
           Image(systemName: "tag").foregroundColor(.blue)
           Text(
-            viewModel.labelSearchFilter.count > 0 ?
+            viewModel.labelSearchFilter.count > 0 && viewModel.labelSearchFilter != ZWSP ?
               "Create: \"\(trimmedLabelName)\" label" :
               LocalText.createLabelMessage
           ).foregroundColor(.blue)
@@ -106,16 +106,6 @@ struct CreateLabelView: View {
 
   var innerBody: some View {
     VStack {
-      HStack {
-        if !newLabelName.isEmpty, newLabelColor != .clear {
-          TextChip(text: newLabelName, color: newLabelColor)
-        } else {
-          Text(LocalText.labelsViewAssignNameColor).font(.appBody)
-        }
-        Spacer()
-      }
-      .padding(.bottom, 8)
-
       TextField(LocalText.labelNamePlaceholder, text: $newLabelName)
         .textFieldStyle(StandardTextFieldStyle())
         .onChange(of: newLabelName) { inputLabelName in

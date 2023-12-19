@@ -5,6 +5,7 @@ import Models
 struct InternalNewsletterEmail {
   let emailId: String
   let email: String
+  let folder: String
   let confirmationCode: String?
 
   func persist(context: NSManagedObjectContext) -> NSManagedObjectID? {
@@ -32,6 +33,7 @@ struct InternalNewsletterEmail {
 
     newsletterEmail.emailId = emailId
     newsletterEmail.email = email
+    newsletterEmail.folder = folder
     newsletterEmail.confirmationCode = confirmationCode
     return newsletterEmail
   }

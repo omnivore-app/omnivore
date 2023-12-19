@@ -3,6 +3,7 @@ import Models
 import PopupView
 import Services
 import SwiftUI
+import Transmission
 import Utils
 import Views
 import WebKit
@@ -367,6 +368,11 @@ struct WebReaderContainerView: View {
 
   var body: some View {
     ZStack {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
+        ReaderOperationToast(viewModel: viewModel)
+      } label: {
+        EmptyView()
+      }
       if let articleContent = viewModel.articleContent {
         WebReader(
           item: item,
@@ -568,7 +574,9 @@ struct WebReaderContainerView: View {
           }
           if navBarVisible {
             CustomToolBar(
+              isFollowing: item.folder == "following",
               isArchived: item.isArchived,
+              moveToInboxAction: moveToInbox,
               archiveAction: archive,
               unarchiveAction: archive,
               shareAction: share,
@@ -611,6 +619,25 @@ struct WebReaderContainerView: View {
         viewModel.snackbarOperation = SnackbarOperation(message: message,
                                                         undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
         viewModel.showSnackbar = true
+      }
+    }
+  }
+
+  func moveToInbox() {
+    Task {
+      viewModel.showOperationToast = true
+      viewModel.operationMessage = "Moving to library..."
+      viewModel.operationStatus = .isPerforming
+      do {
+        try await dataService.moveItem(itemID: item.unwrappedID, folder: "inbox")
+        viewModel.operationMessage = "Moved to library"
+        viewModel.operationStatus = .success
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+          viewModel.showOperationToast = false
+        }
+      } catch {
+        viewModel.operationMessage = "Error moving"
+        viewModel.operationStatus = .failure
       }
     }
   }
@@ -668,5 +695,39 @@ struct WebReaderContainerView: View {
     else { return }
 
     openURL(url)
+  }
+}
+
+struct ReaderOperationToast: View {
+  @State var viewModel: WebReaderViewModel
+
+  var body: some View {
+    VStack {
+      HStack {
+        if viewModel.operationStatus == .isPerforming {
+          Text(viewModel.operationMessage ?? "Performing...")
+          Spacer()
+          ProgressView()
+        } else if viewModel.operationStatus == .success {
+          Text(viewModel.operationMessage ?? "Success")
+          Spacer()
+        } else if viewModel.operationStatus == .failure {
+          Text(viewModel.operationMessage ?? "Failure")
+          Spacer()
+          Button(action: { viewModel.showOperationToast = false }, label: {
+            Text("Done").bold()
+          })
+        }
+      }
+      .padding(10)
+      .frame(minHeight: 50)
+      .frame(maxWidth: .infinity)
+      .background(Color(hex: "2A2A2A"))
+      .cornerRadius(4.0)
+      .tint(Color.green)
+    }
+    .padding(.bottom, 60)
+    .padding(.horizontal, 10)
+    .ignoresSafeArea(.all, edges: .bottom)
   }
 }

@@ -3,7 +3,9 @@ import SwiftUI
 import Views
 
 struct CustomToolBar: View {
+  let isFollowing: Bool
   let isArchived: Bool
+  let moveToInboxAction: () -> Void
   let archiveAction: () -> Void
   let unarchiveAction: () -> Void
   let shareAction: () -> Void
@@ -30,7 +32,9 @@ struct CustomToolBar: View {
         .frame(height: 0.5)
         .frame(maxWidth: .infinity)
       HStack(spacing: 0) {
-        if isArchived {
+        if isFollowing {
+          ToolBarButton(image: Image.tabLibrary, action: moveToInboxAction)
+        } else if isArchived {
           ToolBarButton(image: Image.toolbarUnarchive, action: unarchiveAction)
         } else {
           ToolBarButton(image: Image.toolbarArchive, action: archiveAction)

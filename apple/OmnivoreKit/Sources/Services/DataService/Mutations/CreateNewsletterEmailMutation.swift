@@ -20,6 +20,7 @@ public extension DataService {
             InternalNewsletterEmail(
               emailId: try $0.id(),
               email: try $0.address(),
+              folder: try $0.folder(),
               confirmationCode: try $0.confirmationCode()
             )
           }))
