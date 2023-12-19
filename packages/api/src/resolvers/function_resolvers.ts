@@ -4,7 +4,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
-import { NewsletterEmail } from '../entity/newsletter_email'
+import {
+  EXISTING_NEWSLETTER_FOLDER,
+  NewsletterEmail,
+} from '../entity/newsletter_email'
 import {
   DEFAULT_SUBSCRIPTION_FOLDER,
   Subscription,
@@ -449,6 +452,9 @@ export const functionResolvers = {
   NewsletterEmail: {
     subscriptionCount(newsletterEmail: NewsletterEmail) {
       return newsletterEmail.subscriptions?.length || 0
+    },
+    folder(newsletterEmail: NewsletterEmail) {
+      return newsletterEmail.folder || EXISTING_NEWSLETTER_FOLDER
     },
   },
   ...resultResolveTypeResolver('Login'),

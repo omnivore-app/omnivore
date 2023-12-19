@@ -18,6 +18,7 @@ import { createTestUser } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 describe('Newsletters API', () => {
+  const defaultFolder = 'inbox'
   let user: User
   let authToken: string
 
@@ -47,6 +48,7 @@ describe('Newsletters API', () => {
               confirmationCode
               createdAt
               subscriptionCount
+              folder
             }
           }
   
@@ -101,6 +103,7 @@ describe('Newsletters API', () => {
             createdAt:
               newsletterEmails[1].createdAt.toISOString().split('.')[0] + 'Z',
             subscriptionCount: 1,
+            folder: defaultFolder,
           },
           {
             id: newsletterEmails[0].id,
@@ -109,6 +112,7 @@ describe('Newsletters API', () => {
             createdAt:
               newsletterEmails[0].createdAt.toISOString().split('.')[0] + 'Z',
             subscriptionCount: 0,
+            folder: defaultFolder,
           },
         ])
       })
@@ -165,8 +169,8 @@ describe('Newsletters API', () => {
 
   describe('Create newsletter email', () => {
     const query = `
-      mutation {
-        createNewsletterEmail {
+      mutation CreateNewsletterEmail($input: CreateNewsletterEmailInput!) {
+        createNewsletterEmail(input: $input) {
           ... on CreateNewsletterEmailSuccess {
             newsletterEmail {
               id
@@ -181,11 +185,17 @@ describe('Newsletters API', () => {
     `
 
     it('responds with status code 200', async () => {
-      const response = await graphqlRequest(query, authToken).expect(200)
+      const folder = 'following'
+      const response = await graphqlRequest(query, authToken, {
+        input: {
+          folder,
+        }
+      }).expect(200)
       const newsletterEmail = await findNewsletterEmailById(
-        response.body.data.createNewsletterEmail.id
+        response.body.data.createNewsletterEmail.newsletterEmail.id
       )
       expect(newsletterEmail).not.to.be.undefined
+      expect(newsletterEmail?.folder).to.eql(folder)
     })
 
     it('responds status code 400 when invalid query', async () => {
