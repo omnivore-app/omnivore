@@ -147,6 +147,15 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         visible: true,
         position: 2,
         defaultFilter: true
+      ),
+      InternalFilter(
+        id: "newsletters",
+        name: "Newsletters",
+        folder: "following",
+        filter: "in:following label:Newsletter",
+        visible: true,
+        position: 3,
+        defaultFilter: true
       )
     ]
   }
