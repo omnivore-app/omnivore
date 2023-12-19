@@ -10,10 +10,7 @@ import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx, getColumns } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { SaveFollowingItemRequest } from '../routers/svc/following'
-import { generateSlug, wordsCount } from '../utils/helpers'
-import { createThumbnailUrl } from '../utils/imageproxy'
-import { parsePreparedContent } from '../utils/parser'
+import { wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
 
 enum ReadFilter {
@@ -846,59 +843,6 @@ export const createLibraryItem = async (
   )
 
   return newLibraryItem
-}
-
-export const saveFeedItemInFollowing = async (
-  input: SaveFollowingItemRequest,
-  userId: string
-) => {
-  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
-  let content: string | undefined
-
-  if (input.previewContent) {
-    const parsedResult = await parsePreparedContent(input.url, {
-      document: input.previewContent,
-      pageInfo: {
-        title: input.title,
-        author: input.author,
-        canonicalUrl: input.url,
-        contentType: input.previewContentType,
-        description: input.description,
-        previewImage: thumbnail,
-      },
-    })
-
-    if (parsedResult.parsedContent) {
-      content = parsedResult.parsedContent.content
-    }
-  }
-
-  return authTrx(
-    async (tx) => {
-      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
-        ...input,
-        user: { id: userId },
-        originalUrl: input.url,
-        subscription: input.addedToFollowingBy,
-        folder: InFilter.FOLLOWING,
-        slug: generateSlug(input.title),
-        thumbnail,
-        readableContent: content,
-        state: LibraryItemState.ContentNotFetched,
-      }
-
-      return tx
-        .getRepository(LibraryItem)
-        .createQueryBuilder()
-        .insert()
-        .values(itemToSave)
-        .orIgnore() // ignore if the item already exists
-        .returning('*')
-        .execute()
-    },
-    undefined,
-    userId
-  )
 }
 
 export const findLibraryItemsByPrefix = async (

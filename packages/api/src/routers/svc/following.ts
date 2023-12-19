@@ -1,8 +1,19 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
+import {
+  ArticleSavingRequestStatus,
+  PreparedDocumentInput,
+} from '../../generated/graphql'
 import { createAndSaveLabelsInLibraryItem } from '../../services/labels'
-import { saveFeedItemInFollowing } from '../../services/library_item'
+import { createLibraryItem } from '../../services/library_item'
+import { parsedContentToLibraryItem } from '../../services/save_page'
+import { cleanUrl, generateSlug } from '../../utils/helpers'
+import { createThumbnailUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
+import {
+  ParsedContentPuppeteer,
+  parsePreparedContent,
+} from '../../utils/parser'
 
 type SourceOfFollowing = 'feed' | 'newsletter' | 'user'
 
@@ -35,6 +46,8 @@ function isSaveFollowingItemRequest(
   )
 }
 
+const FOLDER = 'following'
+
 export function followingServiceRouter() {
   const router = express.Router()
 
@@ -58,20 +71,68 @@ export function followingServiceRouter() {
       const userId = req.body.userIds[0]
       logger.info('saving feed item', userId)
 
-      const result = await saveFeedItemInFollowing(req.body, userId)
-      if (result.identifiers.length === 0) {
-        logger.error('error saving feed item in following')
-        return res.status(500).send('ERROR_SAVING_FEED_ITEM')
+      const feedUrl = req.body.addedToFollowingBy
+      const thumbnail =
+        req.body.thumbnail && createThumbnailUrl(req.body.thumbnail)
+      const url = cleanUrl(req.body.url)
+
+      const preparedDocument: PreparedDocumentInput = {
+        document: req.body.previewContent || '',
+        pageInfo: {
+          title: req.body.title,
+          author: req.body.author,
+          canonicalUrl: url,
+          contentType: req.body.previewContentType,
+          description: req.body.description,
+          previewImage: thumbnail,
+        },
+      }
+      let parsedResult: ParsedContentPuppeteer | undefined
+
+      // parse the content if we have a preview content
+      if (req.body.previewContent) {
+        parsedResult = await parsePreparedContent(url, preparedDocument)
       }
 
+      const { pathname } = new URL(url)
+      const croppedPathname = decodeURIComponent(
+        pathname
+          .split('/')
+          [pathname.split('/').length - 1].split('.')
+          .slice(0, -1)
+          .join('.')
+      ).replace(/_/gi, ' ')
+
+      const slug = generateSlug(
+        parsedResult?.parsedContent?.title || croppedPathname
+      )
+      const itemToSave = parsedContentToLibraryItem({
+        url,
+        title: req.body.title,
+        parsedContent: parsedResult?.parsedContent || null,
+        userId,
+        slug,
+        croppedPathname,
+        originalHtml: req.body.previewContent,
+        itemType: parsedResult?.pageType || 'unknown',
+        canonicalUrl: url,
+        folder: FOLDER,
+        rssFeedUrl: feedUrl,
+        preparedDocument,
+        savedAt: req.body.savedAt,
+        publishedAt: req.body.publishedAt,
+        state: ArticleSavingRequestStatus.ContentNotFetched,
+      })
+
+      const newItem = await createLibraryItem(itemToSave, userId)
       logger.info('feed item saved in following')
 
       // save RSS label in the item
       await createAndSaveLabelsInLibraryItem(
-        result.identifiers[0].id,
+        newItem.id,
         userId,
         [{ name: 'RSS' }],
-        req.body.addedToFollowingBy
+        feedUrl
       )
 
       logger.info('RSS label added to the item')
