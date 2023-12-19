@@ -9220,6 +9220,7 @@ extension Objects {
     let `internal`: [String: Bool]
     let name: [String: String]
     let position: [String: Int]
+    let source: [String: String]
 
     enum TypeName: String, Codable {
       case label = "Label"
@@ -9267,6 +9268,10 @@ extension Objects.Label: Decodable {
         if let value = try container.decode(Int?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "source":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       default:
         throw DecodingError.dataCorrupted(
           DecodingError.Context(
@@ -9284,6 +9289,7 @@ extension Objects.Label: Decodable {
     self.internal = map["internal"]
     name = map["name"]
     position = map["position"]
+    source = map["source"]
   }
 }
 
@@ -9397,6 +9403,21 @@ extension Fields where TypeLock == Objects.Label {
     switch response {
     case let .decoding(data):
       return data.position[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func source() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "source",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.source[field.alias!]
     case .mocking:
       return nil
     }
@@ -11601,10 +11622,10 @@ extension Fields where TypeLock == Objects.Mutation {
     }
   }
 
-  func createNewsletterEmail<Type>(selection: Selection<Type, Unions.CreateNewsletterEmailResult>) throws -> Type {
+  func createNewsletterEmail<Type>(input: OptionalArgument<InputObjects.CreateNewsletterEmailInput> = .absent(), selection: Selection<Type, Unions.CreateNewsletterEmailResult>) throws -> Type {
     let field = GraphQLField.composite(
       name: "createNewsletterEmail",
-      arguments: [],
+      arguments: [Argument(name: "input", type: "CreateNewsletterEmailInput", value: input)],
       selection: selection.selection
     )
     select(field)
@@ -12619,7 +12640,10 @@ extension Objects {
     let address: [String: String]
     let confirmationCode: [String: String]
     let createdAt: [String: DateTime]
+    let description: [String: String]
+    let folder: [String: String]
     let id: [String: String]
+    let name: [String: String]
     let subscriptionCount: [String: Int]
 
     enum TypeName: String, Codable {
@@ -12652,7 +12676,19 @@ extension Objects.NewsletterEmail: Decodable {
         if let value = try container.decode(DateTime?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
+      case "description":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "folder":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
       case "id":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "name":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -12673,7 +12709,10 @@ extension Objects.NewsletterEmail: Decodable {
     address = map["address"]
     confirmationCode = map["confirmationCode"]
     createdAt = map["createdAt"]
+    description = map["description"]
+    folder = map["folder"]
     id = map["id"]
+    name = map["name"]
     subscriptionCount = map["subscriptionCount"]
   }
 }
@@ -12730,6 +12769,39 @@ extension Fields where TypeLock == Objects.NewsletterEmail {
     }
   }
 
+  func description() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "description",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.description[field.alias!]
+    case .mocking:
+      return nil
+    }
+  }
+
+  func folder() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "folder",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.folder[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
+    }
+  }
+
   func id() throws -> String {
     let field = GraphQLField.leaf(
       name: "id",
@@ -12745,6 +12817,21 @@ extension Fields where TypeLock == Objects.NewsletterEmail {
       throw HttpError.badpayload
     case .mocking:
       return String.mockValue
+    }
+  }
+
+  func name() throws -> String? {
+    let field = GraphQLField.leaf(
+      name: "name",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      return data.name[field.alias!]
+    case .mocking:
+      return nil
     }
   }
 
@@ -20863,6 +20950,8 @@ extension Objects {
     let count: [String: Int]
     let createdAt: [String: DateTime]
     let description: [String: String]
+    let fetchContent: [String: Bool]
+    let folder: [String: String]
     let icon: [String: String]
     let id: [String: String]
     let isPrivate: [String: Bool]
@@ -20907,6 +20996,14 @@ extension Objects.Subscription: Decodable {
           map.set(key: field, hash: alias, value: value as Any)
         }
       case "description":
+        if let value = try container.decode(String?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "fetchContent":
+        if let value = try container.decode(Bool?.self, forKey: codingKey) {
+          map.set(key: field, hash: alias, value: value as Any)
+        }
+      case "folder":
         if let value = try container.decode(String?.self, forKey: codingKey) {
           map.set(key: field, hash: alias, value: value as Any)
         }
@@ -20972,6 +21069,8 @@ extension Objects.Subscription: Decodable {
     count = map["count"]
     createdAt = map["createdAt"]
     description = map["description"]
+    fetchContent = map["fetchContent"]
+    folder = map["folder"]
     icon = map["icon"]
     id = map["id"]
     isPrivate = map["isPrivate"]
@@ -21051,6 +21150,42 @@ extension Fields where TypeLock == Objects.Subscription {
       return data.description[field.alias!]
     case .mocking:
       return nil
+    }
+  }
+
+  func fetchContent() throws -> Bool {
+    let field = GraphQLField.leaf(
+      name: "fetchContent",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.fetchContent[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return Bool.mockValue
+    }
+  }
+
+  func folder() throws -> String {
+    let field = GraphQLField.leaf(
+      name: "folder",
+      arguments: []
+    )
+    select(field)
+
+    switch response {
+    case let .decoding(data):
+      if let data = data.folder[field.alias!] {
+        return data
+      }
+      throw HttpError.badpayload
+    case .mocking:
+      return String.mockValue
     }
   }
 
@@ -34484,6 +34619,29 @@ extension InputObjects {
 }
 
 extension InputObjects {
+  struct CreateNewsletterEmailInput: Encodable, Hashable {
+    var description: OptionalArgument<String> = .absent()
+
+    var folder: OptionalArgument<String> = .absent()
+
+    var name: OptionalArgument<String> = .absent()
+
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      if description.hasValue { try container.encode(description, forKey: .description) }
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
+      if name.hasValue { try container.encode(name, forKey: .name) }
+    }
+
+    enum CodingKeys: String, CodingKey {
+      case description
+      case folder
+      case name
+    }
+  }
+}
+
+extension InputObjects {
   struct CreateReactionInput: Encodable, Hashable {
     var code: Enums.ReactionType
 
@@ -35347,17 +35505,21 @@ extension InputObjects {
 
     var pageId: String
 
+    var source: OptionalArgument<String> = .absent()
+
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if labelIds.hasValue { try container.encode(labelIds, forKey: .labelIds) }
       if labels.hasValue { try container.encode(labels, forKey: .labels) }
       try container.encode(pageId, forKey: .pageId)
+      if source.hasValue { try container.encode(source, forKey: .source) }
     }
 
     enum CodingKeys: String, CodingKey {
       case labelIds
       case labels
       case pageId
+      case source
     }
   }
 }
@@ -35560,6 +35722,10 @@ extension InputObjects {
   struct SubscribeInput: Encodable, Hashable {
     var autoAddToLibrary: OptionalArgument<Bool> = .absent()
 
+    var fetchContent: OptionalArgument<Bool> = .absent()
+
+    var folder: OptionalArgument<String> = .absent()
+
     var isPrivate: OptionalArgument<Bool> = .absent()
 
     var subscriptionType: OptionalArgument<Enums.SubscriptionType> = .absent()
@@ -35569,6 +35735,8 @@ extension InputObjects {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if autoAddToLibrary.hasValue { try container.encode(autoAddToLibrary, forKey: .autoAddToLibrary) }
+      if fetchContent.hasValue { try container.encode(fetchContent, forKey: .fetchContent) }
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       if isPrivate.hasValue { try container.encode(isPrivate, forKey: .isPrivate) }
       if subscriptionType.hasValue { try container.encode(subscriptionType, forKey: .subscriptionType) }
       try container.encode(url, forKey: .url)
@@ -35576,6 +35744,8 @@ extension InputObjects {
 
     enum CodingKeys: String, CodingKey {
       case autoAddToLibrary
+      case fetchContent
+      case folder
       case isPrivate
       case subscriptionType
       case url
@@ -35840,6 +36010,10 @@ extension InputObjects {
 
     var description: OptionalArgument<String> = .absent()
 
+    var fetchContent: OptionalArgument<Bool> = .absent()
+
+    var folder: OptionalArgument<String> = .absent()
+
     var id: String
 
     var isPrivate: OptionalArgument<Bool> = .absent()
@@ -35858,6 +36032,8 @@ extension InputObjects {
       var container = encoder.container(keyedBy: CodingKeys.self)
       if autoAddToLibrary.hasValue { try container.encode(autoAddToLibrary, forKey: .autoAddToLibrary) }
       if description.hasValue { try container.encode(description, forKey: .description) }
+      if fetchContent.hasValue { try container.encode(fetchContent, forKey: .fetchContent) }
+      if folder.hasValue { try container.encode(folder, forKey: .folder) }
       try container.encode(id, forKey: .id)
       if isPrivate.hasValue { try container.encode(isPrivate, forKey: .isPrivate) }
       if lastFetchedAt.hasValue { try container.encode(lastFetchedAt, forKey: .lastFetchedAt) }
@@ -35870,6 +36046,8 @@ extension InputObjects {
     enum CodingKeys: String, CodingKey {
       case autoAddToLibrary
       case description
+      case fetchContent
+      case folder
       case id
       case isPrivate
       case lastFetchedAt

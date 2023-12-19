@@ -327,6 +327,7 @@ struct SubscriptionSettingsView: View {
   @State var prefetchContent = false
   @State var deleteConfirmationShown = false
   @State var showDeleteCompleted = false
+  @State var folderSelection: String = ""
 
   let dismiss: () -> Void
   let unsubscribe: (_: Subscription) -> Void
@@ -355,14 +356,23 @@ struct SubscriptionSettingsView: View {
         .padding(.horizontal, 15)
 
       List {
-        Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:").foregroundColor(.appGrayText) })
+        Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
+          .onAppear {
+            prefetchContent = subscription.fetchContent
+          }
         HStack {
-          Text("Destination Folder:")
-            .foregroundColor(.appGrayText)
-          Spacer()
-          Menu(content: {}, label: {
-            Text("Following <>")
-          })
+          Picker("Destination Folder", selection: $folderSelection) {
+            Text("Inbox").tag("inbox")
+            Text("Following").tag("following")
+          }
+          .pickerStyle(MenuPickerStyle()) // makes the picker appear as a menu
+          .onAppear {
+            folderSelection = subscription.folder
+            print("FOLDER: ", folderSelection)
+          }
+          .onChange(of: folderSelection) { _ in
+            print("CHANGED FOLDER: ", folderSelection)
+          }
         }
       }.listStyle(.insetGrouped)
 
