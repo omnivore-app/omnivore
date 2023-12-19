@@ -137,7 +137,7 @@ export const createPageSaveRequest = async ({
       pubsub
     )
   }
-  // reset state to processing if not in following
+  // reset state to processing
   if (libraryItem.state !== LibraryItemState.Processing) {
     libraryItem = await updateLibraryItem(
       libraryItem.id,

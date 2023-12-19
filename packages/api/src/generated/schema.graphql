@@ -728,6 +728,21 @@ type FeedsSuccess {
   pageInfo: PageInfo!
 }
 
+type FetchContentError {
+  errorCodes: [FetchContentErrorCode!]!
+}
+
+enum FetchContentErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FetchContentResult = FetchContentError | FetchContentSuccess
+
+type FetchContentSuccess {
+  success: Boolean!
+}
+
 type Filter {
   category: String
   createdAt: Date!
@@ -1198,6 +1213,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
+  fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
