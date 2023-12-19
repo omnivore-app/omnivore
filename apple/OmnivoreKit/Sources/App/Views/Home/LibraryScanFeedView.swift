@@ -7,6 +7,7 @@ import Utils
 public class LibraryAddFeedViewModel: NSObject, ObservableObject {
   let dataService: DataService
   let feedURL: String
+  let toastOperationHandler: ToastOperationHandler?
 
   @Published var isLoading = true
   @Published var errorMessage: String = ""
@@ -15,9 +16,10 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
   @Published var feeds: [Feed] = []
   @Published var selected: [String] = []
 
-  init(dataService: DataService, feedURL: String) {
+  init(dataService: DataService, feedURL: String, toastOperationHandler: ToastOperationHandler?) {
     self.dataService = dataService
     self.feedURL = feedURL
+    self.toastOperationHandler = toastOperationHandler
   }
 
   func scanFeed() async {
@@ -38,28 +40,64 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
   }
 
   func addFeeds() async {
-    _ = await withTaskGroup(of: Bool.self) { group in
-      for feedURL in selected {
-        group.addTask {
-          (try? await self.dataService.subscribeToFeed(feedURL: feedURL)) ?? false
+    if let toastOperationHandler = toastOperationHandler {
+      toastOperationHandler.update(OperationStatus.isPerforming, "Subscribing...")
+
+      let selected = self.selected
+
+      let addTask = Task.detached(priority: .background) {
+        _ = await withTaskGroup(of: Bool.self) { group in
+          for feedURL in selected {
+            group.addTask {
+              (try? await self.dataService.subscribeToFeed(feedURL: feedURL)) ?? false
+            }
+          }
+
+          var successCount = 0
+          var failureCount = 0
+          for await value in group {
+            if value {
+              successCount += 1
+            } else {
+              failureCount += 1
+            }
+          }
+
+          let hasFailures = failureCount
+          DispatchQueue.main.async {
+            if hasFailures > 0 {
+              toastOperationHandler.update(OperationStatus.failure, "Failed to subscribe to \(hasFailures) feeds")
+            } else {
+              toastOperationHandler.update(OperationStatus.success, "Subscribed")
+            }
+          }
         }
       }
-
-      var successCount = 0
-      var failureCount = 0
-      for await value in group {
-        if value {
-          successCount += 1
-        } else {
-          failureCount += 1
+      toastOperationHandler.performOperation(addTask)
+    } else {
+      _ = await withTaskGroup(of: Bool.self) { group in
+        for feedURL in selected {
+          group.addTask {
+            (try? await self.dataService.subscribeToFeed(feedURL: feedURL)) ?? false
+          }
         }
-      }
 
-      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
-        if failureCount > 0 {
-          showInLibrarySnackbar("Failed to add \(failureCount) feeds")
-        } else {
-          showInLibrarySnackbar("Added \(successCount) feed\(successCount == 0 ? "" : "s")")
+        var successCount = 0
+        var failureCount = 0
+        for await value in group {
+          if value {
+            successCount += 1
+          } else {
+            failureCount += 1
+          }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
+          if failureCount > 0 {
+            showInLibrarySnackbar("Failed to add \(failureCount) feeds")
+          } else {
+            showInLibrarySnackbar("Added \(successCount) feed\(successCount == 0 ? "" : "s")")
+          }
         }
       }
     }

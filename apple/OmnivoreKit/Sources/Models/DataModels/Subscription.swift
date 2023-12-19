@@ -7,6 +7,8 @@ public struct Subscription {
   public let subscriptionID: String
   public let name: String
   public let type: SubscriptionType
+  public let folder: String
+  public let fetchContent: Bool
   public let newsletterEmailAddress: String?
   public let status: SubscriptionStatus
   public let unsubscribeHttpUrl: String?
@@ -21,6 +23,8 @@ public struct Subscription {
     subscriptionID: String,
     name: String,
     type: SubscriptionType,
+    folder: String,
+    fetchContent: Bool,
     newsletterEmailAddress: String?,
     status: SubscriptionStatus,
     unsubscribeHttpUrl: String?,
@@ -34,6 +38,8 @@ public struct Subscription {
     self.subscriptionID = subscriptionID
     self.name = name
     self.type = type
+    self.folder = folder
+    self.fetchContent = fetchContent
     self.newsletterEmailAddress = newsletterEmailAddress
     self.status = status
     self.unsubscribeHttpUrl = unsubscribeHttpUrl

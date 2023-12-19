@@ -732,7 +732,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         NavigationView {
           LibraryAddFeedView(dismiss: {
             showAddFeedView = false
-          })
+          }, toastOperationHandler: nil)
         }
       }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",

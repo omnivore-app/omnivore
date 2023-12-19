@@ -10,6 +10,8 @@ struct LibraryAddFeedView: View {
   @State var newLinkURL: String = ""
   @EnvironmentObject var dataService: DataService
 
+  let toastOperationHandler: ToastOperationHandler?
+
   enum FocusField: Hashable {
     case addLinkEditor
   }
@@ -42,7 +44,10 @@ struct LibraryAddFeedView: View {
         }
         ToolbarItem(placement: .navigationBarTrailing) {
           NavigationLink(
-            destination: LibraryScanFeedView(dismiss: self.dismiss, viewModel: LibraryAddFeedViewModel(dataService: dataService, feedURL: newLinkURL)),
+            destination: LibraryScanFeedView(
+              dismiss: self.dismiss,
+              viewModel: LibraryAddFeedViewModel(dataService: dataService, feedURL: newLinkURL, toastOperationHandler: toastOperationHandler)
+            ),
             label: { Text("Add").bold() }
           )
         }

@@ -4,12 +4,20 @@ import SwiftUI
 import Transmission
 import Views
 
-enum UnsubscribeState {
+enum OperationStatus {
   case none
-  case isUnsubscribing
-  case unsubscribeSuccess
-  case unsubscribeFailure
+  case isPerforming
+  case success
+  case failure
 }
+
+@MainActor
+struct ToastOperationHandler {
+  let performOperation: (_: Sendable?) -> Void
+  let update: (_: OperationStatus, _: String) -> Void
+}
+
+typealias OperationStatusHandler = (_: OperationStatus) -> Void
 
 @MainActor final class SubscriptionsViewModel: ObservableObject {
   @Published var isLoading = true
@@ -18,7 +26,10 @@ enum UnsubscribeState {
   @Published var hasNetworkError = false
   @Published var subscriptionNameToCancel: String?
   @Published var presentingSubscription: Subscription?
-  @Published var unsubscribeState: UnsubscribeState = .none
+
+  @Published var showOperationToast = false
+  @Published var operationStatus: OperationStatus = .none
+  @Published var operationMessage: String?
 
   func loadSubscriptions(dataService: DataService) async {
     isLoading = true
@@ -34,56 +45,67 @@ enum UnsubscribeState {
     isLoading = false
   }
 
-  func cancelSubscription(dataService _: DataService, subscription: Subscription) async {
-    unsubscribeState = .isUnsubscribing
-    let subscriptionName = subscription.name
+  func cancelSubscription(dataService: DataService, subscription: Subscription) async {
+    operationMessage = "Unsubscribing..."
+    operationStatus = .isPerforming
 
-    //   do {
-    //     try await dataService.deleteSubscription(subscriptionName: subscriptionName)
-//      let index = subscriptions.firstIndex { $0.name == subscriptionName }
-//      if let index = index {
-//        subscriptions.remove(at: index)
-//      }
-//    unsubscribeState = .unsubscribeSuccess
-//    } catch {
-//      appLogger.debug("failed to remove subscription")
-//      unsubscribeState = .unsubscribeFailure
-//    }
+    do {
+      try await dataService.deleteSubscription(subscriptionName: subscription.name, subscriptionId: subscription.subscriptionID)
+      var list = subscription.type == .feed ? feeds : newsletters
+      let index = list.firstIndex { $0.subscriptionID == subscription.subscriptionID }
+      if let index = index {
+        list.remove(at: index)
+        switch subscription.type {
+        case .feed:
+          feeds = list
+        case .newsletter:
+          newsletters = list
+        }
+      }
+      operationMessage = "Unsubscribed"
+      operationStatus = .success
+      DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
+        self.showOperationToast = false
+      }
+    } catch {
+      appLogger.debug("failed to remove subscription")
+      operationMessage = "Failed to unsubscribe"
+      operationStatus = .failure
+    }
   }
 }
 
-struct UnsubscribeToast: View {
+struct OperationToast: View {
   @ObservedObject var viewModel: SubscriptionsViewModel
 
   var body: some View {
-    HStack {
-      if viewModel.unsubscribeState == .isUnsubscribing {
-        Text("Unsubscribing...")
-        Spacer()
-        ProgressView()
-      } else if viewModel.unsubscribeState == .unsubscribeSuccess {
-        Text("You have been unsubscribed.")
-        Spacer()
-        Button(action: {
-          
-        }, label: {
-          Text("Done").bold()
-        })
-      } else if viewModel.unsubscribeState == .unsubscribeFailure {
-        Text("There was an error unsubscribing")
-        Spacer()
-        Button(action: {
-          
-        }, label: {
-          Text("Done").bold()
-        })
+    VStack {
+      HStack {
+        if viewModel.operationStatus == .isPerforming {
+          Text(viewModel.operationMessage ?? "Performing...")
+          Spacer()
+          ProgressView()
+        } else if viewModel.operationStatus == .success {
+          Text(viewModel.operationMessage ?? "Success")
+          Spacer()
+        } else if viewModel.operationStatus == .failure {
+          Text(viewModel.operationMessage ?? "Failure")
+          Spacer()
+          Button(action: { viewModel.showOperationToast = false }, label: {
+            Text("Done").bold()
+          })
+        }
       }
+      .padding(10)
+      .frame(minHeight: 50)
+      .frame(maxWidth: .infinity)
+      .background(Color(hex: "2A2A2A"))
+      .cornerRadius(4.0)
+      .tint(Color.green)
     }
-    .frame(minHeight: 50)
-    .frame(maxWidth: .infinity)
-    .padding(.bottom, 30)
-    .padding(.horizontal, 15)
-    .background(Color.systemBackground)
+    .padding(.bottom, 70)
+    .padding(.horizontal, 10)
+    .ignoresSafeArea(.all, edges: .bottom)
   }
 }
 
@@ -93,13 +115,13 @@ struct SubscriptionsView: View {
   @State private var deleteConfirmationShown = false
   @State private var showDeleteCompleted = false
 
+  @State private var showAddFeedView = false
   @State private var showSubscriptionsSheet = false
-  @State private var showUnsubscribeToast = false
 
   var body: some View {
     Group {
-      WindowLink(level: .alert, transition: .move(edge: .bottom).combined(with: .opacity), isPresented: $showUnsubscribeToast) {
-        UnsubscribeToast(viewModel: viewModel)
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
+        OperationToast(viewModel: viewModel)
       } label: {
         EmptyView()
       }
@@ -133,6 +155,31 @@ struct SubscriptionsView: View {
         #endif
       }
     }
+    .sheet(isPresented: $showAddFeedView) {
+      let handler = ToastOperationHandler(performOperation: { sendable in
+        self.viewModel.showOperationToast = true
+
+        Task {
+          _ = await sendable
+          viewModel.isLoading = true
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
+            Task {
+              await self.viewModel.loadSubscriptions(dataService: dataService)
+              self.viewModel.showOperationToast = false
+            }
+          }
+        }
+      }, update: { state, text in
+        viewModel.operationStatus = state
+        viewModel.operationMessage = text
+      })
+
+      NavigationView {
+        LibraryAddFeedView(dismiss: {
+          showAddFeedView = false
+        }, toastOperationHandler: handler)
+      }
+    }
     .formSheet(isPresented: $showSubscriptionsSheet) {
       if let presentingSubscription = viewModel.presentingSubscription {
         SubscriptionSettingsView(
@@ -143,8 +190,8 @@ struct SubscriptionsView: View {
           unsubscribe: { subscription in
             showSubscriptionsSheet = false
 
-            viewModel.unsubscribeState = .isUnsubscribing
-            showUnsubscribeToast = true
+            viewModel.operationStatus = .isPerforming
+            viewModel.showOperationToast = true
             Task {
               await viewModel.cancelSubscription(dataService: dataService, subscription: subscription)
             }
@@ -164,36 +211,43 @@ struct SubscriptionsView: View {
   private var innerBody: some View {
     Group {
       Section("Feeds") {
-        ForEach(viewModel.feeds, id: \.subscriptionID) { subscription in
-          Button(action: {
-            viewModel.presentingSubscription = subscription
-            showSubscriptionsSheet = true
-          }, label: {
-            SubscriptionCell(subscription: subscription)
-          })
+        if viewModel.feeds.count <= 0, !viewModel.isLoading {
+          VStack(alignment: .center, spacing: 20) {
+            Text("You don't have any Feed items.")
+              .font(Font.system(size: 18, weight: .bold))
+
+            Text("Add an RSS/Atom feed")
+              .foregroundColor(Color.blue)
+              .onTapGesture {
+                showAddFeedView = true
+              }
+          }
+          .frame(minHeight: 80)
+          .frame(maxWidth: .infinity)
+          .padding()
+        } else {
+          ForEach(viewModel.feeds, id: \.subscriptionID) { subscription in
+            Button(action: {
+              viewModel.presentingSubscription = subscription
+              showSubscriptionsSheet = true
+            }, label: {
+              SubscriptionCell(subscription: subscription)
+            })
+          }
         }
       }
-//      Section("Newsletters") {
-//        ForEach(viewModel.newsletters, id: \.subscriptionID) { subscription in
-//          SubscriptionCell(subscription: subscription)
-//            .swipeActions(edge: .trailing) {
-//              Button(
-//                role: .destructive,
-//                action: {
-//                  deleteConfirmationShown = true
-//                  viewModel.subscriptionNameToCancel = subscription.name
-//                },
-//                label: {
-//                  Image(systemName: "trash")
-//                }
-//              )
-//            }
-//            .onTapGesture {
-//              expandedSubscription = subscription
-//              showSubscriptionsSheet = true
-//            }
-//        }
-//      }
+      if viewModel.newsletters.count > 0, !viewModel.isLoading {
+        Section("Newsletters") {
+          ForEach(viewModel.newsletters, id: \.subscriptionID) { subscription in
+            Button(action: {
+              viewModel.presentingSubscription = subscription
+              showSubscriptionsSheet = true
+            }, label: {
+              SubscriptionCell(subscription: subscription)
+            })
+          }
+        }
+      }
     }
     .navigationTitle(LocalText.subscriptionsGeneric)
   }
