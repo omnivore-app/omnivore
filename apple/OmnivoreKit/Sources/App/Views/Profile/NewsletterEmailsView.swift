@@ -38,18 +38,30 @@ import Views
 
     isLoading = false
   }
+//
+//  func updateEmail(dataService: DataService, subscription: Subscription, folder: String? = nil, fetchContent: Bool? = nil) async {
+//    operationMessage = "Updating subscription..."
+//    operationStatus = .isPerforming
+//    do {
+//      try await dataService.updateSubscription(subscription.subscriptionID, folder: folder, fetchContent: fetchContent)
+//      operationMessage = "Subscription updated"
+//      operationStatus = .success
+//    } catch {
+//      operationMessage = "Failed to update subscription"
+//      operationStatus = .failure
+//    }
+//  }
 }
 
 struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
   @StateObject var viewModel = NewsletterEmailsViewModel()
 
-  @State var showAddressCopied = false
   @State var snackbarOperation: SnackbarOperation?
 
   var body: some View {
     Group {
-      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showAddressCopied) {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showAddressCopied) {
         MessageToast()
       } label: {
         EmptyView()
@@ -71,28 +83,29 @@ struct NewsletterEmailsView: View {
 
   private var innerBody: some View {
     Group {
-      Section(footer: Text(LocalText.newslettersDescription)) {
+      if !viewModel.emails.isEmpty {
+        ForEach(viewModel.emails) { email in
+          Section {
+            NewsletterEmailRow(viewModel: viewModel, email: email, folderSelection: email.folder)
+          }
+        }
+      }
+
+      Section {
+        Text(LocalText.newslettersDescription)
         Button(
           action: {
             Task { await viewModel.createEmail(dataService: dataService) }
           },
           label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
+            Label(title: {
               Text(LocalText.createNewEmailMessage)
-              Spacer()
-            }
+            }, icon: {
+              Image.addLink
+            })
           }
         )
         .disabled(viewModel.isLoading)
-      }
-
-      if !viewModel.emails.isEmpty {
-        Section(header: Text(LocalText.newsletterEmailsExisting)) {
-          ForEach(viewModel.emails) { email in
-            NewsletterEmailRow(viewModel: viewModel, email: email, folderSelection: email.folder)
-          }
-        }
       }
     }
     .navigationTitle(LocalText.emailsGeneric)
@@ -106,40 +119,47 @@ struct NewsletterEmailRow: View {
 
   var body: some View {
     VStack {
-      Button(
-        action: {
-          #if os(iOS)
-            UIPasteboard.general.string = email.email
-          #endif
+      HStack {
+        Text(email.unwrappedEmail)
+        Spacer()
 
-          #if os(macOS)
-            let pasteBoard = NSPasteboard.general
-            pasteBoard.clearContents()
-            pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
-          #endif
+        Button(
+          action: {
+            #if os(iOS)
+              UIPasteboard.general.string = email.email
+            #endif
 
-          viewModel.showAddressCopied = true
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
-            viewModel.showAddressCopied = false
+            #if os(macOS)
+              let pasteBoard = NSPasteboard.general
+              pasteBoard.clearContents()
+              pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
+            #endif
+
+            viewModel.showAddressCopied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
+              viewModel.showAddressCopied = false
+            }
+          },
+          label: {
+            Text("Copy")
           }
-        },
-        label: { Text(email.unwrappedEmail).font(Font.appFootnote) }
-      )
-      Divider()
-      Picker("Destination Folder", selection: $folderSelection) {
-        Text("Inbox").tag("inbox")
-        Text("Following").tag("following")
+        )
       }
-      .pickerStyle(MenuPickerStyle())
-      .onChange(of: folderSelection) { _ in
+//      Divider()
+//      Picker("Destination Folder", selection: $folderSelection) {
+//        Text("Inbox").tag("inbox")
+//        Text("Following").tag("following")
+//      }
+//      .pickerStyle(MenuPickerStyle())
+//      .onChange(of: folderSelection) { newValue in
 //        Task {
 //          viewModel.showOperationToast = true
-//          await viewModel.updateSubscription(dataService: dataService, subscription: subscription, folder: newValue)
+//          await viewModel.updateEmail(dataService: dataService, email: email, folder: newValue)
 //          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
 //            viewModel.showOperationToast = false
 //          }
 //        }
-      }
+//      }
     }
   }
 }

@@ -129,7 +129,6 @@ struct SubscriptionsView: View {
   @State private var showDeleteCompleted = false
 
   @State private var showAddFeedView = false
-  @State private var showSubscriptionsSheet = false
 
   var body: some View {
     Group {
@@ -191,28 +190,9 @@ struct SubscriptionsView: View {
         LibraryAddFeedView(dismiss: {
           showAddFeedView = false
         }, toastOperationHandler: handler)
+          .navigationViewStyle(.stack)
       }
-    }
-    .formSheet(isPresented: $showSubscriptionsSheet) {
-      if let presentingSubscription = viewModel.presentingSubscription {
-        SubscriptionSettingsView(
-          subscription: presentingSubscription,
-          viewModel: viewModel,
-          dataService: dataService,
-          prefetchContent: presentingSubscription.fetchContent,
-          folderSelection: presentingSubscription.folder,
-          dismiss: { showSubscriptionsSheet = false },
-          unsubscribe: { subscription in
-            showSubscriptionsSheet = false
-
-            viewModel.operationStatus = .isPerforming
-            viewModel.showOperationToast = true
-            Task {
-              await viewModel.cancelSubscription(dataService: dataService, subscription: subscription)
-            }
-          }
-        )
-      }
+      .navigationViewStyle(.stack)
     }
     .task {
       await viewModel.loadSubscriptions(dataService: dataService)
@@ -242,24 +222,56 @@ struct SubscriptionsView: View {
           .padding()
         } else {
           ForEach(viewModel.feeds, id: \.subscriptionID) { subscription in
-            Button(action: {
-              viewModel.presentingSubscription = subscription
-              showSubscriptionsSheet = true
-            }, label: {
+            PresentationLink(transition: UIDevice.isIPad ? .popover : .sheet(detents: [.medium])) {
+              SubscriptionSettingsView(
+                subscription: subscription,
+                viewModel: viewModel,
+                dataService: dataService,
+                prefetchContent: subscription.fetchContent,
+                folderSelection: subscription.folder,
+                unsubscribe: { _ in
+                  viewModel.operationStatus = .isPerforming
+                  viewModel.showOperationToast = true
+                  Task {
+                    await viewModel.cancelSubscription(dataService: dataService, subscription: subscription)
+                  }
+                }
+              )
+            } label: {
               SubscriptionCell(subscription: subscription)
-            })
+            }
           }
+          Button(action: { showAddFeedView = true }, label: {
+            Label(title: {
+              Text("Add a feed")
+            }, icon: {
+              Image.addLink
+            })
+          })
         }
       }
+
       if viewModel.newsletters.count > 0, !viewModel.isLoading {
         Section("Newsletters") {
           ForEach(viewModel.newsletters, id: \.subscriptionID) { subscription in
-            Button(action: {
-              viewModel.presentingSubscription = subscription
-              showSubscriptionsSheet = true
-            }, label: {
+            PresentationLink(transition: UIDevice.isIPad ? .popover : .sheet(detents: [.medium])) {
+              SubscriptionSettingsView(
+                subscription: subscription,
+                viewModel: viewModel,
+                dataService: dataService,
+                prefetchContent: subscription.fetchContent,
+                folderSelection: subscription.folder,
+                unsubscribe: { _ in
+                  viewModel.operationStatus = .isPerforming
+                  viewModel.showOperationToast = true
+                  Task {
+                    await viewModel.cancelSubscription(dataService: dataService, subscription: subscription)
+                  }
+                }
+              )
+            } label: {
               SubscriptionCell(subscription: subscription)
-            })
+            }
           }
         }
       }
@@ -344,8 +356,10 @@ struct SubscriptionSettingsView: View {
   @State var showDeleteCompleted = false
   @State var folderSelection: String = ""
 
-  let dismiss: () -> Void
+  // let dismiss: () -> Void
   let unsubscribe: (_: Subscription) -> Void
+
+  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     VStack {
@@ -407,9 +421,10 @@ struct SubscriptionSettingsView: View {
         .frame(maxWidth: .infinity)
         .buttonStyle(RoundedRectButtonStyle(color: Color.red, textColor: Color.white))
     }
-    .frame(minWidth: 200, minHeight: 200)
+    .frame(width: UIDevice.isIPad ? 400 : nil, height: UIDevice.isIPad ? 300 : nil)
     .alert("Are you sure you want to cancel this subscription?", isPresented: $deleteConfirmationShown) {
       Button("Yes", role: .destructive) {
+        dismiss()
         unsubscribe(subscription)
       }
       Button("No", role: .cancel) {
