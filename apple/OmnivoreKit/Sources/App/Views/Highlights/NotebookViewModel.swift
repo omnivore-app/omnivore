@@ -21,8 +21,14 @@ struct NoteItemParams: Identifiable {
 }
 
 @MainActor final class NotebookViewModel: ObservableObject {
+  let item: Models.LibraryItem
+
   @Published var noteItem: NoteItemParams?
   @Published var highlightItems = [HighlightListItemParams]()
+
+  init(item: Models.LibraryItem) {
+    self.item = item
+  }
 
   func load(itemObjectID: NSManagedObjectID, dataService: DataService) {
     if let linkedItem = dataService.viewContext.object(with: itemObjectID) as? Models.LibraryItem {
@@ -102,7 +108,14 @@ struct NoteItemParams: Identifiable {
   }
 
   func highlightsAsMarkdown() -> String {
-    highlightItems.map { highlightAsMarkdown(item: $0) }.lazy.joined(separator: "\n\n")
+    var buffer = "\(item.unwrappedTitle)\n"
+    if let author = item.author {
+      buffer += "by: \(author)\n"
+    }
+    if let url = item.pageURLString {
+      buffer += "url: \(url)\n"
+    }
+    return buffer + "\n\n" + highlightItems.map { highlightAsMarkdown(item: $0) }.lazy.joined(separator: "\n\n")
   }
 
   private func loadHighlights(item: Models.LibraryItem) {

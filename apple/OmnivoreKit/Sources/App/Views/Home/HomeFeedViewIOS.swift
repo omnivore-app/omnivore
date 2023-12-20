@@ -126,14 +126,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         LinkedItemMetadataEditView(item: item)
       }
       .sheet(item: $viewModel.itemForHighlightsView) { item in
-        NotebookView(itemObjectID: item.objectID, hasHighlightMutations: $hasHighlightMutations)
+        NotebookView(viewModel: NotebookViewModel(item: item), hasHighlightMutations: $hasHighlightMutations)
       }
       .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
         ExpandedAudioPlayer()
       }
-//      .onAppear {
-//        viewModel.refreshFeatureItems(dataService: dataService)
-//      }
       .toolbar {
         toolbarItems
       }
@@ -710,6 +707,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             }, header: {
               filtersHeader
             })
+            BottomView(viewModel: viewModel)
           }
           .padding(0)
           .listStyle(.plain)
@@ -934,6 +932,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 )
               }
             }
+            BottomView(viewModel: viewModel)
             Spacer()
           }
           .frame(maxHeight: .infinity)
@@ -1036,4 +1035,19 @@ func fakeLibraryItems(dataService _: DataService) -> [LibraryItemData] {
           descriptionText: "This is a fake description"
         )
       })
+}
+
+struct BottomView: View {
+  @ObservedObject var viewModel: HomeFeedViewModel
+  @EnvironmentObject var dataService: DataService
+
+  var body: some View {
+    Color.clear
+      .onAppear {
+        Task {
+          await viewModel.loadMore(dataService: dataService)
+        }
+        print("BOTTOM APPEARED")
+      }
+  }
 }

@@ -347,7 +347,7 @@ struct WebReaderContainerView: View {
     #if os(iOS)
       .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
         NotebookView(
-          itemObjectID: item.objectID,
+          viewModel: NotebookViewModel(item: item),
           hasHighlightMutations: $hasPerformedHighlightMutations
         )
       }

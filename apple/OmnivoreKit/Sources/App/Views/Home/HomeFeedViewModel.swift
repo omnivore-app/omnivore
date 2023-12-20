@@ -35,6 +35,8 @@ import Views
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
+  @State var lastMoreFetched: Date?
+
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
@@ -81,17 +83,17 @@ import Views
     }
   }
 
-  func itemAppeared(item: Models.LibraryItem, dataService: DataService) async {
+  func loadMore(dataService: DataService) async {
     if isLoading { return }
-    let itemIndex = fetcher.items.firstIndex(where: { $0.id == item.id })
-    let thresholdIndex = fetcher.items.index(fetcher.items.endIndex, offsetBy: -5)
 
-    // Check if user has scrolled to the last five items in the list
-    // Make sure we aren't currently loading though, as this would get triggered when the first set
-    // of items are presented to the user.
-    if let itemIndex = itemIndex, itemIndex > thresholdIndex {
-      await loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: false)
+    let start = Date.now
+    if let lastMoreFetched, lastMoreFetched.timeIntervalSinceNow > -4 {
+      print("skipping fetching more as last fetch was too recent: ", lastMoreFetched)
+      return
     }
+
+    await loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: false)
+    lastMoreFetched = start
   }
 
   func pushFeedItem(item _: Models.LibraryItem) {

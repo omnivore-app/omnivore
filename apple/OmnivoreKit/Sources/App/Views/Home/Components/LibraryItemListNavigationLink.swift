@@ -22,9 +22,6 @@ struct MacFeedCardNavigationLink: View {
         EmptyView()
       }).opacity(0)
     }
-    .onAppear {
-      Task { await viewModel.itemAppeared(item: item, dataService: dataService) }
-    }
   }
 }
 
@@ -54,9 +51,6 @@ struct LibraryItemListNavigationLink: View {
           EmptyView()
         }
       )
-    }
-    .task {
-      await viewModel.itemAppeared(item: item, dataService: dataService)
     }
   }
 }
@@ -92,9 +86,6 @@ struct LibraryItemGridCardNavigationLink: View {
         GridCard(item: LibraryItemData.make(from: item), isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
       }
     )
-    .task {
-      await viewModel.itemAppeared(item: item, dataService: dataService)
-    }
     .aspectRatio(1.0, contentMode: .fill)
     .background(
       Color.secondarySystemGroupedBackground
