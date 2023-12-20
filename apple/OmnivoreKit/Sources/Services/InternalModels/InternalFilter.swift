@@ -173,10 +173,6 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
   }
 
   public var predicate: NSPredicate? {
-    if !defaultFilter {
-      return nil
-    }
-
     let folderPredicate = NSPredicate(
       format: "%K == %@", #keyPath(Models.LibraryItem.folder), folder
     )

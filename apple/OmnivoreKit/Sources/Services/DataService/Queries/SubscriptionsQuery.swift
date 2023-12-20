@@ -38,6 +38,7 @@ public extension DataService {
         case let .success(result: result):
           continuation.resume(returning: result)
         case .error:
+          print("QUERY RESULT: ", queryResult)
           continuation.resume(throwing: BasicError.message(messageText: "Subscriptions fetch error"))
         }
       }

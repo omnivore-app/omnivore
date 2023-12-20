@@ -1,3 +1,4 @@
+import CoreData
 import Models
 import Services
 import SwiftUI
@@ -24,6 +25,8 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
   @Published var feeds = [Subscription]()
   @Published var newsletters = [Subscription]()
   @Published var rules = [Rule]()
+  @Published var labels = [LinkedItemLabel]()
+
   @Published var hasNetworkError = false
   @Published var subscriptionNameToCancel: String?
   @Published var presentingSubscription: Subscription?
@@ -39,14 +42,32 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
       let subscriptions = try await dataService.subscriptions().filter { $0.status == SubscriptionStatus.active }
       feeds = subscriptions.filter { $0.type == .feed }
       newsletters = subscriptions.filter { $0.type == .newsletter }
+      hasNetworkError = false
     } catch {
+      print("error fetching subscriptions: ", error)
       hasNetworkError = true
     }
 
-    // Also try to get the rules for auto labeling
-    rules = (try? await dataService.rules()) ?? []
+    do {
+      // Also try to get the rules for auto labeling
+      rules = try await dataService.rules()
+    } catch {
+      print("error fetching rules and labels", error)
+    }
+
+    await loadLabelsFromStore(dataService: dataService)
 
     isLoading = false
+  }
+
+  func loadLabelsFromStore(dataService: DataService) async {
+    let fetchRequest: NSFetchRequest<Models.LinkedItemLabel> = LinkedItemLabel.fetchRequest()
+
+    let fetchedLabels = await dataService.viewContext.perform {
+      try? fetchRequest.execute()
+    }
+
+    labels = fetchedLabels ?? []
   }
 
   func cancelSubscription(dataService: DataService, subscription: Subscription) async {
@@ -428,8 +449,16 @@ struct SubscriptionSettingsView: View {
       Text("Add Labels")
       Spacer()
       Button(action: { showLabelsSelector = true }, label: {
-        let rule = viewModel.rules.first { $0.name == ruleName }
-        Text("[none]")
+        if let rule = viewModel.rules.first(where: { $0.name == ruleName }) {
+          let labelIDs = rule.actions.flatMap(\.params)
+          let labelNames = Array(labelIDs.compactMap { labelID in
+            viewModel.labels.first(where: { $0.unwrappedID == labelID })?.unwrappedName
+          })
+
+          Text("[\(labelNames.joined(separator: ","))]")
+        } else {
+          Text("[none]")
+        }
       })
     }
   }

@@ -6,10 +6,40 @@ import SwiftGraphQL
 public struct Rule {
   public let id: String
   public let name: String
+  public let actions: [RuleAction]
+}
+
+public enum RuleActionType {
+  case addLabel
+  case archive
+  case markAsRead
+  case sendNotification
+
+  static func from(_ other: Enums.RuleActionType) -> RuleActionType {
+    switch other {
+    case Enums.RuleActionType.addLabel:
+      return .addLabel
+    case Enums.RuleActionType.archive:
+      return .archive
+    case Enums.RuleActionType.markAsRead:
+      return .markAsRead
+    case Enums.RuleActionType.sendNotification:
+      return .sendNotification
+    }
+  }
+}
+
+public struct RuleAction {
+  public let params: [String]
+  public let type: RuleActionType
+}
+
+let actionSelection = Selection.RuleAction {
+  RuleAction(params: try $0.params(), type: RuleActionType.from(try $0.type()))
 }
 
 let ruleSelection = Selection.Rule {
-  Rule(id: try $0.id(), name: try $0.name())
+  Rule(id: try $0.id(), name: try $0.name(), actions: try $0.actions(selection: actionSelection.list))
 }
 
 public extension DataService {
