@@ -7,8 +7,12 @@ import Views
 
 struct LibraryAddFeedView: View {
   let dismiss: () -> Void
-  @State var newLinkURL: String = ""
+  @State var feedURL: String = ""
   @EnvironmentObject var dataService: DataService
+
+  @State var prefetchContent = false
+  @State var folderSelection = "following"
+  @State var selectedLabels = [LinkedItemLabel]()
 
   let toastOperationHandler: ToastOperationHandler?
 
@@ -21,11 +25,9 @@ struct LibraryAddFeedView: View {
   var body: some View {
     Group {
       #if os(iOS)
-        Form {
-          innerBody
-            .navigationTitle("Add Feed URL")
-            .navigationBarTitleDisplayMode(.inline)
-        }
+        innerBody
+          .navigationTitle("Add Feed URL")
+          .navigationBarTitleDisplayMode(.inline)
       #else
         innerBody
       #endif
@@ -46,7 +48,11 @@ struct LibraryAddFeedView: View {
           NavigationLink(
             destination: LibraryScanFeedView(
               dismiss: self.dismiss,
-              viewModel: LibraryAddFeedViewModel(dataService: dataService, feedURL: newLinkURL, toastOperationHandler: toastOperationHandler)
+              viewModel: LibraryAddFeedViewModel(
+                dataService: dataService,
+                feedURL: feedURL,
+                toastOperationHandler: toastOperationHandler
+              )
             ),
             label: { Text("Add").bold() }
           )
@@ -71,25 +77,36 @@ struct LibraryAddFeedView: View {
   }
 
   var innerBody: some View {
-    Group {
-      TextField("Feed or site URL", text: $newLinkURL)
-      #if os(iOS)
-        .keyboardType(.URL)
-      #endif
-      .autocorrectionDisabled(true)
-        .textFieldStyle(StandardTextFieldStyle())
-//        .focused($focusedField, equals: .addLinkEditor)
+    List {
+      Section {
+        TextField("Feed or site URL", text: $feedURL)
+        #if os(iOS)
+          .keyboardType(.URL)
+        #endif
+        .autocorrectionDisabled(true)
+          .textFieldStyle(StandardTextFieldStyle())
+          .focused($focusedField, equals: .addLinkEditor)
 
-      Button(action: {
-        if let url = pasteboardString {
-          newLinkURL = url
-        } else {
-          //        viewModel.error("No URL on pasteboard")
-        }
-      }, label: {
-        Text("Get from pasteboard")
-      })
-    }
+        Button(action: {
+          if let url = pasteboardString {
+            feedURL = url
+          } else {
+            //        viewModel.error("No URL on pasteboard")
+          }
+        }, label: {
+          Text("Get from pasteboard")
+        })
+      }
+
+      Section {
+        SubscriptionSettings(
+          feedURL: $feedURL,
+          prefetchContent: $prefetchContent,
+          folderSelection: $folderSelection,
+          selectedLabels: $selectedLabels
+        )
+      }
+    }.listStyle(.insetGrouped)
   }
 
   var dismissButton: some View {
@@ -97,5 +114,47 @@ struct LibraryAddFeedView: View {
       action: { dismiss() },
       label: { Text(LocalText.genericClose) }
     )
+  }
+}
+
+private struct SubscriptionSettings: View {
+  @Binding var feedURL: String
+  @Binding var prefetchContent: Bool
+  @Binding var folderSelection: String
+  @Binding var selectedLabels: [LinkedItemLabel]
+
+  @State var showLabelsSelector = false
+
+  var folderRow: some View {
+    HStack {
+      Picker("Destination Folder", selection: $folderSelection) {
+        Text("Inbox").tag("inbox")
+        Text("Following").tag("following")
+      }
+      .pickerStyle(MenuPickerStyle())
+    }
+  }
+
+  var labelRuleRow: some View {
+    HStack {
+      Text("Add Labels")
+      Spacer()
+      Button(action: { showLabelsSelector = true }, label: {
+        Text("Create Rule")
+      })
+    }
+  }
+
+  var body: some View {
+    Group {
+      Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
+      folderRow
+      labelRuleRow
+    }
+    .sheet(isPresented: $showLabelsSelector) {
+      ApplyLabelsView(mode: .list(selectedLabels), onSave: { labels in
+        selectedLabels = labels
+      })
+    }
   }
 }
