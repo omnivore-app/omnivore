@@ -24,8 +24,8 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
   @Published var isLoading = true
   @Published var feeds = [Subscription]()
   @Published var newsletters = [Subscription]()
-  @Published var rules = [Rule]()
-  @Published var labels = [LinkedItemLabel]()
+  @Published var rules: [Rule]?
+  @Published var labels: [LinkedItemLabel]?
 
   @Published var hasNetworkError = false
   @Published var subscriptionNameToCancel: String?
@@ -53,11 +53,17 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
       rules = try await dataService.rules()
     } catch {
       print("error fetching rules and labels", error)
+      rules = []
     }
 
-    await loadLabelsFromStore(dataService: dataService)
+    await loadLabels(dataService: dataService)
 
     isLoading = false
+  }
+
+  func loadLabels(dataService: DataService) async {
+    _ = try? await dataService.labels()
+    await loadLabelsFromStore(dataService: dataService)
   }
 
   func loadLabelsFromStore(dataService: DataService) async {
@@ -112,12 +118,30 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
     }
   }
 
-  func setLabelsRule(dataService: DataService, ruleName: String, filter: String, labelIDs: [String]) async {
-    async {
+  func setLabelsRule(dataService: DataService, existingRule: Rule?, ruleName: String, filter: String, labelIDs: [String]) async {
+    Task {
       operationMessage = "Creating label rule..."
       operationStatus = .isPerforming
       do {
-        try await dataService.createAddLabelsRule(name: ruleName, filter: filter, labelIDs: labelIDs)
+        // Make sure the labels have been created
+        await loadLabels(dataService: dataService)
+        let existingLabelIDs = labels?.map(\.unwrappedID) ?? []
+        if labelIDs.first(where: { !existingLabelIDs.contains($0) }) != nil {
+          throw BasicError.message(messageText: "Label not created")
+        }
+
+        _ = try await dataService.createOrUpdateAddLabelsRule(
+          existingID: existingRule?.id,
+          name: ruleName,
+          filter: filter,
+          labelIDs: labelIDs
+        )
+        if let newRules = try? await dataService.rules() {
+          if !newRules.contains(where: { $0.name == ruleName }) {
+            throw BasicError.message(messageText: "Rule not created")
+          }
+          rules = newRules
+        }
         operationMessage = "Rule created"
         operationStatus = .success
       } catch {
@@ -398,9 +422,15 @@ struct SubscriptionSettingsView: View {
   @State var folderSelection: String = ""
   @State var showLabelsSelector = false
 
+  @State var isLoadingRule = false
+
   let unsubscribe: (_: Subscription) -> Void
 
   @Environment(\.dismiss) private var dismiss
+
+  var existingRule: Rule? {
+    viewModel.rules?.first { $0.name == ruleName }
+  }
 
   var ruleName: String {
     if let url = subscription.url, subscription.type == .newsletter {
@@ -414,6 +444,15 @@ struct SubscriptionSettingsView: View {
       return "rss:\"\(url)\""
     }
     return "subscription:\"\(subscription.name)\""
+  }
+
+  var ruleLabels: [LinkedItemLabel]? {
+    if let labelIDs = existingRule?.actions.flatMap(\.params) {
+      return Array(labelIDs.compactMap { labelID in
+        viewModel.labels?.first(where: { $0.unwrappedID == labelID })
+      })
+    }
+    return nil
   }
 
   var folderRow: some View {
@@ -435,10 +474,11 @@ struct SubscriptionSettingsView: View {
       .onChange(of: prefetchContent) { newValue in
         Task {
           viewModel.showOperationToast = true
-          await viewModel.updateSubscription(dataService: dataService, subscription: subscription, fetchContent: newValue)
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-            viewModel.showOperationToast = false
-          }
+          await viewModel.updateSubscription(
+            dataService: dataService,
+            subscription: subscription,
+            fetchContent: newValue
+          )
         }
       }
     }
@@ -448,18 +488,18 @@ struct SubscriptionSettingsView: View {
     HStack {
       Text("Add Labels")
       Spacer()
-      Button(action: { showLabelsSelector = true }, label: {
-        if let rule = viewModel.rules.first(where: { $0.name == ruleName }) {
-          let labelIDs = rule.actions.flatMap(\.params)
-          let labelNames = Array(labelIDs.compactMap { labelID in
-            viewModel.labels.first(where: { $0.unwrappedID == labelID })?.unwrappedName
-          })
-
-          Text("[\(labelNames.joined(separator: ","))]")
-        } else {
-          Text("[none]")
-        }
-      })
+      if isLoadingRule || viewModel.rules != nil {
+        Button(action: { showLabelsSelector = true }, label: {
+          if let ruleLabels = ruleLabels {
+            let labelNames = ruleLabels.map(\.unwrappedName)
+            Text("[\(labelNames.joined(separator: ","))]")
+          } else {
+            Text("[none]")
+          }
+        })
+      } else {
+        ProgressView()
+      }
     }
   }
 
@@ -513,17 +553,20 @@ struct SubscriptionSettingsView: View {
       }
     }
     .sheet(isPresented: $showLabelsSelector) {
-      ApplyLabelsView(mode: .list([]), onSave: { labels in
+      ApplyLabelsView(mode: .list(ruleLabels ?? []), onSave: { labels in
         Task {
+          isLoadingRule = true
           viewModel.showOperationToast = true
           await viewModel.setLabelsRule(
             dataService: dataService,
+            existingRule: existingRule,
             ruleName: ruleName,
             filter: ruleFilter,
             labelIDs: labels.map(\.unwrappedID)
           )
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
             viewModel.showOperationToast = false
+            isLoadingRule = true
           }
         }
       })

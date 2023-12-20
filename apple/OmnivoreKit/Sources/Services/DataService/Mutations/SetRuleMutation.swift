@@ -43,7 +43,7 @@ let ruleSelection = Selection.Rule {
 }
 
 public extension DataService {
-  func createAddLabelsRule(name: String, filter: String, labelIDs: [String]) async throws -> Rule {
+  func createOrUpdateAddLabelsRule(existingID: String?, name: String, filter: String, labelIDs: [String]) async throws -> Rule {
     enum MutationResult {
       case result(rule: Rule)
       case error(errorMessage: String)
@@ -62,7 +62,9 @@ public extension DataService {
           actions: [InputObjects.RuleActionInput(params: labelIDs, type: .addLabel)],
           enabled: true,
           eventTypes: [.pageCreated],
-          filter: filter, name: name
+          filter: filter,
+          id: OptionalArgument(existingID),
+          name: name
         ),
         selection: selection
       )
