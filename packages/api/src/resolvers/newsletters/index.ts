@@ -12,15 +12,20 @@ import {
   DeleteNewsletterEmailSuccess,
   MutationCreateNewsletterEmailArgs,
   MutationDeleteNewsletterEmailArgs,
+  MutationUpdateNewsletterEmailArgs,
   NewsletterEmailsError,
   NewsletterEmailsErrorCode,
   NewsletterEmailsSuccess,
+  UpdateNewsletterEmailError,
+  UpdateNewsletterEmailErrorCode,
+  UpdateNewsletterEmailSuccess,
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
 import {
   createNewsletterEmail,
   deleteNewsletterEmail,
   getNewsletterEmails,
+  updateNewsletterEmail,
 } from '../../services/newsletters'
 import { unsubscribeAll } from '../../services/subscriptions'
 import { Merge } from '../../util'
@@ -141,5 +146,41 @@ export const deleteNewsletterEmailResolver = authorized<
     return {
       errorCodes: [DeleteNewsletterEmailErrorCode.BadRequest],
     }
+  }
+})
+
+export type UpdateNewsletterEmailSuccessPartial = Merge<
+  UpdateNewsletterEmailSuccess,
+  { newsletterEmail: NewsletterEmail }
+>
+export const updateNewsletterEmailResolver = authorized<
+  UpdateNewsletterEmailSuccessPartial,
+  UpdateNewsletterEmailError,
+  MutationUpdateNewsletterEmailArgs
+>(async (_parent, { input }, { uid, log }) => {
+  analytics.track({
+    userId: uid,
+    event: 'newsletter_email_updated',
+    properties: {
+      env: env.server.apiEnv,
+      ...input,
+    },
+  })
+
+  const updatedNewsletterEmail = await updateNewsletterEmail(input.id, uid, {
+    name: input.name,
+    description: input.description,
+    folder: input.folder,
+  })
+  if (!updatedNewsletterEmail) {
+    log.error('failed to update newsletter email')
+
+    return {
+      errorCodes: [UpdateNewsletterEmailErrorCode.Unauthorized],
+    }
+  }
+
+  return {
+    newsletterEmail: updatedNewsletterEmail,
   }
 })

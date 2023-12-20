@@ -2737,6 +2737,30 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  input UpdateNewsletterEmailInput {
+    id: ID!
+    name: String
+    description: String
+    folder: String
+  }
+
+  union UpdateNewsletterEmailResult =
+      UpdateNewsletterEmailSuccess
+    | UpdateNewsletterEmailError
+
+  type UpdateNewsletterEmailSuccess {
+    newsletterEmail: NewsletterEmail!
+  }
+
+  type UpdateNewsletterEmailError {
+    errorCodes: [UpdateNewsletterEmailErrorCode!]!
+  }
+
+  enum UpdateNewsletterEmailErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2845,6 +2869,9 @@ const schema = gql`
     ): UpdateSubscriptionResult!
     moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
     fetchContent(id: ID!): FetchContentResult!
+    updateNewsletterEmail(
+      input: UpdateNewsletterEmailInput!
+    ): UpdateNewsletterEmailResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

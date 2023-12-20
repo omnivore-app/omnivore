@@ -1391,6 +1391,7 @@ export type Mutation = {
   updateFilter: UpdateFilterResult;
   updateHighlight: UpdateHighlightResult;
   updateLabel: UpdateLabelResult;
+  updateNewsletterEmail: UpdateNewsletterEmailResult;
   updatePage: UpdatePageResult;
   updateSubscription: UpdateSubscriptionResult;
   updateUser: UpdateUserResult;
@@ -1674,6 +1675,11 @@ export type MutationUpdateHighlightArgs = {
 
 export type MutationUpdateLabelArgs = {
   input: UpdateLabelInput;
+};
+
+
+export type MutationUpdateNewsletterEmailArgs = {
+  input: UpdateNewsletterEmailInput;
 };
 
 
@@ -3059,6 +3065,30 @@ export type UpdateLinkShareInfoSuccess = {
   message: Scalars['String'];
 };
 
+export type UpdateNewsletterEmailError = {
+  __typename?: 'UpdateNewsletterEmailError';
+  errorCodes: Array<UpdateNewsletterEmailErrorCode>;
+};
+
+export enum UpdateNewsletterEmailErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateNewsletterEmailInput = {
+  description?: InputMaybe<Scalars['String']>;
+  folder?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdateNewsletterEmailResult = UpdateNewsletterEmailError | UpdateNewsletterEmailSuccess;
+
+export type UpdateNewsletterEmailSuccess = {
+  __typename?: 'UpdateNewsletterEmailSuccess';
+  newsletterEmail: NewsletterEmail;
+};
+
 export type UpdatePageError = {
   __typename?: 'UpdatePageError';
   errorCodes: Array<UpdatePageErrorCode>;
@@ -3962,6 +3992,11 @@ export type ResolversTypes = {
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversTypes['UpdateLinkShareInfoError'] | ResolversTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: ResolverTypeWrapper<UpdateLinkShareInfoSuccess>;
+  UpdateNewsletterEmailError: ResolverTypeWrapper<UpdateNewsletterEmailError>;
+  UpdateNewsletterEmailErrorCode: UpdateNewsletterEmailErrorCode;
+  UpdateNewsletterEmailInput: UpdateNewsletterEmailInput;
+  UpdateNewsletterEmailResult: ResolversTypes['UpdateNewsletterEmailError'] | ResolversTypes['UpdateNewsletterEmailSuccess'];
+  UpdateNewsletterEmailSuccess: ResolverTypeWrapper<UpdateNewsletterEmailSuccess>;
   UpdatePageError: ResolverTypeWrapper<UpdatePageError>;
   UpdatePageErrorCode: UpdatePageErrorCode;
   UpdatePageInput: UpdatePageInput;
@@ -4392,6 +4427,10 @@ export type ResolversParentTypes = {
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoError'] | ResolversParentTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: UpdateLinkShareInfoSuccess;
+  UpdateNewsletterEmailError: UpdateNewsletterEmailError;
+  UpdateNewsletterEmailInput: UpdateNewsletterEmailInput;
+  UpdateNewsletterEmailResult: ResolversParentTypes['UpdateNewsletterEmailError'] | ResolversParentTypes['UpdateNewsletterEmailSuccess'];
+  UpdateNewsletterEmailSuccess: UpdateNewsletterEmailSuccess;
   UpdatePageError: UpdatePageError;
   UpdatePageInput: UpdatePageInput;
   UpdatePageResult: ResolversParentTypes['UpdatePageError'] | ResolversParentTypes['UpdatePageSuccess'];
@@ -5460,6 +5499,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updateFilter?: Resolver<ResolversTypes['UpdateFilterResult'], ParentType, ContextType, RequireFields<MutationUpdateFilterArgs, 'input'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
+  updateNewsletterEmail?: Resolver<ResolversTypes['UpdateNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateNewsletterEmailArgs, 'input'>>;
   updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
   updateSubscription?: Resolver<ResolversTypes['UpdateSubscriptionResult'], ParentType, ContextType, RequireFields<MutationUpdateSubscriptionArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
@@ -6267,6 +6307,20 @@ export type UpdateLinkShareInfoSuccessResolvers<ContextType = ResolverContext, P
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UpdateNewsletterEmailErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateNewsletterEmailError'] = ResolversParentTypes['UpdateNewsletterEmailError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateNewsletterEmailErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateNewsletterEmailResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateNewsletterEmailResult'] = ResolversParentTypes['UpdateNewsletterEmailResult']> = {
+  __resolveType: TypeResolveFn<'UpdateNewsletterEmailError' | 'UpdateNewsletterEmailSuccess', ParentType, ContextType>;
+};
+
+export type UpdateNewsletterEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateNewsletterEmailSuccess'] = ResolversParentTypes['UpdateNewsletterEmailSuccess']> = {
+  newsletterEmail?: Resolver<ResolversTypes['NewsletterEmail'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UpdatePageErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdatePageError'] = ResolversParentTypes['UpdatePageError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['UpdatePageErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6807,6 +6861,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateLinkShareInfoError?: UpdateLinkShareInfoErrorResolvers<ContextType>;
   UpdateLinkShareInfoResult?: UpdateLinkShareInfoResultResolvers<ContextType>;
   UpdateLinkShareInfoSuccess?: UpdateLinkShareInfoSuccessResolvers<ContextType>;
+  UpdateNewsletterEmailError?: UpdateNewsletterEmailErrorResolvers<ContextType>;
+  UpdateNewsletterEmailResult?: UpdateNewsletterEmailResultResolvers<ContextType>;
+  UpdateNewsletterEmailSuccess?: UpdateNewsletterEmailSuccessResolvers<ContextType>;
   UpdatePageError?: UpdatePageErrorResolvers<ContextType>;
   UpdatePageResult?: UpdatePageResultResolvers<ContextType>;
   UpdatePageSuccess?: UpdatePageSuccessResolvers<ContextType>;

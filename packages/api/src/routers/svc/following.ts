@@ -2,6 +2,7 @@
 import express from 'express'
 import {
   ArticleSavingRequestStatus,
+  PageType,
   PreparedDocumentInput,
 } from '../../generated/graphql'
 import { createAndSaveLabelsInLibraryItem } from '../../services/labels'
@@ -114,7 +115,7 @@ export function followingServiceRouter() {
         slug,
         croppedPathname,
         originalHtml: req.body.previewContent,
-        itemType: parsedResult?.pageType || 'unknown',
+        itemType: parsedResult?.pageType || PageType.Unknown,
         canonicalUrl: url,
         folder: FOLDER,
         rssFeedUrl: feedUrl,

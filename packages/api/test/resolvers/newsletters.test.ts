@@ -9,6 +9,7 @@ import {
 import { getRepository } from '../../src/repository'
 import {
   createNewsletterEmail,
+  deleteNewsletterEmail,
   findNewsletterEmailByAddress,
   findNewsletterEmailById,
 } from '../../src/services/newsletters'
@@ -284,6 +285,59 @@ describe('Newsletters API', () => {
     it('responds status code 500 when invalid user', async () => {
       const invalidAuthToken = 'Fake token'
       return graphqlRequest(query, invalidAuthToken).expect(500)
+    })
+  })
+
+  describe('Update newsletter email', () => {
+    const query = `
+      mutation UpdateNewsletterEmail($input: UpdateNewsletterEmailInput!) {
+        updateNewsletterEmail(input: $input) {
+          ... on UpdateNewsletterEmailSuccess {
+            newsletterEmail {
+              id
+              address
+              folder
+            }
+          }
+          ... on UpdateNewsletterEmailError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    context('when newsletter email exists', () => {
+      let newsletterEmailId = 'Newsletter email id'
+
+      before(async () => {
+        //  create test newsletter emails
+        const newsletterEmail = await createNewsletterEmail(
+          user.id,
+          undefined,
+          'inbox'
+        )
+        newsletterEmailId = newsletterEmail.id
+      })
+
+      after(async () => {
+        // clean up
+        await deleteNewsletterEmail(newsletterEmailId)
+      })
+
+      it('responds with status code 200', async () => {
+        const folder = 'following'
+        const response = await graphqlRequest(query, authToken, {
+          input: {
+            id: newsletterEmailId,
+            folder,
+          },
+        }).expect(200)
+        expect(
+          response.body.data.updateNewsletterEmail.newsletterEmail.folder
+        ).to.eql(folder)
+        const newsletterEmail = await findNewsletterEmailById(newsletterEmailId)
+        expect(newsletterEmail?.folder).to.eql(folder)
+      })
     })
   })
 })
