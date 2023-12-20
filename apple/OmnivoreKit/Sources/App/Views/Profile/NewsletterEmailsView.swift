@@ -120,7 +120,7 @@ struct NewsletterEmailRow: View {
   var body: some View {
     VStack {
       HStack {
-        Text(email.unwrappedEmail)
+        Text(email.unwrappedEmail).bold()
         Spacer()
 
         Button(
@@ -145,21 +145,21 @@ struct NewsletterEmailRow: View {
           }
         )
       }
-//      Divider()
-//      Picker("Destination Folder", selection: $folderSelection) {
-//        Text("Inbox").tag("inbox")
-//        Text("Following").tag("following")
-//      }
-//      .pickerStyle(MenuPickerStyle())
-//      .onChange(of: folderSelection) { newValue in
-//        Task {
-//          viewModel.showOperationToast = true
-//          await viewModel.updateEmail(dataService: dataService, email: email, folder: newValue)
-//          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-//            viewModel.showOperationToast = false
-//          }
-//        }
-//      }
+      Divider()
+      Picker("Destination Folder", selection: $folderSelection) {
+        Text("Inbox").tag("inbox")
+        Text("Following").tag("following")
+      }
+      .pickerStyle(MenuPickerStyle())
+      .onChange(of: folderSelection) { _ in
+        //        Task {
+        //          viewModel.showOperationToast = true
+        //          // await viewModel.updateEmail(dataService: dataService, email: email, folder: newValue)
+        //          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+        //            viewModel.showOperationToast = false
+        //          }
+        //        }
+      }
     }
   }
 }
