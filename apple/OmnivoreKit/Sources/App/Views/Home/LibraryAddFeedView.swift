@@ -10,7 +10,7 @@ struct LibraryAddFeedView: View {
   @State var feedURL: String = ""
   @EnvironmentObject var dataService: DataService
 
-  @State var prefetchContent = false
+  @State var prefetchContent = true
   @State var folderSelection = "following"
   @State var selectedLabels = [LinkedItemLabel]()
 
