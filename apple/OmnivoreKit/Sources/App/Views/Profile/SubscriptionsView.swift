@@ -484,6 +484,9 @@ struct SubscriptionSettingsView: View {
             subscription: subscription,
             fetchContent: newValue
           )
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            viewModel.showOperationToast = false
+          }
         }
       }
     }
