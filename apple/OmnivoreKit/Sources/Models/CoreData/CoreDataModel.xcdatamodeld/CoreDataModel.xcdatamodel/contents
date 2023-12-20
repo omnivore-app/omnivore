@@ -96,6 +96,7 @@
     </entity>
     <entity name="NewsletterEmail" representedClassName="NewsletterEmail" syncable="YES" codeGenerationType="class">
         <attribute name="confirmationCode" optional="YES" attributeType="String"/>
+        <attribute name="descriptionNote" optional="YES" attributeType="String"/>
         <attribute name="email" attributeType="String"/>
         <attribute name="emailId" attributeType="String"/>
         <attribute name="folder" optional="YES" attributeType="String"/>

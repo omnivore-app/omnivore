@@ -21,6 +21,7 @@ public extension DataService {
               emailId: try $0.id(),
               email: try $0.address(),
               folder: try $0.folder(),
+              descriptionNote: try $0.description(),
               confirmationCode: try $0.confirmationCode()
             )
           }))

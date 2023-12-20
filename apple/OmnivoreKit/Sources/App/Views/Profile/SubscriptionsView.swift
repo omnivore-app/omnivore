@@ -201,7 +201,7 @@ struct SubscriptionsView: View {
       } label: {
         EmptyView()
       }
-      if viewModel.isLoading {
+      if viewModel.feeds.isEmpty, viewModel.newsletters.isEmpty, viewModel.isLoading {
         ProgressView()
       } else if viewModel.hasNetworkError {
         VStack {
@@ -260,6 +260,11 @@ struct SubscriptionsView: View {
     }
     .task {
       await viewModel.loadSubscriptions(dataService: dataService)
+    }
+    .refreshable {
+      Task {
+        await viewModel.loadSubscriptions(dataService: dataService)
+      }
     }
     .navigationTitle("Subscriptions")
     #if os(iOS)

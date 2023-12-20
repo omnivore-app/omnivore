@@ -10,6 +10,10 @@ import Views
   @Published var showAddressCopied = false
   @Published var emails = [NewsletterEmail]()
 
+  @Published var showOperationToast = false
+  @Published var operationStatus: OperationStatus = .none
+  @Published var operationMessage: String?
+
   func loadEmails(dataService: DataService) async {
     isLoading = true
 
@@ -38,19 +42,24 @@ import Views
 
     isLoading = false
   }
-//
-//  func updateEmail(dataService: DataService, subscription: Subscription, folder: String? = nil, fetchContent: Bool? = nil) async {
-//    operationMessage = "Updating subscription..."
-//    operationStatus = .isPerforming
-//    do {
-//      try await dataService.updateSubscription(subscription.subscriptionID, folder: folder, fetchContent: fetchContent)
-//      operationMessage = "Subscription updated"
-//      operationStatus = .success
-//    } catch {
-//      operationMessage = "Failed to update subscription"
-//      operationStatus = .failure
-//    }
-//  }
+
+  func updateEmail(dataService: DataService, email: NewsletterEmail, folder: String? = nil, description: String? = nil) async {
+    operationMessage = "Updating email..."
+    operationStatus = .isPerforming
+    do {
+      _ = try await dataService.updateNewsletterEmail(
+        emailID: email.unwrappedEmailId,
+        folder: folder,
+        description: description
+      )
+      await loadEmails(dataService: dataService)
+      operationMessage = "Email updated"
+      operationStatus = .success
+    } catch {
+      operationMessage = "Failed to update email"
+      operationStatus = .failure
+    }
+  }
 }
 
 struct NewsletterEmailsView: View {
@@ -61,6 +70,11 @@ struct NewsletterEmailsView: View {
 
   var body: some View {
     Group {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
+        NewsletterOperationToast(viewModel: viewModel)
+      } label: {
+        EmptyView()
+      }
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showAddressCopied) {
         MessageToast()
       } label: {
@@ -79,6 +93,11 @@ struct NewsletterEmailsView: View {
       #endif
     }
     .task { await viewModel.loadEmails(dataService: dataService) }
+    .refreshable {
+      Task {
+        await viewModel.loadEmails(dataService: dataService)
+      }
+    }
   }
 
   private var innerBody: some View {
@@ -86,7 +105,7 @@ struct NewsletterEmailsView: View {
       if !viewModel.emails.isEmpty {
         ForEach(viewModel.emails) { email in
           Section {
-            NewsletterEmailRow(viewModel: viewModel, email: email, folderSelection: email.folder)
+            NewsletterEmailRow(viewModel: viewModel, email: email, folderSelection: email.folder ?? "inbox")
           }
         }
       }
@@ -114,8 +133,10 @@ struct NewsletterEmailsView: View {
 
 struct NewsletterEmailRow: View {
   @StateObject var viewModel: NewsletterEmailsViewModel
+  @EnvironmentObject var dataService: DataService
+
   @State var email: NewsletterEmail
-  @State var folderSelection: String?
+  @State var folderSelection: String
 
   var body: some View {
     VStack {
@@ -151,14 +172,14 @@ struct NewsletterEmailRow: View {
         Text("Following").tag("following")
       }
       .pickerStyle(MenuPickerStyle())
-      .onChange(of: folderSelection) { _ in
-        //        Task {
-        //          viewModel.showOperationToast = true
-        //          // await viewModel.updateEmail(dataService: dataService, email: email, folder: newValue)
-        //          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-        //            viewModel.showOperationToast = false
-        //          }
-        //        }
+      .onChange(of: folderSelection) { newValue in
+        Task {
+          viewModel.showOperationToast = true
+          await viewModel.updateEmail(dataService: dataService, email: email, folder: newValue)
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            viewModel.showOperationToast = false
+          }
+        }
       }
     }
   }
@@ -170,6 +191,40 @@ struct MessageToast: View {
       HStack {
         Text("Address copied")
         Spacer()
+      }
+      .padding(10)
+      .frame(minHeight: 50)
+      .frame(maxWidth: .infinity)
+      .background(Color(hex: "2A2A2A"))
+      .cornerRadius(4.0)
+      .tint(Color.green)
+    }
+    .padding(.bottom, 70)
+    .padding(.horizontal, 10)
+    .ignoresSafeArea(.all, edges: .bottom)
+  }
+}
+
+struct NewsletterOperationToast: View {
+  @ObservedObject var viewModel: NewsletterEmailsViewModel
+
+  var body: some View {
+    VStack {
+      HStack {
+        if viewModel.operationStatus == .isPerforming {
+          Text(viewModel.operationMessage ?? "Performing...")
+          Spacer()
+          ProgressView()
+        } else if viewModel.operationStatus == .success {
+          Text(viewModel.operationMessage ?? "Success")
+          Spacer()
+        } else if viewModel.operationStatus == .failure {
+          Text(viewModel.operationMessage ?? "Failure")
+          Spacer()
+          Button(action: { viewModel.showOperationToast = false }, label: {
+            Text("Done").bold()
+          })
+        }
       }
       .padding(10)
       .frame(minHeight: 50)
