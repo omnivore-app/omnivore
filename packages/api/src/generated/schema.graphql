@@ -1252,6 +1252,7 @@ type Mutation {
   updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
+  updateNewsletterEmail(input: UpdateNewsletterEmailInput!): UpdateNewsletterEmailResult!
   updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
@@ -2440,6 +2441,28 @@ union UpdateLinkShareInfoResult = UpdateLinkShareInfoError | UpdateLinkShareInfo
 
 type UpdateLinkShareInfoSuccess {
   message: String!
+}
+
+type UpdateNewsletterEmailError {
+  errorCodes: [UpdateNewsletterEmailErrorCode!]!
+}
+
+enum UpdateNewsletterEmailErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input UpdateNewsletterEmailInput {
+  description: String
+  folder: String
+  id: ID!
+  name: String
+}
+
+union UpdateNewsletterEmailResult = UpdateNewsletterEmailError | UpdateNewsletterEmailSuccess
+
+type UpdateNewsletterEmailSuccess {
+  newsletterEmail: NewsletterEmail!
 }
 
 type UpdatePageError {

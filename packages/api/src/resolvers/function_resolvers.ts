@@ -131,6 +131,7 @@ import {
   validateUsernameResolver,
   webhookResolver,
   webhooksResolver,
+  updateNewsletterEmailResolver,
 } from './index'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
@@ -226,6 +227,7 @@ export const functionResolvers = {
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
     moveToFolder: moveToFolderResolver,
+    updateNewsletterEmail: updateNewsletterEmailResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -445,8 +447,12 @@ export const functionResolvers = {
         subscription.icon && createImageProxyUrl(subscription.icon, 128, 128)
       )
     },
-    folder(subscription: { folder?: string | null }) {
-      return subscription.folder || DEFAULT_SUBSCRIPTION_FOLDER
+    folder(subscription: Subscription) {
+      return (
+        subscription.folder ||
+        subscription.newsletterEmail?.folder ||
+        DEFAULT_SUBSCRIPTION_FOLDER
+      )
     },
   },
   NewsletterEmail: {
@@ -550,4 +556,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateEmail'),
   ...resultResolveTypeResolver('ScanFeeds'),
   ...resultResolveTypeResolver('MoveToFolder'),
+  ...resultResolveTypeResolver('UpdateNewsletterEmail'),
 }
