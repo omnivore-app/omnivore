@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
-import app.omnivore.omnivore.ui.library.*
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.launch
 import app.omnivore.omnivore.persistence.entities.Highlight
@@ -71,7 +70,7 @@ fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
     return result
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: (note: Highlight?) -> Unit) {
     var isMenuOpen by remember {
@@ -109,7 +108,7 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
                         }
                         if (isMenuOpen) {
                             DropdownMenu(
-                                expanded = isMenuOpen,
+                                expanded = true,
                                 onDismissRequest = { isMenuOpen = false }
                             ) {
                                 DropdownMenuItem(
@@ -117,7 +116,7 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
                                     onClick = {
                                         val clip = ClipData.newPlainText("notebook", notebookMD(notes, highlights))
                                         clipboard?.let {
-                                            clipboard?.setPrimaryClip(clip)
+                                            clipboard.setPrimaryClip(clip)
                                         } ?: run {
                                             coroutineScope.launch {
                                                 snackBarHostState
@@ -141,20 +140,20 @@ fun NotebookView(savedItemId: String, viewModel: NotebookViewModel, onEditNote: 
                 .padding(top = paddingValues.calculateTopPadding())
         ) {
             savedItem.value?.let {
-                ArticleNotes(viewModel, it, onEditNote)
+                ArticleNotes(it, onEditNote)
                 HighlightsList(it, onEditNote)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String?) -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val annotation = rememberSaveable { mutableStateOf(initialValue ?: "") }
 
-    BottomSheetUI() {
+    BottomSheetUI {
         MaterialTheme {
             Scaffold(
                 topBar = {
@@ -202,10 +201,9 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
-    val notes = item.highlights?.filter { it.type == "NOTE" } ?: listOf()
+fun ArticleNotes(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
+    val notes = item.highlights.filter { it.type == "NOTE" }
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -251,7 +249,7 @@ fun ArticleNotes(viewModel: NotebookViewModel, item: SavedItemWithLabelsAndHighl
 
 @Composable
 fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Highlight?) -> Unit) {
-    val highlights = item.highlights?.filter { it.type == "HIGHLIGHT" } ?: listOf()
+    val highlights = item.highlights.filter { it.type == "HIGHLIGHT" }
     val yellowColor = colorResource(R.color.cta_yellow)
 
     val coroutineScope = rememberCoroutineScope()
@@ -286,7 +284,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
                     }
                     if (isMenuOpen) {
                         DropdownMenu(
-                            expanded = isMenuOpen,
+                            expanded = true,
                             onDismissRequest = { isMenuOpen = false }
                         ) {
                             DropdownMenuItem(
@@ -294,7 +292,7 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
                                 onClick = {
                                     val clip = ClipData.newPlainText("highlight", highlight.quote)
                                     clipboard?.let {
-                                        clipboard?.setPrimaryClip(clip)
+                                        clipboard.setPrimaryClip(clip)
                                     } ?: run {
                                         coroutineScope.launch {
                                             snackBarHostState
@@ -381,10 +379,9 @@ fun HighlightsList(item: SavedItemWithLabelsAndHighlights, onEditNote: (note: Hi
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetUI(content: @Composable () -> Unit) {
-    OmnivoreTheme() {
+    OmnivoreTheme {
         Box(
             modifier = Modifier
                 .wrapContentHeight()
@@ -393,8 +390,7 @@ fun BottomSheetUI(content: @Composable () -> Unit) {
                 .background(Color.Transparent)
                 .statusBarsPadding()
         ) {
-            Scaffold(
-            ) { paddingValues ->
+            Scaffold { paddingValues ->
                 Box(modifier = Modifier.fillMaxSize()) {
                     content()
                 }

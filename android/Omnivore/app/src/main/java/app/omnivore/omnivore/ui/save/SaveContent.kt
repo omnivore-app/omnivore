@@ -1,7 +1,6 @@
 package app.omnivore.omnivore.ui.save
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -16,9 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.reader.PDFReaderActivity
 import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import kotlinx.coroutines.launch
 
@@ -29,7 +26,7 @@ fun SaveContent(viewModel: SaveViewModel, modalBottomSheetState: ModalBottomShee
   val context = LocalContext.current
   val enableReadNow = false
 
-  Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
+  Surface(modifier = modifier, color = MaterialTheme.colors.background) {
     Column(
       verticalArrangement = Arrangement.SpaceBetween,
       horizontalAlignment = Alignment.CenterHorizontally,

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LoadingButtonWithIcon(
+    modifier: Modifier = Modifier,
     text: String,
     loadingText: String,
     icon: Painter,
@@ -23,7 +24,6 @@ fun LoadingButtonWithIcon(
     borderColor: Color = Color.LightGray,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     progressIndicatorColor: Color = MaterialTheme.colorScheme.primary,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(

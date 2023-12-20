@@ -1,29 +1,17 @@
 package app.omnivore.omnivore.ui.library
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
-import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.*
 import app.omnivore.omnivore.ui.ResourceProvider
 import app.omnivore.omnivore.ui.setSavedItemLabels
-import coil.util.CoilUtils.result
 import com.apollographql.apollo3.api.Optional
-import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -71,9 +59,9 @@ class LibraryViewModel @Inject constructor(
   override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
 
   var isRefreshing by mutableStateOf(false)
-  var hasLoadedInitialFilters = false
+  private var hasLoadedInitialFilters = false
 
-  fun loadInitialFilterValues() {
+  private fun loadInitialFilterValues() {
     if (hasLoadedInitialFilters) { return }
     hasLoadedInitialFilters = false
 
@@ -101,10 +89,10 @@ class LibraryViewModel @Inject constructor(
     cursor = null
     librarySearchCursor = null
     isRefreshing = true
-    load(true)
+    load()
   }
 
-  fun getLastSyncTime(): Instant? = runBlocking {
+  private fun getLastSyncTime(): Instant? = runBlocking {
     datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
       try {
         return@let Instant.parse(it)
@@ -127,7 +115,7 @@ class LibraryViewModel @Inject constructor(
     load()
   }
 
-  fun load(clearPreviousSearch: Boolean = false) {
+  fun load() {
     loadInitialFilterValues()
 
     viewModelScope.launch {
@@ -182,12 +170,13 @@ class LibraryViewModel @Inject constructor(
     }
   }
 
-  fun sortKey(appliedSortKey: String) {
-    when(appliedSortKey) {
+//  fun sortKey(appliedSortKey: String) {
+//    when(appliedSortKey) {
+//
+//    }
+//  }
 
-    }
-  }
-  fun handleFilterChanges() {
+  private fun handleFilterChanges() {
     librarySearchCursor = null
 
     if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
@@ -216,7 +205,7 @@ class LibraryViewModel @Inject constructor(
         else -> (activeLabelsLiveData.value ?: listOf()).map { it.name }
       }
 
-     activeLabelsLiveData.value?.let {
+     activeLabelsLiveData.value?.let { it ->
        requiredLabels = requiredLabels + it.map { it.name }
      }
 
@@ -304,9 +293,6 @@ class LibraryViewModel @Inject constructor(
         currentItemLiveData.value = itemID
         showEditInfoSheetLiveData.value = true
       }
-      else -> {
-
-      }
     }
     actionsMenuItemLiveData.postValue(null)
   }
@@ -321,10 +307,10 @@ class LibraryViewModel @Inject constructor(
           labels = labels
         )
 
-        if (result) {
-          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_success)
+        snackbarMessage = if (result) {
+          resourceProvider.getString(R.string.library_view_model_snackbar_success)
         } else {
-          snackbarMessage = resourceProvider.getString(R.string.library_view_model_snackbar_error)
+          resourceProvider.getString(R.string.library_view_model_snackbar_error)
         }
 
         CoroutineScope(Dispatchers.Main).launch {

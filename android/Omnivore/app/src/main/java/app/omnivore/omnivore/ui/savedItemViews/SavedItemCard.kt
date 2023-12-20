@@ -1,24 +1,14 @@
 package app.omnivore.omnivore.ui.savedItemViews
 
-import LabelChip
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.SuggestionChipDefaults.elevatedSuggestionChipColors
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -31,9 +21,9 @@ import androidx.compose.ui.unit.*
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.ui.components.LabelChip
 import app.omnivore.omnivore.ui.components.LabelChipColors
 import app.omnivore.omnivore.ui.library.SavedItemAction
-import app.omnivore.omnivore.ui.library.SavedItemFilter
 import app.omnivore.omnivore.ui.library.SavedItemViewModel
 import coil.compose.rememberAsyncImagePainter
 
@@ -74,7 +64,7 @@ fun SavedItemCard(
           .padding(end = 20.dp)
           .defaultMinSize(minHeight = 55.dp)
       ) {
-        readInfo(item = savedItem)
+        ReadInfo(item = savedItem)
 
         Text(
           text = savedItem.savedItem.title,
@@ -154,7 +144,7 @@ fun byline(item: SavedItemWithLabelsAndHighlights): String {
 fun estimatedReadingTime(item: SavedItemWithLabelsAndHighlights): String {
   item.savedItem.wordsCount?.let {
     if (it > 0) {
-      val readLen = Math.max(1, it / 235)
+      val readLen = kotlin.math.max(1, it / 235)
       return "$readLen MIN READ • "
     }
   }
@@ -203,9 +193,9 @@ fun readingProgress(item: SavedItemWithLabelsAndHighlights): String {
 //}
 
 
-public enum class FlairIcon(
-  public val rawValue: String,
-  public val sortOrder: Int
+enum class FlairIcon(
+  val rawValue: String,
+  val sortOrder: Int
 ) {
   FEED("feed", 0),
   RSS("rss", 0),
@@ -279,7 +269,7 @@ fun flairIcons(item: SavedItemWithLabelsAndHighlights) {
 }
 
 @Composable
-fun readInfo(item: SavedItemWithLabelsAndHighlights) {
+fun ReadInfo(item: SavedItemWithLabelsAndHighlights) {
   Row(
     modifier = Modifier
       .fillMaxWidth()

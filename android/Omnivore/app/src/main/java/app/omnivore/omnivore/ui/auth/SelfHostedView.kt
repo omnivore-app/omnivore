@@ -42,7 +42,7 @@ import app.omnivore.omnivore.R
 fun SelfHostedView(viewModel: LoginViewModel) {
     var apiServer by rememberSaveable { mutableStateOf("") }
     var webServer by rememberSaveable { mutableStateOf("") }
-    var context = LocalContext.current
+    val context = LocalContext.current
 
     Row(
         horizontalArrangement = Arrangement.Center

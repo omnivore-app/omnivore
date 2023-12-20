@@ -1,16 +1,9 @@
 package app.omnivore.omnivore.ui.components
 
-import android.util.Log
 import androidx.lifecycle.*
-import app.omnivore.omnivore.DatastoreRepository
-import app.omnivore.omnivore.dataService.*
-import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
-import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -19,11 +12,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LabelsViewModel @Inject constructor(
-    private val datastoreRepo: DatastoreRepository,
-    private val dataService: DataService,
-    private val networker: Networker
-): ViewModel() {
+class LabelsViewModel @Inject constructor(): ViewModel() {
     val labelNameMaxLength = 64
 
     enum class Error {

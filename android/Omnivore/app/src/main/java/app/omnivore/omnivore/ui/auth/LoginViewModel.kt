@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.regex.Pattern
 import javax.inject.Inject
 
-
 enum class RegistrationState {
   SocialLogin,
   EmailSignIn,
@@ -114,7 +113,7 @@ class LoginViewModel @Inject constructor(
     registrationStateLiveData.value = RegistrationState.EmailSignUp
   }
 
-  fun showSelfHostedSettings(pendingCreds: PendingEmailUserCreds? = null) {
+  fun showSelfHostedSettings() {
     resetState()
     registrationStateLiveData.value = RegistrationState.SelfHosted
   }
@@ -329,11 +328,11 @@ class LoginViewModel @Inject constructor(
   }
 
   fun handleGoogleAuthTask(task: Task<GoogleSignInAccount>) {
-    val result = task?.getResult(ApiException::class.java)
+    val result = task.getResult(ApiException::class.java)
     val googleIdToken = result?.idToken ?: ""
 
     // If token is missing then set the error message
-    if (googleIdToken == null) {
+    if (googleIdToken.isEmpty()) {
       errorMessage = resourceProvider.getString(
         R.string.login_view_model_missing_auth_token_error_msg)
       return

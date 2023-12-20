@@ -15,16 +15,12 @@ import app.omnivore.omnivore.EventTracker
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
-import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
-import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.HighlightColor
 import app.omnivore.omnivore.ui.library.SavedItemAction
 import app.omnivore.omnivore.ui.setSavedItemLabels
-import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,14 +72,14 @@ class WebReaderViewModel @Inject constructor(
   val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
 
   var currentLink: Uri? = null
-  val bottomSheetStateLiveData = MutableLiveData<BottomSheetState>(BottomSheetState.NONE)
+  val bottomSheetStateLiveData = MutableLiveData(BottomSheetState.NONE)
 
   var hasTappedExistingHighlight = false
   var lastTapCoordinates: TapCoordinates? = null
   private var isLoading = false
   private var slug: String? = null
 
-  val showHighlightColorPalette = MutableLiveData(false)
+  private val showHighlightColorPalette = MutableLiveData(false)
   val highlightColor = MutableLiveData(HighlightColor())
 
   fun loadItem(slug: String?, requestID: String?) {
@@ -139,7 +135,7 @@ class WebReaderViewModel @Inject constructor(
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
   }
 
-  fun openLink(context: Context, uri: Uri) {
+  private fun openLink(context: Context, uri: Uri) {
     val browserIntent = Intent(Intent.ACTION_VIEW, uri)
     startActivity(context, browserIntent, null)
   }
@@ -164,11 +160,11 @@ class WebReaderViewModel @Inject constructor(
       val clipboard =
         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
       clipboard.setPrimaryClip(clip)
-      clipboard?.let {
-        clipboard?.setPrimaryClip(clip)
-        Toast.makeText(context,
-          context.getString(R.string.web_reader_view_model_copy_link_success),
-          Toast.LENGTH_SHORT).show()
+      clipboard.let {
+          clipboard.setPrimaryClip(clip)
+          Toast.makeText(context,
+            context.getString(R.string.web_reader_view_model_copy_link_success),
+            Toast.LENGTH_SHORT).show()
       }
     }
     bottomSheetStateLiveData.postValue(BottomSheetState.NONE)
@@ -321,11 +317,11 @@ class WebReaderViewModel @Inject constructor(
     }
   }
 
-  fun setHighlightColor(color: HighlightColor) {
-    CoroutineScope(Dispatchers.Main).launch {
-      highlightColor.postValue(color)
-    }
-  }
+//  fun setHighlightColor(color: HighlightColor) {
+//    CoroutineScope(Dispatchers.Main).launch {
+//      highlightColor.postValue(color)
+//    }
+//  }
 
   fun handleIncomingWebMessage(actionID: String, jsonString: String) {
     when (actionID) {
@@ -396,7 +392,7 @@ class WebReaderViewModel @Inject constructor(
     cancelAnnotationEdit()
   }
 
-  fun cancelAnnotationEdit() {
+  private fun cancelAnnotationEdit() {
     annotation = null
     resetBottomSheet()
   }
@@ -443,8 +439,8 @@ class WebReaderViewModel @Inject constructor(
     return storedThemePreference
   }
 
-  fun updateStoredThemePreference(newThemeKey: String, isDarkMode: Boolean) {
-    Log.d("theme", "Setting theme key: ${newThemeKey}")
+  fun updateStoredThemePreference(newThemeKey: String) {
+    Log.d("theme", "Setting theme key: $newThemeKey")
 
     runBlocking {
       datastoreRepo.putString(DatastoreKeys.preferredTheme, newThemeKey)

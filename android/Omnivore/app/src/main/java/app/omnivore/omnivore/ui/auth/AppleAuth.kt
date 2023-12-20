@@ -1,9 +1,7 @@
 package app.omnivore.omnivore.ui.auth
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
 import android.net.Uri
-import android.util.Log
 import android.view.ViewGroup
 import android.webkit.*
 import androidx.compose.foundation.layout.*

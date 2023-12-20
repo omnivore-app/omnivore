@@ -1,3 +1,5 @@
+package app.omnivore.omnivore.ui.components
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,17 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import app.omnivore.omnivore.ui.components.HighlightColor
 
 @Composable
 fun HighlightColorPaletteItem(
+    modifier: Modifier = Modifier,
     color: HighlightColor,
     isSelected: Boolean,
     onClick: (color: HighlightColor) -> Unit,
-    modifier: Modifier = Modifier.padding(6.dp)
 ) {
     Column (
-        modifier = modifier,
+        modifier = modifier.padding(6.dp),
     ) {
         Box(
             modifier = Modifier

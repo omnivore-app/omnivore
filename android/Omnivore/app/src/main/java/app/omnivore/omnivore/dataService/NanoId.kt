@@ -1,7 +1,6 @@
 package app.omnivore.omnivore.dataService
 
 
-import org.jetbrains.annotations.NotNull
 import java.security.SecureRandom
 import java.util.*
 import kotlin.math.abs
@@ -32,13 +31,9 @@ object NanoId {
      */
     @JvmOverloads
     fun generate(
-        @NotNull
         size: Int = 21,
-        @NotNull
         alphabet: String = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        @NotNull
         additionalBytesFactor: Double = 1.6,
-        @NotNull
         random: Random = SecureRandom()
     ): String {
         require(!(alphabet.isEmpty() || alphabet.length >= 256)) { "alphabet must contain between 1 and 255 symbols." }
@@ -64,7 +59,7 @@ object NanoId {
      * @return The generated optimized string.
      */
     @JvmOverloads
-    fun generateOptimized(@NotNull size: Int, @NotNull alphabet: String, @NotNull mask: Int, @NotNull step: Int, @NotNull random: Random = SecureRandom()): String {
+    fun generateOptimized(size: Int, alphabet: String, mask: Int, step: Int, random: Random = SecureRandom()): String {
         val idBuilder = StringBuilder(size)
         val bytes = ByteArray(step)
         while (true) {
@@ -87,7 +82,7 @@ object NanoId {
      * @param alphabet The set of characters to use for generating the string.
      * @return The additional bytes factor, rounded to two decimal places.
      */
-    fun calculateAdditionalBytesFactor(@NotNull alphabet: String): Double {
+    private fun calculateAdditionalBytesFactor(alphabet: String): Double {
         val mask = calculateMask(alphabet)
         return (1 + abs((mask - alphabet.length.toDouble()) / alphabet.length)).round(2)
     }
@@ -98,7 +93,7 @@ object NanoId {
      * @param alphabet The set of characters to use for generating the string.
      * @return The calculated mask value.
      */
-    fun calculateMask(@NotNull alphabet: String) = (2 shl (Integer.SIZE - 1 - Integer.numberOfLeadingZeros(alphabet.length - 1))) - 1
+    private fun calculateMask(alphabet: String) = (2 shl (Integer.SIZE - 1 - Integer.numberOfLeadingZeros(alphabet.length - 1))) - 1
 
     /**
      * Calculates the number of random bytes to generate in each iteration for a given size and alphabet.
@@ -109,7 +104,7 @@ object NanoId {
      * @return The number of random bytes to generate in each iteration.
      */
     @JvmOverloads
-    fun calculateStep(@NotNull size: Int, @NotNull alphabet: String, @NotNull additionalBytesFactor: Double = calculateAdditionalBytesFactor(alphabet)) =
+    fun calculateStep(size: Int, alphabet: String, additionalBytesFactor: Double = calculateAdditionalBytesFactor(alphabet)) =
         ceil(additionalBytesFactor * calculateMask(alphabet) * size / alphabet.length).toInt()
 
     @JvmSynthetic

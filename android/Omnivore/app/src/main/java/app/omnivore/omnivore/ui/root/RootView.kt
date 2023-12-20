@@ -1,6 +1,5 @@
 package app.omnivore.omnivore.ui.root
 
-import SettingsView
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -24,6 +23,7 @@ import app.omnivore.omnivore.ui.library.LibraryViewModel
 import app.omnivore.omnivore.ui.library.SearchViewModel
 import app.omnivore.omnivore.ui.save.SaveViewModel
 import app.omnivore.omnivore.ui.settings.PolicyWebView
+import app.omnivore.omnivore.ui.settings.SettingsView
 import app.omnivore.omnivore.ui.settings.SettingsViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 

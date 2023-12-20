@@ -1,3 +1,5 @@
+package app.omnivore.omnivore.ui.components
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -6,15 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import app.omnivore.omnivore.ui.components.HighlightColor
-import app.omnivore.omnivore.ui.components.HighlightColorPaletteMode
 
 @Composable
 fun HighlightColorPalette(
+    modifier: Modifier = Modifier,
     mode: HighlightColorPaletteMode = HighlightColorPaletteMode.Light,
     selectedColorName: String,
     onColorSelected: (color: HighlightColor) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier,

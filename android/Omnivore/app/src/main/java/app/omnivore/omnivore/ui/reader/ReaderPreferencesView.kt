@@ -3,11 +3,9 @@ package app.omnivore.omnivore.ui.reader
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.rememberLazyListState
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -46,7 +44,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
 
   val themeState = remember { mutableStateOf(currentWebPreferences.storedThemePreference) }
 
-  OmnivoreTheme() {
+  OmnivoreTheme {
   Column(
     modifier = Modifier
       .padding(horizontal = 15.dp)
@@ -169,11 +167,11 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         onCheckedChange = {
           if (it) {
             themeState.value = "System"
-            webReaderViewModel.updateStoredThemePreference("System", isDark)
+            webReaderViewModel.updateStoredThemePreference("System")
           } else {
             val newThemeKey = if (isDark) "Black" else "Light"
             themeState.value = newThemeKey
-            webReaderViewModel.updateStoredThemePreference(newThemeKey, isDark)
+            webReaderViewModel.updateStoredThemePreference(newThemeKey)
           }
         })
     }
@@ -188,7 +186,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
           Button(
             onClick = {
               themeState.value = theme.themeKey
-              webReaderViewModel.updateStoredThemePreference(theme.themeKey, isDark)
+              webReaderViewModel.updateStoredThemePreference(theme.themeKey)
             },
             shape = CircleShape,
             border = BorderStroke(3.dp, if (isSelected) colorResource(R.color.cta_yellow) else Color.Transparent),

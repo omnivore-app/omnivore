@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.dataService.NanoId
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
@@ -20,7 +19,6 @@ import com.pspdfkit.annotations.Annotation
 import com.pspdfkit.annotations.HighlightAnnotation
 import com.pspdfkit.document.download.DownloadJob
 import com.pspdfkit.document.download.DownloadRequest
-import com.pspdfkit.document.download.Progress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,9 +27,6 @@ import org.json.JSONObject
 import java.io.File
 import java.lang.Double.max
 import java.lang.Double.min
-import java.lang.Exception
-import java.net.URLEncoder
-import java.nio.file.FileSystem
 import java.util.*
 import javax.inject.Inject
 
@@ -43,7 +38,6 @@ data class PDFReaderParams(
 
 @HiltViewModel
 class PDFReaderViewModel @Inject constructor(
-  private val datastoreRepo: DatastoreRepository,
   private val dataService: DataService,
   private val networker: Networker
 ): ViewModel() {
@@ -62,23 +56,23 @@ class PDFReaderViewModel @Inject constructor(
   private suspend fun loadItemFromDB(slug: String) {
     withContext(Dispatchers.IO) {
       val persistedItem = dataService.db.savedItemDao().getSavedItemWithLabelsAndHighlights(slug)
-      persistedItem?.let { persistedItem ->
-        persistedItem?.savedItem?.localPDF?.let { localPDF ->
+      persistedItem?.let { item ->
+        item.savedItem.localPDF?.let { localPDF ->
           val localFile = File(localPDF)
 
           if (localFile.exists()) {
             val articleContent = ArticleContent(
-              title = persistedItem.savedItem.title,
+              title = item.savedItem.title,
               htmlContent = "",
-              highlights = persistedItem.highlights,
+              highlights = item.highlights,
               contentStatus = "SUCCEEDED",
               objectID = "",
-              labelsJSONString = Gson().toJson(persistedItem.labels)
+              labelsJSONString = Gson().toJson(item.labels)
             )
 
             pdfReaderParamsLiveData.postValue(
               PDFReaderParams(
-                persistedItem.savedItem,
+                item.savedItem,
                 articleContent,
                 Uri.fromFile(localFile)
               )
@@ -192,7 +186,7 @@ class PDFReaderViewModel @Inject constructor(
       }
 
       if (note != null) {
-        storeUpdatedNoteLocally(newAnnotation, note!!)
+        storeUpdatedNoteLocally(newAnnotation, note)
       }
     }
   }

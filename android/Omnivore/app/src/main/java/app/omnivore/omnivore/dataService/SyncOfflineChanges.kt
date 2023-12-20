@@ -7,13 +7,7 @@ import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import com.apollographql.apollo3.api.Optional
-import com.apollographql.apollo3.api.Optional.Companion.absent
-import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.*
 
 suspend fun DataService.startSyncChannels() {
   for (savedItem in savedItemSyncChannel) {
@@ -112,7 +106,7 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
       val isUpdatedOnServer = networker.updateHighlight(
         UpdateHighlightInput(
           annotation = Optional.presentIfNotNull(highlight.annotation),
-          highlightId = highlight.highlightId ?: "",
+          highlightId = highlight.highlightId,
           sharedAt = Optional.absent()
         )
       )
@@ -136,7 +130,7 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
           id = highlight.highlightId,
           patch = Optional.presentIfNotNull(highlight.patch),
           quote = Optional.presentIfNotNull(highlight.quote),
-          shortId = highlight.shortId ?: ""
+          shortId = highlight.shortId
         )
       )
 
