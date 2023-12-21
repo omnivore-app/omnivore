@@ -46,7 +46,7 @@ import Views
     }
   }
 
-  func loadSearchQuery(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadSearchQuery(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool, loadCursor: String? = nil) async {
     let thisSearchIdx = searchIdx
     searchIdx += 1
 
@@ -57,7 +57,7 @@ import Views
     let queryResult = try? await dataService.loadLinkedItems(
       limit: 10,
       searchQuery: searchQuery(filterState),
-      cursor: isRefresh ? nil : cursor
+      cursor: isRefresh ? nil : loadCursor ?? cursor
     )
 
     if let appliedFilter = filterState.appliedFilter, let queryResult = queryResult {
@@ -112,9 +112,10 @@ import Views
     BadgeCountHandler.updateBadgeCount(dataService: dataService)
   }
 
-  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState) async {
     if let appliedFilter = filterState.appliedFilter, appliedFilter.shouldRemoteSearch {
-      await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
+      let idx = max(items.count - 1, 0)
+      await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: false, loadCursor: idx.description)
     }
   }
 

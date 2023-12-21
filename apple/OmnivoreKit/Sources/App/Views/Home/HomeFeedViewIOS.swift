@@ -1041,18 +1041,27 @@ struct BottomView: View {
   @ObservedObject var viewModel: HomeFeedViewModel
   @EnvironmentObject var dataService: DataService
 
+  @State var autoLoading = false
+
   var body: some View {
-    if viewModel.fetcher.items.count < 5 {
-      Color.clear
-        .onAppear {
-          Task {
-            await viewModel.loadMore(dataService: dataService)
-          }
-          print("BOTTOM APPEARED")
+    innerBody
+      .onAppear {
+        Task {
+          autoLoading = true
+          await viewModel.loadMore(dataService: dataService)
+          autoLoading = false
         }
+      }
+  }
+
+  var innerBody: some View {
+    if viewModel.fetcher.items.count < 5 {
+      AnyView(Color.clear)
     } else {
-      HStack {
-        Text("You are all caught up.")
+      AnyView(HStack {
+        if !autoLoading {
+          Text("You are all caught up.")
+        }
         Spacer()
         if viewModel.isLoading {
           ProgressView()
@@ -1066,7 +1075,7 @@ struct BottomView: View {
           })
             .foregroundColor(Color.blue)
         }
-      }.padding(10)
+      }.padding(10))
     }
   }
 }

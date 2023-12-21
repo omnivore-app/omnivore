@@ -92,7 +92,10 @@ import Views
       return
     }
 
-    await loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: false)
+    isLoading = true
+    await fetcher.loadMoreItems(dataService: dataService, filterState: filterState)
+    isLoading = false
+
     lastMoreFetched = start
   }
 
@@ -140,21 +143,11 @@ import Views
     showLoadingBar = false
   }
 
-  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
-    isLoading = true
-
-    await fetcher.loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
-
-    isLoading = false
-  }
-
   func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [Models.LibraryItem] {
     let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.fetchLimit = 25
     fetchRequest.predicate = predicate
     fetchRequest.sortDescriptors = [sort]
-
-    print("using predicate to load feature items: ", predicate)
 
     do {
       let fetched = try context.fetch(fetchRequest)
