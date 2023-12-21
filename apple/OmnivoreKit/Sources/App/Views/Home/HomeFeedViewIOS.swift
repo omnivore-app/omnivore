@@ -1033,6 +1033,7 @@ struct BottomView: View {
 
   var body: some View {
     innerBody
+      .listRowSeparator(.hidden)
       .onAppear {
         Task {
           autoLoading = true
