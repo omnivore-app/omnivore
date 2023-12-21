@@ -99,24 +99,24 @@ struct FiltersView: View {
         }
       }
 
-      Section(header: Text("Application Badge")) {
-        Toggle("Display Badge Count", isOn: $viewModel.hasBadgePermission)
-          .onChange(of: viewModel.hasBadgePermission) { _ in
-            if viewModel.hasBadgePermission {
-              viewModel.requestBadgePermission()
-            } else {
-              UIApplication.shared.applicationIconBadgeNumber = 0
-            }
-          }
-
-        if viewModel.hasBadgePermission {
-          NavigationLink(destination: {
-            SelectBadgeFilterView(viewModel: viewModel)
-          }, label: {
-            Text(viewModel.badgeFilter)
-          })
-        }
-      }
+//      Section(header: Text("Application Badge")) {
+//        Toggle("Display Badge Count", isOn: $viewModel.hasBadgePermission)
+//          .onChange(of: viewModel.hasBadgePermission) { _ in
+//            if viewModel.hasBadgePermission {
+//              viewModel.requestBadgePermission()
+//            } else {
+//              UIApplication.shared.applicationIconBadgeNumber = 0
+//            }
+//          }
+//
+//        if viewModel.hasBadgePermission {
+//          NavigationLink(destination: {
+//            SelectBadgeFilterView(viewModel: viewModel)
+//          }, label: {
+//            Text(viewModel.badgeFilter)
+//          })
+//        }
+//      }
     }
   }
 }
