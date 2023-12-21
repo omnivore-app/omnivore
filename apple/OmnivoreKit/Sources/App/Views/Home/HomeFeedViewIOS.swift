@@ -163,59 +163,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       .navigationBarTitleDisplayMode(.inline)
     }
 
-    var trailingItems: some ToolbarContent {
-      Group {
-        ToolbarItem(placement: .barTrailing) {
-          if prefersListLayout {
-            Button(
-              action: { isEditMode = isEditMode == .active ? .inactive : .active },
-              label: {
-                Image.selectMultiple
-                  .foregroundColor(Color.appGrayTextContrast)
-              }
-            )
-          }
-        }
-        ToolbarItem(placement: UIDevice.isIPhone ? .barLeading : .barTrailing) {
-          if enableGrid {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-              }
-            )
-          }
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: {
-              if viewModel.folder == "inbox" {
-                showAddLinkView = true
-              } else if viewModel.folder == "following" {
-                showAddFeedView = true
-              }
-            },
-            label: {
-              Image.addLink
-                .foregroundColor(Color.appGrayTextContrast)
-            }
-          )
-        }
-        ToolbarItem(placement: .barTrailing) {
-          Button(
-            action: { searchPresented = true },
-            label: {
-              Image.magnifyingGlass
-                .foregroundColor(Color.appGrayTextContrast)
-            }
-          )
-        }
-      }
-    }
-
     var toolbarItems: some ToolbarContent {
       Group {
-        ToolbarItem(placement: .barLeading) {
+        ToolbarItemGroup(placement: .barLeading) {
           if UIDevice.isIPhone || horizontalSizeClass != .compact {
             VStack(alignment: .leading) {
               let showDate = isListScrolled && !listTitle.isEmpty
@@ -233,7 +183,45 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         }
 
-        trailingItems
+        ToolbarItemGroup(placement: .barTrailing) {
+          if prefersListLayout {
+            Button(
+              action: { isEditMode = isEditMode == .active ? .inactive : .active },
+              label: {
+                Image.selectMultiple
+                  .foregroundColor(Color.appGrayTextContrast)
+              }
+            )
+          }
+          if enableGrid {
+            Button(
+              action: { prefersListLayout.toggle() },
+              label: {
+                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+              }
+            )
+          }
+          Button(
+            action: {
+              if viewModel.folder == "inbox" {
+                showAddLinkView = true
+              } else if viewModel.folder == "following" {
+                showAddFeedView = true
+              }
+            },
+            label: {
+              Image.addLink
+                .foregroundColor(Color.appGrayTextContrast)
+            }
+          )
+          Button(
+            action: { searchPresented = true },
+            label: {
+              Image.magnifyingGlass
+                .foregroundColor(Color.appGrayTextContrast)
+            }
+          )
+        }
 
         ToolbarItemGroup(placement: .bottomBar) {
           if isEditMode == .active {

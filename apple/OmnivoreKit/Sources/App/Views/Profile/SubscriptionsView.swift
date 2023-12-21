@@ -175,7 +175,7 @@ struct OperationToast: View {
       }
       .padding(10)
       .frame(minHeight: 50)
-      .frame(maxWidth: .infinity)
+      .frame(maxWidth: 380)
       .background(Color(hex: "2A2A2A"))
       .cornerRadius(4.0)
       .tint(Color.green)
