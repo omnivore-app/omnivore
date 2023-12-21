@@ -64,12 +64,13 @@ struct ProfileView: View {
 
   @StateObject private var viewModel = ProfileContainerViewModel()
 
+  @State var shouldScrollToTop = false
   @State private var showLogoutConfirmation = false
 
   var body: some View {
     #if os(iOS)
-      Form {
-        innerBody
+      List {
+        innerBody.tag("TOP")
       }
       .toolbar {
         toolbarItems
@@ -125,6 +126,7 @@ struct ProfileView: View {
     Group {
       Section {
         ProfileCard(data: viewModel.profileCardData)
+          .tag("PROFILE")
           .task {
             await viewModel.loadProfileData(dataService: dataService)
           }

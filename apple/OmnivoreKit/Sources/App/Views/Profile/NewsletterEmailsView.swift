@@ -64,6 +64,8 @@ import Views
 
 struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
+  @Environment(\.dismiss) private var dismiss
+
   @StateObject var viewModel = NewsletterEmailsViewModel()
 
   @State var snackbarOperation: SnackbarOperation?
@@ -71,7 +73,7 @@ struct NewsletterEmailsView: View {
   var body: some View {
     Group {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
-        NewsletterOperationToast(viewModel: viewModel)
+        OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
       } label: {
         EmptyView()
       }
@@ -91,6 +93,9 @@ struct NewsletterEmailsView: View {
         }
         .listStyle(InsetListStyle())
       #endif
+    }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+      dismiss()
     }
     .task { await viewModel.loadEmails(dataService: dataService) }
     .refreshable {
@@ -191,40 +196,6 @@ struct MessageToast: View {
       HStack {
         Text("Address copied")
         Spacer()
-      }
-      .padding(10)
-      .frame(minHeight: 50)
-      .frame(maxWidth: 380)
-      .background(Color(hex: "2A2A2A"))
-      .cornerRadius(4.0)
-      .tint(Color.green)
-    }
-    .padding(.bottom, 70)
-    .padding(.horizontal, 10)
-    .ignoresSafeArea(.all, edges: .bottom)
-  }
-}
-
-struct NewsletterOperationToast: View {
-  @ObservedObject var viewModel: NewsletterEmailsViewModel
-
-  var body: some View {
-    VStack {
-      HStack {
-        if viewModel.operationStatus == .isPerforming {
-          Text(viewModel.operationMessage ?? "Performing...")
-          Spacer()
-          ProgressView()
-        } else if viewModel.operationStatus == .success {
-          Text(viewModel.operationMessage ?? "Success")
-          Spacer()
-        } else if viewModel.operationStatus == .failure {
-          Text(viewModel.operationMessage ?? "Failure")
-          Spacer()
-          Button(action: { viewModel.showOperationToast = false }, label: {
-            Text("Done").bold()
-          })
-        }
       }
       .padding(10)
       .frame(minHeight: 50)

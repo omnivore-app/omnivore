@@ -10,6 +10,8 @@ struct LabelsView: View {
   @State private var showDeleteConfirmation = false
   @State private var labelToRemove: LinkedItemLabel?
 
+  @Environment(\.dismiss) private var dismiss
+
   @AppStorage(UserDefaultKey.hideSystemLabels.rawValue, store: UserDefaults(suiteName: "group.app.omnivoreapp")) var hideSystemLabels = false
 
   var body: some View {
@@ -54,6 +56,9 @@ struct LabelsView: View {
       Task {
         await viewModel.loadLabels(dataService: dataService, item: nil)
       }
+    }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+      dismiss()
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)

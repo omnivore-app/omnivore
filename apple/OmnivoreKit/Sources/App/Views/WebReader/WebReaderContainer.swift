@@ -369,7 +369,7 @@ struct WebReaderContainerView: View {
   var body: some View {
     ZStack {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
-        ReaderOperationToast(viewModel: viewModel)
+        OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
       } label: {
         EmptyView()
       }
@@ -695,39 +695,5 @@ struct WebReaderContainerView: View {
     else { return }
 
     openURL(url)
-  }
-}
-
-struct ReaderOperationToast: View {
-  @State var viewModel: WebReaderViewModel
-
-  var body: some View {
-    VStack {
-      HStack {
-        if viewModel.operationStatus == .isPerforming {
-          Text(viewModel.operationMessage ?? "Performing...")
-          Spacer()
-          ProgressView()
-        } else if viewModel.operationStatus == .success {
-          Text(viewModel.operationMessage ?? "Success")
-          Spacer()
-        } else if viewModel.operationStatus == .failure {
-          Text(viewModel.operationMessage ?? "Failure")
-          Spacer()
-          Button(action: { viewModel.showOperationToast = false }, label: {
-            Text("Done").bold()
-          })
-        }
-      }
-      .padding(10)
-      .frame(minHeight: 50)
-      .frame(maxWidth: 380)
-      .background(Color(hex: "2A2A2A"))
-      .cornerRadius(4.0)
-      .tint(Color.green)
-    }
-    .padding(.bottom, 60)
-    .padding(.horizontal, 10)
-    .ignoresSafeArea(.all, edges: .bottom)
   }
 }

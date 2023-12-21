@@ -59,6 +59,8 @@ import Views
 
 struct FiltersView: View {
   @EnvironmentObject var dataService: DataService
+  @Environment(\.dismiss) private var dismiss
+
   @StateObject var viewModel = FiltersViewModel()
 
   var body: some View {
@@ -78,6 +80,9 @@ struct FiltersView: View {
     .task {
       viewModel.loadBadgePermission()
       await viewModel.loadFilters(dataService: dataService)
+    }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+      dismiss()
     }
   }
 
