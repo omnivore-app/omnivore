@@ -3,7 +3,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func subscribeToFeed(feedURL: String) async throws -> Bool {
+  func subscribeToFeed(feedURL: String, folder: String? = nil, fetchContent: Bool? = nil) async throws -> Bool {
     enum MutationResult {
       case success(subscriptionIds: [String])
       case error(errorMessage: String)
@@ -25,7 +25,11 @@ public extension DataService {
     }
 
     let mutation = Selection.Mutation {
-      try $0.subscribe(input: InputObjects.SubscribeInput(url: feedURL), selection: selection)
+      try $0.subscribe(input: InputObjects.SubscribeInput(
+        fetchContent: OptionalArgument(fetchContent),
+        folder: OptionalArgument(folder),
+        url: feedURL
+      ), selection: selection)
     }
 
     let path = appEnvironment.graphqlPath

@@ -1,4 +1,5 @@
 import Foundation
+import Models
 import Services
 import SwiftUI
 import Utils
@@ -7,6 +8,9 @@ import Utils
 public class LibraryAddFeedViewModel: NSObject, ObservableObject {
   let dataService: DataService
   let feedURL: String
+  let prefetchContent: Bool
+  let folder: String
+  let selectedLabels: [LinkedItemLabel]
   let toastOperationHandler: ToastOperationHandler?
 
   @Published var isLoading = true
@@ -16,9 +20,12 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
   @Published var feeds: [Feed] = []
   @Published var selected: [String] = []
 
-  init(dataService: DataService, feedURL: String, toastOperationHandler: ToastOperationHandler?) {
+  init(dataService: DataService, feedURL: String, prefetchContent: Bool, folder: String, selectedLabels: [LinkedItemLabel], toastOperationHandler: ToastOperationHandler?) {
     self.dataService = dataService
     self.feedURL = feedURL
+    self.prefetchContent = prefetchContent
+    self.folder = folder
+    self.selectedLabels = selectedLabels
     self.toastOperationHandler = toastOperationHandler
   }
 
@@ -49,7 +56,7 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
         _ = await withTaskGroup(of: Bool.self) { group in
           for feedURL in selected {
             group.addTask {
-              (try? await self.dataService.subscribeToFeed(feedURL: feedURL)) ?? false
+              (try? await self.dataService.subscribeToFeed(feedURL: feedURL, folder: self.folder, fetchContent: self.prefetchContent)) ?? false
             }
           }
 
@@ -78,7 +85,7 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
       _ = await withTaskGroup(of: Bool.self) { group in
         for feedURL in selected {
           group.addTask {
-            (try? await self.dataService.subscribeToFeed(feedURL: feedURL)) ?? false
+            (try? await self.dataService.subscribeToFeed(feedURL: feedURL, folder: self.folder, fetchContent: self.prefetchContent)) ?? false
           }
         }
 
@@ -101,6 +108,39 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
         }
       }
     }
+  }
+
+  func setLabelsRule(dataService _: DataService, existingRule _: Rule?, ruleName _: String, filter _: String, labelIDs _: [String]) async {
+//    Task {
+//      operationMessage = "Creating label rule..."
+//      operationStatus = .isPerforming
+//      do {
+//        // Make sure the labels have been created
+//        await loadLabels(dataService: dataService)
+//        let existingLabelIDs = labels?.map(\.unwrappedID) ?? []
+//        if labelIDs.first(where: { !existingLabelIDs.contains($0) }) != nil {
+//          throw BasicError.message(messageText: "Label not created")
+//        }
+//
+//        _ = try await dataService.createOrUpdateAddLabelsRule(
+//          existingID: existingRule?.id,
+//          name: ruleName,
+//          filter: filter,
+//          labelIDs: labelIDs
+//        )
+//        if let newRules = try? await dataService.rules() {
+//          if !newRules.contains(where: { $0.name == ruleName }) {
+//            throw BasicError.message(messageText: "Rule not created")
+//          }
+//          rules = newRules
+//        }
+//        operationMessage = "Rule created"
+//        operationStatus = .success
+//      } catch {
+//        operationMessage = "Failed to create label rule"
+//        operationStatus = .failure
+//      }
+//    }
   }
 
   func error(_ msg: String) {
@@ -176,7 +216,7 @@ public struct LibraryScanFeedView: View {
               await viewModel.addFeeds()
             }
           }, label: {
-            Text("Add").bold()
+            Text("Add").bold().disabled(viewModel.selected.count < 1)
           })
         } else {
           Button(action: {

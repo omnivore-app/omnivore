@@ -266,6 +266,9 @@ struct SubscriptionsView: View {
         await viewModel.loadSubscriptions(dataService: dataService)
       }
     }
+    .onDisappear {
+      viewModel.showOperationToast = false
+    }
     .navigationTitle("Subscriptions")
     #if os(iOS)
       .navigationBarTitleDisplayMode(.inline)
@@ -502,7 +505,7 @@ struct SubscriptionSettingsView: View {
             let labelNames = ruleLabels.map(\.unwrappedName)
             Text("[\(labelNames.joined(separator: ","))]")
           } else {
-            Text("[none]")
+            Text("Create Rule")
           }
         })
       } else {
@@ -535,12 +538,12 @@ struct SubscriptionSettingsView: View {
         .padding(.horizontal, 15)
 
       List {
-        if subscription.type != .newsletter {
-          Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
-            .onAppear {
-              prefetchContent = subscription.fetchContent
-            }
-        }
+//        if subscription.type != .newsletter {
+//          Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
+//            .onAppear {
+//              prefetchContent = subscription.fetchContent
+//            }
+//        }
         folderRow
         labelRuleRow
       }.listStyle(.insetGrouped)

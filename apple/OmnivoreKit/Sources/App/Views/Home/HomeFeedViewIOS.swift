@@ -1042,12 +1042,31 @@ struct BottomView: View {
   @EnvironmentObject var dataService: DataService
 
   var body: some View {
-    Color.clear
-      .onAppear {
-        Task {
-          await viewModel.loadMore(dataService: dataService)
+    if viewModel.fetcher.items.count < 5 {
+      Color.clear
+        .onAppear {
+          Task {
+            await viewModel.loadMore(dataService: dataService)
+          }
+          print("BOTTOM APPEARED")
         }
-        print("BOTTOM APPEARED")
-      }
+    } else {
+      HStack {
+        Text("You are all caught up.")
+        Spacer()
+        if viewModel.isLoading {
+          ProgressView()
+        } else {
+          Button(action: {
+            Task {
+              await viewModel.loadMore(dataService: dataService)
+            }
+          }, label: {
+            Text("Refresh library")
+          })
+            .foregroundColor(Color.blue)
+        }
+      }.padding(10)
+    }
   }
 }

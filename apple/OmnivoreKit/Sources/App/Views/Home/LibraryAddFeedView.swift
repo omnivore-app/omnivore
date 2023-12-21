@@ -51,10 +51,13 @@ struct LibraryAddFeedView: View {
               viewModel: LibraryAddFeedViewModel(
                 dataService: dataService,
                 feedURL: feedURL,
+                prefetchContent: prefetchContent,
+                folder: folderSelection,
+                selectedLabels: selectedLabels,
                 toastOperationHandler: toastOperationHandler
               )
             ),
-            label: { Text("Add").bold() }
+            label: { Text("Add").bold().disabled(feedURL.isEmpty) }
           )
         }
       }
@@ -138,18 +141,24 @@ private struct SubscriptionSettings: View {
   var labelRuleRow: some View {
     HStack {
       Text("Add Labels")
-      Spacer()
+      Spacer(minLength: 30)
       Button(action: { showLabelsSelector = true }, label: {
-        Text("Create Rule")
+        if selectedLabels.count > 0 {
+          let labelNames = selectedLabels.map(\.unwrappedName)
+          Text("[\(labelNames.joined(separator: ","))]")
+            .lineLimit(1)
+        } else {
+          Text("Create Rule")
+        }
       })
     }
   }
 
   var body: some View {
     Group {
-      Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
+      // Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
       folderRow
-      labelRuleRow
+      // labelRuleRow
     }
     .sheet(isPresented: $showLabelsSelector) {
       ApplyLabelsView(mode: .list(selectedLabels), onSave: { labels in
