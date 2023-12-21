@@ -33,6 +33,7 @@ public enum UserDefaultKey: String {
   case deviceTokenID
   case userWordsPerMinute
   case hideFeatureSection
+  case hideSystemLabels
   case justifyText
   case prefersHideStatusBarInReader
   case visibleShareExtensionTab

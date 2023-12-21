@@ -10,22 +10,29 @@ struct LabelsView: View {
   @State private var showDeleteConfirmation = false
   @State private var labelToRemove: LinkedItemLabel?
 
+  @AppStorage(UserDefaultKey.hideSystemLabels.rawValue, store: UserDefaults(suiteName: "group.app.omnivoreapp")) var hideSystemLabels = false
+
   var body: some View {
     List {
-      ForEach(viewModel.labels, id: \.id) { label in
-        HStack {
-          TextChip(feedItemLabel: label).allowsHitTesting(false)
-          Spacer()
-          Button(
-            action: {
-              labelToRemove = label
-              showDeleteConfirmation = true
-            },
-            label: { Image(systemName: "trash") }
-          )
+      Section {
+        ForEach(viewModel.labels, id: \.id) { label in
+          HStack {
+            TextChip(feedItemLabel: label).allowsHitTesting(false)
+            Spacer()
+            Button(
+              action: {
+                labelToRemove = label
+                showDeleteConfirmation = true
+              },
+              label: { Image(systemName: "trash") }
+            )
+          }
         }
+        createLabelButton
       }
-      createLabelButton
+      Section("Label settings") {
+        Toggle("Hide system labels", isOn: $hideSystemLabels)
+      }
     }
     .navigationTitle(LocalText.labelsGeneric)
     .alert("Are you sure you want to delete this label?", isPresented: $showDeleteConfirmation) {
@@ -42,6 +49,11 @@ struct LabelsView: View {
         self.labelToRemove = nil
       }
       Button(LocalText.cancelGeneric, role: .cancel) { self.labelToRemove = nil }
+    }
+    .onChange(of: hideSystemLabels) { _ in
+      Task {
+        await viewModel.loadLabels(dataService: dataService, item: nil)
+      }
     }
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)

@@ -41,6 +41,7 @@ import Views
         } else {
           self.hasBadgePermission = false
         }
+
         print("notification settings: ", settings.badgeSetting.rawValue)
         print("got the notification settings")
       }
