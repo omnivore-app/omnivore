@@ -12,12 +12,12 @@ public enum GridCardAction {
 
 public struct GridCard: View {
   @Binding var isContextMenuOpen: Bool
-  let item: Models.LibraryItem
+  let item: LibraryItemData
   let actionHandler: (GridCardAction) -> Void
   // let tapAction: () -> Void
 
   public init(
-    item: Models.LibraryItem,
+    item: LibraryItemData,
     isContextMenuOpen: Binding<Bool>,
     actionHandler: @escaping (GridCardAction) -> Void
   ) {
@@ -51,7 +51,7 @@ public struct GridCard: View {
       )
       Button(
         action: { menuActionHandler(.editLabels) },
-        label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+        label: { Label(item.sortedLabels.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
       )
       Button(
         action: { menuActionHandler(.toggleArchiveStatus) },
@@ -77,7 +77,7 @@ public struct GridCard: View {
           CachedAsyncImage(url: imageURL) { phase in
             switch phase {
             case .empty:
-              Color.systemBackground
+              Color.clear
                 .frame(maxWidth: .infinity, maxHeight: geo.size.height)
             case let .success(image):
               image.resizable()
@@ -93,7 +93,7 @@ public struct GridCard: View {
               // we need to add this currently unused fallback
               // to handle any new cases that might be added
               // in the future:
-              Color.systemBackground
+              Color.clear
                 .frame(maxWidth: .infinity, maxHeight: geo.size.height)
             }
           }
@@ -117,16 +117,16 @@ public struct GridCard: View {
   var fallbackImage: some View {
     GeometryReader { geo in
       HStack {
-        Text(item.unwrappedTitle)
+        Text(item.title)
           .font(fallbackFont)
           .frame(alignment: .center)
           .multilineTextAlignment(.leading)
           .lineLimit(2)
           .padding(10)
-          .foregroundColor(Color.themeMiddleGray)
+          .foregroundColor(Color.thFallbackImageForeground)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(Color.thLightWhiteGrey)
+      .background(Color.thFallbackImageBackground)
       .frame(width: geo.size.width, height: geo.size.height)
     }
   }
@@ -168,7 +168,7 @@ public struct GridCard: View {
 
           VStack(alignment: .leading, spacing: 4) {
             HStack {
-              Text(item.unwrappedTitle)
+              Text(item.title)
                 .font(.appHeadline)
                 .foregroundColor(.appGrayTextContrast)
                 .lineLimit(1)
@@ -183,7 +183,7 @@ public struct GridCard: View {
 
           // Link description and image
           HStack(alignment: .top) {
-            Text(item.descriptionText ?? item.unwrappedTitle)
+            Text(item.descriptionText ?? item.title)
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
               .lineLimit(3)

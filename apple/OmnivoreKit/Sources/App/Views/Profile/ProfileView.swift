@@ -25,8 +25,10 @@ import Views
       loadProfileCardData(name: name, username: username, profileImageURL: currentViewer.profileImageURL)
     }
 
-    if let viewer = try? await dataService.fetchViewer() {
-      loadProfileCardData(name: viewer.name, username: viewer.username, profileImageURL: viewer.profileImageURL)
+    if profileCardData.name.isEmpty {
+      if let viewer = try? await dataService.fetchViewer() {
+        loadProfileCardData(name: viewer.name, username: viewer.username, profileImageURL: viewer.profileImageURL)
+      }
     }
   }
 
@@ -62,12 +64,13 @@ struct ProfileView: View {
 
   @StateObject private var viewModel = ProfileContainerViewModel()
 
+  @State var shouldScrollToTop = false
   @State private var showLogoutConfirmation = false
 
   var body: some View {
     #if os(iOS)
-      Form {
-        innerBody
+      List {
+        innerBody.tag("TOP")
       }
       .toolbar {
         toolbarItems
@@ -123,6 +126,7 @@ struct ProfileView: View {
     Group {
       Section {
         ProfileCard(data: viewModel.profileCardData)
+          .tag("PROFILE")
           .task {
             await viewModel.loadProfileData(dataService: dataService)
           }
@@ -194,7 +198,7 @@ struct ProfileView: View {
               primaryButton: .destructive(Text(LocalText.genericConfirm)) {
                 dismiss()
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                  authenticator.logout(dataService: dataService)
+                  authenticator.beginLogout()
                 }
               },
               secondaryButton: .cancel()

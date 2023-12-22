@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Collection Consent</title>
+    <script src="/scripts/common.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #FFEA9F;
+        }
+
+        #consent-container {
+            max-width: 600px;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid rgb(61, 61, 61);
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: rgb(177, 177, 177) 9px 9px 9px -9px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .consent-text {
+            margin-bottom: 20px;
+        }
+
+        .cta-container {
+            align-items: center;
+        }
+
+        #consent-checkbox {
+            margin-bottom: 20px;
+        }
+
+        #consent-button {
+            background-color: rgb(255, 234, 159);
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #uninstall-link {
+            color: #f44336;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="consent-container">
+        <h1>Omnivore</h1>
+        <p class="consent-text">Thank you for installing the <a href="https://omnivore.app">Omnivore</a> Firefox extension. Use this extension to save links to your Omnivore library.</p>
+        <p class="consent-text">If you are not familiar with Omnivore, you can learn more about us by reading <a href="https://blog.omnivore.app/p/getting-started-with-omnivore">Getting Started with Omnivore</a></p>
+
+        <p class="consent-text">&nbsp;</p>
+
+        <h2>Privacy</h2>
+        <p class="consent-text">To function Omnivore needs to collect some data. This data is used to authenticate you with our servers, and save pages to your library.</p>
+        
+
+        <p class="consent-text">Omnivore uses the following data:</p>
+        <ul>
+          <li><b>Tab Data</b>: When you invoke the extension, we access the content of the page you are currently viewing. This allows us to save the full content of the page, exactly how you are viewing it. That data is then transmitted to our servers and added to your library</li>
+          <li><b>Authentication cookie</b>: When you invoke the extension we access the auth cookie you used to authenticate at <a href="https://omnivore.app">https://omnivore.app</a>. This cookie identifies you as an Omnivore user and ties the saving operation to your Omnivore account.</li>
+        </ul>
+        <p class="consent-text">For full details about the data we collect you can read our <a href="https://docs.omnivore.app/about/privacy-statement.html">privacy statement</a></p>
+
+        <label for="consent-checkbox">
+            <input type="checkbox" id="consent-checkbox"> I consent to data collection
+        </label>
+
+        <br>
+        <button id="consent-button" onclick="handleConsent()">Give Consent</button>
+        <a id="uninstall-link" href="#">I do not consent, and would like to uninstall the extension</a>
+    </div>
+
+    <script>
+        function handleConsent() {
+            var consentCheckbox = document.getElementById('consent-checkbox');
+
+            if (consentCheckbox.checked) {
+                setStorage({
+                    consentGranted: JSON.stringify(consentCheckbox.checked)
+                }).then(() => {
+                    console.log('consent granted')
+                })
+                .catch((err) => {
+                    alert('Error setting consent: ' + err)
+                })
+            } else {
+                alert('You must grant consent to use this extension.')
+            }
+        }
+
+        document.getElementById('uninstall-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            let uninstallingSelf = browser.management.uninstallSelf()
+            console.log('uninstall self: ', uninstallingSelf)
+        });
+    </script>
+
+</body>
+</html>

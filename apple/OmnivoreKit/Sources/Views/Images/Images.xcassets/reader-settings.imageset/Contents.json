@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "reader-settings.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "reader-settings@2x.png",
+      "filename" : "header-reader-settings.svg",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "reader-settings@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

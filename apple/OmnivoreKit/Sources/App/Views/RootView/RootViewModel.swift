@@ -11,6 +11,7 @@ import Views
   let isMacApp = true
 #endif
 
+@MainActor
 public final class RootViewModel: ObservableObject {
   let services = Services()
 

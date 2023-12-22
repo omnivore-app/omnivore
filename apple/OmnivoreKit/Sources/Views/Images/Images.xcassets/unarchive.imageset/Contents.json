@@ -1,7 +1,6 @@
 {
   "images" : [
     {
-      "filename" : "unarchive.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -11,7 +10,6 @@
       "scale" : "2x"
     },
     {
-      "filename" : "unarchive@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

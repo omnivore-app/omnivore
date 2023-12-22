@@ -29,27 +29,31 @@ struct LibraryTabView: View {
     UITabBar.appearance().isHidden = true
   }
 
-  @StateObject private var followingViewModel = HomeFeedViewModel(
-    folder: "following",
-    fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: false,
-      leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
-  )
-
-  @StateObject private var libraryViewModel = HomeFeedViewModel(
+  @StateObject private var inboxViewModel = HomeFeedViewModel(
     folder: "inbox",
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
+      hasReadNowSection: true,
       leadingSwipeActions: [.pin],
       trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
     )
   )
+
+  @StateObject private var followingViewModel = HomeFeedViewModel(
+    folder: "following",
+    fetcher: LibraryItemFetcher(),
+    listConfig: LibraryListConfig(
+      hasFeatureCards: false,
+      hasReadNowSection: false,
+      leadingSwipeActions: [.moveToInbox],
+      trailingSwipeActions: [.delete],
+      cardStyle: .library
+    )
+  )
+
+  private let syncManager = LibrarySyncManager()
 
   var body: some View {
     VStack(spacing: 0) {
@@ -63,7 +67,7 @@ struct LibraryTabView: View {
         }
 
         NavigationView {
-          HomeFeedContainerView(viewModel: libraryViewModel)
+          HomeFeedContainerView(viewModel: inboxViewModel)
             .navigationBarTitleDisplayMode(.inline)
             .navigationViewStyle(.stack)
         }.tag("inbox")
@@ -90,5 +94,31 @@ struct LibraryTabView: View {
       ExpandedAudioPlayer()
     }
     .navigationBarHidden(true)
+    .onReceive(NSNotification.performSyncPublisher) { _ in
+      Task {
+        await syncManager.syncItems(dataService: dataService)
+      }
+    }
+    .onOpenURL { url in
+      inboxViewModel.linkRequest = nil
+      if let deepLink = DeepLink.make(from: url) {
+        switch deepLink {
+        case let .search(query):
+          inboxViewModel.searchTerm = query
+        case let .savedSearch(named):
+          if let filter = inboxViewModel.findFilter(dataService, named: named) {
+            inboxViewModel.appliedFilter = filter
+          }
+        case let .webAppLinkRequest(requestID):
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+            withoutAnimation {
+              inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+              inboxViewModel.presentWebContainer = true
+            }
+          }
+        }
+      }
+      selectedTab = "inbox"
+    }
   }
 }

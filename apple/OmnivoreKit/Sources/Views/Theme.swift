@@ -31,6 +31,10 @@ public enum Theme: String, CaseIterable {
     }
   }
 
+  public var toolbarColor: Color {
+    ThemeManager.currentTheme.isDark ? Color.themeDarkWhiteGray : Color.themeMiddleGray
+  }
+
   public var highlightColor: Color {
     switch self {
     case .light, .sepia:

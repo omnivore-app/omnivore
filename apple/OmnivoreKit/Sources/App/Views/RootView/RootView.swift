@@ -52,9 +52,13 @@ struct InnerRootView: View {
     if authenticator.isLoggedIn {
       PrimaryContentView()
     } else {
-      WelcomeView()
-        .accessibilityElement()
-        .accessibilityIdentifier("welcomeView")
+      if authenticator.isLoggingOut {
+        LogoutView()
+      } else {
+        WelcomeView()
+          .accessibilityElement()
+          .accessibilityIdentifier("welcomeView")
+      }
     }
   }
 

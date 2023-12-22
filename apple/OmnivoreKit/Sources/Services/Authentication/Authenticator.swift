@@ -1,3 +1,4 @@
+import CoreData
 import Foundation
 import GoogleSignIn
 import Models
@@ -18,6 +19,7 @@ public final class Authenticator: ObservableObject {
   }
 
   @Published public internal(set) var isLoggedIn: Bool
+  @Published public internal(set) var isLoggingOut = false
   @Published public var showAppleRevokeTokenAlert = false
 
   let networker: Networker
@@ -37,13 +39,21 @@ public final class Authenticator: ObservableObject {
     ValetKey.authToken.value()
   }
 
+  public func beginLogout() {
+    isLoggingOut = true
+    isLoggedIn = false
+  }
+
   public func logout(dataService: DataService, isAccountDeletion: Bool = false) {
     dataService.resetLocalStorage()
+
     clearCreds()
     Authenticator.unregisterIntercomUser?()
-    isLoggedIn = false
     showAppleRevokeTokenAlert = isAccountDeletion
     EventTracker.reset()
+
+    isLoggedIn = false
+    isLoggingOut = false
   }
 
   public func clearCreds() {

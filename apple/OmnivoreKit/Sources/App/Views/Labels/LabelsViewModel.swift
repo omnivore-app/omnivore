@@ -2,6 +2,7 @@ import CoreData
 import Models
 import Services
 import SwiftUI
+import Utils
 
 @MainActor public final class LabelsViewModel: ObservableObject {
   let labelNameMaxLength = 64
@@ -16,7 +17,9 @@ import SwiftUI
   public init() {}
 
   func setLabels(_ labels: [LinkedItemLabel]) {
-    self.labels = labels.sorted { left, right in
+    let hideSystemLabels = UserDefaults(suiteName: "group.app.omnivoreapp")?.bool(forKey: UserDefaultKey.hideSystemLabels.rawValue) ?? false
+
+    self.labels = labels.filter { !hideSystemLabels || !isSystemLabel($0) }.sorted { left, right in
       let aTrimmed = left.unwrappedName.trimmingCharacters(in: .whitespaces)
       let bTrimmed = right.unwrappedName.trimmingCharacters(in: .whitespaces)
       return aTrimmed.caseInsensitiveCompare(bTrimmed) == .orderedAscending

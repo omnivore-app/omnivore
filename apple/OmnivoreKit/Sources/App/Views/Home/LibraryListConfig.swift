@@ -14,6 +14,7 @@ enum CardStyle {
 
 struct LibraryListConfig {
   var hasFeatureCards = false
+  var hasReadNowSection = false
   var leadingSwipeActions = [SwipeAction]()
   var trailingSwipeActions = [SwipeAction]()
   var cardStyle = CardStyle.library

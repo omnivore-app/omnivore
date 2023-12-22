@@ -8,6 +8,7 @@
   struct TextToSpeechVoiceSelectionView: View {
     @EnvironmentObject var audioController: AudioController
     @EnvironmentObject var dataService: DataService
+    @Environment(\.dismiss) private var dismiss
 
     @StateObject var viewModel = TextToSpeechVoiceSelectionViewModel()
 
@@ -87,6 +88,8 @@
         } else if !value {
           audioController.useUltraRealisticVoices = false
         }
+      }.onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+        dismiss()
       }
     }
 

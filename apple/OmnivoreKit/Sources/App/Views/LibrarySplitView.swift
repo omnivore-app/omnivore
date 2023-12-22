@@ -1,16 +1,18 @@
 import Foundation
+import Models
 import Services
 import SwiftUI
 
 @MainActor
 public struct LibrarySplitView: View {
-  @EnvironmentObject var audioController: AudioController
+  @EnvironmentObject var dataService: DataService
 
   @StateObject private var inboxViewModel = HomeFeedViewModel(
     folder: "inbox",
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: true,
+      hasReadNowSection: true,
       leadingSwipeActions: [.pin],
       trailingSwipeActions: [.archive, .delete],
       cardStyle: .library
@@ -22,31 +24,57 @@ public struct LibrarySplitView: View {
     fetcher: LibraryItemFetcher(),
     listConfig: LibraryListConfig(
       hasFeatureCards: false,
+      hasReadNowSection: false,
       leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
+      trailingSwipeActions: [.delete],
       cardStyle: .library
     )
   )
 
-  @State var selected = "home"
+  private let syncManager = LibrarySyncManager()
 
   #if os(iOS)
     public var body: some View {
       NavigationView {
         LibrarySidebar(inboxViewModel: inboxViewModel, followingViewModel: followingViewModel)
           .navigationBarTitleDisplayMode(.inline)
-          .tag("inbox")
+          .navigationTitle("")
 
         HomeFeedContainerView(viewModel: inboxViewModel)
           .navigationViewStyle(.stack)
           .navigationBarTitleDisplayMode(.inline)
-          .tag("following")
       }
       .navigationBarTitleDisplayMode(.inline)
       .accentColor(.appGrayTextContrast)
       .introspectSplitViewController {
         $0.preferredPrimaryColumnWidth = 230
         $0.displayModeButtonVisibility = .always
+      }
+      .onOpenURL { url in
+        inboxViewModel.linkRequest = nil
+        if let deepLink = DeepLink.make(from: url) {
+          switch deepLink {
+          case let .search(query):
+            inboxViewModel.searchTerm = query
+          case let .savedSearch(named):
+            if let filter = inboxViewModel.findFilter(dataService, named: named) {
+              inboxViewModel.appliedFilter = filter
+            }
+          case let .webAppLinkRequest(requestID):
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+              withoutAnimation {
+                inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+                inboxViewModel.presentWebContainer = true
+              }
+            }
+          }
+        }
+        // selectedTab = "inbox"
+      }
+      .onReceive(NSNotification.performSyncPublisher) { _ in
+        Task {
+          await syncManager.syncItems(dataService: dataService)
+        }
       }
     }
   #endif

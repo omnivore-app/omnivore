@@ -48,6 +48,9 @@ public extension Color {
 
   static var thFeatureSeparator: Color { Color("featureSeparator", bundle: .module) }
 
+  static var thFallbackImageForeground: Color { Color("thFallbackImageForeground", bundle: .module) }
+  static var thFallbackImageBackground: Color { Color("thFallbackImageBackground", bundle: .module) }
+
   static var circleButtonBackground: Color { Color("_circleButtonBackground", bundle: .module) }
   static var circleButtonForeground: Color { Color("_circleButtonForeground", bundle: .module) }
   static var extensionBackground: Color { Color("_extensionBackground", bundle: .module) }

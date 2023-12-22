@@ -54,6 +54,8 @@ public struct WebReaderLoadingContainer: View {
             PDFWrapperView(pdfURL: pdfURL)
           }
         #endif
+      } else if item.state == "CONTENT_NOT_FETCHED" {
+        ProgressView()
       } else {
         WebReaderContainerView(item: item, pop: { dismiss() })
         #if os(iOS)

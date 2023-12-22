@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="23B81" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23B81" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Filter" representedClassName="Filter" syncable="YES" codeGenerationType="class">
         <attribute name="defaultFilter" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="filter" optional="YES" attributeType="String"/>
@@ -96,8 +96,10 @@
     </entity>
     <entity name="NewsletterEmail" representedClassName="NewsletterEmail" syncable="YES" codeGenerationType="class">
         <attribute name="confirmationCode" optional="YES" attributeType="String"/>
+        <attribute name="descriptionNote" optional="YES" attributeType="String"/>
         <attribute name="email" attributeType="String"/>
         <attribute name="emailId" attributeType="String"/>
+        <attribute name="folder" optional="YES" attributeType="String"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="emailId"/>

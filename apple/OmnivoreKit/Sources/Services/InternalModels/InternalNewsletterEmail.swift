@@ -2,9 +2,11 @@ import CoreData
 import Foundation
 import Models
 
-struct InternalNewsletterEmail {
+public struct InternalNewsletterEmail {
   let emailId: String
   let email: String
+  let folder: String
+  let descriptionNote: String?
   let confirmationCode: String?
 
   func persist(context: NSManagedObjectContext) -> NSManagedObjectID? {
@@ -32,7 +34,10 @@ struct InternalNewsletterEmail {
 
     newsletterEmail.emailId = emailId
     newsletterEmail.email = email
+    newsletterEmail.folder = folder
+    newsletterEmail.descriptionNote = descriptionNote
     newsletterEmail.confirmationCode = confirmationCode
+
     return newsletterEmail
   }
 }

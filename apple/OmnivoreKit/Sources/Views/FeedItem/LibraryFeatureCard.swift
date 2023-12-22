@@ -37,7 +37,7 @@ public struct LibraryFeatureCard: View {
         CachedAsyncImage(url: imageURL) { phase in
           switch phase {
           case .empty:
-            Color.systemBackground
+            Color.clear
               .frame(width: 146, height: 90)
           case let .success(image):
             image.resizable()
@@ -81,10 +81,10 @@ public struct LibraryFeatureCard: View {
         .multilineTextAlignment(.leading)
         .lineLimit(2)
         .padding(10)
-        .foregroundColor(Color.themeMiddleGray)
+        .foregroundColor(Color.thFallbackImageForeground)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.thLightWhiteGrey)
+    .background(Color.thFallbackImageBackground)
     .frame(width: 146, height: 90)
   }
 

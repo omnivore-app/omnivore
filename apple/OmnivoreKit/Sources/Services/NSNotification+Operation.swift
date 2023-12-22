@@ -13,6 +13,11 @@ public extension NSNotification {
   static let DisplayProfile = Notification.Name("DisplayProfile")
   static let Logout = Notification.Name("Logout")
   static let ScrollToTop = Notification.Name("ScrollToTop")
+  static let PerformSync = Notification.Name("PerformSync")
+
+  static var performSyncPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: PerformSync)
+  }
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
     NotificationCenter.default.publisher(for: PushJSONArticle)

@@ -21,36 +21,6 @@ import SwiftUI
   @AppStorage("inboxMenuState") var inboxMenuState = "open"
   @AppStorage("followingMenuState") var followingMenuState = "open"
 
-  func createInboxViewModel(_ filter: InternalFilter) -> HomeFeedViewModel {
-    let result = HomeFeedViewModel(
-      folder: "inbox",
-      fetcher: LibraryItemFetcher(),
-      listConfig: LibraryListConfig(
-        hasFeatureCards: true,
-        leadingSwipeActions: [.pin],
-        trailingSwipeActions: [.archive, .delete],
-        cardStyle: .library
-      )
-    )
-    result.appliedFilter = filter
-    return result
-  }
-
-  func createFollowingViewModel(_ filter: InternalFilter) -> HomeFeedViewModel {
-    let result = HomeFeedViewModel(
-      folder: "following",
-      fetcher: LibraryItemFetcher(),
-      listConfig: LibraryListConfig(
-        hasFeatureCards: false,
-        leadingSwipeActions: [.moveToInbox],
-        trailingSwipeActions: [.archive, .delete],
-        cardStyle: .library
-      )
-    )
-    result.appliedFilter = filter
-    return result
-  }
-
   var innerBody: some View {
     ZStack {
       NavigationLink("", destination: HomeView(viewModel: inboxViewModel), isActive: $inboxActive)

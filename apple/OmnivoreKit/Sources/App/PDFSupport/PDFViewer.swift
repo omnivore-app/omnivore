@@ -237,7 +237,7 @@ import Utils
           }
           .fullScreenCover(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
             NotebookView(
-              itemObjectID: viewModel.pdfItem.objectID,
+              viewModel: NotebookViewModel(item: viewModel.pdfItem.item),
               hasHighlightMutations: $hasPerformedHighlightMutations,
               onDeleteHighlight: { highlightId in
                 coordinator.removeHighlightFromPDF(highlightId: highlightId)
