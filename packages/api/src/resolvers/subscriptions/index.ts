@@ -241,16 +241,6 @@ export const subscribeResolver = authorized<
       }
     }
 
-    if (feedUrl !== input.url) {
-      log.info('feed url is different from user provided url', {
-        feedUrl,
-        inputUrl: input.url,
-      })
-      return {
-        errorCodes: [SubscribeErrorCode.InvalidUrl],
-      }
-    }
-
     // create new rss subscription
     const MAX_RSS_SUBSCRIPTIONS = env.subscription.feed.max
 

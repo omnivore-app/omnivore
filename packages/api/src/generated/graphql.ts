@@ -2790,7 +2790,6 @@ export enum SubscribeErrorCode {
   AlreadySubscribed = 'ALREADY_SUBSCRIBED',
   BadRequest = 'BAD_REQUEST',
   ExceededMaxSubscriptions = 'EXCEEDED_MAX_SUBSCRIPTIONS',
-  InvalidUrl = 'INVALID_URL',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
