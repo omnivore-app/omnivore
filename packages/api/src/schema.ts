@@ -1737,6 +1737,7 @@ const schema = gql`
     NOT_FOUND
     ALREADY_SUBSCRIBED
     EXCEEDED_MAX_SUBSCRIPTIONS
+    INVALID_URL
   }
 
   union AddPopularReadResult = AddPopularReadSuccess | AddPopularReadError

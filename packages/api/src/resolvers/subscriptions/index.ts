@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
-import { Brackets } from 'typeorm'
+import { Brackets, In } from 'typeorm'
 import {
   DEFAULT_SUBSCRIPTION_FOLDER,
   Subscription,
@@ -204,7 +204,7 @@ export const subscribeResolver = authorized<
 
     // find existing subscription
     const existingSubscription = await getRepository(Subscription).findOneBy({
-      url: feedUrl,
+      url: In([feedUrl, input.url]), // check both user provided url and parsed url
       user: { id: uid },
       type: SubscriptionType.Rss,
     })
@@ -238,6 +238,16 @@ export const subscribeResolver = authorized<
 
       return {
         subscriptions: [updatedSubscription],
+      }
+    }
+
+    if (feedUrl !== input.url) {
+      log.info('feed url is different from user provided url', {
+        feedUrl,
+        inputUrl: input.url,
+      })
+      return {
+        errorCodes: [SubscribeErrorCode.InvalidUrl],
       }
     }
 
