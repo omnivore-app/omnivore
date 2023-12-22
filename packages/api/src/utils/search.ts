@@ -10,5 +10,10 @@ export const parseSearchQuery = (query: string): LiqeQuery => {
     // remove any quotes that are in the array value for example: label:"test","test2" -> label:"test,test2"
     .replace(/","/g, ',')
 
+  // by default we want to search in the inbox if no in: is specified
+  if (!searchQuery.includes('in:')) {
+    return parse(`(${searchQuery}) in:inbox`)
+  }
+
   return parse(searchQuery)
 }
