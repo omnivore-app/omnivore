@@ -2,6 +2,10 @@ package app.omnivore.omnivore.ui.library
 
 import android.content.Intent
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FloatTweenSpec
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,9 +14,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissState
+import androidx.compose.material.FractionalThreshold
+import androidx.compose.material.DismissValue
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -20,6 +34,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -28,9 +43,9 @@ import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.components.AddLinkSheetContent
-import app.omnivore.omnivore.ui.editinfo.EditInfoSheetContent
 import app.omnivore.omnivore.ui.components.LabelsSelectionSheetContent
 import app.omnivore.omnivore.ui.components.LabelsViewModel
+import app.omnivore.omnivore.ui.editinfo.EditInfoSheetContent
 import app.omnivore.omnivore.ui.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.ui.reader.PDFReaderActivity
@@ -41,7 +56,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LibraryView(
   libraryViewModel: LibraryViewModel,
@@ -110,7 +125,8 @@ fun LibraryView(
 fun BottomSheetContent(libraryViewModel: LibraryViewModel,
                        labelsViewModel: LabelsViewModel,
                        saveViewModel: SaveViewModel,
-                       editInfoViewModel: EditInfoViewModel) {
+                       editInfoViewModel: EditInfoViewModel
+) {
   val showLabelsSelectionSheet: Boolean by libraryViewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
   val showAddLinkSheet: Boolean by libraryViewModel.showAddLinkSheetLiveData.observeAsState(false)
   val showEditInfoSheet: Boolean by libraryViewModel.showEditInfoSheetLiveData.observeAsState(false)
@@ -231,27 +247,101 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
       item {
         LibraryFilterBar(libraryViewModel)
       }
-      items(cardsData) { cardDataWithLabels ->
-        val selected = cardDataWithLabels.savedItem.savedItemId == selectedItem?.savedItem?.savedItemId
-        SavedItemCard(
-          selected = selected,
-          savedItemViewModel = libraryViewModel,
-          savedItem = cardDataWithLabels,
-          onClickHandler = {
-            libraryViewModel.actionsMenuItemLiveData.postValue(null)
-            val activityClass =
-              if (cardDataWithLabels.savedItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
-            val intent = Intent(context, activityClass)
-            intent.putExtra("SAVED_ITEM_SLUG", cardDataWithLabels.savedItem.slug)
-            context.startActivity(intent)
-          },
-          actionHandler = {
-            libraryViewModel.handleSavedItemAction(
-              cardDataWithLabels.savedItem.savedItemId,
-              it
-            )
+      items(
+        items = cardsData,
+        key = { item -> item.savedItem.savedItemId }
+      ) { cardDataWithLabels ->
+        val swipeThreshold = 0.40f
+
+        val currentThresholdFraction = remember { mutableStateOf(0f) }
+        val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
+        val swipeState = rememberDismissState(
+          confirmStateChange = {
+            if (it == DismissValue.DismissedToEnd ||
+              currentThresholdFraction.value < swipeThreshold ||
+              currentThresholdFraction.value > 1.0f) {
+              false
+            }
+
+            if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
+              if (currentItem.isArchived) {
+                libraryViewModel.unarchiveSavedItem(currentItem.savedItemId)
+              } else {
+                libraryViewModel.archiveSavedItem(currentItem.savedItemId)
+              }
+            } else if (it == DismissValue.DismissedToStart) { // Deleting.
+              libraryViewModel.deleteSavedItem(currentItem.savedItemId)
+            }
+
+            true
           }
         )
+        SwipeToDismiss(
+          state = swipeState,
+          modifier = Modifier.padding(vertical = 4.dp),
+          directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
+          dismissThresholds = { FractionalThreshold(swipeThreshold) },
+          background = {
+            val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
+            val color by animateColorAsState(
+              when (swipeState.targetValue) {
+                DismissValue.Default -> Color.LightGray
+                DismissValue.DismissedToEnd -> Color.Green
+                DismissValue.DismissedToStart -> Color.Red
+              }, label = "backgroundColor"
+            )
+            val alignment = when (direction) {
+              DismissDirection.StartToEnd -> Alignment.CenterStart
+              DismissDirection.EndToStart -> Alignment.CenterEnd
+            }
+            val icon = when (direction) {
+              DismissDirection.StartToEnd -> if (currentItem.isArchived) Icons.Default.Unarchive else Icons.Default.Archive
+              DismissDirection.EndToStart -> Icons.Default.Delete
+            }
+            val scale by animateFloatAsState(
+              if (swipeState.targetValue == DismissValue.Default) 0.75f else 1f,
+              label = "scaleAnimation"
+            )
+
+            Box(
+              Modifier.fillMaxSize().background(color).padding(horizontal = 20.dp),
+              contentAlignment = alignment
+            ) {
+              currentThresholdFraction.value = swipeState.progress.fraction
+              Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.scale(scale)
+              )
+            }
+          },
+          dismissContent = {
+            val selected = currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
+            SavedItemCard(
+              selected = selected,
+              savedItemViewModel = libraryViewModel,
+              savedItem = cardDataWithLabels,
+              onClickHandler = {
+                libraryViewModel.actionsMenuItemLiveData.postValue(null)
+                val activityClass =
+                  if (currentItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+                val intent = Intent(context, activityClass)
+                intent.putExtra("SAVED_ITEM_SLUG", currentItem.slug)
+                context.startActivity(intent)
+              },
+              actionHandler = {
+                libraryViewModel.handleSavedItemAction(
+                  currentItem.savedItemId,
+                  it
+                )
+              }
+            )
+          },
+        )
+        when {
+          swipeState.isDismissed(DismissDirection.EndToStart) -> Reset(state = swipeState)
+          swipeState.isDismissed(DismissDirection.StartToEnd) -> Reset(state = swipeState)
+        }
       }
     }
 
@@ -272,6 +362,18 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     )
 
     // LabelsSelectionSheet(viewModel = libraryViewModel)
+  }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun Reset(state: DismissState) {
+  val scope = rememberCoroutineScope()
+  LaunchedEffect(key1 = state.dismissDirection) {
+    scope.launch {
+      state.reset()
+      state.animateTo(DismissValue.Default, FloatTweenSpec(duration= 0, delay = 0))
+    }
   }
 }
 

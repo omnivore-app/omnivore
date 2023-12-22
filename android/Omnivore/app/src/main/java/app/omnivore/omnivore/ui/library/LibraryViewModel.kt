@@ -282,19 +282,13 @@ class LibraryViewModel @Inject constructor(
   override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
     when (action) {
       SavedItemAction.Delete -> {
-        viewModelScope.launch {
-          dataService.deleteSavedItem(itemID)
-        }
+        deleteSavedItem(itemID)
       }
       SavedItemAction.Archive -> {
-        viewModelScope.launch {
-          dataService.archiveSavedItem(itemID)
-        }
+        archiveSavedItem(itemID)
       }
       SavedItemAction.Unarchive -> {
-        viewModelScope.launch {
-          dataService.unarchiveSavedItem(itemID)
-        }
+        unarchiveSavedItem(itemID)
       }
       SavedItemAction.EditLabels -> {
         currentItemLiveData.value = itemID
@@ -309,6 +303,24 @@ class LibraryViewModel @Inject constructor(
       }
     }
     actionsMenuItemLiveData.postValue(null)
+  }
+
+  fun deleteSavedItem(itemID: String) {
+    viewModelScope.launch {
+      dataService.deleteSavedItem(itemID)
+    }
+  }
+
+  fun archiveSavedItem(itemID: String) {
+    viewModelScope.launch {
+      dataService.archiveSavedItem(itemID)
+    }
+  }
+
+  fun unarchiveSavedItem(itemID: String) {
+    viewModelScope.launch {
+      dataService.unarchiveSavedItem(itemID)
+    }
   }
 
   fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
