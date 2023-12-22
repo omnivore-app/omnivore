@@ -124,6 +124,7 @@ public struct ShareExtensionView: View {
         Spacer()
       }
     })
+      .buttonStyle(.plain)
       .foregroundColor(hasNoteText ?
         Color.appGrayTextContrast : Color.extensionTextSubtle
       )
