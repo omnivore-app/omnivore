@@ -73,7 +73,17 @@ export const labelRepository = appDataSource.getRepository(Label).extend({
   },
 
   createLabels(labels: CreateLabelInput[], userId: string) {
-    return this.save(labels.map((l) => convertToLabel(l, userId)))
+    return this.query(
+      `
+      INSERT INTO omnivore.labels (user_id, name, color, description, internal)
+      SELECT $1, $2, $3, $4, $5
+      WHERE NOT EXISTS (
+        SELECT 1 FROM omnivore.labels WHERE LOWER(name) = LOWER($2) AND user_id = $1
+      )
+      RETURNING id, name, color, description, created_at
+    `,
+      labels.map((l) => Object.values(convertToLabel(l, userId)))
+    ) as Promise<Label[]>
   },
 
   deleteById(id: string) {
