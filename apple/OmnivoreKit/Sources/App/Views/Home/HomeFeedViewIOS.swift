@@ -7,6 +7,76 @@ import UserNotifications
 import Utils
 import Views
 
+struct FiltersHeader: View {
+  @ObservedObject var viewModel: HomeFeedViewModel
+
+  var body: some View {
+    GeometryReader { reader in
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack {
+          if viewModel.searchTerm.count > 0 {
+            TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
+              viewModel.searchTerm = ""
+            }.frame(maxWidth: reader.size.width * 0.66)
+          } else {
+            if UIDevice.isIPhone {
+              Menu(
+                content: {
+                  ForEach(viewModel.filters) { filter in
+                    Button(filter.name, action: {
+                      viewModel.appliedFilter = filter
+                    })
+                  }
+                },
+                label: {
+                  TextChipButton.makeMenuButton(
+                    title: viewModel.appliedFilter?.name ?? "-",
+                    color: .systemGray6
+                  )
+                }
+              ).buttonStyle(.plain)
+            }
+          }
+          Menu(
+            content: {
+              ForEach(LinkedItemSort.allCases, id: \.self) { sort in
+                Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
+              }
+            },
+            label: {
+              TextChipButton.makeMenuButton(
+                title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort",
+                color: .systemGray6
+              )
+            }
+          ).buttonStyle(.plain)
+
+          TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
+          ForEach(viewModel.selectedLabels, id: \.self) { label in
+            TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
+              viewModel.selectedLabels.removeAll { $0.id == label.id }
+            }
+          }
+          ForEach(viewModel.negatedLabels, id: \.self) { label in
+            TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
+              viewModel.negatedLabels.removeAll { $0.id == label.id }
+            }
+          }
+          Spacer()
+        }
+      }
+    }
+    .padding(.top, 0)
+    .padding(.bottom, 10)
+    .padding(.leading, 15)
+    .listRowSpacing(0)
+    .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
+    .frame(maxWidth: .infinity, minHeight: 38)
+    .background(Color.systemBackground)
+    .dynamicTypeSize(.small ... .accessibility1)
+  }
+}
+
 struct AnimatingCellHeight: AnimatableModifier {
   var height: CGFloat = 0
 
@@ -189,7 +259,6 @@ struct AnimatingCellHeight: AnimatableModifier {
               action: { isEditMode = isEditMode == .active ? .inactive : .active },
               label: {
                 Image.selectMultiple
-                  .foregroundColor(Color.appGrayTextContrast)
               }
             )
           }
@@ -211,14 +280,12 @@ struct AnimatingCellHeight: AnimatableModifier {
             },
             label: {
               Image.addLink
-                .foregroundColor(Color.appGrayTextContrast)
             }
           )
           Button(
             action: { searchPresented = true },
             label: {
               Image.magnifyingGlass
-                .foregroundColor(Color.appGrayTextContrast)
             }
           )
         }
@@ -229,10 +296,12 @@ struct AnimatingCellHeight: AnimatableModifier {
               viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image(systemName: "archivebox") })
+              .padding(.trailing, 10)
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image(systemName: "trash") })
+              .padding(.trailing, 10)
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
@@ -350,72 +419,12 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var networkMonitor = NetworkMonitor()
 
     var filtersHeader: some View {
-      GeometryReader { reader in
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack {
-            if viewModel.searchTerm.count > 0 {
-              TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
-                viewModel.searchTerm = ""
-              }.frame(maxWidth: reader.size.width * 0.66)
-            } else {
-              if UIDevice.isIPhone {
-                Menu(
-                  content: {
-                    ForEach(viewModel.filters) { filter in
-                      Button(filter.name, action: {
-                        viewModel.appliedFilter = filter
-                      })
-                    }
-                  },
-                  label: {
-                    TextChipButton.makeMenuButton(
-                      title: viewModel.appliedFilter?.name ?? "-",
-                      color: .systemGray6
-                    )
-                  }
-                )
-              }
-            }
-            Menu(
-              content: {
-                ForEach(LinkedItemSort.allCases, id: \.self) { sort in
-                  Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
-                }
-              },
-              label: {
-                TextChipButton.makeMenuButton(
-                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort",
-                  color: .systemGray6
-                )
-              }
-            )
-            TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
-            ForEach(viewModel.selectedLabels, id: \.self) { label in
-              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
-                viewModel.selectedLabels.removeAll { $0.id == label.id }
-              }
-            }
-            ForEach(viewModel.negatedLabels, id: \.self) { label in
-              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
-                viewModel.negatedLabels.removeAll { $0.id == label.id }
-              }
-            }
-            Spacer()
-          }
-        }
-      }
-      .padding(.top, 0)
-      .padding(.bottom, 10)
-      .padding(.leading, 15)
-      .listRowSpacing(0)
-      .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 0))
-      .frame(maxWidth: .infinity, minHeight: 38)
-      .background(Color.systemBackground)
-      .overlay(Rectangle()
-        .padding(.leading, 15)
-        .frame(width: nil, height: 0.5, alignment: .bottom)
-        .foregroundColor(isListScrolled ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
-      .dynamicTypeSize(.small ... .accessibility1)
+      FiltersHeader(viewModel: viewModel)
+        .overlay(Rectangle()
+          .padding(.leading, 15)
+          .frame(width: nil, height: 0.5, alignment: .bottom)
+          .foregroundColor(isListScrolled ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
+        .dynamicTypeSize(.small ... .accessibility1)
     }
 
     func menuItems(for item: Models.LibraryItem) -> some View {
@@ -464,7 +473,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 .background(Color(hex: "#007AFF")?.opacity(0.1))
                 .cornerRadius(5)
               }.frame(maxWidth: .infinity, alignment: .leading)
-            })
+            }).buttonStyle(.plain)
             Spacer()
           }
           .padding(.top, 10)
@@ -820,59 +829,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var filtersHeader: some View {
-      GeometryReader { reader in
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack {
-            if viewModel.searchTerm.count > 0 {
-              TextChipButton.makeSearchFilterButton(title: viewModel.searchTerm) {
-                viewModel.searchTerm = ""
-              }.frame(maxWidth: reader.size.width * 0.66)
-            } else {
-              Menu(
-                content: {
-                  ForEach(viewModel.filters, id: \.self) { filter in
-                    Button(filter.name, action: { viewModel.appliedFilter = filter })
-                  }
-                },
-                label: {
-                  TextChipButton.makeMenuButton(
-                    title: viewModel.appliedFilter?.name ?? "-",
-                    color: .systemGray6
-                  )
-                }
-              )
-            }
-            Menu(
-              content: {
-                ForEach(LinkedItemSort.allCases, id: \.self) { sort in
-                  Button(sort.displayName, action: { viewModel.appliedSort = sort.rawValue })
-                }
-              },
-              label: {
-                TextChipButton.makeMenuButton(
-                  title: LinkedItemSort(rawValue: viewModel.appliedSort)?.displayName ?? "Sort",
-                  color: .systemGray6
-                )
-              }
-            )
-            TextChipButton.makeAddLabelButton(color: .systemGray6, onTap: { viewModel.showLabelsSheet = true })
-            ForEach(viewModel.selectedLabels, id: \.self) { label in
-              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: false) {
-                viewModel.selectedLabels.removeAll { $0.id == label.id }
-              }
-            }
-            ForEach(viewModel.negatedLabels, id: \.self) { label in
-              TextChipButton.makeRemovableLabelButton(feedItemLabel: label, negated: true) {
-                viewModel.negatedLabels.removeAll { $0.id == label.id }
-              }
-            }
-            Spacer()
-          }
-          .padding(0)
-        }
-        .listRowSeparator(.hidden)
-      }
-      .dynamicTypeSize(.small ... .accessibility1)
+      FiltersHeader(viewModel: viewModel)
     }
 
     var body: some View {

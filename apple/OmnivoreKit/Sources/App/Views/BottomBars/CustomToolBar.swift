@@ -61,6 +61,6 @@ struct ToolBarButton: View {
         .frame(width: 28, height: 28)
         .foregroundColor(ThemeManager.currentTheme.toolbarColor)
         .frame(maxWidth: .infinity)
-    })
+    }).buttonStyle(.plain)
   }
 }

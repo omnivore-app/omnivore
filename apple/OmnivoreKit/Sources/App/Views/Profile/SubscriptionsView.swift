@@ -161,7 +161,8 @@ struct SubscriptionsView: View {
         OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
       } label: {
         EmptyView()
-      }
+      }.buttonStyle(.plain)
+
       if viewModel.feeds.isEmpty, viewModel.newsletters.isEmpty, viewModel.isLoading {
         ProgressView()
       } else if viewModel.hasNetworkError {

@@ -86,6 +86,7 @@ struct LibraryItemGridCardNavigationLink: View {
         GridCard(item: LibraryItemData.make(from: item), isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
       }
     )
+    .buttonStyle(.plain)
     .aspectRatio(1.0, contentMode: .fill)
     .background(
       Color.secondarySystemGroupedBackground

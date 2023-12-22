@@ -94,8 +94,12 @@ struct FiltersView: View {
       }
 
       Section(header: Text("Saved Searches")) {
-        ForEach(viewModel.libraryFilters) { filter in
-          Text(filter.name)
+        if viewModel.libraryFilters.count > 0 {
+          ForEach(viewModel.libraryFilters) { filter in
+            Text(filter.name)
+          }
+        } else {
+          Text("No saved searches found")
         }
       }
 

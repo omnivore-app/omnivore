@@ -129,29 +129,31 @@ struct WebReaderContainerView: View {
         return AnyView(ProgressView()
           .padding(.horizontal))
       } else {
-        return AnyView(Button(
-          action: {
-            switch audioController.state {
-            case .playing:
-              if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-                audioController.pause()
-                return
+        return AnyView(
+          Button(
+            action: {
+              switch audioController.state {
+              case .playing:
+                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+                  audioController.pause()
+                  return
+                }
+                fallthrough
+              case .paused:
+                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+                  audioController.unpause()
+                  return
+                }
+                fallthrough
+              default:
+                audioController.play(itemAudioProperties: item.audioProperties)
               }
-              fallthrough
-            case .paused:
-              if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-                audioController.unpause()
-                return
-              }
-              fallthrough
-            default:
-              audioController.play(itemAudioProperties: item.audioProperties)
+            },
+            label: {
+              textToSpeechButtonImage
             }
-          },
-          label: {
-            textToSpeechButtonImage
-          }
-        ))
+          ).buttonStyle(.plain)
+        )
       }
     }
 
@@ -258,6 +260,8 @@ struct WebReaderContainerView: View {
               .padding(.vertical)
           }
         )
+        .buttonStyle(.plain)
+
         Spacer()
       #endif
 
@@ -267,6 +271,7 @@ struct WebReaderContainerView: View {
           Image.label
         }
       )
+      .buttonStyle(.plain)
       .padding(.trailing, 4)
 
       Button(
@@ -275,6 +280,7 @@ struct WebReaderContainerView: View {
           Image.notebook
         }
       )
+      .buttonStyle(.plain)
       .padding(.trailing, 4)
 
       #if os(iOS)
@@ -292,6 +298,7 @@ struct WebReaderContainerView: View {
             Image.readerSettings
           }
         )
+        .buttonStyle(.plain)
         .padding(.horizontal, 5)
         .popover(isPresented: $showPreferencesPopover) {
           webPreferencesPopoverView
@@ -318,6 +325,7 @@ struct WebReaderContainerView: View {
           #endif
         }
       )
+      .buttonStyle(.plain)
       #if os(macOS)
         .frame(maxWidth: 100)
         .padding(.trailing, 16)
@@ -372,7 +380,8 @@ struct WebReaderContainerView: View {
         OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
       } label: {
         EmptyView()
-      }
+      }.buttonStyle(.plain)
+
       if let articleContent = viewModel.articleContent {
         WebReader(
           item: item,
