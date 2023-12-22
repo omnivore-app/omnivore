@@ -258,15 +258,18 @@ struct AnimatingCellHeight: AnimatableModifier {
             Button(
               action: { isEditMode = isEditMode == .active ? .inactive : .active },
               label: {
-                Image.selectMultiple
+                Image
+                  .selectMultiple
+                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
               }
-            )
+            ).foregroundColor(ThemeManager.currentTheme.toolbarColor)
           }
           if enableGrid {
             Button(
               action: { prefersListLayout.toggle() },
               label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
               }
             )
           }
@@ -280,12 +283,15 @@ struct AnimatingCellHeight: AnimatableModifier {
             },
             label: {
               Image.addLink
+                .foregroundColor(ThemeManager.currentTheme.toolbarColor)
             }
-          )
+          ).tint(Color.appGrayText)
           Button(
             action: { searchPresented = true },
             label: {
-              Image.magnifyingGlass
+              Image
+                .magnifyingGlass
+                .foregroundColor(ThemeManager.currentTheme.toolbarColor)
             }
           )
         }

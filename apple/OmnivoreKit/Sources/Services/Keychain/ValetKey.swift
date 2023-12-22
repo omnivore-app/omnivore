@@ -10,17 +10,35 @@ public enum PublicValet {
   public static var authToken: String? {
     ValetKey.authToken.value()
   }
+
+  public static var hideLabels: Bool {
+    get {
+      ValetKey.hideLabels.exists
+    }
+    set {
+      if newValue {
+        try? ValetKey.hideLabels.setValue("true")
+      } else {
+        ValetKey.hideLabels.clear()
+      }
+    }
+  }
 }
 
 enum ValetKey: String {
   case authToken = "app.omnivore.valet.auth-token"
   case authCookieString = "app.omnivore.valet.auth-cookie-raw-string"
   case appEnvironmentString = "app.omnivore.valet.app-environment"
+  case hideLabels = "app.omnivore.valet.hide-labels"
 }
 
 extension ValetKey {
   var exists: Bool {
     value() != nil
+  }
+
+  func clear() {
+    try? ValetKey.valet.removeObject(forKey: rawValue)
   }
 
   func value() -> String? {

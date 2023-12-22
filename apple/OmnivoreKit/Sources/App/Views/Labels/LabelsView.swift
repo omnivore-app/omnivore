@@ -34,6 +34,8 @@ struct LabelsView: View {
       }
       Section("Label settings") {
         Toggle("Hide system labels", isOn: $hideSystemLabels)
+      }.onChange(of: hideSystemLabels) { newValue in
+        PublicValet.hideLabels = newValue
       }
     }
     .navigationTitle(LocalText.labelsGeneric)
@@ -52,11 +54,11 @@ struct LabelsView: View {
       }
       Button(LocalText.cancelGeneric, role: .cancel) { self.labelToRemove = nil }
     }
-    .onChange(of: hideSystemLabels) { _ in
-      Task {
-        await viewModel.loadLabels(dataService: dataService, item: nil)
-      }
-    }
+//    .onChange(of: hideSystemLabels) { _ in
+//      Task {
+//        await viewModel.loadLabels(dataService: dataService, item: nil)
+//      }
+//    }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
       dismiss()
     }
