@@ -38,6 +38,7 @@ struct LibraryFeatureCardNavigationLink: View {
         LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
       }
     )
+    .buttonStyle(.plain)
     .confirmationDialog("", isPresented: $showFeatureActions) {
       if FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) == .pinned {
         Button("Unpin", action: {

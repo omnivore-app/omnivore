@@ -38,6 +38,6 @@ struct TabBarButton: View {
         .frame(width: 28, height: 28)
         .foregroundColor(selectedTab == key ? Color.blue : Color.themeTabButtonColor)
         .frame(maxWidth: .infinity)
-    })
+    }).buttonStyle(.plain)
   }
 }

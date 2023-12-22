@@ -76,12 +76,13 @@ struct NewsletterEmailsView: View {
         OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
       } label: {
         EmptyView()
-      }
+      }.buttonStyle(.plain)
+
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showAddressCopied) {
         MessageToast()
       } label: {
         EmptyView()
-      }
+      }.buttonStyle(.plain)
 
       #if os(iOS)
         Form {
