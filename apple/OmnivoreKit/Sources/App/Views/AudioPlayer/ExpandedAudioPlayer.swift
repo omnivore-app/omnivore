@@ -98,33 +98,35 @@
           }
         ).padding(.trailing, 5)
 
-        Button(
-          action: { performArchive() },
-          label: {
-            if audioController.itemAudioProperties?.isArchived ?? false {
-              Image
-                .toolbarUnarchive
-                .foregroundColor(ThemeManager.currentTheme.toolbarColor)
-            } else {
-              Image
-                .toolbarArchive
-                .foregroundColor(ThemeManager.currentTheme.toolbarColor)
-            }
-          }
-        ).padding(.trailing, 5)
-
-        Menu(content: {
+        if !(audioController.itemAudioProperties?.isArchived ?? false) {
           Button(
-            action: { performViewArticle() },
+            action: { performArchive() },
             label: {
-              Text("View article")
+              if audioController.itemAudioProperties?.isArchived ?? false {
+                Image
+                  .toolbarUnarchive
+                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+              } else {
+                Image
+                  .toolbarArchive
+                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+              }
             }
-          )
-        }, label: {
-          Image
-            .utilityMenu
-            .foregroundColor(ThemeManager.currentTheme.toolbarColor)
-        })
+          ).padding(.trailing, 5)
+        }
+
+//        Menu(content: {
+//          Button(
+//            action: { performViewArticle() },
+//            label: {
+//              Text("View article")
+//            }
+//          )
+//        }, label: {
+//          Image
+//            .utilityMenu
+//            .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+//        })
       }
     }
 

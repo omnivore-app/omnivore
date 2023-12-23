@@ -12,7 +12,7 @@ struct LabelsView: View {
 
   @Environment(\.dismiss) private var dismiss
 
-  @AppStorage(UserDefaultKey.hideSystemLabels.rawValue, store: UserDefaults(suiteName: "group.app.omnivoreapp")) var hideSystemLabels = false
+  @AppStorage(UserDefaultKey.hideSystemLabels.rawValue) var hideSystemLabels = false
 
   var body: some View {
     List {
@@ -21,13 +21,15 @@ struct LabelsView: View {
           HStack {
             TextChip(feedItemLabel: label).allowsHitTesting(false)
             Spacer()
-            Button(
-              action: {
-                labelToRemove = label
-                showDeleteConfirmation = true
-              },
-              label: { Image(systemName: "trash") }
-            )
+            if !isSystemLabel(label) {
+              Button(
+                action: {
+                  labelToRemove = label
+                  showDeleteConfirmation = true
+                },
+                label: { Image(systemName: "trash") }
+              )
+            }
           }
         }
         createLabelButton
