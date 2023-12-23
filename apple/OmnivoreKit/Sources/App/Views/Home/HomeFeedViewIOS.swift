@@ -310,7 +310,10 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           ).tint(Color.appGrayText)
           Button(
-            action: { searchPresented = true },
+            action: {
+              searchPresented = true
+              isEditMode = .inactive
+            },
             label: {
               Image
                 .magnifyingGlass
