@@ -455,9 +455,11 @@ struct WebReaderContainerView: View {
           .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
             ExpandedAudioPlayer(delete: { _ in
               showExpandedAudioPlayer = false
+              audioController.stop()
               delete()
             }, archive: { _ in
               showExpandedAudioPlayer = false
+              audioController.stop()
               archive()
             }, viewArticle: { _ in
               showExpandedAudioPlayer = false

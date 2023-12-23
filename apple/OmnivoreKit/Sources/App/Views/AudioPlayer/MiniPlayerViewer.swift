@@ -55,7 +55,8 @@
               .aspectRatio(contentMode: .fit)
               .font(Font.title.weight(.light))
           }
-        ))
+        ).buttonStyle(.plain)
+        )
       }
     }
 
@@ -78,6 +79,7 @@
           }
         }
       )
+      .buttonStyle(.plain)
       .background(Color.clear)
       .buttonStyle(PlainButtonStyle())
     }

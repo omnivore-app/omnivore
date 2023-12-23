@@ -34,8 +34,6 @@ struct LabelsView: View {
       }
       Section("Label settings") {
         Toggle("Hide system labels", isOn: $hideSystemLabels)
-      }.onChange(of: hideSystemLabels) { newValue in
-        PublicValet.hideLabels = newValue
       }
     }
     .navigationTitle(LocalText.labelsGeneric)
@@ -54,11 +52,13 @@ struct LabelsView: View {
       }
       Button(LocalText.cancelGeneric, role: .cancel) { self.labelToRemove = nil }
     }
-//    .onChange(of: hideSystemLabels) { _ in
-//      Task {
-//        await viewModel.loadLabels(dataService: dataService, item: nil)
-//      }
-//    }
+    .onChange(of: hideSystemLabels) { newValue in
+      PublicValet.hideLabels = newValue
+
+      Task {
+        await viewModel.loadLabels(dataService: dataService, item: nil)
+      }
+    }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
       dismiss()
     }
@@ -72,25 +72,19 @@ struct LabelsView: View {
     Button(
       action: { viewModel.showCreateLabelModal = true },
       label: {
-        HStack {
+        Label(title: {
           let trimmedLabelName = viewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-          Image(systemName: "tag").foregroundColor(.blue)
           Text(
             viewModel.labelSearchFilter.count > 0 && viewModel.labelSearchFilter != ZWSP ?
               "Create: \"\(trimmedLabelName)\" label" :
               LocalText.createLabelMessage
-          ).foregroundColor(.blue)
-            .font(Font.system(size: 14))
-          Spacer()
-        }
+          )
+        }, icon: {
+          Image.addLink
+        })
       }
     )
-    .buttonStyle(PlainButtonStyle())
     .disabled(viewModel.isLoading)
-    #if os(iOS)
-      .listRowSeparator(.hidden, edges: .bottom)
-    #endif
-    .padding(.vertical, 10)
   }
 }
 

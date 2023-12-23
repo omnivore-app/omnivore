@@ -460,6 +460,54 @@ struct SubscriptionSettingsView: View {
     }
   }
 
+  var feedRow: some View {
+    VStack {
+      Text("Feed URL")
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Text(subscription.url ?? "")
+        .foregroundColor(Color.appGrayText)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    }
+    .contextMenu(ContextMenu(menuItems: {
+      Button(action: {
+        #if os(iOS)
+          UIPasteboard.general.string = subscription.url
+        #endif
+
+        #if os(macOS)
+          let pasteBoard = NSPasteboard.general
+          pasteBoard.clearContents()
+          pasteBoard.writeObjects([subscription.url as NSString])
+        #endif
+      }, label: { Text("Copy URL") })
+    }))
+  }
+
+  var emailRow: some View {
+    VStack {
+      Text("Received by")
+        .frame(maxWidth: .infinity, alignment: .leading)
+      Text(subscription.newsletterEmailAddress ?? "")
+        .foregroundColor(Color.appGrayText)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    }
+    .contextMenu(ContextMenu(menuItems: {
+      Button(action: {
+        #if os(iOS)
+          UIPasteboard.general.string = subscription.newsletterEmailAddress
+        #endif
+
+        #if os(macOS)
+          let pasteBoard = NSPasteboard.general
+          pasteBoard.clearContents()
+          pasteBoard.writeObjects([subscription.newsletterEmailAddress as NSString])
+        #endif
+      }, label: { Text("Copy Address") })
+    }))
+  }
+
   var labelRuleRow: some View {
     HStack {
       Text("Add Labels")
@@ -472,7 +520,7 @@ struct SubscriptionSettingsView: View {
           } else {
             Text("Create Rule")
           }
-        })
+        }).tint(Color.blue)
       } else {
         ProgressView()
       }
@@ -511,6 +559,13 @@ struct SubscriptionSettingsView: View {
 //        }
         folderRow
         labelRuleRow
+
+        if subscription.type == .feed {
+          feedRow
+        }
+        if subscription.type == .newsletter {
+          emailRow
+        }
       }.listStyle(.insetGrouped)
 
       Spacer()

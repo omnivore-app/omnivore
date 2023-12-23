@@ -125,7 +125,7 @@ struct ApplyLabelsView: View {
       label: {
         HStack {
           let trimmedLabelName = viewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-          Image(systemName: "tag").foregroundColor(.blue)
+          Image.addLink.foregroundColor(.blue).foregroundColor(.blue)
           Text(
             viewModel.labelSearchFilter.count > 0 ?
               "Create: \"\(trimmedLabelName)\" label" :
