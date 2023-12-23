@@ -1,8 +1,10 @@
 #if os(iOS)
+  import CoreData
   import Foundation
   import Models
   import Services
   import SwiftUI
+  import Transmission
   import Views
 
   // swiftlint:disable file_length type_body_length
@@ -13,10 +15,18 @@
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @Environment(\.dismiss) private var dismiss
 
+    let delete: (_: NSManagedObjectID) -> Void
+    let archive: (_: NSManagedObjectID) -> Void
+    let viewArticle: (_: NSManagedObjectID) -> Void
+
     @State var showVoiceSheet = false
     @State var tabIndex: Int = 0
     @State var showLabelsModal = false
     @State var showNotebookView = false
+
+    @State var showOperationToast = false
+    @State var operationStatus: OperationStatus = .none
+    @State var operationMessage: String?
 
     var playPauseButtonImage: String {
       switch audioController.state {
@@ -80,7 +90,7 @@
     var toolbarItems: some ToolbarContent {
       ToolbarItemGroup(placement: .barTrailing) {
         Button(
-          action: { delete() },
+          action: { performDelete() },
           label: {
             Image
               .toolbarTrash
@@ -89,7 +99,7 @@
         ).padding(.trailing, 5)
 
         Button(
-          action: { archive() },
+          action: { performArchive() },
           label: {
             if audioController.itemAudioProperties?.isArchived ?? false {
               Image
@@ -102,41 +112,37 @@
             }
           }
         ).padding(.trailing, 5)
+
+        Menu(content: {
+          Button(
+            action: { performViewArticle() },
+            label: {
+              Text("View article")
+            }
+          )
+        }, label: {
+          Image
+            .utilityMenu
+            .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+        })
       }
     }
 
-    func viewArticle() {
+    func performViewArticle() {
       if let objectID = audioController.itemAudioProperties?.objectID {
-        NSNotification.pushReaderItem(objectID: objectID)
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-          dismiss()
-        }
+        viewArticle(objectID)
       }
     }
 
-    func delete() {
+    func performDelete() {
       if let objectID = audioController.itemAudioProperties?.objectID {
-        audioController.stop()
-        dismiss()
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-          removeLibraryItemAction(dataService: dataService, objectID: objectID)
-        }
+        delete(objectID)
       }
     }
 
-    func archive() {
-      if let objectID = audioController.itemAudioProperties?.objectID,
-         let isArchived = audioController.itemAudioProperties?.isArchived
-      {
-        if isArchived {
-          audioController.stop()
-          dismiss()
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-            dataService.archiveLink(objectID: objectID, archived: !isArchived)
-          }
-        } else {
-          dataService.archiveLink(objectID: objectID, archived: !isArchived)
-        }
+    func performArchive() {
+      if let objectID = audioController.itemAudioProperties?.objectID {
+        archive(objectID)
       }
     }
 
@@ -376,6 +382,13 @@
 
     func playerContent(_: LinkedItemAudioProperties) -> some View {
       ZStack {
+        WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
+          OperationToast(operationMessage: $operationMessage, showOperationToast: $showOperationToast, operationStatus: $operationStatus)
+            .offset(y: -90)
+        } label: {
+          EmptyView()
+        }.buttonStyle(.plain)
+
         if audioController.playbackError {
           Text("There was an error playing back your audio.").foregroundColor(Color.red).font(.footnote)
         }

@@ -198,8 +198,31 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(item: $viewModel.itemForHighlightsView) { item in
         NotebookView(viewModel: NotebookViewModel(item: item), hasHighlightMutations: $hasHighlightMutations)
       }
+      .sheet(isPresented: $showAddFeedView) {
+        NavigationView {
+          LibraryAddFeedView(dismiss: {
+            showAddFeedView = false
+          }, toastOperationHandler: nil)
+        }
+      }
       .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-        ExpandedAudioPlayer()
+        ExpandedAudioPlayer(
+          delete: {
+            showExpandedAudioPlayer = false
+            audioController.stop()
+            viewModel.removeLibraryItem(dataService: dataService, objectID: $0)
+          },
+          archive: {
+            showExpandedAudioPlayer = false
+            audioController.stop()
+            viewModel.setLinkArchived(dataService: dataService, objectID: $0, archived: true)
+          },
+          viewArticle: { itemID in
+            if let article = try? dataService.viewContext.existingObject(with: itemID) as? Models.LibraryItem {
+              viewModel.pushFeedItem(item: article)
+            }
+          }
+        )
       }
       .toolbar {
         toolbarItems
@@ -301,13 +324,11 @@ struct AnimatingCellHeight: AnimatableModifier {
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image(systemName: "archivebox") })
-              .padding(.trailing, 10)
+            }, label: { Image.toolbarArchive })
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image(systemName: "trash") })
-              .padding(.trailing, 10)
+            }, label: { Image.toolbarTrash })
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
@@ -727,13 +748,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
           shouldScrollToTop = true
-        }
-      }
-      .sheet(isPresented: $showAddFeedView) {
-        NavigationView {
-          LibraryAddFeedView(dismiss: {
-            showAddFeedView = false
-          }, toastOperationHandler: nil)
         }
       }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
