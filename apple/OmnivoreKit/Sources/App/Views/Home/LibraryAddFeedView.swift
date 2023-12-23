@@ -25,9 +25,11 @@ struct LibraryAddFeedView: View {
   var body: some View {
     Group {
       #if os(iOS)
-        innerBody
-          .navigationTitle("Add Feed URL")
-          .navigationBarTitleDisplayMode(.inline)
+        Form {
+          innerBody
+            .navigationTitle("Add Feed URL")
+            .navigationBarTitleDisplayMode(.inline)
+        }
       #else
         innerBody
       #endif
@@ -80,7 +82,7 @@ struct LibraryAddFeedView: View {
   }
 
   var innerBody: some View {
-    List {
+    Group {
       Section {
         TextField("Feed or site URL", text: $feedURL)
         #if os(iOS)

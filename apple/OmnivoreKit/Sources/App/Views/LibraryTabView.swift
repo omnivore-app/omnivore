@@ -24,6 +24,8 @@ struct LibraryTabView: View {
 
   @State var showExpandedAudioPlayer = false
 
+  private let syncManager = LibrarySyncManager()
+
   @MainActor
   public init() {
     UITabBar.appearance().isHidden = true
@@ -53,7 +55,16 @@ struct LibraryTabView: View {
     )
   )
 
-  private let syncManager = LibrarySyncManager()
+  var currentViewModel: HomeFeedViewModel? {
+    switch selectedTab {
+    case "inbox":
+      return inboxViewModel
+    case "following":
+      return followingViewModel
+    default:
+      return nil
+    }
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -91,7 +102,23 @@ struct LibraryTabView: View {
         .padding(0)
     }
     .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-      ExpandedAudioPlayer()
+      ExpandedAudioPlayer(
+        delete: {
+          showExpandedAudioPlayer = false
+          audioController.stop()
+          currentViewModel?.removeLibraryItem(dataService: dataService, objectID: $0)
+        },
+        archive: {
+          showExpandedAudioPlayer = false
+          audioController.stop()
+          currentViewModel?.setLinkArchived(dataService: dataService, objectID: $0, archived: true)
+        },
+        viewArticle: { itemID in
+          if let article = try? dataService.viewContext.existingObject(with: itemID) as? Models.LibraryItem {
+            currentViewModel?.pushFeedItem(item: article)
+          }
+        }
+      )
     }
     .navigationBarHidden(true)
     .onReceive(NSNotification.performSyncPublisher) { _ in

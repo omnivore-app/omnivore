@@ -68,7 +68,7 @@ import Views
         action: {
           addLinkPresented = true
         },
-        label: { Label("Add Link", systemImage: "plus") }
+        label: { Label("Add link", systemImage: "plus") }
       )
     }
 

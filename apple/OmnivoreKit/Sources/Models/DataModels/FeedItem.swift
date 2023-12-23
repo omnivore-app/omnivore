@@ -32,7 +32,7 @@ public struct LinkedItemAudioProperties {
   public let itemID: String
   public let objectID: NSManagedObjectID
   public let title: String
-  public let isArchived: Bool
+  public var isArchived: Bool
   public let byline: String?
   public let imageURL: URL?
   public let language: String?
