@@ -647,7 +647,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var listItems: some View {
-      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
+      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { idx, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
 
         LibraryItemListNavigationLink(
@@ -678,6 +678,13 @@ struct AnimatingCellHeight: AnimatableModifier {
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
           ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
             swipeActionButton(action: action, item: item)
+          }
+        }
+        .onAppear {
+          if idx >= viewModel.fetcher.items.count - 5 {
+            Task {
+              await viewModel.loadMore(dataService: dataService, loadCursor: idx.description)
+            }
           }
         }
       }
@@ -1028,8 +1035,8 @@ struct BottomView: View {
       AnyView(Color.clear)
     } else {
       AnyView(HStack {
-        if !autoLoading {
-          Text("You are all caught up.")
+        if let totalCount = viewModel.fetcher.totalCount {
+          Text("\(viewModel.fetcher.items.count) of \(totalCount) items.")
         }
         Spacer()
         if viewModel.isLoading {
@@ -1040,7 +1047,11 @@ struct BottomView: View {
               await viewModel.loadMore(dataService: dataService)
             }
           }, label: {
-            Text("Refresh library")
+            if let totalCount = viewModel.fetcher.totalCount {
+              Text("Fetch more.")
+            } else {
+              Text("Refresh")
+            }
           })
             .foregroundColor(Color.blue)
         }

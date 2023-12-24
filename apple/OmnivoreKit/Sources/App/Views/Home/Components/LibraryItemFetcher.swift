@@ -17,6 +17,7 @@ import Views
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
   var cursor: String?
+  var totalCount: Int?
 
   // These are used to make sure we handle search result
   // responses in the right order
@@ -82,6 +83,8 @@ import Views
 
       receivedIdx = thisSearchIdx
       cursor = queryResult.cursor
+      totalCount = queryResult.totalCount
+
       if let username = dataService.currentViewer?.username {
         await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
       }
@@ -112,10 +115,15 @@ import Views
     BadgeCountHandler.updateBadgeCount(dataService: dataService)
   }
 
-  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState) async {
+  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, loadCursor: String? = nil) async {
     if let appliedFilter = filterState.appliedFilter, appliedFilter.shouldRemoteSearch {
       let idx = max(items.count - 1, 0)
-      await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: false, loadCursor: idx.description)
+      await loadSearchQuery(
+        dataService: dataService,
+        filterState: filterState,
+        isRefresh: false,
+        loadCursor: loadCursor ?? idx.description
+      )
     }
   }
 

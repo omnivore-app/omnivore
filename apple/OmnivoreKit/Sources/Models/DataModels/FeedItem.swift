@@ -5,10 +5,12 @@ import Utils
 public struct LinkedItemQueryResult {
   public let itemIDs: [NSManagedObjectID]
   public let cursor: String?
+  public let totalCount: Int?
 
-  public init(itemIDs: [NSManagedObjectID], cursor: String?) {
+  public init(itemIDs: [NSManagedObjectID], cursor: String?, totalCount: Int?) {
     self.itemIDs = itemIDs
     self.cursor = cursor
+    self.totalCount = totalCount
   }
 }
 

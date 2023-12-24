@@ -6,6 +6,7 @@ import SwiftGraphQL
 struct InternalLinkedItemQueryResult {
   let items: [InternalLibraryItem]
   let cursor: String?
+  let totalCount: Int?
 }
 
 struct InternalLinkedItemUpdatesQueryResult {
@@ -144,6 +145,9 @@ extension DataService {
               items: try $0.edges(selection: searchItemEdgeSelection.list),
               cursor: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.endCursor()
+              }),
+              totalCount: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.totalCount()
               })
             )
           )

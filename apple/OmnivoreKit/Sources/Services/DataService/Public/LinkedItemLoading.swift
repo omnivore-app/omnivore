@@ -51,7 +51,7 @@ public extension DataService {
       throw BasicError.message(messageText: "CoreData error")
     }
 
-    return LinkedItemQueryResult(itemIDs: itemIDs, cursor: fetchResult.cursor)
+    return LinkedItemQueryResult(itemIDs: itemIDs, cursor: fetchResult.cursor, totalCount: fetchResult.totalCount)
   }
 
   /// Requests a single `LinkedItem` from the server and stores it in CoreData

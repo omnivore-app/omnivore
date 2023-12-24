@@ -83,7 +83,7 @@ import Views
     }
   }
 
-  func loadMore(dataService: DataService) async {
+  func loadMore(dataService: DataService, loadCursor: String? = nil) async {
     if isLoading { return }
 
     let start = Date.now
@@ -93,7 +93,7 @@ import Views
     }
 
     isLoading = true
-    await fetcher.loadMoreItems(dataService: dataService, filterState: filterState)
+    await fetcher.loadMoreItems(dataService: dataService, filterState: filterState, loadCursor: loadCursor)
     isLoading = false
 
     lastMoreFetched = start
