@@ -3,27 +3,20 @@ import Foundation
 import Models
 import Utils
 
-struct PendingLink {
-  let itemID: String
-  let retryCount: Int
-}
-
 extension DataService {
-  func prefetchPage(pendingLink: PendingLink, username: String) async {
-    let content = try? await loadArticleContent(username: username, itemID: pendingLink.itemID, useCache: true)
+  public func prefetchPage(itemID: String, retryCount: Int, username: String) async {
+    let content = try? await loadArticleContent(username: username, itemID: itemID, useCache: true)
 
-    if content?.contentStatus == .processing, pendingLink.retryCount < 7 {
-      let retryDelayInNanoSeconds = UInt64(pendingLink.retryCount * 2 * 1_000_000_000)
+    if content?.contentStatus == .processing, retryCount < 4 {
+      let retryDelayInNanoSeconds = UInt64(retryCount * 2 * 1_000_000_000)
 
       do {
         try await Task.sleep(nanoseconds: retryDelayInNanoSeconds)
-        logger.debug("fetching content for \(pendingLink.itemID). retry count: \(pendingLink.retryCount)")
+        logger.debug("fetching content for \(itemID). retry count: \(retryCount)")
 
         await prefetchPage(
-          pendingLink: PendingLink(
-            itemID: pendingLink.itemID,
-            retryCount: pendingLink.retryCount + 1
-          ),
+          itemID: itemID,
+          retryCount: retryCount + 1,
           username: username
         )
       } catch {

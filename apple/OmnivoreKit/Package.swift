@@ -40,7 +40,8 @@ let package = Package(
         "Valet",
         .product(name: "SwiftGraphQL", package: "swift-graphql"),
         "Models",
-        "Utils"
+        "Utils",
+        .product(name: "AsyncAlgorithms", package: "swift-async-algorithms")
       ]
     ),
     .testTarget(name: "ServicesTests", dependencies: ["Services"]),
@@ -73,7 +74,8 @@ var dependencies: [Package.Dependency] {
     .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.0.0"),
     .package(url: "https://github.com/exyte/PopupView.git", from: "2.6.0"),
     .package(url: "https://github.com/PostHog/posthog-ios.git", from: "2.0.0"),
-    .package(url: "https://github.com/nathantannar4/Transmission", from: "1.0.1")
+    .package(url: "https://github.com/nathantannar4/Transmission", from: "1.0.1"),
+    .package(url: "https://github.com/apple/swift-async-algorithms", from: "1.0.0")
   ]
   // Comment out following line for macOS build
   deps.append(.package(url: "https://github.com/PSPDFKit/PSPDFKit-SP", from: "13.1.0"))

@@ -43,6 +43,7 @@ extension DataService {
           slug: try $0.slug(),
           isArchived: try $0.isArchived(),
           contentReader: try $0.contentReader().rawValue,
+          htmlContent: try $0.content(),
           originalHtml: nil,
           language: try $0.language(),
           wordsCount: try $0.wordsCount(),

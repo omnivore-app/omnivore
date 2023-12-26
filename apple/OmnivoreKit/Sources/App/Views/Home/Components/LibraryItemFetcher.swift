@@ -65,7 +65,7 @@ import Views
         cursor: isRefresh ? nil : loadCursor ?? cursor
       )
     } catch {
-      print("ERROR loading library items: ", error)
+      print("SYNCCURSOR ERROR loading library items: ", error)
     }
 
     if let appliedFilter = filterState.appliedFilter, let queryResult = queryResult {
@@ -77,8 +77,8 @@ import Views
         return itemObjects
       }()
 
-      print("LOAD CURSOR: ", loadCursor, " new cursor: ", queryResult.cursor)
-      print("NEW ITEMS: ", newItems.count, newItems.map { "\($0.title)\n" })
+      print("SYNCCURSOR LOAD CURSOR: ", loadCursor, " new cursor: ", queryResult.cursor)
+      print("SYNCCURSOR NEW ITEMS: ", newItems.count)
 
       if filterState.searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, appliedFilter.allowLocalFetch {
         updateFetchController(dataService: dataService, filterState: filterState)
@@ -93,13 +93,9 @@ import Views
 
       receivedIdx = thisSearchIdx
 
-      limit = 20 // Once we have one successful fetch with 10 items we increase to 20 per fetch
+      limit = 15 // Once we have one successful fetch we increase the limit
       cursor = queryResult.cursor
       totalCount = queryResult.totalCount
-
-      if let username = dataService.currentViewer?.username {
-        await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
-      }
     } else {
       updateFetchController(dataService: dataService, filterState: filterState)
     }
@@ -128,13 +124,25 @@ import Views
   }
 
   func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, loadCursor: String? = nil) async {
+    var useCursor = loadCursor
     if let appliedFilter = filterState.appliedFilter, appliedFilter.shouldRemoteSearch {
       let idx = max(items.count, 0)
+
+      // If the cursor is greater than the index we want to use the cursor instead
+      // this can occur if there are non-contiguous items in our list causing older
+      // items to be synced back into those "holes" in the list
+      if let cursor = cursor, let currentCursor = Int(cursor) {
+        print("IDX: ", idx, " CURSOR: ", cursor, " CURRENT CURSOR: ", currentCursor)
+        if currentCursor > idx {
+          useCursor = currentCursor.description
+        }
+      }
+
       await loadSearchQuery(
         dataService: dataService,
         filterState: filterState,
         isRefresh: false,
-        loadCursor: loadCursor ?? idx.description
+        loadCursor: useCursor ?? idx.description
       )
     }
   }

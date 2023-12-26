@@ -25,13 +25,13 @@ struct InternalLibraryItem {
   let slug: String
   let isArchived: Bool
   let contentReader: String?
+  let htmlContent: String?
   let originalHtml: String?
   let language: String?
   let wordsCount: Int?
   let downloadURL: String
   let recommendations: [InternalRecommendation]
   var labels: [InternalLinkedItemLabel]
-  let lastSearchCursor: String?
 
   var isPDF: Bool {
     if let contentReader = contentReader {
@@ -66,11 +66,11 @@ struct InternalLibraryItem {
     linkedItem.slug = slug
     linkedItem.isArchived = isArchived
     linkedItem.contentReader = contentReader
+    linkedItem.htmlContent = htmlContent
     linkedItem.originalHtml = originalHtml
     linkedItem.language = language
     linkedItem.wordsCount = Int64(wordsCount ?? 0)
     linkedItem.downloadURL = downloadURL
-    linkedItem.lastSearchCursor = lastSearchCursor
 
     // Remove existing labels in case a label had been deleted
     if let existingLabels = linkedItem.labels {
@@ -150,13 +150,13 @@ extension JSONArticle {
       slug: slug,
       isArchived: isArchived,
       contentReader: contentReader,
+      htmlContent: nil,
       originalHtml: nil,
       language: language,
       wordsCount: wordsCount,
       downloadURL: downloadURL,
       recommendations: [],
-      labels: [],
-      lastSearchCursor: nil
+      labels: []
     )
 
     context.performAndWait {

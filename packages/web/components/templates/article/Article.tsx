@@ -269,10 +269,12 @@ export function Article(props: ArticleProps): JSX.Element {
 
   return (
     <>
-      <link
-        rel="stylesheet"
-        href={`/static/highlightjs/${highlightTheme}.min.css`}
-      />
+      {!props.isAppleAppEmbed && (
+        <link
+          rel="stylesheet"
+          href={`/static/highlightjs/${highlightTheme}.min.css`}
+        />
+      )}
       <Box
         ref={articleContentRef}
         css={{

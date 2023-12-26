@@ -4,15 +4,10 @@ import Models
 import Utils
 
 public extension DataService {
-  func prefetchPages(itemIDs: [String], username: String) async {
-    await withTaskGroup(of: Void.self) { group in
-      for itemID in itemIDs {
-        group.addTask {
-          await self.prefetchPage(pendingLink: PendingLink(itemID: itemID, retryCount: 1), username: username)
-        }
-      }
-      await group.waitForAll()
-    }
+  func prefetchPages(itemIDs _: [String], username _: String) async {
+//    for itemID in itemIDs {
+//      prefetchQueue.addOperation(PrefetchJob)
+//    }
   }
 
   func loadArticleContentWithRetries(

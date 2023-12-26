@@ -47,11 +47,7 @@ public extension DataService {
     searchQuery: String?,
     cursor: String?
   ) async throws -> LinkedItemQueryResult {
-    // Send offline changes to server before fetching items
-    // try? await syncOfflineItemsWithServerIfNeeded()
-
     let fetchResult = try await fetchLinkedItems(limit: limit, searchQuery: searchQuery, cursor: cursor)
-
     guard let itemIDs = fetchResult.items.persist(context: backgroundContext) else {
       throw BasicError.message(messageText: "CoreData error")
     }

@@ -325,16 +325,25 @@ struct AnimatingCellHeight: AnimatableModifier {
         ToolbarItemGroup(placement: .bottomBar) {
           if isEditMode == .active {
             Button(action: {
-              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
-              isEditMode = .inactive
-            }, label: { Image.toolbarArchive })
-            Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image.toolbarTrash })
+            }, label: { Image(systemName: "trash") })
+              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
+                dim[HorizontalAlignment.center]
+              })
+
+            Button(action: {
+              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
+              isEditMode = .inactive
+            }, label: { Image(systemName: "archivebox") })
+              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
+                dim[HorizontalAlignment.center]
+              })
+
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
+
             Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
           }
         }
