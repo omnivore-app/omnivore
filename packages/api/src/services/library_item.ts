@@ -886,7 +886,7 @@ export const countByCreatedAt = async (
   )
 }
 
-export const updateLibraryItems = async (
+export const batchUpdateLibraryItems = async (
   action: BulkActionType,
   searchArgs: SearchArgs,
   userId: string,
@@ -902,7 +902,7 @@ export const updateLibraryItems = async (
   }
 
   // build the script
-  let values: QueryDeepPartialEntity<LibraryItem> = {}
+  let values: Record<string, any> = {}
   let addLabels = false
   switch (action) {
     case BulkActionType.Archive:
@@ -984,7 +984,48 @@ export const updateLibraryItems = async (
       return tx.getRepository(EntityLabel).save(labelsToAdd)
     }
 
-    return queryBuilder.update(LibraryItem).set(values).execute()
+    const countSql = queryBuilder.select('COUNT(1) INTO total_rows').getSql()
+    const [subQuery, params] = queryBuilder.select('id').getQueryAndParameters()
+    const valuesSql = Object.keys(values)
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      .map((key) => `${key} = ${values[key]}`)
+      .join(', ')
+
+    const sql = `
+    -- Set batch size
+    DO $$ 
+    DECLARE 
+        batch_size INT := 100;
+        total_rows INT := 1000;
+        num_batches INT;
+        current_offset INT;
+    BEGIN
+        -- Get the total count of rows to be updated
+        ${countSql};
+
+        -- Calculate the number of batches
+        num_batches := CEIL(total_rows * 1.0 / batch_size);
+
+        -- Loop through batches
+        FOR i IN 0..num_batches-1 LOOP
+            -- Set the current offset
+            current_offset := i * batch_size;
+
+            -- Perform incremental update in batches using LIMIT and OFFSET
+            UPDATE omnivore.library_item
+            SET ${valuesSql}
+            FROM (
+                ${subQuery}
+                ORDER BY id
+                LIMIT batch_size
+                OFFSET current_offset
+            ) AS batch
+            WHERE library_item.id = batch.id;
+        END LOOP;
+    END $$
+    `
+
+    return tx.query(sql, params)
   })
 }
 
