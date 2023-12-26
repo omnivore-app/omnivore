@@ -1047,10 +1047,10 @@ struct BottomView: View {
               await viewModel.loadMore(dataService: dataService)
             }
           }, label: {
-            if let totalCount = viewModel.fetcher.totalCount {
-              Text("Fetch more.")
+            if let totalCount = viewModel.fetcher.totalCount, viewModel.fetcher.items.count >= totalCount {
+              Text("Check for more")
             } else {
-              Text("Refresh")
+              Text("Fetch more")
             }
           })
             .foregroundColor(Color.blue)
