@@ -4,7 +4,7 @@ import Services
 class LibrarySyncManager {
   var syncCursor: String?
 
-  func syncItems(dataService: DataService) async {
+  func syncUpdates(dataService: DataService) async {
     let syncStart = Date.now
     let lastSyncDate = dataService.lastItemSyncTime
 
@@ -25,16 +25,6 @@ class LibrarySyncManager {
       }
     } else {
       dataService.lastItemSyncTime = syncStart
-    }
-
-    // If possible start prefetching new pages in the background
-    if
-      let itemIDs = syncResult?.updatedItemIDs,
-      !itemIDs.isEmpty
-    {
-      Task.detached(priority: .background) {
-        await dataService.prefetchPages(itemIDs: itemIDs, username: "username")
-      }
     }
   }
 }
