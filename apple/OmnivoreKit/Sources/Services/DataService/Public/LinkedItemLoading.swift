@@ -15,6 +15,12 @@ public extension DataService {
 
     LibraryItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
 
+    if !fetchResult.newItems.isEmpty {
+      if fetchResult.newItems.persist(context: backgroundContext) == nil {
+        throw BasicError.message(messageText: "CoreData error")
+      }
+    }
+
     if !fetchResult.updatedItems.isEmpty {
       if fetchResult.updatedItems.persist(context: backgroundContext) == nil {
         throw BasicError.message(messageText: "CoreData error")

@@ -11,6 +11,7 @@ struct InternalLinkedItemQueryResult {
 
 struct InternalLinkedItemUpdatesQueryResult {
   let deletedItemIDs: [String]
+  let newItems: [InternalLibraryItem]
   let updatedItems: [InternalLibraryItem]
   let cursor: String?
   let hasMoreItems: Bool
@@ -92,6 +93,7 @@ extension DataService {
 
         switch payload.data {
         case let .success(result: result):
+          var newItems = [InternalLibraryItem]()
           var updatedItems = [InternalLibraryItem]()
           var deletedItemIDs = [String]()
 
@@ -100,12 +102,15 @@ extension DataService {
               deletedItemIDs.append(edge.itemID)
             } else if let item = edge.item, edge.isUpdatedItem {
               updatedItems.append(item)
+            } else if let item = edge.item {
+              newItems.append(item)
             }
           }
 
           continuation.resume(
             returning: InternalLinkedItemUpdatesQueryResult(
               deletedItemIDs: deletedItemIDs,
+              newItems: newItems,
               updatedItems: updatedItems,
               cursor: result.cursor,
               hasMoreItems: result.hasMoreItems,

@@ -71,6 +71,11 @@ public struct LibrarySplitView: View {
         }
         // selectedTab = "inbox"
       }
+      .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+        Task {
+          await syncManager.syncUpdates(dataService: dataService)
+        }
+      }
       .onReceive(NSNotification.performSyncPublisher) { _ in
         Task {
           await syncManager.syncUpdates(dataService: dataService)

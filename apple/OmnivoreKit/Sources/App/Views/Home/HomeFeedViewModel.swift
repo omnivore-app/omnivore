@@ -5,9 +5,9 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class HomeFeedViewModel: NSObject, ObservableObject, UINavigationControllerDelegate {
+@MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
   let folder: String
-  let fetcher: LibraryItemFetcher
+  @ObservedObject var fetcher: LibraryItemFetcher
   let listConfig: LibraryListConfig
 
   private var fetchedResultsController: NSFetchedResultsController<Models.LibraryItem>?
@@ -133,11 +133,24 @@ import Views
     }
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) async {
+  func loadNewItems(dataService: DataService) async {
+    await fetcher.loadNewItems(
+      dataService: dataService,
+      filterState: filterState
+    )
+    objectWillChange.send()
+  }
+
+  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false) async {
     isLoading = true
     showLoadingBar = isRefresh
 
-    await fetcher.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
+    await fetcher.loadItems(
+      dataService: dataService,
+      filterState: filterState,
+      isRefresh: isRefresh,
+      forceRemote: forceRemote
+    )
 
     isLoading = false
     showLoadingBar = false

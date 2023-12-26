@@ -228,7 +228,9 @@ struct AnimatingCellHeight: AnimatableModifier {
         toolbarItems
       }
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-        loadItems(isRefresh: false)
+        Task {
+          await viewModel.loadNewItems(dataService: dataService)
+        }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
         guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
@@ -245,9 +247,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         NavigationView {
           LibraryAddLinkView()
         }
-      }
-      .introspectNavigationController { nav in
-        nav.delegate = viewModel
       }
       .task {
         await viewModel.loadFilters(dataService: dataService)
@@ -656,7 +655,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var listItems: some View {
-      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { idx, item in
+      ForEach(viewModel.fetcher.items, id: \.unwrappedID) { item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
 
         LibraryItemListNavigationLink(
@@ -689,13 +688,13 @@ struct AnimatingCellHeight: AnimatableModifier {
             swipeActionButton(action: action, item: item)
           }
         }
-        .onAppear {
-          if idx >= viewModel.fetcher.items.count - 5 {
-            Task {
-              await viewModel.loadMore(dataService: dataService)
-            }
-          }
-        }
+//        .onAppear {
+//          if idx >= viewModel.fetcher.items.count - 5 {
+//            Task {
+//              await viewModel.loadMore(dataService: dataService)
+//            }
+//          }
+//        }
       }
     }
 

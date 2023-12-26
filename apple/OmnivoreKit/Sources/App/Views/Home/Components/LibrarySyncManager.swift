@@ -15,10 +15,7 @@ class LibrarySyncManager {
 
     try? await dataService.syncOfflineItemsWithServerIfNeeded()
 
-    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
-                                                            cursor: nil)
-
-    syncCursor = syncResult?.cursor
+    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
     if let syncResult = syncResult, syncResult.hasMore {
       dataService.syncLinkedItemsInBackground(since: lastSyncDate) {
         // do nothing

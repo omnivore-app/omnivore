@@ -26,7 +26,9 @@ import Views
   var receivedIdx = 0
 
   func setItems(_ context: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
+    print("setting items, old count", self.items.count, "new count", items.count)
     self.items = items
+
     if let filter = FeaturedItemFilter(rawValue: featureFilter) {
       updateFeatureFilter(context: context, filter: filter)
     }
@@ -77,9 +79,6 @@ import Views
         return itemObjects
       }()
 
-      print("SYNCCURSOR LOAD CURSOR: ", loadCursor, " new cursor: ", queryResult.cursor)
-      print("SYNCCURSOR NEW ITEMS: ", newItems.count)
-
       if filterState.searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, appliedFilter.allowLocalFetch {
         updateFetchController(dataService: dataService, filterState: filterState)
       } else {
@@ -101,7 +100,7 @@ import Views
     }
   }
 
-  func loadItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool, forceRemote: Bool = false) async {
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
@@ -110,7 +109,7 @@ import Views
     }
 
     if let appliedFilter = filterState.appliedFilter {
-      let shouldRemoteSearch = items.count < 1 || isRefresh && appliedFilter.shouldRemoteSearch
+      let shouldRemoteSearch = forceRemote || items.count < 1 || isRefresh && appliedFilter.shouldRemoteSearch
       if shouldRemoteSearch {
         await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
       } else {
@@ -121,6 +120,12 @@ import Views
     NotificationCenter.default.post(name: NSNotification.PerformSync, object: nil, userInfo: nil)
 
     BadgeCountHandler.updateBadgeCount(dataService: dataService)
+  }
+
+  func loadNewItems(dataService: DataService, filterState: FetcherFilterState) async {
+    let lastSyncDate = dataService.lastItemSyncTime
+    _ = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+    updateFetchController(dataService: dataService, filterState: filterState)
   }
 
   func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, loadCursor: String? = nil) async {
