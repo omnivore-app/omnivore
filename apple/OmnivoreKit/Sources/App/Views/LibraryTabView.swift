@@ -123,7 +123,7 @@ struct LibraryTabView: View {
     .navigationBarHidden(true)
     .onReceive(NSNotification.performSyncPublisher) { _ in
       Task {
-        await syncManager.syncItems(dataService: dataService)
+        await syncManager.syncUpdates(dataService: dataService)
       }
     }
     .onOpenURL { url in

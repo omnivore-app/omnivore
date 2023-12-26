@@ -15,17 +15,22 @@ public extension DataService {
 
     LibraryItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
 
-    if fetchResult.items.persist(context: backgroundContext) == nil {
-      throw BasicError.message(messageText: "CoreData error")
+    if !fetchResult.updatedItems.isEmpty {
+      if fetchResult.updatedItems.persist(context: backgroundContext) == nil {
+        throw BasicError.message(messageText: "CoreData error")
+      }
     }
 
-    let newestChange = fetchResult.items.max { $0.updatedAt < $1.updatedAt }
+    let newestChange = fetchResult.updatedItems.max { $0.updatedAt < $1.updatedAt }
+    let oldestChange = fetchResult.updatedItems.min { $0.updatedAt < $1.updatedAt }
+
     let result = LinkedItemSyncResult(
-      updatedItemIDs: fetchResult.items.map(\.id),
+      updatedItemIDs: fetchResult.updatedItems.map(\.id),
       cursor: fetchResult.cursor,
       hasMore: fetchResult.hasMoreItems,
       mostRecentUpdatedAt: newestChange?.updatedAt,
-      isEmpty: fetchResult.deletedItemIDs.isEmpty && fetchResult.items.isEmpty
+      oldestUpdatedAt: oldestChange?.updatedAt,
+      isEmpty: fetchResult.deletedItemIDs.isEmpty && fetchResult.updatedItems.isEmpty
     )
 
     return result

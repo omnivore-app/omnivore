@@ -73,7 +73,7 @@ public struct LibrarySplitView: View {
       }
       .onReceive(NSNotification.performSyncPublisher) { _ in
         Task {
-          await syncManager.syncItems(dataService: dataService)
+          await syncManager.syncUpdates(dataService: dataService)
         }
       }
     }

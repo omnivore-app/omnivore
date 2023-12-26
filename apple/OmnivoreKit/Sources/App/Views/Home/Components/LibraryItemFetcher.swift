@@ -16,6 +16,7 @@ import Views
 
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
+  var limit = 10
   var cursor: String?
   var totalCount: Int?
 
@@ -55,11 +56,17 @@ import Views
       return
     }
 
-    let queryResult = try? await dataService.loadLinkedItems(
-      limit: 10,
-      searchQuery: searchQuery(filterState),
-      cursor: isRefresh ? nil : loadCursor ?? cursor
-    )
+    var queryResult: LinkedItemQueryResult?
+
+    do {
+      queryResult = try await dataService.loadLinkedItems(
+        limit: limit,
+        searchQuery: searchQuery(filterState),
+        cursor: isRefresh ? nil : loadCursor ?? cursor
+      )
+    } catch {
+      print("ERROR loading library items: ", error)
+    }
 
     if let appliedFilter = filterState.appliedFilter, let queryResult = queryResult {
       let newItems: [Models.LibraryItem] = {
@@ -69,6 +76,9 @@ import Views
         }
         return itemObjects
       }()
+
+      print("LOAD CURSOR: ", loadCursor, " new cursor: ", queryResult.cursor)
+      print("NEW ITEMS: ", newItems.count, newItems.map { "\($0.title)\n" })
 
       if filterState.searchTerm.replacingOccurrences(of: " ", with: "").isEmpty, appliedFilter.allowLocalFetch {
         updateFetchController(dataService: dataService, filterState: filterState)
@@ -82,6 +92,8 @@ import Views
       }
 
       receivedIdx = thisSearchIdx
+
+      limit = 20 // Once we have one successful fetch with 10 items we increase to 20 per fetch
       cursor = queryResult.cursor
       totalCount = queryResult.totalCount
 
@@ -117,7 +129,7 @@ import Views
 
   func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, loadCursor: String? = nil) async {
     if let appliedFilter = filterState.appliedFilter, appliedFilter.shouldRemoteSearch {
-      let idx = max(items.count - 1, 0)
+      let idx = max(items.count, 0)
       await loadSearchQuery(
         dataService: dataService,
         filterState: filterState,
@@ -187,7 +199,6 @@ import Views
       sectionNameKeyPath: nil,
       cacheName: nil
     )
-
     guard let fetchedResultsController = fetchedResultsController else {
       return
     }

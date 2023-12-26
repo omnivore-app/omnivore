@@ -19,13 +19,21 @@ public struct LinkedItemSyncResult {
   public let cursor: String?
   public let hasMore: Bool
   public let mostRecentUpdatedAt: Date?
+  public let oldestUpdatedAt: Date?
   public let isEmpty: Bool
 
-  public init(updatedItemIDs: [String], cursor: String?, hasMore: Bool, mostRecentUpdatedAt: Date?, isEmpty: Bool) {
+  public init(updatedItemIDs: [String],
+              cursor: String?,
+              hasMore: Bool,
+              mostRecentUpdatedAt: Date?,
+              oldestUpdatedAt: Date?,
+              isEmpty: Bool)
+  {
     self.updatedItemIDs = updatedItemIDs
     self.cursor = cursor
     self.hasMore = hasMore
     self.mostRecentUpdatedAt = mostRecentUpdatedAt
+    self.oldestUpdatedAt = oldestUpdatedAt
     self.isEmpty = isEmpty
   }
 }

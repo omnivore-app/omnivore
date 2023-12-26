@@ -683,7 +683,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         .onAppear {
           if idx >= viewModel.fetcher.items.count - 5 {
             Task {
-              await viewModel.loadMore(dataService: dataService, loadCursor: idx.description)
+              await viewModel.loadMore(dataService: dataService)
             }
           }
         }
@@ -1031,7 +1031,7 @@ struct BottomView: View {
   }
 
   var innerBody: some View {
-    if viewModel.fetcher.items.count < 5 {
+    if viewModel.fetcher.items.count < 3 {
       AnyView(Color.clear)
     } else {
       AnyView(HStack {

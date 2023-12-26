@@ -10,8 +10,8 @@ struct InternalLinkedItemQueryResult {
 }
 
 struct InternalLinkedItemUpdatesQueryResult {
-  let items: [InternalLibraryItem]
   let deletedItemIDs: [String]
+  let updatedItems: [InternalLibraryItem]
   let cursor: String?
   let hasMoreItems: Bool
   let totalCount: Int
@@ -20,6 +20,7 @@ struct InternalLinkedItemUpdatesQueryResult {
 private struct SyncItemEdge {
   let itemID: String
   let isDeletedItem: Bool
+  let isUpdatedItem: Bool
   let item: InternalLibraryItem?
 }
 
@@ -91,21 +92,21 @@ extension DataService {
 
         switch payload.data {
         case let .success(result: result):
-          var items = [InternalLibraryItem]()
+          var updatedItems = [InternalLibraryItem]()
           var deletedItemIDs = [String]()
 
           for edge in result.edges {
             if edge.isDeletedItem {
               deletedItemIDs.append(edge.itemID)
-            } else if let item = edge.item {
-              items.append(item)
+            } else if let item = edge.item, edge.isUpdatedItem {
+              updatedItems.append(item)
             }
           }
 
           continuation.resume(
             returning: InternalLinkedItemUpdatesQueryResult(
-              items: items,
               deletedItemIDs: deletedItemIDs,
+              updatedItems: updatedItems,
               cursor: result.cursor,
               hasMoreItems: result.hasMoreItems,
               totalCount: result.totalCount
@@ -292,6 +293,7 @@ private let syncItemEdgeSelection = Selection.SyncUpdatedItemEdge {
   SyncItemEdge(
     itemID: try $0.itemId(),
     isDeletedItem: try $0.updateReason() == .deleted,
+    isUpdatedItem: try $0.updateReason() == .updated,
     item: try $0.node(selection: searchItemSelection.nullable)
   )
 }
