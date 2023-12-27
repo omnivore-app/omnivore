@@ -168,6 +168,19 @@ import Views
     }
   }
 
+  func setDefaultFilter() {
+    let availableFolders = folderConfigs.keys
+    let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
+    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
+      appliedFilter = newFilter
+      return
+    }
+
+    if let defaultFilter = filters.first(where: { availableFolders.contains($0.folder) }) {
+      appliedFilter = defaultFilter
+    }
+  }
+
   func loadNewItems(dataService: DataService) async {
     if let filterState = filterState {
       await fetcher.loadNewItems(

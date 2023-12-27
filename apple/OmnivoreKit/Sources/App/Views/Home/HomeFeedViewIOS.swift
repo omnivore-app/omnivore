@@ -294,6 +294,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
       .task {
         await viewModel.loadFilters(dataService: dataService)
+        if viewModel.appliedFilter == nil {
+          viewModel.setDefaultFilter()
+        }
       }
       .environment(\.editMode, self.$isEditMode)
       .navigationBarTitleDisplayMode(.inline)
