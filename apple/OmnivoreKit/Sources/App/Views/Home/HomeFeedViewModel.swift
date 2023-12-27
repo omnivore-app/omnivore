@@ -23,6 +23,8 @@ import Views
 
   @Published var showLabelsSheet = false
   @Published var showSnackbar = false
+  @Published var showAddFeedView = false
+  @Published var showHideFollowingAlert = false
   @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()

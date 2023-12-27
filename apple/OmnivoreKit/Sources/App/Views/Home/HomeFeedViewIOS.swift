@@ -77,6 +77,50 @@ struct FiltersHeader: View {
   }
 }
 
+struct EmptyState: View {
+  @ObservedObject var viewModel: HomeFeedViewModel
+
+  var body: some View {
+    if viewModel.currentFolder == "following" {
+      return AnyView(
+        VStack(alignment: .center, spacing: 20) {
+          Text("You don't have any Feed items.")
+            .font(Font.system(size: 18, weight: .bold))
+
+          Text("Add an RSS/Atom feed")
+            .foregroundColor(Color.blue)
+            .onTapGesture {
+              viewModel.showAddFeedView = true
+            }
+
+          Text("Hide the Following tab")
+            .foregroundColor(Color.blue)
+            .onTapGesture {
+              viewModel.showHideFollowingAlert = true
+            }
+        }
+        .frame(minHeight: 400)
+        .frame(maxWidth: .infinity)
+        .padding()
+      )
+    } else {
+      return AnyView(Group {
+        Spacer()
+
+        VStack(alignment: .center, spacing: 20) {
+          Text("No results found for this query")
+            .font(Font.system(size: 18, weight: .bold))
+        }
+        .frame(minHeight: 400)
+        .frame(maxWidth: .infinity)
+        .padding()
+
+        Spacer()
+      })
+    }
+  }
+}
+
 struct AnimatingCellHeight: AnimatableModifier {
   var height: CGFloat = 0
 
@@ -391,7 +435,6 @@ struct AnimatingCellHeight: AnimatableModifier {
             isListScrolled: $isListScrolled,
             prefersListLayout: $prefersListLayout,
             isEditMode: $isEditMode,
-            showAddFeedView: $showAddFeedView,
             selection: $selection,
             viewModel: viewModel,
             showFeatureCards: showFeatureCards
@@ -445,9 +488,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
-    @Binding var showAddFeedView: Bool
     @State private var showHideFeatureAlert = false
-    @State private var showHideFollowingAlert = false
 
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -463,7 +504,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         .overlay(Rectangle()
           .padding(.leading, 15)
           .frame(width: nil, height: 0.5, alignment: .bottom)
-          .foregroundColor(isListScrolled ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
+          .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
         .dynamicTypeSize(.small ... .accessibility1)
     }
 
@@ -616,46 +657,6 @@ struct AnimatingCellHeight: AnimatableModifier {
       }.redacted(reason: .placeholder)
     }
 
-    var emptyState: some View {
-      if viewModel.currentFolder == "following" {
-        return AnyView(
-          VStack(alignment: .center, spacing: 20) {
-            Text("You don't have any Feed items.")
-              .font(Font.system(size: 18, weight: .bold))
-
-            Text("Add an RSS/Atom feed")
-              .foregroundColor(Color.blue)
-              .onTapGesture {
-                showAddFeedView = true
-              }
-
-            Text("Hide the Following tab")
-              .foregroundColor(Color.blue)
-              .onTapGesture {
-                showHideFollowingAlert = true
-              }
-          }
-          .frame(minHeight: 400)
-          .frame(maxWidth: .infinity)
-          .padding()
-        )
-      } else {
-        return AnyView(Group {
-          Spacer()
-
-          VStack(alignment: .center, spacing: 20) {
-            Text("No results found for this query")
-              .font(Font.system(size: 18, weight: .bold))
-          }
-          .frame(minHeight: 400)
-          .frame(maxWidth: .infinity)
-          .padding()
-
-          Spacer()
-        })
-      }
-    }
-
     var listItems: some View {
       ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { idx, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
@@ -746,7 +747,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 if viewModel.showLoadingBar {
                   redactedItems
                 } else if viewModel.fetcher.items.isEmpty {
-                  emptyState
+                  EmptyState(viewModel: viewModel)
                     .listRowSeparator(.hidden, edges: .all)
                 } else {
                   listItems
@@ -782,11 +783,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
       }
       .alert("The Following tab will be hidden. You can add it back from the filter settings in your profile.",
-             isPresented: $showHideFollowingAlert) {
+             isPresented: $viewModel.showHideFollowingAlert) {
         Button("OK", role: .destructive) {
           viewModel.hideFollowingTab = true
         }
-        Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFollowingAlert = false }
+        Button(LocalText.cancelGeneric, role: .cancel) { viewModel.showHideFollowingAlert = false }
       }
       .introspectNavigationController { nav in
         nav.navigationBar.shadowImage = UIImage()
@@ -874,6 +875,11 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var filtersHeader: some View {
       FiltersHeader(viewModel: viewModel)
+        .overlay(Rectangle()
+          .padding(.leading, 15)
+          .frame(width: nil, height: 0.5, alignment: .bottom)
+          .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
+        .dynamicTypeSize(.small ... .accessibility1)
     }
 
     func menuItems(for item: Models.LibraryItem) -> some View {
@@ -907,18 +913,22 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .cornerRadius(6)
               }.redacted(reason: .placeholder)
             } else {
-              ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in
-                LibraryItemGridCardNavigationLink(
-                  item: item,
-                  viewModel: viewModel
-                )
-                .contextMenu {
-                  menuItems(for: item)
-                }
-                .onAppear {
-                  if idx >= viewModel.fetcher.items.count - 5 {
-                    Task {
-                      await viewModel.loadMore(dataService: dataService)
+              if viewModel.fetcher.items.isEmpty {
+                EmptyState(viewModel: viewModel)
+              } else {
+                ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in
+                  LibraryItemGridCardNavigationLink(
+                    item: item,
+                    viewModel: viewModel
+                  )
+                  .contextMenu {
+                    menuItems(for: item)
+                  }
+                  .onAppear {
+                    if idx >= viewModel.fetcher.items.count - 5 {
+                      Task {
+                        await viewModel.loadMore(dataService: dataService)
+                      }
                     }
                   }
                 }

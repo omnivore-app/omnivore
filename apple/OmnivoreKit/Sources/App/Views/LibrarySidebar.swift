@@ -20,82 +20,77 @@ import SwiftUI
   @AppStorage("followingMenuState") var followingMenuState = "open"
 
   var innerBody: some View {
-    ZStack {
-//      NavigationLink("", destination: HomeView(viewModel: inboxViewModel), isActive: $inboxActive)
-//      NavigationLink("", destination: HomeView(viewModel: followingViewModel), isActive: $followingActive)
+    List {
+      Section {
+        Button(action: { inboxMenuState = inboxMenuState == "open" ? "closed" : "open" }, label: {
+          HStack {
+            Image.tabLibrary
+            Text("Library")
+            Spacer()
 
-      List {
-        Section {
-          Button(action: { inboxMenuState = inboxMenuState == "open" ? "closed" : "open" }, label: {
-            HStack {
-              Image.tabLibrary
-              Text("Library")
-              Spacer()
-
-              if inboxMenuState == "open" {
-                Image(systemName: "chevron.down")
-              } else {
-                Image(systemName: "chevron.right")
-              }
-            }
-          })
-
-          if inboxMenuState == "open" {
-            ForEach(viewModel.filters.filter { $0.folder == "inbox" }, id: \.self) { filter in
-              Button(action: {
-                viewModel.appliedFilter = filter
-                selectedFilter = filter
-                followingActive = false
-                inboxActive = true
-              }, label: {
-                HStack {
-                  Spacer().frame(width: 35)
-                  Text(filter.name)
-                    .lineLimit(1)
-                }
-              })
-                .listRowBackground(
-                  selectedFilter == filter && inboxActive
-                    ? Color.systemBackground.cornerRadius(8) : Color.clear.cornerRadius(8)
-                )
+            if inboxMenuState == "open" {
+              Image(systemName: "chevron.down")
+            } else {
+              Image(systemName: "chevron.right")
             }
           }
-        }
+        })
 
-        Section {
-          Button(action: { followingMenuState = followingMenuState == "open" ? "closed" : "open" }, label: {
-            HStack {
-              Image.tabFollowing
-              Text("Following")
-              Spacer()
-
-              if followingMenuState == "open" {
-                Image(systemName: "chevron.down")
-              } else {
-                Image(systemName: "chevron.right")
+        if inboxMenuState == "open" {
+          ForEach(viewModel.filters.filter { $0.folder == "inbox" }, id: \.self) { filter in
+            Button(action: {
+              viewModel.appliedFilter = filter
+              selectedFilter = filter
+              followingActive = false
+              inboxActive = true
+            }, label: {
+              HStack {
+                Spacer().frame(width: 35)
+                Text(filter.name)
+                  .lineLimit(1)
               }
-            }
-          })
+            })
+              .listRowBackground(
+                selectedFilter == filter && inboxActive
+                  ? Color.systemBackground.cornerRadius(8) : Color.clear.cornerRadius(8)
+              )
+          }
+        }
+      }
 
-          if followingMenuState == "open" {
-            ForEach(viewModel.filters.filter { $0.folder == "following" }, id: \.self) { filter in
-              Button(action: {
-                viewModel.appliedFilter = filter
-                selectedFilter = filter
-                inboxActive = false
-                followingActive = true
-              }, label: {
-                HStack {
-                  Spacer().frame(width: 35)
-                  Text(filter.name)
-                    .lineLimit(1)
-                }
-              })
-                .listRowBackground(
-                  selectedFilter == filter && followingActive
-                    ? Color.systemBackground.cornerRadius(8) : Color.clear.cornerRadius(8)
-                )
+      Section {
+        Button(action: { followingMenuState = followingMenuState == "open" ? "closed" : "open" }, label: {
+          HStack {
+            Image.tabFollowing
+            Text("Following")
+            Spacer()
+
+            if followingMenuState == "open" {
+              Image(systemName: "chevron.down")
+            } else {
+              Image(systemName: "chevron.right")
             }
+          }
+        })
+
+        if followingMenuState == "open" {
+          ForEach(viewModel.filters.filter { $0.folder == "following" }, id: \.self) { filter in
+            Button(action: {
+              viewModel.appliedFilter = filter
+              selectedFilter = filter
+              inboxActive = false
+              followingActive = true
+            }, label: {
+              HStack {
+                Spacer().frame(width: 35)
+                Text(filter.name)
+                  .lineLimit(1)
+              }
+            })
+              .listRowBackground(
+                selectedFilter == filter && followingActive
+                  ? Color.systemBackground.cornerRadius(8) : Color.clear.cornerRadius(8)
+              )
           }
         }
       }
