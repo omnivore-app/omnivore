@@ -282,19 +282,20 @@ struct AnimatingCellHeight: AnimatableModifier {
               label: {
                 Image
                   .selectMultiple
-                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+                  .foregroundColor(Color.toolbarItemForeground)
               }
-            ).foregroundColor(ThemeManager.currentTheme.toolbarColor)
+            ).buttonStyle(.plain)
           }
           if enableGrid {
             Button(
               action: { prefersListLayout.toggle() },
               label: {
                 Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+                  .foregroundColor(Color.toolbarItemForeground)
               }
-            )
+            ).buttonStyle(.plain)
           }
+
           Button(
             action: {
               if viewModel.folder == "inbox" {
@@ -305,9 +306,10 @@ struct AnimatingCellHeight: AnimatableModifier {
             },
             label: {
               Image.addLink
-                .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+                .foregroundColor(Color.toolbarItemForeground)
             }
-          ).tint(Color.appGrayText)
+          ).buttonStyle(.plain)
+
           Button(
             action: {
               searchPresented = true
@@ -316,9 +318,9 @@ struct AnimatingCellHeight: AnimatableModifier {
             label: {
               Image
                 .magnifyingGlass
-                .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+                .foregroundColor(Color.toolbarItemForeground)
             }
-          )
+          ).buttonStyle(.plain)
         }
 
         ToolbarItemGroup(placement: .bottomBar) {
