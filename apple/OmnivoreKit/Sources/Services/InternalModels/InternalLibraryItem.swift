@@ -32,6 +32,7 @@ struct InternalLibraryItem {
   let downloadURL: String
   let recommendations: [InternalRecommendation]
   var labels: [InternalLinkedItemLabel]
+  var highlights: [InternalHighlight]
 
   var isPDF: Bool {
     if let contentReader = contentReader {
@@ -87,6 +88,15 @@ struct InternalLibraryItem {
 
     for recommendation in recommendations {
       linkedItem.addToRecommendations(recommendation.asManagedObject(inContext: context))
+    }
+
+    // Remove existing labels in case a label had been deleted
+    if let existingHighlights = linkedItem.highlights {
+      linkedItem.removeFromHighlights(existingHighlights)
+    }
+
+    for highlight in highlights {
+      linkedItem.addToHighlights(highlight.asManagedObject(context: context))
     }
 
     return linkedItem
@@ -156,7 +166,8 @@ extension JSONArticle {
       wordsCount: wordsCount,
       downloadURL: downloadURL,
       recommendations: [],
-      labels: []
+      labels: [],
+      highlights: []
     )
 
     context.performAndWait {

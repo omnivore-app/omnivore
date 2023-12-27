@@ -291,7 +291,8 @@ private let libraryArticleSelection = Selection.Article {
     wordsCount: try $0.wordsCount(),
     downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
-    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? [],
+    highlights: try $0.highlights(selection: highlightSelection.list) ?? []
   )
 }
 
@@ -334,7 +335,8 @@ private let searchItemSelection = Selection.SearchItem {
     wordsCount: try $0.wordsCount(),
     downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
-    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? [],
+    highlights: try $0.highlights(selection: highlightSelection.list.nullable) ?? []
   )
 }
 
