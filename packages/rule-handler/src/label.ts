@@ -5,7 +5,7 @@ export const setLabels = async (
   auth: string,
   pageId: string,
   labelIds: string[],
-  ruleName: string
+  ruleName: string,
 ) => {
   const data = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {

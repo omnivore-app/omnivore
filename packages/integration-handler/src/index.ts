@@ -50,14 +50,14 @@ const createGCSFile = (bucket: string, filename: string): File => {
 
 const createSystemToken = async (
   claims: Claims,
-  secret: string
+  secret: string,
 ): Promise<string> => {
   return signToken(
     {
       ...claims,
       system: true,
     },
-    secret
+    secret,
   ) as Promise<string>
 }
 
@@ -114,7 +114,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           client.highlightOnly,
           updatedSince,
           first,
-          after
+          after,
         )
 
         if (!response) {
@@ -157,7 +157,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           integrationName,
           claims.token,
           systemToken,
-          'EXPORT'
+          'EXPORT',
         )
 
         if (!updated) {
@@ -175,7 +175,7 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     res.sendStatus(200)
-  }
+  },
 )
 
 export const importer = Sentry.GCPFunction.wrapHttpFunction(
@@ -312,7 +312,7 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
         claims.token,
         systemToken,
         'IMPORT',
-        null
+        null,
       )
       if (!result) {
         console.error('failed to update integration', {
@@ -335,5 +335,5 @@ export const importer = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     res.sendStatus(200)
-  }
+  },
 )

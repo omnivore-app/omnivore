@@ -339,7 +339,7 @@ export const functionResolvers = {
     async labels(
       article: { id: string; labels?: Label[]; labelNames?: string[] | null },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (article.labels) return article.labels
 

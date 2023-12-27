@@ -751,11 +751,14 @@ export const parseOpml = (opml: string): Feed[] | undefined => {
   xmlParser.onopentag = function (node) {
     if (node.name === 'outline') {
       // folders also are outlines, make sure an xmlUrl is available
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
       const feedUrl = node.attributes.xmlUrl.toString()
       if (feedUrl && !existingFeeds.has(feedUrl)) {
         feeds.push({
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           title: node.attributes.title.toString() || '',
           url: feedUrl,
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           type: node.attributes.type.toString() || 'rss',
         })
         existingFeeds.set(feedUrl, true)
@@ -800,7 +803,7 @@ export const parseHtml = async (url: string): Promise<Feed[] | undefined> => {
 
 export const parseFeed = async (
   url: string,
-  content?: string | null
+  content?: string | null,
 ): Promise<Feed | null> => {
   try {
     // check if url is a telegram channel

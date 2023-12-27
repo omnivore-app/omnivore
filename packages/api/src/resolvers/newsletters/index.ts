@@ -56,7 +56,7 @@ export const createNewsletterEmailResolver = authorized<
       undefined,
       input?.folder || DEFAULT_NEWSLETTER_FOLDER,
       input?.name || undefined,
-      input?.description || undefined
+      input?.description || undefined,
     )
 
     return {

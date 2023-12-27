@@ -128,7 +128,7 @@ export const saveEmail = async (
     input.userId,
     [{ name: 'Newsletter' }],
     undefined,
-    'system'
+    'system',
   )
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)

@@ -32,7 +32,7 @@ export const updateIntegration = async (
   integrationToken: string,
   token: string,
   type: string,
-  taskName?: string | null,
+  _taskName?: string | null,
 ): Promise<boolean> => {
   const requestData = JSON.stringify({
     query: `

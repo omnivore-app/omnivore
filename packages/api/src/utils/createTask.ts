@@ -55,7 +55,7 @@ const createHttpTaskWithToken = async ({
   | [
       protos.google.cloud.tasks.v2.ITask,
       protos.google.cloud.tasks.v2.ICreateTaskRequest | undefined,
-      unknown | undefined
+      unknown | undefined,
     ]
   | null
 > => {
@@ -174,7 +174,7 @@ export const createAppEngineTask = async ({
 }
 
 export const getTask = async (
-  taskName: string
+  taskName: string,
 ): Promise<google.cloud.tasks.v2.ITask> => {
   // If we are in local environment
   if (env.dev.isLocal) {
@@ -196,7 +196,7 @@ export const getTask = async (
 }
 
 export const deleteTask = async (
-  taskName: string
+  taskName: string,
 ): Promise<google.protobuf.IEmpty | null> => {
   // If we are in local environment
   if (env.dev.isLocal) {
@@ -277,7 +277,7 @@ export const enqueueParseRequest = async ({
         axios.post(env.queue.contentFetchUrl, payload).catch((error) => {
           logError(error)
           logger.error(
-            `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`
+            `Error occurred while requesting local puppeteer-parse function\nPlease, ensure your function is set up properly and running using "yarn start" from the "/pkg/gcf/puppeteer-parse" folder`,
           )
         })
       }, 0)
@@ -310,7 +310,7 @@ export const enqueueParseRequest = async ({
 
 export const enqueueReminder = async (
   userId: string,
-  scheduleTime: number
+  scheduleTime: number,
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -420,7 +420,7 @@ export const enqueueRecommendation = async (
   itemId: string,
   recommendation: DeepPartial<Recommendation>,
   authToken: string,
-  highlightIds?: string[]
+  highlightIds?: string[],
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -472,7 +472,7 @@ export const enqueueImportFromIntegration = async (
   integrationName: string,
   syncAt: number, // unix timestamp in milliseconds
   authToken: string,
-  state: ImportItemState
+  state: ImportItemState,
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -524,7 +524,7 @@ export const enqueueExportToIntegration = async (
   integrationId: string,
   integrationName: string,
   syncAt: number, // unix timestamp in milliseconds
-  authToken: string
+  authToken: string,
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -573,7 +573,7 @@ export const enqueueExportToIntegration = async (
 
 export const enqueueThumbnailTask = async (
   userId: string,
-  slug: string
+  slug: string,
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT } = process.env
   const payload = {
@@ -631,18 +631,18 @@ export interface RssSubscriptionGroup {
 }
 
 export const enqueueRssFeedFetch = async (
-  subscriptionGroup: RssSubscriptionGroup
+  subscriptionGroup: RssSubscriptionGroup,
 ): Promise<string> => {
   const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
   const payload = {
     subscriptionIds: subscriptionGroup.subscriptionIds,
     feedUrl: subscriptionGroup.url,
     lastFetchedTimestamps: subscriptionGroup.fetchedDates.map(
-      (timestamp) => timestamp?.getTime() || 0
+      (timestamp) => timestamp?.getTime() || 0,
     ), // unix timestamp in milliseconds
     lastFetchedChecksums: subscriptionGroup.checksums,
     scheduledTimestamps: subscriptionGroup.scheduledDates.map((timestamp) =>
-      timestamp.getTime()
+      timestamp.getTime(),
     ), // unix timestamp in milliseconds
     userIds: subscriptionGroup.userIds,
     fetchContents: subscriptionGroup.fetchContents,
@@ -657,7 +657,7 @@ export const enqueueRssFeedFetch = async (
         axios
           .post(
             `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
-            payload
+            payload,
           )
           .catch((error) => {
             logError(error)

@@ -78,7 +78,7 @@ export const labelRepository = appDataSource.getRepository(Label).extend({
       {
         conflictPaths: ['name', 'user'],
         skipUpdateIfNoValuesChanged: true,
-      }
+      },
     )
   },
 

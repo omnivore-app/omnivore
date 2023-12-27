@@ -45,7 +45,7 @@ export const search = async (
   highlightOnly: boolean,
   updatedSince: Date,
   first = 50,
-  after = '0'
+  after = '0',
 ): Promise<SearchResponse | null> => {
   const query = `updated:${updatedSince.toISOString()} ${
     highlightOnly ? 'has:highlights' : ''
@@ -101,7 +101,7 @@ export const search = async (
           'Content-Type': 'application/json',
           'X-OmnivoreClient': 'integration-handler',
         },
-      }
+      },
     )
 
     return response.data

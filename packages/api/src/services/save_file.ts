@@ -43,7 +43,7 @@ export const saveFile = async (
   await createAndSaveLabelsInLibraryItem(
     input.clientRequestId,
     user.id,
-    input.labels
+    input.labels,
   )
 
   return {

@@ -23,7 +23,7 @@ export const createNewsletterEmail = async (
   confirmationCode?: string,
   folder?: string,
   name?: string,
-  description?: string
+  description?: string,
 ): Promise<NewsletterEmail> => {
   const user = await userRepository.findById(userId)
   if (!user) {
@@ -119,7 +119,7 @@ export const findNewsletterEmailById = async (
 export const updateNewsletterEmail = async (
   id: string,
   userId: string,
-  newsletterEmail: Partial<NewsletterEmail>
+  newsletterEmail: Partial<NewsletterEmail>,
 ): Promise<NewsletterEmail | null> => {
   const repo = getRepository(NewsletterEmail)
   const result = await repo

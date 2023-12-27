@@ -26,7 +26,7 @@ export interface NewsletterMessage {
 export const saveNewsletter = async (
   data: NewsletterMessage,
   newsletterEmail: NewsletterEmail,
-  existingSubscription?: Subscription
+  existingSubscription?: Subscription,
 ): Promise<boolean> => {
   analytics.track({
     userId: newsletterEmail.user.id,

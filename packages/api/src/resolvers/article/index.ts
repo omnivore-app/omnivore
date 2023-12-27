@@ -364,7 +364,7 @@ export const createArticleResolver = authorized<
         libraryItemToReturn.id,
         uid,
         inputLabels,
-        rssFeedUrl
+        rssFeedUrl,
       )
 
       log.info(
@@ -829,7 +829,7 @@ export const bulkActionResolver = authorized<
   async (
     _parent,
     { query, action, labelIds, arguments: args }, // arguments is a reserved keyword in JS
-    { uid, log }
+    { uid, log },
   ) => {
     try {
       analytics.track({
@@ -868,7 +868,7 @@ export const bulkActionResolver = authorized<
         },
         uid,
         labels,
-        args
+        args,
       )
 
       return { success: true }
@@ -876,7 +876,7 @@ export const bulkActionResolver = authorized<
       log.error('bulkActionResolver error', error)
       return { errorCodes: [BulkActionErrorCode.BadRequest] }
     }
-  }
+  },
 )
 
 export const setFavoriteArticleResolver = authorized<
@@ -932,7 +932,7 @@ export const moveToFolderResolver = authorized<
         id,
       },
       relations: ['user'],
-    })
+    }),
   )
 
   if (!item) {
@@ -956,7 +956,7 @@ export const moveToFolderResolver = authorized<
       savedAt,
     },
     uid,
-    pubsub
+    pubsub,
   )
 
   // if the content is not fetched yet, create a page save request

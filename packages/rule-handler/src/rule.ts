@@ -125,8 +125,8 @@ export const triggerActions = async (
                 authToken,
                 data.id,
                 labelIdsToSet,
-                rule.name
-              )
+                rule.name,
+              ),
             )
           )
         }

@@ -36,7 +36,7 @@ export interface SaveFollowingItemRequest {
 }
 
 function isSaveFollowingItemRequest(
-  body: any
+  body: any,
 ): body is SaveFollowingItemRequest {
   return (
     'userIds' in body &&
@@ -101,11 +101,11 @@ export function followingServiceRouter() {
           .split('/')
           [pathname.split('/').length - 1].split('.')
           .slice(0, -1)
-          .join('.')
+          .join('.'),
       ).replace(/_/gi, ' ')
 
       const slug = generateSlug(
-        parsedResult?.parsedContent?.title || croppedPathname
+        parsedResult?.parsedContent?.title || croppedPathname,
       )
       const itemToSave = parsedContentToLibraryItem({
         url,
@@ -133,7 +133,7 @@ export function followingServiceRouter() {
         newItem.id,
         userId,
         [{ name: 'RSS' }],
-        feedUrl
+        feedUrl,
       )
 
       logger.info('RSS label added to the item')

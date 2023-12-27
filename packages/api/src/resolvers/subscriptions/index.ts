@@ -91,7 +91,7 @@ export const subscriptionsResolver = authorized<
           }).orWhere({
             type: SubscriptionType.Rss,
           })
-        })
+        }),
       )
     }
 
@@ -262,7 +262,7 @@ export const subscribeResolver = authorized<
         input.fetchContent ?? true,
         input.folder ?? 'following',
         MAX_RSS_SUBSCRIPTIONS,
-      ]
+      ],
     )) as any[]
 
     if (results.length === 0) {
@@ -376,7 +376,7 @@ export const feedsResolver = authorized<
       first + 1, // fetch one extra to check if there is a next page
       start,
       input.sort?.by,
-      input.sort?.order || undefined
+      input.sort?.order || undefined,
     )
 
     const hasNextPage = feeds.length > first
@@ -464,7 +464,7 @@ export const scanFeedsResolver = authorized<
       const dom = parseHTML(content).document
       // type is application/rss+xml or application/atom+xml
       const links = dom.querySelectorAll(
-        'link[type="application/rss+xml"], link[type="application/atom+xml"]'
+        'link[type="application/rss+xml"], link[type="application/atom+xml"]',
       )
 
       const feeds = Array.from(links)

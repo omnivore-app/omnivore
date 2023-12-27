@@ -164,7 +164,7 @@ export const savePage = async (
       clientRequestId,
       user.id,
       input.labels,
-      input.rssFeedUrl
+      input.rssFeedUrl,
     )
   }
 

@@ -53,7 +53,7 @@ export function rssFeedRouter() {
           SubscriptionType.Rss,
           SubscriptionStatus.Active,
           DEFAULT_SUBSCRIPTION_FOLDER,
-        ]
+        ],
       )) as RssSubscriptionGroup[]
 
       // create a cloud taks to fetch rss feed item for each subscription
