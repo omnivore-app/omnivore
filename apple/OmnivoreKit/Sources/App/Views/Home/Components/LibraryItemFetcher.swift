@@ -137,7 +137,6 @@ import Views
       // this can occur if there are non-contiguous items in our list causing older
       // items to be synced back into those "holes" in the list
       if let cursor = cursor, let currentCursor = Int(cursor) {
-        print("IDX: ", idx, " CURSOR: ", cursor, " CURRENT CURSOR: ", currentCursor)
         if currentCursor > idx {
           useCursor = currentCursor.description
         }

@@ -876,6 +876,10 @@ struct AnimatingCellHeight: AnimatableModifier {
       FiltersHeader(viewModel: viewModel)
     }
 
+    func menuItems(for item: Models.LibraryItem) -> some View {
+      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
+    }
+
     var body: some View {
       VStack(alignment: .leading) {
         Color.systemBackground.frame(height: 1)
@@ -896,39 +900,37 @@ struct AnimatingCellHeight: AnimatableModifier {
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
             if viewModel.showLoadingBar {
-              ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.id) { _, item in
-                GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: { _ in
-
-                })
+              ForEach(fakeLibraryItems(dataService: dataService), id: \.id) { item in
+                GridCard(item: item)
                   .aspectRatio(1.0, contentMode: .fill)
-                  .background(
-                    Color.secondarySystemGroupedBackground
-                      .onTapGesture {
-                        if isContextMenuOpen {
-                          isContextMenuOpen = false
-                        }
-                      }
-                  )
+                  .background(Color.systemBackground)
                   .cornerRadius(6)
               }.redacted(reason: .placeholder)
             } else {
-              ForEach(viewModel.fetcher.items) { item in
+              ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in
                 LibraryItemGridCardNavigationLink(
                   item: item,
-                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-                  isContextMenuOpen: $isContextMenuOpen,
                   viewModel: viewModel
                 )
+                .contextMenu {
+                  menuItems(for: item)
+                }
+                .onAppear {
+                  if idx >= viewModel.fetcher.items.count - 5 {
+                    Task {
+                      await viewModel.loadMore(dataService: dataService)
+                    }
+                  }
+                }
               }
             }
-            BottomView(viewModel: viewModel)
             Spacer()
           }
           .frame(maxHeight: .infinity)
           .padding()
           .background(
             GeometryReader {
-              Color(.systemGroupedBackground).preference(
+              Color(.systemBackground).preference(
                 key: ScrollViewOffsetPreferenceKey.self,
                 value: $0.frame(in: .global).origin.y
               )
@@ -942,11 +944,17 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           }
 
+          HStack {
+            Spacer()
+            BottomView(viewModel: viewModel).frame(maxWidth: 300)
+            Spacer()
+          }
+
           if viewModel.fetcher.items.isEmpty, viewModel.isLoading {
             LoadingSection()
           }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.systemBackground))
 
         Spacer()
       }
