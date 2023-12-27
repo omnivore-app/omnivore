@@ -9,16 +9,16 @@
   typealias DeleteHighlightAction = (String) -> Void
 
   struct NotebookView: View {
+    @StateObject var viewModel: NotebookViewModel
+
     @EnvironmentObject var dataService: DataService
     @Environment(\.presentationMode) private var presentationMode
-    @StateObject var viewModel = NotebookViewModel()
 
     @State var showAnnotationModal = false
     @State var errorAlertMessage: String?
     @State var showErrorAlertMessage = false
     @State var noteAnnotation = ""
 
-    let itemObjectID: NSManagedObjectID
     @Binding var hasHighlightMutations: Bool
     @State var setLabelsHighlight: Highlight?
     @State var showShareView: Bool = false
@@ -168,7 +168,7 @@
             annotation: $noteAnnotation,
             onSave: {
               viewModel.updateNoteAnnotation(
-                itemObjectID: itemObjectID,
+                itemObjectID: viewModel.item.objectID,
                 annotation: noteAnnotation,
                 dataService: dataService
               )
@@ -224,7 +224,7 @@
         #endif
       }
       .task {
-        viewModel.load(itemObjectID: itemObjectID, dataService: dataService)
+        viewModel.load(itemObjectID: viewModel.item.objectID, dataService: dataService)
       }
     }
   }

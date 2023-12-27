@@ -44,6 +44,8 @@ const FONT_FAMILIES = [
   'LXGWWenKai',
   'AtkinsonHyperlegible',
   'IBMPlexSans',
+  'Fraunces',
+  'Literata',
 ]
 
 type SettingsProps = {

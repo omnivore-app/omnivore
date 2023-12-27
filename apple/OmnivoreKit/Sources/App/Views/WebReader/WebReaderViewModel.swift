@@ -16,6 +16,10 @@ struct SafariWebLink: Identifiable {
   @Published var isDownloadingAudio: Bool = false
   @Published var audioDownloadTask: Task<Void, Error>?
 
+  @Published var operationMessage: String?
+  @Published var showOperationToast: Bool = false
+  @Published var operationStatus: OperationStatus = .none
+
   @Published var showSnackbar: Bool = false
   var snackbarOperation: SnackbarOperation?
 
@@ -24,7 +28,7 @@ struct SafariWebLink: Identifiable {
     showSnackbar = true
   }
 
-  func hasOriginalUrl(_ item: LinkedItem) -> Bool {
+  func hasOriginalUrl(_ item: Models.LibraryItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
       if host == "omnivore.app" {
         return false
@@ -34,7 +38,7 @@ struct SafariWebLink: Identifiable {
     return false
   }
 
-  func downloadAudio(audioController: AudioController, item: LinkedItem) {
+  func downloadAudio(audioController: AudioController, item: Models.LibraryItem) {
     snackbar(message: "Downloading Offline Audio")
     isDownloadingAudio = true
 

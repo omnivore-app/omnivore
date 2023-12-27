@@ -8,26 +8,39 @@
 import Models
 import Services
 import SwiftUI
+import Transmission
 import Views
 
 struct LibraryFeatureCardNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  let item: LinkedItem
+  let item: Models.LibraryItem
   @ObservedObject var viewModel: HomeFeedViewModel
 
   @State var showFeatureActions = false
 
   var body: some View {
-    NavigationLink(destination: LinkItemDetailView(
-      linkedItemObjectID: item.objectID,
-      isPDF: item.isPDF
-    )) {
-      LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
-    }
+    PresentationLink(
+      transition: PresentationLinkTransition.slide(
+        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                   options:
+                                                                   PresentationLinkTransition.Options(
+                                                                     modalPresentationCapturesStatusBarAppearance: true
+                                                                   ))),
+      destination: {
+        LinkItemDetailView(
+          linkedItemObjectID: item.objectID,
+          isPDF: item.isPDF
+        )
+        .background(ThemeManager.currentBgColor)
+      }, label: {
+        LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
+      }
+    )
+    .buttonStyle(.plain)
     .confirmationDialog("", isPresented: $showFeatureActions) {
-      if FeaturedItemFilter(rawValue: viewModel.featureFilter) == .pinned {
+      if FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) == .pinned {
         Button("Unpin", action: {
           viewModel.unpinItem(dataService: dataService, item: item)
         })
@@ -39,9 +52,9 @@ struct LibraryFeatureCardNavigationLink: View {
         viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: true)
       })
       Button("Remove", action: {
-        viewModel.removeLink(dataService: dataService, objectID: item.objectID)
+        viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
       })
-      if FeaturedItemFilter(rawValue: viewModel.featureFilter) != .pinned {
+      if FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) != .pinned {
         Button("Mark Read", action: {
           viewModel.markRead(dataService: dataService, item: item)
         })

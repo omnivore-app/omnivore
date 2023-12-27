@@ -1,5 +1,6 @@
 scalars:
   Date: DateTime
+  JSON: String
   SanitizedString: String
   SanitizedString_undefined_15: String
   SanitizedString_undefined_40: String

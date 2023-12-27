@@ -19,7 +19,7 @@ public enum Theme: String, CaseIterable {
   public var bgColor: Color {
     switch self {
     case .system:
-      return Color.isDarkMode ? .systemBackground : .white
+      return Color.isDarkMode ? .black : .white
     case .light:
       return .white
     case .dark:
@@ -29,6 +29,10 @@ public enum Theme: String, CaseIterable {
     case .apollo:
       return Color(hex: "#6A6968") ?? Color.black
     }
+  }
+
+  public var toolbarColor: Color {
+    ThemeManager.currentTheme.isDark ? Color.themeDarkWhiteGray : Color.themeMiddleGray
   }
 
   public var highlightColor: Color {

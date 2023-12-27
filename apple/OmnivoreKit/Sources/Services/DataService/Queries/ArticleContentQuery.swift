@@ -5,7 +5,7 @@ import SwiftGraphQL
 import Utils
 
 struct ArticleProps {
-  let item: InternalLinkedItem
+  let item: InternalLibraryItem
   let htmlContent: String
   let highlights: [InternalHighlight]
 }
@@ -20,13 +20,14 @@ extension DataService {
 
     let articleContentSelection = Selection.Article {
       ArticleProps(
-        item: InternalLinkedItem(
+        item: InternalLibraryItem(
           id: try $0.id(),
           title: try $0.title(),
           createdAt: try $0.createdAt().value ?? Date(),
           savedAt: try $0.savedAt().value ?? Date(),
           readAt: try $0.readAt()?.value,
           updatedAt: try $0.updatedAt()?.value ?? Date(),
+          folder: try $0.folder(),
           state: try $0.state()?.rawValue.asArticleContentStatus ?? .succeeded,
           readingProgress: try $0.readingProgressPercent(),
           readingProgressAnchor: try $0.readingProgressAnchorIndex(),

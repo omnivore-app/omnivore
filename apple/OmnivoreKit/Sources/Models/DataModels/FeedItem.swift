@@ -47,6 +47,7 @@ public struct JSONArticle: Decodable {
   public let updatedAt: Date
   public let savedAt: Date
   public let readAt: Date?
+  public let folder: String
   public let image: String
   public let readingProgressPercent: Double
   public let readingProgressAnchorIndex: Int
@@ -59,7 +60,7 @@ public struct JSONArticle: Decodable {
   public let downloadURL: String
 }
 
-public extension LinkedItem {
+public extension LibraryItem {
   var unwrappedID: String { id ?? "" }
   var unwrappedSlug: String { slug ?? "" }
   var unwrappedTitle: String { title ?? "" }
@@ -247,13 +248,13 @@ public extension LinkedItem {
     )
   }
 
-  static func lookup(byID itemID: String, inContext context: NSManagedObjectContext) -> LinkedItem? {
-    let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+  static func lookup(byID itemID: String, inContext context: NSManagedObjectContext) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "id == %@", itemID
     )
 
-    var item: LinkedItem?
+    var item: LibraryItem?
 
     context.performAndWait {
       item = (try? context.fetch(fetchRequest))?.first

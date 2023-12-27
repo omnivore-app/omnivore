@@ -1,8 +1,10 @@
 import CoreData
 import Foundation
+import Models
 import Utils
 
 public struct PDFItem {
+  public let item: Models.LibraryItem
   public let objectID: NSManagedObjectID
   public let itemID: String
   public let pdfURL: URL?
@@ -15,12 +17,13 @@ public struct PDFItem {
   public let isArchived: Bool
   public let isRead: Bool
   public let downloadURL: String
-  public let highlights: [Highlight]
+  public var highlights: [Highlight]
 
-  public static func make(item: LinkedItem) -> PDFItem? {
+  public static func make(item: LibraryItem) -> PDFItem? {
     guard item.isPDF else { return nil }
 
     return PDFItem(
+      item: item,
       objectID: item.objectID,
       itemID: item.unwrappedID,
       pdfURL: URL(string: item.unwrappedPageURLString),

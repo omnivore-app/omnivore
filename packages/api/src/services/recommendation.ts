@@ -36,30 +36,31 @@ export const addRecommendation = async (
         thumbnail: item.thumbnail,
         uploadFile: item.uploadFile,
         wordCount: item.wordCount,
+        publishedAt: item.publishedAt,
       }
 
       recommendedItem = await createLibraryItem(newItem, userId)
-    }
 
-    const highlights = item.highlights
-      ?.filter((highlight) => highlightIds?.includes(highlight.id))
-      .map((highlight) => ({
-        shortId: nanoid(8),
-        createdAt: new Date(),
-        libraryItem: { id: recommendedItem?.id },
-        user: { id: userId },
-        quote: highlight.quote,
-        annotation: highlight.annotation,
-        prefix: highlight.prefix,
-        suffix: highlight.suffix,
-        patch: highlight.patch,
-        updatedAt: new Date(),
-        sharedAt: new Date(),
-        html: highlight.html,
-        color: highlight.color,
-      }))
-    if (highlights) {
-      await createHighlights(highlights, userId)
+      const highlights = item.highlights
+        ?.filter((highlight) => highlightIds?.includes(highlight.id))
+        .map((highlight) => ({
+          shortId: nanoid(8),
+          createdAt: new Date(),
+          libraryItem: { id: recommendedItem?.id },
+          user: { id: userId },
+          quote: highlight.quote,
+          annotation: highlight.annotation,
+          prefix: highlight.prefix,
+          suffix: highlight.suffix,
+          patch: highlight.patch,
+          updatedAt: new Date(),
+          sharedAt: new Date(),
+          html: highlight.html,
+          color: highlight.color,
+        }))
+      if (highlights) {
+        await createHighlights(highlights, userId)
+      }
     }
 
     await createRecommendation(

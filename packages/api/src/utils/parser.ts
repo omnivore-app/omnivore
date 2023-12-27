@@ -12,6 +12,8 @@ import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
 import { ElementNode } from 'node-html-markdown/dist/nodes'
+import Parser from 'rss-parser'
+import { parser } from 'sax'
 import { ILike } from 'typeorm'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
@@ -31,8 +33,25 @@ import {
 import { createImageProxyUrl } from './imageproxy'
 import { buildLogger, LogRecord } from './logger'
 
+interface Feed {
+  title: string
+  url: string
+  type: string
+  thumbnail?: string
+  description?: string
+}
+
 const logger = buildLogger('utils.parse')
 const signToken = promisify(jwt.sign)
+
+const axiosInstance = axios.create({
+  timeout: 5000,
+  headers: {
+    'User-Agent': 'Mozilla/5.0',
+    Accept: 'text/html',
+  },
+  responseType: 'text',
+})
 
 export const ALLOWED_CONTENT_TYPES = [
   'text/html',
@@ -56,6 +75,16 @@ const DOM_PURIFY_CONFIG = {
 const ARTICLE_PREFIX = 'omnivore:'
 
 export const FAKE_URL_PREFIX = 'https://omnivore.app/no_url?q='
+export const RSS_PARSER_CONFIG = {
+  timeout: 5000, // 5 seconds
+  headers: {
+    // some rss feeds require user agent
+    'User-Agent':
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
+    Accept:
+      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4, text/html;q=0.2',
+  },
+}
 
 /** Hook that prevents DOMPurify from removing youtube iframes */
 const domPurifySanitizeHook = (
@@ -151,7 +180,7 @@ const getPurifiedContent = (html: string): Document => {
 const getReadabilityResult = async (
   url: string,
   html: string,
-  document: Document,
+  document?: Document,
   isNewsletter?: boolean,
 ): Promise<Readability.ParseResult | null> => {
   // First attempt to read the article as is.
@@ -701,5 +730,121 @@ export const getDistillerResult = async (
       logger.error(error)
     }
     return undefined
+  }
+}
+
+const fetchHtml = async (url: string): Promise<string | null> => {
+  try {
+    const response = await axiosInstance.get(url)
+    return response.data as string
+  } catch (error) {
+    logger.error('Error fetching html', error)
+    return null
+  }
+}
+
+export const parseOpml = (opml: string): Feed[] | undefined => {
+  const xmlParser = parser(true, { lowercase: true })
+  const feeds: Feed[] = []
+  const existingFeeds = new Map<string, boolean>()
+
+  xmlParser.onopentag = function (node) {
+    if (node.name === 'outline') {
+      // folders also are outlines, make sure an xmlUrl is available
+      const feedUrl = node.attributes.xmlUrl.toString()
+      if (feedUrl && !existingFeeds.has(feedUrl)) {
+        feeds.push({
+          title: node.attributes.title.toString() || '',
+          url: feedUrl,
+          type: node.attributes.type.toString() || 'rss',
+        })
+        existingFeeds.set(feedUrl, true)
+      }
+    }
+  }
+
+  xmlParser.onend = function () {
+    return feeds
+  }
+
+  try {
+    xmlParser.write(opml).close()
+  } catch (error) {
+    logger.error('Error parsing opml', error)
+    return undefined
+  }
+}
+
+export const parseHtml = async (url: string): Promise<Feed[] | undefined> => {
+  // fetch HTML and parse feeds
+  const html = await fetchHtml(url)
+  if (!html) return undefined
+
+  try {
+    const dom = parseHTML(html).document
+    const links = dom.querySelectorAll('link[type="application/rss+xml"]')
+    const feeds = Array.from(links)
+      .map((link) => ({
+        url: link.getAttribute('href') || '',
+        title: link.getAttribute('title') || '',
+        type: 'rss',
+      }))
+      .filter((feed) => feed.url)
+
+    return feeds
+  } catch (error) {
+    logger.error('Error parsing html', error)
+    return undefined
+  }
+}
+
+export const parseFeed = async (
+  url: string,
+  content?: string | null
+): Promise<Feed | null> => {
+  try {
+    // check if url is a telegram channel
+    const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
+    const telegramMatch = url.match(telegramRegex)
+    if (telegramMatch) {
+      if (!content) {
+        // fetch HTML and parse feeds
+        content = await fetchHtml(url)
+      }
+
+      if (!content) return null
+
+      const dom = parseHTML(content).document
+      const title = dom.querySelector('meta[property="og:title"]')
+      const thumbnail = dom.querySelector('meta[property="og:image"]')
+      const description = dom.querySelector('meta[property="og:description"]')
+
+      return {
+        title: title?.getAttribute('content') || url,
+        url,
+        type: 'telegram',
+        thumbnail: thumbnail?.getAttribute('content') || '',
+        description: description?.getAttribute('content') || '',
+      }
+    }
+
+    const parser = new Parser(RSS_PARSER_CONFIG)
+
+    const feed = content
+      ? await parser.parseString(content)
+      : await parser.parseURL(url)
+
+    const feedUrl = feed.feedUrl || url
+
+    return {
+      title: feed.title || feedUrl,
+      url: feedUrl,
+      thumbnail: feed.image?.url,
+      type: 'rss',
+      description: feed.description,
+    }
+  } catch (error) {
+    logger.error('Error parsing feed', error)
+    return null
   }
 }

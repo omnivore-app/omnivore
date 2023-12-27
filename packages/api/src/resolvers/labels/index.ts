@@ -1,4 +1,5 @@
 import { Between } from 'typeorm'
+import { isLabelSource, LabelSource } from '../../entity/entity_label'
 import { Label } from '../../entity/label'
 import { env } from '../../env'
 import {
@@ -80,7 +81,7 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         errorCodes: [LabelsErrorCode.BadRequest],
       }
     }
-  },
+  }
 )
 
 export const createLabelResolver = authorized<
@@ -160,14 +161,29 @@ export const setLabelsResolver = authorized<
 >(
   async (
     _,
-    { input: { pageId, labelIds, labels } },
-    { uid, log, authTrx, pubsub },
+    { input: { pageId, labelIds, labels, source } },
+    { uid, log, authTrx, pubsub }
   ) => {
     if (!labelIds && !labels) {
       log.error('labelIds or labels must be provided')
       return {
         errorCodes: [SetLabelsErrorCode.BadRequest],
       }
+    }
+
+    let labelSource: LabelSource | undefined
+
+    // check if source is valid
+    if (source) {
+      if (!isLabelSource(source)) {
+        log.error('invalid source', source)
+
+        return {
+          errorCodes: [SetLabelsErrorCode.BadRequest],
+        }
+      }
+
+      labelSource = source
     }
 
     try {
@@ -191,7 +207,7 @@ export const setLabelsResolver = authorized<
       }
 
       // save labels in the library item
-      await saveLabelsInLibraryItem(labelsSet, pageId, uid, pubsub)
+      await saveLabelsInLibraryItem(labelsSet, pageId, uid, labelSource, pubsub)
 
       analytics.track({
         userId: uid,
@@ -212,7 +228,7 @@ export const setLabelsResolver = authorized<
         errorCodes: [SetLabelsErrorCode.BadRequest],
       }
     }
-  },
+  }
 )
 
 export const updateLabelResolver = authorized<
@@ -336,12 +352,12 @@ export const moveLabelResolver = authorized<
         {
           position: Between(
             Math.min(newPosition, oldPosition),
-            Math.max(newPosition, oldPosition),
+            Math.max(newPosition, oldPosition)
           ),
         },
         {
           position: () => `position + ${moveUp ? 1 : -1}`,
-        },
+        }
       )
       if (!updated.affected) {
         return null

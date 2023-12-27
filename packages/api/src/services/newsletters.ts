@@ -7,6 +7,7 @@ import {
 } from '../generated/graphql'
 import { getRepository } from '../repository'
 import { userRepository } from '../repository/user'
+import { keysToCamelCase } from '../utils/helpers'
 import addressparser = require('nodemailer/lib/addressparser')
 
 const parsedAddress = (emailAddress: string) => {
@@ -20,6 +21,9 @@ const parsedAddress = (emailAddress: string) => {
 export const createNewsletterEmail = async (
   userId: string,
   confirmationCode?: string,
+  folder?: string,
+  name?: string,
+  description?: string
 ): Promise<NewsletterEmail> => {
   const user = await userRepository.findById(userId)
   if (!user) {
@@ -34,6 +38,9 @@ export const createNewsletterEmail = async (
     address: emailAddress,
     user,
     confirmationCode,
+    name,
+    description,
+    folder,
   })
 }
 
@@ -107,4 +114,29 @@ export const findNewsletterEmailById = async (
   id: string,
 ): Promise<NewsletterEmail | null> => {
   return getRepository(NewsletterEmail).findOneBy({ id })
+}
+
+export const updateNewsletterEmail = async (
+  id: string,
+  userId: string,
+  newsletterEmail: Partial<NewsletterEmail>
+): Promise<NewsletterEmail | null> => {
+  const repo = getRepository(NewsletterEmail)
+  const result = await repo
+    .createQueryBuilder()
+    .where('id = :id', { id })
+    .andWhere('user_id = :userId', { userId })
+    .update(newsletterEmail)
+    .returning('*')
+    .execute()
+
+  if (
+    !result.affected ||
+    !Array.isArray(result.raw) ||
+    result.raw.length === 0
+  ) {
+    return null
+  }
+
+  return keysToCamelCase(result.raw[0]) as NewsletterEmail
 }

@@ -12,12 +12,12 @@ public enum GridCardAction {
 
 public struct GridCard: View {
   @Binding var isContextMenuOpen: Bool
-  let item: LinkedItem
+  let item: LibraryItemData
   let actionHandler: (GridCardAction) -> Void
   // let tapAction: () -> Void
 
   public init(
-    item: LinkedItem,
+    item: LibraryItemData,
     isContextMenuOpen: Binding<Bool>,
     actionHandler: @escaping (GridCardAction) -> Void
   ) {
@@ -51,7 +51,7 @@ public struct GridCard: View {
       )
       Button(
         action: { menuActionHandler(.editLabels) },
-        label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
+        label: { Label(item.sortedLabels.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
       )
       Button(
         action: { menuActionHandler(.toggleArchiveStatus) },
@@ -77,7 +77,7 @@ public struct GridCard: View {
           CachedAsyncImage(url: imageURL) { phase in
             switch phase {
             case .empty:
-              Color.systemBackground
+              Color.clear
                 .frame(maxWidth: .infinity, maxHeight: geo.size.height)
             case let .success(image):
               image.resizable()
@@ -93,7 +93,7 @@ public struct GridCard: View {
               // we need to add this currently unused fallback
               // to handle any new cases that might be added
               // in the future:
-              Color.systemBackground
+              Color.clear
                 .frame(maxWidth: .infinity, maxHeight: geo.size.height)
             }
           }
@@ -107,19 +107,55 @@ public struct GridCard: View {
     .cornerRadius(5)
   }
 
+  var fallbackFont: Font {
+    if let uifont = UIFont(name: "Futura Bold", size: 16) {
+      return Font(uifont)
+    }
+    return Font.system(size: 16)
+  }
+
   var fallbackImage: some View {
     GeometryReader { geo in
       HStack {
-        Text(item.unwrappedTitle.prefix(1))
-          .font(Font.system(size: 128, weight: .bold))
-          .offset(CGSize(width: -48, height: 12))
-          .frame(alignment: .bottomLeading)
-          .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+        Text(item.title)
+          .font(fallbackFont)
+          .frame(alignment: .center)
+          .multilineTextAlignment(.leading)
+          .lineLimit(2)
+          .padding(10)
+          .foregroundColor(Color.thFallbackImageForeground)
       }
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
-      .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+      .background(Color.thFallbackImageBackground)
       .frame(width: geo.size.width, height: geo.size.height)
+    }
+  }
+
+  var bylineStr: String {
+    // It seems like it could be cleaner just having author, instead of
+    // concating, maybe we fall back
+    if let author = item.author {
+      return author
+    } else if let publisherDisplayName = item.publisherDisplayName {
+      return publisherDisplayName
+    }
+
+    return ""
+  }
+
+  var byLine: some View {
+    if let origin = cardSiteName(item.pageURLString) {
+      Text(bylineStr + " | " + origin)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    } else {
+      Text(bylineStr)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
     }
   }
 
@@ -132,29 +168,13 @@ public struct GridCard: View {
 
           VStack(alignment: .leading, spacing: 4) {
             HStack {
-              Text(item.unwrappedTitle)
+              Text(item.title)
                 .font(.appHeadline)
                 .foregroundColor(.appGrayTextContrast)
                 .lineLimit(1)
             }
 
-            HStack {
-              if let author = item.author {
-                Text("by \(author)")
-                  .font(.appCaptionTwo)
-                  .foregroundColor(.appGrayText)
-                  .lineLimit(1)
-              }
-
-              if let publisherDisplayName = item.publisherDisplayName {
-                Text(publisherDisplayName)
-                  .font(.appCaptionTwo)
-                  .foregroundColor(.appGrayText)
-                  .lineLimit(1)
-              }
-
-              Spacer()
-            }
+            byLine
           }
           .frame(height: 30)
           .padding(.horizontal, 10)
@@ -163,7 +183,7 @@ public struct GridCard: View {
 
           // Link description and image
           HStack(alignment: .top) {
-            Text(item.descriptionText ?? item.unwrappedTitle)
+            Text(item.descriptionText ?? item.title)
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
               .lineLimit(3)

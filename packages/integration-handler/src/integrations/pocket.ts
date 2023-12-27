@@ -122,26 +122,18 @@ export class PocketClient extends IntegrationClient {
     }
 
     const pocketItems = Object.values(pocketData.list)
-    const statusToState: Record<string, string> = {
-      '0': 'SUCCEEDED',
-      '1': 'ARCHIVED',
-      '2': 'DELETED',
+    const statusToState: Record<string, State> = {
+      '0': State.SUCCEEDED,
+      '1': State.ARCHIVED,
+      '2': State.DELETED,
     }
-    const data = pocketItems
-      .map((item) => ({
-        url: item.given_url,
-        labels: item.tags
-          ? Object.values(item.tags).map((tag) => tag.tag)
-          : undefined,
-        state: statusToState[item.status],
-      }))
-      .filter((item) => {
-        if (item.state === 'DELETED') {
-          return false
-        }
-
-        return state !== State.UNARCHIVED || item.state !== 'ARCHIVED'
-      })
+    const data = pocketItems.map((item) => ({
+      url: item.given_url,
+      labels: item.tags
+        ? Object.values(item.tags).map((tag) => tag.tag)
+        : undefined,
+      state: statusToState[item.status],
+    }))
 
     if (pocketData.error) {
       throw new Error(`Error retrieving pocket data: ${pocketData.error}`)

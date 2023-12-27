@@ -6,6 +6,7 @@
 
   struct TextToSpeechLanguageView: View {
     @EnvironmentObject var audioController: AudioController
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
       Group {
@@ -19,6 +20,9 @@
           }
           .listStyle(InsetListStyle())
         #endif
+      }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+        dismiss()
       }
     }
 

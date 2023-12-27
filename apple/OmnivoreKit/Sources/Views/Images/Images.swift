@@ -5,24 +5,34 @@ public extension Image {
   static var omnivoreTitleLogo: Image { Image("_omnivoreTitleLogo", bundle: .module) }
   static var googleIcon: Image { Image("_googleIcon", bundle: .module) }
 
-  static var homeTab: Image { Image("BookmarksSimple", bundle: .module) }
-  static var homeTabSelected: Image { Image("_homeTabSelected", bundle: .module) }
-  static var profileTab: Image { Image("_profileTab", bundle: .module) }
-  static var profileTabSelected: Image { Image("_profileTabSelected", bundle: .module) }
   static var dotsThree: Image { Image("_dots-three", bundle: .module) }
 
-  static var tabSubscriptions: Image { Image("_tab_subscriptions", bundle: .module).renderingMode(.template) }
+  static var tabFollowing: Image { Image("_tab_following", bundle: .module).renderingMode(.template) }
   static var tabLibrary: Image { Image("_tab_library", bundle: .module).renderingMode(.template) }
-  static var tabBriefing: Image { Image("_tab_briefing", bundle: .module).renderingMode(.template) }
+  static var tabSearch: Image { Image("_tab_search", bundle: .module).renderingMode(.template) }
   static var tabHighlights: Image { Image("_tab_highlights", bundle: .module).renderingMode(.template) }
+  static var tabProfile: Image { Image("_tab_profile", bundle: .module).renderingMode(.template) }
+
+  static var toolbarArchive: Image { Image("toolbar-archive", bundle: .module).renderingMode(.template) }
+  static var toolbarUnarchive: Image { Image("toolbar-unarchive", bundle: .module).renderingMode(.template) }
+
+  static var toolbarShare: Image { Image("toolbar-share", bundle: .module).renderingMode(.template) }
+  static var toolbarTrash: Image { Image("toolbar-trash", bundle: .module).renderingMode(.template) }
 
   static var pinRotated: Image { Image("pin-rotated", bundle: .module) }
 
   static var chevronRight: Image { Image("chevron-right", bundle: .module) }
   static var notebook: Image { Image("notebook", bundle: .module) }
   static var headphones: Image { Image("headphones", bundle: .module) }
+
+  static var audioPlay: Image { Image("header-play", bundle: .module) }
+  static var audioPause: Image { Image("header-pause", bundle: .module) }
   static var readerSettings: Image { Image("reader-settings", bundle: .module) }
   static var utilityMenu: Image { Image("utility-menu", bundle: .module) }
+
+  static var addLink: Image { Image("add-link", bundle: .module) }
+  static var selectMultiple: Image { Image("select-multiple", bundle: .module) }
+  static var magnifyingGlass: Image { Image("magnifying-glass", bundle: .module) }
 
   static var archive: Image { Image("archive", bundle: .module) }
   static var unarchive: Image { Image("unarchive", bundle: .module) }

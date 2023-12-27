@@ -4,12 +4,12 @@ import Models
 import SwiftGraphQL
 
 struct InternalLinkedItemQueryResult {
-  let items: [InternalLinkedItem]
+  let items: [InternalLibraryItem]
   let cursor: String?
 }
 
 struct InternalLinkedItemUpdatesQueryResult {
-  let items: [InternalLinkedItem]
+  let items: [InternalLibraryItem]
   let deletedItemIDs: [String]
   let cursor: String?
   let hasMoreItems: Bool
@@ -19,7 +19,7 @@ struct InternalLinkedItemUpdatesQueryResult {
 private struct SyncItemEdge {
   let itemID: String
   let isDeletedItem: Bool
-  let item: InternalLinkedItem?
+  let item: InternalLibraryItem?
 }
 
 extension DataService {
@@ -90,7 +90,7 @@ extension DataService {
 
         switch payload.data {
         case let .success(result: result):
-          var items = [InternalLinkedItem]()
+          var items = [InternalLibraryItem]()
           var deletedItemIDs = [String]()
 
           for edge in result.edges {
@@ -186,13 +186,13 @@ extension DataService {
   ///   - itemID: id of the item being requested
   /// - Returns: Returns an `InternalLinkedItem` or throws a `ContentFetchError` if
   /// request could not be completed
-  func fetchLinkedItem(username: String, itemID: String) async throws -> InternalLinkedItem {
+  func fetchLinkedItem(username: String, itemID: String) async throws -> InternalLibraryItem {
     struct ArticleProps {
-      let item: InternalLinkedItem
+      let item: InternalLibraryItem
     }
 
     enum QueryResult {
-      case success(result: InternalLinkedItem)
+      case success(result: InternalLibraryItem)
       case error(error: String)
     }
 
@@ -252,13 +252,14 @@ let recommendationSelection = Selection.Recommendation {
 }
 
 private let libraryArticleSelection = Selection.Article {
-  InternalLinkedItem(
+  InternalLibraryItem(
     id: try $0.id(),
     title: try $0.title(),
     createdAt: try $0.createdAt().value ?? Date(),
     savedAt: try $0.savedAt().value ?? Date(),
     readAt: try $0.readAt()?.value,
     updatedAt: try $0.updatedAt()?.value ?? Date(),
+    folder: try $0.folder(),
     state: try $0.state()?.rawValue.asArticleContentStatus ?? .succeeded,
     readingProgress: try $0.readingProgressPercent(),
     readingProgressAnchor: try $0.readingProgressAnchorIndex(),
@@ -292,13 +293,14 @@ private let syncItemEdgeSelection = Selection.SyncUpdatedItemEdge {
 }
 
 private let searchItemSelection = Selection.SearchItem {
-  InternalLinkedItem(
+  InternalLibraryItem(
     id: try $0.id(),
     title: try $0.title(),
     createdAt: try $0.createdAt().value ?? Date(),
     savedAt: try $0.savedAt().value ?? Date(),
     readAt: try $0.readAt()?.value,
     updatedAt: try $0.updatedAt()?.value ?? Date(),
+    folder: try $0.folder(),
     state: try $0.state()?.rawValue.asArticleContentStatus ?? .succeeded,
     readingProgress: try $0.readingProgressPercent(),
     readingProgressAnchor: try $0.readingProgressAnchorIndex(),

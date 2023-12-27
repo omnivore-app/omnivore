@@ -231,7 +231,7 @@ const sendCreateArticleMutation = async (userId, input) => {
       }
     }`,
     variables: {
-      input: Object.assign({}, input , { source: 'puppeteer-parse' }),
+      input,
     },
   });
 
@@ -308,6 +308,10 @@ const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId
       url: encodeURI(url),
       articleSavingRequestId,
       uploadFileId: uploadFileId,
+      state,
+      labels,
+      source,
+      folder,
     },
   );
 };
@@ -349,6 +353,7 @@ async function fetchContent(req, res) {
   const rssFeedUrl = req.body.rssFeedUrl;
   const savedAt = req.body.savedAt;
   const publishedAt = req.body.publishedAt;
+  const folder = req.body.folder;
 
   let logRecord = {
     url: urlStr,
@@ -365,6 +370,7 @@ async function fetchContent(req, res) {
     rssFeedUrl,
     savedAt,
     publishedAt,
+    folder,
   };
 
   console.info(`Article parsing request`, logRecord);
@@ -405,8 +411,19 @@ async function fetchContent(req, res) {
     }
 
     if (contentType === 'application/pdf') {
-      const uploadedFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
-      const uploadedPdf = await saveUploadedPdf(userId, finalUrl, uploadedFileId, articleSavingRequestId);
+      const uploadFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
+      const uploadedPdf = await sendCreateArticleMutation(userId, {
+        url: encodeURI(finalUrl),
+        articleSavingRequestId,
+        uploadFileId,
+        state,
+        labels,
+        source,
+        folder,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
+      });
       if (!uploadedPdf) {
         statusCode = 500;
         logRecord.error = 'error while saving uploaded pdf';
@@ -432,6 +449,7 @@ async function fetchContent(req, res) {
   } catch (e) {
     logRecord.error = e.message;
     console.error(`Error while retrieving page`, logRecord);
+    statusCode = 500;
 
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
@@ -442,6 +460,7 @@ async function fetchContent(req, res) {
       content = sbResult.domContent;
       title = sbResult.title;
       logRecord.fetchContentTime = Date.now() - fetchStartTime;
+      statusCode = 200;
     }
   } finally {
     // close browser context if it was opened
@@ -474,6 +493,7 @@ async function fetchContent(req, res) {
         savedAt,
         publishedAt,
         source,
+        folder,
       });
       if (!apiResponse) {
         logRecord.error = 'error while saving page';
@@ -492,7 +512,7 @@ async function fetchContent(req, res) {
     // mark import failed on the last failed retry
     const retryCount = req.headers['x-cloudtasks-taskretrycount'];
     if (retryCount == MAX_RETRY_COUNT) {
-      console.debug('max retry count reached');
+      console.info('max retry count reached');
       importStatus = importStatus || 'failed';
     }
 

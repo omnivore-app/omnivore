@@ -10,7 +10,7 @@ struct PendingLink {
 
 extension DataService {
   func prefetchPage(pendingLink: PendingLink, username: String) async {
-    let content = try? await loadArticleContent(username: username, itemID: pendingLink.itemID, useCache: false)
+    let content = try? await loadArticleContent(username: username, itemID: pendingLink.itemID, useCache: true)
 
     if content?.contentStatus == .processing, pendingLink.retryCount < 7 {
       let retryDelayInNanoSeconds = UInt64(pendingLink.retryCount * 2 * 1_000_000_000)
@@ -69,7 +69,7 @@ extension DataService {
   }
 
   func cachedArticleContent(itemID: String) async -> ArticleContent? {
-    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    let linkedItemFetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
     linkedItemFetchRequest.predicate = NSPredicate(
       format: "id == %@", itemID
     )
@@ -105,11 +105,11 @@ extension DataService {
 
     await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "id == %@", articleProps.item.id)
 
       let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
-      let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
+      let linkedItem = existingItem ?? LibraryItem(entity: LibraryItem.entity(), insertInto: self.backgroundContext)
       objectID = linkedItem.objectID
 
       let highlightObjects = articleProps.highlights.map {
@@ -190,14 +190,14 @@ extension DataService {
   /// - Returns: The id of the CoreData object if found.
   func linkedItemID(from requestID: String) async -> String? {
     await backgroundContext.perform(schedule: .immediate) {
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "createdId == %@ OR id == %@", requestID, requestID)
       return try? self.backgroundContext.fetch(fetchRequest).first?.unwrappedID
     }
   }
 
   func syncUnsyncedArticleContent(itemID: String) async {
-    let linkedItemFetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+    let linkedItemFetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
     linkedItemFetchRequest.predicate = NSPredicate(
       format: "id == %@", itemID
     )

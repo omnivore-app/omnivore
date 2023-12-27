@@ -191,6 +191,7 @@ export type ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavi
 
 export enum ArticleSavingRequestStatus {
   Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
   Deleted = 'DELETED',
   Failed = 'FAILED',
   Processing = 'PROCESSING',
@@ -245,7 +246,8 @@ export enum BulkActionType {
   AddLabels = 'ADD_LABELS',
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
-  MarkAsRead = 'MARK_AS_READ'
+  MarkAsRead = 'MARK_AS_READ',
+  MoveToFolder = 'MOVE_TO_FOLDER'
 }
 
 export enum ContentReader {
@@ -271,8 +273,12 @@ export enum CreateArticleErrorCode {
 
 export type CreateArticleInput = {
   articleSavingRequestId?: InputMaybe<Scalars['ID']>;
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   preparedDocument?: InputMaybe<PreparedDocumentInput>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  rssFeedUrl?: InputMaybe<Scalars['String']>;
+  savedAt?: InputMaybe<Scalars['Date']>;
   skipParsing?: InputMaybe<Scalars['Boolean']>;
   source?: InputMaybe<Scalars['String']>;
   state?: InputMaybe<ArticleSavingRequestStatus>;
@@ -432,6 +438,12 @@ export enum CreateNewsletterEmailErrorCode {
   BadRequest = 'BAD_REQUEST',
   Unauthorized = 'UNAUTHORIZED'
 }
+
+export type CreateNewsletterEmailInput = {
+  description?: InputMaybe<Scalars['String']>;
+  folder?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+};
 
 export type CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess;
 
@@ -772,13 +784,14 @@ export type Feature = {
 export type Feed = {
   __typename?: 'Feed';
   author?: Maybe<Scalars['String']>;
-  createdAt: Scalars['Date'];
+  createdAt?: Maybe<Scalars['Date']>;
   description?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
+  id?: Maybe<Scalars['ID']>;
   image?: Maybe<Scalars['String']>;
   publishedAt?: Maybe<Scalars['Date']>;
   title: Scalars['String'];
-  updatedAt: Scalars['Date'];
+  type?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['Date']>;
   url: Scalars['String'];
 };
 
@@ -850,13 +863,31 @@ export type FeedsSuccess = {
   pageInfo: PageInfo;
 };
 
+export type FetchContentError = {
+  __typename?: 'FetchContentError';
+  errorCodes: Array<FetchContentErrorCode>;
+};
+
+export enum FetchContentErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type FetchContentResult = FetchContentError | FetchContentSuccess;
+
+export type FetchContentSuccess = {
+  __typename?: 'FetchContentSuccess';
+  success: Scalars['Boolean'];
+};
+
 export type Filter = {
   __typename?: 'Filter';
+  category?: Maybe<Scalars['String']>;
   createdAt: Scalars['Date'];
   defaultFilter?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   filter: Scalars['String'];
-  folder: Scalars['String'];
+  folder?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   name: Scalars['String'];
   position: Scalars['Int'];
@@ -1162,6 +1193,7 @@ export type Label = {
   internal?: Maybe<Scalars['Boolean']>;
   name: Scalars['String'];
   position?: Maybe<Scalars['Int']>;
+  source?: Maybe<Scalars['String']>;
 };
 
 export type LabelsError = {
@@ -1377,7 +1409,7 @@ export type MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess;
 
 export type MoveToFolderSuccess = {
   __typename?: 'MoveToFolderSuccess';
-  articleSavingRequest: ArticleSavingRequest;
+  success: Scalars['Boolean'];
 };
 
 export type Mutation = {
@@ -1399,6 +1431,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
+  fetchContent: FetchContentResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
   googleSignup: GoogleSignupResult;
@@ -1438,6 +1471,7 @@ export type Mutation = {
   updateFilter: UpdateFilterResult;
   updateHighlight: UpdateHighlightResult;
   updateLabel: UpdateLabelResult;
+  updateNewsletterEmail: UpdateNewsletterEmailResult;
   updatePage: UpdatePageResult;
   updateSubscription: UpdateSubscriptionResult;
   updateUser: UpdateUserResult;
@@ -1454,6 +1488,7 @@ export type MutationAddPopularReadArgs = {
 
 export type MutationBulkActionArgs = {
   action: BulkActionType;
+  arguments?: InputMaybe<Scalars['JSON']>;
   async?: InputMaybe<Scalars['Boolean']>;
   expectedCount?: InputMaybe<Scalars['Int']>;
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
@@ -1483,6 +1518,11 @@ export type MutationCreateHighlightArgs = {
 
 export type MutationCreateLabelArgs = {
   input: CreateLabelInput;
+};
+
+
+export type MutationCreateNewsletterEmailArgs = {
+  input?: InputMaybe<CreateNewsletterEmailInput>;
 };
 
 
@@ -1527,6 +1567,11 @@ export type MutationDeleteRuleArgs = {
 
 
 export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationFetchContentArgs = {
   id: Scalars['ID'];
 };
 
@@ -1723,6 +1768,11 @@ export type MutationUpdateLabelArgs = {
 };
 
 
+export type MutationUpdateNewsletterEmailArgs = {
+  input: UpdateNewsletterEmailInput;
+};
+
+
 export type MutationUpdatePageArgs = {
   input: UpdatePageInput;
 };
@@ -1758,7 +1808,10 @@ export type NewsletterEmail = {
   address: Scalars['String'];
   confirmationCode?: Maybe<Scalars['String']>;
   createdAt: Scalars['Date'];
+  description?: Maybe<Scalars['String']>;
+  folder: Scalars['String'];
   id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
   subscriptionCount: Scalars['Int'];
 };
 
@@ -1899,6 +1952,7 @@ export type Query = {
   recentEmails: RecentEmailsResult;
   recentSearches: RecentSearchesResult;
   rules: RulesResult;
+  scanFeeds: ScanFeedsResult;
   search: SearchResult;
   sendInstallInstructions: SendInstallInstructionsResult;
   subscriptions: SubscriptionsResult;
@@ -1939,6 +1993,11 @@ export type QueryFeedsArgs = {
 
 export type QueryRulesArgs = {
   enabled?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type QueryScanFeedsArgs = {
+  input: ScanFeedsInput;
 };
 
 
@@ -2329,6 +2388,7 @@ export enum SaveErrorCode {
 
 export type SaveFileInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
@@ -2348,6 +2408,7 @@ export enum SaveFilterErrorCode {
 }
 
 export type SaveFilterInput = {
+  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter: Scalars['String'];
   folder?: InputMaybe<Scalars['String']>;
@@ -2364,6 +2425,7 @@ export type SaveFilterSuccess = {
 
 export type SavePageInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   originalContent: Scalars['String'];
   parseResult?: InputMaybe<ParseResult>;
@@ -2386,6 +2448,7 @@ export type SaveSuccess = {
 
 export type SaveUrlInput = {
   clientRequestId: Scalars['ID'];
+  folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   locale?: InputMaybe<Scalars['String']>;
   publishedAt?: InputMaybe<Scalars['Date']>;
@@ -2394,6 +2457,27 @@ export type SaveUrlInput = {
   state?: InputMaybe<ArticleSavingRequestStatus>;
   timezone?: InputMaybe<Scalars['String']>;
   url: Scalars['String'];
+};
+
+export type ScanFeedsError = {
+  __typename?: 'ScanFeedsError';
+  errorCodes: Array<ScanFeedsErrorCode>;
+};
+
+export enum ScanFeedsErrorCode {
+  BadRequest = 'BAD_REQUEST'
+}
+
+export type ScanFeedsInput = {
+  opml?: InputMaybe<Scalars['String']>;
+  url?: InputMaybe<Scalars['String']>;
+};
+
+export type ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess;
+
+export type ScanFeedsSuccess = {
+  __typename?: 'ScanFeedsSuccess';
+  feeds: Array<Feed>;
 };
 
 export type SearchError = {
@@ -2624,6 +2708,7 @@ export type SetLabelsInput = {
   labelIds?: InputMaybe<Array<Scalars['ID']>>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
   pageId: Scalars['ID'];
+  source?: InputMaybe<Scalars['String']>;
 };
 
 export type SetLabelsResult = SetLabelsError | SetLabelsSuccess;
@@ -2835,6 +2920,8 @@ export enum SubscribeErrorCode {
 
 export type SubscribeInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
+  fetchContent?: InputMaybe<Scalars['Boolean']>;
+  folder?: InputMaybe<Scalars['String']>;
   isPrivate?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
   url: Scalars['String'];
@@ -2853,6 +2940,8 @@ export type Subscription = {
   count: Scalars['Int'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  fetchContent: Scalars['Boolean'];
+  folder: Scalars['String'];
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: Maybe<Scalars['Boolean']>;
@@ -2983,6 +3072,7 @@ export enum UpdateFilterErrorCode {
 }
 
 export type UpdateFilterInput = {
+  category?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
   filter?: InputMaybe<Scalars['String']>;
   folder?: InputMaybe<Scalars['String']>;
@@ -3099,6 +3189,30 @@ export type UpdateLinkShareInfoSuccess = {
   message: Scalars['String'];
 };
 
+export type UpdateNewsletterEmailError = {
+  __typename?: 'UpdateNewsletterEmailError';
+  errorCodes: Array<UpdateNewsletterEmailErrorCode>;
+};
+
+export enum UpdateNewsletterEmailErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type UpdateNewsletterEmailInput = {
+  description?: InputMaybe<Scalars['String']>;
+  folder?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export type UpdateNewsletterEmailResult = UpdateNewsletterEmailError | UpdateNewsletterEmailSuccess;
+
+export type UpdateNewsletterEmailSuccess = {
+  __typename?: 'UpdateNewsletterEmailSuccess';
+  newsletterEmail: NewsletterEmail;
+};
+
 export type UpdatePageError = {
   __typename?: 'UpdatePageError';
   errorCodes: Array<UpdatePageErrorCode>;
@@ -3198,6 +3312,8 @@ export enum UpdateSubscriptionErrorCode {
 export type UpdateSubscriptionInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   description?: InputMaybe<Scalars['String']>;
+  fetchContent?: InputMaybe<Scalars['Boolean']>;
+  folder?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: InputMaybe<Scalars['Boolean']>;
   lastFetchedAt?: InputMaybe<Scalars['Date']>;
@@ -3608,6 +3724,7 @@ export type ResolversTypes = {
   CreateLabelSuccess: ResolverTypeWrapper<CreateLabelSuccess>;
   CreateNewsletterEmailError: ResolverTypeWrapper<CreateNewsletterEmailError>;
   CreateNewsletterEmailErrorCode: CreateNewsletterEmailErrorCode;
+  CreateNewsletterEmailInput: CreateNewsletterEmailInput;
   CreateNewsletterEmailResult: ResolversTypes['CreateNewsletterEmailError'] | ResolversTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: ResolverTypeWrapper<CreateNewsletterEmailSuccess>;
   CreateReactionError: ResolverTypeWrapper<CreateReactionError>;
@@ -3691,6 +3808,10 @@ export type ResolversTypes = {
   FeedsInput: FeedsInput;
   FeedsResult: ResolversTypes['FeedsError'] | ResolversTypes['FeedsSuccess'];
   FeedsSuccess: ResolverTypeWrapper<FeedsSuccess>;
+  FetchContentError: ResolverTypeWrapper<FetchContentError>;
+  FetchContentErrorCode: FetchContentErrorCode;
+  FetchContentResult: ResolversTypes['FetchContentError'] | ResolversTypes['FetchContentSuccess'];
+  FetchContentSuccess: ResolverTypeWrapper<FetchContentSuccess>;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -3883,6 +4004,11 @@ export type ResolversTypes = {
   SaveResult: ResolversTypes['SaveError'] | ResolversTypes['SaveSuccess'];
   SaveSuccess: ResolverTypeWrapper<SaveSuccess>;
   SaveUrlInput: SaveUrlInput;
+  ScanFeedsError: ResolverTypeWrapper<ScanFeedsError>;
+  ScanFeedsErrorCode: ScanFeedsErrorCode;
+  ScanFeedsInput: ScanFeedsInput;
+  ScanFeedsResult: ResolversTypes['ScanFeedsError'] | ResolversTypes['ScanFeedsSuccess'];
+  ScanFeedsSuccess: ResolverTypeWrapper<ScanFeedsSuccess>;
   SearchError: ResolverTypeWrapper<SearchError>;
   SearchErrorCode: SearchErrorCode;
   SearchItem: ResolverTypeWrapper<SearchItem>;
@@ -4010,6 +4136,11 @@ export type ResolversTypes = {
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversTypes['UpdateLinkShareInfoError'] | ResolversTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: ResolverTypeWrapper<UpdateLinkShareInfoSuccess>;
+  UpdateNewsletterEmailError: ResolverTypeWrapper<UpdateNewsletterEmailError>;
+  UpdateNewsletterEmailErrorCode: UpdateNewsletterEmailErrorCode;
+  UpdateNewsletterEmailInput: UpdateNewsletterEmailInput;
+  UpdateNewsletterEmailResult: ResolversTypes['UpdateNewsletterEmailError'] | ResolversTypes['UpdateNewsletterEmailSuccess'];
+  UpdateNewsletterEmailSuccess: ResolverTypeWrapper<UpdateNewsletterEmailSuccess>;
   UpdatePageError: ResolverTypeWrapper<UpdatePageError>;
   UpdatePageErrorCode: UpdatePageErrorCode;
   UpdatePageInput: UpdatePageInput;
@@ -4133,6 +4264,7 @@ export type ResolversParentTypes = {
   CreateLabelResult: ResolversParentTypes['CreateLabelError'] | ResolversParentTypes['CreateLabelSuccess'];
   CreateLabelSuccess: CreateLabelSuccess;
   CreateNewsletterEmailError: CreateNewsletterEmailError;
+  CreateNewsletterEmailInput: CreateNewsletterEmailInput;
   CreateNewsletterEmailResult: ResolversParentTypes['CreateNewsletterEmailError'] | ResolversParentTypes['CreateNewsletterEmailSuccess'];
   CreateNewsletterEmailSuccess: CreateNewsletterEmailSuccess;
   CreateReactionError: CreateReactionError;
@@ -4199,6 +4331,9 @@ export type ResolversParentTypes = {
   FeedsInput: FeedsInput;
   FeedsResult: ResolversParentTypes['FeedsError'] | ResolversParentTypes['FeedsSuccess'];
   FeedsSuccess: FeedsSuccess;
+  FetchContentError: FetchContentError;
+  FetchContentResult: ResolversParentTypes['FetchContentError'] | ResolversParentTypes['FetchContentSuccess'];
+  FetchContentSuccess: FetchContentSuccess;
   Filter: Filter;
   FiltersError: FiltersError;
   FiltersResult: ResolversParentTypes['FiltersError'] | ResolversParentTypes['FiltersSuccess'];
@@ -4350,6 +4485,10 @@ export type ResolversParentTypes = {
   SaveResult: ResolversParentTypes['SaveError'] | ResolversParentTypes['SaveSuccess'];
   SaveSuccess: SaveSuccess;
   SaveUrlInput: SaveUrlInput;
+  ScanFeedsError: ScanFeedsError;
+  ScanFeedsInput: ScanFeedsInput;
+  ScanFeedsResult: ResolversParentTypes['ScanFeedsError'] | ResolversParentTypes['ScanFeedsSuccess'];
+  ScanFeedsSuccess: ScanFeedsSuccess;
   SearchError: SearchError;
   SearchItem: SearchItem;
   SearchItemEdge: SearchItemEdge;
@@ -4448,6 +4587,10 @@ export type ResolversParentTypes = {
   UpdateLinkShareInfoInput: UpdateLinkShareInfoInput;
   UpdateLinkShareInfoResult: ResolversParentTypes['UpdateLinkShareInfoError'] | ResolversParentTypes['UpdateLinkShareInfoSuccess'];
   UpdateLinkShareInfoSuccess: UpdateLinkShareInfoSuccess;
+  UpdateNewsletterEmailError: UpdateNewsletterEmailError;
+  UpdateNewsletterEmailInput: UpdateNewsletterEmailInput;
+  UpdateNewsletterEmailResult: ResolversParentTypes['UpdateNewsletterEmailError'] | ResolversParentTypes['UpdateNewsletterEmailSuccess'];
+  UpdateNewsletterEmailSuccess: UpdateNewsletterEmailSuccess;
   UpdatePageError: UpdatePageError;
   UpdatePageInput: UpdatePageInput;
   UpdatePageResult: ResolversParentTypes['UpdatePageError'] | ResolversParentTypes['UpdatePageSuccess'];
@@ -5040,13 +5183,14 @@ export type FeatureResolvers<ContextType = ResolverContext, ParentType extends R
 
 export type FeedResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feed'] = ResolversParentTypes['Feed']> = {
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5107,12 +5251,27 @@ export type FeedsSuccessResolvers<ContextType = ResolverContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FetchContentErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchContentError'] = ResolversParentTypes['FetchContentError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['FetchContentErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type FetchContentResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchContentResult'] = ResolversParentTypes['FetchContentResult']> = {
+  __resolveType: TypeResolveFn<'FetchContentError' | 'FetchContentSuccess', ParentType, ContextType>;
+};
+
+export type FetchContentSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['FetchContentSuccess'] = ResolversParentTypes['FetchContentSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FilterResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Filter'] = ResolversParentTypes['Filter']> = {
+  category?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   defaultFilter?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  folder?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -5353,6 +5512,7 @@ export type LabelResolvers<ContextType = ResolverContext, ParentType extends Res
   internal?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  source?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5503,7 +5663,7 @@ export type MoveToFolderResultResolvers<ContextType = ResolverContext, ParentTyp
 };
 
 export type MoveToFolderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MoveToFolderSuccess'] = ResolversParentTypes['MoveToFolderSuccess']> = {
-  articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequest'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5515,7 +5675,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createGroup?: Resolver<ResolversTypes['CreateGroupResult'], ParentType, ContextType, RequireFields<MutationCreateGroupArgs, 'input'>>;
   createHighlight?: Resolver<ResolversTypes['CreateHighlightResult'], ParentType, ContextType, RequireFields<MutationCreateHighlightArgs, 'input'>>;
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
-  createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType>;
+  createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType, Partial<MutationCreateNewsletterEmailArgs>>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
   deleteDiscoveryArticle?: Resolver<ResolversTypes['DeleteDiscoveryArticleResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoveryArticleArgs, 'input'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
@@ -5525,6 +5685,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
+  fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
   googleSignup?: Resolver<ResolversTypes['GoogleSignupResult'], ParentType, ContextType, RequireFields<MutationGoogleSignupArgs, 'input'>>;
@@ -5564,6 +5725,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   updateFilter?: Resolver<ResolversTypes['UpdateFilterResult'], ParentType, ContextType, RequireFields<MutationUpdateFilterArgs, 'input'>>;
   updateHighlight?: Resolver<ResolversTypes['UpdateHighlightResult'], ParentType, ContextType, RequireFields<MutationUpdateHighlightArgs, 'input'>>;
   updateLabel?: Resolver<ResolversTypes['UpdateLabelResult'], ParentType, ContextType, RequireFields<MutationUpdateLabelArgs, 'input'>>;
+  updateNewsletterEmail?: Resolver<ResolversTypes['UpdateNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationUpdateNewsletterEmailArgs, 'input'>>;
   updatePage?: Resolver<ResolversTypes['UpdatePageResult'], ParentType, ContextType, RequireFields<MutationUpdatePageArgs, 'input'>>;
   updateSubscription?: Resolver<ResolversTypes['UpdateSubscriptionResult'], ParentType, ContextType, RequireFields<MutationUpdateSubscriptionArgs, 'input'>>;
   updateUser?: Resolver<ResolversTypes['UpdateUserResult'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'input'>>;
@@ -5576,7 +5738,10 @@ export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType e
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   confirmationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   subscriptionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -5664,6 +5829,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   recentEmails?: Resolver<ResolversTypes['RecentEmailsResult'], ParentType, ContextType>;
   recentSearches?: Resolver<ResolversTypes['RecentSearchesResult'], ParentType, ContextType>;
   rules?: Resolver<ResolversTypes['RulesResult'], ParentType, ContextType, Partial<QueryRulesArgs>>;
+  scanFeeds?: Resolver<ResolversTypes['ScanFeedsResult'], ParentType, ContextType, RequireFields<QueryScanFeedsArgs, 'input'>>;
   search?: Resolver<ResolversTypes['SearchResult'], ParentType, ContextType, Partial<QuerySearchArgs>>;
   sendInstallInstructions?: Resolver<ResolversTypes['SendInstallInstructionsResult'], ParentType, ContextType>;
   subscriptions?: Resolver<ResolversTypes['SubscriptionsResult'], ParentType, ContextType, Partial<QuerySubscriptionsArgs>>;
@@ -5929,6 +6095,20 @@ export type SaveResultResolvers<ContextType = ResolverContext, ParentType extend
 export type SaveSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveSuccess'] = ResolversParentTypes['SaveSuccess']> = {
   clientRequestId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ScanFeedsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsError'] = ResolversParentTypes['ScanFeedsError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ScanFeedsErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ScanFeedsResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsResult'] = ResolversParentTypes['ScanFeedsResult']> = {
+  __resolveType: TypeResolveFn<'ScanFeedsError' | 'ScanFeedsSuccess', ParentType, ContextType>;
+};
+
+export type ScanFeedsSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ScanFeedsSuccess'] = ResolversParentTypes['ScanFeedsSuccess']> = {
+  feeds?: Resolver<Array<ResolversTypes['Feed']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6210,6 +6390,8 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   count?: SubscriptionResolver<ResolversTypes['Int'], "count", ParentType, ContextType>;
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
+  fetchContent?: SubscriptionResolver<ResolversTypes['Boolean'], "fetchContent", ParentType, ContextType>;
+  folder?: SubscriptionResolver<ResolversTypes['String'], "folder", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   isPrivate?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "isPrivate", ParentType, ContextType>;
@@ -6365,6 +6547,20 @@ export type UpdateLinkShareInfoResultResolvers<ContextType = ResolverContext, Pa
 
 export type UpdateLinkShareInfoSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateLinkShareInfoSuccess'] = ResolversParentTypes['UpdateLinkShareInfoSuccess']> = {
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateNewsletterEmailErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateNewsletterEmailError'] = ResolversParentTypes['UpdateNewsletterEmailError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['UpdateNewsletterEmailErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UpdateNewsletterEmailResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateNewsletterEmailResult'] = ResolversParentTypes['UpdateNewsletterEmailResult']> = {
+  __resolveType: TypeResolveFn<'UpdateNewsletterEmailError' | 'UpdateNewsletterEmailSuccess', ParentType, ContextType>;
+};
+
+export type UpdateNewsletterEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['UpdateNewsletterEmailSuccess'] = ResolversParentTypes['UpdateNewsletterEmailSuccess']> = {
+  newsletterEmail?: Resolver<ResolversTypes['NewsletterEmail'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -6710,6 +6906,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   FeedsError?: FeedsErrorResolvers<ContextType>;
   FeedsResult?: FeedsResultResolvers<ContextType>;
   FeedsSuccess?: FeedsSuccessResolvers<ContextType>;
+  FetchContentError?: FetchContentErrorResolvers<ContextType>;
+  FetchContentResult?: FetchContentResultResolvers<ContextType>;
+  FetchContentSuccess?: FetchContentSuccessResolvers<ContextType>;
   Filter?: FilterResolvers<ContextType>;
   FiltersError?: FiltersErrorResolvers<ContextType>;
   FiltersResult?: FiltersResultResolvers<ContextType>;
@@ -6838,6 +7037,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveFilterSuccess?: SaveFilterSuccessResolvers<ContextType>;
   SaveResult?: SaveResultResolvers<ContextType>;
   SaveSuccess?: SaveSuccessResolvers<ContextType>;
+  ScanFeedsError?: ScanFeedsErrorResolvers<ContextType>;
+  ScanFeedsResult?: ScanFeedsResultResolvers<ContextType>;
+  ScanFeedsSuccess?: ScanFeedsSuccessResolvers<ContextType>;
   SearchError?: SearchErrorResolvers<ContextType>;
   SearchItem?: SearchItemResolvers<ContextType>;
   SearchItemEdge?: SearchItemEdgeResolvers<ContextType>;
@@ -6916,6 +7118,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   UpdateLinkShareInfoError?: UpdateLinkShareInfoErrorResolvers<ContextType>;
   UpdateLinkShareInfoResult?: UpdateLinkShareInfoResultResolvers<ContextType>;
   UpdateLinkShareInfoSuccess?: UpdateLinkShareInfoSuccessResolvers<ContextType>;
+  UpdateNewsletterEmailError?: UpdateNewsletterEmailErrorResolvers<ContextType>;
+  UpdateNewsletterEmailResult?: UpdateNewsletterEmailResultResolvers<ContextType>;
+  UpdateNewsletterEmailSuccess?: UpdateNewsletterEmailSuccessResolvers<ContextType>;
   UpdatePageError?: UpdatePageErrorResolvers<ContextType>;
   UpdatePageResult?: UpdatePageResultResolvers<ContextType>;
   UpdatePageSuccess?: UpdatePageSuccessResolvers<ContextType>;

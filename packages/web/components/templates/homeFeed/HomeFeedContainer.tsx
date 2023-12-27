@@ -403,21 +403,13 @@ export function HomeFeedContainer(): JSX.Element {
         }
         break
       case 'archive':
-        if (multiSelectMode !== 'off') {
-          performMultiSelectAction(BulkAction.ARCHIVE)
-        } else {
-          performActionOnItem('archive', item)
-        }
+        performActionOnItem('archive', item)
         break
       case 'unarchive':
         performActionOnItem('unarchive', item)
         break
       case 'delete':
-        if (multiSelectMode !== 'off') {
-          performMultiSelectAction(BulkAction.DELETE)
-        } else {
-          performActionOnItem('delete', item)
-        }
+        performActionOnItem('delete', item)
         break
       case 'mark-read':
         performActionOnItem('mark-read', item)

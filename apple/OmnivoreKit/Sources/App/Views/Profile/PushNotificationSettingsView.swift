@@ -47,6 +47,8 @@
 
   struct PushNotificationSettingsView: View {
     @EnvironmentObject var dataService: DataService
+    @Environment(\.dismiss) private var dismiss
+
     @StateObject var viewModel = PushNotificationSettingsViewModel()
     @State var desiredNotificationsEnabled: Bool = false
 
@@ -62,6 +64,9 @@
           }
           .listStyle(InsetListStyle())
         #endif
+      }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+        dismiss()
       }
       .task { viewModel.checkPushNotificationsStatus() }
     }

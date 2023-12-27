@@ -20,6 +20,7 @@ export const saveUrl = async (
       timezone: input.timezone || undefined,
       savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
       publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+      folder: input.folder || undefined,
     })
 
     return {

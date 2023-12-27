@@ -24,6 +24,7 @@ export enum LibraryItemState {
   Succeeded = 'SUCCEEDED',
   Deleted = 'DELETED',
   Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
 }
 
 export enum ContentReaderType {

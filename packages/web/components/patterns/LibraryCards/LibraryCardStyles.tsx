@@ -137,8 +137,13 @@ const flairIconForLabel = (label: Label): JSX.Element | undefined => {
 
 export const siteName = (
   originalArticleUrl: string,
-  itemUrl: string
+  itemUrl: string,
+  siteName?: string
 ): string => {
+  if (siteName) {
+    return siteName
+  }
+
   if (shouldHideUrl(originalArticleUrl)) {
     return ''
   }

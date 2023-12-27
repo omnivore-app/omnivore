@@ -6,7 +6,7 @@ import WebKit
 
 @MainActor
 struct WebReader: PlatformViewRepresentable {
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let viewModel: WebReaderViewModel
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
@@ -20,7 +20,6 @@ struct WebReader: PlatformViewRepresentable {
   @Binding var showNavBarActionID: UUID?
   @Binding var shareActionID: UUID?
   @Binding var annotation: String
-  @Binding var showBottomBar: Bool
   @Binding var showHighlightAnnotationModal: Bool
 
   func makeCoordinator() -> WebReaderCoordinator {
@@ -73,6 +72,12 @@ struct WebReader: PlatformViewRepresentable {
       webView.setValue(false, forKey: "drawsBackground")
     #endif
 
+    #if DEBUG
+      if #available(iOS 16.4, *) {
+        webView.isInspectable = true
+      }
+    #endif
+
     for action in WebViewAction.allCases {
       webView.configuration.userContentController.add(context.coordinator, name: action.rawValue)
     }
@@ -85,9 +90,6 @@ struct WebReader: PlatformViewRepresentable {
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibility = navBarVisibilityUpdater
     context.coordinator.scrollPercentHandler = scrollPercentHandler
-    context.coordinator.updateShowBottomBar = { newValue in
-      self.showBottomBar = newValue
-    }
 
     context.coordinator.articleContentID = articleContent.id
     loadContent(webView: webView)

@@ -44,16 +44,16 @@ export const search = async (
   token: string,
   highlightOnly: boolean,
   updatedSince: Date,
-  first = '50',
-  after = '0',
+  first = 50,
+  after = '0'
 ): Promise<SearchResponse | null> => {
   const query = `updated:${updatedSince.toISOString()} ${
     highlightOnly ? 'has:highlights' : ''
   } sort:updated-asc`
 
   const requestData = JSON.stringify({
-    query: `query Search($query: String) {
-              search(query: $query) {
+    query: `query Search($query: String, $first: Int, $after: String) {
+              search(query: $query, first: $first, after: $after) {
                 ... on SearchSuccess {
                   edges {
                     node {
@@ -101,7 +101,7 @@ export const search = async (
           'Content-Type': 'application/json',
           'X-OmnivoreClient': 'integration-handler',
         },
-      },
+      }
     )
 
     return response.data

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.DropdownMenu
@@ -31,6 +32,19 @@ fun SavedItemContextMenu(
     expanded = isExpanded,
     onDismissRequest = onDismiss
   ) {
+    DropdownMenuItem(
+      text = { Text(stringResource(R.string.saved_item_context_menu_action_edit_info)) },
+      onClick = {
+        actionHandler(SavedItemAction.EditInfo)
+        onDismiss()
+      },
+      leadingIcon = {
+        Icon(
+          Icons.Outlined.Info,
+          contentDescription = null
+        )
+      }
+    )
     DropdownMenuItem(
       text = { Text(stringResource(R.string.saved_item_context_menu_action_edit_labels)) },
       onClick = {

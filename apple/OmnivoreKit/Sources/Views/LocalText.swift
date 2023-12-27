@@ -190,6 +190,8 @@ public enum LocalText {
   public static let filesGeneric = localText(key: "filesGeneric")
   public static let newestGeneric = localText(key: "newestGeneric")
   public static let oldestGeneric = localText(key: "oldestGeneric")
+  public static let longestGeneric = localText(key: "longestGeneric")
+  public static let shortestGeneric = localText(key: "shortestGeneric")
   public static let recentlyReadGeneric = localText(key: "recentlyReadGeneric")
   public static let recentlyPublishedGeneric = localText(key: "recentlyPublishedGeneric")
   public static let clubsGeneric = localText(key: "clubsGeneric")

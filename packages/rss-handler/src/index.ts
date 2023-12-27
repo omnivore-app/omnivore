@@ -3,9 +3,12 @@ import axios from 'axios'
 import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
+import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
+
+type FolderType = 'following' | 'inbox'
 
 interface RssFeedRequest {
   subscriptionIds: string[]
@@ -14,7 +17,8 @@ interface RssFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
-  addToLibraryFlags: boolean[]
+  fetchContents: boolean[]
+  folders: FolderType[]
 }
 
 // link can be a string or an object
@@ -40,6 +44,15 @@ type RssFeedItem = Item & {
   'media:content'?: RssFeedItemMedia[]
 }
 
+export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
+  // existing items and items that were published before 24h
+  const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
+  return (
+    publishedAt <= new Date(lastFetchedAt) ||
+    publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
+  )
+}
+
 const getThumbnail = (item: RssFeedItem) => {
   if (item['media:thumbnail']) {
     return item['media:thumbnail'].$.url
@@ -49,17 +62,16 @@ const getThumbnail = (item: RssFeedItem) => {
     .url
 }
 
-function isRssFeedRequest(body: unknown): body is RssFeedRequest {
+function isRssFeedRequest(body: any): body is RssFeedRequest {
   return (
-    typeof body == 'object' &&
-    body != null &&
     'subscriptionIds' in body &&
     'feedUrl' in body &&
     'lastFetchedTimestamps' in body &&
     'scheduledTimestamps' in body &&
     'userIds' in body &&
     'lastFetchedChecksums' in body &&
-    'addToLibraryFlags' in body
+    'fetchContents' in body &&
+    'folders' in body
   )
 }
 
@@ -89,12 +101,54 @@ export const fetchAndChecksum = async (url: string) => {
   }
 }
 
+const parseFeed = async (url: string, content: string) => {
+  try {
+    // check if url is a telegram channel
+    const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
+    const telegramMatch = url.match(telegramRegex)
+    if (telegramMatch) {
+      const dom = parseHTML(content).document
+      const title = dom.querySelector('meta[property="og:title"]')
+      // post has attribute data-post
+      const posts = dom.querySelectorAll('[data-post]')
+      const items = Array.from(posts)
+        .map((post) => {
+          const id = post.getAttribute('data-post')
+          if (!id) {
+            return null
+          }
+
+          const url = `https://t.me/${telegramMatch[1]}/${id}`
+          // find the <time> element
+          const time = post.querySelector('time')
+          const dateTime = time?.getAttribute('datetime') || undefined
+
+          return {
+            link: url,
+            isoDate: dateTime,
+          }
+        })
+        .filter((item) => !!item) as RssFeedItem[]
+
+      return {
+        title: title?.getAttribute('content') || dom.title,
+        items,
+      }
+    }
+
+    return parser.parseString(content)
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}
+
 const sendUpdateSubscriptionMutation = async (
   userId: string,
   subscriptionId: string,
   lastFetchedAt: Date,
   lastFetchedChecksum: string,
-  scheduledAt: Date,
+  scheduledAt: Date
 ) => {
   const JWT_SECRET = process.env.JWT_SECRET
   const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
@@ -138,7 +192,7 @@ const sendUpdateSubscriptionMutation = async (
           'Content-Type': 'application/json',
         },
         timeout: 30000, // 30s
-      },
+      }
     )
 
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -157,19 +211,21 @@ const createTask = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
-  autoAddToLibrary: boolean,
+  fetchContent: boolean,
+  folder: FolderType
 ) => {
-  if (autoAddToLibrary) {
-    return createSavingItemTask(userId, feedUrl, item)
+  if (folder === 'following' && !fetchContent) {
+    return createItemWithPreviewContent(userId, feedUrl, item)
   }
 
-  return createFollowingTask(userId, feedUrl, item)
+  return fetchContentAndCreateItem(userId, feedUrl, item, folder)
 }
 
-const createSavingItemTask = async (
+const fetchContentAndCreateItem = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
+  folder: string
 ) => {
   const input = {
     userId,
@@ -180,6 +236,7 @@ const createSavingItemTask = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
+    folder,
   }
 
   try {
@@ -195,10 +252,10 @@ const createSavingItemTask = async (
   }
 }
 
-const createFollowingTask = async (
+const createItemWithPreviewContent = async (
   userId: string,
   feedUrl: string,
-  item: RssFeedItem,
+  item: RssFeedItem
 ) => {
   const input = {
     userIds: [userId],
@@ -207,7 +264,7 @@ const createFollowingTask = async (
     author: item.creator,
     description: item.summary,
     addedToFollowingFrom: 'feed',
-    previewContent: item.content || item.contentSnippet,
+    previewContent: item.content || item.contentSnippet || item.summary,
     addedToFollowingBy: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
@@ -332,8 +389,9 @@ const processSubscription = async (
   lastFetchedAt: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
-  autoAddToLibrary: boolean,
-  feed: RssFeed,
+  fetchContent: boolean,
+  folder: FolderType,
+  feed: RssFeed
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: Item | null = null
@@ -351,7 +409,7 @@ const processSubscription = async (
   console.log('Feed last build date', feedLastBuildDate)
   if (
     feedLastBuildDate &&
-    new Date(feedLastBuildDate) < new Date(lastFetchedAt)
+    new Date(feedLastBuildDate) <= new Date(lastFetchedAt)
   ) {
     console.log('Skipping old feed', feedLastBuildDate)
     return
@@ -362,7 +420,7 @@ const processSubscription = async (
     // use published or updated if isoDate is not available for atom feeds
     item.isoDate =
       item.isoDate || item.published || item.updated || item.created
-    console.log('Processing feed item', item.links, item.isoDate)
+    console.log('Processing feed item', item.links, item.isoDate, feed.feedUrl)
 
     if (!item.links || item.links.length === 0) {
       console.log('Invalid feed item', item)
@@ -391,16 +449,19 @@ const processSubscription = async (
       continue
     }
 
-    // skip old items and items that were published before 24h
-    if (
-      publishedAt < new Date(lastFetchedAt) ||
-      publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
-    ) {
+    // skip old items
+    if (isOldItem(item, lastFetchedAt)) {
       console.log('Skipping old feed item', item.link)
       continue
     }
 
-    const created = await createTask(userId, feedUrl, item, autoAddToLibrary)
+    const created = await createTask(
+      userId,
+      feedUrl,
+      item,
+      fetchContent,
+      folder
+    )
     if (!created) {
       console.error('Failed to create task for feed item', item.link)
       continue
@@ -427,7 +488,8 @@ const processSubscription = async (
       userId,
       feedUrl,
       lastValidItem,
-      autoAddToLibrary,
+      fetchContent,
+      folder
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
@@ -449,7 +511,7 @@ const processSubscription = async (
     subscriptionId,
     lastItemFetchedAt,
     updatedLastFetchedChecksum,
-    new Date(nextScheduledAt),
+    new Date(nextScheduledAt)
   )
   console.log('Updated subscription', updatedSubscription)
 }
@@ -474,12 +536,18 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         scheduledTimestamps,
         userIds,
         lastFetchedChecksums,
-        addToLibraryFlags,
+        fetchContents,
+        folders,
       } = req.body
       console.log('Processing feed', feedUrl)
 
       const fetchResult = await fetchAndChecksum(feedUrl)
-      const feed = await parser.parseString(fetchResult.content)
+      const feed = await parseFeed(feedUrl, fetchResult.content)
+      if (!feed) {
+        console.error('Failed to parse RSS feed', feedUrl)
+        return res.status(500).send('INVALID_RSS_FEED')
+      }
+
       console.log('Fetched feed', feed.title, new Date())
 
       await Promise.all(
@@ -492,16 +560,17 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
             lastFetchedTimestamps[i],
             scheduledTimestamps[i],
             lastFetchedChecksums[i],
-            addToLibraryFlags[i],
-            feed,
-          ),
-        ),
+            fetchContents[i],
+            folders[i],
+            feed
+          )
+        )
       )
 
       res.send('ok')
     } catch (e) {
-      console.error('Error while parsing RSS feed', e)
+      console.error('Error while saving RSS feeds', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
     }
-  },
+  }
 )

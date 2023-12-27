@@ -11,7 +11,9 @@ public enum UserDefaultKey: String {
   case userHasDeniedPushPrimer
   case firebasePushToken
   case homeFeedlayoutPreference
-  case lastSelectedLinkedItemFilter
+  case lastSelectedTabItem
+  case lastSelectedInboxFilter
+  case lastSelectedFollowingFilter
   case lastSelectedFeaturedItemFilter
   case lastUsedAppVersion
   case lastUsedAppBuildNumber
@@ -31,6 +33,7 @@ public enum UserDefaultKey: String {
   case deviceTokenID
   case userWordsPerMinute
   case hideFeatureSection
+  case hideSystemLabels
   case justifyText
   case prefersHideStatusBarInReader
   case visibleShareExtensionTab

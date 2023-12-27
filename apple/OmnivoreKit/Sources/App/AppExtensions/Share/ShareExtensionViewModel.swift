@@ -5,13 +5,14 @@ import SwiftUI
 import Utils
 import Views
 
+@MainActor
 public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""
   @Published public var url: String?
   @Published public var iconURL: URL?
   @Published public var highlightData: HighlightData?
-  @Published public var linkedItem: LinkedItem?
+  @Published public var linkedItem: Models.LibraryItem?
   @Published public var requestId = UUID().uuidString.lowercased()
   @Published var debugText: String?
   @Published var noteText: String = ""
@@ -51,8 +52,8 @@ public class ShareExtensionViewModel: ObservableObject {
     dataService.archiveLink(objectID: objectID, archived: archived)
   }
 
-  func removeLink(dataService: DataService, objectID: NSManagedObjectID) {
-    dataService.removeLink(objectID: objectID)
+  func removeLibraryItem(dataService: DataService, objectID: NSManagedObjectID) {
+    dataService.removeLibraryItem(objectID: objectID)
   }
 
   func submitTitleEdit(dataService: DataService, itemID: String, title: String, description: String) {
@@ -204,7 +205,7 @@ public class ShareExtensionViewModel: ObservableObject {
       }
 
       if let objectID = objectID {
-        self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? LinkedItem
+        self.linkedItem = self.services.dataService.viewContext.object(with: objectID) as? Models.LibraryItem
         if let title = self.linkedItem?.title {
           self.title = title
         }

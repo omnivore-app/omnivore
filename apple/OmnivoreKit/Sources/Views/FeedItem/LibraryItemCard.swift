@@ -32,11 +32,11 @@ enum FlairLabels: String {
 }
 
 public extension View {
-  func draggableItem(item: LinkedItem) -> some View {
+  func draggableItem(item: LibraryItemData) -> some View {
     #if os(iOS)
       if #available(iOS 16.0, *), let url = item.deepLink {
         return AnyView(self.draggable(url) {
-          Label(item.unwrappedTitle, systemImage: "link")
+          Label(item.title, systemImage: "link")
         })
       }
     #endif
@@ -44,12 +44,75 @@ public extension View {
   }
 }
 
+public struct LibraryItemData {
+  public var id: String
+  public let title: String
+  public let pageURLString: String
+  public var isArchived: Bool
+  public let author: String?
+  public let deepLink: URL?
+  public let hasLabels: Bool
+  public let noteText: String?
+  public let readingProgress: Double
+  public let wordsCount: Int64
+  public let isPDF: Bool
+  public let highlights: NSSet?
+  public let sortedLabels: [LinkedItemLabel]
+  public let imageURL: URL?
+  public let publisherDisplayName: String?
+  public let descriptionText: String?
+
+  public init(id: String, title: String, pageURLString: String, isArchived: Bool, author: String?,
+              deepLink: URL?, hasLabels: Bool, noteText: String?,
+              readingProgress: Double, wordsCount: Int64, isPDF: Bool, highlights: NSSet?,
+              sortedLabels: [LinkedItemLabel], imageURL: URL?, publisherDisplayName: String?, descriptionText: String?)
+  {
+    self.id = id
+    self.title = title
+    self.pageURLString = pageURLString
+    self.isArchived = isArchived
+    self.author = author
+    self.deepLink = deepLink
+    self.hasLabels = hasLabels
+    self.noteText = noteText
+    self.readingProgress = readingProgress
+    self.wordsCount = wordsCount
+    self.isPDF = isPDF
+    self.highlights = highlights
+    self.sortedLabels = sortedLabels
+    self.imageURL = imageURL
+    self.publisherDisplayName = publisherDisplayName
+    self.descriptionText = descriptionText
+  }
+
+  public static func make(from item: Models.LibraryItem) -> LibraryItemData {
+    LibraryItemData(
+      id: item.unwrappedID,
+      title: item.unwrappedTitle,
+      pageURLString: item.unwrappedPageURLString,
+      isArchived: item.isArchived,
+      author: item.author,
+      deepLink: item.deepLink,
+      hasLabels: item.hasLabels,
+      noteText: item.noteText,
+      readingProgress: item.readingProgress,
+      wordsCount: item.wordsCount,
+      isPDF: item.isPDF,
+      highlights: item.highlights,
+      sortedLabels: item.sortedLabels,
+      imageURL: item.imageURL,
+      publisherDisplayName: item.publisherDisplayName,
+      descriptionText: item.descriptionText
+    )
+  }
+}
+
 public struct LibraryItemCard: View {
   let viewer: Viewer?
-  @ObservedObject var item: LinkedItem
+  var item: LibraryItemData
   @State var noteLineLimit: Int? = 3
 
-  public init(item: LinkedItem, viewer: Viewer?) {
+  public init(item: LibraryItemData, viewer: Viewer?) {
     self.item = item
     self.viewer = viewer
   }
@@ -249,32 +312,21 @@ public struct LibraryItemCard: View {
               .cornerRadius(5)
               .padding(.top, 2)
           } else {
-            Color.systemBackground
+            Color.clear
               .frame(width: 50, height: 75)
               .cornerRadius(5)
               .padding(.top, 2)
           }
         }
       } else {
-        fallbackImage
+        Color.clear
+          .frame(width: 50, height: 75)
+          .cornerRadius(5)
+          .padding(.top, 2)
       }
     }
     .padding(.top, 10)
     .cornerRadius(5)
-  }
-
-  var fallbackImage: some View {
-    HStack {
-      Text(item.unwrappedTitle.prefix(1))
-        .font(Font.system(size: 32, weight: .bold))
-        .frame(alignment: .bottomLeading)
-        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
-    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
-    .cornerRadius(5)
-    .frame(width: 50, height: 75)
   }
 
   var bylineStr: String {
@@ -290,11 +342,19 @@ public struct LibraryItemCard: View {
   }
 
   var byLine: some View {
-    Text(bylineStr)
-      .font(.caption2)
-      .foregroundColor(Color.themeLibraryItemSubtle)
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .lineLimit(1)
+    if let origin = cardSiteName(item.pageURLString) {
+      Text(bylineStr + " | " + origin)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    } else {
+      Text(bylineStr)
+        .font(.caption2)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(1)
+    }
   }
 
   public var articleInfo: some View {
@@ -302,7 +362,7 @@ public struct LibraryItemCard: View {
       readInfo
         .dynamicTypeSize(.xSmall ... .medium)
 
-      Text(item.unwrappedTitle)
+      Text(item.title)
         .font(.body).fontWeight(.semibold)
         .lineSpacing(1.25)
         .foregroundColor(.appGrayTextContrast)

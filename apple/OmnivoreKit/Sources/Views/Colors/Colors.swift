@@ -43,8 +43,13 @@ public extension Color {
   static var themeDisabledBG: Color { Color("_themeDisabledBG", bundle: .module) }
   static var themeSolidBackground: Color { Color("_themeSolidBackground", bundle: .module) }
   static var thBorderColor: Color { Color("thBorderColor", bundle: .module) }
+  static var thLibrarySeparator: Color { Color("thLibrarySeparator", bundle: .module) }
+  static var thLightWhiteGrey: Color { Color("_themeLightWhiteGrey", bundle: .module) }
 
   static var thFeatureSeparator: Color { Color("featureSeparator", bundle: .module) }
+
+  static var thFallbackImageForeground: Color { Color("thFallbackImageForeground", bundle: .module) }
+  static var thFallbackImageBackground: Color { Color("thFallbackImageBackground", bundle: .module) }
 
   static var circleButtonBackground: Color { Color("_circleButtonBackground", bundle: .module) }
   static var circleButtonForeground: Color { Color("_circleButtonForeground", bundle: .module) }
@@ -54,6 +59,8 @@ public extension Color {
 
   static var noteContainer: Color { Color("_noteContainer", bundle: .module) }
   static var textFieldBackground: Color { Color("_textFieldBackground", bundle: .module) }
+  static var themeTabBarColor: Color { Color("_themeTabBarColor", bundle: .module) }
+  static var themeTabButtonColor: Color { Color("_themeTabButtonColor", bundle: .module) }
 
   // Apple system UIColor equivalents
   #if os(iOS)

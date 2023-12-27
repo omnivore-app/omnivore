@@ -7,11 +7,11 @@ import Views
 
 @MainActor final class LinkItemDetailViewModel: ObservableObject {
   @Published var pdfItem: PDFItem?
-  @Published var item: LinkedItem?
+  @Published var item: Models.LibraryItem?
 
   func loadItem(linkedItemObjectID: NSManagedObjectID, dataService: DataService) async {
     let item = await dataService.viewContext.perform {
-      dataService.viewContext.object(with: linkedItemObjectID) as? LinkedItem
+      dataService.viewContext.object(with: linkedItemObjectID) as? Models.LibraryItem
     }
 
     if let item = item {
@@ -20,28 +20,6 @@ import Views
     }
 
     trackReadEvent()
-  }
-
-  func handleArchiveAction(dataService: DataService) {
-    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    dataService.archiveLink(objectID: objectID, archived: !isItemArchived)
-    showInLibrarySnackbar(!isItemArchived ? "Link archived" : "Link moved to Inbox")
-  }
-
-  func handleDeleteAction(dataService: DataService) {
-    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    removeLibraryItemAction(dataService: dataService, objectID: objectID)
-  }
-
-  func updateItemReadStatus(dataService: DataService) {
-    guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
-
-    dataService.updateLinkReadingProgress(
-      itemID: itemID,
-      readingProgress: isItemRead ? 0 : 100,
-      anchorIndex: 0,
-      force: false
-    )
   }
 
   private func trackReadEvent() {
@@ -85,17 +63,16 @@ struct LinkItemDetailView: View {
   }
 
   var body: some View {
-    ZStack {
+    Group {
       if isPDF {
-        pdfContainerView
+        NavigationView {
+          pdfContainerView
+            .navigationBarBackButtonHidden(false)
+        }
+        .navigationViewStyle(.stack)
       } else if let item = viewModel.item {
         WebReaderContainerView(item: item, pop: { dismiss() })
-        #if os(iOS)
-          .navigationBarHidden(true)
-          .lazyPop(pop: {
-            dismiss()
-          }, isEnabled: $isEnabled)
-        #endif
+          .background(ThemeManager.currentBgColor)
       }
     }
     .ignoresSafeArea(.all, edges: .bottom)

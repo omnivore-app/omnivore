@@ -5,6 +5,7 @@ export const setLabels = async (
   auth: string,
   pageId: string,
   labelIds: string[],
+  ruleName: string
 ) => {
   const data = JSON.stringify({
     query: `mutation SetLabels($input: SetLabelsInput!) {
@@ -23,6 +24,7 @@ export const setLabels = async (
       input: {
         pageId,
         labelIds,
+        source: `rule:${ruleName}`,
       },
     },
   })

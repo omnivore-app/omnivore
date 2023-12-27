@@ -10,6 +10,7 @@ export type UpdateFilterInput = {
   category?: string
   description?: string
   visible?: boolean
+  folder?: string
 }
 
 type UpdateFilterOutput = {

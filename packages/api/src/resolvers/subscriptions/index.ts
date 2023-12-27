@@ -1,12 +1,25 @@
-import Parser from 'rss-parser'
-import { Brackets } from 'typeorm'
-import { Subscription } from '../../entity/subscription'
+import axios from 'axios'
+import { parseHTML } from 'linkedom'
+import { Brackets, In } from 'typeorm'
+import {
+  DEFAULT_SUBSCRIPTION_FOLDER,
+  Subscription,
+} from '../../entity/subscription'
 import { env } from '../../env'
 import {
+  FeedEdge,
+  FeedsError,
+  FeedsErrorCode,
+  FeedsSuccess,
   MutationSubscribeArgs,
   MutationUnsubscribeArgs,
   MutationUpdateSubscriptionArgs,
+  QueryFeedsArgs,
+  QueryScanFeedsArgs,
   QuerySubscriptionsArgs,
+  ScanFeedsError,
+  ScanFeedsErrorCode,
+  ScanFeedsSuccess,
   SortBy,
   SortOrder,
   SubscribeError,
@@ -25,25 +38,19 @@ import {
   UpdateSubscriptionSuccess,
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
+import { feedRepository } from '../../repository/feed'
 import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import { authorized } from '../../utils/helpers'
+import {
+  authorized,
+  getAbsoluteUrl,
+  keysToCamelCase,
+} from '../../utils/helpers'
+import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
-
-const parser = new Parser({
-  timeout: 30000, // 30 seconds
-  maxRedirects: 5,
-  headers: {
-    // some rss feeds require user agent
-    'User-Agent':
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-    Accept:
-      'application/rss+xml, application/rdf+xml;q=0.8, application/atom+xml;q=0.6, application/xml;q=0.4, text/xml;q=0.4',
-  },
-})
 
 export type SubscriptionsSuccessPartial = Merge<
   SubscriptionsSuccess,
@@ -84,7 +91,7 @@ export const subscriptionsResolver = authorized<
           }).orWhere({
             type: SubscriptionType.Rss,
           })
-        }),
+        })
       )
     }
 
@@ -175,7 +182,7 @@ export const subscribeResolver = authorized<
   SubscribeSuccessPartial,
   SubscribeError,
   MutationSubscribeArgs
->(async (_, { input }, { authTrx, uid, log }) => {
+>(async (_, { input }, { uid, log }) => {
   try {
     analytics.track({
       userId: uid,
@@ -186,9 +193,18 @@ export const subscribeResolver = authorized<
       },
     })
 
+    // validate rss feed
+    const feed = await parseFeed(input.url)
+    if (!feed) {
+      return {
+        errorCodes: [SubscribeErrorCode.NotFound],
+      }
+    }
+    const feedUrl = feed.url
+
     // find existing subscription
     const existingSubscription = await getRepository(Subscription).findOneBy({
-      url: input.url,
+      url: In([feedUrl, input.url]), // check both user provided url and parsed url
       user: { id: uid },
       type: SubscriptionType.Rss,
     })
@@ -202,18 +218,22 @@ export const subscribeResolver = authorized<
       // re-subscribe
       const updatedSubscription = await getRepository(Subscription).save({
         ...existingSubscription,
+        fetchContent: input.fetchContent ?? undefined,
+        folder: input.folder ?? undefined,
+        isPrivate: input.isPrivate,
         status: SubscriptionStatus.Active,
       })
 
       // create a cloud task to fetch rss feed item for resub subscription
       await enqueueRssFeedFetch({
         userIds: [uid],
-        url: input.url,
+        url: feedUrl,
         subscriptionIds: [updatedSubscription.id],
         scheduledDates: [new Date()], // fetch immediately
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
-        addToLibraryFlags: [!!updatedSubscription.autoAddToLibrary],
+        fetchContents: [updatedSubscription.fetchContent],
+        folders: [updatedSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
       })
 
       return {
@@ -222,29 +242,28 @@ export const subscribeResolver = authorized<
     }
 
     // create new rss subscription
-    const MAX_RSS_SUBSCRIPTIONS = 150
-    // validate rss feed
-    const feed = await parser.parseURL(input.url)
+    const MAX_RSS_SUBSCRIPTIONS = env.subscription.feed.max
 
-    // limit number of rss subscriptions to 150
+    // limit number of rss subscriptions to max
     const results = (await getRepository(Subscription).query(
-      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
-          select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, is_private, fetch_content, folder) 
+          select $1, $2, $3, $4, $5, $6, $7, $8, $9 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-          having count(*) < $9
+          having count(*) < $10
           returning *;`,
       [
         feed.title,
-        feed.feedUrl,
-        feed.description || null,
+        feedUrl,
+        feed.description,
         SubscriptionType.Rss,
         uid,
-        feed.image?.url || null,
-        input.autoAddToLibrary ?? null,
-        input.isPrivate ?? null,
+        feed.thumbnail,
+        input.isPrivate,
+        input.fetchContent ?? true,
+        input.folder ?? 'following',
         MAX_RSS_SUBSCRIPTIONS,
-      ],
-    )) as Subscription[]
+      ]
+    )) as any[]
 
     if (results.length === 0) {
       return {
@@ -252,17 +271,19 @@ export const subscribeResolver = authorized<
       }
     }
 
-    const newSubscription = results[0]
+    // convert to camel case
+    const newSubscription = keysToCamelCase(results[0]) as Subscription
 
     // create a cloud task to fetch rss feed item for the new subscription
     await enqueueRssFeedFetch({
       userIds: [uid],
-      url: input.url,
+      url: feedUrl,
       subscriptionIds: [newSubscription.id],
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
       checksums: [null],
-      addToLibraryFlags: [!!newSubscription.autoAddToLibrary],
+      fetchContents: [newSubscription.fetchContent],
+      folders: [newSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
     })
 
     return {
@@ -318,6 +339,8 @@ export const updateSubscriptionResolver = authorized<
           : undefined,
         autoAddToLibrary: input.autoAddToLibrary ?? undefined,
         isPrivate: input.isPrivate ?? undefined,
+        fetchContent: input.fetchContent ?? undefined,
+        folder: input.folder ?? undefined,
       })
 
       return repo.findOneByOrFail({
@@ -333,6 +356,152 @@ export const updateSubscriptionResolver = authorized<
     log.error('failed to update subscription', error)
     return {
       errorCodes: [UpdateSubscriptionErrorCode.BadRequest],
+    }
+  }
+})
+
+export const feedsResolver = authorized<
+  FeedsSuccess,
+  FeedsError,
+  QueryFeedsArgs
+>(async (_, { input }, { log }) => {
+  try {
+    const startCursor = input.after || ''
+    const start =
+      startCursor && !isNaN(Number(startCursor)) ? Number(startCursor) : 0
+    const first = Math.min(input.first || 10, 100) // cap at 100
+
+    const { feeds, count } = await feedRepository.searchFeeds(
+      input.query || '',
+      first + 1, // fetch one extra to check if there is a next page
+      start,
+      input.sort?.by,
+      input.sort?.order || undefined
+    )
+
+    const hasNextPage = feeds.length > first
+    const endCursor = String(start + feeds.length - (hasNextPage ? 1 : 0))
+
+    if (hasNextPage) {
+      // remove an extra if exists
+      feeds.pop()
+    }
+
+    const edges: FeedEdge[] = feeds.map((feed) => ({
+      node: feed,
+      cursor: endCursor,
+    }))
+
+    return {
+      __typename: 'FeedsSuccess',
+      edges,
+      pageInfo: {
+        hasPreviousPage: start > 0,
+        hasNextPage,
+        startCursor,
+        endCursor,
+        totalCount: count,
+      },
+    }
+  } catch (error) {
+    log.error('Error fetching feeds', error)
+
+    return {
+      errorCodes: [FeedsErrorCode.BadRequest],
+    }
+  }
+})
+
+export const scanFeedsResolver = authorized<
+  ScanFeedsSuccess,
+  ScanFeedsError,
+  QueryScanFeedsArgs
+>(async (_, { input: { opml, url } }, { log, uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'scan_feeds',
+    properties: {
+      opml,
+      url,
+    },
+  })
+
+  if (opml) {
+    // parse opml
+    const feeds = parseOpml(opml)
+    if (!feeds) {
+      return {
+        errorCodes: [ScanFeedsErrorCode.BadRequest],
+      }
+    }
+
+    return {
+      feeds: feeds.map((feed) => ({
+        url: feed.url,
+        title: feed.title,
+        type: feed.type || 'rss',
+      })),
+    }
+  }
+
+  if (!url) {
+    log.error('Missing opml and url')
+
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
+    }
+  }
+
+  try {
+    // fetch page content and parse feeds
+    const response = await axios.get(url, RSS_PARSER_CONFIG)
+    const content = response.data as string
+    // check if the content is html or xml
+    const contentType = response.headers['Content-Type']
+    const isHtml = contentType?.includes('text/html')
+    if (isHtml) {
+      // this is an html page, parse rss feed links
+      const dom = parseHTML(content).document
+      // type is application/rss+xml or application/atom+xml
+      const links = dom.querySelectorAll(
+        'link[type="application/rss+xml"], link[type="application/atom+xml"]'
+      )
+
+      const feeds = Array.from(links)
+        .map((link) => {
+          const href = link.getAttribute('href') || ''
+          const feedUrl = getAbsoluteUrl(href, url)
+
+          return {
+            url: feedUrl,
+            title: link.getAttribute('title') || '',
+            type: 'rss',
+          }
+        })
+        .filter((feed) => feed.url)
+
+      return {
+        feeds,
+      }
+    }
+
+    // this is the url to an RSS feed
+    const feed = await parseFeed(url, content)
+    if (!feed) {
+      log.error('Failed to parse RSS feed')
+      return {
+        feeds: [],
+      }
+    }
+
+    return {
+      feeds: [feed],
+    }
+  } catch (error) {
+    log.error('Error scanning URL', error)
+
+    return {
+      errorCodes: [ScanFeedsErrorCode.BadRequest],
     }
   }
 })

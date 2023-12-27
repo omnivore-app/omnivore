@@ -2,11 +2,12 @@ import CoreData
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 @MainActor final class FilterByLabelsViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var errorMessage: String? = nil
+  @Published var errorMessage: String?
   @Published var labels = [LinkedItemLabel]()
   @Published var selectedLabels = [LinkedItemLabel]()
   @Published var negatedLabels = [LinkedItemLabel]()
@@ -14,7 +15,9 @@ import Views
   @Published var labelSearchFilter = ""
 
   func setLabels(_ labels: [LinkedItemLabel]) {
-    self.labels = labels.sorted { left, right in
+    let hideSystemLabels = UserDefaults(suiteName: "group.app.omnivoreapp")?.bool(forKey: UserDefaultKey.hideSystemLabels.rawValue) ?? false
+
+    self.labels = labels.filter { !hideSystemLabels || !isSystemLabel($0) }.sorted { left, right in
       let aTrimmed = left.unwrappedName.trimmingCharacters(in: .whitespaces)
       let bTrimmed = right.unwrappedName.trimmingCharacters(in: .whitespaces)
       return aTrimmed.caseInsensitiveCompare(bTrimmed) == .orderedAscending

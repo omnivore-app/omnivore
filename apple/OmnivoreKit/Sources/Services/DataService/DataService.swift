@@ -69,7 +69,7 @@ public final class DataService: ObservableObject {
   }
 
   public func cleanupDeletedItems(in context: NSManagedObjectContext) {
-    let fetchRequest: NSFetchRequest<LinkedItem> = LinkedItem.fetchRequest()
+    let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
 
     let calendar = Calendar.current
     let oneDayAgo = calendar.date(byAdding: .day, value: -1, to: Date())!
@@ -128,6 +128,17 @@ public final class DataService: ObservableObject {
     }
   }
 
+  func deleteAllEntities(entityName: String, inContext context: NSManagedObjectContext) {
+    let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+    let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
+    do {
+      try context.execute(deleteRequest)
+      try context.save()
+    } catch {
+      print("Error deleting all \(entityName) items.", error)
+    }
+  }
+
   private func clearDownloadedFiles() {
     let relevantTypes = ["pdf", "mp3", "speechMarks"]
     let fileMgr = FileManager()
@@ -176,6 +187,17 @@ public final class DataService: ObservableObject {
   }
 
   public func resetLocalStorage() {
+    viewContext.perform {
+      // We want to specify the order of deleting items to better handle relationships
+      let entities = ["LibraryItem", "Viewer", "Filter", "Highlight", "NewsletterEmail",
+                      "LinkedItemLabel", "RecentSearchItem", "Recommendation", "RecommendationGroup", "UserProfile"]
+      entities.forEach { entityName in
+        self.deleteAllEntities(entityName: entityName, inContext: self.viewContext)
+      }
+    }
+
+    UserDefaults.standard.set(nil, forKey: UserDefaultKey.lastSelectedTabItem.rawValue)
+
     lastItemSyncTime = Date(timeIntervalSinceReferenceDate: 0)
 
     clearCoreData()
@@ -219,12 +241,12 @@ public final class DataService: ObservableObject {
 
     try await backgroundContext.perform { [weak self] in
       guard let self = self else { return }
-      let fetchRequest: NSFetchRequest<Models.LinkedItem> = LinkedItem.fetchRequest()
+      let fetchRequest: NSFetchRequest<Models.LibraryItem> = LibraryItem.fetchRequest()
       fetchRequest.predicate = NSPredicate(format: "pageURLString = %@", normalizedURL)
 
       let currentTime = Date()
       let existingItem = try? self.backgroundContext.fetch(fetchRequest).first
-      let linkedItem = existingItem ?? LinkedItem(entity: LinkedItem.entity(), insertInto: self.backgroundContext)
+      let linkedItem = existingItem ?? LibraryItem(entity: LibraryItem.entity(), insertInto: self.backgroundContext)
 
       linkedItem.createdId = requestId
       linkedItem.id = existingItem?.unwrappedID ?? requestId

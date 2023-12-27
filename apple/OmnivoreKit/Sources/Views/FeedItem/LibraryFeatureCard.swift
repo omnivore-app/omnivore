@@ -5,9 +5,9 @@ import Utils
 public struct LibraryFeatureCard: View {
   let viewer: Viewer?
   let tapHandler: () -> Void
-  @ObservedObject var item: LinkedItem
+  @ObservedObject var item: Models.LibraryItem
 
-  public init(item: LinkedItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
+  public init(item: Models.LibraryItem, viewer: Viewer?, tapHandler: @escaping () -> Void = {}) {
     self.item = item
     self.viewer = viewer
     self.tapHandler = tapHandler
@@ -37,7 +37,7 @@ public struct LibraryFeatureCard: View {
         CachedAsyncImage(url: imageURL) { phase in
           switch phase {
           case .empty:
-            Color.systemBackground
+            Color.clear
               .frame(width: 146, height: 90)
           case let .success(image):
             image.resizable()
@@ -66,17 +66,25 @@ public struct LibraryFeatureCard: View {
     .cornerRadius(5)
   }
 
+  var fallbackFont: Font {
+    if let uifont = UIFont(name: "Futura Bold", size: 16) {
+      return Font(uifont)
+    }
+    return Font.system(size: 16)
+  }
+
   var fallbackImage: some View {
     HStack {
-      Text(item.unwrappedTitle.prefix(1))
-        .font(Font.system(size: 128, weight: .bold))
-        .offset(CGSize(width: -48, height: 12))
-        .frame(alignment: .bottomLeading)
-        .foregroundColor(Gradient.randomColor(str: item.unwrappedTitle, offset: 1))
+      Text(item.unwrappedTitle)
+        .font(fallbackFont)
+        .frame(alignment: .center)
+        .multilineTextAlignment(.leading)
+        .lineLimit(2)
+        .padding(10)
+        .foregroundColor(Color.thFallbackImageForeground)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Gradient.randomColor(str: item.unwrappedTitle, offset: 0))
-    .background(LinearGradient(gradient: Gradient(fromStr: item.unwrappedTitle)!, startPoint: .top, endPoint: .bottom))
+    .background(Color.thFallbackImageBackground)
     .frame(width: 146, height: 90)
   }
 

@@ -1,14 +1,9 @@
 import { LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
-import {
-  ArticleSavingRequestStatus,
-  SaveErrorCode,
-  SaveFileInput,
-  SaveResult,
-} from '../generated/graphql'
+import { SaveErrorCode, SaveFileInput, SaveResult } from '../generated/graphql'
 import { getStorageFileDetails } from '../utils/uploads'
-import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
+import { createAndSaveLabelsInLibraryItem } from './labels'
 import { updateLibraryItem } from './library_item'
 import { findUploadFileById, setFileUploadComplete } from './upload_file'
 
@@ -33,24 +28,23 @@ export const saveFile = async (
     }
   }
 
-  if (input.state || input.labels) {
+  if (input.state || input.folder) {
     await updateLibraryItem(
       input.clientRequestId,
       {
-        state: LibraryItemState.Succeeded,
-        folder:
-          input.state === ArticleSavingRequestStatus.Archived
-            ? 'archive'
-            : 'inbox',
+        state: (input.state as unknown as LibraryItemState) || undefined,
+        folder: input.folder || undefined,
       },
       user.id,
     )
-    // add labels to item
-    if (input.labels) {
-      const labels = await findOrCreateLabels(input.labels, user.id)
-      await saveLabelsInLibraryItem(labels, input.clientRequestId, user.id)
-    }
   }
+
+  // add labels to item
+  await createAndSaveLabelsInLibraryItem(
+    input.clientRequestId,
+    user.id,
+    input.labels
+  )
 
   return {
     clientRequestId: input.clientRequestId,

@@ -120,7 +120,13 @@ export const triggerActions = async (
           return (
             labelIdsToSet.length > existingLabelIds.length &&
             actionPromises.push(
-              setLabels(apiEndpoint, authToken, data.id, labelIdsToSet),
+              setLabels(
+                apiEndpoint,
+                authToken,
+                data.id,
+                labelIdsToSet,
+                rule.name
+              )
             )
           )
         }

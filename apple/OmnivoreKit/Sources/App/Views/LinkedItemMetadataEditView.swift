@@ -8,13 +8,13 @@ import Views
   @Published var description = ""
   @Published var author = ""
 
-  func load(item: LinkedItem) {
+  func load(item: Models.LibraryItem) {
     title = item.unwrappedTitle
     author = item.author ?? ""
     description = item.descriptionText ?? ""
   }
 
-  func submit(dataService: DataService, item: LinkedItem) {
+  func submit(dataService: DataService, item: Models.LibraryItem) {
     dataService.updateLinkedItemTitleAndDescription(
       itemID: item.unwrappedID,
       title: title,
@@ -30,10 +30,10 @@ struct LinkedItemMetadataEditView: View {
   @Environment(\.presentationMode) private var presentationMode
   @StateObject var viewModel = LinkedItemMetadataEditViewModel()
 
-  let item: LinkedItem
+  let item: Models.LibraryItem
   let onSave: ((String, String) -> Void)?
 
-  init(item: LinkedItem, onSave: ((String, String) -> Void)? = nil) {
+  init(item: Models.LibraryItem, onSave: ((String, String) -> Void)? = nil) {
     self.item = item
     self.onSave = onSave
   }

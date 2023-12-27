@@ -155,6 +155,7 @@ union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequ
 
 enum ArticleSavingRequestStatus {
   ARCHIVED
+  CONTENT_NOT_FETCHED
   DELETED
   FAILED
   PROCESSING
@@ -204,6 +205,7 @@ enum BulkActionType {
   ARCHIVE
   DELETE
   MARK_AS_READ
+  MOVE_TO_FOLDER
 }
 
 enum ContentReader {
@@ -228,8 +230,12 @@ enum CreateArticleErrorCode {
 
 input CreateArticleInput {
   articleSavingRequestId: ID
+  folder: String
   labels: [CreateLabelInput!]
   preparedDocument: PreparedDocumentInput
+  publishedAt: Date
+  rssFeedUrl: String
+  savedAt: Date
   skipParsing: Boolean
   source: String
   state: ArticleSavingRequestStatus
@@ -376,6 +382,12 @@ type CreateNewsletterEmailError {
 enum CreateNewsletterEmailErrorCode {
   BAD_REQUEST
   UNAUTHORIZED
+}
+
+input CreateNewsletterEmailInput {
+  description: String
+  folder: String
+  name: String
 }
 
 union CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess
@@ -683,13 +695,14 @@ type Feature {
 
 type Feed {
   author: String
-  createdAt: Date!
+  createdAt: Date
   description: String
-  id: ID!
+  id: ID
   image: String
   publishedAt: Date
   title: String!
-  updatedAt: Date!
+  type: String
+  updatedAt: Date
   url: String!
 }
 
@@ -754,12 +767,28 @@ type FeedsSuccess {
   pageInfo: PageInfo!
 }
 
+type FetchContentError {
+  errorCodes: [FetchContentErrorCode!]!
+}
+
+enum FetchContentErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FetchContentResult = FetchContentError | FetchContentSuccess
+
+type FetchContentSuccess {
+  success: Boolean!
+}
+
 type Filter {
+  category: String
   createdAt: Date!
   defaultFilter: Boolean
   description: String
   filter: String!
-  folder: String!
+  folder: String
   id: ID!
   name: String!
   position: Int!
@@ -1038,6 +1067,7 @@ type Label {
   internal: Boolean
   name: String!
   position: Int
+  source: String
 }
 
 type LabelsError {
@@ -1233,18 +1263,18 @@ enum MoveToFolderErrorCode {
 union MoveToFolderResult = MoveToFolderError | MoveToFolderSuccess
 
 type MoveToFolderSuccess {
-  articleSavingRequest: ArticleSavingRequest!
+  success: Boolean!
 }
 
 type Mutation {
   addPopularRead(name: String!): AddPopularReadResult!
-  bulkAction(action: BulkActionType!, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
+  bulkAction(action: BulkActionType!, arguments: JSON, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
   createArticleSavingRequest(input: CreateArticleSavingRequestInput!): CreateArticleSavingRequestResult!
   createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
-  createNewsletterEmail: CreateNewsletterEmailResult!
+  createNewsletterEmail(input: CreateNewsletterEmailInput): CreateNewsletterEmailResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
   deleteDiscoveryArticle(input: DeleteDiscoveryArticleInput!): DeleteDiscoveryArticleResult!
   deleteFilter(id: ID!): DeleteFilterResult!
@@ -1254,6 +1284,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
+  fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
@@ -1293,6 +1324,7 @@ type Mutation {
   updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
+  updateNewsletterEmail(input: UpdateNewsletterEmailInput!): UpdateNewsletterEmailResult!
   updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
@@ -1305,7 +1337,10 @@ type NewsletterEmail {
   address: String!
   confirmationCode: String
   createdAt: Date!
+  description: String
+  folder: String!
   id: ID!
+  name: String
   subscriptionCount: Int!
 }
 
@@ -1438,6 +1473,7 @@ type Query {
   recentEmails: RecentEmailsResult!
   recentSearches: RecentSearchesResult!
   rules(enabled: Boolean): RulesResult!
+  scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   search(after: String, first: Int, format: String, includeContent: Boolean, query: String): SearchResult!
   sendInstallInstructions: SendInstallInstructionsResult!
   subscriptions(sort: SortParams, type: SubscriptionType): SubscriptionsResult!
@@ -1762,6 +1798,7 @@ enum SaveErrorCode {
 
 input SaveFileInput {
   clientRequestId: ID!
+  folder: String
   labels: [CreateLabelInput!]
   source: String!
   state: ArticleSavingRequestStatus
@@ -1780,6 +1817,7 @@ enum SaveFilterErrorCode {
 }
 
 input SaveFilterInput {
+  category: String
   description: String
   filter: String!
   folder: String
@@ -1795,6 +1833,7 @@ type SaveFilterSuccess {
 
 input SavePageInput {
   clientRequestId: ID!
+  folder: String
   labels: [CreateLabelInput!]
   originalContent: String!
   parseResult: ParseResult
@@ -1816,6 +1855,7 @@ type SaveSuccess {
 
 input SaveUrlInput {
   clientRequestId: ID!
+  folder: String
   labels: [CreateLabelInput!]
   locale: String
   publishedAt: Date
@@ -1824,6 +1864,25 @@ input SaveUrlInput {
   state: ArticleSavingRequestStatus
   timezone: String
   url: String!
+}
+
+type ScanFeedsError {
+  errorCodes: [ScanFeedsErrorCode!]!
+}
+
+enum ScanFeedsErrorCode {
+  BAD_REQUEST
+}
+
+input ScanFeedsInput {
+  opml: String
+  url: String
+}
+
+union ScanFeedsResult = ScanFeedsError | ScanFeedsSuccess
+
+type ScanFeedsSuccess {
+  feeds: [Feed!]!
 }
 
 type SearchError {
@@ -2037,6 +2096,7 @@ input SetLabelsInput {
   labelIds: [ID!]
   labels: [CreateLabelInput!]
   pageId: ID!
+  source: String
 }
 
 union SetLabelsResult = SetLabelsError | SetLabelsSuccess
@@ -2233,6 +2293,8 @@ enum SubscribeErrorCode {
 
 input SubscribeInput {
   autoAddToLibrary: Boolean
+  fetchContent: Boolean
+  folder: String
   isPrivate: Boolean
   subscriptionType: SubscriptionType
   url: String!
@@ -2249,6 +2311,8 @@ type Subscription {
   count: Int!
   createdAt: Date!
   description: String
+  fetchContent: Boolean!
+  folder: String!
   icon: String
   id: ID!
   isPrivate: Boolean
@@ -2368,6 +2432,7 @@ enum UpdateFilterErrorCode {
 }
 
 input UpdateFilterInput {
+  category: String
   description: String
   filter: String
   folder: String
@@ -2475,6 +2540,28 @@ type UpdateLinkShareInfoSuccess {
   message: String!
 }
 
+type UpdateNewsletterEmailError {
+  errorCodes: [UpdateNewsletterEmailErrorCode!]!
+}
+
+enum UpdateNewsletterEmailErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input UpdateNewsletterEmailInput {
+  description: String
+  folder: String
+  id: ID!
+  name: String
+}
+
+union UpdateNewsletterEmailResult = UpdateNewsletterEmailError | UpdateNewsletterEmailSuccess
+
+type UpdateNewsletterEmailSuccess {
+  newsletterEmail: NewsletterEmail!
+}
+
 type UpdatePageError {
   errorCodes: [UpdatePageErrorCode!]!
 }
@@ -2567,6 +2654,8 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
+  fetchContent: Boolean
+  folder: String
   id: ID!
   isPrivate: Boolean
   lastFetchedAt: Date

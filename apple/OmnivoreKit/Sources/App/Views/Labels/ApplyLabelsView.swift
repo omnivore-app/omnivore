@@ -2,12 +2,13 @@
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 @MainActor
 struct ApplyLabelsView: View {
   enum Mode {
-    case item(LinkedItem)
+    case item(Models.LibraryItem)
     case highlight(Highlight)
     case list([LinkedItemLabel])
 
@@ -106,16 +107,14 @@ struct ApplyLabelsView: View {
     .sheet(isPresented: $viewModel.showCreateLabelModal) {
       CreateLabelView(viewModel: viewModel, newLabelName: viewModel.labelSearchFilter)
     }
-    .onAppear {
-      Task {
-        switch mode {
-        case let .item(feedItem):
-          await viewModel.loadLabels(dataService: dataService, item: feedItem)
-        case let .highlight(highlight):
-          await viewModel.loadLabels(dataService: dataService, highlight: highlight)
-        case let .list(labels):
-          await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
-        }
+    .task {
+      switch mode {
+      case let .item(feedItem):
+        await viewModel.loadLabels(dataService: dataService, item: feedItem)
+      case let .highlight(highlight):
+        await viewModel.loadLabels(dataService: dataService, highlight: highlight)
+      case let .list(labels):
+        await viewModel.loadLabels(dataService: dataService, initiallySelectedLabels: labels)
       }
     }
   }
@@ -197,15 +196,21 @@ struct ApplyLabelsView: View {
   }
 }
 
+func isSystemLabel(_ label: LinkedItemLabel) -> Bool {
+  label.name == "RSS" || label.name == "Newsletter" || label.name == "Pinned"
+}
+
 extension Sequence where Element == LinkedItemLabel {
   func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
+    let hideSystemLabels = UserDefaults(suiteName: "group.app.omnivoreapp")?.bool(forKey: UserDefaultKey.hideSystemLabels.rawValue) ?? false
+
     if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
     }
     if searchFilter.starts(with: ZWSP) {
       let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
       let trimmed = searchFilter.suffix(from: index).lowercased()
-      return filter { ($0.name ?? "").lowercased().contains(trimmed) }
+      return filter { ($0.name ?? "").lowercased().contains(trimmed) && (!hideSystemLabels || !isSystemLabel($0)) }
     }
     return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
   }

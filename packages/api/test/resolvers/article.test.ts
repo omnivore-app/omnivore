@@ -569,14 +569,14 @@ describe('Article API', () => {
         ).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(searchQuery(''), authToken).expect(
+        let allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(
           200
         )
         const justSavedId = allLinks.body.data.search.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
@@ -585,7 +585,7 @@ describe('Article API', () => {
           authToken
         ).expect(200)
 
-        allLinks = await graphqlRequest(searchQuery(''), authToken).expect(200)
+        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })
@@ -1700,6 +1700,209 @@ describe('Article API', () => {
 
         expect(res.body.data.search.pageInfo.totalCount).to.eq(1)
         expect(res.body.data.search.edges[0].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when label:test1,test2 is in the query', () => {
+      let items: LibraryItem[] = []
+      let label1: Label
+      let label2: Label
+
+      before(async () => {
+        keyword = 'label:test1,test2'
+        // Create some test items
+        label1 = await createLabel('test1', '', user.id)
+        label2 = await createLabel('test2', '', user.id)
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label1], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels({ id: label1.id }, user.id)
+        await deleteLabels({ id: label2.id }, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items with label test1 or test2', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when label:test1 OR label:test2 is in the query', () => {
+      let items: LibraryItem[] = []
+      let label1: Label
+      let label2: Label
+
+      before(async () => {
+        keyword = 'label:test1 OR label:test2'
+        // Create some test items
+        label1 = await createLabel('test1', '', user.id)
+        label2 = await createLabel('test2', '', user.id)
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test title 1',
+              readableContent: '<p>test 1</p>',
+              slug: 'test slug 1',
+              originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'test title 2',
+              readableContent: '<p>test 2</p>',
+              slug: 'test slug 2',
+              originalUrl: `${url}/test2`,
+            },
+            {
+              user,
+              title: 'test title 3',
+              readableContent: '<p>test 3</p>',
+              slug: 'test slug 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+        await saveLabelsInLibraryItem([label1], items[0].id, user.id)
+        await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+      })
+
+      after(async () => {
+        await deleteLabels({ id: label1.id }, user.id)
+        await deleteLabels({ id: label2.id }, user.id)
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items with label test1 or test2', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eq(2)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when sort:score is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'sort:score score'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'score',
+              slug: 'test 1',
+              originalUrl: `${url}/test1`,
+            },
+            {
+              user,
+              title: 'score score',
+              slug: 'test 2',
+              originalUrl: `${url}/test2`,
+            },
+            {
+              user,
+              title: 'score score score',
+              slug: 'test 3',
+              originalUrl: `${url}/test3`,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items in descending order of score', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eql(3)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
+      })
+    })
+
+    context('when sort:wordscount is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'wordscount:>=10000 sort:wordscount'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test 1',
+              slug: 'test 1',
+              originalUrl: `${url}/test1`,
+              wordCount: 10000,
+            },
+            {
+              user,
+              title: 'test 2',
+              slug: 'test 2',
+              originalUrl: `${url}/test2`,
+              wordCount: 20000,
+            },
+            {
+              user,
+              title: 'test 3',
+              slug: 'test 3',
+              originalUrl: `${url}/test3`,
+              wordCount: 30000,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items in descending order of word count', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eql(3)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
       })
     })
   })

@@ -9,13 +9,13 @@ extension DataService {
     // Update CoreData
     backgroundContext.perform { [weak self] in
       guard let self = self else { return }
-      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LinkedItem else { return }
+      guard let linkedItem = self.backgroundContext.object(with: objectID) as? LibraryItem else { return }
       linkedItem.update(inContext: self.backgroundContext, newIsArchivedValue: archived)
 
       // Send update to server
       self.syncLinkArchiveStatus(itemID: linkedItem.unwrappedID, archived: archived)
 
-      let message = archived ? "Link archived" : "Link moved to Inbox"
+      let message = archived ? "Link archived" : "Link unarchived"
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(300)) {
         showInLibrarySnackbar(message)
       }
@@ -54,7 +54,7 @@ extension DataService {
       let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
       context.perform {
-        guard let linkedItem = LinkedItem.lookup(byID: itemID, inContext: context) else { return }
+        guard let linkedItem = LibraryItem.lookup(byID: itemID, inContext: context) else { return }
         linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
 
         do {

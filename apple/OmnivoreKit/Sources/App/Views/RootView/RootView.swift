@@ -51,13 +51,14 @@ struct InnerRootView: View {
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
       PrimaryContentView()
-      #if os(iOS)
-        .miniPlayer()
-      #endif
     } else {
-      WelcomeView()
-        .accessibilityElement()
-        .accessibilityIdentifier("welcomeView")
+      if authenticator.isLoggingOut {
+        LogoutView()
+      } else {
+        WelcomeView()
+          .accessibilityElement()
+          .accessibilityIdentifier("welcomeView")
+      }
     }
   }
 

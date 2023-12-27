@@ -28,7 +28,7 @@ import { parsePreparedContent } from '../utils/parser'
 import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
-import { findOrCreateLabels, saveLabelsInLibraryItem } from './labels'
+import { createAndSaveLabelsInLibraryItem } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
@@ -93,10 +93,11 @@ export const savePage = async (
     itemType: parseResult.pageType,
     originalHtml: parseResult.domContent,
     canonicalUrl: parseResult.canonicalUrl,
-    saveTime: input.savedAt ? new Date(input.savedAt) : new Date(),
+    savedAt: input.savedAt ? new Date(input.savedAt) : new Date(),
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
     state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
+    folder: input.folder,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
@@ -110,6 +111,7 @@ export const savePage = async (
         articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,
         labels: input.labels || undefined,
+        folder: input.folder || undefined,
       })
     } catch (e) {
       return {
@@ -158,11 +160,12 @@ export const savePage = async (
       clientRequestId = newItem.id
     }
 
-    // save labels in item
-    if (input.labels) {
-      const labels = await findOrCreateLabels(input.labels, user.id)
-      await saveLabelsInLibraryItem(labels, clientRequestId, user.id)
-    }
+    await createAndSaveLabelsInLibraryItem(
+      clientRequestId,
+      user.id,
+      input.labels,
+      input.rssFeedUrl
+    )
   }
 
   // we don't want to create thumbnail for imported pages
@@ -212,10 +215,11 @@ export const parsedContentToLibraryItem = ({
   itemType,
   uploadFileHash,
   uploadFileId,
-  saveTime,
+  savedAt,
   publishedAt,
   state,
   rssFeedUrl,
+  folder,
 }: {
   url: string
   userId: string
@@ -230,10 +234,11 @@ export const parsedContentToLibraryItem = ({
   canonicalUrl?: string | null
   uploadFileHash?: string | null
   uploadFileId?: string | null
-  saveTime?: Date
+  savedAt?: Date
   publishedAt?: Date | null
   state?: ArticleSavingRequestStatus | null
   rssFeedUrl?: string | null
+  folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   return {
     id: itemId || undefined,
@@ -264,15 +269,14 @@ export const parsedContentToLibraryItem = ({
     state: state
       ? (state as unknown as LibraryItemState)
       : LibraryItemState.Succeeded,
-    createdAt: validatedDate(saveTime),
-    savedAt: validatedDate(saveTime),
+    savedAt: validatedDate(savedAt),
     siteName: parsedContent?.siteName,
     itemLanguage: parsedContent?.language,
     siteIcon: parsedContent?.siteIcon,
     wordCount: wordsCount(parsedContent?.textContent || ''),
     contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
     subscription: rssFeedUrl,
-    folder: 'inbox',
+    folder: folder || 'inbox',
     archivedAt:
       state === ArticleSavingRequestStatus.Archived ? new Date() : null,
   }
