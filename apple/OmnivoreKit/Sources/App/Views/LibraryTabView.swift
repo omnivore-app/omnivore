@@ -32,27 +32,31 @@ struct LibraryTabView: View {
   }
 
   @StateObject private var inboxViewModel = HomeFeedViewModel(
-    folder: "inbox",
+    filterKey: "lastSelectedFilter-inbox",
     fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: true,
-      hasReadNowSection: true,
-      leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
+    folderConfigs: [
+      "inbox": LibraryListConfig(
+        hasFeatureCards: true,
+        hasReadNowSection: true,
+        leadingSwipeActions: [.pin],
+        trailingSwipeActions: [.archive, .delete],
+        cardStyle: .library
+      )
+    ]
   )
 
   @StateObject private var followingViewModel = HomeFeedViewModel(
-    folder: "following",
+    filterKey: "lastSelectedFilter-following",
     fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: false,
-      hasReadNowSection: false,
-      leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.delete],
-      cardStyle: .library
-    )
+    folderConfigs: [
+      "following": LibraryListConfig(
+        hasFeatureCards: false,
+        hasReadNowSection: false,
+        leadingSwipeActions: [.moveToInbox],
+        trailingSwipeActions: [.delete],
+        cardStyle: .library
+      )
+    ]
   )
 
   var currentViewModel: HomeFeedViewModel? {

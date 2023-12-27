@@ -4,9 +4,7 @@ import Services
 import SwiftUI
 
 @MainActor struct LibrarySidebar: View {
-  @ObservedObject var inboxViewModel: HomeFeedViewModel
-  @ObservedObject var followingViewModel: HomeFeedViewModel
-
+  @ObservedObject var viewModel: HomeFeedViewModel
   @EnvironmentObject var dataService: DataService
 
   @State private var addLinkPresented = false
@@ -23,8 +21,8 @@ import SwiftUI
 
   var innerBody: some View {
     ZStack {
-      NavigationLink("", destination: HomeView(viewModel: inboxViewModel), isActive: $inboxActive)
-      NavigationLink("", destination: HomeView(viewModel: followingViewModel), isActive: $followingActive)
+//      NavigationLink("", destination: HomeView(viewModel: inboxViewModel), isActive: $inboxActive)
+//      NavigationLink("", destination: HomeView(viewModel: followingViewModel), isActive: $followingActive)
 
       List {
         Section {
@@ -43,9 +41,9 @@ import SwiftUI
           })
 
           if inboxMenuState == "open" {
-            ForEach(inboxViewModel.filters, id: \.self) { filter in
+            ForEach(viewModel.filters.filter { $0.folder == "inbox" }, id: \.self) { filter in
               Button(action: {
-                inboxViewModel.appliedFilter = filter
+                viewModel.appliedFilter = filter
                 selectedFilter = filter
                 followingActive = false
                 inboxActive = true
@@ -80,9 +78,9 @@ import SwiftUI
           })
 
           if followingMenuState == "open" {
-            ForEach(followingViewModel.filters, id: \.self) { filter in
+            ForEach(viewModel.filters.filter { $0.folder == "following" }, id: \.self) { filter in
               Button(action: {
-                followingViewModel.appliedFilter = filter
+                viewModel.appliedFilter = filter
                 selectedFilter = filter
                 inboxActive = false
                 followingActive = true
@@ -125,21 +123,16 @@ import SwiftUI
           }
       }
     }.task {
-      await inboxViewModel.loadFilters(dataService: dataService)
-      await followingViewModel.loadFilters(dataService: dataService)
+      await viewModel.loadFilters(dataService: dataService)
 
       if inboxActive {
-        selectedFilter = inboxViewModel.appliedFilter
+        selectedFilter = viewModel.appliedFilter
       } else {
-        selectedFilter = followingViewModel.appliedFilter
+        selectedFilter = viewModel.appliedFilter
       }
-    }.onChange(of: inboxViewModel.appliedFilter) { filter in
+    }.onChange(of: viewModel.appliedFilter) { filter in
       // When the user uses the dropdown menu to change filter we need to update in the sidebar
       if inboxActive, filter != selectedFilter {
-        selectedFilter = filter
-      }
-    }.onChange(of: followingViewModel.appliedFilter) { filter in
-      if followingActive, filter != selectedFilter {
         selectedFilter = filter
       }
     }

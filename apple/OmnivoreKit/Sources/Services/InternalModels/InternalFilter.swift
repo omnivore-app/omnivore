@@ -15,9 +15,9 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     lhs.id == rhs.id
   }
 
-  public static var DownloadedFilter: InternalFilter {
+  public static var InboxDownloadedFilter: InternalFilter {
     InternalFilter(
-      id: "downloaded",
+      id: "inbox-downloaded",
       name: "Downloaded",
       folder: "inbox",
       filter: "",
@@ -27,9 +27,9 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     )
   }
 
-  public static var DeletedFilter: InternalFilter {
+  public static var InboxDeletedFilter: InternalFilter {
     InternalFilter(
-      id: "deleted",
+      id: "inbox-deleted",
       name: "Deleted",
       folder: "inbox",
       filter: "in:trash",
@@ -39,7 +39,43 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     )
   }
 
-  public static var UnreadFilter: InternalFilter {
+  public static var InboxUnreadFilter: InternalFilter {
+    InternalFilter(
+      id: "inbox-unread",
+      name: "Unread",
+      folder: "inbox",
+      filter: "in:inbox is:unread",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var FollowingDownloadedFilter: InternalFilter {
+    InternalFilter(
+      id: "following-downloaded",
+      name: "Downloaded",
+      folder: "following",
+      filter: "",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var FollowingDeletedFilter: InternalFilter {
+    InternalFilter(
+      id: "following-deleted",
+      name: "Deleted",
+      folder: "following",
+      filter: "in:trash",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var FollowingUnreadFilter: InternalFilter {
     InternalFilter(
       id: "unread",
       name: "Unread",

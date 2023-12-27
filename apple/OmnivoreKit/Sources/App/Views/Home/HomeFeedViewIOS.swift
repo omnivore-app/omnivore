@@ -19,23 +19,23 @@ struct FiltersHeader: View {
               viewModel.searchTerm = ""
             }.frame(maxWidth: reader.size.width * 0.66)
           } else {
-            if UIDevice.isIPhone {
-              Menu(
-                content: {
-                  ForEach(viewModel.filters) { filter in
-                    Button(filter.name, action: {
-                      viewModel.appliedFilter = filter
-                    })
-                  }
-                },
-                label: {
-                  TextChipButton.makeMenuButton(
-                    title: viewModel.appliedFilter?.name ?? "-",
-                    color: .systemGray6
-                  )
+            // if UIDevice.isIPhone {
+            Menu(
+              content: {
+                ForEach(viewModel.filters.filter { $0.folder == viewModel.currentFolder }) { filter in
+                  Button(filter.name, action: {
+                    viewModel.appliedFilter = filter
+                  })
                 }
-              ).buttonStyle(.plain)
-            }
+              },
+              label: {
+                TextChipButton.makeMenuButton(
+                  title: viewModel.appliedFilter?.name ?? "-",
+                  color: .systemGray6
+                )
+              }
+            ).buttonStyle(.plain)
+            // }
           }
           Menu(
             content: {
@@ -126,7 +126,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var showFeatureCards: Bool {
       isEditMode == .inactive &&
-        viewModel.listConfig.hasFeatureCards &&
+        (viewModel.currentListConfig?.hasFeatureCards ?? false) &&
         !viewModel.hideFeatureSection &&
         viewModel.fetcher.items.count > 0 &&
         viewModel.searchTerm.isEmpty &&
@@ -298,9 +298,9 @@ struct AnimatingCellHeight: AnimatableModifier {
 
           Button(
             action: {
-              if viewModel.folder == "inbox" {
+              if viewModel.currentFolder == "inbox" {
                 showAddLinkView = true
-              } else if viewModel.folder == "following" {
+              } else if viewModel.currentFolder == "following" {
                 showAddFeedView = true
               }
             },
@@ -368,7 +368,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var body: some View {
       VStack(spacing: 0) {
-        if let linkRequest = viewModel.linkRequest, viewModel.listConfig.hasReadNowSection {
+        if let linkRequest = viewModel.linkRequest, viewModel.currentListConfig?.hasReadNowSection ?? false {
           PresentationLink(
             transition: PresentationLinkTransition.slide(
               options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
@@ -617,7 +617,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var emptyState: some View {
-      if viewModel.folder == "following" {
+      if viewModel.currentFolder == "following" {
         return AnyView(
           VStack(alignment: .center, spacing: 20) {
             Text("You don't have any Feed items.")
@@ -657,7 +657,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var listItems: some View {
-      ForEach(viewModel.fetcher.items, id: \.unwrappedID) { item in
+      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { idx, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
 
         LibraryItemListNavigationLink(
@@ -681,22 +681,26 @@ struct AnimatingCellHeight: AnimatableModifier {
           menuItems(for: item)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
-          ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
-            swipeActionButton(action: action, item: item)
+          if let listConfig = viewModel.currentListConfig {
+            ForEach(listConfig.leadingSwipeActions, id: \.self) { action in
+              swipeActionButton(action: action, item: item)
+            }
           }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-          ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
-            swipeActionButton(action: action, item: item)
+          if let listConfig = viewModel.currentListConfig {
+            ForEach(listConfig.trailingSwipeActions, id: \.self) { action in
+              swipeActionButton(action: action, item: item)
+            }
           }
         }
-//        .onAppear {
-//          if idx >= viewModel.fetcher.items.count - 5 {
-//            Task {
-//              await viewModel.loadMore(dataService: dataService)
-//            }
-//          }
-//        }
+        .onAppear {
+          if idx >= viewModel.fetcher.items.count - 5 {
+            Task {
+              await viewModel.loadMore(dataService: dataService)
+            }
+          }
+        }
       }
     }
 
