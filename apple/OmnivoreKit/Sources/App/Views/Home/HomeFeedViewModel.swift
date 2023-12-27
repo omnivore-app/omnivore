@@ -39,13 +39,13 @@ import Views
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
-  @Published var appliedFilter: InternalFilter? /* {
-     didSet {
-       if let folder = appliedFilter.folder, let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder))-filter") {
-         UserDefaults.standard.setValue(appliedFilter?.name, forKey: filterKey)
-       }
-     }
-   } */
+  @Published var appliedFilter: InternalFilter? {
+    didSet {
+      if let filterName = appliedFilter?.name {
+        UserDefaults.standard.setValue(filterName, forKey: filterKey)
+      }
+    }
+  }
 
   let folderConfigs: [String: LibraryListConfig]
 
@@ -54,10 +54,6 @@ import Views
 
     self.fetcher = fetcher
     self.folderConfigs = folderConfigs
-
-//    if let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(filterKey))-filter") {
-//      UserDefaults.standard.setValue(appliedFilter?.name, forKey: filterKey)
-//    }
 
     super.init()
   }
