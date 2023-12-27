@@ -36,6 +36,8 @@ public extension Color {
   static var themeLabelForeground: Color { Color("_labelForeground", bundle: .module) }
   static var themeLabelBackground: Color { Color("_labelBackground", bundle: .module) }
 
+  static var toolbarItemForeground: Color { Color("toolbarItemForeground", bundle: .module) }
+
   static var themeAudioPlayerGray: Color { Color("_audioPlayerGray", bundle: .module) }
   static var themeGrayBg01: Color { Color("_themeGrayBg01", bundle: .module) }
   static var themeHighlightColor: Color { Color("_highlightColor", bundle: .module) }

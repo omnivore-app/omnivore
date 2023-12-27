@@ -94,7 +94,7 @@
           label: {
             Image
               .toolbarTrash
-              .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+              .foregroundColor(Color.toolbarItemForeground)
           }
         ).padding(.trailing, 5)
 
@@ -105,11 +105,11 @@
               if audioController.itemAudioProperties?.isArchived ?? false {
                 Image
                   .toolbarUnarchive
-                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+                  .foregroundColor(Color.toolbarItemForeground)
               } else {
                 Image
                   .toolbarArchive
-                  .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+                  .foregroundColor(Color.toolbarItemForeground)
               }
             }
           ).padding(.trailing, 5)
