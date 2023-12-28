@@ -13,6 +13,7 @@ import { User } from '../../src/entity/user'
 import {
   ArticleSavingRequestStatus,
   BulkActionType,
+  HighlightType,
   PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
@@ -1963,6 +1964,7 @@ describe('Article API', () => {
                 pageType
                 highlights {
                   id
+                  type
                 }
               }
               itemID
@@ -2083,6 +2085,9 @@ describe('Article API', () => {
 
         expect(res.body.data.updatesSince.edges[0].node.highlights[0].id).to.eq(
           highlight.id
+        )
+        expect(res.body.data.updatesSince.edges[0].node.highlights[0].type).to.eq(
+          HighlightType.Highlight
         )
       })
     })
