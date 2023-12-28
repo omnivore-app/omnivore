@@ -27,6 +27,7 @@ import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
+  highlightDataToHighlight,
   isBase64Image,
   recommandationDataToRecommendation,
   validatedDate,
@@ -451,7 +452,8 @@ export const functionResolvers = {
       if (item.highlights) return item.highlights
 
       if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
-        return findHighlightsByLibraryItemId(item.id, ctx.uid)
+        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+        return highlights.map(highlightDataToHighlight)
       }
 
       return []
