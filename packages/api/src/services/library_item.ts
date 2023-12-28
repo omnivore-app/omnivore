@@ -999,7 +999,7 @@ export const batchUpdateLibraryItems = async (
     )
     const valuesSql = valuesToRawSql(values)
 
-    const batchSize = 10
+    const batchSize = 100
     const sql = `
     -- Set batch size
     DO $$ 
