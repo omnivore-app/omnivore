@@ -2107,31 +2107,31 @@ describe('Article API', () => {
       }
     `
 
-    before(async () => {
-      // Create some test items
-      for (let i = 0; i < 5; i++) {
-        await createLibraryItem(
-          {
-            user,
-            itemType: i == 0 ? PageType.Article : PageType.File,
-            title: 'test item',
-            readableContent: '<p>test</p>',
-            slug: '',
-            state:
-              i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
-            originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
-          },
-          user.id
-        )
-      }
-    })
-
-    after(async () => {
-      // Delete all items
-      await deleteLibraryItemsByUserId(user.id)
-    })
-
     context('when action is MarkAsRead and query is in:unread', () => {
+      before(async () => {
+        // Create some test items
+        for (let i = 0; i < 5; i++) {
+          await createLibraryItem(
+            {
+              user,
+              itemType: i == 0 ? PageType.Article : PageType.File,
+              title: 'test item',
+              readableContent: '<p>test</p>',
+              slug: '',
+              state:
+                i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
+              originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
+            },
+            user.id
+          )
+        }
+      })
+
+      after(async () => {
+        // Delete all items
+        await deleteLibraryItemsByUserId(user.id)
+      })
+
       it('marks unread items as read', async () => {
         const res = await graphqlRequest(
           bulkActionQuery(BulkActionType.MarkAsRead, 'is:unread'),
@@ -2199,6 +2199,30 @@ describe('Article API', () => {
     )
 
     context('when action is Delete', () => {
+      before(async () => {
+        // Create some test items
+        for (let i = 0; i < 5; i++) {
+          await createLibraryItem(
+            {
+              user,
+              itemType: i == 0 ? PageType.Article : PageType.File,
+              title: 'test item',
+              readableContent: '<p>test</p>',
+              slug: '',
+              state:
+                i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
+              originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
+            },
+            user.id
+          )
+        }
+      })
+
+      after(async () => {
+        // Delete all items
+        await deleteLibraryItemsByUserId(user.id)
+      })
+
       it('deletes all items', async () => {
         const res = await graphqlRequest(
           bulkActionQuery(BulkActionType.Delete),

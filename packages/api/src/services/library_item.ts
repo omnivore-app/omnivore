@@ -8,7 +8,12 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx, getColumns } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  queryBuilderToRawSql,
+  valuesToRawSql,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
@@ -901,20 +906,21 @@ export const batchUpdateLibraryItems = async (
     return 'folder' in args
   }
 
+  const now = new Date().toISOString()
   // build the script
-  let values: Record<string, any> = {}
+  let values: Record<string, string | number> = {}
   let addLabels = false
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        archivedAt: new Date(),
+        archived_at: now,
         state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
       values = {
         state: LibraryItemState.Deleted,
-        deletedAt: new Date(),
+        deleted_at: now,
       }
       break
     case BulkActionType.AddLabels:
@@ -922,9 +928,9 @@ export const batchUpdateLibraryItems = async (
       break
     case BulkActionType.MarkAsRead:
       values = {
-        readAt: new Date(),
-        readingProgressTopPercent: 100,
-        readingProgressBottomPercent: 100,
+        read_at: now,
+        reading_progress_top_percent: 100,
+        reading_progress_bottom_percent: 100,
       }
       break
     case BulkActionType.MoveToFolder:
@@ -934,7 +940,7 @@ export const batchUpdateLibraryItems = async (
 
       values = {
         folder: args.folder,
-        savedAt: new Date(),
+        saved_at: now,
       }
 
       break
@@ -984,19 +990,20 @@ export const batchUpdateLibraryItems = async (
       return tx.getRepository(EntityLabel).save(labelsToAdd)
     }
 
-    const countSql = queryBuilder.select('COUNT(1) INTO total_rows').getSql()
-    const [subQuery, params] = queryBuilder.select('id').getQueryAndParameters()
-    const valuesSql = Object.keys(values)
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      .map((key) => `${key} = ${values[key]}`)
-      .join(', ')
+    // generate raw sql because postgres doesn't support prepared statements in DO blocks
+    const countSql = queryBuilderToRawSql(
+      queryBuilder.select('COUNT(1) INTO total_rows')
+    )
+    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
+    const valuesSql = valuesToRawSql(values)
 
+    const batchSize = 100
     const sql = `
     -- Set batch size
     DO $$ 
     DECLARE 
-        batch_size INT := 100;
-        total_rows INT := 1000;
+        batch_size INT := ${batchSize};
+        total_rows INT;
         num_batches INT;
         current_offset INT;
     BEGIN
@@ -1025,7 +1032,7 @@ export const batchUpdateLibraryItems = async (
     END $$
     `
 
-    return tx.query(sql, params)
+    return tx.query(sql)
   })
 }
 

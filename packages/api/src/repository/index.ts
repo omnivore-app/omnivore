@@ -1,5 +1,5 @@
 import * as httpContext from 'express-http-context2'
-import { EntityManager, EntityTarget, Repository } from 'typeorm'
+import { EntityManager, EntityTarget, QueryBuilder, Repository } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
@@ -44,4 +44,60 @@ export const authTrx = async <T>(
 
 export const getRepository = <T>(entity: EntityTarget<T>) => {
   return appDataSource.getRepository(entity)
+}
+
+export const queryBuilderToRawSql = <T>(q: QueryBuilder<T>): string => {
+  const queryAndParams = q.getQueryAndParameters()
+  let sql = queryAndParams[0]
+  const params = queryAndParams[1]
+
+  params.forEach((value, index) => {
+    if (typeof value === 'string') {
+      sql = sql.replace(`$${index + 1}`, `'${value}'`)
+    } else if (typeof value === 'object') {
+      if (Array.isArray(value)) {
+        sql = sql.replace(
+          `$${index + 1}`,
+          value
+            .map((element) => {
+              if (typeof element === 'string') {
+                return `'${element}'`
+              }
+
+              if (typeof element === 'number' || typeof element === 'boolean') {
+                return element.toString()
+              }
+            })
+            .join(',')
+        )
+      } else if (value instanceof Date) {
+        sql = sql.replace(`$${index + 1}`, `'${value.toISOString()}'`)
+      }
+    } else if (typeof value === 'number' || typeof value === 'boolean') {
+      sql = sql.replace(`$${index + 1}`, value.toString())
+    }
+  })
+
+  return sql
+}
+
+export const valuesToRawSql = (
+  values: Record<string, string | number | boolean>
+): string => {
+  let sql = ''
+
+  Object.keys(values).forEach((key, index) => {
+    const value = values[key]
+    if (typeof value === 'string') {
+      sql += `${key} = '${value}'`
+    } else {
+      sql += `${key} = ${value.toString()}`
+    }
+
+    if (index < Object.keys(values).length - 1) {
+      sql += ', '
+    }
+  })
+
+  return sql
 }
