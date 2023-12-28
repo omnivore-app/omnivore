@@ -1,4 +1,4 @@
-import { diff_match_patch } from 'diff-match-patch'
+import { diff_match_patch, patch_obj } from 'diff-match-patch'
 import { DeepPartial } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { Highlight } from '../entity/highlight'
@@ -13,7 +13,7 @@ type UpdateHighlightEvent = QueryDeepPartialEntity<Highlight> & HighlightEvent
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
-  const patches = dmp.patch_fromText(patch)
+  const patches = dmp.patch_fromText(patch) as unknown as patch_obj[]
   return patches[0].start1 || undefined
 }
 

@@ -30,7 +30,7 @@ async function fetchApplePublicKey(kid: string): Promise<string | null> {
   try {
     const key: jwksClient.SigningKey = await new Promise((resolve, reject) => {
       client.getSigningKey(kid, (error, result) => {
-        if (error) {
+        if (error || result == undefined) {
           return reject(error)
         }
         return resolve(result)

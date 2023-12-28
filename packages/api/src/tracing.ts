@@ -6,7 +6,7 @@ import { TraceExporter } from '@google-cloud/opentelemetry-cloud-trace-exporter'
 import * as api from '@opentelemetry/api'
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
 import { NodeTracerProvider } from '@opentelemetry/node'
-import { BatchSpanProcessor } from '@opentelemetry/tracing'
+import { BatchSpanProcessor, SpanExporter } from '@opentelemetry/tracing'
 import { EventEmitter } from 'events'
 import { GraphQLInstrumentation } from '@opentelemetry/instrumentation-graphql'
 import { setSpan } from '@opentelemetry/api/build/src/trace/context-utils'
@@ -46,7 +46,7 @@ if (
 }
 
 if (exporter !== undefined) {
-  provider.addSpanProcessor(new BatchSpanProcessor(exporter))
+  provider.addSpanProcessor(new BatchSpanProcessor(exporter as SpanExporter))
   console.info('tracing initialized')
 }
 

@@ -288,7 +288,7 @@ const textToUtterances = ({
         idx,
         text,
         wordOffset,
-        wordCount: wordTokenizer.tokenize(text).length,
+        wordCount: wordTokenizer.tokenize(text)?.length ?? 0,
         voice,
       },
     ]
@@ -326,7 +326,7 @@ const textToUtterances = ({
     const nextText = currentText + sentence
     if (nextText.length > MAX_CHARS) {
       if (currentText.length > 0) {
-        const wordCount = wordTokenizer.tokenize(currentText).length
+        const wordCount = wordTokenizer.tokenize(currentText)?.length ?? 0
         utterances.push({
           idx,
           text: currentText,
@@ -337,7 +337,7 @@ const textToUtterances = ({
         wordOffset += wordCount
         currentText = sentence
       } else {
-        const wordCount = wordTokenizer.tokenize(sentence).length
+        const wordCount = wordTokenizer.tokenize(sentence)?.length ?? 0
         utterances.push({
           idx,
           text: sentence,
@@ -355,7 +355,7 @@ const textToUtterances = ({
         idx,
         text: currentText,
         wordOffset,
-        wordCount: wordTokenizer.tokenize(currentText).length,
+        wordCount: wordTokenizer.tokenize(currentText)?.length ?? 0,
         voice,
       })
     }

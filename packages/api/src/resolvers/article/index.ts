@@ -403,6 +403,7 @@ export const getArticleResolver = authorized<
     const selectColumns = getColumns(libraryItemRepository)
     const includeOriginalHtml =
       format === ArticleFormat.Distiller ||
+      // @ts-expect-error (Not sure why this has changed?)
       !!graphqlFields(info).article.originalHtml
     if (!includeOriginalHtml) {
       selectColumns.splice(selectColumns.indexOf('originalContent'), 1)

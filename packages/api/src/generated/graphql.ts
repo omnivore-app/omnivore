@@ -1979,15 +1979,15 @@ export type QueryArticleSavingRequestArgs = {
 };
 
 
+export type QueryFeedsArgs = {
+  input: FeedsInput;
+};
+
+
 export type QueryGetDiscoveryArticlesArgs = {
   after?: InputMaybe<Scalars['String']>;
   discoveryTopicId: Scalars['String'];
   first?: InputMaybe<Scalars['Int']>;
-};
-
-
-export type QueryFeedsArgs = {
-  input: FeedsInput;
 };
 
 

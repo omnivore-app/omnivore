@@ -81,7 +81,7 @@ export const createApp = (): {
       }
     },
     keyGenerator: (req) => {
-      return getTokenByRequest(req) || req.ip
+      return getTokenByRequest(req) || req.ip || ''
     },
     // skip preflight requests and test requests and system requests
     skip: (req) =>
