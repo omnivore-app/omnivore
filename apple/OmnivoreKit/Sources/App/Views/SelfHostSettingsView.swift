@@ -90,6 +90,16 @@ struct SelfHostSettingsView: View {
           .accentColor(.blue)
           .frame(maxWidth: .infinity, alignment: .leading)
 
+        Button(action: {
+          AppEnvironment.setCustom(serverBaseURL: "https://api-prod.omnivore.app",
+                                   webAppBaseURL: "https://omnivore.app",
+                                   ttsBaseURL: "https://tts.omnivore.app")
+          dataService.switchAppEnvironment(appEnvironment: AppEnvironment.prod)
+          dismiss()
+        }, label: {
+          Text("Reset self hosting settings")
+        })
+
         #if os(macOS)
           Spacer()
           HStack {
