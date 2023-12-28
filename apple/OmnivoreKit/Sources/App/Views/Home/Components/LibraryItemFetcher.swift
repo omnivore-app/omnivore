@@ -26,7 +26,6 @@ import Views
   var receivedIdx = 0
 
   func setItems(_ context: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
-    print("setting items, old count", self.items.count, "new count", items.count)
     self.items = items
 
     if let filter = FeaturedItemFilter(rawValue: featureFilter) {

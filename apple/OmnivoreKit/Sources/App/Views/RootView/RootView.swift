@@ -51,6 +51,9 @@ struct InnerRootView: View {
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
       PrimaryContentView()
+        .task {
+          try? await dataService.syncOfflineItemsWithServerIfNeeded()
+        }
     } else {
       if authenticator.isLoggingOut {
         LogoutView()

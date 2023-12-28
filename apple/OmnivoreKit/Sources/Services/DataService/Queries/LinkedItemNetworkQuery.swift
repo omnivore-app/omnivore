@@ -292,7 +292,7 @@ private let libraryArticleSelection = Selection.Article {
     downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
     labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? [],
-    highlights: try $0.highlights(selection: highlightSelection.list) ?? []
+    highlights: try $0.highlights(selection: highlightSelection.list)
   )
 }
 
