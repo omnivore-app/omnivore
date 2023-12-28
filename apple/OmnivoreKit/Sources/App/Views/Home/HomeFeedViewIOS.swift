@@ -916,9 +916,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .cornerRadius(6)
               }.redacted(reason: .placeholder)
             } else {
-              if viewModel.fetcher.items.isEmpty {
-                EmptyState(viewModel: viewModel)
-              } else {
+              if !viewModel.fetcher.items.isEmpty {
                 ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in
                   LibraryItemGridCardNavigationLink(
                     item: item,
@@ -957,10 +955,14 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           }
 
-          HStack {
-            Spacer()
-            BottomView(viewModel: viewModel).frame(maxWidth: 300)
-            Spacer()
+          if viewModel.fetcher.items.isEmpty {
+            EmptyState(viewModel: viewModel)
+          } else {
+            HStack {
+              Spacer()
+              BottomView(viewModel: viewModel).frame(maxWidth: 300)
+              Spacer()
+            }
           }
 
           if viewModel.fetcher.items.isEmpty, viewModel.isLoading {
