@@ -1961,6 +1961,9 @@ describe('Article API', () => {
                 createdAt
                 updatedAt
                 pageType
+                highlights {
+                  id
+                }
               }
               itemID
               updateReason
@@ -2053,6 +2056,34 @@ describe('Article API', () => {
         ).expect(200)
 
         expect(res.body.data.updatesSince.edges.length).to.eql(5)
+      })
+    })
+
+    context('returns highlights', () => {
+      let highlight: Highlight
+
+      before(async () => {
+        highlight = await createHighlight(
+          {
+            user,
+            shortId: 'test short id',
+            quote: 'test',
+            libraryItem: items[0],
+          },
+          items[0].id,
+          user.id
+        )
+      })
+
+      it('returns highlights', async () => {
+        const res = await graphqlRequest(
+          updatesSinceQuery(since),
+          authToken
+        ).expect(200)
+
+        expect(res.body.data.updatesSince.edges[0].node.highlights[0].id).to.eq(
+          highlight.id
+        )
       })
     })
   })
