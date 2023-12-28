@@ -24,7 +24,7 @@ export class WeixinQqHandler extends ContentHandler {
       // create a meta node to store the publish time in ISO format
       const metaNode = dom.createElement('meta')
       metaNode.setAttribute('name', 'date')
-      metaNode.setAttribute('content', publishTimeISO)
+      metaNode.setAttribute('content', publishTimeISO!)
       dom.querySelector('head')?.appendChild(metaNode)
     }
     // This replace the class name of the article info to preserve the block

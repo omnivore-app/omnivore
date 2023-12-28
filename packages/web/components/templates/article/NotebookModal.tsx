@@ -12,7 +12,7 @@ import { useCallback, useState } from 'react'
 import { ArrowsIn, ArrowsOut, X } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { diff_match_patch } from 'diff-match-patch'
+import { diff_match_patch, patch_obj } from "diff-match-patch"
 import { MenuTrigger } from '../../elements/MenuTrigger'
 import { highlightsAsMarkdown } from '../homeFeed/HighlightItem'
 import 'react-markdown-editor-lite/lib/index.css'
@@ -31,7 +31,7 @@ type NotebookModalProps = {
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
-  const patches = dmp.patch_fromText(patch)
+  const patches = dmp.patch_fromText(patch) as unknown as patch_obj[]
   return patches[0].start1 || undefined
 }
 

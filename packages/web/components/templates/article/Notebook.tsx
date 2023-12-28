@@ -5,7 +5,7 @@ import type { Highlight } from '../../../lib/networking/fragments/highlightFragm
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { updateHighlightMutation } from '../../../lib/networking/mutations/updateHighlightMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { diff_match_patch } from 'diff-match-patch'
+import { diff_match_patch, patch_obj } from "diff-match-patch"
 import 'react-markdown-editor-lite/lib/index.css'
 import { createHighlightMutation } from '../../../lib/networking/mutations/createHighlightMutation'
 import { v4 as uuidv4 } from 'uuid'
@@ -38,7 +38,7 @@ type NotebookContentProps = {
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
-  const patches = dmp.patch_fromText(patch)
+  const patches = dmp.patch_fromText(patch) as unknown as patch_obj[]
   return patches[0].start1 || undefined
 }
 
