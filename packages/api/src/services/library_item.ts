@@ -994,10 +994,12 @@ export const batchUpdateLibraryItems = async (
     const countSql = queryBuilderToRawSql(
       queryBuilder.select('COUNT(1) INTO total_rows')
     )
-    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
+    const subQuery = queryBuilderToRawSql(
+      queryBuilder.select('id').orderBy('id')
+    )
     const valuesSql = valuesToRawSql(values)
 
-    const batchSize = 100
+    const batchSize = 10
     const sql = `
     -- Set batch size
     DO $$ 
@@ -1005,7 +1007,9 @@ export const batchUpdateLibraryItems = async (
         batch_size INT := ${batchSize};
         total_rows INT;
         num_batches INT;
-        current_offset INT;
+        batch_id UUID;
+        batch_cursor CURSOR FOR
+          ${subQuery};
     BEGIN
         -- Get the total count of rows to be updated
         ${countSql};
@@ -1013,22 +1017,28 @@ export const batchUpdateLibraryItems = async (
         -- Calculate the number of batches
         num_batches := CEIL(total_rows * 1.0 / batch_size);
 
+        -- Open a cursor
+        OPEN batch_cursor;
+
         -- Loop through batches
         FOR i IN 0..num_batches-1 LOOP
-            -- Set the current offset
-            current_offset := i * batch_size;
+            -- Fetch the next batch of IDs
+            FOR j IN 0..batch_size-1 LOOP
+                -- Fetch the next ID
+                FETCH batch_cursor INTO batch_id;
 
-            -- Perform incremental update in batches using LIMIT and OFFSET
-            UPDATE omnivore.library_item
-            SET ${valuesSql}
-            FROM (
-                ${subQuery}
-                ORDER BY id
-                LIMIT batch_size
-                OFFSET current_offset
-            ) AS batch
-            WHERE library_item.id = batch.id;
+                -- Exit the loop if no more rows
+                EXIT WHEN NOT FOUND;
+                
+                -- Perform incremental update for the current ID
+                UPDATE omnivore.library_item
+                SET ${valuesSql}
+                WHERE id = batch_id;
+            END LOOP;
         END LOOP;
+
+        -- Close the cursor
+        CLOSE batch_cursor;
     END $$
     `
 
