@@ -25,11 +25,18 @@ export const insertLabels = async (
   label: EmbeddedOmnivoreLabel,
 ): Promise<EmbeddedOmnivoreLabel> => {
   await sqlClient.query(
-    'INSERT INTO label_embeddings(label, embedding) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-    [label.label.name.toLowerCase(), toSql(label.embedding)],
+    'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, embedding_description, embedding) VALUES($1, $2, $3)',
+    [label.label.name, label.label.description, toSql(label.embedding)],
   )
   return label
 }
+
+// export const insertLabelsToFile = async (
+//   label: EmbeddedOmnivoreLabel,
+// ): Promise<EmbeddedOmnivoreLabel> => {
+//   fs.appendFileSync('./output.json', JSON.stringify(label))
+//   return label
+// }
 
 export const insertLabelToStore: OperatorFunction<
   EmbeddedOmnivoreLabel,

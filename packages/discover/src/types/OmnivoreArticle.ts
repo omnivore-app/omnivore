@@ -2,6 +2,7 @@ export type OmnivoreArticle = {
   slug: string
   title: string
   description: string
+  summary: string
   image?: string
   authors: string
   site: string

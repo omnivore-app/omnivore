@@ -8,6 +8,7 @@ export type BedrockClientParams = {
 export type BedrockClientResponse = {
   completion: string
   embedding: Embedding
+  embeddings?: Embedding[]
 }
 
 export type BedrockInvokeParams = {

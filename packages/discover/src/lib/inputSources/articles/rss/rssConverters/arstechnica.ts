@@ -58,6 +58,7 @@ export const convertArsTechnicasArticles = (
       url: article.link,
       title: article.title,
       description: article.description,
+      summary: article.description,
       image: new JSDOM(
         article['content:encoded'],
       )?.window?.document?.getElementsByTagName('img')[0]?.src,

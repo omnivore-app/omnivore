@@ -13,8 +13,8 @@ const getRssFeed = async (url: string): Promise<string> => {
 
 const RSS_FEEDS = [
   {
-    site: 'https://www.theatlantic.com/feed/all/',
-    parser: converters.atlantic,
+    site: 'https://www.vox.com/rss/index.xml',
+    parser: converters.vox,
   },
   {
     site: 'https://www.wired.com/feed/rss',
@@ -23,6 +23,10 @@ const RSS_FEEDS = [
   {
     site: 'https://feeds.arstechnica.com/arstechnica/index',
     parser: converters.arstechnica,
+  },
+  {
+    site: 'https://slate.com/feeds/all.rss',
+    parser: converters.slate,
   },
 ]
 

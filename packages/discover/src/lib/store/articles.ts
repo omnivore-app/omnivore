@@ -43,6 +43,7 @@ export const batchInsertArticlesSql = async (
       `INSERT INTO omnivore.discover_articles(id, title, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING`,
       params,
     )
+
     await sqlClient.query(formattedMultiInsert)
 
     const topicLinks = articles.flatMap((it, idx) => {

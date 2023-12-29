@@ -30,7 +30,7 @@ const getEmbeddingForArticle = async (
 ): Promise<EmbeddedOmnivoreArticle> => {
   console.log(`${prepareTitle(it)}: ${it.description}`)
   const embedding = await client.getEmbeddings(
-    `${prepareTitle(it)}: ${it.description}`,
+    `${prepareTitle(it)}: ${it.summary}`,
   )
 
   return {
@@ -46,13 +46,21 @@ const addTopicsToArticle = async (
   const articleEmbedding = it.embedding
 
   const topics = await sqlClient.query(
-    `SELECT name 
-    FROM (SELECT name, (1 - (embed.embedding <=> $1) - 0.6) / 0.2 AS "similarity" FROM omnivore.discover_topics embed)  topics
-    WHERE topics.similarity > 0.75`,
+    `SELECT name, similarity
+    FROM (SELECT discover_topic_name as name, MAX(1- (embed.embedding <=> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
+    ORDER BY similarity desc`,
     [toSql(articleEmbedding)],
   )
 
-  const topicNames = topics.rows.map(({ name }) => name as string)
+  // OpenAI seems to cluster things around 0.7-0.9. Through trial and error I have found 0.77 to be a fairly accurate score.
+  const topicNames = topics.rows
+    .filter(({ similarity }) => similarity > 0.77)
+    .map(({ name }) => name as string)
+
+  if (topicNames.length == 0) {
+    topicNames.push(topics.rows[0]?.name)
+  }
+
   if (it.article.type == 'community') {
     topicNames.push('Community Picks')
   }
@@ -67,8 +75,12 @@ const getEmbeddingForLabel = async (
   label: Label,
 ): Promise<EmbeddedOmnivoreLabel> => {
   const embedding = await client.getEmbeddings(
-    `${label.name}${label.description ? ':' + label.description : ''}`,
+    `${label.name}${label.description ? ' : ' + label.description : ''}`,
   )
+  console.log(
+    `${label.name}${label.description ? ' : ' + label.description : ''}`,
+  )
+
   return {
     embedding,
     label,

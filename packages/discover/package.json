@@ -16,6 +16,7 @@
     "fast-xml-parser": "^4.3.2",
     "html-to-text": "^9.0.5",
     "lodash": "^4.17.21",
+    "linkedom": "^0.16.5",
     "openai": "^4.11.1",
     "pg": "^8.11.3",
     "pg-format": "^1.0.4",

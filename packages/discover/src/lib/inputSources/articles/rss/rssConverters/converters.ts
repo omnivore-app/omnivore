@@ -1,9 +1,11 @@
 import { convertWiredArticles } from './wired'
-import { convertAtlanticArticles } from './atlantic'
+import { convertVoxArticle } from './vox'
 import { convertArsTechnicasArticles } from './arstechnica'
+import { convertSlateArticles } from './slate'
 
 export = {
   wired: convertWiredArticles,
-  atlantic: convertAtlanticArticles,
+  vox: convertVoxArticle,
   arstechnica: convertArsTechnicasArticles,
+  slate: convertSlateArticles,
 }

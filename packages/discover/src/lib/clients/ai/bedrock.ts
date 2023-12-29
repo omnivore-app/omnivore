@@ -46,11 +46,10 @@ export class BedrockClient implements AiClient {
 
   async getEmbeddings(text: string): Promise<Embedding> {
     const { data } = await this.client.post<BedrockClientResponse>(
-      `/model/amazon.titan-embed-text-v1/invoke`,
-      { inputText: text },
+      `/model/cohere.embed-english-v3/invoke`,
+      { texts: [text], input_type: 'clustering' },
     )
-
-    return data.embedding
+    return data.embeddings![0]
   }
   async summarizeText(text: string): Promise<string> {
     const summariseParams = {

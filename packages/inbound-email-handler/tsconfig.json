@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "noImplicitAny": false
   },
   "include": ["src"]
 }

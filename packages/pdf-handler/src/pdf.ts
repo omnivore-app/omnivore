@@ -8,7 +8,7 @@ import {
   TextItem,
   PDFPageProxy,
   PDFDocumentProxy,
-} from 'pdfjs-dist/types/display/api'
+} from 'pdfjs-dist/types/src/display/api'
 
 interface Page {
   lines: string[]
