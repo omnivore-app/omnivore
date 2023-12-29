@@ -991,54 +991,29 @@ export const batchUpdateLibraryItems = async (
     }
 
     // generate raw sql because postgres doesn't support prepared statements in DO blocks
-    const countSql = queryBuilderToRawSql(
-      queryBuilder.select('COUNT(1) INTO total_rows')
-    )
-    const subQuery = queryBuilderToRawSql(
-      queryBuilder.select('id').orderBy('id')
-    )
+    const countSql = queryBuilderToRawSql(queryBuilder.select('COUNT(1)'))
+    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
     const valuesSql = valuesToRawSql(values)
 
-    const batchSize = 100
+    const start = new Date().toISOString()
+    const batchSize = 1000
     const sql = `
     -- Set batch size
     DO $$ 
     DECLARE 
         batch_size INT := ${batchSize};
-        total_rows INT;
-        num_batches INT;
-        batch_id UUID;
-        batch_cursor CURSOR FOR
-          ${subQuery};
     BEGIN
-        -- Get the total count of rows to be updated
-        ${countSql};
-
-        -- Calculate the number of batches
-        num_batches := CEIL(total_rows * 1.0 / batch_size);
-
-        -- Open a cursor
-        OPEN batch_cursor;
-
         -- Loop through batches
-        FOR i IN 0..num_batches-1 LOOP
-            -- Fetch the next batch of IDs
-            FOR j IN 0..batch_size-1 LOOP
-                -- Fetch the next ID
-                FETCH batch_cursor INTO batch_id;
-
-                -- Exit the loop if no more rows
-                EXIT WHEN NOT FOUND;
-                
-                -- Perform incremental update for the current ID
-                UPDATE omnivore.library_item
-                SET ${valuesSql}
-                WHERE id = batch_id;
-            END LOOP;
+        FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
+            -- Update the batch
+            UPDATE omnivore.library_item
+            SET ${valuesSql}
+            WHERE id = ANY(
+              ${subQuery}
+              AND updated_at < '${start}'
+              LIMIT batch_size
+            );
         END LOOP;
-
-        -- Close the cursor
-        CLOSE batch_cursor;
     END $$
     `
 
