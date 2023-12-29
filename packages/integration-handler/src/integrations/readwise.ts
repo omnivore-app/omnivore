@@ -102,7 +102,8 @@ export class ReadwiseClient extends IntegrationClient {
           console.log('Readwise API rate limit exceeded, retrying...')
           // wait for Retry-After seconds in the header if rate limited
           // max retry count is 3
-          const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
+          const retryAfter: string =
+            error.response?.headers['retry-after'] || '10' // default to 10 seconds
           await wait(parseInt(retryAfter, 10) * 1000)
           return this.syncWithReadwise(token, highlights, retryCount + 1)
         }
