@@ -7,7 +7,7 @@ import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
   INTER("Inter", "Inter"),
-  SYSTEM("System Default", "unset"),
+  SYSTEM("System Default", "system-ui"),
   OPEN_DYSLEXIC("Open Dyslexic", "OpenDyslexic"),
   MERRIWEATHER("Merriweather", "Merriweather"),
   LORA("Lora", "Lora"),

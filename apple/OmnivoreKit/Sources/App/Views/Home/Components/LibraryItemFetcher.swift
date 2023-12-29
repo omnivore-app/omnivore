@@ -16,7 +16,7 @@ import Views
 
   @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
-  var limit = 10
+  var limit = 6
   var cursor: String?
   var totalCount: Int?
 

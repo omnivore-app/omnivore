@@ -147,7 +147,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
-    @State var showOpenAIVoices = false
     @State var showExpandedAudioPlayer = false
 
     @EnvironmentObject var dataService: DataService
@@ -155,7 +154,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = true
-    @AppStorage(UserDefaultKey.openAIPrimerDisplayed.rawValue) var openAIPrimerDisplayed = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
@@ -249,6 +247,11 @@ struct AnimatingCellHeight: AnimatableModifier {
           }, toastOperationHandler: nil)
         }
       }
+      .sheet(isPresented: $showAddLinkView) {
+        NavigationView {
+          LibraryAddLinkView()
+        }
+      }
       .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
         ExpandedAudioPlayer(
           delete: {
@@ -286,11 +289,6 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
-      }
-      .sheet(isPresented: $showAddLinkView) {
-        NavigationView {
-          LibraryAddLinkView()
-        }
       }
       .task {
         await viewModel.loadFilters(dataService: dataService)
