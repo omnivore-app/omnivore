@@ -53,6 +53,13 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   )
 }
 
+export const isContentFetchBlocked = (feedUrl: string) => {
+  if (feedUrl.startsWith('https://arxiv.org/')) {
+    return true
+  }
+  return false
+}
+
 const getThumbnail = (item: RssFeedItem) => {
   if (item['media:thumbnail']) {
     return item['media:thumbnail'].$.url
@@ -453,6 +460,10 @@ const processSubscription = async (
     if (isOldItem(item, lastFetchedAt)) {
       console.log('Skipping old feed item', item.link)
       continue
+    }
+
+    if (isContentFetchBlocked(feedUrl)) {
+      fetchContent = false
     }
 
     const created = await createTask(
