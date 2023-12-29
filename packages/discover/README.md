@@ -2,8 +2,8 @@
 
 
 ## What is this?  
-
-One of my biggest problems is actually discoverability of articles. I have my five sites, and my link aggregators like Reddit. This is a bubble, and I miss a lot this way.
+ 
+One of my bi ggest problems is actually discoverability of articles. I have my five sites, and my link aggregators like Reddit. This is a bubble, and I miss a lot this way.
 
 So I wanted to see if I could create something that would enable discoverability from Omnivore.
 
