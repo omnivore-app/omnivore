@@ -979,10 +979,11 @@ export const batchUpdateLibraryItems = async (
           .map((label) => ({
             labelId: label.id,
             libraryItemId: libraryItem.id,
+            name: label.name,
           }))
           .filter((entityLabel) => {
-            const existingLabel = libraryItem.labels?.find(
-              (l) => l.id === entityLabel.labelId
+            const existingLabel = libraryItem.labelNames?.find(
+              (l) => l.toLowerCase() === entityLabel.name.toLowerCase()
             )
             return !existingLabel
           })
