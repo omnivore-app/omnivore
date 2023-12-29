@@ -2198,11 +2198,13 @@ describe('Article API', () => {
       }
     )
 
-    context('when action is Delete', () => {
+    context('when action is Delete and query contains item id', () => {
+      let items: LibraryItem[] = []
+
       before(async () => {
         // Create some test items
         for (let i = 0; i < 5; i++) {
-          await createLibraryItem(
+          const item = await createLibraryItem(
             {
               user,
               itemType: i == 0 ? PageType.Article : PageType.File,
@@ -2215,6 +2217,7 @@ describe('Article API', () => {
             },
             user.id
           )
+          items.push(item)
         }
       })
 
@@ -2224,17 +2227,18 @@ describe('Article API', () => {
       })
 
       it('deletes all items', async () => {
+        const query = `includes:${items.map((i) => i.id).join(',')}`
         const res = await graphqlRequest(
-          bulkActionQuery(BulkActionType.Delete),
+          bulkActionQuery(BulkActionType.Delete, query),
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
 
-        const items = await graphqlRequest(
-          searchQuery('in:all'),
+        const response = await graphqlRequest(
+          searchQuery(query),
           authToken
         ).expect(200)
-        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
+        expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
   })
