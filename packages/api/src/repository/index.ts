@@ -58,17 +58,22 @@ export const queryBuilderToRawSql = <T>(q: QueryBuilder<T>): string => {
       if (Array.isArray(value)) {
         sql = sql.replace(
           `$${index + 1}`,
-          value
-            .map((element) => {
-              if (typeof element === 'string') {
-                return `'${element}'`
-              }
+          "'{" +
+            value
+              .map((element) => {
+                if (typeof element === 'string') {
+                  return `"${element}"`
+                }
 
-              if (typeof element === 'number' || typeof element === 'boolean') {
-                return element.toString()
-              }
-            })
-            .join(',')
+                if (
+                  typeof element === 'number' ||
+                  typeof element === 'boolean'
+                ) {
+                  return element.toString()
+                }
+              })
+              .join(',') +
+            "}'"
         )
       } else if (value instanceof Date) {
         sql = sql.replace(`$${index + 1}`, `'${value.toISOString()}'`)
