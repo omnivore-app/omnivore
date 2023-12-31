@@ -12,31 +12,21 @@ const getRssFeed = async (url: string): Promise<string> => {
 }
 
 const RSS_FEEDS = [
-  {
-    site: 'https://www.vox.com/rss/index.xml',
-    parser: converters.vox,
-  },
-  {
-    site: 'https://www.wired.com/feed/rss',
-    parser: converters.wired,
-  },
-  {
-    site: 'https://feeds.arstechnica.com/arstechnica/index',
-    parser: converters.arstechnica,
-  },
-  {
-    site: 'https://slate.com/feeds/all.rss',
-    parser: converters.slate,
-  },
+  'https://www.vox.com/rss/index.xml',
+  'https://www.wired.com/feed/rss',
+  'https://feeds.arstechnica.com/arstechnica/index',
+  'https://slate.com/feeds/all.rss',
+  // 'https://feeds.bbci.co.uk/news/rss.xml',
+  // 'https://www.theguardian.com/world/rss',
+  // 'http://www.independent.co.uk/news/uk/rss',
+  // 'https://www.makeuseof.com/feed/',
+  // 'https://rss.slashdot.org/Slashdot/slashdotMain',
 ]
 
-const rssToArticles = ({
-  site,
-  parser,
-}: {
-  site: string
-  parser: (xml: string) => Observable<OmnivoreArticle>
-}) => fromPromise(getRssFeed(site)).pipe(mergeMap((item) => parser(item)))
+const rssToArticles = (site: string) =>
+  fromPromise(getRssFeed(site)).pipe(
+    mergeMap((item) => converters.generic(item)),
+  )
 
 export const rss$ = (() => {
   let lastUpdatedTime = new Date(0)

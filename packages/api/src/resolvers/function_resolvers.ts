@@ -15,16 +15,19 @@ import {
 import { env } from '../env'
 import {
   Article,
+  Highlight,
   Label,
   PageType,
   Recommendation,
   SearchItem,
   User,
 } from '../generated/graphql'
+import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
+  highlightDataToHighlight,
   isBase64Image,
   recommandationDataToRecommendation,
   validatedDate,
@@ -119,6 +122,7 @@ import {
   updateFilterResolver,
   updateHighlightResolver,
   updateLabelResolver,
+  updateNewsletterEmailResolver,
   // updateLinkShareInfoResolver,
   updatePageResolver,
   // updateReminderResolver,
@@ -131,7 +135,6 @@ import {
   validateUsernameResolver,
   webhookResolver,
   webhooksResolver,
-  updateNewsletterEmailResolver,
 } from './index'
 import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
@@ -441,6 +444,24 @@ export const functionResolvers = {
           ctx.uid,
         )
         return recommendations.map(recommandationDataToRecommendation)
+      }
+
+      return []
+    },
+    async highlights(
+      item: {
+        id: string
+        highlights?: Highlight[]
+        highlightAnnotations?: string[] | null
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext,
+    ) {
+      if (item.highlights) return item.highlights
+
+      if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
+        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+        return highlights.map(highlightDataToHighlight)
       }
 
       return []

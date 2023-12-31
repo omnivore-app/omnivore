@@ -2,13 +2,17 @@ import {
   concatMap,
   delay,
   EMPTY,
+  mergeMap,
   MonoTypeOperatorFunction,
+  Observable,
   of,
   pipe,
+  tap,
   timer,
 } from 'rxjs'
-import { retry } from 'rxjs/operators'
+import { filter, retry } from 'rxjs/operators'
 import { OmnivoreArticle } from '../../types/OmnivoreArticle'
+import { fromPromise } from 'rxjs/internal/observable/innerFrom'
 
 export const exponentialBackOff = <T>(
   count: number,
@@ -29,11 +33,13 @@ export const rateLimiter = <T>(params: {
 }) =>
   concatMap((it: T) => of(it).pipe(delay(params.timeMs / params.resetLimit)))
 
-export function mapOrNull(project: (article: any) => OmnivoreArticle) {
+export function mapOrNull(project: (article: any) => Promise<OmnivoreArticle>) {
   return pipe(
     concatMap((item: any, _value: number) => {
       try {
-        return of(project(item))
+        return fromPromise(project(item).catch((_e) => null)).pipe(
+          filter((it) => !!it),
+        ) as Observable<OmnivoreArticle>
       } catch (e) {
         return EMPTY
       }

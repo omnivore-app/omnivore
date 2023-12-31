@@ -46,6 +46,7 @@ import {
   SearchErrorCode,
   SearchSuccess,
   SetBookmarkArticleError,
+  SetBookmarkArticleErrorCode,
   SetBookmarkArticleSuccess,
   SetFavoriteArticleError,
   SetFavoriteArticleErrorCode,
@@ -70,6 +71,7 @@ import {
   findOrCreateLabels,
 } from '../../services/labels'
 import {
+  batchUpdateLibraryItems,
   createLibraryItem,
   findLibraryItemById,
   findLibraryItemByUrl,
@@ -78,7 +80,6 @@ import {
   sortParamsToSort,
   updateLibraryItem,
   updateLibraryItemReadingProgress,
-  updateLibraryItems,
 } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
@@ -552,6 +553,10 @@ export const setBookmarkArticleResolver = authorized<
   SetBookmarkArticleError,
   MutationSetBookmarkArticleArgs
 >(async (_, { input: { articleID } }, { uid, log, pubsub }) => {
+  if (!articleID) {
+    return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
+  }
+
   // delete the item and its metadata
   const deletedLibraryItem = await updateLibraryItem(
     articleID,
@@ -861,7 +866,7 @@ export const bulkActionResolver = authorized<
         labels = await findLabelsByIds(labelIds, uid)
       }
 
-      await updateLibraryItems(
+      await batchUpdateLibraryItems(
         action,
         {
           query,

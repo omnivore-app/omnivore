@@ -1,52 +1,67 @@
 import { OmnivoreArticle } from '../../../../../types/OmnivoreArticle'
 import { slugify } from 'voca'
-import { XMLParser } from 'fast-xml-parser'
 import { Observable, tap } from 'rxjs'
 import { fromArrayLike } from 'rxjs/internal/observable/innerFrom'
 import { mapOrNull } from '../../../../utils/reactive'
-import { parseHTML } from 'linkedom'
-import { removeHTMLTag } from './generic'
+import {
+  getFirstParagraphForEmbedding,
+  removeHTMLTag,
+  streamHeadAndRetrieveOpenGraph,
+} from './generic'
+import { JSDOM } from 'jsdom'
+import { filter } from 'rxjs/operators'
 
-const parser = new XMLParser({ ignoreAttributes: false, parseTagValue: true })
-
-const getFirstParagraphForEmbedding = (text: string): string => {
-  const html = parseHTML(`<html>${text}</html>`)
+const getImage = (article: any): string | undefined => {
+  const html = new JSDOM(`<html>${article.content['#text']}</html>`)
   return (
-    (html.document.querySelectorAll('p')[0] &&
-      removeHTMLTag(html.document.querySelectorAll('p')[0].innerHTML)
-        .split(' ')
-        .slice(0, 15)
-        .join(' ')) ||
-    ''
+    (html.window.document.querySelectorAll('img')[0] &&
+      removeHTMLTag(html.window.document.querySelectorAll('img')[0].src)) ||
+    undefined
   )
 }
 
-const getHeaderImage = (text: string): string => {
-  const html = parseHTML(`<html>${text}</html>`)
-  return (
-    (html.document.querySelectorAll('img')[0] &&
-      removeHTMLTag(html.document.querySelectorAll('img')[0].src)) ||
-    ''
-  )
+const getDescription = (article: any): string | undefined => {
+  return getFirstParagraphForEmbedding(article.content['#text'])
 }
 
-export const convertVoxArticle = (
-  articleXml: string,
-): Observable<OmnivoreArticle> => {
-  return fromArrayLike(parser.parse(articleXml).feed.entry).pipe(
-    mapOrNull(async (article: any) => ({
-      authors: Array.isArray(article.author.name)
-        ? article.author.name[0]
-        : article.author.name,
-      slug: slugify(article.link['@_href']),
-      url: article.link['@_href'],
-      title: removeHTMLTag(article.title),
-      description: getFirstParagraphForEmbedding(article.content['#text']),
-      summary: getFirstParagraphForEmbedding(article.content['#text']),
-      image: getHeaderImage(article.content['#text']),
-      site: new URL(article.link['@_href']).host,
-      publishedAt: new Date(article.published),
-      type: 'rss',
-    })),
+const getDescriptionAndImage = async (article: any) => {
+  let image = getImage(article)
+  let description: string | undefined
+
+  // If we do not have the image, we should try to grab the image and description from the
+  // <head> of the HTML page (using OpenGraph data). We may no longer need to grab the description from the RSS feed at this point.
+  if (!image) {
+    const ogData = await streamHeadAndRetrieveOpenGraph(article.link['@_href'])
+    image = ogData.image
+    description = ogData.description
+  }
+
+  if (!description) {
+    description = getDescription(article)
+  }
+
+  return { image, description }
+}
+
+export const convertAtomStream = (parsedXml: any) => {
+  return fromArrayLike(parsedXml.feed.entry).pipe(
+    mapOrNull(async (article: any) => {
+      const { image, description } = await getDescriptionAndImage(article)
+
+      return {
+        authors: Array.isArray(article.author.name)
+          ? article.author.name[0]
+          : article.author.name,
+        slug: slugify(article.link['@_href']),
+        url: article.link['@_href'],
+        title: removeHTMLTag(article.title),
+        description: description ?? '',
+        summary: description ?? '',
+        image: image ?? '',
+        site: new URL(article.link['@_href']).host,
+        publishedAt: new Date(article.published ?? Date.now()),
+        type: 'rss',
+      }
+    }),
   )
 }

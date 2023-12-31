@@ -20,36 +20,35 @@ const extractArticleFromMessage = (message: Message): OmnivoreArticle => {
 
 export const communityArticles$ = new Observable(
   (subscriber: Subscriber<any>) => {
-    try {
-      void client
-        .topic(TOPIC_NAME)
-        .exists()
-        .then((exists) => {
-          if (exists[0]) {
-            return client.topic(TOPIC_NAME).subscription(TOPIC_NAME)
-          }
+    client
+      .topic(TOPIC_NAME)
+      .exists()
+      .then((exists) => {
+        if (exists[0]) {
+          return client.topic(TOPIC_NAME).subscription(TOPIC_NAME)
+        }
 
-          return client
-            .createTopic(TOPIC_NAME)
-            .then((_topic) => {
-              return client.topic(TOPIC_NAME).createSubscription(TOPIC_NAME)
-            })
-            .then((_sub) => {
-              return client.topic(TOPIC_NAME).subscription(TOPIC_NAME)
-            })
-        })
-        .then((subscription) => {
-          subscription.on('message', (msg: Message) => {
-            subscriber.next(extractArticleFromMessage(msg))
-            msg.ack()
+        return client
+          .createTopic(TOPIC_NAME)
+          .then((_topic) => {
+            return client.topic(TOPIC_NAME).createSubscription(TOPIC_NAME)
           })
+          .then((_sub) => {
+            return client.topic(TOPIC_NAME).subscription(TOPIC_NAME)
+          })
+      })
+      .then((subscription) => {
+        subscription.on('message', (msg: Message) => {
+          subscriber.next(extractArticleFromMessage(msg))
+          msg.ack()
         })
-    } catch (e) {
-      console.error(
-        'Error creating Subscription, continuing without community articles...',
-        e,
-      )
-    }
+      })
+      .catch((e) => {
+        console.error(
+          'Error creating Subscription, continuing without community articles...',
+          e,
+        )
+      })
   },
 ).pipe(
   catchError((err) => {
