@@ -21,7 +21,7 @@ describe('open a simple PDF with a set title', () => {
     const doc = await getDocument('./test/pdf/data/pdf-simple-test.pdf')
     const result = await getDocumentText(doc)
     expect(result).to.equal(
-      'This is the page title \n \nThis is some more text \n'
+      'This is the page title\n\nThis is some more text\n',
     )
   })
 })
@@ -31,7 +31,7 @@ describe('open a complex PDF with no title', () => {
     const doc = await getDocument('./test/pdf/data/pdf-complex-test.pdf')
     const result = await getDocumentTitle(doc)
     expect(result).to.startWith(
-      'Improving communications around vaccine breakthrough and vaccine effectiveness'
+      'Improving communications around vaccine breakthrough and vaccine effectiveness',
     )
   })
 
@@ -45,7 +45,7 @@ describe('open a complex PDF with no title', () => {
 describe('open a PDF with metadata set', () => {
   it('should return metadata', async () => {
     const parsed = await parsePdf(
-      new URL('file://' + __dirname + '/data/welcome_to_your_library.pdf')
+      new URL('file://' + __dirname + '/data/welcome_to_your_library.pdf'),
     )
     expect(parsed.title).to.eq('Welcome to your Omnivore Library')
     expect(parsed.author).to.eq('Jackson Harper')

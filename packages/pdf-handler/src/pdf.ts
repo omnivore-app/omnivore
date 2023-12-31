@@ -90,7 +90,7 @@ export const getDocumentTitle = async (
   const pageText = await readPdfText(document, 1)
   if (pageText.length) {
     const result = pageText.substring(0, MAX_TITLE_LENGTH)
-    return result.split('\n').join('')
+    return result.split('\n').join(' ')
   }
 
   return undefined
