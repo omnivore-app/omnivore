@@ -1,6 +1,6 @@
-import { useEffect, useCallback, useReducer, useMemo } from 'react'
+import { useEffect, useCallback, useReducer, useMemo } from 'react';
 
-const disabledTargets = ['INPUT', 'TEXTAREA']
+const disabledTargets = ['INPUT', 'TEXTAREA'];
 
 /* Usage:
      commands: KeyboardCommand[] = [{
@@ -10,19 +10,19 @@ const disabledTargets = ['INPUT', 'TEXTAREA']
     ]
 */
 
-const KBAR_KEYS = ['control', 'meta', 'v', 'i', 's', 'n', '[', ']']
+const KBAR_KEYS = ['control', 'meta', 'v', 'i', 's', 'n', '[', ']'];
 
 type KeyPressed = {
-  [name: string]: boolean
-}
+  [name: string]: boolean;
+};
 
 export type KeyboardCommand = {
-  shortcutKeys: string[]
-  callback: () => void
-  actionDescription: string
-  shortcutKeyDescription: string
-  ignoreDisabledTargets?: boolean
-}
+  shortcutKeys: string[];
+  callback: () => void;
+  actionDescription: string;
+  shortcutKeyDescription: string;
+  ignoreDisabledTargets?: boolean;
+};
 
 enum ActionType {
   SET_KEY_DOWN,
@@ -35,128 +35,131 @@ const keysReducer = (
 ): KeyPressed => {
   switch (action.type) {
     case ActionType.SET_KEY_DOWN:
-      return { ...state, [action.key]: true }
+      return { ...state, [action.key]: true };
     case ActionType.SET_KEY_UP:
-      return { ...state, [action.key]: false }
+      return { ...state, [action.key]: false };
     default:
-      return state
+      return state;
   }
-}
+};
+
+// Labels
+const useInitialKeyMapping = (commands: KeyboardCommand[]): KeyPressed => {
+  const currentKeys: KeyPressed = {};
+  commands.forEach((command) => {
+    command.shortcutKeys.forEach((key) => {
+      const aliases = key.split('|');
+      aliases.forEach((k) => {
+        currentKeys[k.toLowerCase()] = false;
+      });
+    });
+  });
+
+  KBAR_KEYS.map((key) => (currentKeys[key.toLowerCase()] = false));
+  return currentKeys;
+};
 
 export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
-  const initalKeyMapping = useMemo(() => {
-    const currentKeys: KeyPressed = {}
-    commands.forEach((command) => {
-      command.shortcutKeys.forEach((key) => {
-        const aliases = key.split('|')
-        aliases.forEach((k) => {
-          currentKeys[k.toLowerCase()] = false
-        })
-      })
-    })
+  const initalKeyMapping = useMemo(() => useInitialKeyMapping(commands), [commands]);
 
-    KBAR_KEYS.map((key) => (currentKeys[key.toLowerCase()] = false))
-    return currentKeys
-  }, [commands])
-
-  const [keys, setKeys] = useReducer(keysReducer, initalKeyMapping)
+  const [keys, setKeys] = useReducer(keysReducer, initalKeyMapping);
 
   const metaPressed = useCallback(() => {
-    return keys['meta'] === true
-  }, [keys])
+    return keys['meta'] === true;
+  }, [keys]);
 
   const applyCommands = useCallback(
     (updatedKeys: KeyPressed, disabled?: boolean) => {
-      let commandApplied = false
+      let commandApplied = false;
       commands.forEach((command) => {
         if (disabled && !command.ignoreDisabledTargets) {
-          return
+          return;
         }
-        const tempState = { ...updatedKeys }
+        const tempState = { ...updatedKeys };
 
         const arePressed = command.shortcutKeys.every((key) => {
-          const aliases = key.split('|')
+          const aliases = key.split('|');
           for (const k of aliases) {
             if (tempState[k]) {
-              delete tempState[k]
-              return true
+              delete tempState[k];
+              return true;
             }
           }
-          return false
-        })
+          return false;
+        });
         // apply callback if 1)corresponding buttons are pressed 2) no other buttons are pressed
         if (arePressed && !Object.values(tempState).some((k) => k)) {
-          command.callback()
-          commandApplied = true
+          command.callback();
+          commandApplied = true;
           // remove applied keys from state to prevent Key Lifetime smashes
           command.shortcutKeys.forEach((key, index) => {
             // don't remove a base key to allow non-stop actions
-            if (index === 0 && command.shortcutKeys.length > 1) return
-            const aliases = key.split('|')
+            if (index === 0 && command.shortcutKeys.length > 1) return;
+            const aliases = key.split('|');
             for (const l of aliases) {
-              setKeys({ type: ActionType.SET_KEY_UP, key: l })
+              setKeys({ type: ActionType.SET_KEY_UP, key: l });
             }
-          })
+          });
         }
-      })
-      return commandApplied
+      });
+      return commandApplied;
     },
     [commands]
-  )
+  );
 
   const keydownListener = useCallback(
     (keydownEvent: any) => {
-      const { target } = keydownEvent
-      if (!keydownEvent.key) return
-      const key = keydownEvent.key.toLowerCase()
-      if (keys[key] === undefined) return
+      const { target } = keydownEvent;
+      if (!keydownEvent.key) return;
+      const key = keydownEvent.key.toLowerCase();
+      if (keys[key] === undefined) return;
       if (keys[key] === false) {
         if (key === 'k' && metaPressed()) {
           // not setting the K value because meta is already pressed
-          return
+          return;
         }
-        setKeys({ type: ActionType.SET_KEY_DOWN, key })
+        setKeys({ type: ActionType.SET_KEY_DOWN, key });
       }
       const commandApplied = applyCommands(
         { ...keys, [key]: true },
         disabledTargets.includes(target.tagName)
-      )
+      );
       if (commandApplied) {
-        keydownEvent.preventDefault()
+        keydownEvent.preventDefault();
       }
     },
     [applyCommands, keys, metaPressed]
-  )
+  );
 
   const keyupListener = useCallback(
     (keyupEvent: any) => {
-      if (!keyupEvent.key) return
-      const key = keyupEvent.key.toLowerCase()
-      if (keys[key] === undefined) return
+      if (!keyupEvent.key) return;
+      const key = keyupEvent.key.toLowerCase();
+      if (keys[key] === undefined) return;
 
       if (keys[key] === true) {
-        setTimeout(() => setKeys({ type: ActionType.SET_KEY_UP, key }), 800)
+        setTimeout(() => setKeys({ type: ActionType.SET_KEY_UP, key }), 800);
       }
     },
     [keys]
-  )
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') {
-      return
+      return;
     }
-    window.addEventListener('keydown', keydownListener, true)
-    return () => window.removeEventListener('keydown', keydownListener, true)
-  }, [keydownListener])
+    window.addEventListener('keydown', keydownListener, true);
+    return () => window.removeEventListener('keydown', keydownListener, true);
+  }, [keydownListener]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
-      return
+      return;
     }
-    window.addEventListener('keyup', keyupListener, true)
-    return () => window.removeEventListener('keyup', keyupListener, true)
-  }, [keyupListener])
-}
+    window.addEventListener('keyup', keyupListener, true);
+    return () => window.removeEventListener('keyup', keyupListener, true);
+  }, [keyupListener]);
+};
 
 export const useConfirmListener = (
   onConfirm?: () => void,
@@ -165,28 +168,28 @@ export const useConfirmListener = (
 ): void => {
   const keyHandleConfirm = useCallback(
     (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase()
+      const key = e.key.toLowerCase();
       if (onConfirm && key === 'enter') {
         // if control key is required we make sure CTRL on
         // meta is pressed when pressing enter.
         if (ctrlOnConfirm && !e.metaKey && !e.ctrlKey) {
-          return
+          return;
         }
-        onConfirm()
+        onConfirm();
       } else if (onCancel && key === 'escape') {
-        onCancel()
+        onCancel();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [onCancel, onConfirm]
-  )
+  );
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') return;
 
-    window.addEventListener('keydown', keyHandleConfirm)
+    window.addEventListener('keydown', keyHandleConfirm);
     return () => {
-      window.removeEventListener('keydown', keyHandleConfirm)
-    }
-  }, [keyHandleConfirm])
-}
+      window.removeEventListener('keydown', keyHandleConfirm);
+    };
+  }, [keyHandleConfirm]);
+};
