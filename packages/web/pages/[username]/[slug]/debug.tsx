@@ -197,9 +197,10 @@ export default function Debug(): JSX.Element {
           width: '100%',
         }}
       >
-        {sortedAttributes.map((attribute, i) => {
+        {sortedAttributes.map((attribute, idx) => {
           return (
             <HStack
+              key={`attribute-${idx}`}
               alignment="start"
               distribution="start"
               css={{ padding: '10px', border: '1px solid black' }}
