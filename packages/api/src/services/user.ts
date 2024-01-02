@@ -1,6 +1,6 @@
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { StatusType, User } from '../entity/user'
-import { authTrx } from '../repository'
+import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
 import { SetClaimsRole } from '../utils/dictionary'
 
@@ -42,6 +42,48 @@ export const deleteUsers = async (criteria: FindOptionsWhere<User>) => {
 export const createUsers = async (users: DeepPartial<User>[]) => {
   return authTrx(
     async (t) => t.getRepository(User).save(users),
+    undefined,
+    undefined,
+    SetClaimsRole.ADMIN
+  )
+}
+
+export const batchDeleteUsers = async (criteria: FindOptionsWhere<User>) => {
+  const userQb = getRepository(User).createQueryBuilder().where(criteria)
+  const userCountSql = queryBuilderToRawSql(userQb.select('COUNT(1)'))
+  const userSubQuery = queryBuilderToRawSql(userQb.select('id INTO user_ids'))
+
+  const batchSize = 1000
+  const start = new Date().toISOString()
+  const sql = `
+  -- Set batch size
+  DO $$
+  DECLARE 
+      batch_size INT := ${batchSize};
+      user_ids UUID[];
+  BEGIN
+      -- Loop through batches of users
+      FOR i IN 0..CEIL((${userCountSql})) * 1.0 / batch_size) - 1 LOOP
+          -- GET batch of user ids
+          ${userSubQuery} LIMIT ${batchSize} OFFSET i * batch_size;
+          
+          -- Loop through batches of items
+          FOR j IN 0..CEIL((SELECT COUNT(1) FROM omnivore.library_item WHERE user_id = ANY(user_ids))) * 1.0 / batch_size) - 1 LOOP
+              -- Delete batch of items
+              DELETE FROM omnivore.library_item
+              WHERE user_id = ANY(user_ids)
+              AND updated_at < '${start}'
+              LIMIT ${batchSize};
+          END LOOP;
+
+          -- Delete the batch of users
+          DELETE FROM omnivore.user WHERE id = ANY(user_ids);
+      END LOOP;
+  END $$
+  `
+
+  return authTrx(
+    async (t) => t.query(sql),
     undefined,
     undefined,
     SetClaimsRole.ADMIN
