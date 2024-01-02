@@ -111,6 +111,7 @@ export function HomeFeedContainer(): JSX.Element {
     size,
     setSize,
     isValidating,
+    itemsDataError,
     performActionOnItem,
     mutate,
   } = useGetLibraryItemsQuery(queryInputs)
@@ -853,6 +854,7 @@ export function HomeFeedContainer(): JSX.Element {
       }}
       hasMore={hasMore}
       hasData={!!itemsPages}
+      isError={!!itemsDataError}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
       labelsTarget={labelsTarget}
@@ -887,6 +889,7 @@ type HomeFeedContentProps = {
   applySearchQuery: (searchQuery: string) => void
   hasMore: boolean
   hasData: boolean
+  isError: boolean
   totalItems: number
   isValidating: boolean
   loadMore: () => void
@@ -1065,6 +1068,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
           {!props.isValidating && props.items.length == 0 ? (
             <EmptyLibrary
               layoutType={props.layout}
+              isError={props.isError}
               searchTerm={props.searchTerm}
               onAddLinkClicked={() => {
                 props.setShowAddLinkModal(true)
