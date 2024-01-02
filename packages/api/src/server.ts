@@ -36,7 +36,7 @@ import { userServiceRouter } from './routers/svc/user'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
-// import { sentryConfig } from './sentry'
+import { sentryConfig } from './sentry'
 import {
   getClaimsByToken,
   getTokenByRequest,
@@ -56,9 +56,9 @@ export const createApp = (): {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  // Sentry.init(sentryConfig)
-  // app.use(Sentry.Handlers.requestHandler())
-  // app.use(Sentry.Handlers.tracingHandler())
+  Sentry.init(sentryConfig)
+  app.use(Sentry.Handlers.requestHandler())
+  app.use(Sentry.Handlers.tracingHandler())
 
   app.use(cookieParser())
   app.use(json({ limit: '100mb' }))
