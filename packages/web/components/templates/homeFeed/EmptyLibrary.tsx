@@ -3,10 +3,8 @@ import { useMemo } from 'react'
 import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
 import { LayoutType } from './HomeFeedContainer'
 import { SuggestionBox, SuggestionAction } from '../../elements/SuggestionBox'
-import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
 
 type EmptyLibraryProps = {
-  isError: boolean
   searchTerm: string | undefined
   onAddLinkClicked: () => void
 
@@ -28,14 +26,10 @@ type MessageType =
 
 type HelpMessageProps = {
   type: MessageType
-  isError: boolean
 }
 
 export const ErrorBox = (props: HelpMessageProps) => {
   const errorTitle = useMemo(() => {
-    if (props.isError) {
-      return 'An error occurred'
-    }
     switch (props.type) {
       case 'inbox':
         return 'Your inbox is empty. The inbox will contain all your non-archived saved items.'
@@ -66,10 +60,12 @@ export const ErrorBox = (props: HelpMessageProps) => {
       css={{
         width: 'fit-content',
         borderRadius: '5px',
-        fontSize: '25px',
+        background: 'rgba(255, 59, 48, 0.3)',
+        fontSize: '15px',
         fontFamily: '$inter',
-        fontWeight: '700',
+        fontWeight: '500',
         color: '$thTextContrast',
+        py: '10px',
         px: '15px',
         '@smDown': {
           width: '100%',
@@ -77,7 +73,6 @@ export const ErrorBox = (props: HelpMessageProps) => {
         '@xlgDown': {
           justifyContent: 'flex-start',
         },
-        alignItems: 'center',
       }}
     >
       {errorTitle}
@@ -92,17 +87,6 @@ type SuggestionMessage = {
 
 export const Suggestion = (props: HelpMessageProps) => {
   const helpMessage = useMemo<SuggestionMessage>(() => {
-    if (props.isError) {
-      return {
-        message: 'Something went wrong searching your library',
-        actions: [
-          {
-            text: 'Join our Discord to get help',
-            url: 'https://discord.gg/h2z5rppzz9',
-          },
-        ],
-      }
-    }
     switch (props.type) {
       case 'feed':
         return {
@@ -167,7 +151,6 @@ export const Suggestion = (props: HelpMessageProps) => {
     <>
       {helpMessage ? (
         <SuggestionBox
-          isError={props.isError}
           helpMessage={helpMessage.message}
           suggestions={helpMessage.actions}
         />
@@ -211,15 +194,12 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
     <Box
       css={{
         display: 'inline-flex',
-        color: '$thTextSubtle2',
+        color: '$grayTextContrast',
         gap: '10px',
         pl: '0px',
-        pt: '30px',
 
         width: '100%',
         flexDirection: 'column',
-
-        alignItems: 'center',
 
         '@media (max-width: 768px)': {
           p: '15px',
@@ -243,9 +223,8 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
         },
       }}
     >
-      {props.isError && <ErrorSlothIcon />}
-      <ErrorBox type={type} isError={props.isError} />
-      <Suggestion type={type} isError={props.isError} />
+      <ErrorBox type={type} />
+      <Suggestion type={type} />
     </Box>
   )
 }
