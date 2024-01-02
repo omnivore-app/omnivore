@@ -28,7 +28,7 @@ public enum UserDefaultKey: String {
   case recentSearchTerms
   case audioPlayerExpanded
   case themeName
-  case followingPrimerDisplayed
+  case stopUsingFollowingPrimer
   case notificationsEnabled
   case deviceTokenID
   case userWordsPerMinute

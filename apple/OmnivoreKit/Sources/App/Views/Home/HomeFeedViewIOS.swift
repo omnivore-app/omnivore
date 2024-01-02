@@ -79,30 +79,73 @@ struct FiltersHeader: View {
 
 struct EmptyState: View {
   @ObservedObject var viewModel: HomeFeedViewModel
+  @EnvironmentObject var dataService: DataService
+
+  @State var showSendNewslettersAlert = false
+
+  var followingEmptyState: some View {
+    VStack(alignment: .center, spacing: 20) {
+      if viewModel.stopUsingFollowingPrimer {
+        VStack(spacing: 10) {
+          Image.relaxedSlothLight
+          Text("You are all caught up.").foregroundColor(Color.extensionTextSubtle)
+          Button(action: {
+            Task {
+              await viewModel.loadItems(dataService: dataService, isRefresh: true, loadingBarStyle: .simple)
+            }
+          }, label: { Text("Refresh").bold() })
+            .foregroundColor(Color.blue)
+        }
+      } else {
+        Text("You don't have any Feed items.")
+          .font(Font.system(size: 18, weight: .bold))
+
+        Text("Add an RSS/Atom feed")
+          .foregroundColor(Color.blue)
+          .onTapGesture {
+            viewModel.showAddFeedView = true
+          }
+
+        Text("Send your newsletters to following")
+          .foregroundColor(Color.blue)
+          .onTapGesture {
+            showSendNewslettersAlert = true
+          }
+
+        Text("Hide the Following tab")
+          .foregroundColor(Color.blue)
+          .onTapGesture {
+            viewModel.showHideFollowingAlert = true
+          }
+      }
+    }
+
+    .frame(minHeight: 400)
+    .frame(maxWidth: .infinity)
+    .padding()
+    .alert("Update newsletter destination", isPresented: $showSendNewslettersAlert, actions: {
+      Button(action: {
+        Task {
+          await viewModel.modifyingNewsletterDestinationToFollowing(dataService: dataService)
+        }
+      }, label: { Text("OK") })
+      Button(LocalText.cancelGeneric, role: .cancel) { showSendNewslettersAlert = false }
+    }, message: {
+      // swiftlint:disable:next line_length
+      Text("Your email address destination folders will be modified to send to this tab.\n\nAll new newsletters will appear here. You can modify the destination for each individual email address and subscription in your settings.")
+    })
+  }
 
   var body: some View {
-    if viewModel.currentFolder == "following" {
+    if viewModel.isModifyingNewsletterDestination {
       return AnyView(
-        VStack(alignment: .center, spacing: 20) {
-          Text("You don't have any Feed items.")
-            .font(Font.system(size: 18, weight: .bold))
-
-          Text("Add an RSS/Atom feed")
-            .foregroundColor(Color.blue)
-            .onTapGesture {
-              viewModel.showAddFeedView = true
-            }
-
-          Text("Hide the Following tab")
-            .foregroundColor(Color.blue)
-            .onTapGesture {
-              viewModel.showHideFollowingAlert = true
-            }
-        }
-        .frame(minHeight: 400)
-        .frame(maxWidth: .infinity)
-        .padding()
+        VStack {
+          Text("Modifying newsletter destinations...")
+          ProgressView()
+        }.frame(maxWidth: .infinity, maxHeight: .infinity)
       )
+    } else if viewModel.currentFolder == "following" {
+      return AnyView(followingEmptyState)
     } else {
       return AnyView(Group {
         Spacer()
@@ -143,7 +186,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
     @State var showAddLinkView = false
-    @State var showAddFeedView = false
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
@@ -184,7 +226,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           isListScrolled: $isListScrolled,
           prefersListLayout: $prefersListLayout,
           isEditMode: $isEditMode,
-          showAddFeedView: $showAddFeedView,
           selection: $selection,
           viewModel: viewModel,
           showFeatureCards: showFeatureCards
@@ -240,10 +281,10 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(item: $viewModel.itemForHighlightsView) { item in
         NotebookView(viewModel: NotebookViewModel(item: item), hasHighlightMutations: $hasHighlightMutations)
       }
-      .sheet(isPresented: $showAddFeedView) {
+      .sheet(isPresented: $viewModel.showAddFeedView) {
         NavigationView {
           LibraryAddFeedView(dismiss: {
-            showAddFeedView = false
+            viewModel.showAddFeedView = false
           }, toastOperationHandler: nil)
         }
       }
@@ -294,6 +335,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         await viewModel.loadFilters(dataService: dataService)
         if viewModel.appliedFilter == nil {
           viewModel.setDefaultFilter()
+        }
+        // Once the user has seen at least one following item we stop displaying the
+        // initial help view
+        if viewModel.currentFolder == "following", viewModel.fetcher.items.count > 0 {
+          viewModel.stopUsingFollowingPrimer = true
         }
       }
       .environment(\.editMode, self.$isEditMode)
@@ -346,7 +392,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               if viewModel.currentFolder == "inbox" {
                 showAddLinkView = true
               } else if viewModel.currentFolder == "following" {
-                showAddFeedView = true
+                viewModel.showAddFeedView = true
               }
             },
             label: {
@@ -405,7 +451,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
-    @Binding var showAddFeedView: Bool
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
@@ -745,8 +790,16 @@ struct AnimatingCellHeight: AnimatableModifier {
                     }
                 }
 
-                if viewModel.showLoadingBar {
+                if viewModel.showLoadingBar == .redacted {
                   redactedItems
+                } else if viewModel.showLoadingBar == .simple {
+                  VStack {
+                    ProgressView()
+                  }
+                  .frame(minHeight: 400)
+                  .frame(maxWidth: .infinity)
+                  .padding()
+                  .listRowSeparator(.hidden, edges: .all)
                 } else if viewModel.fetcher.items.isEmpty {
                   EmptyState(viewModel: viewModel)
                     .listRowSeparator(.hidden, edges: .all)
@@ -906,13 +959,21 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
-            if viewModel.showLoadingBar {
+            if viewModel.showLoadingBar == .redacted {
               ForEach(fakeLibraryItems(dataService: dataService), id: \.id) { item in
                 GridCard(item: item)
                   .aspectRatio(1.0, contentMode: .fill)
                   .background(Color.systemBackground)
                   .cornerRadius(6)
               }.redacted(reason: .placeholder)
+            } else if viewModel.showLoadingBar == .simple {
+              VStack {
+                ProgressView()
+              }
+              .frame(minHeight: 400)
+              .frame(maxWidth: .infinity)
+              .padding()
+              .listRowSeparator(.hidden, edges: .all)
             } else {
               if !viewModel.fetcher.items.isEmpty {
                 ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in

@@ -5,6 +5,12 @@ import SwiftUI
 import Utils
 import Views
 
+enum LoadingBarStyle {
+  case none
+  case redacted
+  case simple
+}
+
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
   let filterKey: String
   @ObservedObject var fetcher: LibraryItemFetcher
@@ -16,7 +22,7 @@ import Views
   @Published var itemForHighlightsView: Models.LibraryItem?
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
-  @Published var showLoadingBar = true
+  @Published var showLoadingBar = LoadingBarStyle.redacted
 
   @Published var selectedItem: Models.LibraryItem?
   @Published var linkIsActive = false
@@ -37,7 +43,10 @@ import Views
   @State var lastMoreFetched: Date?
   @State var lastFiltersFetched: Date?
 
+  @State var isModifyingNewsletterDestination = false
+
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
+  @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
   @Published var appliedFilter: InternalFilter? {
@@ -191,9 +200,9 @@ import Views
     }
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false) async {
+  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false, loadingBarStyle: LoadingBarStyle? = nil) async {
     isLoading = true
-    showLoadingBar = isRefresh
+    showLoadingBar = isRefresh ? loadingBarStyle ?? .redacted : .none
 
     if let filterState = filterState {
       await fetcher.loadItems(
@@ -205,7 +214,7 @@ import Views
     }
 
     isLoading = false
-    showLoadingBar = false
+    showLoadingBar = .none
   }
 
   func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [Models.LibraryItem] {
@@ -324,5 +333,35 @@ import Views
 
   func findFilter(_: DataService, named: String) -> InternalFilter? {
     filters.first(where: { $0.name == named })
+  }
+
+  func modifyingNewsletterDestinationToFollowing(dataService: DataService) async {
+    isModifyingNewsletterDestination = true
+    do {
+      var errorCount = 0
+      let objectIDs = try await dataService.newsletterEmails()
+      let newsletters = await dataService.viewContext.perform {
+        let newsletters = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
+        return newsletters
+      }
+
+      for newsletter in newsletters {
+        if let emailId = newsletter.emailId, newsletter.folder != "following" {
+          do {
+            try await dataService.updateNewsletterEmail(emailID: emailId, folder: "following")
+          } catch {
+            print("error updating newsletter: ", error)
+            errorCount += 1
+          }
+        }
+      }
+      if errorCount > 0 {
+        snackbar("There was an error modifying \(errorCount) of your emails")
+      } else {
+        snackbar("Email destination modified")
+      }
+    } catch {
+      snackbar("Error modifying emails")
+    }
   }
 }
