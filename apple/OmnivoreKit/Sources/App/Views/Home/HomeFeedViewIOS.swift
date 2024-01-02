@@ -79,30 +79,73 @@ struct FiltersHeader: View {
 
 struct EmptyState: View {
   @ObservedObject var viewModel: HomeFeedViewModel
+  @EnvironmentObject var dataService: DataService
+
+  @State var showSendNewslettersAlert = false
+
+  var followingEmptyState: some View {
+    VStack(alignment: .center, spacing: 20) {
+      if viewModel.stopUsingFollowingPrimer {
+        VStack(spacing: 10) {
+          Image.relaxedSlothLight
+          Text("You are all caught up.").foregroundColor(Color.extensionTextSubtle)
+          Button(action: {
+            Task {
+              await viewModel.loadItems(dataService: dataService, isRefresh: true)
+            }
+          }, label: { Text("Refresh").bold() })
+            .foregroundColor(Color.blue)
+        }
+      } else {
+        Text("You don't have any Feed items.")
+          .font(Font.system(size: 18, weight: .bold))
+
+        Text("Add an RSS/Atom feed")
+          .foregroundColor(Color.blue)
+          .onTapGesture {
+            viewModel.showAddFeedView = true
+          }
+
+        Text("Send your newsletters to following")
+          .foregroundColor(Color.blue)
+          .onTapGesture {
+            showSendNewslettersAlert = true
+          }
+
+        Text("Hide the Following tab")
+          .foregroundColor(Color.blue)
+          .onTapGesture {
+            viewModel.showHideFollowingAlert = true
+          }
+      }
+    }
+
+    .frame(minHeight: 400)
+    .frame(maxWidth: .infinity)
+    .padding()
+    .alert("Update newsletter destination", isPresented: $showSendNewslettersAlert, actions: {
+      Button(action: {
+        Task {
+          await viewModel.modifyingNewsletterDestinationToFollowing(dataService: dataService)
+        }
+      }, label: { Text("OK") })
+      Button(LocalText.cancelGeneric, role: .cancel) { showSendNewslettersAlert = false }
+    }, message: {
+      // swiftlint:disable:next line_length
+      Text("Your email address destination folders will be modified to send to this tab.\n\nAll new newsletters will appear here. You can modify the destination for each individual email address and subscription in your settings.")
+    })
+  }
 
   var body: some View {
-    if viewModel.currentFolder == "following" {
+    if viewModel.isModifyingNewsletterDestination {
       return AnyView(
-        VStack(alignment: .center, spacing: 20) {
-          Text("You don't have any Feed items.")
-            .font(Font.system(size: 18, weight: .bold))
-
-          Text("Add an RSS/Atom feed")
-            .foregroundColor(Color.blue)
-            .onTapGesture {
-              viewModel.showAddFeedView = true
-            }
-
-          Text("Hide the Following tab")
-            .foregroundColor(Color.blue)
-            .onTapGesture {
-              viewModel.showHideFollowingAlert = true
-            }
-        }
-        .frame(minHeight: 400)
-        .frame(maxWidth: .infinity)
-        .padding()
+        VStack {
+          Text("Modifying newsletter destinations...")
+          ProgressView()
+        }.frame(maxWidth: .infinity, maxHeight: .infinity)
       )
+    } else if viewModel.currentFolder == "following" {
+      return AnyView(followingEmptyState)
     } else {
       return AnyView(Group {
         Spacer()
@@ -292,6 +335,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         await viewModel.loadFilters(dataService: dataService)
         if viewModel.appliedFilter == nil {
           viewModel.setDefaultFilter()
+        }
+        // Once the user has seen at least one following item we stop displaying the
+        // initial help view
+        if viewModel.currentFolder == "following", viewModel.fetcher.items.count > 0 {
+          viewModel.stopUsingFollowingPrimer = true
         }
       }
       .environment(\.editMode, self.$isEditMode)

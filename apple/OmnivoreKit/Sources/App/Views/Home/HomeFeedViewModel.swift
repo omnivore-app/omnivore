@@ -37,7 +37,10 @@ import Views
   @State var lastMoreFetched: Date?
   @State var lastFiltersFetched: Date?
 
+  @State var isModifyingNewsletterDestination = false
+
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
+  @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
   @Published var appliedFilter: InternalFilter? {
@@ -324,5 +327,35 @@ import Views
 
   func findFilter(_: DataService, named: String) -> InternalFilter? {
     filters.first(where: { $0.name == named })
+  }
+
+  func modifyingNewsletterDestinationToFollowing(dataService: DataService) async {
+    isModifyingNewsletterDestination = true
+    do {
+      var errorCount = 0
+      let objectIDs = try await dataService.newsletterEmails()
+      let newsletters = await dataService.viewContext.perform {
+        let newsletters = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
+        return newsletters
+      }
+
+      for newsletter in newsletters {
+        if let emailId = newsletter.emailId, newsletter.folder != "following" {
+          do {
+            try await dataService.updateNewsletterEmail(emailID: emailId, folder: "following")
+          } catch {
+            print("error updating newsletter: ", error)
+            errorCount += 1
+          }
+        }
+      }
+      if errorCount > 0 {
+        snackbar("There was an error modifying \(errorCount) of your emails")
+      } else {
+        snackbar("Email destination modified")
+      }
+    } catch {
+      snackbar("Error modifying emails")
+    }
   }
 }

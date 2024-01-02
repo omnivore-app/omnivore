@@ -21,9 +21,6 @@ struct LibraryTabView: View {
 
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
-  @AppStorage(UserDefaultKey.followingPrimerDisplayed.rawValue) var followingPrimerDisplayed = false
-
-  @State var showFollowingPrimer = false
   @State var showExpandedAudioPlayer = false
 
   private let syncManager = LibrarySyncManager()
@@ -74,14 +71,6 @@ struct LibraryTabView: View {
 
   var body: some View {
     VStack(spacing: 0) {
-      if showFollowingPrimer {
-        PresentationLink(transition: UIDevice.isIPad ? .popover : .sheet(detents: [.medium]), isPresented: $showFollowingPrimer) {
-          FollowingViewModal()
-        } label: {
-          EmptyView()
-        }
-      }
-
       TabView(selection: $selectedTab) {
         if !hideFollowingTab {
           NavigationView {

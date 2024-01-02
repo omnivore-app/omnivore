@@ -111,6 +111,7 @@ export function HomeFeedContainer(): JSX.Element {
     size,
     setSize,
     isValidating,
+    itemsDataError,
     performActionOnItem,
     mutate,
   } = useGetLibraryItemsQuery(queryInputs)
@@ -127,6 +128,12 @@ export function HomeFeedContainer(): JSX.Element {
       document.removeEventListener('revalidateLibrary', handleRevalidate)
     }
   }, [mutate])
+
+  useMemo(() => {
+    if (itemsDataError) {
+      console.log('search error: ', itemsDataError)
+    }
+  }, [itemsDataError])
 
   useEffect(() => {
     if (queryValue.startsWith('#')) {
@@ -854,6 +861,7 @@ export function HomeFeedContainer(): JSX.Element {
       hasMore={hasMore}
       hasData={!!itemsPages}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
+      isError={!!itemsDataError}
       isValidating={isValidating}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
@@ -888,6 +896,7 @@ type HomeFeedContentProps = {
   hasMore: boolean
   hasData: boolean
   totalItems: number
+  isError: boolean
   isValidating: boolean
   loadMore: () => void
   labelsTarget: LibraryItem | undefined
@@ -1064,6 +1073,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         >
           {!props.isValidating && props.items.length == 0 ? (
             <EmptyLibrary
+              isError={props.isError}
               layoutType={props.layout}
               searchTerm={props.searchTerm}
               onAddLinkClicked={() => {

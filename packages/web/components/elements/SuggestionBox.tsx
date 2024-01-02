@@ -14,6 +14,7 @@ export type SuggestionAction = {
 type SuggestionBoxProps = {
   helpMessage: string
   suggestions: SuggestionAction[]
+  isError: boolean
 
   size?: 'large' | 'small'
   background?: string
@@ -25,6 +26,7 @@ type SuggestionBoxProps = {
 type InternalOrExternalLinkProps = {
   link: string
   children: ReactNode
+  showArrow: boolean
 }
 
 const InternalOrExternalLink = (props: InternalOrExternalLinkProps) => {
@@ -40,14 +42,16 @@ const InternalOrExternalLink = (props: InternalOrExternalLinkProps) => {
       }}
     >
       {!isExternal ? (
-        <Link href={props.link} legacyBehavior>{props.children}</Link>
+        <Link href={props.link} legacyBehavior>
+          {props.children}
+        </Link>
       ) : (
         <a href={props.link} target="_blank" rel="noreferrer">
           {props.children}
         </a>
       )}
     </SpanBox>
-  );
+  )
 }
 
 export const SuggestionBox = (props: SuggestionBoxProps) => {
@@ -59,14 +63,13 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
         flexDirection: props.size == 'large' ? 'column' : 'row',
         width: 'fit-content',
         borderRadius: '5px',
-        background: props.background ?? '$thBackground3',
-        fontSize: '15px',
+        fontSize: '18px',
         fontFamily: '$inter',
         fontWeight: '500',
-        color: '$thTextContrast',
+        color: '$grayText',
         px: '15px',
-        py: props.size == 'large' ? '15px' : '10px',
-        justifyContent: 'flex-start',
+        alignItems: 'center',
+        justifyContent: 'center',
         '@smDown': {
           flexDirection: 'column',
           alignItems: 'center',
@@ -74,7 +77,7 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
         },
       }}
     >
-      <VStack>
+      <VStack css={{ alignItems: 'center' }}>
         {props.dismissible && (
           <SpanBox
             css={{
@@ -99,12 +102,13 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
             <InternalOrExternalLink
               key={`suggestions-${idx}`}
               link={suggestion.url}
+              showArrow={!props.isError}
             >
               <SpanBox
                 css={{
                   display: 'flex',
                   alignItems: 'center',
-                  color: '$omnivoreCtaYellow',
+                  // color: '$omnivoreCtaYellow',
                   pt: '15px',
                   gap: '2px',
                   '&:hover': {
@@ -113,10 +117,12 @@ export const SuggestionBox = (props: SuggestionBoxProps) => {
                 }}
               >
                 <>{suggestion.text}</>
-                <ArrowRightIcon
-                  size={25}
-                  color={theme.colors.omnivoreCtaYellow.toString()}
-                />
+                {props.showArrow && (
+                  <ArrowRightIcon
+                    size={25}
+                    color={theme.colors.omnivoreCtaYellow.toString()}
+                  />
+                )}
               </SpanBox>
             </InternalOrExternalLink>
           )

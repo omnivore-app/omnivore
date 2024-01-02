@@ -246,6 +246,16 @@ export function useGetLibraryItemsQuery({
     },
     { revalidateFirstPage: false }
   )
+  console.log(
+    'data: ',
+    data,
+    'size',
+    size,
+    'isValidating',
+    isValidating,
+    'error',
+    error
+  )
 
   let responseError = error
   let responsePages = data as LibraryItemsData[] | undefined
