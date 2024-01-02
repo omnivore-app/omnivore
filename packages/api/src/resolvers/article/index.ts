@@ -21,6 +21,8 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  EmptyTrashError,
+  EmptyTrashSuccess,
   FetchContentError,
   FetchContentErrorCode,
   FetchContentSuccess,
@@ -71,6 +73,7 @@ import {
   findOrCreateLabels,
 } from '../../services/labels'
 import {
+  batchDelete,
   batchUpdateLibraryItems,
   createLibraryItem,
   findLibraryItemById,
@@ -1029,6 +1032,27 @@ export const fetchContentResolver = authorized<
       }
     }
   }
+
+  return {
+    success: true,
+  }
+})
+
+export const emptyTrashResolver = authorized<
+  EmptyTrashSuccess,
+  EmptyTrashError
+>(async (_, __, { uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'empty_trash',
+  })
+
+  await batchDelete({
+    state: LibraryItemState.Deleted,
+    user: {
+      id: uid,
+    },
+  })
 
   return {
     success: true,

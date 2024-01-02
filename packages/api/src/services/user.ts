@@ -48,13 +48,12 @@ export const createUsers = async (users: DeepPartial<User>[]) => {
   )
 }
 
-export const batchDeleteUsers = async (criteria: FindOptionsWhere<User>) => {
+export const batchDelete = async (criteria: FindOptionsWhere<User>) => {
   const userQb = getRepository(User).createQueryBuilder().where(criteria)
   const userCountSql = queryBuilderToRawSql(userQb.select('COUNT(1)'))
   const userSubQuery = queryBuilderToRawSql(userQb.select('id INTO user_ids'))
 
   const batchSize = 1000
-  const start = new Date().toISOString()
   const sql = `
   -- Set batch size
   DO $$
@@ -65,15 +64,18 @@ export const batchDeleteUsers = async (criteria: FindOptionsWhere<User>) => {
       -- Loop through batches of users
       FOR i IN 0..CEIL((${userCountSql})) * 1.0 / batch_size) - 1 LOOP
           -- GET batch of user ids
-          ${userSubQuery} LIMIT ${batchSize} OFFSET i * batch_size;
+          ${userSubQuery} LIMIT batch_size OFFSET i * batch_size;
           
           -- Loop through batches of items
           FOR j IN 0..CEIL((SELECT COUNT(1) FROM omnivore.library_item WHERE user_id = ANY(user_ids))) * 1.0 / batch_size) - 1 LOOP
               -- Delete batch of items
               DELETE FROM omnivore.library_item
-              WHERE user_id = ANY(user_ids)
-              AND updated_at < '${start}'
-              LIMIT ${batchSize};
+              WHERE id = ANY(
+                SELECT id
+                FROM omnivore.library_item
+                WHERE user_id = ANY(user_ids)
+                LIMIT batch_size
+              );
           END LOOP;
 
           -- Delete the batch of users

@@ -5,7 +5,7 @@ import express from 'express'
 import { LessThan } from 'typeorm'
 import { StatusType } from '../../entity/user'
 import { readPushSubscription } from '../../pubsub'
-import { batchDeleteUsers } from '../../services/user'
+import { batchDelete } from '../../services/user'
 import { corsConfig } from '../../utils/corsConfig'
 import { logger } from '../../utils/logger'
 
@@ -52,7 +52,7 @@ export function userServiceRouter() {
     const subTime = cleanupMessage.subDays * 1000 * 60 * 60 * 24 // convert days to milliseconds
 
     try {
-      const result = await batchDeleteUsers({
+      const result = await batchDelete({
         status: StatusType.Deleted,
         updatedAt: LessThan(new Date(Date.now() - subTime)), // subDays ago
       })
