@@ -113,7 +113,10 @@ struct NoteItemParams: Identifiable {
       buffer += "by: \(author)\n"
     }
     if let url = item.pageURLString {
-      buffer += "url: \(url)\n"
+      buffer += "\(url)\n"
+    }
+    if let noteText = item.noteText {
+      buffer += "\n\n\(noteText)\n\n"
     }
     return buffer + "\n\n" + highlightItems.map { highlightAsMarkdown(item: $0) }.lazy.joined(separator: "\n\n")
   }

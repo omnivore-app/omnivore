@@ -453,7 +453,17 @@ struct WebReaderContainerView: View {
               .ignoresSafeArea(.all, edges: .bottom)
           }
           .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-            ExpandedAudioPlayer()
+            ExpandedAudioPlayer(delete: { _ in
+              showExpandedAudioPlayer = false
+              audioController.stop()
+              delete()
+            }, archive: { _ in
+              showExpandedAudioPlayer = false
+              audioController.stop()
+              archive()
+            }, viewArticle: { _ in
+              showExpandedAudioPlayer = false
+            })
           }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {

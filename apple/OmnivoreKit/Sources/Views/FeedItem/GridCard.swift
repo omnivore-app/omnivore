@@ -11,62 +11,12 @@ public enum GridCardAction {
 }
 
 public struct GridCard: View {
-  @Binding var isContextMenuOpen: Bool
   let item: LibraryItemData
-  let actionHandler: (GridCardAction) -> Void
-  // let tapAction: () -> Void
 
   public init(
-    item: LibraryItemData,
-    isContextMenuOpen: Binding<Bool>,
-    actionHandler: @escaping (GridCardAction) -> Void
+    item: LibraryItemData
   ) {
     self.item = item
-    self._isContextMenuOpen = isContextMenuOpen
-    self.actionHandler = actionHandler
-  }
-
-  // Menu doesn't provide an API to observe it's open state
-  // so we have keep track of it's state manually
-  func tapHandler() {
-    if isContextMenuOpen {
-      isContextMenuOpen = false
-    }
-  }
-
-  func menuActionHandler(_ action: GridCardAction) {
-    isContextMenuOpen = false
-    actionHandler(action)
-  }
-
-  var contextMenuView: some View {
-    Group {
-      Button(
-        action: { menuActionHandler(.viewHighlights) },
-        label: { Label("Notebook", systemImage: "highlighter") }
-      )
-      Button(
-        action: { menuActionHandler(.editTitle) },
-        label: { Label("Edit Info", systemImage: "info.circle") }
-      )
-      Button(
-        action: { menuActionHandler(.editLabels) },
-        label: { Label(item.sortedLabels.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
-      )
-      Button(
-        action: { menuActionHandler(.toggleArchiveStatus) },
-        label: {
-          Label(
-            item.isArchived ? "Unarchive" : "Archive",
-            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
-          )
-        }
-      )
-      Button(
-        action: { menuActionHandler(.delete) },
-        label: { Label("Delete", systemImage: "trash") }
-      )
-    }
   }
 
   var imageBox: some View {
@@ -159,6 +109,117 @@ public struct GridCard: View {
     }
   }
 
+  var readingSpeed: Int64 {
+    var result = UserDefaults.standard.integer(forKey: UserDefaultKey.userWordsPerMinute.rawValue)
+    if result <= 0 {
+      result = 235
+    }
+    return Int64(result)
+  }
+
+  var estimatedReadingTime: String {
+    if item.wordsCount > 0 {
+      let readLen = max(1, item.wordsCount / readingSpeed)
+      return "\(readLen) MIN READ • "
+    }
+    return ""
+  }
+
+  var readingProgress: String {
+    // If there is no wordsCount don't show progress because it will make no sense
+    if item.wordsCount > 0 {
+      return "\(String(format: "%d", Int(item.readingProgress)))%"
+    }
+    if item.isPDF {
+      // base estimated reading time on page count
+      return "\(String(format: "%d", Int(item.readingProgress)))%"
+    }
+    return ""
+  }
+
+  var hasMultipleInfoItems: Bool {
+    item.wordsCount > 0 || item.highlights?.first { ($0 as? Highlight)?.annotation != nil } != nil
+  }
+
+  var highlightsText: String {
+    if let highlights = item.highlights, highlights.count > 0 {
+      let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
+      if item.wordsCount > 0 || item.isPDF {
+        return " • \(fmted)"
+      }
+      return fmted
+    }
+    return ""
+  }
+
+  var notesText: String {
+    let notes = item.highlights?.filter { item in
+      if let highlight = item as? Highlight {
+        return !(highlight.annotation ?? "").isEmpty
+      }
+      return false
+    }
+
+    if let notes = notes, notes.count > 0 {
+      let fmted = LocalText.pluralizedText(key: "number_of_notes", count: notes.count)
+      if hasMultipleInfoItems {
+        return " • \(fmted)"
+      }
+      return fmted
+    }
+    return ""
+  }
+
+  var flairLabels: [FlairLabels] {
+    item.sortedLabels.compactMap { label in
+      if let name = label.name {
+        return FlairLabels(rawValue: name.lowercased())
+      }
+      return nil
+    }.sorted { $0.sortOrder < $1.sortOrder }
+  }
+
+  var isPartiallyRead: Bool {
+    Int(item.readingProgress) > 0
+  }
+
+  var nonFlairLabels: [LinkedItemLabel] {
+    item.sortedLabels.filter { label in
+      if let name = label.name, FlairLabels(rawValue: name.lowercased()) != nil {
+        return false
+      }
+      return true
+    }
+  }
+
+  var readInfo: some View {
+    HStack(alignment: .center, spacing: 5.0) {
+      ForEach(flairLabels, id: \.self) {
+        $0.icon
+      }
+
+      Text("\(estimatedReadingTime)")
+        .font(.caption2).fontWeight(.medium)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+
+        +
+        Text("\(readingProgress)")
+        .font(.caption2).fontWeight(.medium)
+        .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeLibraryItemSubtle)
+
+        +
+        Text("\(highlightsText)")
+        .font(.caption2).fontWeight(.medium)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+
+        +
+        Text("\(notesText)")
+        .font(.caption2).fontWeight(.medium)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
   public var body: some View {
     GeometryReader { geo in
       VStack(alignment: .leading, spacing: 0) {
@@ -167,17 +228,19 @@ public struct GridCard: View {
             .frame(height: geo.size.height / 2.0)
 
           VStack(alignment: .leading, spacing: 4) {
-            HStack {
-              Text(item.title)
-                .font(.appHeadline)
-                .foregroundColor(.appGrayTextContrast)
-                .lineLimit(1)
-            }
+            readInfo
+              .dynamicTypeSize(.xSmall ... .medium)
+              .padding(.horizontal, 15)
+
+            Text(item.title)
+              .lineLimit(2)
+              .font(.appHeadline)
+              .foregroundColor(.appGrayTextContrast)
+              .padding(.horizontal, 15)
 
             byLine
+              .padding(.horizontal, 15)
           }
-          .frame(height: 30)
-          .padding(.horizontal, 10)
           .padding(.bottom, 10)
           .padding(.top, 10)
 
@@ -186,30 +249,21 @@ public struct GridCard: View {
             Text(item.descriptionText ?? item.title)
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
-              .lineLimit(3)
+              .lineLimit(2)
               .multilineTextAlignment(.leading)
 
             Spacer()
           }
-          .padding(.horizontal, 10)
+          .padding(.horizontal, 15)
 
-          // Category Labels
-          if item.hasLabels {
-            ScrollView(.horizontal, showsIndicators: false) {
-              HStack {
-                ForEach(item.sortedLabels, id: \.self) {
-                  TextChip(feedItemLabel: $0)
-                }
-                Spacer()
-              }
-              .padding(.horizontal, 10)
-            }
+          if !nonFlairLabels.isEmpty {
+            LabelsFlowLayout(labels: nonFlairLabels)
+              .padding(.horizontal, 15)
           }
         }
         .padding(.horizontal, 0)
         .padding(.top, 0)
       }
-      .contextMenu { contextMenuView }
     }
   }
 }
