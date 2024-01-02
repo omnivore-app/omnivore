@@ -218,54 +218,6 @@ export default function Debug(): JSX.Element {
           )
         })}
       </Box>
-      {/* 
-        {sortedAttributes.length > 0 ? (
-          sortedAttributes.map((attribute, i) => {
-            return (
-              <SettingsTableRow
-                key={attribute.name}
-                title={attribute.name}
-                isLast={i === sortedAttributes.length - 1}
-                sublineElement={
-                  <></>
-                  // <StyledText
-                  //   css={{
-                  //     my: '5px',
-                  //     fontSize: '11px',
-                  //     a: {
-                  //       color: '$omnivoreCtaYellow',
-                  //     },
-                  //   }}
-                  // >
-                  //   {`created ${formattedShortDate(email.createdAt)}, `}
-                  //   <Link
-                  //     href="/settings/subscriptions"
-                  //     legacyBehavior
-                  //   >{`${email.subscriptionCount} subscriptions`}</Link>
-                  // </StyledText>
-                }
-                // titleElement={
-                //   <CopyTextBtnWrapper
-                //     css={{
-                //       marginLeft: '20px',
-                //       '@mdDown': {
-                //         marginRight: '10px',
-                //       },
-                //     }}
-                //   >
-                //     <CopyTextButton
-                //       text={email.address}
-                //       type={TextType.EmailAddress}
-                //     />
-                //   </CopyTextBtnWrapper>
-                // }
-              />
-            )
-          })
-        ) : (
-          <EmptySettingsRow text={isLoading ? '-' : 'Loading'} />
-        )}
-      </SettingsTable> */}
     </>
   )
 }
