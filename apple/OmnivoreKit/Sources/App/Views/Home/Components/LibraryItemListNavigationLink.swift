@@ -62,11 +62,6 @@ struct LibraryItemGridCardNavigationLink: View {
   @State private var scale = 1.0
 
   @ObservedObject var item: Models.LibraryItem
-
-  let actionHandler: (GridCardAction) -> Void
-
-  @Binding var isContextMenuOpen: Bool
-
   @ObservedObject var viewModel: HomeFeedViewModel
 
   var body: some View {
@@ -83,19 +78,12 @@ struct LibraryItemGridCardNavigationLink: View {
           isPDF: item.isPDF
         )
       }, label: {
-        GridCard(item: LibraryItemData.make(from: item), isContextMenuOpen: $isContextMenuOpen, actionHandler: actionHandler)
+        GridCard(item: LibraryItemData.make(from: item))
       }
     )
     .buttonStyle(.plain)
     .aspectRatio(1.0, contentMode: .fill)
-    .background(
-      Color.secondarySystemGroupedBackground
-        .onTapGesture {
-          if isContextMenuOpen {
-            isContextMenuOpen = false
-          }
-        }
-    )
+    .background(Color.systemBackground)
     .cornerRadius(6)
   }
 }

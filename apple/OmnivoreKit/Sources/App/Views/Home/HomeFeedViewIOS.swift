@@ -19,23 +19,23 @@ struct FiltersHeader: View {
               viewModel.searchTerm = ""
             }.frame(maxWidth: reader.size.width * 0.66)
           } else {
-            if UIDevice.isIPhone {
-              Menu(
-                content: {
-                  ForEach(viewModel.filters) { filter in
-                    Button(filter.name, action: {
-                      viewModel.appliedFilter = filter
-                    })
-                  }
-                },
-                label: {
-                  TextChipButton.makeMenuButton(
-                    title: viewModel.appliedFilter?.name ?? "-",
-                    color: .systemGray6
-                  )
+            // if UIDevice.isIPhone {
+            Menu(
+              content: {
+                ForEach(viewModel.filters.filter { $0.folder == viewModel.currentFolder }) { filter in
+                  Button(filter.name, action: {
+                    viewModel.appliedFilter = filter
+                  })
                 }
-              ).buttonStyle(.plain)
-            }
+              },
+              label: {
+                TextChipButton.makeMenuButton(
+                  title: viewModel.appliedFilter?.name ?? "-",
+                  color: .systemGray6
+                )
+              }
+            ).buttonStyle(.plain)
+            // }
           }
           Menu(
             content: {
@@ -77,6 +77,50 @@ struct FiltersHeader: View {
   }
 }
 
+struct EmptyState: View {
+  @ObservedObject var viewModel: HomeFeedViewModel
+
+  var body: some View {
+    if viewModel.currentFolder == "following" {
+      return AnyView(
+        VStack(alignment: .center, spacing: 20) {
+          Text("You don't have any Feed items.")
+            .font(Font.system(size: 18, weight: .bold))
+
+          Text("Add an RSS/Atom feed")
+            .foregroundColor(Color.blue)
+            .onTapGesture {
+              viewModel.showAddFeedView = true
+            }
+
+          Text("Hide the Following tab")
+            .foregroundColor(Color.blue)
+            .onTapGesture {
+              viewModel.showHideFollowingAlert = true
+            }
+        }
+        .frame(minHeight: 400)
+        .frame(maxWidth: .infinity)
+        .padding()
+      )
+    } else {
+      return AnyView(Group {
+        Spacer()
+
+        VStack(alignment: .center, spacing: 20) {
+          Text("No results found for this query")
+            .font(Font.system(size: 18, weight: .bold))
+        }
+        .frame(minHeight: 400)
+        .frame(maxWidth: .infinity)
+        .padding()
+
+        Spacer()
+      })
+    }
+  }
+}
+
 struct AnimatingCellHeight: AnimatableModifier {
   var height: CGFloat = 0
 
@@ -103,7 +147,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
-    @State var showOpenAIVoices = false
     @State var showExpandedAudioPlayer = false
 
     @EnvironmentObject var dataService: DataService
@@ -111,7 +154,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     @AppStorage(UserDefaultKey.homeFeedlayoutPreference.rawValue) var prefersListLayout = true
-    @AppStorage(UserDefaultKey.openAIPrimerDisplayed.rawValue) var openAIPrimerDisplayed = false
 
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
@@ -126,7 +168,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var showFeatureCards: Bool {
       isEditMode == .inactive &&
-        viewModel.listConfig.hasFeatureCards &&
+        (viewModel.currentListConfig?.hasFeatureCards ?? false) &&
         !viewModel.hideFeatureSection &&
         viewModel.fetcher.items.count > 0 &&
         viewModel.searchTerm.isEmpty &&
@@ -198,14 +240,44 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(item: $viewModel.itemForHighlightsView) { item in
         NotebookView(viewModel: NotebookViewModel(item: item), hasHighlightMutations: $hasHighlightMutations)
       }
+      .sheet(isPresented: $showAddFeedView) {
+        NavigationView {
+          LibraryAddFeedView(dismiss: {
+            showAddFeedView = false
+          }, toastOperationHandler: nil)
+        }
+      }
+      .sheet(isPresented: $showAddLinkView) {
+        NavigationView {
+          LibraryAddLinkView()
+        }
+      }
       .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-        ExpandedAudioPlayer()
+        ExpandedAudioPlayer(
+          delete: {
+            showExpandedAudioPlayer = false
+            audioController.stop()
+            viewModel.removeLibraryItem(dataService: dataService, objectID: $0)
+          },
+          archive: {
+            showExpandedAudioPlayer = false
+            audioController.stop()
+            viewModel.setLinkArchived(dataService: dataService, objectID: $0, archived: true)
+          },
+          viewArticle: { itemID in
+            if let article = try? dataService.viewContext.existingObject(with: itemID) as? Models.LibraryItem {
+              viewModel.pushFeedItem(item: article)
+            }
+          }
+        )
       }
       .toolbar {
         toolbarItems
       }
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-        loadItems(isRefresh: false)
+        Task {
+          await viewModel.loadNewItems(dataService: dataService)
+        }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
         guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
@@ -218,16 +290,11 @@ struct AnimatingCellHeight: AnimatableModifier {
       .fullScreenCover(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
-      .sheet(isPresented: $showAddLinkView) {
-        NavigationView {
-          LibraryAddLinkView()
-        }
-      }
-      .introspectNavigationController { nav in
-        nav.delegate = viewModel
-      }
       .task {
         await viewModel.loadFilters(dataService: dataService)
+        if viewModel.appliedFilter == nil {
+          viewModel.setDefaultFilter()
+        }
       }
       .environment(\.editMode, self.$isEditMode)
       .navigationBarTitleDisplayMode(.inline)
@@ -258,53 +325,71 @@ struct AnimatingCellHeight: AnimatableModifier {
             Button(
               action: { isEditMode = isEditMode == .active ? .inactive : .active },
               label: {
-                Image.selectMultiple
+                Image
+                  .selectMultiple
+                  .foregroundColor(Color.toolbarItemForeground)
               }
-            )
+            ).buttonStyle(.plain)
           }
           if enableGrid {
             Button(
               action: { prefersListLayout.toggle() },
               label: {
-                Label("Toggle Feed Layout", systemImage: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                  .foregroundColor(Color.toolbarItemForeground)
               }
-            )
+            ).buttonStyle(.plain)
           }
+
           Button(
             action: {
-              if viewModel.folder == "inbox" {
+              if viewModel.currentFolder == "inbox" {
                 showAddLinkView = true
-              } else if viewModel.folder == "following" {
+              } else if viewModel.currentFolder == "following" {
                 showAddFeedView = true
               }
             },
             label: {
               Image.addLink
+                .foregroundColor(Color.toolbarItemForeground)
             }
-          )
+          ).buttonStyle(.plain)
+
           Button(
-            action: { searchPresented = true },
+            action: {
+              searchPresented = true
+              isEditMode = .inactive
+            },
             label: {
-              Image.magnifyingGlass
+              Image
+                .magnifyingGlass
+                .foregroundColor(Color.toolbarItemForeground)
             }
-          )
+          ).buttonStyle(.plain)
         }
 
         ToolbarItemGroup(placement: .bottomBar) {
           if isEditMode == .active {
             Button(action: {
-              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
-              isEditMode = .inactive
-            }, label: { Image(systemName: "archivebox") })
-              .padding(.trailing, 10)
-            Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image(systemName: "trash") })
-              .padding(.trailing, 10)
+              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
+                dim[HorizontalAlignment.center]
+              })
+
+            Button(action: {
+              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
+              isEditMode = .inactive
+            }, label: { Image(systemName: "archivebox") })
+              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
+                dim[HorizontalAlignment.center]
+              })
+
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
+
             Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
           }
         }
@@ -328,7 +413,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var body: some View {
       VStack(spacing: 0) {
-        if let linkRequest = viewModel.linkRequest, viewModel.listConfig.hasReadNowSection {
+        if let linkRequest = viewModel.linkRequest, viewModel.currentListConfig?.hasReadNowSection ?? false {
           PresentationLink(
             transition: PresentationLinkTransition.slide(
               options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
@@ -351,7 +436,6 @@ struct AnimatingCellHeight: AnimatableModifier {
             isListScrolled: $isListScrolled,
             prefersListLayout: $prefersListLayout,
             isEditMode: $isEditMode,
-            showAddFeedView: $showAddFeedView,
             selection: $selection,
             viewModel: viewModel,
             showFeatureCards: showFeatureCards
@@ -405,9 +489,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
-    @Binding var showAddFeedView: Bool
     @State private var showHideFeatureAlert = false
-    @State private var showHideFollowingAlert = false
 
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
@@ -423,7 +505,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         .overlay(Rectangle()
           .padding(.leading, 15)
           .frame(width: nil, height: 0.5, alignment: .bottom)
-          .foregroundColor(isListScrolled ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
+          .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
         .dynamicTypeSize(.small ... .accessibility1)
     }
 
@@ -576,48 +658,8 @@ struct AnimatingCellHeight: AnimatableModifier {
       }.redacted(reason: .placeholder)
     }
 
-    var emptyState: some View {
-      if viewModel.folder == "following" {
-        return AnyView(
-          VStack(alignment: .center, spacing: 20) {
-            Text("You don't have any Feed items.")
-              .font(Font.system(size: 18, weight: .bold))
-
-            Text("Add an RSS/Atom feed")
-              .foregroundColor(Color.blue)
-              .onTapGesture {
-                showAddFeedView = true
-              }
-
-            Text("Hide the Following tab")
-              .foregroundColor(Color.blue)
-              .onTapGesture {
-                showHideFollowingAlert = true
-              }
-          }
-          .frame(minHeight: 400)
-          .frame(maxWidth: .infinity)
-          .padding()
-        )
-      } else {
-        return AnyView(Group {
-          Spacer()
-
-          VStack(alignment: .center, spacing: 20) {
-            Text("No results found for this query")
-              .font(Font.system(size: 18, weight: .bold))
-          }
-          .frame(minHeight: 400)
-          .frame(maxWidth: .infinity)
-          .padding()
-
-          Spacer()
-        })
-      }
-    }
-
     var listItems: some View {
-      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { _, item in
+      ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { idx, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
 
         LibraryItemListNavigationLink(
@@ -641,13 +683,24 @@ struct AnimatingCellHeight: AnimatableModifier {
           menuItems(for: item)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
-          ForEach(viewModel.listConfig.leadingSwipeActions, id: \.self) { action in
-            swipeActionButton(action: action, item: item)
+          if let listConfig = viewModel.currentListConfig {
+            ForEach(listConfig.leadingSwipeActions, id: \.self) { action in
+              swipeActionButton(action: action, item: item)
+            }
           }
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-          ForEach(viewModel.listConfig.trailingSwipeActions, id: \.self) { action in
-            swipeActionButton(action: action, item: item)
+          if let listConfig = viewModel.currentListConfig {
+            ForEach(listConfig.trailingSwipeActions, id: \.self) { action in
+              swipeActionButton(action: action, item: item)
+            }
+          }
+        }
+        .onAppear {
+          if idx >= viewModel.fetcher.items.count - 5 {
+            Task {
+              await viewModel.loadMore(dataService: dataService)
+            }
           }
         }
       }
@@ -695,7 +748,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 if viewModel.showLoadingBar {
                   redactedItems
                 } else if viewModel.fetcher.items.isEmpty {
-                  emptyState
+                  EmptyState(viewModel: viewModel)
                     .listRowSeparator(.hidden, edges: .all)
                 } else {
                   listItems
@@ -723,13 +776,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           shouldScrollToTop = true
         }
       }
-      .sheet(isPresented: $showAddFeedView) {
-        NavigationView {
-          LibraryAddFeedView(dismiss: {
-            showAddFeedView = false
-          }, toastOperationHandler: nil)
-        }
-      }
       .alert("The Feature Section will be removed from your library. You can add it back from the filter settings in your profile.",
              isPresented: $showHideFeatureAlert) {
         Button("OK", role: .destructive) {
@@ -738,11 +784,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFeatureAlert = false }
       }
       .alert("The Following tab will be hidden. You can add it back from the filter settings in your profile.",
-             isPresented: $showHideFollowingAlert) {
+             isPresented: $viewModel.showHideFollowingAlert) {
         Button("OK", role: .destructive) {
           viewModel.hideFollowingTab = true
         }
-        Button(LocalText.cancelGeneric, role: .cancel) { self.showHideFollowingAlert = false }
+        Button(LocalText.cancelGeneric, role: .cancel) { viewModel.showHideFollowingAlert = false }
       }
       .introspectNavigationController { nav in
         nav.navigationBar.shadowImage = UIImage()
@@ -830,6 +876,15 @@ struct AnimatingCellHeight: AnimatableModifier {
 
     var filtersHeader: some View {
       FiltersHeader(viewModel: viewModel)
+        .overlay(Rectangle()
+          .padding(.leading, 15)
+          .frame(width: nil, height: 0.5, alignment: .bottom)
+          .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
+        .dynamicTypeSize(.small ... .accessibility1)
+    }
+
+    func menuItems(for item: Models.LibraryItem) -> some View {
+      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var body: some View {
@@ -852,39 +907,39 @@ struct AnimatingCellHeight: AnimatableModifier {
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
             if viewModel.showLoadingBar {
-              ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.id) { _, item in
-                GridCard(item: item, isContextMenuOpen: $isContextMenuOpen, actionHandler: { _ in
-
-                })
+              ForEach(fakeLibraryItems(dataService: dataService), id: \.id) { item in
+                GridCard(item: item)
                   .aspectRatio(1.0, contentMode: .fill)
-                  .background(
-                    Color.secondarySystemGroupedBackground
-                      .onTapGesture {
-                        if isContextMenuOpen {
-                          isContextMenuOpen = false
-                        }
-                      }
-                  )
+                  .background(Color.systemBackground)
                   .cornerRadius(6)
               }.redacted(reason: .placeholder)
             } else {
-              ForEach(viewModel.fetcher.items) { item in
-                LibraryItemGridCardNavigationLink(
-                  item: item,
-                  actionHandler: { contextMenuActionHandler(item: item, action: $0) },
-                  isContextMenuOpen: $isContextMenuOpen,
-                  viewModel: viewModel
-                )
+              if !viewModel.fetcher.items.isEmpty {
+                ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in
+                  LibraryItemGridCardNavigationLink(
+                    item: item,
+                    viewModel: viewModel
+                  )
+                  .contextMenu {
+                    menuItems(for: item)
+                  }
+                  .onAppear {
+                    if idx >= viewModel.fetcher.items.count - 5 {
+                      Task {
+                        await viewModel.loadMore(dataService: dataService)
+                      }
+                    }
+                  }
+                }
               }
             }
-            BottomView(viewModel: viewModel)
             Spacer()
           }
           .frame(maxHeight: .infinity)
           .padding()
           .background(
             GeometryReader {
-              Color(.systemGroupedBackground).preference(
+              Color(.systemBackground).preference(
                 key: ScrollViewOffsetPreferenceKey.self,
                 value: $0.frame(in: .global).origin.y
               )
@@ -898,11 +953,21 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           }
 
+          if viewModel.fetcher.items.isEmpty {
+            EmptyState(viewModel: viewModel)
+          } else {
+            HStack {
+              Spacer()
+              BottomView(viewModel: viewModel).frame(maxWidth: 300)
+              Spacer()
+            }
+          }
+
           if viewModel.fetcher.items.isEmpty, viewModel.isLoading {
             LoadingSection()
           }
         }
-        .background(Color(.systemGroupedBackground))
+        .background(Color(.systemBackground))
 
         Spacer()
       }
@@ -1001,12 +1066,12 @@ struct BottomView: View {
   }
 
   var innerBody: some View {
-    if viewModel.fetcher.items.count < 5 {
+    if viewModel.fetcher.items.count < 3 {
       AnyView(Color.clear)
     } else {
       AnyView(HStack {
-        if !autoLoading {
-          Text("You are all caught up.")
+        if let totalCount = viewModel.fetcher.totalCount {
+          Text("\(viewModel.fetcher.items.count) of \(totalCount) items.")
         }
         Spacer()
         if viewModel.isLoading {
@@ -1017,7 +1082,11 @@ struct BottomView: View {
               await viewModel.loadMore(dataService: dataService)
             }
           }, label: {
-            Text("Refresh library")
+            if let totalCount = viewModel.fetcher.totalCount, viewModel.fetcher.items.count >= totalCount {
+              Text("Check for more")
+            } else {
+              Text("Fetch more")
+            }
           })
             .foregroundColor(Color.blue)
         }

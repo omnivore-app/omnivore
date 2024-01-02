@@ -249,6 +249,10 @@ async function makeSelectionRange(): Promise<
    * If the selection ends on range endContainer (or startContainer in reverse select) but no text is selected (i.e. selection ends at 
    * an empty area), the preceding text is highlighted due to range normalizing. 
    * This is a visual bug and would sometimes lead to weird highlight behavior during removal.
+<<<<<<< HEAD
+=======
+   * See X for more detail
+>>>>>>> main
    */
   const selectionEndNode = selection.focusNode
   const selectionEndOffset = selection.focusOffset

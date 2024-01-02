@@ -151,21 +151,18 @@ public extension DataService {
       case .needsUpdate:
         item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
         syncLinkArchiveStatus(itemID: item.unwrappedID, archived: item.isArchived)
-        syncLinkReadingProgress(
-          itemID: item.unwrappedID,
-          readingProgress: item.readingProgress,
-          anchorIndex: Int(item.readingProgressAnchor),
-          force: item.isPDF
-        )
-      case .needsMove:
+
         item.serverSyncStatus = Int64(ServerSyncStatus.isSyncing.rawValue)
-        syncLinkArchiveStatus(itemID: item.unwrappedID, archived: item.isArchived)
         syncLinkReadingProgress(
           itemID: item.unwrappedID,
           readingProgress: item.readingProgress,
           anchorIndex: Int(item.readingProgressAnchor),
           force: item.isPDF
         )
+        // If the items folder might have changed, sync that.
+        if let itemID = item.id, let folder = item.folder, folder != "following" {
+          syncMoveToFolder(itemID: itemID, folder: folder)
+        }
       }
     }
   }
@@ -193,9 +190,6 @@ public extension DataService {
         } else {
           highlight.serverSyncStatus = Int64(ServerSyncStatus.isNSync.rawValue)
         }
-      case .needsMove:
-        // Highlights can't be moved
-        break
       }
     }
   }

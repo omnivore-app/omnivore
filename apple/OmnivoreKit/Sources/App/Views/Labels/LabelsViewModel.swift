@@ -17,7 +17,7 @@ import Utils
   public init() {}
 
   func setLabels(_ labels: [LinkedItemLabel]) {
-    let hideSystemLabels = UserDefaults(suiteName: "group.app.omnivoreapp")?.bool(forKey: UserDefaultKey.hideSystemLabels.rawValue) ?? false
+    let hideSystemLabels = PublicValet.hideLabels
 
     self.labels = labels.filter { !hideSystemLabels || !isSystemLabel($0) }.sorted { left, right in
       let aTrimmed = left.unwrappedName.trimmingCharacters(in: .whitespaces)

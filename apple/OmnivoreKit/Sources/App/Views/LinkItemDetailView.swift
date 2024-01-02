@@ -17,12 +17,11 @@ import Views
     if let item = item {
       pdfItem = PDFItem.make(item: item)
       self.item = item
+      trackReadEvent(reader: item.isPDF ? "PDF" : "WEB")
     }
-
-    trackReadEvent()
   }
 
-  private func trackReadEvent() {
+  private func trackReadEvent(reader: String) {
     guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
     guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
     guard let originalArticleURL = item?.unwrappedPageURLString ?? pdfItem?.downloadURL else { return }
@@ -31,6 +30,7 @@ import Views
       .linkRead(
         linkID: itemID,
         slug: slug,
+        reader: reader,
         originalArticleURL: originalArticleURL
       )
     )
