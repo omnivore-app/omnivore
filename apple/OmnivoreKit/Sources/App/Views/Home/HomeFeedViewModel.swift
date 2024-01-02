@@ -5,6 +5,12 @@ import SwiftUI
 import Utils
 import Views
 
+enum LoadingBarStyle {
+  case none
+  case redacted
+  case simple
+}
+
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
   let filterKey: String
   @ObservedObject var fetcher: LibraryItemFetcher
@@ -16,7 +22,7 @@ import Views
   @Published var itemForHighlightsView: Models.LibraryItem?
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
-  @Published var showLoadingBar = true
+  @Published var showLoadingBar = LoadingBarStyle.redacted
 
   @Published var selectedItem: Models.LibraryItem?
   @Published var linkIsActive = false
@@ -194,9 +200,9 @@ import Views
     }
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false) async {
+  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false, loadingBarStyle: LoadingBarStyle? = nil) async {
     isLoading = true
-    showLoadingBar = isRefresh
+    showLoadingBar = isRefresh ? loadingBarStyle ?? .redacted : .none
 
     if let filterState = filterState {
       await fetcher.loadItems(
@@ -208,7 +214,7 @@ import Views
     }
 
     isLoading = false
-    showLoadingBar = false
+    showLoadingBar = .none
   }
 
   func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [Models.LibraryItem] {

@@ -91,7 +91,7 @@ struct EmptyState: View {
           Text("You are all caught up.").foregroundColor(Color.extensionTextSubtle)
           Button(action: {
             Task {
-              await viewModel.loadItems(dataService: dataService, isRefresh: true)
+              await viewModel.loadItems(dataService: dataService, isRefresh: true, loadingBarStyle: .simple)
             }
           }, label: { Text("Refresh").bold() })
             .foregroundColor(Color.blue)
@@ -790,8 +790,16 @@ struct AnimatingCellHeight: AnimatableModifier {
                     }
                 }
 
-                if viewModel.showLoadingBar {
+                if viewModel.showLoadingBar == .redacted {
                   redactedItems
+                } else if viewModel.showLoadingBar == .simple {
+                  VStack {
+                    ProgressView()
+                  }
+                  .frame(minHeight: 400)
+                  .frame(maxWidth: .infinity)
+                  .padding()
+                  .listRowSeparator(.hidden, edges: .all)
                 } else if viewModel.fetcher.items.isEmpty {
                   EmptyState(viewModel: viewModel)
                     .listRowSeparator(.hidden, edges: .all)
@@ -951,13 +959,21 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
-            if viewModel.showLoadingBar {
+            if viewModel.showLoadingBar == .redacted {
               ForEach(fakeLibraryItems(dataService: dataService), id: \.id) { item in
                 GridCard(item: item)
                   .aspectRatio(1.0, contentMode: .fill)
                   .background(Color.systemBackground)
                   .cornerRadius(6)
               }.redacted(reason: .placeholder)
+            } else if viewModel.showLoadingBar == .simple {
+              VStack {
+                ProgressView()
+              }
+              .frame(minHeight: 400)
+              .frame(maxWidth: .infinity)
+              .padding()
+              .listRowSeparator(.hidden, edges: .all)
             } else {
               if !viewModel.fetcher.items.isEmpty {
                 ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.id) { idx, item in
