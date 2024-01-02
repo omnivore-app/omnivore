@@ -143,7 +143,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var hasHighlightMutations = false
     @State var searchPresented = false
     @State var showAddLinkView = false
-    @State var showAddFeedView = false
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var isEditMode: EditMode = .inactive
@@ -184,7 +183,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           isListScrolled: $isListScrolled,
           prefersListLayout: $prefersListLayout,
           isEditMode: $isEditMode,
-          showAddFeedView: $showAddFeedView,
           selection: $selection,
           viewModel: viewModel,
           showFeatureCards: showFeatureCards
@@ -240,10 +238,10 @@ struct AnimatingCellHeight: AnimatableModifier {
       .sheet(item: $viewModel.itemForHighlightsView) { item in
         NotebookView(viewModel: NotebookViewModel(item: item), hasHighlightMutations: $hasHighlightMutations)
       }
-      .sheet(isPresented: $showAddFeedView) {
+      .sheet(isPresented: $viewModel.showAddFeedView) {
         NavigationView {
           LibraryAddFeedView(dismiss: {
-            showAddFeedView = false
+            viewModel.showAddFeedView = false
           }, toastOperationHandler: nil)
         }
       }
@@ -346,7 +344,7 @@ struct AnimatingCellHeight: AnimatableModifier {
               if viewModel.currentFolder == "inbox" {
                 showAddLinkView = true
               } else if viewModel.currentFolder == "following" {
-                showAddFeedView = true
+                viewModel.showAddFeedView = true
               }
             },
             label: {
@@ -405,7 +403,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @Binding var isListScrolled: Bool
     @Binding var prefersListLayout: Bool
     @Binding var isEditMode: EditMode
-    @Binding var showAddFeedView: Bool
     @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
