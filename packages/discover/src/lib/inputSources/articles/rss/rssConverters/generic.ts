@@ -5,6 +5,7 @@ import { parseRss } from './rss'
 import { parseHTML } from 'linkedom'
 import { JSDOM } from 'jsdom'
 import { convertAtomStream } from './atom'
+import { OmnivoreContentFeed } from '../../../../../types/Feeds'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -85,13 +86,13 @@ export const streamHeadAndRetrieveOpenGraph = async (link: string) => {
   }
 }
 
-export const parseAtomOrRss = (articleXml: string) => {
-  const parsedXml = parser.parse(articleXml)
+export const parseAtomOrRss = (contentFeed: OmnivoreContentFeed) => {
+  const parsedXml = parser.parse(contentFeed.content)
   return parsedXml.rss || parsedXml['rdf:RDF']
-    ? parseRss(
+    ? parseRss(contentFeed.feed)(
         parsedXml.rss?.channel?.item ||
           parsedXml['rdf:RDF'].channel?.item ||
           parsedXml['rdf:RDF'].item,
       )
-    : convertAtomStream(parsedXml)
+    : convertAtomStream(contentFeed.feed)(parsedXml)
 }

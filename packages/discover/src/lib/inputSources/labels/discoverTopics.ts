@@ -221,4 +221,4 @@ const baseTopics = [
   },
 ]
 
-export const discoveryTopics$ = fromArrayLike(baseTopics as Label[])
+export const discoverTopics$ = fromArrayLike(baseTopics as Label[])

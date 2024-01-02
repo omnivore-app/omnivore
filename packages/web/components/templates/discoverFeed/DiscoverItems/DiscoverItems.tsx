@@ -1,23 +1,23 @@
 import { Box } from '../../../elements/LayoutPrimitives'
 import { UserBasicData } from '../../../../lib/networking/queries/useGetViewerQuery'
 import { LayoutType } from '../../homeFeed/HomeFeedContainer'
-import { DiscoveryItemCard } from './DiscoveryItemCard'
-import { DiscoveryItem } from '../../../../lib/networking/queries/useGetDiscoveryItems'
-import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { DiscoverItemCard } from './DiscoverItemCard'
+import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
+import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { useFetchMore } from "../../../../lib/hooks/useFetchMoreScroll"
 
-type DiscoveryItemsProps = {
-  items: DiscoveryItem[]
+type DiscoverItemsProps = {
+  items: DiscoverItem[]
   layout: LayoutType
   viewer?: UserBasicData
   handleLinkSubmission: (
     link: string,
     timezone: string,
     locale: string
-  ) => Promise<SaveDiscoveryArticleOutput | undefined>
+  ) => Promise<SaveDiscoverArticleOutput | undefined>
 }
 
-export function DiscoveryItems(props: DiscoveryItemsProps): JSX.Element {
+export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
   return (
     <Box
       id={"DiscoverItems"}
@@ -91,7 +91,7 @@ export function DiscoveryItems(props: DiscoveryItemsProps): JSX.Element {
             },
           }}
         >
-          <DiscoveryItemCard
+          <DiscoverItemCard
             layout={props.layout}
             item={linkedItem}
             handleLinkSubmission={props.handleLinkSubmission}

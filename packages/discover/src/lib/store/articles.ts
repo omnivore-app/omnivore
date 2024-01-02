@@ -10,7 +10,7 @@ import { v4 } from 'uuid'
 
 const hasStoredInDatabase = async (articleSlug: string) => {
   const { rows } = await sqlClient.query(
-    'SELECT slug FROM omnivore.discover_articles WHERE slug = $1',
+    'SELECT slug FROM omnivore.discover_feed_articles WHERE slug = $1',
     [articleSlug],
   )
   return rows && rows.length === 0
@@ -29,6 +29,7 @@ export const batchInsertArticlesSql = async (
   const params = articles.map((embedded) => [
     v4(),
     embedded.article.title,
+    embedded.article.feedId,
     embedded.article.slug,
     embedded.article.description,
     embedded.article.url,
@@ -40,7 +41,7 @@ export const batchInsertArticlesSql = async (
 
   if (articles.length > 0) {
     const formattedMultiInsert = pgformat(
-      `INSERT INTO omnivore.discover_articles(id, title, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING`,
+      `INSERT INTO omnivore.discover_feed_articles(id, title, feed_id, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING`,
       params,
     )
 
@@ -52,7 +53,7 @@ export const batchInsertArticlesSql = async (
     })
 
     const formattedTopicInsert = pgformat(
-      `INSERT INTO omnivore.discover_article_topic_link(discover_topic_name, discover_article_id) VALUES %L ON CONFLICT DO NOTHING`,
+      `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
       topicLinks,
     )
     await sqlClient.query(formattedTopicInsert)

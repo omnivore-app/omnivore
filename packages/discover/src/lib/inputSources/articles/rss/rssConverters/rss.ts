@@ -8,6 +8,7 @@ import {
   removeHTMLTag,
   streamHeadAndRetrieveOpenGraph,
 } from './generic'
+import { OmnivoreFeed } from '../../../../../types/Feeds'
 
 const getImage = (article: any): string | undefined => {
   // If there's a thumbnail exposed in the RSS Feed, we should default to that as it is the most likely
@@ -87,7 +88,7 @@ const getDescriptionAndImage = async (article: any) => {
   return { image, description }
 }
 
-export const parseRss = (parsedXml: any) => {
+export const parseRss = (feed: OmnivoreFeed) => (parsedXml: any) => {
   return fromArrayLike(parsedXml).pipe(
     mapOrNull(async (article: any) => {
       const { description, image } = await getDescriptionAndImage(article)
@@ -105,6 +106,7 @@ export const parseRss = (parsedXml: any) => {
           article.pubDate ?? article['dc:date'] ?? Date.now(),
         ),
         type: 'rss',
+        feedId: feed.title,
       }
     }),
   )

@@ -1,13 +1,13 @@
 import { HStack } from '../../../elements/LayoutPrimitives'
 import { timeAgo } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { DiscoveryItem } from '../../../../lib/networking/queries/useGetDiscoveryItems'
+import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
 
-type DiscoveryItemMetadataProps = {
-  item: DiscoveryItem
+type DiscoverItemMetadataProps = {
+  item: DiscoverItem
 }
 
-export function DiscoveryItemMetadata(
-  props: DiscoveryItemMetadataProps
+export function DiscoverItemMetadata(
+  props: DiscoverItemMetadataProps
 ): JSX.Element {
   return (
     <HStack css={{ gap: '5px' }}>

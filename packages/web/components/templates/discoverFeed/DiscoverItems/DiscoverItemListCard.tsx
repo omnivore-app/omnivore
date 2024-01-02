@@ -24,13 +24,13 @@ import {
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
 import { CheckCircle, Circle } from 'phosphor-react'
-import { DiscoveryItemCardProps, DiscoveryItemSubCardProps } from "./DiscoveryItemCard"
-import { DiscoveryItemMetadata } from './DiscoveryItemMetadata'
-import { DiscoveryHoverActions } from './DiscoveryHoverActions'
-import { DiscoveryItem } from "../../../../lib/networking/queries/useGetDiscoveryItems"
+import { DiscoverItemCardProps, DiscoverItemSubCardProps } from "./DiscoverItemCard"
+import { DiscoverItemMetadata } from './DiscoverItemMetadata'
+import { DiscoverHoverActions } from './DiscoverHoverActions'
+import { DiscoverItem } from "../../../../lib/networking/queries/useGetDiscoverItems"
 
-export function DiscoveryItemListCard(
-  props: DiscoveryItemSubCardProps
+export function DiscoverItemListCard(
+  props: DiscoverItemSubCardProps
 ): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -93,7 +93,7 @@ export function DiscoveryItemListCard(
           style={{ ...floatingStyles, zIndex: 3 }}
           {...getFloatingProps()}
         >
-          <DiscoveryHoverActions
+          <DiscoverHoverActions
             item={props.item}
             viewer={props.viewer}
             isHovered={isOpen ?? false}
@@ -102,17 +102,17 @@ export function DiscoveryItemListCard(
             savedId={props.savedId}
             savedUrl={props.savedUrl}
             setSavedUrl={props.setSavedUrl}
-            deleteDiscoveryItem={props.deleteDiscoveryItem}
+            deleteDiscoverItem={props.deleteDiscoverItem}
           />
         </Box>
       )}
-      <DiscoveryListCardContent {...props} savedId={props.savedId} isHovered={isOpen} />
+      <DiscoverListCardContent {...props} savedId={props.savedId} isHovered={isOpen} />
     </VStack>
   )
 }
 
-export function DiscoveryListCardContent(
-  props: DiscoveryItemCardProps & { savedId?: string; savedUrl? : string }
+export function DiscoverListCardContent(
+  props: DiscoverItemCardProps & { savedId?: string; savedUrl? : string }
 ): JSX.Element {
   const originText = siteName(props.item.url, props.item.url)
   const [displayFallback, setDisplayFallback] = useState(
@@ -189,7 +189,7 @@ export function DiscoveryListCardContent(
           }}
           distribution="between"
         >
-          <DiscoveryItemMetadata item={props.item} />
+          <DiscoverItemMetadata item={props.item} />
           {(props.item.author?.length ?? 0 + originText.length) > 0 && (
             <HStack
               css={{

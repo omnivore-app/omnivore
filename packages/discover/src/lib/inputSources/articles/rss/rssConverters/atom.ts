@@ -9,7 +9,7 @@ import {
   streamHeadAndRetrieveOpenGraph,
 } from './generic'
 import { JSDOM } from 'jsdom'
-import { filter } from 'rxjs/operators'
+import { OmnivoreFeed } from '../../../../../types/Feeds'
 
 const getImage = (article: any): string | undefined => {
   const html = new JSDOM(`<html>${article.content['#text']}</html>`)
@@ -43,7 +43,7 @@ const getDescriptionAndImage = async (article: any) => {
   return { image, description }
 }
 
-export const convertAtomStream = (parsedXml: any) => {
+export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
   return fromArrayLike(parsedXml.feed.entry).pipe(
     mapOrNull(async (article: any) => {
       const { image, description } = await getDescriptionAndImage(article)
@@ -61,6 +61,7 @@ export const convertAtomStream = (parsedXml: any) => {
         site: new URL(article.link['@_href']).host,
         publishedAt: new Date(article.published ?? Date.now()),
         type: 'rss',
+        feedId: feed.title,
       }
     }),
   )

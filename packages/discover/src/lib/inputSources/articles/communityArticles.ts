@@ -6,6 +6,8 @@ import { OmnivoreArticle } from '../../../types/OmnivoreArticle'
 const TOPIC_NAME = 'discordCommunityArticles'
 const client = new PubSub()
 
+export const COMMUNITY = 'OMNIVORE_COMMUNITY'
+
 const extractArticleFromMessage = (message: Message): OmnivoreArticle => {
   const parsedMessage: OmnivoreArticle = JSON.parse(
     message.data.toString(),
@@ -13,6 +15,7 @@ const extractArticleFromMessage = (message: Message): OmnivoreArticle => {
 
   return {
     ...parsedMessage,
+    feedId: COMMUNITY,
     publishedAt: parsedMessage.publishedAt ?? new Date(),
     type: 'community',
   }

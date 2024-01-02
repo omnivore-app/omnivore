@@ -10,28 +10,28 @@ import {
 } from 'phosphor-react'
 import { timeZone, locale } from '../../../../lib/dateFormatting'
 import React from 'react'
-import { DiscoveryItem } from '../../../../lib/networking/queries/useGetDiscoveryItems'
-import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
+import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 
-type DiscoveryHoverActionsProps = {
+type DiscoverHoverActionsProps = {
   viewer?: UserBasicData
   isHovered: boolean
   handleLinkSubmission: (
     link: string,
     timezone: string,
     locale: string
-  ) => Promise<SaveDiscoveryArticleOutput | undefined>
-  item: DiscoveryItem
+  ) => Promise<SaveDiscoverArticleOutput | undefined>
+  item: DiscoverItem
   setSavedId: (slug: string) => void
   savedId?: string
 
   setSavedUrl: (url: string) => void
   savedUrl?: string
 
-  deleteDiscoveryItem: (item: DiscoveryItem) => Promise<void>,
+  deleteDiscoverItem: (item: DiscoverItem) => Promise<void>,
 }
 
-export const DiscoveryHoverActions = (props: DiscoveryHoverActionsProps) => {
+export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
   return (
     <Box
       css={{
@@ -69,12 +69,12 @@ export const DiscoveryHoverActions = (props: DiscoveryHoverActionsProps) => {
             props.handleLinkSubmission(props.item.id, timeZone, locale)
               .then((item) => {
                 if (item) {
-                  props.setSavedId(item.saveDiscoveryArticle.saveId)
-                  props.setSavedUrl(item.saveDiscoveryArticle.url)
+                  props.setSavedId(item.saveDiscoverArticle.saveId)
+                  props.setSavedUrl(item.saveDiscoverArticle.url)
                 }
               })
           } else {
-            props.deleteDiscoveryItem(props.item)
+            props.deleteDiscoverItem(props.item)
           }
           event.preventDefault()
           event.stopPropagation()
