@@ -1088,7 +1088,7 @@ export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
       batch_size INT := ${batchSize};
   BEGIN
       -- Loop through batches
-      FOR i IN 0..CEIL((${countSql})) * 1.0 / batch_size) - 1 LOOP
+      FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
           -- Delete batch
           DELETE FROM omnivore.library_item
           WHERE id = ANY(
