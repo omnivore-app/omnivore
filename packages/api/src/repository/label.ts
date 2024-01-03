@@ -73,7 +73,12 @@ export const labelRepository = appDataSource.getRepository(Label).extend({
   },
 
   createLabels(labels: CreateLabelInput[], userId: string) {
-    return this.save(labels.map((l) => convertToLabel(l, userId)))
+    return this.createQueryBuilder()
+      .insert()
+      .into(Label)
+      .values(labels.map((l) => convertToLabel(l, userId)))
+      .orIgnore()
+      .execute()
   },
 
   deleteById(id: string) {

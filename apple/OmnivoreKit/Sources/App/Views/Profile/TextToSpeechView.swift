@@ -7,6 +7,7 @@
   // swiftlint:disable line_length
   struct TextToSpeechView: View {
     @EnvironmentObject var audioController: AudioController
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
       Group {
@@ -20,6 +21,9 @@
           innerBody
         }
       }.navigationTitle(LocalText.textToSpeechGeneric)
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+          dismiss()
+        }
     }
 
     private var innerBody: some View {

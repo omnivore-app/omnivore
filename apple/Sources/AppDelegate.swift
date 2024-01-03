@@ -56,6 +56,9 @@ private let logger = Logger(subsystem: "app.omnivore", category: "app-delegate")
       Services.registerBackgroundFetch()
       configureFirebase()
 
+      // TODO: remove after filter badge is re-enabled
+      UIApplication.shared.applicationIconBadgeNumber = 0
+
       // swiftlint:disable:next line_length
       NotificationCenter.default.addObserver(forName: Notification.Name("ReconfigurePushNotifications"), object: nil, queue: OperationQueue.main) { _ in
         if UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue) {

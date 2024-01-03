@@ -15,9 +15,9 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     lhs.id == rhs.id
   }
 
-  public static var DownloadedFilter: InternalFilter {
+  public static var InboxDownloadedFilter: InternalFilter {
     InternalFilter(
-      id: "downloaded",
+      id: "inbox-downloaded",
       name: "Downloaded",
       folder: "inbox",
       filter: "",
@@ -27,12 +27,60 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     )
   }
 
-  public static var DeletedFilter: InternalFilter {
+  public static var InboxDeletedFilter: InternalFilter {
     InternalFilter(
-      id: "deleted",
+      id: "inbox-deleted",
       name: "Deleted",
       folder: "inbox",
       filter: "in:trash",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var InboxUnreadFilter: InternalFilter {
+    InternalFilter(
+      id: "inbox-unread",
+      name: "Unread",
+      folder: "inbox",
+      filter: "in:inbox is:unread",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var FollowingDownloadedFilter: InternalFilter {
+    InternalFilter(
+      id: "following-downloaded",
+      name: "Downloaded",
+      folder: "following",
+      filter: "",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var FollowingDeletedFilter: InternalFilter {
+    InternalFilter(
+      id: "following-deleted",
+      name: "Deleted",
+      folder: "following",
+      filter: "in:trash",
+      visible: true,
+      position: -1,
+      defaultFilter: true
+    )
+  }
+
+  public static var FollowingUnreadFilter: InternalFilter {
+    InternalFilter(
+      id: "unread",
+      name: "Unread",
+      folder: "inbox",
+      filter: "in:inbox is:unread",
       visible: true,
       position: -1,
       defaultFilter: true
@@ -120,11 +168,29 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     [
       InternalFilter(
         id: "following",
-        name: "RSS",
+        name: "Following",
+        folder: "following",
+        filter: "in:following",
+        visible: true,
+        position: 1,
+        defaultFilter: true
+      ),
+      InternalFilter(
+        id: "rss",
+        name: "Feeds",
         folder: "following",
         filter: "in:following label:RSS",
         visible: true,
-        position: 1,
+        position: 2,
+        defaultFilter: true
+      ),
+      InternalFilter(
+        id: "newsletters",
+        name: "Newsletters",
+        folder: "following",
+        filter: "in:following label:Newsletter",
+        visible: true,
+        position: 3,
         defaultFilter: true
       )
     ]
@@ -143,10 +209,9 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
   }
 
   public var predicate: NSPredicate? {
-    if !defaultFilter {
-      return nil
-    }
-
+    let folderPredicate = NSPredicate(
+      format: "%K == %@", #keyPath(Models.LibraryItem.folder), folder
+    )
     let undeletedPredicate = NSPredicate(
       format: "%K != %i AND %K != \"DELETED\"",
       #keyPath(Models.LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
@@ -161,10 +226,16 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       let feedLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"RSS\").@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [notInArchivePredicate, undeletedPredicate, feedLabelPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, notInArchivePredicate, undeletedPredicate, feedLabelPredicate])
+    case "Following":
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, notInArchivePredicate, undeletedPredicate])
     case "Inbox":
-      // non-archived items
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate])
+    case "Unread":
+      let isUnread = NSPredicate(
+        format: "readAt == nil"
+      )
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate, isUnread])
     case "Non-Feed Items":
       // non-archived or deleted items without the Newsletter label
       let nonNewsletterLabelPredicate = NSPredicate(
@@ -174,7 +245,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         format: "NOT SUBQUERY(labels, $label, $label.name == \"RSS\") .@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
-        undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate, nonRSSPredicate
+        folderPredicate, undeletedPredicate, notInArchivePredicate, nonNewsletterLabelPredicate, nonRSSPredicate
       ])
     case "Downloaded":
       // include pdf only
@@ -188,50 +259,51 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         format: "localPDF.length > 0"
       )
       let downloadedPDF = NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate, localPDFURL])
-      return NSCompoundPredicate(orPredicateWithSubpredicates: [hasHTMLContent, downloadedPDF])
+      return NSCompoundPredicate(orPredicateWithSubpredicates: [folderPredicate, hasHTMLContent, downloadedPDF])
     case "Newsletters":
       // non-archived or deleted items with the Newsletter label
       let newsletterLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"Newsletter\").@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, newsletterLabelPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate, newsletterLabelPredicate])
     case "Feeds":
       let feedLabelPredicate = NSPredicate(
         format: "SUBQUERY(labels, $label, $label.name == \"RSS\").@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, feedLabelPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate, feedLabelPredicate])
     case "Recommended":
       // non-archived or deleted items with the Newsletter label
       let recommendedPredicate = NSPredicate(
         format: "recommendations.@count > 0"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, notInArchivePredicate, recommendedPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, notInArchivePredicate, recommendedPredicate])
     case "All":
       // include everything undeleted
-      return undeletedPredicate
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate])
     case "Archived":
       let inArchivePredicate = NSPredicate(
         format: "%K == %@", #keyPath(Models.LibraryItem.isArchived), Int(truncating: true) as NSNumber
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, inArchivePredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, inArchivePredicate])
     case "Deleted":
       let deletedPredicate = NSPredicate(
         format: "%K == %i OR %K == \"DELETED\"",
         #keyPath(Models.LibraryItem.serverSyncStatus), Int64(ServerSyncStatus.needsDeletion.rawValue),
         #keyPath(Models.LibraryItem.state)
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [deletedPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, deletedPredicate])
     case "Files":
       // include pdf only
       let isPDFPredicate = NSPredicate(
         format: "%K == %@", #keyPath(Models.LibraryItem.contentReader), "PDF"
       )
-      return NSCompoundPredicate(andPredicateWithSubpredicates: [undeletedPredicate, isPDFPredicate])
+      return NSCompoundPredicate(andPredicateWithSubpredicates: [folderPredicate, undeletedPredicate, isPDFPredicate])
     case "Highlights":
       let hasHighlightsPredicate = NSPredicate(
         format: "highlights.@count > 0"
       )
       return NSCompoundPredicate(andPredicateWithSubpredicates: [
+        folderPredicate,
         undeletedPredicate,
         hasHighlightsPredicate
       ])
@@ -301,6 +373,20 @@ public extension Filter {
     let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
     fetchRequest.predicate = NSPredicate(
       format: "id == %@", id
+    )
+
+    var filter: Filter?
+    context.performAndWait {
+      filter = (try? context.fetch(fetchRequest))?.first
+    }
+
+    return filter
+  }
+
+  static func lookup(byFilter filter: String, inContext context: NSManagedObjectContext) -> Filter? {
+    let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "filter == %@", filter
     )
 
     var filter: Filter?

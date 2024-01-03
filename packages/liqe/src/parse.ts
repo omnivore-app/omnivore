@@ -56,7 +56,14 @@ export const parse = (query: string): LiqeQuery => {
   }
 
   if (results.length > 1) {
-    throw new Error('Ambiguous results.');
+    // check if all results are the same
+    const firstResult = JSON.stringify(results[0]);
+
+    for (const result of results) {
+      if (JSON.stringify(result) !== firstResult) {
+        throw new Error('Ambiguous results.');
+      }
+    }
   }
 
   const hydratedAst = hydrateAst(results[0]);

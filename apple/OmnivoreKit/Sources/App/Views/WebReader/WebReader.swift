@@ -20,7 +20,6 @@ struct WebReader: PlatformViewRepresentable {
   @Binding var showNavBarActionID: UUID?
   @Binding var shareActionID: UUID?
   @Binding var annotation: String
-  @Binding var showBottomBar: Bool
   @Binding var showHighlightAnnotationModal: Bool
 
   func makeCoordinator() -> WebReaderCoordinator {
@@ -91,9 +90,6 @@ struct WebReader: PlatformViewRepresentable {
     context.coordinator.webViewActionHandler = webViewActionHandler
     context.coordinator.updateNavBarVisibility = navBarVisibilityUpdater
     context.coordinator.scrollPercentHandler = scrollPercentHandler
-    context.coordinator.updateShowBottomBar = { newValue in
-      self.showBottomBar = newValue
-    }
 
     context.coordinator.articleContentID = articleContent.id
     loadContent(webView: webView)

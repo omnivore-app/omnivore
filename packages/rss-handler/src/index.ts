@@ -53,6 +53,13 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   )
 }
 
+export const isContentFetchBlocked = (feedUrl: string) => {
+  if (feedUrl.startsWith('https://arxiv.org/')) {
+    return true
+  }
+  return false
+}
+
 const getThumbnail = (item: RssFeedItem) => {
   if (item['media:thumbnail']) {
     return item['media:thumbnail'].$.url
@@ -548,6 +555,12 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
         return res.status(500).send('INVALID_RSS_FEED')
       }
 
+      let allowFetchContent = true
+      if (isContentFetchBlocked(feedUrl)) {
+        console.log('fetching content blocked for feed: ', feedUrl)
+        allowFetchContent = false
+      }
+
       console.log('Fetched feed', feed.title, new Date())
 
       await Promise.all(
@@ -560,7 +573,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
             lastFetchedTimestamps[i],
             scheduledTimestamps[i],
             lastFetchedChecksums[i],
-            fetchContents[i],
+            fetchContents[i] && allowFetchContent,
             folders[i],
             feed
           )

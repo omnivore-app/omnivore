@@ -1,52 +1,82 @@
 import Foundation
+import Models
 import Services
 import SwiftUI
 
 @MainActor
 public struct LibrarySplitView: View {
-  @EnvironmentObject var audioController: AudioController
+  @EnvironmentObject var dataService: DataService
 
-  @StateObject private var inboxViewModel = HomeFeedViewModel(
-    folder: "inbox",
+  @StateObject private var viewModel = HomeFeedViewModel(
+    filterKey: "lastSelected",
     fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: true,
-      leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
+    folderConfigs: [
+      "inbox": LibraryListConfig(
+        hasFeatureCards: true,
+        hasReadNowSection: true,
+        leadingSwipeActions: [.pin],
+        trailingSwipeActions: [.archive, .delete],
+        cardStyle: .library
+      ),
+      "following": LibraryListConfig(
+        hasFeatureCards: false,
+        hasReadNowSection: false,
+        leadingSwipeActions: [.moveToInbox],
+        trailingSwipeActions: [.delete],
+        cardStyle: .library
+      )
+    ]
   )
 
-  @StateObject private var followingViewModel = HomeFeedViewModel(
-    folder: "following",
-    fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: false,
-      leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
-  )
-
-  @State var selected = "home"
+  private let syncManager = LibrarySyncManager()
 
   #if os(iOS)
     public var body: some View {
       NavigationView {
-        LibrarySidebar(inboxViewModel: inboxViewModel, followingViewModel: followingViewModel)
+        LibrarySidebar(viewModel: viewModel)
           .navigationBarTitleDisplayMode(.inline)
-          .tag("inbox")
+          .navigationTitle("")
 
-        HomeFeedContainerView(viewModel: inboxViewModel)
+        HomeFeedContainerView(viewModel: viewModel)
           .navigationViewStyle(.stack)
           .navigationBarTitleDisplayMode(.inline)
-          .tag("following")
       }
       .navigationBarTitleDisplayMode(.inline)
       .accentColor(.appGrayTextContrast)
       .introspectSplitViewController {
         $0.preferredPrimaryColumnWidth = 230
         $0.displayModeButtonVisibility = .always
+      }
+//      .onOpenURL { url in
+//        inboxViewModel.linkRequest = nil
+//        if let deepLink = DeepLink.make(from: url) {
+//          switch deepLink {
+//          case let .search(query):
+//            inboxViewModel.searchTerm = query
+//          case let .savedSearch(named):
+//            if let filter = inboxViewModel.findFilter(dataService, named: named) {
+//              inboxViewModel.appliedFilter = filter
+//            }
+//          case let .webAppLinkRequest(requestID):
+//            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+//              withoutAnimation {
+//                inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+//                inboxViewModel.presentWebContainer = true
+//              }
+//            }
+//          }
+//        }
+//        // selectedTab = "inbox"
+//      }
+      .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+        Task {
+          await syncManager.syncUpdates(dataService: dataService)
+        }
+      }
+      .onReceive(NSNotification.performSyncPublisher) { _ in
+        Task {
+          await syncManager.syncUpdates(dataService: dataService)
+        }
       }
     }
   #endif

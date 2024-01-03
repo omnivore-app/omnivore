@@ -2,19 +2,28 @@ import Models
 import PopupView
 import Services
 import SwiftUI
+import Transmission
 import Views
 
 @MainActor final class NewsletterEmailsViewModel: ObservableObject {
   @Published var isLoading = false
+  @Published var showAddressCopied = false
   @Published var emails = [NewsletterEmail]()
+
+  @Published var showOperationToast = false
+  @Published var operationStatus: OperationStatus = .none
+  @Published var operationMessage: String?
 
   func loadEmails(dataService: DataService) async {
     isLoading = true
 
-    if let objectIDs = try? await dataService.newsletterEmails() {
+    do {
+      let objectIDs = try await dataService.newsletterEmails()
       await dataService.viewContext.perform { [weak self] in
         self?.emails = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
       }
+    } catch {
+      print("ERROR LOADING EMAILS: ", error)
     }
 
     isLoading = false
@@ -33,22 +42,48 @@ import Views
 
     isLoading = false
   }
+
+  func updateEmail(dataService: DataService, email: NewsletterEmail, folder: String? = nil, description: String? = nil) async {
+    operationMessage = "Updating email..."
+    operationStatus = .isPerforming
+    do {
+      _ = try await dataService.updateNewsletterEmail(
+        emailID: email.unwrappedEmailId,
+        folder: folder,
+        description: description
+      )
+      await loadEmails(dataService: dataService)
+      operationMessage = "Email updated"
+      operationStatus = .success
+    } catch {
+      operationMessage = "Failed to update email"
+      operationStatus = .failure
+    }
+  }
 }
 
 struct NewsletterEmailsView: View {
   @EnvironmentObject var dataService: DataService
+  @Environment(\.dismiss) private var dismiss
+
   @StateObject var viewModel = NewsletterEmailsViewModel()
 
-  @State var showSnackbar = false
   @State var snackbarOperation: SnackbarOperation?
-
-  func snackbar(message: String) {
-    snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
-    showSnackbar = true
-  }
 
   var body: some View {
     Group {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
+        OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
+      } label: {
+        EmptyView()
+      }.buttonStyle(.plain)
+
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showAddressCopied) {
+        MessageToast()
+      } label: {
+        EmptyView()
+      }.buttonStyle(.plain)
+
       #if os(iOS)
         Form {
           innerBody
@@ -60,65 +95,118 @@ struct NewsletterEmailsView: View {
         .listStyle(InsetListStyle())
       #endif
     }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+      dismiss()
+    }
     .task { await viewModel.loadEmails(dataService: dataService) }
-    .popup(isPresented: $showSnackbar) {
-      if let operation = snackbarOperation {
-        Snackbar(isShowing: $showSnackbar, operation: operation)
-      } else {
-        EmptyView()
+    .refreshable {
+      Task {
+        await viewModel.loadEmails(dataService: dataService)
       }
-    } customize: {
-      $0
-        .type(.toast)
-        .autohideIn(2)
-        .position(.bottom)
-        .animation(.spring())
-        .closeOnTapOutside(true)
     }
   }
 
   private var innerBody: some View {
     Group {
-      Section(footer: Text(LocalText.newslettersDescription)) {
+      if !viewModel.emails.isEmpty {
+        ForEach(viewModel.emails) { email in
+          Section {
+            NewsletterEmailRow(viewModel: viewModel, email: email, folderSelection: email.folder ?? "inbox")
+          }
+        }
+      }
+
+      Section {
+        Text(LocalText.newslettersDescription)
         Button(
           action: {
             Task { await viewModel.createEmail(dataService: dataService) }
           },
           label: {
-            HStack {
-              Image(systemName: "plus.circle.fill").foregroundColor(.green)
+            Label(title: {
               Text(LocalText.createNewEmailMessage)
-              Spacer()
-            }
+            }, icon: {
+              Image.addLink
+            })
           }
         )
         .disabled(viewModel.isLoading)
       }
+    }
+    .navigationTitle(LocalText.emailsGeneric)
+  }
+}
 
-      if !viewModel.emails.isEmpty {
-        Section(header: Text(LocalText.newsletterEmailsExisting)) {
-          ForEach(viewModel.emails) { newsletterEmail in
-            Button(
-              action: {
-                #if os(iOS)
-                  UIPasteboard.general.string = newsletterEmail.email
-                #endif
+struct NewsletterEmailRow: View {
+  @StateObject var viewModel: NewsletterEmailsViewModel
+  @EnvironmentObject var dataService: DataService
 
-                #if os(macOS)
-                  let pasteBoard = NSPasteboard.general
-                  pasteBoard.clearContents()
-                  pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
-                #endif
+  @State var email: NewsletterEmail
+  @State var folderSelection: String
 
-                snackbar(message: "Email copied")
-              },
-              label: { Text(newsletterEmail.unwrappedEmail) }
-            )
+  var body: some View {
+    VStack {
+      HStack {
+        Text(email.unwrappedEmail).bold()
+        Spacer()
+
+        Button(
+          action: {
+            #if os(iOS)
+              UIPasteboard.general.string = email.email
+            #endif
+
+            #if os(macOS)
+              let pasteBoard = NSPasteboard.general
+              pasteBoard.clearContents()
+              pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
+            #endif
+
+            viewModel.showAddressCopied = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
+              viewModel.showAddressCopied = false
+            }
+          },
+          label: {
+            Text("Copy")
+          }
+        )
+      }
+      Divider()
+      Picker("Destination Folder", selection: $folderSelection) {
+        Text("Inbox").tag("inbox")
+        Text("Following").tag("following")
+      }
+      .pickerStyle(MenuPickerStyle())
+      .onChange(of: folderSelection) { newValue in
+        Task {
+          viewModel.showOperationToast = true
+          await viewModel.updateEmail(dataService: dataService, email: email, folder: newValue)
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            viewModel.showOperationToast = false
           }
         }
       }
     }
+  }
+}
 
-    .navigationTitle(LocalText.emailsGeneric)
+struct MessageToast: View {
+  var body: some View {
+    VStack {
+      HStack {
+        Text("Address copied")
+        Spacer()
+      }
+      .padding(10)
+      .frame(minHeight: 50)
+      .frame(maxWidth: 380)
+      .background(Color(hex: "2A2A2A"))
+      .cornerRadius(4.0)
+      .tint(Color.green)
+    }
+    .padding(.bottom, 70)
+    .padding(.horizontal, 10)
+    .ignoresSafeArea(.all, edges: .bottom)
   }
 }

@@ -17,34 +17,11 @@ import Views
     if let item = item {
       pdfItem = PDFItem.make(item: item)
       self.item = item
+      trackReadEvent(reader: item.isPDF ? "PDF" : "WEB")
     }
-
-    trackReadEvent()
   }
 
-  func handleArchiveAction(dataService: DataService) {
-    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    dataService.archiveLink(objectID: objectID, archived: !isItemArchived)
-    showInLibrarySnackbar(!isItemArchived ? "Link archived" : "Link moved to Inbox")
-  }
-
-  func handleDeleteAction(dataService: DataService) {
-    guard let objectID = item?.objectID ?? pdfItem?.objectID else { return }
-    removeLibraryItemAction(dataService: dataService, objectID: objectID)
-  }
-
-  func updateItemReadStatus(dataService: DataService) {
-    guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
-
-    dataService.updateLinkReadingProgress(
-      itemID: itemID,
-      readingProgress: isItemRead ? 0 : 100,
-      anchorIndex: 0,
-      force: false
-    )
-  }
-
-  private func trackReadEvent() {
+  private func trackReadEvent(reader: String) {
     guard let itemID = item?.unwrappedID ?? pdfItem?.itemID else { return }
     guard let slug = item?.unwrappedSlug ?? pdfItem?.slug else { return }
     guard let originalArticleURL = item?.unwrappedPageURLString ?? pdfItem?.downloadURL else { return }
@@ -53,6 +30,7 @@ import Views
       .linkRead(
         linkID: itemID,
         slug: slug,
+        reader: reader,
         originalArticleURL: originalArticleURL
       )
     )

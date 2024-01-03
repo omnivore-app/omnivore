@@ -5,6 +5,7 @@ import SwiftUI
 import Utils
 import Views
 
+@MainActor
 public class ShareExtensionViewModel: ObservableObject {
   @Published public var status: ShareExtensionStatus = .processing
   @Published public var title: String = ""

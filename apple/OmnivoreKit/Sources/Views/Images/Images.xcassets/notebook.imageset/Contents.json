@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "notebooks.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "notebooks@2x.png",
+      "filename" : "header-notebook.svg",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "notebooks@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

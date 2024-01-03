@@ -1,3 +1,4 @@
+import AsyncAlgorithms
 import CoreData
 import CoreImage
 import Foundation
@@ -23,6 +24,9 @@ public final class DataService: ObservableObject {
 
   public let appEnvironment: AppEnvironment
   public let networker: Networker
+
+  public let prefetchQueue = OperationQueue()
+  public let itemLoaderChannel = AsyncChannel<String>()
 
   var persistentContainer: PersistentContainer
   public var backgroundContext: NSManagedObjectContext
@@ -128,6 +132,17 @@ public final class DataService: ObservableObject {
     }
   }
 
+  func deleteAllEntities(entityName: String, inContext context: NSManagedObjectContext) {
+    let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+    let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
+    do {
+      try context.execute(deleteRequest)
+      try context.save()
+    } catch {
+      print("Error deleting all \(entityName) items.", error)
+    }
+  }
+
   private func clearDownloadedFiles() {
     let relevantTypes = ["pdf", "mp3", "speechMarks"]
     let fileMgr = FileManager()
@@ -176,6 +191,17 @@ public final class DataService: ObservableObject {
   }
 
   public func resetLocalStorage() {
+    viewContext.perform {
+      // We want to specify the order of deleting items to better handle relationships
+      let entities = ["LibraryItem", "Viewer", "Filter", "Highlight", "NewsletterEmail",
+                      "LinkedItemLabel", "RecentSearchItem", "Recommendation", "RecommendationGroup", "UserProfile"]
+      entities.forEach { entityName in
+        self.deleteAllEntities(entityName: entityName, inContext: self.viewContext)
+      }
+    }
+
+    UserDefaults.standard.set(nil, forKey: UserDefaultKey.lastSelectedTabItem.rawValue)
+
     lastItemSyncTime = Date(timeIntervalSinceReferenceDate: 0)
 
     clearCoreData()

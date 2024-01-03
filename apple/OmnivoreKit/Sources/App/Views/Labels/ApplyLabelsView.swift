@@ -2,6 +2,7 @@
 import Models
 import Services
 import SwiftUI
+import Utils
 import Views
 
 @MainActor
@@ -124,7 +125,7 @@ struct ApplyLabelsView: View {
       label: {
         HStack {
           let trimmedLabelName = viewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-          Image(systemName: "tag").foregroundColor(.blue)
+          Image.addLink.foregroundColor(.blue).foregroundColor(.blue)
           Text(
             viewModel.labelSearchFilter.count > 0 ?
               "Create: \"\(trimmedLabelName)\" label" :
@@ -195,15 +196,21 @@ struct ApplyLabelsView: View {
   }
 }
 
+func isSystemLabel(_ label: LinkedItemLabel) -> Bool {
+  label.name == "RSS" || label.name == "Newsletter" || label.name == "Pinned"
+}
+
 extension Sequence where Element == LinkedItemLabel {
   func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
+    let hideSystemLabels = PublicValet.hideLabels
+
     if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
     }
     if searchFilter.starts(with: ZWSP) {
       let index = searchFilter.index(searchFilter.startIndex, offsetBy: 1)
       let trimmed = searchFilter.suffix(from: index).lowercased()
-      return filter { ($0.name ?? "").lowercased().contains(trimmed) }
+      return filter { ($0.name ?? "").lowercased().contains(trimmed) && (!hideSystemLabels || !isSystemLabel($0)) }
     }
     return filter { ($0.name ?? "").lowercased().contains(searchFilter.lowercased()) }
   }

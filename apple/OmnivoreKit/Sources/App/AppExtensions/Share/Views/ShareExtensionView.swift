@@ -124,6 +124,7 @@ public struct ShareExtensionView: View {
         Spacer()
       }
     })
+      .buttonStyle(.plain)
       .foregroundColor(hasNoteText ?
         Color.appGrayTextContrast : Color.extensionTextSubtle
       )
@@ -140,8 +141,11 @@ public struct ShareExtensionView: View {
         Text("Add Labels").font(Font.system(size: 12, weight: .medium)).tint(Color.white)
       } icon: {
         Image.label.resizable(resizingMode: .stretch).frame(width: 17, height: 17).tint(Color.white)
-      }.padding(.leading, 10).padding(.trailing, 12)
+      }
+      .foregroundColor(Color.white)
+      .padding(.leading, 10).padding(.trailing, 12)
     })
+      .buttonStyle(.plain)
       .frame(height: 28)
       .background(Color.blue)
       .cornerRadius(24)
@@ -243,7 +247,7 @@ public struct ShareExtensionView: View {
           .aspectRatio(contentMode: .fit)
           .frame(width: 15, height: 15)
       }
-    }
+    }.buttonStyle(.plain)
   }
 
   var closeButton: some View {
@@ -262,7 +266,7 @@ public struct ShareExtensionView: View {
           .font(Font.title.weight(.bold))
           .frame(width: 12, height: 12)
       }
-    })
+    }).buttonStyle(.plain)
   }
 
   var titleBar: some View {
@@ -337,12 +341,14 @@ public struct ShareExtensionView: View {
           viewModel.handleReadNowAction(extensionContext: extensionContext)
         }, label: {
           Text("Read Now")
+            .foregroundColor(Color.white)
           #if os(iOS)
             .font(Font.system(size: 17, weight: .semibold))
             .tint(Color.white)
             .padding(20)
           #endif
         })
+          .buttonStyle(.plain)
         #if os(iOS)
           .frame(height: 50)
           .background(Color.blue)

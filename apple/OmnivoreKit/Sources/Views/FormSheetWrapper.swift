@@ -1,10 +1,3 @@
-//
-//  FormSheet.swift
-//
-//
-//  Created by Jackson Harper on 1/29/22.
-//
-
 import SwiftUI
 
 #if os(iOS)

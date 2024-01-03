@@ -8,7 +8,12 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx, getColumns } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  queryBuilderToRawSql,
+  valuesToRawSql,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
@@ -886,7 +891,7 @@ export const countByCreatedAt = async (
   )
 }
 
-export const updateLibraryItems = async (
+export const batchUpdateLibraryItems = async (
   action: BulkActionType,
   searchArgs: SearchArgs,
   userId: string,
@@ -901,20 +906,21 @@ export const updateLibraryItems = async (
     return 'folder' in args
   }
 
+  const now = new Date().toISOString()
   // build the script
-  let values: QueryDeepPartialEntity<LibraryItem> = {}
+  let values: Record<string, string | number> = {}
   let addLabels = false
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        archivedAt: new Date(),
+        archived_at: now,
         state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
       values = {
         state: LibraryItemState.Deleted,
-        deletedAt: new Date(),
+        deleted_at: now,
       }
       break
     case BulkActionType.AddLabels:
@@ -922,9 +928,9 @@ export const updateLibraryItems = async (
       break
     case BulkActionType.MarkAsRead:
       values = {
-        readAt: new Date(),
-        readingProgressTopPercent: 100,
-        readingProgressBottomPercent: 100,
+        read_at: now,
+        reading_progress_top_percent: 100,
+        reading_progress_bottom_percent: 100,
       }
       break
     case BulkActionType.MoveToFolder:
@@ -934,7 +940,7 @@ export const updateLibraryItems = async (
 
       values = {
         folder: args.folder,
-        savedAt: new Date(),
+        saved_at: now,
       }
 
       break
@@ -973,10 +979,11 @@ export const updateLibraryItems = async (
           .map((label) => ({
             labelId: label.id,
             libraryItemId: libraryItem.id,
+            name: label.name,
           }))
           .filter((entityLabel) => {
-            const existingLabel = libraryItem.labels?.find(
-              (l) => l.id === entityLabel.labelId
+            const existingLabel = libraryItem.labelNames?.find(
+              (l) => l.toLowerCase() === entityLabel.name.toLowerCase()
             )
             return !existingLabel
           })
@@ -984,7 +991,34 @@ export const updateLibraryItems = async (
       return tx.getRepository(EntityLabel).save(labelsToAdd)
     }
 
-    return queryBuilder.update(LibraryItem).set(values).execute()
+    // generate raw sql because postgres doesn't support prepared statements in DO blocks
+    const countSql = queryBuilderToRawSql(queryBuilder.select('COUNT(1)'))
+    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
+    const valuesSql = valuesToRawSql(values)
+
+    const start = new Date().toISOString()
+    const batchSize = 1000
+    const sql = `
+    -- Set batch size
+    DO $$ 
+    DECLARE 
+        batch_size INT := ${batchSize};
+    BEGIN
+        -- Loop through batches
+        FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
+            -- Update the batch
+            UPDATE omnivore.library_item
+            SET ${valuesSql}
+            WHERE id = ANY(
+              ${subQuery}
+              AND updated_at < '${start}'
+              LIMIT batch_size
+            );
+        END LOOP;
+    END $$
+    `
+
+    return tx.query(sql)
   })
 }
 
