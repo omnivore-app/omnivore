@@ -67,12 +67,8 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         width: '320px',
         height: '100%',
         minHeight: '270px',
-        background: 'white',
         borderRadius: '5px',
-        borderWidth: '1px',
-        borderStyle: 'solid',
         overflow: 'hidden',
-        borderColor: '$thBorderColor',
         cursor: 'pointer',
         '@media (max-width: 930px)': {
           m: '15px',

@@ -66,8 +66,6 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
-        border: '1px solid $grayBorder',
-        borderBottom: 'none',
         borderRadius: '6px',
         width: '100vw',
         '@media (min-width: 768px)': {

@@ -4,6 +4,7 @@ import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
 import { LayoutType } from './HomeFeedContainer'
 import { SuggestionBox, SuggestionAction } from '../../elements/SuggestionBox'
 import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
+import { ConfusedSlothIcon } from '../../elements/icons/ConfusedSlothIcon'
 
 type EmptyLibraryProps = {
   isError: boolean
@@ -245,6 +246,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
       }}
     >
       {props.isError && <ErrorSlothIcon />}
+      <ConfusedSlothIcon />
       <ErrorBox type={type} isError={props.isError} />
       <Suggestion type={type} isError={props.isError} />
     </Box>

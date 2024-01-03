@@ -94,6 +94,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           width: LIBRARY_LEFT_MENU_WIDTH,
           overflowY: 'auto',
           overflowX: 'hidden',
+          borderRight: '1px solid $thLibraryMenuBorder',
           '&::-webkit-scrollbar': {
             display: 'none',
           },
@@ -241,8 +242,16 @@ function Subscriptions(
     >
       {!collapsed ? (
         <>
-          <FilterButton filterTerm="in:inbox has:subscriptions" text="All" {...props} />
-          <FilterButton filterTerm={`in:inbox label:RSS`} text="Feeds" {...props} />
+          <FilterButton
+            filterTerm="in:inbox has:subscriptions"
+            text="All"
+            {...props}
+          />
+          <FilterButton
+            filterTerm={`in:inbox label:RSS`}
+            text="Feeds"
+            {...props}
+          />
           <FilterButton
             filterTerm={`in:inbox label:Newsletter`}
             text="Newsletters"
