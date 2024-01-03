@@ -62,6 +62,28 @@
     })
   }
 
+  /**
+   * Determines whether a page is a feed
+   * Currently only feed pages of the XML family and selected feed format in it are recognized (i.e. RSS or Atom)
+   * 
+   * @returns true if it's feed page, false otherwise
+   */
+  function isFeedPage() {
+    const fileExtension = window.location.pathname.slice(-4).toLowerCase()
+    const hasXMLExtension = fileExtension === '.xml'
+    const xmlContentTypes = [
+      'application/xml',
+      'text/xml'
+    ]
+    const isXMLContent = hasXMLExtension || xmlContentTypes.indexOf(document.contentType) !== -1 
+    const feedElementNames = [
+      'rss',
+      'feed'
+    ]
+    const isSupportedFeed = feedElementNames.indexOf(document.documentElement.nodeName) !== -1
+    return isXMLContent && isSupportedFeed
+  }
+
   function prepareContentPostItem(itemEl) {
     const lowerTagName = itemEl.tagName.toLowerCase()
 
@@ -271,11 +293,22 @@
     }, 0.5e3)
   }
 
+  /**
+   * Return the type and content of given page
+   * 
+   * @param {*} createHighlight 
+   * @returns type and content
+   */
   async function prepareContent(createHighlight) {
     const pdfContent = await grabPdfContent()
     if (pdfContent) {
       return pdfContent
     }
+
+    if (isFeedPage()) {
+      return { type: 'feed' }
+    }
+
     const url = window.location.href
     try {
       if (!createHighlight && handleBackendUrl(url)) {

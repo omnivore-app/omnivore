@@ -7,6 +7,7 @@
   ACTIONS
 */
 
+// Content Script: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts
 'use strict'
 ;(function () {
   const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)')

@@ -14,6 +14,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 
+// Background Script: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Background_scripts
 class TaskQueue {
   constructor() {
     this.queue = []
@@ -197,6 +198,17 @@ async function savePdfFile(
   }
 
   return uploadFileResult
+}
+
+async function createFeedSubscription(url) {
+  subscribeFeed(
+    omnivoreGraphqlURL + 'graphql',
+    url
+  ).then((subscriptions) => {
+    console.log('create feed subscription succeeded', subscriptions)
+  }).catch((err) => {
+    console.log('create feed subscription failed', err)
+  })
 }
 
 function clearClickCompleteState() {
@@ -493,6 +505,10 @@ async function saveArticle(tab, createHighlight) {
             })
             return
           }
+          break
+        }
+        case 'feed': {
+          await createFeedSubscription(encodeURI(tab.url))
           break
         }
       }
