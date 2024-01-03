@@ -60,16 +60,16 @@ public final class DataService: ObservableObject {
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
-    self.backgroundContext = persistentContainer.newBackgroundContext()
-
-    backgroundContext.automaticallyMergesChangesFromParent = true
-    backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
     persistentContainer.loadPersistentStores { _, error in
       if let error = error {
         fatalError("Core Data store failed to load with error: \(error)")
       }
     }
+    self.backgroundContext = persistentContainer.newBackgroundContext()
+
+    backgroundContext.automaticallyMergesChangesFromParent = true
+    backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
   }
 
   public func cleanupDeletedItems(in context: NSManagedObjectContext) {
