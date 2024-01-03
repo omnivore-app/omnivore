@@ -80,10 +80,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         '@media (min-width: 1600px)': {
           width: '1340px',
         },
-        boxShadow:
-          '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
         '@media (max-width: 930px)': {
-          boxShadow: 'unset',
           borderRadius: 'unset',
         },
       }}

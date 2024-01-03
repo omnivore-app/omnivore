@@ -111,7 +111,6 @@ export function HomeFeedContainer(): JSX.Element {
     size,
     setSize,
     isValidating,
-    itemsDataError,
     performActionOnItem,
     mutate,
   } = useGetLibraryItemsQuery(queryInputs)
@@ -854,7 +853,6 @@ export function HomeFeedContainer(): JSX.Element {
       }}
       hasMore={hasMore}
       hasData={!!itemsPages}
-      isError={!!itemsDataError}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
       labelsTarget={labelsTarget}
@@ -889,7 +887,6 @@ type HomeFeedContentProps = {
   applySearchQuery: (searchQuery: string) => void
   hasMore: boolean
   hasData: boolean
-  isError: boolean
   totalItems: number
   isValidating: boolean
   loadMore: () => void
@@ -1068,7 +1065,6 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
           {!props.isValidating && props.items.length == 0 ? (
             <EmptyLibrary
               layoutType={props.layout}
-              isError={props.isError}
               searchTerm={props.searchTerm}
               onAddLinkClicked={() => {
                 props.setShowAddLinkModal(true)
@@ -1198,7 +1194,6 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
-        overflow: 'hidden',
         '@media (max-width: 930px)': {
           gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
         },
@@ -1233,14 +1228,17 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
           tabIndex={0}
           key={linkedItem.node.id + linkedItem.node.image}
           css={{
+            overflow: 'visible',
             width: '100%',
             '&:focus-visible': {
+              boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
               outline: 'none',
             },
             '&> div': {
               bg: '$thBackground3',
             },
             '&:focus': {
+              boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
               outline: 'none',
               '> div': {
                 outline: 'none',
@@ -1248,6 +1246,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               },
             },
             '&:hover': {
+              boxShadow: '0px 4px 4px 0px rgba(0, 0, 0, 0.25)',
               '> div': {
                 bg: '$thBackgroundActive',
               },
