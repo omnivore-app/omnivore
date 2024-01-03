@@ -35,7 +35,7 @@
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^7.0.1",
-    "@sentry/serverless": "^7.77.0",
+    "@sentry/serverless": "^7.91.0",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
     "fluent-ffmpeg": "^2.1.2",

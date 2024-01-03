@@ -28,7 +28,7 @@
     "@radix-ui/react-slider": "^1.1.0",
     "@radix-ui/react-switch": "^1.0.1",
     "@radix-ui/react-tooltip": "^0.1.7",
-    "@sentry/nextjs": "^7.42.0",
+    "@sentry/nextjs": "^7.91.0",
     "@stitches/react": "^1.2.5",
     "antd": "4.24.3",
     "axios": "^1.2.0",
