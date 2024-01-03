@@ -29,7 +29,7 @@ import { CardMenu } from '../CardMenu'
 import { DotsThree } from 'phosphor-react'
 import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { LoadingBarOverlay, ProgressBarOverlay } from './LibraryListCard'
-import { FallbackImage } from './FallbackImage'
+import { GridFallbackImage } from './FallbackImage'
 import { useRouter } from 'next/router'
 
 dayjs.extend(relativeTime)
@@ -157,11 +157,11 @@ const GridImage = (props: GridImageProps): JSX.Element => {
         />
       )}
       {displayFallback ? (
-        <FallbackImage
+        <GridFallbackImage
           title={props.title ?? 'Omnivore Fallback'}
           width="100%"
           height="150px"
-          fontSize="128px"
+          fontSize="16px"
         />
       ) : (
         <CoverImage
@@ -183,7 +183,11 @@ const GridImage = (props: GridImageProps): JSX.Element => {
 const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   const { isChecked, setIsChecked, item } = props
   const [menuOpen, setMenuOpen] = useState(false)
-  const originText = siteName(props.item.originalArticleUrl, props.item.url, props.item.siteName)
+  const originText = siteName(
+    props.item.originalArticleUrl,
+    props.item.url,
+    props.item.siteName
+  )
 
   const handleCheckChanged = useCallback(() => {
     const newValue = !isChecked
