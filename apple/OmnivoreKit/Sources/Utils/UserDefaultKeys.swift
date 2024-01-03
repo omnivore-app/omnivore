@@ -28,11 +28,12 @@ public enum UserDefaultKey: String {
   case recentSearchTerms
   case audioPlayerExpanded
   case themeName
-  case openAIPrimerDisplayed
+  case stopUsingFollowingPrimer
   case notificationsEnabled
   case deviceTokenID
   case userWordsPerMinute
   case hideFeatureSection
+  case hideSystemLabels
   case justifyText
   case prefersHideStatusBarInReader
   case visibleShareExtensionTab

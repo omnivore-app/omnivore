@@ -21,11 +21,15 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  FetchContentError,
+  FetchContentErrorCode,
+  FetchContentSuccess,
   MoveToFolderError,
   MoveToFolderErrorCode,
   MoveToFolderSuccess,
   MutationBulkActionArgs,
   MutationCreateArticleArgs,
+  MutationFetchContentArgs,
   MutationMoveToFolderArgs,
   MutationSaveArticleReadingProgressArgs,
   MutationSetBookmarkArticleArgs,
@@ -42,6 +46,7 @@ import {
   SearchErrorCode,
   SearchSuccess,
   SetBookmarkArticleError,
+  SetBookmarkArticleErrorCode,
   SetBookmarkArticleSuccess,
   SetFavoriteArticleError,
   SetFavoriteArticleErrorCode,
@@ -66,14 +71,15 @@ import {
   findOrCreateLabels,
 } from '../../services/labels'
 import {
+  batchUpdateLibraryItems,
   createLibraryItem,
+  findLibraryItemById,
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
   sortParamsToSort,
   updateLibraryItem,
   updateLibraryItemReadingProgress,
-  updateLibraryItems,
 } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
@@ -359,8 +365,7 @@ export const createArticleResolver = authorized<
         libraryItemToReturn.id,
         uid,
         inputLabels,
-        rssFeedUrl,
-        pubsub
+        rssFeedUrl
       )
 
       log.info(
@@ -416,7 +421,6 @@ export const getArticleResolver = authorized<
           deletedAt: IsNull(),
         },
         relations: {
-          labels: true,
           highlights: {
             user: true,
             labels: true,
@@ -548,6 +552,10 @@ export const setBookmarkArticleResolver = authorized<
   SetBookmarkArticleError,
   MutationSetBookmarkArticleArgs
 >(async (_, { input: { articleID } }, { uid, log, pubsub }) => {
+  if (!articleID) {
+    return { errorCodes: [SetBookmarkArticleErrorCode.NotFound] }
+  }
+
   // delete the item and its metadata
   const deletedLibraryItem = await updateLibraryItem(
     articleID,
@@ -857,7 +865,7 @@ export const bulkActionResolver = authorized<
         labels = await findLabelsByIds(labelIds, uid)
       }
 
-      await updateLibraryItems(
+      await batchUpdateLibraryItems(
         action,
         {
           query,
@@ -913,7 +921,7 @@ export const moveToFolderResolver = authorized<
   MoveToFolderSuccess,
   MoveToFolderError,
   MutationMoveToFolderArgs
->(async (_, { id, folder }, { authTrx, pubsub, uid }) => {
+>(async (_, { id, folder }, { authTrx, log, pubsub, uid }) => {
   analytics.track({
     userId: uid,
     event: 'move_to_folder',
@@ -946,24 +954,6 @@ export const moveToFolderResolver = authorized<
 
   const savedAt = new Date()
 
-  // // if the content is not fetched yet, create a page save request
-  // if (!item.readableContent) {
-  //   const articleSavingRequest = await createPageSaveRequest({
-  //     userId: uid,
-  //     url: item.originalUrl,
-  //     articleSavingRequestId: id,
-  //     priority: 'high',
-  //     publishedAt: item.publishedAt || undefined,
-  //     savedAt,
-  //     pubsub,
-  //   })
-
-  //   return {
-  //     __typename: 'MoveToFolderSuccess',
-  //     articleSavingRequest,
-  //   }
-  // }
-
   await updateLibraryItem(
     item.id,
     {
@@ -974,8 +964,73 @@ export const moveToFolderResolver = authorized<
     pubsub
   )
 
+  // if the content is not fetched yet, create a page save request
+  if (item.state === LibraryItemState.ContentNotFetched) {
+    try {
+      await createPageSaveRequest({
+        userId: uid,
+        url: item.originalUrl,
+        articleSavingRequestId: id,
+        priority: 'high',
+        publishedAt: item.publishedAt || undefined,
+        savedAt,
+        folder,
+        pubsub,
+      })
+    } catch (error) {
+      log.error('moveToFolderResolver error', error)
+
+      return {
+        errorCodes: [MoveToFolderErrorCode.BadRequest],
+      }
+    }
+  }
+
   return {
-    __typename: 'MoveToFolderSuccess',
+    success: true,
+  }
+})
+
+export const fetchContentResolver = authorized<
+  FetchContentSuccess,
+  FetchContentError,
+  MutationFetchContentArgs
+>(async (_, { id }, { uid, log, pubsub }) => {
+  analytics.track({
+    userId: uid,
+    event: 'fetch_content',
+    properties: {
+      id,
+    },
+  })
+
+  const item = await findLibraryItemById(id, uid)
+  if (!item) {
+    return {
+      errorCodes: [FetchContentErrorCode.Unauthorized],
+    }
+  }
+
+  // if the content is not fetched yet, create a page save request
+  if (item.state === LibraryItemState.ContentNotFetched) {
+    try {
+      await createPageSaveRequest({
+        userId: uid,
+        url: item.originalUrl,
+        articleSavingRequestId: id,
+        priority: 'high',
+        pubsub,
+      })
+    } catch (error) {
+      log.error('fetchContentResolver error', error)
+
+      return {
+        errorCodes: [FetchContentErrorCode.BadRequest],
+      }
+    }
+  }
+
+  return {
     success: true,
   }
 })

@@ -3,7 +3,7 @@ import Utils
 
 public enum WebFont: String, CaseIterable {
   case inter = "Inter"
-  case system = "unset"
+  case system = "system-ui"
   case merriweather = "Merriweather"
   case lora = "Lora"
   case opensans = "Open Sans"

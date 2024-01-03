@@ -51,10 +51,17 @@ struct InnerRootView: View {
   @ViewBuilder private var innerBody: some View {
     if authenticator.isLoggedIn {
       PrimaryContentView()
+        .task {
+          try? await dataService.syncOfflineItemsWithServerIfNeeded()
+        }
     } else {
-      WelcomeView()
-        .accessibilityElement()
-        .accessibilityIdentifier("welcomeView")
+      if authenticator.isLoggingOut {
+        LogoutView()
+      } else {
+        WelcomeView()
+          .accessibilityElement()
+          .accessibilityIdentifier("welcomeView")
+      }
     }
   }
 

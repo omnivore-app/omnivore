@@ -13,6 +13,7 @@ import { User } from '../../src/entity/user'
 import {
   ArticleSavingRequestStatus,
   BulkActionType,
+  HighlightType,
   PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
@@ -1857,6 +1858,54 @@ describe('Article API', () => {
         expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
       })
     })
+
+    context('when sort:wordscount is in the query', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        keyword = 'wordscount:>=10000 sort:wordscount'
+        // Create some test items
+        items = await createLibraryItems(
+          [
+            {
+              user,
+              title: 'test 1',
+              slug: 'test 1',
+              originalUrl: `${url}/test1`,
+              wordCount: 10000,
+            },
+            {
+              user,
+              title: 'test 2',
+              slug: 'test 2',
+              originalUrl: `${url}/test2`,
+              wordCount: 20000,
+            },
+            {
+              user,
+              title: 'test 3',
+              slug: 'test 3',
+              originalUrl: `${url}/test3`,
+              wordCount: 30000,
+            },
+          ],
+          user.id
+        )
+      })
+
+      after(async () => {
+        await deleteLibraryItems(items, user.id)
+      })
+
+      it('returns items in descending order of word count', async () => {
+        const res = await graphqlRequest(query, authToken).expect(200)
+
+        expect(res.body.data.search.pageInfo.totalCount).to.eql(3)
+        expect(res.body.data.search.edges[0].node.id).to.eq(items[2].id)
+        expect(res.body.data.search.edges[1].node.id).to.eq(items[1].id)
+        expect(res.body.data.search.edges[2].node.id).to.eq(items[0].id)
+      })
+    })
   })
 
   describe('TypeaheadSearch API', () => {
@@ -1913,6 +1962,10 @@ describe('Article API', () => {
                 createdAt
                 updatedAt
                 pageType
+                highlights {
+                  id
+                  type
+                }
               }
               itemID
               updateReason
@@ -2007,6 +2060,37 @@ describe('Article API', () => {
         expect(res.body.data.updatesSince.edges.length).to.eql(5)
       })
     })
+
+    context('returns highlights', () => {
+      let highlight: Highlight
+
+      before(async () => {
+        highlight = await createHighlight(
+          {
+            user,
+            shortId: 'test short id',
+            quote: 'test',
+            libraryItem: items[0],
+          },
+          items[0].id,
+          user.id
+        )
+      })
+
+      it('returns highlights', async () => {
+        const res = await graphqlRequest(
+          updatesSinceQuery(since),
+          authToken
+        ).expect(200)
+
+        expect(res.body.data.updatesSince.edges[0].node.highlights[0].id).to.eq(
+          highlight.id
+        )
+        expect(res.body.data.updatesSince.edges[0].node.highlights[0].type).to.eq(
+          HighlightType.Highlight
+        )
+      })
+    })
   })
 
   describe('BulkAction API', () => {
@@ -2023,31 +2107,31 @@ describe('Article API', () => {
       }
     `
 
-    before(async () => {
-      // Create some test items
-      for (let i = 0; i < 5; i++) {
-        await createLibraryItem(
-          {
-            user,
-            itemType: i == 0 ? PageType.Article : PageType.File,
-            title: 'test item',
-            readableContent: '<p>test</p>',
-            slug: '',
-            state:
-              i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
-            originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
-          },
-          user.id
-        )
-      }
-    })
-
-    after(async () => {
-      // Delete all items
-      await deleteLibraryItemsByUserId(user.id)
-    })
-
     context('when action is MarkAsRead and query is in:unread', () => {
+      before(async () => {
+        // Create some test items
+        for (let i = 0; i < 5; i++) {
+          await createLibraryItem(
+            {
+              user,
+              itemType: i == 0 ? PageType.Article : PageType.File,
+              title: 'test item',
+              readableContent: '<p>test</p>',
+              slug: '',
+              state:
+                i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
+              originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
+            },
+            user.id
+          )
+        }
+      })
+
+      after(async () => {
+        // Delete all items
+        await deleteLibraryItemsByUserId(user.id)
+      })
+
       it('marks unread items as read', async () => {
         const res = await graphqlRequest(
           bulkActionQuery(BulkActionType.MarkAsRead, 'is:unread'),
@@ -2114,19 +2198,47 @@ describe('Article API', () => {
       }
     )
 
-    context('when action is Delete', () => {
+    context('when action is Delete and query contains item id', () => {
+      let items: LibraryItem[] = []
+
+      before(async () => {
+        // Create some test items
+        for (let i = 0; i < 5; i++) {
+          const item = await createLibraryItem(
+            {
+              user,
+              itemType: i == 0 ? PageType.Article : PageType.File,
+              title: 'test item',
+              readableContent: '<p>test</p>',
+              slug: '',
+              state:
+                i == 0 ? LibraryItemState.Failed : LibraryItemState.Succeeded,
+              originalUrl: `https://blog.omnivore.app/p/bulk-action-${i}`,
+            },
+            user.id
+          )
+          items.push(item)
+        }
+      })
+
+      after(async () => {
+        // Delete all items
+        await deleteLibraryItemsByUserId(user.id)
+      })
+
       it('deletes all items', async () => {
+        const query = `includes:${items.map((i) => i.id).join(',')}`
         const res = await graphqlRequest(
-          bulkActionQuery(BulkActionType.Delete),
+          bulkActionQuery(BulkActionType.Delete, query),
           authToken
         ).expect(200)
         expect(res.body.data.bulkAction.success).to.be.true
 
-        const items = await graphqlRequest(
-          searchQuery('in:all'),
+        const response = await graphqlRequest(
+          searchQuery(query),
           authToken
         ).expect(200)
-        expect(items.body.data.search.pageInfo.totalCount).to.eql(0)
+        expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
       })
     })
   })

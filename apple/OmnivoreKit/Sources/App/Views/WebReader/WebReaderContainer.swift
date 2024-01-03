@@ -3,6 +3,7 @@ import Models
 import PopupView
 import Services
 import SwiftUI
+import Transmission
 import Utils
 import Views
 import WebKit
@@ -28,7 +29,6 @@ struct WebReaderContainerView: View {
   @State var showExpandedAudioPlayer = false
   @State var shareActionID: UUID?
   @State var annotation = String()
-  @State var showBottomBar = false
   @State private var bottomBarOpacity = 0.0
   @State private var errorAlertMessage: String?
   @State private var showErrorAlertMessage = false
@@ -88,7 +88,6 @@ struct WebReaderContainerView: View {
   private func tapHandler() {
     withAnimation(.easeIn(duration: 0.08)) {
       navBarVisible = !navBarVisible
-      showBottomBar = navBarVisible
       showNavBarActionID = UUID()
     }
   }
@@ -112,13 +111,11 @@ struct WebReaderContainerView: View {
     case "pageTapped":
       withAnimation {
         navBarVisible = !navBarVisible
-        showBottomBar = navBarVisible
         showNavBarActionID = UUID()
       }
     case "dismissNavBars":
       withAnimation {
         navBarVisible = false
-        showBottomBar = false
         showNavBarActionID = UUID()
       }
     default:
@@ -132,72 +129,44 @@ struct WebReaderContainerView: View {
         return AnyView(ProgressView()
           .padding(.horizontal))
       } else {
-        return AnyView(Button(
-          action: {
-            switch audioController.state {
-            case .playing:
-              if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-                audioController.pause()
-                return
+        return AnyView(
+          Button(
+            action: {
+              switch audioController.state {
+              case .playing:
+                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+                  audioController.pause()
+                  return
+                }
+                fallthrough
+              case .paused:
+                if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
+                  audioController.unpause()
+                  return
+                }
+                fallthrough
+              default:
+                audioController.play(itemAudioProperties: item.audioProperties)
               }
-              fallthrough
-            case .paused:
-              if audioController.itemAudioProperties?.itemID == self.item.unwrappedID {
-                audioController.unpause()
-                return
-              }
-              fallthrough
-            default:
-              audioController.play(itemAudioProperties: item.audioProperties)
+            },
+            label: {
+              textToSpeechButtonImage
             }
-          },
-          label: {
-            textToSpeechButtonImage
-          }
-        ))
+          ).buttonStyle(.plain)
+        )
       }
     }
 
     var textToSpeechButtonImage: some View {
       if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-        return AnyView(Image.headphones)
+        return AnyView(Image.audioPlay.frame(width: 48, height: 48))
       }
-      let name = audioController.isPlayingItem(itemID: item.unwrappedID) ? "pause.circle" : "play.circle"
-      return AnyView(Image(systemName: name).font(.appNavbarIcon))
+      if audioController.isPlayingItem(itemID: item.unwrappedID) {
+        return AnyView(Image.audioPause.frame(width: 48, height: 48))
+      }
+      return AnyView(Image.audioPlay.frame(width: 48, height: 48))
     }
   #endif
-
-  var bottomButtons: some View {
-    HStack(alignment: .center) {
-      Button(action: archive, label: {
-        item.isArchived ? Image.unarchive : Image.archive
-      }).frame(width: 48, height: 48)
-        .padding(.leading, 8)
-      Divider().opacity(0.8)
-
-      Button(action: delete, label: {
-        Image.remove
-      }).frame(width: 48, height: 48)
-      Divider().opacity(0.8)
-
-      Button(action: editLabels, label: {
-        Image.label
-      }).frame(width: 48, height: 48)
-      Divider().opacity(0.8)
-
-      Button(action: recommend, label: {
-        Image(systemName: "sparkles")
-      }).frame(width: 48, height: 48)
-
-        // We don't have a single note function yet
-//      Divider()
-//
-//      Button(action: addNote, label: {
-//        Image(systemName: "note")
-//      }).frame(width: 48, height: 48)
-        .padding(.trailing, 8)
-    }.foregroundColor(.appGrayTextContrast)
-  }
 
   func audioMenuItem() -> some View {
     Button(
@@ -291,6 +260,8 @@ struct WebReaderContainerView: View {
               .padding(.vertical)
           }
         )
+        .buttonStyle(.plain)
+
         Spacer()
       #endif
 
@@ -300,6 +271,7 @@ struct WebReaderContainerView: View {
           Image.label
         }
       )
+      .buttonStyle(.plain)
       .padding(.trailing, 4)
 
       Button(
@@ -308,6 +280,7 @@ struct WebReaderContainerView: View {
           Image.notebook
         }
       )
+      .buttonStyle(.plain)
       .padding(.trailing, 4)
 
       #if os(iOS)
@@ -325,6 +298,7 @@ struct WebReaderContainerView: View {
             Image.readerSettings
           }
         )
+        .buttonStyle(.plain)
         .padding(.horizontal, 5)
         .popover(isPresented: $showPreferencesPopover) {
           webPreferencesPopoverView
@@ -351,6 +325,7 @@ struct WebReaderContainerView: View {
           #endif
         }
       )
+      .buttonStyle(.plain)
       #if os(macOS)
         .frame(maxWidth: 100)
         .padding(.trailing, 16)
@@ -361,7 +336,7 @@ struct WebReaderContainerView: View {
     .tint(Color(hex: "#2A2A2A"))
     .frame(height: readerViewNavBarHeight)
     .frame(maxWidth: .infinity)
-    .foregroundColor(ThemeManager.currentTheme.isDark ? .white : .black)
+    .foregroundColor(ThemeManager.currentTheme.toolbarColor)
     .background(ThemeManager.currentBgColor)
     .sheet(isPresented: $showLabelsModal) {
       ApplyLabelsView(mode: .item(item), onSave: { labels in
@@ -380,7 +355,7 @@ struct WebReaderContainerView: View {
     #if os(iOS)
       .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
         NotebookView(
-          itemObjectID: item.objectID,
+          viewModel: NotebookViewModel(item: item),
           hasHighlightMutations: $hasPerformedHighlightMutations
         )
       }
@@ -401,6 +376,12 @@ struct WebReaderContainerView: View {
 
   var body: some View {
     ZStack {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
+        OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
+      } label: {
+        EmptyView()
+      }.buttonStyle(.plain)
+
       if let articleContent = viewModel.articleContent {
         WebReader(
           item: item,
@@ -431,7 +412,6 @@ struct WebReaderContainerView: View {
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
           annotation: $annotation,
-          showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
@@ -473,7 +453,17 @@ struct WebReaderContainerView: View {
               .ignoresSafeArea(.all, edges: .bottom)
           }
           .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-            ExpandedAudioPlayer()
+            ExpandedAudioPlayer(delete: { _ in
+              showExpandedAudioPlayer = false
+              audioController.stop()
+              delete()
+            }, archive: { _ in
+              showExpandedAudioPlayer = false
+              audioController.stop()
+              archive()
+            }, viewArticle: { _ in
+              showExpandedAudioPlayer = false
+            })
           }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {
@@ -592,29 +582,25 @@ struct WebReaderContainerView: View {
             .offset(y: navBarVisible ? 0 : -150)
 
           Spacer()
-          if showBottomBar {
-            bottomButtons
-              .frame(height: 48)
-              .background(Color.webControlButtonBackground)
-              .cornerRadius(6)
-              .padding(.bottom, 34)
-              .shadow(color: .gray.opacity(0.13), radius: 8, x: 0, y: 4)
-              .opacity(bottomBarOpacity)
-              .onAppear {
-                withAnimation(Animation.linear(duration: 0.25)) { self.bottomBarOpacity = 1 }
-              }
-              .onDisappear {
-                self.bottomBarOpacity = 0
-              }
-          }
           if let audioProperties = audioController.itemAudioProperties {
             MiniPlayerViewer(itemAudioProperties: audioProperties)
               .padding(.top, 10)
-              .padding(.bottom, 40)
+              .padding(.bottom, navBarVisible ? 10 : 40)
               .background(Color.themeTabBarColor)
               .onTapGesture {
                 showExpandedAudioPlayer = true
               }
+          }
+          if navBarVisible {
+            CustomToolBar(
+              isFollowing: item.folder == "following",
+              isArchived: item.isArchived,
+              moveToInboxAction: moveToInbox,
+              archiveAction: archive,
+              unarchiveAction: archive,
+              shareAction: share,
+              deleteAction: delete
+            )
           }
         }
 
@@ -656,8 +642,28 @@ struct WebReaderContainerView: View {
     }
   }
 
+  func moveToInbox() {
+    Task {
+      viewModel.showOperationToast = true
+      viewModel.operationMessage = "Moving to library..."
+      viewModel.operationStatus = .isPerforming
+      do {
+        try await dataService.moveItem(itemID: item.unwrappedID, folder: "inbox")
+        viewModel.operationMessage = "Moved to library"
+        viewModel.operationStatus = .success
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+          viewModel.showOperationToast = false
+        }
+      } catch {
+        viewModel.operationMessage = "Error moving"
+        viewModel.operationStatus = .failure
+      }
+    }
+  }
+
   func archive() {
-    dataService.archiveLink(objectID: item.objectID, archived: !item.isArchived)
+    let isArchived = item.isArchived
+    dataService.archiveLink(objectID: item.objectID, archived: !isArchived)
     #if os(iOS)
       pop()
     #endif
@@ -687,10 +693,10 @@ struct WebReaderContainerView: View {
   }
 
   func delete() {
-    removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
+    pop()
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-        pop()
+        removeLibraryItemAction(dataService: dataService, objectID: item.objectID)
       }
     #endif
   }

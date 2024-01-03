@@ -34,6 +34,7 @@ export type SaveEmailInput = {
   unsubHttpUrl?: string
   newsletterEmailId?: string
   receivedEmailId: string
+  folder?: string
 }
 
 const isStubUrl = (url: string): boolean => {
@@ -105,6 +106,7 @@ export const saveEmail = async (
       siteName: parseResult.parsedContent?.siteName ?? undefined,
       wordCount: wordsCount(content),
       subscription: input.author,
+      folder: input.folder,
     },
     input.userId
   )
@@ -121,9 +123,13 @@ export const saveEmail = async (
   }
 
   // save newsletter label in the item
-  await createAndSaveLabelsInLibraryItem(newLibraryItem.id, input.userId, [
-    { name: 'Newsletter' },
-  ])
+  await createAndSaveLabelsInLibraryItem(
+    newLibraryItem.id,
+    input.userId,
+    [{ name: 'Newsletter' }],
+    undefined,
+    'system'
+  )
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)
 

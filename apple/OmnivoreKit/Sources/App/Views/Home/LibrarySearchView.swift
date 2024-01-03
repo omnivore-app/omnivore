@@ -75,6 +75,7 @@
         innerBody
       }.introspectViewController { controller in
         searchBar = Introspect.findChild(ofType: UISearchBar.self, in: controller.view)
+        searchBar?.smartQuotesType = .no
       }
     }
 

@@ -152,6 +152,7 @@
     <string name="web_reader_loading_container_error_msg">我们无法取得您的内容。</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">阅读器偏好设定</string>
     <string name="web_reader_loading_container_bottom_sheet_notebook">笔记</string>
+    <string name="web_reader_loading_container_bottom_sheet_edit_info">编辑信息</string>
     <string name="web_reader_loading_container_bottom_sheet_open_link">开启链接</string>
 
     <!-- OpenLinkView -->
@@ -178,6 +179,7 @@
     <string name="save_view_model_page_saved_error">保存您的页面时出错</string>
 
     <!-- SavedItemContextMenu -->
+    <string name="saved_item_context_menu_action_edit_info">编辑信息</string>
     <string name="saved_item_context_menu_action_edit_labels">编辑标签</string>
     <string name="saved_item_context_menu_action_archive">封存</string>
     <string name="saved_item_context_menu_action_unarchive">取消封存</string>
@@ -222,4 +224,17 @@
     <string name="library_sort_oldest">从旧到新</string>
     <string name="library_sort_recently_read">最近阅读</string>
     <string name="library_sort_recently_published">最近发布</string>
+
+    <!-- EditInfoViewModel -->
+    <string name="edit_info_view_model_error_not_logged_in">您尚未登入。请在保存前登入。</string>
+
+    <!-- EditInfoSheet -->
+    <string name="edit_info_sheet_title">编辑信息</string>
+    <string name="edit_info_sheet_text_field_label_title">标题</string>
+    <string name="edit_info_sheet_text_field_label_author">作者</string>
+    <string name="edit_info_sheet_text_field_label_description">说明</string>
+    <string name="edit_info_sheet_action_save">节省</string>
+    <string name="edit_info_sheet_action_cancel">取消</string>
+    <string name="edit_info_sheet_error">编辑文章时出错</string>
+    <string name="edit_info_sheet_success">文章信息更新成功</string>
 </resources>

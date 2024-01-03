@@ -1,4 +1,5 @@
 import { Between } from 'typeorm'
+import { isLabelSource, LabelSource } from '../../entity/entity_label'
 import { Label } from '../../entity/label'
 import { env } from '../../env'
 import {
@@ -160,7 +161,7 @@ export const setLabelsResolver = authorized<
 >(
   async (
     _,
-    { input: { pageId, labelIds, labels } },
+    { input: { pageId, labelIds, labels, source } },
     { uid, log, authTrx, pubsub }
   ) => {
     if (!labelIds && !labels) {
@@ -168,6 +169,21 @@ export const setLabelsResolver = authorized<
       return {
         errorCodes: [SetLabelsErrorCode.BadRequest],
       }
+    }
+
+    let labelSource: LabelSource | undefined
+
+    // check if source is valid
+    if (source) {
+      if (!isLabelSource(source)) {
+        log.error('invalid source', source)
+
+        return {
+          errorCodes: [SetLabelsErrorCode.BadRequest],
+        }
+      }
+
+      labelSource = source
     }
 
     try {
@@ -191,7 +207,7 @@ export const setLabelsResolver = authorized<
       }
 
       // save labels in the library item
-      await saveLabelsInLibraryItem(labelsSet, pageId, uid, pubsub)
+      await saveLabelsInLibraryItem(labelsSet, pageId, uid, labelSource, pubsub)
 
       analytics.track({
         userId: uid,

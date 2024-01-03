@@ -4,20 +4,30 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { createHmac } from 'crypto'
-import { Subscription } from '../entity/subscription'
+import {
+  EXISTING_NEWSLETTER_FOLDER,
+  NewsletterEmail,
+} from '../entity/newsletter_email'
+import {
+  DEFAULT_SUBSCRIPTION_FOLDER,
+  Subscription,
+} from '../entity/subscription'
 import { env } from '../env'
 import {
   Article,
+  Highlight,
   Label,
   PageType,
   Recommendation,
   SearchItem,
   User,
 } from '../generated/graphql'
+import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
 import { findUploadFileById } from '../services/upload_file'
 import {
+  highlightDataToHighlight,
   isBase64Image,
   recommandationDataToRecommendation,
   validatedDate,
@@ -112,6 +122,7 @@ import {
   updateFilterResolver,
   updateHighlightResolver,
   updateLabelResolver,
+  updateNewsletterEmailResolver,
   // updateLinkShareInfoResolver,
   updatePageResolver,
   // updateReminderResolver,
@@ -219,6 +230,7 @@ export const functionResolvers = {
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
     moveToFolder: moveToFolderResolver,
+    updateNewsletterEmail: updateNewsletterEmailResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -319,6 +331,19 @@ export const functionResolvers = {
       if (article.wordCount) return article.wordCount
       return article.content ? wordsCount(article.content) : undefined
     },
+    async labels(
+      article: { id: string; labels?: Label[]; labelNames?: string[] | null },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (article.labels) return article.labels
+
+      if (article.labelNames && article.labelNames.length > 0) {
+        return findLabelsByLibraryItemId(article.id, ctx.uid)
+      }
+
+      return []
+    },
   },
   Highlight: {
     // async reactions(
@@ -415,6 +440,24 @@ export const functionResolvers = {
 
       return []
     },
+    async highlights(
+      item: {
+        id: string
+        highlights?: Highlight[]
+        highlightAnnotations?: string[] | null
+      },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      if (item.highlights) return item.highlights
+
+      if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
+        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+        return highlights.map(highlightDataToHighlight)
+      }
+
+      return []
+    },
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
@@ -424,6 +467,21 @@ export const functionResolvers = {
       return (
         subscription.icon && createImageProxyUrl(subscription.icon, 128, 128)
       )
+    },
+    folder(subscription: Subscription) {
+      return (
+        subscription.folder ||
+        subscription.newsletterEmail?.folder ||
+        DEFAULT_SUBSCRIPTION_FOLDER
+      )
+    },
+  },
+  NewsletterEmail: {
+    subscriptionCount(newsletterEmail: NewsletterEmail) {
+      return newsletterEmail.subscriptions?.length || 0
+    },
+    folder(newsletterEmail: NewsletterEmail) {
+      return newsletterEmail.folder || EXISTING_NEWSLETTER_FOLDER
     },
   },
   ...resultResolveTypeResolver('Login'),
@@ -518,4 +576,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateSubscription'),
   ...resultResolveTypeResolver('UpdateEmail'),
   ...resultResolveTypeResolver('ScanFeeds'),
+  ...resultResolveTypeResolver('MoveToFolder'),
+  ...resultResolveTypeResolver('UpdateNewsletterEmail'),
 }

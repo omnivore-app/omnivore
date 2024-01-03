@@ -8,11 +8,14 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { authTrx, getColumns } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  queryBuilderToRawSql,
+  valuesToRawSql,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { SaveFollowingItemRequest } from '../routers/svc/following'
-import { generateSlug, wordsCount } from '../utils/helpers'
-import { createThumbnailUrl } from '../utils/imageproxy'
+import { wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
 
 enum ReadFilter {
@@ -28,12 +31,6 @@ enum InFilter {
   ARCHIVE = 'archive',
   TRASH = 'trash',
   FOLLOWING = 'following',
-}
-
-enum HasFilter {
-  HIGHLIGHTS = 'highlights',
-  LABELS = 'labels',
-  SUBSCRIPTIONS = 'subscriptions',
 }
 
 export interface SearchArgs {
@@ -84,7 +81,7 @@ export enum SortBy {
   UPDATED = 'updated',
   PUBLISHED = 'published',
   READ = 'read',
-  WORDS_COUNT = 'wordsCount',
+  WORDS_COUNT = 'wordscount',
 }
 
 export enum SortOrder {
@@ -100,6 +97,25 @@ export interface Sort {
 interface Select {
   column: string
   alias?: string
+}
+
+const handleNoCase = (value: string) => {
+  const keywordRegexMap: Record<string, RegExp> = {
+    highlight: /^highlight(s)?$/i,
+    label: /^label(s)?$/i,
+    subscription: /^subscription(s)?$/i,
+  }
+
+  const matchingKeyword = Object.keys(keywordRegexMap).find((keyword) =>
+    value.match(keywordRegexMap[keyword])
+  )
+
+  if (matchingKeyword) {
+    const column = getColumnName(matchingKeyword)
+    return `(library_item.${column} IS NULL OR library_item.${column} = '{}')`
+  }
+
+  throw new Error(`Unexpected keyword: ${value}`)
 }
 
 const paramtersToObject = (parameters: ObjectLiteral[]) => {
@@ -148,8 +164,17 @@ const getColumnName = (field: string) => {
     case 'updated':
     case 'published':
       return `${lowerCaseField}_at`
-    default:
+    case 'author':
+    case 'title':
+    case 'description':
+    case 'note':
       return lowerCaseField
+    case 'highlight':
+      return 'highlight_annotations'
+    case 'label':
+      return 'label_names'
+    default:
+      throw new Error(`Unexpected field: ${field}`)
   }
 }
 
@@ -295,33 +320,23 @@ export const buildQuery = (
           )
         }
         case 'sort': {
-          const [sort, sortOrder] = value.split('-')
-          if (sort.toLowerCase() === 'score') {
-            // score is not a column and is handled separately
+          const [sort, sortOrder] = value.toLowerCase().split('-')
+          const matchingSortBy = Object.values(SortBy).find(
+            (sortBy) => sortBy === sort
+          )
+          if (!matchingSortBy) {
             return null
           }
+          const column = getColumnName(matchingSortBy)
 
           const order =
-            sortOrder?.toLowerCase() === 'asc'
-              ? SortOrder.ASCENDING
-              : SortOrder.DESCENDING
+            sortOrder === 'asc' ? SortOrder.ASCENDING : SortOrder.DESCENDING
 
-          const column = getColumnName(sort)
           orders.push({ by: `library_item.${column}`, order })
           return null
         }
-        case 'has': {
-          switch (value.toLowerCase()) {
-            case HasFilter.HIGHLIGHTS:
-              return "library_item.highlight_annotations <> '{}'"
-            case HasFilter.LABELS:
-              return "library_item.label_names <> '{}'"
-            case HasFilter.SUBSCRIPTIONS:
-              return 'library_item.subscription is NOT NULL'
-            default:
-              throw new Error(`Unexpected keyword: ${value}`)
-          }
-        }
+        case 'has':
+          return `NOT (${handleNoCase(value)})`
         case 'saved':
         case 'read':
         case 'updated':
@@ -434,24 +449,8 @@ export const buildQuery = (
             }
           )
         }
-        case 'no': {
-          let column = ''
-          switch (value.toLowerCase()) {
-            case 'highlight':
-              column = 'highlight_annotations'
-              break
-            case 'label':
-              column = 'label_names'
-              break
-            case 'subscription':
-              column = 'subscription'
-              break
-            default:
-              throw new Error(`Unexpected keyword: ${value}`)
-          }
-
-          return `(library_item.${column} = '{}' OR library_item.${column} IS NULL)`
-        }
+        case 'no':
+          return handleNoCase(value)
         case 'use':
         case 'mode':
         case 'event':
@@ -851,38 +850,6 @@ export const createLibraryItem = async (
   return newLibraryItem
 }
 
-export const saveFeedItemInFollowing = (
-  input: SaveFollowingItemRequest,
-  userId: string
-) => {
-  const thumbnail = input.thumbnail && createThumbnailUrl(input.thumbnail)
-
-  return authTrx(
-    async (tx) => {
-      const itemToSave: QueryDeepPartialEntity<LibraryItem> = {
-        ...input,
-        user: { id: userId },
-        originalUrl: input.url,
-        subscription: input.addedToFollowingBy,
-        folder: InFilter.FOLLOWING,
-        slug: generateSlug(input.title),
-        thumbnail,
-      }
-
-      return tx
-        .getRepository(LibraryItem)
-        .createQueryBuilder()
-        .insert()
-        .values(itemToSave)
-        .orIgnore() // ignore if the item already exists
-        .returning('*')
-        .execute()
-    },
-    undefined,
-    userId
-  )
-}
-
 export const findLibraryItemsByPrefix = async (
   prefix: string,
   userId: string,
@@ -924,7 +891,7 @@ export const countByCreatedAt = async (
   )
 }
 
-export const updateLibraryItems = async (
+export const batchUpdateLibraryItems = async (
   action: BulkActionType,
   searchArgs: SearchArgs,
   userId: string,
@@ -939,20 +906,21 @@ export const updateLibraryItems = async (
     return 'folder' in args
   }
 
+  const now = new Date().toISOString()
   // build the script
-  let values: QueryDeepPartialEntity<LibraryItem> = {}
+  let values: Record<string, string | number> = {}
   let addLabels = false
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        archivedAt: new Date(),
+        archived_at: now,
         state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
       values = {
         state: LibraryItemState.Deleted,
-        deletedAt: new Date(),
+        deleted_at: now,
       }
       break
     case BulkActionType.AddLabels:
@@ -960,9 +928,9 @@ export const updateLibraryItems = async (
       break
     case BulkActionType.MarkAsRead:
       values = {
-        readAt: new Date(),
-        readingProgressTopPercent: 100,
-        readingProgressBottomPercent: 100,
+        read_at: now,
+        reading_progress_top_percent: 100,
+        reading_progress_bottom_percent: 100,
       }
       break
     case BulkActionType.MoveToFolder:
@@ -972,7 +940,7 @@ export const updateLibraryItems = async (
 
       values = {
         folder: args.folder,
-        savedAt: new Date(),
+        saved_at: now,
       }
 
       break
@@ -1011,10 +979,11 @@ export const updateLibraryItems = async (
           .map((label) => ({
             labelId: label.id,
             libraryItemId: libraryItem.id,
+            name: label.name,
           }))
           .filter((entityLabel) => {
-            const existingLabel = libraryItem.labels?.find(
-              (l) => l.id === entityLabel.labelId
+            const existingLabel = libraryItem.labelNames?.find(
+              (l) => l.toLowerCase() === entityLabel.name.toLowerCase()
             )
             return !existingLabel
           })
@@ -1022,7 +991,34 @@ export const updateLibraryItems = async (
       return tx.getRepository(EntityLabel).save(labelsToAdd)
     }
 
-    return queryBuilder.update(LibraryItem).set(values).execute()
+    // generate raw sql because postgres doesn't support prepared statements in DO blocks
+    const countSql = queryBuilderToRawSql(queryBuilder.select('COUNT(1)'))
+    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
+    const valuesSql = valuesToRawSql(values)
+
+    const start = new Date().toISOString()
+    const batchSize = 1000
+    const sql = `
+    -- Set batch size
+    DO $$ 
+    DECLARE 
+        batch_size INT := ${batchSize};
+    BEGIN
+        -- Loop through batches
+        FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
+            -- Update the batch
+            UPDATE omnivore.library_item
+            SET ${valuesSql}
+            WHERE id = ANY(
+              ${subQuery}
+              AND updated_at < '${start}'
+              LIMIT batch_size
+            );
+        END LOOP;
+    END $$
+    `
+
+    return tx.query(sql)
   })
 }
 

@@ -1,7 +1,10 @@
 import axios from 'axios'
 import { parseHTML } from 'linkedom'
-import { Brackets } from 'typeorm'
-import { Subscription } from '../../entity/subscription'
+import { Brackets, In } from 'typeorm'
+import {
+  DEFAULT_SUBSCRIPTION_FOLDER,
+  Subscription,
+} from '../../entity/subscription'
 import { env } from '../../env'
 import {
   FeedEdge,
@@ -190,9 +193,18 @@ export const subscribeResolver = authorized<
       },
     })
 
+    // validate rss feed
+    const feed = await parseFeed(input.url)
+    if (!feed) {
+      return {
+        errorCodes: [SubscribeErrorCode.NotFound],
+      }
+    }
+    const feedUrl = feed.url
+
     // find existing subscription
     const existingSubscription = await getRepository(Subscription).findOneBy({
-      url: input.url,
+      url: In([feedUrl, input.url]), // check both user provided url and parsed url
       user: { id: uid },
       type: SubscriptionType.Rss,
     })
@@ -206,18 +218,22 @@ export const subscribeResolver = authorized<
       // re-subscribe
       const updatedSubscription = await getRepository(Subscription).save({
         ...existingSubscription,
+        fetchContent: input.fetchContent ?? undefined,
+        folder: input.folder ?? undefined,
+        isPrivate: input.isPrivate,
         status: SubscriptionStatus.Active,
       })
 
       // create a cloud task to fetch rss feed item for resub subscription
       await enqueueRssFeedFetch({
         userIds: [uid],
-        url: input.url,
+        url: feedUrl,
         subscriptionIds: [updatedSubscription.id],
         scheduledDates: [new Date()], // fetch immediately
         fetchedDates: [updatedSubscription.lastFetchedAt || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
-        addToLibraryFlags: [!!updatedSubscription.autoAddToLibrary],
+        fetchContents: [updatedSubscription.fetchContent],
+        folders: [updatedSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
       })
 
       return {
@@ -227,30 +243,24 @@ export const subscribeResolver = authorized<
 
     // create new rss subscription
     const MAX_RSS_SUBSCRIPTIONS = env.subscription.feed.max
-    // validate rss feed
-    const feed = await parseFeed(input.url)
-    if (!feed) {
-      return {
-        errorCodes: [SubscribeErrorCode.NotFound],
-      }
-    }
 
     // limit number of rss subscriptions to max
     const results = (await getRepository(Subscription).query(
-      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, auto_add_to_library, is_private) 
-          select $1, $2, $3, $4, $5, $6, $7, $8 from omnivore.subscriptions 
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, is_private, fetch_content, folder) 
+          select $1, $2, $3, $4, $5, $6, $7, $8, $9 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
-          having count(*) < $9
+          having count(*) < $10
           returning *;`,
       [
         feed.title,
-        feed.url,
-        feed.description || null,
+        feedUrl,
+        feed.description,
         SubscriptionType.Rss,
         uid,
-        feed.thumbnail || null,
-        input.autoAddToLibrary ?? null,
-        input.isPrivate ?? null,
+        feed.thumbnail,
+        input.isPrivate,
+        input.fetchContent ?? true,
+        input.folder ?? 'following',
         MAX_RSS_SUBSCRIPTIONS,
       ]
     )) as any[]
@@ -267,12 +277,13 @@ export const subscribeResolver = authorized<
     // create a cloud task to fetch rss feed item for the new subscription
     await enqueueRssFeedFetch({
       userIds: [uid],
-      url: feed.url,
+      url: feedUrl,
       subscriptionIds: [newSubscription.id],
       scheduledDates: [new Date()], // fetch immediately
       fetchedDates: [null],
       checksums: [null],
-      addToLibraryFlags: [!!newSubscription.autoAddToLibrary],
+      fetchContents: [newSubscription.fetchContent],
+      folders: [newSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
     })
 
     return {
@@ -328,6 +339,8 @@ export const updateSubscriptionResolver = authorized<
           : undefined,
         autoAddToLibrary: input.autoAddToLibrary ?? undefined,
         isPrivate: input.isPrivate ?? undefined,
+        fetchContent: input.fetchContent ?? undefined,
+        folder: input.folder ?? undefined,
       })
 
       return repo.findOneByOrFail({

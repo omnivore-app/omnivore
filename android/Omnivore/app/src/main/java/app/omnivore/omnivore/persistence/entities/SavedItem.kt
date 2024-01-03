@@ -226,7 +226,7 @@ interface SavedItemDao {
 
 
 object SavedItemQueryConstants {
-  const val columns = "savedItemId, slug, publisherURLString, title, author, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress, wordsCount"
+  const val columns = "savedItemId, slug, publisherURLString, title, author, descriptionText, imageURLString, isArchived, pageURLString, contentReader, savedAt, readingProgress, wordsCount"
   const val libraryColumns = "SavedItem.savedItemId, " +
           "SavedItem.slug, " +
           "SavedItem.createdAt, " +
@@ -234,6 +234,7 @@ object SavedItemQueryConstants {
           "SavedItem.publisherURLString, " +
           "SavedItem.title, " +
           "SavedItem.author, " +
+          "SavedItem.descriptionText, " +
           "SavedItem.imageURLString, " +
           "SavedItem.isArchived, " +
           "SavedItem.pageURLString, " +

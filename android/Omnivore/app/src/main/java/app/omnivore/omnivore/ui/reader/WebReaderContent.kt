@@ -7,7 +7,7 @@ import com.google.gson.Gson
 
 enum class WebFont(val displayText: String, val rawValue: String) {
   INTER("Inter", "Inter"),
-  SYSTEM("System Default", "unset"),
+  SYSTEM("System Default", "system-ui"),
   OPEN_DYSLEXIC("Open Dyslexic", "OpenDyslexic"),
   MERRIWEATHER("Merriweather", "Merriweather"),
   LORA("Lora", "Lora"),
@@ -21,6 +21,8 @@ enum class WebFont(val displayText: String, val rawValue: String) {
   ATKINSON_HYPERLEGIBLE("Atkinson Hyperlegible", "AtkinsonHyperlegible"),
   SOURCE_SANS_PRO("Source Sans Pro", "SourceSansPro"),
   IBM_PLEX_SANS("IBM Plex Sans", "IBMPlexSans"),
+  LITERATA("Literata", "Literata"),
+  FRAUNCES("Fraunces", "Fraunces"),
 }
 
 enum class ArticleContentStatus(val rawValue: String) {

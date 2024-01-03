@@ -16,6 +16,10 @@ struct SafariWebLink: Identifiable {
   @Published var isDownloadingAudio: Bool = false
   @Published var audioDownloadTask: Task<Void, Error>?
 
+  @Published var operationMessage: String?
+  @Published var showOperationToast: Bool = false
+  @Published var operationStatus: OperationStatus = .none
+
   @Published var showSnackbar: Bool = false
   var snackbarOperation: SnackbarOperation?
 

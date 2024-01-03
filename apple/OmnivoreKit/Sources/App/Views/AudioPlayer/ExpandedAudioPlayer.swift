@@ -1,18 +1,32 @@
 #if os(iOS)
+  import CoreData
   import Foundation
   import Models
   import Services
   import SwiftUI
+  import Transmission
   import Views
 
   // swiftlint:disable file_length type_body_length
   public struct ExpandedAudioPlayer: View {
+    @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
+
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
     @Environment(\.dismiss) private var dismiss
 
+    let delete: (_: NSManagedObjectID) -> Void
+    let archive: (_: NSManagedObjectID) -> Void
+    let viewArticle: (_: NSManagedObjectID) -> Void
+
     @State var showVoiceSheet = false
     @State var tabIndex: Int = 0
+    @State var showLabelsModal = false
+    @State var showNotebookView = false
+
+    @State var showOperationToast = false
+    @State var operationStatus: OperationStatus = .none
+    @State var operationMessage: String?
 
     var playPauseButtonImage: String {
       switch audioController.state {
@@ -54,70 +68,83 @@
               .aspectRatio(contentMode: .fit)
               .font(Font.title.weight(.light))
           }
-        ))
+        )
+        .buttonStyle(.plain)
+        )
       }
     }
 
     var closeButton: some View {
-      Button(
-        action: {
-          dismiss()
-        },
-        label: {
-          ZStack {
-            Circle()
-              .foregroundColor(Color.appGrayText)
-              .frame(width: 36, height: 36)
-              .opacity(0.1)
+      ZStack {
+        Circle()
+          .foregroundColor(Color.appGrayText)
+          .frame(width: 36, height: 36)
+          .opacity(0.1)
 
-            Image(systemName: "chevron.down")
-              .font(.appCallout)
-              .frame(width: 36, height: 36)
-          }
-        }
-      )
-    }
-
-    var menuButton: some View {
-      Menu {
-        Menu(String(format: "Playback Speed (%.1f×)", audioController.playbackRate)) {
-          playbackRateButton(rate: 0.8, title: "0.8×", selected: audioController.playbackRate == 0.8)
-          playbackRateButton(rate: 0.9, title: "0.9×", selected: audioController.playbackRate == 0.9)
-          playbackRateButton(rate: 1.0, title: "1.0×", selected: audioController.playbackRate == 1.0)
-          playbackRateButton(rate: 1.1, title: "1.1×", selected: audioController.playbackRate == 1.1)
-          playbackRateButton(rate: 1.2, title: "1.2×", selected: audioController.playbackRate == 1.2)
-          playbackRateButton(rate: 1.3, title: "1.3×", selected: audioController.playbackRate == 1.3)
-          playbackRateButton(rate: 1.5, title: "1.5×", selected: audioController.playbackRate == 1.5)
-          playbackRateButton(rate: 1.7, title: "1.7×", selected: audioController.playbackRate == 1.7)
-          playbackRateButton(rate: 2.0, title: "2.0×", selected: audioController.playbackRate == 2.0)
-          playbackRateButton(rate: 2.2, title: "2.2×", selected: audioController.playbackRate == 2.2)
-          playbackRateButton(rate: 2.5, title: "2.5×", selected: audioController.playbackRate == 2.5)
-        }
-        Button(action: { showVoiceSheet = true }, label: { Label("Change Voice", systemImage: "person.wave.2") })
-        Button(action: { viewArticle() }, label: { Label("View Article", systemImage: "book") })
-        Button(action: { audioController.stop() }, label: { Label("Stop", systemImage: "xmark.circle") })
-        Button(action: { dismiss() }, label: { Label(LocalText.dismissButton, systemImage: "arrow.down.to.line") })
-      } label: {
-        ZStack {
-          Circle()
-            .foregroundColor(Color.appGrayText)
-            .frame(width: 36, height: 36)
-            .opacity(0.1)
-
-          Image(systemName: "ellipsis")
-            .font(.appCallout)
-            .frame(width: 36, height: 36)
-        }
+        Image(systemName: "chevron.down")
+          .font(.appCallout)
+          .frame(width: 36, height: 36)
       }
-      .padding(8)
     }
 
-    func viewArticle() {
-      if let objectID = audioController.itemAudioProperties?.objectID {
-        NSNotification.pushReaderItem(objectID: objectID)
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-          dismiss()
+    var toolbarItems: some ToolbarContent {
+      ToolbarItemGroup(placement: .barTrailing) {
+        Button(
+          action: { performDelete() },
+          label: {
+            Image
+              .toolbarTrash
+              .foregroundColor(Color.toolbarItemForeground)
+          }
+        ).padding(.trailing, 5)
+
+        if !(audioController.itemAudioProperties?.isArchived ?? false) {
+          Button(
+            action: { performArchive() },
+            label: {
+              if audioController.itemAudioProperties?.isArchived ?? false {
+                Image
+                  .toolbarUnarchive
+                  .foregroundColor(Color.toolbarItemForeground)
+              } else {
+                Image
+                  .toolbarArchive
+                  .foregroundColor(Color.toolbarItemForeground)
+              }
+            }
+          ).padding(.trailing, 5)
         }
+
+//        Menu(content: {
+//          Button(
+//            action: { performViewArticle() },
+//            label: {
+//              Text("View article")
+//            }
+//          )
+//        }, label: {
+//          Image
+//            .utilityMenu
+//            .foregroundColor(ThemeManager.currentTheme.toolbarColor)
+//        })
+      }
+    }
+
+    func performViewArticle() {
+      if let objectID = audioController.itemAudioProperties?.objectID {
+        viewArticle(objectID)
+      }
+    }
+
+    func performDelete() {
+      if let objectID = audioController.itemAudioProperties?.objectID {
+        delete(objectID)
+      }
+    }
+
+    func performArchive() {
+      if let objectID = audioController.itemAudioProperties?.objectID {
+        archive(objectID)
       }
     }
 
@@ -297,6 +324,7 @@
             .resizable()
             .frame(width: 18, height: 18)
         })
+          .buttonStyle(.plain)
           .padding(.trailing, 32)
 
         Button(
@@ -307,6 +335,7 @@
               .font(Font.title.weight(.light))
           }
         )
+        .buttonStyle(.plain)
         .frame(width: 16, height: 16)
         .padding(.trailing, 16)
         .foregroundColor(.themeAudioPlayerGray)
@@ -324,6 +353,7 @@
               .font(Font.title.weight(.light))
           }
         )
+        .buttonStyle(.plain)
         .frame(width: 16, height: 16)
         .padding(.trailing, 32 - 4) // -4 to account for the menu touch padding
         .foregroundColor(.themeAudioPlayerGray)
@@ -343,6 +373,7 @@
           Text("\(String(format: "%.1f", audioController.playbackRate))×")
             .font(.appCaption)
         })
+          .buttonStyle(.plain)
           .padding(4)
 
         Spacer()
@@ -353,6 +384,13 @@
 
     func playerContent(_: LinkedItemAudioProperties) -> some View {
       ZStack {
+        WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
+          OperationToast(operationMessage: $operationMessage, showOperationToast: $showOperationToast, operationStatus: $operationStatus)
+            .offset(y: -90)
+        } label: {
+          EmptyView()
+        }.buttonStyle(.plain)
+
         if audioController.playbackError {
           Text("There was an error playing back your audio.").foregroundColor(Color.red).font(.footnote)
         }
@@ -416,9 +454,12 @@
       NavigationView {
         innerBody
           .background(Color.themeDisabledBG)
-          .navigationTitle(audioController.itemAudioProperties?.title ?? LocalText.textToSpeechGeneric)
-          .navigationBarItems(trailing: Button(action: { dismiss() }, label: { Text("Hide") }))
+          .navigationTitle("")
+          .navigationBarItems(leading: Button(action: { dismiss() }, label: { closeButton }))
           .navigationBarTitleDisplayMode(NavigationBarItem.TitleDisplayMode.inline)
+          .toolbar {
+            toolbarItems
+          }
       }
     }
 

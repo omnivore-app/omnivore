@@ -5,33 +5,32 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class HomeFeedViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDelegate {
-  let folder: String
-  let fetcher: LibraryItemFetcher
-  let listConfig: LibraryListConfig
+enum LoadingBarStyle {
+  case none
+  case redacted
+  case simple
+}
 
-  private var fetchedResultsController: NSFetchedResultsController<Models.LibraryItem>?
+@MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
+  let filterKey: String
+  @ObservedObject var fetcher: LibraryItemFetcher
+  let folderConfigs: [String: LibraryListConfig]
 
   @Published var isLoading = false
-  @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: Models.LibraryItem?
   @Published var itemUnderTitleEdit: Models.LibraryItem?
   @Published var itemForHighlightsView: Models.LibraryItem?
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
-  @Published var showLoadingBar = false
-  @Published var isInMultiSelectMode = false
+  @Published var showLoadingBar = LoadingBarStyle.redacted
 
-  @Published var selectedLinkItem: NSManagedObjectID? // used by mac app only
   @Published var selectedItem: Models.LibraryItem?
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
-  @Published var showFiltersModal = false
-  @Published var showCommunityModal = false
-  @Published var featureItems = [Models.LibraryItem]()
-
   @Published var showSnackbar = false
+  @Published var showAddFeedView = false
+  @Published var showHideFollowingAlert = false
   @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()
@@ -41,80 +40,98 @@ import Views
   @Published var negatedLabels = [LinkedItemLabel]()
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
-  @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
-  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
+  @State var lastMoreFetched: Date?
+  @State var lastFiltersFetched: Date?
 
+  @State var isModifyingNewsletterDestination = false
+
+  @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
+  @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
   @Published var appliedFilter: InternalFilter? {
     didSet {
-      let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter") ?? folder
-      UserDefaults.standard.setValue(appliedFilter?.name, forKey: filterKey)
+      if let filterName = appliedFilter?.name.lowercased() {
+        UserDefaults.standard.setValue(filterName, forKey: filterKey)
+      }
     }
   }
 
-  private var filterState: FetcherFilterState {
-    FetcherFilterState(folder: folder, searchTerm: searchTerm, selectedLabels: selectedLabels, negatedLabels: negatedLabels, appliedSort: appliedSort, appliedFilter: appliedFilter)
-  }
+  init(filterKey: String, fetcher: LibraryItemFetcher, folderConfigs: [String: LibraryListConfig]) {
+    self.filterKey = filterKey
 
-  init(folder: String, fetcher: LibraryItemFetcher, listConfig: LibraryListConfig) {
-    self.folder = folder
     self.fetcher = fetcher
-    self.listConfig = listConfig
+    self.folderConfigs = folderConfigs
+
     super.init()
   }
 
-  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
-    if let filter = filter {
-      Task {
-        featureFilter = filter.rawValue
-
-        featureItems = await loadFeatureItems(
-          context: context,
-          predicate: filter.predicate,
-          sort: filter.sortDescriptor
-        )
-      }
-    } else {
-      featureItems = []
+  private var filterState: FetcherFilterState? {
+    if let appliedFilter = appliedFilter {
+      return FetcherFilterState(
+        folder: appliedFilter.folder,
+        searchTerm: searchTerm,
+        selectedLabels: selectedLabels,
+        negatedLabels: negatedLabels,
+        appliedSort: appliedSort,
+        appliedFilter: appliedFilter
+      )
     }
+    return nil
+  }
+
+  var currentFolder: String? {
+    appliedFilter?.folder
+  }
+
+  var currentListConfig: LibraryListConfig? {
+    if let currentFolder = currentFolder {
+      return folderConfigs[currentFolder]
+    }
+    return nil
   }
 
   func loadFilters(dataService: DataService) async {
-    switch folder {
-    case "following":
-      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters, defaultName: "rss")
-    default:
-      var hasLocalResults = false
-      let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+    let start = Date()
+    var hasLocalResults = false
+    let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
 
-      // Load from disk
-      if let results = try? dataService.viewContext.fetch(fetchRequest) {
-        hasLocalResults = true
-        updateFilters(newFilters: InternalFilter.make(from: results), defaultName: "inbox")
-      }
-
-      let hasResults = hasLocalResults
-      Task.detached {
-        if let downloadedFilters = try? await dataService.filters() {
-          await self.updateFilters(newFilters: downloadedFilters, defaultName: "inbox")
-        } else if !hasResults {
-          await self.updateFilters(newFilters: InternalFilter.DefaultInboxFilters, defaultName: "inbox")
-        }
-      }
+    if let lastFiltersFetched, lastFiltersFetched.timeIntervalSinceNow > -100 {
+      print("skipping fetching filters as last fetch was too recent: ", lastFiltersFetched)
+      return
     }
+
+    // Load from disk
+    if let results = try? dataService.viewContext.fetch(fetchRequest) {
+      hasLocalResults = true
+      updateFilters(newFilters: InternalFilter.make(from: results))
+    }
+
+    let hasResults = hasLocalResults
+    if let downloadedFilters = try? await dataService.filters() {
+      updateFilters(newFilters: downloadedFilters)
+    } else if !hasResults {
+      updateFilters(newFilters: InternalFilter.DefaultInboxFilters)
+    }
+
+    lastFiltersFetched = start
   }
 
-  func itemAppeared(item: Models.LibraryItem, dataService: DataService) async {
-    if isLoading { return }
-    let itemIndex = fetcher.items.firstIndex(where: { $0.id == item.id })
-    let thresholdIndex = fetcher.items.index(fetcher.items.endIndex, offsetBy: -5)
+  func loadMore(dataService: DataService, loadCursor: String? = nil) async {
+    if let filterState = filterState {
+      if isLoading { return }
 
-    // Check if user has scrolled to the last five items in the list
-    // Make sure we aren't currently loading though, as this would get triggered when the first set
-    // of items are presented to the user.
-    if let itemIndex = itemIndex, itemIndex > thresholdIndex {
-      await loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: false)
+      let start = Date.now
+      if let lastMoreFetched, lastMoreFetched.timeIntervalSinceNow > -4 {
+        print("skipping fetching more as last fetch was too recent: ", lastMoreFetched)
+        return
+      }
+
+      isLoading = true
+      await fetcher.loadMoreItems(dataService: dataService, filterState: filterState, loadCursor: loadCursor)
+      isLoading = false
+
+      lastMoreFetched = start
     }
   }
 
@@ -139,36 +156,65 @@ import Views
     }
   }
 
-  func updateFilters(newFilters: [InternalFilter], defaultName: String) {
-    let appliedFilterName = UserDefaults.standard.string(forKey: "lastSelected-\(filterState.folder)-filter") ?? defaultName
+  var defaultFilters: [InternalFilter] {
+    [InternalFilter.InboxUnreadFilter,
+     InternalFilter.InboxDeletedFilter,
+     InternalFilter.InboxDownloadedFilter]
+      + InternalFilter.DefaultFollowingFilters
+  }
+
+  func updateFilters(newFilters: [InternalFilter]) {
+    let availableFolders = folderConfigs.keys
+    let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
 
     filters = newFilters
-      .filter { $0.folder == filterState.folder }
+      .filter { availableFolders.contains($0.folder) }
       .sorted(by: { $0.position < $1.position })
-      + (folder == "inbox" ? [InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter] : [InternalFilter.DownloadedFilter])
+      + defaultFilters
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter
     }
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) async {
-    isLoading = true
-    showLoadingBar = isRefresh
+  func setDefaultFilter() {
+    let availableFolders = folderConfigs.keys
+    let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
+    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
+      appliedFilter = newFilter
+      return
+    }
 
-    await fetcher.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
-    updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
-
-    isLoading = false
-    showLoadingBar = false
+    if let defaultFilter = filters.first(where: { availableFolders.contains($0.folder) }) {
+      appliedFilter = defaultFilter
+    }
   }
 
-  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
-    isLoading = true
+  func loadNewItems(dataService: DataService) async {
+    if let filterState = filterState {
+      await fetcher.loadNewItems(
+        dataService: dataService,
+        filterState: filterState
+      )
+      objectWillChange.send()
+    }
+  }
 
-    await fetcher.loadMoreItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
+  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false, loadingBarStyle: LoadingBarStyle? = nil) async {
+    isLoading = true
+    showLoadingBar = isRefresh ? loadingBarStyle ?? .redacted : .none
+
+    if let filterState = filterState {
+      await fetcher.loadItems(
+        dataService: dataService,
+        filterState: filterState,
+        isRefresh: isRefresh,
+        forceRemote: forceRemote
+      )
+    }
 
     isLoading = false
+    showLoadingBar = .none
   }
 
   func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [Models.LibraryItem] {
@@ -177,7 +223,14 @@ import Views
     fetchRequest.predicate = predicate
     fetchRequest.sortDescriptors = [sort]
 
-    return (try? context.fetch(fetchRequest)) ?? []
+    do {
+      let fetched = try context.fetch(fetchRequest)
+      return fetched
+    } catch {
+      print("ERROR FETCHING: ", error)
+    }
+    return []
+//    return (try? context.fetch(fetchRequest)) ?? []
   }
 
   func snackbar(_ message: String, undoAction: SnackbarUndoAction? = nil) {
@@ -187,7 +240,7 @@ import Views
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
     dataService.archiveLink(objectID: objectID, archived: archived)
-    snackbar(archived ? "Link archived" : "Link moved to Inbox")
+    snackbar(archived ? "Link archived" : "Link unarchived")
   }
 
   func removeLibraryItem(dataService: DataService, objectID: NSManagedObjectID) {
@@ -221,7 +274,7 @@ import Views
       dataService.setItemLabels(itemID: item.unwrappedID, labels: InternalLinkedItemLabel.make(Set(existingLabels + [label]) as NSSet))
 
       item.update(inContext: dataService.viewContext)
-      updateFeatureFilter(context: dataService.viewContext, filter: FeaturedItemFilter(rawValue: featureFilter))
+      fetcher.refreshFeatureItems(dataService: dataService)
     }
   }
 
@@ -235,16 +288,12 @@ import Views
 
   func pinItem(dataService: DataService, item: Models.LibraryItem) {
     addLabel(dataService: dataService, item: item, label: "Pinned", color: "#0A84FF")
-    if featureFilter == FeaturedItemFilter.pinned.rawValue {
-      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
-    }
+    fetcher.refreshFeatureItems(dataService: dataService)
   }
 
   func unpinItem(dataService: DataService, item: Models.LibraryItem) {
     removeLabel(dataService: dataService, item: item, named: "Pinned")
-    if featureFilter == FeaturedItemFilter.pinned.rawValue {
-      updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
-    }
+    fetcher.refreshFeatureItems(dataService: dataService)
   }
 
   func markRead(dataService: DataService, item: Models.LibraryItem) {
@@ -284,5 +333,35 @@ import Views
 
   func findFilter(_: DataService, named: String) -> InternalFilter? {
     filters.first(where: { $0.name == named })
+  }
+
+  func modifyingNewsletterDestinationToFollowing(dataService: DataService) async {
+    isModifyingNewsletterDestination = true
+    do {
+      var errorCount = 0
+      let objectIDs = try await dataService.newsletterEmails()
+      let newsletters = await dataService.viewContext.perform {
+        let newsletters = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
+        return newsletters
+      }
+
+      for newsletter in newsletters {
+        if let emailId = newsletter.emailId, newsletter.folder != "following" {
+          do {
+            try await dataService.updateNewsletterEmail(emailID: emailId, folder: "following")
+          } catch {
+            print("error updating newsletter: ", error)
+            errorCount += 1
+          }
+        }
+      }
+      if errorCount > 0 {
+        snackbar("There was an error modifying \(errorCount) of your emails")
+      } else {
+        snackbar("Email destination modified")
+      }
+    } catch {
+      snackbar("Error modifying emails")
+    }
   }
 }

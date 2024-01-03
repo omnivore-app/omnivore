@@ -9,24 +9,28 @@ import Utils
 import Views
 
 @MainActor final class LibraryItemFetcher: NSObject, ObservableObject {
-  let folder = "inbox"
-
   @Published var items = [Models.LibraryItem]()
-  var itemsPublisher: Published<[Models.LibraryItem]>.Publisher { $items }
+  @Published var featureItems = [Models.LibraryItem]()
 
   private var fetchedResultsController: NSFetchedResultsController<Models.LibraryItem>?
 
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
+
+  var limit = 6
   var cursor: String?
+  var totalCount: Int?
 
   // These are used to make sure we handle search result
   // responses in the right order
   var searchIdx = 0
   var receivedIdx = 0
 
-  var syncCursor: String?
-
-  func setItems(_: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
+  func setItems(_ context: NSManagedObjectContext, _ items: [Models.LibraryItem]) {
     self.items = items
+
+    if let filter = FeaturedItemFilter(rawValue: featureFilter) {
+      updateFeatureFilter(context: context, filter: filter)
+    }
   }
 
   func loadCurrentViewer(dataService: DataService) async {
@@ -45,37 +49,7 @@ import Views
     }
   }
 
-  func syncItems(dataService: DataService) async {
-    let syncStart = Date.now
-    let lastSyncDate = dataService.lastItemSyncTime
-
-    try? await dataService.syncOfflineItemsWithServerIfNeeded()
-
-    let syncResult = try? await dataService.syncLinkedItems(since: lastSyncDate,
-                                                            cursor: nil)
-
-    syncCursor = syncResult?.cursor
-    if let syncResult = syncResult, syncResult.hasMore {
-      dataService.syncLinkedItemsInBackground(since: lastSyncDate) {
-        // do nothing
-      }
-    } else {
-      dataService.lastItemSyncTime = syncStart
-    }
-
-    // If possible start prefetching new pages in the background
-    if
-      let itemIDs = syncResult?.updatedItemIDs,
-      let username = dataService.currentViewer?.username,
-      !itemIDs.isEmpty
-    {
-      Task.detached(priority: .background) {
-        await dataService.prefetchPages(itemIDs: itemIDs, username: username)
-      }
-    }
-  }
-
-  func loadSearchQuery(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadSearchQuery(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool, loadCursor: String? = nil) async {
     let thisSearchIdx = searchIdx
     searchIdx += 1
 
@@ -83,11 +57,17 @@ import Views
       return
     }
 
-    let queryResult = try? await dataService.loadLinkedItems(
-      limit: 10,
-      searchQuery: searchQuery(filterState),
-      cursor: isRefresh ? nil : cursor
-    )
+    var queryResult: LinkedItemQueryResult?
+
+    do {
+      queryResult = try await dataService.loadLinkedItems(
+        limit: limit,
+        searchQuery: searchQuery(filterState),
+        cursor: isRefresh ? nil : loadCursor ?? cursor
+      )
+    } catch {
+      print("SYNCCURSOR ERROR loading library items: ", error)
+    }
 
     if let appliedFilter = filterState.appliedFilter, let queryResult = queryResult {
       let newItems: [Models.LibraryItem] = {
@@ -110,37 +90,63 @@ import Views
       }
 
       receivedIdx = thisSearchIdx
+
+      limit = 15 // Once we have one successful fetch we increase the limit
       cursor = queryResult.cursor
-      if let username = dataService.currentViewer?.username {
-        await dataService.prefetchPages(itemIDs: newItems.map(\.unwrappedID), username: username)
-      }
+      totalCount = queryResult.totalCount
     } else {
       updateFetchController(dataService: dataService, filterState: filterState)
     }
   }
 
-  func loadItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool, forceRemote: Bool = false) async {
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
-      group.addTask { await self.syncItems(dataService: dataService) }
       group.addTask { await self.updateFetchController(dataService: dataService, filterState: filterState) }
       await group.waitForAll()
     }
 
     if let appliedFilter = filterState.appliedFilter {
-      let shouldRemoteSearch = items.count < 1 || isRefresh && appliedFilter.shouldRemoteSearch
+      let shouldRemoteSearch = forceRemote || items.count < 1 || isRefresh && appliedFilter.shouldRemoteSearch
       if shouldRemoteSearch {
         await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
       } else {
         updateFetchController(dataService: dataService, filterState: filterState)
       }
     }
+
+    NotificationCenter.default.post(name: NSNotification.PerformSync, object: nil, userInfo: nil)
+
+    BadgeCountHandler.updateBadgeCount(dataService: dataService)
   }
 
-  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool) async {
+  func loadNewItems(dataService: DataService, filterState: FetcherFilterState) async {
+    let lastSyncDate = dataService.lastItemSyncTime
+    _ = try? await dataService.syncLinkedItems(since: lastSyncDate, cursor: nil)
+    updateFetchController(dataService: dataService, filterState: filterState)
+  }
+
+  func loadMoreItems(dataService: DataService, filterState: FetcherFilterState, loadCursor: String? = nil) async {
+    var useCursor = loadCursor
     if let appliedFilter = filterState.appliedFilter, appliedFilter.shouldRemoteSearch {
-      await loadSearchQuery(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
+      let idx = max(items.count, 0)
+
+      // If the cursor is greater than the index we want to use the cursor instead
+      // this can occur if there are non-contiguous items in our list causing older
+      // items to be synced back into those "holes" in the list
+      if let cursor = cursor, let currentCursor = Int(cursor) {
+        if currentCursor > idx {
+          useCursor = currentCursor.description
+        }
+      }
+
+      await loadSearchQuery(
+        dataService: dataService,
+        filterState: filterState,
+        isRefresh: false,
+        loadCursor: useCursor ?? idx.description
+      )
     }
   }
 
@@ -204,7 +210,6 @@ import Views
       sectionNameKeyPath: nil,
       cacheName: nil
     )
-
     guard let fetchedResultsController = fetchedResultsController else {
       return
     }
@@ -216,10 +221,14 @@ import Views
 
   private func searchQuery(_ filterState: FetcherFilterState) -> String {
     let sort = LinkedItemSort(rawValue: filterState.appliedSort) ?? .newest
-    var query = sort.queryString
+    var query = ""
 
     if let queryString = filterState.appliedFilter?.filter {
-      query = "\(queryString) \(sort.queryString)"
+      query = "\(queryString)"
+    }
+
+    if !query.contains("sort:") {
+      query = "\(query) \(sort.queryString)"
     }
 
     if !filterState.searchTerm.isEmpty {
@@ -250,6 +259,28 @@ import Views
     print("QUERY: `\(query)`")
 
     return query
+  }
+
+  func refreshFeatureItems(dataService: DataService) {
+    if let featureFilter = FeaturedItemFilter(rawValue: self.featureFilter) {
+      updateFeatureFilter(context: dataService.viewContext, filter: featureFilter)
+    }
+  }
+
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
+    if let filter = filter {
+      Task {
+        featureFilter = filter.rawValue
+
+        featureItems = await loadFeatureItems(
+          context: context,
+          predicate: filter.predicate,
+          sort: filter.sortDescriptor
+        )
+      }
+    } else {
+      featureItems = []
+    }
   }
 }
 

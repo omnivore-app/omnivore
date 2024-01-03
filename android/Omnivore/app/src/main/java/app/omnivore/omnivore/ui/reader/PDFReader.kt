@@ -242,6 +242,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
     }
   }
 
+  @Deprecated("Deprecated in Java")
   override fun onBackPressed() {
     when {
       modularSearchView.isDisplayed -> {
@@ -290,7 +291,7 @@ class PDFReaderActivity: AppCompatActivity(), DocumentListener, TextSelectionMan
   }
 
   override fun onEnterTextSelectionMode(p0: TextSelectionController) {
-    val textRects = p0?.textSelection?.textBlocks ?: return
+    val textRects = p0.textSelection?.textBlocks ?: return
     val pageIndex = p0.textSelection?.pageIndex ?: return
     pendingHighlightAnnotation = HighlightAnnotation(pageIndex, textRects)
     textSelectionController = p0

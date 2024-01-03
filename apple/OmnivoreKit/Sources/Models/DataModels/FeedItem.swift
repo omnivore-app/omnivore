@@ -5,10 +5,12 @@ import Utils
 public struct LinkedItemQueryResult {
   public let itemIDs: [NSManagedObjectID]
   public let cursor: String?
+  public let totalCount: Int?
 
-  public init(itemIDs: [NSManagedObjectID], cursor: String?) {
+  public init(itemIDs: [NSManagedObjectID], cursor: String?, totalCount: Int?) {
     self.itemIDs = itemIDs
     self.cursor = cursor
+    self.totalCount = totalCount
   }
 }
 
@@ -17,13 +19,21 @@ public struct LinkedItemSyncResult {
   public let cursor: String?
   public let hasMore: Bool
   public let mostRecentUpdatedAt: Date?
+  public let oldestUpdatedAt: Date?
   public let isEmpty: Bool
 
-  public init(updatedItemIDs: [String], cursor: String?, hasMore: Bool, mostRecentUpdatedAt: Date?, isEmpty: Bool) {
+  public init(updatedItemIDs: [String],
+              cursor: String?,
+              hasMore: Bool,
+              mostRecentUpdatedAt: Date?,
+              oldestUpdatedAt: Date?,
+              isEmpty: Bool)
+  {
     self.updatedItemIDs = updatedItemIDs
     self.cursor = cursor
     self.hasMore = hasMore
     self.mostRecentUpdatedAt = mostRecentUpdatedAt
+    self.oldestUpdatedAt = oldestUpdatedAt
     self.isEmpty = isEmpty
   }
 }
@@ -32,6 +42,7 @@ public struct LinkedItemAudioProperties {
   public let itemID: String
   public let objectID: NSManagedObjectID
   public let title: String
+  public var isArchived: Bool
   public let byline: String?
   public let imageURL: URL?
   public let language: String?
@@ -240,6 +251,7 @@ public extension LibraryItem {
       itemID: unwrappedID,
       objectID: objectID,
       title: unwrappedTitle,
+      isArchived: isArchived,
       byline: formattedByline,
       imageURL: imageURL,
       language: language,

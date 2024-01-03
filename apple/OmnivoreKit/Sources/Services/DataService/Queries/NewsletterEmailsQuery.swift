@@ -3,19 +3,21 @@ import Foundation
 import Models
 import SwiftGraphQL
 
+let newsletterEmailSelection = Selection.NewsletterEmail {
+  InternalNewsletterEmail(
+    emailId: try $0.id(),
+    email: try $0.address(),
+    folder: try $0.folder(),
+    descriptionNote: try $0.description(),
+    confirmationCode: try $0.confirmationCode()
+  )
+}
+
 public extension DataService {
   func newsletterEmails() async throws -> [NSManagedObjectID] {
     enum QueryResult {
       case success(result: [InternalNewsletterEmail])
       case error(error: String)
-    }
-
-    let newsletterEmailSelection = Selection.NewsletterEmail {
-      InternalNewsletterEmail(
-        emailId: try $0.id(),
-        email: try $0.address(),
-        confirmationCode: try $0.confirmationCode()
-      )
     }
 
     let selection = Selection<QueryResult, Unions.NewsletterEmailsResult> {

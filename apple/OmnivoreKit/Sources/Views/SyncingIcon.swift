@@ -21,7 +21,7 @@ public struct SyncStatusIcon: View {
     switch status {
     case .isNSync:
       return "exclamationmark.icloud"
-    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate, .needsMove:
+    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate:
       return "icloud"
     }
   }
@@ -30,7 +30,7 @@ public struct SyncStatusIcon: View {
     switch status {
     case .isNSync:
       return .red
-    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate, .needsMove:
+    case .isSyncing, .needsCreation, .needsDeletion, .needsUpdate:
       return .appGrayText
     }
   }

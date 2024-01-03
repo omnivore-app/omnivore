@@ -9,10 +9,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -49,7 +49,7 @@ fun LibraryNavigationBar(
                   savedItemViewModel.actionsMenuItemLiveData.postValue(null)
               }) {
                   Icon(
-                      imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+                      imageVector = Icons.Filled.ArrowBack,
                       modifier = Modifier,
                       contentDescription = "Back"
                   )
@@ -74,6 +74,12 @@ fun LibraryNavigationBar(
                             contentDescription = null
                         )
                     }
+                }
+                IconButton(onClick = { savedItemViewModel.handleSavedItemAction(it.savedItem.savedItemId, SavedItemAction.EditInfo) }) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        contentDescription = null
+                    )
                 }
                 IconButton(onClick = { savedItemViewModel.handleSavedItemAction(it.savedItem.savedItemId, SavedItemAction.EditLabels) }) {
                     Icon(
@@ -207,7 +213,6 @@ fun LibraryNavigationBar(
 
 
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SearchField(
   searchText: String,
@@ -237,7 +242,7 @@ fun SearchField(
                     navController.popBackStack()
                 }) {
                     Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+                        imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Back"
                     )
                 }

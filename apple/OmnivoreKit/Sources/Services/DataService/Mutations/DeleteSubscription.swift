@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func deleteSubscription(subscriptionName: String) async throws {
+  func deleteSubscription(subscriptionName: String, subscriptionId: String) async throws {
     enum MutationResult {
       case success(id: String)
       case error(errorMessage: String)
@@ -20,7 +20,7 @@ public extension DataService {
     }
 
     let mutation = Selection.Mutation {
-      try $0.unsubscribe(name: subscriptionName, selection: selection)
+      try $0.unsubscribe(name: subscriptionName, subscriptionId: OptionalArgument(subscriptionId), selection: selection)
     }
 
     let path = appEnvironment.graphqlPath

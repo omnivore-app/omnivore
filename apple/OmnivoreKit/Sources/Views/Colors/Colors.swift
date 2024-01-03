@@ -36,6 +36,8 @@ public extension Color {
   static var themeLabelForeground: Color { Color("_labelForeground", bundle: .module) }
   static var themeLabelBackground: Color { Color("_labelBackground", bundle: .module) }
 
+  static var toolbarItemForeground: Color { Color("toolbarItemForeground", bundle: .module) }
+
   static var themeAudioPlayerGray: Color { Color("_audioPlayerGray", bundle: .module) }
   static var themeGrayBg01: Color { Color("_themeGrayBg01", bundle: .module) }
   static var themeHighlightColor: Color { Color("_highlightColor", bundle: .module) }
@@ -47,6 +49,9 @@ public extension Color {
   static var thLightWhiteGrey: Color { Color("_themeLightWhiteGrey", bundle: .module) }
 
   static var thFeatureSeparator: Color { Color("featureSeparator", bundle: .module) }
+
+  static var thFallbackImageForeground: Color { Color("thFallbackImageForeground", bundle: .module) }
+  static var thFallbackImageBackground: Color { Color("thFallbackImageBackground", bundle: .module) }
 
   static var circleButtonBackground: Color { Color("_circleButtonBackground", bundle: .module) }
   static var circleButtonForeground: Color { Color("_circleButtonForeground", bundle: .module) }

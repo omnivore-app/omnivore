@@ -180,7 +180,7 @@ const getPurifiedContent = (html: string): Document => {
 const getReadabilityResult = async (
   url: string,
   html: string,
-  document: Document,
+  document?: Document,
   isNewsletter?: boolean
 ): Promise<Readability.ParseResult | null> => {
   // First attempt to read the article as is.

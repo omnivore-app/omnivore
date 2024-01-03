@@ -149,6 +149,7 @@ struct WelcomeView: View {
     .sheet(isPresented: $showAboutPage) {
       if let url = URL(string: "https://omnivore.app/about") {
         SafariView(url: url)
+          .ignoresSafeArea(.all, edges: .bottom)
       }
     }
     .onTapGesture {

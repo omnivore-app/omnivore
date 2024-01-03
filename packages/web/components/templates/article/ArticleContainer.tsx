@@ -258,8 +258,8 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const share = () => {
       if (navigator.share) {
         navigator.share({
-          title: title ?? props.article.title,
-          text: title ?? props.article.title,
+          title: (title ?? props.article.title) + '\n',
+          text: (title ?? props.article.title) + '\n',
           url: props.article.originalArticleUrl,
         })
       }

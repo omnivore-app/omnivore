@@ -155,6 +155,7 @@ union ArticleSavingRequestResult = ArticleSavingRequestError | ArticleSavingRequ
 
 enum ArticleSavingRequestStatus {
   ARCHIVED
+  CONTENT_NOT_FETCHED
   DELETED
   FAILED
   PROCESSING
@@ -381,6 +382,12 @@ type CreateNewsletterEmailError {
 enum CreateNewsletterEmailErrorCode {
   BAD_REQUEST
   UNAUTHORIZED
+}
+
+input CreateNewsletterEmailInput {
+  description: String
+  folder: String
+  name: String
 }
 
 union CreateNewsletterEmailResult = CreateNewsletterEmailError | CreateNewsletterEmailSuccess
@@ -721,6 +728,21 @@ type FeedsSuccess {
   pageInfo: PageInfo!
 }
 
+type FetchContentError {
+  errorCodes: [FetchContentErrorCode!]!
+}
+
+enum FetchContentErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union FetchContentResult = FetchContentError | FetchContentSuccess
+
+type FetchContentSuccess {
+  success: Boolean!
+}
+
 type Filter {
   category: String
   createdAt: Date!
@@ -975,6 +997,7 @@ type Label {
   internal: Boolean
   name: String!
   position: Int
+  source: String
 }
 
 type LabelsError {
@@ -1181,7 +1204,7 @@ type Mutation {
   createGroup(input: CreateGroupInput!): CreateGroupResult!
   createHighlight(input: CreateHighlightInput!): CreateHighlightResult!
   createLabel(input: CreateLabelInput!): CreateLabelResult!
-  createNewsletterEmail: CreateNewsletterEmailResult!
+  createNewsletterEmail(input: CreateNewsletterEmailInput): CreateNewsletterEmailResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
   deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
@@ -1190,6 +1213,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
+  fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
   googleSignup(input: GoogleSignupInput!): GoogleSignupResult!
@@ -1228,6 +1252,7 @@ type Mutation {
   updateFilter(input: UpdateFilterInput!): UpdateFilterResult!
   updateHighlight(input: UpdateHighlightInput!): UpdateHighlightResult!
   updateLabel(input: UpdateLabelInput!): UpdateLabelResult!
+  updateNewsletterEmail(input: UpdateNewsletterEmailInput!): UpdateNewsletterEmailResult!
   updatePage(input: UpdatePageInput!): UpdatePageResult!
   updateSubscription(input: UpdateSubscriptionInput!): UpdateSubscriptionResult!
   updateUser(input: UpdateUserInput!): UpdateUserResult!
@@ -1240,7 +1265,10 @@ type NewsletterEmail {
   address: String!
   confirmationCode: String
   createdAt: Date!
+  description: String
+  folder: String!
   id: ID!
+  name: String
   subscriptionCount: Int!
 }
 
@@ -1971,6 +1999,7 @@ input SetLabelsInput {
   labelIds: [ID!]
   labels: [CreateLabelInput!]
   pageId: ID!
+  source: String
 }
 
 union SetLabelsResult = SetLabelsError | SetLabelsSuccess
@@ -2167,6 +2196,8 @@ enum SubscribeErrorCode {
 
 input SubscribeInput {
   autoAddToLibrary: Boolean
+  fetchContent: Boolean
+  folder: String
   isPrivate: Boolean
   subscriptionType: SubscriptionType
   url: String!
@@ -2183,6 +2214,8 @@ type Subscription {
   count: Int!
   createdAt: Date!
   description: String
+  fetchContent: Boolean!
+  folder: String!
   icon: String
   id: ID!
   isPrivate: Boolean
@@ -2410,6 +2443,28 @@ type UpdateLinkShareInfoSuccess {
   message: String!
 }
 
+type UpdateNewsletterEmailError {
+  errorCodes: [UpdateNewsletterEmailErrorCode!]!
+}
+
+enum UpdateNewsletterEmailErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+input UpdateNewsletterEmailInput {
+  description: String
+  folder: String
+  id: ID!
+  name: String
+}
+
+union UpdateNewsletterEmailResult = UpdateNewsletterEmailError | UpdateNewsletterEmailSuccess
+
+type UpdateNewsletterEmailSuccess {
+  newsletterEmail: NewsletterEmail!
+}
+
 type UpdatePageError {
   errorCodes: [UpdatePageErrorCode!]!
 }
@@ -2502,6 +2557,8 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
+  fetchContent: Boolean
+  folder: String
   id: ID!
   isPrivate: Boolean
   lastFetchedAt: Date

@@ -1,7 +1,5 @@
 package app.omnivore.omnivore.ui.save
 
-import android.content.ContentValues
-import android.util.Log
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +25,10 @@ import java.util.regex.Pattern
 import javax.inject.Inject
 
 enum class SaveState {
-  NONE(),
-  SAVING(),
-  ERROR(),
-  SAVED()
+  DEFAULT,
+  SAVING,
+  ERROR,
+  SAVED
 }
 
 @HiltViewModel
@@ -38,7 +36,7 @@ class SaveViewModel @Inject constructor(
   private val datastoreRepo: DatastoreRepository,
   private val resourceProvider: ResourceProvider
 ) : ViewModel() {
-  val saveState = MutableLiveData(SaveState.NONE)
+  val state = MutableLiveData(SaveState.DEFAULT)
 
   var isLoading by mutableStateOf(false)
     private set
@@ -76,7 +74,7 @@ class SaveViewModel @Inject constructor(
     viewModelScope.launch {
       isLoading = true
       message = resourceProvider.getString(R.string.save_view_model_msg)
-      saveState.postValue(SaveState.SAVING)
+      state.postValue(SaveState.SAVING)
 
       val authToken = getAuthToken()
 
@@ -115,17 +113,22 @@ class SaveViewModel @Inject constructor(
         isLoading = false
 
         val success = (response.data?.saveUrl?.onSaveSuccess?.url != null)
-        message = if (success) {
-          resourceProvider.getString(R.string.save_view_model_page_saved_success)
+        if (success) {
+          message = resourceProvider.getString(R.string.save_view_model_page_saved_success)
+          state.postValue(SaveState.SAVED)
         } else {
-          resourceProvider.getString(R.string.save_view_model_page_saved_error)
+          message = resourceProvider.getString(R.string.save_view_model_page_saved_error)
+          state.postValue(SaveState.ERROR)
         }
-
-        saveState.postValue(SaveState.SAVED)
-        Log.d(ContentValues.TAG, "Saved URL?: $success")
       } catch (e: java.lang.Exception) {
         message = resourceProvider.getString(R.string.save_view_model_page_saved_error)
+        state.postValue(SaveState.ERROR)
+        isLoading = false
       }
     }
+  }
+
+  fun resetState() {
+    state.postValue(SaveState.DEFAULT)
   }
 }

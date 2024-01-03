@@ -17,7 +17,7 @@
 
 // Labels View
 "labelsViewAssignNameColor" = "Assign a name and color.";
-"createLabelMessage" = "Create a new Label";
+"createLabelMessage" = "Create a new label";
 "labelsPurposeDescription" = "Use labels to create curated collections of links.";
 "labelNamePlaceholder" = "Label Name";
 
@@ -40,7 +40,7 @@
 "devicesCreated" = "Created: ";
 
 // Push Notification Settings
-"notificationsEnabled" = "Notifications Enabled";
+"notificationsEnabled" = "Notifications enabled";
 "notificationsExplainer" = "Enabling push notifications gives Omnivore device permission to send notifications,\nbut you are in charge of which notifications are sent.";
 "notificationsTriggerExplainer" = "Push notifications are triggered using your \n[account rules](https://omnivore.app/settings/rules) which you can edit online.";
 "notificationsEnable" = "Enable Push Notifications?";

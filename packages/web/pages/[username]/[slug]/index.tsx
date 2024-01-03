@@ -243,6 +243,7 @@ export default function Home(): JSX.Element {
       posthog.capture('link_read', {
         link: article.id,
         slug: article.slug,
+        reader: article.contentReader,
         url: article.originalArticleUrl,
       })
     }

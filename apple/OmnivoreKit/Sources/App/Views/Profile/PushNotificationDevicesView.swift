@@ -28,6 +28,8 @@ import Views
 
 struct PushNotificationDevicesView: View {
   @EnvironmentObject var dataService: DataService
+  @Environment(\.dismiss) private var dismiss
+
   @StateObject var viewModel = PushNotificationDevicesViewModel()
 
   var body: some View {
@@ -42,6 +44,9 @@ struct PushNotificationDevicesView: View {
         }
         .listStyle(InsetListStyle())
       #endif
+    }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
+      dismiss()
     }
     .task { viewModel.loadDevices(dataService: dataService) }
   }
@@ -58,6 +63,14 @@ struct PushNotificationDevicesView: View {
   }
 
   private var innerBody: some View {
+    if viewModel.devices.isEmpty {
+      AnyView(Text("No devices registered"))
+    } else {
+      AnyView(deviceList)
+    }
+  }
+
+  private var deviceList: some View {
     List {
       Section(header: Text(LocalText.devicesTokensTitle)) {
         ForEach(viewModel.devices) { device in

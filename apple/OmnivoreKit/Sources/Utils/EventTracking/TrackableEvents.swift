@@ -1,7 +1,7 @@
 import Foundation
 
 public enum TrackableEvent {
-  case linkRead(linkID: String, slug: String, originalArticleURL: String)
+  case linkRead(linkID: String, slug: String, reader: String, originalArticleURL: String)
   case debugMessage(message: String)
   case backgroundFetch(jobStatus: BackgroundFetchJobStatus, itemCount: Int, secondsElapsed: Int)
   case audioSessionStart(linkID: String)
@@ -33,10 +33,11 @@ public extension TrackableEvent {
 
   var properties: [String: String]? {
     switch self {
-    case let .linkRead(linkID: linkID, slug: slug, originalArticleURL: originalArticleURL):
+    case let .linkRead(linkID: linkID, slug: slug, reader: reader, originalArticleURL: originalArticleURL):
       return [
         "link": linkID,
         "slug": slug,
+        "reader": reader,
         "url": originalArticleURL
       ]
     case let .debugMessage(message: message):

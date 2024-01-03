@@ -418,6 +418,12 @@ div#appleid-signin {
   src: url('/static/fonts/Literata/Literata-Italic.ttf');
 }
 
+@font-face {
+  font-family: 'FuturaBold';
+  src: url('/static/fonts/FuturaBold/FuturaBold.otf');  
+  font-weight: bold;  
+}
+
 
 .dropdown-arrow {
   display: inline-block;

@@ -129,6 +129,7 @@
                 .padding()
             }
           )
+          .buttonStyle(.plain)
           .frame(width: 16, height: 16, alignment: .center)
           .onTapGesture { isContextMenuOpen = true }
         }

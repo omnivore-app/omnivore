@@ -29,7 +29,7 @@ import app.omnivore.omnivore.ui.save.SaveViewModel
 
 @Composable
 fun AddLinkSheetContent(
-    saveViewModel: SaveViewModel,
+    viewModel: SaveViewModel,
     onCancel: () -> Unit,
     onLinkAdded: () -> Unit
 ) {
@@ -50,11 +50,11 @@ fun AddLinkSheetContent(
         ).show()
     }
 
-    val saveState: SaveState by saveViewModel.saveState.observeAsState(SaveState.NONE)
+    val saveState: SaveState by viewModel.state.observeAsState(SaveState.DEFAULT)
     val isSaving = MutableLiveData(false)
 
     when (saveState) {
-        SaveState.NONE -> {
+        SaveState.DEFAULT -> {
             isSaving.value = false
         }
         SaveState.SAVING -> {
@@ -62,23 +62,26 @@ fun AddLinkSheetContent(
         }
         SaveState.ERROR -> {
             isSaving.value = false
-            showToast(context.getString(R.string.add_link_sheet_save_url_error))
+            showToast(viewModel.message ?: context.getString(R.string.add_link_sheet_save_url_error))
+
+            viewModel.resetState()
         }
         SaveState.SAVED -> {
             isSaving.value = false
-            showToast(context.getString(R.string.add_link_sheet_save_url_success))
+            showToast(viewModel.message ?: context.getString(R.string.add_link_sheet_save_url_success))
 
             onLinkAdded()
+            viewModel.resetState()
         }
     }
 
     fun addLink(url: String) {
-        if (!saveViewModel.validateUrl(url)) {
+        if (!viewModel.validateUrl(url)) {
             showToast(context.getString(R.string.add_link_sheet_invalid_url_error))
             return
         }
 
-        saveViewModel.saveURL(url)
+        viewModel.saveURL(url)
     }
 
     Surface(

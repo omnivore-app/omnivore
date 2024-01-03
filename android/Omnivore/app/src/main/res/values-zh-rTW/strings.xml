@@ -151,6 +151,7 @@
     <string name="web_reader_loading_container_error_msg">我們無法取得您的內容。</string>
     <string name="web_reader_loading_container_bottom_sheet_reader_preferences">閱讀器偏好設定</string>
     <string name="web_reader_loading_container_bottom_sheet_notebook">筆記本</string>
+    <string name="web_reader_loading_container_bottom_sheet_edit_info">编辑信息</string>
     <string name="web_reader_loading_container_bottom_sheet_open_link">開啟連結</string>
 
     <!-- OpenLinkView -->
@@ -177,6 +178,7 @@
     <string name="save_view_model_page_saved_error">儲存您的頁面時出錯</string>
 
     <!-- SavedItemContextMenu -->
+    <string name="saved_item_context_menu_action_edit_info">编辑信息</string>
     <string name="saved_item_context_menu_action_edit_labels">編輯標籤</string>
     <string name="saved_item_context_menu_action_archive">封存</string>
     <string name="saved_item_context_menu_action_unarchive">取消封存</string>

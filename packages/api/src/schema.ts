@@ -1111,6 +1111,7 @@ const schema = gql`
     FAILED
     DELETED
     ARCHIVED
+    CONTENT_NOT_FETCHED
   }
 
   type ArticleSavingRequest {
@@ -1254,6 +1255,9 @@ const schema = gql`
     confirmationCode: String
     createdAt: Date!
     subscriptionCount: Int!
+    folder: String!
+    name: String
+    description: String
   }
 
   type NewsletterEmailsSuccess {
@@ -1265,6 +1269,12 @@ const schema = gql`
   }
 
   union NewsletterEmailsResult = NewsletterEmailsSuccess | NewsletterEmailsError
+
+  input CreateNewsletterEmailInput {
+    name: String
+    description: String
+    folder: String
+  }
 
   # Mutation: CreateNewsletterEmail
   enum CreateNewsletterEmailErrorCode {
@@ -1446,6 +1456,7 @@ const schema = gql`
     createdAt: Date
     position: Int
     internal: Boolean
+    source: String
   }
 
   type LabelsSuccess {
@@ -1532,6 +1543,7 @@ const schema = gql`
     pageId: ID!
     labelIds: [ID!]
     labels: [CreateLabelInput!]
+    source: String
   }
 
   union SetLabelsResult = SetLabelsSuccess | SetLabelsError
@@ -1672,6 +1684,8 @@ const schema = gql`
     updatedAt: Date
     isPrivate: Boolean
     autoAddToLibrary: Boolean
+    fetchContent: Boolean!
+    folder: String!
   }
 
   enum SubscriptionStatus {
@@ -2575,6 +2589,8 @@ const schema = gql`
     subscriptionType: SubscriptionType
     isPrivate: Boolean
     autoAddToLibrary: Boolean
+    fetchContent: Boolean
+    folder: String
   }
 
   input UpdateSubscriptionInput {
@@ -2587,6 +2603,8 @@ const schema = gql`
     scheduledAt: Date
     isPrivate: Boolean
     autoAddToLibrary: Boolean
+    fetchContent: Boolean
+    folder: String
   }
 
   union UpdateSubscriptionResult =
@@ -2704,6 +2722,45 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union FetchContentResult = FetchContentSuccess | FetchContentError
+
+  type FetchContentSuccess {
+    success: Boolean!
+  }
+
+  type FetchContentError {
+    errorCodes: [FetchContentErrorCode!]!
+  }
+
+  enum FetchContentErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input UpdateNewsletterEmailInput {
+    id: ID!
+    name: String
+    description: String
+    folder: String
+  }
+
+  union UpdateNewsletterEmailResult =
+      UpdateNewsletterEmailSuccess
+    | UpdateNewsletterEmailError
+
+  type UpdateNewsletterEmailSuccess {
+    newsletterEmail: NewsletterEmail!
+  }
+
+  type UpdateNewsletterEmailError {
+    errorCodes: [UpdateNewsletterEmailErrorCode!]!
+  }
+
+  enum UpdateNewsletterEmailErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2751,7 +2808,9 @@ const schema = gql`
     #   input: UpdateLinkShareInfoInput!
     # ): UpdateLinkShareInfoResult!
     setLinkArchived(input: ArchiveLinkInput!): ArchiveLinkResult!
-    createNewsletterEmail: CreateNewsletterEmailResult!
+    createNewsletterEmail(
+      input: CreateNewsletterEmailInput
+    ): CreateNewsletterEmailResult!
     deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
     saveUrl(input: SaveUrlInput!): SaveResult!
     savePage(input: SavePageInput!): SaveResult!
@@ -2809,6 +2868,10 @@ const schema = gql`
       input: UpdateSubscriptionInput!
     ): UpdateSubscriptionResult!
     moveToFolder(id: ID!, folder: String!): MoveToFolderResult!
+    fetchContent(id: ID!): FetchContentResult!
+    updateNewsletterEmail(
+      input: UpdateNewsletterEmailInput!
+    ): UpdateNewsletterEmailResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

@@ -1,36 +1,23 @@
-import android.util.Log
+package app.omnivore.omnivore.ui.settings
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.viewer
 import app.omnivore.omnivore.ui.auth.LoginViewModel
-import app.omnivore.omnivore.ui.settings.LogoutDialog
-import app.omnivore.omnivore.ui.settings.ManageAccountDialog
-import app.omnivore.omnivore.ui.settings.SettingsViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import io.intercom.android.sdk.Intercom
-import io.intercom.android.sdk.IntercomSpace
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

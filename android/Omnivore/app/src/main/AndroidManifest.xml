@@ -22,7 +22,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Omnivore">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,11 +52,6 @@
 
         <activity
             android:name=".ui.reader.WebReaderLoadingContainerActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Omnivore"/>
-
-        <activity
-            android:name=".ui.notebook.NotebookActivity"
             android:exported="true"
             android:theme="@style/Theme.Omnivore"/>
 
