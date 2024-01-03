@@ -62,6 +62,7 @@ export type ArticleAttributes = {
   readingProgressTopPercent?: number
   readingProgressAnchorIndex: number
   slug: string
+  folder: string
   savedByViewer?: boolean
   content: string
   highlights: Highlight[]
