@@ -86,8 +86,6 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
             Text(stringResource(R.string.web_reader_loading_container_error_msg))
           } else {
             WebReaderLoadingContainer(
-              requestID = requestID,
-              slug = slug,
               onLibraryIconTap = if (requestID != null) { { startMainActivity() } } else null,
               webReaderViewModel = viewModel,
               notebookViewModel = notebookViewModel,
@@ -115,23 +113,21 @@ class WebReaderLoadingContainerActivity: ComponentActivity() {
   }
 }
 
-enum class BottomSheetState(
-) {
-  NONE(),
-  PREFERENCES(),
-  NOTEBOOK(),
-  EDITNOTE(),
-  HIGHLIGHTNOTE(),
-  LABELS(),
-  LINK(),
-  EDIT_INFO(),
+enum class BottomSheetState {
+  NONE,
+  PREFERENCES,
+  NOTEBOOK,
+  EDITNOTE,
+  HIGHLIGHTNOTE,
+  LABELS,
+  LINK,
+  EDIT_INFO,
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
-                              onLibraryIconTap: (() -> Unit)? = null,
+fun WebReaderLoadingContainer(onLibraryIconTap: (() -> Unit)? = null,
                               webReaderViewModel: WebReaderViewModel,
                               notebookViewModel: NotebookViewModel,
                               labelsViewModel: LabelsViewModel,
@@ -158,7 +154,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
       articleContent = it.articleContent,
     )
     webReaderContent.styledContent()
-  } ?: null
+  }
 
 
   val modalBottomSheetState = rememberModalBottomSheetState(
@@ -206,13 +202,13 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     sheetContent = {
       when (bottomSheetState) {
         BottomSheetState.PREFERENCES -> {
-          BottomSheetUI(stringResource(R.string.web_reader_loading_container_bottom_sheet_reader_preferences)) {
+          BottomSheetUI {
             ReaderPreferencesView(webReaderViewModel)
           }
         }
         BottomSheetState.NOTEBOOK -> {
           webReaderParams?.let { params ->
-            BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_notebook)) {
+            BottomSheetUI {
               NotebookView(savedItemId = params.item.savedItemId, viewModel = notebookViewModel, onEditNote = {
                 notebookViewModel.highlightUnderEdit = it
                 webReaderViewModel.setBottomSheet(BottomSheetState.EDITNOTE)
@@ -261,7 +257,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           )
         }
         BottomSheetState.LABELS -> {
-          BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_notebook)) {
+          BottomSheetUI {
             LabelsSelectionSheetContent(
               labels = labels,
               labelsViewModel = labelsViewModel,
@@ -289,7 +285,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.EDIT_INFO -> {
-          BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_edit_info)) {
+          BottomSheetUI {
             EditInfoSheetContent(
               savedItemId = webReaderParams?.item?.savedItemId,
               title = webReaderParams?.item?.title,
@@ -311,7 +307,7 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
           }
         }
         BottomSheetState.LINK -> {
-          BottomSheetUI(title = stringResource(R.string.web_reader_loading_container_bottom_sheet_open_link)) {
+          BottomSheetUI {
             OpenLinkView(webReaderViewModel)
           }
         }
@@ -346,7 +342,6 @@ fun WebReaderLoadingContainer(slug: String? = null, requestID: String? = null,
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: (() -> Unit)? = null) {
   val context = LocalContext.current
@@ -365,7 +360,7 @@ fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: ((
     } else if (it.themeKey == "System" ) {
       Color(0xFFFFFFFF)
     } else {
-      Color(it.backgroundColor ?: 0xFFFFFFFF)
+      Color(it.backgroundColor)
     }
   } ?: Color(0xFFFFFFFF)
 
@@ -440,7 +435,7 @@ fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: ((
           webReaderParams?.let { params ->
             SavedItemContextMenu(
               context = context,
-              isExpanded = isMenuExpanded,
+              isExpanded = true,
               isArchived = params.item.isArchived,
               onDismiss = { isMenuExpanded = false },
               webReaderViewModel = webReaderViewModel,
@@ -458,9 +453,8 @@ fun ReaderTopAppBar(webReaderViewModel: WebReaderViewModel, onLibraryIconTap: ((
   )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
+fun BottomSheetUI(content: @Composable () -> Unit) {
   Box(
     modifier = Modifier
       .wrapContentHeight()
@@ -469,8 +463,7 @@ fun BottomSheetUI(title: String?, content: @Composable () -> Unit) {
       .background(Color.White)
       .statusBarsPadding()
   ) {
-    Scaffold(
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
       Box(modifier = Modifier.fillMaxSize()) {
         content()
       }

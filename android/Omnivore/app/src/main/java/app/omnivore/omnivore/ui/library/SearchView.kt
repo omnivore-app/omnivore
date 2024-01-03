@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -53,7 +52,7 @@ fun SearchView(
                             viewModel.actionsMenuItemLiveData.postValue(null)
                         }) {
                             Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Filled.ArrowBack,
+                                imageVector = Icons.Filled.ArrowBack,
                                 modifier = Modifier,
                                 contentDescription = "Back"
                             )
@@ -134,7 +133,6 @@ fun SearchView(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     val context = LocalContext.current
@@ -167,7 +165,6 @@ fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
         }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
     val context = LocalContext.current

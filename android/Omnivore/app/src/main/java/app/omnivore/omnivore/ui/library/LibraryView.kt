@@ -55,7 +55,6 @@ import app.omnivore.omnivore.ui.save.SaveViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LibraryView(
@@ -71,9 +70,8 @@ fun LibraryView(
   val showEditInfoSheet: Boolean by libraryViewModel.showEditInfoSheetLiveData.observeAsState(false)
 
   val coroutineScope = rememberCoroutineScope()
-  val modalBottomSheetState = rememberModalBottomSheetState(
-    ModalBottomSheetValue.Hidden,
-    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
+  val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden,
+    confirmValueChange = { it != ModalBottomSheetValue.Hidden }
   )
 
   if (showLabelsSelectionSheet || showAddLinkSheet || showEditInfoSheet) {

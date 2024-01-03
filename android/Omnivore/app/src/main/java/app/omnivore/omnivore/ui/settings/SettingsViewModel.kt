@@ -29,8 +29,8 @@ class SettingsViewModel @Inject constructor(
   fun presentIntercom() {
     viewModelScope.launch {
       val viewer = networker.viewer()
-      viewer?.let { viewer ->
-        viewer?.intercomHash?.let { intercomHash ->
+      viewer?.let { v ->
+        v.intercomHash?.let { intercomHash ->
           Intercom.client().setUserHash(intercomHash)
         }
         Intercom.client().present(space = IntercomSpace.Messages)

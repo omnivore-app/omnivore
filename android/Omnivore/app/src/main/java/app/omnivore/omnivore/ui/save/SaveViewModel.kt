@@ -1,7 +1,5 @@
 package app.omnivore.omnivore.ui.save
 
-import android.content.ContentValues
-import android.util.Log
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +25,10 @@ import java.util.regex.Pattern
 import javax.inject.Inject
 
 enum class SaveState {
-  DEFAULT(),
-  SAVING(),
-  ERROR(),
-  SAVED()
+  DEFAULT,
+  SAVING,
+  ERROR,
+  SAVED
 }
 
 @HiltViewModel
