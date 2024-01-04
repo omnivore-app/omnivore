@@ -8,16 +8,16 @@ import { sqlClient } from './db'
 import pgformat from 'pg-format'
 import { v4 } from 'uuid'
 
-const hasStoredInDatabase = async (articleSlug: string) => {
+const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   const { rows } = await sqlClient.query(
-    'SELECT slug FROM omnivore.discover_feed_articles WHERE slug = $1',
-    [articleSlug],
+    'SELECT slug FROM omnivore.discover_feed_articles WHERE slug = $1 and feed_id = $2',
+    [articleSlug, feedId],
   )
   return rows && rows.length === 0
 }
 
 export const removeDuplicateArticles$ = mergeMap((x: OmnivoreArticle) =>
-  fromPromise(hasStoredInDatabase(x.slug)).pipe(
+  fromPromise(hasStoredInDatabase(x.slug, x.feedId)).pipe(
     filter(Boolean),
     map(() => x),
   ),

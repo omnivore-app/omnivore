@@ -106,7 +106,7 @@ export const parseRss = (feed: OmnivoreFeed) => (parsedXml: any) => {
           article.pubDate ?? article['dc:date'] ?? Date.now(),
         ),
         type: 'rss',
-        feedId: feed.title,
+        feedId: feed.id,
       }
     }),
   )

@@ -1,24 +1,18 @@
-import { authorized, getAbsoluteUrl } from '../../utils/helpers'
+import { authorized } from '../../utils/helpers'
 import {
   AddDiscoverFeedError,
   AddDiscoverFeedErrorCode,
   AddDiscoverFeedSuccess,
   DiscoverFeed,
-  Maybe,
   MutationAddDiscoverFeedArgs,
-  Scalars,
 } from '../../generated/graphql'
 import { appDataSource } from '../../data_source'
 import { QueryRunner } from 'typeorm'
 import axios from 'axios'
-import { saveUrl } from '../../services/save_url'
-import { userRepository } from '../../repository/user'
-import { v4 } from 'uuid'
-import { updateLibraryItem } from '../../services/library_item'
-import { LibraryItemState } from '../../entity/library_item'
 import { RSS_PARSER_CONFIG } from '../../utils/parser'
-import { parseHTML } from 'linkedom'
 import { XMLParser } from 'fast-xml-parser'
+import { EntityType } from '../../pubsub'
+import { v4 } from 'uuid'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -38,7 +32,7 @@ const extractAtomData = (
     subtitle?: string
     icon?: string
   },
-): DiscoverFeed => ({
+): Partial<DiscoverFeed> => ({
   description: feed.subtitle ?? '',
   title: feed.title ?? url,
   image: feed.icon,
@@ -56,10 +50,10 @@ const extractRssData = (
     }
     image: { url: string }
   },
-): DiscoverFeed => ({
+): Partial<DiscoverFeed> => ({
   description: parsedXml.channel?.description ?? '',
   title: parsedXml.channel.title ?? url,
-  image: parsedXml.image.url,
+  image: parsedXml.image?.url,
   link: url,
   type: 'rss',
 })
@@ -72,7 +66,7 @@ const handleExistingSubscription = async (
   // Add to existing, otherwise conflict.
   const existingSubscription = await queryRunner.query(
     'SELECT * FROM omnivore.discover_feed_subscription WHERE user_id = $1 and feed_id = $2',
-    [userId, feed.title],
+    [userId, feed.id],
   )
 
   if (existingSubscription.rows > 1) {
@@ -85,7 +79,7 @@ const handleExistingSubscription = async (
 
   const addSubscription = await queryRunner.query(
     'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($1, $2)',
-    [userId, feed.title],
+    [feed.id, userId],
   )
 
   return {
@@ -103,8 +97,11 @@ const addNewSubscription = async (
   const response = await axios.get(url, RSS_PARSER_CONFIG)
   const content = response.data
 
-  const contentType = response.headers['Content-Type']
-  const isXML = contentType?.includes('text/xml')
+  const contentType = response.headers['content-type']
+  const isXML =
+    contentType?.includes('text/rss+xml') ||
+    contentType?.includes('text/atom+xml') ||
+    contentType?.includes('application/xml')
 
   if (!isXML) {
     return {
@@ -123,7 +120,7 @@ const addNewSubscription = async (
 
   const feed =
     parsedFeed?.rss || parsedFeed['rdf:RDF']
-      ? extractRssData(url, parsedFeed)
+      ? extractRssData(url, parsedFeed.rss || parsedFeed['rdf:RDF'])
       : extractAtomData(url, parsedFeed.feed)
 
   if (!feed.title) {
@@ -133,32 +130,43 @@ const addNewSubscription = async (
     }
   }
 
+  const discoverFeedId = v4()
   await queryRunner.query(
-    'INSERT INTO omnivore.discover_feed(title, link, image, type, description) VALUES($1, $2, $3, $4, $5)',
-    [feed.title, feed.link, feed.image, feed.type, feed.description],
+    'INSERT INTO omnivore.discover_feed(id, title, link, image, type, description) VALUES($1, $2, $3, $4, $5)',
+    [
+      discoverFeedId,
+      feed.title,
+      feed.link,
+      feed.image,
+      feed.type,
+      feed.description,
+    ],
   )
 
   await queryRunner.query(
-    'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($1, $2)',
-    [userId, feed.title],
+    'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($2, $1)',
+    [userId, discoverFeedId],
   )
 
   await queryRunner.release()
-  return { feed }
+  return {
+    __typename: 'AddDiscoverFeedSuccess',
+    feed: { ...feed, id: discoverFeedId } as DiscoverFeed,
+  }
 }
 
-export const addDiscoveryFeed = authorized<
+export const addDiscoverFeedResolver = authorized<
   AddDiscoverFeedSuccess,
   AddDiscoverFeedError,
   MutationAddDiscoverFeedArgs
->(async (_, { input: { url } }, { uid, log }) => {
+>(async (_, { input: { url } }, { uid, log, pubsub }) => {
   try {
     const queryRunner = (await appDataSource
       .createQueryRunner()
       .connect()) as QueryRunner
 
     const existingFeed = (await queryRunner.query(
-      'SELECT title from omnivore.discover_feed where link = $1',
+      'SELECT id from omnivore.discover_feed where link = $1',
       [url],
     )) as DiscoverFeedRows
 
@@ -170,9 +178,18 @@ export const addDiscoveryFeed = authorized<
       )
     }
 
-    return await addNewSubscription(queryRunner, url, uid)
+    const result = await addNewSubscription(queryRunner, url, uid)
+    if (result.__typename == 'AddDiscoverFeedSuccess') {
+      await pubsub.entityCreated(
+        EntityType.RSS_FEED,
+        { feed: result.feed },
+        uid,
+      )
+    }
+
+    return result
   } catch (error) {
-    log.error('Error Getting Discovery Articles', error)
+    log.error('Error Getting Discover Articles', error)
 
     return {
       __typename: 'AddDiscoverFeedError',

@@ -1,31 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { theme } from '../../tokens/stitches.config'
-import { Button } from '../../elements/Button'
+import { HStack, SpanBox } from '../../../elements/LayoutPrimitives'
+import { theme } from '../../../tokens/stitches.config'
+import { Button } from '../../../elements/Button'
 
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
-import { PinnedSearch } from '../../../pages/settings/pinned-searches'
+import { Dropdown, DropdownOption } from '../../../elements/DropdownElements'
+import { MoreOptionsIcon } from '../../../elements/images/MoreOptionsIcon'
 import { useRouter } from 'next/router'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { DiscoverFeed } from "../../../../lib/networking/queries/useGetDiscoverFeeds"
 
-type PinnedButtonsProps = {
-  items: PinnedSearch[]
-  searchTerm: string | undefined
-  applySearchQuery: (searchQuery: string) => void
+type PinnedFeedsProps = {
+  items: DiscoverFeed[]
+  selected: string
+  applyFeedFilter: (feedFilter: string) => void
 }
 
-export const PinnedButtons = (props: PinnedButtonsProps): JSX.Element => {
+export const PinnedFeeds = (props: PinnedFeedsProps): JSX.Element => {
   const router = useRouter()
-  const [hidePinnedSearches, setHidePinnedSearches] = usePersistedState({
-    key: '--library-hide-pinned-searches',
-    initialValue: false,
-    isSessionStorage: false,
-  })
-
-  if (hidePinnedSearches || !props.items.length) {
-    return <></>
-  }
 
   return (
     <HStack
@@ -38,22 +27,22 @@ export const PinnedButtons = (props: PinnedButtonsProps): JSX.Element => {
         pb: '0px',
         gap: '10px',
         bg: 'transparent',
-        overflowX: 'scroll',
+        // overflowX: 'scroll',
       }}
     >
-      {props.items.map((item) => {
+      {[{ title: "All Feeds", id:"All Feeds" }, { title: "Community", id: "Community" },  ...props.items.map(({visibleName, id}) => ({ title: visibleName, id }))].map((it) => {
         const style =
-          item.search == props.searchTerm ? 'ctaPill' : 'ctaPillUnselected'
+          it.id == props.selected ? 'ctaPill' : 'ctaPillUnselected'
         return (
           <Button
-            key={item.search}
+            key={it.id}
             style={style}
             onClick={(event) => {
-              props.applySearchQuery(item.search)
+              props.applyFeedFilter(it.id)
               event.preventDefault()
             }}
           >
-            {item.name}
+            {it.title}
           </Button>
         )
       })}
@@ -86,16 +75,11 @@ export const PinnedButtons = (props: PinnedButtonsProps): JSX.Element => {
       >
         <DropdownOption
           onSelect={() => {
-            router.push('/settings/pinned-searches')
+            router.push('/settings/discover-feeds')
           }}
           title="Edit"
         />
-        <DropdownOption
-          onSelect={() => {
-            setHidePinnedSearches(true)
-          }}
-          title="Hide"
-        />
+
       </Dropdown>
     </HStack>
   )

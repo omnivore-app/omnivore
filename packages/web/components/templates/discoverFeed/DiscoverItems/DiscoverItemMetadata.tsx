@@ -1,9 +1,9 @@
 import { HStack } from '../../../elements/LayoutPrimitives'
 import { timeAgo } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
+import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 
 type DiscoverItemMetadataProps = {
-  item: DiscoverItem
+  item: DiscoverFeedItem
 }
 
 export function DiscoverItemMetadata(

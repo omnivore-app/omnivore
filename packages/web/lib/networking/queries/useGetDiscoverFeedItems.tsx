@@ -3,6 +3,8 @@ import { publicGqlFetcher } from "../networkHelpers"
 import { useEffect, useState } from "react"
 import { TopicTabData } from "../../../components/templates/discoverFeed/DiscoverContainer"
 
+const OMNIVORE_COMMUNITY_ID = "8217d320-aa5a-11ee-bbfe-a7cde356f524";
+
 export type DiscoverFeedItem = {
   id: string,
   feed: string,
@@ -42,7 +44,7 @@ export function useGetDiscoverFeedItems(
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(0);
 
-  const fixedSelectedFeed = selectedFeed == "Community" ? "OMNIVORE_COMMUNITY" : selectedFeed
+  const fixedSelectedFeed = selectedFeed == "Community" ? OMNIVORE_COMMUNITY_ID : selectedFeed
   const callDiscoverItems = () => {
     const query = gql`
     query GetDiscoverFeedItems {

@@ -1,4 +1,12 @@
-import { concatMap, merge, mergeAll, mergeMap, Observable, timer } from 'rxjs'
+import {
+  concatMap,
+  merge,
+  mergeAll,
+  mergeMap,
+  Observable,
+  tap,
+  timer,
+} from 'rxjs'
 import axios from 'axios'
 import { fromArrayLike, fromPromise } from 'rxjs/internal/observable/innerFrom'
 import { OmnivoreArticle } from '../../../../types/OmnivoreArticle'
@@ -41,5 +49,8 @@ export const rss$ = (() => {
     finalize(() => (lastUpdatedTime = new Date())),
   )
 
-  return timer(0, REFRESH_DELAY_MS).pipe(concatMap(() => allRss$))
+  return timer(0, REFRESH_DELAY_MS).pipe(
+    tap((e) => console.log('Refreshing Stream')),
+    concatMap(() => allRss$),
+  )
 })()

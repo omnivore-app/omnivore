@@ -10,8 +10,8 @@ import {
 } from 'phosphor-react'
 import { timeZone, locale } from '../../../../lib/dateFormatting'
 import React from 'react'
-import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 
 type DiscoverHoverActionsProps = {
   viewer?: UserBasicData
@@ -21,14 +21,14 @@ type DiscoverHoverActionsProps = {
     timezone: string,
     locale: string
   ) => Promise<SaveDiscoverArticleOutput | undefined>
-  item: DiscoverItem
+  item: DiscoverFeedItem
   setSavedId: (slug: string) => void
   savedId?: string
 
   setSavedUrl: (url: string) => void
   savedUrl?: string
 
-  deleteDiscoverItem: (item: DiscoverItem) => Promise<void>,
+  deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>,
 }
 
 export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {

@@ -1,4 +1,5 @@
 export type OmnivoreFeed = {
+  id: string
   description?: string
   image?: string
   link: string

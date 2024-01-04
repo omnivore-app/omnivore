@@ -1,58 +1,47 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
-import {
-  Subscription,
-  SubscriptionType,
-} from '../queries/useGetSubscriptionsQuery'
+import { DiscoverFeed } from '../queries/useGetDiscoverFeeds'
 
-type SubscribeResult = {
-  subscribe: Subscribe
+type DiscoverFeedResult = {
+  feed?: DiscoverFeed
+  errorCodes?: DiscoverFeedErrorCode[]
 }
 
-enum SubscribeErrorCode {
+enum DiscoverFeedErrorCode {
   BadRequest = 'BAD_REQUEST',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED',
-  AlreadySubscribed = 'ALREADY_SUBSCRIBED',
+  Conflict = 'CONFLICT',
 }
 
-type Subscribe = {
-  subscriptions?: Subscription[]
-  errorCodes?: SubscribeErrorCode[]
+export type AddDiscoverFeedInput = {
+  url: string
 }
 
-export type SubscribeMutationInput = {
-  name?: string
-  url?: string
-  subscriptionType?: SubscriptionType
-}
-
-export async function subscribeMutation(
-  input: SubscribeMutationInput
-): Promise<SubscribeResult> {
+export async function addDiscoverFeedMutation(
+  input: AddDiscoverFeedInput,
+): Promise<DiscoverFeedResult> {
   const mutation = gql`
-    mutation Subscribe($input: SubscribeInput!) {
-      subscribe(input: $input) {
-        ... on SubscribeSuccess {
-          subscriptions {
-            id
+    mutation AddDiscoverFeed($input: AddDiscoverFeedInput!) {
+      addDiscoverFeed(input: $input) {
+        ... on AddDiscoverFeedSuccess {
+          feed {
+            description
           }
         }
-        ... on SubscribeError {
+        ... on AddDiscoverFeedError {
           errorCodes
         }
       }
     }
   `
   try {
-    const data = (await gqlFetcher(mutation, { input })) as SubscribeResult
+    const data = (await gqlFetcher(mutation, { input })) as DiscoverFeedResult
     return data
   } catch (error) {
     console.log('subscribeMutation error', error)
     return {
-      subscribe: {
-        errorCodes: [SubscribeErrorCode.BadRequest],
-      },
+      errorCodes: [DiscoverFeedErrorCode.BadRequest],
     }
   }
 }

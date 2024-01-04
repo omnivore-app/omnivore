@@ -2,14 +2,14 @@ import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../../../lib/networking/queries/useGetViewerQuery'
 import { DiscoverGridCard } from './DiscoverItemGridCard'
 import { DiscoverItemListCard } from './DiscoverItemListCard'
-import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { deleteDiscoverArticleMutation } from "../../../../lib/networking/mutations/deleteDiscoverArticle"
 import { showErrorToast, showSuccessToast } from "../../../../lib/toastHelpers"
 import { useState } from "react"
+import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 
 export type DiscoverItemCardProps = {
-  item: DiscoverItem
+  item: DiscoverFeedItem
   layout: LayoutType
   viewer?: UserBasicData
   isHovered?: boolean
@@ -21,7 +21,7 @@ export type DiscoverItemCardProps = {
 }
 
 export type DiscoverItemSubCardProps = DiscoverItemCardProps & {
-  deleteDiscoverItem: (item: DiscoverItem) => Promise<void>,
+  deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>,
   savedId?: string,
   setSavedId: (id: string | undefined) => void
   savedUrl?: string,
@@ -33,7 +33,7 @@ export type DiscoverItemSubCardProps = DiscoverItemCardProps & {
 export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element {
   const [savedId, setSavedId] = useState(props.item.savedId)
   const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
-  const deleteDiscoverItem = (item: DiscoverItem) : Promise<void> => {
+  const deleteDiscoverItem = (item: DiscoverFeedItem) : Promise<void> => {
     return deleteDiscoverArticleMutation({ discoverArticleId: item.id })
       .then(it => {
 

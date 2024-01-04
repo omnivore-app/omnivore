@@ -2,12 +2,11 @@ import { Box } from '../../../elements/LayoutPrimitives'
 import { UserBasicData } from '../../../../lib/networking/queries/useGetViewerQuery'
 import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { DiscoverItemCard } from './DiscoverItemCard'
-import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
-import { useFetchMore } from "../../../../lib/hooks/useFetchMoreScroll"
+import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 
 type DiscoverItemsProps = {
-  items: DiscoverItem[]
+  items: DiscoverFeedItem[]
   layout: LayoutType
   viewer?: UserBasicData
   handleLinkSubmission: (

@@ -2,24 +2,24 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
 export type DeleteDiscoverArticleInput = {
-  discoveryArticleId: string
+  discoverArticleId: string
 }
 
-export type DeleteDiscoveryArticleOutput = {
-  deleteDiscoveryArticle: { id: string }
+export type DeleteDiscoverArticleOutput = {
+  deleteDiscoverArticle: { id: string }
 }
 
 export async function deleteDiscoverArticleMutation(
-  input: DeleteDiscoverArticleInput
-): Promise<DeleteDiscoveryArticleOutput | undefined> {
+  input: DeleteDiscoverArticleInput,
+): Promise<DeleteDiscoverArticleOutput | undefined> {
   const mutation = gql`
-    mutation DeleteDiscoveryArticle($input: DeleteDiscoveryArticleInput!) {
-      deleteDiscoveryArticle(input: $input) {
-        ... on DeleteDiscoveryArticleSuccess {
+    mutation DeleteDiscoverArticle($input: DeleteDiscoverArticleInput!) {
+      deleteDiscoverArticle(input: $input) {
+        ... on DeleteDiscoverArticleSuccess {
           id
         }
 
-        ... on DeleteDiscoveryArticleError {
+        ... on DeleteDiscoverArticleError {
           errorCodes
         }
       }
@@ -28,7 +28,7 @@ export async function deleteDiscoverArticleMutation(
 
   const data = (await gqlFetcher(mutation, {
     input,
-  })) as DeleteDiscoveryArticleOutput
+  })) as DeleteDiscoverArticleOutput
 
   return data
 }

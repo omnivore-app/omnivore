@@ -26,7 +26,6 @@ import { DiscoverItemCardProps, DiscoverItemSubCardProps } from "./DiscoverItemC
 import { DiscoverItemMetadata } from './DiscoverItemMetadata'
 import { DiscoverHoverActions } from './DiscoverHoverActions'
 import { CheckCircle, Circle } from 'phosphor-react'
-import { DiscoverItem } from "../../../../lib/networking/queries/useGetDiscoverItems"
 
 export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)

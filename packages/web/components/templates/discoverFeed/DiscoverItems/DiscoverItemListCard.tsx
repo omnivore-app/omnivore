@@ -27,7 +27,6 @@ import { CheckCircle, Circle } from 'phosphor-react'
 import { DiscoverItemCardProps, DiscoverItemSubCardProps } from "./DiscoverItemCard"
 import { DiscoverItemMetadata } from './DiscoverItemMetadata'
 import { DiscoverHoverActions } from './DiscoverHoverActions'
-import { DiscoverItem } from "../../../../lib/networking/queries/useGetDiscoverItems"
 
 export function DiscoverItemListCard(
   props: DiscoverItemSubCardProps

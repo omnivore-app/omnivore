@@ -3,14 +3,14 @@ import { Toaster } from 'react-hot-toast'
 import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../../../lib/networking/queries/useGetViewerQuery'
 import { DiscoverItems } from '../DiscoverItems/DiscoverItems'
-import { DiscoverItem } from '../../../../lib/networking/queries/useGetDiscoverItems'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { HeaderText } from "../DiscoverHeader/HeaderText"
 import React from "react"
 import { TopicTabData } from "../DiscoverContainer"
+import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 
 type DiscoverItemFeedProps = {
-  items: DiscoverItem[]
+  items: DiscoverFeedItem[]
   layout: LayoutType
   viewer?: UserBasicData
 

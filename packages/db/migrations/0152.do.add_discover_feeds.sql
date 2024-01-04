@@ -3,24 +3,26 @@
 -- Description: Add Discover Feed Tables, including counts.
 
 CREATE TABLE omnivore.discover_feed(
-    title text PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
+    title text NOT NULL,
     link text NOT NULL,
+    UNIQUE (link),
     description text,
     type varchar(4) NOT NULL, -- RSS or ATOM
     freq integer NOT NULL DEFAULT 60,
-    image text,
-    visible_name text
+    image text
 );
+
+INSERT INTO omnivore.discover_feed(id, title, link, type) VALUES('8217d320-aa5a-11ee-bbfe-a7cde356f524', 'OMNIVORE_COMMUNITY', 'OMNIVORE_COMMUNITY', 'COMM');
 
 CREATE TABLE omnivore.discover_feed_subscription(
-   feed_id text NOT NULL REFERENCES omnivore.discover_feed(title) ON DELETE CASCADE,
-   user_id uuid NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE
+   feed_id uuid NOT NULL REFERENCES omnivore.discover_feed(id) ON DELETE CASCADE,
+   user_id uuid NOT NULL REFERENCES omnivore.user(id) ON DELETE CASCADE,
+   visible_name text
 );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.discover_feed to omnivore_user;
+GRANT SELECT, INSERT ON omnivore.discover_feed to omnivore_user;
 GRANT SELECT, INSERT, UPDATE, DELETE ON omnivore.discover_feed_subscription to omnivore_user;
-
-
 
 CREATE TABLE omnivore.discover_topics (
     name text PRIMARY KEY NOT NULL,
@@ -125,7 +127,7 @@ INSERT INTO omnivore.discover_topic_embedding_link (id, discover_topic_name, emb
 
 CREATE TABLE omnivore.discover_feed_articles (
     id uuid PRIMARY KEY,
-    feed_id text NOT NULL REFERENCES omnivore.discover_feed(title),
+    feed_id uuid NOT NULL REFERENCES omnivore.discover_feed(id) ON DELETE CASCADE,
     title text NOT NULL,
     slug text NOT NULL,
     description text,
@@ -160,3 +162,39 @@ CREATE TABLE omnivore.discover_feed_article_topic_link (
 GRANT SELECT ON omnivore.discover_feed_article_topic_link to omnivore_user;
 
 
+INSERT INTO omnivore.discover_feed
+
+
+INSERT INTO omnivore.discover_feed (id, title, link, description, type) VALUES('dacd3088-aadb-11ee-bbfe-5f5fa18779ea', 'ArsTechnica - All', 'https://feeds.arstechnica.com/arstechnica/index', 'All Stories from Ars Technica', 'rss');
+INSERT INTO omnivore.discover_feed (id, title, link, description, type) VALUES('405eb048-aadc-11ee-bbfe-ff801479b901', 'Wired', 'https://www.wired.com/feed/rss', 'The latest from www.wired.com', 'rss');
+
+
+INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name)
+SELECT id, 'dacd3088-aadb-11ee-bbfe-5f5fa18779ea', 'ArsTechnica'
+FROM omnivore.user
+ON CONFLICT DO NOTHING;
+
+
+INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name)
+SELECT id, '405eb048-aadc-11ee-bbfe-ff801479b901', 'Wired'
+FROM omnivore.user
+ON CONFLICT DO NOTHING;
+
+
+BEGIN;
+
+-- Create a trigger to Insert Default Feeds into Subscriptions on user create
+CREATE OR REPLACE FUNCTION omnivore.create_discover_feed_subscription()
+    RETURNS trigger AS $$
+    BEGIN
+        INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name) VALUES(NEW.id, 'dacd3088-aadb-11ee-bbfe-5f5fa18779ea', 'ArsTechnica');
+        INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name) VALUES(NEW.id, '405eb048-aadc-11ee-bbfe-ff801479b901', 'Wired');
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER insert_discover_feed_new_user
+    AFTER INSERT ON omnivore.user
+    FOR EACH ROW EXECUTE PROCEDURE omnivore.create_discover_feed_subscription();
+
+COMMIT;

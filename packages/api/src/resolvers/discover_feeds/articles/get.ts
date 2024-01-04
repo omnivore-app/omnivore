@@ -1,13 +1,14 @@
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../../utils/helpers'
 import {
-  GetDiscoveryArticleErrorCode,
-  GetDiscoveryFeedArticleSuccess,
-  GetDiscoveryFeedArticleError,
-  QueryGetDiscoveryFeedArticlesArgs,
-  GetDiscoveryFeedArticleErrorCode,
-} from '../../generated/graphql'
-import { appDataSource } from '../../data_source'
+  GetDiscoverFeedArticleSuccess,
+  GetDiscoverFeedArticleError,
+  QueryGetDiscoverFeedArticlesArgs,
+  GetDiscoverFeedArticleErrorCode,
+} from '../../../generated/graphql'
+import { appDataSource } from '../../../data_source'
 import { QueryRunner } from 'typeorm'
+
+const COMMUNITY_FEED_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
 
 type DiscoverFeedArticleDBRows = {
   rows: {
@@ -41,11 +42,12 @@ const getPopularTopics = (
     `
       SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0) as popularity_score, article_save_id, article_save_url
       FROM omnivore.omnivore.discover_feed_articles 
-      LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_save_link group by discover_article_id) sl on id=sl.article_id
-      LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
+      LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
+      LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
-      AND feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id= $1) 
-      ${feedId != null ? `AND feed_id = $4` : ''}
+      AND (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')       ${
+        feedId != null ? `AND feed_id = $4` : ''
+      }
       ORDER BY popularity_score DESC
       LIMIT $2 OFFSET $3
       `,
@@ -70,7 +72,7 @@ const getAllTopics = (
       FROM omnivore.omnivore.discover_feed_articles 
       LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
       LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
-      WHERE feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id= $1) 
+      WHERE (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}') 
       ${feedId != null ? `AND feed_id = $4` : ''}
       ORDER BY published_at DESC
       LIMIT $2 OFFSET $3
@@ -81,13 +83,13 @@ const getAllTopics = (
 
 const getTopicInformation = (
   queryRunner: QueryRunner,
-  discoveryTopicId: string,
+  discoverTopicId: string,
   uid: string,
   after: string,
   amt: number,
   feedId: string | null = null,
 ): Promise<DiscoverFeedArticleDBRows> => {
-  const params = [uid, discoveryTopicId, amt + 1, Number(after)]
+  const params = [uid, discoverTopicId, amt + 1, Number(after)]
   if (feedId) {
     params.push(feedId)
   }
@@ -99,7 +101,7 @@ const getTopicInformation = (
       LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
       LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE discover_topic_name=$2
-      AND feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) 
+      AND (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')  
       ${feedId != null ? `AND feed_id = $5` : ''}
       ORDER BY published_at DESC
       LIMIT $3 OFFSET $4
@@ -108,11 +110,11 @@ const getTopicInformation = (
   ) as Promise<DiscoverFeedArticleDBRows>
 }
 
-export const getDiscoveryFeedArticlesResolver = authorized<
-  GetDiscoveryFeedArticleSuccess,
-  GetDiscoveryFeedArticleError,
-  QueryGetDiscoveryFeedArticlesArgs
->(async (_, { discoveryTopicId, feedId, first, after }, { uid, log }) => {
+export const getDiscoverFeedArticlesResolver = authorized<
+  GetDiscoverFeedArticleSuccess,
+  GetDiscoverFeedArticleError,
+  QueryGetDiscoverFeedArticlesArgs
+>(async (_, { discoverTopicId, feedId, first, after }, { uid, log }) => {
   try {
     const startCursor: string = after || ''
     const firstAmnt = Math.min(first || 10, 100) // limit to 100 items
@@ -123,18 +125,18 @@ export const getDiscoveryFeedArticlesResolver = authorized<
 
     const { rows: topics } = (await queryRunner.query(
       `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
-      [discoveryTopicId],
+      [discoverTopicId],
     )) as { rows: unknown[] }
 
     if (topics.length == 0) {
       return {
-        __typename: 'GetDiscoveryFeedArticleError',
-        errorCodes: [GetDiscoveryFeedArticleErrorCode.Unauthorized], // TODO - no.
+        __typename: 'GetDiscoverFeedArticleError',
+        errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized], // TODO - no.
       }
     }
 
     let discoverArticles: DiscoverFeedArticleDBRows = { rows: [] }
-    if (discoveryTopicId === 'Popular') {
+    if (discoverTopicId === 'Popular') {
       discoverArticles = await getPopularTopics(
         queryRunner,
         uid,
@@ -142,7 +144,7 @@ export const getDiscoveryFeedArticlesResolver = authorized<
         firstAmnt,
         feedId ?? null,
       )
-    } else if (discoveryTopicId === 'All') {
+    } else if (discoverTopicId === 'All') {
       discoverArticles = await getAllTopics(
         queryRunner,
         uid,
@@ -153,7 +155,7 @@ export const getDiscoveryFeedArticlesResolver = authorized<
     } else {
       discoverArticles = await getTopicInformation(
         queryRunner,
-        discoveryTopicId,
+        discoverTopicId,
         uid,
         startCursor,
         firstAmnt,
@@ -164,7 +166,7 @@ export const getDiscoveryFeedArticlesResolver = authorized<
     await queryRunner.release()
 
     return {
-      __typename: 'GetDiscoveryFeedArticleSuccess',
+      __typename: 'GetDiscoverFeedArticleSuccess',
       discoverArticles: discoverArticles.rows.slice(0, firstAmnt).map((it) => ({
         author: it.author,
         id: it.id,
@@ -178,7 +180,7 @@ export const getDiscoveryFeedArticlesResolver = authorized<
         saves: it.saves,
         savedLinkUrl: it.article_save_url,
         savedId: it.article_save_id,
-        __typename: 'DiscoveryFeedArticle',
+        __typename: 'DiscoverFeedArticle',
         siteName: it.url,
       })),
       pageInfo: {
@@ -193,11 +195,11 @@ export const getDiscoveryFeedArticlesResolver = authorized<
       },
     }
   } catch (error) {
-    log.error('Error Getting Discovery Feed Articles', error)
+    log.error('Error Getting Discover Feed Articles', error)
 
     return {
-      __typename: 'GetDiscoveryFeedArticleError',
-      errorCodes: [GetDiscoveryFeedArticleErrorCode.Unauthorized],
+      __typename: 'GetDiscoverFeedArticleError',
+      errorCodes: [GetDiscoverFeedArticleErrorCode.Unauthorized],
     }
   }
 })
