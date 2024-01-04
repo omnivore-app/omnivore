@@ -367,51 +367,59 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         ToolbarItemGroup(placement: .barTrailing) {
-          if prefersListLayout {
+          if isEditMode == .active {
+            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+          } else {
+            if prefersListLayout {
+              Button(
+                action: { isEditMode = isEditMode == .active ? .inactive : .active },
+                label: {
+                  Image
+                    .selectMultiple
+                    .foregroundColor(Color.toolbarItemForeground)
+                }
+              ).buttonStyle(.plain)
+                .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+            }
+            if enableGrid {
+              Button(
+                action: { prefersListLayout.toggle() },
+                label: {
+                  Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                    .foregroundColor(Color.toolbarItemForeground)
+                }
+              ).buttonStyle(.plain)
+                .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+            }
+
             Button(
-              action: { isEditMode = isEditMode == .active ? .inactive : .active },
+              action: {
+                if viewModel.currentFolder == "inbox" {
+                  showAddLinkView = true
+                } else if viewModel.currentFolder == "following" {
+                  viewModel.showAddFeedView = true
+                }
+              },
+              label: {
+                Image.addLink
+                  .foregroundColor(Color.toolbarItemForeground)
+              }
+            ).buttonStyle(.plain)
+              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+
+            Button(
+              action: {
+                searchPresented = true
+                isEditMode = .inactive
+              },
               label: {
                 Image
-                  .selectMultiple
+                  .magnifyingGlass
                   .foregroundColor(Color.toolbarItemForeground)
               }
             ).buttonStyle(.plain)
+              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
           }
-          if enableGrid {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                  .foregroundColor(Color.toolbarItemForeground)
-              }
-            ).buttonStyle(.plain)
-          }
-
-          Button(
-            action: {
-              if viewModel.currentFolder == "inbox" {
-                showAddLinkView = true
-              } else if viewModel.currentFolder == "following" {
-                viewModel.showAddFeedView = true
-              }
-            },
-            label: {
-              Image.addLink
-                .foregroundColor(Color.toolbarItemForeground)
-            }
-          ).buttonStyle(.plain)
-
-          Button(
-            action: {
-              searchPresented = true
-              isEditMode = .inactive
-            },
-            label: {
-              Image
-                .magnifyingGlass
-                .foregroundColor(Color.toolbarItemForeground)
-            }
-          ).buttonStyle(.plain)
         }
 
         ToolbarItemGroup(placement: .bottomBar) {
@@ -419,24 +427,20 @@ struct AnimatingCellHeight: AnimatableModifier {
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image(systemName: "trash") })
-              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
-                dim[HorizontalAlignment.center]
-              })
-
-            Button(action: {
-              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
-              isEditMode = .inactive
-            }, label: { Image(systemName: "archivebox") })
-              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
-                dim[HorizontalAlignment.center]
-              })
+            }, label: { Image.toolbarTrash })
+              .disabled(selection.count < 1)
+              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
 
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
 
-            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+            Button(action: {
+              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
+              isEditMode = .inactive
+            }, label: { Image.toolbarArchive })
+              .disabled(selection.count < 1)
+              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
           }
         }
       }

@@ -7,7 +7,8 @@ let logger = Logger(subsystem: "app.omnivore", category: "models")
 /// An `NSPersistentContainer` subclass that lives in the `Models` package so that
 /// the data model is looked for in the same package bundle (rather than the main bundle)
 public class PersistentContainer: NSPersistentContainer {
-  public static var DatabaseFile = "store.sqlite"
+  public static var DatabaseVersion = "002"
+  public static var DatabaseFile = "store-v\(DatabaseVersion).sqlite"
 
   public static func path() -> URL? {
     // Store the sqlite file in the app group container.

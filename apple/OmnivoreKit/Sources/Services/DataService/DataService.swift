@@ -53,23 +53,19 @@ public final class DataService: ObservableObject {
   }
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
-    if Self.isFirstTimeRunningNewAppBuild() {
-      Self.deleteLocalStorage()
-    }
-
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
-    self.backgroundContext = persistentContainer.newBackgroundContext()
-
-    backgroundContext.automaticallyMergesChangesFromParent = true
-    backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
 
     persistentContainer.loadPersistentStores { _, error in
       if let error = error {
         fatalError("Core Data store failed to load with error: \(error)")
       }
     }
+    self.backgroundContext = persistentContainer.newBackgroundContext()
+
+    backgroundContext.automaticallyMergesChangesFromParent = true
+    backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
   }
 
   public func cleanupDeletedItems(in context: NSManagedObjectContext) {
@@ -197,6 +193,7 @@ public final class DataService: ObservableObject {
       }
     } catch {
       print(error.localizedDescription)
+      print("ERROR: ", error)
     }
   }
 
