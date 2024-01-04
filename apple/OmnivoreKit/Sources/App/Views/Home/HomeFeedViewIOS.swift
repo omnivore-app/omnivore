@@ -376,6 +376,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .foregroundColor(Color.toolbarItemForeground)
               }
             ).buttonStyle(.plain)
+              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
           }
           if enableGrid {
             Button(
@@ -385,6 +386,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .foregroundColor(Color.toolbarItemForeground)
               }
             ).buttonStyle(.plain)
+              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
           }
 
           Button(
@@ -400,6 +402,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 .foregroundColor(Color.toolbarItemForeground)
             }
           ).buttonStyle(.plain)
+            .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
 
           Button(
             action: {
@@ -412,6 +415,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 .foregroundColor(Color.toolbarItemForeground)
             }
           ).buttonStyle(.plain)
+            .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
         }
 
         ToolbarItemGroup(placement: .bottomBar) {
@@ -419,18 +423,14 @@ struct AnimatingCellHeight: AnimatableModifier {
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image(systemName: "trash") })
-              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
-                dim[HorizontalAlignment.center]
-              })
+            }, label: { Image.toolbarTrash })
+              .padding(.horizontal, 10)
 
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image(systemName: "archivebox") })
-              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
-                dim[HorizontalAlignment.center]
-              })
+            }, label: { Image.toolbarArchive.padding(.top, 4) })
+              .padding(.horizontal, 10)
 
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
