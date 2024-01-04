@@ -643,8 +643,7 @@ export const saveArticleReadingProgressResolver = authorized<
         uid,
         readingProgressPercent,
         readingProgressTopPercent,
-        readingProgressAnchorIndex,
-        pubsub
+        readingProgressAnchorIndex
       )
       if (!updatedItem) {
         return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
