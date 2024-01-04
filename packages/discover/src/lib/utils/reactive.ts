@@ -1,4 +1,5 @@
 import {
+  catchError,
   concatMap,
   delay,
   EMPTY,
@@ -6,8 +7,8 @@ import {
   MonoTypeOperatorFunction,
   Observable,
   of,
+  OperatorFunction,
   pipe,
-  tap,
   timer,
 } from 'rxjs'
 import { filter, retry } from 'rxjs/operators'
@@ -19,19 +20,39 @@ export const exponentialBackOff = <T>(
 ): MonoTypeOperatorFunction<T> =>
   retry({
     count,
-    delay: (error, retryIndex) => {
-      console.log('Backing off', retryIndex)
-      const interval = 200
+    delay: (error, retryIndex, interval = 200) => {
       const delay = Math.pow(2, retryIndex - 1) * interval
+      console.log(
+        `Backing off: attempt ${retryIndex}, Trying again in: ${delay}ms`,
+      )
+
       return timer(delay)
     },
+  })
+
+export const onErrorContinue = (...pipes: OperatorFunction<any, any>[]) =>
+  mergeMap((it: any) => {
+    let observer: Observable<any> = of(it)
+    pipes.forEach((pipe) => {
+      observer = observer.pipe(pipe)
+    })
+
+    return observer.pipe(
+      catchError((e) => {
+        console.error('Error caught in pipe, skipping', e)
+        return EMPTY
+      }),
+    )
   })
 
 export const rateLimiter = <T>(params: {
   resetLimit: number
   timeMs: number
-}) =>
-  concatMap((it: T) => of(it).pipe(delay(params.timeMs / params.resetLimit)))
+}) => {
+  return concatMap((it: T) => {
+    return of(it).pipe(delay(params.timeMs / params.resetLimit))
+  })
+}
 
 export function mapOrNull(project: (article: any) => Promise<OmnivoreArticle>) {
   return pipe(

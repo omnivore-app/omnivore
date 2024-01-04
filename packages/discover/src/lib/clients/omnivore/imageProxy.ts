@@ -3,6 +3,7 @@ import { map } from 'rxjs/operators'
 import { EmbeddedOmnivoreArticle } from '../../ai/embedding'
 import { env } from '../../../env'
 import { createImageProxyUrl } from '../../utils/imageproxy'
+import { onErrorContinue } from '../../utils/reactive'
 
 export const addImageToProxy = (imageUrl: string): string => {
   // For testing purposes, really.
@@ -13,13 +14,15 @@ export const addImageToProxy = (imageUrl: string): string => {
 }
 
 export const putImageInProxy$ = pipe(
-  map((it: EmbeddedOmnivoreArticle, _idx: number) => {
-    return {
-      ...it,
-      article: {
-        ...it.article,
-        image: it.article.image && addImageToProxy(it.article.image),
-      },
-    }
-  }),
+  onErrorContinue(
+    map((it: EmbeddedOmnivoreArticle, _idx: number) => {
+      return {
+        ...it,
+        article: {
+          ...it.article,
+          image: it.article.image && addImageToProxy(it.article.image),
+        },
+      }
+    }),
+  ),
 )

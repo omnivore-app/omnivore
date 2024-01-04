@@ -3,7 +3,7 @@ import { OmnivoreArticle } from '../../types/OmnivoreArticle'
 import { OperatorFunction, pipe, share } from 'rxjs'
 import { fromPromise } from 'rxjs/internal/observable/innerFrom'
 import { client } from '../clients/ai/client'
-import { rateLimiter } from '../utils/reactive'
+import { onErrorContinue, rateLimiter } from '../utils/reactive'
 import { Label } from '../../types/OmnivoreSchema'
 import { sqlClient } from '../store/db'
 import { toSql } from 'pgvector/pg'
@@ -87,10 +87,10 @@ const getEmbeddingForLabel = async (
   }
 }
 
-export const rateLimitEmbedding = () =>
-  pipe(share(), rateLimiter<any>({ resetLimit: 1000, timeMs: 60_000 }))
+export const rateLimitEmbedding = <T>() =>
+  pipe(share(), rateLimiter<T>({ resetLimit: 1000, timeMs: 60_000 }))
 
-export const rateLimiting = rateLimitEmbedding()
+export const rateLimiting = rateLimitEmbedding<any>()
 
 export const addEmbeddingToLabel: OperatorFunction<
   Label,
@@ -105,14 +105,18 @@ export const addEmbeddingToArticle$: OperatorFunction<
   EmbeddedOmnivoreArticle
 > = pipe(
   rateLimiting,
-  mergeMap((it: OmnivoreArticle) => fromPromise(getEmbeddingForArticle(it))),
+  onErrorContinue(
+    mergeMap((it: OmnivoreArticle) => fromPromise(getEmbeddingForArticle(it))),
+  ),
 )
 
 export const addTopicsToArticle$: OperatorFunction<
   EmbeddedOmnivoreArticle,
   EmbeddedOmnivoreArticle
 > = pipe(
-  mergeMap((it: EmbeddedOmnivoreArticle) =>
-    fromPromise(addTopicsToArticle(it)),
+  onErrorContinue(
+    mergeMap((it: EmbeddedOmnivoreArticle) =>
+      fromPromise(addTopicsToArticle(it)),
+    ),
   ),
 )

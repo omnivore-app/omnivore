@@ -15,6 +15,7 @@ import { filter, finalize } from 'rxjs/operators'
 import { getRssFeeds$ } from '../../../store/feeds'
 import { OmnivoreContentFeed, OmnivoreFeed } from '../../../../types/Feeds'
 import { newFeeds$ } from './newFeedIngestor'
+import { exponentialBackOff, onErrorContinue } from '../../../utils/reactive'
 
 const REFRESH_DELAY_MS = 3_600_000
 const getRssFeed = async (
@@ -28,7 +29,7 @@ const getRssFeed = async (
     }
   } catch (e) {
     console.error('Error retrieving RSS Feed Content', e)
-    return null
+    throw e
   }
 }
 
@@ -43,14 +44,26 @@ const rssToArticles = (site: OmnivoreFeed) =>
 export const rss$ = (() => {
   let lastUpdatedTime = new Date(0)
 
-  const allRss$ = merge(getRssFeeds$, newFeeds$).pipe(
-    mergeMap((it) => rssToArticles(it)),
+  const filteredRss$ = getRssFeeds$.pipe(
+    onErrorContinue(
+      mergeMap((it) => rssToArticles(it).pipe(exponentialBackOff(5))),
+    ),
     filter((it: OmnivoreArticle) => it.publishedAt > lastUpdatedTime),
-    finalize(() => (lastUpdatedTime = new Date())),
+    finalize(() => {
+      lastUpdatedTime = new Date()
+      console.log(lastUpdatedTime)
+    }),
   )
 
-  return timer(0, REFRESH_DELAY_MS).pipe(
-    tap((e) => console.log('Refreshing Stream')),
-    concatMap(() => allRss$),
+  return merge(
+    newFeeds$.pipe(
+      onErrorContinue(
+        mergeMap((it) => rssToArticles(it).pipe(exponentialBackOff(5))),
+      ),
+    ),
+    timer(0, REFRESH_DELAY_MS).pipe(
+      tap((e) => console.log('Refreshing Stream')),
+      concatMap(() => filteredRss$),
+    ),
   )
 })()

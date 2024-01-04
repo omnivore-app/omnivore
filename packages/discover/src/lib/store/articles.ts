@@ -7,6 +7,7 @@ import { fromPromise } from 'rxjs/internal/observable/innerFrom'
 import { sqlClient } from './db'
 import pgformat from 'pg-format'
 import { v4 } from 'uuid'
+import { onErrorContinue } from '../utils/reactive'
 
 const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   const { rows } = await sqlClient.query(
@@ -16,10 +17,12 @@ const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   return rows && rows.length === 0
 }
 
-export const removeDuplicateArticles$ = mergeMap((x: OmnivoreArticle) =>
-  fromPromise(hasStoredInDatabase(x.slug, x.feedId)).pipe(
-    filter(Boolean),
-    map(() => x),
+export const removeDuplicateArticles$ = onErrorContinue(
+  mergeMap((x: OmnivoreArticle) =>
+    fromPromise(hasStoredInDatabase(x.slug, x.feedId)).pipe(
+      filter(Boolean),
+      map(() => x),
+    ),
   ),
 )
 
@@ -66,8 +69,10 @@ export const batchInsertArticlesSql = async (
 
 export const insertArticleToStore$ = pipe(
   bufferTime<EmbeddedOmnivoreArticle>(5000, null, 100),
-  mergeMap((x: EmbeddedOmnivoreArticle[]) =>
-    fromPromise(batchInsertArticlesSql(x)),
+  onErrorContinue(
+    mergeMap((x: EmbeddedOmnivoreArticle[]) =>
+      fromPromise(batchInsertArticlesSql(x)),
+    ),
   ),
   mergeMap((it: EmbeddedOmnivoreArticle[]) => from(it)),
 )

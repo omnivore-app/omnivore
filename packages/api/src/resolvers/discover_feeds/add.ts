@@ -132,7 +132,7 @@ const addNewSubscription = async (
 
   const discoverFeedId = v4()
   await queryRunner.query(
-    'INSERT INTO omnivore.discover_feed(id, title, link, image, type, description) VALUES($1, $2, $3, $4, $5)',
+    'INSERT INTO omnivore.discover_feed(id, title, link, image, type, description) VALUES($1, $2, $3, $4, $5, $6)',
     [
       discoverFeedId,
       feed.title,
