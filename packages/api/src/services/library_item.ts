@@ -1059,3 +1059,30 @@ export const deleteLibraryItemsByAdmin = async (
     'admin'
   )
 }
+
+export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
+  const batchSize = 1000
+
+  const qb = libraryItemRepository.createQueryBuilder().where(criteria)
+  const countSql = queryBuilderToRawSql(qb.select('COUNT(1)'))
+  const subQuery = queryBuilderToRawSql(qb.select('id').limit(batchSize))
+
+  const sql = `
+  -- Set batch size
+  DO $$
+  DECLARE 
+      batch_size INT := ${batchSize};
+  BEGIN
+      -- Loop through batches
+      FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
+          -- Delete batch
+          DELETE FROM omnivore.library_item
+          WHERE id = ANY(
+            ${subQuery}
+          );
+      END LOOP;
+  END $$
+  `
+
+  return authTrx(async (t) => t.query(sql))
+}

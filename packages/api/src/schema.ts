@@ -2761,6 +2761,20 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union EmptyTrashResult = EmptyTrashSuccess | EmptyTrashError
+
+  type EmptyTrashSuccess {
+    success: Boolean
+  }
+
+  type EmptyTrashError {
+    errorCodes: [EmptyTrashErrorCode!]!
+  }
+
+  enum EmptyTrashErrorCode {
+    UNAUTHORIZED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2872,6 +2886,7 @@ const schema = gql`
     updateNewsletterEmail(
       input: UpdateNewsletterEmailInput!
     ): UpdateNewsletterEmailResult!
+    emptyTrash: EmptyTrashResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
