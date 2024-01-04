@@ -3,19 +3,20 @@ import { LibraryFilterMenu } from '../homeFeed/LibraryFilterMenu'
 import { DiscoverHeader } from './DiscoverHeader/DiscoverHeader'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from "react"
-import { DiscoveryItemFeed } from './DiscoveryFeed/DiscoveryFeed'
+import { DiscoverItemFeed } from './DiscoverFeed/DiscoverFeed'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import toast from 'react-hot-toast'
 import { Button } from '../../elements/Button'
 import { showErrorToast } from '../../../lib/toastHelpers'
-import { useGetDiscoveryItems } from '../../../lib/networking/queries/useGetDiscoveryItems'
 import {
   saveDiscoverArticleMutation,
-  SaveDiscoveryArticleOutput
+  SaveDiscoverArticleOutput
 } from "../../../lib/networking/mutations/saveDiscoverArticle"
 import { saveUrlMutation } from "../../../lib/networking/mutations/saveUrlMutation"
 import { useFetchMore } from "../../../lib/hooks/useFetchMoreScroll"
 import { AddLinkModal } from "../homeFeed/AddLinkModal"
+import { useGetDiscoverFeedItems } from "../../../lib/networking/queries/useGetDiscoverFeedItems"
+import { useGetDiscoverFeeds } from "../../../lib/networking/queries/useGetDiscoverFeeds"
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 
@@ -27,14 +28,11 @@ export function DiscoverContainer(): JSX.Element {
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [layoutType, setLayoutType] = useState<LayoutType>('GRID_LAYOUT')
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
+  const {feeds, revalidate, isValidating} = useGetDiscoverFeeds()
   const topics = [
     {
       title: 'Popular',
       subTitle: 'Stories that are popular on Omnivore right now...',
-    },
-    {
-      title: 'Community Picks',
-      subTitle: 'What The Omnivore Community are reading right now...',
     },
     {
       title: 'All',
@@ -75,7 +73,8 @@ export function DiscoverContainer(): JSX.Element {
     },
   ]
 
-  const { discoveryItems, setTopic, activeTopic, isLoading, hasMore, setPage, page } = useGetDiscoveryItems(topics[0])
+  const [selectedFeed, setSelectedFeed] = useState("All Feeds");
+  const { discoverItems, setTopic, activeTopic, isLoading, hasMore, setPage, page } = useGetDiscoverFeedItems(topics[1], selectedFeed)
   const handleFetchMore = useCallback(() => {
     if (isLoading || !hasMore) {
       return
@@ -85,12 +84,12 @@ export function DiscoverContainer(): JSX.Element {
   useFetchMore(handleFetchMore)
 
   const handleSaveDiscover = async (
-    discoveryArticleId: string,
+    discoverArticleId: string,
     timezone: string,
     locale: string
-  ): Promise<SaveDiscoveryArticleOutput | undefined> => {
-    const result = await saveDiscoverArticleMutation({discoveryArticleId, timezone, locale})
-    if (result?.saveDiscoveryArticle) {
+  ): Promise<SaveDiscoverArticleOutput | undefined> => {
+    const result = await saveDiscoverArticleMutation({discoverArticleId, timezone, locale})
+    if (result?.saveDiscoverArticle) {
       toast(
         () => (
           <Box>
@@ -101,7 +100,7 @@ export function DiscoverContainer(): JSX.Element {
               autoFocus
               onClick={() => {
                 window.location.href = `/article?url=${encodeURIComponent(
-                  result.saveDiscoveryArticle.url
+                  result.saveDiscoverArticle.url
                 )}`
               }}
             >
@@ -178,6 +177,9 @@ export function DiscoverContainer(): JSX.Element {
         alwaysShowHeader={false}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
+        selectedFeedFilter={selectedFeed}
+        applyFeedFilter={setSelectedFeed}
+        feeds={feeds}
         activeTab={activeTopic}
         setActiveTab={setTopicAndReturnToTop}
         layout={layoutType}
@@ -195,10 +197,11 @@ export function DiscoverContainer(): JSX.Element {
           showFilterMenu={showFilterMenu}
           setShowFilterMenu={setShowFilterMenu}
         />
-        <DiscoveryItemFeed
+        <DiscoverItemFeed
           layout={layoutType}
+          activeTab={activeTopic}
           handleLinkSubmission={handleSaveDiscover}
-          items={discoveryItems ?? []}
+          items={discoverItems ?? []}
           viewer={viewer.viewerData?.me}
         />
         { showAddLinkModal &&

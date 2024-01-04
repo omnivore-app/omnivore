@@ -2,27 +2,27 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
 export type AddDiscoverArticleInput = {
-  discoveryArticleId: string
+  discoverArticleId: string
   locale: string
   timezone: string
 }
 
-export type SaveDiscoveryArticleOutput = {
-  saveDiscoveryArticle: { url: string; saveId: string }
+export type SaveDiscoverArticleOutput = {
+  saveDiscoverArticle: { url: string; saveId: string }
 }
 
 export async function saveDiscoverArticleMutation(
-  input: AddDiscoverArticleInput
-): Promise<SaveDiscoveryArticleOutput | undefined> {
+  input: AddDiscoverArticleInput,
+): Promise<SaveDiscoverArticleOutput | undefined> {
   const mutation = gql`
-    mutation SaveDiscovery($input: SaveDiscoveryArticleInput!) {
-      saveDiscoveryArticle(input: $input) {
-        ... on SaveDiscoveryArticleSuccess {
+    mutation SaveDiscover($input: SaveDiscoverArticleInput!) {
+      saveDiscoverArticle(input: $input) {
+        ... on SaveDiscoverArticleSuccess {
           url
           saveId
         }
 
-        ... on SaveDiscoveryArticleError {
+        ... on SaveDiscoverArticleError {
           errorCodes
         }
       }
@@ -31,6 +31,6 @@ export async function saveDiscoverArticleMutation(
 
   const data = (await gqlFetcher(mutation, {
     input,
-  })) as SaveDiscoveryArticleOutput
+  })) as SaveDiscoverArticleOutput
   return data
 }

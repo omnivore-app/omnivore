@@ -3,8 +3,11 @@ import { publicGqlFetcher } from "../networkHelpers"
 import { useEffect, useState } from "react"
 import { TopicTabData } from "../../../components/templates/discoverFeed/DiscoverContainer"
 
-export type DiscoveryItem = {
-  id: string
+const OMNIVORE_COMMUNITY_ID = "8217d320-aa5a-11ee-bbfe-a7cde356f524";
+
+export type DiscoverFeedItem = {
+  id: string,
+  feed: string,
   title: string
   url: string
   author?: string
@@ -18,10 +21,10 @@ export type DiscoveryItem = {
   savedLinkUrl?: string
 }
 
-type DiscoveryItemResponse = {
+type DiscoverItemResponse = {
   error?: any
-  discoveryItems?: DiscoveryItem[]
-  discoveryItemErrors?: unknown
+  discoverItems?: DiscoverFeedItem[]
+  discoverItemErrors?: unknown
   isLoading: boolean
   setTopic: (topic: TopicTabData) => void
   activeTopic: TopicTabData
@@ -30,23 +33,26 @@ type DiscoveryItemResponse = {
   setPage: (page: number) => void
 }
 
-export function useGetDiscoveryItems(
+export function useGetDiscoverFeedItems(
   startingTopic: TopicTabData,
+  selectedFeed: string = "All Feeds",
   limit = 10,
-): DiscoveryItemResponse {
+): DiscoverItemResponse {
   const [activeTopic, setTopic] = useState(startingTopic)
-  const [discoveryItems, setDiscoveryItems] = useState<DiscoveryItem[]>([])
+  const [discoverItems, setDiscoverItems] = useState<DiscoverFeedItem[]>([])
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(0);
 
+  const fixedSelectedFeed = selectedFeed == "Community" ? OMNIVORE_COMMUNITY_ID : selectedFeed
   const callDiscoverItems = () => {
     const query = gql`
-    query GetDiscoveryItems {
-      getDiscoveryArticles(discoveryTopicId: "${activeTopic.title}", first: ${limit}, after: "${page * limit}") {
-        ... on GetDiscoveryArticleSuccess {
+    query GetDiscoverFeedItems {
+      getDiscoverFeedArticles(discoverTopicId: "${activeTopic.title}", first: ${limit}, after: "${page * limit}" ${fixedSelectedFeed == "All Feeds" ? "" : `feedId: "${fixedSelectedFeed}"`}) {
+        ... on GetDiscoverFeedArticleSuccess {
           discoverArticles {
             id, 
+            feed,
             title,
             url,
             image,
@@ -66,7 +72,7 @@ export function useGetDiscoveryItems(
             totalCount
           }
         }
-        ... on GetDiscoveryArticleError {
+        ... on GetDiscoverFeedArticleError {
           errorCodes
         }
       }
@@ -77,19 +83,19 @@ export function useGetDiscoveryItems(
 
 
   useEffect(() => {
-    setDiscoveryItems([])
+    setDiscoverItems([])
     if (page == 0) {
       setIsLoading(true);
       callDiscoverItems()
         .then((it: any) => {
           setIsLoading(false);
-          setDiscoveryItems(it.getDiscoveryArticles.discoverArticles)
-          setHasMore(it.getDiscoveryArticles.pageInfo.hasNextPage)
+          setDiscoverItems(it.getDiscoverFeedArticles.discoverArticles)
+          setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
         })
     } else {
       setPage(0)
     }
-  }, [activeTopic])
+  }, [activeTopic, selectedFeed])
 
 
   useEffect(() => {
@@ -97,15 +103,15 @@ export function useGetDiscoveryItems(
     callDiscoverItems()
       .then((it: any) => {
         setIsLoading(false);
-        setDiscoveryItems([...discoveryItems, ...it.getDiscoveryArticles.discoverArticles])
-        setHasMore(it.getDiscoveryArticles.pageInfo.hasNextPage)
+        setDiscoverItems([...(discoverItems || []), ...(it.getDiscoverFeedArticles.discoverArticles|| [])])
+        setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
       })
   }, [page])
 
   return {
     setTopic,
     activeTopic,
-    discoveryItems,
+    discoverItems,
     isLoading,
     hasMore,
     page,

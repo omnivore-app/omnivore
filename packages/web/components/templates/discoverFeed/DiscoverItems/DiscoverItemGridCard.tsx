@@ -22,13 +22,12 @@ import {
   siteName,
   TitleStyle,
 } from '../../../patterns/LibraryCards/LibraryCardStyles'
-import { DiscoveryItemCardProps, DiscoveryItemSubCardProps } from "./DiscoveryItemCard"
-import { DiscoveryItemMetadata } from './DiscoveryItemMetadata'
-import { DiscoveryHoverActions } from './DiscoveryHoverActions'
+import { DiscoverItemCardProps, DiscoverItemSubCardProps } from "./DiscoverItemCard"
+import { DiscoverItemMetadata } from './DiscoverItemMetadata'
+import { DiscoverHoverActions } from './DiscoverHoverActions'
 import { CheckCircle, Circle } from 'phosphor-react'
-import { DiscoveryItem } from "../../../../lib/networking/queries/useGetDiscoveryItems"
 
-export function DiscoveryGridCard(props: DiscoveryItemSubCardProps): JSX.Element {
+export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -86,7 +85,7 @@ export function DiscoveryGridCard(props: DiscoveryItemSubCardProps): JSX.Element
           style={{ ...floatingStyles, zIndex: 3 }}
           {...getFloatingProps()}
         >
-          <DiscoveryHoverActions
+          <DiscoverHoverActions
             item={props.item}
             viewer={props.viewer}
             isHovered={isHovered ?? false}
@@ -95,17 +94,17 @@ export function DiscoveryGridCard(props: DiscoveryItemSubCardProps): JSX.Element
             savedId={props.savedId}
             savedUrl={props.savedUrl}
             setSavedUrl={props.setSavedUrl}
-            deleteDiscoveryItem={props.deleteDiscoveryItem}
+            deleteDiscoverItem={props.deleteDiscoverItem}
           />
         </Box>
       )}
-      <DiscoveryGridCardContent {...props} savedId={props.savedId} savedUrl={props.savedUrl} isHovered={isHovered} />
+      <DiscoverGridCardContent {...props} savedId={props.savedId} savedUrl={props.savedUrl} isHovered={isHovered} />
     </VStack>
   )
 }
 
-const DiscoveryGridCardContent = (
-  props: DiscoveryItemCardProps & { savedId?: string; savedUrl?: string }
+const DiscoverGridCardContent = (
+  props: DiscoverItemCardProps & { savedId?: string; savedUrl?: string }
 ): JSX.Element => {
   const { item } = props
 
@@ -178,7 +177,7 @@ const DiscoveryGridCardContent = (
         }}
         distribution="start"
       >
-        <DiscoveryItemMetadata item={props.item} />
+        <DiscoverItemMetadata item={props.item} />
       </HStack>
 
       <VStack

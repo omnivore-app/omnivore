@@ -9,6 +9,7 @@ export type OmnivoreArticle = {
   url: string
   publishedAt: Date
   type: 'community' | 'rss'
+  feedId: string
 }
 
 export type RSSArticle = {

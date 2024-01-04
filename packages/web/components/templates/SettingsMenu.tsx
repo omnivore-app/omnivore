@@ -84,6 +84,7 @@ export function SettingsMenu(): JSX.Element {
     { name: 'API Keys', destination: '/settings/api' },
     { name: 'Emails', destination: '/settings/emails' },
     { name: 'Feeds', destination: '/settings/feeds' },
+    { name: 'Discover', destination: '/settings/discover-feeds' },
     { name: 'Subscriptions', destination: '/settings/subscriptions' },
     { name: 'Labels', destination: '/settings/labels' },
     { name: 'Saved Searches', destination: '/settings/saved-searches' },

@@ -1,15 +1,15 @@
 import { LayoutType } from '../../homeFeed/HomeFeedContainer'
 import { UserBasicData } from '../../../../lib/networking/queries/useGetViewerQuery'
-import { DiscoveryGridCard } from './DiscoveryItemGridCard'
-import { DiscoveryItemListCard } from './DiscoveryItemListCard'
-import { DiscoveryItem } from '../../../../lib/networking/queries/useGetDiscoveryItems'
-import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { DiscoverGridCard } from './DiscoverItemGridCard'
+import { DiscoverItemListCard } from './DiscoverItemListCard'
+import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { deleteDiscoverArticleMutation } from "../../../../lib/networking/mutations/deleteDiscoverArticle"
 import { showErrorToast, showSuccessToast } from "../../../../lib/toastHelpers"
 import { useState } from "react"
+import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
 
-export type DiscoveryItemCardProps = {
-  item: DiscoveryItem
+export type DiscoverItemCardProps = {
+  item: DiscoverFeedItem
   layout: LayoutType
   viewer?: UserBasicData
   isHovered?: boolean
@@ -17,11 +17,11 @@ export type DiscoveryItemCardProps = {
     link: string,
     timezone: string,
     locale: string
-  ) => Promise<SaveDiscoveryArticleOutput | undefined>
+  ) => Promise<SaveDiscoverArticleOutput | undefined>
 }
 
-export type DiscoveryItemSubCardProps = DiscoveryItemCardProps & {
-  deleteDiscoveryItem: (item: DiscoveryItem) => Promise<void>,
+export type DiscoverItemSubCardProps = DiscoverItemCardProps & {
+  deleteDiscoverItem: (item: DiscoverFeedItem) => Promise<void>,
   savedId?: string,
   setSavedId: (id: string | undefined) => void
   savedUrl?: string,
@@ -30,15 +30,15 @@ export type DiscoveryItemSubCardProps = DiscoveryItemCardProps & {
 
 
 
-export function DiscoveryItemCard(props: DiscoveryItemCardProps): JSX.Element {
+export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element {
   const [savedId, setSavedId] = useState(props.item.savedId)
   const [savedUrl, setSavedUrl] = useState(props.item.savedLinkUrl)
-  const deleteDiscoveryItem = (item: DiscoveryItem) : Promise<void> => {
-    return deleteDiscoverArticleMutation({ discoveryArticleId: item.id })
+  const deleteDiscoverItem = (item: DiscoverFeedItem) : Promise<void> => {
+    return deleteDiscoverArticleMutation({ discoverArticleId: item.id })
       .then(it => {
 
         console.log(it);
-        if (it?.deleteDiscoveryArticle.id) {
+        if (it?.deleteDiscoverArticle.id) {
           showSuccessToast('Article deleted', { position: 'bottom-right' })
           setSavedId(undefined)
           setSavedUrl(undefined)
@@ -49,8 +49,8 @@ export function DiscoveryItemCard(props: DiscoveryItemCardProps): JSX.Element {
   }
 
   if (props.layout == 'LIST_LAYOUT') {
-    return <DiscoveryItemListCard {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoveryItem}} />
+    return <DiscoverItemListCard {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoverItem}} />
   } else {
-    return <DiscoveryGridCard  {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoveryItem}} />
+    return <DiscoverGridCard  {...{...props, savedId, savedUrl, setSavedId, setSavedUrl, deleteDiscoverItem}} />
   }
 }

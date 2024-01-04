@@ -7,6 +7,7 @@ import { DiscoverHeaderProps } from './DiscoverHeader'
 import { HeaderText } from './HeaderText'
 import React from 'react'
 import { ListViewIcon } from '../../../elements/icons/ListViewIcon'
+import { PinnedFeeds } from "./PinnedFeeds"
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -69,19 +70,15 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             showAddLinkModal={() => props.setShowAddLinkModal(true)}
           />
         </HStack>
-
         <HStack
           alignment="center"
           distribution={'start'}
           css={{
             gap: '10px',
             width: '95%',
-            display: 'block',
+            paddingBottom: '5px',
             '@mdDown': {
               width: '95%',
-              display: 'none',
-            },
-            '@media (max-width: 930px)': {
               display: 'none',
             },
             '@media (min-width: 930px)': {
@@ -95,10 +92,7 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
             },
           }}
         >
-          <HeaderText
-            title={props.activeTab.title}
-            subTitle={props.activeTab.subTitle}
-          />
+          <PinnedFeeds items={props.feeds} selected={props.selectedFeedFilter} applyFeedFilter={props.applyFeedFilter} />
         </HStack>
       </VStack>
     </HStack>

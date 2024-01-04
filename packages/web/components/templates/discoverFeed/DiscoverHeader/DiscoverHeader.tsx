@@ -10,7 +10,8 @@ import { LargeHeaderLayout } from './LargerHeaderLayout'
 import { SmallHeaderLayout } from './SmallerHeaderLayout'
 import { HeaderText } from './HeaderText'
 import { LayoutType, TopicTabData } from '../DiscoverContainer'
-import { SaveDiscoveryArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
+import { DiscoverFeed } from "../../../../lib/networking/queries/useGetDiscoverFeeds"
 
 export type DiscoverHeaderProps = {
   alwaysShowHeader: boolean
@@ -32,6 +33,10 @@ export type DiscoverHeaderProps = {
 
   topics: TopicTabData[]
 
+  feeds: DiscoverFeed[]
+  applyFeedFilter: (feedFilter: string) => void
+  selectedFeedFilter: string
+
   layout: LayoutType
   setLayoutType: (layout: LayoutType) => void
 }
@@ -40,7 +45,7 @@ function DiscoverHeaderSpace() {
   return (
     <Box
       css={{
-        height: '175px',
+        height: '90px',
         bg: '$grayBase',
         '@media (max-width: 930px)': {
           height: '70px',

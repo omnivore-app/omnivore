@@ -13,10 +13,10 @@ export const createPubSubClient = (): PubsubClient => {
   const fieldsToDelete = ['user'] as const
 
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
-    if (env.dev.isLocal) {
-      logger.info(`Publishing ${topicName}: ${msg.toString()}`)
-      return Promise.resolve()
-    }
+    // if (env.dev.isLocal) {
+    //   logger.info(`Publishing ${topicName}: ${msg.toString()}`)
+    //   return Promise.resolve()
+    // }
 
     return client
       .topic(topicName)
@@ -101,6 +101,7 @@ export enum EntityType {
   PAGE = 'page',
   HIGHLIGHT = 'highlight',
   LABEL = 'label',
+  RSS_FEED = 'feed',
 }
 
 export interface PubsubClient {

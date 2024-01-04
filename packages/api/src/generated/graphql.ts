@@ -17,6 +17,29 @@ export type Scalars = {
   JSON: any;
 };
 
+export type AddDiscoverFeedError = {
+  __typename?: 'AddDiscoverFeedError';
+  errorCodes: Array<AddDiscoverFeedErrorCode>;
+};
+
+export enum AddDiscoverFeedErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Conflict = 'CONFLICT',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type AddDiscoverFeedInput = {
+  url: Scalars['String'];
+};
+
+export type AddDiscoverFeedResult = AddDiscoverFeedError | AddDiscoverFeedSuccess;
+
+export type AddDiscoverFeedSuccess = {
+  __typename?: 'AddDiscoverFeedSuccess';
+  feed: DiscoverFeed;
+};
+
 export type AddPopularReadError = {
   __typename?: 'AddPopularReadError';
   errorCodes: Array<AddPopularReadErrorCode>;
@@ -522,26 +545,49 @@ export type DeleteAccountSuccess = {
   userID: Scalars['ID'];
 };
 
-export type DeleteDiscoveryArticleError = {
-  __typename?: 'DeleteDiscoveryArticleError';
-  errorCodes: Array<DeleteDiscoveryArticleErrorCode>;
+export type DeleteDiscoverArticleError = {
+  __typename?: 'DeleteDiscoverArticleError';
+  errorCodes: Array<DeleteDiscoverArticleErrorCode>;
 };
 
-export enum DeleteDiscoveryArticleErrorCode {
+export enum DeleteDiscoverArticleErrorCode {
   BadRequest = 'BAD_REQUEST',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type DeleteDiscoveryArticleInput = {
-  discoveryArticleId: Scalars['ID'];
+export type DeleteDiscoverArticleInput = {
+  discoverArticleId: Scalars['ID'];
 };
 
-export type DeleteDiscoveryArticleResult = DeleteDiscoveryArticleError | DeleteDiscoveryArticleSuccess;
+export type DeleteDiscoverArticleResult = DeleteDiscoverArticleError | DeleteDiscoverArticleSuccess;
 
-export type DeleteDiscoveryArticleSuccess = {
-  __typename?: 'DeleteDiscoveryArticleSuccess';
+export type DeleteDiscoverArticleSuccess = {
+  __typename?: 'DeleteDiscoverArticleSuccess';
   id: Scalars['ID'];
+};
+
+export type DeleteDiscoverFeedError = {
+  __typename?: 'DeleteDiscoverFeedError';
+  errorCodes: Array<DeleteDiscoverFeedErrorCode>;
+};
+
+export enum DeleteDiscoverFeedErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Conflict = 'CONFLICT',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DeleteDiscoverFeedInput = {
+  feedId: Scalars['ID'];
+};
+
+export type DeleteDiscoverFeedResult = DeleteDiscoverFeedError | DeleteDiscoverFeedSuccess;
+
+export type DeleteDiscoverFeedSuccess = {
+  __typename?: 'DeleteDiscoverFeedSuccess';
+  id: Scalars['String'];
 };
 
 export type DeleteFilterError = {
@@ -749,10 +795,22 @@ export type DeviceTokensSuccess = {
   deviceTokens: Array<DeviceToken>;
 };
 
-export type DiscoveryArticle = {
-  __typename?: 'DiscoveryArticle';
+export type DiscoverFeed = {
+  __typename?: 'DiscoverFeed';
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  image?: Maybe<Scalars['String']>;
+  link: Scalars['String'];
+  title: Scalars['String'];
+  type: Scalars['String'];
+  visibleName?: Maybe<Scalars['String']>;
+};
+
+export type DiscoverFeedArticle = {
+  __typename?: 'DiscoverFeedArticle';
   author?: Maybe<Scalars['String']>;
   description: Scalars['String'];
+  feed: Scalars['String'];
   id: Scalars['ID'];
   image?: Maybe<Scalars['String']>;
   publishedDate?: Maybe<Scalars['Date']>;
@@ -764,8 +822,25 @@ export type DiscoveryArticle = {
   url: Scalars['String'];
 };
 
-export type DiscoveryTopic = {
-  __typename?: 'DiscoveryTopic';
+export type DiscoverFeedError = {
+  __typename?: 'DiscoverFeedError';
+  errorCodes: Array<DiscoverFeedErrorCode>;
+};
+
+export enum DiscoverFeedErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type DiscoverFeedResult = DiscoverFeedError | DiscoverFeedSuccess;
+
+export type DiscoverFeedSuccess = {
+  __typename?: 'DiscoverFeedSuccess';
+  feeds: Array<Maybe<DiscoverFeed>>;
+};
+
+export type DiscoverTopic = {
+  __typename?: 'DiscoverTopic';
   description: Scalars['String'];
   name: Scalars['String'];
 };
@@ -936,39 +1011,39 @@ export type GenerateApiKeySuccess = {
   apiKey: ApiKey;
 };
 
-export type GetDiscoveryArticleError = {
-  __typename?: 'GetDiscoveryArticleError';
-  errorCodes: Array<GetDiscoveryArticleErrorCode>;
+export type GetDiscoverFeedArticleError = {
+  __typename?: 'GetDiscoverFeedArticleError';
+  errorCodes: Array<GetDiscoverFeedArticleErrorCode>;
 };
 
-export enum GetDiscoveryArticleErrorCode {
+export enum GetDiscoverFeedArticleErrorCode {
   BadRequest = 'BAD_REQUEST',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type GetDiscoveryArticleResults = GetDiscoveryArticleError | GetDiscoveryArticleSuccess;
+export type GetDiscoverFeedArticleResults = GetDiscoverFeedArticleError | GetDiscoverFeedArticleSuccess;
 
-export type GetDiscoveryArticleSuccess = {
-  __typename?: 'GetDiscoveryArticleSuccess';
-  discoverArticles?: Maybe<Array<DiscoveryArticle>>;
+export type GetDiscoverFeedArticleSuccess = {
+  __typename?: 'GetDiscoverFeedArticleSuccess';
+  discoverArticles?: Maybe<Array<Maybe<DiscoverFeedArticle>>>;
   pageInfo: PageInfo;
 };
 
-export type GetDiscoveryTopicError = {
-  __typename?: 'GetDiscoveryTopicError';
-  errorCodes: Array<GetDiscoveryTopicErrorCode>;
+export type GetDiscoverTopicError = {
+  __typename?: 'GetDiscoverTopicError';
+  errorCodes: Array<GetDiscoverTopicErrorCode>;
 };
 
-export enum GetDiscoveryTopicErrorCode {
+export enum GetDiscoverTopicErrorCode {
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type GetDiscoveryTopicResults = GetDiscoveryTopicError | GetDiscoveryTopicSuccess;
+export type GetDiscoverTopicResults = GetDiscoverTopicError | GetDiscoverTopicSuccess;
 
-export type GetDiscoveryTopicSuccess = {
-  __typename?: 'GetDiscoveryTopicSuccess';
-  discoverTopics?: Maybe<Array<DiscoveryTopic>>;
+export type GetDiscoverTopicSuccess = {
+  __typename?: 'GetDiscoverTopicSuccess';
+  discoverTopics?: Maybe<Array<DiscoverTopic>>;
 };
 
 export type GetFollowersError = {
@@ -1414,6 +1489,7 @@ export type MoveToFolderSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addDiscoverFeed: AddDiscoverFeedResult;
   addPopularRead: AddPopularReadResult;
   bulkAction: BulkActionResult;
   createArticle: CreateArticleResult;
@@ -1423,7 +1499,8 @@ export type Mutation = {
   createLabel: CreateLabelResult;
   createNewsletterEmail: CreateNewsletterEmailResult;
   deleteAccount: DeleteAccountResult;
-  deleteDiscoveryArticle: DeleteDiscoveryArticleResult;
+  deleteDiscoverArticle: DeleteDiscoverArticleResult;
+  deleteDiscoverFeed: DeleteDiscoverFeedResult;
   deleteFilter: DeleteFilterResult;
   deleteHighlight: DeleteHighlightResult;
   deleteIntegration: DeleteIntegrationResult;
@@ -1450,7 +1527,7 @@ export type Mutation = {
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
-  saveDiscoveryArticle: SaveDiscoveryArticleResult;
+  saveDiscoverArticle: SaveDiscoverArticleResult;
   saveFile: SaveResult;
   saveFilter: SaveFilterResult;
   savePage: SaveResult;
@@ -1478,6 +1555,11 @@ export type Mutation = {
   updateUserProfile: UpdateUserProfileResult;
   uploadFileRequest: UploadFileRequestResult;
   uploadImportFile: UploadImportFileResult;
+};
+
+
+export type MutationAddDiscoverFeedArgs = {
+  input: AddDiscoverFeedInput;
 };
 
 
@@ -1531,8 +1613,13 @@ export type MutationDeleteAccountArgs = {
 };
 
 
-export type MutationDeleteDiscoveryArticleArgs = {
-  input: DeleteDiscoveryArticleInput;
+export type MutationDeleteDiscoverArticleArgs = {
+  input: DeleteDiscoverArticleInput;
+};
+
+
+export type MutationDeleteDiscoverFeedArgs = {
+  input: DeleteDiscoverFeedInput;
 };
 
 
@@ -1662,8 +1749,8 @@ export type MutationSaveArticleReadingProgressArgs = {
 };
 
 
-export type MutationSaveDiscoveryArticleArgs = {
-  input: SaveDiscoveryArticleInput;
+export type MutationSaveDiscoverArticleArgs = {
+  input: SaveDiscoverArticleInput;
 };
 
 
@@ -1938,10 +2025,11 @@ export type Query = {
   article: ArticleResult;
   articleSavingRequest: ArticleSavingRequestResult;
   deviceTokens: DeviceTokensResult;
-  discoveryTopics: GetDiscoveryTopicResults;
+  discoverFeeds: DiscoverFeedResult;
+  discoverTopics: GetDiscoverTopicResults;
   feeds: FeedsResult;
   filters: FiltersResult;
-  getDiscoveryArticles: GetDiscoveryArticleResults;
+  getDiscoverFeedArticles: GetDiscoverFeedArticleResults;
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
@@ -1984,9 +2072,10 @@ export type QueryFeedsArgs = {
 };
 
 
-export type QueryGetDiscoveryArticlesArgs = {
+export type QueryGetDiscoverFeedArticlesArgs = {
   after?: InputMaybe<Scalars['String']>;
-  discoveryTopicId: Scalars['String'];
+  discoverTopicId: Scalars['String'];
+  feedId?: InputMaybe<Scalars['ID']>;
   first?: InputMaybe<Scalars['Int']>;
 };
 
@@ -2349,27 +2438,27 @@ export type SaveArticleReadingProgressSuccess = {
   updatedArticle: Article;
 };
 
-export type SaveDiscoveryArticleError = {
-  __typename?: 'SaveDiscoveryArticleError';
-  errorCodes: Array<SaveDiscoveryArticleErrorCode>;
+export type SaveDiscoverArticleError = {
+  __typename?: 'SaveDiscoverArticleError';
+  errorCodes: Array<SaveDiscoverArticleErrorCode>;
 };
 
-export enum SaveDiscoveryArticleErrorCode {
+export enum SaveDiscoverArticleErrorCode {
   BadRequest = 'BAD_REQUEST',
   NotFound = 'NOT_FOUND',
   Unauthorized = 'UNAUTHORIZED'
 }
 
-export type SaveDiscoveryArticleInput = {
-  discoveryArticleId: Scalars['ID'];
+export type SaveDiscoverArticleInput = {
+  discoverArticleId: Scalars['ID'];
   locale?: InputMaybe<Scalars['String']>;
   timezone?: InputMaybe<Scalars['String']>;
 };
 
-export type SaveDiscoveryArticleResult = SaveDiscoveryArticleError | SaveDiscoveryArticleSuccess;
+export type SaveDiscoverArticleResult = SaveDiscoverArticleError | SaveDiscoverArticleSuccess;
 
-export type SaveDiscoveryArticleSuccess = {
-  __typename?: 'SaveDiscoveryArticleSuccess';
+export type SaveDiscoverArticleSuccess = {
+  __typename?: 'SaveDiscoverArticleSuccess';
   saveId: Scalars['String'];
   url: Scalars['String'];
 };
@@ -3654,6 +3743,11 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AddDiscoverFeedError: ResolverTypeWrapper<AddDiscoverFeedError>;
+  AddDiscoverFeedErrorCode: AddDiscoverFeedErrorCode;
+  AddDiscoverFeedInput: AddDiscoverFeedInput;
+  AddDiscoverFeedResult: ResolversTypes['AddDiscoverFeedError'] | ResolversTypes['AddDiscoverFeedSuccess'];
+  AddDiscoverFeedSuccess: ResolverTypeWrapper<AddDiscoverFeedSuccess>;
   AddPopularReadError: ResolverTypeWrapper<AddPopularReadError>;
   AddPopularReadErrorCode: AddPopularReadErrorCode;
   AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
@@ -3742,11 +3836,16 @@ export type ResolversTypes = {
   DeleteAccountErrorCode: DeleteAccountErrorCode;
   DeleteAccountResult: ResolversTypes['DeleteAccountError'] | ResolversTypes['DeleteAccountSuccess'];
   DeleteAccountSuccess: ResolverTypeWrapper<DeleteAccountSuccess>;
-  DeleteDiscoveryArticleError: ResolverTypeWrapper<DeleteDiscoveryArticleError>;
-  DeleteDiscoveryArticleErrorCode: DeleteDiscoveryArticleErrorCode;
-  DeleteDiscoveryArticleInput: DeleteDiscoveryArticleInput;
-  DeleteDiscoveryArticleResult: ResolversTypes['DeleteDiscoveryArticleError'] | ResolversTypes['DeleteDiscoveryArticleSuccess'];
-  DeleteDiscoveryArticleSuccess: ResolverTypeWrapper<DeleteDiscoveryArticleSuccess>;
+  DeleteDiscoverArticleError: ResolverTypeWrapper<DeleteDiscoverArticleError>;
+  DeleteDiscoverArticleErrorCode: DeleteDiscoverArticleErrorCode;
+  DeleteDiscoverArticleInput: DeleteDiscoverArticleInput;
+  DeleteDiscoverArticleResult: ResolversTypes['DeleteDiscoverArticleError'] | ResolversTypes['DeleteDiscoverArticleSuccess'];
+  DeleteDiscoverArticleSuccess: ResolverTypeWrapper<DeleteDiscoverArticleSuccess>;
+  DeleteDiscoverFeedError: ResolverTypeWrapper<DeleteDiscoverFeedError>;
+  DeleteDiscoverFeedErrorCode: DeleteDiscoverFeedErrorCode;
+  DeleteDiscoverFeedInput: DeleteDiscoverFeedInput;
+  DeleteDiscoverFeedResult: ResolversTypes['DeleteDiscoverFeedError'] | ResolversTypes['DeleteDiscoverFeedSuccess'];
+  DeleteDiscoverFeedSuccess: ResolverTypeWrapper<DeleteDiscoverFeedSuccess>;
   DeleteFilterError: ResolverTypeWrapper<DeleteFilterError>;
   DeleteFilterErrorCode: DeleteFilterErrorCode;
   DeleteFilterResult: ResolversTypes['DeleteFilterError'] | ResolversTypes['DeleteFilterSuccess'];
@@ -3792,8 +3891,13 @@ export type ResolversTypes = {
   DeviceTokensErrorCode: DeviceTokensErrorCode;
   DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
-  DiscoveryArticle: ResolverTypeWrapper<DiscoveryArticle>;
-  DiscoveryTopic: ResolverTypeWrapper<DiscoveryTopic>;
+  DiscoverFeed: ResolverTypeWrapper<DiscoverFeed>;
+  DiscoverFeedArticle: ResolverTypeWrapper<DiscoverFeedArticle>;
+  DiscoverFeedError: ResolverTypeWrapper<DiscoverFeedError>;
+  DiscoverFeedErrorCode: DiscoverFeedErrorCode;
+  DiscoverFeedResult: ResolversTypes['DiscoverFeedError'] | ResolversTypes['DiscoverFeedSuccess'];
+  DiscoverFeedSuccess: ResolverTypeWrapper<DiscoverFeedSuccess>;
+  DiscoverTopic: ResolverTypeWrapper<DiscoverTopic>;
   Feature: ResolverTypeWrapper<Feature>;
   Feed: ResolverTypeWrapper<Feed>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
@@ -3823,14 +3927,14 @@ export type ResolversTypes = {
   GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversTypes['GenerateApiKeyError'] | ResolversTypes['GenerateApiKeySuccess'];
   GenerateApiKeySuccess: ResolverTypeWrapper<GenerateApiKeySuccess>;
-  GetDiscoveryArticleError: ResolverTypeWrapper<GetDiscoveryArticleError>;
-  GetDiscoveryArticleErrorCode: GetDiscoveryArticleErrorCode;
-  GetDiscoveryArticleResults: ResolversTypes['GetDiscoveryArticleError'] | ResolversTypes['GetDiscoveryArticleSuccess'];
-  GetDiscoveryArticleSuccess: ResolverTypeWrapper<GetDiscoveryArticleSuccess>;
-  GetDiscoveryTopicError: ResolverTypeWrapper<GetDiscoveryTopicError>;
-  GetDiscoveryTopicErrorCode: GetDiscoveryTopicErrorCode;
-  GetDiscoveryTopicResults: ResolversTypes['GetDiscoveryTopicError'] | ResolversTypes['GetDiscoveryTopicSuccess'];
-  GetDiscoveryTopicSuccess: ResolverTypeWrapper<GetDiscoveryTopicSuccess>;
+  GetDiscoverFeedArticleError: ResolverTypeWrapper<GetDiscoverFeedArticleError>;
+  GetDiscoverFeedArticleErrorCode: GetDiscoverFeedArticleErrorCode;
+  GetDiscoverFeedArticleResults: ResolversTypes['GetDiscoverFeedArticleError'] | ResolversTypes['GetDiscoverFeedArticleSuccess'];
+  GetDiscoverFeedArticleSuccess: ResolverTypeWrapper<GetDiscoverFeedArticleSuccess>;
+  GetDiscoverTopicError: ResolverTypeWrapper<GetDiscoverTopicError>;
+  GetDiscoverTopicErrorCode: GetDiscoverTopicErrorCode;
+  GetDiscoverTopicResults: ResolversTypes['GetDiscoverTopicError'] | ResolversTypes['GetDiscoverTopicSuccess'];
+  GetDiscoverTopicSuccess: ResolverTypeWrapper<GetDiscoverTopicSuccess>;
   GetFollowersError: ResolverTypeWrapper<GetFollowersError>;
   GetFollowersErrorCode: GetFollowersErrorCode;
   GetFollowersResult: ResolversTypes['GetFollowersError'] | ResolversTypes['GetFollowersSuccess'];
@@ -3987,11 +4091,11 @@ export type ResolversTypes = {
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
   SaveArticleReadingProgressResult: ResolversTypes['SaveArticleReadingProgressError'] | ResolversTypes['SaveArticleReadingProgressSuccess'];
   SaveArticleReadingProgressSuccess: ResolverTypeWrapper<SaveArticleReadingProgressSuccess>;
-  SaveDiscoveryArticleError: ResolverTypeWrapper<SaveDiscoveryArticleError>;
-  SaveDiscoveryArticleErrorCode: SaveDiscoveryArticleErrorCode;
-  SaveDiscoveryArticleInput: SaveDiscoveryArticleInput;
-  SaveDiscoveryArticleResult: ResolversTypes['SaveDiscoveryArticleError'] | ResolversTypes['SaveDiscoveryArticleSuccess'];
-  SaveDiscoveryArticleSuccess: ResolverTypeWrapper<SaveDiscoveryArticleSuccess>;
+  SaveDiscoverArticleError: ResolverTypeWrapper<SaveDiscoverArticleError>;
+  SaveDiscoverArticleErrorCode: SaveDiscoverArticleErrorCode;
+  SaveDiscoverArticleInput: SaveDiscoverArticleInput;
+  SaveDiscoverArticleResult: ResolversTypes['SaveDiscoverArticleError'] | ResolversTypes['SaveDiscoverArticleSuccess'];
+  SaveDiscoverArticleSuccess: ResolverTypeWrapper<SaveDiscoverArticleSuccess>;
   SaveError: ResolverTypeWrapper<SaveError>;
   SaveErrorCode: SaveErrorCode;
   SaveFileInput: SaveFileInput;
@@ -4211,6 +4315,10 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AddDiscoverFeedError: AddDiscoverFeedError;
+  AddDiscoverFeedInput: AddDiscoverFeedInput;
+  AddDiscoverFeedResult: ResolversParentTypes['AddDiscoverFeedError'] | ResolversParentTypes['AddDiscoverFeedSuccess'];
+  AddDiscoverFeedSuccess: AddDiscoverFeedSuccess;
   AddPopularReadError: AddPopularReadError;
   AddPopularReadResult: ResolversParentTypes['AddPopularReadError'] | ResolversParentTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: AddPopularReadSuccess;
@@ -4279,10 +4387,14 @@ export type ResolversParentTypes = {
   DeleteAccountError: DeleteAccountError;
   DeleteAccountResult: ResolversParentTypes['DeleteAccountError'] | ResolversParentTypes['DeleteAccountSuccess'];
   DeleteAccountSuccess: DeleteAccountSuccess;
-  DeleteDiscoveryArticleError: DeleteDiscoveryArticleError;
-  DeleteDiscoveryArticleInput: DeleteDiscoveryArticleInput;
-  DeleteDiscoveryArticleResult: ResolversParentTypes['DeleteDiscoveryArticleError'] | ResolversParentTypes['DeleteDiscoveryArticleSuccess'];
-  DeleteDiscoveryArticleSuccess: DeleteDiscoveryArticleSuccess;
+  DeleteDiscoverArticleError: DeleteDiscoverArticleError;
+  DeleteDiscoverArticleInput: DeleteDiscoverArticleInput;
+  DeleteDiscoverArticleResult: ResolversParentTypes['DeleteDiscoverArticleError'] | ResolversParentTypes['DeleteDiscoverArticleSuccess'];
+  DeleteDiscoverArticleSuccess: DeleteDiscoverArticleSuccess;
+  DeleteDiscoverFeedError: DeleteDiscoverFeedError;
+  DeleteDiscoverFeedInput: DeleteDiscoverFeedInput;
+  DeleteDiscoverFeedResult: ResolversParentTypes['DeleteDiscoverFeedError'] | ResolversParentTypes['DeleteDiscoverFeedSuccess'];
+  DeleteDiscoverFeedSuccess: DeleteDiscoverFeedSuccess;
   DeleteFilterError: DeleteFilterError;
   DeleteFilterResult: ResolversParentTypes['DeleteFilterError'] | ResolversParentTypes['DeleteFilterSuccess'];
   DeleteFilterSuccess: DeleteFilterSuccess;
@@ -4317,8 +4429,12 @@ export type ResolversParentTypes = {
   DeviceTokensError: DeviceTokensError;
   DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: DeviceTokensSuccess;
-  DiscoveryArticle: DiscoveryArticle;
-  DiscoveryTopic: DiscoveryTopic;
+  DiscoverFeed: DiscoverFeed;
+  DiscoverFeedArticle: DiscoverFeedArticle;
+  DiscoverFeedError: DiscoverFeedError;
+  DiscoverFeedResult: ResolversParentTypes['DiscoverFeedError'] | ResolversParentTypes['DiscoverFeedSuccess'];
+  DiscoverFeedSuccess: DiscoverFeedSuccess;
+  DiscoverTopic: DiscoverTopic;
   Feature: Feature;
   Feed: Feed;
   FeedArticle: FeedArticle;
@@ -4343,12 +4459,12 @@ export type ResolversParentTypes = {
   GenerateApiKeyInput: GenerateApiKeyInput;
   GenerateApiKeyResult: ResolversParentTypes['GenerateApiKeyError'] | ResolversParentTypes['GenerateApiKeySuccess'];
   GenerateApiKeySuccess: GenerateApiKeySuccess;
-  GetDiscoveryArticleError: GetDiscoveryArticleError;
-  GetDiscoveryArticleResults: ResolversParentTypes['GetDiscoveryArticleError'] | ResolversParentTypes['GetDiscoveryArticleSuccess'];
-  GetDiscoveryArticleSuccess: GetDiscoveryArticleSuccess;
-  GetDiscoveryTopicError: GetDiscoveryTopicError;
-  GetDiscoveryTopicResults: ResolversParentTypes['GetDiscoveryTopicError'] | ResolversParentTypes['GetDiscoveryTopicSuccess'];
-  GetDiscoveryTopicSuccess: GetDiscoveryTopicSuccess;
+  GetDiscoverFeedArticleError: GetDiscoverFeedArticleError;
+  GetDiscoverFeedArticleResults: ResolversParentTypes['GetDiscoverFeedArticleError'] | ResolversParentTypes['GetDiscoverFeedArticleSuccess'];
+  GetDiscoverFeedArticleSuccess: GetDiscoverFeedArticleSuccess;
+  GetDiscoverTopicError: GetDiscoverTopicError;
+  GetDiscoverTopicResults: ResolversParentTypes['GetDiscoverTopicError'] | ResolversParentTypes['GetDiscoverTopicSuccess'];
+  GetDiscoverTopicSuccess: GetDiscoverTopicSuccess;
   GetFollowersError: GetFollowersError;
   GetFollowersResult: ResolversParentTypes['GetFollowersError'] | ResolversParentTypes['GetFollowersSuccess'];
   GetFollowersSuccess: GetFollowersSuccess;
@@ -4471,10 +4587,10 @@ export type ResolversParentTypes = {
   SaveArticleReadingProgressInput: SaveArticleReadingProgressInput;
   SaveArticleReadingProgressResult: ResolversParentTypes['SaveArticleReadingProgressError'] | ResolversParentTypes['SaveArticleReadingProgressSuccess'];
   SaveArticleReadingProgressSuccess: SaveArticleReadingProgressSuccess;
-  SaveDiscoveryArticleError: SaveDiscoveryArticleError;
-  SaveDiscoveryArticleInput: SaveDiscoveryArticleInput;
-  SaveDiscoveryArticleResult: ResolversParentTypes['SaveDiscoveryArticleError'] | ResolversParentTypes['SaveDiscoveryArticleSuccess'];
-  SaveDiscoveryArticleSuccess: SaveDiscoveryArticleSuccess;
+  SaveDiscoverArticleError: SaveDiscoverArticleError;
+  SaveDiscoverArticleInput: SaveDiscoverArticleInput;
+  SaveDiscoverArticleResult: ResolversParentTypes['SaveDiscoverArticleError'] | ResolversParentTypes['SaveDiscoverArticleSuccess'];
+  SaveDiscoverArticleSuccess: SaveDiscoverArticleSuccess;
   SaveError: SaveError;
   SaveFileInput: SaveFileInput;
   SaveFilterError: SaveFilterError;
@@ -4650,6 +4766,20 @@ export type SanitizeDirectiveArgs = {
 };
 
 export type SanitizeDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = SanitizeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type AddDiscoverFeedErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddDiscoverFeedError'] = ResolversParentTypes['AddDiscoverFeedError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['AddDiscoverFeedErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AddDiscoverFeedResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddDiscoverFeedResult'] = ResolversParentTypes['AddDiscoverFeedResult']> = {
+  __resolveType: TypeResolveFn<'AddDiscoverFeedError' | 'AddDiscoverFeedSuccess', ParentType, ContextType>;
+};
+
+export type AddDiscoverFeedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddDiscoverFeedSuccess'] = ResolversParentTypes['AddDiscoverFeedSuccess']> = {
+  feed?: Resolver<ResolversTypes['DiscoverFeed'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type AddPopularReadErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['AddPopularReadError'] = ResolversParentTypes['AddPopularReadError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['AddPopularReadErrorCode']>, ParentType, ContextType>;
@@ -4974,17 +5104,31 @@ export type DeleteAccountSuccessResolvers<ContextType = ResolverContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type DeleteDiscoveryArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoveryArticleError'] = ResolversParentTypes['DeleteDiscoveryArticleError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['DeleteDiscoveryArticleErrorCode']>, ParentType, ContextType>;
+export type DeleteDiscoverArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoverArticleError'] = ResolversParentTypes['DeleteDiscoverArticleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteDiscoverArticleErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type DeleteDiscoveryArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoveryArticleResult'] = ResolversParentTypes['DeleteDiscoveryArticleResult']> = {
-  __resolveType: TypeResolveFn<'DeleteDiscoveryArticleError' | 'DeleteDiscoveryArticleSuccess', ParentType, ContextType>;
+export type DeleteDiscoverArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoverArticleResult'] = ResolversParentTypes['DeleteDiscoverArticleResult']> = {
+  __resolveType: TypeResolveFn<'DeleteDiscoverArticleError' | 'DeleteDiscoverArticleSuccess', ParentType, ContextType>;
 };
 
-export type DeleteDiscoveryArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoveryArticleSuccess'] = ResolversParentTypes['DeleteDiscoveryArticleSuccess']> = {
+export type DeleteDiscoverArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoverArticleSuccess'] = ResolversParentTypes['DeleteDiscoverArticleSuccess']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteDiscoverFeedErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoverFeedError'] = ResolversParentTypes['DeleteDiscoverFeedError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DeleteDiscoverFeedErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DeleteDiscoverFeedResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoverFeedResult'] = ResolversParentTypes['DeleteDiscoverFeedResult']> = {
+  __resolveType: TypeResolveFn<'DeleteDiscoverFeedError' | 'DeleteDiscoverFeedSuccess', ParentType, ContextType>;
+};
+
+export type DeleteDiscoverFeedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DeleteDiscoverFeedSuccess'] = ResolversParentTypes['DeleteDiscoverFeedSuccess']> = {
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5149,9 +5293,21 @@ export type DeviceTokensSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type DiscoveryArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoveryArticle'] = ResolversParentTypes['DiscoveryArticle']> = {
+export type DiscoverFeedResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoverFeed'] = ResolversParentTypes['DiscoverFeed']> = {
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visibleName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DiscoverFeedArticleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoverFeedArticle'] = ResolversParentTypes['DiscoverFeedArticle']> = {
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  feed?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedDate?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -5164,7 +5320,21 @@ export type DiscoveryArticleResolvers<ContextType = ResolverContext, ParentType 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type DiscoveryTopicResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoveryTopic'] = ResolversParentTypes['DiscoveryTopic']> = {
+export type DiscoverFeedErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoverFeedError'] = ResolversParentTypes['DiscoverFeedError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['DiscoverFeedErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DiscoverFeedResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoverFeedResult'] = ResolversParentTypes['DiscoverFeedResult']> = {
+  __resolveType: TypeResolveFn<'DiscoverFeedError' | 'DiscoverFeedSuccess', ParentType, ContextType>;
+};
+
+export type DiscoverFeedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoverFeedSuccess'] = ResolversParentTypes['DiscoverFeedSuccess']> = {
+  feeds?: Resolver<Array<Maybe<ResolversTypes['DiscoverFeed']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DiscoverTopicResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['DiscoverTopic'] = ResolversParentTypes['DiscoverTopic']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -5308,32 +5478,32 @@ export type GenerateApiKeySuccessResolvers<ContextType = ResolverContext, Parent
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type GetDiscoveryArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryArticleError'] = ResolversParentTypes['GetDiscoveryArticleError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['GetDiscoveryArticleErrorCode']>, ParentType, ContextType>;
+export type GetDiscoverFeedArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoverFeedArticleError'] = ResolversParentTypes['GetDiscoverFeedArticleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GetDiscoverFeedArticleErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type GetDiscoveryArticleResultsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryArticleResults'] = ResolversParentTypes['GetDiscoveryArticleResults']> = {
-  __resolveType: TypeResolveFn<'GetDiscoveryArticleError' | 'GetDiscoveryArticleSuccess', ParentType, ContextType>;
+export type GetDiscoverFeedArticleResultsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoverFeedArticleResults'] = ResolversParentTypes['GetDiscoverFeedArticleResults']> = {
+  __resolveType: TypeResolveFn<'GetDiscoverFeedArticleError' | 'GetDiscoverFeedArticleSuccess', ParentType, ContextType>;
 };
 
-export type GetDiscoveryArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryArticleSuccess'] = ResolversParentTypes['GetDiscoveryArticleSuccess']> = {
-  discoverArticles?: Resolver<Maybe<Array<ResolversTypes['DiscoveryArticle']>>, ParentType, ContextType>;
+export type GetDiscoverFeedArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoverFeedArticleSuccess'] = ResolversParentTypes['GetDiscoverFeedArticleSuccess']> = {
+  discoverArticles?: Resolver<Maybe<Array<Maybe<ResolversTypes['DiscoverFeedArticle']>>>, ParentType, ContextType>;
   pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type GetDiscoveryTopicErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryTopicError'] = ResolversParentTypes['GetDiscoveryTopicError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['GetDiscoveryTopicErrorCode']>, ParentType, ContextType>;
+export type GetDiscoverTopicErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoverTopicError'] = ResolversParentTypes['GetDiscoverTopicError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['GetDiscoverTopicErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type GetDiscoveryTopicResultsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryTopicResults'] = ResolversParentTypes['GetDiscoveryTopicResults']> = {
-  __resolveType: TypeResolveFn<'GetDiscoveryTopicError' | 'GetDiscoveryTopicSuccess', ParentType, ContextType>;
+export type GetDiscoverTopicResultsResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoverTopicResults'] = ResolversParentTypes['GetDiscoverTopicResults']> = {
+  __resolveType: TypeResolveFn<'GetDiscoverTopicError' | 'GetDiscoverTopicSuccess', ParentType, ContextType>;
 };
 
-export type GetDiscoveryTopicSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoveryTopicSuccess'] = ResolversParentTypes['GetDiscoveryTopicSuccess']> = {
-  discoverTopics?: Resolver<Maybe<Array<ResolversTypes['DiscoveryTopic']>>, ParentType, ContextType>;
+export type GetDiscoverTopicSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['GetDiscoverTopicSuccess'] = ResolversParentTypes['GetDiscoverTopicSuccess']> = {
+  discoverTopics?: Resolver<Maybe<Array<ResolversTypes['DiscoverTopic']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -5668,6 +5838,7 @@ export type MoveToFolderSuccessResolvers<ContextType = ResolverContext, ParentTy
 };
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addDiscoverFeed?: Resolver<ResolversTypes['AddDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationAddDiscoverFeedArgs, 'input'>>;
   addPopularRead?: Resolver<ResolversTypes['AddPopularReadResult'], ParentType, ContextType, RequireFields<MutationAddPopularReadArgs, 'name'>>;
   bulkAction?: Resolver<ResolversTypes['BulkActionResult'], ParentType, ContextType, RequireFields<MutationBulkActionArgs, 'action' | 'query'>>;
   createArticle?: Resolver<ResolversTypes['CreateArticleResult'], ParentType, ContextType, RequireFields<MutationCreateArticleArgs, 'input'>>;
@@ -5677,7 +5848,8 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   createLabel?: Resolver<ResolversTypes['CreateLabelResult'], ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   createNewsletterEmail?: Resolver<ResolversTypes['CreateNewsletterEmailResult'], ParentType, ContextType, Partial<MutationCreateNewsletterEmailArgs>>;
   deleteAccount?: Resolver<ResolversTypes['DeleteAccountResult'], ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'userID'>>;
-  deleteDiscoveryArticle?: Resolver<ResolversTypes['DeleteDiscoveryArticleResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoveryArticleArgs, 'input'>>;
+  deleteDiscoverArticle?: Resolver<ResolversTypes['DeleteDiscoverArticleResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverArticleArgs, 'input'>>;
+  deleteDiscoverFeed?: Resolver<ResolversTypes['DeleteDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationDeleteDiscoverFeedArgs, 'input'>>;
   deleteFilter?: Resolver<ResolversTypes['DeleteFilterResult'], ParentType, ContextType, RequireFields<MutationDeleteFilterArgs, 'id'>>;
   deleteHighlight?: Resolver<ResolversTypes['DeleteHighlightResult'], ParentType, ContextType, RequireFields<MutationDeleteHighlightArgs, 'highlightId'>>;
   deleteIntegration?: Resolver<ResolversTypes['DeleteIntegrationResult'], ParentType, ContextType, RequireFields<MutationDeleteIntegrationArgs, 'id'>>;
@@ -5704,7 +5876,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
-  saveDiscoveryArticle?: Resolver<ResolversTypes['SaveDiscoveryArticleResult'], ParentType, ContextType, RequireFields<MutationSaveDiscoveryArticleArgs, 'input'>>;
+  saveDiscoverArticle?: Resolver<ResolversTypes['SaveDiscoverArticleResult'], ParentType, ContextType, RequireFields<MutationSaveDiscoverArticleArgs, 'input'>>;
   saveFile?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSaveFileArgs, 'input'>>;
   saveFilter?: Resolver<ResolversTypes['SaveFilterResult'], ParentType, ContextType, RequireFields<MutationSaveFilterArgs, 'input'>>;
   savePage?: Resolver<ResolversTypes['SaveResult'], ParentType, ContextType, RequireFields<MutationSavePageArgs, 'input'>>;
@@ -5815,10 +5987,11 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   article?: Resolver<ResolversTypes['ArticleResult'], ParentType, ContextType, RequireFields<QueryArticleArgs, 'slug' | 'username'>>;
   articleSavingRequest?: Resolver<ResolversTypes['ArticleSavingRequestResult'], ParentType, ContextType, Partial<QueryArticleSavingRequestArgs>>;
   deviceTokens?: Resolver<ResolversTypes['DeviceTokensResult'], ParentType, ContextType>;
-  discoveryTopics?: Resolver<ResolversTypes['GetDiscoveryTopicResults'], ParentType, ContextType>;
+  discoverFeeds?: Resolver<ResolversTypes['DiscoverFeedResult'], ParentType, ContextType>;
+  discoverTopics?: Resolver<ResolversTypes['GetDiscoverTopicResults'], ParentType, ContextType>;
   feeds?: Resolver<ResolversTypes['FeedsResult'], ParentType, ContextType, RequireFields<QueryFeedsArgs, 'input'>>;
   filters?: Resolver<ResolversTypes['FiltersResult'], ParentType, ContextType>;
-  getDiscoveryArticles?: Resolver<ResolversTypes['GetDiscoveryArticleResults'], ParentType, ContextType, RequireFields<QueryGetDiscoveryArticlesArgs, 'discoveryTopicId'>>;
+  getDiscoverFeedArticles?: Resolver<ResolversTypes['GetDiscoverFeedArticleResults'], ParentType, ContextType, RequireFields<QueryGetDiscoverFeedArticlesArgs, 'discoverTopicId'>>;
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6053,16 +6226,16 @@ export type SaveArticleReadingProgressSuccessResolvers<ContextType = ResolverCon
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SaveDiscoveryArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveDiscoveryArticleError'] = ResolversParentTypes['SaveDiscoveryArticleError']> = {
-  errorCodes?: Resolver<Array<ResolversTypes['SaveDiscoveryArticleErrorCode']>, ParentType, ContextType>;
+export type SaveDiscoverArticleErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveDiscoverArticleError'] = ResolversParentTypes['SaveDiscoverArticleError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['SaveDiscoverArticleErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type SaveDiscoveryArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveDiscoveryArticleResult'] = ResolversParentTypes['SaveDiscoveryArticleResult']> = {
-  __resolveType: TypeResolveFn<'SaveDiscoveryArticleError' | 'SaveDiscoveryArticleSuccess', ParentType, ContextType>;
+export type SaveDiscoverArticleResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveDiscoverArticleResult'] = ResolversParentTypes['SaveDiscoverArticleResult']> = {
+  __resolveType: TypeResolveFn<'SaveDiscoverArticleError' | 'SaveDiscoverArticleSuccess', ParentType, ContextType>;
 };
 
-export type SaveDiscoveryArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveDiscoveryArticleSuccess'] = ResolversParentTypes['SaveDiscoveryArticleSuccess']> = {
+export type SaveDiscoverArticleSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SaveDiscoverArticleSuccess'] = ResolversParentTypes['SaveDiscoverArticleSuccess']> = {
   saveId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6800,6 +6973,9 @@ export type WebhooksSuccessResolvers<ContextType = ResolverContext, ParentType e
 };
 
 export type Resolvers<ContextType = ResolverContext> = {
+  AddDiscoverFeedError?: AddDiscoverFeedErrorResolvers<ContextType>;
+  AddDiscoverFeedResult?: AddDiscoverFeedResultResolvers<ContextType>;
+  AddDiscoverFeedSuccess?: AddDiscoverFeedSuccessResolvers<ContextType>;
   AddPopularReadError?: AddPopularReadErrorResolvers<ContextType>;
   AddPopularReadResult?: AddPopularReadResultResolvers<ContextType>;
   AddPopularReadSuccess?: AddPopularReadSuccessResolvers<ContextType>;
@@ -6856,9 +7032,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeleteAccountError?: DeleteAccountErrorResolvers<ContextType>;
   DeleteAccountResult?: DeleteAccountResultResolvers<ContextType>;
   DeleteAccountSuccess?: DeleteAccountSuccessResolvers<ContextType>;
-  DeleteDiscoveryArticleError?: DeleteDiscoveryArticleErrorResolvers<ContextType>;
-  DeleteDiscoveryArticleResult?: DeleteDiscoveryArticleResultResolvers<ContextType>;
-  DeleteDiscoveryArticleSuccess?: DeleteDiscoveryArticleSuccessResolvers<ContextType>;
+  DeleteDiscoverArticleError?: DeleteDiscoverArticleErrorResolvers<ContextType>;
+  DeleteDiscoverArticleResult?: DeleteDiscoverArticleResultResolvers<ContextType>;
+  DeleteDiscoverArticleSuccess?: DeleteDiscoverArticleSuccessResolvers<ContextType>;
+  DeleteDiscoverFeedError?: DeleteDiscoverFeedErrorResolvers<ContextType>;
+  DeleteDiscoverFeedResult?: DeleteDiscoverFeedResultResolvers<ContextType>;
+  DeleteDiscoverFeedSuccess?: DeleteDiscoverFeedSuccessResolvers<ContextType>;
   DeleteFilterError?: DeleteFilterErrorResolvers<ContextType>;
   DeleteFilterResult?: DeleteFilterResultResolvers<ContextType>;
   DeleteFilterSuccess?: DeleteFilterSuccessResolvers<ContextType>;
@@ -6893,8 +7072,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeviceTokensError?: DeviceTokensErrorResolvers<ContextType>;
   DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
   DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
-  DiscoveryArticle?: DiscoveryArticleResolvers<ContextType>;
-  DiscoveryTopic?: DiscoveryTopicResolvers<ContextType>;
+  DiscoverFeed?: DiscoverFeedResolvers<ContextType>;
+  DiscoverFeedArticle?: DiscoverFeedArticleResolvers<ContextType>;
+  DiscoverFeedError?: DiscoverFeedErrorResolvers<ContextType>;
+  DiscoverFeedResult?: DiscoverFeedResultResolvers<ContextType>;
+  DiscoverFeedSuccess?: DiscoverFeedSuccessResolvers<ContextType>;
+  DiscoverTopic?: DiscoverTopicResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   Feed?: FeedResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
@@ -6916,12 +7099,12 @@ export type Resolvers<ContextType = ResolverContext> = {
   GenerateApiKeyError?: GenerateApiKeyErrorResolvers<ContextType>;
   GenerateApiKeyResult?: GenerateApiKeyResultResolvers<ContextType>;
   GenerateApiKeySuccess?: GenerateApiKeySuccessResolvers<ContextType>;
-  GetDiscoveryArticleError?: GetDiscoveryArticleErrorResolvers<ContextType>;
-  GetDiscoveryArticleResults?: GetDiscoveryArticleResultsResolvers<ContextType>;
-  GetDiscoveryArticleSuccess?: GetDiscoveryArticleSuccessResolvers<ContextType>;
-  GetDiscoveryTopicError?: GetDiscoveryTopicErrorResolvers<ContextType>;
-  GetDiscoveryTopicResults?: GetDiscoveryTopicResultsResolvers<ContextType>;
-  GetDiscoveryTopicSuccess?: GetDiscoveryTopicSuccessResolvers<ContextType>;
+  GetDiscoverFeedArticleError?: GetDiscoverFeedArticleErrorResolvers<ContextType>;
+  GetDiscoverFeedArticleResults?: GetDiscoverFeedArticleResultsResolvers<ContextType>;
+  GetDiscoverFeedArticleSuccess?: GetDiscoverFeedArticleSuccessResolvers<ContextType>;
+  GetDiscoverTopicError?: GetDiscoverTopicErrorResolvers<ContextType>;
+  GetDiscoverTopicResults?: GetDiscoverTopicResultsResolvers<ContextType>;
+  GetDiscoverTopicSuccess?: GetDiscoverTopicSuccessResolvers<ContextType>;
   GetFollowersError?: GetFollowersErrorResolvers<ContextType>;
   GetFollowersResult?: GetFollowersResultResolvers<ContextType>;
   GetFollowersSuccess?: GetFollowersSuccessResolvers<ContextType>;
@@ -7028,9 +7211,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   SaveArticleReadingProgressError?: SaveArticleReadingProgressErrorResolvers<ContextType>;
   SaveArticleReadingProgressResult?: SaveArticleReadingProgressResultResolvers<ContextType>;
   SaveArticleReadingProgressSuccess?: SaveArticleReadingProgressSuccessResolvers<ContextType>;
-  SaveDiscoveryArticleError?: SaveDiscoveryArticleErrorResolvers<ContextType>;
-  SaveDiscoveryArticleResult?: SaveDiscoveryArticleResultResolvers<ContextType>;
-  SaveDiscoveryArticleSuccess?: SaveDiscoveryArticleSuccessResolvers<ContextType>;
+  SaveDiscoverArticleError?: SaveDiscoverArticleErrorResolvers<ContextType>;
+  SaveDiscoverArticleResult?: SaveDiscoverArticleResultResolvers<ContextType>;
+  SaveDiscoverArticleSuccess?: SaveDiscoverArticleSuccessResolvers<ContextType>;
   SaveError?: SaveErrorResolvers<ContextType>;
   SaveFilterError?: SaveFilterErrorResolvers<ContextType>;
   SaveFilterResult?: SaveFilterResultResolvers<ContextType>;

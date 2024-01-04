@@ -29,6 +29,7 @@ const VALID_USERS = new Set([
   'hongbowu',
   'mollydot',
   'jackson.harper',
+  'podginator',
 ]) // Will have missed people here
 const TOPIC_NAME = 'discordCommunityArticles'
 
@@ -41,9 +42,9 @@ const createMessageFromEmbed = (embed: Embed): OmnivoreArticle => {
     slug: slugify(embed.url),
     title: embed.title,
     description: embed.description,
-    image: embed.thumbnail.url,
+    image: embed.thumbnail?.url,
     url: embed.url,
-    authors: embed.author.name ?? '',
+    authors: embed.author?.name ?? new URL(embed.url).host,
     publishedAt: new Date(),
     site: embed.url,
     type: 'community',
@@ -59,13 +60,14 @@ client.on(
       : props.message
     const embed = message.embeds[0]
     const userName = user.username
+    console.log(embed)
 
     if (emoji === '🦥' && VALID_USERS.has(userName) && embed) {
       await pubSubClient
         .topic(TOPIC_NAME)
         .publishMessage({ json: createMessageFromEmbed(embed) })
     }
-  }
+  },
 )
 
 client.login(process.env.DISCORD_BOT_KEY)

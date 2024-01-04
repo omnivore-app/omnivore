@@ -141,10 +141,13 @@ import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
 import {
-  deleteDiscoveryArticleResolver,
-  getDiscoveryArticlesResolver,
-  saveDiscoveryArticleResolver,
-} from './discover_articles'
+  addDiscoverFeedResolver,
+  getDiscoverFeedsResolver,
+  getDiscoverFeedArticlesResolver,
+  saveDiscoverArticleResolver,
+  deleteDiscoverArticleResolver,
+  deleteDiscoverFeedsResolver,
+} from './discover_feeds'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -234,14 +237,17 @@ export const functionResolvers = {
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
-    saveDiscoveryArticle: saveDiscoveryArticleResolver,
-    deleteDiscoveryArticle: deleteDiscoveryArticleResolver,
+    saveDiscoverArticle: saveDiscoverArticleResolver,
+    deleteDiscoverArticle: deleteDiscoverArticleResolver,
     moveToFolder: moveToFolderResolver,
     updateNewsletterEmail: updateNewsletterEmailResolver,
+    addDiscoverFeed: addDiscoverFeedResolver,
+    deleteDiscoverFeed: deleteDiscoverFeedsResolver,
   },
   Query: {
     me: getMeUserResolver,
-    getDiscoveryArticles: getDiscoveryArticlesResolver,
+    getDiscoverFeedArticles: getDiscoverFeedArticlesResolver,
+    discoverFeeds: getDiscoverFeedsResolver,
     user: getUserResolver,
     users: getAllUsersResolver,
     validateUsername: validateUsernameResolver,

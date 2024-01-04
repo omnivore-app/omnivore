@@ -2646,50 +2646,51 @@ const schema = gql`
     email: String!
   }
 
-  # Query: GetDiscoveryTopic
-  union GetDiscoveryTopicResults =
-      GetDiscoveryTopicSuccess
-    | GetDiscoveryTopicError
+  # Query: GetDiscoverTopic
+  union GetDiscoverTopicResults =
+      GetDiscoverTopicSuccess
+    | GetDiscoverTopicError
 
-  enum GetDiscoveryTopicErrorCode {
+  enum GetDiscoverTopicErrorCode {
     UNAUTHORIZED
   }
 
-  type GetDiscoveryTopicError {
-    errorCodes: [GetDiscoveryTopicErrorCode!]!
+  type GetDiscoverTopicError {
+    errorCodes: [GetDiscoverTopicErrorCode!]!
   }
 
-  type GetDiscoveryTopicSuccess {
-    discoverTopics: [DiscoveryTopic!]
+  type GetDiscoverTopicSuccess {
+    discoverTopics: [DiscoverTopic!]
   }
 
-  type DiscoveryTopic {
+  type DiscoverTopic {
     name: String!
     description: String!
   }
 
-  # Query: GetDiscoveryArticle
-  union GetDiscoveryArticleResults =
-      GetDiscoveryArticleSuccess
-    | GetDiscoveryArticleError
+  # Query: GetDiscoverFeedArticle
+  union GetDiscoverFeedArticleResults =
+      GetDiscoverFeedArticleSuccess
+    | GetDiscoverFeedArticleError
 
-  enum GetDiscoveryArticleErrorCode {
+  enum GetDiscoverFeedArticleErrorCode {
     UNAUTHORIZED
     NOT_FOUND
     BAD_REQUEST
   }
 
-  type GetDiscoveryArticleError {
-    errorCodes: [GetDiscoveryArticleErrorCode!]!
+  type GetDiscoverFeedArticleError {
+    errorCodes: [GetDiscoverFeedArticleErrorCode!]!
   }
 
-  type GetDiscoveryArticleSuccess {
-    discoverArticles: [DiscoveryArticle!]
+  type GetDiscoverFeedArticleSuccess {
+    discoverArticles: [DiscoverFeedArticle]
     pageInfo: PageInfo!
   }
 
-  type DiscoveryArticle {
+  type DiscoverFeedArticle {
     id: ID!
+    feed: String!
     title: String!
     url: String!
     image: String
@@ -2702,50 +2703,50 @@ const schema = gql`
     savedId: String
   }
 
-  # Mutation: SaveDiscoveryArticle
-  input SaveDiscoveryArticleInput {
-    discoveryArticleId: ID!
+  # Mutation: SaveDiscoverArticle
+  input SaveDiscoverArticleInput {
+    discoverArticleId: ID!
     locale: String
     timezone: String
   }
 
-  union SaveDiscoveryArticleResult =
-      SaveDiscoveryArticleSuccess
-    | SaveDiscoveryArticleError
+  union SaveDiscoverArticleResult =
+      SaveDiscoverArticleSuccess
+    | SaveDiscoverArticleError
 
-  type SaveDiscoveryArticleSuccess {
+  type SaveDiscoverArticleSuccess {
     url: String!
     saveId: String!
   }
 
-  type SaveDiscoveryArticleError {
-    errorCodes: [SaveDiscoveryArticleErrorCode!]!
+  type SaveDiscoverArticleError {
+    errorCodes: [SaveDiscoverArticleErrorCode!]!
   }
 
-  enum SaveDiscoveryArticleErrorCode {
+  enum SaveDiscoverArticleErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
   }
 
-  # Mutation: DeleteDiscoveryArticle
-  input DeleteDiscoveryArticleInput {
-    discoveryArticleId: ID!
+  # Mutation: DeleteDiscoverArticle
+  input DeleteDiscoverArticleInput {
+    discoverArticleId: ID!
   }
 
-  union DeleteDiscoveryArticleResult =
-      DeleteDiscoveryArticleSuccess
-    | DeleteDiscoveryArticleError
+  union DeleteDiscoverArticleResult =
+      DeleteDiscoverArticleSuccess
+    | DeleteDiscoverArticleError
 
-  type DeleteDiscoveryArticleSuccess {
+  type DeleteDiscoverArticleSuccess {
     id: ID!
   }
 
-  type DeleteDiscoveryArticleError {
-    errorCodes: [DeleteDiscoveryArticleErrorCode!]!
+  type DeleteDiscoverArticleError {
+    errorCodes: [DeleteDiscoverArticleErrorCode!]!
   }
 
-  enum DeleteDiscoveryArticleErrorCode {
+  enum DeleteDiscoverArticleErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
     NOT_FOUND
@@ -2866,6 +2867,75 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  type DiscoverFeed {
+    id: ID!
+    title: String!
+    link: String!
+    description: String
+    image: String
+    type: String!
+    visibleName: String
+  }
+
+  union DiscoverFeedResult = DiscoverFeedSuccess | DiscoverFeedError
+
+  type DiscoverFeedSuccess {
+    feeds: [DiscoverFeed]!
+  }
+
+  type DiscoverFeedError {
+    errorCodes: [DiscoverFeedErrorCode!]!
+  }
+
+  enum DiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input AddDiscoverFeedInput {
+    url: String!
+  }
+
+  union AddDiscoverFeedResult = AddDiscoverFeedSuccess | AddDiscoverFeedError
+
+  type AddDiscoverFeedSuccess {
+    feed: DiscoverFeed!
+  }
+
+  type AddDiscoverFeedError {
+    errorCodes: [AddDiscoverFeedErrorCode!]!
+  }
+
+  enum AddDiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    CONFLICT
+    NOT_FOUND
+  }
+
+  union DeleteDiscoverFeedResult =
+      DeleteDiscoverFeedSuccess
+    | DeleteDiscoverFeedError
+
+  type DeleteDiscoverFeedSuccess {
+    id: String!
+  }
+
+  type DeleteDiscoverFeedError {
+    errorCodes: [DeleteDiscoverFeedErrorCode!]!
+  }
+
+  enum DeleteDiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    CONFLICT
+    NOT_FOUND
+  }
+
+  input DeleteDiscoverFeedInput {
+    feedId: ID!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2933,12 +3003,12 @@ const schema = gql`
     unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
     subscribe(input: SubscribeInput!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
-    saveDiscoveryArticle(
-      input: SaveDiscoveryArticleInput!
-    ): SaveDiscoveryArticleResult!
-    deleteDiscoveryArticle(
-      input: DeleteDiscoveryArticleInput!
-    ): DeleteDiscoveryArticleResult!
+    saveDiscoverArticle(
+      input: SaveDiscoverArticleInput!
+    ): SaveDiscoverArticleResult!
+    deleteDiscoverArticle(
+      input: DeleteDiscoverArticleInput!
+    ): DeleteDiscoverArticleResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -2983,6 +3053,10 @@ const schema = gql`
     updateNewsletterEmail(
       input: UpdateNewsletterEmailInput!
     ): UpdateNewsletterEmailResult!
+    addDiscoverFeed(input: AddDiscoverFeedInput!): AddDiscoverFeedResult!
+    deleteDiscoverFeed(
+      input: DeleteDiscoverFeedInput!
+    ): DeleteDiscoverFeedResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed
@@ -3019,12 +3093,13 @@ const schema = gql`
       includeContent: Boolean
       format: String
     ): SearchResult!
-    getDiscoveryArticles(
-      discoveryTopicId: String!
+    getDiscoverFeedArticles(
+      discoverTopicId: String!
+      feedId: ID
       after: String
       first: Int
-    ): GetDiscoveryArticleResults!
-    discoveryTopics: GetDiscoveryTopicResults!
+    ): GetDiscoverFeedArticleResults!
+    discoverTopics: GetDiscoverTopicResults!
     subscriptions(
       sort: SortParams
       type: SubscriptionType
@@ -3049,6 +3124,7 @@ const schema = gql`
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
     feeds(input: FeedsInput!): FeedsResult!
+    discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   }
 `
