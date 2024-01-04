@@ -58,6 +58,30 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   )
 }
 
+const feedFetchFailedRedisKey = (feedUrl: string) =>
+  `feed-fetch-failure:${feedUrl}`
+
+const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
+  const key = feedFetchFailedRedisKey(feedUrl)
+  const result = await redisClient.get(key)
+  // if the feed has failed to fetch more than certain times, block it
+  const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
+  if (result && parseInt(result) > maxFailures) {
+    return true
+  }
+
+  return false
+}
+
+const blockFeed = async (feedUrl: string, redisClient: RedisClient) => {
+  const key = feedFetchFailedRedisKey(feedUrl)
+  const result = await redisClient.incr(key)
+  // expire the key in 1 day
+  await redisClient.expire(key, 24 * 60 * 60, 'NX')
+
+  return result
+}
+
 export const isContentFetchBlocked = (feedUrl: string) => {
   if (feedUrl.startsWith('https://arxiv.org/')) {
     return true
@@ -590,10 +614,17 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       } = req.body
       console.log('Processing feed', feedUrl)
 
+      const isBlocked = await isFeedBlocked(feedUrl, redisClient)
+      if (isBlocked) {
+        console.log('feed is blocked: ', feedUrl)
+        return res.sendStatus(200)
+      }
+
       const fetchResult = await fetchAndChecksum(feedUrl)
       const feed = await parseFeed(feedUrl, fetchResult.content)
       if (!feed) {
         console.error('Failed to parse RSS feed', feedUrl)
+        await blockFeed(feedUrl, redisClient)
         return res.status(500).send('INVALID_RSS_FEED')
       }
 
