@@ -739,8 +739,7 @@ export const updateLibraryItemReadingProgress = async (
   userId: string,
   bottomPercent: number,
   topPercent: number | null = null,
-  anchorIndex: number | null = null,
-  pubsub = createPubSubClient()
+  anchorIndex: number | null = null
 ): Promise<LibraryItem | null> => {
   // If we have a top percent, we only save it if it's greater than the current top percent
   // or set to zero if the top percent is zero.
@@ -787,19 +786,6 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
-    EntityType.PAGE,
-    {
-      id,
-      readingProgressBottomPercent: updatedItem.readingProgressBottomPercent,
-      readingProgressTopPercent: updatedItem.readingProgressTopPercent,
-      readingProgressHighestReadAnchor:
-        updatedItem.readingProgressHighestReadAnchor,
-      readAt: updatedItem.readAt,
-    },
-    userId
-  )
-
   return updatedItem
 }
 
