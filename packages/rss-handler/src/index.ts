@@ -43,7 +43,7 @@ type RssFeed = Parser.Output<{
 type RssFeedItemMedia = {
   $: { url: string; width?: string; height?: string; medium?: string }
 }
-type RssFeedItem = Item & {
+export type RssFeedItem = Item & {
   'media:thumbnail'?: RssFeedItemMedia
   'media:content'?: RssFeedItemMedia[]
   link: string
