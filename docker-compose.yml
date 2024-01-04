@@ -31,6 +31,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  
+  redis:
+    image: "redis:6.0.9-alpine"
+    container_name: "omnivore-redis"
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
 
   api:
     build:
@@ -61,6 +69,8 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
 
   web:
     build:
