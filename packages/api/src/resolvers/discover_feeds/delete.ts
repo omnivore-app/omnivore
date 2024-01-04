@@ -2,8 +2,8 @@ import { authorized, getAbsoluteUrl } from '../../utils/helpers'
 import {
   DeleteDiscoverFeedError,
   DeleteDiscoverFeedErrorCode,
-  DeleteDiscoverFeedInput,
   DeleteDiscoverFeedSuccess,
+  MutationDeleteDiscoverFeedArgs,
 } from '../../generated/graphql'
 import { appDataSource } from '../../data_source'
 import { QueryRunner } from 'typeorm'
@@ -11,8 +11,8 @@ import { QueryRunner } from 'typeorm'
 export const deleteDiscoverFeedsResolver = authorized<
   DeleteDiscoverFeedSuccess,
   DeleteDiscoverFeedError,
-  DeleteDiscoverFeedInput
->(async (_, { feedId }, { uid, log }) => {
+  MutationDeleteDiscoverFeedArgs
+>(async (_, { input: { feedId } }, { uid, log }) => {
   try {
     const queryRunner = (await appDataSource
       .createQueryRunner()

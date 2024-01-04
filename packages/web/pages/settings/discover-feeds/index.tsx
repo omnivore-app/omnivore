@@ -10,20 +10,12 @@ import {
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { theme } from '../../../components/tokens/stitches.config'
-import { unsubscribeMutation } from '../../../lib/networking/mutations/unsubscribeMutation'
-import {
-  UpdateSubscriptionInput,
-  updateSubscriptionMutation,
-} from '../../../lib/networking/mutations/updateSubscriptionMutation'
-import {
-  SubscriptionStatus,
-  SubscriptionType,
-  useGetSubscriptionsQuery,
-} from '../../../lib/networking/queries/useGetSubscriptionsQuery'
+import { unsubscribeDiscoverFeedMutation } from '../../../lib/networking/mutations/unsubscribeDiscoverFeedMutation'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { formatMessage } from '../../../locales/en/messages'
 import { useGetDiscoverFeeds } from "../../../lib/networking/queries/useGetDiscoverFeeds"
+import { UpdateDiscoverFeedInput, updateDiscoverFeedMutation } from "../../../lib/networking/mutations/updateDiscoverFeedMutation"
 
 export default function DiscoverFeedsSettings(): JSX.Element {
   const router = useRouter()
@@ -31,8 +23,6 @@ export default function DiscoverFeedsSettings(): JSX.Element {
   const [onDeleteId, setOnDeleteId] = useState<string>('')
   const [onEditId, setOnEditId] = useState('')
   const [onEditName, setOnEditName] = useState('')
-  const [onPauseId, setOnPauseId] = useState('')
-  const [onEditStatus, setOnEditStatus] = useState<SubscriptionStatus>()
 
   const sortedFeeds = useMemo(() => {
     if (!feeds) {
@@ -42,13 +32,13 @@ export default function DiscoverFeedsSettings(): JSX.Element {
   }, [feeds])
 
   async function updateSubscription(
-    input: UpdateSubscriptionInput
+    input: UpdateDiscoverFeedInput
   ): Promise<void> {
-    const result = await updateSubscriptionMutation(input)
+    const result = await updateDiscoverFeedMutation(input)
 
-    if (result.updateSubscription.errorCodes) {
+    if (result.editDiscoverFeed.errorCodes) {
       const errorMessage = formatMessage({
-        id: `error.${result.updateSubscription.errorCodes[0]}`,
+        id: `error.${result.editDiscoverFeed.errorCodes[0]}`,
       })
       showErrorToast(`failed to update subscription: ${errorMessage}`, {
         position: 'bottom-right',
@@ -56,37 +46,16 @@ export default function DiscoverFeedsSettings(): JSX.Element {
       return
     }
 
-    showSuccessToast('Feed updated', { position: 'bottom-right' })
+    showSuccessToast('Discover Feed updated', { position: 'bottom-right' })
     revalidate()
   }
 
   async function onDelete(id: string): Promise<void> {
-    const result = await unsubscribeMutation('', id)
+    const result = await unsubscribeDiscoverFeedMutation(id)
     if (result) {
-      showSuccessToast('Feed unsubscribed', { position: 'bottom-right' })
+      showSuccessToast('Discover Feed unsubscribed', { position: 'bottom-right' })
     } else {
       showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
-    }
-    revalidate()
-  }
-
-  async function onPause(
-    id: string,
-    status: SubscriptionStatus = 'UNSUBSCRIBED'
-  ): Promise<void> {
-    const result = await updateSubscriptionMutation({
-      id,
-      status,
-    })
-
-    const action = status == 'UNSUBSCRIBED' ? 'pause' : 'resume'
-
-    if (result) {
-      showSuccessToast(`Feed ${action}d`, {
-        position: 'bottom-right',
-      })
-    } else {
-      showErrorToast(`Failed to ${action}`, { position: 'bottom-right' })
     }
     revalidate()
   }
@@ -120,9 +89,9 @@ export default function DiscoverFeedsSettings(): JSX.Element {
         sortedFeeds.map((feed, i) => {
           return (
             <SettingsTableRow
-              key={feed.title}
+              key={feed.id}
               title={
-                onEditId === feed.title ? (
+                onEditId === feed.id ? (
                   <HStack alignment={'center'} distribution={'start'}>
                     <FormInput
                       value={onEditName}
@@ -146,7 +115,7 @@ export default function DiscoverFeedsSettings(): JSX.Element {
                         onClick={async (e) => {
                           e.stopPropagation()
                           await updateSubscription({
-                            id: onEditId,
+                            feedId: onEditId,
                             name: onEditName,
                           })
                           setOnEditId('')
@@ -243,31 +212,12 @@ export default function DiscoverFeedsSettings(): JSX.Element {
 
       {onDeleteId && (
         <ConfirmationModal
-          message={'Feed will be unsubscribed. This action cannot be undone.'}
+          message={'Discover Feed will be unsubscribed.'}
           onAccept={async () => {
             await onDelete(onDeleteId)
             setOnDeleteId('')
           }}
           onOpenChange={() => setOnDeleteId('')}
-        />
-      )}
-
-      {onPauseId && (
-        <ConfirmationModal
-          message={`Feed will be ${
-            onEditStatus === 'UNSUBSCRIBED' ? 'paused' : 'resumed'
-          }. You can ${
-            onEditStatus === 'UNSUBSCRIBED' ? 'resume' : 'pause'
-          } it at any time.`}
-          onAccept={async () => {
-            await onPause(onPauseId, onEditStatus)
-            setOnPauseId('')
-            setOnEditStatus(undefined)
-          }}
-          onOpenChange={() => {
-            setOnPauseId('')
-            setOnEditStatus(undefined)
-          }}
         />
       )}
     </SettingsTable>

@@ -198,3 +198,10 @@ CREATE TRIGGER insert_discover_feed_new_user
     FOR EACH ROW EXECUTE PROCEDURE omnivore.create_discover_feed_subscription();
 
 COMMIT;
+
+CREATE INDEX IF NOT EXISTS save_to_article_idx ON omnivore.discover_feed_save_link(discover_article_id);
+CREATE INDEX IF NOT EXISTS user_to_save_idx ON omnivore.discover_feed_save_link(user_id);
+CREATE INDEX IF NOT EXISTS feed_sub_to_user_idx ON omnivore.discover_feed_subscription(user_id);
+CREATE INDEX IF NOT EXISTS articles_to_feed_idx on omnivore.discover_feed_articles(feed_id);
+CREATE INDEX IF NOT EXISTS topic_idx ON omnivore.discover_feed_article_topic_link(discover_topic_name);
+CREATE INDEX IF NOT EXISTS published_at_sort_idx ON omnivore.discover_feed_articles(published_at)

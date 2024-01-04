@@ -845,6 +845,29 @@ export type DiscoverTopic = {
   name: Scalars['String'];
 };
 
+export type EditDiscoverFeedError = {
+  __typename?: 'EditDiscoverFeedError';
+  errorCodes: Array<EditDiscoverFeedErrorCode>;
+};
+
+export enum EditDiscoverFeedErrorCode {
+  BadRequest = 'BAD_REQUEST',
+  NotFound = 'NOT_FOUND',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type EditDiscoverFeedInput = {
+  feedId: Scalars['ID'];
+  name: Scalars['String'];
+};
+
+export type EditDiscoverFeedResult = EditDiscoverFeedError | EditDiscoverFeedSuccess;
+
+export type EditDiscoverFeedSuccess = {
+  __typename?: 'EditDiscoverFeedSuccess';
+  id: Scalars['ID'];
+};
+
 export type Feature = {
   __typename?: 'Feature';
   createdAt: Scalars['Date'];
@@ -1508,6 +1531,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
+  editDiscoverFeed: EditDiscoverFeedResult;
   fetchContent: FetchContentResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
@@ -1655,6 +1679,11 @@ export type MutationDeleteRuleArgs = {
 
 export type MutationDeleteWebhookArgs = {
   id: Scalars['ID'];
+};
+
+
+export type MutationEditDiscoverFeedArgs = {
+  input: EditDiscoverFeedInput;
 };
 
 
@@ -3898,6 +3927,11 @@ export type ResolversTypes = {
   DiscoverFeedResult: ResolversTypes['DiscoverFeedError'] | ResolversTypes['DiscoverFeedSuccess'];
   DiscoverFeedSuccess: ResolverTypeWrapper<DiscoverFeedSuccess>;
   DiscoverTopic: ResolverTypeWrapper<DiscoverTopic>;
+  EditDiscoverFeedError: ResolverTypeWrapper<EditDiscoverFeedError>;
+  EditDiscoverFeedErrorCode: EditDiscoverFeedErrorCode;
+  EditDiscoverFeedInput: EditDiscoverFeedInput;
+  EditDiscoverFeedResult: ResolversTypes['EditDiscoverFeedError'] | ResolversTypes['EditDiscoverFeedSuccess'];
+  EditDiscoverFeedSuccess: ResolverTypeWrapper<EditDiscoverFeedSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
   Feed: ResolverTypeWrapper<Feed>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
@@ -4435,6 +4469,10 @@ export type ResolversParentTypes = {
   DiscoverFeedResult: ResolversParentTypes['DiscoverFeedError'] | ResolversParentTypes['DiscoverFeedSuccess'];
   DiscoverFeedSuccess: DiscoverFeedSuccess;
   DiscoverTopic: DiscoverTopic;
+  EditDiscoverFeedError: EditDiscoverFeedError;
+  EditDiscoverFeedInput: EditDiscoverFeedInput;
+  EditDiscoverFeedResult: ResolversParentTypes['EditDiscoverFeedError'] | ResolversParentTypes['EditDiscoverFeedSuccess'];
+  EditDiscoverFeedSuccess: EditDiscoverFeedSuccess;
   Feature: Feature;
   Feed: Feed;
   FeedArticle: FeedArticle;
@@ -5340,6 +5378,20 @@ export type DiscoverTopicResolvers<ContextType = ResolverContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type EditDiscoverFeedErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['EditDiscoverFeedError'] = ResolversParentTypes['EditDiscoverFeedError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['EditDiscoverFeedErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EditDiscoverFeedResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['EditDiscoverFeedResult'] = ResolversParentTypes['EditDiscoverFeedResult']> = {
+  __resolveType: TypeResolveFn<'EditDiscoverFeedError' | 'EditDiscoverFeedSuccess', ParentType, ContextType>;
+};
+
+export type EditDiscoverFeedSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['EditDiscoverFeedSuccess'] = ResolversParentTypes['EditDiscoverFeedSuccess']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeatureResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -5857,6 +5909,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
+  editDiscoverFeed?: Resolver<ResolversTypes['EditDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationEditDiscoverFeedArgs, 'input'>>;
   fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
@@ -7078,6 +7131,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DiscoverFeedResult?: DiscoverFeedResultResolvers<ContextType>;
   DiscoverFeedSuccess?: DiscoverFeedSuccessResolvers<ContextType>;
   DiscoverTopic?: DiscoverTopicResolvers<ContextType>;
+  EditDiscoverFeedError?: EditDiscoverFeedErrorResolvers<ContextType>;
+  EditDiscoverFeedResult?: EditDiscoverFeedResultResolvers<ContextType>;
+  EditDiscoverFeedSuccess?: EditDiscoverFeedSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   Feed?: FeedResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;

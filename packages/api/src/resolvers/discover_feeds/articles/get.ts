@@ -43,7 +43,7 @@ const getPopularTopics = (
       SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0) as popularity_score, article_save_id, article_save_url
       FROM omnivore.omnivore.discover_feed_articles 
       LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
-      LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
+      LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
       AND (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')       ${
         feedId != null ? `AND feed_id = $4` : ''
@@ -70,8 +70,7 @@ const getAllTopics = (
     `
       SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, article_save_id, article_save_url
       FROM omnivore.omnivore.discover_feed_articles 
-      LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
-      LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
+      LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}') 
       ${feedId != null ? `AND feed_id = $4` : ''}
       ORDER BY published_at DESC
@@ -94,18 +93,15 @@ const getTopicInformation = (
     params.push(feedId)
   }
   return queryRunner.query(
-    `
-      SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, COALESCE(sl.count, 0) as saves, article_save_id, article_save_url
-      FROM omnivore.discover_feed_article_topic_link 
-      INNER JOIN omnivore.discover_feed_articles on id=discover_feed_article_id  
-      LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
-      LEFT JOIN ( SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
-      WHERE discover_topic_name=$2
-      AND (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')  
-      ${feedId != null ? `AND feed_id = $5` : ''}
-      ORDER BY published_at DESC
-      LIMIT $3 OFFSET $4
-      `,
+    `SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, article_save_id, article_save_url 
+     FROM omnivore.discover_feed_articles
+     INNER JOIN (SELECT discover_feed_article_id FROM omnivore.discover_feed_article_topic_link WHERE discover_topic_name=$2) topic on topic.discover_feed_article_id=id
+     LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
+     WHERE (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')  
+     ${feedId != null ? `AND feed_id = $5` : ''}
+     ORDER BY published_at DESC
+     LIMIT $3 OFFSET $4
+     `,
     params,
   ) as Promise<DiscoverFeedArticleDBRows>
 }

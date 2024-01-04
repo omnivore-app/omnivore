@@ -147,6 +147,7 @@ import {
   saveDiscoverArticleResolver,
   deleteDiscoverArticleResolver,
   deleteDiscoverFeedsResolver,
+  editDiscoverFeedsResolver,
 } from './discover_feeds'
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -243,6 +244,7 @@ export const functionResolvers = {
     updateNewsletterEmail: updateNewsletterEmailResolver,
     addDiscoverFeed: addDiscoverFeedResolver,
     deleteDiscoverFeed: deleteDiscoverFeedsResolver,
+    editDiscoverFeed: editDiscoverFeedsResolver,
   },
   Query: {
     me: getMeUserResolver,

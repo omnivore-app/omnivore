@@ -751,6 +751,27 @@ type DiscoverTopic {
   name: String!
 }
 
+type EditDiscoverFeedError {
+  errorCodes: [EditDiscoverFeedErrorCode!]!
+}
+
+enum EditDiscoverFeedErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input EditDiscoverFeedInput {
+  feedId: ID!
+  name: String!
+}
+
+union EditDiscoverFeedResult = EditDiscoverFeedError | EditDiscoverFeedSuccess
+
+type EditDiscoverFeedSuccess {
+  id: ID!
+}
+
 type Feature {
   createdAt: Date!
   expiresAt: Date
@@ -1354,6 +1375,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
+  editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
   fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!

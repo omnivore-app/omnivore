@@ -2936,6 +2936,27 @@ const schema = gql`
     feedId: ID!
   }
 
+  union EditDiscoverFeedResult = EditDiscoverFeedSuccess | EditDiscoverFeedError
+
+  type EditDiscoverFeedSuccess {
+    id: ID!
+  }
+
+  type EditDiscoverFeedError {
+    errorCodes: [EditDiscoverFeedErrorCode!]!
+  }
+
+  enum EditDiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  input EditDiscoverFeedInput {
+    feedId: ID!
+    name: String!
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3057,6 +3078,7 @@ const schema = gql`
     deleteDiscoverFeed(
       input: DeleteDiscoverFeedInput!
     ): DeleteDiscoverFeedResult!
+    editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

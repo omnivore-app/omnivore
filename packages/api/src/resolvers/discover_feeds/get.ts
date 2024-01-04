@@ -26,7 +26,6 @@ export const getDiscoverFeedsResolver = authorized<
       rows: DiscoverFeed[]
     }
 
-    console.log(existingFeed)
     await queryRunner.release()
     return {
       __typename: 'DiscoverFeedSuccess',
