@@ -47,7 +47,7 @@ const addTopicsToArticle = async (
 
   const topics = await sqlClient.query(
     `SELECT name, similarity
-    FROM (SELECT discover_topic_name as name, MAX(1- (embed.embedding <=> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
+    FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
     ORDER BY similarity desc`,
     [toSql(articleEmbedding)],
   )

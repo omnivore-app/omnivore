@@ -3,8 +3,10 @@ import { gqlFetcher } from '../networkHelpers'
 import { DiscoverFeed } from '../queries/useGetDiscoverFeeds'
 
 type DiscoverFeedResult = {
-  feed?: DiscoverFeed
-  errorCodes?: DiscoverFeedErrorCode[]
+  addDiscoverFeed: {
+    feed?: DiscoverFeed
+    errorCodes?: DiscoverFeedErrorCode[]
+  }
 }
 
 enum DiscoverFeedErrorCode {
@@ -41,7 +43,9 @@ export async function addDiscoverFeedMutation(
   } catch (error) {
     console.log('subscribeMutation error', error)
     return {
-      errorCodes: [DiscoverFeedErrorCode.BadRequest],
+      addDiscoverFeed: {
+        errorCodes: [DiscoverFeedErrorCode.BadRequest],
+      },
     }
   }
 }

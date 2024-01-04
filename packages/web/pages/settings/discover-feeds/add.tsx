@@ -6,8 +6,6 @@ import { Box, HStack, VStack } from "../../../components/elements/LayoutPrimitiv
 import { StyledText } from "../../../components/elements/StyledText"
 import { PageMetaData } from "../../../components/patterns/PageMetaData"
 import { SettingsLayout } from "../../../components/templates/SettingsLayout"
-import { subscribeMutation } from "../../../lib/networking/mutations/subscribeMutation"
-import { SubscriptionType } from "../../../lib/networking/queries/useGetSubscriptionsQuery"
 import { showSuccessToast } from "../../../lib/toastHelpers"
 import { formatMessage } from "../../../locales/en/messages"
 import { addDiscoverFeedMutation } from "../../../lib/networking/mutations/discoverFeedMutation"
@@ -62,9 +60,9 @@ export default function AddDiscoverFeed(): JSX.Element {
       url: normailizedUrl,
     })
 
-    if (result.errorCodes) {
+    if (result.addDiscoverFeed.errorCodes) {
       const errorMessage = formatMessage({
-        id: `error.${result.errorCodes[0]}`,
+        id: `error.${result.addDiscoverFeed.errorCodes[0]}`,
       })
       setErrorMessage(`There was an error adding new feed: ${errorMessage}`)
       return
