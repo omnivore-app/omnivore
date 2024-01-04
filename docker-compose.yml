@@ -31,18 +31,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-  
-  redis:
-    image: "redis:6.0.9-alpine"
-    container_name: "omnivore-redis"
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 15s
-      timeout: 90s
-    expose:
-      - 6379
 
   api:
     build:

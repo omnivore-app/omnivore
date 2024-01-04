@@ -158,7 +158,10 @@ const main = async (): Promise<void> => {
   // as healthy.
   await appDataSource.initialize()
 
-  await redisClient.connect()
+  // redis is optional
+  if (env.redis.url) {
+    await redisClient.connect()
+  }
 
   const { app, apollo, httpServer } = createApp()
 
