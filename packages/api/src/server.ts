@@ -15,6 +15,7 @@ import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
+import { redisClient } from './redis'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -156,6 +157,8 @@ const main = async (): Promise<void> => {
   // so the container will be restarted and not come online
   // as healthy.
   await appDataSource.initialize()
+
+  await redisClient.connect()
 
   const { app, apollo, httpServer } = createApp()
 

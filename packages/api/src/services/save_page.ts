@@ -13,6 +13,7 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
+import { redisClient } from '../redis'
 import { authTrx } from '../repository'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
@@ -193,6 +194,14 @@ export const savePage = async (
       }
     }
   }
+
+  // save the url in redis for 8 hours so rss-feeder won't try to re-save it
+  const redisKey = `recent-saved-item:${user.id}:${itemToSave.originalUrl}`
+  const expireInSeconds = 60 * 60 * 8
+  await redisClient.set(redisKey, 1, {
+    EX: expireInSeconds,
+    NX: true,
+  })
 
   return {
     clientRequestId,

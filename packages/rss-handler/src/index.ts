@@ -224,7 +224,7 @@ const isItemRecentlySaved = async (
   userId: string,
   url: string
 ) => {
-  const key = `rss-recent-save:${userId}:${url}`
+  const key = `recent-saved-item:${userId}:${url}`
   const result = await redisClient.get(key)
   return !!result
 }
