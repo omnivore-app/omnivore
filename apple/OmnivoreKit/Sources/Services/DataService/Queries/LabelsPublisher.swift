@@ -44,7 +44,7 @@ public extension DataService {
             continuation.resume(throwing: BasicError.message(messageText: "CoreData error"))
           }
         case .error:
-          continuation.resume(throwing: BasicError.message(messageText: "Newsletter Email fetch error"))
+          continuation.resume(throwing: BasicError.message(messageText: "labels fetch error"))
         }
       }
     }

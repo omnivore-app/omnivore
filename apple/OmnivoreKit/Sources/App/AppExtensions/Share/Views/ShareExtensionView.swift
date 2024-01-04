@@ -470,3 +470,26 @@ public struct ShareExtensionView: View {
       }
   }
 }
+
+public struct LoggedOutShareExtensionView: View {
+  let extensionContext: NSExtensionContext?
+
+  public init(
+    extensionContext: NSExtensionContext?)
+  {
+    self.extensionContext = extensionContext
+  }
+
+  public var body: some View {
+    VStack(spacing: 20) {
+      Text("You are not logged in. Please open the Omnivore app and log in to start saving items to your library")
+      Button(action: {
+        if let extensionContext = extensionContext {
+          extensionContext.completeRequest(returningItems: nil)
+        }
+      }, label: { Text("Dismiss") })
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .padding(20)
+  }
+}

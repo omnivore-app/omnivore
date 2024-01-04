@@ -53,10 +53,6 @@ public final class DataService: ObservableObject {
   }
 
   public init(appEnvironment: AppEnvironment, networker: Networker) {
-    if Self.isFirstTimeRunningNewAppBuild() {
-      Self.deleteLocalStorage()
-    }
-
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
@@ -197,6 +193,7 @@ public final class DataService: ObservableObject {
       }
     } catch {
       print(error.localizedDescription)
+      print("ERROR: ", error)
     }
   }
 
