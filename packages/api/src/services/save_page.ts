@@ -195,14 +195,6 @@ export const savePage = async (
     }
   }
 
-  // save the url in redis for 8 hours so rss-feeder won't try to re-save it
-  const redisKey = `recent-saved-item:${user.id}:${itemToSave.originalUrl}`
-  const expireInSeconds = 60 * 60 * 8
-  await redisClient.set(redisKey, 1, {
-    EX: expireInSeconds,
-    NX: true,
-  })
-
   return {
     clientRequestId,
     url: `${homePageURL()}/${user.profile.username}/${slug}`,

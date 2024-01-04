@@ -15,7 +15,7 @@ import {
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { wordsCount } from '../utils/helpers'
+import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
 
 enum ReadFilter {
@@ -817,6 +817,8 @@ export const createLibraryItem = async (
     undefined,
     userId
   )
+
+  await setRecentlySavedItemInRedis(userId, newLibraryItem.originalUrl)
 
   if (skipPubSub) {
     return newLibraryItem
