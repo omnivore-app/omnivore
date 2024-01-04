@@ -424,13 +424,13 @@ struct AnimatingCellHeight: AnimatableModifier {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image.toolbarTrash })
-              .padding(.horizontal, 10)
+              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
 
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image.toolbarArchive.padding(.top, 4) })
-              .padding(.horizontal, 10)
+            }, label: { Image.toolbarArchive })
+              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
 
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
