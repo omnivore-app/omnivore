@@ -13,6 +13,7 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
+import { redisClient } from '../redis'
 import { authTrx } from '../repository'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {

@@ -25,6 +25,7 @@ import {
   SearchItem,
 } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
+import { redisClient } from '../redis'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
@@ -406,4 +407,24 @@ export const isRelativeUrl = (url: string): boolean => {
 
 export const getAbsoluteUrl = (url: string, baseUrl: string): string => {
   return new URL(url, baseUrl).href
+}
+
+export const setRecentlySavedItemInRedis = async (
+  userId: string,
+  url: string
+) => {
+  // save the url in redis for 8 hours so rss-feeder won't try to re-save it
+  const redisKey = `recent-saved-item:${userId}:${url}`
+  const ttlInSeconds = 60 * 60 * 8
+  try {
+    return redisClient.set(redisKey, 1, {
+      EX: ttlInSeconds,
+      NX: true,
+    })
+  } catch (error) {
+    logger.error('error setting recently saved item in redis', {
+      redisKey,
+      error,
+    })
+  }
 }

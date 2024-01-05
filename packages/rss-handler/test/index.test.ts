@@ -1,13 +1,12 @@
 import { expect } from 'chai'
 import 'mocha'
-import { Item } from 'rss-parser'
-import { isOldItem } from '../src'
+import { isOldItem, RssFeedItem } from '../src'
 
 describe('isOldItem', () => {
   it('returns true if item is older than 1 day', () => {
     const item = {
       pubDate: '2020-01-01',
-    } as Item
+    } as RssFeedItem
     const lastFetchedAt = Date.now()
 
     expect(isOldItem(item, lastFetchedAt)).to.be.true
@@ -17,7 +16,7 @@ describe('isOldItem', () => {
     const lastFetchedAt = Date.now()
     const item = {
       pubDate: new Date(lastFetchedAt).toISOString(),
-    } as Item
+    } as RssFeedItem
 
     expect(isOldItem(item, lastFetchedAt)).to.be.true
   })
