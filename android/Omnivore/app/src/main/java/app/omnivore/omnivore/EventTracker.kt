@@ -24,12 +24,15 @@ class EventTracker @Inject constructor(val app: Context) {
     PostHog.setSingletonInstance(posthog)
   }
 
-  fun registerUser(userID: String, intercomHash: String?) {
+  fun registerUser(userID: String, intercomHash: String?, isDebug: Boolean) {
     posthog.identify(userID)
-    Intercom.client().loginIdentifiedUser(Registration.create().withUserId(userID))
-    intercomHash?.let { intercomHash ->
-      Intercom.client().setUserHash(intercomHash)
+    if (!isDebug) {
+      Intercom.client().loginIdentifiedUser(Registration.create().withUserId(userID))
+      intercomHash?.let { intercomHash ->
+        Intercom.client().setUserHash(intercomHash)
+      }
     }
+
   }
 
   fun track(eventName: String, properties: Properties = Properties()) {
