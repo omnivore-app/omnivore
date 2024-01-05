@@ -160,7 +160,12 @@ const main = async (): Promise<void> => {
 
   // redis is optional
   if (env.redis.url) {
+    redisClient.on('error', (err) => {
+      console.error('Redis Client Error', err)
+    })
+
     await redisClient.connect()
+    console.log('Redis Client Connected:', env.redis.url)
   }
 
   const { app, apollo, httpServer } = createApp()

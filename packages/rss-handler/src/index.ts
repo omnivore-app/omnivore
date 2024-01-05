@@ -63,11 +63,15 @@ const feedFetchFailedRedisKey = (feedUrl: string) =>
 
 const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
   const key = feedFetchFailedRedisKey(feedUrl)
-  const result = await redisClient.get(key)
-  // if the feed has failed to fetch more than certain times, block it
-  const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
-  if (result && parseInt(result) > maxFailures) {
-    return true
+  try {
+    const result = await redisClient.get(key)
+    // if the feed has failed to fetch more than certain times, block it
+    const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
+    if (result && parseInt(result) > maxFailures) {
+      return true
+    }
+  } catch (error) {
+    console.error('Failed to check feed block status', feedUrl, error)
   }
 
   return false
@@ -75,11 +79,16 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
 
 const blockFeed = async (feedUrl: string, redisClient: RedisClient) => {
   const key = feedFetchFailedRedisKey(feedUrl)
-  const result = await redisClient.incr(key)
-  // expire the key in 1 day
-  await redisClient.expire(key, 24 * 60 * 60, 'NX')
+  try {
+    const result = await redisClient.incr(key)
+    // expire the key in 1 day
+    await redisClient.expire(key, 24 * 60 * 60, 'NX')
 
-  return result
+    return result
+  } catch (error) {
+    console.error('Failed to block feed', feedUrl, error)
+    return null
+  }
 }
 
 export const isContentFetchBlocked = (feedUrl: string) => {
