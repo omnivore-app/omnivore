@@ -68,6 +68,7 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
     // if the feed has failed to fetch more than certain times, block it
     const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
     if (result && parseInt(result) > maxFailures) {
+      console.log('feed is blocked: ', feedUrl)
       return true
     }
   } catch (error) {
