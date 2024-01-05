@@ -43,27 +43,21 @@ const keysReducer = (
   }
 }
 
-// Labels
-const useInitialKeyMapping = (commands: KeyboardCommand[]): KeyPressed => {
-  const currentKeys: KeyPressed = {}
-  commands.forEach((command) => {
-    command.shortcutKeys.forEach((key) => {
-      const aliases = key.split('|')
-      aliases.forEach((k) => {
-        currentKeys[k.toLowerCase()] = false
+export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
+  const initalKeyMapping = useMemo(() => {
+    const currentKeys: KeyPressed = {}
+    commands.forEach((command) => {
+      command.shortcutKeys.forEach((key) => {
+        const aliases = key.split('|')
+        aliases.forEach((k) => {
+          currentKeys[k.toLowerCase()] = false
+        })
       })
     })
-  })
 
-  KBAR_KEYS.map((key) => (currentKeys[key.toLowerCase()] = false))
-  return currentKeys
-}
-
-export const useKeyboardShortcuts = (commands: KeyboardCommand[]): void => {
-  const initalKeyMapping = useMemo(
-    () => useInitialKeyMapping(commands),
-    [commands]
-  )
+    KBAR_KEYS.map((key) => (currentKeys[key.toLowerCase()] = false))
+    return currentKeys
+  }, [commands])
 
   const [keys, setKeys] = useReducer(keysReducer, initalKeyMapping)
 
