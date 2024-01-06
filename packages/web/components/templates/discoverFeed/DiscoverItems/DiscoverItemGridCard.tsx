@@ -14,7 +14,7 @@ import {
   VStack,
 } from '../../../elements/LayoutPrimitives'
 import { isTouchScreenDevice } from '../../../../lib/deviceType'
-import { FallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
+import { GridFallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
 import { CoverImage } from '../../../elements/CoverImage'
 import {
   AuthorInfoStyle,
@@ -146,7 +146,7 @@ const DiscoverGridCardContent = (
             />
           </HStack>
           {displayFallback ? (
-            <FallbackImage
+            <GridFallbackImage
               title={item.title ?? 'Omnivore Fallback'}
               width="100%"
               height="150px"

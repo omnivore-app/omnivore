@@ -15,7 +15,7 @@ import {
 } from '../../../elements/LayoutPrimitives'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../homeFeed/LibraryFilterMenu'
 import { isTouchScreenDevice } from '../../../../lib/deviceType'
-import { FallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
+import { ListFallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
 import { CoverImage } from '../../../elements/CoverImage'
 import {
   AuthorInfoStyle,
@@ -150,7 +150,7 @@ export function DiscoverListCardContent(
           />
         </HStack>
         {displayFallback ? (
-          <FallbackImage
+          <ListFallbackImage
             title={props.item.title ?? 'Omnivore Fallback'}
             width="55px"
             height="55px"
