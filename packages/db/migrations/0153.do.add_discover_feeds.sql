@@ -162,9 +162,6 @@ CREATE TABLE omnivore.discover_feed_article_topic_link (
 GRANT SELECT ON omnivore.discover_feed_article_topic_link to omnivore_user;
 
 
-INSERT INTO omnivore.discover_feed
-
-
 INSERT INTO omnivore.discover_feed (id, title, link, description, type) VALUES('dacd3088-aadb-11ee-bbfe-5f5fa18779ea', 'ArsTechnica - All', 'https://feeds.arstechnica.com/arstechnica/index', 'All Stories from Ars Technica', 'rss');
 INSERT INTO omnivore.discover_feed (id, title, link, description, type) VALUES('405eb048-aadc-11ee-bbfe-ff801479b901', 'Wired', 'https://www.wired.com/feed/rss', 'The latest from www.wired.com', 'rss');
 
