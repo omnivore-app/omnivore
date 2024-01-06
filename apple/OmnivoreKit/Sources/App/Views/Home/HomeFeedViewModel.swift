@@ -5,27 +5,32 @@ import SwiftUI
 import Utils
 import Views
 
-@MainActor final class HomeFeedViewModel: NSObject, ObservableObject, UINavigationControllerDelegate {
-  let folder: String
-  let fetcher: LibraryItemFetcher
-  let listConfig: LibraryListConfig
+enum LoadingBarStyle {
+  case none
+  case redacted
+  case simple
+}
 
-  private var fetchedResultsController: NSFetchedResultsController<Models.LibraryItem>?
+@MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
+  let filterKey: String
+  @ObservedObject var fetcher: LibraryItemFetcher
+  let folderConfigs: [String: LibraryListConfig]
 
   @Published var isLoading = false
-  @Published var showPushNotificationPrimer = false
   @Published var itemUnderLabelEdit: Models.LibraryItem?
   @Published var itemUnderTitleEdit: Models.LibraryItem?
   @Published var itemForHighlightsView: Models.LibraryItem?
   @Published var linkRequest: LinkRequest?
   @Published var presentWebContainer = false
-  @Published var showLoadingBar = true
+  @Published var showLoadingBar = LoadingBarStyle.redacted
 
   @Published var selectedItem: Models.LibraryItem?
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
   @Published var showSnackbar = false
+  @Published var showAddFeedView = false
+  @Published var showHideFollowingAlert = false
   @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()
@@ -36,67 +41,98 @@ import Views
   @Published var appliedSort = LinkedItemSort.newest.rawValue
 
   @State var lastMoreFetched: Date?
+  @State var lastFiltersFetched: Date?
+
+  @State var isModifyingNewsletterDestination = false
 
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
+  @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
   @Published var appliedFilter: InternalFilter? {
     didSet {
-      let filterKey = UserDefaults.standard.string(forKey: "lastSelected-\(folder)-filter") ?? folder
-      UserDefaults.standard.setValue(appliedFilter?.name, forKey: filterKey)
+      if let filterName = appliedFilter?.name.lowercased() {
+        UserDefaults.standard.setValue(filterName, forKey: filterKey)
+      }
     }
   }
 
-  private var filterState: FetcherFilterState {
-    FetcherFilterState(folder: folder, searchTerm: searchTerm, selectedLabels: selectedLabels, negatedLabels: negatedLabels, appliedSort: appliedSort, appliedFilter: appliedFilter)
-  }
+  init(filterKey: String, fetcher: LibraryItemFetcher, folderConfigs: [String: LibraryListConfig]) {
+    self.filterKey = filterKey
 
-  init(folder: String, fetcher: LibraryItemFetcher, listConfig: LibraryListConfig) {
-    self.folder = folder
     self.fetcher = fetcher
-    self.listConfig = listConfig
+    self.folderConfigs = folderConfigs
+
     super.init()
   }
 
-  func loadFilters(dataService: DataService) async {
-    switch folder {
-    case "following":
-      updateFilters(newFilters: InternalFilter.DefaultFollowingFilters, defaultName: "following")
-    default:
-      var hasLocalResults = false
-      let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
-
-      // Load from disk
-      if let results = try? dataService.viewContext.fetch(fetchRequest) {
-        hasLocalResults = true
-        updateFilters(newFilters: InternalFilter.make(from: results), defaultName: "inbox")
-      }
-
-      let hasResults = hasLocalResults
-      Task.detached {
-        if let downloadedFilters = try? await dataService.filters() {
-          await self.updateFilters(newFilters: downloadedFilters, defaultName: "inbox")
-        } else if !hasResults {
-          await self.updateFilters(newFilters: InternalFilter.DefaultInboxFilters, defaultName: "inbox")
-        }
-      }
+  private var filterState: FetcherFilterState? {
+    if let appliedFilter = appliedFilter {
+      return FetcherFilterState(
+        folder: appliedFilter.folder,
+        searchTerm: searchTerm,
+        selectedLabels: selectedLabels,
+        negatedLabels: negatedLabels,
+        appliedSort: appliedSort,
+        appliedFilter: appliedFilter
+      )
     }
+    return nil
   }
 
-  func loadMore(dataService: DataService) async {
-    if isLoading { return }
+  var currentFolder: String? {
+    appliedFilter?.folder
+  }
 
-    let start = Date.now
-    if let lastMoreFetched, lastMoreFetched.timeIntervalSinceNow > -4 {
-      print("skipping fetching more as last fetch was too recent: ", lastMoreFetched)
+  var currentListConfig: LibraryListConfig? {
+    if let currentFolder = currentFolder {
+      return folderConfigs[currentFolder]
+    }
+    return nil
+  }
+
+  func loadFilters(dataService: DataService) async {
+    let start = Date()
+    var hasLocalResults = false
+    let fetchRequest: NSFetchRequest<Models.Filter> = Filter.fetchRequest()
+
+    if let lastFiltersFetched, lastFiltersFetched.timeIntervalSinceNow > -100 {
+      print("skipping fetching filters as last fetch was too recent: ", lastFiltersFetched)
       return
     }
 
-    isLoading = true
-    await fetcher.loadMoreItems(dataService: dataService, filterState: filterState)
-    isLoading = false
+    // Load from disk
+    if let results = try? dataService.viewContext.fetch(fetchRequest) {
+      hasLocalResults = true
+      updateFilters(newFilters: InternalFilter.make(from: results))
+    }
 
-    lastMoreFetched = start
+    let hasResults = hasLocalResults
+    if let downloadedFilters = try? await dataService.filters() {
+      updateFilters(newFilters: downloadedFilters)
+    } else if !hasResults {
+      updateFilters(newFilters: InternalFilter.DefaultInboxFilters)
+    }
+
+    lastFiltersFetched = start
+  }
+
+  func loadMore(dataService: DataService, loadCursor: String? = nil) async {
+    if let filterState = filterState {
+      if isLoading { return }
+
+      let start = Date.now
+      if let lastMoreFetched, lastMoreFetched.timeIntervalSinceNow > -4 {
+        print("skipping fetching more as last fetch was too recent: ", lastMoreFetched)
+        return
+      }
+
+      isLoading = true
+      await fetcher.loadMoreItems(dataService: dataService, filterState: filterState, loadCursor: loadCursor)
+      isLoading = false
+
+      lastMoreFetched = start
+    }
   }
 
   func pushFeedItem(item _: Models.LibraryItem) {
@@ -120,27 +156,65 @@ import Views
     }
   }
 
-  func updateFilters(newFilters: [InternalFilter], defaultName: String) {
-    let appliedFilterName = UserDefaults.standard.string(forKey: "lastSelected-\(filterState.folder)-filter") ?? defaultName
+  var defaultFilters: [InternalFilter] {
+    [InternalFilter.InboxUnreadFilter,
+     InternalFilter.InboxDeletedFilter,
+     InternalFilter.InboxDownloadedFilter]
+      + InternalFilter.DefaultFollowingFilters
+  }
+
+  func updateFilters(newFilters: [InternalFilter]) {
+    let availableFolders = folderConfigs.keys
+    let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
 
     filters = newFilters
-      .filter { $0.folder == filterState.folder }
+      .filter { availableFolders.contains($0.folder) }
       .sorted(by: { $0.position < $1.position })
-      + (folder == "inbox" ? [InternalFilter.UnreadFilter, InternalFilter.DeletedFilter, InternalFilter.DownloadedFilter] : [InternalFilter.DownloadedFilter])
+      + defaultFilters
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter
     }
   }
 
-  func loadItems(dataService: DataService, isRefresh: Bool) async {
-    isLoading = true
-    showLoadingBar = isRefresh
+  func setDefaultFilter() {
+    let availableFolders = folderConfigs.keys
+    let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
+    if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
+      appliedFilter = newFilter
+      return
+    }
 
-    await fetcher.loadItems(dataService: dataService, filterState: filterState, isRefresh: isRefresh)
+    if let defaultFilter = filters.first(where: { availableFolders.contains($0.folder) }) {
+      appliedFilter = defaultFilter
+    }
+  }
+
+  func loadNewItems(dataService: DataService) async {
+    if let filterState = filterState {
+      await fetcher.loadNewItems(
+        dataService: dataService,
+        filterState: filterState
+      )
+      objectWillChange.send()
+    }
+  }
+
+  func loadItems(dataService: DataService, isRefresh: Bool, forceRemote: Bool = false, loadingBarStyle: LoadingBarStyle? = nil) async {
+    isLoading = true
+    showLoadingBar = isRefresh ? loadingBarStyle ?? .redacted : .none
+
+    if let filterState = filterState {
+      await fetcher.loadItems(
+        dataService: dataService,
+        filterState: filterState,
+        isRefresh: isRefresh,
+        forceRemote: forceRemote
+      )
+    }
 
     isLoading = false
-    showLoadingBar = false
+    showLoadingBar = .none
   }
 
   func loadFeatureItems(context: NSManagedObjectContext, predicate: NSPredicate, sort: NSSortDescriptor) async -> [Models.LibraryItem] {
@@ -259,5 +333,35 @@ import Views
 
   func findFilter(_: DataService, named: String) -> InternalFilter? {
     filters.first(where: { $0.name == named })
+  }
+
+  func modifyingNewsletterDestinationToFollowing(dataService: DataService) async {
+    isModifyingNewsletterDestination = true
+    do {
+      var errorCount = 0
+      let objectIDs = try await dataService.newsletterEmails()
+      let newsletters = await dataService.viewContext.perform {
+        let newsletters = objectIDs.compactMap { dataService.viewContext.object(with: $0) as? NewsletterEmail }
+        return newsletters
+      }
+
+      for newsletter in newsletters {
+        if let emailId = newsletter.emailId, newsletter.folder != "following" {
+          do {
+            try await dataService.updateNewsletterEmail(emailID: emailId, folder: "following")
+          } catch {
+            print("error updating newsletter: ", error)
+            errorCount += 1
+          }
+        }
+      }
+      if errorCount > 0 {
+        snackbar("There was an error modifying \(errorCount) of your emails")
+      } else {
+        snackbar("Email destination modified")
+      }
+    } catch {
+      snackbar("Error modifying emails")
+    }
   }
 }

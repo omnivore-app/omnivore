@@ -43,12 +43,14 @@ extension DataService {
           slug: try $0.slug(),
           isArchived: try $0.isArchived(),
           contentReader: try $0.contentReader().rawValue,
+          htmlContent: try $0.content(),
           originalHtml: nil,
           language: try $0.language(),
           wordsCount: try $0.wordsCount(),
           downloadURL: try $0.url(),
           recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
-          labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+          labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? [],
+          highlights: try $0.highlights(selection: highlightSelection.list)
         ),
         htmlContent: try $0.content(),
         highlights: try $0.highlights(selection: highlightSelection.list)

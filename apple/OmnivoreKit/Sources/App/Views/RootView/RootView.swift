@@ -49,8 +49,11 @@ struct InnerRootView: View {
   @ObservedObject var viewModel: RootViewModel
 
   @ViewBuilder private var innerBody: some View {
-    if authenticator.isLoggedIn {
+    if authenticator.isLoggedIn, dataService.appEnvironment.environmentConfigured {
       PrimaryContentView()
+        .task {
+          try? await dataService.syncOfflineItemsWithServerIfNeeded()
+        }
     } else {
       if authenticator.isLoggingOut {
         LogoutView()

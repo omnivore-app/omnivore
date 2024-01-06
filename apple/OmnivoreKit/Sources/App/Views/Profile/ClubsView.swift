@@ -149,11 +149,11 @@
           Button(
             action: { viewModel.showCreateSheet = true },
             label: {
-              HStack {
-                Image(systemName: "plus.circle.fill").foregroundColor(.green)
+              Label(title: {
                 Text(LocalText.clubsCreate)
-                Spacer()
-              }
+              }, icon: {
+                Image.addLink
+              })
             }
           )
         }

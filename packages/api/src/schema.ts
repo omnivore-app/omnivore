@@ -2867,6 +2867,20 @@ const schema = gql`
     BAD_REQUEST
   }
 
+  union EmptyTrashResult = EmptyTrashSuccess | EmptyTrashError
+
+  type EmptyTrashSuccess {
+    success: Boolean
+  }
+
+  type EmptyTrashError {
+    errorCodes: [EmptyTrashErrorCode!]!
+  }
+
+  enum EmptyTrashErrorCode {
+    UNAUTHORIZED
+  }
+
   type DiscoverFeed {
     id: ID!
     title: String!
@@ -3079,6 +3093,7 @@ const schema = gql`
       input: DeleteDiscoverFeedInput!
     ): DeleteDiscoverFeedResult!
     editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
+    emptyTrash: EmptyTrashResult!
   }
 
   # FIXME: remove sort from feedArticles after all cached tabs are closed

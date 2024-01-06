@@ -20,10 +20,10 @@ public extension DataService {
       }
     }
 
-    try await syncMoveToFolder(itemID: itemID, folder: folder)
+    syncMoveToFolder(itemID: itemID, folder: folder)
   }
 
-  func syncMoveToFolder(itemID: String, folder: String) async throws {
+  func syncMoveToFolder(itemID: String, folder: String) {
     enum MutationResult {
       case result(success: Bool)
       case error(errorMessage: String)
@@ -48,23 +48,22 @@ public extension DataService {
 
     let path = appEnvironment.graphqlPath
     let headers = networker.defaultHeaders
+    let context = backgroundContext
 
-    return try await withCheckedThrowingContinuation { continuation in
-      send(mutation, to: path, headers: headers) { queryResult in
-        guard let payload = try? queryResult.get() else {
-          continuation.resume(throwing: BasicError.message(messageText: "network error"))
-          return
-        }
+    send(mutation, to: path, headers: headers) { queryResult in
+      let data = try? queryResult.get()
+      let syncStatus: ServerSyncStatus = data == nil ? .needsUpdate : .isNSync
 
-        switch payload.data {
-        case let .result(success: success):
-          if success {
-            continuation.resume()
-          } else {
-            continuation.resume(throwing: BasicError.message(messageText: "operation failed"))
-          }
-        case let .error(errorMessage: errorMessage):
-          continuation.resume(throwing: BasicError.message(messageText: errorMessage))
+      context.perform {
+        guard let linkedItem = LibraryItem.lookup(byID: itemID, inContext: context) else { return }
+        linkedItem.serverSyncStatus = Int64(syncStatus.rawValue)
+
+        do {
+          try context.save()
+          logger.debug("LinkedItem updated succesfully")
+        } catch {
+          context.rollback()
+          logger.debug("Failed to sync library item move: \(error.localizedDescription)")
         }
       }
     }

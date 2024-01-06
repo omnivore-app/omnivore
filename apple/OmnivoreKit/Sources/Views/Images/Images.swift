@@ -30,6 +30,10 @@ public extension Image {
   static var readerSettings: Image { Image("reader-settings", bundle: .module) }
   static var utilityMenu: Image { Image("utility-menu", bundle: .module) }
 
+  static var relaxedSlothLight: Image {
+    Color.isDarkMode ? Image("relaxed-sloth-dark", bundle: .module) : Image("relaxed-sloth-light", bundle: .module)
+  }
+
   static var addLink: Image { Image("add-link", bundle: .module) }
   static var selectMultiple: Image { Image("select-multiple", bundle: .module) }
   static var magnifyingGlass: Image { Image("magnifying-glass", bundle: .module) }

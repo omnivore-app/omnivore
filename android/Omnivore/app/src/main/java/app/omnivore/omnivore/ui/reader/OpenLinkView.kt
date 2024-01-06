@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.ui.reader
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import app.omnivore.omnivore.R
 @Composable
 fun OpenLinkView(webReaderViewModel: WebReaderViewModel) {
     val context = LocalContext.current
+    val isDarkMode = isSystemInDarkTheme()
 
     Column(modifier = Modifier
         .padding(top = 25.dp)
@@ -28,8 +30,8 @@ fun OpenLinkView(webReaderViewModel: WebReaderViewModel) {
         Row {
             Text(webReaderViewModel.currentLink.toString(),
                 fontWeight = FontWeight.Light,
-                color = Color.DarkGray,
-                fontSize = 12.sp,
+                color = if (isDarkMode) Color.White else Color.DarkGray,
+                fontSize = 13.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 )

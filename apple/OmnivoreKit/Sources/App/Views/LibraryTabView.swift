@@ -21,8 +21,9 @@ struct LibraryTabView: View {
 
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
-
   @State var showExpandedAudioPlayer = false
+
+  private let syncManager = LibrarySyncManager()
 
   @MainActor
   public init() {
@@ -30,30 +31,43 @@ struct LibraryTabView: View {
   }
 
   @StateObject private var inboxViewModel = HomeFeedViewModel(
-    folder: "inbox",
+    filterKey: "lastSelectedFilter-inbox",
     fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: true,
-      hasReadNowSection: true,
-      leadingSwipeActions: [.pin],
-      trailingSwipeActions: [.archive, .delete],
-      cardStyle: .library
-    )
+    folderConfigs: [
+      "inbox": LibraryListConfig(
+        hasFeatureCards: true,
+        hasReadNowSection: true,
+        leadingSwipeActions: [.pin],
+        trailingSwipeActions: [.archive, .delete],
+        cardStyle: .library
+      )
+    ]
   )
 
   @StateObject private var followingViewModel = HomeFeedViewModel(
-    folder: "following",
+    filterKey: "lastSelectedFilter-following",
     fetcher: LibraryItemFetcher(),
-    listConfig: LibraryListConfig(
-      hasFeatureCards: false,
-      hasReadNowSection: false,
-      leadingSwipeActions: [.moveToInbox],
-      trailingSwipeActions: [.delete],
-      cardStyle: .library
-    )
+    folderConfigs: [
+      "following": LibraryListConfig(
+        hasFeatureCards: false,
+        hasReadNowSection: false,
+        leadingSwipeActions: [.moveToInbox],
+        trailingSwipeActions: [.delete],
+        cardStyle: .library
+      )
+    ]
   )
 
-  private let syncManager = LibrarySyncManager()
+  var currentViewModel: HomeFeedViewModel? {
+    switch selectedTab {
+    case "inbox":
+      return inboxViewModel
+    case "following":
+      return followingViewModel
+    default:
+      return nil
+    }
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -91,12 +105,28 @@ struct LibraryTabView: View {
         .padding(0)
     }
     .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-      ExpandedAudioPlayer()
+      ExpandedAudioPlayer(
+        delete: {
+          showExpandedAudioPlayer = false
+          audioController.stop()
+          currentViewModel?.removeLibraryItem(dataService: dataService, objectID: $0)
+        },
+        archive: {
+          showExpandedAudioPlayer = false
+          audioController.stop()
+          currentViewModel?.setLinkArchived(dataService: dataService, objectID: $0, archived: true)
+        },
+        viewArticle: { itemID in
+          if let article = try? dataService.viewContext.existingObject(with: itemID) as? Models.LibraryItem {
+            currentViewModel?.pushFeedItem(item: article)
+          }
+        }
+      )
     }
     .navigationBarHidden(true)
     .onReceive(NSNotification.performSyncPublisher) { _ in
       Task {
-        await syncManager.syncItems(dataService: dataService)
+        await syncManager.syncUpdates(dataService: dataService)
       }
     }
     .onOpenURL { url in

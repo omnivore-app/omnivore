@@ -24,7 +24,7 @@ fun PolicyWebView(navController: NavHostController, url: String) {
   Scaffold(
     topBar = {
       TopAppBar(
-        title = { androidx.compose.material3.Text(stringResource(R.string.policy_webview_title)) },
+        title = { Text(stringResource(R.string.policy_webview_title)) },
         actions = {
           IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
             Icon(

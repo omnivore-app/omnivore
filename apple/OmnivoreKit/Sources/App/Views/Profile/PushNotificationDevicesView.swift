@@ -63,6 +63,14 @@ struct PushNotificationDevicesView: View {
   }
 
   private var innerBody: some View {
+    if viewModel.devices.isEmpty {
+      AnyView(Text("No devices registered"))
+    } else {
+      AnyView(deviceList)
+    }
+  }
+
+  private var deviceList: some View {
     List {
       Section(header: Text(LocalText.devicesTokensTitle)) {
         ForEach(viewModel.devices) { device in

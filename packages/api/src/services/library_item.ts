@@ -1,11 +1,12 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, ObjectLiteral } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import {
@@ -15,7 +16,7 @@ import {
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { wordsCount } from '../utils/helpers'
+import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
 
 enum ReadFilter {
@@ -787,19 +788,6 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
-    EntityType.PAGE,
-    {
-      id,
-      readingProgressBottomPercent: updatedItem.readingProgressBottomPercent,
-      readingProgressTopPercent: updatedItem.readingProgressTopPercent,
-      readingProgressHighestReadAnchor:
-        updatedItem.readingProgressHighestReadAnchor,
-      readAt: updatedItem.readAt,
-    },
-    userId,
-  )
-
   return updatedItem
 }
 
@@ -831,6 +819,11 @@ export const createLibraryItem = async (
     undefined,
     userId,
   )
+
+  // set recently saved item in redis if redis is enabled
+  if (env.redis.url) {
+    await setRecentlySavedItemInRedis(userId, newLibraryItem.originalUrl)
+  }
 
   if (skipPubSub) {
     return newLibraryItem
@@ -1061,4 +1054,42 @@ export const deleteLibraryItemsByUserId = async (userId: string) => {
     undefined,
     userId,
   )
+}
+
+export const deleteLibraryItemsByAdmin = async (
+  criteria: FindOptionsWhere<LibraryItem>,
+) => {
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).delete(criteria),
+    undefined,
+    undefined,
+    'admin',
+  )
+}
+
+export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
+  const batchSize = 1000
+
+  const qb = libraryItemRepository.createQueryBuilder().where(criteria)
+  const countSql = queryBuilderToRawSql(qb.select('COUNT(1)'))
+  const subQuery = queryBuilderToRawSql(qb.select('id').limit(batchSize))
+
+  const sql = `
+  -- Set batch size
+  DO $$
+  DECLARE 
+      batch_size INT := ${batchSize};
+  BEGIN
+      -- Loop through batches
+      FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
+          -- Delete batch
+          DELETE FROM omnivore.library_item
+          WHERE id = ANY(
+            ${subQuery}
+          );
+      END LOOP;
+  END $$
+  `
+
+  return authTrx(async (t) => t.query(sql))
 }

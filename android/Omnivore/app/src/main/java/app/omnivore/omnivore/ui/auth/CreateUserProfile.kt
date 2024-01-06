@@ -125,7 +125,7 @@ fun UserProfileFields(
 
       if (usernameValidationErrorMessage != null) {
         Text(
-          text = usernameValidationErrorMessage!!,
+          text = usernameValidationErrorMessage,
           style = MaterialTheme.typography.bodyLarge,
           color = MaterialTheme.colorScheme.error,
           textAlign = TextAlign.Center

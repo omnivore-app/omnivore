@@ -152,19 +152,21 @@ struct WebReaderContainerView: View {
             label: {
               textToSpeechButtonImage
             }
-          ).buttonStyle(.plain)
+          )
+          .buttonStyle(.plain)
+          .padding(.trailing, 4)
         )
       }
     }
 
     var textToSpeechButtonImage: some View {
       if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-        return AnyView(Image.audioPlay.frame(width: 48, height: 48))
+        return Image.audioPlay
       }
       if audioController.isPlayingItem(itemID: item.unwrappedID) {
-        return AnyView(Image.audioPause.frame(width: 48, height: 48))
+        return Image.audioPause
       }
-      return AnyView(Image.audioPlay.frame(width: 48, height: 48))
+      return Image.audioPlay
     }
   #endif
 
@@ -299,7 +301,7 @@ struct WebReaderContainerView: View {
           }
         )
         .buttonStyle(.plain)
-        .padding(.horizontal, 5)
+        .padding(.trailing, 5)
         .popover(isPresented: $showPreferencesPopover) {
           webPreferencesPopoverView
             .frame(maxWidth: 400, maxHeight: 475)
@@ -453,7 +455,17 @@ struct WebReaderContainerView: View {
               .ignoresSafeArea(.all, edges: .bottom)
           }
           .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
-            ExpandedAudioPlayer()
+            ExpandedAudioPlayer(delete: { _ in
+              showExpandedAudioPlayer = false
+              audioController.stop()
+              delete()
+            }, archive: { _ in
+              showExpandedAudioPlayer = false
+              audioController.stop()
+              archive()
+            }, viewArticle: { _ in
+              showExpandedAudioPlayer = false
+            })
           }
         #endif
         .alert(errorAlertMessage ?? LocalText.readerError, isPresented: $showErrorAlertMessage) {

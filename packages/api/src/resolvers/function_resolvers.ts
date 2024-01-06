@@ -38,6 +38,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
+import { emptyTrashResolver } from './article'
 import { optInFeatureResolver } from './features'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
@@ -245,6 +246,7 @@ export const functionResolvers = {
     addDiscoverFeed: addDiscoverFeedResolver,
     deleteDiscoverFeed: deleteDiscoverFeedsResolver,
     editDiscoverFeed: editDiscoverFeedsResolver,
+    emptyTrash: emptyTrashResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -594,4 +596,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('ScanFeeds'),
   ...resultResolveTypeResolver('MoveToFolder'),
   ...resultResolveTypeResolver('UpdateNewsletterEmail'),
+  ...resultResolveTypeResolver('EmptyTrash'),
 }

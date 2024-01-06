@@ -39,6 +39,7 @@
     "sinon": "^7.3.2"
   },
   "dependencies": {
+    "cld": "^2.9.1",
     "html-entities": "^2.3.2",
     "parse-srcset": "^1.0.2"
   },

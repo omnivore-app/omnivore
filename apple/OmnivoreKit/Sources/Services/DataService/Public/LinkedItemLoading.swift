@@ -15,17 +15,28 @@ public extension DataService {
 
     LibraryItem.deleteItems(ids: fetchResult.deletedItemIDs, context: backgroundContext)
 
-    if fetchResult.items.persist(context: backgroundContext) == nil {
-      throw BasicError.message(messageText: "CoreData error")
+    if !fetchResult.newItems.isEmpty {
+      if fetchResult.newItems.persist(context: backgroundContext) == nil {
+        throw BasicError.message(messageText: "CoreData error")
+      }
     }
 
-    let newestChange = fetchResult.items.max { $0.updatedAt < $1.updatedAt }
+    if !fetchResult.updatedItems.isEmpty {
+      if fetchResult.updatedItems.persist(context: backgroundContext) == nil {
+        throw BasicError.message(messageText: "CoreData error")
+      }
+    }
+
+    let newestChange = fetchResult.updatedItems.max { $0.updatedAt < $1.updatedAt }
+    let oldestChange = fetchResult.updatedItems.min { $0.updatedAt < $1.updatedAt }
+
     let result = LinkedItemSyncResult(
-      updatedItemIDs: fetchResult.items.map(\.id),
+      updatedItemIDs: fetchResult.updatedItems.map(\.id),
       cursor: fetchResult.cursor,
       hasMore: fetchResult.hasMoreItems,
       mostRecentUpdatedAt: newestChange?.updatedAt,
-      isEmpty: fetchResult.deletedItemIDs.isEmpty && fetchResult.items.isEmpty
+      oldestUpdatedAt: oldestChange?.updatedAt,
+      isEmpty: fetchResult.deletedItemIDs.isEmpty && fetchResult.updatedItems.isEmpty
     )
 
     return result
@@ -42,16 +53,12 @@ public extension DataService {
     searchQuery: String?,
     cursor: String?
   ) async throws -> LinkedItemQueryResult {
-    // Send offline changes to server before fetching items
-    // try? await syncOfflineItemsWithServerIfNeeded()
-
     let fetchResult = try await fetchLinkedItems(limit: limit, searchQuery: searchQuery, cursor: cursor)
-
     guard let itemIDs = fetchResult.items.persist(context: backgroundContext) else {
       throw BasicError.message(messageText: "CoreData error")
     }
 
-    return LinkedItemQueryResult(itemIDs: itemIDs, cursor: fetchResult.cursor)
+    return LinkedItemQueryResult(itemIDs: itemIDs, cursor: fetchResult.cursor, totalCount: fetchResult.totalCount)
   }
 
   /// Requests a single `LinkedItem` from the server and stores it in CoreData

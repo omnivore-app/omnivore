@@ -16,7 +16,6 @@ import app.omnivore.omnivore.graphql.generated.type.UpdatePageInput
 import app.omnivore.omnivore.ui.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
-import com.pspdfkit.internal.sa
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,10 +24,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 enum class EditInfoState {
-  DEFAULT(),
-  UPDATING(),
-  ERROR(),
-  UPDATED()
+  DEFAULT,
+  UPDATING,
+  ERROR,
+  UPDATED
 }
 
 @HiltViewModel

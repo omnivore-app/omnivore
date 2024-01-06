@@ -16,6 +16,16 @@ import Views
       super.viewDidLoad()
       view.backgroundColor = .clear
 
+      if !viewModel.services.authenticator.isLoggedIn,
+         !viewModel.services.dataService.appEnvironment.environmentConfigured
+      {
+        embed(
+          childViewController: UIViewController.makeLoggedOutShareExtensionController(extensionContext: extensionContext),
+          heightRatio: 0.60
+        )
+        return
+      }
+
       NotificationCenter.default.addObserver(
         forName: Notification.Name("ShowAddNoteSheet"),
         object: nil,

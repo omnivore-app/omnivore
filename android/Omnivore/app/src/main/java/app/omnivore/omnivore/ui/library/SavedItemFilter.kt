@@ -10,10 +10,10 @@ enum class SavedItemFilter(val displayText: String, val rawValue: String, val qu
   READ_LATER("Non-Feed Items", "nonFeed", "no:subscription"),
   FEEDS("Feeds", "feeds", "in:inbox label:RSS"),
   NEWSLETTERS("Newsletters", "newsletters", "in:inbox label:Newsletter"),
-  RECOMMENDED("Recommended", "recommended", "recommendedBy:*"),
+  // RECOMMENDED("Recommended", "recommended", "recommendedBy:*"),
   ALL("All", "all", "in:all"),
   ARCHIVED("Archived", "archived", "in:archive"),
-  HAS_HIGHLIGHTS("Highlighted", "hasHighlights", "has:highlights"),
+  // HAS_HIGHLIGHTS("Highlighted", "hasHighlights", "has:highlights"),
   FILES("Files", "files", "type:file"),
 }
 

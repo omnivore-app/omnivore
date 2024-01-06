@@ -109,6 +109,10 @@ interface BackendEnv {
       max: number
     }
   }
+  redis: {
+    url?: string
+    cert?: string
+  }
 }
 
 /***
@@ -173,6 +177,8 @@ const nullableEnvVars = [
   'INTEGRATION_EXPORTER_URL',
   'INTEGRATION_IMPORTER_URL',
   'SUBSCRIPTION_FEED_MAX',
+  'REDIS_URL',
+  'REDIS_CERT',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -316,6 +322,10 @@ export function getEnv(): BackendEnv {
         : 256, // default to 256
     },
   }
+  const redis = {
+    url: parse('REDIS_URL'),
+    cert: parse('REDIS_CERT'),
+  }
 
   return {
     pg,
@@ -338,6 +348,7 @@ export function getEnv(): BackendEnv {
     gcp,
     pocket,
     subscription,
+    redis,
   }
 }
 

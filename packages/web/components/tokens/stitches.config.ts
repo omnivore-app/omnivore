@@ -199,6 +199,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thHighContrast: '#3D3D3D',
         thHighlightBar: '#D9D9D9',
 
+        thFallbackImageForeground: '#2A2A2A',
+        thFallbackImageBackground: '#EDEDED',
+
         highlight_background_green: '85, 198, 137',
         highlight_background_blue: '106, 177, 255',
         highlight_background_orange: '254, 181, 109',
@@ -309,6 +312,10 @@ const darkThemeSpec = {
     thHighContrast: '#D9D9D9',
 
     thHighlightBar: '#6A6968',
+
+    thFallbackImageForeground: '#FEFFFF',
+    thFallbackImageBackground: '#3C3C3C',
+
     highlight_underline_alpha: '0.5',
     highlight_background_alpha: '0.35',
   },

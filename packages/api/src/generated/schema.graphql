@@ -706,6 +706,20 @@ type DeviceTokensSuccess {
   deviceTokens: [DeviceToken!]!
 }
 
+type EmptyTrashError {
+  errorCodes: [EmptyTrashErrorCode!]!
+}
+
+enum EmptyTrashErrorCode {
+  UNAUTHORIZED
+}
+
+union EmptyTrashResult = EmptyTrashError | EmptyTrashSuccess
+
+type EmptyTrashSuccess {
+  success: Boolean
+}
+
 type DiscoverFeed {
   description: String
   id: ID!
@@ -1376,6 +1390,7 @@ type Mutation {
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
   editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
+  emptyTrash: EmptyTrashResult!
   fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!

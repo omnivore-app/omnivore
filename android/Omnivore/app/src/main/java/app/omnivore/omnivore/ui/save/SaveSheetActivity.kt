@@ -4,42 +4,22 @@ import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView.SavedState
-import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.rounded.AddCircle
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.TopCenter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import app.omnivore.omnivore.R
-import app.omnivore.omnivore.ui.library.SavedItemAction
-import app.omnivore.omnivore.ui.reader.WebReaderLoadingContainerActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -48,7 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 
 // Not sure why we need this class, but directly opening SaveSheetActivity
 // causes the app to crash.
-class SaveSheetActivity : SaveSheetActivityBase() {}
+class SaveSheetActivity : SaveSheetActivityBase()
 
 @AndroidEntryPoint
 @OptIn(ExperimentalMaterialApi::class)
@@ -57,7 +37,7 @@ abstract class SaveSheetActivityBase : AppCompatActivity() {
     super.onCreate(savedInstanceState)
 
     val viewModel: SaveViewModel by viewModels()
-    var extractedText: String? = null
+    var extractedText: String?
 
     when (intent?.action) {
       Intent.ACTION_SEND -> {
@@ -207,9 +187,5 @@ abstract class SaveSheetActivityBase : AppCompatActivity() {
   override fun onPause() {
     super.onPause()
     overridePendingTransition(0, 0)
-  }
-
-  companion object {
-    private val TAG = SaveSheetActivity::class.java.simpleName
   }
 }

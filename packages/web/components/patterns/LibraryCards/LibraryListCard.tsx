@@ -30,7 +30,7 @@ import { isTouchScreenDevice } from '../../../lib/deviceType'
 import { CoverImage } from '../../elements/CoverImage'
 import { ProgressBar } from '../../elements/ProgressBar'
 import { theme } from '../../tokens/stitches.config'
-import { FallbackImage } from './FallbackImage'
+import { ListFallbackImage } from './FallbackImage'
 import { useRouter } from 'next/router'
 import { LoadingBar } from '../../elements/LoadingBar'
 
@@ -216,11 +216,11 @@ const ListImage = (props: ListImageProps): JSX.Element => {
         />
       )}
       {displayFallback ? (
-        <FallbackImage
+        <ListFallbackImage
           title={props.title ?? 'Omnivore Fallback'}
           width="55px"
           height="55px"
-          fontSize="36pt"
+          fontSize="16pt"
         />
       ) : (
         <CoverImage
@@ -245,7 +245,11 @@ export function LibraryListCardContent(
 ): JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false)
   const { isChecked, setIsChecked, item } = props
-  const originText = siteName(props.item.originalArticleUrl, props.item.url, props.item.siteName)
+  const originText = siteName(
+    props.item.originalArticleUrl,
+    props.item.url,
+    props.item.siteName
+  )
 
   const handleCheckChanged = useCallback(() => {
     setIsChecked(item.id, !isChecked)

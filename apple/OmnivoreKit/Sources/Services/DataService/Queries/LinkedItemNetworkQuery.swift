@@ -6,11 +6,13 @@ import SwiftGraphQL
 struct InternalLinkedItemQueryResult {
   let items: [InternalLibraryItem]
   let cursor: String?
+  let totalCount: Int?
 }
 
 struct InternalLinkedItemUpdatesQueryResult {
-  let items: [InternalLibraryItem]
   let deletedItemIDs: [String]
+  let newItems: [InternalLibraryItem]
+  let updatedItems: [InternalLibraryItem]
   let cursor: String?
   let hasMoreItems: Bool
   let totalCount: Int
@@ -19,6 +21,7 @@ struct InternalLinkedItemUpdatesQueryResult {
 private struct SyncItemEdge {
   let itemID: String
   let isDeletedItem: Bool
+  let isUpdatedItem: Bool
   let item: InternalLibraryItem?
 }
 
@@ -90,21 +93,25 @@ extension DataService {
 
         switch payload.data {
         case let .success(result: result):
-          var items = [InternalLibraryItem]()
+          var newItems = [InternalLibraryItem]()
+          var updatedItems = [InternalLibraryItem]()
           var deletedItemIDs = [String]()
 
           for edge in result.edges {
             if edge.isDeletedItem {
               deletedItemIDs.append(edge.itemID)
+            } else if let item = edge.item, edge.isUpdatedItem {
+              updatedItems.append(item)
             } else if let item = edge.item {
-              items.append(item)
+              newItems.append(item)
             }
           }
 
           continuation.resume(
             returning: InternalLinkedItemUpdatesQueryResult(
-              items: items,
               deletedItemIDs: deletedItemIDs,
+              newItems: newItems,
+              updatedItems: updatedItems,
               cursor: result.cursor,
               hasMoreItems: result.hasMoreItems,
               totalCount: result.totalCount
@@ -144,6 +151,9 @@ extension DataService {
               items: try $0.edges(selection: searchItemEdgeSelection.list),
               cursor: try $0.pageInfo(selection: Selection.PageInfo {
                 try $0.endCursor()
+              }),
+              totalCount: try $0.pageInfo(selection: Selection.PageInfo {
+                try $0.totalCount()
               })
             )
           )
@@ -275,12 +285,14 @@ private let libraryArticleSelection = Selection.Article {
     slug: try $0.slug(),
     isArchived: try $0.isArchived(),
     contentReader: try $0.contentReader().rawValue,
+    htmlContent: try $0.content(),
     originalHtml: nil,
     language: try $0.language(),
     wordsCount: try $0.wordsCount(),
     downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
-    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? [],
+    highlights: try $0.highlights(selection: highlightSelection.list)
   )
 }
 
@@ -288,6 +300,7 @@ private let syncItemEdgeSelection = Selection.SyncUpdatedItemEdge {
   SyncItemEdge(
     itemID: try $0.itemId(),
     isDeletedItem: try $0.updateReason() == .deleted,
+    isUpdatedItem: try $0.updateReason() == .updated,
     item: try $0.node(selection: searchItemSelection.nullable)
   )
 }
@@ -316,12 +329,14 @@ private let searchItemSelection = Selection.SearchItem {
     slug: try $0.slug(),
     isArchived: try $0.isArchived(),
     contentReader: try $0.contentReader().rawValue,
+    htmlContent: try $0.content(),
     originalHtml: nil,
     language: try $0.language(),
     wordsCount: try $0.wordsCount(),
     downloadURL: try $0.url(),
     recommendations: try $0.recommendations(selection: recommendationSelection.list.nullable) ?? [],
-    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? []
+    labels: try $0.labels(selection: feedItemLabelSelection.list.nullable) ?? [],
+    highlights: try $0.highlights(selection: highlightSelection.list.nullable) ?? []
   )
 }
 

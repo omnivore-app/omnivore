@@ -25,6 +25,7 @@ import Views
       .linkRead(
         linkID: item.unwrappedID,
         slug: item.unwrappedSlug,
+        reader: "WEB",
         originalArticleURL: item.unwrappedPageURLString
       )
     )

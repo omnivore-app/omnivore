@@ -2285,4 +2285,58 @@ describe('Article API', () => {
       expect(item?.labels?.map((l) => l.name)).to.eql(['Favorites'])
     })
   })
+
+  describe('EmptyTrash API', () => {
+    const emptyTrashQuery = () => `
+      mutation {
+        emptyTrash {
+          ... on EmptyTrashSuccess {
+            success
+          }
+          ... on EmptyTrashError {
+            errorCodes
+          }
+        }
+      }`
+
+    let items: LibraryItem[] = []
+
+    before(async () => {
+      // Create some test items
+      for (let i = 0; i < 5; i++) {
+        const itemToSave: DeepPartial<LibraryItem> = {
+          user,
+          title: 'test item',
+          readableContent: '<p>test</p>',
+          slug: '',
+          originalUrl: `https://blog.omnivore.app/p/empty-trash-${i}`,
+          deletedAt: new Date(),
+          state: LibraryItemState.Deleted,
+        }
+        const item = await createLibraryItem(itemToSave, user.id)
+        items.push(item)
+      }
+    })
+
+    after(async () => {
+      // Delete all items
+      await deleteLibraryItemsByUserId(user.id)
+    })
+
+    it('empties the trash', async () => {
+      let response = await graphqlRequest(
+        searchQuery('in:trash'),
+        authToken
+      ).expect(200)
+      expect(response.body.data.search.pageInfo.totalCount).to.eql(5)
+
+      await graphqlRequest(emptyTrashQuery(), authToken).expect(200)
+
+      response = await graphqlRequest(
+        searchQuery('in:trash'),
+        authToken
+      ).expect(200)
+      expect(response.body.data.search.pageInfo.totalCount).to.eql(0)
+    })
+  })
 })

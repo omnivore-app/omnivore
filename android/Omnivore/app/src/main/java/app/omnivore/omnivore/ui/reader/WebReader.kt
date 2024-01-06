@@ -43,8 +43,8 @@ fun WebReader(
 
   WebView.setWebContentsDebuggingEnabled(true)
 
-  val showHighlightColorPalette = webReaderViewModel.showHighlightColorPalette.observeAsState()
-  val highlightColor = webReaderViewModel.highlightColor.observeAsState()
+//  val showHighlightColorPalette = webReaderViewModel.showHighlightColorPalette.observeAsState()
+//  val highlightColor = webReaderViewModel.highlightColor.observeAsState()
 
   Box {
     AndroidView(factory = {
@@ -106,7 +106,7 @@ fun WebReader(
           ): Boolean {
             var handled: Boolean? = null
             request?.let {
-              if ((request?.isForMainFrame == true) && (request?.hasGesture() == true) && viewModel != null) {
+              if (request.isForMainFrame && request.hasGesture() && viewModel != null) {
                 viewModel?.showOpenLinkSheet(context, request.url)
                 handled = true
               }

@@ -125,7 +125,7 @@ struct ApplyLabelsView: View {
       label: {
         HStack {
           let trimmedLabelName = viewModel.labelSearchFilter.trimmingCharacters(in: .whitespacesAndNewlines)
-          Image(systemName: "tag").foregroundColor(.blue)
+          Image.addLink.foregroundColor(.blue).foregroundColor(.blue)
           Text(
             viewModel.labelSearchFilter.count > 0 ?
               "Create: \"\(trimmedLabelName)\" label" :
@@ -202,7 +202,7 @@ func isSystemLabel(_ label: LinkedItemLabel) -> Bool {
 
 extension Sequence where Element == LinkedItemLabel {
   func applySearchFilter(_ searchFilter: String) -> [LinkedItemLabel] {
-    let hideSystemLabels = UserDefaults(suiteName: "group.app.omnivoreapp")?.bool(forKey: UserDefaultKey.hideSystemLabels.rawValue) ?? false
+    let hideSystemLabels = PublicValet.hideLabels
 
     if searchFilter.isEmpty || searchFilter == ZWSP {
       return map { $0 } // return the identity of the sequence
