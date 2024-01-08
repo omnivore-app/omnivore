@@ -127,15 +127,16 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
         hasMore = response.data.search.pageInfo.hasNextPage
         after = response.data.search.pageInfo.endCursor
         const items = response.data.search.edges.map((edge) => edge.node)
-        if (items.length === 0) {
-          break
-        }
-
+        const size = items.length
         console.log('exporting items...', {
           userId: claims.uid,
-          total: items.length,
+          size,
           hasMore,
         })
+
+        if (size === 0) {
+          break
+        }
         const synced = await client.export(claims.token, items)
         if (!synced) {
           console.error('failed to export item', {
@@ -144,16 +145,17 @@ export const exporter = Sentry.GCPFunction.wrapHttpFunction(
           return res.status(400).send('Failed to sync')
         }
 
+        const lastItemUpdatedAt = items[size - 1].updatedAt
         console.log('updating integration...', {
           userId: claims.uid,
           integrationId,
-          syncedAt: items[items.length - 1].updatedAt,
+          syncedAt: lastItemUpdatedAt,
         })
         // update integration syncedAt if successful
         const updated = await updateIntegration(
           REST_BACKEND_ENDPOINT,
           integrationId,
-          items[items.length - 1].updatedAt,
+          lastItemUpdatedAt,
           integrationName,
           claims.token,
           systemToken,
