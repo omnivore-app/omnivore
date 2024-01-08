@@ -16,6 +16,7 @@ type HighlightNoteModalProps = {
   author: string
   title: string
   highlight?: Highlight
+  libraryItemId: string
   onUpdate: (updatedHighlight: Highlight) => void
   onOpenChange: (open: boolean) => void
   createHighlightForNote?: (note?: string) => Promise<Highlight | undefined>
@@ -38,6 +39,7 @@ export function HighlightNoteModal(
   const saveNoteChanges = useCallback(async () => {
     if (noteContent != props.highlight?.annotation && props.highlight?.id) {
       const result = await updateHighlightMutation({
+        libraryItemId: props.libraryItemId,
         highlightId: props.highlight?.id,
         annotation: noteContent,
         color: props.highlight?.color,

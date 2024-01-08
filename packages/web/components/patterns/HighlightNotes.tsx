@@ -52,6 +52,7 @@ export function HighlightViewNote(props: HighlightViewNoteProps): JSX.Element {
       ;(async () => {
         const success = await updateHighlightMutation({
           annotation: text,
+          libraryItemId: props.targetId,
           highlightId: props.highlight?.id,
         })
         if (success) {

@@ -76,6 +76,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     (note: Highlight, text: string, startTime: Date) => {
       ;(async () => {
         const result = await updateHighlightMutation({
+          libraryItemId: props.item.id,
           highlightId: note.id,
           annotation: text,
         })
@@ -195,7 +196,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       highlights
         ?.filter((h) => h.type === 'NOTE')
         .forEach(async (h) => {
-          const result = await deleteHighlightMutation(h.id)
+          const result = await deleteHighlightMutation(props.item.id, h.id)
           if (!result) {
             showErrorToast('Error deleting note')
           }
@@ -325,6 +326,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
             ;(async () => {
               const highlightId = showConfirmDeleteHighlightId
               const success = await deleteHighlightMutation(
+                props.item.id,
                 showConfirmDeleteHighlightId
               )
               mutate()

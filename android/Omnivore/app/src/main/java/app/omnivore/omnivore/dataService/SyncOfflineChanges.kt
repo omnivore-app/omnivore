@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.dataService
 
+import android.util.Log
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.ServerSyncStatus
@@ -8,8 +9,10 @@ import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.delay
+import kotlin.math.log
 
 suspend fun DataService.startSyncChannels() {
+  Log.d("sync", "Starting sync channels")
   for (savedItem in savedItemSyncChannel) {
     syncSavedItem(savedItem)
   }
@@ -21,7 +24,8 @@ suspend fun DataService.startSyncChannels() {
 
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
   val unSyncedSavedItems = db.savedItemDao().getUnSynced()
-  val unSyncedHighlights = db.highlightDao().getUnSynced()
+  val unSyncedHighlights = db.highlightChangesDao().getUnSynced()
+  Log.d("sync","UNSYNC CHANGES: " + unSyncedHighlights)
 
   for (savedItem in unSyncedSavedItems) {
     delay(250)
@@ -30,7 +34,7 @@ suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
 
   for (highlight in unSyncedHighlights) {
     delay(250)
-    highlightSyncChannel.send(highlight)
+  //  highlightSyncChannel.send(highlight)
   }
 }
 

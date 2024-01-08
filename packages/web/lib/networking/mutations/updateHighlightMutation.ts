@@ -3,6 +3,7 @@ import { gqlFetcher } from '../networkHelpers'
 
 export type UpdateHighlightInput = {
   highlightId: string
+  libraryItemId?: string
   annotation?: string
   sharedAt?: string
   color?: string

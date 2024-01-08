@@ -39,6 +39,7 @@ data class CreateHighlightParams(
 
 data class UpdateHighlightParams(
   val highlightId: String?,
+  val libraryItemId: String?,
   val `annotation`: String?,
   val sharedAt: String?,
 ) {
@@ -73,9 +74,10 @@ data class MergeHighlightsParams(
 }
 
 data class DeleteHighlightParams(
-  val highlightId: String?
+  val highlightId: String,
+  val libraryItemId: String
 ) {
-  fun asIdList() = listOf(highlightId ?: "")
+  fun asIdList() = listOf(highlightId)
 }
 
 suspend fun Networker.deleteHighlight(jsonString: String): Boolean {

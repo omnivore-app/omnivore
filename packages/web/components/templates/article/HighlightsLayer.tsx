@@ -187,7 +187,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
 
       const didDeleteHighlight =
-        await props.articleMutations.deleteHighlightMutation(highlightId)
+        await props.articleMutations.deleteHighlightMutation(
+          props.articleId,
+          highlightId
+        )
 
       if (didDeleteHighlight) {
         removeHighlights(
@@ -222,6 +225,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       updateHighlightsCallback(highlight)
       ;(async () => {
         const update = await props.articleMutations.updateHighlightMutation({
+          libraryItemId: props.articleId,
           highlightId: highlight.id,
           color: color,
         })
@@ -705,6 +709,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         const annotation = event.annotation ?? ''
 
         const result = await props.articleMutations.updateHighlightMutation({
+          libraryItemId: props.articleId,
           highlightId: focusedHighlight.id,
           annotation: event.annotation ?? '',
         })
@@ -788,6 +793,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlight={highlightModalAction.highlight}
           author={props.articleAuthor}
           title={props.articleTitle}
+          libraryItemId={props.articleId}
           onUpdate={updateHighlightsCallback}
           onOpenChange={() =>
             setHighlightModalAction({ highlightModalAction: 'none' })
