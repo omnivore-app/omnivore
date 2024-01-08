@@ -47,7 +47,8 @@ export const search = async (
   first = 50,
   after = '0'
 ): Promise<SearchResponse | null> => {
-  const query = `updated:${updatedSince.toISOString()} ${
+  // get all the items updated since the last sync including archived items
+  const query = `in:all updated:${updatedSince.toISOString()} ${
     highlightOnly ? 'has:highlights' : ''
   } sort:updated-asc`
 
