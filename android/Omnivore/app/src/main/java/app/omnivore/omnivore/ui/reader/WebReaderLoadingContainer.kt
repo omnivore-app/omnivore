@@ -198,7 +198,7 @@ fun WebReaderLoadingContainer(onLibraryIconTap: (() -> Unit)? = null,
   ModalBottomSheetLayout(
     modifier = Modifier
       .statusBarsPadding(),
-    sheetBackgroundColor = MaterialTheme.colors.primary,
+    sheetBackgroundColor = Color.Transparent,
     sheetState = modalBottomSheetState,
     sheetContent = {
       when (bottomSheetState) {
