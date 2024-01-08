@@ -37,7 +37,6 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
 
   val selectedWebFontName = remember { mutableStateOf(currentWebPreferences.fontFamily.displayText) }
 
-
   var fontSizeSliderValue by remember { mutableStateOf(currentWebPreferences.textFontSize.toFloat()) }
   var marginSliderValue by remember { mutableStateOf(currentWebPreferences.maxWidthPercentage.toFloat()) }
   var lineSpacingSliderValue by remember { mutableStateOf(currentWebPreferences.lineHeight.toFloat()) }
