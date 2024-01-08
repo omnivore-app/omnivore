@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.Routes
 import app.omnivore.omnivore.ui.auth.LoginViewModel
@@ -64,9 +66,12 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
   Box(
     modifier = modifier.fillMaxSize()
   ) {
+
+    val version = "Omnivore Version: " + BuildConfig.VERSION_NAME
+
     Column(
       verticalArrangement = Arrangement.Top,
-      horizontalAlignment = Alignment.CenterHorizontally,
+      horizontalAlignment = Alignment.Start,
       modifier = Modifier
         .background(MaterialTheme.colorScheme.background)
         .fillMaxSize()
@@ -74,23 +79,6 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
         .verticalScroll(rememberScrollState())
     ) {
 
-      // profile pic and name
-
-//      SettingRow(text = "Labels") { Log.d("settings", "labels button tapped") }
-//      RowDivider()
-//      SettingRow(text = "Emails") { Log.d("settings", "emails button tapped") }
-//      RowDivider()
-//      SettingRow(text = "Subscriptions") { Log.d("settings", "subscriptions button tapped") }
-//      RowDivider()
-//      SettingRow(text = "Clubs") { Log.d("settings", "clubs button tapped") }
-
-//      SectionSpacer()
-
-//      SettingRow(text = "Push Notifications") { Log.d("settings", "pn button tapped") }
-//      RowDivider()
-//      SettingRow(text = "Text to Speech") { Log.d("settings", "tts button tapped") }
-//
-//      SectionSpacer()
 
       SettingRow(text = stringResource(R.string.settings_view_setting_row_documentation)) {
         navController.navigate(Routes.Documentation.route)
@@ -118,6 +106,13 @@ fun SettingsViewContent(loginViewModel: LoginViewModel, settingsViewModel: Setti
         showLogoutDialog.value = true
       }
       RowDivider()
+
+      Text(
+        text = version,
+        fontSize = 12.sp,
+        modifier = Modifier
+          .padding(15.dp)
+      )
     }
 
     if (showLogoutDialog.value) {
