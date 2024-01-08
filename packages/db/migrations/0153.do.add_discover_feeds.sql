@@ -184,8 +184,10 @@ BEGIN;
 CREATE OR REPLACE FUNCTION omnivore.create_discover_feed_subscription()
     RETURNS trigger AS $$
     BEGIN
-        INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name) VALUES(NEW.id, 'dacd3088-aadb-11ee-bbfe-5f5fa18779ea', 'ArsTechnica');
-        INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name) VALUES(NEW.id, '405eb048-aadc-11ee-bbfe-ff801479b901', 'Wired');
+        IF (NEW.status != 'DELETED') THEN
+            INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name) VALUES(NEW.id, 'dacd3088-aadb-11ee-bbfe-5f5fa18779ea', 'ArsTechnica');
+            INSERT INTO omnivore.discover_feed_subscription(user_id, feed_id, visible_name) VALUES(NEW.id, '405eb048-aadc-11ee-bbfe-ff801479b901', 'Wired');
+        END IF;
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
