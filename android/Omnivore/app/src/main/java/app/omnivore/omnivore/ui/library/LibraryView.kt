@@ -155,7 +155,7 @@ fun LabelBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
-        containerColor = Color.Transparent,
+        containerColor = MaterialTheme.colorScheme.background,
         sheetState = rememberModalBottomSheetState(
             skipPartiallyExpanded = true
         ),
@@ -215,7 +215,14 @@ fun AddLinkBottomSheet(
     saveViewModel: SaveViewModel,
     onDismiss: () -> Unit = {}
 ) {
-    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        ),
+    ) {
+
         AddLinkSheetContent(
             viewModel = saveViewModel,
             onCancel = {
@@ -237,7 +244,13 @@ fun EditBottomSheet(
     libraryViewModel: LibraryViewModel,
     onDismiss: () -> Unit = {}
 ) {
-    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        ),
+    ) {
         val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
         EditInfoSheetContent(
             savedItemId = currentSavedItemData?.savedItem?.savedItemId,

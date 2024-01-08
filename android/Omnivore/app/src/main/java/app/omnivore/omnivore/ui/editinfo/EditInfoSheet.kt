@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.MutableLiveData
 import app.omnivore.omnivore.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditInfoSheetContent(
     savedItemId: String?,
@@ -68,44 +69,47 @@ fun EditInfoSheetContent(
         }
     }
 
-    Surface(
+    androidx.compose.material.Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(stringResource(R.string.edit_info_sheet_title))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                navigationIcon = {
+                    TextButton(onClick = onCancel) {
+                        Text(text = stringResource(R.string.edit_info_sheet_action_cancel))
+                    }
+                },
+                actions = {
+                    TextButton(onClick = {
+                        val newTitle = titleTextFieldValue.text
+                        val newAuthor = authorTextFieldValue.text.ifEmpty { null }
+                        val newDescription = descriptionTextFieldValue.text.ifEmpty { null }
+
+                        savedItemId?.let {
+                            viewModel.editInfo(it, newTitle, newAuthor, newDescription)
+                        }
+                    }) {
+                        Text(stringResource(R.string.edit_info_sheet_action_save))
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 10.dp)
         ) {
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                TextButton(onClick = onCancel) {
-                    Text(text = stringResource(R.string.edit_info_sheet_action_cancel))
-                }
-
-                Text(stringResource(R.string.edit_info_sheet_title), fontWeight = FontWeight.ExtraBold)
-
-                TextButton(onClick = {
-                    val newTitle = titleTextFieldValue.text
-                    val newAuthor = authorTextFieldValue.text.ifEmpty { null }
-                    val newDescription = descriptionTextFieldValue.text.ifEmpty { null }
-
-                    savedItemId?.let {
-                        viewModel.editInfo(it, newTitle, newAuthor, newDescription)
-                    }
-                }) {
-                    Text(stringResource(R.string.edit_info_sheet_action_save))
-                }
-            }
-
             if (isUpdating.value == true) {
                 Spacer(modifier = Modifier.width(16.dp))
                 CircularProgressIndicator(

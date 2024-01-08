@@ -27,6 +27,7 @@ import app.omnivore.omnivore.R
 import app.omnivore.omnivore.ui.save.SaveState
 import app.omnivore.omnivore.ui.save.SaveViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddLinkSheetContent(
     viewModel: SaveViewModel,
@@ -84,35 +85,39 @@ fun AddLinkSheetContent(
         viewModel.saveURL(url)
     }
 
-    Surface(
+    androidx.compose.material.Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(stringResource(R.string.add_link_sheet_title))
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                navigationIcon = {
+                    TextButton(onClick = onCancel) {
+                        Text(text = stringResource(R.string.label_selection_sheet_action_cancel))
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { addLink(textFieldValue.text) }) {
+                        Text(stringResource(R.string.add_link_sheet_action_add_link))
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 5.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 10.dp)
         ) {
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                TextButton(onClick = onCancel) {
-                    Text(text = stringResource(R.string.add_link_sheet_action_cancel))
-                }
-
-                Text(stringResource(R.string.add_link_sheet_title), fontWeight = FontWeight.ExtraBold)
-
-                TextButton(onClick = { addLink(textFieldValue.text) }) {
-                    Text(stringResource(R.string.add_link_sheet_action_add_link))
-                }
-            }
 
             if (isSaving.value == true) {
                 Spacer(modifier = Modifier.width(16.dp))
@@ -120,6 +125,7 @@ fun AddLinkSheetContent(
                     modifier = Modifier
                         .height(16.dp)
                         .width(16.dp),
+
                     strokeWidth = 2.dp,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -129,18 +135,29 @@ fun AddLinkSheetContent(
                 value = textFieldValue,
                 placeholder = { Text(stringResource(R.string.add_link_sheet_text_field_placeholder)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                leadingIcon = { Icon(imageVector = Icons.Default.Link, contentDescription = "linkIcon") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Link,
+                        contentDescription = "linkIcon"
+                    )
+                },
                 onValueChange = { textFieldValue = it },
-                modifier = Modifier.focusRequester(focusRequester).padding(top = 24.dp).fillMaxWidth()
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .padding(top = 24.dp)
+                    .padding(horizontal = 10.dp)
+                    .fillMaxWidth()
             )
 
             if (clipboardText != null) {
                 Button(
-                    modifier = Modifier.padding(top = 10.dp),
+                    modifier = Modifier.padding(top = 10.dp)                    .padding(horizontal = 10.dp)
+                    ,
                     onClick = {
                         textFieldValue = TextFieldValue(
                             text = clipboardText,
-                            selection = TextRange(clipboardText.length))
+                            selection = TextRange(clipboardText.length)
+                        )
                     }
                 ) {
                     Text(stringResource(R.string.add_link_sheet_action_paste_from_clipboard))

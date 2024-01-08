@@ -296,7 +296,7 @@ fun LabelsSelectionSheetContent(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(titleText, fontWeight = FontWeight.ExtraBold)
+                    Text(titleText)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
@@ -324,7 +324,7 @@ fun LabelsSelectionSheetContent(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = paddingValues.calculateTopPadding())
+                .padding(horizontal = 10.dp)
         ) {
             ChipTextField(
                 state = state,
@@ -363,6 +363,7 @@ fun LabelsSelectionSheetContent(
                 modifier = Modifier
                     .defaultMinSize(minHeight = 45.dp)
                     .fillMaxWidth()
+                    .padding(top = 24.dp)
                     .padding(horizontal = 10.dp)
                     .focusRequester(focusRequester)
 //          .onFocusEvent {
@@ -410,7 +411,7 @@ fun LabelsSelectionSheetContent(
                             }
                         }
                         .padding(horizontal = 10.dp)
-                        .padding(top = 10.dp, bottom = 5.dp)
+                        .padding(top = 24.dp, bottom = 5.dp)
                 )
                 {
                     Icon(
