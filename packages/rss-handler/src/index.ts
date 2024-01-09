@@ -86,7 +86,7 @@ const incrementFeedFailure = async (
   try {
     const result = await redisClient.incr(key)
     // expire the key in 1 day
-    await redisClient.expire(key, 24 * 60 * 60, 'NX')
+    await redisClient.expire(key, 24 * 60 * 60)
 
     return result
   } catch (error) {
