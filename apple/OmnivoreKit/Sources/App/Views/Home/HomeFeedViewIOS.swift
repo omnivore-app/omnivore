@@ -19,10 +19,10 @@ struct FiltersHeader: View {
               viewModel.searchTerm = ""
             }.frame(maxWidth: reader.size.width * 0.66)
           } else {
-            // if UIDevice.isIPhone {
+            let hideFollowingTab = UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab")
             Menu(
               content: {
-                ForEach(viewModel.filters.filter { $0.folder == viewModel.currentFolder }) { filter in
+                ForEach(viewModel.filters.filter { hideFollowingTab || $0.folder == viewModel.currentFolder }) { filter in
                   Button(filter.name, action: {
                     viewModel.appliedFilter = filter
                   })
