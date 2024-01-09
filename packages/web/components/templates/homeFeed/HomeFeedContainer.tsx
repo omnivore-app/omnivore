@@ -44,15 +44,11 @@ import { bulkActionMutation } from '../../../lib/networking/mutations/bulkAction
 import {
   showErrorToast,
   showSuccessToast,
-  showSuccessToastWithUndo,
 } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
-import { searchQuery } from '../../../lib/networking/queries/search'
-import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
-import { theme } from '../../tokens/stitches.config'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -1024,11 +1020,10 @@ type LibraryItemsLayoutProps = {
   setIsChecked: (itemId: string, set: boolean) => void
 } & HomeFeedContentProps
 
-function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
+export function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
-  const [, updateState] = useState({})
 
   const unsubscribe = () => {
     if (!props.linkToUnsubscribe) {

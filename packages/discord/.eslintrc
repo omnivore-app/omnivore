@@ -1,0 +1,11 @@
+{
+  "extends": "../../.eslintrc",
+  "parserOptions": {
+    "project": "tsconfig.json"
+  },
+  "ignorePatterns": ["**/index.ts"],
+  "rules": {
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-explicit-any": "off"
+  }
+}

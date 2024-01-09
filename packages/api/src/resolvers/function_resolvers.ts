@@ -141,6 +141,15 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
+import {
+  addDiscoverFeedResolver,
+  getDiscoverFeedsResolver,
+  getDiscoverFeedArticlesResolver,
+  saveDiscoverArticleResolver,
+  deleteDiscoverArticleResolver,
+  deleteDiscoverFeedsResolver,
+  editDiscoverFeedsResolver,
+} from './discover_feeds'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -150,7 +159,7 @@ type ResultResolveType = {
 }
 
 const resultResolveTypeResolver = (
-  resolverName: string
+  resolverName: string,
 ): ResultResolveType => ({
   [`${resolverName}Result`]: {
     __resolveType: (obj) =>
@@ -293,12 +302,19 @@ export const functionResolvers = {
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
+    saveDiscoverArticle: saveDiscoverArticleResolver,
+    deleteDiscoverArticle: deleteDiscoverArticleResolver,
     moveToFolder: moveToFolderResolver,
     updateNewsletterEmail: updateNewsletterEmailResolver,
+    addDiscoverFeed: addDiscoverFeedResolver,
+    deleteDiscoverFeed: deleteDiscoverFeedsResolver,
+    editDiscoverFeed: editDiscoverFeedsResolver,
     emptyTrash: emptyTrashResolver,
   },
   Query: {
     me: getMeUserResolver,
+    getDiscoverFeedArticles: getDiscoverFeedArticlesResolver,
+    discoverFeeds: getDiscoverFeedsResolver,
     user: getUserResolver,
     users: getAllUsersResolver,
     validateUsername: validateUsernameResolver,
@@ -334,7 +350,7 @@ export const functionResolvers = {
     async intercomHash(
       user: User,
       __: Record<string, unknown>,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (env.intercom.secretKey) {
         const userIdentifier = user.id.toString()
@@ -385,7 +401,7 @@ export const functionResolvers = {
     async labels(
       article: { id: string; labels?: Label[] },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (article.labels) return article.labels
 
@@ -407,7 +423,7 @@ export const functionResolvers = {
     createdByMe(
       highlight: { user: { id: string } },
       __: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       return highlight.user.id === ctx.uid
     },
@@ -457,7 +473,7 @@ export const functionResolvers = {
     async labels(
       item: { id: string; labels?: Label[] },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (item.labels) return item.labels
 
@@ -470,14 +486,14 @@ export const functionResolvers = {
         recommenderNames?: string[] | null
       },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (item.recommendations) return item.recommendations
 
       if (item.recommenderNames && item.recommenderNames.length > 0) {
         const recommendations = await findRecommendationsByLibraryItemId(
           item.id,
-          ctx.uid
+          ctx.uid,
         )
         return recommendations.map(recommandationDataToRecommendation)
       }
@@ -490,7 +506,7 @@ export const functionResolvers = {
         highlights?: Highlight[]
       },
       _: unknown,
-      ctx: WithDataSourcesContext
+      ctx: WithDataSourcesContext,
     ) {
       if (item.highlights) return item.highlights
 
