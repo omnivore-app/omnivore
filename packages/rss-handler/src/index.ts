@@ -185,7 +185,7 @@ const parseFeed = async (url: string, content: string) => {
       }
     }
 
-    return parser.parseString(content)
+    return await parser.parseString(content)
   } catch (error) {
     console.log(error)
     return null
