@@ -1,19 +1,27 @@
 import * as httpContext from 'express-http-context2'
-import { EntityManager, EntityTarget, QueryBuilder, Repository } from 'typeorm'
+import {
+  EntityManager,
+  EntityTarget,
+  ObjectLiteral,
+  QueryBuilder,
+  Repository,
+} from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
 
-export const getColumns = <T>(repository: Repository<T>): (keyof T)[] => {
+export const getColumns = <T extends ObjectLiteral>(
+  repository: Repository<T>,
+): (keyof T)[] => {
   return repository.metadata.columns.map(
-    (col) => col.propertyName
+    (col) => col.propertyName,
   ) as (keyof T)[]
 }
 
 export const setClaims = async (
   manager: EntityManager,
   uid = '00000000-0000-0000-0000-000000000000',
-  userRole = 'user'
+  userRole = 'user',
 ): Promise<unknown> => {
   const dbRole =
     userRole === SetClaimsRole.ADMIN ? 'omnivore_admin' : 'omnivore_user'
@@ -27,7 +35,7 @@ export const authTrx = async <T>(
   fn: (manager: EntityManager) => Promise<T>,
   em = appDataSource.manager,
   uid?: string,
-  userRole?: string
+  userRole?: string,
 ): Promise<T> => {
   // if uid and dbRole are not passed in, then get them from the claims
   if (!uid && !userRole) {
@@ -42,11 +50,15 @@ export const authTrx = async <T>(
   })
 }
 
-export const getRepository = <T>(entity: EntityTarget<T>) => {
+export const getRepository = <T extends ObjectLiteral>(
+  entity: EntityTarget<T>,
+) => {
   return appDataSource.getRepository(entity)
 }
 
-export const queryBuilderToRawSql = <T>(q: QueryBuilder<T>): string => {
+export const queryBuilderToRawSql = <T extends ObjectLiteral>(
+  q: QueryBuilder<T>,
+): string => {
   const queryAndParams = q.getQueryAndParameters()
   let sql = queryAndParams[0]
   const params = queryAndParams[1]
@@ -73,7 +85,7 @@ export const queryBuilderToRawSql = <T>(q: QueryBuilder<T>): string => {
                 }
               })
               .join(',') +
-            "}'"
+            "}'",
         )
       } else if (value instanceof Date) {
         sql = sql.replace(`$${index + 1}`, `'${value.toISOString()}'`)
@@ -87,7 +99,7 @@ export const queryBuilderToRawSql = <T>(q: QueryBuilder<T>): string => {
 }
 
 export const valuesToRawSql = (
-  values: Record<string, string | number | boolean>
+  values: Record<string, string | number | boolean>,
 ): string => {
   let sql = ''
 

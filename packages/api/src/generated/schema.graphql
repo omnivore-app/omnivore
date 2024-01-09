@@ -1,5 +1,26 @@
 directive @sanitize(allowedTags: [String], maxLength: Int, minLength: Int, pattern: String) on INPUT_FIELD_DEFINITION
 
+type AddDiscoverFeedError {
+  errorCodes: [AddDiscoverFeedErrorCode!]!
+}
+
+enum AddDiscoverFeedErrorCode {
+  BAD_REQUEST
+  CONFLICT
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input AddDiscoverFeedInput {
+  url: String!
+}
+
+union AddDiscoverFeedResult = AddDiscoverFeedError | AddDiscoverFeedSuccess
+
+type AddDiscoverFeedSuccess {
+  feed: DiscoverFeed!
+}
+
 type AddPopularReadError {
   errorCodes: [AddPopularReadErrorCode!]!
 }
@@ -462,6 +483,47 @@ type DeleteAccountSuccess {
   userID: ID!
 }
 
+type DeleteDiscoverArticleError {
+  errorCodes: [DeleteDiscoverArticleErrorCode!]!
+}
+
+enum DeleteDiscoverArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input DeleteDiscoverArticleInput {
+  discoverArticleId: ID!
+}
+
+union DeleteDiscoverArticleResult = DeleteDiscoverArticleError | DeleteDiscoverArticleSuccess
+
+type DeleteDiscoverArticleSuccess {
+  id: ID!
+}
+
+type DeleteDiscoverFeedError {
+  errorCodes: [DeleteDiscoverFeedErrorCode!]!
+}
+
+enum DeleteDiscoverFeedErrorCode {
+  BAD_REQUEST
+  CONFLICT
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input DeleteDiscoverFeedInput {
+  feedId: ID!
+}
+
+union DeleteDiscoverFeedResult = DeleteDiscoverFeedError | DeleteDiscoverFeedSuccess
+
+type DeleteDiscoverFeedSuccess {
+  id: String!
+}
+
 type DeleteFilterError {
   errorCodes: [DeleteFilterErrorCode!]!
 }
@@ -658,6 +720,72 @@ type EmptyTrashSuccess {
   success: Boolean
 }
 
+type DiscoverFeed {
+  description: String
+  id: ID!
+  image: String
+  link: String!
+  title: String!
+  type: String!
+  visibleName: String
+}
+
+type DiscoverFeedArticle {
+  author: String
+  description: String!
+  feed: String!
+  id: ID!
+  image: String
+  publishedDate: Date
+  savedId: String
+  savedLinkUrl: String
+  siteName: String
+  slug: String!
+  title: String!
+  url: String!
+}
+
+type DiscoverFeedError {
+  errorCodes: [DiscoverFeedErrorCode!]!
+}
+
+enum DiscoverFeedErrorCode {
+  BAD_REQUEST
+  UNAUTHORIZED
+}
+
+union DiscoverFeedResult = DiscoverFeedError | DiscoverFeedSuccess
+
+type DiscoverFeedSuccess {
+  feeds: [DiscoverFeed]!
+}
+
+type DiscoverTopic {
+  description: String!
+  name: String!
+}
+
+type EditDiscoverFeedError {
+  errorCodes: [EditDiscoverFeedErrorCode!]!
+}
+
+enum EditDiscoverFeedErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input EditDiscoverFeedInput {
+  feedId: ID!
+  name: String!
+}
+
+union EditDiscoverFeedResult = EditDiscoverFeedError | EditDiscoverFeedSuccess
+
+type EditDiscoverFeedSuccess {
+  id: ID!
+}
+
 type Feature {
   createdAt: Date!
   expiresAt: Date
@@ -806,6 +934,37 @@ union GenerateApiKeyResult = GenerateApiKeyError | GenerateApiKeySuccess
 
 type GenerateApiKeySuccess {
   apiKey: ApiKey!
+}
+
+type GetDiscoverFeedArticleError {
+  errorCodes: [GetDiscoverFeedArticleErrorCode!]!
+}
+
+enum GetDiscoverFeedArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+union GetDiscoverFeedArticleResults = GetDiscoverFeedArticleError | GetDiscoverFeedArticleSuccess
+
+type GetDiscoverFeedArticleSuccess {
+  discoverArticles: [DiscoverFeedArticle]
+  pageInfo: PageInfo!
+}
+
+type GetDiscoverTopicError {
+  errorCodes: [GetDiscoverTopicErrorCode!]!
+}
+
+enum GetDiscoverTopicErrorCode {
+  UNAUTHORIZED
+}
+
+union GetDiscoverTopicResults = GetDiscoverTopicError | GetDiscoverTopicSuccess
+
+type GetDiscoverTopicSuccess {
+  discoverTopics: [DiscoverTopic!]
 }
 
 type GetFollowersError {
@@ -1211,6 +1370,7 @@ type MoveToFolderSuccess {
 }
 
 type Mutation {
+  addDiscoverFeed(input: AddDiscoverFeedInput!): AddDiscoverFeedResult!
   addPopularRead(name: String!): AddPopularReadResult!
   bulkAction(action: BulkActionType!, arguments: JSON, async: Boolean, expectedCount: Int, labelIds: [ID!], query: String!): BulkActionResult!
   createArticle(input: CreateArticleInput!): CreateArticleResult!
@@ -1220,6 +1380,8 @@ type Mutation {
   createLabel(input: CreateLabelInput!): CreateLabelResult!
   createNewsletterEmail(input: CreateNewsletterEmailInput): CreateNewsletterEmailResult!
   deleteAccount(userID: ID!): DeleteAccountResult!
+  deleteDiscoverArticle(input: DeleteDiscoverArticleInput!): DeleteDiscoverArticleResult!
+  deleteDiscoverFeed(input: DeleteDiscoverFeedInput!): DeleteDiscoverFeedResult!
   deleteFilter(id: ID!): DeleteFilterResult!
   deleteHighlight(highlightId: ID!): DeleteHighlightResult!
   deleteIntegration(id: ID!): DeleteIntegrationResult!
@@ -1227,6 +1389,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
+  editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
   emptyTrash: EmptyTrashResult!
   fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
@@ -1247,6 +1410,7 @@ type Mutation {
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
+  saveDiscoverArticle(input: SaveDiscoverArticleInput!): SaveDiscoverArticleResult!
   saveFile(input: SaveFileInput!): SaveResult!
   saveFilter(input: SaveFilterInput!): SaveFilterResult!
   savePage(input: SavePageInput!): SaveResult!
@@ -1402,8 +1566,11 @@ type Query {
   article(format: String, slug: String!, username: String!): ArticleResult!
   articleSavingRequest(id: ID, url: String): ArticleSavingRequestResult!
   deviceTokens: DeviceTokensResult!
+  discoverFeeds: DiscoverFeedResult!
+  discoverTopics: GetDiscoverTopicResults!
   feeds(input: FeedsInput!): FeedsResult!
   filters: FiltersResult!
+  getDiscoverFeedArticles(after: String, discoverTopicId: String!, feedId: ID, first: Int): GetDiscoverFeedArticleResults!
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
@@ -1701,6 +1868,29 @@ union SaveArticleReadingProgressResult = SaveArticleReadingProgressError | SaveA
 
 type SaveArticleReadingProgressSuccess {
   updatedArticle: Article!
+}
+
+type SaveDiscoverArticleError {
+  errorCodes: [SaveDiscoverArticleErrorCode!]!
+}
+
+enum SaveDiscoverArticleErrorCode {
+  BAD_REQUEST
+  NOT_FOUND
+  UNAUTHORIZED
+}
+
+input SaveDiscoverArticleInput {
+  discoverArticleId: ID!
+  locale: String
+  timezone: String
+}
+
+union SaveDiscoverArticleResult = SaveDiscoverArticleError | SaveDiscoverArticleSuccess
+
+type SaveDiscoverArticleSuccess {
+  saveId: String!
+  url: String!
 }
 
 type SaveError {

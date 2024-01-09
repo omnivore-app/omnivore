@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-base-to-string */
+
 import { preParseContent } from '@omnivore/content-handler'
 import { Readability } from '@omnivore/readability'
 import addressparser from 'addressparser'

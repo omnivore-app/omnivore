@@ -1,9 +1,14 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "build",
     "rootDir": ".",
-    "lib": ["dom"]
+    "lib": ["dom"],
+    "noImplicitAny": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
   },
   "include": ["src"]
 }
