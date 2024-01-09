@@ -19,10 +19,10 @@ struct FiltersHeader: View {
               viewModel.searchTerm = ""
             }.frame(maxWidth: reader.size.width * 0.66)
           } else {
-            // if UIDevice.isIPhone {
+            let hideFollowingTab = UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab")
             Menu(
               content: {
-                ForEach(viewModel.filters.filter { $0.folder == viewModel.currentFolder }) { filter in
+                ForEach(viewModel.filters.filter { hideFollowingTab || $0.folder == viewModel.currentFolder }) { filter in
                   Button(filter.name, action: {
                     viewModel.appliedFilter = filter
                   })
@@ -188,8 +188,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var showAddLinkView = false
     @State var isListScrolled = false
     @State var listTitle = ""
-    @State var isEditMode: EditMode = .inactive
     @State var showExpandedAudioPlayer = false
+
+    @Binding var isEditMode: EditMode
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
@@ -200,8 +201,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
 
-    init(viewModel: HomeFeedViewModel) {
+    init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
+      _isEditMode = isEditMode
     }
 
     func loadItems(isRefresh: Bool) {
