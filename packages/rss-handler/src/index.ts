@@ -78,7 +78,10 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
   return false
 }
 
-const blockFeed = async (feedUrl: string, redisClient: RedisClient) => {
+const incrementFeedFailure = async (
+  feedUrl: string,
+  redisClient: RedisClient
+) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.incr(key)
@@ -142,8 +145,8 @@ export const fetchAndChecksum = async (url: string) => {
 
     return { url, content: dataStr, checksum: hash.digest('hex') }
   } catch (error) {
-    console.log(error)
-    throw new Error(`Failed to fetch or hash content from ${url}.`)
+    console.log(`Failed to fetch or hash content from ${url}.`, error)
+    return null
   }
 }
 
@@ -631,10 +634,16 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
 
       const fetchResult = await fetchAndChecksum(feedUrl)
+      if (!fetchResult) {
+        console.error('Failed to fetch RSS feed', feedUrl)
+        await incrementFeedFailure(feedUrl, redisClient)
+        return res.status(500).send('FAILED_TO_FETCH_RSS_FEED')
+      }
+
       const feed = await parseFeed(feedUrl, fetchResult.content)
       if (!feed) {
         console.error('Failed to parse RSS feed', feedUrl)
-        await blockFeed(feedUrl, redisClient)
+        await incrementFeedFailure(feedUrl, redisClient)
         return res.status(500).send('INVALID_RSS_FEED')
       }
 
