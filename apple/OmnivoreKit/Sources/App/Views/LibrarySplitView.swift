@@ -6,6 +6,7 @@ import SwiftUI
 @MainActor
 public struct LibrarySplitView: View {
   @EnvironmentObject var dataService: DataService
+  @State var isEditMode: EditMode = .inactive
 
   @StateObject private var viewModel = HomeFeedViewModel(
     filterKey: "lastSelected",
@@ -37,7 +38,7 @@ public struct LibrarySplitView: View {
           .navigationBarTitleDisplayMode(.inline)
           .navigationTitle("")
 
-        HomeFeedContainerView(viewModel: viewModel)
+        HomeFeedContainerView(viewModel: viewModel, isEditMode: $isEditMode)
           .navigationViewStyle(.stack)
           .navigationBarTitleDisplayMode(.inline)
       }

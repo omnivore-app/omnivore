@@ -21,6 +21,8 @@ struct LibraryTabView: View {
 
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
+
+  @State var isEditMode: EditMode = .inactive
   @State var showExpandedAudioPlayer = false
 
   private let syncManager = LibrarySyncManager()
@@ -74,14 +76,14 @@ struct LibraryTabView: View {
       TabView(selection: $selectedTab) {
         if !hideFollowingTab {
           NavigationView {
-            HomeFeedContainerView(viewModel: followingViewModel)
+            HomeFeedContainerView(viewModel: followingViewModel, isEditMode: $isEditMode)
               .navigationBarTitleDisplayMode(.inline)
               .navigationViewStyle(.stack)
           }.tag("following")
         }
 
         NavigationView {
-          HomeFeedContainerView(viewModel: inboxViewModel)
+          HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
             .navigationBarTitleDisplayMode(.inline)
             .navigationViewStyle(.stack)
         }.tag("inbox")
@@ -101,8 +103,10 @@ struct LibraryTabView: View {
           .frame(height: 1)
           .frame(maxWidth: .infinity)
       }
-      CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
-        .padding(0)
+      if isEditMode != .active {
+        CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
+          .padding(0)
+      }
     }
     .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
       ExpandedAudioPlayer(

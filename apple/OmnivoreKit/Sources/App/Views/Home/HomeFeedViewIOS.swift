@@ -188,8 +188,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var showAddLinkView = false
     @State var isListScrolled = false
     @State var listTitle = ""
-    @State var isEditMode: EditMode = .inactive
     @State var showExpandedAudioPlayer = false
+
+    @Binding var isEditMode: EditMode
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
@@ -200,8 +201,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
 
-    init(viewModel: HomeFeedViewModel) {
+    init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
+      _isEditMode = isEditMode
     }
 
     func loadItems(isRefresh: Bool) {
