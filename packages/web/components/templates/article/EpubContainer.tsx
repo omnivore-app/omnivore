@@ -310,6 +310,7 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
       {noteTarget && (
         <HighlightNoteModal
           highlight={noteTarget}
+          libraryItemId={props.article.id}
           author={props.article.author ?? ''}
           title={props.article.title}
           onUpdate={(highlight: Highlight) => {
