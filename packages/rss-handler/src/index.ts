@@ -185,6 +185,8 @@ const parseFeed = async (url: string, content: string) => {
       }
     }
 
+    // return await is needed to catch errors thrown by the parser
+    // otherwise the error will be caught by the outer try catch
     return await parser.parseString(content)
   } catch (error) {
     console.log(error)
