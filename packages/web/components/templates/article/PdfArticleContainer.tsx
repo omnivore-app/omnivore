@@ -113,7 +113,7 @@ export default function PdfArticleContainer(
               .delete(annotation)
               .then(() => {
                 if (annotationId) {
-                  return deleteHighlightMutation(annotationId)
+                  return deleteHighlightMutation(props.article.id, annotationId)
                 }
               })
               .then(() => {
@@ -229,7 +229,7 @@ export default function PdfArticleContainer(
         }
         const annotationId = annotationOmnivoreId(annotation)
         if (annotationId) {
-          await deleteHighlightMutation(annotationId)
+          await deleteHighlightMutation(props.article.id, annotationId)
         }
       })
 
@@ -512,7 +512,7 @@ export default function PdfArticleContainer(
           const storedId = annotationOmnivoreId(annotation)
           if (storedId == annotationId) {
             await instance.delete(annotation)
-            await deleteHighlightMutation(annotationId)
+            await deleteHighlightMutation(props.article.id, annotationId)
 
             const highlightIdx = highlightsRef.current.findIndex((value) => {
               return value.id == annotationId
@@ -576,6 +576,7 @@ export default function PdfArticleContainer(
       {noteTarget && (
         <HighlightNoteModal
           highlight={noteTarget}
+          libraryItemId={props.article.id}
           author={props.article.author ?? ''}
           title={props.article.title}
           onUpdate={(highlight: Highlight) => {

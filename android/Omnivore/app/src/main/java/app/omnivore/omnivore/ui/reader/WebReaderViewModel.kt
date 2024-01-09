@@ -333,7 +333,7 @@ class WebReaderViewModel @Inject constructor(
       "deleteHighlight" -> {
         Log.d("Loggo", "receive delete highlight action: $jsonString")
         viewModelScope.launch {
-          dataService.deleteHighlights(jsonString)
+          dataService.deleteHighlightFromJSON(jsonString)
         }
       }
       "updateHighlight" -> {

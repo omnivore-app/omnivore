@@ -2,6 +2,7 @@ import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
 export async function deleteHighlightMutation(
+  libraryItemId: string,
   highlightId: string
 ): Promise<boolean> {
   const mutation = gql`

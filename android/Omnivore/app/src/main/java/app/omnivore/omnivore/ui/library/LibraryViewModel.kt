@@ -300,7 +300,7 @@ class LibraryViewModel @Inject constructor(
 
             SavedItemAction.EditLabels -> {
                 currentItemLiveData.value = itemID
-                bottomSheetState.value = LibraryBottomSheetState.EDIT
+                bottomSheetState.value = LibraryBottomSheetState.LABEL
             }
 
             SavedItemAction.EditInfo -> {

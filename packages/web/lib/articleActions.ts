@@ -8,7 +8,10 @@ export type ArticleMutations = {
   createHighlightMutation: (
     input: CreateHighlightInput
   ) => Promise<Highlight | undefined>
-  deleteHighlightMutation: (highlightId: string) => Promise<boolean>
+  deleteHighlightMutation: (
+    libraryItemId: string,
+    highlightId: string
+  ) => Promise<boolean>
   mergeHighlightMutation: (
     input: MergeHighlightInput
   ) => Promise<Highlight | undefined>

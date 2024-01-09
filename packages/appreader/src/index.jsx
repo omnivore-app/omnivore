@@ -83,8 +83,8 @@ const App = () => {
             articleMutations={{
               createHighlightMutation: (input) =>
                 mutation('createHighlight', input),
-              deleteHighlightMutation: (highlightId) =>
-                mutation('deleteHighlight', { highlightId }),
+              deleteHighlightMutation: (libraryItemId, highlightId) =>
+                mutation('deleteHighlight', { libraryItemId, highlightId }),
               mergeHighlightMutation: (input) =>
                 mutation('mergeHighlight', input),
               updateHighlightMutation: (input) =>

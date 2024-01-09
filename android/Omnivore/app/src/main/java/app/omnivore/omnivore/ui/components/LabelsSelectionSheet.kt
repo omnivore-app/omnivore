@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,15 +21,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +57,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.intl.Locale
@@ -56,6 +65,7 @@ import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import com.dokar.chiptextfield.Chip
@@ -279,40 +289,43 @@ fun LabelsSelectionSheetContent(
         stringResource(R.string.label_selection_sheet_title) else
         stringResource(R.string.label_selection_sheet_title_alt)
 
-    Surface(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(titleText)
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
+                navigationIcon = {
+                    TextButton(onClick = onCancel) {
+                        Text(text = stringResource(R.string.label_selection_sheet_action_cancel))
+                    }
+                },
+                actions = {
+                    TextButton(onClick = { onSave(state.chips.map { it.label }) }) {
+                        Text(
+                            text = if (isLibraryMode)
+                                stringResource(R.string.label_selection_sheet_action_search) else
+                                stringResource(R.string.label_selection_sheet_action_save)
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 5.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 10.dp)
         ) {
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                TextButton(onClick = onCancel) {
-                    Text(text = stringResource(R.string.label_selection_sheet_action_cancel))
-                }
-
-                Text(titleText, fontWeight = FontWeight.ExtraBold)
-
-                TextButton(onClick = { onSave(state.chips.map { it.label }) }) {
-                    Text(
-                        text = if (isLibraryMode)
-                            stringResource(R.string.label_selection_sheet_action_search) else
-                            stringResource(R.string.label_selection_sheet_action_save)
-                    )
-                }
-            }
-
             ChipTextField(
                 state = state,
                 value = filterTextValue,
@@ -344,12 +357,13 @@ fun LabelsSelectionSheetContent(
                 ),
                 colors = TextFieldDefaults.textFieldColors(
                     textColor = MaterialTheme.colorScheme.onBackground,
-                    backgroundColor = MaterialTheme.colorScheme.background
+                    backgroundColor = MaterialTheme.colorScheme.surface
                 ),
                 contentPadding = PaddingValues(10.dp),
                 modifier = Modifier
                     .defaultMinSize(minHeight = 45.dp)
                     .fillMaxWidth()
+                    .padding(top = 24.dp)
                     .padding(horizontal = 10.dp)
                     .focusRequester(focusRequester)
 //          .onFocusEvent {
@@ -397,19 +411,23 @@ fun LabelsSelectionSheetContent(
                             }
                         }
                         .padding(horizontal = 10.dp)
-                        .padding(top = 10.dp, bottom = 5.dp)
+                        .padding(top = 24.dp, bottom = 5.dp)
                 )
                 {
                     Icon(
                         imageVector = Icons.Filled.AddCircle,
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 8.dp),
+                        tint =  MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = stringResource(
                             R.string.label_selection_sheet_text_create,
                             filterTextValue.text.trim()
-                        )
+                        ),
+                        style = TextStyle(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
                     )
                 }
             }

@@ -1,36 +1,44 @@
 package app.omnivore.omnivore.dataService
 
+import android.util.Log
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
+import app.omnivore.omnivore.persistence.entities.HighlightChange
 import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.highlightChangeToHighlight
 import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.delay
+import kotlin.math.log
 
 suspend fun DataService.startSyncChannels() {
+  Log.d("sync", "Starting sync channels")
   for (savedItem in savedItemSyncChannel) {
     syncSavedItem(savedItem)
   }
+}
 
-  for (highlight in highlightSyncChannel) {
-    syncHighlight(highlight)
+suspend fun DataService.performHighlightChange(highlightChange: HighlightChange) {
+  val highlight = highlightChangeToHighlight(highlightChange)
+  if (syncHighlightChange(highlightChange)) {
+    db.highlightChangesDao().deleteById(highlight.highlightId)
   }
 }
 
+
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
   val unSyncedSavedItems = db.savedItemDao().getUnSynced()
-  val unSyncedHighlights = db.highlightDao().getUnSynced()
+  val unSyncedHighlights = db.highlightChangesDao().getUnSynced()
 
   for (savedItem in unSyncedSavedItems) {
     delay(250)
     savedItemSyncChannel.send(savedItem)
   }
 
-  for (highlight in unSyncedHighlights) {
-    delay(250)
-    highlightSyncChannel.send(highlight)
+  for (change in unSyncedHighlights) {
+    performHighlightChange(change)
   }
 }
 
@@ -82,7 +90,9 @@ private suspend fun DataService.syncSavedItem(item: SavedItem) {
   }
 }
 
-private suspend fun DataService.syncHighlight(highlight: Highlight) {
+private suspend fun DataService.syncHighlightChange(highlightChange: HighlightChange): Boolean {
+  val highlight = highlightChangeToHighlight(highlightChange)
+
   fun updateSyncStatus(status: ServerSyncStatus) {
     highlight.serverSyncStatus = status.rawValue
     db.highlightDao().update(highlight)
@@ -91,7 +101,6 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
   when (highlight.serverSyncStatus) {
     ServerSyncStatus.NEEDS_DELETION.rawValue -> {
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
-
       val isDeletedOnServer = networker.deleteHighlights(listOf(highlight.highlightId))
 
       if (isDeletedOnServer) {
@@ -99,8 +108,12 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
       } else {
         updateSyncStatus(ServerSyncStatus.NEEDS_DELETION)
       }
+      return isDeletedOnServer != null
     }
+
     ServerSyncStatus.NEEDS_UPDATE.rawValue -> {
+      Log.d("sync", "creating highlight update change: ${highlightChange}")
+
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
 
       val isUpdatedOnServer = networker.updateHighlight(
@@ -110,36 +123,40 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
           sharedAt = Optional.absent()
         )
       )
+      Log.d("sync", "sycn.updateHighlight result: ${isUpdatedOnServer}")
 
       if (isUpdatedOnServer) {
         updateSyncStatus(ServerSyncStatus.IS_SYNCED)
       } else {
         updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
       }
+      return isUpdatedOnServer != null
     }
+
     ServerSyncStatus.NEEDS_CREATION.rawValue -> {
+      Log.d("sync", "creating highlight create change: ${highlightChange}")
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
 
-      val savedItemID = db.savedItemAndHighlightCrossRefDao()
-        .associatedSavedItemID(highlightId = highlight.highlightId)
-
-      val isCreatedOnServer = networker.createHighlight(
+      val createResult = networker.createHighlight(
         CreateHighlightInput(
           annotation = Optional.presentIfNotNull(highlight.annotation),
-          articleId = savedItemID ?: "",
+          articleId = highlightChange.savedItemId,
           id = highlight.highlightId,
           patch = Optional.presentIfNotNull(highlight.patch),
           quote = Optional.presentIfNotNull(highlight.quote),
           shortId = highlight.shortId
         )
       )
+      Log.d("sync", "sycn.createResult: " + createResult)
 
-      if (isCreatedOnServer != null) {
+      if (createResult.newHighlight != null || createResult.alreadyExists) {
         updateSyncStatus(ServerSyncStatus.IS_SYNCED)
+        return true
       } else {
         updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
+        return false
       }
     }
-    else -> return
+    else -> return false
   }
 }
