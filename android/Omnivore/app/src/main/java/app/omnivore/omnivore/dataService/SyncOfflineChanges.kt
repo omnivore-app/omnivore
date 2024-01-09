@@ -7,6 +7,7 @@ import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItem
+import app.omnivore.omnivore.persistence.entities.highlightChangeToHighlight
 import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.delay
 import kotlin.math.log
@@ -25,16 +26,29 @@ suspend fun DataService.startSyncChannels() {
 suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
   val unSyncedSavedItems = db.savedItemDao().getUnSynced()
   val unSyncedHighlights = db.highlightChangesDao().getUnSynced()
-  Log.d("sync","UNSYNC CHANGES: " + unSyncedHighlights)
 
   for (savedItem in unSyncedSavedItems) {
     delay(250)
     savedItemSyncChannel.send(savedItem)
   }
 
-  for (highlight in unSyncedHighlights) {
+  for (change in unSyncedHighlights) {
+    val highlight = highlightChangeToHighlight(change)
+    Log.d("sync","UNSYNC CHANGE: " + highlight.serverSyncStatus + " HIGHLIGHT: " + highlight)
+
+    when (change.serverSyncStatus) {
+      ServerSyncStatus.NEEDS_CREATION.rawValue -> {
+        highlight.serverSyncStatus = change.serverSyncStatus
+        if (syncHighlight(highlight)) {
+          db.highlightChangesDao().deleteById(highlight.highlightId)
+        }
+      }
+      else -> {
+        db.highlightChangesDao().deleteById(highlight.highlightId)
+      }
+     }
     delay(250)
-  //  highlightSyncChannel.send(highlight)
+   // highlightSyncChannel.send(highlight)
   }
 }
 
@@ -86,7 +100,7 @@ private suspend fun DataService.syncSavedItem(item: SavedItem) {
   }
 }
 
-private suspend fun DataService.syncHighlight(highlight: Highlight) {
+private suspend fun DataService.syncHighlight(highlight: Highlight): Boolean {
   fun updateSyncStatus(status: ServerSyncStatus) {
     highlight.serverSyncStatus = status.rawValue
     db.highlightDao().update(highlight)
@@ -103,6 +117,7 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
       } else {
         updateSyncStatus(ServerSyncStatus.NEEDS_DELETION)
       }
+      return isDeletedOnServer != null
     }
     ServerSyncStatus.NEEDS_UPDATE.rawValue -> {
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
@@ -120,8 +135,10 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
       } else {
         updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
       }
+      return isUpdatedOnServer != null
     }
     ServerSyncStatus.NEEDS_CREATION.rawValue -> {
+      Log.d("sync", "CREATING")
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
 
       val savedItemID = db.savedItemAndHighlightCrossRefDao()
@@ -137,13 +154,15 @@ private suspend fun DataService.syncHighlight(highlight: Highlight) {
           shortId = highlight.shortId
         )
       )
+      Log.d("sync", "isCreatedOnServer: " + isCreatedOnServer)
 
       if (isCreatedOnServer != null) {
         updateSyncStatus(ServerSyncStatus.IS_SYNCED)
       } else {
         updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
       }
+      return isCreatedOnServer != null
     }
-    else -> return
+    else -> return false
   }
 }

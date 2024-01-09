@@ -56,6 +56,26 @@ fun saveHighlightChange(dao: HighlightChangesDao, savedItemId: String, highlight
     return change
 }
 
+fun highlightChangeToHighlight(change: HighlightChange): Highlight {
+    return Highlight(
+        highlightId = change.highlightId,
+        type = change.type,
+        shortId = change.shortId,
+        quote = change.quote,
+        prefix = change.prefix,
+        suffix = change.suffix,
+        patch = change.patch,
+        annotation = change.annotation,
+        createdAt = change.createdAt,
+        updatedAt = change.updatedAt,
+        createdByMe = change.createdByMe,
+        color = change.color,
+        highlightPositionPercent = change.highlightPositionPercent,
+        highlightPositionAnchorIndex = change.highlightPositionAnchorIndex,
+        serverSyncStatus = change.serverSyncStatus
+    )
+}
+
 @Dao
 interface HighlightChangesDao {
     @Query("SELECT * FROM highlightChange WHERE serverSyncStatus != 0 ORDER BY updatedAt ASC")

@@ -52,6 +52,7 @@ suspend fun DataService.createWebHighlight(jsonString: String, colorName: String
 
     newHighlight?.let {
       db.highlightDao().update(it)
+      db.highlightChangesDao().deleteById(highlightId = highlight.highlightId)
     }
   }
 }
