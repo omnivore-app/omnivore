@@ -167,10 +167,9 @@ enum LoadingBarStyle {
     let availableFolders = folderConfigs.keys
     let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
 
-    filters = newFilters
+    filters = (defaultFilters + newFilters)
       .filter { availableFolders.contains($0.folder) }
       .sorted(by: { $0.position < $1.position })
-      + defaultFilters
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter

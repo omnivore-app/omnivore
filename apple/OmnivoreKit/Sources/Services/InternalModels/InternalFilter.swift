@@ -22,7 +22,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       folder: "inbox",
       filter: "",
       visible: true,
-      position: -1,
+      position: 11,
       defaultFilter: true
     )
   }
@@ -34,7 +34,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       folder: "inbox",
       filter: "in:trash",
       visible: true,
-      position: -1,
+      position: 12,
       defaultFilter: true
     )
   }
@@ -46,7 +46,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       folder: "inbox",
       filter: "in:inbox is:unread",
       visible: true,
-      position: -1,
+      position: 10,
       defaultFilter: true
     )
   }
@@ -58,7 +58,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       folder: "following",
       filter: "",
       visible: true,
-      position: -1,
+      position: 11,
       defaultFilter: true
     )
   }
@@ -70,7 +70,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       folder: "following",
       filter: "in:trash",
       visible: true,
-      position: -1,
+      position: 12,
       defaultFilter: true
     )
   }
@@ -82,7 +82,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
       folder: "inbox",
       filter: "in:inbox is:unread",
       visible: true,
-      position: -1,
+      position: 10,
       defaultFilter: true
     )
   }
@@ -95,7 +95,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "",
         visible: true,
-        position: 0,
+        position: 10,
         defaultFilter: true
       ),
       InternalFilter(
@@ -104,7 +104,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "",
         visible: true,
-        position: 1,
+        position: 11,
         defaultFilter: true
       ),
       InternalFilter(
@@ -113,7 +113,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "",
         visible: true,
-        position: 2,
+        position: 12,
         defaultFilter: true
       ),
       InternalFilter(
@@ -122,7 +122,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "",
         visible: true,
-        position: 3,
+        position: 13,
         defaultFilter: true
       ),
       InternalFilter(
@@ -131,7 +131,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "is:archived",
         visible: true,
-        position: 4,
+        position: 14,
         defaultFilter: true
       ),
       InternalFilter(
@@ -140,7 +140,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "type:file",
         visible: true,
-        position: 5,
+        position: 15,
         defaultFilter: true
       ),
       InternalFilter(
@@ -149,7 +149,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "has:highlights",
         visible: true,
-        position: 6,
+        position: 16,
         defaultFilter: true
       ),
       InternalFilter(
@@ -158,7 +158,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "inbox",
         filter: "in:all",
         visible: true,
-        position: 7,
+        position: 17,
         defaultFilter: true
       )
     ]
@@ -172,7 +172,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "following",
         filter: "in:following",
         visible: true,
-        position: 1,
+        position: 10,
         defaultFilter: true
       ),
       InternalFilter(
@@ -181,7 +181,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "following",
         filter: "in:following label:RSS",
         visible: true,
-        position: 2,
+        position: 12,
         defaultFilter: true
       ),
       InternalFilter(
@@ -190,7 +190,7 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
         folder: "following",
         filter: "in:following label:Newsletter",
         visible: true,
-        position: 3,
+        position: 13,
         defaultFilter: true
       )
     ]
