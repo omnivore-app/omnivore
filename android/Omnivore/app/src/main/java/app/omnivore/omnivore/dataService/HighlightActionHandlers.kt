@@ -38,7 +38,7 @@ suspend fun DataService.createWebHighlight(jsonString: String, colorName: String
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
 
-    saveHighlightChange(db.highlightChangesDao(), createHighlightInput.articleId, highlight)
+    val highlightChange = saveHighlightChange(db.highlightChangesDao(), createHighlightInput.articleId, highlight)
 
     val crossRef = SavedItemAndHighlightCrossRef(
       highlightId = createHighlightInput.id,
@@ -48,12 +48,7 @@ suspend fun DataService.createWebHighlight(jsonString: String, colorName: String
     db.highlightDao().insertAll(listOf(highlight))
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
-    val newHighlight = networker.createHighlight(createHighlightInput)
-
-    newHighlight?.let {
-      db.highlightDao().update(it)
-      db.highlightChangesDao().deleteById(highlightId = highlight.highlightId)
-    }
+    performHighlightChange(highlightChange)
   }
 }
 
@@ -81,7 +76,7 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
 
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
 
-    saveHighlightChange(db.highlightChangesDao(), savedItemId, highlight)
+    val highlightChange = saveHighlightChange(db.highlightChangesDao(), savedItemId, highlight)
 
     val crossRef = SavedItemAndHighlightCrossRef(
       highlightId = createHighlightId,
@@ -91,21 +86,7 @@ suspend fun DataService.createNoteHighlight(savedItemId: String, note: String): 
     db.highlightDao().insertAll(listOf(highlight))
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
-    val newHighlight = networker.createHighlight(input = CreateHighlightParams(
-      type = HighlightType.NOTE,
-      articleId = savedItemId,
-      id = createHighlightId,
-      shortId = shortId,
-      quote = null,
-      patch = null,
-      annotation = note,
-      highlightPositionAnchorIndex = 0,
-      highlightPositionPercent = 0.0
-    ).asCreateHighlightInput())
-
-    newHighlight?.let {
-      db.highlightDao().update(it)
-    }
+    performHighlightChange(highlightChange)
   }
 
   return createHighlightId
@@ -163,6 +144,7 @@ suspend fun DataService.updateWebHighlight(jsonString: String) {
 
   if (updateHighlightParams.highlightId == null || updateHighlightParams.libraryItemId == null) {
     Log.d("error","ERROR INVALID HIGHLIGHT DATA")
+    return
   }
 
   withContext(Dispatchers.IO) {
@@ -172,19 +154,12 @@ suspend fun DataService.updateWebHighlight(jsonString: String) {
     highlight.serverSyncStatus = ServerSyncStatus.NEEDS_UPDATE.rawValue
     db.highlightDao().update(highlight)
 
-    saveHighlightChange(db.highlightChangesDao(), updateHighlightParams.libraryItemId ?: "", highlight)
-
-    val isUpdatedOnServer = networker.updateHighlight(updateHighlightParams.asUpdateHighlightInput())
-
-    if (isUpdatedOnServer) {
-      highlight.serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
-      db.highlightDao().update(highlight)
-    }
+    val highlightChange = saveHighlightChange(db.highlightChangesDao(), updateHighlightParams.libraryItemId ?: "", highlight)
+    performHighlightChange(highlightChange)
   }
 }
 
 suspend fun DataService.deleteHighlightFromJSON(jsonString: String) {
-  Log.d("sync", "DELETION STRING: " + jsonString)
   val deleteHighlightParams = Gson().fromJson(jsonString, DeleteHighlightParams::class.java)
   deleteHighlight(deleteHighlightParams.libraryItemId, deleteHighlightParams.highlightId)
 }
@@ -197,17 +172,8 @@ private suspend fun DataService.deleteHighlight(savedItemId: String, highlightID
       highlight.serverSyncStatus = ServerSyncStatus.NEEDS_DELETION.rawValue
       db.highlightDao().update(highlight)
 
-      saveHighlightChange(db.highlightChangesDao(), savedItemId, highlight)
-
-      val isUpdatedOnServer = networker.deleteHighlights(listOf(highlightID))
-      Log.d("sync","DELETING HIGHLIGHT" +  highlightID)
-
-      if (isUpdatedOnServer) {
-        Log.d("sync","DELETED HIGHLIGHT" + highlightID)
-        db.highlightDao().deleteById(highlightId = highlightID)
-      }
-    } ?: run {
-      Log.d("sync","Could not find highlight for deletion" + savedItemId + "," + highlightID)
+      val highlightChange = saveHighlightChange(db.highlightChangesDao(), savedItemId, highlight)
+      performHighlightChange(highlightChange)
     }
   }
 }

@@ -5,6 +5,7 @@ import app.omnivore.omnivore.graphql.generated.CreateHighlightMutation
 import app.omnivore.omnivore.graphql.generated.DeleteHighlightMutation
 import app.omnivore.omnivore.graphql.generated.MergeHighlightMutation
 import app.omnivore.omnivore.graphql.generated.UpdateHighlightMutation
+import app.omnivore.omnivore.graphql.generated.type.CreateHighlightErrorCode
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
@@ -136,18 +137,26 @@ suspend fun Networker.createWebHighlight(jsonString: String): Boolean {
   return createHighlight(input) != null
 }
 
-suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
-  Log.d("Loggo", "created highlight input: $input")
+data class CreateHighlightResult(
+  val failedToCreate: Boolean,
+  val alreadyExists: Boolean,
+  val newHighlight: Highlight?
+)
+
+suspend fun Networker.createHighlight(input: CreateHighlightInput): CreateHighlightResult {
+  Log.d("sync", "creating highlight with input: ${input}")
 
   try {
     val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
-    Log.d("Loggo", "result: ${result.data}")
-
+    Log.d("sync", "result: ${result.data}")
 
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
     if (createdHighlight != null) {
-      return Highlight(
+      return CreateHighlightResult(
+        failedToCreate = false,
+        alreadyExists = false,
+        newHighlight = Highlight(
         type = createdHighlight.highlightFields.type.toString(),
         highlightId = createdHighlight.highlightFields.id,
         shortId = createdHighlight.highlightFields.shortId,
@@ -163,10 +172,22 @@ suspend fun Networker.createHighlight(input: CreateHighlightInput): Highlight? {
         highlightPositionPercent = createdHighlight.highlightFields.highlightPositionPercent,
         highlightPositionAnchorIndex = createdHighlight.highlightFields.highlightPositionAnchorIndex
         )
+      )
     } else {
-      return null
+      if (result.data?.createHighlight?.onCreateHighlightError?.errorCodes?.first() == CreateHighlightErrorCode.ALREADY_EXISTS) {
+        return CreateHighlightResult(
+          failedToCreate = false,
+          alreadyExists = true,
+          newHighlight = null
+        )
+      }
     }
   } catch (e: java.lang.Exception) {
-    return null
+    Log.d("sync", "error creating highlight: "  +e)
   }
+  return CreateHighlightResult(
+    failedToCreate = true,
+    alreadyExists = false,
+    newHighlight = null
+  )
 }
