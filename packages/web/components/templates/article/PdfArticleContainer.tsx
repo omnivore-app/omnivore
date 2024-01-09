@@ -576,7 +576,7 @@ export default function PdfArticleContainer(
       {noteTarget && (
         <HighlightNoteModal
           highlight={noteTarget}
-          libraryItemId={props.articleId}
+          libraryItemId={props.article.id}
           author={props.article.author ?? ''}
           title={props.article.title}
           onUpdate={(highlight: Highlight) => {
