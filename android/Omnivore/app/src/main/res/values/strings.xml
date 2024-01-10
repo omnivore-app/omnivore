@@ -54,8 +54,8 @@
     <string name="email_signup_field_label_password">Password</string>
     <string name="email_signup_field_placeholder_name">Name</string>
     <string name="email_signup_field_label_name">Name</string>
-    <string name="email_signup_field_placeholder_username">Name</string>
-    <string name="email_signup_field_label_username">Name</string>
+    <string name="email_signup_field_placeholder_username">Username</string>
+    <string name="email_signup_field_label_username">Username</string>
     <string name="email_signup_error_msg">Please complete all fields.</string>
 
     <!-- Google Auth -->
