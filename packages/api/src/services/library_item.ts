@@ -93,6 +93,7 @@ export enum SortOrder {
 export interface Sort {
   by: string
   order?: SortOrder
+  nulls?: 'NULLS FIRST' | 'NULLS LAST'
 }
 
 interface Select {
@@ -332,8 +333,10 @@ export const buildQuery = (
 
           const order =
             sortOrder === 'asc' ? SortOrder.ASCENDING : SortOrder.DESCENDING
+          const nulls =
+            order === SortOrder.ASCENDING ? 'NULLS FIRST' : 'NULLS LAST'
 
-          orders.push({ by: `library_item.${column}`, order })
+          orders.push({ by: `library_item.${column}`, order, nulls })
           return null
         }
         case 'has':
@@ -613,12 +616,13 @@ export const searchLibraryItems = async (
         orders.push({
           by: 'library_item.saved_at',
           order: SortOrder.DESCENDING,
+          nulls: 'NULLS LAST',
         })
       }
 
       // add order by
       orders.forEach((order) => {
-        queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
+        queryBuilder.addOrderBy(order.by, order.order, order.nulls)
       })
 
       const libraryItems = await queryBuilder.skip(from).take(size).getMany()
