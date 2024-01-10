@@ -14,7 +14,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.auth.AuthUtils.autofill
 
 @Composable
 fun EmailSignUpView(viewModel: LoginViewModel) {
@@ -140,6 +143,7 @@ fun EmailSignUpForm(viewModel: LoginViewModel) {
   }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmailSignUpFields(
   email: String,
@@ -165,6 +169,12 @@ fun EmailSignUpFields(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     OutlinedTextField(
+      modifier = Modifier.autofill(
+        autofillTypes = listOf(
+          AutofillType.EmailAddress,
+        ),
+        onFill = { onEmailChange(it) }
+      ),
       value = email,
       placeholder = { Text(stringResource(R.string.email_signup_field_placeholder_email)) },
       label = { Text(stringResource(R.string.email_signup_field_label_email)) },
@@ -174,6 +184,12 @@ fun EmailSignUpFields(
     )
 
     OutlinedTextField(
+      modifier = Modifier.autofill(
+        autofillTypes = listOf(
+          AutofillType.Password,
+        ),
+        onFill = { onPasswordChange(it) }
+      ),
       value = password,
       placeholder = { Text(stringResource(R.string.email_signup_field_placeholder_password)) },
       label = { Text(stringResource(R.string.email_signup_field_label_password)) },
