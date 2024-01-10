@@ -622,6 +622,9 @@ struct WebReaderContainerView: View {
       // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
+      pop()
+    }
     .popup(isPresented: $viewModel.showSnackbar) {
       if let operation = viewModel.snackbarOperation {
         Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
