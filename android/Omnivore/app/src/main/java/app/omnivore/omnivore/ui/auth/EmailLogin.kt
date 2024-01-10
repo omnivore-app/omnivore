@@ -111,7 +111,7 @@ fun LoginFields(
     OutlinedTextField(
       modifier = Modifier.autofill(
         autofillTypes = listOf(
-          AutofillType.Password,
+          AutofillType.EmailAddress,
         ),
         onFill = { onEmailChange(it) }
       ),
