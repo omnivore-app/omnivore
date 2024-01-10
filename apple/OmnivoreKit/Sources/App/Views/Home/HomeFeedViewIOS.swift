@@ -295,7 +295,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           LibraryAddLinkView()
         }
       }
-      .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+      .sheet(isPresented: $showExpandedAudioPlayer) {
         ExpandedAudioPlayer(
           delete: {
             showExpandedAudioPlayer = false
@@ -330,7 +330,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.selectedItem = linkedItem
         viewModel.linkIsActive = true
       }
-      .fullScreenCover(isPresented: $searchPresented) {
+      .sheet(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
       .task {

@@ -108,7 +108,7 @@ struct LibraryTabView: View {
           .padding(0)
       }
     }
-    .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+    .sheet(isPresented: $showExpandedAudioPlayer) {
       ExpandedAudioPlayer(
         delete: {
           showExpandedAudioPlayer = false

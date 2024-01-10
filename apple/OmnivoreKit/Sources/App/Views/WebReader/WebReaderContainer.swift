@@ -340,28 +340,6 @@ struct WebReaderContainerView: View {
     .frame(maxWidth: .infinity)
     .foregroundColor(ThemeManager.currentTheme.toolbarColor)
     .background(ThemeManager.currentBgColor)
-    .sheet(isPresented: $showLabelsModal) {
-      ApplyLabelsView(mode: .item(item), onSave: { labels in
-        showLabelsModal = false
-        item.labels = NSSet(array: labels)
-        readerSettingsChangedTransactionID = UUID()
-      })
-    }
-    .sheet(isPresented: $showTitleEdit) {
-      LinkedItemMetadataEditView(item: item, onSave: { title, _ in
-        item.title = title
-        // We dont need to update description because its never rendered in this view
-        readerSettingsChangedTransactionID = UUID()
-      })
-    }
-    #if os(iOS)
-      .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
-        NotebookView(
-          viewModel: NotebookViewModel(item: item),
-          hasHighlightMutations: $hasPerformedHighlightMutations
-        )
-      }
-    #endif
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())
     #endif
@@ -450,11 +428,11 @@ struct WebReaderContainerView: View {
           }, label: { Text(LocalText.readerSave) })
         }
         #if os(iOS)
-          .fullScreenCover(item: $safariWebLink) {
+          .sheet(item: $safariWebLink) {
             SafariView(url: $0.url)
               .ignoresSafeArea(.all, edges: .bottom)
           }
-          .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+          .sheet(isPresented: $showExpandedAudioPlayer) {
             ExpandedAudioPlayer(delete: { _ in
               showExpandedAudioPlayer = false
               audioController.stop()
@@ -519,6 +497,28 @@ struct WebReaderContainerView: View {
             }
           }
         }
+        .sheet(isPresented: $showLabelsModal) {
+          ApplyLabelsView(mode: .item(item), onSave: { labels in
+            showLabelsModal = false
+            item.labels = NSSet(array: labels)
+            readerSettingsChangedTransactionID = UUID()
+          })
+        }
+        .sheet(isPresented: $showTitleEdit) {
+          LinkedItemMetadataEditView(item: item, onSave: { title, _ in
+            item.title = title
+            // We dont need to update description because its never rendered in this view
+            readerSettingsChangedTransactionID = UUID()
+          })
+        }
+        #if os(iOS)
+          .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
+            NotebookView(
+              viewModel: NotebookViewModel(item: item),
+              hasHighlightMutations: $hasPerformedHighlightMutations
+            )
+          }
+        #endif
       } else if let errorMessage = viewModel.errorMessage {
         VStack {
           if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
