@@ -255,6 +255,12 @@ import Utils
             ApplyLabelsView(mode: .item(viewModel.pdfItem.item), onSave: { _ in
               showLabelsModal = false
             })
+          }.task {
+            viewModel.updateItemReadProgress(
+              dataService: dataService,
+              percent: viewModel.pdfItem.item.readingProgress,
+              anchorIndex: Int(viewModel.pdfItem.item.readingProgressAnchor)
+            )
           }
       } else if let errorMessage = errorMessage {
         Text(errorMessage)

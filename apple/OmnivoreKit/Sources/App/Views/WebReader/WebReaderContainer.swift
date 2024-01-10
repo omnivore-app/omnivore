@@ -210,7 +210,6 @@ struct WebReaderContainerView: View {
         },
         label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
       )
-      audioMenuItem()
 
       if viewModel.hasOriginalUrl(item) {
         Button(
@@ -399,9 +398,12 @@ struct WebReaderContainerView: View {
           .statusBar(hidden: prefersHideStatusBarInReader)
         #endif
         .onAppear {
-          if item.isUnread {
-            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0, force: false)
-          }
+          dataService.updateLinkReadingProgress(
+            itemID: item.unwrappedID,
+            readingProgress: max(item.readingProgress, 0.1),
+            anchorIndex: Int(item.readingProgressAnchor),
+            force: false
+          )
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
