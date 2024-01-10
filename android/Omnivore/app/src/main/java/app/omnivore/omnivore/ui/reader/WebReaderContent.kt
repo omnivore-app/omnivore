@@ -61,6 +61,8 @@ data class WebReaderContent(
 
     Log.d("theme", "current theme is: ${preferences.themeKey}")
 
+    Log.d("sync", "HIGHLIGHTS JSON:  ${articleContent.highlightsJSONString()}")
+
     return """
           <!DOCTYPE html>
           <html>

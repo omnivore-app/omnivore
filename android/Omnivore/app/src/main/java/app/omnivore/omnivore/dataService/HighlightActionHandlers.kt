@@ -114,14 +114,15 @@ suspend fun DataService.mergeWebHighlights(jsonString: String) {
       highlightPositionAnchorIndex = mergeHighlightInput.highlightPositionAnchorIndex.getOrNull() ?: 0
     )
 
-    highlight.serverSyncStatus = ServerSyncStatus.NEEDS_CREATION.rawValue
+    highlight.serverSyncStatus = ServerSyncStatus.NEEDS_MERGE.rawValue
 
-    saveHighlightChange(db.highlightChangesDao(), mergeHighlightInput.articleId, highlight)
-
-    Log.d("sync", "overlapHighlightIdList: " + mergeHighlightInput.overlapHighlightIdList)
-    for (highlightID in mergeHighlightInput.overlapHighlightIdList) {
-      deleteHighlight(mergeHighlightInput.articleId, highlightID)
-    }
+    val highlightChange = saveHighlightChange(
+      db.highlightChangesDao(),
+      mergeHighlightInput.articleId,
+      highlight,
+      html = mergeHighlightInput.html.getOrNull(),
+      overlappingIDs = mergeHighlightInput.overlapHighlightIdList
+    )
 
     val crossRef = SavedItemAndHighlightCrossRef(
       highlightId = mergeHighlightInput.id,
@@ -131,11 +132,8 @@ suspend fun DataService.mergeWebHighlights(jsonString: String) {
     db.highlightDao().insertAll(listOf(highlight))
     db.savedItemAndHighlightCrossRefDao().insertAll(listOf(crossRef))
 
-    val isUpdatedOnServer = networker.mergeHighlights(mergeHighlightInput)
-    if (isUpdatedOnServer) {
-      highlight.serverSyncStatus = ServerSyncStatus.IS_SYNCED.rawValue
-      db.highlightDao().update(highlight)
-    }
+    Log.d("sync", "Setting up highlight merge")
+    performHighlightChange(highlightChange)
   }
 }
 

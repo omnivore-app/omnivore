@@ -7,10 +7,16 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import app.omnivore.omnivore.models.ServerSyncStatus
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.json.Json
 
 @Entity
+@TypeConverters(StringListTypeConverter::class)
 data class HighlightChange(
     @PrimaryKey val highlightId: String,
     val savedItemId: String,
@@ -24,16 +30,45 @@ data class HighlightChange(
     var prefix: String?,
     var quote: String?,
     var serverSyncStatus: Int = ServerSyncStatus.IS_SYNCED.rawValue,
+    val html: String?,
     var shortId: String,
     val suffix: String?,
     val updatedAt: String?,
     val color: String?,
     val highlightPositionPercent: Double?,
-    val highlightPositionAnchorIndex: Int?
+    val highlightPositionAnchorIndex: Int?,
+    val overlappingIDs: List<String>?
 )
 
-fun saveHighlightChange(dao: HighlightChangesDao, savedItemId: String, highlight: Highlight): HighlightChange {
-    Log.d("sync", "saving highlight change: " + savedItemId + ", " + highlight)
+class StringListTypeConverter {
+    @TypeConverter
+    fun listToString(data: List<String>?): String? {
+        data?.let {
+            return Gson().toJson(data)
+        }
+        return null
+    }
+
+    @TypeConverter
+    fun stringToList(jsonString: String?): List<String>? {
+        return if (jsonString.isNullOrEmpty()) {
+            null
+        } else {
+            val itemType = object : TypeToken<List<String>>() {}.type
+            return Gson().fromJson<List<String>>(jsonString, itemType)
+        }
+    }
+}
+
+
+fun saveHighlightChange(
+    dao: HighlightChangesDao,
+    savedItemId: String,
+    highlight: Highlight,
+    html: String? = null,
+    overlappingIDs: List<String>? = null): HighlightChange {
+
+    Log.d("sync", "saving highlight change: " + highlight.serverSyncStatus + ", " + highlight.type)
     val change = HighlightChange(
         savedItemId = savedItemId,
         highlightId = highlight.highlightId,
@@ -43,6 +78,7 @@ fun saveHighlightChange(dao: HighlightChangesDao, savedItemId: String, highlight
         prefix = highlight.prefix,
         suffix = highlight.suffix,
         patch = highlight.patch,
+        html = html,
         annotation = highlight.annotation,
         createdAt = highlight.createdAt,
         updatedAt = highlight.updatedAt,
@@ -50,7 +86,8 @@ fun saveHighlightChange(dao: HighlightChangesDao, savedItemId: String, highlight
         color =highlight.color,
         highlightPositionPercent = highlight.highlightPositionPercent,
         highlightPositionAnchorIndex = highlight.highlightPositionAnchorIndex,
-        serverSyncStatus = highlight.serverSyncStatus
+        serverSyncStatus = highlight.serverSyncStatus,
+        overlappingIDs = overlappingIDs
     )
     dao.insertAll(listOf(change))
     return change
