@@ -605,18 +605,17 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.sendStatus(403)
     }
 
+    // create redis client
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+
     try {
       if (!isRssFeedRequest(req.body)) {
         console.error('Invalid request body', req.body)
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
-
-      // create redis client
-      const redisClient = await createRedisClient(
-        process.env.REDIS_URL,
-        process.env.REDIS_CERT
-      )
-
       const {
         feedUrl,
         subscriptionIds,
@@ -678,6 +677,9 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
     } catch (e) {
       console.error('Error while saving RSS feeds', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
+    } finally {
+      await redisClient.quit()
+      console.log('Redis client disconnected')
     }
   }
 )
