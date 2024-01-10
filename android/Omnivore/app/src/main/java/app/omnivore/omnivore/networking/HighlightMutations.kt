@@ -110,7 +110,6 @@ suspend fun Networker.updateWebHighlight(jsonString: String): Boolean {
 suspend fun Networker.updateHighlight(input: UpdateHighlightInput): Boolean {
   return try {
     val result = authenticatedApolloClient().mutation(UpdateHighlightMutation(input)).execute()
-    Log.d("Network", "update highlight result: $result")
     result.data?.updateHighlight?.onUpdateHighlightSuccess?.highlight != null
   } catch (e: java.lang.Exception) {
     false
@@ -144,12 +143,8 @@ data class CreateHighlightResult(
 )
 
 suspend fun Networker.createHighlight(input: CreateHighlightInput): CreateHighlightResult {
-  Log.d("sync", "creating highlight with input: ${input}")
-
   try {
     val result = authenticatedApolloClient().mutation(CreateHighlightMutation(input)).execute()
-    Log.d("sync", "result: ${result.data}")
-
     val createdHighlight = result.data?.createHighlight?.onCreateHighlightSuccess?.highlight
 
     if (createdHighlight != null) {

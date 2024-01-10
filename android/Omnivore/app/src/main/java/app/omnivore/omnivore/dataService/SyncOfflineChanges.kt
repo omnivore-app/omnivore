@@ -1,7 +1,10 @@
 package app.omnivore.omnivore.dataService
 
 import android.util.Log
+import androidx.room.PrimaryKey
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
+import app.omnivore.omnivore.graphql.generated.type.HighlightType
+import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.ServerSyncStatus
 import app.omnivore.omnivore.networking.*
@@ -9,6 +12,7 @@ import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.HighlightChange
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.highlightChangeToHighlight
+import app.omnivore.omnivore.persistence.entities.saveHighlightChange
 import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.delay
 import kotlin.math.log
@@ -112,8 +116,6 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
     }
 
     ServerSyncStatus.NEEDS_UPDATE.rawValue -> {
-      Log.d("sync", "creating highlight update change: ${highlightChange}")
-
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
 
       val isUpdatedOnServer = networker.updateHighlight(
@@ -123,7 +125,6 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
           sharedAt = Optional.absent()
         )
       )
-      Log.d("sync", "sycn.updateHighlight result: ${isUpdatedOnServer}")
 
       if (isUpdatedOnServer) {
         updateSyncStatus(ServerSyncStatus.IS_SYNCED)
@@ -134,21 +135,21 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
     }
 
     ServerSyncStatus.NEEDS_CREATION.rawValue -> {
-      Log.d("sync", "creating highlight create change: ${highlightChange}")
       updateSyncStatus(ServerSyncStatus.IS_SYNCING)
 
-      val createResult = networker.createHighlight(
-        CreateHighlightInput(
-          annotation = Optional.presentIfNotNull(highlight.annotation),
-          articleId = highlightChange.savedItemId,
-          id = highlight.highlightId,
-          patch = Optional.presentIfNotNull(highlight.patch),
-          quote = Optional.presentIfNotNull(highlight.quote),
-          shortId = highlight.shortId
-        )
+      val input = CreateHighlightInput(
+        id = highlight.highlightId,
+        shortId = highlight.shortId,
+        articleId = highlightChange.savedItemId,
+        type = Optional.presentIfNotNull(HighlightType.safeValueOf(highlight.type)),
+        annotation = Optional.presentIfNotNull(highlight.annotation),
+        patch = Optional.presentIfNotNull(highlight.patch),
+        quote = Optional.presentIfNotNull(highlight.quote),
       )
-      Log.d("sync", "sycn.createResult: " + createResult)
-
+      Log.d("sync", "Creating highlight from input: ${input}")
+      val createResult = networker.createHighlight(
+        input
+      )
       if (createResult.newHighlight != null || createResult.alreadyExists) {
         updateSyncStatus(ServerSyncStatus.IS_SYNCED)
         return true
@@ -156,6 +157,58 @@ private suspend fun DataService.syncHighlightChange(highlightChange: HighlightCh
         updateSyncStatus(ServerSyncStatus.NEEDS_UPDATE)
         return false
       }
+    }
+
+    ServerSyncStatus.NEEDS_MERGE.rawValue -> {
+      Log.d("sync", "NEEDS MERGE: ${highlightChange}")
+
+      val mergeHighlightInput = MergeHighlightInput(
+        id = highlight.highlightId,
+        shortId = highlight.shortId,
+        articleId = highlightChange.savedItemId,
+        annotation = Optional.presentIfNotNull(highlight.annotation),
+        color = Optional.presentIfNotNull(highlight.color),
+        highlightPositionAnchorIndex = Optional.presentIfNotNull(highlight.highlightPositionAnchorIndex),
+        highlightPositionPercent = Optional.presentIfNotNull(highlight.highlightPositionPercent),
+        html = Optional.presentIfNotNull(highlightChange.html),
+        overlapHighlightIdList = highlightChange.overlappingIDs ?: emptyList(),
+        patch = highlight.patch ?: "",
+        prefix = Optional.presentIfNotNull(highlight.prefix),
+        quote = highlight.quote ?: "",
+        suffix = Optional.presentIfNotNull(highlight.suffix)
+      )
+
+      val isUpdatedOnServer = networker.mergeHighlights(mergeHighlightInput)
+      if (!isUpdatedOnServer) {
+        Log.d("sync", "FAILED TO MERGE HIGHLIGHT")
+        highlight.serverSyncStatus = ServerSyncStatus.NEEDS_MERGE.rawValue
+        return false
+      }
+
+      for (highlightID in mergeHighlightInput.overlapHighlightIdList) {
+        Log.d("sync", "DELETING MERGED HIGHLIGHT: ${highlightID}")
+        val deleteChange = HighlightChange(
+          highlightId = highlightID,
+          savedItemId = highlightChange.savedItemId,
+          type = "",
+          shortId = "",
+          annotation = null,
+          createdAt = null,
+          patch  = null,
+          prefix  = null,
+          quote  = null,
+          serverSyncStatus = ServerSyncStatus.NEEDS_DELETION.rawValue,
+          html  = null,
+          suffix  = null,
+          updatedAt  = null,
+          color  = null,
+          highlightPositionPercent  = null,
+          highlightPositionAnchorIndex  = null,
+          overlappingIDs  = null
+        )
+        performHighlightChange(deleteChange)
+      }
+      return true
     }
     else -> return false
   }
