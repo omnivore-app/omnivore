@@ -19,6 +19,8 @@ import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
+import { addRefreshFeedJob } from '../jobqueue'
+import { stringToHash } from './helpers'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -648,6 +650,12 @@ export const enqueueRssFeedFetch = async (
     fetchContents: subscriptionGroup.fetchContents,
     folders: subscriptionGroup.folders,
   }
+
+  let jobid = `refresh-feed_${stringToHash(
+    subscriptionGroup.url
+  )}_${stringToHash(JSON.stringify(subscriptionGroup.userIds.sort()))}`
+
+  await addRefreshFeedJob(jobid, payload)
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
