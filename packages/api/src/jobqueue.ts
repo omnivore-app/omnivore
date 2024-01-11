@@ -8,10 +8,14 @@ const redisOptions = () => {
     return {
       tls: {
         cert: env.redis.cert?.replace(/\\n/g, '\n'),
+        rejectUnauthorized: false,
       },
+      maxRetriesPerRequest: null,
     }
   }
-  return {}
+  return {
+    maxRetriesPerRequest: null,
+  }
 }
 
 const connection = new Redis(env.redis.url ?? '', redisOptions())
