@@ -884,7 +884,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .delete:
         return AnyView(Button(
           action: {
-            viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
+            }
           },
           label: {
             Label("Remove", systemImage: "trash")
@@ -893,7 +895,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .moveToInbox:
         return AnyView(Button(
           action: {
-            viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
+            }
           },
           label: {
             Label(title: { Text("Move to Library") },
