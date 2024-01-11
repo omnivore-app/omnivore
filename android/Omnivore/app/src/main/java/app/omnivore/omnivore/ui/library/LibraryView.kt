@@ -20,6 +20,7 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SwipeToDismiss
@@ -31,6 +32,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -144,14 +146,21 @@ fun showAddLinkBottomSheet(libraryViewModel: LibraryViewModel) {
     libraryViewModel.bottomSheetState.value = LibraryBottomSheetState.ADD_LINK
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun LabelBottomSheet(
     libraryViewModel: LibraryViewModel,
     labelsViewModel: LabelsViewModel,
     onDismiss: () -> Unit = {}
 ) {
-    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        ),
+    ) {
+
         val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
         val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(
             listOf()
@@ -206,7 +215,14 @@ fun AddLinkBottomSheet(
     saveViewModel: SaveViewModel,
     onDismiss: () -> Unit = {}
 ) {
-    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        ),
+    ) {
+
         AddLinkSheetContent(
             viewModel = saveViewModel,
             onCancel = {
@@ -228,7 +244,13 @@ fun EditBottomSheet(
     libraryViewModel: LibraryViewModel,
     onDismiss: () -> Unit = {}
 ) {
-    ModalBottomSheet(onDismissRequest = { onDismiss() }) {
+    ModalBottomSheet(
+        onDismissRequest = { onDismiss() },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true
+        ),
+    ) {
         val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
         EditInfoSheetContent(
             savedItemId = currentSavedItemData?.savedItem?.savedItemId,

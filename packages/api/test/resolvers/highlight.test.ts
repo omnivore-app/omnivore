@@ -6,10 +6,12 @@ import { User } from '../../src/entity/user'
 import {
   createHighlight,
   deleteHighlightById,
+  findHighlightById,
 } from '../../src/services/highlights'
+import { createLabel, saveLabelsInHighlight } from '../../src/services/labels'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
+import { generateFakeShortId, generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
 
@@ -227,12 +229,16 @@ describe('Highlights API', () => {
   context('mergeHighlightMutation', () => {
     let highlightId: string
 
-    before(async () => {
+    beforeEach(async () => {
       // create test highlight
       highlightId = generateFakeUuid()
-      const shortHighlightId = '_short_id_1'
+      const shortHighlightId = generateFakeShortId()
       const query = createHighlightQuery(itemId, highlightId, shortHighlightId)
       await graphqlRequest(query, authToken).expect(200)
+    })
+
+    afterEach(async () => {
+      await deleteHighlightById(highlightId)
     })
 
     it('should not fail', async () => {
@@ -257,6 +263,35 @@ describe('Highlights API', () => {
       expect(
         res.body.data.mergeHighlight.highlight.highlightPositionAnchorIndex
       ).to.eq(highlightPositionAnchorIndex)
+
+      highlightId = newHighlightId
+    })
+
+    it('keeps the labels of the merged highlight', async () => {
+      // create label
+      const labelName = 'test label'
+      const labelColor = '#ff0000'
+      const label = await createLabel(labelName, labelColor, user.id)
+
+      await saveLabelsInHighlight([label], highlightId, user.id)
+
+      const newHighlightId = generateFakeUuid()
+      const newShortHighlightId = generateFakeShortId()
+      const query = mergeHighlightQuery(
+        itemId,
+        newHighlightId,
+        newShortHighlightId,
+        [highlightId],
+      )
+      const res = await graphqlRequest(query, authToken).expect(200)
+
+      expect(res.body.data.mergeHighlight.highlight.id).to.eq(newHighlightId)
+
+      const highlight = await findHighlightById(newHighlightId, user.id)
+      expect(highlight.labels).to.have.lengthOf(1)
+      expect(highlight.labels?.[0]?.name).to.eq(labelName)
+
+      highlightId = newHighlightId
     })
   })
 

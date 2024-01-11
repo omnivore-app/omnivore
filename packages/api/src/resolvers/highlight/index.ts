@@ -123,7 +123,6 @@ export const mergeHighlightResolver = authorized<
       ...newHighlightInput,
       annotation:
         mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
-      labels: mergedLabels,
       color,
       user: { id: uid },
       libraryItem: { id: input.articleId },
@@ -134,6 +133,7 @@ export const mergeHighlightResolver = authorized<
     const newHighlight = await mergeHighlights(
       overlapHighlightIdList,
       highlight,
+      mergedLabels,
       input.articleId,
       uid,
       pubsub

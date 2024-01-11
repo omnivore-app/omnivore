@@ -84,6 +84,11 @@ struct FiltersView: View {
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ScrollToTop"))) { _ in
       dismiss()
     }
+    .onChange(of: viewModel.hideFollowingTab) { _ in
+      UserDefaults.standard.setValue(nil, forKey: "lastSelected")
+      UserDefaults.standard.setValue(nil, forKey: "lastSelectedFilter-inbox")
+      UserDefaults.standard.setValue(nil, forKey: "lastSelectedFilter-following")
+    }
   }
 
   private var innerBody: some View {

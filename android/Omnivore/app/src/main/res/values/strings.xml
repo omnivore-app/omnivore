@@ -54,8 +54,8 @@
     <string name="email_signup_field_label_password">Password</string>
     <string name="email_signup_field_placeholder_name">Name</string>
     <string name="email_signup_field_label_name">Name</string>
-    <string name="email_signup_field_placeholder_username">Name</string>
-    <string name="email_signup_field_label_username">Name</string>
+    <string name="email_signup_field_placeholder_username">Username</string>
+    <string name="email_signup_field_label_username">Username</string>
     <string name="email_signup_error_msg">Please complete all fields.</string>
 
     <!-- Google Auth -->
@@ -139,6 +139,7 @@
     <string name="highlights_list_error_msg_no_highlights">You have not added any highlights to this page.</string>
 
     <!-- ReaderPreferencesView -->
+    <string name="reader_preferences_font">Font:</string>
     <string name="reader_preferences_view_font_size">Font Size:</string>
     <string name="reader_preferences_view_margin">Margin</string>
     <string name="reader_preferences_view_line_spacing">Line Spacing</string>
@@ -207,6 +208,23 @@
     <string name="settings_view_setting_row_terms_and_conditions">Terms and Conditions</string>
     <string name="settings_view_setting_row_manage_account">Manage Account</string>
     <string name="settings_view_setting_row_logout">Logout</string>
+
+    <!-- stock filters -->
+    <string name="library_filter_inbox">Inbox</string>
+    <string name="library_filter_non_feed">Non-Feed Items</string>
+    <string name="library_filter_feeds">Feeds</string>
+    <string name="library_filter_newsletters">Newsletters</string>
+    <string name="library_filter_recommended">Recommended</string>
+    <string name="library_filter_all">All</string>
+    <string name="library_filter_archived">Archived</string>
+    <string name="library_filter_highlighted">Highlighted</string>
+    <string name="library_filter_files">Files</string>
+
+    <!-- stock sorts -->
+    <string name="library_sort_newest">Newest</string>
+    <string name="library_sort_oldest">Oldest</string>
+    <string name="library_sort_recently_read">Recently read</string>
+    <string name="library_sort_recently_published">Recently published</string>
 
     <!-- AddLinkSheet -->
     <string name="add_link_sheet_title">Add Link</string>

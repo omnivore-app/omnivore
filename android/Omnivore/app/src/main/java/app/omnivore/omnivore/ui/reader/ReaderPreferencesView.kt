@@ -37,7 +37,6 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
 
   val selectedWebFontName = remember { mutableStateOf(currentWebPreferences.fontFamily.displayText) }
 
-
   var fontSizeSliderValue by remember { mutableStateOf(currentWebPreferences.textFontSize.toFloat()) }
   var marginSliderValue by remember { mutableStateOf(currentWebPreferences.maxWidthPercentage.toFloat()) }
   var lineSpacingSliderValue by remember { mutableStateOf(currentWebPreferences.lineHeight.toFloat()) }
@@ -112,8 +111,8 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         fontSizeSliderValue = it
         webReaderViewModel.setFontSize(it.toInt())
       },
-      steps = 10,
-      valueRange = 10f..48f,
+      steps = 40,
+      valueRange = 10f..50f,
     )
 
     Text(stringResource(R.string.reader_preferences_view_margin), style = TextStyle(
@@ -127,7 +126,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         marginSliderValue = it
         webReaderViewModel.setMaxWidthPercentage(it.toInt())
       },
-      steps = 4,
+      steps = 40,
       valueRange = 60f..100f,
     )
 
@@ -142,7 +141,7 @@ fun ReaderPreferencesView(webReaderViewModel: WebReaderViewModel) {
         lineSpacingSliderValue = it
         webReaderViewModel.setLineHeight(it.toInt())
       },
-      steps = 8,
+      steps = 50,
       valueRange = 100f..300f,
     )
 

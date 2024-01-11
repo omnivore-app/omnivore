@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import supertest from 'supertest'
 import { v4 } from 'uuid'
 import { createApp } from '../src/server'
@@ -18,7 +19,7 @@ export const stopApolloServer = async () => {
 export const graphqlRequest = (
   query: string,
   authToken: string,
-  variables?: Record<string, unknown>,
+  variables?: Record<string, unknown>
 ): supertest.Test => {
   return request
     .post(apollo.graphqlPath)
@@ -30,4 +31,8 @@ export const graphqlRequest = (
 
 export const generateFakeUuid = () => {
   return v4()
+}
+
+export const generateFakeShortId = () => {
+  return nanoid(8)
 }

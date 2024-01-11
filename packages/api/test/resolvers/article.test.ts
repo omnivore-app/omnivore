@@ -1722,6 +1722,7 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
+              savedAt: new Date(1703880588),
             },
             {
               user,
@@ -1729,6 +1730,7 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
+              savedAt: new Date(1704880589),
             },
             {
               user,
@@ -1736,6 +1738,7 @@ describe('Article API', () => {
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
+              savedAt: new Date(1705880590),
             },
           ],
           user.id
@@ -1777,6 +1780,7 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
+              savedAt: new Date(1703880588),
             },
             {
               user,
@@ -1784,6 +1788,7 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
+              savedAt: new Date(1704880589),
             },
             {
               user,
@@ -1791,6 +1796,7 @@ describe('Article API', () => {
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
+              savedAt: new Date(1705880590),
             },
           ],
           user.id

@@ -78,12 +78,15 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
   return false
 }
 
-const blockFeed = async (feedUrl: string, redisClient: RedisClient) => {
+const incrementFeedFailure = async (
+  feedUrl: string,
+  redisClient: RedisClient
+) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.incr(key)
     // expire the key in 1 day
-    await redisClient.expire(key, 24 * 60 * 60, 'NX')
+    await redisClient.expire(key, 24 * 60 * 60)
 
     return result
   } catch (error) {
@@ -142,8 +145,8 @@ export const fetchAndChecksum = async (url: string) => {
 
     return { url, content: dataStr, checksum: hash.digest('hex') }
   } catch (error) {
-    console.log(error)
-    throw new Error(`Failed to fetch or hash content from ${url}.`)
+    console.log(`Failed to fetch or hash content from ${url}.`, error)
+    return null
   }
 }
 
@@ -182,7 +185,9 @@ const parseFeed = async (url: string, content: string) => {
       }
     }
 
-    return parser.parseString(content)
+    // return await is needed to catch errors thrown by the parser
+    // otherwise the error will be caught by the outer try catch
+    return await parser.parseString(content)
   } catch (error) {
     console.log(error)
     return null
@@ -600,18 +605,17 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.sendStatus(403)
     }
 
+    // create redis client
+    const redisClient = await createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+
     try {
       if (!isRssFeedRequest(req.body)) {
         console.error('Invalid request body', req.body)
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
-
-      // create redis client
-      const redisClient = await createRedisClient(
-        process.env.REDIS_URL,
-        process.env.REDIS_CERT
-      )
-
       const {
         feedUrl,
         subscriptionIds,
@@ -631,10 +635,16 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       }
 
       const fetchResult = await fetchAndChecksum(feedUrl)
+      if (!fetchResult) {
+        console.error('Failed to fetch RSS feed', feedUrl)
+        await incrementFeedFailure(feedUrl, redisClient)
+        return res.status(500).send('FAILED_TO_FETCH_RSS_FEED')
+      }
+
       const feed = await parseFeed(feedUrl, fetchResult.content)
       if (!feed) {
         console.error('Failed to parse RSS feed', feedUrl)
-        await blockFeed(feedUrl, redisClient)
+        await incrementFeedFailure(feedUrl, redisClient)
         return res.status(500).send('INVALID_RSS_FEED')
       }
 
@@ -667,6 +677,9 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
     } catch (e) {
       console.error('Error while saving RSS feeds', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
+    } finally {
+      await redisClient.quit()
+      console.log('Redis client disconnected')
     }
   }
 )
