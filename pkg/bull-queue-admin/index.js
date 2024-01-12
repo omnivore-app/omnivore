@@ -43,7 +43,7 @@ passport.deserializeUser((user, cb) => {
 })
 
 const run = async () => {
-  const secrets = readYamlFile(process.env.SECRETS_FILE)
+  const secrets = await readYamlFile(process.env.SECRETS_FILE)
   const redisOptions = () => {
     if (secrets.REDIS_URL?.startsWith('rediss://') && secrets.REDIS_CERT) {
       return {
@@ -59,7 +59,6 @@ const run = async () => {
     }
   }
 
-  console.log('secrets: ', secrets)
   const connection = new Redis(secrets.REDIS_URL, redisOptions())
   const rssRefreshFeed = new QueueMQ('rssRefreshFeed', {
     connection: connection,
