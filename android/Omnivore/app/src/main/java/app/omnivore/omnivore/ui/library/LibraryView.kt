@@ -310,7 +310,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
                 items = cardsData,
                 key = { item -> item.savedItem.savedItemId }
             ) { cardDataWithLabels ->
-                val swipeThreshold = 0.40f
+                val swipeThreshold = 0.45f
 
                 val currentThresholdFraction = remember { mutableStateOf(0f) }
                 val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
@@ -320,7 +320,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
                             currentThresholdFraction.value < swipeThreshold ||
                             currentThresholdFraction.value > 1.0f
                         ) {
-                            false
+                            return@rememberDismissState false
                         }
 
                         if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
