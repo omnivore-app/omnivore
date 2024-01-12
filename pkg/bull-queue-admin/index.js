@@ -58,8 +58,9 @@ const run = async () => {
     }
   }
 
+  const connection = new Redis(secrets.REDIS_URL, redisOptions())
   const rssRefreshFeed = new QueueMQ('rssRefreshFeed', {
-    connection: redisOptions,
+    connection: connection,
   })
 
   const serverAdapter = new ExpressAdapter()
