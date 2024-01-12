@@ -60,9 +60,9 @@ const run = async () => {
   }
 
   const connection = new Redis({
-    host: secrets.REDIS_HOST,
-    port: secrets.REDIS_PORT,
     tls: {
+      host: secrets.REDIS_HOST,
+      port: secrets.REDIS_PORT,
       cert: secrets.REDIS_CERT,
       rejectUnauthorized: false,
     },
