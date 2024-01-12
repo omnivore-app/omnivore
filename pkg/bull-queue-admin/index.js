@@ -49,7 +49,7 @@ const run = async () => {
     if (secrets.REDIS_URL?.startsWith('rediss://') && secrets.REDIS_CERT) {
       return {
         tls: {
-          cert: secrets.REDIS_CERT?.replace(/\\n/g, '\n'),
+          cert: secrets.REDIS_CERT,
           rejectUnauthorized: false,
         },
         maxRetriesPerRequest: null,
