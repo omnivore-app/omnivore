@@ -573,17 +573,17 @@ struct AnimatingCellHeight: AnimatableModifier {
           HStack {
             Menu(content: {
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
               }, label: {
                 Text("Continue Reading")
               })
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
               }, label: {
                 Text("Pinned")
               })
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
               }, label: {
                 Text("Newsletters")
               })
@@ -597,7 +597,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 HStack(alignment: .center) {
                   Image(systemName: "line.3.horizontal.decrease")
                     .font(Font.system(size: 13, weight: .regular))
-                  Text((FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) ?? .continueReading).title)
+                  Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
                     .font(Font.system(size: 13, weight: .medium))
                 }
                 .tint(Color(hex: "#007AFF"))
@@ -753,6 +753,9 @@ struct AnimatingCellHeight: AnimatableModifier {
               await viewModel.loadMore(dataService: dataService)
             }
           }
+
+          // reload this in case it was changed in settings
+          viewModel.hideFeatureSection = UserDefaults.standard.bool(forKey: UserDefaultKey.hideFeatureSection.rawValue)
         }
       }
     }
