@@ -1,7 +1,7 @@
 const { createBullBoard } = require('@bull-board/api')
 const { BullMQAdapter } = require('@bull-board/api/bullMQAdapter')
 const { ExpressAdapter } = require('@bull-board/express')
-const { Queue: QueueMQ, Worker } = require('bullmq')
+const { Queue } = require('bullmq')
 const { Redis } = require('ioredis')
 const session = require('express-session')
 const bodyParser = require('body-parser')
@@ -59,7 +59,9 @@ const run = async () => {
     }
   }
 
-  const connection = new Redis(secrets.REDIS_URL, {
+  const connection = new Redis({
+    host: secrets.REDIS_HOST,
+    port: secrets.REDIS_PORT,
     tls: {
       cert: secrets.REDIS_CERT,
       rejectUnauthorized: false,
@@ -68,7 +70,7 @@ const run = async () => {
   })
   console.log('set connection: ', connection)
 
-  const rssRefreshFeed = new QueueMQ('rssRefreshFeed', {
+  const rssRefreshFeed = new Queue('rssRefreshFeed', {
     connection: connection,
   })
 
