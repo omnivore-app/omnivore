@@ -320,9 +320,11 @@ export const deleteAccountResolver = authorized<
   DeleteAccountError,
   MutationDeleteAccountArgs
 >(async (_, { userID }, { log }) => {
-  // soft delete user
+  // soft delete user and change email address for user to sign up again
   const result = await updateUser(userID, {
     status: StatusType.Deleted,
+    email: `deleted_user_${userID}@omnivore.app`,
+    sourceUserId: `deleted_user_${userID}`,
   })
   if (!result.affected) {
     log.error('Error deleting user account')
