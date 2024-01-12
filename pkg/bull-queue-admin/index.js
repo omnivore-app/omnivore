@@ -60,6 +60,7 @@ const run = async () => {
     }
   }
 
+  console.log('redis options:', redisOptions(secrets))
   const connection = new Redis(secrets.REDIS_URL, redisOptions(secrets))
   const rssRefreshFeed = new QueueMQ('rssRefreshFeed', {
     connection: connection,
