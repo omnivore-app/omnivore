@@ -41,6 +41,14 @@
     var omnivoreWebURL: String
     @Property(title: "Omnivore deeplink URL")
     var omnivoreShortcutURL: String
+    @Property(title: "Author if set")
+    var author: String?
+    @Property(title: "Site name if set")
+    var siteName: String?
+    @Property(title: "Published date if set")
+    var publishedAt: Date?
+    @Property(title: "Time the item was saved")
+    var savedAt: Date?
 
     init(item: Models.LibraryItem) {
       self.id = UUID(uuidString: item.unwrappedID)!
@@ -48,6 +56,10 @@
       self.originalURL = item.pageURLString
       self.omnivoreWebURL = "https://omnivore.app/me/\(item.slug!)"
       self.omnivoreShortcutURL = "omnivore://read/\(item.unwrappedID)"
+      self.author = item.author
+      self.siteName = item.siteName
+      self.publishedAt = item.publishDate
+      self.savedAt = item.savedAt
     }
 
     static var typeDisplayRepresentation = TypeDisplayRepresentation(
