@@ -57,12 +57,10 @@ const run = async () => {
       maxRetriesPerRequest: null,
     }
   }
-  const createQueueMQ = (name) =>
-    new QueueMQ(secrets.REDIS_URL, {
-      connection: redisOptions,
-    })
 
-  const rssRefreshFeed = createQueueMQ('rssRefreshFeed')
+  const rssRefreshFeed = createQueueMQ('rssRefreshFeed', {
+    connection: redisOptions,
+  })
 
   const serverAdapter = new ExpressAdapter()
   serverAdapter.setBasePath('/ui')
