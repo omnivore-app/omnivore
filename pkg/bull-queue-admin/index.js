@@ -58,7 +58,7 @@ const run = async () => {
     }
   }
 
-  const rssRefreshFeed = createQueueMQ('rssRefreshFeed', {
+  const rssRefreshFeed = new QueueMQ('rssRefreshFeed', {
     connection: redisOptions,
   })
 
