@@ -7,12 +7,8 @@ const { encode } = require("urlsafe-base64");
 const crypto = require("crypto");
 
 const Url = require('url');
-const axios = require('axios');
-const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
-const signToken = promisify(jwt.sign);
 const os = require('os');
-const { Storage } = require('@google-cloud/storage');
+// const { Storage } = require('@google-cloud/storage');
 const { parseHTML } = require('linkedom');
 const { preHandleContent, preParseContent } = require("@omnivore/content-handler");
 const { Readability } = require("@omnivore/readability");
@@ -29,9 +25,9 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const createDOMPurify = require("dompurify");
 
-const storage = new Storage();
+// const storage = new Storage();
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
-const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
+// const previewBucket = process.env.PREVIEW_IMAGE_BUCKET ? storage.bucket(process.env.PREVIEW_IMAGE_BUCKET) : undefined;
 
 const filePath = `${os.tmpdir()}/previewImage.png`;
 
@@ -43,11 +39,6 @@ const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
 const NON_SCRIPT_HOSTS= ['medium.com', 'fastcompany.com', 'fortelabs.com'];
 
 const ALLOWED_CONTENT_TYPES = ['text/html', 'application/octet-stream', 'text/plain', 'application/pdf'];
-
-const IMPORTER_METRICS_COLLECTOR_URL = process.env.IMPORTER_METRICS_COLLECTOR_URL;
-
-const REQUEST_TIMEOUT = 30000; // 30 seconds
-const MAX_RETRY_COUNT = process.env.MAX_RETRY_COUNT || '1';
 
 const userAgentForUrl = (url) => {
   try {
@@ -140,249 +131,21 @@ const getBrowserPromise = (async () => {
   });
 })();
 
-const uploadToSignedUrl = async ({ id, uploadSignedUrl }, contentType, contentObjUrl) => {
-  try {
-    const stream = await axios.get(contentObjUrl, { responseType: 'stream', timeout: REQUEST_TIMEOUT });
-    return axios.put(uploadSignedUrl, stream.data, {
-      headers: {
-        'Content-Type': contentType,
-      },
-      maxBodyLength: 1000000000,
-      maxContentLength: 100000000,
-      timeout: REQUEST_TIMEOUT,
-    });
-  } catch (error) {
-    console.error('error uploading to signed url', error.message);
-    return null;
-  }
-};
-
-const getUploadIdAndSignedUrl = async (userId, url, articleSavingRequestId) => {
-  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
-  const data = JSON.stringify({
-    query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
-      uploadFileRequest(input:$input) {
-        ... on UploadFileRequestError {
-          errorCodes
-        }
-        ... on UploadFileRequestSuccess {
-          id
-          uploadSignedUrl
-        }
-      }
-    }`,
-    variables: {
-      input: {
-        url,
-        contentType: 'application/pdf',
-        clientRequestId: articleSavingRequestId,
-      }
-    }
-  });
-
-  try {
-    const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-    {
-      headers: {
-        Cookie: `auth=${auth};`,
-        'Content-Type': 'application/json',
-      },
-      timeout: REQUEST_TIMEOUT,
-    });
-
-    if (response.data.data.uploadFileRequest.errorCodes && response.data.data.uploadFileRequest.errorCodes.length > 0) {
-      console.error('Error while getting upload id and signed url', response.data.data.uploadFileRequest.errorCodes[0]);
-      return null;
-    }
-
-    return response.data.data.uploadFileRequest;
-  } catch (e) {
-    console.error('error getting upload id and signed url', e.message);
-    return null;
-  }
-};
-
-const uploadPdf = async (url, userId, articleSavingRequestId) => {
-  validateUrlString(url);
-
-  const uploadResult = await getUploadIdAndSignedUrl(userId, url, articleSavingRequestId);
-  if (!uploadResult) {
-    throw new Error('error while getting upload id and signed url');
-  }
-  const uploaded = await uploadToSignedUrl(uploadResult, 'application/pdf', url);
-  if (!uploaded) {
-    throw new Error('error while uploading pdf');
-  }
-  return uploadResult.id;
-};
-
-const sendCreateArticleMutation = async (userId, input) => {
-  const data = JSON.stringify({
-    query: `mutation CreateArticle ($input: CreateArticleInput!){
-          createArticle(input:$input){
-            ... on CreateArticleSuccess{
-              createdArticle{
-                id
-            }
-        }
-          ... on CreateArticleError{
-              errorCodes
-          }
-      }
-    }`,
-    variables: {
-      input,
-    },
-  });
-
-  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
-  try {
-    const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-    {
-      headers: {
-        Cookie: `auth=${auth};`,
-        'Content-Type': 'application/json',
-      },
-      timeout: REQUEST_TIMEOUT,
-    });
-
-    if (response.data.data.createArticle.errorCodes && response.data.data.createArticle.errorCodes.length > 0) {
-      console.error('error while creating article', response.data.data.createArticle.errorCodes[0]);
-      return null;
-    }
-
-    return response.data.data.createArticle;
-  } catch (error) {
-    console.error('error creating article', error.message);
-    return null;
-  }
-};
-
-const sendSavePageMutation = async (userId, input) => {
-  const data = JSON.stringify({
-    query: `mutation SavePage ($input: SavePageInput!){
-          savePage(input:$input){
-            ... on SaveSuccess{
-              url
-              clientRequestId
-            }
-            ... on SaveError{
-                errorCodes
-            }
-          }
-    }`,
-    variables: {
-      input,
-    },
-  });
-
-  const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
-  try {
-    const response = await axios.post(`${process.env.REST_BACKEND_ENDPOINT}/graphql`, data,
-    {
-      headers: {
-        Cookie: `auth=${auth};`,
-        'Content-Type': 'application/json',
-      },
-      timeout: REQUEST_TIMEOUT,
-    });
-
-    if (response.data.data.savePage.errorCodes && response.data.data.savePage.errorCodes.length > 0) {
-      console.error('error while saving page', response.data.data.savePage.errorCodes[0]);
-      if (response.data.data.savePage.errorCodes[0] === 'UNAUTHORIZED') {
-        return { error: 'UNAUTHORIZED' };
-      }
-
-      return null;
-    }
-
-    return response.data.data.savePage;
-  } catch (error) {
-    console.error('error saving page', error.message);
-    return null;
-  }
-};
-
-const saveUploadedPdf = async (userId, url, uploadFileId, articleSavingRequestId) => {
-  return sendCreateArticleMutation(userId, {
-      url: encodeURI(url),
-      articleSavingRequestId,
-      uploadFileId: uploadFileId,
-      state,
-      labels,
-      source,
-      folder,
-    },
-  );
-};
-
-const sendImportStatusUpdate = async (userId, taskId, status) => {
-  try {
-    const auth = await signToken({ uid: userId }, process.env.JWT_SECRET);
-
-    await axios.post(
-      IMPORTER_METRICS_COLLECTOR_URL, 
-      {
-        taskId,
-        status,
-      },
-      {
-        headers: {
-          'Authorization': auth,
-          'Content-Type': 'application/json',
-        },
-        timeout: REQUEST_TIMEOUT,
-      });
-  } catch (e) {
-    console.error('error while sending import status update', e);
-  }
-};
-
-async function fetchContent(req, res) {
+async function fetchContent(url, locale, timezone) {
   let functionStartTime = Date.now();
-
-  const userId = (req.query ? req.query.userId : undefined) || (req.body ? req.body.userId : undefined);
-  const articleSavingRequestId = (req.query ? req.query.saveRequestId : undefined) || (req.body ? req.body.saveRequestId : undefined);
-  const state = req.body.state
-  const labels = req.body.labels
-  const source = req.body.source || 'puppeteer-parse';
-  const taskId = req.body.taskId; // taskId is used to update import status
-  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
-  const locale = (req.query ? req.query.locale : undefined) || (req.body ? req.body.locale : undefined);
-  const timezone = (req.query ? req.query.timezone : undefined) || (req.body ? req.body.timezone : undefined);
-  const rssFeedUrl = req.body.rssFeedUrl;
-  const savedAt = req.body.savedAt;
-  const publishedAt = req.body.publishedAt;
-  const folder = req.body.folder;
-
   let logRecord = {
-    url: urlStr,
-    userId,
-    articleSavingRequestId,
-    labels: {
-      source,
-    },
-    state,
-    labelsToAdd: labels,
-    taskId: taskId,
+    url,
+    functionStartTime,
     locale,
     timezone,
-    rssFeedUrl,
-    savedAt,
-    publishedAt,
-    folder,
-  };
+  }
+  console.log(`content-fetch request`, logRecord);
 
-  console.info(`Article parsing request`, logRecord);
-
-  let url, context, page, finalUrl, title, content, contentType, importStatus, statusCode = 200;
+  let context, page, finalUrl, title, content, contentType, readabilityResult = null;
   try {
-    url = getUrl(urlStr);
+    url = getUrl(url);
     if (!url) {
-      logRecord.urlIsInvalid = true;
-      logRecord.error = 'Valid URL to parse not specified';
-      statusCode = 400;
-      return;
+      throw new Error('Valid URL to parse not specified');
     }
 
     // pre handle url with custom handlers
@@ -410,27 +173,7 @@ async function fetchContent(req, res) {
       finalUrl = url
     }
 
-    if (contentType === 'application/pdf') {
-      const uploadFileId = await uploadPdf(finalUrl, userId, articleSavingRequestId);
-      const uploadedPdf = await sendCreateArticleMutation(userId, {
-        url: encodeURI(finalUrl),
-        articleSavingRequestId,
-        uploadFileId,
-        state,
-        labels,
-        source,
-        folder,
-        rssFeedUrl,
-        savedAt,
-        publishedAt,
-      });
-      if (!uploadedPdf) {
-        statusCode = 500;
-        logRecord.error = 'error while saving uploaded pdf';
-      } else {
-        importStatus = 'imported';
-      }
-    } else {
+    if (contentType !== 'application/pdf') {
       if (!content || !title) {
         const result = await retrieveHtml(page, logRecord);
         if (result.isBlocked) {
@@ -444,12 +187,9 @@ async function fetchContent(req, res) {
       } else {
         console.info('using prefetched content and title');
       }
-      logRecord.fetchContentTime = Date.now() - functionStartTime;
     }
   } catch (e) {
-    logRecord.error = e.message;
-    console.error(`Error while retrieving page`, logRecord);
-    statusCode = 500;
+    console.error(`Error while retrieving page ${url}`, e);
 
     // fallback to scrapingbee for non pdf content
     if (url && contentType !== 'application/pdf') {
@@ -459,8 +199,8 @@ async function fetchContent(req, res) {
       const sbResult = await fetchContentWithScrapingBee(url);
       content = sbResult.domContent;
       title = sbResult.title;
-      logRecord.fetchContentTime = Date.now() - fetchStartTime;
-      statusCode = 200;
+    } else {
+      throw e;
     }
   } finally {
     // close browser context if it was opened
@@ -470,7 +210,6 @@ async function fetchContent(req, res) {
     // save non pdf content
     if (url && contentType !== 'application/pdf') {
       // parse content if it is not empty
-      let readabilityResult = null;
       if (content) {
         let document = parseHTML(content).document;
         // preParse content
@@ -480,48 +219,11 @@ async function fetchContent(req, res) {
         }
         readabilityResult = await getReadabilityResult(url, document);
       }
-      
-      const apiResponse = await sendSavePageMutation(userId, {
-        url,
-        clientRequestId: articleSavingRequestId,
-        title,
-        originalContent: content,
-        parseResult: readabilityResult,
-        state,
-        labels,
-        rssFeedUrl,
-        savedAt,
-        publishedAt,
-        source,
-        folder,
-      });
-      if (!apiResponse) {
-        logRecord.error = 'error while saving page';
-        statusCode = 500;
-      } else if (apiResponse.error === 'UNAUTHORIZED') {
-        console.info('user is deleted, do not retry', logRecord);
-        return res.sendStatus(200);
-      } else {
-        importStatus = readabilityResult ? 'imported' : 'failed';
-      }
     }
 
-    logRecord.totalTime = Date.now() - functionStartTime;
-    console.info(`parse-page`, logRecord);
+    console.info(`content-fetch result`, logRecord);
 
-    // mark import failed on the last failed retry
-    const retryCount = req.headers['x-cloudtasks-taskretrycount'];
-    if (retryCount == MAX_RETRY_COUNT) {
-      console.info('max retry count reached');
-      importStatus = importStatus || 'failed';
-    }
-
-    // send import status to update the metrics
-    if (taskId && importStatus) {
-      await sendImportStatusUpdate(userId, taskId, importStatus);
-    }
-
-    res.sendStatus(statusCode);
+    return { finalUrl, title, content, readabilityResult, contentType };
   }
 }
 
@@ -832,126 +534,126 @@ async function retrieveHtml(page, logRecord) {
   return { domContent, title };
 }
 
-async function preview(req, res) {
-  const functionStartTime = Date.now();
-  // Grabbing execution and trace ids to attach logs to the appropriate function call
-  const execution_id = req.get('function-execution-id');
-  const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
-  const console = buildconsole('cloudfunctions.googleapis.com%2Fcloud-functions', {
-    trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
-    labels: {
-      execution_id: execution_id,
-    },
-  });
+// async function preview(req, res) {
+//   const functionStartTime = Date.now();
+//   // Grabbing execution and trace ids to attach logs to the appropriate function call
+//   const execution_id = req.get('function-execution-id');
+//   const traceId = (req.get('x-cloud-trace-context') || '').split('/')[0];
+//   const console = buildconsole('cloudfunctions.googleapis.com%2Fcloud-functions', {
+//     trace: `projects/${process.env.GCLOUD_PROJECT}/traces/${traceId}`,
+//     labels: {
+//       execution_id: execution_id,
+//     },
+//   });
 
-  if (!process.env.PREVIEW_IMAGE_BUCKET) {
-    console.error(`PREVIEW_IMAGE_BUCKET not set`)
-    return res.sendStatus(500);
-  }
+//   if (!process.env.PREVIEW_IMAGE_BUCKET) {
+//     console.error(`PREVIEW_IMAGE_BUCKET not set`)
+//     return res.sendStatus(500);
+//   }
 
-  const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
-  const url = getUrl(urlStr);
-  console.log('preview request url', url);
+//   const urlStr = (req.query ? req.query.url : undefined) || (req.body ? req.body.url : undefined);
+//   const url = getUrl(urlStr);
+//   console.log('preview request url', url);
 
-  const logRecord = {
-    url,
-    query: req.query,
-    origin: req.get('Origin'),
-    labels: {
-      source: 'publicImagePreview',
-    },
-  };
+//   const logRecord = {
+//     url,
+//     query: req.query,
+//     origin: req.get('Origin'),
+//     labels: {
+//       source: 'publicImagePreview',
+//     },
+//   };
 
-  console.info(`Public preview image generation request`, logRecord);
+//   console.info(`Public preview image generation request`, logRecord);
 
-  if (!url) {
-    logRecord.urlIsInvalid = true;
-    console.error(`Valid URL to parse is not specified`, logRecord);
-    return res.sendStatus(400);
-  }
-  const { origin } = new URL(url);
-  if (!ALLOWED_ORIGINS.some(o => o === origin)) {
-    logRecord.forbiddenOrigin = true;
-    console.error(`This origin is not allowed: ${origin}`, logRecord);
-    return res.sendStatus(400);
-  }
+//   if (!url) {
+//     logRecord.urlIsInvalid = true;
+//     console.error(`Valid URL to parse is not specified`, logRecord);
+//     return res.sendStatus(400);
+//   }
+//   const { origin } = new URL(url);
+//   if (!ALLOWED_ORIGINS.some(o => o === origin)) {
+//     logRecord.forbiddenOrigin = true;
+//     console.error(`This origin is not allowed: ${origin}`, logRecord);
+//     return res.sendStatus(400);
+//   }
 
-  const browser = await getBrowserPromise;
-  logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
+//   const browser = await getBrowserPromise;
+//   logRecord.timing = { ...logRecord.timing, browserOpened: Date.now() - functionStartTime };
 
-  const page = await browser.newPage();
-  const pageLoadingStart = Date.now();
-  const modifiedUrl = new URL(url);
-  modifiedUrl.searchParams.append('fontSize', '24');
-  modifiedUrl.searchParams.append('adjustAspectRatio', '1.91');
-  try {
-    await page.goto(modifiedUrl.toString());
-    logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
-  } catch (error) {
-    console.log('error going to page: ', modifiedUrl)
-    console.log(error)
-    throw error
-  }
+//   const page = await browser.newPage();
+//   const pageLoadingStart = Date.now();
+//   const modifiedUrl = new URL(url);
+//   modifiedUrl.searchParams.append('fontSize', '24');
+//   modifiedUrl.searchParams.append('adjustAspectRatio', '1.91');
+//   try {
+//     await page.goto(modifiedUrl.toString());
+//     logRecord.timing = { ...logRecord.timing, pageLoaded: Date.now() - pageLoadingStart };
+//   } catch (error) {
+//     console.log('error going to page: ', modifiedUrl)
+//     console.log(error)
+//     throw error
+//   }
 
-  // We lookup the destination path from our own page content and avoid trusting any passed query params
-  // selector - CSS selector of the element to get screenshot of
-  const selector = decodeURIComponent(
-    await page.$eval(
-      "head > meta[name='omnivore:preview_image_selector']",
-      element => element.content,
-    ),
-  );
-  if (!selector) {
-    logRecord.selectorIsInvalid = true;
-    console.error(`Valid element selector is not specified`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  logRecord.selector = selector;
+//   // We lookup the destination path from our own page content and avoid trusting any passed query params
+//   // selector - CSS selector of the element to get screenshot of
+//   const selector = decodeURIComponent(
+//     await page.$eval(
+//       "head > meta[name='omnivore:preview_image_selector']",
+//       element => element.content,
+//     ),
+//   );
+//   if (!selector) {
+//     logRecord.selectorIsInvalid = true;
+//     console.error(`Valid element selector is not specified`, logRecord);
+//     await page.close();
+//     return res.sendStatus(400);
+//   }
+//   logRecord.selector = selector;
 
-  // destination - destination pathname for the image to save with
-  const destination = decodeURIComponent(
-    await page.$eval(
-      "head > meta[name='omnivore:preview_image_destination']",
-      element => element.content,
-    ),
-  );
-  if (!destination) {
-    logRecord.destinationIsInvalid = true;
-    console.error(`Valid file destination is not specified`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  logRecord.destination = destination;
+//   // destination - destination pathname for the image to save with
+//   const destination = decodeURIComponent(
+//     await page.$eval(
+//       "head > meta[name='omnivore:preview_image_destination']",
+//       element => element.content,
+//     ),
+//   );
+//   if (!destination) {
+//     logRecord.destinationIsInvalid = true;
+//     console.error(`Valid file destination is not specified`, logRecord);
+//     await page.close();
+//     return res.sendStatus(400);
+//   }
+//   logRecord.destination = destination;
 
-  const screenshotTakingStart = Date.now();
-  try {
-    await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
-  } catch (error) {
-    logRecord.elementNotFound = true;
-    console.error(`Element is not presented on the page`, logRecord);
-    await page.close();
-    return res.sendStatus(400);
-  }
-  const element = await page.$(selector);
-  await element.screenshot({ path: filePath }); // take screenshot of the element in puppeteer
-  logRecord.timing = { ...logRecord.timing, screenshotTaken: Date.now() - screenshotTakingStart };
+//   const screenshotTakingStart = Date.now();
+//   try {
+//     await page.waitForSelector(selector, { timeout: 3000 }); // wait for the selector to load
+//   } catch (error) {
+//     logRecord.elementNotFound = true;
+//     console.error(`Element is not presented on the page`, logRecord);
+//     await page.close();
+//     return res.sendStatus(400);
+//   }
+//   const element = await page.$(selector);
+//   await element.screenshot({ path: filePath }); // take screenshot of the element in puppeteer
+//   logRecord.timing = { ...logRecord.timing, screenshotTaken: Date.now() - screenshotTakingStart };
 
-  await page.close();
+//   await page.close();
 
-  try {
-    const [file] = await previewBucket.upload(filePath, {
-      destination,
-      metadata: logRecord,
-    });
-    logRecord.file = file.metadata;
-  } catch (e) {
-    console.log('error uploading to bucket, this is non-fatal', e)
-  }
+//   try {
+//     const [file] = await previewBucket.upload(filePath, {
+//       destination,
+//       metadata: logRecord,
+//     });
+//     logRecord.file = file.metadata;
+//   } catch (e) {
+//     console.log('error uploading to bucket, this is non-fatal', e)
+//   }
 
-  console.info(`preview-image`, logRecord);
-  return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
-}
+//   console.info(`preview-image`, logRecord);
+//   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
+// }
 
 const DOM_PURIFY_CONFIG = {
   ADD_TAGS: ['iframe'],
@@ -1048,6 +750,6 @@ async function getReadabilityResult(url, document) {
 
 module.exports = {
   fetchContent,
-  preview,
+  // preview,
 };
 

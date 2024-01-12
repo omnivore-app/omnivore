@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 require('dotenv').config();
 const Sentry = require('@sentry/serverless');
-const { fetchContent, preview } = require("@omnivore/puppeteer-parse");
+const { contentFetchRequestHandler } = require('./request_handler');
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -19,7 +19,7 @@ Sentry.GCPFunction.init({
  * @param {Object} req Cloud Function request context.
  * @param {Object} res Cloud Function response context.
  */
-exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(fetchContent);
+exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(contentFetchRequestHandler);
 
 /**
  * Cloud Function entry point, HTTP trigger.
@@ -30,4 +30,4 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(fetchContent);
  *  * url - URL address of the page to open
  * @param {Object} res Cloud Function response context.
  */
-exports.preview = Sentry.GCPFunction.wrapHttpFunction(preview);
+// exports.preview = Sentry.GCPFunction.wrapHttpFunction(preview);
