@@ -41,18 +41,27 @@ passport.deserializeUser((user, cb) => {
   cb(null, user)
 })
 
-const sleep = (t) => new Promise((resolve) => setTimeout(resolve, t * 1000))
-
-const redisOptions = {
-  port: 6379,
-  host: 'localhost',
-  password: '',
-  tls: false,
-}
-
-const createQueueMQ = (name) => new QueueMQ(name, { connection: redisOptions })
-
 const run = async () => {
+  const secrets = readYamlFile(process.env.SECRETS_FILE)
+  const redisOptions = () => {
+    if (secrets.REDIS_URL?.startsWith('rediss://') && secrets.REDIS_CERT) {
+      return {
+        tls: {
+          cert: secrets.REDIS_CERT?.replace(/\\n/g, '\n'),
+          rejectUnauthorized: false,
+        },
+        maxRetriesPerRequest: null,
+      }
+    }
+    return {
+      maxRetriesPerRequest: null,
+    }
+  }
+  const createQueueMQ = (name) =>
+    new QueueMQ(secrets.REDIS_URL, {
+      connection: redisOptions,
+    })
+
   const rssRefreshFeed = createQueueMQ('rssRefreshFeed')
 
   const serverAdapter = new ExpressAdapter()
