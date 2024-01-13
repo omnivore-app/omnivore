@@ -45,10 +45,10 @@ passport.deserializeUser((user, cb) => {
 const run = async () => {
   const secrets = await readYamlFile(process.env.SECRETS_FILE)
   const redisOptions = (secrets) => {
-    if (secrets.REDIS_URL?.startsWith('rediss://') && secrets.REDIS_CERT) {
+    if (secrets.REDIS_URL?.startsWith('rediss://') && process.env.REDIS_CERT) {
       return {
         tls: {
-          cert: secrets.REDIS_CERT,
+          cert: process.env.REDIS_CERT?.replace(/\\n/g, '\n'),
           rejectUnauthorized: false,
         },
         maxRetriesPerRequest: null,
@@ -63,7 +63,7 @@ const run = async () => {
     tls: {
       host: secrets.REDIS_HOST,
       port: secrets.REDIS_PORT,
-      cert: secrets.REDIS_CERT,
+      cert: process.env.REDIS_CERT?.replace(/\\n/g, '\n'),
       rejectUnauthorized: false,
     },
     maxRetriesPerRequest: null,
