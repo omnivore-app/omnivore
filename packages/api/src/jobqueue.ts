@@ -26,9 +26,9 @@ const createRSSRefreshFeedQueue = (): Queue | undefined => {
   return new Queue('rssRefreshFeed', { connection })
 }
 
-export const addRefreshFeedJob = async (jobid: string, payload: any) => {
-  const rssRefreshFeedJobQueue = createRSSRefreshFeedQueue()
+const rssRefreshFeedJobQueue = createRSSRefreshFeedQueue()
 
+export const addRefreshFeedJob = async (jobid: string, payload: any) => {
   if (!rssRefreshFeedJobQueue) {
     return false
   }
