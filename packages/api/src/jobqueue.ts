@@ -11,7 +11,7 @@ const createRSSRefreshFeedQueue = (): Queue | undefined => {
     if (env.redis.url?.startsWith('rediss://') && env.redis.cert) {
       return {
         tls: {
-          ca: env.redis.cert?.replace(/\\n/g, '\n'),
+          ca: env.redis.cert,
           rejectUnauthorized: false,
         },
         maxRetriesPerRequest: null,
