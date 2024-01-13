@@ -108,7 +108,7 @@ struct LibraryTabView: View {
           .padding(0)
       }
     }
-    .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+    .sheet(isPresented: $showExpandedAudioPlayer) {
       ExpandedAudioPlayer(
         delete: {
           showExpandedAudioPlayer = false
@@ -135,6 +135,11 @@ struct LibraryTabView: View {
     }
     .onOpenURL { url in
       inboxViewModel.linkRequest = nil
+
+      withoutAnimation {
+        NotificationCenter.default.post(Notification(name: Notification.Name("PopToRoot")))
+      }
+
       if let deepLink = DeepLink.make(from: url) {
         switch deepLink {
         case let .search(query):
@@ -144,6 +149,7 @@ struct LibraryTabView: View {
             inboxViewModel.appliedFilter = filter
           }
         case let .webAppLinkRequest(requestID):
+
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
             withoutAnimation {
               inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)

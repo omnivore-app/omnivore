@@ -164,6 +164,15 @@ struct ProfileView: View {
 
         Button(
           action: {
+            if let url = URL(string: "https://discord.gg/h2z5rppzz9") {
+              openURL(url)
+            }
+          },
+          label: { Text("Join community on Discord") }
+        )
+
+        Button(
+          action: {
             if let url = URL(string: "https://omnivore.app/privacy") {
               openURL(url)
             }

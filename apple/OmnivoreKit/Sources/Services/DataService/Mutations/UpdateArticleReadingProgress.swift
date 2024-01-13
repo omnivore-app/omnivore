@@ -9,17 +9,12 @@ extension DataService {
       guard let self = self else { return }
       guard let linkedItem = LibraryItem.lookup(byID: itemID, inContext: self.backgroundContext) else { return }
 
-      if let force = force, !force {
-        if readingProgress != 0, readingProgress < linkedItem.readingProgress {
-          return
-        }
-      }
-
       print("updating reading progress: ", readingProgress, anchorIndex)
       linkedItem.update(
         inContext: self.backgroundContext,
         newReadingProgress: readingProgress,
-        newAnchorIndex: anchorIndex
+        newAnchorIndex: anchorIndex,
+        readAt: Date()
       )
 
       // Send update to server

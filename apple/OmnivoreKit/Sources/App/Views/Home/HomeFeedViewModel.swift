@@ -49,6 +49,8 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
+
   @Published var appliedFilter: InternalFilter? {
     didSet {
       if let filterName = appliedFilter?.name.lowercased() {
@@ -361,6 +363,13 @@ enum LoadingBarStyle {
       }
     } catch {
       snackbar("Error modifying emails")
+    }
+  }
+
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
+    if let filter = filter {
+      featureFilter = filter.rawValue
+      fetcher.updateFeatureFilter(context: context, filter: filter)
     }
   }
 }

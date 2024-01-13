@@ -295,7 +295,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           LibraryAddLinkView()
         }
       }
-      .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+      .sheet(isPresented: $showExpandedAudioPlayer) {
         ExpandedAudioPlayer(
           delete: {
             showExpandedAudioPlayer = false
@@ -330,7 +330,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.selectedItem = linkedItem
         viewModel.linkIsActive = true
       }
-      .fullScreenCover(isPresented: $searchPresented) {
+      .sheet(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
       .task {
@@ -573,17 +573,17 @@ struct AnimatingCellHeight: AnimatableModifier {
           HStack {
             Menu(content: {
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
               }, label: {
                 Text("Continue Reading")
               })
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
               }, label: {
                 Text("Pinned")
               })
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
               }, label: {
                 Text("Newsletters")
               })
@@ -597,7 +597,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 HStack(alignment: .center) {
                   Image(systemName: "line.3.horizontal.decrease")
                     .font(Font.system(size: 13, weight: .regular))
-                  Text((FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) ?? .continueReading).title)
+                  Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
                     .font(Font.system(size: 13, weight: .medium))
                 }
                 .tint(Color(hex: "#007AFF"))
@@ -753,6 +753,9 @@ struct AnimatingCellHeight: AnimatableModifier {
               await viewModel.loadMore(dataService: dataService)
             }
           }
+
+          // reload this in case it was changed in settings
+          viewModel.hideFeatureSection = UserDefaults.standard.bool(forKey: UserDefaultKey.hideFeatureSection.rawValue)
         }
       }
     }
@@ -884,7 +887,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .delete:
         return AnyView(Button(
           action: {
-            viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
+            }
           },
           label: {
             Label("Remove", systemImage: "trash")
@@ -893,7 +898,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .moveToInbox:
         return AnyView(Button(
           action: {
-            viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
+            }
           },
           label: {
             Label(title: { Text("Move to Library") },
