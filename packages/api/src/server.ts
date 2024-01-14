@@ -15,7 +15,7 @@ import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
-import { redisClient } from './redis'
+import { redisClient, mqRedisClient } from './redis'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -161,6 +161,13 @@ const main = async (): Promise<void> => {
   // redis is optional
   if (redisClient) {
     console.log('Redis Client Connected:', env.redis.url)
+  }
+
+  // redis for message queue
+  if (env.redis.url) {
+    mqRedisClient?.on('error', (err) => {
+      console.error('Redis Client Error', err)
+    })
   }
 
   const { app, apollo, httpServer } = createApp()

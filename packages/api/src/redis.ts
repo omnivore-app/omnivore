@@ -1,5 +1,7 @@
 import { Redis } from 'ioredis'
 import { env } from './env'
+import { Redis } from 'ioredis'
+import { RedisOptions } from 'bullmq'
 
 const url = env.redis.url
 const cert = env.redis.cert
