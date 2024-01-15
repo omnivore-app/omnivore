@@ -15,7 +15,6 @@ import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
-import { redisClient, mqRedisClient } from './redis'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -45,6 +44,7 @@ import {
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { redisDataSource } from './redis_data_source'
 
 const PORT = process.env.PORT || 4000
 
@@ -158,16 +158,9 @@ const main = async (): Promise<void> => {
   // as healthy.
   await appDataSource.initialize()
 
-  // redis is optional
-  if (redisClient) {
-    console.log('Redis Client Connected:', env.redis.url)
-  }
-
-  // redis for message queue
+  // redis is optional for the API server
   if (env.redis.url) {
-    mqRedisClient?.on('error', (err) => {
-      console.error('Redis Client Error', err)
-    })
+    await redisDataSource.initialize()
   }
 
   const { app, apollo, httpServer } = createApp()

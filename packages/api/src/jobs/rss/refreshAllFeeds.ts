@@ -2,7 +2,7 @@ import Redis from 'ioredis'
 import { DataSource } from 'typeorm'
 import { stringToHash } from '../../utils/helpers'
 import { RssSubscriptionGroup } from '../../utils/createTask'
-import { Queue } from 'bullmq'
+import { Job, Queue } from 'bullmq'
 import { QUEUE_NAME } from '../../queue-processor'
 
 export const refreshAllFeeds = async (
@@ -75,10 +75,10 @@ export const queueRSSRefreshFeedJob = async (
   redis: Redis,
   jobid: string,
   payload: any
-) => {
+): Promise<Job | undefined> => {
   const queue = createBackendQueue(redis)
   if (!queue) {
-    return false
+    return undefined
   }
   return queue.add('refresh-feed', payload, {
     jobId: jobid,

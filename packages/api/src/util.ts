@@ -4,7 +4,7 @@
 import * as dotenv from 'dotenv'
 import os from 'os'
 
-interface BackendEnv {
+export interface BackendEnv {
   pg: {
     host: string
     port: number

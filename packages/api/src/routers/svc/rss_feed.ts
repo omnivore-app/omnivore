@@ -13,7 +13,7 @@ import {
 } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 import { queueRSSRefreshAllFeedsJob } from '../../jobs/rss/refreshAllFeeds'
-import { mqRedisClient } from '../../redis'
+import { redisDataSource } from '../../redis_data_source'
 
 export function rssFeedRouter() {
   const router = express.Router()
@@ -30,7 +30,12 @@ export function rssFeedRouter() {
         return res.status(200).send('Expired')
       }
 
-      await queueRSSRefreshAllFeedsJob(mqRedisClient)
+      if (redisDataSource.ioRedisClient) {
+        await queueRSSRefreshAllFeedsJob(redisDataSource.ioRedisClient)
+      } else {
+        console.log('unable to fetchAll feeds, redis is not configured')
+        return res.status(500).send('Expired')
+      }
 
       // // get active rss feed subscriptions scheduled for fetch and group by feed url
       // const subscriptionGroups = (await getRepository(Subscription).query(

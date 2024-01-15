@@ -1,5 +1,5 @@
 import { appDataSource } from '../src/data_source'
-import { redisClient } from '../src/redis'
+import { redisDataSource } from '../src/redis_data_source'
 import { stopApolloServer } from './util'
 
 export const mochaGlobalTeardown = async () => {
@@ -9,8 +9,6 @@ export const mochaGlobalTeardown = async () => {
   await appDataSource.destroy()
   console.log('db connection closed')
 
-  if (redisClient) {
-    await redisClient.quit()
-    console.log('redis connection closed')
-  }
+  await redisDataSource.shutdown()
+  console.log('redis connection closed')
 }

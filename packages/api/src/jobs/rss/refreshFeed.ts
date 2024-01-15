@@ -3,14 +3,12 @@ import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
-import { createClient } from 'redis'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
+import { RedisClientType } from 'redis'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 type FolderType = 'following' | 'inbox'
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
 
 interface RefreshFeedRequest {
   subscriptionIds: string[]
@@ -73,7 +71,7 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
 const feedFetchFailedRedisKey = (feedUrl: string) =>
   `feed-fetch-failure:${feedUrl}`
 
-const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
+const isFeedBlocked = async (feedUrl: string, redisClient: RedisClientType) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.get(key)
@@ -92,7 +90,7 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
 
 const incrementFeedFailure = async (
   feedUrl: string,
-  redisClient: RedisClient
+  redisClient: RedisClientType
 ) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
@@ -258,7 +256,7 @@ const sendUpdateSubscriptionMutation = async (
 }
 
 const isItemRecentlySaved = async (
-  redisClient: RedisClient,
+  redisClient: RedisClientType,
   userId: string,
   url: string
 ) => {
@@ -273,7 +271,7 @@ const createTask = async (
   item: RssFeedItem,
   fetchContent: boolean,
   folder: FolderType,
-  redisClient: RedisClient
+  redisClient: RedisClientType
 ) => {
   const isRecentlySaved = await isItemRecentlySaved(
     redisClient,
@@ -463,7 +461,7 @@ const processSubscription = async (
   fetchContent: boolean,
   folder: FolderType,
   feed: RssFeed,
-  redisClient: RedisClient
+  redisClient: RedisClientType
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: RssFeedItem | null = null
@@ -597,7 +595,10 @@ const processSubscription = async (
   console.log('Updated subscription', updatedSubscription)
 }
 
-export const refreshFeed = async (redisClient: RedisClient, request: any) => {
+export const refreshFeed = async (
+  redisClient: RedisClientType,
+  request: any
+) => {
   if (isRefreshFeedRequest(request)) {
     return _refreshFeed(redisClient, request)
   }
@@ -606,7 +607,7 @@ export const refreshFeed = async (redisClient: RedisClient, request: any) => {
 }
 
 export const _refreshFeed = async (
-  redisClient: RedisClient,
+  redisClient: RedisClientType,
   request: RefreshFeedRequest
 ) => {
   try {
