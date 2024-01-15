@@ -15,6 +15,14 @@ export const deleteUser = async (userId: string) => {
   )
 }
 
+export const updateUser = async (userId: string, update: Partial<User>) => {
+  return authTrx(
+    async (t) => t.getRepository(User).update(userId, update),
+    undefined,
+    userId
+  )
+}
+
 export const softDeleteUser = async (userId: string) => {
   return authTrx(
     async (t) => {
