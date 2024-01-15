@@ -4,11 +4,11 @@ const { ExpressAdapter } = require('@bull-board/express')
 const { Queue } = require('bullmq')
 const { Redis } = require('ioredis')
 const session = require('express-session')
-const bodyParser = require('body-parser')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const { ensureLoggedIn } = require('connect-ensure-login')
 const express = require('express')
+const bodyParser = require('body-parser')
 
 const readYamlFile = require('read-yaml-file')
 
@@ -45,32 +45,21 @@ passport.deserializeUser((user, cb) => {
 const run = async () => {
   const secrets = await readYamlFile(process.env.SECRETS_FILE)
   const redisOptions = (secrets) => {
-    if (secrets.REDIS_URL?.startsWith('rediss://') && process.env.REDIS_CERT) {
+    if (secrets.REDIS_URL?.startsWith('rediss://') && secrets.REDIS_CERT) {
       return {
         tls: {
-          cert: process.env.REDIS_CERT?.replace(/\\n/g, '\n'),
+          ca: secrets.REDIS_CERT,
           rejectUnauthorized: false,
         },
-        maxRetriesPerRequest: null,
       }
     }
-    return {
-      maxRetriesPerRequest: null,
-    }
+    return {}
   }
 
-  const connection = new Redis({
-    tls: {
-      host: secrets.REDIS_HOST,
-      port: secrets.REDIS_PORT,
-      cert: process.env.REDIS_CERT?.replace(/\\n/g, '\n'),
-      rejectUnauthorized: false,
-    },
-    maxRetriesPerRequest: null,
-  })
+  const connection = new Redis(secrets.REDIS_URL, redisOptions(secrets))
   console.log('set connection: ', connection)
 
-  const rssRefreshFeed = new Queue('rssRefreshFeed', {
+  const rssRefreshFeed = new Queue('omnivore-backend-queue', {
     connection: connection,
   })
 
@@ -110,28 +99,14 @@ const run = async () => {
     }
   )
 
-  app.use('/add', (req, res) => {
-    const opts = req.query.opts || {}
-
-    if (opts.delay) {
-      opts.delay = +opts.delay * 1000 // delay must be a number
-    }
-
-    rssRefreshFeed.add('Add', { title: req.query.title }, opts)
-
-    res.json({
-      ok: true,
-    })
-  })
-
   app.use(
     '/ui',
     ensureLoggedIn({ redirectTo: '/ui/login' }),
     serverAdapter.getRouter()
   )
 
-  app.listen(3000, () => {
-    console.log('Running on 3000...')
+  app.listen(8080, () => {
+    console.log('Running on 8080...')
   })
 }
 
