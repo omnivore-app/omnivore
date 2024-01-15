@@ -316,11 +316,20 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
                 val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
                 val swipeState = rememberDismissState(
                     confirmStateChange = {
-                        if (it == DismissValue.DismissedToEnd ||
-                            currentThresholdFraction.value < swipeThreshold ||
-                            currentThresholdFraction.value > 1.0f
-                        ) {
-                            return@rememberDismissState false
+                        when(it) {
+                            DismissValue.Default -> {
+                                return@rememberDismissState false
+                            }
+                            DismissValue.DismissedToEnd -> {
+                                if (currentThresholdFraction.value < swipeThreshold) {
+                                    return@rememberDismissState false
+                                }
+                            }
+                            DismissValue.DismissedToStart -> {
+                                if (currentThresholdFraction.value < swipeThreshold) {
+                                    return@rememberDismissState false
+                                }
+                            }
                         }
 
                         if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
