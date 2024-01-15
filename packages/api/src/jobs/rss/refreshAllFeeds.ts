@@ -32,8 +32,8 @@ export const refreshAllFeeds = async (
     ['RSS', 'ACTIVE', 'following']
   )) as RssSubscriptionGroup[]
 
-  for (let group of subscriptionGroups) {
-    let jobid = `refresh-feed_${stringToHash(group.url)}_${stringToHash(
+  for (const group of subscriptionGroups) {
+    const jobid = `refresh-feed_${stringToHash(group.url)}_${stringToHash(
       JSON.stringify(group.userIds.sort())
     )}`
     const payload = {
