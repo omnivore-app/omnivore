@@ -5,7 +5,9 @@
   "scripts": {
     "build": "tsc && yarn copy-files",
     "dev": "ts-node-dev --files src/server.ts",
+    "dev_qp": "ts-node-dev --files src/queue-processor.ts",
     "start": "node dist/server.js",
+    "start_queue_processor": "node dist/queue-processor.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
     "test:typecheck": "tsc --noEmit",
