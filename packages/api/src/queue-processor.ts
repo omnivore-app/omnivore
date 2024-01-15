@@ -18,7 +18,7 @@ export const QUEUE_NAME = 'omnivore-backend-queue'
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
 
-  let env = (await loadEnvFromGCPSecrets()) ?? getEnv()
+  let env = (await loadEnvFromGCPSecrets()) ?? getEnv(process.env)
   const app: Express = express()
   const port = process.env.PORT || 3002
 
