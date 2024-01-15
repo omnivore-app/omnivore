@@ -1,4 +1,5 @@
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
+import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
@@ -14,9 +15,27 @@ export const deleteUser = async (userId: string) => {
   )
 }
 
-export const updateUser = async (userId: string, update: Partial<User>) => {
+export const softDeleteUser = async (userId: string) => {
   return authTrx(
-    async (t) => t.getRepository(User).update(userId, update),
+    async (t) => {
+      // change email address and username for user to sign up again
+      await t.getRepository(Profile).update(
+        {
+          user: {
+            id: userId,
+          },
+        },
+        {
+          username: `deleted_user_${userId}`,
+        }
+      )
+
+      return t.getRepository(User).update(userId, {
+        status: StatusType.Deleted,
+        email: `deleted_user_${userId}@omnivore.app`,
+        sourceUserId: `deleted_user_${userId}`,
+      })
+    },
     undefined,
     userId
   )
