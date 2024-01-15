@@ -74,11 +74,16 @@ const main = async () => {
     console.log('completed job: ', job.jobId)
   })
 
-  process.on('SIGINT', async () => {
-    console.log('[queue-processor]: Received SIGTERM. Shutting down.')
+  const gracefulShutdown = async (signal: string) => {
+    console.log(`[queue-processor]: Received ${signal}, closing server...`)
+    await worker.close()
     await redisClient.disconnect()
     mqRedisClient.disconnect()
-  })
+    process.exit(0)
+  }
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 
   app.listen(port, () => {
     console.log(`[queue-processor]: started`)
