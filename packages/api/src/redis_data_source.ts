@@ -78,6 +78,7 @@ const createIORedisClient = (
       return Math.min(times * 50, 2000)
     },
   }
+  console.log('connecting to redis: ', { redisURL, redisOptions })
   return new Redis(redisURL, redisOptions)
 }
 
