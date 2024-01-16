@@ -708,6 +708,38 @@ export const restoreLibraryItem = async (
   )
 }
 
+export const softDeleteLibraryItem = async (
+  id: string,
+  userId: string,
+  pubsub = createPubSubClient()
+): Promise<LibraryItem> => {
+  const deletedLibraryItem = await authTrx(
+    async (tx) => {
+      const itemRepo = tx.withRepository(libraryItemRepository)
+
+      // mark item as deleted
+      await itemRepo.update(id, {
+        state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
+      })
+
+      // delete all labels for this item
+      await tx.getRepository(EntityLabel).delete({ libraryItemId: id })
+
+      // delete all highlights for this item
+      await tx.getRepository(Highlight).delete({ libraryItem: { id } })
+
+      return itemRepo.findOneByOrFail({ id })
+    },
+    undefined,
+    userId
+  )
+
+  await pubsub.entityDeleted(EntityType.PAGE, id, userId)
+
+  return deletedLibraryItem
+}
+
 export const updateLibraryItem = async (
   id: string,
   libraryItem: QueryDeepPartialEntity<LibraryItem>,

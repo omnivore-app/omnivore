@@ -76,6 +76,7 @@ import {
   createOrUpdateLibraryItem,
   findLibraryItemsByPrefix,
   searchLibraryItems,
+  softDeleteLibraryItem,
   sortParamsToSort,
   updateLibraryItem,
   updateLibraryItemReadingProgress,
@@ -532,15 +533,7 @@ export const setBookmarkArticleResolver = authorized<
   }
 
   // delete the item and its metadata
-  const deletedLibraryItem = await updateLibraryItem(
-    articleID,
-    {
-      state: LibraryItemState.Deleted,
-      deletedAt: new Date(),
-    },
-    uid,
-    pubsub
-  )
+  const deletedLibraryItem = await softDeleteLibraryItem(articleID, uid, pubsub)
 
   analytics.track({
     userId: uid,

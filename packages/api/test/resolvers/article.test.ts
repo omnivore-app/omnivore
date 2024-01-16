@@ -21,7 +21,6 @@ import {
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
-import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
   createOrUpdateLibraryItem,
   createLibraryItems,
@@ -31,8 +30,9 @@ import {
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
+  softDeleteLibraryItem,
   updateLibraryItem,
-  CreateOrUpdateLibraryItemArgs,
+  CreateOrUpdateLibraryItemArgs,,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -43,7 +43,12 @@ import {
   createTestUser,
   saveLabelsInLibraryItem,
 } from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
+import {
+  generateFakeShortId,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 
 chai.use(chaiString)
 
@@ -706,18 +711,39 @@ describe('Article API', () => {
       }
       const item = await createOrUpdateLibraryItem(itemToSave, user.id)
       itemId = item.id
+
+      await createAndSaveLabelsInLibraryItem(itemId, user.id, [
+        {
+          name: 'test label 2',
+        },
+      ])
+      await createHighlight(
+        {
+          shortId: generateFakeShortId(),
+          user: { id: user.id },
+          quote: 'test quote 2',
+        },
+        itemId,
+        user.id
+      )
     })
 
     after(async () => {
       await deleteLibraryItemById(itemId, user.id)
     })
 
-    it('marks an article as deleted', async () => {
+    it('marks an item as deleted and deletes all the labels and highlights attached to the item', async () => {
       await graphqlRequest(setBookmarkQuery(itemId, false), authToken).expect(
         200
       )
       const item = await findLibraryItemById(itemId, user.id)
       expect(item?.state).to.eql(LibraryItemState.Deleted)
+
+      const labels = await findLabelsByLibraryItemId(itemId, user.id)
+      expect(labels).to.be.empty
+
+      const highlights = await findHighlightsByLibraryItemId(itemId, user.id)
+      expect(highlights).to.be.empty
     })
   })
 
@@ -2062,11 +2088,8 @@ describe('Article API', () => {
 
       // Delete some items
       for (let i = 0; i < 3; i++) {
-        await updateLibraryItem(
-          items[i].id,
-          { state: LibraryItemState.Deleted, deletedAt: new Date() },
-          user.id
-        )
+        await softDeleteLibraryItem(items[i].id, user.id)
+
         deletedItems.push(items[i])
       }
     })
