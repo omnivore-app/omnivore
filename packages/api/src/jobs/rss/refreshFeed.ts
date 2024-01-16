@@ -5,9 +5,9 @@ import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
-import { RedisClientType } from 'redis'
 import createHttpTaskWithToken from '../../utils/createTask'
 import { env } from '../../env'
+import Redis from 'ioredis'
 
 type FolderType = 'following' | 'inbox'
 
@@ -72,7 +72,7 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
 const feedFetchFailedRedisKey = (feedUrl: string) =>
   `feed-fetch-failure:${feedUrl}`
 
-const isFeedBlocked = async (feedUrl: string, redisClient: RedisClientType) => {
+const isFeedBlocked = async (feedUrl: string, redisClient: Redis) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.get(key)
@@ -89,10 +89,7 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClientType) => {
   return false
 }
 
-const incrementFeedFailure = async (
-  feedUrl: string,
-  redisClient: RedisClientType
-) => {
+const incrementFeedFailure = async (feedUrl: string, redisClient: Redis) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.incr(key)
@@ -260,7 +257,7 @@ const sendUpdateSubscriptionMutation = async (
 }
 
 const isItemRecentlySaved = async (
-  redisClient: RedisClientType,
+  redisClient: Redis,
   userId: string,
   url: string
 ) => {
@@ -281,7 +278,7 @@ const createTask = async (
   item: RssFeedItem,
   fetchContent: boolean,
   folder: FolderType,
-  redisClient: RedisClientType
+  redisClient: Redis
 ) => {
   console.log('creating task to fetch', feedUrl)
   const isRecentlySaved = await isItemRecentlySaved(
@@ -484,7 +481,7 @@ const processSubscription = async (
   fetchContent: boolean,
   folder: FolderType,
   feed: RssFeed,
-  redisClient: RedisClientType
+  redisClient: Redis
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: RssFeedItem | null = null
@@ -618,10 +615,7 @@ const processSubscription = async (
   console.log('Updated subscription', updatedSubscription)
 }
 
-export const refreshFeed = async (
-  redisClient: RedisClientType,
-  request: any
-) => {
+export const refreshFeed = async (redisClient: Redis, request: any) => {
   if (isRefreshFeedRequest(request)) {
     return _refreshFeed(redisClient, request)
   }
@@ -630,7 +624,7 @@ export const refreshFeed = async (
 }
 
 export const _refreshFeed = async (
-  redisClient: RedisClientType,
+  redisClient: Redis,
   request: RefreshFeedRequest
 ) => {
   try {
