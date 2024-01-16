@@ -64,6 +64,7 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
+    console.log('nbot creating task, no project info')
     return null
   }
 
@@ -110,6 +111,7 @@ const createHttpTaskWithToken = async ({
   try {
     return client.createTask({ parent, task })
   } catch (error) {
+    console.log('error creating task', error)
     logError(error)
     return null
   }
