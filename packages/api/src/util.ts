@@ -109,19 +109,6 @@ export interface BackendEnv {
   }
 }
 
-/***
- * Checks if we are running on Google App Engine.
- * See https://cloud.google.com/appengine/docs/standard/nodejs/runtime#environment_variables
- */
-export function isAppEngine(): boolean {
-  return (
-    process.env.GOOGLE_CLOUD_PROJECT !== undefined &&
-    process.env.GAE_INSTANCE !== undefined &&
-    process.env.GAE_SERVICE !== undefined &&
-    process.env.GAE_VERSION !== undefined
-  )
-}
-
 const nullableEnvVars = [
   'INTERCOM_TOKEN',
   'INTERCOM_SECRET_KEY',
@@ -172,10 +159,7 @@ const nullableEnvVars = [
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
-if (
-  !isAppEngine() &&
-  ['prod', 'qa', 'demo'].indexOf(process.env.API_ENV || '') === -1
-) {
+if (process.env.API_ENV == 'local') {
   nullableEnvVars.push(...['GCS_UPLOAD_BUCKET'])
 }
 
@@ -248,7 +232,7 @@ export function getEnv(from: Dict<string>): BackendEnv {
     host: parse('JAEGER_HOST'),
   }
   const dev = {
-    isLocal: !isAppEngine(),
+    isLocal: parse('API_ENV') == 'local',
   }
   const queue = {
     location: parse('PUPPETEER_QUEUE_LOCATION'),
