@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import crypto from 'crypto'
+import Redis from 'ioredis'
 import normalizeUrl from 'normalize-url'
 import path from 'path'
 import _ from 'underscore'
@@ -410,6 +411,7 @@ export const getAbsoluteUrl = (url: string, baseUrl: string): string => {
 }
 
 export const setRecentlySavedItemInRedis = async (
+  redisClient: Redis,
   userId: string,
   url: string
 ) => {
@@ -417,10 +419,7 @@ export const setRecentlySavedItemInRedis = async (
   const redisKey = `recent-saved-item:${userId}:${url}`
   const ttlInSeconds = 60 * 60 * 26
   try {
-    return redisClient.set(redisKey, 1, {
-      EX: ttlInSeconds,
-      NX: true,
-    })
+    return redisClient.set(redisKey, 1, 'EX', ttlInSeconds, 'NX')
   } catch (error) {
     logger.error('error setting recently saved item in redis', {
       redisKey,

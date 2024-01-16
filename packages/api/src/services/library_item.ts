@@ -6,9 +6,9 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
+import { redisClient } from '../redis'
 import {
   authTrx,
   getColumns,
@@ -824,8 +824,12 @@ export const createLibraryItem = async (
   )
 
   // set recently saved item in redis if redis is enabled
-  if (env.redis.url) {
-    await setRecentlySavedItemInRedis(userId, newLibraryItem.originalUrl)
+  if (redisClient) {
+    await setRecentlySavedItemInRedis(
+      redisClient,
+      userId,
+      newLibraryItem.originalUrl
+    )
   }
 
   if (skipPubSub) {
