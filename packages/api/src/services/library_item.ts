@@ -8,7 +8,6 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { redisClient } from '../redis'
 import {
   authTrx,
   getColumns,
