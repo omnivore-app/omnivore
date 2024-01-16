@@ -369,7 +369,12 @@ const createItemWithPreviewContent = async (
 
     // save page
     const taskHandlerUrl = `${serviceBaseUrl}svc/following/save?token=${token}`
-    const task = await createCloudTask(taskHandlerUrl, input)
+    const task = await createHttpTaskWithToken({
+      queue: env.queue.name,
+      priority: 'low',
+      taskHandlerUrl: taskHandlerUrl,
+      payload: input,
+    })
     console.log('Created task', task)
 
     return !!task
