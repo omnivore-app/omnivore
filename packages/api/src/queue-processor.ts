@@ -56,10 +56,8 @@ const main = async () => {
   await appDataSource.initialize()
   await redisDataSource.initialize()
 
-  const redisClient = redisDataSource.redisClient
   const ioRedisClient = redisDataSource.ioRedisClient
-
-  if (!redisClient || !ioRedisClient) {
+  if (!ioRedisClient) {
     throw '[queue-processor] error redis is not initialized'
   }
 
@@ -71,7 +69,7 @@ const main = async () => {
           return await refreshAllFeeds(appDataSource, ioRedisClient)
         }
         case 'refresh-feed': {
-          return await refreshFeed(redisClient, job.data)
+          return await refreshFeed(ioRedisClient, job.data)
         }
       }
       return true

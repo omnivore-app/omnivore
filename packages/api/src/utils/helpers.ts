@@ -416,8 +416,7 @@ export const setRecentlySavedItemInRedis = async (
   url: string
 ) => {
   // save the url in redis for 26 hours so rss-feeder won't try to re-save it
-  const client = redisDataSource.redisClient
-  if (!client) {
+  if (!redisClient) {
     console.info(
       'not setting recently saved item because redis is not configured'
     )
