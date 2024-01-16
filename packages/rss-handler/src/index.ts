@@ -2,17 +2,15 @@ import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import Redis from 'ioredis'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
-import { createClient } from 'redis'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 type FolderType = 'following' | 'inbox'
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
 
 interface RssFeedRequest {
   subscriptionIds: string[]
@@ -61,7 +59,7 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
 const feedFetchFailedRedisKey = (feedUrl: string) =>
   `feed-fetch-failure:${feedUrl}`
 
-const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
+const isFeedBlocked = async (feedUrl: string, redisClient: Redis) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.get(key)
@@ -78,10 +76,7 @@ const isFeedBlocked = async (feedUrl: string, redisClient: RedisClient) => {
   return false
 }
 
-const incrementFeedFailure = async (
-  feedUrl: string,
-  redisClient: RedisClient
-) => {
+const incrementFeedFailure = async (feedUrl: string, redisClient: Redis) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
     const result = await redisClient.incr(key)
@@ -259,7 +254,7 @@ const sendUpdateSubscriptionMutation = async (
 }
 
 const isItemRecentlySaved = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   url: string
 ) => {
@@ -274,7 +269,7 @@ const createTask = async (
   item: RssFeedItem,
   fetchContent: boolean,
   folder: FolderType,
-  redisClient: RedisClient
+  redisClient: Redis
 ) => {
   const isRecentlySaved = await isItemRecentlySaved(
     redisClient,
@@ -464,7 +459,7 @@ const processSubscription = async (
   fetchContent: boolean,
   folder: FolderType,
   feed: RssFeed,
-  redisClient: RedisClient
+  redisClient: Redis
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: RssFeedItem | null = null
@@ -606,7 +601,7 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     // create redis client
-    const redisClient = await createRedisClient(
+    const redisClient = createRedisClient(
       process.env.REDIS_URL,
       process.env.REDIS_CERT
     )

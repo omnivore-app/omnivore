@@ -1,9 +1,6 @@
-import { createClient } from 'redis'
+import Redis from 'ioredis'
 import { sendImportCompletedEmail } from '.'
 import { lua } from './redis'
-
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
 
 export enum ImportStatus {
   STARTED = 'started',
@@ -31,7 +28,7 @@ interface ImportMetrics {
 }
 
 export const createMetrics = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   taskId: string,
   source: string
@@ -39,7 +36,7 @@ export const createMetrics = async (
   const key = `import:${userId}:${taskId}`
   try {
     // set multiple fields
-    await redisClient.hSet(key, {
+    await redisClient.hset(key, {
       ['start_time']: Date.now(),
       ['source']: source,
       ['state']: ImportTaskState.STARTED,
@@ -50,7 +47,7 @@ export const createMetrics = async (
 }
 
 export const updateMetrics = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   taskId: string,
   status: ImportStatus
@@ -59,10 +56,13 @@ export const updateMetrics = async (
 
   try {
     // use lua script to increment hash field
-    const state = await redisClient.evalSha(lua.sha, {
-      keys: [key],
-      arguments: [status, Date.now().toString()],
-    })
+    const state = await redisClient.evalsha(
+      lua.sha,
+      1,
+      key,
+      status,
+      Date.now().toString()
+    )
 
     // if the task is finished, send email
     if (state == ImportTaskState.FINISHED) {
@@ -77,13 +77,13 @@ export const updateMetrics = async (
 }
 
 export const getMetrics = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   taskId: string
 ): Promise<ImportMetrics | null> => {
   const key = `import:${userId}:${taskId}`
   try {
-    const metrics = await redisClient.hGetAll(key)
+    const metrics = await redisClient.hgetall(key)
 
     return {
       // convert to integer
