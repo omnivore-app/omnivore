@@ -58,6 +58,34 @@ export const findOrCreateLabels = async (
   )
 }
 
+export const createAndAddLabelsToLibraryItem = async (
+  libraryItemId: string,
+  userId: string,
+  labels?: CreateLabelInput[] | null,
+  rssFeedUrl?: string | null,
+  source?: LabelSource,
+  pubsub?: PubsubClient
+) => {
+  if (rssFeedUrl) {
+    // add rss label to labels
+    labels = (labels || []).concat({ name: 'RSS' })
+    source = 'system'
+  }
+
+  // save labels in item
+  if (labels && labels.length > 0) {
+    const newLabels = await findOrCreateLabels(labels, userId)
+
+    await addLabelsToLibraryItem(
+      newLabels,
+      libraryItemId,
+      userId,
+      source,
+      pubsub
+    )
+  }
+}
+
 export const createAndSaveLabelsInLibraryItem = async (
   libraryItemId: string,
   userId: string,
