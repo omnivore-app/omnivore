@@ -413,9 +413,9 @@ export const setRecentlySavedItemInRedis = async (
   userId: string,
   url: string
 ) => {
-  // save the url in redis for 8 hours so rss-feeder won't try to re-save it
+  // save the url in redis for 26 hours so rss-feeder won't try to re-save it
   const redisKey = `recent-saved-item:${userId}:${url}`
-  const ttlInSeconds = 60 * 60 * 8
+  const ttlInSeconds = 60 * 60 * 26
   try {
     return redisClient.set(redisKey, 1, {
       EX: ttlInSeconds,
