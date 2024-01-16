@@ -361,7 +361,7 @@ const createItemWithPreviewContent = async (
 
   try {
     console.log('Creating task', input.url)
-    const serviceBaseUrl = process.env.INTERNAL_SVC_ENDPOINT
+    const serviceBaseUrl = process.env.INTERNAL_API_URL
     const token = process.env.PUBSUB_VERIFICATION_TOKEN
     if (!serviceBaseUrl || !token) {
       throw 'Environment not configured correctly'
