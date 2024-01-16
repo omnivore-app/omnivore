@@ -6,7 +6,8 @@ import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { RedisClientType } from 'redis'
-import { CONTENT_FETCH_URL, createCloudTask } from './task'
+import createHttpTaskWithToken from '../../utils/createTask'
+import { env } from '../../env'
 
 type FolderType = 'following' | 'inbox'
 
@@ -306,7 +307,7 @@ const fetchContentAndCreateItem = async (
   item: RssFeedItem,
   folder: string
 ) => {
-  const input = {
+  const payload = {
     userId,
     source: 'rss-feeder',
     url: item.link,
@@ -319,9 +320,16 @@ const fetchContentAndCreateItem = async (
   }
 
   try {
-    console.log('Creating task', input.url)
-    // save page
-    const task = await createCloudTask(CONTENT_FETCH_URL, input)
+    console.log('Creating task', {
+      url: env.queue.contentFetchGCFUrl,
+      fetch: payload.url,
+    })
+
+    const task = await createHttpTaskWithToken({
+      queue: 'omnivore-rss-feed-queue',
+      taskHandlerUrl: env.queue.contentFetchGCFUrl,
+      payload,
+    })
     console.log('Created task', task)
 
     return !!task
