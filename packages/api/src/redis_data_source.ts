@@ -56,26 +56,27 @@ const createIORedisClient = (
     tls,
     connectTimeout: 10000,
     maxRetriesPerRequest: null,
-    reconnectOnError: (err: Error) => {
-      const targetErrors = [/READONLY/, /ETIMEDOUT/]
+    // reconnectOnError: (err: Error) => {
+    //   const targetErrors = [/READONLY/, /ETIMEDOUT/]
 
-      targetErrors.forEach((targetError) => {
-        if (targetError.test(err.message)) {
-          // Only reconnect when the error contains the keyword
-          return true
-        }
-      })
+    //   targetErrors.forEach((targetError) => {
+    //     if (targetError.test(err.message)) {
+    //       // Only reconnect when the error contains the keyword
+    //       return true
+    //     }
+    //   })
 
-      return false
-    },
+    //   return false
+    // },
     retryStrategy: (times: number) => {
-      if (times > 10) {
-        // End reconnecting after a specific number of tries and flush all commands with a individual error
-        return null
-      }
+      // if (times > 10) {
+      //   // End reconnecting after a specific number of tries and flush all commands with a individual error
+      //   return null
+      // }
 
-      // reconnect after
-      return Math.min(times * 50, 2000)
+      // // reconnect after
+      // return Math.min(times * 50, 2000)
+      return 10
     },
   }
   console.log('connecting to redis: ', { redisURL, redisOptions })
