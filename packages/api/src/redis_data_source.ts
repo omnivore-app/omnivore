@@ -44,34 +44,41 @@ const createIORedisClient = (
   if (!redisURL) {
     throw 'Error: no redisURL supplied'
   }
-  const redisOptions = (redisURL: string): RedisOptions => {
-    if (redisURL.startsWith('rediss://') && options.REDIS_CERT) {
-      return {
-        tls: {
+  const tls =
+    redisURL.startsWith('rediss://') && options.REDIS_CERT
+      ? {
           ca: options.REDIS_CERT,
           rejectUnauthorized: false,
-        },
-        connectTimeout: 10000,
-        maxRetriesPerRequest: null,
-        retryStrategy: (times: number) => {
-          return 10
-        },
-      }
-    }
-    return {
-      connectTimeout: 10000,
-      maxRetriesPerRequest: null,
-      retryStrategy: (times: number) => {
-        console.log('retrying', times)
-        if (times > 10) {
-          return null
         }
-        return 10
-      },
-    }
-  }
+      : undefined
 
-  return new Redis(redisURL, redisOptions(redisURL))
+  const redisOptions = {
+    tls,
+    connectTimeout: 10000,
+    maxRetriesPerRequest: null,
+    reconnectOnError: (err: Error) => {
+      const targetErrors = [/READONLY/, /ETIMEDOUT/]
+
+      targetErrors.forEach((targetError) => {
+        if (targetError.test(err.message)) {
+          // Only reconnect when the error contains the keyword
+          return true
+        }
+      })
+
+      return false
+    },
+    retryStrategy: (times: number) => {
+      if (times > 10) {
+        // End reconnecting after a specific number of tries and flush all commands with a individual error
+        return null
+      }
+
+      // reconnect after
+      return Math.min(times * 50, 2000)
+    },
+  }
+  return new Redis(redisURL, redisOptions)
 }
 
 export const redisDataSource = new RedisDataSource({
