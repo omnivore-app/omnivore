@@ -310,7 +310,7 @@ const fetchContentAndCreateItem = async (
   const payload = {
     userId,
     source: 'rss-feeder',
-    url: item.link,
+    url: item.link.trim(),
     saveRequestId: '',
     labels: [{ name: 'RSS' }],
     rssFeedUrl: feedUrl,
