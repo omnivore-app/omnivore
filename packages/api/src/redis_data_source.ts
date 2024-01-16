@@ -10,7 +10,8 @@ export class RedisDataSource {
   options: RedisDataSourceOptions
   isInitialized: Boolean
 
-  ioRedisClient: Redis | undefined = undefined
+  redisClient: Redis | undefined = undefined
+  workerRedisClient: Redis | undefined = undefined
 
   constructor(options: RedisDataSourceOptions) {
     this.options = options
@@ -20,8 +21,11 @@ export class RedisDataSource {
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
-    this.ioRedisClient = createIORedisClient(this.options)
+    this.redisClient = createIORedisClient(this.options)
+    this.workerRedisClient = createIORedisClient(this.options)
     this.isInitialized = true
+
+    this.redisClient?.connect()
 
     return this
   }
@@ -31,8 +35,11 @@ export class RedisDataSource {
   }
 
   async shutdown(): Promise<void> {
-    if (this.ioRedisClient && this.ioRedisClient.status == 'ready') {
-      this.ioRedisClient.quit()
+    if (this.redisClient && this.redisClient.status == 'ready') {
+      this.redisClient.quit()
+    }
+    if (this.workerRedisClient && this.workerRedisClient.status == 'ready') {
+      this.workerRedisClient.quit()
     }
   }
 }

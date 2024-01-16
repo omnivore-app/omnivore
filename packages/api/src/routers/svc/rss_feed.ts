@@ -30,8 +30,8 @@ export function rssFeedRouter() {
         return res.status(200).send('Expired')
       }
 
-      if (redisDataSource.ioRedisClient) {
-        await queueRSSRefreshAllFeedsJob(redisDataSource.ioRedisClient)
+      if (redisDataSource.workerRedisClient) {
+        await queueRSSRefreshAllFeedsJob(redisDataSource.workerRedisClient)
       } else {
         console.log('unable to fetchAll feeds, redis is not configured')
         return res.status(500).send('Expired')

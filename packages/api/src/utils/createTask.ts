@@ -662,9 +662,9 @@ export const enqueueRssFeedFetch = async (
     subscriptionGroup.url
   )}_${stringToHash(JSON.stringify(subscriptionGroup.userIds.sort()))}`
 
-  if (redisDataSource.ioRedisClient) {
+  if (redisDataSource.workerRedisClient) {
     let job = await queueRSSRefreshFeedJob(
-      redisDataSource.ioRedisClient,
+      redisDataSource.workerRedisClient,
       jobid,
       payload
     )

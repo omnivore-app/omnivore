@@ -824,9 +824,9 @@ export const createLibraryItem = async (
   )
 
   // set recently saved item in redis if redis is enabled
-  if (redisDataSource.ioRedisClient) {
+  if (redisDataSource.redisClient) {
     await setRecentlySavedItemInRedis(
-      redisDataSource.ioRedisClient,
+      redisDataSource.redisClient,
       userId,
       newLibraryItem.originalUrl
     )
