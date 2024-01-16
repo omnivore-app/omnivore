@@ -25,8 +25,6 @@ export interface BackendEnv {
   }
   client: {
     url: string
-    previewGenerationServiceUrl: string
-    previewImageWrapperId: string
   }
   google: {
     auth: {
@@ -93,10 +91,6 @@ export interface BackendEnv {
   readwise: {
     apiUrl: string
   }
-  azure: {
-    speechKey: string
-    speechRegion: string
-  }
   gcp: {
     location: string
   }
@@ -144,8 +138,6 @@ const nullableEnvVars = [
   'PUPPETEER_QUEUE_NAME',
   'CONTENT_FETCH_URL',
   'CONTENT_FETCH_GCF_URL',
-  'PREVIEW_IMAGE_WRAPPER_ID',
-  'PREVIEW_GENERATION_SERVICE_URL',
   'GCS_UPLOAD_SA_KEY_FILE_PATH',
   'GAUTH_IOS_CLIENT_ID',
   'GAUTH_ANDROID_CLIENT_ID',
@@ -186,9 +178,7 @@ if (
   !isAppEngine() &&
   ['prod', 'qa', 'demo'].indexOf(process.env.API_ENV || '') === -1
 ) {
-  nullableEnvVars.push(
-    ...['GCS_UPLOAD_BUCKET', 'PREVIEW_GENERATION_SERVICE_URL']
-  )
+  nullableEnvVars.push(...['GCS_UPLOAD_BUCKET'])
 }
 
 const envParser =
@@ -213,6 +203,8 @@ export function getEnv(from: Dict<string>): BackendEnv {
   // Dotenv parses env file merging into proces.env which is then read into custom struct here.
   dotenv.config()
 
+  process.env
+
   const parse = envParser(from)
   const pg = {
     host: parse('PG_HOST'),
@@ -235,8 +227,6 @@ export function getEnv(from: Dict<string>): BackendEnv {
   }
   const client = {
     url: parse('CLIENT_URL'),
-    previewGenerationServiceUrl: parse('PREVIEW_GENERATION_SERVICE_URL'),
-    previewImageWrapperId: parse('PREVIEW_IMAGE_WRAPPER_ID'),
   }
   const google = {
     auth: {
@@ -304,11 +294,6 @@ export function getEnv(from: Dict<string>): BackendEnv {
 
   const readwise = {
     apiUrl: parse('READWISE_API_URL'),
-  }
-
-  const azure = {
-    speechKey: parse('AZURE_SPEECH_KEY'),
-    speechRegion: parse('AZURE_SPEECH_REGION'),
   }
 
   const gcp = {
