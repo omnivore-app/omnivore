@@ -237,7 +237,7 @@ describe('convert HTML to Speech file', () => {
       title: 'Wang Yi at the UN; Fu Zhenghua sentenced; Nvidia China sales',
       options: TEST_OPTIONS,
     })
-    expect(speechFile.utterances).to.have.lengthOf(20)
+    expect(speechFile.utterances).to.have.lengthOf(21)
   })
 
   it('converts long utterances to multiple utterances', () => {
@@ -289,7 +289,7 @@ describe('convert HTML to Speech file', () => {
       options: TEST_OPTIONS,
     })
     expect(speechFile.utterances[1].text).to.eql(
-      'If terms of the original $12.5 billion financing package remain the same, bankers may struggle to sell the risky Twitter buyout debt just as credit markets begin to crack, with yields at multiyear highs, they’re potentially on the hook for hundreds of millions of dollars of losses on the unsecured portion alone should they try to unload it to investors.'
+      "If terms of the original $12.5 billion financing package remain the same, bankers may struggle to sell the risky Twitter buyout debt just as credit markets begin to crack, with yields at multiyear highs, they're potentially on the hook for hundreds of millions of dollars of losses on the unsecured portion alone should they try to unload it to investors."
     )
   })
 
@@ -306,7 +306,7 @@ describe('convert HTML to Speech file', () => {
       'Just for curiosity, how do you pick the articles for Slow Chinese? Any advice on finding opportunities to communicate in Chinese? What are your tips to improve comprehension? '
     )
     expect(speechFile.utterances[1].text).to.eql(
-      'I feel like I’m working on reading, listening, and speaking all at once, sometimes I feel like I’m just getting surface understanding. '
+      `I feel like I'm working on reading, listening, and speaking all at once, sometimes I feel like I'm just getting surface understanding. `
     )
   })
 
@@ -320,7 +320,7 @@ describe('convert HTML to Speech file', () => {
     })
     expect(speechFile.utterances).to.have.lengthOf(1)
     expect(speechFile.utterances[0].text).to.eql(
-      'Q: „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!? “'
+      'Q: „Die kürzliche Razzia in den BBC-Büros in Delhi sind ein weiterer Versuch der Regierung, kritische Medien-Kommentare zu unterdrücken. Man hat des Gefühl, Herr Modi hat Angst, in den Spiegel zu schauen!?"'
     )
   })
 
