@@ -25,8 +25,6 @@ export class RedisDataSource {
     this.workerRedisClient = createIORedisClient(this.options)
     this.isInitialized = true
 
-    this.redisClient?.connect()
-
     return this
   }
 
