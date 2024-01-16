@@ -1,5 +1,4 @@
 import Redis, { RedisOptions } from 'ioredis'
-import { RedisClientType, createClient } from 'redis'
 import { env } from './env'
 
 export type RedisDataSourceOptions = {
@@ -11,7 +10,6 @@ export class RedisDataSource {
   options: RedisDataSourceOptions
   isInitialized: Boolean
 
-  redisClient: RedisClientType | undefined = undefined
   ioRedisClient: Redis | undefined = undefined
 
   constructor(options: RedisDataSourceOptions) {
@@ -22,11 +20,8 @@ export class RedisDataSource {
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
-    this.redisClient = createRedisClient(this.options)
     this.ioRedisClient = createIORedisClient(this.options)
     this.isInitialized = true
-
-    this.redisClient?.connect()
 
     return this
   }
@@ -36,36 +31,10 @@ export class RedisDataSource {
   }
 
   async shutdown(): Promise<void> {
-    if (this.redisClient && this.redisClient.isOpen) {
-      await this.redisClient.disconnect()
-    }
     if (this.ioRedisClient && this.ioRedisClient.status == 'ready') {
       this.ioRedisClient.quit()
     }
   }
-}
-
-const createRedisClient = (
-  options: RedisDataSourceOptions
-): RedisClientType | undefined => {
-  if (!options.REDIS_URL) {
-    throw 'Error: no redisURL supplied'
-  }
-  return createClient({
-    url: options.REDIS_URL,
-    socket: {
-      tls: options.REDIS_URL.startsWith('rediss://'), // rediss:// is the protocol for TLS
-      cert: options.REDIS_CERT,
-      rejectUnauthorized: false, // for self-signed certs
-      connectTimeout: 10000, // 10 seconds
-      reconnectStrategy(retries: number): number | Error {
-        if (retries > 10) {
-          return new Error('Retries exhausted')
-        }
-        return 1000
-      },
-    },
-  })
 }
 
 const createIORedisClient = (
