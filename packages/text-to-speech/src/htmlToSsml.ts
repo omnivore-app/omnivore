@@ -364,13 +364,19 @@ const textToUtterances = ({
   return utterances
 }
 
+const replaceSmartQuotes = (text: string): string => {
+  // replace smart quotes with regular quotes
+  return text.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+}
+
 export const htmlToSpeechFile = (htmlInput: HtmlInput): SpeechFile => {
   const { title, content, options } = htmlInput
   console.log('creating speech file with options:', options)
   const language = options.language || DEFAULT_LANGUAGE
   const defaultVoice = options.primaryVoice || DEFAULT_VOICE
 
-  const dom = parseHTML(content)
+  // replace smart quotes with regular quotes to avoid issues with tokenization
+  const dom = parseHTML(replaceSmartQuotes(content))
   const body = dom.document.querySelector('#readability-page-1')
   if (!body) {
     console.log('No HTML body found')
