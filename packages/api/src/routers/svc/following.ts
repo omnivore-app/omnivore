@@ -140,12 +140,12 @@ export function followingServiceRouter() {
 
         logger.info('RSS label added to the item')
       } catch (error) {
-        logger.error('error saving feed item', error)
-
         if (isUniqueViolation(error)) {
           logger.info('feed item already saved')
           return res.sendStatus(200)
         }
+
+        logger.error('error saving feed item', error)
 
         return res.sendStatus(500)
       }
