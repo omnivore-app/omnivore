@@ -337,4 +337,19 @@ describe('convert HTML to Speech file', () => {
       '这是一段中文，我想看看它是怎么分句的。如果买二手房有中介参与，要找相对大的、知名的中介。中介的收费、服务情况要先问清。还要和中介谈好，中介费的付款时间，一般来说是签完合同付一部分，过户后付一部分，省的太早付完钱，中介就不管事了。付完记得要发票。中介如果提供贷款服务，让他玩去。贷款之类的问题，别怕麻烦，自己去找银行。'
     )
   })
+
+  it('parses the smart quotes correctly', () => {
+    const html = `
+    <div class="page" id="readability-page-1" data-omnivore-anchor-idx="1">
+      <p data-omnivore-anchor-idx="23">Nor was Stalin any kind of naïve, unsuspecting victim of Hitler’s <a data-omnivore-anchor-idx="24" href="https://archive.ph/o/AGEPn/https://www.britannica.com/event/Operation-Barbarossa" rel="noopener noreferrer" target="_blank" title="">Barbarossa onslaught</a>, as some historical clichés would have it. McMeekin makes an extended case that Stalin was preparing to attack Nazi Germany when Hitler attacked him, that the two dictators were basically in a race to see who could mobilize to betray the other first — and that the initial Soviet debacle in 1941 happened in part because Stalin was also pushing his military toward an offensive alignment, and they were caught in a “mid-mobilization limbo.”</p>
+    </div>
+    `
+
+    const speechFile = htmlToSpeechFile({
+      content: html,
+      options: TEST_OPTIONS,
+    })
+    expect(speechFile.utterances).to.have.lengthOf(2)
+    expect(speechFile.utterances[1].text).to.eql('McMeekin makes an extended case that Stalin was preparing to attack Nazi Germany when Hitler attacked him, that the two dictators were basically in a race to see who could mobilize to betray the other first — and that the initial Soviet debacle in 1941 happened in part because Stalin was also pushing his military toward an offensive alignment, and they were caught in a "mid-mobilization limbo."')
+  })
 })
