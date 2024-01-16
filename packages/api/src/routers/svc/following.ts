@@ -5,6 +5,7 @@ import {
   PageType,
   PreparedDocumentInput,
 } from '../../generated/graphql'
+import { isUniqueViolation } from '../../repository'
 import { createAndSaveLabelsInLibraryItem } from '../../services/labels'
 import { createLibraryItem } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
@@ -125,18 +126,29 @@ export function followingServiceRouter() {
         state: ArticleSavingRequestStatus.ContentNotFetched,
       })
 
-      const newItem = await createLibraryItem(itemToSave, userId)
-      logger.info('feed item saved in following')
+      try {
+        const newItem = await createLibraryItem(itemToSave, userId)
+        logger.info('feed item saved in following')
 
-      // save RSS label in the item
-      await createAndSaveLabelsInLibraryItem(
-        newItem.id,
-        userId,
-        [{ name: 'RSS' }],
-        feedUrl
-      )
+        // save RSS label in the item
+        await createAndSaveLabelsInLibraryItem(
+          newItem.id,
+          userId,
+          [{ name: 'RSS' }],
+          feedUrl
+        )
 
-      logger.info('RSS label added to the item')
+        logger.info('RSS label added to the item')
+      } catch (error) {
+        if (isUniqueViolation(error)) {
+          logger.info('feed item already saved')
+          return res.sendStatus(200)
+        }
+
+        logger.error('error saving feed item', error)
+
+        return res.sendStatus(500)
+      }
 
       return res.sendStatus(200)
     }

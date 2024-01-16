@@ -19,8 +19,8 @@ android {
         applicationId "app.omnivore.omnivore"
         minSdk 26
         targetSdk 33
-        versionCode 186
-        versionName "0.0.186"
+        versionCode 188
+        versionName "0.0.188"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -48,6 +48,7 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            applicationIdSuffix ".debug"
             buildConfigField("String", "OMNIVORE_API_URL", "\"https://api-demo.omnivore.app\"")
             buildConfigField("String", "OMNIVORE_WEB_URL", "\"https://demo.omnivore.app\"")
             buildConfigField("String", "OMNIVORE_GAUTH_SERVER_CLIENT_ID", "\"267918240109-eu2ar09unac3lqqigluknhk7t0021b54.apps.googleusercontent.com\"")
