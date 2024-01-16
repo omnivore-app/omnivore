@@ -264,8 +264,14 @@ const isItemRecentlySaved = async (
   url: string
 ) => {
   const key = `recent-saved-item:${userId}:${url}`
-  const result = await redisClient.get(key)
-  return !!result
+  try {
+    const result = await redisClient.get(key)
+    return !!result
+  } catch (err) {
+    console.error('error checking if item is old', err)
+  }
+  // If we failed to check, assume the item is good
+  return false
 }
 
 const createTask = async (
@@ -276,6 +282,7 @@ const createTask = async (
   folder: FolderType,
   redisClient: RedisClientType
 ) => {
+  console.log('creating task to fetch', feedUrl)
   const isRecentlySaved = await isItemRecentlySaved(
     redisClient,
     userId,
