@@ -25,6 +25,10 @@ export class RedisDataSource {
     this.workerRedisClient = createIORedisClient(this.options)
     this.isInitialized = true
 
+    this.redisClient?.on('close', () => {
+      console.trace('closing redis client')
+    })
+
     return this
   }
 
@@ -57,10 +61,11 @@ const createIORedisClient = (
         }
       : undefined
 
-  const redisOptions = {
+  const redisOptions: RedisOptions = {
     tls,
     connectTimeout: 10000,
     maxRetriesPerRequest: null,
+    offlineQueue: false,
     // reconnectOnError: (err: Error) => {
     //   const targetErrors = [/READONLY/, /ETIMEDOUT/]
 
