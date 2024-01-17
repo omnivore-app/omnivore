@@ -64,11 +64,9 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
-    console.log('nbot creating task, no project info', {
-      isLocal: env.dev.isLocal,
-      project: project,
-      GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT,
-    })
+    console.error(
+      'error: attempting to create a cloud task but not running in google cloud.'
+    )
     return null
   }
 
