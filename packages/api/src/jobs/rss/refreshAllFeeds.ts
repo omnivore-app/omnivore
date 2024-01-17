@@ -4,11 +4,9 @@ import { stringToHash } from '../../utils/helpers'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { Job, Queue } from 'bullmq'
 import { QUEUE_NAME } from '../../queue-processor'
+import { redisDataSource } from '../../redis_data_source'
 
-export const refreshAllFeeds = async (
-  db: DataSource,
-  redis: Redis
-): Promise<boolean> => {
+export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
   const subscriptionGroups = (await db.createEntityManager().query(
     `
     SELECT
@@ -51,20 +49,23 @@ export const refreshAllFeeds = async (
       folders: group.folders,
     }
 
-    await queueRSSRefreshFeedJob(redis, jobid, payload)
+    await queueRSSRefreshFeedJob(jobid, payload)
   }
 
   return true
 }
 
-const createBackendQueue = (redis: Redis): Queue | undefined => {
+const createBackendQueue = (): Queue | undefined => {
+  if (!redisDataSource.workerRedisClient) {
+    throw new Error('Can not create queues, redis is not initialized')
+  }
   return new Queue(QUEUE_NAME, {
-    connection: redis,
+    connection: redisDataSource.workerRedisClient,
   })
 }
 
-export const queueRSSRefreshAllFeedsJob = async (redis: Redis) => {
-  const queue = createBackendQueue(redis)
+export const queueRSSRefreshAllFeedsJob = async () => {
+  const queue = createBackendQueue()
   if (!queue) {
     return false
   }
@@ -72,11 +73,10 @@ export const queueRSSRefreshAllFeedsJob = async (redis: Redis) => {
 }
 
 export const queueRSSRefreshFeedJob = async (
-  redis: Redis,
   jobid: string,
   payload: any
 ): Promise<Job | undefined> => {
-  const queue = createBackendQueue(redis)
+  const queue = createBackendQueue()
   if (!queue) {
     return undefined
   }

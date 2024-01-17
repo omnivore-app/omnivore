@@ -7,7 +7,7 @@ import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import createHttpTaskWithToken from '../../utils/createTask'
 import { env } from '../../env'
-import Redis from 'ioredis'
+import { redisDataSource } from '../../redis_data_source'
 
 type FolderType = 'following' | 'inbox'
 
@@ -72,14 +72,15 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
 const feedFetchFailedRedisKey = (feedUrl: string) =>
   `feed-fetch-failure:${feedUrl}`
 
-const isFeedBlocked = async (feedUrl: string, redisClient: Redis) => {
+const isFeedBlocked = async (feedUrl: string) => {
   const key = feedFetchFailedRedisKey(feedUrl)
+  const redisClient = redisDataSource.redisClient
   try {
     console.log('checking if feed is blocked:', {
-      redisClient,
-      status: redisClient.status,
+      redisClient: redisClient,
+      status: redisClient?.status,
     })
-    const result = await redisClient.get(key)
+    const result = await redisClient?.get(key)
     // if the feed has failed to fetch more than certain times, block it
     const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
     if (result && parseInt(result) > maxFailures) {
@@ -93,12 +94,13 @@ const isFeedBlocked = async (feedUrl: string, redisClient: Redis) => {
   return false
 }
 
-const incrementFeedFailure = async (feedUrl: string, redisClient: Redis) => {
+const incrementFeedFailure = async (feedUrl: string) => {
+  const redisClient = redisDataSource.redisClient
   const key = feedFetchFailedRedisKey(feedUrl)
   try {
-    const result = await redisClient.incr(key)
+    const result = await redisClient?.incr(key)
     // expire the key in 1 day
-    await redisClient.expire(key, 24 * 60 * 60)
+    await redisClient?.expire(key, 24 * 60 * 60)
 
     return result
   } catch (error) {
@@ -260,14 +262,10 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
-const isItemRecentlySaved = async (
-  redisClient: Redis,
-  userId: string,
-  url: string
-) => {
+const isItemRecentlySaved = async (userId: string, url: string) => {
   const key = `recent-saved-item:${userId}:${url}`
   try {
-    const result = await redisClient.get(key)
+    const result = await redisDataSource.redisClient?.get(key)
     return !!result
   } catch (err) {
     console.error('error checking if item is old', err)
@@ -281,15 +279,10 @@ const createTask = async (
   feedUrl: string,
   item: RssFeedItem,
   fetchContent: boolean,
-  folder: FolderType,
-  redisClient: Redis
+  folder: FolderType
 ) => {
   console.log('creating task to fetch', feedUrl)
-  const isRecentlySaved = await isItemRecentlySaved(
-    redisClient,
-    userId,
-    item.link
-  )
+  const isRecentlySaved = await isItemRecentlySaved(userId, item.link)
   if (isRecentlySaved) {
     console.log('Item recently saved', item.link)
     return true
@@ -484,8 +477,7 @@ const processSubscription = async (
   lastFetchedChecksum: string,
   fetchContent: boolean,
   folder: FolderType,
-  feed: RssFeed,
-  redisClient: Redis
+  feed: RssFeed
 ) => {
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: RssFeedItem | null = null
@@ -561,8 +553,7 @@ const processSubscription = async (
       feedUrl,
       feedItem,
       fetchContent,
-      folder,
-      redisClient
+      folder
     )
     if (!created) {
       console.error('Failed to create task for feed item', feedItem.link)
@@ -591,8 +582,7 @@ const processSubscription = async (
       feedUrl,
       lastValidItem,
       fetchContent,
-      folder,
-      redisClient
+      folder
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
@@ -619,18 +609,15 @@ const processSubscription = async (
   console.log('Updated subscription', updatedSubscription)
 }
 
-export const refreshFeed = async (redisClient: Redis, request: any) => {
+export const refreshFeed = async (request: any) => {
   if (isRefreshFeedRequest(request)) {
-    return _refreshFeed(redisClient, request)
+    return _refreshFeed(request)
   }
   console.log('not a feed to refresh')
   return false
 }
 
-export const _refreshFeed = async (
-  redisClient: Redis,
-  request: RefreshFeedRequest
-) => {
+export const _refreshFeed = async (request: RefreshFeedRequest) => {
   try {
     const {
       feedUrl,
@@ -644,7 +631,7 @@ export const _refreshFeed = async (
     } = request
     console.log('Processing feed', feedUrl)
 
-    const isBlocked = await isFeedBlocked(feedUrl, redisClient)
+    const isBlocked = await isFeedBlocked(feedUrl)
     if (isBlocked) {
       console.log('feed is blocked: ', feedUrl)
       return
@@ -653,14 +640,14 @@ export const _refreshFeed = async (
     const fetchResult = await fetchAndChecksum(feedUrl)
     if (!fetchResult) {
       console.error('Failed to fetch RSS feed', feedUrl)
-      await incrementFeedFailure(feedUrl, redisClient)
+      await incrementFeedFailure(feedUrl)
       return
     }
 
     const feed = await parseFeed(feedUrl, fetchResult.content)
     if (!feed) {
       console.error('Failed to parse RSS feed', feedUrl)
-      await incrementFeedFailure(feedUrl, redisClient)
+      await incrementFeedFailure(feedUrl)
       return
     }
 

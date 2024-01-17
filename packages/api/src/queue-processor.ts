@@ -67,10 +67,10 @@ const main = async () => {
     async (job: Job) => {
       switch (job.name) {
         case 'refresh-all-feeds': {
-          return await refreshAllFeeds(appDataSource, workerRedisClient)
+          return await refreshAllFeeds(appDataSource)
         }
         case 'refresh-feed': {
-          return await refreshFeed(redisClient, job.data)
+          return await refreshFeed(job.data)
         }
       }
       return true
