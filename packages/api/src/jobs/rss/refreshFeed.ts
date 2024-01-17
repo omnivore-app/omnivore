@@ -671,13 +671,10 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
         lastFetchedChecksums[i],
         fetchContents[i] && allowFetchContent,
         folders[i],
-        feed,
-        redisClient
+        feed
       )
     }
   } catch (e) {
     console.error('Error while saving RSS feeds', e)
-  } finally {
-    await redisClient.quit()
   }
 }
