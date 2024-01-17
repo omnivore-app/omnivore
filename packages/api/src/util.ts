@@ -181,13 +181,11 @@ interface Dict<T> {
   [key: string]: T | undefined
 }
 
-export function getEnv(from: Dict<string>): BackendEnv {
+export function getEnv(): BackendEnv {
   // Dotenv parses env file merging into proces.env which is then read into custom struct here.
   dotenv.config()
 
-  process.env
-
-  const parse = envParser(from)
+  const parse = envParser(process.env)
   const pg = {
     host: parse('PG_HOST'),
     port: parseInt(parse('PG_PORT'), 10),
