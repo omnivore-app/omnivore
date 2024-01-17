@@ -9,7 +9,7 @@ controllers:
       api:
         image:
           repository: sejaeger/omnivore-api
-          tag: 54ccbd4
+          tag: e44616b01
           pullPolicy: IfNotPresent
         env:
           API_ENV: local
@@ -18,10 +18,11 @@ controllers:
           PG_DB: omnivore
           PG_PORT: 5432
           PG_POOL_MAX: 20
-          CLIENT_URL: https://omnivore.example.com
+          CLIENT_URL: https://omnivore.example.com # URL any client can use to reach the server
           GATEWAY_URL: http://omnivore-api:8080/api
           ES_URL: http://elasticsearch.elasticsearch.svc.cluster.local:9200
           ES_USERNAME: elastic
+          CONTENT_FETCH_URL: http://omnivore-content-fetch:8080/?token=$(VERIFICATION_TOKEN)
         envFrom:
           - secretRef:
               name: omnivore-image-proxy-secret
@@ -34,12 +35,12 @@ controllers:
           - secretRef:
               name: elasticsearch-auth-secret
           - secretRef:
-              name: omnivore-content-fetch-token
+              name: omnivore-content-fetch-verification-token
     initContainers:
       migrate:
         image:
           repository: sejaeger/omnivore-migrate
-          tag: 54ccbd4
+          tag: e44616b01
           pullPolicy: IfNotPresent
         command: ["/bin/sh", "-c", "--"]
         args: ["./packages/db/setup.sh"]
@@ -54,6 +55,9 @@ controllers:
           - secretRef:
               name: postgres-admin-user-and-password
 
+  # NOTE: You need to build this image for your specific setup because NEXT.js burns some environment variables into client code
+  # See: https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables#bundling-environment-variables-for-the-browser
+  # Use the ../build-and-push-images.sh script for your convenience
   web:
     enabled: true
     type: deployment
@@ -62,7 +66,7 @@ controllers:
       web:
         image:
           repository: sejaeger/omnivore-web
-          tag: 54ccbd4
+          tag: e44616b01
           pullPolicy: IfNotPresent
 
   content-fetch:
@@ -73,7 +77,7 @@ controllers:
       content-fetch:
         image:
           repository: sejaeger/omnivore-content-fetch
-          tag: 54ccbd4
+          tag: e44616b01
           pullPolicy: IfNotPresent
         env:
           REST_BACKEND_ENDPOINT: http://omnivore-api:8080/api
