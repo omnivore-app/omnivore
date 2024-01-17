@@ -18,6 +18,7 @@ import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { addLabelsToLibraryItem } from './labels'
 
@@ -1183,4 +1184,45 @@ export const findLibraryItemIdsByLabelId = async (
     undefined,
     userId
   )
+}
+
+export const recreateLibraryItem = async (
+  id: string,
+  userId: string,
+  existingItemState: LibraryItemState,
+  itemToSave: DeepPartial<LibraryItem>,
+  pubsub = createPubSubClient()
+) => {
+  // update the item except for id and slug
+  const updatedItem = await updateLibraryItem(
+    id,
+    {
+      ...itemToSave,
+      id: undefined,
+      slug: undefined,
+    } as QueryDeepPartialEntity<LibraryItem>,
+    userId,
+    pubsub
+  )
+
+  try {
+    // delete labels and highlights if the item was deleted
+    if (existingItemState === LibraryItemState.Deleted) {
+      logger.info('Deleting labels and highlights for item', { id })
+      await authTrx(async (t) => {
+        await t.getRepository(Highlight).delete({
+          libraryItem: { id },
+        })
+
+        await t.getRepository(EntityLabel).delete({
+          libraryItemId: id,
+        })
+      })
+    }
+  } catch (error) {
+    // continue to save the item even if we failed to delete labels and highlights
+    logger.error('Failed to delete labels and highlights', error)
+  }
+
+  return updatedItem
 }
