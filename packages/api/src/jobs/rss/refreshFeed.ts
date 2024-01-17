@@ -23,7 +23,6 @@ interface RefreshFeedRequest {
 }
 
 export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
-  console.log('body: ', data)
   return (
     'subscriptionIds' in data &&
     'feedUrl' in data &&
@@ -76,10 +75,6 @@ const isFeedBlocked = async (feedUrl: string) => {
   const key = feedFetchFailedRedisKey(feedUrl)
   const redisClient = redisDataSource.redisClient
   try {
-    console.log('checking if feed is blocked:', {
-      redisClient: redisClient,
-      status: redisClient?.status,
-    })
     const result = await redisClient?.get(key)
     // if the feed has failed to fetch more than certain times, block it
     const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
@@ -281,7 +276,6 @@ const createTask = async (
   fetchContent: boolean,
   folder: FolderType
 ) => {
-  console.log('creating task to fetch', feedUrl)
   const isRecentlySaved = await isItemRecentlySaved(userId, item.link)
   if (isRecentlySaved) {
     console.log('Item recently saved', item.link)
@@ -314,18 +308,11 @@ const fetchContentAndCreateItem = async (
   }
 
   try {
-    console.log('Creating task', {
-      url: env.queue.contentFetchGCFUrl,
-      fetch: payload.url,
-    })
-
     const task = await createHttpTaskWithToken({
       queue: 'omnivore-rss-feed-queue',
       taskHandlerUrl: env.queue.contentFetchGCFUrl,
       payload,
     })
-    console.log('Created task', task)
-
     return !!task
   } catch (error) {
     console.error('Error while creating task', error)
@@ -354,7 +341,6 @@ const createItemWithPreviewContent = async (
   }
 
   try {
-    console.log('Creating task', input.url)
     const serviceBaseUrl = process.env.INTERNAL_API_URL
     const token = process.env.PUBSUB_VERIFICATION_TOKEN
     if (!serviceBaseUrl || !token) {
@@ -369,8 +355,6 @@ const createItemWithPreviewContent = async (
       taskHandlerUrl: taskHandlerUrl,
       payload: input,
     })
-    console.log('Created task', task)
-
     return !!task
   } catch (error) {
     console.error('Error while creating task', error)
