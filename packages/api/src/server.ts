@@ -159,12 +159,7 @@ const main = async (): Promise<void> => {
   await appDataSource.initialize()
 
   // redis is optional
-  if (env.redis.url) {
-    redisClient.on('error', (err) => {
-      console.error('Redis Client Error', err)
-    })
-
-    await redisClient.connect()
+  if (redisClient) {
     console.log('Redis Client Connected:', env.redis.url)
   }
 
@@ -193,6 +188,18 @@ const main = async (): Promise<void> => {
   // And a workaround for node.js bug: https://github.com/nodejs/node/issues/27363
   listener.headersTimeout = 640 * 1000 // 10s more than above
   listener.timeout = 640 * 1000 // match headersTimeout
+
+  process.on('SIGINT', async () => {
+    if (redisClient) {
+      await redisClient.quit()
+      console.log('Redis client closed.')
+    }
+
+    await appDataSource.destroy()
+    console.log('DB connection closed.')
+
+    process.exit(0)
+  })
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

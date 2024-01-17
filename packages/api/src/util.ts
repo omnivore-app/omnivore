@@ -324,7 +324,7 @@ export function getEnv(): BackendEnv {
   }
   const redis = {
     url: parse('REDIS_URL'),
-    cert: parse('REDIS_CERT'),
+    cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
   }
 
   return {
