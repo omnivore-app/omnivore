@@ -96,6 +96,14 @@ const main = async () => {
     console.log('completed job: ', job.jobId)
   })
 
+  workerRedisClient.on('error', (error) => {
+    console.trace('[queue-processor]: redis worker error', { error })
+  })
+
+  redisClient.on('error', (error) => {
+    console.trace('[queue-processor]: redis error', { error })
+  })
+
   const gracefulShutdown = async (signal: string) => {
     console.log(`[queue-processor]: Received ${signal}, closing server...`)
     server.close(async () => {
