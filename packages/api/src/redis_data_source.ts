@@ -8,7 +8,7 @@ export type RedisDataSourceOptions = {
 
 export class RedisDataSource {
   options: RedisDataSourceOptions
-  isInitialized: Boolean
+  isInitialized: boolean
 
   redisClient: Redis | undefined = undefined
   workerRedisClient: Redis | undefined = undefined
@@ -18,6 +18,7 @@ export class RedisDataSource {
     this.isInitialized = false
   }
 
+  // Forcing this to be async as we might do some more initialization in the future
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
@@ -25,7 +26,7 @@ export class RedisDataSource {
     this.workerRedisClient = createIORedisClient(this.options)
     this.isInitialized = true
 
-    return this
+    return Promise.resolve(this)
   }
 
   setOptions(options: RedisDataSourceOptions): void {
@@ -34,10 +35,10 @@ export class RedisDataSource {
 
   async shutdown(): Promise<void> {
     if (this.redisClient && this.redisClient.status == 'ready') {
-      this.redisClient.quit()
+      await this.redisClient.quit()
     }
     if (this.workerRedisClient && this.workerRedisClient.status == 'ready') {
-      this.workerRedisClient.quit()
+      await this.workerRedisClient.quit()
     }
   }
 }
@@ -45,7 +46,7 @@ export class RedisDataSource {
 const createIORedisClient = (
   options: RedisDataSourceOptions
 ): Redis | undefined => {
-  let redisURL = options.REDIS_URL
+  const redisURL = options.REDIS_URL
   if (!redisURL) {
     throw 'Error: no redisURL supplied'
   }

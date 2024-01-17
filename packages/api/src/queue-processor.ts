@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express, { Express } from 'express'
 import { appDataSource } from './data_source'
-import { loadEnvFromGCPSecrets } from './gcp-utils'
 import { getEnv } from './util'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
@@ -12,13 +11,13 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { Job, Worker, QueueEvents } from 'bullmq'
 import { refreshFeed } from './jobs/rss/refreshFeed'
+import { env } from './env'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
 
-  let env = (await loadEnvFromGCPSecrets()) ?? getEnv(process.env)
   const app: Express = express()
   const port = process.env.PORT || 3002
 

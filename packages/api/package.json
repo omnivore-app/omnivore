@@ -19,7 +19,6 @@
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
     "@google-cloud/pubsub": "^4.0.0",
-    "@google-cloud/secret-manager": "^5.0.1",
     "@google-cloud/storage": "^7.0.1",
     "@google-cloud/tasks": "^4.0.0",
     "@graphql-tools/utils": "^9.1.1",
