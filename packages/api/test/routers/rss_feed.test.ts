@@ -4,9 +4,9 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { User } from '../../src/entity/user'
 import { SubscriptionType } from '../../src/generated/graphql'
+import * as refreshAllFeeds from '../../src/jobs/rss/refreshAllFeeds'
 import { createRssSubscriptions } from '../../src/services/subscriptions'
 import { deleteUser } from '../../src/services/user'
-import * as createTask from '../../src/utils/createTask'
 import { createTestUser } from '../db'
 import { request } from '../util'
 
@@ -80,11 +80,11 @@ describe('Rss feeds Router', () => {
       },
     }
 
-    // fake enqueueRssFeedFetch function
+    // fake queueRSSRefreshAllFeedsJob function
     const fake = sinon.replace(
-      createTask,
-      'enqueueRssFeedFetch',
-      sinon.fake.resolves('task name')
+      refreshAllFeeds,
+      'queueRSSRefreshAllFeedsJob',
+      sinon.fake()
     )
 
     const res = await request

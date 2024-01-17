@@ -1,19 +1,9 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express'
-import {
-  DEFAULT_SUBSCRIPTION_FOLDER,
-  Subscription,
-} from '../../entity/subscription'
-import { SubscriptionStatus, SubscriptionType } from '../../generated/graphql'
-import { readPushSubscription } from '../../pubsub'
-import { getRepository } from '../../repository'
-import {
-  enqueueRssFeedFetch,
-  RssSubscriptionGroup,
-} from '../../utils/createTask'
-import { logger } from '../../utils/logger'
 import { queueRSSRefreshAllFeedsJob } from '../../jobs/rss/refreshAllFeeds'
+import { readPushSubscription } from '../../pubsub'
 import { redisDataSource } from '../../redis_data_source'
+import { logger } from '../../utils/logger'
 
 export function rssFeedRouter() {
   const router = express.Router()

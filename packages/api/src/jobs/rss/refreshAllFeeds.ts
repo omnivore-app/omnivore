@@ -1,10 +1,9 @@
-import Redis from 'ioredis'
-import { DataSource } from 'typeorm'
-import { stringToHash } from '../../utils/helpers'
-import { RssSubscriptionGroup } from '../../utils/createTask'
 import { Job, Queue } from 'bullmq'
+import { DataSource } from 'typeorm'
 import { QUEUE_NAME } from '../../queue-processor'
 import { redisDataSource } from '../../redis_data_source'
+import { RssSubscriptionGroup } from '../../utils/createTask'
+import { stringToHash } from '../../utils/helpers'
 
 export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
   const subscriptionGroups = (await db.createEntityManager().query(
