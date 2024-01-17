@@ -105,14 +105,9 @@ const main = async () => {
 
   const gracefulShutdown = async (signal: string) => {
     console.log(`[queue-processor]: Received ${signal}, closing server...`)
-    server.close(async () => {
-      console.log(
-        '[queue-processor]: Server closed. shuting down and exiting process...'
-      )
-      await worker.close()
-      await redisDataSource.shutdown()
-      process.exit(0)
-    })
+    await worker.close()
+    await redisDataSource.shutdown()
+    process.exit(0)
   }
 
   process.on('SIGINT', () => gracefulShutdown('SIGINT'))
