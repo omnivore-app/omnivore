@@ -723,12 +723,6 @@ export const softDeleteLibraryItem = async (
         deletedAt: new Date(),
       })
 
-      // delete all labels for this item
-      await tx.getRepository(EntityLabel).delete({ libraryItemId: id })
-
-      // delete all highlights for this item
-      await tx.getRepository(Highlight).delete({ libraryItem: { id } })
-
       return itemRepo.findOneByOrFail({ id })
     },
     undefined,
@@ -751,13 +745,10 @@ export const updateLibraryItem = async (
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
 
-      // reset deletedAt and archivedAt
+      // reset archivedAt
       switch (libraryItem.state) {
         case LibraryItemState.Archived:
           libraryItem.archivedAt = new Date()
-          break
-        case LibraryItemState.Deleted:
-          libraryItem.deletedAt = new Date()
           break
         case LibraryItemState.Processing:
         case LibraryItemState.Succeeded:

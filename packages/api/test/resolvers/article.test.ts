@@ -711,39 +711,18 @@ describe('Article API', () => {
       }
       const item = await createOrUpdateLibraryItem(itemToSave, user.id)
       itemId = item.id
-
-      await createAndSaveLabelsInLibraryItem(itemId, user.id, [
-        {
-          name: 'test label 2',
-        },
-      ])
-      await createHighlight(
-        {
-          shortId: generateFakeShortId(),
-          user: { id: user.id },
-          quote: 'test quote 2',
-        },
-        itemId,
-        user.id
-      )
     })
 
     after(async () => {
       await deleteLibraryItemById(itemId, user.id)
     })
 
-    it('marks an item as deleted and deletes all the labels and highlights attached to the item', async () => {
+    it('soft deletes the item', async () => {
       await graphqlRequest(setBookmarkQuery(itemId, false), authToken).expect(
         200
       )
       const item = await findLibraryItemById(itemId, user.id)
       expect(item?.state).to.eql(LibraryItemState.Deleted)
-
-      const labels = await findLabelsByLibraryItemId(itemId, user.id)
-      expect(labels).to.be.empty
-
-      const highlights = await findHighlightsByLibraryItemId(itemId, user.id)
-      expect(highlights).to.be.empty
     })
   })
 
