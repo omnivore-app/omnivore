@@ -22,8 +22,8 @@ export class RedisDataSource {
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
-    this.redisClient = createIORedisClient(this.options)
-    this.workerRedisClient = createIORedisClient(this.options)
+    this.redisClient = createIORedisClient('app', this.options)
+    this.workerRedisClient = createIORedisClient('worker', this.options)
     this.isInitialized = true
 
     return Promise.resolve(this)
@@ -34,16 +34,18 @@ export class RedisDataSource {
   }
 
   async shutdown(): Promise<void> {
-    if (this.redisClient && this.redisClient.status == 'ready') {
-      await this.redisClient.quit()
-    }
-    if (this.workerRedisClient && this.workerRedisClient.status == 'ready') {
-      await this.workerRedisClient.quit()
+    this.isInitialized = false
+    try {
+      // We only call quit on one redis connection as it tears all of them down
+      await this.workerRedisClient?.quit()
+    } catch (err) {
+      console.error('error while shutting down redis')
     }
   }
 }
 
 const createIORedisClient = (
+  name: string,
   options: RedisDataSourceOptions
 ): Redis | undefined => {
   const redisURL = options.REDIS_URL
@@ -60,6 +62,7 @@ const createIORedisClient = (
 
   const redisOptions: RedisOptions = {
     tls,
+    name,
     connectTimeout: 10000,
     maxRetriesPerRequest: null,
     offlineQueue: false,
