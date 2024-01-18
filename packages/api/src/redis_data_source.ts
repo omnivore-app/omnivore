@@ -39,7 +39,7 @@ export class RedisDataSource {
       await this.workerRedisClient?.quit()
       await this.redisClient?.quit()
     } catch (err) {
-      console.error('error while shutting down redis')
+      console.error('error while shutting down redis', err)
     }
   }
 }

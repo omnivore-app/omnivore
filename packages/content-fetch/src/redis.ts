@@ -24,14 +24,16 @@ redis.on('error', (err) => {
   console.error('Redis error', err)
 })
 
-redis.on('close', () => {
-  console.log('Redis connection closed')
-})
-
 export const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}, closing server...`)
-  await redis.quit()
-  process.exit(0)
+  try {
+    await redis.quit()
+    console.log('Redis connection closed')
+  } catch (error) {
+    console.error('Error while shutting down redis', error)
+  } finally {
+    process.exit(0)
+  }
 }
 
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))
