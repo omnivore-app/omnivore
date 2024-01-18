@@ -7,16 +7,13 @@
     "build/src"
   ],
   "dependencies": {
-    "axios": "^0.27.2",
     "bullmq": "^5.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "ioredis": "^5.3.2",
-    "jsonwebtoken": "^8.5.1",
     "@google-cloud/functions-framework": "^3.0.0",
     "@omnivore/puppeteer-parse": "^1.0.0",
-    "@sentry/serverless": "^7.77.0",
-    "winston": "^3.3.3"
+    "@sentry/serverless": "^7.77.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",

@@ -1,3 +1,4 @@
+import { Readability } from '@omnivore/readability'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
@@ -15,7 +16,58 @@ if (!IMPORTER_METRICS_COLLECTOR_URL || !JWT_SECRET || !REST_BACKEND_ENDPOINT) {
 
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
-export const uploadToSignedUrl = async (
+interface Data {
+  userId: string
+  url: string
+  title: string
+  content: string
+  contentType: string
+  readabilityResult?: Readability.ParseResult
+  articleSavingRequestId: string
+  state?: string
+  labels?: string[]
+  source: string
+  folder: string
+  rssFeedUrl?: string
+  savedAt?: string
+  publishedAt?: string
+  taskId?: string
+}
+
+interface UploadFileResponse {
+  data: {
+    uploadFileRequest: {
+      id: string
+      uploadSignedUrl: string
+      uploadFileId: string
+      createdPageId: string
+      errorCodes?: string[]
+    }
+  }
+}
+
+interface CreateArticleResponse {
+  data: {
+    createArticle: {
+      createdArticle: {
+        id: string
+      }
+      errorCodes: string[]
+    }
+  }
+}
+
+interface SavePageResponse {
+  data: {
+    savePage: {
+      url: string
+      clientRequestId: string
+      errorCodes?: string[]
+    }
+  }
+}
+
+const uploadToSignedUrl = async (
   uploadSignedUrl: string,
   contentType: string,
   contentObjUrl: string
@@ -39,19 +91,7 @@ export const uploadToSignedUrl = async (
   }
 }
 
-interface UploadFileResponse {
-  data: {
-    uploadFileRequest: {
-      id: string
-      uploadSignedUrl: string
-      uploadFileId: string
-      createdPageId: string
-      errorCodes?: string[]
-    }
-  }
-}
-
-export const getUploadIdAndSignedUrl = async (
+const getUploadIdAndSignedUrl = async (
   userId: string,
   url: string,
   articleSavingRequestId: string
@@ -109,18 +149,7 @@ export const getUploadIdAndSignedUrl = async (
   }
 }
 
-interface CreateArticleResponse {
-  data: {
-    createArticle: {
-      createdArticle: {
-        id: string
-      }
-      errorCodes: string[]
-    }
-  }
-}
-
-export const uploadPdf = async (
+const uploadPdf = async (
   url: string,
   userId: string,
   articleSavingRequestId: string
@@ -144,10 +173,7 @@ export const uploadPdf = async (
   return uploadResult.id
 }
 
-export const sendCreateArticleMutation = async (
-  userId: string,
-  input: unknown
-) => {
+const sendCreateArticleMutation = async (userId: string, input: unknown) => {
   const data = JSON.stringify({
     query: `mutation CreateArticle ($input: CreateArticleInput!){
           createArticle(input:$input){
@@ -198,17 +224,7 @@ export const sendCreateArticleMutation = async (
   }
 }
 
-interface SavePageResponse {
-  data: {
-    savePage: {
-      url: string
-      clientRequestId: string
-      errorCodes?: string[]
-    }
-  }
-}
-
-export const sendSavePageMutation = async (userId: string, input: unknown) => {
+const sendSavePageMutation = async (userId: string, input: unknown) => {
   const data = JSON.stringify({
     query: `mutation SavePage ($input: SavePageInput!){
           savePage(input:$input){
@@ -262,31 +278,10 @@ export const sendSavePageMutation = async (userId: string, input: unknown) => {
   }
 }
 
-export const saveUploadedPdf = async (
-  userId: string,
-  url: string,
-  uploadFileId: string,
-  articleSavingRequestId: string,
-  state: string,
-  labels: string[],
-  source: string,
-  folder: string
-) => {
-  return sendCreateArticleMutation(userId, {
-    url: encodeURI(url),
-    articleSavingRequestId,
-    uploadFileId: uploadFileId,
-    state,
-    labels,
-    source,
-    folder,
-  })
-}
-
-export const sendImportStatusUpdate = async (
+const sendImportStatusUpdate = async (
   userId: string,
   taskId: string,
-  status: string
+  isContentParsed: boolean
 ) => {
   try {
     const auth = await signToken({ uid: userId }, JWT_SECRET)
@@ -295,7 +290,7 @@ export const sendImportStatusUpdate = async (
       IMPORTER_METRICS_COLLECTOR_URL,
       {
         taskId,
-        status,
+        status: isContentParsed ? 'imported' : 'failed',
       },
       {
         headers: {
@@ -308,4 +303,84 @@ export const sendImportStatusUpdate = async (
   } catch (e) {
     console.error('error while sending import status update', e)
   }
+}
+
+export const savePageJob = async (data: Data) => {
+  const {
+    userId,
+    title,
+    content,
+    readabilityResult,
+    articleSavingRequestId,
+    state,
+    labels,
+    source,
+    folder,
+    rssFeedUrl,
+    savedAt,
+    publishedAt,
+    taskId,
+  } = data
+  let isContentParsed = true
+
+  try {
+    const url = encodeURI(data.url)
+
+    if (data.contentType === 'application/pdf') {
+      const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
+      const uploadedPdf = await sendCreateArticleMutation(userId, {
+        url,
+        articleSavingRequestId,
+        uploadFileId,
+        state,
+        labels,
+        source,
+        folder,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
+      })
+      if (!uploadedPdf) {
+        throw new Error('error while saving uploaded pdf')
+      }
+    } else {
+      const apiResponse = await sendSavePageMutation(userId, {
+        url,
+        clientRequestId: articleSavingRequestId,
+        title,
+        originalContent: content,
+        parseResult: readabilityResult,
+        state,
+        labels,
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
+        source,
+        folder,
+      })
+      if (!apiResponse) {
+        throw new Error('error while saving page')
+      }
+      // if ('error' in apiResponse && apiResponse.error === 'UNAUTHORIZED') {
+      //   console.log('user is deleted', userId)
+      //   return true
+      // }
+
+      // if the readability result is not parsed, the import is failed
+      if (!readabilityResult) {
+        isContentParsed = false
+      }
+    }
+  } catch (e) {
+    console.error('error while saving page', e)
+    isContentParsed = false
+    return false
+  } finally {
+    // send import status to update the metrics for importer
+    if (taskId) {
+      await sendImportStatusUpdate(userId, taskId, isContentParsed)
+    }
+  }
+
+  return true
 }

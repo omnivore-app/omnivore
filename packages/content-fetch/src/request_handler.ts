@@ -26,7 +26,6 @@ interface RequestBody {
 
 interface LogRecord {
   url: string
-  userId?: string
   articleSavingRequestId: string
   labels: {
     source: string
@@ -79,7 +78,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
 
   const logRecord: LogRecord = {
     url,
-    userId,
     articleSavingRequestId,
     labels: {
       source,
@@ -97,9 +95,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   }
 
   console.log(`Article parsing request`, logRecord)
-
-  // let importStatus,
-  //   statusCode = 200
 
   try {
     const fetchResult = await fetchContent(url, locale, timezone)
@@ -126,6 +121,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         rssFeedUrl,
         savedAt,
         publishedAt,
+        taskId,
       },
       isRss: !!rssFeedUrl,
       isImport: !!taskId,
@@ -137,59 +133,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       logRecord.error = 'error while queueing save page job'
       return res.sendStatus(500)
     }
-
-    // if (fetchResult.contentType === 'application/pdf') {
-    //   const uploadFileId = await uploadPdf(
-    //     finalUrl,
-    //     userId,
-    //     articleSavingRequestId
-    //   )
-    //   const uploadedPdf = await sendCreateArticleMutation(userId, {
-    //     url: encodeURI(finalUrl),
-    //     articleSavingRequestId,
-    //     uploadFileId,
-    //     state,
-    //     labels,
-    //     source,
-    //     folder,
-    //     rssFeedUrl,
-    //     savedAt,
-    //     publishedAt,
-    //   })
-    //   if (!uploadedPdf) {
-    //     statusCode = 500
-    //     logRecord.error = 'error while saving uploaded pdf'
-    //   } else {
-    //     importStatus = 'imported'
-    //   }
-    // } else {
-    //   const apiResponse = await sendSavePageMutation(userId, {
-    //     url,
-    //     clientRequestId: articleSavingRequestId,
-    //     title,
-    //     originalContent: content,
-    //     parseResult: readabilityResult,
-    //     state,
-    //     labels,
-    //     rssFeedUrl,
-    //     savedAt,
-    //     publishedAt,
-    //     source,
-    //     folder,
-    //   })
-    //   if (!apiResponse) {
-    //     logRecord.error = 'error while saving page'
-    //     statusCode = 500
-    //   } else if (
-    //     'error' in apiResponse &&
-    //     apiResponse.error === 'UNAUTHORIZED'
-    //   ) {
-    //     console.log('user is deleted, do not retry', logRecord)
-    //     return res.sendStatus(200)
-    //   } else {
-    //     importStatus = readabilityResult ? 'imported' : 'failed'
-    //   }
-    // }
   } catch (error) {
     if (error instanceof Error) {
       logRecord.error = error.message
@@ -201,18 +144,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   } finally {
     logRecord.totalTime = Date.now() - functionStartTime
     console.log(`parse-page result`, logRecord)
-
-    // // mark import failed on the last failed retry
-    // const retryCount = req.headers['x-cloudtasks-taskretrycount']
-    // if (retryCount === MAX_RETRY_COUNT) {
-    //   console.log('max retry count reached')
-    //   importStatus = importStatus || 'failed'
-    // }
-    // // send import status to update the metrics
-    // if (taskId && importStatus) {
-    //   await sendImportStatusUpdate(userId, taskId, importStatus)
-    // }
-    // res.sendStatus(statusCode)
   }
 
   res.sendStatus(200)
