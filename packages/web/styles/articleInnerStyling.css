@@ -335,7 +335,7 @@ on smaller screens we display the note icon
   vertical-align: bottom;
   word-wrap: initial;
   font-family: 'SF Mono', monospace !important;
-  white-space: pre;
+  white-space: break-spaces;
   direction: ltr;
   unicode-bidi: embed;
   color: var(--font-color);

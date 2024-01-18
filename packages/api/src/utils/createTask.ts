@@ -19,6 +19,9 @@ import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
+import { stringToHash } from './helpers'
+import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
+import { redisDataSource } from '../redis_data_source'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -61,6 +64,9 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
+    console.error(
+      'error: attempting to create a cloud task but not running in google cloud.'
+    )
     return null
   }
 
@@ -649,39 +655,55 @@ export const enqueueRssFeedFetch = async (
     folders: subscriptionGroup.folders,
   }
 
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.rssFeedTaskHandlerUrl) {
-      // Calling the handler function directly.
-      setTimeout(() => {
-        axios
-          .post(
-            `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
-            payload
-          )
-          .catch((error) => {
-            logError(error)
-          })
-      }, 0)
-    }
-    return nanoid()
-  }
+  let jobid = `refresh-feed_${stringToHash(
+    subscriptionGroup.url
+  )}_${stringToHash(JSON.stringify(subscriptionGroup.userIds.sort()))}`
 
-  const createdTasks = await createHttpTaskWithToken({
-    project: GOOGLE_CLOUD_PROJECT,
-    queue: 'omnivore-rss-queue',
-    payload,
-    taskHandlerUrl: `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
-  })
-
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
+  if (redisDataSource.workerRedisClient) {
+    let job = await queueRSSRefreshFeedJob(jobid, payload, {
+      priority: 'high',
     })
-    throw new CreateTaskError(`Unable to get the name of the task`)
+    if (!job || !job.id) {
+      throw 'unable to queue rss-refresh-feed-job, job did not enqueue'
+    }
+    return job.id
+  } else {
+    throw 'unable to queue rss-refresh-feed-job, redis is not configured'
   }
-  return createdTasks[0].name
+
+  // // If there is no Google Cloud Project Id exposed, it means that we are in local environment
+  // if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
+  //   if (env.queue.rssFeedTaskHandlerUrl) {
+  //     // Calling the handler function directly.
+  //     setTimeout(() => {
+  //       axios
+  //         .post(
+  //           `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
+  //           payload
+  //         )
+  //         .catch((error) => {
+  //           logError(error)
+  //         })
+  //     }, 0)
+  //   }
+  //   return nanoid()
+  // }
+
+  // const createdTasks = await createHttpTaskWithToken({
+  //   project: GOOGLE_CLOUD_PROJECT,
+  //   queue: 'omnivore-rss-queue',
+  //   payload,
+  //   taskHandlerUrl: `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
+  // })
+
+  // if (!createdTasks || !createdTasks[0].name) {
+  //   logger.error(`Unable to get the name of the task`, {
+  //     payload,
+  //     createdTasks,
+  //   })
+  //   throw new CreateTaskError(`Unable to get the name of the task`)
+  // }
+  //return createdTasks[0].name
 }
 
 export default createHttpTaskWithToken

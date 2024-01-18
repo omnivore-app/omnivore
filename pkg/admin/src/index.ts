@@ -56,7 +56,6 @@ const ADMIN_USER_EMAIL =
   const router = AdminJsExpress.buildAuthenticatedRouter(adminBro, {
     authenticate: async (email, password) => {
       const user = await AdminUser.findOne({ email })
-      console.log('looked up user: ', user)
       if (user) {
         const matched = await compare(password, user.password)
         console.log(' -- failed match')

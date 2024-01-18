@@ -8,7 +8,6 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
-import { redisClient } from '../redis'
 import {
   authTrx,
   getColumns,
@@ -18,6 +17,7 @@ import {
 import { libraryItemRepository } from '../repository/library_item'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
+import { redisDataSource } from '../redis_data_source'
 
 enum ReadFilter {
   ALL = 'all',
@@ -824,9 +824,9 @@ export const createLibraryItem = async (
   )
 
   // set recently saved item in redis if redis is enabled
-  if (redisClient) {
+  if (redisDataSource.redisClient) {
     await setRecentlySavedItemInRedis(
-      redisClient,
+      redisDataSource.redisClient,
       userId,
       newLibraryItem.originalUrl
     )

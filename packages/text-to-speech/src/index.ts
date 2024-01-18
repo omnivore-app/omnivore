@@ -241,8 +241,8 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     // create redis client
     const redisClient = createRedisClient(
-      process.env.REDIS_URL,
-      process.env.REDIS_CERT
+      process.env.REDIS_TTS_URL,
+      process.env.REDIS_TTS_CERT
     )
 
     try {
