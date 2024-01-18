@@ -13,6 +13,14 @@ import { savePageJob } from './jobs/save_page'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
+import {
+  queueRSSRefreshAllFeedsJob,
+  refreshAllFeeds,
+} from './jobs/rss/refreshAllFeeds'
+import { Job, Worker, QueueEvents } from 'bullmq'
+import { refreshFeed } from './jobs/rss/refreshFeed'
+import { env } from './env'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -62,6 +70,11 @@ const main = async () => {
 
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
+
+  app.get('/load-test', (req, res) => {
+    queueRSSRefreshAllFeedsJob()
+    res.sendStatus(200)
+  })
 
   const server = app.listen(port, () => {
     console.log(`[queue-processor]: started`)
