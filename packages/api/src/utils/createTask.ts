@@ -660,7 +660,9 @@ export const enqueueRssFeedFetch = async (
   )}_${stringToHash(JSON.stringify(subscriptionGroup.userIds.sort()))}`
 
   if (redisDataSource.workerRedisClient) {
-    let job = await queueRSSRefreshFeedJob(jobid, payload)
+    let job = await queueRSSRefreshFeedJob(jobid, payload, {
+      priority: 'high',
+    })
     if (!job || !job.id) {
       throw 'unable to queue rss-refresh-feed-job, job did not enqueue'
     }

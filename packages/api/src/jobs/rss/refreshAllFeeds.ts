@@ -90,9 +90,12 @@ export const queueRSSRefreshAllFeedsJob = async () => {
   return queue.add('refresh-all-feeds', {})
 }
 
+type QueuePriority = 'low' | 'high'
+
 export const queueRSSRefreshFeedJob = async (
   jobid: string,
-  payload: any
+  payload: any,
+  options = { priority: 'high' as QueuePriority }
 ): Promise<Job | undefined> => {
   const queue = createBackendQueue()
   if (!queue) {
@@ -102,5 +105,6 @@ export const queueRSSRefreshFeedJob = async (
     jobId: jobid,
     removeOnComplete: true,
     removeOnFail: true,
+    lifo: options.priority == 'high',
   })
 }
