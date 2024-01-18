@@ -200,8 +200,13 @@ const sendUpdateSubscriptionMutation = async (
   lastFetchedChecksum: string,
   scheduledAt: Date
 ) => {
+  if (!process.env.INTERNAL_API_URL || !env.server.jwtSecret) {
+    throw new Error(
+      'Can not send update subscription, environment not configured.'
+    )
+  }
   const JWT_SECRET = env.server.jwtSecret
-  const REST_BACKEND_ENDPOINT = process.env.INTERNAL_API_URL
+  const REST_BACKEND_ENDPOINT = `${process.env.INTERNAL_API_URL}/api`
 
   if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
     throw 'Environment not configured correctly'
