@@ -52,16 +52,18 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
 
   const body = <RequestBody>req.body
 
-  let users = body.users || [] // users is used when saving article for multiple users
+  // users is used when saving article for multiple users
+  let users = body.users || []
   const userId = body.userId
   const folder = body.folder
+  // userId is used when saving article for a single user
   if (userId) {
     users = [
       {
         id: userId,
         folder: body.folder,
       },
-    ] // userId is used when saving article for a single user
+    ]
   }
   const articleSavingRequestId = body.saveRequestId
   const state = body.state
@@ -125,6 +127,8 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         savedAt,
         publishedAt,
       },
+      isRss: !!rssFeedUrl,
+      isImport: !!taskId,
     }))
 
     const result = await queueSavePageJob(savePageJobs)
