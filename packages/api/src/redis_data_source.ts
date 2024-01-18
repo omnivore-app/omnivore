@@ -36,8 +36,8 @@ export class RedisDataSource {
   async shutdown(): Promise<void> {
     this.isInitialized = false
     try {
-      await this.redisClient?.quit()
-      await this.workerRedisClient?.quit()
+      await this.redisClient?.disconnect()
+      await this.workerRedisClient?.disconnect()
     } catch (err) {
       console.error('error while shutting down redis')
     }
