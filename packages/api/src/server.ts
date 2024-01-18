@@ -190,11 +190,13 @@ const main = async (): Promise<void> => {
   listener.timeout = 640 * 1000 // match headersTimeout
 
   process.on('SIGINT', async () => {
-    await appDataSource.destroy()
-    console.log('DB connection closed.')
-
+    // Shutdown redis before DB because the quit sequence can
+    // cause appDataSource to get reloaded in the callback
     await redisDataSource.shutdown()
     console.log('Redis connection closed.')
+
+    await appDataSource.destroy()
+    console.log('DB connection closed.')
 
     process.exit(0)
   })
