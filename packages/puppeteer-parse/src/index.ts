@@ -140,8 +140,8 @@ const getBrowserPromise = (async () => {
 
 export const fetchContent = async (
   url: string,
-  locale: string,
-  timezone: string
+  locale?: string,
+  timezone?: string
 ) => {
   const functionStartTime = Date.now()
   const logRecord = {
@@ -154,8 +154,8 @@ export const fetchContent = async (
 
   let context: BrowserContext | undefined,
     page: Page | undefined,
-    finalUrl: string | undefined,
-    title: string | undefined,
+    finalUrl = '',
+    title = '',
     content: string | undefined,
     contentType: string | undefined,
     readabilityResult: Readability.ParseResult | null | undefined
@@ -217,7 +217,7 @@ export const fetchContent = async (
           const sbResult = await fetchContentWithScrapingBee(url)
           title = sbResult.title
           content = sbResult.domContent
-        } else {
+        } else if (result.title && result.domContent) {
           title = result.title
           content = result.domContent
         }
@@ -312,8 +312,8 @@ async function retrievePage(
   url: string,
   logRecord: Record<string, any>,
   functionStartTime: number,
-  locale: string,
-  timezone: string
+  locale?: string,
+  timezone?: string
 ) {
   validateUrlString(url)
 
@@ -466,8 +466,7 @@ async function retrievePage(
 }
 
 async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
-  let domContent = '',
-    title
+  let domContent, title
   try {
     title = await page.title()
     logRecord.title = title

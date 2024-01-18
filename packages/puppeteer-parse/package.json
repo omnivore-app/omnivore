@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Accepts URL of the article and parses its content",
   "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],

@@ -2,7 +2,10 @@
   "name": "@omnivore/content-fetch",
   "version": "1.0.0",
   "description": "Service that fetches page content from a URL",
-  "main": "index.js",
+  "main": "build/src/index.js",
+  "files": [
+    "build/src"
+  ],
   "dependencies": {
     "axios": "^0.27.2",
     "dotenv": "^8.2.0",
@@ -18,9 +21,12 @@
     "mocha": "^10.0.0"
   },
   "scripts": {
-    "start": "node app.js",
-    "start_gcf": "npx functions-framework --port=9090 --target=puppeteer",
-    "test": "mocha test/*.js"
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "build": "tsc",
+    "start": "node build/src/app.js",
+    "start_gcf": "functions-framework --port=9090 --target=puppeteer"
   },
   "volta": {
     "extends": "../../package.json"
