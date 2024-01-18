@@ -7334,6 +7334,13 @@
   dependencies:
     "@types/trusted-types" "*"
 
+"@types/dompurify@^3.0.5":
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-3.0.5.tgz#02069a2fcb89a163bacf1a788f73cb415dd75cb7"
+  integrity sha512-1Wg0g3BtQF7sSb27fJQAKck1HECM6zV1EB66j8JH9i3LCjYabJa0FSdiSgsD5K/RbrsR0SiraKacLB+T8ZVYAg==
+  dependencies:
+    "@types/trusted-types" "*"
+
 "@types/duplexify@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@types/duplexify/-/duplexify-3.6.0.tgz#dfc82b64bd3a2168f5bd26444af165bf0237dcd8"
@@ -8192,6 +8199,13 @@
   version "1.0.28"
   resolved "https://registry.yarnpkg.com/@types/urlsafe-base64/-/urlsafe-base64-1.0.28.tgz#2cf2098518e98c730a7e00de79a455e0269a3f4d"
   integrity sha512-TG5dKbqx75FUTXfiARIPvLvMCImVYJbKM+Fvy9HgpxkunHnMHNAn78xpvcZxIbPITyRzf0b2Gl8fnd1Ja3p1eQ==
+  dependencies:
+    "@types/node" "*"
+
+"@types/urlsafe-base64@^1.0.31":
+  version "1.0.31"
+  resolved "https://registry.yarnpkg.com/@types/urlsafe-base64/-/urlsafe-base64-1.0.31.tgz#716fde3a64a558a32f7f464bc31b43da3e5e87fd"
+  integrity sha512-f+l5StyboXmVsjTXLUkNHu8FptkdJ6iGl7z7nKBQVQwvSDulzi+Ov5Rtuq6c43jHYjSHax7Mplr1ldweOdFohg==
   dependencies:
     "@types/node" "*"
 

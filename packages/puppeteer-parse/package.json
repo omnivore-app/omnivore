@@ -21,6 +21,8 @@
     "urlsafe-base64": "^1.0.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/urlsafe-base64": "^1.0.31",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   },
