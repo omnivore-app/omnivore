@@ -108,6 +108,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       url: finalUrl,
       userId: user.id,
       data: {
+        userId: user.id,
         url: finalUrl,
         title,
         content,

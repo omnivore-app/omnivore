@@ -2,15 +2,16 @@ import { Readability } from '@omnivore/readability'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
+import { env } from '../env'
 
 const signToken = promisify(jwt.sign)
 
 const IMPORTER_METRICS_COLLECTOR_URL =
   process.env.IMPORTER_METRICS_COLLECTOR_URL
-const JWT_SECRET = process.env.JWT_SECRET
-const REST_BACKEND_ENDPOINT = process.env.REST_BACKEND_ENDPOINT
+const JWT_SECRET = env.server.jwtSecret
+const REST_BACKEND_ENDPOINT = process.env.INTERNAL_API_URL
 
-if (!IMPORTER_METRICS_COLLECTOR_URL || !JWT_SECRET || !REST_BACKEND_ENDPOINT) {
+if (!IMPORTER_METRICS_COLLECTOR_URL || !REST_BACKEND_ENDPOINT) {
   throw new Error('Missing environment variables')
 }
 

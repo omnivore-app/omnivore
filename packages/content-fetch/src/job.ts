@@ -1,4 +1,4 @@
-import { Queue } from 'bullmq'
+import { BulkJobOptions, Queue } from 'bullmq'
 import { redis } from './redis'
 
 const QUEUE_NAME = 'omnivore-backend-queue'
@@ -29,6 +29,25 @@ const getPriority = (job: savePageJob): number => {
   return 5
 }
 
+const getAttempts = (job: savePageJob): number => {
+  if (job.isRss || job.isImport) {
+    // we don't want to retry rss or import jobs
+    return 1
+  }
+
+  return 2
+}
+
+const getOpts = (job: savePageJob): BulkJobOptions => {
+  return {
+    // jobId: `${job.userId}-${job.url}`,
+    // removeOnComplete: true,
+    // removeOnFail: true,
+    attempts: getAttempts(job),
+    priority: getPriority(job),
+  }
+}
+
 const createQueue = (): Queue | undefined => {
   return new Queue(QUEUE_NAME, {
     connection: redis,
@@ -44,12 +63,7 @@ export const queueSavePageJob = async (savePageJobs: savePageJob[]) => {
   const jobs = savePageJobs.map((job) => ({
     name: JOB_NAME,
     data: job.data,
-    opts: {
-      jobId: `${job.userId}-${job.url}`,
-      removeOnComplete: true,
-      removeOnFail: true,
-      priority: getPriority(job),
-    },
+    opts: getOpts(job),
   }))
 
   return queue.addBulk(jobs)
