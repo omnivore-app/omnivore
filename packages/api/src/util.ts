@@ -22,6 +22,7 @@ export interface BackendEnv {
     apiEnv: string
     instanceId: string
     trustProxy: boolean
+    internalApiUrl: string
   }
   client: {
     url: string
@@ -70,6 +71,7 @@ export interface BackendEnv {
     rssFeedTaskHandlerUrl: string
     integrationExporterUrl: string
     integrationImporterUrl: string
+    importerMetricsUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -156,6 +158,8 @@ const nullableEnvVars = [
   'SUBSCRIPTION_FEED_MAX',
   'REDIS_URL',
   'REDIS_CERT',
+  'IMPORTER_METRICS_COLLECTOR_URL',
+  'INTERNAL_API_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -204,6 +208,7 @@ export function getEnv(): BackendEnv {
     instanceId:
       parse('GAE_INSTANCE') || `x${os.userInfo().username}_${os.hostname()}`,
     trustProxy: parse('TRUST_PROXY') === 'true',
+    internalApiUrl: parse('INTERNAL_API_URL'),
   }
   const client = {
     url: parse('CLIENT_URL'),
@@ -245,6 +250,7 @@ export function getEnv(): BackendEnv {
     rssFeedTaskHandlerUrl: parse('RSS_FEED_TASK_HANDLER_URL'),
     integrationExporterUrl: parse('INTEGRATION_EXPORTER_URL'),
     integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
+    importerMetricsUrl: parse('IMPORTER_METRICS_COLLECTOR_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),

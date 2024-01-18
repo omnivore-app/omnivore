@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Redis } from 'ioredis'
 
 const url = process.env.REDIS_URL
@@ -22,3 +23,16 @@ redis.on('connect', () => {
 redis.on('error', (err) => {
   console.error('Redis error', err)
 })
+
+redis.on('close', () => {
+  console.log('Redis connection closed')
+})
+
+export const gracefulShutdown = async (signal: string) => {
+  console.log(`Received ${signal}, closing server...`)
+  await redis.quit()
+  process.exit(0)
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))

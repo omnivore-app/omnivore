@@ -6,14 +6,9 @@ import { env } from '../env'
 
 const signToken = promisify(jwt.sign)
 
-const IMPORTER_METRICS_COLLECTOR_URL =
-  process.env.IMPORTER_METRICS_COLLECTOR_URL
+const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
-const REST_BACKEND_ENDPOINT = process.env.INTERNAL_API_URL
-
-if (!IMPORTER_METRICS_COLLECTOR_URL || !REST_BACKEND_ENDPOINT) {
-  throw new Error('Missing environment variables')
-}
+const REST_BACKEND_ENDPOINT = env.server.internalApiUrl
 
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
