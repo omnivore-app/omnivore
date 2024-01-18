@@ -31,28 +31,47 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
   )) as RssSubscriptionGroup[]
 
   for (const group of subscriptionGroups) {
-    const jobid = `refresh-feed_${stringToHash(group.url)}_${stringToHash(
-      JSON.stringify(group.userIds.sort())
-    )}`
-    const payload = {
-      subscriptionIds: group.subscriptionIds,
-      feedUrl: group.url,
-      lastFetchedTimestamps: group.fetchedDates.map(
-        (timestamp) => timestamp?.getTime() || 0
-      ), // unix timestamp in milliseconds
-      lastFetchedChecksums: group.checksums,
-      scheduledTimestamps: group.scheduledDates.map((timestamp) =>
-        timestamp.getTime()
-      ), // unix timestamp in milliseconds
-      userIds: group.userIds,
-      fetchContents: group.fetchContents,
-      folders: group.folders,
+    try {
+      await updateSubscriptionGroup(group)
+    } catch (err) {
+      // we don't want to fail the whole job if one subscription group fails
+      console.error('error updating subscription group')
     }
-
-    await queueRSSRefreshFeedJob(jobid, payload)
   }
 
   return true
+}
+
+const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
+  const feedURL = group.url
+  const userList = JSON.stringify(group.userIds.sort())
+  if (!feedURL) {
+    console.error('no url for feed group', group)
+    return
+  }
+  if (!userList) {
+    console.error('no userlist for feed group', group)
+    return
+  }
+  const jobid = `refresh-feed_${stringToHash(feedURL)}_${stringToHash(
+    userList
+  )}`
+  const payload = {
+    subscriptionIds: group.subscriptionIds,
+    feedUrl: group.url,
+    lastFetchedTimestamps: group.fetchedDates.map(
+      (timestamp) => timestamp?.getTime() || 0
+    ), // unix timestamp in milliseconds
+    lastFetchedChecksums: group.checksums,
+    scheduledTimestamps: group.scheduledDates.map((timestamp) =>
+      timestamp.getTime()
+    ), // unix timestamp in milliseconds
+    userIds: group.userIds,
+    fetchContents: group.fetchContents,
+    folders: group.folders,
+  }
+
+  await queueRSSRefreshFeedJob(jobid, payload)
 }
 
 const createBackendQueue = (): Queue | undefined => {
