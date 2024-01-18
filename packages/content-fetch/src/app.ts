@@ -2,8 +2,6 @@ import 'dotenv/config'
 import express from 'express'
 import { contentFetchRequestHandler } from './request_handler'
 
-console.log(process.env)
-
 const app = express()
 
 app.use(express.json())
