@@ -89,7 +89,6 @@ const createIORedisClient = (
       return 10
     },
   }
-  console.log('connecting to redis: ', { redisURL, redisOptions })
   return new Redis(redisURL, redisOptions)
 }
 
