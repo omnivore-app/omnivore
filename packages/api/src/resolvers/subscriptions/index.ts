@@ -39,6 +39,7 @@ import {
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
 import { feedRepository } from '../../repository/feed'
+import { validateUrl } from '../../services/create_page_save_request'
 import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
@@ -201,6 +202,15 @@ export const subscribeResolver = authorized<
       }
     }
     const feedUrl = feed.url
+    try {
+      validateUrl(feedUrl)
+    } catch (error) {
+      log.error('invalid feedUrl', { feedUrl, error })
+
+      return {
+        errorCodes: [SubscribeErrorCode.BadRequest],
+      }
+    }
 
     // find existing subscription
     const existingSubscription = await getRepository(Subscription).findOneBy({
