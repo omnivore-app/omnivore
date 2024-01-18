@@ -348,7 +348,7 @@ const createItemWithPreviewContent = async (
     }
 
     // save page
-    const taskHandlerUrl = `${serviceBaseUrl}/svc/following/save?token=${token}`
+    const taskHandlerUrl = `${serviceBaseUrl}svc/following/save?token=${token}`
     const task = await createHttpTaskWithToken({
       queue: env.queue.name,
       priority: 'low',
