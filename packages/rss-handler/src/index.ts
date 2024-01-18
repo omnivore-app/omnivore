@@ -47,6 +47,18 @@ export type RssFeedItem = Item & {
   link: string
 }
 
+interface User {
+  id: string
+  folder: FolderType
+}
+
+interface FetchContentTask {
+  users: Map<string, User> // userId -> User
+  item: RssFeedItem
+}
+
+const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
+
 export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   // existing items and items that were published before 24h
   const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
@@ -263,6 +275,25 @@ const isItemRecentlySaved = async (
   return !!result
 }
 
+const addFetchContentTask = (
+  userId: string,
+  folder: FolderType,
+  item: RssFeedItem
+) => {
+  const url = item.link
+  const task = fetchContentTasks.get(url)
+  if (!task) {
+    fetchContentTasks.set(url, {
+      users: new Map([[userId, { id: userId, folder }]]),
+      item,
+    })
+  } else {
+    task.users.set(userId, { id: userId, folder })
+  }
+
+  return true
+}
+
 const createTask = async (
   userId: string,
   feedUrl: string,
@@ -285,17 +316,16 @@ const createTask = async (
     return createItemWithPreviewContent(userId, feedUrl, item)
   }
 
-  return fetchContentAndCreateItem(userId, feedUrl, item, folder)
+  return addFetchContentTask(userId, folder, item)
 }
 
 const fetchContentAndCreateItem = async (
-  userId: string,
+  users: User[],
   feedUrl: string,
-  item: RssFeedItem,
-  folder: string
+  item: RssFeedItem
 ) => {
   const input = {
-    userId,
+    users,
     source: 'rss-feeder',
     url: item.link,
     saveRequestId: '',
@@ -303,7 +333,6 @@ const fetchContentAndCreateItem = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
-    folder,
   }
 
   try {
@@ -665,6 +694,15 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
           folders[i],
           feed,
           redisClient
+        )
+      }
+
+      // create fetch content tasks
+      for (const task of fetchContentTasks.values()) {
+        await fetchContentAndCreateItem(
+          Array.from(task.users.values()),
+          feedUrl,
+          task.item
         )
       }
 

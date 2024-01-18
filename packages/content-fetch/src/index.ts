@@ -1,16 +1,12 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-empty */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-require-imports */
-require('dotenv').config();
-const Sentry = require('@sentry/serverless');
-const { fetchContent, preview } = require("@omnivore/puppeteer-parse");
+import { HttpFunction } from '@google-cloud/functions-framework'
+import * as Sentry from '@sentry/serverless'
+import 'dotenv/config'
+import { contentFetchRequestHandler } from './request_handler'
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 0,
-});
+})
 
 /**
  * Cloud Function entry point, HTTP trigger.
@@ -19,7 +15,9 @@ Sentry.GCPFunction.init({
  * @param {Object} req Cloud Function request context.
  * @param {Object} res Cloud Function response context.
  */
-exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(fetchContent);
+export const puppeteer = Sentry.GCPFunction.wrapHttpFunction(
+  contentFetchRequestHandler as HttpFunction
+)
 
 /**
  * Cloud Function entry point, HTTP trigger.
@@ -30,4 +28,4 @@ exports.puppeteer = Sentry.GCPFunction.wrapHttpFunction(fetchContent);
  *  * url - URL address of the page to open
  * @param {Object} res Cloud Function response context.
  */
-exports.preview = Sentry.GCPFunction.wrapHttpFunction(preview);
+// exports.preview = Sentry.GCPFunction.wrapHttpFunction(preview);

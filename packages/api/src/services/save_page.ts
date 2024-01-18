@@ -168,8 +168,8 @@ export const savePage = async (
     )
   }
 
-  // we don't want to create thumbnail for imported pages
-  if (!isImported) {
+  // we don't want to create thumbnail for imported pages and pages that already have thumbnail
+  if (!isImported && !parseResult.parsedContent?.previewImage) {
     try {
       // create a task to update thumbnail and pre-cache all images
       const taskId = await enqueueThumbnailTask(user.id, slug)

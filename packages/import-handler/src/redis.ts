@@ -1,15 +1,4 @@
-import { readFileSync } from 'fs'
-import { Redis } from 'ioredis'
-import path from 'path'
-
-// load lua script
-export const lua = {
-  script: readFileSync(
-    path.resolve(__dirname, 'luaScripts/updateMetrics.lua'),
-    'utf8'
-  ),
-  sha: '',
-}
+import { Redis, Result } from 'ioredis'
 
 export const createRedisClient = (url?: string, cert?: string) => {
   return new Redis(url || 'redis://localhost:6379', {
@@ -42,4 +31,15 @@ export const createRedisClient = (url?: string, cert?: string) => {
       return Math.min(times * 50, 2000)
     },
   })
+}
+
+// Add declarations
+declare module 'ioredis' {
+  interface RedisCommander<Context> {
+    updatemetrics(
+      key: string,
+      arg1: string,
+      arg2: string
+    ): Result<number, Context>
+  }
 }

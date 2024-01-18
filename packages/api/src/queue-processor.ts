@@ -2,16 +2,16 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
+import { Job, QueueEvents, Worker } from 'bullmq'
 import express, { Express } from 'express'
-import { appDataSource } from './data_source'
-import { getEnv } from './util'
-import { redisDataSource } from './redis_data_source'
-import { CustomTypeOrmLogger } from './utils/logger'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
-import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
-import { Job, Worker, QueueEvents } from 'bullmq'
-import { refreshFeed } from './jobs/rss/refreshFeed'
+import { appDataSource } from './data_source'
 import { env } from './env'
+import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
+import { refreshFeed } from './jobs/rss/refreshFeed'
+import { redisDataSource } from './redis_data_source'
+import { savePageJob } from './jobs/save_page'
+import { CustomTypeOrmLogger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -70,6 +70,9 @@ const main = async () => {
         }
         case 'refresh-feed': {
           return await refreshFeed(job.data)
+        }
+        case 'save-page': {
+          return savePageJob(job.data)
         }
       }
       return true
