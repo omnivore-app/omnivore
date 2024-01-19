@@ -87,7 +87,7 @@ const main = async () => {
   })
 
   queueEvents.on('added', async (job) => {
-    console.log('added job: ', job.jobId)
+    console.log('added job: ', job.jobId, job.name)
   })
 
   queueEvents.on('removed', async (job) => {
