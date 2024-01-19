@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Job, QueueEvents, Worker } from 'bullmq'
+import { Job, QueueEvents, Worker, Queue } from 'bullmq'
 import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
@@ -61,11 +61,17 @@ const main = async () => {
     throw '[queue-processor] error redis is not initialized'
   }
 
+  const queue = new Queue(QUEUE_NAME)
+
   const worker = new Worker(
     QUEUE_NAME,
     async (job: Job) => {
       switch (job.name) {
         case 'refresh-all-feeds': {
+          const counts = await queue.getJobCounts('wait')
+          if (counts.wait > 1000) {
+            return
+          }
           return await refreshAllFeeds(appDataSource)
         }
         case 'refresh-feed': {
@@ -87,7 +93,7 @@ const main = async () => {
   })
 
   queueEvents.on('added', async (job) => {
-    console.log('added job: ', job.jobId)
+    console.log('added job: ', job.jobId, job.name)
   })
 
   queueEvents.on('removed', async (job) => {

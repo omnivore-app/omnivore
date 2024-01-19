@@ -26,7 +26,6 @@ import {
   SearchItem,
 } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
-import { redisDataSource } from '../redis_data_source'
 import { Claims, WithDataSourcesContext } from '../resolvers/types'
 import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
