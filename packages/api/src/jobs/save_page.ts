@@ -1,8 +1,8 @@
-import { Readability } from '@omnivore/readability'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
+import { redisDataSource } from '../redis_data_source'
 
 const signToken = promisify(jwt.sign)
 
@@ -10,15 +10,12 @@ const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
 const REST_BACKEND_ENDPOINT = `${env.server.internalApiUrl}/api`
 
+const MAX_ATTEMPTS = 2
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
 interface Data {
   userId: string
   url: string
-  title: string
-  content: string
-  contentType: string
-  readabilityResult?: Readability.ParseResult
   articleSavingRequestId: string
   state?: string
   labels?: string[]
@@ -61,6 +58,23 @@ interface SavePageResponse {
       errorCodes?: string[]
     }
   }
+}
+
+interface FetchResult {
+  finalUrl: string
+  title: string
+  content?: string
+  contentType?: string
+  readabilityResult?: unknown
+}
+
+const isFetchResult = (obj: unknown): obj is FetchResult => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'finalUrl' in obj &&
+    'title' in obj
+  )
 }
 
 const uploadToSignedUrl = async (
@@ -277,7 +291,7 @@ const sendSavePageMutation = async (userId: string, input: unknown) => {
 const sendImportStatusUpdate = async (
   userId: string,
   taskId: string,
-  isContentParsed: boolean
+  isImported?: boolean
 ) => {
   try {
     const auth = await signToken({ uid: userId }, JWT_SECRET)
@@ -286,7 +300,7 @@ const sendImportStatusUpdate = async (
       IMPORTER_METRICS_COLLECTOR_URL,
       {
         taskId,
-        status: isContentParsed ? 'imported' : 'failed',
+        status: isImported ? 'imported' : 'failed',
       },
       {
         headers: {
@@ -301,12 +315,30 @@ const sendImportStatusUpdate = async (
   }
 }
 
-export const savePageJob = async (data: Data) => {
+const getCachedFetchResult = async (url: string) => {
+  const key = `fetch-result:${url}`
+  if (!redisDataSource.redisClient) {
+    throw new Error('redis client is not initialized')
+  }
+
+  const result = await redisDataSource.redisClient.get(key)
+  if (!result) {
+    throw new Error('fetch result is not cached')
+  }
+
+  const fetchResult = JSON.parse(result) as unknown
+  if (!isFetchResult(fetchResult)) {
+    throw new Error('fetch result is not valid')
+  }
+
+  console.log('fetch result is cached', url)
+
+  return fetchResult
+}
+
+export const savePageJob = async (data: Data, attemptsMade: number) => {
   const {
     userId,
-    title,
-    content,
-    readabilityResult,
     articleSavingRequestId,
     state,
     labels,
@@ -317,12 +349,17 @@ export const savePageJob = async (data: Data) => {
     publishedAt,
     taskId,
   } = data
-  let isContentParsed = true
+  let isImported, isSaved
 
   try {
     const url = encodeURI(data.url)
 
-    if (data.contentType === 'application/pdf') {
+    // get the fetch result from cache
+    const { title, content, contentType, readabilityResult } =
+      await getCachedFetchResult(url)
+
+    // for pdf content, we need to upload the pdf
+    if (contentType === 'application/pdf') {
       const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
       const uploadedPdf = await sendCreateArticleMutation(userId, {
         url,
@@ -339,42 +376,56 @@ export const savePageJob = async (data: Data) => {
       if (!uploadedPdf) {
         throw new Error('error while saving uploaded pdf')
       }
-    } else {
-      const apiResponse = await sendSavePageMutation(userId, {
-        url,
-        clientRequestId: articleSavingRequestId,
-        title,
-        originalContent: content,
-        parseResult: readabilityResult,
-        state,
-        labels,
-        rssFeedUrl,
-        savedAt,
-        publishedAt,
-        source,
-        folder,
-      })
-      if (!apiResponse) {
-        throw new Error('error while saving page')
-      }
-      // if ('error' in apiResponse && apiResponse.error === 'UNAUTHORIZED') {
-      //   console.log('user is deleted', userId)
-      //   return true
-      // }
 
-      // if the readability result is not parsed, the import is failed
-      if (!readabilityResult) {
-        isContentParsed = false
-      }
+      isSaved = true
+      isImported = true
+      return true
     }
+
+    // for non-pdf content, we need to save the page
+    const apiResponse = await sendSavePageMutation(userId, {
+      url,
+      clientRequestId: articleSavingRequestId,
+      title,
+      originalContent: content,
+      parseResult: readabilityResult,
+      state,
+      labels,
+      rssFeedUrl,
+      savedAt,
+      publishedAt,
+      source,
+      folder,
+    })
+    if (!apiResponse) {
+      throw new Error('error while saving page')
+    }
+
+    if ('error' in apiResponse && apiResponse.error === 'UNAUTHORIZED') {
+      console.log('user is deleted', userId)
+      return false
+    }
+
+    // if the readability result is not parsed, the import is failed
+    isImported = !!readabilityResult
+    isSaved = true
   } catch (e) {
-    console.error('error while saving page', e)
-    isContentParsed = false
-    return false
+    if (e instanceof Error) {
+      console.error('error while saving page', e.message)
+    } else {
+      console.error('error while saving page', 'unknown error')
+    }
+
+    throw e
   } finally {
-    // send import status to update the metrics for importer
-    if (taskId) {
-      await sendImportStatusUpdate(userId, taskId, isContentParsed)
+    const lastAttempt = attemptsMade === MAX_ATTEMPTS - 1
+    if (lastAttempt) {
+      console.log('last attempt reached', data.url)
+    }
+
+    if (taskId && (isSaved || lastAttempt)) {
+      // send import status to update the metrics for importer
+      await sendImportStatusUpdate(userId, taskId, isImported)
     }
   }
 

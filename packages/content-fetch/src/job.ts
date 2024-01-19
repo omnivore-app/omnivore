@@ -1,11 +1,10 @@
 import { BulkJobOptions, Queue } from 'bullmq'
-import { redis } from './redis'
+import { redisDataSource } from './redis_data_source'
 
 const QUEUE_NAME = 'omnivore-backend-queue'
 const JOB_NAME = 'save-page'
 
 interface savePageJob {
-  url: string
   userId: string
   data: unknown
   isRss: boolean
@@ -13,7 +12,7 @@ interface savePageJob {
 }
 
 const queue = new Queue(QUEUE_NAME, {
-  connection: redis,
+  connection: redisDataSource.queueRedisClient,
 })
 
 const getPriority = (job: savePageJob): number => {

@@ -193,15 +193,8 @@ export const subscribeResolver = authorized<
         env: env.server.apiEnv,
       },
     })
-
-    // validate rss feed
-    const feed = await parseFeed(input.url)
-    if (!feed) {
-      return {
-        errorCodes: [SubscribeErrorCode.NotFound],
-      }
-    }
-    const feedUrl = feed.url
+    // use user provided url
+    const feedUrl = input.url
     try {
       validateUrl(feedUrl)
     } catch (error) {
@@ -209,6 +202,14 @@ export const subscribeResolver = authorized<
 
       return {
         errorCodes: [SubscribeErrorCode.BadRequest],
+      }
+    }
+
+    // validate rss feed
+    const feed = await parseFeed(feedUrl)
+    if (!feed) {
+      return {
+        errorCodes: [SubscribeErrorCode.NotFound],
       }
     }
 
