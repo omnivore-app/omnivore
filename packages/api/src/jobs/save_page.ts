@@ -8,7 +8,7 @@ const signToken = promisify(jwt.sign)
 
 const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
-const REST_BACKEND_ENDPOINT = env.server.internalApiUrl
+const REST_BACKEND_ENDPOINT = `${env.server.internalApiUrl}/api`
 
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
