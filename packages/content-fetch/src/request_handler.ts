@@ -1,6 +1,7 @@
 import { fetchContent } from '@omnivore/puppeteer-parse'
 import { RequestHandler } from 'express'
 import { queueSavePageJob } from './job'
+import { redisDataSource } from './redis_data_source'
 
 interface User {
   id: string
@@ -44,7 +45,21 @@ interface LogRecord {
   totalTime?: number
 }
 
-// const MAX_RETRY_COUNT = process.env.MAX_RETRY_COUNT || '1'
+interface FetchResult {
+  finalUrl: string
+  title: string
+  content?: string
+  contentType?: string
+  readabilityResult?: unknown
+}
+
+export const cacheFetchResult = async (fetchResult: FetchResult) => {
+  // cache the fetch result for 4 hours
+  const ttl = 4 * 60 * 60
+  const key = `fetch-result-${fetchResult.finalUrl}`
+  const value = JSON.stringify(fetchResult)
+  return redisDataSource.cacheClient.set(key, value, 'EX', ttl)
+}
 
 export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   const functionStartTime = Date.now()
@@ -99,21 +114,12 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   try {
     const fetchResult = await fetchContent(url, locale, timezone)
     const finalUrl = fetchResult.finalUrl
-    const title = fetchResult.title
-    const content = fetchResult.content
-    const contentType = fetchResult.contentType
-    const readabilityResult = fetchResult.readabilityResult as unknown
 
     const savePageJobs = users.map((user) => ({
-      url: finalUrl,
       userId: user.id,
       data: {
         userId: user.id,
         url: finalUrl,
-        title,
-        content,
-        contentType,
-        readabilityResult,
         articleSavingRequestId,
         state,
         labels,
@@ -128,9 +134,12 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       isImport: !!taskId,
     }))
 
-    const result = await queueSavePageJob(savePageJobs)
-    console.log('queueSavePageJob result', result)
-    if (!result) {
+    const cacheResult = await cacheFetchResult(fetchResult)
+    console.log('cacheFetchResult result', cacheResult)
+
+    const queueResult = await queueSavePageJob(savePageJobs)
+    console.log('queueSavePageJob result', queueResult)
+    if (!queueResult) {
       logRecord.error = 'error while queueing save page job'
       return res.sendStatus(500)
     }
