@@ -4,6 +4,7 @@ import { QUEUE_NAME } from '../../queue-processor'
 import { redisDataSource } from '../../redis_data_source'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
+import { validateUrl } from '../../services/create_page_save_request'
 
 export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
   const subscriptionGroups = (await db.createEntityManager().query(
@@ -42,7 +43,7 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
 }
 
 const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
-  const feedURL = group.url
+  var feedURL = group.url
   const userList = JSON.stringify(group.userIds.sort())
   if (!feedURL) {
     console.error('no url for feed group', group)
@@ -51,6 +52,12 @@ const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
   if (!userList) {
     console.error('no userlist for feed group', group)
     return
+  }
+
+  try {
+    feedURL = validateUrl(feedURL).toString()
+  } catch (err) {
+    console.log('not refreshing invalid feed url: ' { feedURL })
   }
   const jobid = `refresh-feed_${stringToHash(feedURL)}_${stringToHash(
     userList
