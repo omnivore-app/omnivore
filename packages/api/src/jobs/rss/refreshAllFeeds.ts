@@ -94,7 +94,13 @@ export const queueRSSRefreshAllFeedsJob = async () => {
   if (!queue) {
     return false
   }
-  return queue.add('refresh-all-feeds', {})
+  return queue.add(
+    'refresh-all-feeds',
+    {},
+    {
+      priority: 100,
+    }
+  )
 }
 
 type QueuePriority = 'low' | 'high'
