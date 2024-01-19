@@ -9,8 +9,8 @@ import { appDataSource } from './data_source'
 import { env } from './env'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
-import { redisDataSource } from './redis_data_source'
 import { savePageJob } from './jobs/save_page'
+import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
@@ -72,7 +72,7 @@ const main = async () => {
           return await refreshFeed(job.data)
         }
         case 'save-page': {
-          return savePageJob(job.data)
+          return savePageJob(job.data, job.attemptsMade)
         }
       }
       return true
