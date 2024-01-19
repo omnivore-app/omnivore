@@ -57,7 +57,7 @@ const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
   try {
     feedURL = validateUrl(feedURL).toString()
   } catch (err) {
-    console.log('not refreshing invalid feed url: ' { feedURL })
+    console.log('not refreshing invalid feed url: ', { feedURL })
   }
   const jobid = `refresh-feed_${stringToHash(feedURL)}_${stringToHash(
     userList
