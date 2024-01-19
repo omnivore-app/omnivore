@@ -61,7 +61,9 @@ const main = async () => {
     throw '[queue-processor] error redis is not initialized'
   }
 
-  const queue = new Queue(QUEUE_NAME)
+  const queue = new Queue(QUEUE_NAME, {
+    connection: workerRedisClient,
+  })
 
   const worker = new Worker(
     QUEUE_NAME,
