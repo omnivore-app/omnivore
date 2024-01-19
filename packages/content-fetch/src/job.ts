@@ -35,10 +35,10 @@ const getPriority = (job: savePageJob): number => {
 const getAttempts = (job: savePageJob): number => {
   if (job.isRss || job.isImport) {
     // we don't want to retry rss or import jobs
-    return 0
+    return 1
   }
 
-  return 1
+  return 2
 }
 
 const getOpts = (job: savePageJob): BulkJobOptions => {

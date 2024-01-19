@@ -10,7 +10,7 @@ const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
 const REST_BACKEND_ENDPOINT = `${env.server.internalApiUrl}/api`
 
-const MAX_ATTEMPTS = 1
+const MAX_ATTEMPTS = 2
 const REQUEST_TIMEOUT = 30000 // 30 seconds
 
 interface Data {
@@ -410,11 +410,20 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     isImported = !!readabilityResult
     isSaved = true
   } catch (e) {
-    console.error('error while saving page', e)
+    if (e instanceof Error) {
+      console.error('error while saving page', e.message)
+    } else {
+      console.error('error while saving page', 'unknown error')
+    }
+
     throw e
   } finally {
-    const isFinalized = isSaved || attemptsMade >= MAX_ATTEMPTS
-    if (taskId && isFinalized) {
+    const lastAttempt = attemptsMade === MAX_ATTEMPTS - 1
+    if (lastAttempt) {
+      console.log('last attempt reached', data.url)
+    }
+
+    if (taskId && (isSaved || lastAttempt)) {
       // send import status to update the metrics for importer
       await sendImportStatusUpdate(userId, taskId, isImported)
     }
