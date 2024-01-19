@@ -105,6 +105,6 @@ export const queueRSSRefreshFeedJob = async (
     jobId: jobid,
     removeOnComplete: true,
     removeOnFail: true,
-    lifo: options.priority == 'high',
+    priority: options.priority == 'low' ? 10 : 100,
   })
 }
