@@ -73,3 +73,16 @@ export const redisDataSource = new RedisDataSource({
   REDIS_URL: process.env.REDIS_URL,
   REDIS_CERT: process.env.REDIS_CERT,
 })
+
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+process.on('SIGINT', async () => {
+  console.log('SIGINT signal received.')
+
+  try {
+    await redisDataSource.shutdown()
+  } catch (error) {
+    console.error('error while shutting down redis', error)
+  }
+
+  process.exit(0)
+})
