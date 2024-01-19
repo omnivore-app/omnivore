@@ -12,6 +12,10 @@ interface savePageJob {
   isImport: boolean
 }
 
+const queue = new Queue(QUEUE_NAME, {
+  connection: redis,
+})
+
 const getPriority = (job: savePageJob): number => {
   // we want to prioritized jobs by the expected time to complete
   // lower number means higher priority
@@ -48,18 +52,7 @@ const getOpts = (job: savePageJob): BulkJobOptions => {
   }
 }
 
-const createQueue = (): Queue | undefined => {
-  return new Queue(QUEUE_NAME, {
-    connection: redis,
-  })
-}
-
 export const queueSavePageJob = async (savePageJobs: savePageJob[]) => {
-  const queue = createQueue()
-  if (!queue) {
-    return undefined
-  }
-
   const jobs = savePageJobs.map((job) => ({
     name: JOB_NAME,
     data: job.data,
