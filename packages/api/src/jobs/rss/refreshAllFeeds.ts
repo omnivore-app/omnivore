@@ -43,7 +43,7 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
 }
 
 const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
-  var feedURL = group.url
+  let feedURL = group.url
   const userList = JSON.stringify(group.userIds.sort())
   if (!feedURL) {
     console.error('no url for feed group', group)
