@@ -1,8 +1,8 @@
-import { Readability } from '@omnivore/readability'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
+import { redisDataSource } from '../redis_data_source'
 
 const signToken = promisify(jwt.sign)
 
@@ -15,10 +15,6 @@ const REQUEST_TIMEOUT = 30000 // 30 seconds
 interface Data {
   userId: string
   url: string
-  title: string
-  content: string
-  contentType: string
-  readabilityResult?: Readability.ParseResult
   articleSavingRequestId: string
   state?: string
   labels?: string[]
@@ -61,6 +57,23 @@ interface SavePageResponse {
       errorCodes?: string[]
     }
   }
+}
+
+interface FetchResult {
+  finalUrl: string
+  title: string
+  content?: string
+  contentType?: string
+  readabilityResult?: unknown
+}
+
+const isFetchResult = (obj: unknown): obj is FetchResult => {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'finalUrl' in obj &&
+    'title' in obj
+  )
 }
 
 const uploadToSignedUrl = async (
@@ -301,12 +314,28 @@ const sendImportStatusUpdate = async (
   }
 }
 
+const getCachedFetchResult = async (url: string) => {
+  const key = `fetch-result:${url}`
+  if (!redisDataSource.redisClient) {
+    throw new Error('redis client is not initialized')
+  }
+
+  const result = await redisDataSource.redisClient.get(key)
+  if (!result) {
+    throw new Error('fetch result is not cached')
+  }
+
+  const fetchResult = JSON.parse(result) as unknown
+  if (!isFetchResult(fetchResult)) {
+    throw new Error('fetch result is not valid')
+  }
+
+  return fetchResult
+}
+
 export const savePageJob = async (data: Data) => {
   const {
     userId,
-    title,
-    content,
-    readabilityResult,
     articleSavingRequestId,
     state,
     labels,
@@ -322,7 +351,11 @@ export const savePageJob = async (data: Data) => {
   try {
     const url = encodeURI(data.url)
 
-    if (data.contentType === 'application/pdf') {
+    // get the fetch result from cache
+    const { title, content, contentType, readabilityResult } =
+      await getCachedFetchResult(url)
+
+    if (contentType === 'application/pdf') {
       const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
       const uploadedPdf = await sendCreateArticleMutation(userId, {
         url,
