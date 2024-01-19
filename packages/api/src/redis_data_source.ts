@@ -22,8 +22,6 @@ export class RedisDataSource {
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
-    console.trace('initializing with options: ', { options: this.options })
-
     this.redisClient = createIORedisClient('app', this.options)
     this.workerRedisClient = createIORedisClient('worker', this.options)
     this.isInitialized = true
@@ -91,6 +89,7 @@ const createIORedisClient = (
       return 10
     },
   }
+  console.trace('initializing redis with options: ', { redisURL, redisOptions })
   return new Redis(redisURL, redisOptions)
 }
 
