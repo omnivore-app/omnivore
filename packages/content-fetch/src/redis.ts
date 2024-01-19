@@ -2,7 +2,7 @@
 import { Redis } from 'ioredis'
 
 const url = process.env.REDIS_URL
-const cert = process.env.REDIS_CERT
+const cert = process.env.REDIS_CERT?.replace(/\\n/g, '\n') // replace \n with new line
 
 export const redis = new Redis(url || 'redis://localhost:6379', {
   connectTimeout: 10000, // 10 seconds
