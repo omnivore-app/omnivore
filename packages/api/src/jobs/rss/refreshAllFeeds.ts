@@ -5,8 +5,20 @@ import { redisDataSource } from '../../redis_data_source'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
 import { validateUrl } from '../../services/create_page_save_request'
+import { v4 as uuid } from 'uuid'
+
+type RSSRefreshContext = {
+  type: 'all' | 'user-added'
+  refreshID: string
+  startedAt: string
+}
 
 export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
+  const refreshContext = {
+    type: 'all',
+    refreshID: uuid(),
+    startedAt: new Date().toISOString(),
+  } as RSSRefreshContext
   const subscriptionGroups = (await db.createEntityManager().query(
     `
     SELECT
@@ -30,19 +42,27 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
     ['RSS', 'ACTIVE', 'following']
   )) as RssSubscriptionGroup[]
 
+  console.log(`rss: checking ${subscriptionGroups.length}`, { refreshContext })
+
   for (const group of subscriptionGroups) {
     try {
-      await updateSubscriptionGroup(group)
+      await updateSubscriptionGroup(group, refreshContext)
     } catch (err) {
       // we don't want to fail the whole job if one subscription group fails
       console.error('error updating subscription group')
     }
   }
+  console.log(`rss: finished queuing subscription groups at ${new Date()}`, {
+    refreshContext,
+  })
 
   return true
 }
 
-const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
+const updateSubscriptionGroup = async (
+  group: RssSubscriptionGroup,
+  refreshContext: RSSRefreshContext
+) => {
   let feedURL = group.url
   const userList = JSON.stringify(group.userIds.sort())
   if (!feedURL) {
@@ -63,6 +83,7 @@ const updateSubscriptionGroup = async (group: RssSubscriptionGroup) => {
     userList
   )}`
   const payload = {
+    refreshContext,
     subscriptionIds: group.subscriptionIds,
     feedUrl: group.url,
     lastFetchedTimestamps: group.fetchedDates.map(

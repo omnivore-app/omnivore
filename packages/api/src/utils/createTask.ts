@@ -22,6 +22,7 @@ import View = google.cloud.tasks.v2.Task.View
 import { stringToHash } from './helpers'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
 import { redisDataSource } from '../redis_data_source'
+import { v4 as uuid } from 'uuid'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -639,8 +640,12 @@ export interface RssSubscriptionGroup {
 export const enqueueRssFeedFetch = async (
   subscriptionGroup: RssSubscriptionGroup
 ): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT, PUBSUB_VERIFICATION_TOKEN } = process.env
   const payload = {
+    refreshContext: {
+      type: 'user-added',
+      refreshID: uuid(),
+      startedAt: new Date().toISOString(),
+    },
     subscriptionIds: subscriptionGroup.subscriptionIds,
     feedUrl: subscriptionGroup.url,
     lastFetchedTimestamps: subscriptionGroup.fetchedDates.map(
@@ -670,40 +675,6 @@ export const enqueueRssFeedFetch = async (
   } else {
     throw 'unable to queue rss-refresh-feed-job, redis is not configured'
   }
-
-  // // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  // if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-  //   if (env.queue.rssFeedTaskHandlerUrl) {
-  //     // Calling the handler function directly.
-  //     setTimeout(() => {
-  //       axios
-  //         .post(
-  //           `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
-  //           payload
-  //         )
-  //         .catch((error) => {
-  //           logError(error)
-  //         })
-  //     }, 0)
-  //   }
-  //   return nanoid()
-  // }
-
-  // const createdTasks = await createHttpTaskWithToken({
-  //   project: GOOGLE_CLOUD_PROJECT,
-  //   queue: 'omnivore-rss-queue',
-  //   payload,
-  //   taskHandlerUrl: `${env.queue.rssFeedTaskHandlerUrl}?token=${PUBSUB_VERIFICATION_TOKEN}`,
-  // })
-
-  // if (!createdTasks || !createdTasks[0].name) {
-  //   logger.error(`Unable to get the name of the task`, {
-  //     payload,
-  //     createdTasks,
-  //   })
-  //   throw new CreateTaskError(`Unable to get the name of the task`)
-  // }
-  //return createdTasks[0].name
 }
 
 export default createHttpTaskWithToken
