@@ -1,5 +1,8 @@
 import { Subscription } from '../entity/subscription'
-import { UpdateSubscriptionInput } from '../generated/graphql'
+import {
+  SubscriptionStatus,
+  UpdateSubscriptionInput,
+} from '../generated/graphql'
 import { getRepository } from '../repository'
 
 const ensureOwns = async (userId: string, subscriptionId: string) => {
@@ -14,10 +17,23 @@ const ensureOwns = async (userId: string, subscriptionId: string) => {
   }
 }
 
+type UpdateSubscriptionData = {
+  autoAddToLibrary?: boolean | null
+  description?: string | null
+  fetchContent?: boolean | null
+  folder?: string | null
+  isPrivate?: boolean | null
+  lastFetchedAt?: Date | null
+  lastFetchedChecksum?: string | null
+  name?: string | null
+  scheduledAt?: Date | null
+  status?: SubscriptionStatus | null
+}
+
 export const updateSubscription = async (
   userId: string,
   subscriptionId: string,
-  newData: UpdateSubscriptionInput
+  newData: UpdateSubscriptionData
 ): Promise<Subscription> => {
   ensureOwns(userId, subscriptionId)
 

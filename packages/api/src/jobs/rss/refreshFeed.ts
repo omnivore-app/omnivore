@@ -617,7 +617,6 @@ const processSubscription = async (
 
   // update subscription lastFetchedAt
   const updatedSubscription = await updateSubscription(userId, subscriptionId, {
-    id: subscriptionId,
     lastFetchedAt: lastItemFetchedAt,
     lastFetchedChecksum: updatedLastFetchedChecksum,
     scheduledAt: new Date(nextScheduledAt),
