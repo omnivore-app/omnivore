@@ -8,7 +8,7 @@ import { getRepository } from '../repository'
 const ensureOwns = async (userId: string, subscriptionId: string) => {
   const repo = getRepository(Subscription)
 
-  const existing = repo.findOneByOrFail({
+  const existing = await repo.findOneByOrFail({
     id: subscriptionId,
     user: { id: userId },
   })
@@ -35,7 +35,7 @@ export const updateSubscription = async (
   subscriptionId: string,
   newData: UpdateSubscriptionData
 ): Promise<Subscription> => {
-  ensureOwns(userId, subscriptionId)
+  await ensureOwns(userId, subscriptionId)
 
   const repo = getRepository(Subscription)
   await repo.save({
@@ -56,8 +56,8 @@ export const updateSubscription = async (
     folder: newData.folder ?? undefined,
   })
 
-  return (await getRepository(Subscription).findOneByOrFail({
+  return await getRepository(Subscription).findOneByOrFail({
     id: subscriptionId,
     user: { id: userId },
-  })) as Subscription
+  })
 }
