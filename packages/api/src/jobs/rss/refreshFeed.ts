@@ -530,7 +530,6 @@ const processSubscription = async (
       continue
     }
 
-    console.log('Fetching feed item', link)
     const feedItem = {
       ...item,
       isoDate,
