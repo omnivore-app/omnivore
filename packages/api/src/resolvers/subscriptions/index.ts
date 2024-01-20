@@ -50,6 +50,7 @@ import {
   keysToCamelCase,
 } from '../../utils/helpers'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
+import { updateSubscription } from '../../services/update_subscription'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -332,34 +333,7 @@ export const updateSubscriptionResolver = authorized<
       },
     })
 
-    const updatedSubscription = await authTrx(async (t) => {
-      const repo = t.getRepository(Subscription)
-
-      // update subscription
-      await t.getRepository(Subscription).save({
-        id: input.id,
-        name: input.name || undefined,
-        description: input.description || undefined,
-        lastFetchedAt: input.lastFetchedAt
-          ? new Date(input.lastFetchedAt)
-          : undefined,
-        lastFetchedChecksum: input.lastFetchedChecksum || undefined,
-        status: input.status || undefined,
-        scheduledAt: input.scheduledAt
-          ? new Date(input.scheduledAt)
-          : undefined,
-        autoAddToLibrary: input.autoAddToLibrary ?? undefined,
-        isPrivate: input.isPrivate ?? undefined,
-        fetchContent: input.fetchContent ?? undefined,
-        folder: input.folder ?? undefined,
-      })
-
-      return repo.findOneByOrFail({
-        id: input.id,
-        user: { id: uid },
-      })
-    })
-
+    const updatedSubscription = await updateSubscription(uid, input.id, input)
     return {
       subscription: updatedSubscription,
     }

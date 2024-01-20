@@ -8,6 +8,7 @@ import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
 import createHttpTaskWithToken from '../../utils/createTask'
 import { RSSRefreshContext } from './refreshAllFeeds'
+import { updateSubscription } from '../../services/update_subscription'
 
 type FolderType = 'following' | 'inbox'
 
@@ -615,13 +616,12 @@ const processSubscription = async (
   const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
 
   // update subscription lastFetchedAt
-  const updatedSubscription = await sendUpdateSubscriptionMutation(
-    userId,
-    subscriptionId,
-    lastItemFetchedAt,
-    updatedLastFetchedChecksum,
-    new Date(nextScheduledAt)
-  )
+  const updatedSubscription = await updateSubscription(userId, subscriptionId, {
+    id: subscriptionId,
+    lastFetchedAt: lastItemFetchedAt,
+    lastFetchedChecksum: updatedLastFetchedChecksum,
+    scheduledAt: new Date(nextScheduledAt),
+  })
   console.log('Updated subscription', updatedSubscription)
 }
 
