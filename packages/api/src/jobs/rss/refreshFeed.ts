@@ -70,8 +70,6 @@ interface FetchContentTask {
   item: RssFeedItem
 }
 
-const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
-
 export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   // existing items and items that were published before 24h
   const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
@@ -288,6 +286,7 @@ const isItemRecentlySaved = async (userId: string, url: string) => {
 }
 
 const addFetchContentTask = (
+  fetchContentTasks: Map<string, FetchContentTask>,
   userId: string,
   folder: FolderType,
   item: RssFeedItem
@@ -307,6 +306,7 @@ const addFetchContentTask = (
 }
 
 const createTask = async (
+  fetchContentTasks: Map<string, FetchContentTask>,
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
@@ -324,7 +324,7 @@ const createTask = async (
   }
 
   console.log(`adding fetch content task ${userId}  ${item.link.trim()}`)
-  return addFetchContentTask(userId, folder, item)
+  return addFetchContentTask(fetchContentTasks, userId, folder, item)
 }
 
 const fetchContentAndCreateItem = async (
@@ -482,6 +482,7 @@ const getLink = (links: RssFeedItemLink[]): string | undefined => {
 }
 
 const processSubscription = async (
+  fetchContentTasks: Map<string, FetchContentTask>,
   subscriptionId: string,
   userId: string,
   feedUrl: string,
@@ -562,6 +563,7 @@ const processSubscription = async (
     }
 
     const created = await createTask(
+      fetchContentTasks,
       userId,
       feedUrl,
       feedItem,
@@ -591,6 +593,7 @@ const processSubscription = async (
 
     // the feed has never been fetched, save at least the last valid item
     const created = await createTask(
+      fetchContentTasks,
       userId,
       feedUrl,
       lastValidItem,
@@ -673,9 +676,11 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
 
     console.log('Fetched feed', feed.title, new Date())
 
+    const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
     // process each subscription sequentially
     for (let i = 0; i < subscriptionIds.length; i++) {
       await processSubscription(
+        fetchContentTasks,
         subscriptionIds[i],
         userIds[i],
         feedUrl,
