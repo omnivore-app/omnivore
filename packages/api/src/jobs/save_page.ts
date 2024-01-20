@@ -353,6 +353,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
   try {
     const url = encodeURI(data.url)
+    console.log(`savePageJob: ${userId} ${url}`)
 
     // get the fetch result from cache
     const { title, content, contentType, readabilityResult } =
