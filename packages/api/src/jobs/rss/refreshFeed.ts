@@ -323,6 +323,7 @@ const createTask = async (
     return createItemWithPreviewContent(userId, feedUrl, item)
   }
 
+  console.log(`adding fetch content task ${userId}  ${item.link.trim()}`)
   return addFetchContentTask(userId, folder, item)
 }
 
