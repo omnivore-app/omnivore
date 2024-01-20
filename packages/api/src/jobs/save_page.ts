@@ -3,6 +3,10 @@ import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
 import { redisDataSource } from '../redis_data_source'
+import { savePage } from '../services/save_page'
+import { userRepository } from '../repository/user'
+import { ArticleSavingRequestStatus, ParseResult } from '../generated/graphql'
+import { logger } from '../utils/logger'
 
 const signToken = promisify(jwt.sign)
 
@@ -359,6 +363,12 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     const { title, content, contentType, readabilityResult } =
       await getCachedFetchResult(url)
 
+    if (!title || !content || !contentType || !readabilityResult) {
+      throw new Error(
+        'Invalid SavePage job, fetch result missing required data'
+      )
+    }
+
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
       const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
@@ -383,28 +393,41 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    // for non-pdf content, we need to save the page
-    const apiResponse = await sendSavePageMutation(userId, {
-      url,
-      clientRequestId: articleSavingRequestId,
-      title,
-      originalContent: content,
-      parseResult: readabilityResult,
-      state,
-      labels,
-      rssFeedUrl,
-      savedAt,
-      publishedAt,
-      source,
-      folder,
-    })
-    if (!apiResponse) {
-      throw new Error('error while saving page')
+    const user = await userRepository.findById(userId)
+    if (!user) {
+      logger.error('Unable to save job, user can not be found.', {
+        userId,
+        url,
+      })
+      throw new Error('Unable to save job, user can not be found.')
     }
 
-    if ('error' in apiResponse && apiResponse.error === 'UNAUTHORIZED') {
-      console.log('user is deleted', userId)
-      return false
+    // for non-pdf content, we need to save the page
+    const result = await savePage(
+      {
+        url,
+        clientRequestId: articleSavingRequestId,
+        title,
+        originalContent: content,
+        parseResult: readabilityResult as ParseResult,
+        state: state as ArticleSavingRequestStatus,
+        labels: labels?.map((name) => {
+          return {
+            name,
+          }
+        }),
+        rssFeedUrl,
+        savedAt,
+        publishedAt,
+        source,
+        folder,
+      },
+      user
+    )
+
+    if (result.__typename == 'SaveError') {
+      logger.error('Error saving page', { userId, url, result })
+      throw new Error('Error saving page')
     }
 
     // if the readability result is not parsed, the import is failed
