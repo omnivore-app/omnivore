@@ -34,7 +34,8 @@ import {
   updateHighlight,
 } from '../../services/highlights'
 import { analytics } from '../../utils/analytics'
-import { authorized, highlightDataToHighlight } from '../../utils/helpers'
+import { highlightDataToHighlight } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const createHighlightResolver = authorized<
   CreateHighlightSuccess,

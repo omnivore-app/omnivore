@@ -19,7 +19,9 @@ import {
   updateLibraryItem,
 } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
-import { authorized, generateSlug } from '../../utils/helpers'
+import { generateSlug } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
+
 import {
   contentReaderForLibraryItem,
   generateUploadFilePathName,

@@ -93,7 +93,6 @@ import { traceAs } from '../../tracing'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import {
-  authorized,
   cleanUrl,
   errorHandler,
   generateSlug,
@@ -103,6 +102,7 @@ import {
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import {
   contentConverter,
   getDistillerResult,

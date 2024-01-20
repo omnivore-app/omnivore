@@ -40,7 +40,8 @@ import {
 import { findLibraryItemById } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import { enqueueRecommendation } from '../../utils/createTask'
-import { authorized, userDataToUser } from '../../utils/helpers'
+import { userDataToUser } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const createGroupResolver = authorized<
   CreateGroupSuccess,

@@ -44,11 +44,8 @@ import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import {
-  authorized,
-  getAbsoluteUrl,
-  keysToCamelCase,
-} from '../../utils/helpers'
+import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 import { updateSubscription } from '../../services/update_subscription'
 

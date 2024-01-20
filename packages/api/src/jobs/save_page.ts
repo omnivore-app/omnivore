@@ -3,10 +3,10 @@ import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
 import { redisDataSource } from '../redis_data_source'
-import { savePage } from '../services/save_page'
+import { savePage, stringToRequestStatus } from '../services/save_page'
 import { userRepository } from '../repository/user'
-import { ArticleSavingRequestStatus, ParseResult } from '../generated/graphql'
 import { logger } from '../utils/logger'
+import { Readability } from '@omnivore/readability'
 
 const signToken = promisify(jwt.sign)
 
@@ -69,7 +69,7 @@ interface FetchResult {
   title: string
   content?: string
   contentType?: string
-  readabilityResult?: unknown
+  readabilityResult?: Readability.ParseResult
 }
 
 const isFetchResult = (obj: unknown): obj is FetchResult => {
@@ -238,60 +238,6 @@ const sendCreateArticleMutation = async (userId: string, input: unknown) => {
   }
 }
 
-const sendSavePageMutation = async (userId: string, input: unknown) => {
-  const data = JSON.stringify({
-    query: `mutation SavePage ($input: SavePageInput!){
-          savePage(input:$input){
-            ... on SaveSuccess{
-              url
-              clientRequestId
-            }
-            ... on SaveError{
-                errorCodes
-            }
-          }
-    }`,
-    variables: {
-      input,
-    },
-  })
-
-  const auth = await signToken({ uid: userId }, JWT_SECRET)
-  try {
-    const response = await axios.post<SavePageResponse>(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth as string};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: REQUEST_TIMEOUT,
-      }
-    )
-
-    if (
-      response.data.data.savePage.errorCodes &&
-      response.data.data.savePage.errorCodes.length > 0
-    ) {
-      console.error(
-        'error while saving page',
-        response.data.data.savePage.errorCodes[0]
-      )
-      if (response.data.data.savePage.errorCodes[0] === 'UNAUTHORIZED') {
-        return { error: 'UNAUTHORIZED' }
-      }
-
-      return null
-    }
-
-    return response.data.data.savePage
-  } catch (error) {
-    console.error('error saving page', error)
-    return null
-  }
-}
-
 const sendImportStatusUpdate = async (
   userId: string,
   taskId: string,
@@ -409,26 +355,26 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         clientRequestId: articleSavingRequestId,
         title,
         originalContent: content,
-        parseResult: readabilityResult as ParseResult,
-        state: state as ArticleSavingRequestStatus,
+        parseResult: readabilityResult,
+        state: stringToRequestStatus(state),
         labels: labels?.map((name) => {
           return {
             name,
           }
         }),
         rssFeedUrl,
-        savedAt,
-        publishedAt,
+        savedAt: savedAt ? new Date(savedAt) : new Date(),
+        publishedAt: publishedAt ? new Date(publishedAt) : null,
         source,
         folder,
       },
       user
     )
 
-    if (result.__typename == 'SaveError') {
-      logger.error('Error saving page', { userId, url, result })
-      throw new Error('Error saving page')
-    }
+    // if (result.__typename == 'SaveError') {
+    //   logger.error('Error saving page', { userId, url, result })
+    //   throw new Error('Error saving page')
+    // }
 
     // if the readability result is not parsed, the import is failed
     isImported = !!readabilityResult

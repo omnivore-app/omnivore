@@ -5,14 +5,12 @@ import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
-import {
-  ArticleSavingRequestStatus,
-  Maybe,
-  PreparedDocumentInput,
-  SaveErrorCode,
-  SavePageInput,
-  SaveResult,
-} from '../generated/graphql'
+// import {
+//   ArticleSavingRequestStatus,
+//   PreparedDocumentInput,
+//   SaveErrorCode,
+//   SaveResult,
+// } from '../generated/graphql'
 import { authTrx } from '../repository'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
@@ -30,6 +28,14 @@ import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
 import { createAndSaveLabelsInLibraryItem } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
+import { CreateLabelInput } from '../repository/label'
+import {
+  ArticleSavingRequestStatus,
+  PreparedDocumentInput,
+  SaveErrorCode,
+  SavePageInput,
+  SaveResult,
+} from '../generated/graphql'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -43,7 +49,7 @@ const ALREADY_PARSED_SOURCES = [
   'pocket',
 ]
 
-const createSlug = (url: string, title?: Maybe<string> | undefined) => {
+const createSlug = (url: string, title?: string | null | undefined) => {
   const { pathname } = new URL(url)
   const croppedPathname = decodeURIComponent(
     pathname
@@ -61,6 +67,15 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
     ALREADY_PARSED_SOURCES.indexOf(input.source) === -1 &&
     FORCE_PUPPETEER_URLS.some((regex) => regex.test(input.url))
   )
+}
+
+export const stringToRequestStatus = (
+  str: string | undefined | null
+): ArticleSavingRequestStatus | null => {
+  if (str && str in ArticleSavingRequestStatus) {
+    return str as ArticleSavingRequestStatus
+  }
+  return null
 }
 
 export const savePage = async (
@@ -95,7 +110,7 @@ export const savePage = async (
     canonicalUrl: parseResult.canonicalUrl,
     savedAt: input.savedAt ? new Date(input.savedAt) : new Date(),
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
-    state: input.state || undefined,
+    state: stringToRequestStatus(input.state) || undefined,
     rssFeedUrl: input.rssFeedUrl,
     folder: input.folder,
   })
@@ -109,7 +124,7 @@ export const savePage = async (
         userId: user.id,
         url: itemToSave.originalUrl,
         articleSavingRequestId: clientRequestId || undefined,
-        state: input.state || undefined,
+        state: stringToRequestStatus(input.state) || undefined,
         labels: input.labels || undefined,
         folder: input.folder || undefined,
       })
