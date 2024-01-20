@@ -52,9 +52,13 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
       console.error('error updating subscription group')
     }
   }
-  console.log(`rss: finished queuing subscription groups at ${new Date()}`, {
-    refreshContext,
-  })
+  const finishTime = new Date()
+  console.log(
+    `rss: finished queuing subscription groups at ${finishTime.toISOString()}`,
+    {
+      refreshContext,
+    }
+  )
 
   return true
 }
