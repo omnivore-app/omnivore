@@ -7,6 +7,7 @@ import { promisify } from 'util'
 import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
 import createHttpTaskWithToken from '../../utils/createTask'
+import { RSSRefreshContext } from './refreshAllFeeds'
 
 type FolderType = 'following' | 'inbox'
 
@@ -19,6 +20,7 @@ interface RefreshFeedRequest {
   userIds: string[]
   fetchContents: boolean[]
   folders: FolderType[]
+  refreshContext?: RSSRefreshContext
 }
 
 export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
@@ -638,8 +640,9 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
       lastFetchedChecksums,
       fetchContents,
       folders,
+      refreshContext,
     } = request
-    console.log('Processing feed', feedUrl)
+    console.log('Processing feed', feedUrl, { refreshContext: refreshContext })
 
     const isBlocked = await isFeedBlocked(feedUrl)
     if (isBlocked) {

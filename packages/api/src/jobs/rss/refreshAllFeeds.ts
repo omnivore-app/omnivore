@@ -7,7 +7,7 @@ import { stringToHash } from '../../utils/helpers'
 import { validateUrl } from '../../services/create_page_save_request'
 import { v4 as uuid } from 'uuid'
 
-type RSSRefreshContext = {
+export type RSSRefreshContext = {
   type: 'all' | 'user-added'
   refreshID: string
   startedAt: string
