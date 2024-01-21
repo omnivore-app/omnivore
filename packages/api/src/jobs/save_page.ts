@@ -7,7 +7,10 @@ import { savePage } from '../services/save_page'
 import { userRepository } from '../repository/user'
 import { logger } from '../utils/logger'
 import { Readability } from '@omnivore/readability'
-import { ArticleSavingRequestStatus } from '../generated/graphql'
+import {
+  ArticleSavingRequestStatus,
+  CreateLabelInput,
+} from '../generated/graphql'
 
 const signToken = promisify(jwt.sign)
 
@@ -23,7 +26,7 @@ interface Data {
   url: string
   articleSavingRequestId: string
   state?: string
-  labels?: string[]
+  labels?: CreateLabelInput[]
   source: string
   folder: string
   rssFeedUrl?: string
@@ -358,11 +361,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         originalContent: content,
         parseResult: readabilityResult,
         state: state ? (state as ArticleSavingRequestStatus) : undefined,
-        labels: labels?.map((name) => {
-          return {
-            name,
-          }
-        }),
+        labels: labels,
         rssFeedUrl,
         savedAt: savedAt ? new Date(savedAt) : new Date(),
         publishedAt: publishedAt ? new Date(publishedAt) : null,
