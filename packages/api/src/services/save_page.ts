@@ -5,12 +5,13 @@ import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
-// import {
-//   ArticleSavingRequestStatus,
-//   PreparedDocumentInput,
-//   SaveErrorCode,
-//   SaveResult,
-// } from '../generated/graphql'
+import {
+  ArticleSavingRequestStatus,
+  PreparedDocumentInput,
+  SaveErrorCode,
+  SavePageInput,
+  SaveResult,
+} from '../generated/graphql'
 import { authTrx } from '../repository'
 import { enqueueThumbnailTask } from '../utils/createTask'
 import {
@@ -28,14 +29,6 @@ import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
 import { createAndSaveLabelsInLibraryItem } from './labels'
 import { createLibraryItem, updateLibraryItem } from './library_item'
-import { CreateLabelInput } from '../repository/label'
-import {
-  ArticleSavingRequestStatus,
-  PreparedDocumentInput,
-  SaveErrorCode,
-  SavePageInput,
-  SaveResult,
-} from '../generated/graphql'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
