@@ -334,7 +334,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    if (!title || !content || !contentType || !readabilityResult) {
+    if (!content) {
       throw new Error(
         'Invalid SavePage job, fetch result missing required data'
       )
