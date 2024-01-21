@@ -17,7 +17,7 @@ import { getRepository } from '../../repository'
 import { findApiKeys } from '../../services/api_key'
 import { analytics } from '../../utils/analytics'
 import { generateApiKey, hashApiKey } from '../../utils/auth'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const apiKeysResolver = authorized<ApiKeysSuccess, ApiKeysError>(
   async (_, __, { log, uid }) => {

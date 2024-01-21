@@ -5,7 +5,7 @@ import {
   MutationAddPopularReadArgs,
 } from '../../generated/graphql'
 import { addPopularRead } from '../../services/popular_reads'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 export const addPopularReadResolver = authorized<
   AddPopularReadSuccess,
   AddPopularReadError,

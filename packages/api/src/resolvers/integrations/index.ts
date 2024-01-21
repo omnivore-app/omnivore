@@ -37,7 +37,7 @@ import {
   enqueueExportToIntegration,
   enqueueImportFromIntegration,
 } from '../../utils/createTask'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,

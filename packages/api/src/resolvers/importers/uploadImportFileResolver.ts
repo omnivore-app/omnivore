@@ -9,7 +9,7 @@ import {
 } from '../../generated/graphql'
 import { userRepository } from '../../repository/user'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import { logger } from '../../utils/logger'
 import {
   countOfFilesWithPrefix,

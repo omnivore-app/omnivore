@@ -20,7 +20,7 @@ import {
   findDeviceTokensByUserId,
 } from '../../services/user_device_tokens'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 const PG_UNIQUE_CONSTRAINT_VIOLATION = '23505'
 
