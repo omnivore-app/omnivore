@@ -309,12 +309,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     const { title, content, contentType, readabilityResult } =
       await getCachedFetchResult(url)
 
-    if (!title || !content || !contentType || !readabilityResult) {
-      throw new Error(
-        'Invalid SavePage job, fetch result missing required data'
-      )
-    }
-
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
       const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
@@ -337,6 +331,12 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       isSaved = true
       isImported = true
       return true
+    }
+
+    if (!title || !content || !contentType || !readabilityResult) {
+      throw new Error(
+        'Invalid SavePage job, fetch result missing required data'
+      )
     }
 
     const user = await userRepository.findById(userId)
