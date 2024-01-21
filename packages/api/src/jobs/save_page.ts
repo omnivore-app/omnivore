@@ -3,10 +3,11 @@ import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
 import { redisDataSource } from '../redis_data_source'
-import { savePage, stringToRequestStatus } from '../services/save_page'
+import { savePage } from '../services/save_page'
 import { userRepository } from '../repository/user'
 import { logger } from '../utils/logger'
 import { Readability } from '@omnivore/readability'
+import { ArticleSavingRequestStatus } from '../generated/graphql'
 
 const signToken = promisify(jwt.sign)
 
@@ -356,7 +357,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         title,
         originalContent: content,
         parseResult: readabilityResult,
-        state: stringToRequestStatus(state),
+        state: state ? (state as ArticleSavingRequestStatus) : undefined,
         labels: labels?.map((name) => {
           return {
             name,

@@ -62,15 +62,6 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
   )
 }
 
-export const stringToRequestStatus = (
-  str: string | undefined | null
-): ArticleSavingRequestStatus | null => {
-  if (str && str in ArticleSavingRequestStatus) {
-    return str as ArticleSavingRequestStatus
-  }
-  return null
-}
-
 export const savePage = async (
   input: SavePageInput,
   user: User
@@ -103,7 +94,7 @@ export const savePage = async (
     canonicalUrl: parseResult.canonicalUrl,
     savedAt: input.savedAt ? new Date(input.savedAt) : new Date(),
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
-    state: stringToRequestStatus(input.state) || undefined,
+    state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
     folder: input.folder,
   })
@@ -117,7 +108,7 @@ export const savePage = async (
         userId: user.id,
         url: itemToSave.originalUrl,
         articleSavingRequestId: clientRequestId || undefined,
-        state: stringToRequestStatus(input.state) || undefined,
+        state: input.state || undefined,
         labels: input.labels || undefined,
         folder: input.folder || undefined,
       })
