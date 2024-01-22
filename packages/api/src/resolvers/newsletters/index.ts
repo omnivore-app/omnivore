@@ -30,7 +30,7 @@ import {
 import { unsubscribeAll } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export type CreateNewsletterEmailSuccessPartial = Merge<
   CreateNewsletterEmailSuccess,

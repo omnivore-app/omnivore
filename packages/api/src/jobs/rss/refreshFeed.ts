@@ -7,6 +7,8 @@ import { promisify } from 'util'
 import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
 import createHttpTaskWithToken from '../../utils/createTask'
+import { RSSRefreshContext } from './refreshAllFeeds'
+import { updateSubscription } from '../../services/update_subscription'
 
 type FolderType = 'following' | 'inbox'
 
@@ -19,6 +21,7 @@ interface RefreshFeedRequest {
   userIds: string[]
   fetchContents: boolean[]
   folders: FolderType[]
+  refreshContext?: RSSRefreshContext
 }
 
 export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
@@ -67,8 +70,6 @@ interface FetchContentTask {
   users: Map<string, User> // userId -> User
   item: RssFeedItem
 }
-
-const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
 
 export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   // existing items and items that were published before 24h
@@ -204,75 +205,6 @@ const parseFeed = async (url: string, content: string) => {
   }
 }
 
-const sendUpdateSubscriptionMutation = async (
-  userId: string,
-  subscriptionId: string,
-  lastFetchedAt: Date,
-  lastFetchedChecksum: string,
-  scheduledAt: Date
-) => {
-  if (!process.env.INTERNAL_API_URL || !env.server.jwtSecret) {
-    throw new Error(
-      'Can not send update subscription, environment not configured.'
-    )
-  }
-  const JWT_SECRET = env.server.jwtSecret
-  const REST_BACKEND_ENDPOINT = `${process.env.INTERNAL_API_URL}/api`
-
-  if (!JWT_SECRET || !REST_BACKEND_ENDPOINT) {
-    throw 'Environment not configured correctly'
-  }
-
-  const data = JSON.stringify({
-    query: `mutation UpdateSubscription($input: UpdateSubscriptionInput!){
-      updateSubscription(input:$input){
-        ... on UpdateSubscriptionSuccess{
-          subscription{
-            id
-            lastFetchedAt
-          }
-        }
-        ... on UpdateSubscriptionError{
-            errorCodes
-        }
-      }
-    }`,
-    variables: {
-      input: {
-        id: subscriptionId,
-        lastFetchedAt,
-        lastFetchedChecksum,
-        scheduledAt,
-      },
-    },
-  })
-
-  const auth = (await signToken({ uid: userId }, JWT_SECRET)) as string
-  try {
-    const response = await axios.post(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000, // 30s
-      }
-    )
-
-    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-    return !!response.data.data.updateSubscription.subscription
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('update subscription mutation error', error.message)
-    } else {
-      console.error(error)
-    }
-    return false
-  }
-}
-
 const isItemRecentlySaved = async (userId: string, url: string) => {
   const key = `recent-saved-item:${userId}:${url}`
   try {
@@ -286,6 +218,7 @@ const isItemRecentlySaved = async (userId: string, url: string) => {
 }
 
 const addFetchContentTask = (
+  fetchContentTasks: Map<string, FetchContentTask>,
   userId: string,
   folder: FolderType,
   item: RssFeedItem
@@ -305,6 +238,7 @@ const addFetchContentTask = (
 }
 
 const createTask = async (
+  fetchContentTasks: Map<string, FetchContentTask>,
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
@@ -321,7 +255,8 @@ const createTask = async (
     return createItemWithPreviewContent(userId, feedUrl, item)
   }
 
-  return addFetchContentTask(userId, folder, item)
+  console.log(`adding fetch content task ${userId}  ${item.link.trim()}`)
+  return addFetchContentTask(fetchContentTasks, userId, folder, item)
 }
 
 const fetchContentAndCreateItem = async (
@@ -479,6 +414,7 @@ const getLink = (links: RssFeedItemLink[]): string | undefined => {
 }
 
 const processSubscription = async (
+  fetchContentTasks: Map<string, FetchContentTask>,
   subscriptionId: string,
   userId: string,
   feedUrl: string,
@@ -517,7 +453,7 @@ const processSubscription = async (
     // use published or updated if isoDate is not available for atom feeds
     const isoDate =
       item.isoDate || item.published || item.updated || item.created
-    console.log('Processing feed item', item.links, item.isoDate, feed.feedUrl)
+    console.log('Processing feed item', item.links, item.isoDate, feedUrl)
 
     if (!item.links || item.links.length === 0) {
       console.log('Invalid feed item', item)
@@ -530,7 +466,6 @@ const processSubscription = async (
       continue
     }
 
-    console.log('Fetching feed item', link)
     const feedItem = {
       ...item,
       isoDate,
@@ -560,6 +495,7 @@ const processSubscription = async (
     }
 
     const created = await createTask(
+      fetchContentTasks,
       userId,
       feedUrl,
       feedItem,
@@ -589,6 +525,7 @@ const processSubscription = async (
 
     // the feed has never been fetched, save at least the last valid item
     const created = await createTask(
+      fetchContentTasks,
       userId,
       feedUrl,
       lastValidItem,
@@ -610,13 +547,11 @@ const processSubscription = async (
   const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
 
   // update subscription lastFetchedAt
-  const updatedSubscription = await sendUpdateSubscriptionMutation(
-    userId,
-    subscriptionId,
-    lastItemFetchedAt,
-    updatedLastFetchedChecksum,
-    new Date(nextScheduledAt)
-  )
+  const updatedSubscription = await updateSubscription(userId, subscriptionId, {
+    lastFetchedAt: lastItemFetchedAt,
+    lastFetchedChecksum: updatedLastFetchedChecksum,
+    scheduledAt: new Date(nextScheduledAt),
+  })
   console.log('Updated subscription', updatedSubscription)
 }
 
@@ -639,8 +574,9 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
       lastFetchedChecksums,
       fetchContents,
       folders,
+      refreshContext,
     } = request
-    console.log('Processing feed', feedUrl)
+    console.log('Processing feed', feedUrl, { refreshContext: refreshContext })
 
     const isBlocked = await isFeedBlocked(feedUrl)
     if (isBlocked) {
@@ -670,9 +606,11 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
 
     console.log('Fetched feed', feed.title, new Date())
 
+    const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
     // process each subscription sequentially
     for (let i = 0; i < subscriptionIds.length; i++) {
       await processSubscription(
+        fetchContentTasks,
         subscriptionIds[i],
         userIds[i],
         feedUrl,

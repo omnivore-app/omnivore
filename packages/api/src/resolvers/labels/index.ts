@@ -37,7 +37,7 @@ import {
   updateLabel,
 } from '../../services/labels'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { authTrx, log, uid }) => {

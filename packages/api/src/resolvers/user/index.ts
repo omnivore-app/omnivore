@@ -43,9 +43,10 @@ import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendVerificationEmail } from '../../services/send_emails'
 import { softDeleteUser } from '../../services/user'
-import { authorized, userDataToUser } from '../../utils/helpers'
+import { userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
+import { authorized } from '../../utils/gql-utils'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,

@@ -5,7 +5,8 @@ import {
   UpdatePageSuccess,
 } from '../../generated/graphql'
 import { updateLibraryItem } from '../../services/library_item'
-import { authorized, libraryItemToArticle } from '../../utils/helpers'
+import { libraryItemToArticle } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const updatePageResolver = authorized<
   UpdatePageSuccess,

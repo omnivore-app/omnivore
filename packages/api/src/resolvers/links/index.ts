@@ -8,7 +8,7 @@ import {
 } from '../../generated/graphql'
 import { updateLibraryItem } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 // export const updateLinkShareInfoResolver = authorized<
 //   UpdateLinkShareInfoSuccess,

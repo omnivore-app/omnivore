@@ -19,11 +19,12 @@ import {
 } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
 import {
-  authorized,
   cleanUrl,
   isParsingTimeout,
   libraryItemToArticleSavingRequest,
 } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
+
 import { isErrorWithCode } from '../user'
 
 export const createArticleSavingRequestResolver = authorized<

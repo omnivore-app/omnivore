@@ -3,6 +3,14 @@ import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
 import { redisDataSource } from '../redis_data_source'
+import { savePage } from '../services/save_page'
+import { userRepository } from '../repository/user'
+import { logger } from '../utils/logger'
+import { Readability } from '@omnivore/readability'
+import {
+  ArticleSavingRequestStatus,
+  CreateLabelInput,
+} from '../generated/graphql'
 
 const signToken = promisify(jwt.sign)
 
@@ -18,7 +26,7 @@ interface Data {
   url: string
   articleSavingRequestId: string
   state?: string
-  labels?: string[]
+  labels?: CreateLabelInput[]
   source: string
   folder: string
   rssFeedUrl?: string
@@ -65,7 +73,7 @@ interface FetchResult {
   title: string
   content?: string
   contentType?: string
-  readabilityResult?: unknown
+  readabilityResult?: Readability.ParseResult
 }
 
 const isFetchResult = (obj: unknown): obj is FetchResult => {
@@ -234,60 +242,6 @@ const sendCreateArticleMutation = async (userId: string, input: unknown) => {
   }
 }
 
-const sendSavePageMutation = async (userId: string, input: unknown) => {
-  const data = JSON.stringify({
-    query: `mutation SavePage ($input: SavePageInput!){
-          savePage(input:$input){
-            ... on SaveSuccess{
-              url
-              clientRequestId
-            }
-            ... on SaveError{
-                errorCodes
-            }
-          }
-    }`,
-    variables: {
-      input,
-    },
-  })
-
-  const auth = await signToken({ uid: userId }, JWT_SECRET)
-  try {
-    const response = await axios.post<SavePageResponse>(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth as string};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: REQUEST_TIMEOUT,
-      }
-    )
-
-    if (
-      response.data.data.savePage.errorCodes &&
-      response.data.data.savePage.errorCodes.length > 0
-    ) {
-      console.error(
-        'error while saving page',
-        response.data.data.savePage.errorCodes[0]
-      )
-      if (response.data.data.savePage.errorCodes[0] === 'UNAUTHORIZED') {
-        return { error: 'UNAUTHORIZED' }
-      }
-
-      return null
-    }
-
-    return response.data.data.savePage
-  } catch (error) {
-    console.error('error saving page', error)
-    return null
-  }
-}
-
 const sendImportStatusUpdate = async (
   userId: string,
   taskId: string,
@@ -353,6 +307,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
   try {
     const url = encodeURI(data.url)
+    console.log(`savePageJob: ${userId} ${url}`)
 
     // get the fetch result from cache
     const { title, content, contentType, readabilityResult } =
@@ -382,29 +337,44 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    // for non-pdf content, we need to save the page
-    const apiResponse = await sendSavePageMutation(userId, {
-      url,
-      clientRequestId: articleSavingRequestId,
-      title,
-      originalContent: content,
-      parseResult: readabilityResult,
-      state,
-      labels,
-      rssFeedUrl,
-      savedAt,
-      publishedAt,
-      source,
-      folder,
-    })
-    if (!apiResponse) {
-      throw new Error('error while saving page')
+    if (!content) {
+      throw new Error(
+        'Invalid SavePage job, fetch result missing required data'
+      )
     }
 
-    if ('error' in apiResponse && apiResponse.error === 'UNAUTHORIZED') {
-      console.log('user is deleted', userId)
-      return false
+    const user = await userRepository.findById(userId)
+    if (!user) {
+      logger.error('Unable to save job, user can not be found.', {
+        userId,
+        url,
+      })
+      throw new Error('Unable to save job, user can not be found.')
     }
+
+    // for non-pdf content, we need to save the page
+    const result = await savePage(
+      {
+        url,
+        clientRequestId: articleSavingRequestId,
+        title,
+        originalContent: content,
+        parseResult: readabilityResult,
+        state: state ? (state as ArticleSavingRequestStatus) : undefined,
+        labels: labels,
+        rssFeedUrl,
+        savedAt: savedAt ? new Date(savedAt) : new Date(),
+        publishedAt: publishedAt ? new Date(publishedAt) : null,
+        source,
+        folder,
+      },
+      user
+    )
+
+    // if (result.__typename == 'SaveError') {
+    //   logger.error('Error saving page', { userId, url, result })
+    //   throw new Error('Error saving page')
+    // }
 
     // if the readability result is not parsed, the import is failed
     isImported = !!readabilityResult

@@ -7,7 +7,6 @@ import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
-  Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
   SavePageInput,
@@ -43,7 +42,7 @@ const ALREADY_PARSED_SOURCES = [
   'pocket',
 ]
 
-const createSlug = (url: string, title?: Maybe<string> | undefined) => {
+const createSlug = (url: string, title?: string | null | undefined) => {
   const { pathname } = new URL(url)
   const croppedPathname = decodeURIComponent(
     pathname

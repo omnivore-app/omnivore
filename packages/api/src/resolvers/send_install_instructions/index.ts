@@ -5,7 +5,7 @@ import {
   SendInstallInstructionsSuccess,
 } from '../../generated/graphql'
 import { userRepository } from '../../repository/user'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import { sendEmail } from '../../utils/sendEmail'
 
 const INSTALL_INSTRUCTIONS_EMAIL_TEMPLATE_ID =

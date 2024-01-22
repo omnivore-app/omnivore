@@ -15,6 +15,22 @@ import { CustomTypeOrmLogger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
+let backendQueue: Queue | undefined
+export const getBackendQueue = async (): Promise<Queue | undefined> => {
+  if (backendQueue) {
+    await backendQueue.waitUntilReady()
+    return backendQueue
+  }
+  if (!redisDataSource.workerRedisClient) {
+    throw new Error('Can not create queues, redis is not initialized')
+  }
+  backendQueue = new Queue(QUEUE_NAME, {
+    connection: redisDataSource.workerRedisClient,
+  })
+  await backendQueue.waitUntilReady()
+  return backendQueue
+}
+
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
 

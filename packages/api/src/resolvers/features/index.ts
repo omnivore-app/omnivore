@@ -9,7 +9,7 @@ import {
   optInFeature,
   signFeatureToken,
 } from '../../services/features'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const optInFeatureResolver = authorized<
   OptInFeatureSuccess,

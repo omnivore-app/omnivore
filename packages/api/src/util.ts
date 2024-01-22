@@ -68,7 +68,6 @@ export interface BackendEnv {
     textToSpeechTaskHandlerUrl: string
     recommendationTaskHandlerUrl: string
     thumbnailTaskHandlerUrl: string
-    rssFeedTaskHandlerUrl: string
     integrationExporterUrl: string
     integrationImporterUrl: string
     importerMetricsUrl: string
@@ -149,7 +148,6 @@ const nullableEnvVars = [
   'RECOMMENDATION_TASK_HANDLER_URL',
   'POCKET_CONSUMER_KEY',
   'THUMBNAIL_TASK_HANDLER_URL',
-  'RSS_FEED_TASK_HANDLER_URL',
   'SENDGRID_VERIFICATION_TEMPLATE_ID',
   'REMINDER_TASK_HANDLER_URL',
   'TRUST_PROXY',
@@ -247,7 +245,6 @@ export function getEnv(): BackendEnv {
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
     recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
     thumbnailTaskHandlerUrl: parse('THUMBNAIL_TASK_HANDLER_URL'),
-    rssFeedTaskHandlerUrl: parse('RSS_FEED_TASK_HANDLER_URL'),
     integrationExporterUrl: parse('INTEGRATION_EXPORTER_URL'),
     integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
     importerMetricsUrl: parse('IMPORTER_METRICS_COLLECTOR_URL'),

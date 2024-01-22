@@ -17,7 +17,7 @@ import {
   PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
-  UploadFileStatus
+  UploadFileStatus,
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
@@ -25,7 +25,7 @@ import { createHighlight } from '../../src/services/highlights'
 import {
   createLabel,
   deleteLabels,
-  saveLabelsInLibraryItem
+  saveLabelsInLibraryItem,
 } from '../../src/services/labels'
 import {
   createLibraryItem,
@@ -36,7 +36,7 @@ import {
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
-  updateLibraryItem
+  updateLibraryItem,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -570,23 +570,37 @@ describe('Article API', () => {
         ).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(
-          200
-        )
+        let allLinks = await graphqlRequest(
+          searchQuery('in:inbox'),
+          authToken
+        ).expect(200)
         const justSavedId = allLinks.body.data.search.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
+        allLinks = await graphqlRequest(
+          searchQuery('in:inbox'),
+          authToken
+        ).expect(200)
         expect(allLinks.body.data.search.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
         await graphqlRequest(
-          savePageQuery(url, title, originalContent, null, null, generateFakeUuid()),
+          savePageQuery(
+            url,
+            title,
+            originalContent,
+            null,
+            null,
+            generateFakeUuid()
+          ),
           authToken
         ).expect(200)
 
-        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
+        allLinks = await graphqlRequest(
+          searchQuery('in:inbox'),
+          authToken
+        ).expect(200)
         expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
       })
@@ -610,6 +624,7 @@ describe('Article API', () => {
         ).expect(200)
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
+        console.log('savedItem: ', savedItem)
         expect(savedItem?.archivedAt).to.not.be.null
         expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
@@ -778,15 +793,20 @@ describe('Article API', () => {
 
     context('when force is true', () => {
       before(async () => {
-        itemId = (await createLibraryItem({
-          user: { id: user.id },
-          originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
-          slug: 'test-with-omnivore',
-          readableContent: '<p>test</p>',
-          title: 'test title',
-          readingProgressBottomPercent: 100,
-          readingProgressTopPercent: 80,
-        }, user.id)).id
+        itemId = (
+          await createLibraryItem(
+            {
+              user: { id: user.id },
+              originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
+              slug: 'test-with-omnivore',
+              readableContent: '<p>test</p>',
+              title: 'test title',
+              readingProgressBottomPercent: 100,
+              readingProgressTopPercent: 80,
+            },
+            user.id
+          )
+        ).id
       })
 
       after(async () => {
@@ -2052,20 +2072,23 @@ describe('Article API', () => {
       )
     })
 
-    context('when since is -1000000000-01-01T00:00:00Z from android app', () => {
-      before(() => {
-        since = '-1000000000-01-01T00:00:00Z'
-      })
+    context(
+      'when since is -1000000000-01-01T00:00:00Z from android app',
+      () => {
+        before(() => {
+          since = '-1000000000-01-01T00:00:00Z'
+        })
 
-      it('returns all', async () => {
-        const res = await graphqlRequest(
-          updatesSinceQuery(since),
-          authToken
-        ).expect(200)
+        it('returns all', async () => {
+          const res = await graphqlRequest(
+            updatesSinceQuery(since),
+            authToken
+          ).expect(200)
 
-        expect(res.body.data.updatesSince.edges.length).to.eql(5)
-      })
-    })
+          expect(res.body.data.updatesSince.edges.length).to.eql(5)
+        })
+      }
+    )
 
     context('returns highlights', () => {
       let highlight: Highlight
@@ -2092,9 +2115,9 @@ describe('Article API', () => {
         expect(res.body.data.updatesSince.edges[0].node.highlights[0].id).to.eq(
           highlight.id
         )
-        expect(res.body.data.updatesSince.edges[0].node.highlights[0].type).to.eq(
-          HighlightType.Highlight
-        )
+        expect(
+          res.body.data.updatesSince.edges[0].node.highlights[0].type
+        ).to.eq(HighlightType.Highlight)
       })
     })
   })

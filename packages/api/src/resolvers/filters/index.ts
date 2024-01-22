@@ -25,7 +25,7 @@ import {
 } from '../../generated/graphql'
 import { authTrx } from '../../repository'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,

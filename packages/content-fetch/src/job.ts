@@ -57,6 +57,7 @@ export const queueSavePageJob = async (savePageJobs: savePageJob[]) => {
     data: job.data,
     opts: getOpts(job),
   }))
+  console.log('queue save page jobs:', { jobs })
 
   return queue.addBulk(jobs)
 }
