@@ -138,7 +138,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
     console.log('cacheFetchResult result', cacheResult)
 
     const jobs = await queueSavePageJob(savePageJobs)
-    console.log('save-page jobs queued', { jobs })
+    console.log('save-page jobs queued', jobs.length)
   } catch (error) {
     if (error instanceof Error) {
       logRecord.error = error.message
