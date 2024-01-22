@@ -1,16 +1,16 @@
+import { Readability } from '@omnivore/readability'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 import { env } from '../env'
-import { redisDataSource } from '../redis_data_source'
-import { savePage } from '../services/save_page'
-import { userRepository } from '../repository/user'
-import { logger } from '../utils/logger'
-import { Readability } from '@omnivore/readability'
 import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { redisDataSource } from '../redis_data_source'
+import { userRepository } from '../repository/user'
+import { savePage } from '../services/save_page'
+import { logger } from '../utils/logger'
 
 const signToken = promisify(jwt.sign)
 
@@ -302,11 +302,11 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     savedAt,
     publishedAt,
     taskId,
+    url,
   } = data
   let isImported, isSaved
 
   try {
-    const url = encodeURI(data.url)
     console.log(`savePageJob: ${userId} ${url}`)
 
     // get the fetch result from cache
@@ -315,9 +315,15 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
-      const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
+      const encodedUrl = encodeURI(url)
+
+      const uploadFileId = await uploadPdf(
+        encodedUrl,
+        userId,
+        articleSavingRequestId
+      )
       const uploadedPdf = await sendCreateArticleMutation(userId, {
-        url,
+        url: encodedUrl,
         articleSavingRequestId,
         uploadFileId,
         state,
