@@ -55,8 +55,7 @@ Omnivore takes advantage of some great open source software:
 
 ## Importing Libraries
 
-If you have a library you'd like to import, [@davidohlin](https://github.com/davidohlin) has created
-a tool that imports a list of CSV URLs: [omnivore-import](https://github.com/davidohlin/instapaper-to-omnivore-import)
+Check out our [docs](https://docs.omnivore.app/using/importing.html) for information on importing your data from other apps.
 
 ## How to setup local development :computer:
 
