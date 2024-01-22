@@ -35,7 +35,7 @@ export function contentServiceRouter() {
       return
     }
     const msg = data as UpdateContentMessage
-    if (!updateContentForFileItem(msg)) {
+    if (!(await updateContentForFileItem(msg))) {
       res.status(404).send('Bad Request')
       return
     }
