@@ -224,7 +224,7 @@ export function HomeFeedContainer(): JSX.Element {
         if (itemsToUpdate.length > 0) {
           const link = await articleQuery({
             username,
-            slug: item.node.slug,
+            slug: item.node.id,
             includeFriendsHighlights: false,
           })
 
