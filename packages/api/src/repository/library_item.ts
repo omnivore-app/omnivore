@@ -1,9 +1,26 @@
+import { DeepPartial } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { LibraryItem } from '../entity/library_item'
+import { wordsCount } from '../utils/helpers'
 
 export const libraryItemRepository = appDataSource
   .getRepository(LibraryItem)
   .extend({
+    save(libraryItem: DeepPartial<LibraryItem>) {
+      return this.createQueryBuilder()
+        .insert()
+        .values({
+          ...libraryItem,
+          wordCount:
+            libraryItem.wordCount ??
+            wordsCount(libraryItem.readableContent || ''),
+        })
+        .orIgnore() // ignore if the item already exists
+        .returning('*')
+        .execute()
+        .then((result) => result.generatedMaps[0] as LibraryItem)
+    },
+
     findById(id: string) {
       return this.findOneBy({ id })
     },

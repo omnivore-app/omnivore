@@ -137,9 +137,12 @@ export function followingServiceRouter() {
       )
 
       logger.info('RSS label added to the item')
+
       return res.sendStatus(200)
     }
 
     res.sendStatus(200)
   })
+
+  return router
 }

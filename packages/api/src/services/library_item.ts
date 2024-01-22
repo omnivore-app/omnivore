@@ -12,12 +12,11 @@ import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
   getColumns,
-  isUniqueViolation,
   queryBuilderToRawSql,
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
+import { setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 
@@ -808,69 +807,42 @@ export const createLibraryItems = async (
 }
 
 export const createLibraryItem = async (
-  libraryItem: DeepPartial<LibraryItem> & { originalUrl: string },
+  libraryItem: DeepPartial<LibraryItem>,
   userId: string,
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
-  try {
-    const newLibraryItem = await authTrx(
-      async (tx) =>
-        tx.withRepository(libraryItemRepository).save({
-          ...libraryItem,
-          wordCount:
-            libraryItem.wordCount ??
-            wordsCount(libraryItem.readableContent || ''),
-        }),
-      undefined,
-      userId
+  const newLibraryItem = await authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).save(libraryItem),
+    undefined,
+    userId
+  )
+
+  // set recently saved item in redis if redis is enabled
+  if (redisDataSource.redisClient) {
+    await setRecentlySavedItemInRedis(
+      redisDataSource.redisClient,
+      userId,
+      newLibraryItem.originalUrl
     )
-    logger.info('item created', { url: libraryItem.originalUrl })
-
-    // set recently saved item in redis if redis is enabled
-    if (redisDataSource.redisClient) {
-      await setRecentlySavedItemInRedis(
-        redisDataSource.redisClient,
-        userId,
-        newLibraryItem.originalUrl
-      )
-    }
-
-    if (skipPubSub) {
-      return newLibraryItem
-    }
-
-    await pubsub.entityCreated<DeepPartial<LibraryItem>>(
-      EntityType.PAGE,
-      {
-        ...newLibraryItem,
-        // don't send original content and readable content
-        originalContent: undefined,
-        readableContent: undefined,
-      },
-      userId
-    )
-
-    return newLibraryItem
-  } catch (error) {
-    if (isUniqueViolation(error)) {
-      logger.info('item already created', { url: libraryItem.originalUrl })
-
-      const existingItem = await findLibraryItemByUrl(
-        libraryItem.originalUrl,
-        userId
-      )
-
-      if (!existingItem) {
-        throw new Error(`Item not found for url: ${libraryItem.originalUrl}`)
-      }
-
-      return existingItem
-    }
-
-    logger.error('error creating item', error)
-    throw error
   }
+
+  if (skipPubSub) {
+    return newLibraryItem
+  }
+
+  await pubsub.entityCreated<DeepPartial<LibraryItem>>(
+    EntityType.PAGE,
+    {
+      ...newLibraryItem,
+      // don't send original content and readable content
+      originalContent: undefined,
+      readableContent: undefined,
+    },
+    userId
+  )
+
+  return newLibraryItem
 }
 
 export const findLibraryItemsByPrefix = async (
