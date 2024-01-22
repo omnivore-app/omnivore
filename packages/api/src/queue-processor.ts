@@ -12,6 +12,7 @@ import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
+import { updatePDFContentJob } from './jobs/update_pdf_content'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -97,6 +98,9 @@ const main = async () => {
         }
         case 'save-page': {
           return savePageJob(job.data, job.attemptsMade)
+        }
+        case 'update-pdf-content': {
+          return updatePDFContentJob(job.data)
         }
       }
       return true
