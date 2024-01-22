@@ -106,7 +106,7 @@ const updateSubscriptionGroup = async (
 }
 
 export const queueRSSRefreshAllFeedsJob = async () => {
-  const queue = getBackendQueue()
+  const queue = await getBackendQueue()
   if (!queue) {
     return false
   }
@@ -126,7 +126,7 @@ export const queueRSSRefreshFeedJob = async (
   payload: any,
   options = { priority: 'high' as QueuePriority }
 ): Promise<Job | undefined> => {
-  const queue = getBackendQueue()
+  const queue = await getBackendQueue()
   if (!queue) {
     return undefined
   }

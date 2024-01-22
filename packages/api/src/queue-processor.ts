@@ -16,8 +16,9 @@ import { CustomTypeOrmLogger } from './utils/logger'
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
 let backendQueue: Queue | undefined
-export const getBackendQueue = (): Queue | undefined => {
+export const getBackendQueue = async (): Promise<Queue | undefined> => {
   if (backendQueue) {
+    await backendQueue.waitUntilReady()
     return backendQueue
   }
   if (!redisDataSource.workerRedisClient) {
@@ -26,6 +27,7 @@ export const getBackendQueue = (): Queue | undefined => {
   backendQueue = new Queue(QUEUE_NAME, {
     connection: redisDataSource.workerRedisClient,
   })
+  await backendQueue.waitUntilReady()
   return backendQueue
 }
 
