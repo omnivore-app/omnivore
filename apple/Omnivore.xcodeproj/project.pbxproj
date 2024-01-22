@@ -830,6 +830,7 @@
 			packageReferences = (
 				0418837C2742E99F003E0001 /* XCRemoteSwiftPackageReference "intercom-ios" */,
 				048F592A2790EAF800E0B494 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				04B616992B5C296700128513 /* XCRemoteSwiftPackageReference "SwiftFormat" */,
 			);
 			productRefGroup = E601FA26367162479B614F0F /* Products */;
 			projectDirPath = "";
@@ -2051,6 +2052,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 8.0.0;
+			};
+		};
+		04B616992B5C296700128513 /* XCRemoteSwiftPackageReference "SwiftFormat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nicklockwood/SwiftFormat";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.53.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
