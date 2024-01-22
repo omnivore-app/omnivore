@@ -5,7 +5,7 @@ export const createRedisClient = (url?: string, cert?: string) => {
     connectTimeout: 10000, // 10 seconds
     tls: cert
       ? {
-          cert,
+          cert: cert.replace(/\\n/g, '\n'), // replace \n with new line
           rejectUnauthorized: false, // for self-signed certs
         }
       : undefined,
