@@ -106,7 +106,7 @@ export const createTestLibraryItem = async (
   userId: string,
   labels?: Label[]
 ): Promise<LibraryItem> => {
-  const item: DeepPartial<LibraryItem> = {
+  const item = {
     user: { id: userId },
     title: 'test title',
     originalContent: '<p>test content</p>',
