@@ -8,16 +8,18 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
+import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
   getColumns,
+  isUniqueViolation,
   queryBuilderToRawSql,
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { redisDataSource } from '../redis_data_source'
 
 enum ReadFilter {
   ALL = 'all',
@@ -806,48 +808,69 @@ export const createLibraryItems = async (
 }
 
 export const createLibraryItem = async (
-  libraryItem: DeepPartial<LibraryItem>,
+  libraryItem: DeepPartial<LibraryItem> & { originalUrl: string },
   userId: string,
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
-  const newLibraryItem = await authTrx(
-    async (tx) =>
-      tx.withRepository(libraryItemRepository).save({
-        ...libraryItem,
-        wordCount:
-          libraryItem.wordCount ??
-          wordsCount(libraryItem.readableContent || ''),
-      }),
-    undefined,
-    userId
-  )
-
-  // set recently saved item in redis if redis is enabled
-  if (redisDataSource.redisClient) {
-    await setRecentlySavedItemInRedis(
-      redisDataSource.redisClient,
-      userId,
-      newLibraryItem.originalUrl
+  try {
+    const newLibraryItem = await authTrx(
+      async (tx) =>
+        tx.withRepository(libraryItemRepository).save({
+          ...libraryItem,
+          wordCount:
+            libraryItem.wordCount ??
+            wordsCount(libraryItem.readableContent || ''),
+        }),
+      undefined,
+      userId
     )
-  }
+    logger.info('item created', { url: libraryItem.originalUrl })
 
-  if (skipPubSub) {
+    // set recently saved item in redis if redis is enabled
+    if (redisDataSource.redisClient) {
+      await setRecentlySavedItemInRedis(
+        redisDataSource.redisClient,
+        userId,
+        newLibraryItem.originalUrl
+      )
+    }
+
+    if (skipPubSub) {
+      return newLibraryItem
+    }
+
+    await pubsub.entityCreated<DeepPartial<LibraryItem>>(
+      EntityType.PAGE,
+      {
+        ...newLibraryItem,
+        // don't send original content and readable content
+        originalContent: undefined,
+        readableContent: undefined,
+      },
+      userId
+    )
+
     return newLibraryItem
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      logger.info('item already created', { url: libraryItem.originalUrl })
+
+      const existingItem = await findLibraryItemByUrl(
+        libraryItem.originalUrl,
+        userId
+      )
+
+      if (!existingItem) {
+        throw new Error(`Item not found for url: ${libraryItem.originalUrl}`)
+      }
+
+      return existingItem
+    }
+
+    logger.error('error creating item', error)
+    throw error
   }
-
-  await pubsub.entityCreated<DeepPartial<LibraryItem>>(
-    EntityType.PAGE,
-    {
-      ...newLibraryItem,
-      // don't send original content and readable content
-      originalContent: undefined,
-      readableContent: undefined,
-    },
-    userId
-  )
-
-  return newLibraryItem
 }
 
 export const findLibraryItemsByPrefix = async (
