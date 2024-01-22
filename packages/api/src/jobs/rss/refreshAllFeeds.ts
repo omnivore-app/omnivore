@@ -1,6 +1,6 @@
 import { Job, Queue } from 'bullmq'
 import { DataSource } from 'typeorm'
-import { QUEUE_NAME } from '../../queue-processor'
+import { QUEUE_NAME, getBackendQueue } from '../../queue-processor'
 import { redisDataSource } from '../../redis_data_source'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
@@ -105,17 +105,8 @@ const updateSubscriptionGroup = async (
   await queueRSSRefreshFeedJob(jobid, payload)
 }
 
-const createBackendQueue = (): Queue | undefined => {
-  if (!redisDataSource.workerRedisClient) {
-    throw new Error('Can not create queues, redis is not initialized')
-  }
-  return new Queue(QUEUE_NAME, {
-    connection: redisDataSource.workerRedisClient,
-  })
-}
-
 export const queueRSSRefreshAllFeedsJob = async () => {
-  const queue = createBackendQueue()
+  const queue = getBackendQueue()
   if (!queue) {
     return false
   }
@@ -135,7 +126,7 @@ export const queueRSSRefreshFeedJob = async (
   payload: any,
   options = { priority: 'high' as QueuePriority }
 ): Promise<Job | undefined> => {
-  const queue = createBackendQueue()
+  const queue = getBackendQueue()
   if (!queue) {
     return undefined
   }
