@@ -4,10 +4,8 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import { Job, QueueEvents, Worker, Queue } from 'bullmq'
 import express, { Express } from 'express'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
-import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import { redisDataSource } from './redis_data_source'
@@ -18,9 +16,6 @@ import {
   queueRSSRefreshAllFeedsJob,
   refreshAllFeeds,
 } from './jobs/rss/refreshAllFeeds'
-import { Job, Worker, QueueEvents } from 'bullmq'
-import { refreshFeed } from './jobs/rss/refreshFeed'
-import { env } from './env'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
