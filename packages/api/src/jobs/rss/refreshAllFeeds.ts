@@ -38,7 +38,7 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
       AND (scheduled_at <= NOW() OR scheduled_at IS NULL)
     GROUP BY
       url
-    LIMIT 1000
+    LIMIT 5000
     `,
     ['RSS', 'ACTIVE', 'following']
   )) as RssSubscriptionGroup[]

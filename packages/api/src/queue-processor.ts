@@ -95,10 +95,6 @@ const main = async () => {
     async (job: Job) => {
       switch (job.name) {
         case 'refresh-all-feeds': {
-          const counts = await queue.getJobCounts('wait')
-          if (counts.wait > 1000) {
-            return
-          }
           return await refreshAllFeeds(appDataSource)
         }
         case 'refresh-feed': {
