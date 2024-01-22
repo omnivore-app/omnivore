@@ -239,6 +239,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
+  console.log('save_page: state', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,
