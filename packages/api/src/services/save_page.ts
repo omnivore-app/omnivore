@@ -18,7 +18,6 @@ import {
   cleanUrl,
   generateSlug,
   stringToHash,
-  TWEET_URL_REGEX,
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
@@ -32,7 +31,7 @@ import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
-  TWEET_URL_REGEX,
+  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
 const ALREADY_PARSED_SOURCES = [
@@ -58,7 +57,10 @@ const createSlug = (url: string, title?: string | null | undefined) => {
 const shouldParseInBackend = (input: SavePageInput): boolean => {
   return (
     ALREADY_PARSED_SOURCES.indexOf(input.source) === -1 &&
-    FORCE_PUPPETEER_URLS.some((regex) => regex.test(input.url))
+    FORCE_PUPPETEER_URLS.some((regex) => {
+      console.log('REGEX: ', regex)
+      return regex.test(input.url)
+    })
   )
 }
 
