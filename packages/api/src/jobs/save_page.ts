@@ -114,7 +114,7 @@ const getUploadIdAndSignedUrl = async (
     }`,
     variables: {
       input: {
-        url,
+        url: encodeURI(url),
         contentType: 'application/pdf',
         clientRequestId: articleSavingRequestId,
       },
@@ -304,11 +304,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     if (contentType === 'application/pdf') {
       const encodedUrl = encodeURI(url)
 
-      const uploadFileId = await uploadPdf(
-        encodedUrl,
-        userId,
-        articleSavingRequestId
-      )
+      const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
       const uploadedPdf = await sendCreateArticleMutation(userId, {
         url: encodedUrl,
         articleSavingRequestId,
