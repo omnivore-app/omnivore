@@ -58,16 +58,6 @@ interface CreateArticleResponse {
   }
 }
 
-interface SavePageResponse {
-  data: {
-    savePage: {
-      url: string
-      clientRequestId: string
-      errorCodes?: string[]
-    }
-  }
-}
-
 interface FetchResult {
   finalUrl: string
   title?: string
@@ -77,12 +67,7 @@ interface FetchResult {
 }
 
 const isFetchResult = (obj: unknown): obj is FetchResult => {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'finalUrl' in obj &&
-    'title' in obj
-  )
+  return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
 }
 
 const uploadToSignedUrl = async (
