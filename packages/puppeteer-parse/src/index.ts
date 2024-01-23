@@ -154,7 +154,6 @@ export const fetchContent = async (
 
   let context: BrowserContext | undefined,
     page: Page | undefined,
-    finalUrl = '',
     title = '',
     content: string | undefined,
     contentType: string | undefined,
@@ -201,13 +200,11 @@ export const fetchContent = async (
         page = result.page
       }
       if (result && result.finalUrl) {
-        finalUrl = result.finalUrl
+        url = result.finalUrl
       }
       if (result && result.contentType) {
         contentType = result.contentType
       }
-    } else {
-      finalUrl = url
     }
 
     if (contentType !== 'application/pdf') {
@@ -260,7 +257,7 @@ export const fetchContent = async (
     console.info(`content-fetch result`, logRecord)
   }
 
-  return { finalUrl, title, content, readabilityResult, contentType }
+  return { finalUrl: url, title, content, readabilityResult, contentType }
 }
 
 function validateUrlString(url: string) {
