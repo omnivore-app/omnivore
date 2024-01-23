@@ -1,4 +1,4 @@
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import {
   AddDiscoverFeedError,
   AddDiscoverFeedErrorCode,
@@ -31,7 +31,7 @@ const extractAtomData = (
     title: string
     subtitle?: string
     icon?: string
-  },
+  }
 ): Partial<DiscoverFeed> => ({
   description: feed.subtitle ?? '',
   title: feed.title ?? url,
@@ -49,7 +49,7 @@ const extractRssData = (
       ['sy:updateFrequency']: number
     }
     image: { url: string }
-  },
+  }
 ): Partial<DiscoverFeed> => ({
   description: parsedXml.channel?.description ?? '',
   title: parsedXml.channel.title ?? url,
@@ -61,12 +61,12 @@ const extractRssData = (
 const handleExistingSubscription = async (
   queryRunner: QueryRunner,
   feed: DiscoverFeed,
-  userId: string,
+  userId: string
 ): Promise<AddDiscoverFeedSuccess | AddDiscoverFeedError> => {
   // Add to existing, otherwise conflict.
   const existingSubscription = await queryRunner.query(
     'SELECT * FROM omnivore.discover_feed_subscription WHERE user_id = $1 and feed_id = $2',
-    [userId, feed.id],
+    [userId, feed.id]
   )
 
   if (existingSubscription.rows > 1) {
@@ -79,7 +79,7 @@ const handleExistingSubscription = async (
 
   const addSubscription = await queryRunner.query(
     'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($1, $2)',
-    [feed.id, userId],
+    [feed.id, userId]
   )
 
   return {
@@ -91,7 +91,7 @@ const handleExistingSubscription = async (
 const addNewSubscription = async (
   queryRunner: QueryRunner,
   url: string,
-  userId: string,
+  userId: string
 ): Promise<AddDiscoverFeedSuccess | AddDiscoverFeedError> => {
   // First things first, we need to validate that this is an actual RSS or ATOM feed.
   const response = await axios.get(url, RSS_PARSER_CONFIG)
@@ -140,12 +140,12 @@ const addNewSubscription = async (
       feed.image,
       feed.type,
       feed.description,
-    ],
+    ]
   )
 
   await queryRunner.query(
     'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($2, $1)',
-    [userId, discoverFeedId],
+    [userId, discoverFeedId]
   )
 
   await queryRunner.release()
@@ -167,14 +167,14 @@ export const addDiscoverFeedResolver = authorized<
 
     const existingFeed = (await queryRunner.query(
       'SELECT id from omnivore.discover_feed where link = $1',
-      [url],
+      [url]
     )) as DiscoverFeedRows
 
     if (existingFeed.rows.length > 0) {
       return await handleExistingSubscription(
         queryRunner,
         existingFeed.rows[0],
-        uid,
+        uid
       )
     }
 
@@ -183,7 +183,7 @@ export const addDiscoverFeedResolver = authorized<
       await pubsub.entityCreated(
         EntityType.RSS_FEED,
         { feed: result.feed },
-        uid,
+        uid
       )
     }
 

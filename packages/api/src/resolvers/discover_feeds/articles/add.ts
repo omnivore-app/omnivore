@@ -1,4 +1,4 @@
-import { authorized } from '../../../utils/helpers'
+import { authorized } from '../../../utils/gql-utils'
 import {
   InputMaybe,
   MutationSaveDiscoverArticleArgs,
@@ -21,7 +21,7 @@ export const saveDiscoverArticleResolver = authorized<
   async (
     _,
     { input: { discoverArticleId, timezone, locale } },
-    { uid, log },
+    { uid, log }
   ) => {
     try {
       const queryRunner = (await appDataSource
@@ -38,7 +38,7 @@ export const saveDiscoverArticleResolver = authorized<
 
       const { rows: discoverArticles } = (await queryRunner.query(
         `SELECT url FROM omnivore.discover_feed_articles WHERE id=$1`,
-        [discoverArticleId],
+        [discoverArticleId]
       )) as {
         rows: {
           url: string
@@ -61,7 +61,7 @@ export const saveDiscoverArticleResolver = authorized<
           locale: locale as InputMaybe<string>,
           timezone: timezone as InputMaybe<string>,
         },
-        user,
+        user
       )
 
       if (savedArticle.__typename == 'SaveError') {
@@ -75,7 +75,7 @@ export const saveDiscoverArticleResolver = authorized<
 
       await queryRunner.query(
         `insert into omnivore.discover_feed_save_link (discover_article_id, user_id, article_save_id, article_save_url) VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT user_discover_feed_link DO UPDATE SET (article_save_id, article_save_url, deleted) = ($3, $4, false);`,
-        [discoverArticleId, uid, saveSuccess.clientRequestId, saveSuccess.url],
+        [discoverArticleId, uid, saveSuccess.clientRequestId, saveSuccess.url]
       )
 
       await queryRunner.release()
@@ -93,5 +93,5 @@ export const saveDiscoverArticleResolver = authorized<
         errorCodes: [SaveDiscoverArticleErrorCode.Unauthorized],
       }
     }
-  },
+  }
 )

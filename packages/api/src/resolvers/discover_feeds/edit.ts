@@ -1,4 +1,4 @@
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import {
   EditDiscoverFeedError,
   EditDiscoverFeedErrorCode,
@@ -22,7 +22,7 @@ export const editDiscoverFeedsResolver = authorized<
     const feeds = (await queryRunner.query(
       `SELECT * FROM omnivore.discover_feed_subscription sub
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
-      [uid, feedId],
+      [uid, feedId]
     )) as {
       rows: {
         feed_id: string
@@ -39,7 +39,7 @@ export const editDiscoverFeedsResolver = authorized<
     await queryRunner.query(
       `UPDATE omnivore.discover_feed_subscription SET visible_name = $1
       WHERE user_id = $2 and feed_id = $3`,
-      [name, uid, feedId],
+      [name, uid, feedId]
     )
 
     await queryRunner.release()

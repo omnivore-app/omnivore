@@ -1,4 +1,4 @@
-import { authorized, getAbsoluteUrl } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import {
   DeleteDiscoverFeedError,
   DeleteDiscoverFeedErrorCode,
@@ -22,7 +22,7 @@ export const deleteDiscoverFeedsResolver = authorized<
     const feeds = (await queryRunner.query(
       `SELECT * FROM omnivore.discover_feed_subscription sub
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
-      [uid, feedId],
+      [uid, feedId]
     )) as {
       rows: {
         feed_id: string
@@ -39,7 +39,7 @@ export const deleteDiscoverFeedsResolver = authorized<
     await queryRunner.query(
       `DELETE FROM omnivore.discover_feed_subscription sub
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
-      [uid, feedId],
+      [uid, feedId]
     )
 
     await queryRunner.release()

@@ -1,4 +1,4 @@
-import { authorized } from '../../../utils/helpers'
+import { authorized } from '../../../utils/gql-utils'
 import {
   DeleteDiscoverArticleError,
   DeleteDiscoverArticleErrorCode,
@@ -31,7 +31,7 @@ export const deleteDiscoverArticleResolver = authorized<
 
     const { rows: discoverArticles } = (await queryRunner.query(
       `SELECT article_save_id FROM omnivore.discover_feed_save_link WHERE discover_article_id=$1 and user_id=$2`,
-      [discoverArticleId, uid],
+      [discoverArticleId, uid]
     )) as {
       rows: { article_save_id: string }[]
     }
@@ -45,7 +45,7 @@ export const deleteDiscoverArticleResolver = authorized<
 
     await queryRunner.query(
       `UPDATE omnivore.discover_feed_save_link set deleted = true WHERE discover_article_id=$1 and user_id=$2`,
-      [discoverArticleId, uid],
+      [discoverArticleId, uid]
     )
 
     await updateLibraryItem(
@@ -55,7 +55,7 @@ export const deleteDiscoverArticleResolver = authorized<
         deletedAt: new Date(),
       },
       uid,
-      pubsub,
+      pubsub
     )
 
     await queryRunner.release()

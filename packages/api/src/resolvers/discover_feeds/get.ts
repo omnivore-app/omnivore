@@ -1,4 +1,4 @@
-import { authorized, getAbsoluteUrl } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import {
   DiscoverFeed,
   DiscoverFeedError,
@@ -21,7 +21,7 @@ export const getDiscoverFeedsResolver = authorized<
       `SELECT *, COALESCE(visible_name, title) as "visibleName" FROM omnivore.discover_feed_subscription sub
       INNER JOIN omnivore.discover_feed feed on sub.feed_id=id
       WHERE sub.user_id = $1`,
-      [uid],
+      [uid]
     )) as {
       rows: DiscoverFeed[]
     }
