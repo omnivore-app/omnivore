@@ -194,7 +194,7 @@ const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
   console.log('fetching image', url)
   try {
     // get image file by url
-    return axios.get(url, {
+    return await axios.get(url, {
       responseType: 'arraybuffer',
       timeout: 10000, // 10s
       maxContentLength: 20000000, // 20mb
