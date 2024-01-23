@@ -30,7 +30,7 @@ export const setLabels = async (
   })
 
   try {
-    return axios.post(`${apiEndpoint}/graphql`, data, {
+    return await axios.post(`${apiEndpoint}/graphql`, data, {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',
