@@ -171,7 +171,9 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
           return 'continue'
         case 'no:subscription':
           return 'non-feed'
+        // Handle both cases while we migrate
         case 'has:highlights mode:highlights':
+        case 'in:all has:highlights mode:highlights':
           return 'highlight'
         case 'no:label':
           return 'unlabeled'

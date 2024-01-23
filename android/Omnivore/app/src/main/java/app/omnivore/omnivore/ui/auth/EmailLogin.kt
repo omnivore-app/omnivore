@@ -10,7 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.auth.AuthUtils.autofill
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
@@ -86,6 +89,7 @@ fun EmailLoginView(viewModel: LoginViewModel) {
   }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginFields(
   email: String,
@@ -105,6 +109,12 @@ fun LoginFields(
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     OutlinedTextField(
+      modifier = Modifier.autofill(
+        autofillTypes = listOf(
+          AutofillType.EmailAddress,
+        ),
+        onFill = { onEmailChange(it) }
+      ),
       value = email,
       placeholder = { Text(stringResource(R.string.email_login_field_placeholder_email)) },
       label = { Text(stringResource(R.string.email_login_field_label_email)) },
@@ -112,11 +122,17 @@ fun LoginFields(
       keyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Done,
         keyboardType = KeyboardType.Email,
-        ),
+      ),
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 
     OutlinedTextField(
+      modifier = Modifier.autofill(
+        autofillTypes = listOf(
+          AutofillType.Password,
+        ),
+        onFill = { onPasswordChange(it) }
+      ),
       value = password,
       placeholder = { Text(stringResource(R.string.email_login_field_placeholder_password)) },
       label = { Text(stringResource(R.string.email_login_field_label_password)) },
@@ -129,21 +145,22 @@ fun LoginFields(
       keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 
-    Button(onClick = {
-      if (email.isNotBlank() && password.isNotBlank()) {
-        onLoginClick()
-        focusManager.clearFocus()
-      } else {
-        Toast.makeText(
-          context,
-          context.getString(R.string.email_login_error_msg),
-          Toast.LENGTH_SHORT
-        ).show()
-      }
-    }, colors = ButtonDefaults.buttonColors(
-         contentColor = Color(0xFF3D3D3D),
-         containerColor = Color(0xffffd234)
-       )
+    Button(
+      onClick = {
+        if (email.isNotBlank() && password.isNotBlank()) {
+          onLoginClick()
+          focusManager.clearFocus()
+        } else {
+          Toast.makeText(
+            context,
+            context.getString(R.string.email_login_error_msg),
+            Toast.LENGTH_SHORT
+          ).show()
+        }
+      }, colors = ButtonDefaults.buttonColors(
+      contentColor = Color(0xFF3D3D3D),
+      containerColor = Color(0xffffd234)
+    )
     ) {
       Text(
         text = stringResource(R.string.email_login_action_login),

@@ -2,10 +2,10 @@ import { Storage } from '@google-cloud/storage'
 import { Readability } from '@omnivore/readability'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
+import Redis from 'ioredis'
 import * as jwt from 'jsonwebtoken'
 import { Stream } from 'node:stream'
 import * as path from 'path'
-import { createClient } from 'redis'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 import { importCsv } from './csv'
@@ -13,9 +13,6 @@ import { importMatterArchive } from './matterHistory'
 import { ImportStatus, updateMetrics } from './metrics'
 import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask, emailUserUrl } from './task'
-
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
 
 export enum ArticleSavingRequestStatus {
   Failed = 'FAILED',
@@ -59,7 +56,7 @@ export type ImportContext = {
   countFailed: number
   urlHandler: UrlHandler
   contentHandler: ContentHandler
-  redisClient: RedisClient
+  redisClient: Redis
   taskId: string
   source: string
 }
@@ -300,7 +297,7 @@ const contentHandler = async (
   return Promise.resolve()
 }
 
-const handleEvent = async (data: StorageEvent, redisClient: RedisClient) => {
+const handleEvent = async (data: StorageEvent, redisClient: Redis) => {
   if (shouldHandle(data)) {
     const handler = handlerForFile(data.name)
     if (!handler) {
@@ -367,7 +364,7 @@ export const importHandler = Sentry.GCPFunction.wrapHttpFunction(
       const obj = getStorageEvent(pubSubMessage)
       if (obj) {
         // create redis client
-        const redisClient = await createRedisClient(
+        const redisClient = createRedisClient(
           process.env.REDIS_URL,
           process.env.REDIS_CERT
         )
@@ -416,7 +413,7 @@ export const importMetricsCollector = Sentry.GCPFunction.wrapHttpFunction(
       return res.status(400).send('Bad Request')
     }
 
-    const redisClient = await createRedisClient(
+    const redisClient = createRedisClient(
       process.env.REDIS_URL,
       process.env.REDIS_CERT
     )

@@ -20,6 +20,7 @@ suspend fun Networker.savedItemUpdates(
   try {
     val result = authenticatedApolloClient().query(
       UpdatesSinceQuery(
+        folder = Optional.presentIfNotNull("all"),
         after = Optional.presentIfNotNull(cursor),
         first = Optional.presentIfNotNull(limit),
         since = since

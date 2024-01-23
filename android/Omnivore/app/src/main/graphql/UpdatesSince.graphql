@@ -1,5 +1,10 @@
-query UpdatesSince($after: String, $first: Int, $since: Date!) {
-  updatesSince(after: $after, first: $first, since: $since) {
+query UpdatesSince(
+  $folder: String
+  $after: String
+  $first: Int
+  $since: Date!
+) {
+  updatesSince(after: $after, first: $first, folder: $folder, since: $since) {
     ... on UpdatesSinceSuccess {
       edges {
         cursor

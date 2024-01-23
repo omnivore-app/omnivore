@@ -44,6 +44,7 @@ import {
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { redisDataSource } from './redis_data_source'
 
 const PORT = process.env.PORT || 4000
 
@@ -157,6 +158,11 @@ const main = async (): Promise<void> => {
   // as healthy.
   await appDataSource.initialize()
 
+  // redis is optional for the API server
+  if (env.redis.url) {
+    await redisDataSource.initialize()
+  }
+
   const { app, apollo, httpServer } = createApp()
 
   await apollo.start()
@@ -182,6 +188,18 @@ const main = async (): Promise<void> => {
   // And a workaround for node.js bug: https://github.com/nodejs/node/issues/27363
   listener.headersTimeout = 640 * 1000 // 10s more than above
   listener.timeout = 640 * 1000 // match headersTimeout
+
+  process.on('SIGINT', async () => {
+    // Shutdown redis before DB because the quit sequence can
+    // cause appDataSource to get reloaded in the callback
+    await redisDataSource.shutdown()
+    console.log('Redis connection closed.')
+
+    await appDataSource.destroy()
+    console.log('DB connection closed.')
+
+    process.exit(0)
+  })
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

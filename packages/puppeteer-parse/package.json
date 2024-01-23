@@ -2,29 +2,35 @@
   "name": "@omnivore/puppeteer-parse",
   "version": "1.0.0",
   "description": "Accepts URL of the article and parses its content",
-  "main": "index.js",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
   "dependencies": {
-    "@google-cloud/storage": "^7.0.1",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
-    "axios": "^0.27.2",
+    "axios": "^1.4.0",
     "crypto": "^1.0.1",
     "dompurify": "^2.4.1",
-    "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.9",
     "puppeteer-core": "^20.9.0",
     "puppeteer-extra": "^3.3.4",
     "puppeteer-extra-plugin-adblocker": "^2.13.5",
     "puppeteer-extra-plugin-stealth": "^2.11.1",
-    "underscore": "^1.13.4",
     "urlsafe-base64": "^1.0.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/urlsafe-base64": "^1.0.31",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   },
   "scripts": {
-    "test": "mocha test/*.js"
+    "test": "yarn mocha -r ts-node/register --config mocha-config.json",
+    "test:typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "build": "tsc"
   },
   "volta": {
     "extends": "../../package.json"

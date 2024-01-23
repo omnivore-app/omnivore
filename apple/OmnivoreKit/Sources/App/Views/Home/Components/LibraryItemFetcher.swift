@@ -164,10 +164,13 @@ import Views
 
     var subPredicates = [NSPredicate]()
 
-    let folderPredicate = NSPredicate(
-      format: "%K == %@", #keyPath(Models.LibraryItem.folder), filterState.folder
-    )
-    subPredicates.append(folderPredicate)
+    // TODO: FOLLOWING MIGRATION: invert this once the following migration has completed
+    if !UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab") {
+      let folderPredicate = NSPredicate(
+        format: "%K == %@", #keyPath(Models.LibraryItem.folder), filterState.folder
+      )
+      subPredicates.append(folderPredicate)
+    }
 
     if let predicate = filterState.appliedFilter?.predicate {
       subPredicates.append(predicate)
@@ -255,7 +258,11 @@ import Views
       }.joined(separator: ","))
     }
 
-    query.append(" use:folders")
+    // TODO: FOLLOWING MIGRATION: invert this once the following migration has completed
+    if !UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab") {
+      query.append(" use:folders")
+    }
+
     print("QUERY: `\(query)`")
 
     return query

@@ -22,7 +22,7 @@ import {
 import { authTrx } from '../../repository'
 import { deleteWebhook } from '../../services/webhook'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
   async (_obj, _params, { uid, log }) => {

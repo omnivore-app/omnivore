@@ -9,6 +9,11 @@ const signToken = promisify(jwt.sign)
 
 dotenv.config()
 
+Sentry.GCPFunction.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0,
+})
+
 interface PubSubRequestMessage {
   data: string
   publishTime: string

@@ -34,7 +34,8 @@ import {
   updateHighlight,
 } from '../../services/highlights'
 import { analytics } from '../../utils/analytics'
-import { authorized, highlightDataToHighlight } from '../../utils/helpers'
+import { highlightDataToHighlight } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const createHighlightResolver = authorized<
   CreateHighlightSuccess,
@@ -123,7 +124,6 @@ export const mergeHighlightResolver = authorized<
       ...newHighlightInput,
       annotation:
         mergedAnnotations.length > 0 ? mergedAnnotations.join('\n') : null,
-      labels: mergedLabels,
       color,
       user: { id: uid },
       libraryItem: { id: input.articleId },
@@ -134,6 +134,7 @@ export const mergeHighlightResolver = authorized<
     const newHighlight = await mergeHighlights(
       overlapHighlightIdList,
       highlight,
+      mergedLabels,
       input.articleId,
       uid,
       pubsub

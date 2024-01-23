@@ -54,6 +54,17 @@ public extension AppEnvironment {
     )
   }
 
+  var environmentConfigured: Bool {
+    if self == .custom {
+      if let str = UserDefaults.standard.string(forKey: AppEnvironmentUserDefaultKey.webAppBaseURL.rawValue), let url = URL(string: str) {
+        return true
+      } else {
+        return false
+      }
+    }
+    return true
+  }
+
   var graphqlPath: String {
     "\(serverBaseURL.absoluteString)/api/graphql"
   }

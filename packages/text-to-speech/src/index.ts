@@ -3,26 +3,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { File, Storage } from '@google-cloud/storage'
 import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
-import * as jwt from 'jsonwebtoken'
-import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import { AzureTextToSpeech } from './azureTextToSpeech'
-import { File, Storage } from '@google-cloud/storage'
-import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
 import crypto from 'crypto'
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import Redis from 'ioredis'
+import * as jwt from 'jsonwebtoken'
+import { AzureTextToSpeech } from './azureTextToSpeech'
+import { endSsml, htmlToSpeechFile, startSsml } from './htmlToSsml'
+import { OpenAITextToSpeech } from './openaiTextToSpeech'
+import { RealisticTextToSpeech } from './realisticTextToSpeech'
 import { createRedisClient } from './redis'
 import {
   SpeechMark,
   TextToSpeechInput,
   TextToSpeechOutput,
 } from './textToSpeech'
-import { createClient } from 'redis'
-import { RealisticTextToSpeech } from './realisticTextToSpeech'
-import { OpenAITextToSpeech } from './openaiTextToSpeech'
-
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
 
 interface UtteranceInput {
   text: string
@@ -118,7 +115,7 @@ const updateSpeech = async (
 }
 
 const getCharacterCountFromRedis = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   uid: string
 ): Promise<number> => {
   const wordCount = await redisClient.get(`tts:charCount:${uid}`)
@@ -129,14 +126,17 @@ const getCharacterCountFromRedis = async (
 // which will be used to rate limit the request
 // expires after 1 day
 const updateCharacterCountInRedis = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   uid: string,
   wordCount: number
-): Promise<void> => {
-  await redisClient.set(`tts:charCount:${uid}`, wordCount.toString(), {
-    EX: 3600 * 24, // in seconds
-    NX: true,
-  })
+) => {
+  await redisClient.set(
+    `tts:charCount:${uid}`,
+    wordCount.toString(),
+    'EX',
+    86400, // 1 day in seconds
+    'NX'
+  )
 }
 
 export const textToSpeechHandler = Sentry.GCPFunction.wrapHttpFunction(
@@ -240,9 +240,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
     }
 
     // create redis client
-    const redisClient = await createRedisClient(
-      process.env.REDIS_URL,
-      process.env.REDIS_CERT
+    const redisClient = createRedisClient(
+      process.env.REDIS_TTS_URL,
+      process.env.REDIS_TTS_CERT
     )
 
     try {
@@ -353,10 +353,9 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       await redisClient.set(
         cacheKey,
         JSON.stringify({ audioDataString, speechMarks }),
-        {
-          EX: 3600 * 72, // in seconds
-          NX: true,
-        }
+        'EX',
+        3600 * 72,
+        'NX'
       )
       console.log('Cache saved')
 

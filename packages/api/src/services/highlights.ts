@@ -1,7 +1,9 @@
 import { diff_match_patch } from 'diff-match-patch'
 import { DeepPartial } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
+import { Label } from '../entity/label'
 import { homePageURL } from '../env'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
@@ -65,6 +67,7 @@ export const createHighlight = async (
 export const mergeHighlights = async (
   highlightsToRemove: string[],
   highlightToAdd: DeepPartial<Highlight>,
+  labels: Label[],
   libraryItemId: string,
   userId: string,
   pubsub = createPubSubClient()
@@ -75,6 +78,17 @@ export const mergeHighlights = async (
     await highlightRepo.delete(highlightsToRemove)
 
     const newHighlight = await highlightRepo.createAndSave(highlightToAdd)
+
+    if (labels.length > 0) {
+      // save new labels
+      await tx.getRepository(EntityLabel).save(
+        labels.map((l) => ({
+          labelId: l.id,
+          highlightId: newHighlight.id,
+        }))
+      )
+    }
+
     return highlightRepo.findOneOrFail({
       where: { id: newHighlight.id },
       relations: {

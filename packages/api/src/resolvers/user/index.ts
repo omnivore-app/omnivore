@@ -42,10 +42,11 @@ import {
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendVerificationEmail } from '../../services/send_emails'
-import { updateUser } from '../../services/user'
-import { authorized, userDataToUser } from '../../utils/helpers'
+import { softDeleteUser } from '../../services/user'
+import { userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
+import { authorized } from '../../utils/gql-utils'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -320,10 +321,8 @@ export const deleteAccountResolver = authorized<
   DeleteAccountError,
   MutationDeleteAccountArgs
 >(async (_, { userID }, { log }) => {
-  // soft delete user
-  const result = await updateUser(userID, {
-    status: StatusType.Deleted,
-  })
+  // soft delete user and change email address for user to sign up again
+  const result = await softDeleteUser(userID)
   if (!result.affected) {
     log.error('Error deleting user account')
 

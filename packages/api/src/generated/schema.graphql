@@ -644,6 +644,20 @@ type DeviceTokensSuccess {
   deviceTokens: [DeviceToken!]!
 }
 
+type EmptyTrashError {
+  errorCodes: [EmptyTrashErrorCode!]!
+}
+
+enum EmptyTrashErrorCode {
+  UNAUTHORIZED
+}
+
+union EmptyTrashResult = EmptyTrashError | EmptyTrashSuccess
+
+type EmptyTrashSuccess {
+  success: Boolean
+}
+
 type Feature {
   createdAt: Date!
   expiresAt: Date
@@ -1213,6 +1227,7 @@ type Mutation {
   deleteNewsletterEmail(newsletterEmailId: ID!): DeleteNewsletterEmailResult!
   deleteRule(id: ID!): DeleteRuleResult!
   deleteWebhook(id: ID!): DeleteWebhookResult!
+  emptyTrash: EmptyTrashResult!
   fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!

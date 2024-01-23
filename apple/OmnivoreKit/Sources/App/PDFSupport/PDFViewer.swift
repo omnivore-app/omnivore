@@ -44,6 +44,7 @@ import Utils
 
     @State private var errorMessage: String?
     @State private var showNotebookView = false
+    @State private var showLabelsModal = false
     @State private var hasPerformedHighlightMutations = false
     @State private var errorAlertMessage: String?
     @State private var showErrorAlertMessage = false
@@ -131,6 +132,12 @@ import Utils
                 style: .plain,
                 target: coordinator,
                 action: #selector(PDFViewCoordinator.toggleNotebookView)
+              ),
+              UIBarButtonItem(
+                image: UIImage(named: "label", in: Bundle(url: ViewsPackage.bundleURL), with: nil),
+                style: .plain,
+                target: coordinator,
+                action: #selector(PDFViewCoordinator.toggleLabelsView)
               )
             ]
 
@@ -228,20 +235,31 @@ import Utils
             }
             .navigationViewStyle(StackNavigationViewStyle())
           }
-          .fullScreenCover(isPresented: $readerView, content: {
+          .sheet(isPresented: $readerView, content: {
             PDFReaderViewController(document: document)
           })
           .accentColor(Color(red: 255 / 255.0, green: 234 / 255.0, blue: 159 / 255.0))
           .sheet(item: $shareLink) {
             ShareSheet(activityItems: [$0.url])
           }
-          .fullScreenCover(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
+          .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
             NotebookView(
               viewModel: NotebookViewModel(item: viewModel.pdfItem.item),
               hasHighlightMutations: $hasPerformedHighlightMutations,
               onDeleteHighlight: { highlightId in
                 coordinator.removeHighlightFromPDF(highlightId: highlightId)
               }
+            )
+          }
+          .sheet(isPresented: $showLabelsModal) {
+            ApplyLabelsView(mode: .item(viewModel.pdfItem.item), onSave: { _ in
+              showLabelsModal = false
+            })
+          }.task {
+            viewModel.updateItemReadProgress(
+              dataService: dataService,
+              percent: viewModel.pdfItem.item.readingProgress,
+              anchorIndex: Int(viewModel.pdfItem.item.readingProgressAnchor)
             )
           }
       } else if let errorMessage = errorMessage {
@@ -480,6 +498,12 @@ import Utils
       @objc public func toggleNotebookView() {
         if let viewer = self.viewer {
           viewer.showNotebookView = !viewer.showNotebookView
+        }
+      }
+
+      @objc public func toggleLabelsView() {
+        if let viewer = self.viewer {
+          viewer.showLabelsModal = !viewer.showLabelsModal
         }
       }
 

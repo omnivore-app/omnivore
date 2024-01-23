@@ -21,6 +21,8 @@ import {
   CreateArticleError,
   CreateArticleErrorCode,
   CreateArticleSuccess,
+  EmptyTrashError,
+  EmptyTrashSuccess,
   FetchContentError,
   FetchContentErrorCode,
   FetchContentSuccess,
@@ -71,6 +73,7 @@ import {
   findOrCreateLabels,
 } from '../../services/labels'
 import {
+  batchDelete,
   batchUpdateLibraryItems,
   createLibraryItem,
   findLibraryItemById,
@@ -90,7 +93,6 @@ import { traceAs } from '../../tracing'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
 import {
-  authorized,
   cleanUrl,
   errorHandler,
   generateSlug,
@@ -100,6 +102,7 @@ import {
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import {
   contentConverter,
   getDistillerResult,
@@ -643,8 +646,7 @@ export const saveArticleReadingProgressResolver = authorized<
         uid,
         readingProgressPercent,
         readingProgressTopPercent,
-        readingProgressAnchorIndex,
-        pubsub
+        readingProgressAnchorIndex
       )
       if (!updatedItem) {
         return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
@@ -1029,6 +1031,27 @@ export const fetchContentResolver = authorized<
       }
     }
   }
+
+  return {
+    success: true,
+  }
+})
+
+export const emptyTrashResolver = authorized<
+  EmptyTrashSuccess,
+  EmptyTrashError
+>(async (_, __, { uid }) => {
+  analytics.track({
+    userId: uid,
+    event: 'empty_trash',
+  })
+
+  await batchDelete({
+    state: LibraryItemState.Deleted,
+    user: {
+      id: uid,
+    },
+  })
 
   return {
     success: true,

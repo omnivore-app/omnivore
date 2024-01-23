@@ -39,16 +39,15 @@ import {
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
 import { feedRepository } from '../../repository/feed'
+import { validateUrl } from '../../services/create_page_save_request'
 import { unsubscribe } from '../../services/subscriptions'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import {
-  authorized,
-  getAbsoluteUrl,
-  keysToCamelCase,
-} from '../../utils/helpers'
+import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
+import { updateSubscription } from '../../services/update_subscription'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -192,15 +191,25 @@ export const subscribeResolver = authorized<
         env: env.server.apiEnv,
       },
     })
+    // use user provided url
+    const feedUrl = input.url
+    try {
+      validateUrl(feedUrl)
+    } catch (error) {
+      log.error('invalid feedUrl', { feedUrl, error })
+
+      return {
+        errorCodes: [SubscribeErrorCode.BadRequest],
+      }
+    }
 
     // validate rss feed
-    const feed = await parseFeed(input.url)
+    const feed = await parseFeed(feedUrl)
     if (!feed) {
       return {
         errorCodes: [SubscribeErrorCode.NotFound],
       }
     }
-    const feedUrl = feed.url
 
     // find existing subscription
     const existingSubscription = await getRepository(Subscription).findOneBy({
@@ -321,34 +330,7 @@ export const updateSubscriptionResolver = authorized<
       },
     })
 
-    const updatedSubscription = await authTrx(async (t) => {
-      const repo = t.getRepository(Subscription)
-
-      // update subscription
-      await t.getRepository(Subscription).save({
-        id: input.id,
-        name: input.name || undefined,
-        description: input.description || undefined,
-        lastFetchedAt: input.lastFetchedAt
-          ? new Date(input.lastFetchedAt)
-          : undefined,
-        lastFetchedChecksum: input.lastFetchedChecksum || undefined,
-        status: input.status || undefined,
-        scheduledAt: input.scheduledAt
-          ? new Date(input.scheduledAt)
-          : undefined,
-        autoAddToLibrary: input.autoAddToLibrary ?? undefined,
-        isPrivate: input.isPrivate ?? undefined,
-        fetchContent: input.fetchContent ?? undefined,
-        folder: input.folder ?? undefined,
-      })
-
-      return repo.findOneByOrFail({
-        id: input.id,
-        user: { id: uid },
-      })
-    })
-
+    const updatedSubscription = await updateSubscription(uid, input.id, input)
     return {
       subscription: updatedSubscription,
     }

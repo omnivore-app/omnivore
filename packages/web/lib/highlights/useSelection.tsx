@@ -1,11 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
-  wrapHighlightTagAroundRange,
+  retrieveOffsetsForSelection,
   getHighlightElements,
   HighlightLocation,
 } from './highlightGenerator'
 import type { SelectionAttributes } from './highlightHelpers'
 
+/**
+ * Get the range of text with {@link SelectionAttributes} that user has selected
+ * 
+ * Event Handlers for detecting/using new highlight selection are registered
+ * 
+ * If the new highlight selection overlaps with existing highlights, the new selection is merged.
+ * 
+ * @param highlightLocations existing highlights
+ * @returns selection range and its setter
+ */
 export function useSelection(
   highlightLocations: HighlightLocation[]
 ): [SelectionAttributes | null, (x: SelectionAttributes | null) => void] {
@@ -55,7 +65,7 @@ export function useSelection(
       }
 
       const { range, isReverseSelected, selection } = result
-      const [selectionStart, selectionEnd] = wrapHighlightTagAroundRange(range)
+      const [selectionStart, selectionEnd] = retrieveOffsetsForSelection(range)
       const rangeRect = rangeToPos(range, isReverseSelected)
 
       let shouldCancelSelection = false
@@ -82,8 +92,8 @@ export function useSelection(
           }
 
           if (
-            selectionStart <= highlightLocation.end &&
-            highlightLocation.start <= selectionEnd
+            selectionStart < highlightLocation.end &&
+            highlightLocation.start < selectionEnd
           ) {
             overlapHighlights.push(highlightLocation)
           }
@@ -234,7 +244,75 @@ async function makeSelectionRange(): Promise<
     range.startContainer === selection.focusNode &&
     range.endOffset === selection.anchorOffset
 
+  /**
+   * Edge case:
+   * If the selection ends on range endContainer (or startContainer in reverse select) but no text is selected (i.e. selection ends at 
+   * an empty area), the preceding text is highlighted due to range normalizing. 
+   * This is a visual bug and would sometimes lead to weird highlight behavior during removal.
+   */
+  const selectionEndNode = selection.focusNode
+  const selectionEndOffset = selection.focusOffset
+  const selectionStartNode = isReverseSelected ? range.endContainer : range.startContainer
+
+  if (selectionEndNode?.nodeType === Node.TEXT_NODE) {
+    const selectionEndNodeEdgeIndex = isReverseSelected ? selectionEndNode.textContent?.length : 0
+
+    if (selectionStartNode !== selectionEndNode && 
+      selectionEndOffset == selectionEndNodeEdgeIndex) {
+        clipRangeToNearestAnchor(range, selectionEndNode, isReverseSelected) 
+    }
+  } 
+  
   return isRangeAllowed ? { range, isReverseSelected, selection } : undefined
+}
+
+/**
+ * Clip selection range to the beginning/end of the adjacent anchor element
+ * 
+ * @param range selection range
+ * @param selectionEndNode the node where the selection ended at
+ * @param isReverseSelected 
+ */
+const clipRangeToNearestAnchor = (
+  range: Range,
+  selectionEndNode: Node,
+  isReverseSelected: boolean
+) => {
+  let nearestAnchorElement = selectionEndNode.parentElement
+  while (nearestAnchorElement !== null && !nearestAnchorElement.hasAttribute('data-omnivore-anchor-idx')) {
+    nearestAnchorElement = nearestAnchorElement.parentElement;
+  }
+  if (!nearestAnchorElement) {
+    throw Error('Unable to find nearest anchor element for node: ' + selectionEndNode)
+  }
+  let anchorId = Number(nearestAnchorElement.getAttribute('data-omnivore-anchor-idx')!)
+  let adjacentAnchorId, adjacentAnchor, adjacentAnchorOffset
+  if (isReverseSelected) {
+    // move down to find adjacent anchor node and clip at its beginning
+    adjacentAnchorId = anchorId + 1
+    adjacentAnchor = document.querySelectorAll(`[data-omnivore-anchor-idx='${adjacentAnchorId}']`)[0]
+    adjacentAnchorOffset = 0
+    range.setStart(adjacentAnchor, adjacentAnchorOffset)
+  } else {
+    // move up to find adjacent anchor node and clip at its end
+    do {
+      adjacentAnchorId = --anchorId
+      adjacentAnchor = document.querySelectorAll(`[data-omnivore-anchor-idx='${adjacentAnchorId}']`)[0]
+    } while (adjacentAnchor.contains(selectionEndNode))
+    if (adjacentAnchor.textContent) {
+      let lastTextNodeChild = adjacentAnchor.lastChild
+      while (!!lastTextNodeChild && lastTextNodeChild.nodeType !== Node.TEXT_NODE) {
+        lastTextNodeChild = lastTextNodeChild.previousSibling;
+      }
+      adjacentAnchor = lastTextNodeChild
+      adjacentAnchorOffset = adjacentAnchor?.nodeValue?.length ?? 0
+    } else {
+      adjacentAnchorOffset = 0
+    }
+    if (adjacentAnchor) {
+      range.setEnd(adjacentAnchor, adjacentAnchorOffset)
+    }
+  }
 }
 
 export type RangeEndPos = {
@@ -246,6 +324,13 @@ export type RangeEndPos = {
   height: number
 }
 
+/**
+ * Return coordinates of the screen area occupied by the last line of user selection
+ * 
+ * @param range range of user selection
+ * @param getFirst whether to get first line of user selection. Get last if false (default)
+ * @returns {RangeEndPos} selection coordinates
+ */
 const rangeToPos = (range: Range, getFirst = false): RangeEndPos => {
   if (typeof window === 'undefined' || !range) {
     return { left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 }

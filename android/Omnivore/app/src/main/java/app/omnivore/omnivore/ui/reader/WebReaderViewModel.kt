@@ -324,6 +324,7 @@ class WebReaderViewModel @Inject constructor(
 //  }
 
   fun handleIncomingWebMessage(actionID: String, jsonString: String) {
+    Log.d("sync", "incoming change: ${actionID}: ${jsonString}")
     when (actionID) {
       "createHighlight" -> {
         viewModelScope.launch {
@@ -331,13 +332,11 @@ class WebReaderViewModel @Inject constructor(
         }
       }
       "deleteHighlight" -> {
-        Log.d("Loggo", "receive delete highlight action: $jsonString")
         viewModelScope.launch {
-          dataService.deleteHighlights(jsonString)
+          dataService.deleteHighlightFromJSON(jsonString)
         }
       }
       "updateHighlight" -> {
-        Log.d("Loggo", "receive update highlight action: $jsonString")
         viewModelScope.launch {
           dataService.updateWebHighlight(jsonString)
         }

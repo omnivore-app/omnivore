@@ -49,6 +49,8 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
 
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
+
   @Published var appliedFilter: InternalFilter? {
     didSet {
       if let filterName = appliedFilter?.name.lowercased() {
@@ -167,10 +169,9 @@ enum LoadingBarStyle {
     let availableFolders = folderConfigs.keys
     let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
 
-    filters = newFilters
+    filters = (defaultFilters + newFilters)
       .filter { availableFolders.contains($0.folder) }
       .sorted(by: { $0.position < $1.position })
-      + defaultFilters
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter
@@ -362,6 +363,13 @@ enum LoadingBarStyle {
       }
     } catch {
       snackbar("Error modifying emails")
+    }
+  }
+
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
+    if let filter = filter {
+      featureFilter = filter.rawValue
+      fetcher.updateFeatureFilter(context: context, filter: filter)
     }
   }
 }

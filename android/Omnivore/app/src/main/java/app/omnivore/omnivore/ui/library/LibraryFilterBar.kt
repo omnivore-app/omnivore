@@ -63,7 +63,7 @@ fun LibraryFilterBar(viewModel: LibraryViewModel) {
           modifier = Modifier.padding(end = 6.dp)
         )
         AssistChip(
-          onClick = { viewModel.showLabelsSelectionSheetLiveData.value = true },
+          onClick = { viewModel.bottomSheetState.value = LibraryBottomSheetState.LABEL },
           label = { Text(stringResource(R.string.library_filter_bar_label_labels)) },
           trailingIcon = {
             Icon(

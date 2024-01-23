@@ -1,5 +1,12 @@
 import * as httpContext from 'express-http-context2'
-import { EntityManager, EntityTarget, QueryBuilder, Repository } from 'typeorm'
+import { DatabaseError } from 'pg'
+import {
+  EntityManager,
+  EntityTarget,
+  QueryBuilder,
+  QueryFailedError,
+  Repository,
+} from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
@@ -105,4 +112,16 @@ export const valuesToRawSql = (
   })
 
   return sql
+}
+
+const isQueryFailedError = (
+  err: unknown
+): err is QueryFailedError & DatabaseError => err instanceof QueryFailedError
+
+export const isUniqueViolation = (err: unknown): boolean => {
+  if (isQueryFailedError(err)) {
+    return err.code === '23505'
+  }
+
+  return false
 }

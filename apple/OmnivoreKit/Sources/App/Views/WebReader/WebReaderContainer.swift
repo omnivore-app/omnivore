@@ -152,19 +152,21 @@ struct WebReaderContainerView: View {
             label: {
               textToSpeechButtonImage
             }
-          ).buttonStyle(.plain)
+          )
+          .buttonStyle(.plain)
+          .padding(.trailing, 4)
         )
       }
     }
 
     var textToSpeechButtonImage: some View {
       if audioController.playbackError || audioController.state == .stopped || audioController.itemAudioProperties?.itemID != self.item.id {
-        return AnyView(Image.audioPlay.frame(width: 48, height: 48))
+        return Image.audioPlay
       }
       if audioController.isPlayingItem(itemID: item.unwrappedID) {
-        return AnyView(Image.audioPause.frame(width: 48, height: 48))
+        return Image.audioPause
       }
-      return AnyView(Image.audioPlay.frame(width: 48, height: 48))
+      return Image.audioPlay
     }
   #endif
 
@@ -208,7 +210,6 @@ struct WebReaderContainerView: View {
         },
         label: { Label("Reset Read Location", systemImage: "arrow.counterclockwise.circle") }
       )
-      audioMenuItem()
 
       if viewModel.hasOriginalUrl(item) {
         Button(
@@ -299,7 +300,7 @@ struct WebReaderContainerView: View {
           }
         )
         .buttonStyle(.plain)
-        .padding(.horizontal, 5)
+        .padding(.trailing, 5)
         .popover(isPresented: $showPreferencesPopover) {
           webPreferencesPopoverView
             .frame(maxWidth: 400, maxHeight: 475)
@@ -338,28 +339,6 @@ struct WebReaderContainerView: View {
     .frame(maxWidth: .infinity)
     .foregroundColor(ThemeManager.currentTheme.toolbarColor)
     .background(ThemeManager.currentBgColor)
-    .sheet(isPresented: $showLabelsModal) {
-      ApplyLabelsView(mode: .item(item), onSave: { labels in
-        showLabelsModal = false
-        item.labels = NSSet(array: labels)
-        readerSettingsChangedTransactionID = UUID()
-      })
-    }
-    .sheet(isPresented: $showTitleEdit) {
-      LinkedItemMetadataEditView(item: item, onSave: { title, _ in
-        item.title = title
-        // We dont need to update description because its never rendered in this view
-        readerSettingsChangedTransactionID = UUID()
-      })
-    }
-    #if os(iOS)
-      .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
-        NotebookView(
-          viewModel: NotebookViewModel(item: item),
-          hasHighlightMutations: $hasPerformedHighlightMutations
-        )
-      }
-    #endif
     #if os(macOS)
       .buttonStyle(PlainButtonStyle())
     #endif
@@ -419,9 +398,12 @@ struct WebReaderContainerView: View {
           .statusBar(hidden: prefersHideStatusBarInReader)
         #endif
         .onAppear {
-          if item.isUnread {
-            dataService.updateLinkReadingProgress(itemID: item.unwrappedID, readingProgress: 0.1, anchorIndex: 0, force: false)
-          }
+          dataService.updateLinkReadingProgress(
+            itemID: item.unwrappedID,
+            readingProgress: max(item.readingProgress, 0.1),
+            anchorIndex: Int(item.readingProgressAnchor),
+            force: false
+          )
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
@@ -448,11 +430,11 @@ struct WebReaderContainerView: View {
           }, label: { Text(LocalText.readerSave) })
         }
         #if os(iOS)
-          .fullScreenCover(item: $safariWebLink) {
+          .sheet(item: $safariWebLink) {
             SafariView(url: $0.url)
               .ignoresSafeArea(.all, edges: .bottom)
           }
-          .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+          .sheet(isPresented: $showExpandedAudioPlayer) {
             ExpandedAudioPlayer(delete: { _ in
               showExpandedAudioPlayer = false
               audioController.stop()
@@ -517,6 +499,28 @@ struct WebReaderContainerView: View {
             }
           }
         }
+        .sheet(isPresented: $showLabelsModal) {
+          ApplyLabelsView(mode: .item(item), onSave: { labels in
+            showLabelsModal = false
+            item.labels = NSSet(array: labels)
+            readerSettingsChangedTransactionID = UUID()
+          })
+        }
+        .sheet(isPresented: $showTitleEdit) {
+          LinkedItemMetadataEditView(item: item, onSave: { title, _ in
+            item.title = title
+            // We dont need to update description because its never rendered in this view
+            readerSettingsChangedTransactionID = UUID()
+          })
+        }
+        #if os(iOS)
+          .sheet(isPresented: $showNotebookView, onDismiss: onNotebookViewDismissal) {
+            NotebookView(
+              viewModel: NotebookViewModel(item: item),
+              hasHighlightMutations: $hasPerformedHighlightMutations
+            )
+          }
+        #endif
       } else if let errorMessage = viewModel.errorMessage {
         VStack {
           if viewModel.allowRetry, viewModel.hasOriginalUrl(item) {
@@ -617,6 +621,9 @@ struct WebReaderContainerView: View {
     .onDisappear {
       // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
+    }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
+      pop()
     }
     .popup(isPresented: $viewModel.showSnackbar) {
       if let operation = viewModel.snackbarOperation {

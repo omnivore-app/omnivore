@@ -3,6 +3,7 @@ import { gqlFetcher } from '../networkHelpers'
 
 export type UpdateHighlightInput = {
   highlightId: string
+  libraryItemId?: string
   annotation?: string
   sharedAt?: string
   color?: string
@@ -40,7 +41,13 @@ export async function updateHighlightMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation, { input })
+    const data = await gqlFetcher(mutation, {
+      input: {
+        highlightId: input.highlightId,
+        annotation: input.annotation,
+        color: input.color,
+      },
+    })
     const output = data as UpdateHighlightOutput | undefined
     return output?.updateHighlight.highlight.id
   } catch {

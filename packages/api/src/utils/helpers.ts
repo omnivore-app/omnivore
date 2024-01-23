@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import crypto from 'crypto'
+import Redis from 'ioredis'
 import normalizeUrl from 'normalize-url'
 import path from 'path'
 import _ from 'underscore'
@@ -75,30 +76,6 @@ export const stringToHash = (str: string, convertToUUID = false): string => {
     '-' +
     md5Hash.substring(20)
   ).toLowerCase()
-}
-
-export function authorized<
-  TSuccess,
-  TError extends { errorCodes: string[] },
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  TArgs = any,
-  TParent = any
-  /* eslint-enable @typescript-eslint/no-explicit-any */
->(
-  resolver: ResolverFn<
-    TSuccess | TError,
-    TParent,
-    WithDataSourcesContext & { claims: Claims },
-    TArgs
-  >
-): ResolverFn<TSuccess | TError, TParent, WithDataSourcesContext, TArgs> {
-  return (parent, args, ctx, info) => {
-    const { claims } = ctx
-    if (claims?.uid) {
-      return resolver(parent, args, { ...ctx, claims, uid: claims.uid }, info)
-    }
-    return { errorCodes: ['UNAUTHORIZED'] } as TError
-  }
 }
 
 export const findDelimiter = (
@@ -406,4 +383,29 @@ export const isRelativeUrl = (url: string): boolean => {
 
 export const getAbsoluteUrl = (url: string, baseUrl: string): string => {
   return new URL(url, baseUrl).href
+}
+
+export const setRecentlySavedItemInRedis = async (
+  redisClient: Redis,
+  userId: string,
+  url: string
+) => {
+  // save the url in redis for 26 hours so rss-feeder won't try to re-save it
+  if (!redisClient) {
+    console.info(
+      'not setting recently saved item because redis is not configured'
+    )
+    return
+  }
+  // save the url in redis for 8 hours so rss-feeder won't try to re-save it
+  const redisKey = `recent-saved-item:${userId}:${url}`
+  const ttlInSeconds = 60 * 60 * 26
+  try {
+    return redisClient.set(redisKey, 1, 'EX', ttlInSeconds, 'NX')
+  } catch (error) {
+    logger.error('error setting recently saved item in redis', {
+      redisKey,
+      error,
+    })
+  }
 }

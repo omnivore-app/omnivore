@@ -8,7 +8,10 @@ import {
 } from './highlightGenerator'
 import type { HighlightLocation } from './highlightGenerator'
 import { extendRangeToWordBoundaries } from './normalizeHighlightRange'
-import type { Highlight } from '../networking/fragments/highlightFragment'
+import type {
+  Highlight,
+  HighlightType,
+} from '../networking/fragments/highlightFragment'
 import { removeHighlights } from './deleteHighlight'
 import { ArticleMutations } from '../articleActions'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
@@ -103,6 +106,7 @@ export async function createHighlight(
     id,
     shortId: nanoid(8),
     patch,
+    type: 'HIGHLIGHT' as HighlightType,
 
     color: input.color,
     prefix: highlightAttributes.prefix,

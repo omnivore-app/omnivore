@@ -2,10 +2,12 @@ import * as Sentry from '@sentry/serverless'
 import axios from 'axios'
 import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import Redis from 'ioredis'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
+import { createRedisClient } from './redis'
 import { CONTENT_FETCH_URL, createCloudTask } from './task'
 
 type FolderType = 'following' | 'inbox'
@@ -39,10 +41,23 @@ type RssFeed = Parser.Output<{
 type RssFeedItemMedia = {
   $: { url: string; width?: string; height?: string; medium?: string }
 }
-type RssFeedItem = Item & {
+export type RssFeedItem = Item & {
   'media:thumbnail'?: RssFeedItemMedia
   'media:content'?: RssFeedItemMedia[]
+  link: string
 }
+
+interface User {
+  id: string
+  folder: FolderType
+}
+
+interface FetchContentTask {
+  users: Map<string, User> // userId -> User
+  item: RssFeedItem
+}
+
+const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
 
 export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
   // existing items and items that were published before 24h
@@ -51,6 +66,40 @@ export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
     publishedAt <= new Date(lastFetchedAt) ||
     publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
   )
+}
+
+const feedFetchFailedRedisKey = (feedUrl: string) =>
+  `feed-fetch-failure:${feedUrl}`
+
+const isFeedBlocked = async (feedUrl: string, redisClient: Redis) => {
+  const key = feedFetchFailedRedisKey(feedUrl)
+  try {
+    const result = await redisClient.get(key)
+    // if the feed has failed to fetch more than certain times, block it
+    const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
+    if (result && parseInt(result) > maxFailures) {
+      console.log('feed is blocked: ', feedUrl)
+      return true
+    }
+  } catch (error) {
+    console.error('Failed to check feed block status', feedUrl, error)
+  }
+
+  return false
+}
+
+const incrementFeedFailure = async (feedUrl: string, redisClient: Redis) => {
+  const key = feedFetchFailedRedisKey(feedUrl)
+  try {
+    const result = await redisClient.incr(key)
+    // expire the key in 1 day
+    await redisClient.expire(key, 24 * 60 * 60)
+
+    return result
+  } catch (error) {
+    console.error('Failed to block feed', feedUrl, error)
+    return null
+  }
 }
 
 export const isContentFetchBlocked = (feedUrl: string) => {
@@ -103,8 +152,8 @@ export const fetchAndChecksum = async (url: string) => {
 
     return { url, content: dataStr, checksum: hash.digest('hex') }
   } catch (error) {
-    console.log(error)
-    throw new Error(`Failed to fetch or hash content from ${url}.`)
+    console.log(`Failed to fetch or hash content from ${url}.`, error)
+    return null
   }
 }
 
@@ -143,7 +192,9 @@ const parseFeed = async (url: string, content: string) => {
       }
     }
 
-    return parser.parseString(content)
+    // return await is needed to catch errors thrown by the parser
+    // otherwise the error will be caught by the outer try catch
+    return await parser.parseString(content)
   } catch (error) {
     console.log(error)
     return null
@@ -214,28 +265,67 @@ const sendUpdateSubscriptionMutation = async (
   }
 }
 
+const isItemRecentlySaved = async (
+  redisClient: Redis,
+  userId: string,
+  url: string
+) => {
+  const key = `recent-saved-item:${userId}:${url}`
+  const result = await redisClient.get(key)
+  return !!result
+}
+
+const addFetchContentTask = (
+  userId: string,
+  folder: FolderType,
+  item: RssFeedItem
+) => {
+  const url = item.link
+  const task = fetchContentTasks.get(url)
+  if (!task) {
+    fetchContentTasks.set(url, {
+      users: new Map([[userId, { id: userId, folder }]]),
+      item,
+    })
+  } else {
+    task.users.set(userId, { id: userId, folder })
+  }
+
+  return true
+}
+
 const createTask = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
   fetchContent: boolean,
-  folder: FolderType
+  folder: FolderType,
+  redisClient: Redis
 ) => {
+  const isRecentlySaved = await isItemRecentlySaved(
+    redisClient,
+    userId,
+    item.link
+  )
+  if (isRecentlySaved) {
+    console.log('Item recently saved', item.link)
+    return true
+  }
+
   if (folder === 'following' && !fetchContent) {
     return createItemWithPreviewContent(userId, feedUrl, item)
   }
 
-  return fetchContentAndCreateItem(userId, feedUrl, item, folder)
+  return addFetchContentTask(userId, folder, item)
 }
 
 const fetchContentAndCreateItem = async (
-  userId: string,
+  users: User[],
   feedUrl: string,
-  item: RssFeedItem,
-  folder: string
+  item: RssFeedItem
 ) => {
   const input = {
-    userId,
+    users,
     source: 'rss-feeder',
     url: item.link,
     saveRequestId: '',
@@ -243,7 +333,6 @@ const fetchContentAndCreateItem = async (
     rssFeedUrl: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,
-    folder,
   }
 
   try {
@@ -363,7 +452,7 @@ const getUpdatePeriodInHours = (feed: RssFeed) => {
 }
 
 // get link following the order of preference: via, alternate, self
-const getLink = (links: RssFeedItemLink[]) => {
+const getLink = (links: RssFeedItemLink[]): string | undefined => {
   // sort links by preference
   const sortedLinks: string[] = []
 
@@ -398,10 +487,11 @@ const processSubscription = async (
   lastFetchedChecksum: string,
   fetchContent: boolean,
   folder: FolderType,
-  feed: RssFeed
+  feed: RssFeed,
+  redisClient: Redis
 ) => {
   let lastItemFetchedAt: Date | null = null
-  let lastValidItem: Item | null = null
+  let lastValidItem: RssFeedItem | null = null
 
   if (fetchResult.checksum === lastFetchedChecksum) {
     console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
@@ -425,7 +515,7 @@ const processSubscription = async (
   // save each item in the feed
   for (const item of feed.items) {
     // use published or updated if isoDate is not available for atom feeds
-    item.isoDate =
+    const isoDate =
       item.isoDate || item.published || item.updated || item.created
     console.log('Processing feed item', item.links, item.isoDate, feed.feedUrl)
 
@@ -434,21 +524,28 @@ const processSubscription = async (
       continue
     }
 
-    item.link = getLink(item.links)
-    if (!item.link) {
+    const link = getLink(item.links)
+    if (!link) {
       console.log('Invalid feed item links', item.links)
       continue
     }
 
-    console.log('Fetching feed item', item.link)
+    console.log('Fetching feed item', link)
+    const feedItem = {
+      ...item,
+      isoDate,
+      link,
+    }
 
-    const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
+    const publishedAt = feedItem.isoDate
+      ? new Date(feedItem.isoDate)
+      : new Date()
     // remember the last valid item
     if (
       !lastValidItem ||
       (lastValidItem.isoDate && publishedAt > new Date(lastValidItem.isoDate))
     ) {
-      lastValidItem = item
+      lastValidItem = feedItem
     }
 
     // Max limit per-feed update
@@ -457,20 +554,21 @@ const processSubscription = async (
     }
 
     // skip old items
-    if (isOldItem(item, lastFetchedAt)) {
-      console.log('Skipping old feed item', item.link)
+    if (isOldItem(feedItem, lastFetchedAt)) {
+      console.log('Skipping old feed item', feedItem.link)
       continue
     }
 
     const created = await createTask(
       userId,
       feedUrl,
-      item,
+      feedItem,
       fetchContent,
-      folder
+      folder,
+      redisClient
     )
     if (!created) {
-      console.error('Failed to create task for feed item', item.link)
+      console.error('Failed to create task for feed item', feedItem.link)
       continue
     }
 
@@ -496,7 +594,8 @@ const processSubscription = async (
       feedUrl,
       lastValidItem,
       fetchContent,
-      folder
+      folder,
+      redisClient
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
@@ -530,12 +629,17 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       return res.sendStatus(403)
     }
 
+    // create redis client
+    const redisClient = createRedisClient(
+      process.env.REDIS_URL,
+      process.env.REDIS_CERT
+    )
+
     try {
       if (!isRssFeedRequest(req.body)) {
         console.error('Invalid request body', req.body)
         return res.status(400).send('INVALID_REQUEST_BODY')
       }
-
       const {
         feedUrl,
         subscriptionIds,
@@ -548,10 +652,23 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
       } = req.body
       console.log('Processing feed', feedUrl)
 
+      const isBlocked = await isFeedBlocked(feedUrl, redisClient)
+      if (isBlocked) {
+        console.log('feed is blocked: ', feedUrl)
+        return res.sendStatus(200)
+      }
+
       const fetchResult = await fetchAndChecksum(feedUrl)
+      if (!fetchResult) {
+        console.error('Failed to fetch RSS feed', feedUrl)
+        await incrementFeedFailure(feedUrl, redisClient)
+        return res.status(500).send('FAILED_TO_FETCH_RSS_FEED')
+      }
+
       const feed = await parseFeed(feedUrl, fetchResult.content)
       if (!feed) {
         console.error('Failed to parse RSS feed', feedUrl)
+        await incrementFeedFailure(feedUrl, redisClient)
         return res.status(500).send('INVALID_RSS_FEED')
       }
 
@@ -563,27 +680,39 @@ export const rssHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       console.log('Fetched feed', feed.title, new Date())
 
-      await Promise.all(
-        subscriptionIds.map((_, i) =>
-          processSubscription(
-            subscriptionIds[i],
-            userIds[i],
-            feedUrl,
-            fetchResult,
-            lastFetchedTimestamps[i],
-            scheduledTimestamps[i],
-            lastFetchedChecksums[i],
-            fetchContents[i] && allowFetchContent,
-            folders[i],
-            feed
-          )
+      // process each subscription sequentially
+      for (let i = 0; i < subscriptionIds.length; i++) {
+        await processSubscription(
+          subscriptionIds[i],
+          userIds[i],
+          feedUrl,
+          fetchResult,
+          lastFetchedTimestamps[i],
+          scheduledTimestamps[i],
+          lastFetchedChecksums[i],
+          fetchContents[i] && allowFetchContent,
+          folders[i],
+          feed,
+          redisClient
         )
-      )
+      }
+
+      // create fetch content tasks
+      for (const task of fetchContentTasks.values()) {
+        await fetchContentAndCreateItem(
+          Array.from(task.users.values()),
+          feedUrl,
+          task.item
+        )
+      }
 
       res.send('ok')
     } catch (e) {
       console.error('Error while saving RSS feeds', e)
       res.status(500).send('INTERNAL_SERVER_ERROR')
+    } finally {
+      await redisClient.quit()
+      console.log('Redis client disconnected')
     }
   }
 )

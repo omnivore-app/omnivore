@@ -71,13 +71,16 @@ extension DataService {
       )
     }
 
-    let sort = InputObjects.SortParams(by: .updatedTime,
-                                       order: OptionalArgument(descending ? .descending : .ascending))
+    let sort = InputObjects.SortParams(
+      by: .updatedTime,
+      order: OptionalArgument(descending ? .descending : .ascending)
+    )
 
     let query = Selection.Query {
       try $0.updatesSince(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
+        folder: OptionalArgument("all"),
         since: DateTime(from: since),
         sort: OptionalArgument(sort),
         selection: selection

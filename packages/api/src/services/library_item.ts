@@ -1,6 +1,6 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, ObjectLiteral } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -8,14 +8,17 @@ import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
+import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
   getColumns,
+  isUniqueViolation,
   queryBuilderToRawSql,
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { wordsCount } from '../utils/helpers'
+import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 
 enum ReadFilter {
@@ -92,6 +95,7 @@ export enum SortOrder {
 export interface Sort {
   by: string
   order?: SortOrder
+  nulls?: 'NULLS FIRST' | 'NULLS LAST'
 }
 
 interface Select {
@@ -331,8 +335,10 @@ export const buildQuery = (
 
           const order =
             sortOrder === 'asc' ? SortOrder.ASCENDING : SortOrder.DESCENDING
+          const nulls =
+            order === SortOrder.ASCENDING ? 'NULLS FIRST' : 'NULLS LAST'
 
-          orders.push({ by: `library_item.${column}`, order })
+          orders.push({ by: `library_item.${column}`, order, nulls })
           return null
         }
         case 'has':
@@ -612,12 +618,13 @@ export const searchLibraryItems = async (
         orders.push({
           by: 'library_item.saved_at',
           order: SortOrder.DESCENDING,
+          nulls: 'NULLS LAST',
         })
       }
 
       // add order by
       orders.forEach((order) => {
-        queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
+        queryBuilder.addOrderBy(order.by, order.order, order.nulls)
       })
 
       const libraryItems = await queryBuilder.skip(from).take(size).getMany()
@@ -739,8 +746,7 @@ export const updateLibraryItemReadingProgress = async (
   userId: string,
   bottomPercent: number,
   topPercent: number | null = null,
-  anchorIndex: number | null = null,
-  pubsub = createPubSubClient()
+  anchorIndex: number | null = null
 ): Promise<LibraryItem | null> => {
   // If we have a top percent, we only save it if it's greater than the current top percent
   // or set to zero if the top percent is zero.
@@ -787,19 +793,6 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
-    EntityType.PAGE,
-    {
-      id,
-      readingProgressBottomPercent: updatedItem.readingProgressBottomPercent,
-      readingProgressTopPercent: updatedItem.readingProgressTopPercent,
-      readingProgressHighestReadAnchor:
-        updatedItem.readingProgressHighestReadAnchor,
-      readAt: updatedItem.readAt,
-    },
-    userId
-  )
-
   return updatedItem
 }
 
@@ -820,34 +813,68 @@ export const createLibraryItem = async (
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
-  const newLibraryItem = await authTrx(
-    async (tx) =>
-      tx.withRepository(libraryItemRepository).save({
-        ...libraryItem,
-        wordCount:
-          libraryItem.wordCount ??
-          wordsCount(libraryItem.readableContent || ''),
-      }),
-    undefined,
-    userId
-  )
-
-  if (skipPubSub) {
-    return newLibraryItem
+  if (!libraryItem.originalUrl) {
+    throw new Error('Original url is required')
   }
 
-  await pubsub.entityCreated<DeepPartial<LibraryItem>>(
-    EntityType.PAGE,
-    {
-      ...newLibraryItem,
-      // don't send original content and readable content
-      originalContent: undefined,
-      readableContent: undefined,
-    },
-    userId
-  )
+  try {
+    const newLibraryItem = await authTrx(
+      async (tx) =>
+        tx.withRepository(libraryItemRepository).save({
+          ...libraryItem,
+          wordCount:
+            libraryItem.wordCount ??
+            wordsCount(libraryItem.readableContent || ''),
+        }),
+      undefined,
+      userId
+    )
+    logger.info('item created', { url: libraryItem.originalUrl })
 
-  return newLibraryItem
+    // set recently saved item in redis if redis is enabled
+    if (redisDataSource.redisClient) {
+      await setRecentlySavedItemInRedis(
+        redisDataSource.redisClient,
+        userId,
+        newLibraryItem.originalUrl
+      )
+    }
+
+    if (skipPubSub) {
+      return newLibraryItem
+    }
+
+    await pubsub.entityCreated<DeepPartial<LibraryItem>>(
+      EntityType.PAGE,
+      {
+        ...newLibraryItem,
+        // don't send original content and readable content
+        originalContent: undefined,
+        readableContent: undefined,
+      },
+      userId
+    )
+
+    return newLibraryItem
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      logger.info('item already created', { url: libraryItem.originalUrl })
+
+      const existingItem = await findLibraryItemByUrl(
+        libraryItem.originalUrl,
+        userId
+      )
+
+      if (!existingItem) {
+        throw new Error(`Item not found for url: ${libraryItem.originalUrl}`)
+      }
+
+      return existingItem
+    }
+
+    logger.error('error creating item', error)
+    throw error
+  }
 }
 
 export const findLibraryItemsByPrefix = async (
@@ -1061,4 +1088,42 @@ export const deleteLibraryItemsByUserId = async (userId: string) => {
     undefined,
     userId
   )
+}
+
+export const deleteLibraryItemsByAdmin = async (
+  criteria: FindOptionsWhere<LibraryItem>
+) => {
+  return authTrx(
+    async (tx) => tx.withRepository(libraryItemRepository).delete(criteria),
+    undefined,
+    undefined,
+    'admin'
+  )
+}
+
+export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
+  const batchSize = 1000
+
+  const qb = libraryItemRepository.createQueryBuilder().where(criteria)
+  const countSql = queryBuilderToRawSql(qb.select('COUNT(1)'))
+  const subQuery = queryBuilderToRawSql(qb.select('id').limit(batchSize))
+
+  const sql = `
+  -- Set batch size
+  DO $$
+  DECLARE 
+      batch_size INT := ${batchSize};
+  BEGIN
+      -- Loop through batches
+      FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
+          -- Delete batch
+          DELETE FROM omnivore.library_item
+          WHERE id = ANY(
+            ${subQuery}
+          );
+      END LOOP;
+  END $$
+  `
+
+  return authTrx(async (t) => t.query(sql))
 }

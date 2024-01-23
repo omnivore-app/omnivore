@@ -13,10 +13,9 @@
     "test:typecheck": "tsc --noEmit",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "compile": "tsc",
-    "build": "tsc && yarn copy-files",
+    "build": "tsc",
     "start": "functions-framework --target=importHandler",
     "dev": "concurrently \"tsc -w\" \"nodemon --watch ./build/ --exec npm run start\"",
-    "copy-files": "copyfiles src/luaScripts/*.lua build/",
     "start:collector": "functions-framework --target=importMetricsCollector"
   },
   "devDependencies": {
@@ -31,7 +30,6 @@
     "@types/unzip-stream": "^0.3.1",
     "@types/urlsafe-base64": "^1.0.28",
     "@types/uuid": "^9.0.0",
-    "copyfiles": "^2.4.1",
     "eslint-plugin-prettier": "^4.0.0"
   },
   "dependencies": {
@@ -46,10 +44,10 @@
     "dompurify": "^2.4.3",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",
+    "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",
     "linkedom": "^0.14.21",
     "nodemon": "^2.0.15",
-    "redis": "^4.3.1",
     "unzip-stream": "^0.3.1",
     "urlsafe-base64": "^1.0.0",
     "uuid": "^9.0.0"

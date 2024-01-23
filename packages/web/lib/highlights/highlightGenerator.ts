@@ -24,6 +24,13 @@ const maxDeepPatchDistance = 4000
 const maxDeepPatchThreshhold = 0.5
 const maxSurroundingTextLength = 2000
 
+/**
+ * Wrapper for text node
+ *
+ * @property startIndex - offset from the start of article for which the text begins
+ * @property node - the text node
+ * @property startsParagraph - whether a new paragraph is started
+ */
 type TextNode = {
   startIndex: number
   node: Node
@@ -35,12 +42,18 @@ type ArticleTextContent = {
   articleText: string
 }
 
+/**
+ * Location of a highlight as starting/ending offset from the start of article. The end offset is non-inclusive
+ */
 export type HighlightLocation = {
   id: string
   start: number
   end: number
 }
 
+/**
+ * Relevant attributes of a highlight node created in DOM
+ */
 export type HighlightNodeAttributes = {
   prefix: string
   suffix: string
@@ -73,6 +86,16 @@ function nodeAttributesFromHighlight(
   return makeHighlightNodeAttributes(patch, id, withNote, customColor, tooltip)
 }
 
+/**
+ * Make a highlight on the highlight selection and return its attributes
+ *
+ * @param patch - {@link generateDiffPatch|patch} of the highlight location
+ * @param id - highlight id
+ * @param withNote - whether highlight has notes
+ * @param customColor - color of highlight
+ * @param tooltip
+ * @returns relevant highlight attributes
+ */
 export function makeHighlightNodeAttributes(
   patch: string,
   id: string,
@@ -184,6 +207,15 @@ export function makeHighlightNodeAttributes(
   }
 }
 
+/**
+ * Given a text selection by user, annotate the article around the selection and
+ * produce a {@link https://github.com/google/diff-match-patch | diff patch} 
+ * 
+ * The diff patch is used for identifying the selection/highlight location
+ * 
+ * @param range text selection range
+ * @returns diff patch
+ */
 export function generateDiffPatch(range: Range): string {
   const articleContentElement = document.getElementById(articleContainerId)
   if (!articleContentElement)
@@ -217,7 +249,12 @@ export function generateDiffPatch(range: Range): string {
   return patch
 }
 
-export function wrapHighlightTagAroundRange(range: Range): [number, number] {
+/**
+ * Retrieve starting and ending offsets to the highlight selection
+ * @param range highlight selection
+ * @returns starting offset and ending offset (non-inclusive)
+ */
+export function retrieveOffsetsForSelection(range: Range): [number, number] {
   const patch = generateDiffPatch(range)
   const { highlightTextStart, highlightTextEnd } =
     selectionOffsetsFromPatch(patch)
@@ -265,6 +302,15 @@ const getArticleTextNodes = (
   return { textNodes, articleText }
 }
 
+/**
+ * Return the offsets to the selection/highlight
+ * 
+ * @param patch {@link generateDiffPatch|diff patch} identifying a selection/highlight location
+ * @returns 
+ * - highlightTextStart - The start of highlight, offset from the start of article by characters
+ * - highlightTextEnd - The end of highlight (non-inclusive), offset from the start of article by characters 
+ * - matchingHighlightContent - the matched highlight
+ */
 const selectionOffsetsFromPatch = (
   patch: string
 ): {

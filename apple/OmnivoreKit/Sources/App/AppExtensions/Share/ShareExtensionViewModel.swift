@@ -17,7 +17,7 @@ public class ShareExtensionViewModel: ObservableObject {
   @Published var debugText: String?
   @Published var noteText: String = ""
 
-  let services = Services()
+  public let services = Services()
   let queue = OperationQueue()
 
   public init() {}

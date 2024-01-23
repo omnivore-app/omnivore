@@ -56,20 +56,16 @@ public final class DataService: ObservableObject {
     self.appEnvironment = appEnvironment
     self.networker = networker
     self.persistentContainer = PersistentContainer.make()
+
+    persistentContainer.loadPersistentStores { _, error in
+      if let error = error {
+        fatalError("Core Data store failed to load with error: \(error)")
+      }
+    }
     self.backgroundContext = persistentContainer.newBackgroundContext()
 
     backgroundContext.automaticallyMergesChangesFromParent = true
     backgroundContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
-
-    if isFirstTimeRunningNewAppBuild() {
-      resetLocalStorage()
-    } else {
-      persistentContainer.loadPersistentStores { _, error in
-        if let error = error {
-          fatalError("Core Data store failed to load with error: \(error)")
-        }
-      }
-    }
   }
 
   public func cleanupDeletedItems(in context: NSManagedObjectContext) {
@@ -190,16 +186,18 @@ public final class DataService: ObservableObject {
     }
   }
 
-  public func resetLocalStorage() {
-    viewContext.perform {
-      // We want to specify the order of deleting items to better handle relationships
-      let entities = ["LibraryItem", "Viewer", "Filter", "Highlight", "NewsletterEmail",
-                      "LinkedItemLabel", "RecentSearchItem", "Recommendation", "RecommendationGroup", "UserProfile"]
-      entities.forEach { entityName in
-        self.deleteAllEntities(entityName: entityName, inContext: self.viewContext)
+  public static func deleteLocalStorage() {
+    do {
+      if let storeURL = PersistentContainer.path() {
+        try FileManager.default.removeItem(atPath: storeURL.path)
       }
+    } catch {
+      print(error.localizedDescription)
+      print("ERROR: ", error)
     }
+  }
 
+  public func resetLocalStorage() {
     UserDefaults.standard.set(nil, forKey: UserDefaultKey.lastSelectedTabItem.rawValue)
 
     lastItemSyncTime = Date(timeIntervalSinceReferenceDate: 0)
@@ -216,7 +214,7 @@ public final class DataService: ObservableObject {
     backgroundContext = persistentContainer.newBackgroundContext()
   }
 
-  private func isFirstTimeRunningNewAppBuild() -> Bool {
+  private static func isFirstTimeRunningNewAppBuild() -> Bool {
     let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
     let buildNumber = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
 

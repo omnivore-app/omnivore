@@ -727,6 +727,22 @@ export type DeviceTokensSuccess = {
   deviceTokens: Array<DeviceToken>;
 };
 
+export type EmptyTrashError = {
+  __typename?: 'EmptyTrashError';
+  errorCodes: Array<EmptyTrashErrorCode>;
+};
+
+export enum EmptyTrashErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type EmptyTrashResult = EmptyTrashError | EmptyTrashSuccess;
+
+export type EmptyTrashSuccess = {
+  __typename?: 'EmptyTrashSuccess';
+  success?: Maybe<Scalars['Boolean']>;
+};
+
 export type Feature = {
   __typename?: 'Feature';
   createdAt: Scalars['Date'];
@@ -1352,6 +1368,7 @@ export type Mutation = {
   deleteNewsletterEmail: DeleteNewsletterEmailResult;
   deleteRule: DeleteRuleResult;
   deleteWebhook: DeleteWebhookResult;
+  emptyTrash: EmptyTrashResult;
   fetchContent: FetchContentResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
@@ -3663,6 +3680,10 @@ export type ResolversTypes = {
   DeviceTokensErrorCode: DeviceTokensErrorCode;
   DeviceTokensResult: ResolversTypes['DeviceTokensError'] | ResolversTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: ResolverTypeWrapper<DeviceTokensSuccess>;
+  EmptyTrashError: ResolverTypeWrapper<EmptyTrashError>;
+  EmptyTrashErrorCode: EmptyTrashErrorCode;
+  EmptyTrashResult: ResolversTypes['EmptyTrashError'] | ResolversTypes['EmptyTrashSuccess'];
+  EmptyTrashSuccess: ResolverTypeWrapper<EmptyTrashSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
   Feed: ResolverTypeWrapper<Feed>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
@@ -4169,6 +4190,9 @@ export type ResolversParentTypes = {
   DeviceTokensError: DeviceTokensError;
   DeviceTokensResult: ResolversParentTypes['DeviceTokensError'] | ResolversParentTypes['DeviceTokensSuccess'];
   DeviceTokensSuccess: DeviceTokensSuccess;
+  EmptyTrashError: EmptyTrashError;
+  EmptyTrashResult: ResolversParentTypes['EmptyTrashError'] | ResolversParentTypes['EmptyTrashSuccess'];
+  EmptyTrashSuccess: EmptyTrashSuccess;
   Feature: Feature;
   Feed: Feed;
   FeedArticle: FeedArticle;
@@ -4975,6 +4999,20 @@ export type DeviceTokensSuccessResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type EmptyTrashErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['EmptyTrashError'] = ResolversParentTypes['EmptyTrashError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['EmptyTrashErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type EmptyTrashResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['EmptyTrashResult'] = ResolversParentTypes['EmptyTrashResult']> = {
+  __resolveType: TypeResolveFn<'EmptyTrashError' | 'EmptyTrashSuccess', ParentType, ContextType>;
+};
+
+export type EmptyTrashSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['EmptyTrashSuccess'] = ResolversParentTypes['EmptyTrashSuccess']> = {
+  success?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeatureResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -5460,6 +5498,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteNewsletterEmail?: Resolver<ResolversTypes['DeleteNewsletterEmailResult'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterEmailArgs, 'newsletterEmailId'>>;
   deleteRule?: Resolver<ResolversTypes['DeleteRuleResult'], ParentType, ContextType, RequireFields<MutationDeleteRuleArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
+  emptyTrash?: Resolver<ResolversTypes['EmptyTrashResult'], ParentType, ContextType>;
   fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
@@ -6647,6 +6686,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   DeviceTokensError?: DeviceTokensErrorResolvers<ContextType>;
   DeviceTokensResult?: DeviceTokensResultResolvers<ContextType>;
   DeviceTokensSuccess?: DeviceTokensSuccessResolvers<ContextType>;
+  EmptyTrashError?: EmptyTrashErrorResolvers<ContextType>;
+  EmptyTrashResult?: EmptyTrashResultResolvers<ContextType>;
+  EmptyTrashSuccess?: EmptyTrashSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   Feed?: FeedResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;

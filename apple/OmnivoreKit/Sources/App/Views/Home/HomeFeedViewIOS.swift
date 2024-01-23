@@ -19,10 +19,10 @@ struct FiltersHeader: View {
               viewModel.searchTerm = ""
             }.frame(maxWidth: reader.size.width * 0.66)
           } else {
-            // if UIDevice.isIPhone {
+            let hideFollowingTab = UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab")
             Menu(
               content: {
-                ForEach(viewModel.filters.filter { $0.folder == viewModel.currentFolder }) { filter in
+                ForEach(viewModel.filters.filter { hideFollowingTab || $0.folder == viewModel.currentFolder }) { filter in
                   Button(filter.name, action: {
                     viewModel.appliedFilter = filter
                   })
@@ -188,8 +188,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var showAddLinkView = false
     @State var isListScrolled = false
     @State var listTitle = ""
-    @State var isEditMode: EditMode = .inactive
     @State var showExpandedAudioPlayer = false
+
+    @Binding var isEditMode: EditMode
 
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
@@ -200,8 +201,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
 
-    init(viewModel: HomeFeedViewModel) {
+    init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
+      _isEditMode = isEditMode
     }
 
     func loadItems(isRefresh: Bool) {
@@ -293,7 +295,7 @@ struct AnimatingCellHeight: AnimatableModifier {
           LibraryAddLinkView()
         }
       }
-      .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+      .sheet(isPresented: $showExpandedAudioPlayer) {
         ExpandedAudioPlayer(
           delete: {
             showExpandedAudioPlayer = false
@@ -328,7 +330,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         viewModel.selectedItem = linkedItem
         viewModel.linkIsActive = true
       }
-      .fullScreenCover(isPresented: $searchPresented) {
+      .sheet(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }
       .task {
@@ -367,51 +369,59 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         ToolbarItemGroup(placement: .barTrailing) {
-          if prefersListLayout {
+          if isEditMode == .active {
+            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+          } else {
+            if prefersListLayout {
+              Button(
+                action: { isEditMode = isEditMode == .active ? .inactive : .active },
+                label: {
+                  Image
+                    .selectMultiple
+                    .foregroundColor(Color.toolbarItemForeground)
+                }
+              ).buttonStyle(.plain)
+                .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+            }
+            if enableGrid {
+              Button(
+                action: { prefersListLayout.toggle() },
+                label: {
+                  Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                    .foregroundColor(Color.toolbarItemForeground)
+                }
+              ).buttonStyle(.plain)
+                .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+            }
+
             Button(
-              action: { isEditMode = isEditMode == .active ? .inactive : .active },
+              action: {
+                if viewModel.currentFolder == "inbox" {
+                  showAddLinkView = true
+                } else if viewModel.currentFolder == "following" {
+                  viewModel.showAddFeedView = true
+                }
+              },
+              label: {
+                Image.addLink
+                  .foregroundColor(Color.toolbarItemForeground)
+              }
+            ).buttonStyle(.plain)
+              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+
+            Button(
+              action: {
+                searchPresented = true
+                isEditMode = .inactive
+              },
               label: {
                 Image
-                  .selectMultiple
+                  .magnifyingGlass
                   .foregroundColor(Color.toolbarItemForeground)
               }
             ).buttonStyle(.plain)
+              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
           }
-          if enableGrid {
-            Button(
-              action: { prefersListLayout.toggle() },
-              label: {
-                Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                  .foregroundColor(Color.toolbarItemForeground)
-              }
-            ).buttonStyle(.plain)
-          }
-
-          Button(
-            action: {
-              if viewModel.currentFolder == "inbox" {
-                showAddLinkView = true
-              } else if viewModel.currentFolder == "following" {
-                viewModel.showAddFeedView = true
-              }
-            },
-            label: {
-              Image.addLink
-                .foregroundColor(Color.toolbarItemForeground)
-            }
-          ).buttonStyle(.plain)
-
-          Button(
-            action: {
-              searchPresented = true
-              isEditMode = .inactive
-            },
-            label: {
-              Image
-                .magnifyingGlass
-                .foregroundColor(Color.toolbarItemForeground)
-            }
-          ).buttonStyle(.plain)
         }
 
         ToolbarItemGroup(placement: .bottomBar) {
@@ -419,24 +429,20 @@ struct AnimatingCellHeight: AnimatableModifier {
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
-            }, label: { Image(systemName: "trash") })
-              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
-                dim[HorizontalAlignment.center]
-              })
-
-            Button(action: {
-              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
-              isEditMode = .inactive
-            }, label: { Image(systemName: "archivebox") })
-              .alignmentGuide(HorizontalAlignment.center, computeValue: { dim in
-                dim[HorizontalAlignment.center]
-              })
+            }, label: { Image.toolbarTrash })
+              .disabled(selection.count < 1)
+              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
 
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
 
-            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+            Button(action: {
+              viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
+              isEditMode = .inactive
+            }, label: { Image.toolbarArchive })
+              .disabled(selection.count < 1)
+              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
           }
         }
       }
@@ -567,17 +573,17 @@ struct AnimatingCellHeight: AnimatableModifier {
           HStack {
             Menu(content: {
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .continueReading)
               }, label: {
                 Text("Continue Reading")
               })
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .pinned)
               }, label: {
                 Text("Pinned")
               })
               Button(action: {
-                viewModel.fetcher.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
+                viewModel.updateFeatureFilter(context: dataService.viewContext, filter: .newsletters)
               }, label: {
                 Text("Newsletters")
               })
@@ -591,7 +597,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                 HStack(alignment: .center) {
                   Image(systemName: "line.3.horizontal.decrease")
                     .font(Font.system(size: 13, weight: .regular))
-                  Text((FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) ?? .continueReading).title)
+                  Text((FeaturedItemFilter(rawValue: viewModel.featureFilter) ?? .continueReading).title)
                     .font(Font.system(size: 13, weight: .medium))
                 }
                 .tint(Color(hex: "#007AFF"))
@@ -747,6 +753,9 @@ struct AnimatingCellHeight: AnimatableModifier {
               await viewModel.loadMore(dataService: dataService)
             }
           }
+
+          // reload this in case it was changed in settings
+          viewModel.hideFeatureSection = UserDefaults.standard.bool(forKey: UserDefaultKey.hideFeatureSection.rawValue)
         }
       }
     }
@@ -878,7 +887,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .delete:
         return AnyView(Button(
           action: {
-            viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID)
+            }
           },
           label: {
             Label("Remove", systemImage: "trash")
@@ -887,7 +898,9 @@ struct AnimatingCellHeight: AnimatableModifier {
       case .moveToInbox:
         return AnyView(Button(
           action: {
-            viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
+            withAnimation(.linear(duration: 0.4)) {
+              viewModel.moveToFolder(dataService: dataService, item: item, folder: "inbox")
+            }
           },
           label: {
             Label(title: { Text("Move to Library") },

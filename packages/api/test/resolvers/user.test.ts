@@ -1,10 +1,11 @@
 import { expect } from 'chai'
 import 'mocha'
-import { User } from '../../src/entity/user'
+import { StatusType, User } from '../../src/entity/user'
 import {
   UpdateUserErrorCode,
   UpdateUserProfileErrorCode,
 } from '../../src/generated/graphql'
+import { userRepository } from '../../src/repository/user'
 import { findProfile } from '../../src/services/profile'
 import { deleteUser, findActiveUser } from '../../src/services/user'
 import { hashPassword } from '../../src/utils/auth'
@@ -272,11 +273,15 @@ describe('User API', () => {
     })
 
     context('when user id is valid', () => {
-      it('deletes user and responds with 200', async () => {
+      it('deletes user and changes email address', async () => {
         const response = await graphqlRequest(query(userId), authToken).expect(
           200
         )
         expect(response.body.data.deleteAccount.userID).to.eql(userId)
+
+        const user = await userRepository.findOneBy({ id: userId })
+        expect(user?.status).to.eql(StatusType.Deleted)
+        expect(user?.email).to.eql(`deleted_user_${userId}@omnivore.app`)
       })
     })
 

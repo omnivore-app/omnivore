@@ -24,9 +24,9 @@ services:
     command: '/bin/sh ./packages/db/setup.sh' # Also create a demo user with email: demo@omnivore.app, password: demo_password
     environment:
       - PGPASSWORD=postgres
+      - POSTGRES_USER=postgres
       - PG_HOST=postgres
-      - PG_USER=postgres
-      - PG_PASSWORD=postgres
+      - PG_PASSWORD=app_pass
       - PG_DB=omnivore
     depends_on:
       postgres:

@@ -7,7 +7,6 @@ import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
   ArticleSavingRequestStatus,
-  Maybe,
   PreparedDocumentInput,
   SaveErrorCode,
   SavePageInput,
@@ -43,7 +42,7 @@ const ALREADY_PARSED_SOURCES = [
   'pocket',
 ]
 
-const createSlug = (url: string, title?: Maybe<string> | undefined) => {
+const createSlug = (url: string, title?: string | null | undefined) => {
   const { pathname } = new URL(url)
   const croppedPathname = decodeURIComponent(
     pathname
@@ -168,8 +167,8 @@ export const savePage = async (
     )
   }
 
-  // we don't want to create thumbnail for imported pages
-  if (!isImported) {
+  // we don't want to create thumbnail for imported pages and pages that already have thumbnail
+  if (!isImported && !parseResult.parsedContent?.previewImage) {
     try {
       // create a task to update thumbnail and pre-cache all images
       const taskId = await enqueueThumbnailTask(user.id, slug)
@@ -240,6 +239,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
+  console.log('save_page: state', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,

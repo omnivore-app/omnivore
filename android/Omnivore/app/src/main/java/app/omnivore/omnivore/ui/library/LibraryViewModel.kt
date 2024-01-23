@@ -20,155 +20,160 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-  private val networker: Networker,
-  private val dataService: DataService,
-  private val datastoreRepo: DatastoreRepository,
-  private val resourceProvider: ResourceProvider
-): ViewModel(), SavedItemViewModel {
-  private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
+    private val networker: Networker,
+    private val dataService: DataService,
+    private val datastoreRepo: DatastoreRepository,
+    private val resourceProvider: ResourceProvider
+) : ViewModel(), SavedItemViewModel {
+    private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
-  private var cursor: String? = null
-  private var librarySearchCursor: String? = null
+    private var cursor: String? = null
+    private var librarySearchCursor: String? = null
 
-  // These are used to make sure we handle search result
-  // responses in the right order
-  private var searchIdx = 0
-  private var receivedIdx = 0
+    // These are used to make sure we handle search result
+    // responses in the right order
+    private var searchIdx = 0
+    private var receivedIdx = 0
 
-  var snackbarMessage by mutableStateOf<String?>(null)
-    private set
+    var snackbarMessage by mutableStateOf<String?>(null)
+        private set
 
-  // Live Data
-  private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
-    allowedArchiveStates = listOf(0),
-    sortKey = "newest",
-    requiredLabels = listOf(),
-    excludedLabels = listOf(),
-    allowedContentReaders = listOf("WEB", "PDF", "EPUB")
-  )
-  val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
-  val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
-  val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
-  val showLabelsSelectionSheetLiveData = MutableLiveData(false)
-  val showEditInfoSheetLiveData = MutableLiveData(false)
-  val showAddLinkSheetLiveData = MutableLiveData(false)
-  val currentItemLiveData = MutableLiveData<String?>(null)
-  val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
-  val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
+    // Live Data
+    private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
+        allowedArchiveStates = listOf(0),
+        sortKey = "newest",
+        requiredLabels = listOf(),
+        excludedLabels = listOf(),
+        allowedContentReaders = listOf("WEB", "PDF", "EPUB")
+    )
+    val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
+    val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
+    val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
+    val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
+    val currentItemLiveData = MutableLiveData<String?>(null)
+    val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
+    val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
-  override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
+    override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
 
-  var isRefreshing by mutableStateOf(false)
-  private var hasLoadedInitialFilters = false
+    var isRefreshing by mutableStateOf(false)
+    private var hasLoadedInitialFilters = false
 
-  private fun loadInitialFilterValues() {
-    if (hasLoadedInitialFilters) { return }
-    hasLoadedInitialFilters = false
-
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        dataService.syncLabels()
-      }
-    }
-
-    viewModelScope.launch {
-      handleFilterChanges()
-      for (slug in contentRequestChannel) {
-        CoroutineScope(Dispatchers.IO).launch {
-          dataService.fetchSavedItemContent(slug)
+    private fun loadInitialFilterValues() {
+        if (hasLoadedInitialFilters) {
+            return
         }
-      }
-    }
-  }
+        hasLoadedInitialFilters = false
 
-  fun clearSnackbarMessage() {
-    snackbarMessage = null
-  }
-
-  fun refresh() {
-    cursor = null
-    librarySearchCursor = null
-    isRefreshing = true
-    load()
-  }
-
-  private fun getLastSyncTime(): Instant? = runBlocking {
-    datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
-      try {
-        return@let Instant.parse(it)
-      } catch (e: Exception) {
-        return@let null
-      }
-    }
-  }
-
-  fun initialLoad() {
-    if (getLastSyncTime() == null) {
-      hasLoadedInitialFilters = false
-      cursor = null
-      librarySearchCursor = null
-      searchIdx = 0
-      receivedIdx = 0
-    }
-
-    if (hasLoadedInitialFilters) { return }
-    load()
-  }
-
-  fun load() {
-    loadInitialFilterValues()
-
-    viewModelScope.launch {
-      syncItems()
-      loadUsingSearchAPI()
-    }
-  }
-
-  fun loadUsingSearchAPI() {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        val result = dataService.librarySearch(cursor = librarySearchCursor, query = searchQueryString())
-        result.cursor?.let {
-          librarySearchCursor = it
-        }
-        CoroutineScope(Dispatchers.Main).launch {
-          isRefreshing = false
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                dataService.syncLabels()
+            }
         }
 
-        result.savedItems.map {
-          val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.savedItem.slug)
-
-          if (!isSavedInDB) {
-            delay(2000)
-            contentRequestChannel.send(it.savedItem.slug)
-          }
+        viewModelScope.launch {
+            handleFilterChanges()
+            for (slug in contentRequestChannel) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    dataService.fetchSavedItemContent(slug)
+                }
+            }
         }
-      }
     }
-  }
 
-  fun updateSavedItemFilter(filter: SavedItemFilter) {
-    viewModelScope.launch {
-      datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
-      appliedFilterLiveData.value = filter
-      handleFilterChanges()
+    fun clearSnackbarMessage() {
+        snackbarMessage = null
     }
-  }
 
-  fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
-    viewModelScope.launch {
-      datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
-      appliedSortFilterLiveData.value = filter
-      handleFilterChanges()
+    fun refresh() {
+        cursor = null
+        librarySearchCursor = null
+        isRefreshing = true
+        load()
     }
-  }
 
-  fun updateAppliedLabels(labels: List<SavedItemLabel>) {
-    viewModelScope.launch {
-      activeLabelsLiveData.value = labels
-      handleFilterChanges()
+    private fun getLastSyncTime(): Instant? = runBlocking {
+        datastoreRepo.getString(DatastoreKeys.libraryLastSyncTimestamp)?.let {
+            try {
+                return@let Instant.parse(it)
+            } catch (e: Exception) {
+                return@let null
+            }
+        }
     }
-  }
+
+    fun initialLoad() {
+        if (getLastSyncTime() == null) {
+            hasLoadedInitialFilters = false
+            cursor = null
+            librarySearchCursor = null
+            searchIdx = 0
+            receivedIdx = 0
+        }
+
+        if (hasLoadedInitialFilters) {
+            return
+        }
+        load()
+    }
+
+    fun load() {
+        loadInitialFilterValues()
+
+        viewModelScope.launch {
+            syncItems()
+            loadUsingSearchAPI()
+        }
+    }
+
+    fun loadUsingSearchAPI() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val result = dataService.librarySearch(
+                    cursor = librarySearchCursor,
+                    query = searchQueryString()
+                )
+                result.cursor?.let {
+                    librarySearchCursor = it
+                }
+                CoroutineScope(Dispatchers.Main).launch {
+                    isRefreshing = false
+                }
+
+                result.savedItems.map {
+                    val isSavedInDB = dataService.isSavedItemContentStoredInDB(it.savedItem.slug)
+
+                    if (!isSavedInDB) {
+                        delay(2000)
+                        contentRequestChannel.send(it.savedItem.slug)
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateSavedItemFilter(filter: SavedItemFilter) {
+        viewModelScope.launch {
+            datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemFilter, filter.rawValue)
+            appliedFilterLiveData.value = filter
+            handleFilterChanges()
+        }
+    }
+
+    fun updateSavedItemSortFilter(filter: SavedItemSortFilter) {
+        viewModelScope.launch {
+            datastoreRepo.putString(DatastoreKeys.lastUsedSavedItemSortFilter, filter.rawValue)
+            appliedSortFilterLiveData.value = filter
+            handleFilterChanges()
+        }
+    }
+
+    fun updateAppliedLabels(labels: List<SavedItemLabel>) {
+        viewModelScope.launch {
+            activeLabelsLiveData.value = labels
+            handleFilterChanges()
+        }
+    }
 
 //  fun sortKey(appliedSortKey: String) {
 //    when(appliedSortKey) {
@@ -176,208 +181,228 @@ class LibraryViewModel @Inject constructor(
 //    }
 //  }
 
-  private fun handleFilterChanges() {
-    librarySearchCursor = null
+    private fun handleFilterChanges() {
+        librarySearchCursor = null
 
-    if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
-      val sortKey = when (appliedSortFilterLiveData.value) {
-        SavedItemSortFilter.NEWEST -> "newest"
-        SavedItemSortFilter.OLDEST -> "oldest"
-        SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
-        SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
-        else -> "newest"
-      }
+        if (appliedSortFilterLiveData.value != null && appliedFilterLiveData.value != null) {
+            val sortKey = when (appliedSortFilterLiveData.value) {
+                SavedItemSortFilter.NEWEST -> "newest"
+                SavedItemSortFilter.OLDEST -> "oldest"
+                SavedItemSortFilter.RECENTLY_READ -> "recentlyRead"
+                SavedItemSortFilter.RECENTLY_PUBLISHED -> "recentlyPublished"
+                else -> "newest"
+            }
 
-      val allowedArchiveStates = when (appliedFilterLiveData.value) {
-        SavedItemFilter.ALL -> listOf(0, 1)
-        SavedItemFilter.ARCHIVED -> listOf(1)
-        else -> listOf(0)
-      }
+            val allowedArchiveStates = when (appliedFilterLiveData.value) {
+                SavedItemFilter.ALL -> listOf(0, 1)
+                SavedItemFilter.ARCHIVED -> listOf(1)
+                else -> listOf(0)
+            }
 
-      val allowedContentReaders = when(appliedFilterLiveData.value) {
-        SavedItemFilter.FILES -> listOf("PDF", "EPUB")
-        else -> listOf("WEB", "PDF", "EPUB")
-      }
+            val allowedContentReaders = when (appliedFilterLiveData.value) {
+                SavedItemFilter.FILES -> listOf("PDF", "EPUB")
+                else -> listOf("WEB", "PDF", "EPUB")
+            }
 
-      var requiredLabels = when(appliedFilterLiveData.value) {
-        SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
-        SavedItemFilter.FEEDS -> listOf("RSS")
-        else -> (activeLabelsLiveData.value ?: listOf()).map { it.name }
-      }
+            var requiredLabels = when (appliedFilterLiveData.value) {
+                SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
+                SavedItemFilter.FEEDS -> listOf("RSS")
+                else -> (activeLabelsLiveData.value ?: listOf()).map { it.name }
+            }
 
-     activeLabelsLiveData.value?.let { it ->
-       requiredLabels = requiredLabels + it.map { it.name }
-     }
+            activeLabelsLiveData.value?.let { it ->
+                requiredLabels = requiredLabels + it.map { it.name }
+            }
 
 
-      val excludeLabels = when(appliedFilterLiveData.value) {
-        SavedItemFilter.READ_LATER -> listOf("Newsletter", "RSS")
-        else -> listOf()
-      }
+            val excludeLabels = when (appliedFilterLiveData.value) {
+                SavedItemFilter.READ_LATER -> listOf("Newsletter", "RSS")
+                else -> listOf()
+            }
 
-      val newData = dataService.db.savedItemDao().filteredLibraryData(
-        allowedArchiveStates = allowedArchiveStates,
-        sortKey = sortKey,
-        requiredLabels = requiredLabels,
-        excludedLabels = excludeLabels,
-        allowedContentReaders = allowedContentReaders
-      )
+            val newData = dataService.db.savedItemDao().filteredLibraryData(
+                allowedArchiveStates = allowedArchiveStates,
+                sortKey = sortKey,
+                requiredLabels = requiredLabels,
+                excludedLabels = excludeLabels,
+                allowedContentReaders = allowedContentReaders
+            )
 
-     itemsLiveData.removeSource(itemsLiveDataInternal)
-      itemsLiveDataInternal = newData
-      itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
-    }
-  }
-
-  private suspend fun syncItems() {
-    val syncStart = Instant.now()
-    val lastSyncDate = getLastSyncTime() ?: Instant.MIN
-
-    withContext(Dispatchers.IO) {
-      performItemSync(cursor = null, since = lastSyncDate.toString(), count = 0, startTime = syncStart.toString())
-      CoroutineScope(Dispatchers.Main).launch {
-        isRefreshing = false
-      }
-    }
-  }
-
-  private suspend fun performItemSync(cursor: String?, since: String, count: Int, startTime: String, isInitialBatch: Boolean = true) {
-    dataService.syncOfflineItemsWithServerIfNeeded()
-    val result = dataService.sync(since = since, cursor = cursor, limit = 20)
-
-    // Fetch content for the initial batch only
-    if (isInitialBatch) {
-      for (slug in result.savedItemSlugs) {
-        delay(250)
-        contentRequestChannel.send(slug)
-      }
+            itemsLiveData.removeSource(itemsLiveDataInternal)
+            itemsLiveDataInternal = newData
+            itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
+        }
     }
 
-    val totalCount = count + result.count
+    private suspend fun syncItems() {
+        val syncStart = Instant.now()
+        val lastSyncDate = getLastSyncTime() ?: Instant.MIN
 
-    if (!result.hasError && result.hasMoreItems && result.cursor != null) {
-      performItemSync(
-        cursor = result.cursor,
-        since = since,
-        count = totalCount,
-        startTime = startTime,
-        isInitialBatch = false
-      )
-    } else {
-      datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
+        withContext(Dispatchers.IO) {
+            performItemSync(
+                cursor = null,
+                since = lastSyncDate.toString(),
+                count = 0,
+                startTime = syncStart.toString()
+            )
+            CoroutineScope(Dispatchers.Main).launch {
+                isRefreshing = false
+            }
+        }
     }
-  }
 
-  override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
-    when (action) {
-      SavedItemAction.Delete -> {
-        deleteSavedItem(itemID)
-      }
-      SavedItemAction.Archive -> {
-        archiveSavedItem(itemID)
-      }
-      SavedItemAction.Unarchive -> {
-        unarchiveSavedItem(itemID)
-      }
-      SavedItemAction.EditLabels -> {
-        currentItemLiveData.value = itemID
-        showLabelsSelectionSheetLiveData.value = true
-      }
-      SavedItemAction.EditInfo -> {
-        currentItemLiveData.value = itemID
-        showEditInfoSheetLiveData.value = true
-      }
-    }
-    actionsMenuItemLiveData.postValue(null)
-  }
+    private suspend fun performItemSync(
+        cursor: String?,
+        since: String,
+        count: Int,
+        startTime: String,
+        isInitialBatch: Boolean = true
+    ) {
+        dataService.syncOfflineItemsWithServerIfNeeded()
+        val result = dataService.sync(since = since, cursor = cursor, limit = 20)
 
-  fun deleteSavedItem(itemID: String) {
-    viewModelScope.launch {
-      dataService.deleteSavedItem(itemID)
-    }
-  }
+        // Fetch content for the initial batch only
+        if (isInitialBatch) {
+            for (slug in result.savedItemSlugs) {
+                delay(250)
+                contentRequestChannel.send(slug)
+            }
+        }
 
-  fun archiveSavedItem(itemID: String) {
-    viewModelScope.launch {
-      dataService.archiveSavedItem(itemID)
-    }
-  }
+        val totalCount = count + result.count
 
-  fun unarchiveSavedItem(itemID: String) {
-    viewModelScope.launch {
-      dataService.unarchiveSavedItem(itemID)
-    }
-  }
-
-  fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        val result = setSavedItemLabels(
-          networker = networker,
-          dataService = dataService,
-          savedItemID = savedItemID,
-          labels = labels
-        )
-
-        snackbarMessage = if (result) {
-          resourceProvider.getString(R.string.library_view_model_snackbar_success)
+        if (!result.hasError && result.hasMoreItems && result.cursor != null) {
+            performItemSync(
+                cursor = result.cursor,
+                since = since,
+                count = totalCount,
+                startTime = startTime,
+                isInitialBatch = false
+            )
         } else {
-          resourceProvider.getString(R.string.library_view_model_snackbar_error)
+            datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
+        }
+    }
+
+    override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
+        when (action) {
+            SavedItemAction.Delete -> {
+                deleteSavedItem(itemID)
+            }
+
+            SavedItemAction.Archive -> {
+                archiveSavedItem(itemID)
+            }
+
+            SavedItemAction.Unarchive -> {
+                unarchiveSavedItem(itemID)
+            }
+
+            SavedItemAction.EditLabels -> {
+                currentItemLiveData.value = itemID
+                bottomSheetState.value = LibraryBottomSheetState.LABEL
+            }
+
+            SavedItemAction.EditInfo -> {
+                currentItemLiveData.value = itemID
+                bottomSheetState.value = LibraryBottomSheetState.EDIT
+            }
+        }
+        actionsMenuItemLiveData.postValue(null)
+    }
+
+    fun deleteSavedItem(itemID: String) {
+        viewModelScope.launch {
+            dataService.deleteSavedItem(itemID)
+        }
+    }
+
+    fun archiveSavedItem(itemID: String) {
+        viewModelScope.launch {
+            dataService.archiveSavedItem(itemID)
+        }
+    }
+
+    fun unarchiveSavedItem(itemID: String) {
+        viewModelScope.launch {
+            dataService.unarchiveSavedItem(itemID)
+        }
+    }
+
+    fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val result = setSavedItemLabels(
+                    networker = networker,
+                    dataService = dataService,
+                    savedItemID = savedItemID,
+                    labels = labels
+                )
+
+                snackbarMessage = if (result) {
+                    resourceProvider.getString(R.string.library_view_model_snackbar_success)
+                } else {
+                    resourceProvider.getString(R.string.library_view_model_snackbar_error)
+                }
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    handleFilterChanges()
+                }
+            }
+        }
+    }
+
+    fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val newLabel = networker.createNewLabel(
+                    CreateLabelInput(
+                        color = Optional.presentIfNotNull(hexColorValue), name = labelName
+                    )
+                )
+
+                newLabel?.let {
+                    val savedItemLabel = SavedItemLabel(
+                        savedItemLabelId = it.id,
+                        name = it.name,
+                        color = it.color,
+                        createdAt = it.createdAt as String?,
+                        labelDescription = it.description
+                    )
+
+                    dataService.db.savedItemLabelDao().insertAll(listOf(savedItemLabel))
+                }
+            }
+        }
+    }
+
+    fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
+        currentItemLiveData.value?.let { itemID ->
+            return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
-          handleFilterChanges()
+        return null
+    }
+
+    private fun searchQueryString(): String {
+        var query =
+            "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
+
+        activeLabelsLiveData.value?.let {
+            if (it.isNotEmpty()) {
+                query += " label:"
+                query += it.joinToString { label -> label.name }
+            }
         }
-      }
+
+        return query
     }
-  }
-
-  fun createNewSavedItemLabel(labelName: String, hexColorValue: String) {
-    viewModelScope.launch {
-      withContext(Dispatchers.IO) {
-        val newLabel = networker.createNewLabel(CreateLabelInput(color = Optional.presentIfNotNull(hexColorValue), name = labelName))
-
-        newLabel?.let {
-          val savedItemLabel = SavedItemLabel(
-            savedItemLabelId = it.id,
-            name = it.name,
-            color = it.color,
-            createdAt = it.createdAt as String?,
-            labelDescription = it.description
-          )
-
-          dataService.db.savedItemLabelDao().insertAll(listOf(savedItemLabel))
-        }
-      }
-    }
-  }
-
-  fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
-    currentItemLiveData.value?.let { itemID ->
-      return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
-    }
-
-    return null
-  }
-
-  private fun searchQueryString(): String {
-    var query = "${appliedFilterLiveData.value?.queryString} ${appliedSortFilterLiveData.value?.queryString}"
-
-    activeLabelsLiveData.value?.let {
-      if (it.isNotEmpty()) {
-        query += " label:"
-        query += it.joinToString { label -> label.name }
-      }
-    }
-
-    return query
-  }
 }
 
 enum class SavedItemAction {
-  Delete,
-  Archive,
-  Unarchive,
-  EditLabels,
-  EditInfo,
+    Delete,
+    Archive,
+    Unarchive,
+    EditLabels,
+    EditInfo,
 }
