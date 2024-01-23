@@ -47,7 +47,7 @@ interface LogRecord {
 
 interface FetchResult {
   finalUrl: string
-  title: string
+  title?: string
   content?: string
   contentType?: string
   readabilityResult?: unknown
