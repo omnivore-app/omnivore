@@ -70,7 +70,7 @@ interface SavePageResponse {
 
 interface FetchResult {
   finalUrl: string
-  title: string
+  title?: string
   content?: string
   contentType?: string
   readabilityResult?: Readability.ParseResult
