@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "@tsconfig/node14/tsconfig.json",
   "ts-node": {
     "files": true
   },
