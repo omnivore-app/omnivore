@@ -279,7 +279,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
   const {
     userId,
     articleSavingRequestId,
-    state,
     labels,
     source,
     folder,
@@ -289,14 +288,17 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     taskId,
     url,
   } = data
-  let isImported, isSaved
+  let isImported,
+    isSaved,
+    state = data.state
 
   try {
     console.log(`savePageJob: ${userId} ${url}`)
 
     // get the fetch result from cache
-    const { title, content, contentType, readabilityResult } =
-      await getCachedFetchResult(url)
+    const fetchedResult = await getCachedFetchResult(url)
+    const { title, contentType, readabilityResult } = fetchedResult
+    let content = fetchedResult.content
 
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
@@ -329,9 +331,10 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     }
 
     if (!content) {
-      throw new Error(
-        'Invalid SavePage job, fetch result missing required data'
-      )
+      console.log('content is not fetched', url)
+      // set the state to failed if we don't have content
+      content = 'Failed to fetch content'
+      state = ArticleSavingRequestStatus.Failed
     }
 
     const user = await userRepository.findById(userId)
