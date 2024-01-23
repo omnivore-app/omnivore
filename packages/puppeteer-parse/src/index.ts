@@ -154,7 +154,7 @@ export const fetchContent = async (
 
   let context: BrowserContext | undefined,
     page: Page | undefined,
-    title = '',
+    title: string | undefined,
     content: string | undefined,
     contentType: string | undefined,
     readabilityResult: Readability.ParseResult | null | undefined
@@ -214,7 +214,7 @@ export const fetchContent = async (
           const sbResult = await fetchContentWithScrapingBee(url)
           title = sbResult.title
           content = sbResult.domContent
-        } else if (result.title && result.domContent) {
+        } else {
           title = result.title
           content = result.domContent
         }
