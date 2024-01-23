@@ -1,11 +1,9 @@
 import * as Sentry from '@sentry/serverless'
 import axios, { AxiosResponse } from 'axios'
-import crypto from 'crypto'
 import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import sizeOf from 'image-size'
 import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
-import { encode } from 'urlsafe-base64'
 import { promisify } from 'util'
 
 interface ArticleResponse {
@@ -48,28 +46,6 @@ Sentry.GCPFunction.init({
 
 const signToken = promisify(jwt.sign)
 const REQUEST_TIMEOUT = 30000 // 30s
-
-const signImageProxyUrl = (url: string, secret: string): string => {
-  return encode(crypto.createHmac('sha256', secret).update(url).digest())
-}
-
-export function createImageProxyUrl(
-  url: string,
-  width = 0,
-  height = 0
-): string {
-  if (!process.env.IMAGE_PROXY_URL || !process.env.IMAGE_PROXY_SECRET) {
-    return url
-  }
-
-  const urlWithOptions = `${url}#${width}x${height}`
-  const signature = signImageProxyUrl(
-    urlWithOptions,
-    process.env.IMAGE_PROXY_SECRET
-  )
-
-  return `${process.env.IMAGE_PROXY_URL}/${width}x${height},s${signature}/${url}`
-}
 
 const articleQuery = async (
   userId: string,
@@ -345,8 +321,7 @@ export const thumbnailHandler = Sentry.GCPFunction.wrapHttpFunction(
       if (page.image) {
         console.log('thumbnail already set')
         // pre-cache thumbnail first if exists
-        const imageProxyUrl = createImageProxyUrl(page.image, 320, 320)
-        const image = await fetchImage(imageProxyUrl)
+        const image = await fetchImage(page.image)
         if (!image) {
           console.log('thumbnail image not found')
           page.image = undefined
