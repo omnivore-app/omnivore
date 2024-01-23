@@ -112,7 +112,7 @@ const createHttpTaskWithToken = async ({
   }
 
   try {
-    return client.createTask({ parent, task })
+    return await client.createTask({ parent, task })
   } catch (error) {
     logError(error)
     return null

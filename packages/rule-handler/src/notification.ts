@@ -29,7 +29,7 @@ export const sendNotification = async (
   }
 
   try {
-    return axios.post(`${apiEndpoint}/notification/send`, requestData, {
+    return await axios.post(`${apiEndpoint}/notification/send`, requestData, {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',

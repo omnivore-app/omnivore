@@ -95,7 +95,7 @@ const uploadToSignedUrl = async (
       responseType: 'stream',
       timeout: REQUEST_TIMEOUT,
     })
-    return axios.put(uploadSignedUrl, stream.data, {
+    return await axios.put(uploadSignedUrl, stream.data, {
       headers: {
         'Content-Type': contentType,
       },
