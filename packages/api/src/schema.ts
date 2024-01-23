@@ -397,6 +397,8 @@ const schema = gql`
     recommendations: [Recommendation!]
     wordsCount: Int
     folder: String!
+    availableRepresentations: [String!]
+    feedPreviewContent: String
   }
 
   # Query: article
@@ -1638,6 +1640,8 @@ const schema = gql`
     previewContentType: String
     links: JSON
     folder: String!
+    availableRepresentations: [String!]
+    feedPreviewContent: String
   }
 
   type SearchItemEdge {

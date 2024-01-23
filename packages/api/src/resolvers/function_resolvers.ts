@@ -346,6 +346,23 @@ export const functionResolvers = {
 
       return []
     },
+    availableRepresentations(article: {
+      content?: string
+      originalHtml?: string
+      feedPreviewContent?: string
+    }): string[] {
+      var res = []
+      if (article.content) {
+        res.push('readable')
+      }
+      if (article.originalHtml) {
+        res.push('original')
+      }
+      if (article.feedPreviewContent) {
+        res.push('feedPreview')
+      }
+      return res
+    },
   },
   Highlight: {
     // async reactions(
@@ -459,6 +476,23 @@ export const functionResolvers = {
       }
 
       return []
+    },
+    availableRepresentations(article: {
+      content?: string
+      originalHtml?: string
+      feedPreviewContent?: string
+    }): string[] {
+      var res = []
+      if (article.content) {
+        res.push('readable')
+      }
+      if (article.originalHtml) {
+        res.push('original')
+      }
+      if (article.feedPreviewContent) {
+        res.push('feedPreview')
+      }
+      return res
     },
   },
   Subscription: {

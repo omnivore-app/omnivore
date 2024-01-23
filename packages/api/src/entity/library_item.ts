@@ -209,4 +209,7 @@ export class LibraryItem {
 
   @Column('text')
   folder!: string
+
+  @Column('text')
+  feedPreviewContent!: string
 }

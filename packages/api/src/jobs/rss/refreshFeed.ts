@@ -317,6 +317,7 @@ const createItemWithPreviewContent = async (
     thumbnail: getThumbnail(item),
   }
 
+  //TODO JACKSON: insert the preview content here
   try {
     const serviceBaseUrl = process.env.INTERNAL_API_URL
     const token = process.env.PUBSUB_VERIFICATION_TOKEN

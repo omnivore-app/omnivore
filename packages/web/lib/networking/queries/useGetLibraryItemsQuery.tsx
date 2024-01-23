@@ -171,6 +171,7 @@ export function useGetLibraryItemsQuery({
               ownedByViewer
               originalArticleUrl
               uploadFileId
+              availableRepresentations
               labels {
                 id
                 name

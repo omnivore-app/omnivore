@@ -246,11 +246,8 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       user
     )
 
-    if (result.__typename == 'SaveError') {
-      throw new Error(result.message || result.errorCodes[0])
-    }
-
-    isImported = true
+    // if the readability result is not parsed, the import is failed
+    isImported = !!readabilityResult
     isSaved = true
   } catch (e) {
     if (e instanceof Error) {
