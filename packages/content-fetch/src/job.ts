@@ -29,7 +29,7 @@ const getPriority = (job: savePageJob): number => {
     return 100
   }
 
-  return 5
+  return 1
 }
 
 const getAttempts = (job: savePageJob): number => {
