@@ -339,7 +339,8 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         userId,
         url,
       })
-      throw new Error('Unable to save job, user can not be found.')
+      // if the user is not found, we do not retry
+      return false
     }
 
     // for non-pdf content, we need to save the page

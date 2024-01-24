@@ -20,31 +20,33 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
   } as RSSRefreshContext
   const subscriptionGroups = (await db.createEntityManager().query(
     `
-    SELECT
-      url,
-      ARRAY_AGG(s.id) AS "subscriptionIds",
-      ARRAY_AGG(s.user_id) AS "userIds",
-      ARRAY_AGG(s.most_recent_item_date) AS "mostRecentItemDates",
-      ARRAY_AGG(coalesce(s.scheduled_at, NOW())) AS "scheduledDates",
-      ARRAY_AGG(s.last_fetched_checksum) AS checksums,
-      ARRAY_AGG(s.fetch_content) AS "fetchContents",
-      ARRAY_AGG(coalesce(s.folder, $3)) AS folders
-    FROM
-      omnivore.subscriptions s
-    INNER JOIN
-      omnivore.user u ON u.id = s.user_id
-    WHERE
-      s.type = $1
-      AND s.status = $2
-      AND u.status = $2
-      AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
-    GROUP BY
-      s.url
-    `,
-    ['RSS', 'ACTIVE', 'following']
+      SELECT
+        url,
+        ARRAY_AGG(s.id) AS "subscriptionIds",
+        ARRAY_AGG(s.user_id) AS "userIds",
+        ARRAY_AGG(s.most_recent_item_date) AS "mostRecentItemDates",
+        ARRAY_AGG(coalesce(s.scheduled_at, NOW())) AS "scheduledDates",
+        ARRAY_AGG(s.last_fetched_checksum) AS checksums,
+        ARRAY_AGG(s.fetch_content) AS "fetchContents",
+        ARRAY_AGG(coalesce(s.folder, $3)) AS folders
+      FROM
+        omnivore.subscriptions s
+      INNER JOIN
+        omnivore.user u ON u.id = s.user_id
+      WHERE
+        s.type = $1
+        AND s.status = $2
+        AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
+        AND u.status = $4
+      GROUP BY
+        s.url
+      `,
+    ['RSS', 'ACTIVE', 'following', 'ACTIVE']
   )) as RssSubscriptionGroup[]
 
-  console.log(`rss: checking ${subscriptionGroups.length}`, { refreshContext })
+  console.log(`rss: checking ${subscriptionGroups.length}`, {
+    refreshContext,
+  })
 
   for (const group of subscriptionGroups) {
     try {
@@ -92,7 +94,7 @@ const updateSubscriptionGroup = async (
     refreshContext,
     subscriptionIds: group.subscriptionIds,
     feedUrl: group.url,
-    lastFetchedTimestamps: group.mostRecentItemDates.map(
+    mostRecentItemDates: group.mostRecentItemDates.map(
       (timestamp) => timestamp?.getTime() || 0
     ), // unix timestamp in milliseconds
     lastFetchedChecksums: group.checksums,
