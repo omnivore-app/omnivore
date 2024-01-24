@@ -6,9 +6,9 @@ import Parser, { Item } from 'rss-parser'
 import { promisify } from 'util'
 import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
+import { updateSubscription } from '../../services/update_subscription'
 import createHttpTaskWithToken from '../../utils/createTask'
 import { RSSRefreshContext } from './refreshAllFeeds'
-import { updateSubscription } from '../../services/update_subscription'
 
 type FolderType = 'following' | 'inbox'
 
@@ -429,6 +429,8 @@ const processSubscription = async (
   folder: FolderType,
   feed: RssFeed
 ) => {
+  const refreshedAt = new Date()
+
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: RssFeedItem | null = null
 
@@ -549,11 +551,12 @@ const processSubscription = async (
   const updatePeriodInMs = getUpdatePeriodInHours(feed) * 60 * 60 * 1000
   const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
 
-  // update subscription lastFetchedAt
+  // update subscription mostRecentItemDate and refreshedAt
   const updatedSubscription = await updateSubscription(userId, subscriptionId, {
-    lastFetchedAt: lastItemFetchedAt,
+    mostRecentItemDate: lastItemFetchedAt,
     lastFetchedChecksum: updatedLastFetchedChecksum,
     scheduledAt: new Date(nextScheduledAt),
+    refreshedAt,
   })
   console.log('Updated subscription', updatedSubscription)
 }

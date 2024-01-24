@@ -2600,7 +2600,6 @@ const schema = gql`
     id: ID!
     name: String
     description: String
-    lastFetchedAt: Date
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
@@ -2608,6 +2607,8 @@ const schema = gql`
     autoAddToLibrary: Boolean
     fetchContent: Boolean
     folder: String
+    refreshedAt: Date
+    mostRecentItemDate: Date
   }
 
   union UpdateSubscriptionResult =

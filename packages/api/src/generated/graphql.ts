@@ -2839,8 +2839,10 @@ export type Subscription = {
   id: Scalars['ID'];
   isPrivate?: Maybe<Scalars['Boolean']>;
   lastFetchedAt?: Maybe<Scalars['Date']>;
+  mostRecentItemDate?: Maybe<Scalars['Date']>;
   name: Scalars['String'];
   newsletterEmail?: Maybe<Scalars['String']>;
+  refreshedAt?: Maybe<Scalars['Date']>;
   status: SubscriptionStatus;
   type: SubscriptionType;
   unsubscribeHttpUrl?: Maybe<Scalars['String']>;
@@ -3210,9 +3212,10 @@ export type UpdateSubscriptionInput = {
   folder?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: InputMaybe<Scalars['Boolean']>;
-  lastFetchedAt?: InputMaybe<Scalars['Date']>;
   lastFetchedChecksum?: InputMaybe<Scalars['String']>;
+  mostRecentItemDate?: InputMaybe<Scalars['Date']>;
   name?: InputMaybe<Scalars['String']>;
+  refreshedAt?: InputMaybe<Scalars['Date']>;
   scheduledAt?: InputMaybe<Scalars['Date']>;
   status?: InputMaybe<SubscriptionStatus>;
 };
@@ -6193,8 +6196,10 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
   isPrivate?: SubscriptionResolver<Maybe<ResolversTypes['Boolean']>, "isPrivate", ParentType, ContextType>;
   lastFetchedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "lastFetchedAt", ParentType, ContextType>;
+  mostRecentItemDate?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "mostRecentItemDate", ParentType, ContextType>;
   name?: SubscriptionResolver<ResolversTypes['String'], "name", ParentType, ContextType>;
   newsletterEmail?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "newsletterEmail", ParentType, ContextType>;
+  refreshedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "refreshedAt", ParentType, ContextType>;
   status?: SubscriptionResolver<ResolversTypes['SubscriptionStatus'], "status", ParentType, ContextType>;
   type?: SubscriptionResolver<ResolversTypes['SubscriptionType'], "type", ParentType, ContextType>;
   unsubscribeHttpUrl?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "unsubscribeHttpUrl", ParentType, ContextType>;

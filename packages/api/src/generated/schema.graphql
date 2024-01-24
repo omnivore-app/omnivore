@@ -2235,8 +2235,10 @@ type Subscription {
   id: ID!
   isPrivate: Boolean
   lastFetchedAt: Date
+  mostRecentItemDate: Date
   name: String!
   newsletterEmail: String
+  refreshedAt: Date
   status: SubscriptionStatus!
   type: SubscriptionType!
   unsubscribeHttpUrl: String
@@ -2577,9 +2579,10 @@ input UpdateSubscriptionInput {
   folder: String
   id: ID!
   isPrivate: Boolean
-  lastFetchedAt: Date
   lastFetchedChecksum: String
+  mostRecentItemDate: Date
   name: String
+  refreshedAt: Date
   scheduledAt: Date
   status: SubscriptionStatus
 }
