@@ -637,10 +637,12 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
     // process each subscription sequentially
     for (let i = 0; i < subscriptionIds.length; i++) {
+      const subscriptionId = subscriptionIds[i]
+
       try {
         await processSubscription(
           fetchContentTasks,
-          subscriptionIds[i],
+          subscriptionId,
           userIds[i],
           feedUrl,
           fetchResult,
@@ -652,7 +654,10 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
           feed
         )
       } catch (error) {
-        console.error('Error while processing subscription', error)
+        console.error('Error while processing subscription', {
+          error,
+          subscriptionId,
+        })
       }
     }
 
@@ -666,8 +671,12 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     }
 
     return true
-  } catch (e) {
-    console.error('Error while saving RSS feeds', e)
+  } catch (error) {
+    console.error('Error while saving RSS feeds', {
+      feedUrl,
+      subscriptionIds,
+      error,
+    })
 
     // mark subscriptions as error if we failed to get the feed
     await updateSubscriptions(subscriptionIds, {
