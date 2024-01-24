@@ -5,6 +5,7 @@ import Parser, { Item } from 'rss-parser'
 import { SubscriptionStatus } from '../../entity/subscription'
 import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
+import { validateUrl } from '../../services/create_page_save_request'
 import {
   updateSubscription,
   updateSubscriptions,
@@ -392,7 +393,10 @@ const getUpdatePeriodInHours = (feed: RssFeed) => {
 }
 
 // get link following the order of preference: via, alternate, self
-const getLink = (links: RssFeedItemLink[]): string | undefined => {
+const getLink = (
+  links: RssFeedItemLink[],
+  feedUrl: string
+): string | undefined => {
   // sort links by preference
   const sortedLinks: string[] = []
 
@@ -414,7 +418,18 @@ const getLink = (links: RssFeedItemLink[]): string | undefined => {
   })
 
   // return the first link that is not undefined
-  return sortedLinks.find((link) => !!link)
+  const itemUrl = sortedLinks.find((link) => !!link)
+  if (!itemUrl) {
+    return undefined
+  }
+
+  // convert relative url to absolute url
+  const url = new URL(itemUrl, feedUrl).href
+  if (!validateUrl(url)) {
+    return undefined
+  }
+
+  return url
 }
 
 const processSubscription = async (
@@ -467,7 +482,7 @@ const processSubscription = async (
         throw new Error('Invalid feed item')
       }
 
-      const link = getLink(item.links)
+      const link = getLink(item.links, feedUrl)
       if (!link) {
         throw new Error('Invalid feed item link')
       }
