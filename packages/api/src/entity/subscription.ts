@@ -86,6 +86,9 @@ export class Subscription {
   @Column('timestamp', { nullable: true })
   refreshedAt?: Date | null
 
+  @Column('timestamp', { nullable: true })
+  failedAt?: Date | null
+
   @Column('boolean')
   isPrivate?: boolean | null
 
