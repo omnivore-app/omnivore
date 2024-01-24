@@ -22,21 +22,24 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
     `
     SELECT
       url,
-      ARRAY_AGG(id) AS "subscriptionIds",
-      ARRAY_AGG(user_id) AS "userIds",
-      ARRAY_AGG(last_fetched_at) AS "fetchedDates",
-      ARRAY_AGG(coalesce(scheduled_at, NOW())) AS "scheduledDates",
-      ARRAY_AGG(last_fetched_checksum) AS checksums,
-      ARRAY_AGG(fetch_content) AS "fetchContents",
-      ARRAY_AGG(coalesce(folder, $3)) AS folders
+      ARRAY_AGG(s.id) AS "subscriptionIds",
+      ARRAY_AGG(s.user_id) AS "userIds",
+      ARRAY_AGG(s.most_recent_item_date) AS "mostRecentItemDates",
+      ARRAY_AGG(coalesce(s.scheduled_at, NOW())) AS "scheduledDates",
+      ARRAY_AGG(s.last_fetched_checksum) AS checksums,
+      ARRAY_AGG(s.fetch_content) AS "fetchContents",
+      ARRAY_AGG(coalesce(s.folder, $3)) AS folders
     FROM
-      omnivore.subscriptions
+      omnivore.subscriptions s
+    INNER JOIN
+      omnivore.user u ON u.id = s.user_id
     WHERE
-      type = $1
-      AND status = $2
-      AND (scheduled_at <= NOW() OR scheduled_at IS NULL)
+      s.type = $1
+      AND s.status = $2
+      AND u.status = $2
+      AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
     GROUP BY
-      url
+      s.url
     `,
     ['RSS', 'ACTIVE', 'following']
   )) as RssSubscriptionGroup[]
