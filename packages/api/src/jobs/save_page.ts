@@ -360,7 +360,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     )
 
     if (result.__typename == 'SaveError') {
-      throw new Error(result.message || 'Failed to save page')
+      throw new Error(result.message || result.errorCodes[0])
     }
 
     isImported = true

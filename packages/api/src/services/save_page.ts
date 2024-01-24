@@ -112,6 +112,7 @@ export const savePage = async (
       })
     } catch (e) {
       return {
+        __typename: 'SaveError',
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to create page save request',
       }
@@ -183,11 +184,14 @@ export const savePage = async (
       libraryItem: { id: clientRequestId },
     }
 
-    if (!(await createHighlight(highlight, clientRequestId, user.id))) {
-      return {
-        errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
-        message: 'Failed to save highlight',
-      }
+    try {
+      await createHighlight(highlight, clientRequestId, user.id)
+    } catch (error) {
+      logger.error('Failed to create highlight', {
+        highlight,
+        clientRequestId,
+        userId: user.id,
+      })
     }
   }
 
