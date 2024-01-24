@@ -217,10 +217,7 @@ export const subscribeResolver = authorized<
       type: SubscriptionType.Rss,
     })
     if (existingSubscription) {
-      if (
-        existingSubscription.status === SubscriptionStatus.Active ||
-        existingSubscription.status === SubscriptionStatus.RefreshError
-      ) {
+      if (existingSubscription.status === SubscriptionStatus.Active) {
         return {
           errorCodes: [SubscribeErrorCode.AlreadySubscribed],
         }

@@ -1688,13 +1688,13 @@ const schema = gql`
     folder: String!
     mostRecentItemDate: Date
     refreshedAt: Date
+    failedAt: Date
   }
 
   enum SubscriptionStatus {
     ACTIVE
     UNSUBSCRIBED
     DELETED
-    REFRESH_ERROR
   }
 
   type SubscriptionsError {
@@ -2609,6 +2609,7 @@ const schema = gql`
     folder: String
     refreshedAt: Date
     mostRecentItemDate: Date
+    failedAt: Date
   }
 
   union UpdateSubscriptionResult =

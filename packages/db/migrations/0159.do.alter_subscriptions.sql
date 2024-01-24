@@ -4,10 +4,8 @@
 
 BEGIN;
 
-ALTER TYPE subscription_status_type
-    ADD VALUE IF NOT EXISTS 'REFRESH_ERROR';
-
 ALTER TABLE omnivore.subscriptions
+    ADD COLUMN failed_at timestamptz,
     ADD COLUMN refreshed_at timestamptz;
 UPDATE omnivore.subscriptions
     SET refreshed_at = last_fetched_at

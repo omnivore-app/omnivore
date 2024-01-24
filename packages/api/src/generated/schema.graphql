@@ -2229,6 +2229,7 @@ type Subscription {
   count: Int!
   createdAt: Date!
   description: String
+  failedAt: Date
   fetchContent: Boolean!
   folder: String!
   icon: String
@@ -2250,7 +2251,6 @@ type Subscription {
 enum SubscriptionStatus {
   ACTIVE
   DELETED
-  REFRESH_ERROR
   UNSUBSCRIBED
 }
 
@@ -2575,6 +2575,7 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
+  failedAt: Date
   fetchContent: Boolean
   folder: String
   id: ID!

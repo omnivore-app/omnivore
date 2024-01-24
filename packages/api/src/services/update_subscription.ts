@@ -25,6 +25,7 @@ type UpdateSubscriptionData = {
   scheduledAt?: Date | null
   status?: SubscriptionStatus | null
   refreshedAt?: Date | null
+  failedAt?: Date | null
 }
 
 export const updateSubscription = async (
@@ -44,13 +45,14 @@ export const updateSubscription = async (
     lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
     status: newData.status || undefined,
     scheduledAt: newData.scheduledAt || undefined,
+    failedAt: newData.failedAt || undefined,
     autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
     isPrivate: newData.isPrivate ?? undefined,
     fetchContent: newData.fetchContent ?? undefined,
     folder: newData.folder ?? undefined,
   })
 
-  return await getRepository(Subscription).findOneByOrFail({
+  return await repo.findOneByOrFail({
     id: subscriptionId,
     user: { id: userId },
   })
@@ -70,6 +72,7 @@ export const updateSubscriptions = async (
       lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
       status: newData.status || undefined,
       scheduledAt: newData.scheduledAt || undefined,
+      failedAt: newData.failedAt || undefined,
       autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
       isPrivate: newData.isPrivate ?? undefined,
       fetchContent: newData.fetchContent ?? undefined,

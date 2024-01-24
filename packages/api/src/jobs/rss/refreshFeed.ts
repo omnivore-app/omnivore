@@ -461,7 +461,7 @@ const processSubscription = async (
 
   // fetch feed
   let itemCount = 0,
-    errorCount = 0
+    failedAt: Date | undefined
 
   const feedLastBuildDate = feed.lastBuildDate
   console.log('Feed last build date', feedLastBuildDate)
@@ -538,7 +538,7 @@ const processSubscription = async (
       itemCount = itemCount + 1
     } catch (error) {
       console.error('Error while saving RSS feed item', error, item)
-      errorCount = errorCount + 1
+      failedAt = new Date()
     }
   }
 
@@ -561,7 +561,7 @@ const processSubscription = async (
     )
     if (!created) {
       console.error('Failed to create task for feed item', lastValidItem.link)
-      errorCount = errorCount + 1
+      failedAt = new Date()
     }
 
     lastItemFetchedAt = lastValidItem.isoDate
@@ -572,7 +572,6 @@ const processSubscription = async (
   const updateFrequency = getUpdateFrequency(feed)
   const updatePeriodInMs = getUpdatePeriodInHours(feed) * 60 * 60 * 1000
   const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
-  const status = errorCount > 0 ? SubscriptionStatus.RefreshError : undefined
 
   // update subscription mostRecentItemDate and refreshedAt
   const updatedSubscription = await updateSubscription(userId, subscriptionId, {
@@ -580,7 +579,7 @@ const processSubscription = async (
     lastFetchedChecksum: updatedLastFetchedChecksum,
     scheduledAt: new Date(nextScheduledAt),
     refreshedAt,
-    status,
+    failedAt,
   })
   console.log('Updated subscription', updatedSubscription)
 }
@@ -681,10 +680,11 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
       error,
     })
 
+    const now = new Date()
     // mark subscriptions as error if we failed to get the feed
     await updateSubscriptions(subscriptionIds, {
-      status: SubscriptionStatus.RefreshError,
-      refreshedAt: new Date(),
+      refreshedAt: now,
+      failedAt: now,
     })
 
     return false

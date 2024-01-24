@@ -2833,6 +2833,7 @@ export type Subscription = {
   count: Scalars['Int'];
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  failedAt?: Maybe<Scalars['Date']>;
   fetchContent: Scalars['Boolean'];
   folder: Scalars['String'];
   icon?: Maybe<Scalars['String']>;
@@ -2854,7 +2855,6 @@ export type Subscription = {
 export enum SubscriptionStatus {
   Active = 'ACTIVE',
   Deleted = 'DELETED',
-  RefreshError = 'REFRESH_ERROR',
   Unsubscribed = 'UNSUBSCRIBED'
 }
 
@@ -3208,6 +3208,7 @@ export enum UpdateSubscriptionErrorCode {
 export type UpdateSubscriptionInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   description?: InputMaybe<Scalars['String']>;
+  failedAt?: InputMaybe<Scalars['Date']>;
   fetchContent?: InputMaybe<Scalars['Boolean']>;
   folder?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -6190,6 +6191,7 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   count?: SubscriptionResolver<ResolversTypes['Int'], "count", ParentType, ContextType>;
   createdAt?: SubscriptionResolver<ResolversTypes['Date'], "createdAt", ParentType, ContextType>;
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
+  failedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "failedAt", ParentType, ContextType>;
   fetchContent?: SubscriptionResolver<ResolversTypes['Boolean'], "fetchContent", ParentType, ContextType>;
   folder?: SubscriptionResolver<ResolversTypes['String'], "folder", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
