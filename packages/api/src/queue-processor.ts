@@ -96,9 +96,6 @@ const main = async () => {
     throw '[queue-processor] error redis is not initialized'
   }
 
-  // Init the backend queue now
-  await getBackendQueue()
-
   const worker = new Worker(
     QUEUE_NAME,
     async (job: Job) => {
