@@ -74,11 +74,14 @@ interface FetchContentTask {
   item: RssFeedItem
 }
 
-export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
+export const isOldItem = (
+  item: RssFeedItem,
+  mostRecentItemTimestamp: number
+) => {
   // existing items and items that were published before 24h
   const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
   return (
-    publishedAt <= new Date(lastFetchedAt) ||
+    publishedAt <= new Date(mostRecentItemTimestamp) ||
     publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
   )
 }
