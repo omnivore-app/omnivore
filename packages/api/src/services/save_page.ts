@@ -68,17 +68,13 @@ export const savePage = async (
   input: SavePageInput,
   user: User
 ): Promise<SaveResult> => {
-  const parseResult = await parsePreparedContent(
-    input.url,
-    {
-      document: input.originalContent,
-      pageInfo: {
-        title: input.title,
-        canonicalUrl: input.url,
-      },
+  const parseResult = await parsePreparedContent(input.url, {
+    document: input.originalContent,
+    pageInfo: {
+      title: input.title,
+      canonicalUrl: input.url,
     },
-    input.parseResult
-  )
+  })
   const [newSlug, croppedPathname] = createSlug(input.url, input.title)
   let slug = newSlug
   let clientRequestId = input.clientRequestId

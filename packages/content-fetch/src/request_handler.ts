@@ -50,7 +50,6 @@ interface FetchResult {
   title?: string
   content?: string
   contentType?: string
-  readabilityResult?: unknown
 }
 
 export const cacheFetchResult = async (fetchResult: FetchResult) => {
