@@ -123,6 +123,9 @@ export const isContentFetchBlocked = (feedUrl: string) => {
   if (feedUrl.startsWith('https://lwn.net/headlines/newrss')) {
     return true
   }
+  if (feedUrl.startsWith('https://medium.com')) {
+    return true
+  }
   return false
 }
 
