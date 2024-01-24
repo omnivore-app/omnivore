@@ -2,7 +2,6 @@ import axios from 'axios'
 import crypto from 'crypto'
 import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
-import { SubscriptionStatus } from '../../entity/subscription'
 import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
 import { validateUrl } from '../../services/create_page_save_request'
@@ -537,13 +536,13 @@ const processSubscription = async (
 
       itemCount = itemCount + 1
     } catch (error) {
-      console.error('Error while saving RSS feed item', error, item)
+      console.error('Error while saving RSS feed item', { error, item })
       failedAt = new Date()
     }
   }
 
   // no items saved
-  if (!lastItemFetchedAt) {
+  if (!lastItemFetchedAt && !failedAt) {
     // the feed has been fetched before, no new valid items found
     if (mostRecentItemDate || !lastValidItem) {
       console.log('No new valid items found')

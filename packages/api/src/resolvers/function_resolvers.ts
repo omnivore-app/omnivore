@@ -479,7 +479,7 @@ export const functionResolvers = {
     },
     // for campability with old clients
     lastFetchedAt(subscription: Subscription) {
-      return subscription.mostRecentItemDate
+      return subscription.refreshedAt
     },
   },
   NewsletterEmail: {
