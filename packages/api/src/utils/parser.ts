@@ -231,9 +231,8 @@ export const parsePreparedContent = async (
     labels: { source: 'parsePreparedContent' },
   }
 
-  const { document, pageInfo } = preparedDocument
-
-  if (!document) {
+  const { document: domContent, pageInfo } = preparedDocument
+  if (!domContent) {
     logger.info('No document')
     return {
       canonicalUrl: url,
@@ -253,25 +252,30 @@ export const parsePreparedContent = async (
     return {
       canonicalUrl: url,
       parsedContent: null,
-      domContent: document,
+      domContent,
       pageType: PageType.Unknown,
     }
   }
 
   const { title: pageInfoTitle, canonicalUrl } = pageInfo
 
-  let parsedContent = null
+  let parsedContent: Readability.ParseResult | null = null
   let pageType = PageType.Unknown
   let highlightData = undefined
 
   try {
-    const dom = parseHTML(document).document
-    pageType = parseOriginalContent(dom)
+    const document = parseHTML(domContent).document
+    pageType = parseOriginalContent(document)
 
     // Run readability
-    await preParseContent(url, dom)
+    await preParseContent(url, document)
 
-    parsedContent = await getReadabilityResult(url, document, dom, isNewsletter)
+    parsedContent = await getReadabilityResult(
+      url,
+      domContent,
+      document,
+      isNewsletter
+    )
 
     if (!parsedContent || !parsedContent.content) {
       logger.info('No parsed content')
@@ -281,7 +285,7 @@ export const parsePreparedContent = async (
 
         const newDocument = {
           ...preparedDocument,
-          document: '<html><body>' + document + '</body></html>', // wrap in body
+          document: '<html><body>' + domContent + '</body></html>', // wrap in body
         }
         return parsePreparedContent(url, newDocument, isNewsletter, false)
       }
@@ -289,7 +293,7 @@ export const parsePreparedContent = async (
       return {
         canonicalUrl,
         parsedContent,
-        domContent: document,
+        domContent,
         pageType,
       }
     }
@@ -299,31 +303,29 @@ export const parsePreparedContent = async (
       parsedContent.title = pageInfoTitle
     }
 
+    const newDocumentElement = parsedContent.documentElement
     // Format code blocks
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
-    const newDom = parseHTML(parsedContent.content).document
-    const codeBlocks = newDom.querySelectorAll(
-      'code, pre[class^="prism-"], pre[class^="language-"]'
+    const codeBlocks = newDocumentElement.querySelectorAll<HTMLElement>(
+      'pre[class^="prism-"], pre[class^="language-"], pre[class^="code-snippet"], code'
     )
     if (codeBlocks.length > 0) {
       codeBlocks.forEach((e) => {
-        if (e.textContent) {
-          const att = hljs.highlightAuto(e.textContent)
-          const code = newDom.createElement('code')
-          const langClass =
-            `hljs language-${att.language}` +
-            (att.second_best?.language
-              ? ` language-${att.second_best?.language}`
-              : '')
-          code.setAttribute('class', langClass)
-          code.innerHTML = att.value
-          e.replaceWith(code)
-        }
+        const att = hljs.highlightAuto(e.innerText)
+        const code = document.createElement('code')
+        const langClass =
+          `hljs language-${att.language}` +
+          (att.second_best?.language
+            ? ` language-${att.second_best?.language}`
+            : '')
+        code.setAttribute('class', langClass)
+        code.innerHTML = att.value
+        e.replaceWith(code)
       })
     }
 
-    highlightData = findEmbeddedHighlight(newDom.documentElement)
+    highlightData = findEmbeddedHighlight(newDocumentElement)
 
     const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
       'omnivore-highlight-id',
@@ -332,8 +334,8 @@ export const parsePreparedContent = async (
     ]
 
     // Get the top level element?
-    const pageNode = newDom.firstElementChild as HTMLElement
-    const nodesToVisitStack: [HTMLElement] = [pageNode]
+    // const pageNode = newDocumentElement.firstElementChild as HTMLElement
+    const nodesToVisitStack: [HTMLElement] = [newDocumentElement]
     const visitedNodeList = []
 
     while (nodesToVisitStack.length > 0) {
@@ -362,7 +364,7 @@ export const parsePreparedContent = async (
       node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
     })
 
-    const newHtml = newDom.documentElement.outerHTML
+    const newHtml = newDocumentElement.outerHTML
     const newWindow = parseHTML('')
     const DOMPurify = createDOMPurify(newWindow)
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
@@ -384,7 +386,7 @@ export const parsePreparedContent = async (
   return {
     canonicalUrl,
     parsedContent,
-    domContent: document,
+    domContent,
     pageType,
     highlightData,
   }

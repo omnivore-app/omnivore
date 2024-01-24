@@ -166,6 +166,7 @@ declare module '@omnivore/readability' {
       /** Article published date */
       publishedDate?: Date | null
       language?: string | null
+      documentElement: HTMLElement
     }
   }
 

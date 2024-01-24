@@ -3135,6 +3135,7 @@ Readability.prototype = {
       previewImage: metadata.previewImage,
       publishedDate,
       language,
+      documentElement: articleContent,
     };
   }
 };
