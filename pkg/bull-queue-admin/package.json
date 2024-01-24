@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@bull-board/express": "^3.10.4",
+    "@bull-board/express": "^5.9.0",
     "body-parser": "^1.20.2",
     "bullmq": "^4.6.0",
     "connect-ensure-login": "^0.1.1",
