@@ -43,9 +43,7 @@ export const updateSubscription = async (
     refreshedAt: newData.refreshedAt || undefined,
     lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
     status: newData.status || undefined,
-    scheduledAt: newData.scheduledAt
-      ? new Date(newData.scheduledAt)
-      : undefined,
+    scheduledAt: newData.scheduledAt || undefined,
     autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
     isPrivate: newData.isPrivate ?? undefined,
     fetchContent: newData.fetchContent ?? undefined,
@@ -56,4 +54,26 @@ export const updateSubscription = async (
     id: subscriptionId,
     user: { id: userId },
   })
+}
+
+export const updateSubscriptions = async (
+  subscriptionIds: string[],
+  newData: UpdateSubscriptionData
+) => {
+  return getRepository(Subscription).save(
+    subscriptionIds.map((id) => ({
+      id,
+      name: newData.name || undefined,
+      description: newData.description || undefined,
+      mostRecentItemDate: newData.mostRecentItemDate || undefined,
+      refreshedAt: newData.refreshedAt || undefined,
+      lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
+      status: newData.status || undefined,
+      scheduledAt: newData.scheduledAt || undefined,
+      autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
+      isPrivate: newData.isPrivate ?? undefined,
+      fetchContent: newData.fetchContent ?? undefined,
+      folder: newData.folder ?? undefined,
+    }))
+  )
 }
