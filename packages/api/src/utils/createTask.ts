@@ -6,23 +6,22 @@ import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 import { ImportItemState } from '../entity/integration'
 import { Recommendation } from '../entity/recommendation'
-import { DEFAULT_SUBSCRIPTION_FOLDER } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
+import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
 import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
+import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-import { stringToHash } from './helpers'
-import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
-import { redisDataSource } from '../redis_data_source'
-import { v4 as uuid } from 'uuid'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -630,7 +629,7 @@ export interface RssSubscriptionGroup {
   url: string
   subscriptionIds: string[]
   userIds: string[]
-  fetchedDates: (Date | null)[]
+  mostRecentItemDates: (Date | null)[]
   scheduledDates: Date[]
   checksums: (string | null)[]
   fetchContents: boolean[]
@@ -648,7 +647,7 @@ export const enqueueRssFeedFetch = async (
     },
     subscriptionIds: subscriptionGroup.subscriptionIds,
     feedUrl: subscriptionGroup.url,
-    lastFetchedTimestamps: subscriptionGroup.fetchedDates.map(
+    mostRecentItemDates: subscriptionGroup.mostRecentItemDates.map(
       (timestamp) => timestamp?.getTime() || 0
     ), // unix timestamp in milliseconds
     lastFetchedChecksums: subscriptionGroup.checksums,

@@ -2248,6 +2248,7 @@ type Subscription {
 enum SubscriptionStatus {
   ACTIVE
   DELETED
+  REFRESH_ERROR
   UNSUBSCRIBED
 }
 

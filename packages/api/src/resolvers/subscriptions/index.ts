@@ -4,6 +4,8 @@ import { Brackets, In } from 'typeorm'
 import {
   DEFAULT_SUBSCRIPTION_FOLDER,
   Subscription,
+  SubscriptionStatus,
+  SubscriptionType,
 } from '../../entity/subscription'
 import { env } from '../../env'
 import {
@@ -28,8 +30,6 @@ import {
   SubscriptionsError,
   SubscriptionsErrorCode,
   SubscriptionsSuccess,
-  SubscriptionStatus,
-  SubscriptionType,
   UnsubscribeError,
   UnsubscribeErrorCode,
   UnsubscribeSuccess,
@@ -41,13 +41,13 @@ import { getRepository } from '../../repository'
 import { feedRepository } from '../../repository/feed'
 import { validateUrl } from '../../services/create_page_save_request'
 import { unsubscribe } from '../../services/subscriptions'
+import { updateSubscription } from '../../services/update_subscription'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
 import { authorized } from '../../utils/gql-utils'
+import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
-import { updateSubscription } from '../../services/update_subscription'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
 
@@ -61,8 +61,7 @@ export const subscriptionsResolver = authorized<
   QuerySubscriptionsArgs
 >(async (_obj, { sort, type }, { uid, log }) => {
   try {
-    const sortBy =
-      sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
+    const sortBy = sort?.by === SortBy.UpdatedTime ? 'refreshedAt' : 'createdAt'
     const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
 
     const queryBuilder = getRepository(Subscription)
@@ -218,7 +217,10 @@ export const subscribeResolver = authorized<
       type: SubscriptionType.Rss,
     })
     if (existingSubscription) {
-      if (existingSubscription.status === SubscriptionStatus.Active) {
+      if (
+        existingSubscription.status === SubscriptionStatus.Active ||
+        existingSubscription.status === SubscriptionStatus.RefreshError
+      ) {
         return {
           errorCodes: [SubscribeErrorCode.AlreadySubscribed],
         }
@@ -239,7 +241,7 @@ export const subscribeResolver = authorized<
         url: feedUrl,
         subscriptionIds: [updatedSubscription.id],
         scheduledDates: [new Date()], // fetch immediately
-        fetchedDates: [updatedSubscription.lastFetchedAt || null],
+        mostRecentItemDates: [updatedSubscription.mostRecentItemDate || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
         fetchContents: [updatedSubscription.fetchContent],
         folders: [updatedSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
@@ -289,7 +291,7 @@ export const subscribeResolver = authorized<
       url: feedUrl,
       subscriptionIds: [newSubscription.id],
       scheduledDates: [new Date()], // fetch immediately
-      fetchedDates: [null],
+      mostRecentItemDates: [null],
       checksums: [null],
       fetchContents: [newSubscription.fetchContent],
       folders: [newSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
@@ -319,7 +321,7 @@ export const updateSubscriptionResolver = authorized<
   UpdateSubscriptionSuccessPartial,
   UpdateSubscriptionError,
   MutationUpdateSubscriptionArgs
->(async (_, { input }, { authTrx, uid, log }) => {
+>(async (_, { input }, { uid, log }) => {
   try {
     analytics.track({
       userId: uid,

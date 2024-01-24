@@ -1,11 +1,10 @@
-import { Job, Queue } from 'bullmq'
+import { Job } from 'bullmq'
 import { DataSource } from 'typeorm'
-import { QUEUE_NAME, getBackendQueue } from '../../queue-processor'
-import { redisDataSource } from '../../redis_data_source'
+import { v4 as uuid } from 'uuid'
+import { getBackendQueue } from '../../queue-processor'
+import { validateUrl } from '../../services/create_page_save_request'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
-import { validateUrl } from '../../services/create_page_save_request'
-import { v4 as uuid } from 'uuid'
 
 export type RSSRefreshContext = {
   type: 'all' | 'user-added'
@@ -90,7 +89,7 @@ const updateSubscriptionGroup = async (
     refreshContext,
     subscriptionIds: group.subscriptionIds,
     feedUrl: group.url,
-    lastFetchedTimestamps: group.fetchedDates.map(
+    lastFetchedTimestamps: group.mostRecentItemDates.map(
       (timestamp) => timestamp?.getTime() || 0
     ), // unix timestamp in milliseconds
     lastFetchedChecksums: group.checksums,

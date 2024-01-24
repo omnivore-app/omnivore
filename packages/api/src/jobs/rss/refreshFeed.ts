@@ -15,7 +15,7 @@ type FolderType = 'following' | 'inbox'
 interface RefreshFeedRequest {
   subscriptionIds: string[]
   feedUrl: string
-  lastFetchedTimestamps: number[] // unix timestamp in milliseconds
+  mostRecentItemDates: number[] // unix timestamp in milliseconds
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
@@ -28,7 +28,7 @@ export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
   return (
     'subscriptionIds' in data &&
     'feedUrl' in data &&
-    'lastFetchedTimestamps' in data &&
+    'mostRecentItemDates' in data &&
     'scheduledTimestamps' in data &&
     'userIds' in data &&
     'lastFetchedChecksums' in data &&
@@ -422,7 +422,7 @@ const processSubscription = async (
   userId: string,
   feedUrl: string,
   fetchResult: { content: string; checksum: string },
-  lastFetchedAt: number,
+  mostRecentItemDate: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
   fetchContent: boolean,
@@ -445,7 +445,7 @@ const processSubscription = async (
   console.log('Feed last build date', feedLastBuildDate)
   if (
     feedLastBuildDate &&
-    new Date(feedLastBuildDate) <= new Date(lastFetchedAt)
+    new Date(feedLastBuildDate) <= new Date(mostRecentItemDate)
   ) {
     console.log('Skipping old feed', feedLastBuildDate)
     return
@@ -492,7 +492,7 @@ const processSubscription = async (
     }
 
     // skip old items
-    if (isOldItem(feedItem, lastFetchedAt)) {
+    if (isOldItem(feedItem, mostRecentItemDate)) {
       console.log('Skipping old feed item', feedItem.link)
       continue
     }
@@ -521,7 +521,7 @@ const processSubscription = async (
   // no items saved
   if (!lastItemFetchedAt) {
     // the feed has been fetched before, no new valid items found
-    if (lastFetchedAt || !lastValidItem) {
+    if (mostRecentItemDate || !lastValidItem) {
       console.log('No new valid items found')
       return
     }
@@ -571,7 +571,7 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     const {
       feedUrl,
       subscriptionIds,
-      lastFetchedTimestamps,
+      mostRecentItemDates,
       scheduledTimestamps,
       userIds,
       lastFetchedChecksums,
@@ -618,7 +618,7 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
         userIds[i],
         feedUrl,
         fetchResult,
-        lastFetchedTimestamps[i],
+        mostRecentItemDates[i],
         scheduledTimestamps[i],
         lastFetchedChecksums[i],
         fetchContents[i] && allowFetchContent,

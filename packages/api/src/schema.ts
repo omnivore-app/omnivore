@@ -1686,12 +1686,15 @@ const schema = gql`
     autoAddToLibrary: Boolean
     fetchContent: Boolean!
     folder: String!
+    mostRecentItemDate: Date
+    refreshedAt: Date
   }
 
   enum SubscriptionStatus {
     ACTIVE
     UNSUBSCRIBED
     DELETED
+    REFRESH_ERROR
   }
 
   type SubscriptionsError {

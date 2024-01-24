@@ -2852,6 +2852,7 @@ export type Subscription = {
 export enum SubscriptionStatus {
   Active = 'ACTIVE',
   Deleted = 'DELETED',
+  RefreshError = 'REFRESH_ERROR',
   Unsubscribed = 'UNSUBSCRIBED'
 }
 
