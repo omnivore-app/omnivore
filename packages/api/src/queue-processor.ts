@@ -75,7 +75,7 @@ const main = async () => {
     console.log('counts: ', counts)
 
     metrics.forEach((metric, idx) => {
-      output += `omnivore_backend_queue_${metric}{} ${counts[metric]}\n`
+      output += `omnivore_backend_queue_${metric}_count{} ${counts[metric]}\n`
     })
 
     res.status(200).setHeader('Content-Type', 'text/plain').send(output)
