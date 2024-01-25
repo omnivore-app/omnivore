@@ -13,7 +13,7 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { authTrx } from '../repository'
-import { enqueueThumbnailTask } from '../utils/createTask'
+import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
@@ -173,10 +173,10 @@ export const savePage = async (
   if (!isImported && !parseResult.parsedContent?.previewImage) {
     try {
       // create a task to update thumbnail and pre-cache all images
-      const job = await enqueueThumbnailTask(user.id, clientRequestId)
-      logger.info('Created thumbnail task', { job })
+      const job = await enqueueThumbnailJob(user.id, clientRequestId)
+      logger.info('Created thumbnail job', { job })
     } catch (e) {
-      logger.error('Failed to create thumbnail task', e)
+      logger.error('Failed to enqueue thumbnail job', e)
     }
   }
 

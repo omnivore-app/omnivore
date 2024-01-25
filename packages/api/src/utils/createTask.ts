@@ -6,25 +6,24 @@ import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 import { ImportItemState } from '../entity/integration'
 import { Recommendation } from '../entity/recommendation'
-import { DEFAULT_SUBSCRIPTION_FOLDER } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
+import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
+import { getBackendQueue } from '../queue-processor'
+import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
-import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
+import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
+import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-import { stringToHash } from './helpers'
-import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
-import { redisDataSource } from '../redis_data_source'
-import { v4 as uuid } from 'uuid'
-import { getBackendQueue } from '../queue-processor'
-import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -580,7 +579,7 @@ export const enqueueExportToIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueThumbnailTask = async (
+export const enqueueThumbnailJob = async (
   userId: string,
   libraryItemId: string
 ) => {
@@ -594,6 +593,7 @@ export const enqueueThumbnailTask = async (
   }
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: 100,
+    attempts: 1,
   })
 }
 
