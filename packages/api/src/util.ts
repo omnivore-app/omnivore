@@ -4,6 +4,11 @@
 import * as dotenv from 'dotenv'
 import os from 'os'
 
+interface redisConfig {
+  url?: string
+  cert?: string
+}
+
 export interface BackendEnv {
   pg: {
     host: string
@@ -105,8 +110,8 @@ export interface BackendEnv {
     }
   }
   redis: {
-    url?: string
-    cert?: string
+    mq: redisConfig
+    cache: redisConfig
   }
 }
 
@@ -156,6 +161,8 @@ const nullableEnvVars = [
   'SUBSCRIPTION_FEED_MAX',
   'REDIS_URL',
   'REDIS_CERT',
+  'MQ_REDIS_URL',
+  'MQ_REDIS_CERT',
   'IMPORTER_METRICS_COLLECTOR_URL',
   'INTERNAL_API_URL',
 ] // Allow some vars to be null/empty
@@ -295,8 +302,14 @@ export function getEnv(): BackendEnv {
     },
   }
   const redis = {
-    url: parse('REDIS_URL'),
-    cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+    mq: {
+      url: parse('MQ_REDIS_URL'),
+      cert: parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+    },
+    cache: {
+      url: parse('REDIS_URL'),
+      cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+    },
   }
 
   return {

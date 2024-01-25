@@ -40,8 +40,8 @@ const main = async () => {
   const port = process.env.PORT || 3002
 
   redisDataSource.setOptions({
-    REDIS_URL: env.redis.url,
-    REDIS_CERT: env.redis.cert,
+    cache: env.redis.cache,
+    mq: env.redis.mq,
   })
 
   appDataSource.setOptions({
