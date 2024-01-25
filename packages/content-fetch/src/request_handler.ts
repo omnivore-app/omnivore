@@ -53,8 +53,8 @@ interface FetchResult {
 }
 
 export const cacheFetchResult = async (fetchResult: FetchResult) => {
-  // cache the fetch result for 4 hours
-  const ttl = 4 * 60 * 60
+  // cache the fetch result for 24 hours
+  const ttl = 24 * 60 * 60
   const key = `fetch-result:${fetchResult.finalUrl}`
   const value = JSON.stringify(fetchResult)
   return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
