@@ -14,10 +14,12 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
+import { getBackendQueue } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
-import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
+import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logger } from './logger'
@@ -579,7 +581,7 @@ export const enqueueExportToIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueThumbnailTask = async (
+export const enqueueThumbnailJob = async (
   userId: string,
   libraryItemId: string
 ) => {
@@ -593,6 +595,7 @@ export const enqueueThumbnailTask = async (
   }
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: 100,
+    attempts: 1,
   })
 }
 
