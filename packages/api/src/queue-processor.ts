@@ -69,12 +69,14 @@ const main = async () => {
       res.sendStatus(400)
       return
     }
+
     let output = ''
     const metrics: JobType[] = ['active', 'failed', 'completed', 'prioritized']
     const counts = await queue.getJobCounts(...metrics)
     console.log('counts: ', counts)
 
     metrics.forEach((metric, idx) => {
+      output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
       output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
     })
 
