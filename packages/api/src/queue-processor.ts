@@ -2,17 +2,18 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Job, QueueEvents, Worker, Queue } from 'bullmq'
+import { Job, Queue, QueueEvents, Worker } from 'bullmq'
 import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
+import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
+import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
-import { updatePDFContentJob } from './jobs/update_pdf_content'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -102,8 +103,9 @@ const main = async () => {
         case 'update-pdf-content': {
           return updatePDFContentJob(job.data)
         }
+        case THUMBNAIL_JOB:
+          return findThumbnail(job.data)
       }
-      return true
     },
     {
       connection: workerRedisClient,

@@ -173,8 +173,8 @@ export const savePage = async (
   if (!isImported && !parseResult.parsedContent?.previewImage) {
     try {
       // create a task to update thumbnail and pre-cache all images
-      const taskId = await enqueueThumbnailTask(user.id, slug)
-      logger.info('Created thumbnail task', { taskId })
+      const job = await enqueueThumbnailTask(user.id, clientRequestId)
+      logger.info('Created thumbnail task', { job })
     } catch (e) {
       logger.error('Failed to create thumbnail task', e)
     }

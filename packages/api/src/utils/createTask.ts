@@ -23,6 +23,8 @@ import { stringToHash } from './helpers'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
 import { redisDataSource } from '../redis_data_source'
 import { v4 as uuid } from 'uuid'
+import { getBackendQueue } from '../queue-processor'
+import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -580,50 +582,19 @@ export const enqueueExportToIntegration = async (
 
 export const enqueueThumbnailTask = async (
   userId: string,
-  slug: string
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
+  libraryItemId: string
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
   const payload = {
     userId,
-    slug,
+    libraryItemId,
   }
-
-  const headers = {
-    Cookie: `auth=${generateVerificationToken({ id: userId })}`,
-  }
-
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.thumbnailTaskHandlerUrl) {
-      // Calling the handler function directly.
-      setTimeout(() => {
-        axios
-          .post(env.queue.thumbnailTaskHandlerUrl, payload, {
-            headers,
-          })
-          .catch((error) => {
-            logError(error)
-          })
-      }, 0)
-    }
-    return ''
-  }
-
-  const createdTasks = await createHttpTaskWithToken({
-    payload,
-    taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
-    requestHeaders: headers,
-    queue: 'omnivore-thumbnail-queue',
+  return queue.add(THUMBNAIL_JOB, payload, {
+    priority: 100,
   })
-
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
-    })
-    throw new CreateTaskError(`Unable to get the name of the task`)
-  }
-  return createdTasks[0].name
 }
 
 export interface RssSubscriptionGroup {
