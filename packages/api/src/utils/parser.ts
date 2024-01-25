@@ -223,7 +223,6 @@ const getReadabilityResult = async (
 export const parsePreparedContent = async (
   url: string,
   preparedDocument: PreparedDocumentInput,
-  parseResult?: Readability.ParseResult | null,
   isNewsletter?: boolean,
   allowRetry = true
 ): Promise<ParsedContentPuppeteer> => {
@@ -232,12 +231,8 @@ export const parsePreparedContent = async (
     labels: { source: 'parsePreparedContent' },
   }
 
-  // If we have a parse result, use it
-  let article = parseResult || null
-  let highlightData = undefined
-  const { document, pageInfo } = preparedDocument
-
-  if (!document) {
+  const { document: domContent, pageInfo } = preparedDocument
+  if (!domContent) {
     logger.info('No document')
     return {
       canonicalUrl: url,
@@ -257,142 +252,147 @@ export const parsePreparedContent = async (
     return {
       canonicalUrl: url,
       parsedContent: null,
-      domContent: document,
+      domContent,
       pageType: PageType.Unknown,
     }
   }
 
-  let dom: Document | null = null
+  const { title: pageInfoTitle, canonicalUrl } = pageInfo
+
+  let parsedContent: Readability.ParseResult | null = null
+  let pageType = PageType.Unknown
+  let highlightData = undefined
 
   try {
-    dom = parseHTML(document).document
+    const document = parseHTML(domContent).document
+    pageType = parseOriginalContent(document)
 
-    if (!article) {
-      // Attempt to parse the article
-      // preParse content
-      dom = (await preParseContent(url, dom)) || dom
+    // Run readability
+    await preParseContent(url, document)
 
-      article = await getReadabilityResult(url, document, dom, isNewsletter)
-    }
+    parsedContent = await getReadabilityResult(
+      url,
+      domContent,
+      document,
+      isNewsletter
+    )
 
-    if (!article?.textContent && allowRetry) {
-      const newDocument = {
-        ...preparedDocument,
-        document: '<html><body>' + document + '</body></html>', // wrap in body
+    if (!parsedContent || !parsedContent.content) {
+      logger.info('No parsed content')
+
+      if (allowRetry) {
+        logger.info('Retrying with content wrapped in html body')
+
+        const newDocument = {
+          ...preparedDocument,
+          document: '<html><body>' + domContent + '</body></html>', // wrap in body
+        }
+        return parsePreparedContent(url, newDocument, isNewsletter, false)
       }
-      return parsePreparedContent(
-        url,
-        newDocument,
-        parseResult,
-        isNewsletter,
-        false
-      )
+
+      return {
+        canonicalUrl,
+        parsedContent,
+        domContent,
+        pageType,
+      }
     }
 
+    // use title if not found after running readability
+    if (!parsedContent.title && pageInfoTitle) {
+      parsedContent.title = pageInfoTitle
+    }
+
+    const newDocumentElement = parsedContent.documentElement
     // Format code blocks
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
-    if (article?.content) {
-      const articleDom = parseHTML(article.content).document
-      const codeBlocks = articleDom.querySelectorAll(
-        'code, pre[class^="prism-"], pre[class^="language-"]'
-      )
-      if (codeBlocks.length > 0) {
-        codeBlocks.forEach((e) => {
-          if (e.textContent) {
-            const att = hljs.highlightAuto(e.textContent)
-            const code = articleDom.createElement('code')
-            const langClass =
-              `hljs language-${att.language}` +
-              (att.second_best?.language
-                ? ` language-${att.second_best?.language}`
-                : '')
-            code.setAttribute('class', langClass)
-            code.innerHTML = att.value
-            e.replaceWith(code)
-          }
+    const codeBlocks = newDocumentElement.querySelectorAll(
+      'pre[class^="prism-"], pre[class^="language-"], code'
+    )
+    codeBlocks.forEach((e) => {
+      if (!e.textContent) {
+        return e.parentNode?.removeChild(e)
+      }
+
+      // replace <br> or <p> or </p> with \n
+      e.innerHTML = e.innerHTML.replace(/<(br|p|\/p)>/g, '\n')
+
+      const att = hljs.highlightAuto(e.textContent)
+      const code = document.createElement('code')
+      const langClass =
+        `hljs language-${att.language}` +
+        (att.second_best?.language
+          ? ` language-${att.second_best?.language}`
+          : '')
+      code.setAttribute('class', langClass)
+      code.innerHTML = att.value
+      e.replaceWith(code)
+    })
+
+    highlightData = findEmbeddedHighlight(newDocumentElement)
+
+    const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
+      'omnivore-highlight-id',
+      'data-twitter-tweet-id',
+      'data-instagram-id',
+    ]
+
+    // Get the top level element?
+    // const pageNode = newDocumentElement.firstElementChild as HTMLElement
+    const nodesToVisitStack: [HTMLElement] = [newDocumentElement]
+    const visitedNodeList = []
+
+    while (nodesToVisitStack.length > 0) {
+      const currentNode = nodesToVisitStack.pop()
+      if (
+        currentNode?.nodeType !== 1 ||
+        // Avoiding dynamic elements from being counted as anchor-allowed elements
+        ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES.some((attrib) =>
+          currentNode.hasAttribute(attrib)
+        )
+      ) {
+        continue
+      }
+      visitedNodeList.push(currentNode)
+      ;[].slice
+        .call(currentNode.childNodes)
+        .reverse()
+        .forEach(function (node) {
+          nodesToVisitStack.push(node)
         })
-        article.content = articleDom.documentElement.outerHTML
-      }
-
-      highlightData = findEmbeddedHighlight(articleDom.documentElement)
-
-      const ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES = [
-        'omnivore-highlight-id',
-        'data-twitter-tweet-id',
-        'data-instagram-id',
-      ]
-
-      // Get the top level element?
-      const pageNode = articleDom.firstElementChild as HTMLElement
-      const nodesToVisitStack: [HTMLElement] = [pageNode]
-      const visitedNodeList = []
-
-      while (nodesToVisitStack.length > 0) {
-        const currentNode = nodesToVisitStack.pop()
-        if (
-          currentNode?.nodeType !== 1 ||
-          // Avoiding dynamic elements from being counted as anchor-allowed elements
-          ANCHOR_ELEMENTS_BLOCKED_ATTRIBUTES.some((attrib) =>
-            currentNode.hasAttribute(attrib)
-          )
-        ) {
-          continue
-        }
-        visitedNodeList.push(currentNode)
-        ;[].slice
-          .call(currentNode.childNodes)
-          .reverse()
-          .forEach(function (node) {
-            nodesToVisitStack.push(node)
-          })
-      }
-
-      visitedNodeList.shift()
-      visitedNodeList.forEach((node, index) => {
-        // start from index 1, index 0 reserved for anchor unknown.
-        node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
-      })
-
-      article.content = articleDom.documentElement.outerHTML
     }
 
+    visitedNodeList.shift()
+    visitedNodeList.forEach((node, index) => {
+      // start from index 1, index 0 reserved for anchor unknown.
+      node.setAttribute('data-omnivore-anchor-idx', (index + 1).toString())
+    })
+
+    const newHtml = newDocumentElement.outerHTML
     const newWindow = parseHTML('')
     const DOMPurify = createDOMPurify(newWindow)
     DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
-    const clean = DOMPurify.sanitize(article?.content || '', DOM_PURIFY_CONFIG)
+    const cleanHtml = DOMPurify.sanitize(newHtml, DOM_PURIFY_CONFIG)
+    parsedContent.content = cleanHtml
 
-    Object.assign(article || {}, {
-      content: clean,
-      title: article?.title,
-      previewImage: article?.previewImage,
-      siteName: article?.siteName,
-      siteIcon: article?.siteIcon,
-      byline: article?.byline,
-      language: article?.language,
-    })
     logRecord.parseSuccess = true
   } catch (error) {
-    logger.info('Error parsing content', error)
+    logger.error('Error parsing content', error)
+
     Object.assign(logRecord, {
       parseSuccess: false,
       parseError: error,
     })
   }
 
-  const { title, canonicalUrl } = pageInfo
-
-  Object.assign(article || {}, {
-    title: article?.title || title,
-  })
-
-  logger.info('parse-article completed')
+  logger.info('parse-article completed', logRecord)
 
   return {
-    domContent: document,
-    parsedContent: article,
     canonicalUrl,
-    pageType: dom ? parseOriginalContent(dom) : PageType.Unknown,
+    parsedContent,
+    domContent,
+    pageType,
     highlightData,
   }
 }

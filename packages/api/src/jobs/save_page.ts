@@ -1,4 +1,3 @@
-import { Readability } from '@omnivore/readability'
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
@@ -63,7 +62,6 @@ interface FetchResult {
   title?: string
   content?: string
   contentType?: string
-  readabilityResult?: Readability.ParseResult
 }
 
 const isFetchResult = (obj: unknown): obj is FetchResult => {
@@ -297,7 +295,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     // get the fetch result from cache
     const fetchedResult = await getCachedFetchResult(url)
-    const { title, contentType, readabilityResult } = fetchedResult
+    const { title, contentType } = fetchedResult
     let content = fetchedResult.content
 
     // for pdf content, we need to upload the pdf
@@ -350,7 +348,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         clientRequestId: articleSavingRequestId,
         title,
         originalContent: content,
-        parseResult: readabilityResult,
         state: state ? (state as ArticleSavingRequestStatus) : undefined,
         labels: labels,
         rssFeedUrl,
@@ -362,13 +359,11 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       user
     )
 
-    // if (result.__typename == 'SaveError') {
-    //   logger.error('Error saving page', { userId, url, result })
-    //   throw new Error('Error saving page')
-    // }
+    if (result.__typename == 'SaveError') {
+      throw new Error(result.message || result.errorCodes[0])
+    }
 
-    // if the readability result is not parsed, the import is failed
-    isImported = !!readabilityResult
+    isImported = true
     isSaved = true
   } catch (e) {
     if (e instanceof Error) {

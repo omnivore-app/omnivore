@@ -68,17 +68,13 @@ export const savePage = async (
   input: SavePageInput,
   user: User
 ): Promise<SaveResult> => {
-  const parseResult = await parsePreparedContent(
-    input.url,
-    {
-      document: input.originalContent,
-      pageInfo: {
-        title: input.title,
-        canonicalUrl: input.url,
-      },
+  const parseResult = await parsePreparedContent(input.url, {
+    document: input.originalContent,
+    pageInfo: {
+      title: input.title,
+      canonicalUrl: input.url,
     },
-    input.parseResult
-  )
+  })
   const [newSlug, croppedPathname] = createSlug(input.url, input.title)
   let slug = newSlug
   let clientRequestId = input.clientRequestId
@@ -116,6 +112,7 @@ export const savePage = async (
       })
     } catch (e) {
       return {
+        __typename: 'SaveError',
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to create page save request',
       }
@@ -187,11 +184,14 @@ export const savePage = async (
       libraryItem: { id: clientRequestId },
     }
 
-    if (!(await createHighlight(highlight, clientRequestId, user.id))) {
-      return {
-        errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
-        message: 'Failed to save highlight',
-      }
+    try {
+      await createHighlight(highlight, clientRequestId, user.id)
+    } catch (error) {
+      logger.error('Failed to create highlight', {
+        highlight,
+        clientRequestId,
+        userId: user.id,
+      })
     }
   }
 

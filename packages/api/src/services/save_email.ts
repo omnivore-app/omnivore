@@ -53,7 +53,6 @@ export const saveEmail = async (
         // can leave this empty for now
       },
     },
-    null,
     true
   )
 
