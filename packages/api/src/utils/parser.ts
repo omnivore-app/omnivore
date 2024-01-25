@@ -307,23 +307,28 @@ export const parsePreparedContent = async (
     // Format code blocks
     // TODO: we probably want to move this type of thing
     // to the handlers, and have some concept of postHandle
-    const codeBlocks = newDocumentElement.querySelectorAll<HTMLElement>(
-      'pre[class^="prism-"], pre[class^="language-"], pre[class^="code-snippet"], code'
+    const codeBlocks = newDocumentElement.querySelectorAll(
+      'pre[class^="prism-"], pre[class^="language-"], code'
     )
-    if (codeBlocks.length > 0) {
-      codeBlocks.forEach((e) => {
-        const att = hljs.highlightAuto(e.innerText)
-        const code = document.createElement('code')
-        const langClass =
-          `hljs language-${att.language}` +
-          (att.second_best?.language
-            ? ` language-${att.second_best?.language}`
-            : '')
-        code.setAttribute('class', langClass)
-        code.innerHTML = att.value
-        e.replaceWith(code)
-      })
-    }
+    codeBlocks.forEach((e) => {
+      if (!e.textContent) {
+        return e.parentNode?.removeChild(e)
+      }
+
+      // replace <br> or <p> or </p> with \n
+      e.innerHTML = e.innerHTML.replace(/<(br|p|\/p)>/g, '\n')
+
+      const att = hljs.highlightAuto(e.textContent)
+      const code = document.createElement('code')
+      const langClass =
+        `hljs language-${att.language}` +
+        (att.second_best?.language
+          ? ` language-${att.second_best?.language}`
+          : '')
+      code.setAttribute('class', langClass)
+      code.innerHTML = att.value
+      e.replaceWith(code)
+    })
 
     highlightData = findEmbeddedHighlight(newDocumentElement)
 
