@@ -24,8 +24,6 @@ import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-import { getBackendQueue } from '../queue-processor'
-import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 
 // Instantiates a client.
 const client = new CloudTasksClient()

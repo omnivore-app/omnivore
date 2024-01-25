@@ -26,10 +26,6 @@ export class RedisDataSource {
       createIORedisClient('mq', this.options) || this.cacheClient // if mq is not defined, use cache
   }
 
-  setOptions(options: RedisDataSourceOptions): void {
-    this.options = options
-  }
-
   async shutdown(): Promise<void> {
     try {
       await this.queueRedisClient?.quit()
@@ -72,8 +68,8 @@ const createIORedisClient = (
 
 export const redisDataSource = new RedisDataSource({
   cache: {
-    url: process.env.REDIS_CACHE_URL,
-    cert: process.env.REDIS_CACHE_CERT,
+    url: process.env.REDIS_URL,
+    cert: process.env.REDIS_CERT,
   },
   mq: {
     url: process.env.MQ_REDIS_URL,
