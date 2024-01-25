@@ -10,7 +10,7 @@ export const mochaGlobalTeardown = async () => {
   await appDataSource.destroy()
   console.log('db connection closed')
 
-  if (env.redis.url) {
+  if (env.redis.cache.url) {
     await redisDataSource.shutdown()
     console.log('redis connection closed')
   }
