@@ -2229,14 +2229,17 @@ type Subscription {
   count: Int!
   createdAt: Date!
   description: String
+  failedAt: Date
   fetchContent: Boolean!
   folder: String!
   icon: String
   id: ID!
   isPrivate: Boolean
   lastFetchedAt: Date
+  mostRecentItemDate: Date
   name: String!
   newsletterEmail: String
+  refreshedAt: Date
   status: SubscriptionStatus!
   type: SubscriptionType!
   unsubscribeHttpUrl: String
@@ -2572,13 +2575,15 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
+  failedAt: Date
   fetchContent: Boolean
   folder: String
   id: ID!
   isPrivate: Boolean
-  lastFetchedAt: Date
   lastFetchedChecksum: String
+  mostRecentItemDate: Date
   name: String
+  refreshedAt: Date
   scheduledAt: Date
   status: SubscriptionStatus
 }

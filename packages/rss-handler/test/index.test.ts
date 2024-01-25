@@ -7,17 +7,17 @@ describe('isOldItem', () => {
     const item = {
       pubDate: '2020-01-01',
     } as RssFeedItem
-    const lastFetchedAt = Date.now()
+    const mostRecentItemTimestamp = Date.now()
 
-    expect(isOldItem(item, lastFetchedAt)).to.be.true
+    expect(isOldItem(item, mostRecentItemTimestamp)).to.be.true
   })
 
   it('returns true if item was published at the last fetched time', () => {
-    const lastFetchedAt = Date.now()
+    const mostRecentItemTimestamp = Date.now()
     const item = {
-      pubDate: new Date(lastFetchedAt).toISOString(),
+      pubDate: new Date(mostRecentItemTimestamp).toISOString(),
     } as RssFeedItem
 
-    expect(isOldItem(item, lastFetchedAt)).to.be.true
+    expect(isOldItem(item, mostRecentItemTimestamp)).to.be.true
   })
 })

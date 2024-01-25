@@ -1,8 +1,4 @@
-import { Subscription } from '../entity/subscription'
-import {
-  SubscriptionStatus,
-  UpdateSubscriptionInput,
-} from '../generated/graphql'
+import { Subscription, SubscriptionStatus } from '../entity/subscription'
 import { getRepository } from '../repository'
 
 const ensureOwns = async (userId: string, subscriptionId: string) => {
@@ -23,11 +19,13 @@ type UpdateSubscriptionData = {
   fetchContent?: boolean | null
   folder?: string | null
   isPrivate?: boolean | null
-  lastFetchedAt?: Date | null
+  mostRecentItemDate?: Date | null
   lastFetchedChecksum?: string | null
   name?: string | null
   scheduledAt?: Date | null
   status?: SubscriptionStatus | null
+  refreshedAt?: Date | null
+  failedAt?: Date | null
 }
 
 export const updateSubscription = async (
@@ -42,22 +40,43 @@ export const updateSubscription = async (
     id: subscriptionId,
     name: newData.name || undefined,
     description: newData.description || undefined,
-    lastFetchedAt: newData.lastFetchedAt
-      ? new Date(newData.lastFetchedAt)
-      : undefined,
+    mostRecentItemDate: newData.mostRecentItemDate || undefined,
+    refreshedAt: newData.refreshedAt || undefined,
     lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
     status: newData.status || undefined,
-    scheduledAt: newData.scheduledAt
-      ? new Date(newData.scheduledAt)
-      : undefined,
+    scheduledAt: newData.scheduledAt || undefined,
+    failedAt: newData.failedAt || undefined,
     autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
     isPrivate: newData.isPrivate ?? undefined,
     fetchContent: newData.fetchContent ?? undefined,
     folder: newData.folder ?? undefined,
   })
 
-  return await getRepository(Subscription).findOneByOrFail({
+  return await repo.findOneByOrFail({
     id: subscriptionId,
     user: { id: userId },
   })
+}
+
+export const updateSubscriptions = async (
+  subscriptionIds: string[],
+  newData: UpdateSubscriptionData
+) => {
+  return getRepository(Subscription).save(
+    subscriptionIds.map((id) => ({
+      id,
+      name: newData.name || undefined,
+      description: newData.description || undefined,
+      mostRecentItemDate: newData.mostRecentItemDate || undefined,
+      refreshedAt: newData.refreshedAt || undefined,
+      lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
+      status: newData.status || undefined,
+      scheduledAt: newData.scheduledAt || undefined,
+      failedAt: newData.failedAt || undefined,
+      autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
+      isPrivate: newData.isPrivate ?? undefined,
+      fetchContent: newData.fetchContent ?? undefined,
+      folder: newData.folder ?? undefined,
+    }))
+  )
 }

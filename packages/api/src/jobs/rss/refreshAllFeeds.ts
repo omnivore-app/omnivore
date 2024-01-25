@@ -1,11 +1,10 @@
-import { Job, Queue } from 'bullmq'
+import { Job } from 'bullmq'
 import { DataSource } from 'typeorm'
-import { QUEUE_NAME, getBackendQueue } from '../../queue-processor'
-import { redisDataSource } from '../../redis_data_source'
+import { v4 as uuid } from 'uuid'
+import { getBackendQueue } from '../../queue-processor'
+import { validateUrl } from '../../services/create_page_save_request'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
-import { validateUrl } from '../../services/create_page_save_request'
-import { v4 as uuid } from 'uuid'
 
 export type RSSRefreshContext = {
   type: 'all' | 'user-added'
@@ -21,28 +20,33 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
   } as RSSRefreshContext
   const subscriptionGroups = (await db.createEntityManager().query(
     `
-    SELECT
-      url,
-      ARRAY_AGG(id) AS "subscriptionIds",
-      ARRAY_AGG(user_id) AS "userIds",
-      ARRAY_AGG(last_fetched_at) AS "fetchedDates",
-      ARRAY_AGG(coalesce(scheduled_at, NOW())) AS "scheduledDates",
-      ARRAY_AGG(last_fetched_checksum) AS checksums,
-      ARRAY_AGG(fetch_content) AS "fetchContents",
-      ARRAY_AGG(coalesce(folder, $3)) AS folders
-    FROM
-      omnivore.subscriptions
-    WHERE
-      type = $1
-      AND status = $2
-      AND (scheduled_at <= NOW() OR scheduled_at IS NULL)
-    GROUP BY
-      url
-    `,
-    ['RSS', 'ACTIVE', 'following']
+      SELECT
+        url,
+        ARRAY_AGG(s.id) AS "subscriptionIds",
+        ARRAY_AGG(s.user_id) AS "userIds",
+        ARRAY_AGG(s.most_recent_item_date) AS "mostRecentItemDates",
+        ARRAY_AGG(coalesce(s.scheduled_at, NOW())) AS "scheduledDates",
+        ARRAY_AGG(s.last_fetched_checksum) AS checksums,
+        ARRAY_AGG(s.fetch_content) AS "fetchContents",
+        ARRAY_AGG(coalesce(s.folder, $3)) AS folders
+      FROM
+        omnivore.subscriptions s
+      INNER JOIN
+        omnivore.user u ON u.id = s.user_id
+      WHERE
+        s.type = $1
+        AND s.status = $2
+        AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
+        AND u.status = $4
+      GROUP BY
+        s.url
+      `,
+    ['RSS', 'ACTIVE', 'following', 'ACTIVE']
   )) as RssSubscriptionGroup[]
 
-  console.log(`rss: checking ${subscriptionGroups.length}`, { refreshContext })
+  console.log(`rss: checking ${subscriptionGroups.length}`, {
+    refreshContext,
+  })
 
   for (const group of subscriptionGroups) {
     try {
@@ -90,7 +94,7 @@ const updateSubscriptionGroup = async (
     refreshContext,
     subscriptionIds: group.subscriptionIds,
     feedUrl: group.url,
-    lastFetchedTimestamps: group.fetchedDates.map(
+    mostRecentItemDates: group.mostRecentItemDates.map(
       (timestamp) => timestamp?.getTime() || 0
     ), // unix timestamp in milliseconds
     lastFetchedChecksums: group.checksums,
