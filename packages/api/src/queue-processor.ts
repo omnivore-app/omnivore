@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Job, QueueEvents, Worker, Queue } from 'bullmq'
+import { Job, QueueEvents, Worker, Queue, JobType } from 'bullmq'
 import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
@@ -63,6 +63,26 @@ const main = async () => {
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
+  app.get('/metrics', async (_, res) => {
+    const queue = await getBackendQueue()
+    if (!queue) {
+      res.sendStatus(400)
+      return
+    }
+
+    let output = ''
+    const metrics: JobType[] = ['active', 'failed', 'completed', 'prioritized']
+    const counts = await queue.getJobCounts(...metrics)
+    console.log('counts: ', counts)
+
+    metrics.forEach((metric, idx) => {
+      output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
+      output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
+    })
+
+    res.status(200).setHeader('Content-Type', 'text/plain').send(output)
+  })
+
   const server = app.listen(port, () => {
     console.log(`[queue-processor]: started`)
   })
@@ -78,17 +98,14 @@ const main = async () => {
     throw '[queue-processor] error redis is not initialized'
   }
 
-  const queue = new Queue(QUEUE_NAME, {
-    connection: workerRedisClient,
-  })
-
   const worker = new Worker(
     QUEUE_NAME,
     async (job: Job) => {
       switch (job.name) {
         case 'refresh-all-feeds': {
-          const counts = await queue.getJobCounts('wait')
-          if (counts.wait > 1000) {
+          const queue = await getBackendQueue()
+          const counts = await queue?.getJobCounts('prioritized')
+          if (counts && counts.wait > 1000) {
             return
           }
           return await refreshAllFeeds(appDataSource)
