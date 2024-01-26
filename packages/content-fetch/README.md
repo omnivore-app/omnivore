@@ -1,7 +1,7 @@
 # Puppeteer parsing function handler
 
 This workspace is used to provide the GCF for the app to handle requests for the article parsing via Puppeteer.
-     
+
 ## Using locally
 
 Copy .env.example file to .env file: `cp .env.example .env`
