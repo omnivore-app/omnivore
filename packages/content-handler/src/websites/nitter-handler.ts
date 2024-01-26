@@ -31,7 +31,7 @@ interface Tweet {
 export class NitterHandler extends ContentHandler {
   // matches twitter.com and nitter.net urls
   URL_MATCH =
-    /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+    /((x\.com)|(twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
     { value: 'https://nitter.moomoo.me', score: 0 },
     { value: 'https://nitter.net', score: 1 }, // the official instance
@@ -316,7 +316,7 @@ export class NitterHandler extends ContentHandler {
   parseTweetUrl = (url: string) => {
     const match = url.match(this.URL_MATCH)
     return {
-      domain: match?.[1],
+      domain: match?.[1]?.replace('x', 'twitter'),
       username: match?.[4],
       tweetId: match?.[5],
     }
