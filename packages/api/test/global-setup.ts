@@ -7,7 +7,7 @@ export const mochaGlobalSetup = async () => {
   await createTestConnection()
   console.log('db connection created')
 
-  if (env.redis.url) {
+  if (env.redis.cache.url) {
     await redisDataSource.initialize()
     console.log('redis connection created')
   }

@@ -1,8 +1,12 @@
 import Redis, { RedisOptions } from 'ioredis'
 
+type RedisClientType = 'cache' | 'mq'
+type RedisDataSourceOption = {
+  url?: string
+  cert?: string
+}
 export type RedisDataSourceOptions = {
-  REDIS_URL?: string
-  REDIS_CERT?: string
+  [key in RedisClientType]: RedisDataSourceOption
 }
 
 export class RedisDataSource {
@@ -14,12 +18,12 @@ export class RedisDataSource {
   constructor(options: RedisDataSourceOptions) {
     this.options = options
 
-    this.cacheClient = createRedisClient('cache', this.options)
-    this.queueRedisClient = createRedisClient('queue', this.options)
-  }
+    const cacheClient = createIORedisClient('cache', this.options)
+    if (!cacheClient) throw 'Error initializing cache redis client'
 
-  setOptions(options: RedisDataSourceOptions): void {
-    this.options = options
+    this.cacheClient = cacheClient
+    this.queueRedisClient =
+      createIORedisClient('mq', this.options) || this.cacheClient // if mq is not defined, use cache
   }
 
   async shutdown(): Promise<void> {
@@ -32,46 +36,45 @@ export class RedisDataSource {
   }
 }
 
-const createRedisClient = (name: string, options: RedisDataSourceOptions) => {
-  const redisURL = options.REDIS_URL
-  const cert = options.REDIS_CERT?.replace(/\\n/g, '\n') // replace \n with new line
+const createIORedisClient = (
+  name: RedisClientType,
+  options: RedisDataSourceOptions
+): Redis | undefined => {
+  const option = options[name]
+  const redisURL = option.url
   if (!redisURL) {
-    throw 'Error: no redisURL supplied'
+    console.log(`no redisURL supplied: ${name}`)
+    return undefined
   }
 
-  const redisOptions: RedisOptions = {
-    name,
-    connectTimeout: 10000, // 10 seconds
-    tls: cert
+  const redisCert = option.cert
+  const tls =
+    redisURL.startsWith('rediss://') && redisCert
       ? {
-          cert,
-          rejectUnauthorized: false, // for self-signed certs
+          ca: redisCert,
+          rejectUnauthorized: false,
         }
-      : undefined,
+      : undefined
+
+  const redisOptions: RedisOptions = {
+    tls,
+    name,
+    connectTimeout: 10000,
     maxRetriesPerRequest: null,
     offlineQueue: false,
   }
-
-  const redis = new Redis(redisURL, redisOptions)
-
-  redis.on('connect', () => {
-    console.log('Redis connected', name)
-  })
-
-  redis.on('error', (err) => {
-    console.error('Redis error', err, name)
-  })
-
-  redis.on('close', () => {
-    console.log('Redis closed', name)
-  })
-
-  return redis
+  return new Redis(redisURL, redisOptions)
 }
 
 export const redisDataSource = new RedisDataSource({
-  REDIS_URL: process.env.REDIS_URL,
-  REDIS_CERT: process.env.REDIS_CERT,
+  cache: {
+    url: process.env.REDIS_URL,
+    cert: process.env.REDIS_CERT,
+  },
+  mq: {
+    url: process.env.MQ_REDIS_URL,
+    cert: process.env.MQ_REDIS_CERT,
+  },
 })
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises

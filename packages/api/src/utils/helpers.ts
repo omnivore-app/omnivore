@@ -22,11 +22,10 @@ import {
   PageType,
   Profile,
   Recommendation,
-  ResolverFn,
   SearchItem,
 } from '../generated/graphql'
 import { createPubSubClient } from '../pubsub'
-import { Claims, WithDataSourcesContext } from '../resolvers/types'
+import { redisDataSource } from '../redis_data_source'
 import { validateUrl } from '../services/create_page_save_request'
 import { updateLibraryItem } from '../services/library_item'
 import { Merge } from '../util'
@@ -391,17 +390,10 @@ export const setRecentlySavedItemInRedis = async (
   url: string
 ) => {
   // save the url in redis for 26 hours so rss-feeder won't try to re-save it
-  if (!redisClient) {
-    console.info(
-      'not setting recently saved item because redis is not configured'
-    )
-    return
-  }
-  // save the url in redis for 8 hours so rss-feeder won't try to re-save it
   const redisKey = `recent-saved-item:${userId}:${url}`
   const ttlInSeconds = 60 * 60 * 26
   try {
-    return redisClient.set(redisKey, 1, 'EX', ttlInSeconds, 'NX')
+    return await redisClient.set(redisKey, 1, 'EX', ttlInSeconds, 'NX')
   } catch (error) {
     logger.error('error setting recently saved item in redis', {
       redisKey,
