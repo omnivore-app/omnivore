@@ -1,9 +1,15 @@
+import { Notification } from 'firebase-admin/messaging'
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
 import { SetClaimsRole } from '../utils/dictionary'
+import {
+  PushNotificationType,
+  sendMulticastPushNotifications,
+} from '../utils/sendNotification'
+import { findDeviceTokensByUserId } from './user_device_tokens'
 
 export const deleteUser = async (userId: string) => {
   await authTrx(
@@ -119,4 +125,24 @@ export const batchDelete = async (criteria: FindOptionsWhere<User>) => {
     undefined,
     SetClaimsRole.ADMIN
   )
+}
+
+export const sendPushNotifications = async (
+  userId: string,
+  notification: Notification,
+  notificationType: PushNotificationType,
+  data?: { [key: string]: string }
+) => {
+  const tokens = await findDeviceTokensByUserId(userId)
+  if (tokens.length === 0) {
+    throw new Error('No device tokens found')
+  }
+
+  const message = {
+    notification,
+    data,
+    tokens: tokens.map((token) => token.token),
+  }
+
+  return sendMulticastPushNotifications(userId, message, notificationType)
 }
