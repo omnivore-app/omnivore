@@ -14,6 +14,7 @@ export const saveFile = async (
   const uploadFile = await findUploadFileById(input.uploadFileId)
   if (!uploadFile) {
     return {
+      __typename: 'SaveError',
       errorCodes: [SaveErrorCode.Unauthorized],
     }
   }
@@ -24,6 +25,7 @@ export const saveFile = async (
 
   if (!uploadFileData) {
     return {
+      __typename: 'SaveError',
       errorCodes: [SaveErrorCode.Unknown],
     }
   }
@@ -34,6 +36,8 @@ export const saveFile = async (
       {
         state: (input.state as unknown as LibraryItemState) || undefined,
         folder: input.folder || undefined,
+        savedAt: input.savedAt || undefined,
+        publishedAt: input.publishedAt || undefined,
       },
       user.id
     )
@@ -43,7 +47,8 @@ export const saveFile = async (
   await createAndSaveLabelsInLibraryItem(
     input.clientRequestId,
     user.id,
-    input.labels
+    input.labels,
+    input.subscription
   )
 
   return {
