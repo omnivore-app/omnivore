@@ -17,6 +17,8 @@ import {
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
 import { getBackendQueue } from '../queue-processor'
+import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
+import { getBackendQueue } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
@@ -646,6 +648,18 @@ export const enqueueRssFeedFetch = async (
   } else {
     throw 'unable to queue rss-refresh-feed-job, redis is not configured'
   }
+}
+
+export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(TRIGGER_RULE_JOB_NAME, data, {
+    removeOnComplete: true,
+    removeOnFail: true,
+  })
 }
 
 export default createHttpTaskWithToken

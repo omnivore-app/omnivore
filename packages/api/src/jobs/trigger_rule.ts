@@ -10,14 +10,10 @@ import { findEnabledRules } from '../services/rules'
 import { sendPushNotifications } from '../services/user'
 import { logger } from '../utils/logger'
 
-interface Data {
-  id: string
+export interface TriggerRuleJobData {
+  libraryItemId: string
   userId: string
   ruleEventType: RuleEventType
-  subscription: string
-  image: string
-  content: string
-  readingProgressPercent: number
 }
 
 interface RuleActionObj {
@@ -25,6 +21,8 @@ interface RuleActionObj {
   action: RuleAction
   libraryItem: LibraryItem
 }
+
+export const TRIGGER_RULE_JOB_NAME = 'trigger-rule'
 
 type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
 
@@ -43,7 +41,9 @@ const archivePage = async (obj: RuleActionObj) => {
   return updateLibraryItem(
     obj.libraryItem.id,
     { archivedAt: new Date(), state: LibraryItemState.Archived },
-    obj.userId
+    obj.userId,
+    undefined,
+    true
   )
 }
 
@@ -55,7 +55,9 @@ const markPageAsRead = async (obj: RuleActionObj) => {
       readingProgressBottomPercent: 100,
       readAt: new Date(),
     },
-    obj.userId
+    obj.userId,
+    undefined,
+    true
   )
 }
 
@@ -82,11 +84,15 @@ const getRuleAction = (actionType: RuleActionType): RuleActionFunc => {
   }
 }
 
-const triggerActions = async (userId: string, rules: Rule[], data: Data) => {
+const triggerActions = async (
+  userId: string,
+  rules: Rule[],
+  data: TriggerRuleJobData
+) => {
   const actionPromises: Promise<unknown>[] = []
 
   for (const rule of rules) {
-    const itemId = data.id
+    const itemId = data.libraryItemId
     const searchArgs: SearchArgs = {
       includeContent: false,
       includeDeleted: false,
@@ -122,7 +128,7 @@ const triggerActions = async (userId: string, rules: Rule[], data: Data) => {
   }
 }
 
-export const triggerRule = async (data: Data) => {
+export const triggerRule = async (data: TriggerRuleJobData) => {
   const { userId, ruleEventType } = data
 
   // get rules by calling api

@@ -698,7 +698,8 @@ export const updateLibraryItem = async (
   id: string,
   libraryItem: QueryDeepPartialEntity<LibraryItem>,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ): Promise<LibraryItem> => {
   const updatedLibraryItem = await authTrx(
     async (tx) => {
@@ -725,6 +726,10 @@ export const updateLibraryItem = async (
     undefined,
     userId
   )
+
+  if (skipPubSub) {
+    return updatedLibraryItem
+  }
 
   await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
     EntityType.PAGE,
