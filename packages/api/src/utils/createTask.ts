@@ -16,7 +16,6 @@ import {
 } from '../generated/graphql'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
-import { getBackendQueue } from '../queue-processor'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import { getBackendQueue } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
