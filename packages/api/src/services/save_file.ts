@@ -36,8 +36,10 @@ export const saveFile = async (
       {
         state: (input.state as unknown as LibraryItemState) || undefined,
         folder: input.folder || undefined,
-        savedAt: input.savedAt || undefined,
-        publishedAt: input.publishedAt || undefined,
+        savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
+        publishedAt: input.publishedAt
+          ? new Date(input.publishedAt)
+          : undefined,
       },
       user.id
     )
