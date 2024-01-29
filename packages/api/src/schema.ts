@@ -545,6 +545,9 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
     folder: String
+    savedAt: Date
+    publishedAt: Date
+    subscription: String
   }
 
   input ParseResult {

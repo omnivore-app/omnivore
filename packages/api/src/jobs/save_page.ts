@@ -8,14 +8,15 @@ import {
 } from '../generated/graphql'
 import { redisDataSource } from '../redis_data_source'
 import { userRepository } from '../repository/user'
+import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
+import { uploadFile } from '../services/upload_file'
 import { logger } from '../utils/logger'
 
 const signToken = promisify(jwt.sign)
 
 const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
-const REST_BACKEND_ENDPOINT = `${env.server.internalApiUrl}/api`
 
 const MAX_ATTEMPTS = 2
 const REQUEST_TIMEOUT = 30000 // 30 seconds
@@ -34,29 +35,6 @@ interface Data {
   taskId?: string
 }
 
-interface UploadFileResponse {
-  data: {
-    uploadFileRequest: {
-      id: string
-      uploadSignedUrl: string
-      uploadFileId: string
-      createdPageId: string
-      errorCodes?: string[]
-    }
-  }
-}
-
-interface CreateArticleResponse {
-  data: {
-    createArticle: {
-      createdArticle: {
-        id: string
-      }
-      errorCodes: string[]
-    }
-  }
-}
-
 interface FetchResult {
   finalUrl: string
   title?: string
@@ -73,6 +51,12 @@ const uploadToSignedUrl = async (
   contentType: string,
   contentObjUrl: string
 ) => {
+  logger.info('uploading to signed url', {
+    uploadSignedUrl,
+    contentType,
+    contentObjUrl,
+  })
+
   try {
     const stream = await axios.get(contentObjUrl, {
       responseType: 'stream',
@@ -92,137 +76,33 @@ const uploadToSignedUrl = async (
   }
 }
 
-const getUploadIdAndSignedUrl = async (
-  userId: string,
-  url: string,
-  articleSavingRequestId: string
-) => {
-  const auth = await signToken({ uid: userId }, JWT_SECRET)
-  const data = JSON.stringify({
-    query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
-      uploadFileRequest(input:$input) {
-        ... on UploadFileRequestError {
-          errorCodes
-        }
-        ... on UploadFileRequestSuccess {
-          id
-          uploadSignedUrl
-        }
-      }
-    }`,
-    variables: {
-      input: {
-        url: encodeURI(url),
-        contentType: 'application/pdf',
-        clientRequestId: articleSavingRequestId,
-      },
-    },
-  })
-
-  try {
-    const response = await axios.post<UploadFileResponse>(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth as string};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: REQUEST_TIMEOUT,
-      }
-    )
-
-    if (
-      response.data.data.uploadFileRequest.errorCodes &&
-      response.data.data.uploadFileRequest.errorCodes?.length > 0
-    ) {
-      console.error(
-        'Error while getting upload id and signed url',
-        response.data.data.uploadFileRequest.errorCodes[0]
-      )
-      return null
-    }
-
-    return response.data.data.uploadFileRequest
-  } catch (e) {
-    console.error('error getting upload id and signed url', e)
-    return null
-  }
-}
-
 const uploadPdf = async (
   url: string,
   userId: string,
   articleSavingRequestId: string
 ) => {
-  const uploadResult = await getUploadIdAndSignedUrl(
-    userId,
-    url,
-    articleSavingRequestId
+  const result = await uploadFile(
+    {
+      url,
+      contentType: 'application/pdf',
+      clientRequestId: articleSavingRequestId,
+      createPageEntry: true,
+    },
+    userId
   )
-  if (!uploadResult) {
+  if (!result.uploadSignedUrl) {
     throw new Error('error while getting upload id and signed url')
   }
+
   const uploaded = await uploadToSignedUrl(
-    uploadResult.uploadSignedUrl,
+    result.uploadSignedUrl,
     'application/pdf',
     url
   )
   if (!uploaded) {
     throw new Error('error while uploading pdf')
   }
-  return uploadResult.id
-}
-
-const sendCreateArticleMutation = async (userId: string, input: unknown) => {
-  const data = JSON.stringify({
-    query: `mutation CreateArticle ($input: CreateArticleInput!){
-          createArticle(input:$input){
-            ... on CreateArticleSuccess{
-              createdArticle{
-                id
-            }
-        }
-          ... on CreateArticleError{
-              errorCodes
-          }
-      }
-    }`,
-    variables: {
-      input,
-    },
-  })
-
-  const auth = await signToken({ uid: userId }, JWT_SECRET)
-  try {
-    const response = await axios.post<CreateArticleResponse>(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth as string};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: REQUEST_TIMEOUT,
-      }
-    )
-
-    if (
-      response.data.data.createArticle.errorCodes &&
-      response.data.data.createArticle.errorCodes.length > 0
-    ) {
-      console.error(
-        'error while creating article',
-        response.data.data.createArticle.errorCodes[0]
-      )
-      return null
-    }
-
-    return response.data.data.createArticle
-  } catch (error) {
-    console.error('error creating article', error)
-    return null
-  }
+  return result.id
 }
 
 const sendImportStatusUpdate = async (
@@ -231,6 +111,7 @@ const sendImportStatusUpdate = async (
   isImported?: boolean
 ) => {
   try {
+    logger.info('sending import status update')
     const auth = await signToken({ uid: userId }, JWT_SECRET)
 
     await axios.post(
@@ -298,25 +179,37 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     const { title, contentType } = fetchedResult
     let content = fetchedResult.content
 
+    const user = await userRepository.findById(userId)
+    if (!user) {
+      logger.error('Unable to save job, user can not be found.', {
+        userId,
+        url,
+      })
+      // if the user is not found, we do not retry
+      return false
+    }
+
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
-      const encodedUrl = encodeURI(url)
-
       const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
-      const uploadedPdf = await sendCreateArticleMutation(userId, {
-        url: encodedUrl,
-        articleSavingRequestId,
-        uploadFileId,
-        state,
-        labels,
-        source,
-        folder,
-        rssFeedUrl,
-        savedAt,
-        publishedAt,
-      })
-      if (!uploadedPdf) {
-        throw new Error('error while saving uploaded pdf')
+
+      const result = await saveFile(
+        {
+          url,
+          uploadFileId,
+          state: state ? (state as ArticleSavingRequestStatus) : undefined,
+          labels,
+          source,
+          folder,
+          subscription: rssFeedUrl,
+          savedAt,
+          publishedAt,
+          clientRequestId: articleSavingRequestId,
+        },
+        user
+      )
+      if (result.__typename == 'SaveError') {
+        throw new Error(result.message || result.errorCodes[0])
       }
 
       isSaved = true
@@ -329,16 +222,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       // set the state to failed if we don't have content
       content = 'Failed to fetch content'
       state = ArticleSavingRequestStatus.Failed
-    }
-
-    const user = await userRepository.findById(userId)
-    if (!user) {
-      logger.error('Unable to save job, user can not be found.', {
-        userId,
-        url,
-      })
-      // if the user is not found, we do not retry
-      return false
     }
 
     // for non-pdf content, we need to save the page

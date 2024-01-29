@@ -14,6 +14,7 @@ export const saveFile = async (
   const uploadFile = await findUploadFileById(input.uploadFileId)
   if (!uploadFile) {
     return {
+      __typename: 'SaveError',
       errorCodes: [SaveErrorCode.Unauthorized],
     }
   }
@@ -24,26 +25,30 @@ export const saveFile = async (
 
   if (!uploadFileData) {
     return {
+      __typename: 'SaveError',
       errorCodes: [SaveErrorCode.Unknown],
     }
   }
 
-  if (input.state || input.folder) {
-    await updateLibraryItem(
-      input.clientRequestId,
-      {
-        state: (input.state as unknown as LibraryItemState) || undefined,
-        folder: input.folder || undefined,
-      },
-      user.id
-    )
-  }
+  await updateLibraryItem(
+    input.clientRequestId,
+    {
+      state:
+        (input.state as unknown as LibraryItemState) ||
+        LibraryItemState.Succeeded,
+      folder: input.folder || undefined,
+      savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
+      publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+    },
+    user.id
+  )
 
   // add labels to item
   await createAndSaveLabelsInLibraryItem(
     input.clientRequestId,
     user.id,
-    input.labels
+    input.labels,
+    input.subscription
   )
 
   return {

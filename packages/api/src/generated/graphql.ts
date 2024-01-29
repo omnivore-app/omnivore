@@ -2283,8 +2283,11 @@ export type SaveFileInput = {
   clientRequestId: Scalars['ID'];
   folder?: InputMaybe<Scalars['String']>;
   labels?: InputMaybe<Array<CreateLabelInput>>;
+  publishedAt?: InputMaybe<Scalars['Date']>;
+  savedAt?: InputMaybe<Scalars['Date']>;
   source: Scalars['String'];
   state?: InputMaybe<ArticleSavingRequestStatus>;
+  subscription?: InputMaybe<Scalars['String']>;
   uploadFileId: Scalars['ID'];
   url: Scalars['String'];
 };

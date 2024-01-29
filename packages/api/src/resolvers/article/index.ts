@@ -87,6 +87,7 @@ import {
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
   findUploadFileById,
+  itemTypeForContentType,
   setFileUploadComplete,
 } from '../../services/upload_file'
 import { traceAs } from '../../tracing'
@@ -111,7 +112,6 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
-import { itemTypeForContentType } from '../upload_files'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
