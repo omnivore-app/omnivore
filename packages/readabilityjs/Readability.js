@@ -3036,16 +3036,16 @@ Readability.prototype = {
 
       // detect language from the html content
       const languages = (await cld.detect(content, { isHTML: true })).languages;
-      console.log('Detected languages: ', languages);
+      this.log('Detected languages: ', languages);
       if (languages.length > 0) {
         code = languages[0].code;
       }
 
-      console.log('Getting language name from code: ', code);
+      this.log('Getting language name from code: ', code);
       let lang = new Intl.DisplayNames(['en'], {type: 'language'});
       return lang.of(code);
     } catch (error) {
-      console.error('Failed to get language', error);
+      this.log('Failed to get language', error);
       return 'English';
     }
   },
@@ -3082,7 +3082,6 @@ Readability.prototype = {
     this._removeScripts(this._doc);
 
     this._prepDocument();
-    console.log(this._doc.body.innerHTML);
 
     var metadata = this._getArticleMetadata(jsonLd);
     this._articleTitle = metadata.title;

@@ -13,7 +13,6 @@ export function contentServiceRouter() {
   const router = express.Router()
 
   router.post('/search', async (req, res) => {
-    logger.info('search req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
     logger.info('read pubsub message', { msgStr, expired })
 

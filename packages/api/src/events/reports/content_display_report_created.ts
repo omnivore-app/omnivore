@@ -23,16 +23,17 @@ export class ContentDisplayReportSubscriber
                     ${report.user.id} for URL: ${report.originalUrl}
                     ${report.reportComment}`
 
-    logger.info(message)
-
-    if (!env.dev.isLocal) {
-      // If we are in the local environment, just log a message, otherwise email the report
-      await sendEmail({
-        to: env.sender.feedback,
-        subject: 'New content display report',
-        text: message,
-        from: env.sender.message,
-      })
+    // If we are in the local environment, just log a message, otherwise email the report
+    if (env.dev.isLocal) {
+      logger.info(message)
+      return
     }
+
+    await sendEmail({
+      to: env.sender.feedback,
+      subject: 'New content display report',
+      text: message,
+      from: env.sender.message,
+    })
   }
 }

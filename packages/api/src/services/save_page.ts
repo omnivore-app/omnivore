@@ -58,7 +58,6 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
   return (
     ALREADY_PARSED_SOURCES.indexOf(input.source) === -1 &&
     FORCE_PUPPETEER_URLS.some((regex) => {
-      console.log('REGEX: ', regex)
       return regex.test(input.url)
     })
   )
@@ -241,7 +240,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
-  console.log('save_page: state', { url, state, itemId })
+  logger.info('save_page: state', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,

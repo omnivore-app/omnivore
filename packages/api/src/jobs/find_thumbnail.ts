@@ -5,7 +5,7 @@ import {
   findLibraryItemById,
   updateLibraryItem,
 } from '../services/library_item'
-import { createImageProxyUrl, createThumbnailUrl } from '../utils/imageproxy'
+import { createThumbnailUrl } from '../utils/imageproxy'
 import { logger } from '../utils/logger'
 
 interface Data {
@@ -22,7 +22,7 @@ interface ImageSize {
 export const THUMBNAIL_JOB = 'find-thumbnail'
 
 const fetchImage = async (url: string): Promise<AxiosResponse | null> => {
-  console.log('fetching image', url)
+  logger.info('fetching image', url)
   try {
     // get image file by url
     return await axios.get(url, {
@@ -70,7 +70,6 @@ export const fetchAllImageSizes = async (content: string) => {
   // fetch all images by src and get their sizes
   const images = dom.querySelectorAll('img[src]')
   if (!images || images.length === 0) {
-    console.log('no images')
     return []
   }
 
@@ -100,7 +99,6 @@ export const _findThumbnail = (imagesSizes: (ImageSize | null)[]) => {
 
     // ignore small images
     if (area < 5000) {
-      logger.info('ignore small', { src: imageSize.src })
       continue
     }
 
@@ -109,13 +107,11 @@ export const _findThumbnail = (imagesSizes: (ImageSize | null)[]) => {
       Math.max(imageSize.width, imageSize.height) /
       Math.min(imageSize.width, imageSize.height)
     if (ratio > 1.5) {
-      logger.info('penalizing long/wide', { src: imageSize.src })
       area /= ratio * 2
     }
 
     // penalize images with "sprite" in their name
     if (imageSize.src.toLowerCase().includes('sprite')) {
-      logger.info('penalizing sprite', { src: imageSize.src })
       area /= 10
     }
 
@@ -139,7 +135,6 @@ export const findThumbnail = async (data: Data) => {
 
   const thumbnail = item.thumbnail
   if (thumbnail) {
-    logger.info('thumbnail already set')
     const proxyUrl = createThumbnailUrl(thumbnail)
     // pre-cache thumbnail first if exists
     const image = await fetchImage(proxyUrl)
@@ -154,7 +149,6 @@ export const findThumbnail = async (data: Data) => {
   const imageSizes = await fetchAllImageSizes(item.readableContent)
   // find thumbnail from all images if thumbnail not set
   if (!item.thumbnail && imageSizes.length > 0) {
-    logger.info('finding thumbnail...')
     const thumbnail = _findThumbnail(imageSizes)
     if (!thumbnail) {
       logger.info('no thumbnail found from content')

@@ -5,6 +5,7 @@ import { getBackendQueue } from '../../queue-processor'
 import { validateUrl } from '../../services/create_page_save_request'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
+import { logger } from '../../utils/logger'
 
 export type RSSRefreshContext = {
   type: 'all' | 'user-added'
@@ -44,7 +45,7 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
     ['RSS', 'ACTIVE', 'following', 'ACTIVE']
   )) as RssSubscriptionGroup[]
 
-  console.log(`rss: checking ${subscriptionGroups.length}`, {
+  logger.info(`rss: checking ${subscriptionGroups.length}`, {
     refreshContext,
   })
 
@@ -53,11 +54,11 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
       await updateSubscriptionGroup(group, refreshContext)
     } catch (err) {
       // we don't want to fail the whole job if one subscription group fails
-      console.error('error updating subscription group')
+      logger.error('error updating subscription group')
     }
   }
   const finishTime = new Date()
-  console.log(
+  logger.info(
     `rss: finished queuing subscription groups at ${finishTime.toISOString()}`,
     {
       refreshContext,
@@ -74,18 +75,18 @@ const updateSubscriptionGroup = async (
   let feedURL = group.url
   const userList = JSON.stringify(group.userIds.sort())
   if (!feedURL) {
-    console.error('no url for feed group', group)
+    logger.error('no url for feed group', group)
     return
   }
   if (!userList) {
-    console.error('no userlist for feed group', group)
+    logger.error('no userlist for feed group', group)
     return
   }
 
   try {
     feedURL = validateUrl(feedURL).toString()
   } catch (err) {
-    console.log('not refreshing invalid feed url: ', { feedURL })
+    logger.error('not refreshing invalid feed url: %s', feedURL)
   }
   const jobid = `refresh-feed_${stringToHash(feedURL)}_${stringToHash(
     userList

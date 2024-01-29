@@ -71,7 +71,7 @@ const uploadToSignedUrl = async (
       timeout: REQUEST_TIMEOUT,
     })
   } catch (error) {
-    console.error('error uploading to signed url', error)
+    logger.error('error uploading to signed url', error)
     return null
   }
 }
@@ -129,7 +129,7 @@ const sendImportStatusUpdate = async (
       }
     )
   } catch (e) {
-    console.error('error while sending import status update', e)
+    logger.error('error while sending import status update', e)
   }
 }
 
@@ -149,7 +149,7 @@ const getCachedFetchResult = async (url: string) => {
     throw new Error('fetch result is not valid')
   }
 
-  console.log('fetch result is cached', url)
+  logger.info('fetch result is cached', url)
 
   return fetchResult
 }
@@ -172,7 +172,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     state = data.state
 
   try {
-    console.log(`savePageJob: ${userId} ${url}`)
+    logger.info(`savePageJob: ${userId} ${url}`)
 
     // get the fetch result from cache
     const fetchedResult = await getCachedFetchResult(url)
@@ -218,7 +218,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     }
 
     if (!content) {
-      console.log('content is not fetched', url)
+      logger.info('content is not fetched', url)
       // set the state to failed if we don't have content
       content = 'Failed to fetch content'
       state = ArticleSavingRequestStatus.Failed
@@ -250,16 +250,16 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     isSaved = true
   } catch (e) {
     if (e instanceof Error) {
-      console.error('error while saving page', e.message)
+      logger.error('error while saving page: %s', e.message)
     } else {
-      console.error('error while saving page', 'unknown error')
+      logger.error('error while saving page: unknown error')
     }
 
     throw e
   } finally {
     const lastAttempt = attemptsMade === MAX_ATTEMPTS - 1
     if (lastAttempt) {
-      console.log('last attempt reached', data.url)
+      logger.info('last attempt reached %s', data.url)
     }
 
     if (taskId && (isSaved || lastAttempt)) {
