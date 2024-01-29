@@ -90,7 +90,7 @@ const uploadPdf = async (
     },
     userId
   )
-  if (!result.uploadSignedUrl) {
+  if (!result.uploadSignedUrl || !result.createdPageId) {
     throw new Error('error while getting upload id and signed url')
   }
 
@@ -102,7 +102,11 @@ const uploadPdf = async (
   if (!uploaded) {
     throw new Error('error while uploading pdf')
   }
-  return result.id
+
+  return {
+    uploadFileId: result.id,
+    itemId: result.createdPageId,
+  }
 }
 
 const sendImportStatusUpdate = async (
@@ -191,12 +195,12 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
-      const uploadFileId = await uploadPdf(url, userId, articleSavingRequestId)
+      const uploadResult = await uploadPdf(url, userId, articleSavingRequestId)
 
       const result = await saveFile(
         {
           url,
-          uploadFileId,
+          uploadFileId: uploadResult.uploadFileId,
           state: state ? (state as ArticleSavingRequestStatus) : undefined,
           labels,
           source,
@@ -204,7 +208,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
           subscription: rssFeedUrl,
           savedAt,
           publishedAt,
-          clientRequestId: articleSavingRequestId,
+          clientRequestId: uploadResult.itemId,
         },
         user
       )
