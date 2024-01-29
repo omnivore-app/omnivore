@@ -10,13 +10,13 @@ import { redisDataSource } from '../redis_data_source'
 import { userRepository } from '../repository/user'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
+import { uploadFile } from '../services/upload_file'
 import { logger } from '../utils/logger'
 
 const signToken = promisify(jwt.sign)
 
 const IMPORTER_METRICS_COLLECTOR_URL = env.queue.importerMetricsUrl
 const JWT_SECRET = env.server.jwtSecret
-const REST_BACKEND_ENDPOINT = `${env.server.internalApiUrl}/api`
 
 const MAX_ATTEMPTS = 2
 const REQUEST_TIMEOUT = 30000 // 30 seconds
@@ -82,86 +82,32 @@ const uploadToSignedUrl = async (
   }
 }
 
-const getUploadIdAndSignedUrl = async (
-  userId: string,
-  url: string,
-  articleSavingRequestId: string
-) => {
-  const auth = await signToken({ uid: userId }, JWT_SECRET)
-  const data = JSON.stringify({
-    query: `mutation UploadFileRequest($input: UploadFileRequestInput!) {
-      uploadFileRequest(input:$input) {
-        ... on UploadFileRequestError {
-          errorCodes
-        }
-        ... on UploadFileRequestSuccess {
-          id
-          uploadSignedUrl
-        }
-      }
-    }`,
-    variables: {
-      input: {
-        url: encodeURI(url),
-        contentType: 'application/pdf',
-        clientRequestId: articleSavingRequestId,
-      },
-    },
-  })
-
-  try {
-    const response = await axios.post<UploadFileResponse>(
-      `${REST_BACKEND_ENDPOINT}/graphql`,
-      data,
-      {
-        headers: {
-          Cookie: `auth=${auth as string};`,
-          'Content-Type': 'application/json',
-        },
-        timeout: REQUEST_TIMEOUT,
-      }
-    )
-
-    if (
-      response.data.data.uploadFileRequest.errorCodes &&
-      response.data.data.uploadFileRequest.errorCodes?.length > 0
-    ) {
-      console.error(
-        'Error while getting upload id and signed url',
-        response.data.data.uploadFileRequest.errorCodes[0]
-      )
-      return null
-    }
-
-    return response.data.data.uploadFileRequest
-  } catch (e) {
-    console.error('error getting upload id and signed url', e)
-    return null
-  }
-}
-
 const uploadPdf = async (
   url: string,
   userId: string,
   articleSavingRequestId: string
 ) => {
-  const uploadResult = await getUploadIdAndSignedUrl(
-    userId,
-    url,
-    articleSavingRequestId
+  const result = await uploadFile(
+    {
+      url,
+      contentType: 'application/pdf',
+      clientRequestId: articleSavingRequestId,
+    },
+    userId
   )
-  if (!uploadResult) {
+  if (!result.uploadSignedUrl) {
     throw new Error('error while getting upload id and signed url')
   }
+
   const uploaded = await uploadToSignedUrl(
-    uploadResult.uploadSignedUrl,
+    result.uploadSignedUrl,
     'application/pdf',
     url
   )
   if (!uploaded) {
     throw new Error('error while uploading pdf')
   }
-  return uploadResult.id
+  return result.id
 }
 
 const sendImportStatusUpdate = async (

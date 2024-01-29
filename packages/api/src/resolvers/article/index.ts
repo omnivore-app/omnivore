@@ -87,11 +87,13 @@ import {
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import {
   findUploadFileById,
+  itemTypeForContentType,
   setFileUploadComplete,
 } from '../../services/upload_file'
 import { traceAs } from '../../tracing'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
+import { authorized } from '../../utils/gql-utils'
 import {
   cleanUrl,
   errorHandler,
@@ -102,7 +104,6 @@ import {
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
-import { authorized } from '../../utils/gql-utils'
 import {
   contentConverter,
   getDistillerResult,
@@ -111,7 +112,6 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
-import { itemTypeForContentType } from '../upload_files'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
