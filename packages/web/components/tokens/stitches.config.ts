@@ -169,7 +169,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackground3: '#FFFFFF',
         thBackground4: '#EBEBEB',
         thBackground5: '#F5F5F5',
-        thBackgroundActive: '#F9F9F9',
+        thBackgroundActive: 'rgb(255, 234, 159)',
         thBackgroundContrast: '#FFFFFF',
         thLeftMenuBackground: '#FCFCFC',
         thLibraryBackground: '#F3F3F3',
