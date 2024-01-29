@@ -34,11 +34,9 @@ export class CustomTypeOrmLogger
   }
 
   logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
-    this.logger.info(
-      `query: ${query} -- PARAMETERS: ${super.stringifyParams(
-        parameters || []
-      )}`
-    )
+    this.logger.info(query, {
+      parameters,
+    })
   }
 
   log(
@@ -133,10 +131,8 @@ const truncateObjectDeep = (object: any, length: number): any => {
 
 class GcpLoggingTransport extends LoggingWinston {
   log(info: any, callback: (err: Error | null, apiResponse?: any) => void) {
-    const sizeInfo = jsonStringify(info).length
-    if (sizeInfo > MAX_LOG_SIZE) {
-      info = truncateObjectDeep(info, 500) as never // the max length for string values is 500
-    }
+    // reduce the size of the log entry by truncating any string values to 500 characters
+    info = truncateObjectDeep(info, 500) as never
     super.log(info, callback)
   }
 }
