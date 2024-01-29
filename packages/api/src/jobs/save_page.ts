@@ -250,7 +250,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     isSaved = true
   } catch (e) {
     if (e instanceof Error) {
-      logger.error('error while saving page: %s', e.message)
+      logger.error(`error while saving page: ${e.message}`)
     } else {
       logger.error('error while saving page: unknown error')
     }
@@ -259,7 +259,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
   } finally {
     const lastAttempt = attemptsMade === MAX_ATTEMPTS - 1
     if (lastAttempt) {
-      logger.info('last attempt reached %s', data.url)
+      logger.info(`last attempt reached ${data.url}`)
     }
 
     if (taskId && (isSaved || lastAttempt)) {
