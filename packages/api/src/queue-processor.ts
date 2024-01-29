@@ -14,6 +14,7 @@ import { savePageJob } from './jobs/save_page'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
+import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -122,6 +123,8 @@ const main = async () => {
         }
         case THUMBNAIL_JOB:
           return findThumbnail(job.data)
+        case TRIGGER_RULE_JOB_NAME:
+          return triggerRule(job.data)
       }
     },
     {

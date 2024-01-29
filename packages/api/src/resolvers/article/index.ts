@@ -92,6 +92,7 @@ import {
 import { traceAs } from '../../tracing'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
+import { authorized } from '../../utils/gql-utils'
 import {
   cleanUrl,
   errorHandler,
@@ -102,7 +103,6 @@ import {
   titleForFilePath,
   userDataToUser,
 } from '../../utils/helpers'
-import { authorized } from '../../utils/gql-utils'
 import {
   contentConverter,
   getDistillerResult,
@@ -908,7 +908,12 @@ export const setFavoriteArticleResolver = authorized<
 
     const labels = await findOrCreateLabels([label], uid)
     // adds Favorites label to item
-    await addLabelsToLibraryItem(labels, id, uid)
+    await addLabelsToLibraryItem(
+      labels.map((l) => l.id),
+      id,
+      uid,
+      'user'
+    )
 
     return {
       success: true,
