@@ -17,11 +17,7 @@ import {
   generateUploadSignedUrl,
 } from '../utils/uploads'
 import { validateUrl } from './create_page_save_request'
-import {
-  createLibraryItem,
-  findLibraryItemByUrl,
-  updateLibraryItem,
-} from './library_item'
+import { createLibraryItem } from './library_item'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
@@ -61,9 +57,6 @@ export const uploadFile = async (
   input: UploadFileRequestInput,
   uid: string
 ) => {
-  let uploadFileData: { id: string | null } = {
-    id: null,
-  }
   let title: string
   let fileName: string
   try {
@@ -97,7 +90,7 @@ export const uploadFile = async (
     }
   }
 
-  uploadFileData = await authTrx((t) =>
+  const uploadFileData = await authTrx((t) =>
     t.getRepository(UploadFile).save({
       url: input.url,
       user: { id: uid },
@@ -106,74 +99,53 @@ export const uploadFile = async (
       contentType: input.contentType,
     })
   )
+  const uploadFileId = uploadFileData.id
+  const uploadFilePathName = generateUploadFilePathName(uploadFileId, fileName)
+  const uploadSignedUrl = await generateUploadSignedUrl(
+    uploadFilePathName,
+    input.contentType
+  )
 
-  if (uploadFileData.id) {
-    const uploadFileId = uploadFileData.id
-    const uploadFilePathName = generateUploadFilePathName(
-      uploadFileId,
-      fileName
-    )
-    const uploadSignedUrl = await generateUploadSignedUrl(
-      uploadFilePathName,
-      input.contentType
-    )
-
-    // If this is a file URL, we swap in a special URL
-    const attachmentUrl = `https://omnivore.app/attachments/${uploadFilePathName}`
-    if (isFileUrl(input.url)) {
-      await authTrx(async (tx) => {
-        await tx.getRepository(UploadFile).update(uploadFileId, {
-          url: attachmentUrl,
-          status: UploadFileStatus.Initialized,
-        })
+  // If this is a file URL, we swap in a special URL
+  const attachmentUrl = `https://omnivore.app/attachments/${uploadFilePathName}`
+  if (isFileUrl(input.url)) {
+    await authTrx(async (tx) => {
+      await tx.getRepository(UploadFile).update(uploadFileId, {
+        url: attachmentUrl,
+        status: UploadFileStatus.Initialized,
       })
-    }
+    })
+  }
 
-    let createdItemId: string | undefined = undefined
-    if (input.createPageEntry) {
-      // If we have a file:// URL, don't try to match it
-      // and create a copy of the item, just create a
-      // new item.
-      const item = await findLibraryItemByUrl(input.url, uid)
-      if (item) {
-        await updateLibraryItem(
-          item.id,
-          {
-            state: LibraryItemState.Processing,
-          },
-          uid
-        )
-        createdItemId = item.id
-      } else {
-        const itemType = itemTypeForContentType(input.contentType)
-        const uploadFileId = uploadFileData.id
-        const item = await createLibraryItem(
-          {
-            id: input.clientRequestId || undefined,
-            originalUrl: isFileUrl(input.url) ? attachmentUrl : input.url,
-            user: { id: uid },
-            title,
-            readableContent: '',
-            itemType,
-            uploadFile: { id: uploadFileData.id },
-            slug: generateSlug(uploadFilePathName),
-            state: LibraryItemState.Processing,
-            contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
-          },
-          uid
-        )
-        createdItemId = item.id
-      }
-    }
-
+  const itemType = itemTypeForContentType(input.contentType)
+  if (input.createPageEntry) {
+    // If we have a file:// URL, don't try to match it
+    // and create a copy of the item, just create a
+    // new item.
+    const item = await createLibraryItem(
+      {
+        id: input.clientRequestId || undefined,
+        originalUrl: isFileUrl(input.url) ? attachmentUrl : input.url,
+        user: { id: uid },
+        title,
+        readableContent: '',
+        itemType,
+        uploadFile: { id: uploadFileData.id },
+        slug: generateSlug(uploadFilePathName),
+        state: LibraryItemState.Processing,
+        contentReader: contentReaderForLibraryItem(itemType, uploadFileId),
+      },
+      uid
+    )
     return {
-      id: uploadFileData.id,
+      id: uploadFileId,
       uploadSignedUrl,
-      createdPageId: createdItemId,
+      createdPageId: item.id,
     }
-  } else {
-    return {
-      errorCodes: [UploadFileRequestErrorCode.FailedCreate],
-    }
+  }
+
+  return {
+    id: uploadFileId,
+    uploadSignedUrl,
   }
 }

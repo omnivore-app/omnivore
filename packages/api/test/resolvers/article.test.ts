@@ -218,14 +218,18 @@ const savePageQuery = (
     `
 }
 
-const saveFileQuery = (url: string, uploadFileId: string) => {
+const saveFileQuery = (
+  clientRequestId: string,
+  url: string,
+  uploadFileId: string
+) => {
   return `
     mutation {
       saveFile (
         input: {
           url: "${url}",
           source: "test",
-          clientRequestId: "${generateFakeUuid()}",
+          clientRequestId: "${clientRequestId}",
           uploadFileId: "${uploadFileId}",
         }
       ) {
@@ -832,8 +836,23 @@ describe('Article API', () => {
     let query = ''
     let url = ''
     let uploadFileId = ''
+    let itemId = ''
 
-    before(() => {
+    before(async () => {
+      const item = await createLibraryItem(
+        {
+          user: { id: user.id },
+          originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
+          slug: 'test-with-omnivore',
+          readableContent: '<p>test</p>',
+          title: 'test title',
+          readingProgressBottomPercent: 100,
+          readingProgressTopPercent: 80,
+        },
+        user.id
+      )
+      itemId = item.id
+
       sinon.replace(
         uploads,
         'getStorageFileDetails',
@@ -842,7 +861,7 @@ describe('Article API', () => {
     })
 
     beforeEach(() => {
-      query = saveFileQuery(url, uploadFileId)
+      query = saveFileQuery(itemId, url, uploadFileId)
     })
 
     after(() => {

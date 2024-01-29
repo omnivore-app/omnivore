@@ -30,20 +30,18 @@ export const saveFile = async (
     }
   }
 
-  if (input.state || input.folder) {
-    await updateLibraryItem(
-      input.clientRequestId,
-      {
-        state: (input.state as unknown as LibraryItemState) || undefined,
-        folder: input.folder || undefined,
-        savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
-        publishedAt: input.publishedAt
-          ? new Date(input.publishedAt)
-          : undefined,
-      },
-      user.id
-    )
-  }
+  await updateLibraryItem(
+    input.clientRequestId,
+    {
+      state:
+        (input.state as unknown as LibraryItemState) ||
+        LibraryItemState.Succeeded,
+      folder: input.folder || undefined,
+      savedAt: input.savedAt ? new Date(input.savedAt) : undefined,
+      publishedAt: input.publishedAt ? new Date(input.publishedAt) : undefined,
+    },
+    user.id
+  )
 
   // add labels to item
   await createAndSaveLabelsInLibraryItem(

@@ -35,18 +35,6 @@ interface Data {
   taskId?: string
 }
 
-interface UploadFileResponse {
-  data: {
-    uploadFileRequest: {
-      id: string
-      uploadSignedUrl: string
-      uploadFileId: string
-      createdPageId: string
-      errorCodes?: string[]
-    }
-  }
-}
-
 interface FetchResult {
   finalUrl: string
   title?: string
@@ -63,6 +51,12 @@ const uploadToSignedUrl = async (
   contentType: string,
   contentObjUrl: string
 ) => {
+  logger.info('uploading to signed url', {
+    uploadSignedUrl,
+    contentType,
+    contentObjUrl,
+  })
+
   try {
     const stream = await axios.get(contentObjUrl, {
       responseType: 'stream',
@@ -92,6 +86,7 @@ const uploadPdf = async (
       url,
       contentType: 'application/pdf',
       clientRequestId: articleSavingRequestId,
+      createPageEntry: true,
     },
     userId
   )
@@ -116,6 +111,7 @@ const sendImportStatusUpdate = async (
   isImported?: boolean
 ) => {
   try {
+    logger.info('sending import status update')
     const auth = await signToken({ uid: userId }, JWT_SECRET)
 
     await axios.post(
