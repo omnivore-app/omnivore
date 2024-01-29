@@ -68,7 +68,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   // users is used when saving article for multiple users
   let users = body.users || []
   const userId = body.userId
-  const folder = body.folder
   // userId is used when saving article for a single user
   if (userId) {
     users = [
@@ -104,7 +103,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
     rssFeedUrl,
     savedAt,
     publishedAt,
-    folder,
     users,
   }
 

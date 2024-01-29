@@ -10,6 +10,7 @@ import {
   updateSubscriptions,
 } from '../../services/update_subscription'
 import createHttpTaskWithToken from '../../utils/createTask'
+import { logger } from '../../utils/logger'
 import { RSSRefreshContext } from './refreshAllFeeds'
 
 type FolderType = 'following' | 'inbox'
@@ -475,16 +476,24 @@ const processSubscription = async (
   // save each item in the feed
   for (const item of feed.items) {
     try {
+      const guid = item.guid || item.link
       // use published or updated if isoDate is not available for atom feeds
       const isoDate =
         item.isoDate || item.published || item.updated || item.created
-      console.log('Processing feed item', item.links, item.isoDate, feedUrl)
 
-      if (!item.links || item.links.length === 0) {
+      logger.info('Processing feed item', {
+        guid,
+        links: item.links,
+        isoDate,
+        feedUrl,
+      })
+
+      if (!item.links || item.links.length === 0 || !guid) {
         throw new Error('Invalid feed item')
       }
 
-      const link = getLink(item.links, feedUrl)
+      // fallback to guid if link is not available
+      const link = getLink(item.links, feedUrl) || guid
       if (!link) {
         throw new Error('Invalid feed item link')
       }
