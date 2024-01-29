@@ -97,7 +97,7 @@ const isFeedBlocked = async (feedUrl: string) => {
     // if the feed has failed to fetch more than certain times, block it
     const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
     if (result && parseInt(result) > maxFailures) {
-      logger.info('feed is blocked: %s', feedUrl)
+      logger.info(`feed is blocked: ${feedUrl}`)
       return true
     }
   } catch (error) {
@@ -256,7 +256,7 @@ const createTask = async (
 ) => {
   const isRecentlySaved = await isItemRecentlySaved(userId, item.link)
   if (isRecentlySaved) {
-    logger.info('Item recently saved %s', item.link)
+    logger.info(`Item recently saved ${item.link}`)
     return true
   }
 
@@ -454,11 +454,7 @@ const processSubscription = async (
   let lastValidItem: RssFeedItem | null = null
 
   if (fetchResult.checksum === lastFetchedChecksum) {
-    logger.info(
-      'feed has not been updated %s, %s',
-      feedUrl,
-      lastFetchedChecksum
-    )
+    logger.info('feed has not been updated', { feedUrl, lastFetchedChecksum })
     return
   }
   const updatedLastFetchedChecksum = fetchResult.checksum
@@ -468,12 +464,12 @@ const processSubscription = async (
     failedAt: Date | undefined
 
   const feedLastBuildDate = feed.lastBuildDate
-  logger.info('Feed last build date %s', feedLastBuildDate)
+  logger.info(`Feed last build date ${feedLastBuildDate || 'N/A'}`)
   if (
     feedLastBuildDate &&
     new Date(feedLastBuildDate) <= new Date(mostRecentItemDate)
   ) {
-    logger.info('Skipping old feed %s', feedLastBuildDate)
+    logger.info(`Skipping old feed ${feedLastBuildDate}`)
     return
   }
 
@@ -526,7 +522,7 @@ const processSubscription = async (
 
       // skip old items
       if (isOldItem(feedItem, mostRecentItemDate)) {
-        logger.info('Skipping old feed item %s', feedItem.link)
+        logger.info(`Skipping old feed item ${feedItem.link}`)
         continue
       }
 
@@ -624,31 +620,31 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
   try {
     const isBlocked = await isFeedBlocked(feedUrl)
     if (isBlocked) {
-      logger.info('feed is blocked: %s', feedUrl)
+      logger.info(`feed is blocked: ${feedUrl}`)
       throw new Error('feed is blocked')
     }
 
     const fetchResult = await fetchAndChecksum(feedUrl)
     if (!fetchResult) {
-      logger.error('Failed to fetch RSS feed %s', feedUrl)
+      logger.error(`Failed to fetch RSS feed ${feedUrl}`)
       await incrementFeedFailure(feedUrl)
       throw new Error('Failed to fetch RSS feed')
     }
 
     const feed = await parseFeed(feedUrl, fetchResult.content)
     if (!feed) {
-      logger.error('Failed to parse RSS feed %s', feedUrl)
+      logger.error(`Failed to parse RSS feed ${feedUrl}`)
       await incrementFeedFailure(feedUrl)
       throw new Error('Failed to parse RSS feed')
     }
 
     let allowFetchContent = true
     if (isContentFetchBlocked(feedUrl)) {
-      logger.info('fetching content blocked for feed: %s', feedUrl)
+      logger.info(`fetching content blocked for feed: ${feedUrl}`)
       allowFetchContent = false
     }
 
-    logger.info('Fetched feed %s at %s', feed.title, new Date())
+    logger.info('Fetched feed', { title: feed.title, at: new Date() })
 
     const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
     // process each subscription sequentially
