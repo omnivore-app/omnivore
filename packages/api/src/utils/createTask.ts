@@ -6,23 +6,25 @@ import { google } from '@google-cloud/tasks/build/protos/protos'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { DeepPartial } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 import { ImportItemState } from '../entity/integration'
 import { Recommendation } from '../entity/recommendation'
-import { DEFAULT_SUBSCRIPTION_FOLDER } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
+import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
+import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
+import { getBackendQueue } from '../queue-processor'
+import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
-import { generateVerificationToken, OmnivoreAuthorizationHeader } from './auth'
+import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
+import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-import { stringToHash } from './helpers'
-import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
-import { redisDataSource } from '../redis_data_source'
-import { v4 as uuid } from 'uuid'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -65,7 +67,7 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
-    console.error(
+    logger.error(
       'error: attempting to create a cloud task but not running in google cloud.'
     )
     return null
@@ -112,7 +114,7 @@ const createHttpTaskWithToken = async ({
   }
 
   try {
-    return client.createTask({ parent, task })
+    return await client.createTask({ parent, task })
   } catch (error) {
     logError(error)
     return null
@@ -170,7 +172,6 @@ export const createAppEngineTask = async ({
   }
 
   logger.info('Sending task:')
-  logger.info(task)
   // Send create task request.
   const request = { parent: parent, task: task }
   const [response] = await client.createTask(request)
@@ -578,59 +579,29 @@ export const enqueueExportToIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueThumbnailTask = async (
+export const enqueueThumbnailJob = async (
   userId: string,
-  slug: string
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
+  libraryItemId: string
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
   const payload = {
     userId,
-    slug,
+    libraryItemId,
   }
-
-  const headers = {
-    Cookie: `auth=${generateVerificationToken({ id: userId })}`,
-  }
-
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.thumbnailTaskHandlerUrl) {
-      // Calling the handler function directly.
-      setTimeout(() => {
-        axios
-          .post(env.queue.thumbnailTaskHandlerUrl, payload, {
-            headers,
-          })
-          .catch((error) => {
-            logError(error)
-          })
-      }, 0)
-    }
-    return ''
-  }
-
-  const createdTasks = await createHttpTaskWithToken({
-    payload,
-    taskHandlerUrl: env.queue.thumbnailTaskHandlerUrl,
-    requestHeaders: headers,
-    queue: 'omnivore-thumbnail-queue',
+  return queue.add(THUMBNAIL_JOB, payload, {
+    priority: 100,
+    attempts: 1,
   })
-
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
-    })
-    throw new CreateTaskError(`Unable to get the name of the task`)
-  }
-  return createdTasks[0].name
 }
 
 export interface RssSubscriptionGroup {
   url: string
   subscriptionIds: string[]
   userIds: string[]
-  fetchedDates: (Date | null)[]
+  mostRecentItemDates: (Date | null)[]
   scheduledDates: Date[]
   checksums: (string | null)[]
   fetchContents: boolean[]
@@ -648,7 +619,7 @@ export const enqueueRssFeedFetch = async (
     },
     subscriptionIds: subscriptionGroup.subscriptionIds,
     feedUrl: subscriptionGroup.url,
-    lastFetchedTimestamps: subscriptionGroup.fetchedDates.map(
+    mostRecentItemDates: subscriptionGroup.mostRecentItemDates.map(
       (timestamp) => timestamp?.getTime() || 0
     ), // unix timestamp in milliseconds
     lastFetchedChecksums: subscriptionGroup.checksums,
@@ -675,6 +646,18 @@ export const enqueueRssFeedFetch = async (
   } else {
     throw 'unable to queue rss-refresh-feed-job, redis is not configured'
   }
+}
+
+export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(TRIGGER_RULE_JOB_NAME, data, {
+    removeOnComplete: true,
+    removeOnFail: true,
+  })
 }
 
 export default createHttpTaskWithToken

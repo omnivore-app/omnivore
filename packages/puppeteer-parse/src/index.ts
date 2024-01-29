@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { preHandleContent, preParseContent } from '@omnivore/content-handler'
-import { Readability } from '@omnivore/readability'
+import { preHandleContent } from '@omnivore/content-handler'
 import axios from 'axios'
-import crypto from 'crypto'
-import createDOMPurify, { SanitizeElementHookEvent } from 'dompurify'
 // const { Storage } = require('@google-cloud/storage');
 import { parseHTML } from 'linkedom'
 import path from 'path'
@@ -13,7 +10,6 @@ import puppeteer from 'puppeteer-extra'
 import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import Url from 'url'
-import { encode } from 'urlsafe-base64'
 
 // Add stealth plugin to hide puppeteer usage
 puppeteer.use(StealthPlugin())
@@ -28,12 +24,12 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }))
 
 // const filePath = `${os.tmpdir()}/previewImage.png`
 
-const MOBILE_USER_AGENT =
-  'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+// const MOBILE_USER_AGENT =
+//   'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.62 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 const DESKTOP_USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
-const BOT_DESKTOP_USER_AGENT =
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
+// const BOT_DESKTOP_USER_AGENT =
+//   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_DESKTOP_USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_6_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4372.0 Safari/537.36'
 const NON_BOT_HOSTS = ['bloomberg.com', 'forbes.com']
@@ -156,8 +152,8 @@ export const fetchContent = async (
     page: Page | undefined,
     title: string | undefined,
     content: string | undefined,
-    contentType: string | undefined,
-    readabilityResult: Readability.ParseResult | null | undefined
+    contentType: string | undefined
+
   try {
     url = getUrl(url)
     if (!url) {
@@ -230,34 +226,26 @@ export const fetchContent = async (
       console.info('fallback to scrapingbee', url)
 
       const sbResult = await fetchContentWithScrapingBee(url)
-      content = sbResult.domContent
-      title = sbResult.title
-    } else {
-      throw e
+
+      return {
+        finalUrl: url,
+        title: sbResult.title,
+        content: sbResult.domContent,
+        contentType,
+      }
     }
+
+    throw e
   } finally {
     // close browser context if it was opened
     if (context) {
       await context.close()
     }
-    // save non pdf content
-    if (url && contentType !== 'application/pdf') {
-      // parse content if it is not empty
-      if (content) {
-        let document = parseHTML(content).document
-        // preParse content
-        const preParsedDom = await preParseContent(url, document)
-        if (preParsedDom) {
-          document = preParsedDom
-        }
-        readabilityResult = await getReadabilityResult(url, document)
-      }
-    }
 
     console.info(`content-fetch result`, logRecord)
   }
 
-  return { finalUrl: url, title, content, readabilityResult, contentType }
+  return { finalUrl: url, title, content, contentType }
 }
 
 function validateUrlString(url: string) {
@@ -741,99 +729,3 @@ async function retrieveHtml(page: Page, logRecord: Record<string, any>) {
 //   console.info(`preview-image`, logRecord);
 //   return res.redirect(`${process.env.PREVIEW_IMAGE_CDN_ORIGIN}/${destination}`);
 // }
-
-const DOM_PURIFY_CONFIG = {
-  ADD_TAGS: ['iframe'],
-  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
-  FORBID_ATTR: [
-    'data-ml-dynamic',
-    'data-ml-dynamic-type',
-    'data-orig-url',
-    'data-ml-id',
-    'data-ml',
-    'data-xid',
-    'data-feature',
-  ],
-}
-
-function domPurifySanitizeHook(node: Element, data: SanitizeElementHookEvent) {
-  if (data.tagName === 'iframe') {
-    const urlRegex = /^(https?:)?\/\/www\.youtube(-nocookie)?\.com\/embed\//i
-    const src = node.getAttribute('src') || ''
-    const dataSrc = node.getAttribute('data-src') || ''
-
-    if (src && urlRegex.test(src)) {
-      return
-    }
-
-    if (dataSrc && urlRegex.test(dataSrc)) {
-      node.setAttribute('src', dataSrc)
-      return
-    }
-
-    node.parentNode?.removeChild(node)
-  }
-}
-
-function getPurifiedContent(html: Document) {
-  const newWindow = parseHTML('')
-  const DOMPurify = createDOMPurify(newWindow)
-  DOMPurify.addHook('uponSanitizeElement', domPurifySanitizeHook)
-  const clean = DOMPurify.sanitize(html, DOM_PURIFY_CONFIG)
-  return parseHTML(clean).document
-}
-
-function signImageProxyUrl(url: string) {
-  return encode(
-    crypto
-      .createHmac('sha256', process.env.IMAGE_PROXY_SECRET || '')
-      .update(url)
-      .digest()
-  )
-}
-
-function createImageProxyUrl(url: string, width = 0, height = 0) {
-  if (!process.env.IMAGE_PROXY_URL || !process.env.IMAGE_PROXY_SECRET) {
-    return url
-  }
-
-  const urlWithOptions = `${url}#${width}x${height}`
-  const signature = signImageProxyUrl(urlWithOptions)
-
-  return `${process.env.IMAGE_PROXY_URL}/${width}x${height},s${signature}/${url}`
-}
-
-async function getReadabilityResult(url: string, document: Document) {
-  // First attempt to read the article as is.
-  // if that fails attempt to purify then read
-  const sources = [
-    () => {
-      return document
-    },
-    () => {
-      return getPurifiedContent(document)
-    },
-  ]
-
-  for (const source of sources) {
-    const document = source()
-    if (!document) {
-      continue
-    }
-
-    try {
-      const article = await new Readability(document, {
-        createImageProxyUrl,
-        url,
-      }).parse()
-
-      if (article) {
-        return article
-      }
-    } catch (error) {
-      console.log('parsing error for url', url, error)
-    }
-  }
-
-  return null
-}

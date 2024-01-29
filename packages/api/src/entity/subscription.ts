@@ -7,11 +7,21 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
-import { SubscriptionStatus, SubscriptionType } from '../generated/graphql'
 import { NewsletterEmail } from './newsletter_email'
 import { User } from './user'
 
 export const DEFAULT_SUBSCRIPTION_FOLDER = 'following'
+
+export enum SubscriptionStatus {
+  Active = 'ACTIVE',
+  Deleted = 'DELETED',
+  Unsubscribed = 'UNSUBSCRIBED',
+}
+
+export enum SubscriptionType {
+  Newsletter = 'NEWSLETTER',
+  Rss = 'RSS',
+}
 
 @Entity({ name: 'subscriptions' })
 export class Subscription {
@@ -59,7 +69,7 @@ export class Subscription {
   count!: number
 
   @Column('timestamp', { nullable: true })
-  lastFetchedAt?: Date | null
+  mostRecentItemDate?: Date | null
 
   @Column('text', { nullable: true })
   lastFetchedChecksum?: string | null
@@ -72,6 +82,12 @@ export class Subscription {
 
   @Column('timestamp', { nullable: true })
   scheduledAt?: Date | null
+
+  @Column('timestamp', { nullable: true })
+  refreshedAt?: Date | null
+
+  @Column('timestamp', { nullable: true })
+  failedAt?: Date | null
 
   @Column('boolean')
   isPrivate?: boolean | null

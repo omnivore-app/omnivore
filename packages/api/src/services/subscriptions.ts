@@ -103,7 +103,7 @@ export const saveSubscription = async ({
     unsubscribeHttpUrl,
     unsubscribeMailTo,
     icon,
-    lastFetchedAt: new Date(),
+    refreshedAt: new Date(),
   }
 
   const existingSubscription = await getSubscriptionByName(name, userId)
@@ -199,7 +199,7 @@ export const createSubscription = async (
     newsletterEmail,
     status,
     unsubscribeMailTo,
-    lastFetchedAt: new Date(),
+    refreshedAt: new Date(),
     type: subscriptionType,
     url,
   })

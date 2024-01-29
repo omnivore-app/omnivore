@@ -117,8 +117,6 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
       }
       const headers = parseHeaders(parsed.headers)
-      console.log('parsed: ', parsed)
-      console.log('headers: ', headers)
 
       // original sender email address
       const from = parsed['from']

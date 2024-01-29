@@ -1,9 +1,14 @@
 import Redis, { RedisOptions } from 'ioredis'
 import { env } from './env'
+import { logger } from './utils/logger'
 
+type RedisClientType = 'cache' | 'mq'
+type RedisDataSourceOption = {
+  url?: string
+  cert?: string
+}
 export type RedisDataSourceOptions = {
-  REDIS_URL?: string
-  REDIS_CERT?: string
+  [key in RedisClientType]: RedisDataSourceOption
 }
 
 export class RedisDataSource {
@@ -22,8 +27,9 @@ export class RedisDataSource {
   async initialize(): Promise<this> {
     if (this.isInitialized) throw 'Error already initialized'
 
-    this.redisClient = createIORedisClient('app', this.options)
-    this.workerRedisClient = createIORedisClient('worker', this.options)
+    this.redisClient = createIORedisClient('cache', this.options)
+    this.workerRedisClient =
+      createIORedisClient('mq', this.options) || this.redisClient // if mq is not defined, use cache
     this.isInitialized = true
 
     return Promise.resolve(this)
@@ -39,23 +45,27 @@ export class RedisDataSource {
       await this.workerRedisClient?.quit()
       await this.redisClient?.quit()
     } catch (err) {
-      console.error('error while shutting down redis', err)
+      logger.error('error while shutting down redis', err)
     }
   }
 }
 
 const createIORedisClient = (
-  name: string,
+  name: RedisClientType,
   options: RedisDataSourceOptions
 ): Redis | undefined => {
-  const redisURL = options.REDIS_URL
+  const option = options[name]
+  const redisURL = option.url
   if (!redisURL) {
-    throw 'Error: no redisURL supplied'
+    logger.info(`no redisURL supplied: ${name}`)
+    return undefined
   }
+
+  const redisCert = option.cert
   const tls =
-    redisURL.startsWith('rediss://') && options.REDIS_CERT
+    redisURL.startsWith('rediss://') && redisCert
       ? {
-          ca: options.REDIS_CERT,
+          ca: redisCert,
           rejectUnauthorized: false,
         }
       : undefined
@@ -92,7 +102,6 @@ const createIORedisClient = (
   return new Redis(redisURL, redisOptions)
 }
 
-export const redisDataSource = new RedisDataSource({
-  REDIS_URL: env.redis.url,
-  REDIS_CERT: env.redis.cert,
-})
+export const redisDataSource = new RedisDataSource(
+  env.redis as RedisDataSourceOptions
+)

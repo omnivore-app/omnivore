@@ -1,7 +1,9 @@
 import { PubSub } from '@google-cloud/pubsub'
 import express from 'express'
+import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
+import { enqueueTriggerRuleJob } from './utils/createTask'
 import { deepDelete } from './utils/helpers'
 import { buildLogger } from './utils/logger'
 
@@ -41,11 +43,21 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    entityCreated: <T>(
+    entityCreated: async <T>(
       type: EntityType,
       data: T,
       userId: string
     ): Promise<void> => {
+      // queue trigger rule job
+      if (type === EntityType.PAGE) {
+        const libraryItemId = (data as T & { id: string }).id
+        await enqueueTriggerRuleJob({
+          userId,
+          ruleEventType: RuleEventType.PageCreated,
+          libraryItemId,
+        })
+      }
+
       const cleanData = deepDelete(
         data as T & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]
@@ -56,11 +68,21 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
       )
     },
-    entityUpdated: <T>(
+    entityUpdated: async <T>(
       type: EntityType,
       data: T,
       userId: string
     ): Promise<void> => {
+      // queue trigger rule job
+      if (type === EntityType.PAGE) {
+        const libraryItemId = (data as T & { id: string }).id
+        await enqueueTriggerRuleJob({
+          userId,
+          ruleEventType: RuleEventType.PageUpdated,
+          libraryItemId,
+        })
+      }
+
       const cleanData = deepDelete(
         data as T & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]

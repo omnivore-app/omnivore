@@ -477,6 +477,10 @@ export const functionResolvers = {
         DEFAULT_SUBSCRIPTION_FOLDER
       )
     },
+    // for campability with old clients
+    lastFetchedAt(subscription: Subscription) {
+      return subscription.refreshedAt
+    },
   },
   NewsletterEmail: {
     subscriptionCount(newsletterEmail: NewsletterEmail) {

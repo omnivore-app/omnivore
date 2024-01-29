@@ -13,12 +13,11 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { authTrx } from '../repository'
-import { enqueueThumbnailTask } from '../utils/createTask'
+import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
   stringToHash,
-  TWEET_URL_REGEX,
   validatedDate,
   wordsCount,
 } from '../utils/helpers'
@@ -32,7 +31,7 @@ import { createLibraryItem, updateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
-  TWEET_URL_REGEX,
+  /twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/,
   /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)(\S+)?$/,
 ]
 const ALREADY_PARSED_SOURCES = [
@@ -58,7 +57,9 @@ const createSlug = (url: string, title?: string | null | undefined) => {
 const shouldParseInBackend = (input: SavePageInput): boolean => {
   return (
     ALREADY_PARSED_SOURCES.indexOf(input.source) === -1 &&
-    FORCE_PUPPETEER_URLS.some((regex) => regex.test(input.url))
+    FORCE_PUPPETEER_URLS.some((regex) => {
+      return regex.test(input.url)
+    })
   )
 }
 
@@ -66,17 +67,13 @@ export const savePage = async (
   input: SavePageInput,
   user: User
 ): Promise<SaveResult> => {
-  const parseResult = await parsePreparedContent(
-    input.url,
-    {
-      document: input.originalContent,
-      pageInfo: {
-        title: input.title,
-        canonicalUrl: input.url,
-      },
+  const parseResult = await parsePreparedContent(input.url, {
+    document: input.originalContent,
+    pageInfo: {
+      title: input.title,
+      canonicalUrl: input.url,
     },
-    input.parseResult
-  )
+  })
   const [newSlug, croppedPathname] = createSlug(input.url, input.title)
   let slug = newSlug
   let clientRequestId = input.clientRequestId
@@ -114,6 +111,7 @@ export const savePage = async (
       })
     } catch (e) {
       return {
+        __typename: 'SaveError',
         errorCodes: [SaveErrorCode.Unknown],
         message: 'Failed to create page save request',
       }
@@ -171,10 +169,10 @@ export const savePage = async (
   if (!isImported && !parseResult.parsedContent?.previewImage) {
     try {
       // create a task to update thumbnail and pre-cache all images
-      const taskId = await enqueueThumbnailTask(user.id, slug)
-      logger.info('Created thumbnail task', { taskId })
+      const job = await enqueueThumbnailJob(user.id, clientRequestId)
+      logger.info('Created thumbnail job', { job })
     } catch (e) {
-      logger.error('Failed to create thumbnail task', e)
+      logger.error('Failed to enqueue thumbnail job', e)
     }
   }
 
@@ -185,11 +183,14 @@ export const savePage = async (
       libraryItem: { id: clientRequestId },
     }
 
-    if (!(await createHighlight(highlight, clientRequestId, user.id))) {
-      return {
-        errorCodes: [SaveErrorCode.EmbeddedHighlightFailed],
-        message: 'Failed to save highlight',
-      }
+    try {
+      await createHighlight(highlight, clientRequestId, user.id)
+    } catch (error) {
+      logger.error('Failed to create highlight', {
+        highlight,
+        clientRequestId,
+        userId: user.id,
+      })
     }
   }
 
@@ -239,7 +240,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
-  console.log('save_page: state', { url, state, itemId })
+  logger.info('save_page: state', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,

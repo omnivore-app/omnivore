@@ -50,12 +50,11 @@ interface FetchResult {
   title?: string
   content?: string
   contentType?: string
-  readabilityResult?: unknown
 }
 
 export const cacheFetchResult = async (fetchResult: FetchResult) => {
-  // cache the fetch result for 4 hours
-  const ttl = 4 * 60 * 60
+  // cache the fetch result for 24 hours
+  const ttl = 24 * 60 * 60
   const key = `fetch-result:${fetchResult.finalUrl}`
   const value = JSON.stringify(fetchResult)
   return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
@@ -69,7 +68,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   // users is used when saving article for multiple users
   let users = body.users || []
   const userId = body.userId
-  const folder = body.folder
   // userId is used when saving article for a single user
   if (userId) {
     users = [
@@ -105,7 +103,6 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
     rssFeedUrl,
     savedAt,
     publishedAt,
-    folder,
     users,
   }
 

@@ -206,7 +206,7 @@ Readability.prototype = {
     unlikelyCandidates: /\bad\b|ai2html|banner|breadcrumbs|breadcrumb|combx|comment|community|cover-wrap|disqus|extra|footer|gdpr|header|legends|menu|related|remark|replies|rss|shoutbox|sidebar|skyscraper|social|sponsor|supplemental|ad-break|agegate|pagination|pager(?!ow)|popup|yom-remote|copyright|keywords|outline|infinite-list|beta|recirculation|site-index|hide-for-print|post-end-share-cta|post-end-cta-full|post-footer|post-head|post-tag|li-date|main-navigation|programtic-ads|outstream_article|hfeed|comment-holder|back-to-top|show-up-next|onward-journey|topic-tracker|list-nav|block-ad-entity|adSpecs|gift-article-button|modal-title|in-story-masthead|share-tools|standard-dock|expanded-dock|margins-h|subscribe-dialog|icon|bumped|dvz-social-media-buttons|post-toc|mobile-menu|mobile-navbar|tl_article_header|mvp(-post)*-(add-story|soc(-mob)*-wrap)|w-condition-invisible|rich-text-block main w-richtext|rich-text-block_ataglance at-a-glance test w-richtext|PostsPage-commentsSection|hide-text/i,
     // okMaybeItsACandidate: /and|article(?!-breadcrumb)|body|column|content|main|shadow|post-header/i,
     get okMaybeItsACandidate() {
-      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection`, 'i')
+      return new RegExp(`and|(?<!${this.articleNegativeLookAheadCandidates.source})article(?!-(${this.articleNegativeLookBehindCandidates.source}))|body|column|content|^(?!main-navigation|main-header)main|shadow|post-header|hfeed site|blog-posts hfeed|container-banners|menu-opacity|header-with-anchor-widget|commentOnSelection|highlight--with-header`, 'i')
     },
 
     positive: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|tweet(-\w+)?|instagram|image|container-banners|player|commentOnSelection/i,
@@ -261,7 +261,7 @@ Readability.prototype = {
     "SUP", "TEXTAREA", "TIME", "VAR", "WBR"
   ],
 
-  // These are the classes that readability sets itself.
+  // These are the classes that we want to keep.
   CLASSES_TO_PRESERVE: [
     "page", "twitter-tweet", "tweet-placeholder", "instagram-placeholder", "morning-brew-markets", "prism-code"
   ],
@@ -3036,16 +3036,16 @@ Readability.prototype = {
 
       // detect language from the html content
       const languages = (await cld.detect(content, { isHTML: true })).languages;
-      console.log('Detected languages: ', languages);
+      this.log('Detected languages: ', languages);
       if (languages.length > 0) {
         code = languages[0].code;
       }
 
-      console.log('Getting language name from code: ', code);
+      this.log('Getting language name from code: ', code);
       let lang = new Intl.DisplayNames(['en'], {type: 'language'});
       return lang.of(code);
     } catch (error) {
-      console.error('Failed to get language', error);
+      this.log('Failed to get language', error);
       return 'English';
     }
   },
@@ -3135,6 +3135,7 @@ Readability.prototype = {
       previewImage: metadata.previewImage,
       publishedDate,
       language,
+      documentElement: articleContent,
     };
   }
 };

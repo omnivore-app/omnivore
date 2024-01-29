@@ -5,7 +5,6 @@ import { Label } from '../entity/label'
 import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
-import { libraryItemRepository } from '../repository/library_item'
 
 type AddLabelsToLibraryItemEvent = {
   pageId: string
@@ -124,43 +123,28 @@ export const saveLabelsInLibraryItem = async (
 }
 
 export const addLabelsToLibraryItem = async (
-  labels: Label[],
+  labelIds: string[],
   libraryItemId: string,
   userId: string,
-  source: LabelSource = 'user',
-  pubsub = createPubSubClient()
+  source: LabelSource = 'user'
 ) => {
   await authTrx(
     async (tx) => {
-      const libraryItem = await tx
-        .withRepository(libraryItemRepository)
-        .findOneByOrFail({ id: libraryItemId, user: { id: userId } })
-
-      if (libraryItem.labels) {
-        labels.push(...libraryItem.labels)
-      }
-
-      // save new labels
-      await tx.getRepository(EntityLabel).save(
-        labels.map((l) => ({
-          labelId: l.id,
-          libraryItemId,
-          source,
-        }))
+      await tx.query(
+        `INSERT INTO omnivore.entity_labels (label_id, library_item_id, source)
+          SELECT id, $1, $2 FROM omnivore.labels
+          WHERE id = ANY($3)
+          AND NOT EXISTS (
+            SELECT 1 FROM omnivore.entity_labels
+            WHERE label_id = labels.id
+            AND library_item_id = $1
+          )`,
+        [libraryItemId, source, labelIds]
       )
     },
     undefined,
     userId
   )
-
-  if (source === 'user') {
-    // create pubsub event
-    await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
-      EntityType.LABEL,
-      { pageId: libraryItemId, labels, source },
-      userId
-    )
-  }
 }
 
 export const saveLabelsInHighlight = async (

@@ -545,6 +545,9 @@ const schema = gql`
     state: ArticleSavingRequestStatus
     labels: [CreateLabelInput!]
     folder: String
+    savedAt: Date
+    publishedAt: Date
+    subscription: String
   }
 
   input ParseResult {
@@ -1686,6 +1689,9 @@ const schema = gql`
     autoAddToLibrary: Boolean
     fetchContent: Boolean!
     folder: String!
+    mostRecentItemDate: Date
+    refreshedAt: Date
+    failedAt: Date
   }
 
   enum SubscriptionStatus {
@@ -2597,7 +2603,6 @@ const schema = gql`
     id: ID!
     name: String
     description: String
-    lastFetchedAt: Date
     lastFetchedChecksum: String
     status: SubscriptionStatus
     scheduledAt: Date
@@ -2605,6 +2610,9 @@ const schema = gql`
     autoAddToLibrary: Boolean
     fetchContent: Boolean
     folder: String
+    refreshedAt: Date
+    mostRecentItemDate: Date
+    failedAt: Date
   }
 
   union UpdateSubscriptionResult =

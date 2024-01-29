@@ -159,7 +159,7 @@ const main = async (): Promise<void> => {
   await appDataSource.initialize()
 
   // redis is optional for the API server
-  if (env.redis.url) {
+  if (env.redis.cache.url) {
     await redisDataSource.initialize()
   }
 

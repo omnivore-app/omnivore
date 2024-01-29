@@ -23,7 +23,7 @@ const getCleanupMessage = (msgStr: string): CleanupMessage => {
       return obj
     }
   } catch (err) {
-    console.log('error deserializing event: ', { msgStr, err })
+    logger.error('error deserializing event: ', { msgStr, err })
   }
 
   return {

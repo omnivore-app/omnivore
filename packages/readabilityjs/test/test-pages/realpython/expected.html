@@ -1,0 +1,1568 @@
+<DIV class="page" id="readability-page-1">
+    <div>
+        <figure>
+            <img alt="Python 3.10: Cool New Features for You to Try" width="1920" height="1080" src="https://files.realpython.com/media/Python-3.10-Cool-New-Features-for-You-to-Try_Watermarked.e2782d8a16dc.jpg" srcset="/cdn-cgi/image/width=480,format=auto/https://files.realpython.com/media/Python-3.10-Cool-New-Features-for-You-to-Try_Watermarked.e2782d8a16dc.jpg 480w, /cdn-cgi/image/width=640,format=auto/https://files.realpython.com/media/Python-3.10-Cool-New-Features-for-You-to-Try_Watermarked.e2782d8a16dc.jpg 640w, /cdn-cgi/image/width=960,format=auto/https://files.realpython.com/media/Python-3.10-Cool-New-Features-for-You-to-Try_Watermarked.e2782d8a16dc.jpg 960w, /cdn-cgi/image/width=1920,format=auto/https://files.realpython.com/media/Python-3.10-Cool-New-Features-for-You-to-Try_Watermarked.e2782d8a16dc.jpg 1920w" sizes="(min-width: 1200px) 690px, (min-width: 780px) calc(-5vw + 669px), (min-width: 580px) 510px, calc(100vw - 30px)" fetchpriority="high">
+        </figure>
+        <div>
+            <p>
+                <span> Watch Now</span> This tutorial has a related video course created by the Real Python team. Watch it together with the written tutorial to deepen your understanding: <a href="http://fakehost/courses/cool-new-features-python-310/"><strong>Cool New Features in Python 3.10</strong></a>
+            </p>
+            <p>
+                <a href="https://www.python.org/downloads/release/python-3100/">Python 3.10 is out!</a> Volunteers have been working on the new version since May 2020 to bring you a better, faster, and more secure Python. As of <a href="https://www.python.org/dev/peps/pep-0619/">October 4, 2021</a>, the first official version is available.
+            </p>
+            <p> Each new version of Python brings a host of changes. You can read about all of them in the <a href="https://docs.python.org/3.10/whatsnew/3.10.html">documentation</a>. Here, you’ll get to learn about the coolest new features. </p>
+            <p>
+                <strong>In this tutorial, you’ll learn about:</strong>
+            </p>
+            <ul>
+                <li>Debugging with more helpful and precise <strong>error messages</strong>
+                </li>
+                <li>Using <strong>structural pattern matching</strong> to work with data structures </li>
+                <li>Adding more readable and more specific <strong>type hints</strong>
+                </li>
+                <li>Checking the <strong>length of sequences</strong> when using <code>zip()</code>
+                </li>
+                <li>Calculating <strong>multivariable statistics</strong>
+                </li>
+            </ul>
+            <p> To try out the new features yourself, you need to run Python 3.10. You can get it from the <a href="https://www.python.org/downloads/">Python homepage</a>. Alternatively, you can <a href="https://realpython.com/python-versions-docker/">use Docker</a> with the <a href="https://hub.docker.com/_/python/">latest Python image</a>. </p>
+            <section>
+                <h2 id="better-error-messages"> Better Error Messages<a href="#better-error-messages" title="Permanent link"></a>
+                </h2>
+                <p> Python is often lauded for being a user-friendly programming language. While this is true, there are certain parts of Python that could be friendlier. Python 3.10 comes with a host of more precise and constructive error messages. In this section, you’ll see some of the newest improvements. The full list is available in the <a href="https://docs.python.org/3.10/whatsnew/3.10.html#better-error-messages">documentation</a>. </p>
+                <p> Think back to writing your first <a href="https://www.scriptol.com/programming/hello-world.php">Hello World</a> program in Python: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span># hello.py</span>
+
+<span>print</span><span>(</span><span>"Hello, World!)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Maybe you created a file, added the famous call to <code>print()</code>, and saved it as <code>hello.py</code>. You then ran the program, eager to call yourself a proper Pythonista. However, something went wrong: </p>
+                <div data-is-repl="true" data-syntax-language="console" aria-label="Code block">
+                    <div>
+                        <pre><code><span>$ </span>python<span> </span>hello.py
+<span>  File "/home/rp/hello.py", line 3</span>
+<span>    print("Hello, World!)</span>
+<span>                        ^</span>
+<span>SyntaxError: EOL while scanning string literal</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> There was a <code>SyntaxError</code> in the code. <code>EOL</code>, what does that even mean? You went back to your code, and after a bit of staring and searching, you realized that there was a missing quotation mark at the end of your string. </p>
+                <p> One of the more impactful improvements in Python 3.10 is better and more precise error messages for many common issues. If you run your buggy Hello World in Python 3.10, you’ll get a bit more help than in earlier versions of Python: </p>
+                <div data-is-repl="true" data-syntax-language="console" aria-label="Code block">
+                    <div>
+                        <pre><code><span>$ </span>python<span> </span>hello.py
+<span>  File "/home/rp/hello.py", line 3</span>
+<span>    print("Hello, World!)</span>
+<span>          ^</span>
+<span>SyntaxError: unterminated string literal (detected at line 3)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The error message is still a bit technical, but gone is the mysterious <code>EOL</code>. Instead, the message tells you that you need to terminate your string! There are similar improvements to many different error messages, as you’ll see below. </p>
+                <p> A <a href="https://realpython.com/invalid-syntax-python/"><code>SyntaxError</code></a> is an error raised when your code is parsed, before it even starts to execute. Syntax errors can be tricky to debug because the interpreter provides imprecise or sometimes even misleading error messages. The following code is missing a curly brace to terminate the dictionary: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span> 1</span><span># unterminated_dict.py</span>
+<span> 2</span>
+<span> 3</span><span>months</span> <span>=</span> <span>{</span>
+<span> 4</span>    <span>10</span><span>:</span> <span>"October"</span><span>,</span>
+<span> 5</span>    <span>11</span><span>:</span> <span>"November"</span><span>,</span>
+<span> 6</span>    <span>12</span><span>:</span> <span>"December"</span>
+<span> 7</span>
+<span> 8</span><span>print</span><span>(</span><span>f</span><span>"</span><span>{</span><span>months</span><span>[</span><span>10</span><span>]</span><span>}</span><span> is the tenth month"</span><span>)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The missing closing curly brace that should have been on line 7 is an error. If you run this code with Python 3.9 or earlier, you’ll see the following error message: </p>
+                <div data-syntax-language="pytb" aria-label="Code block">
+                    <div>
+                        <pre><code>  File <span>"/home/rp/unterminated_dict.py"</span>, line <span>8</span>
+<span>    </span><span>print</span><span>(</span><span>f</span><span>"</span><span>{</span><span>months</span><span>[</span><span>10</span><span>]</span><span>}</span><span> is the tenth month"</span><span>)</span>
+<span>    </span><span>^</span>
+<span>SyntaxError</span>: <span>invalid syntax</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The error message highlights line 8, but there are no syntactical problems in line 8! If you’ve experienced your share of syntax errors in Python, you might already know that the trick is to look at the lines <em>before</em> the one Python complains about. In this case, you’re looking for the missing closing brace on line 7. </p>
+                <p> In Python 3.10, the same code shows a much more helpful and precise error message: </p>
+                <div data-syntax-language="pytb" aria-label="Code block">
+                    <div>
+                        <pre><code>  File <span>"/home/rp/unterminated_dict.py"</span>, line <span>3</span>
+<span>    </span><span>months</span> <span>=</span> <span>{</span>
+<span>             </span><span>^</span>
+<span>SyntaxError</span>: <span>'{' was never closed</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> This points you straight to the offending dictionary and allows you to fix the issue in no time. </p>
+                <p> There are a few other ways to mess up dictionary syntax. A typical one is forgetting a comma after one of the items: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span> 1</span><span># missing_comma.py</span>
+<span> 2</span>
+<span> 3</span><span>months</span> <span>=</span> <span>{</span>
+<span><span> 4</span>    <span>10</span><span>:</span> <span>"October"</span>
+</span><span> 5</span>    <span>11</span><span>:</span> <span>"November"</span><span>,</span>
+<span> 6</span>    <span>12</span><span>:</span> <span>"December"</span><span>,</span>
+<span> 7</span><span>}</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> In this code, a comma is missing at the end of line 4. Python 3.10 gives you a clear suggestion on how to fix your code: </p>
+                <div data-syntax-language="pytb" aria-label="Code block">
+                    <div>
+                        <pre><code>  File <span>"/home/real_python/missing_comma.py"</span>, line <span>4</span>
+<span>    </span><span>10</span><span>:</span> <span>"October"</span>
+<span>        </span><span>^^^^^^^^^</span>
+<span>SyntaxError</span>: <span>invalid syntax. Perhaps you forgot a comma?</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> You can add the missing comma and have your code back up and running in no time. </p>
+                <p> Another common mistake is using the <a href="https://realpython.com/python-assignment-operator/">assignment operator</a> (<code>=</code>) instead of the equality comparison operator (<code>==</code>) when you’re comparing values. Previously, this would just cause another <code>invalid syntax</code> message. In the newest version of Python, you get some more advice: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>if</span> <span>month</span> <span>=</span> <span>"October"</span><span>:</span>
+  File <span>"&lt;stdin&gt;"</span>, line <span>1</span>
+<span>    </span><span>if</span> <span>month</span> <span>=</span> <span>"October"</span><span>:</span>
+<span>       </span><span>^^^^^^^^^^^^^^^^^</span>
+<span>SyntaxError</span>: <span>invalid syntax. Maybe you meant '==' or ':=' instead of '='?</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The parser suggests that you maybe meant to use a <a href="https://realpython.com/python-operators-expressions/#comparison-operators">comparison operator</a> or an <a href="https://realpython.com/python-walrus-operator/">assignment expression operator</a> instead. </p>
+                <p> Take note of another nifty improvement in Python 3.10 error messages. The last two examples show how carets (<code>^^^</code>) highlight the whole offending expression. Previously, a single caret symbol (<code>^</code>) indicated just an approximate location. </p>
+                <p> The final error message improvement that you’ll play with for now is that attribute and name errors can now offer suggestions if you misspell an attribute or a name: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>math</span>
+<span>&gt;&gt;&gt; </span><span>math</span><span>.</span><span>py</span>
+<span><span>AttributeError: module 'math' has no attribute 'py'. Did you mean: 'pi'?</span>
+</span>
+<span>&gt;&gt;&gt; </span><span>pint</span>
+<span><span>NameError: name 'pint' is not defined. Did you mean: 'print'?</span>
+</span>
+<span>&gt;&gt;&gt; </span><span>release</span> <span>=</span> <span>"3.10"</span>
+<span>&gt;&gt;&gt; </span><span>relaese</span>
+<span><span>NameError: name 'relaese' is not defined. Did you mean: 'release'?</span>
+</span></code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Note that the suggestions work for both built-in names and names that you define yourself, although they may <a href="https://docs.python.org/3.10/whatsnew/3.10.html#attributeerrors">not be available</a> in all environments. If you like these kinds of suggestions, check out <a href="https://github.com/SylvainDe/DidYouMean-Python">BetterErrorMessages</a>, which offers similar suggestions in even more contexts. </p>
+                <p> The improvements you’ve seen in this section are just some of the <a href="https://docs.python.org/3.10/whatsnew/3.10.html#better-error-messages">many error messages</a> that have gotten a face-lift. The new Python will be even more user-friendly than before, and hopefully, the new error messages will save you both time and frustration going forward. </p>
+            </section>
+            <section>
+                <h2 id="structural-pattern-matching"> Structural Pattern Matching<a href="#structural-pattern-matching" title="Permanent link"></a>
+                </h2>
+                <p> The biggest new feature in Python 3.10, probably both in terms of <a href="https://lwn.net/Articles/845480/">controversy</a> and <a href="https://en.wikipedia.org/wiki/Pattern_matching">potential impact</a>, is <strong>structural pattern matching</strong>. Its introduction has sometimes been referred to as <code>switch ... case</code> coming to Python, but you’ll see that structural pattern matching is much more powerful than that. </p>
+                <p> You’ll see three different examples that together highlight why this feature is called structural pattern matching and show you how you can use this new feature: </p>
+                <ol>
+                    <li>Detecting and deconstructing different <strong>structures</strong> in your data </li>
+                    <li>Using different kinds of <strong>patterns</strong>
+                    </li>
+                    <li>
+                        <strong>Matching</strong> literal patterns
+                    </li>
+                </ol>
+                <p> Structural pattern matching is a comprehensive addition to the Python language. To give you a taste of how you can take advantage of it in your own projects, the next three subsections will dive into some of the details. You’ll also see some links that can help you explore in even more depth if you want. </p>
+                <section>
+                    <h3 id="deconstructing-data-structures"> Deconstructing Data Structures<a href="#deconstructing-data-structures" title="Permanent link"></a>
+                    </h3>
+                    <p> At its core, structural pattern matching is about defining patterns to which your data structures can be matched. In this section, you’ll study a practical example where you’ll work with data that are structured differently, even though the meaning is the same. You’ll define several patterns, and depending on which pattern matches your data, you’ll process your data appropriately. </p>
+                    <p> This section will be a bit light on explanations of the possible patterns. Instead, it will try to give you an impression of the possibilities. The next section will step back and explain the patterns in more detail. </p>
+                    <p> Time to match your first pattern! The following example uses a <code>match ... case</code> block to find the first name of a user by extracting it from a <code>user</code> data structure: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>user</span> <span>=</span> <span>{</span>
+<span>... </span>    <span>"name"</span><span>:</span> <span>{</span><span>"first"</span><span>:</span> <span>"Pablo"</span><span>,</span> <span>"last"</span><span>:</span> <span>"Galindo Salgado"</span><span>},</span>
+<span>... </span>    <span>"title"</span><span>:</span> <span>"Python 3.10 release manager"</span><span>,</span>
+<span>... </span><span>}</span>
+
+<span><span>&gt;&gt;&gt; </span><span>match</span> <span>user</span><span>:</span>
+</span><span><span>... </span>    <span>case</span> <span>{</span><span>"name"</span><span>:</span> <span>{</span><span>"first"</span><span>:</span> <span>first_name</span><span>}}:</span>
+</span><span>... </span>        <span>pass</span>
+<span>...</span>
+
+<span>&gt;&gt;&gt; </span><span>first_name</span>
+<span>'Pablo'</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> You can see structural pattern matching at work in the highlighted lines. <code>user</code> is a small dictionary with user information. The <code>case</code> line specifies a pattern that <code>user</code> is matched against. In this case, you’re looking for a dictionary with a <code>"name"</code> key whose value is a new dictionary. This nested dictionary has a key called <code>"first"</code>. The corresponding value is bound to the variable <code>first_name</code>. </p>
+                    <p> For a practical example, say that you’re processing user data where the underlying data model changes over time. Therefore, you need to be able to process different versions of the same data. </p>
+                    <p> In the next example, you’ll use data from <a href="https://randomuser.me/">randomuser.me</a>. This is a great API for generating random user data that you can use during testing and development. The API is also an example of an API that has changed over time. You can still access the <a href="https://randomuser.me/documentation#previous">old versions</a> of the API. </p>
+                    <p> You may expand the collapsed section below to see how you can use <a href="https://realpython.com/python-requests/"><code>requests</code></a> to obtain different versions of the user data using the API: </p>
+                    <div id="collapse_cardbb4757" data-parent="#collapse_cardbb4757">
+                        <p> You can get a random user from the API using <code>requests</code> as follows: </p>
+                        <div data-syntax-language="python" aria-label="Code block">
+                            <div>
+                                <pre><code><span># random_user.py</span>
+
+<span>import</span> <span>requests</span>
+
+<span>def</span> <span>get_user</span><span>(</span><span>version</span><span>=</span><span>"1.3"</span><span>):</span>
+<span>    </span><span>"""Get random users"""</span>
+    <span>url</span> <span>=</span> <span>f</span><span>"https://randomuser.me/api/</span><span>{</span><span>version</span><span>}</span><span>/?results=1"</span>
+    <span>response</span> <span>=</span> <span>requests</span><span>.</span><span>get</span><span>(</span><span>url</span><span>)</span>
+    <span>if</span> <span>response</span><span>:</span>
+        <span>return</span> <span>response</span><span>.</span><span>json</span><span>()[</span><span>"results"</span><span>][</span><span>0</span><span>]</span>
+</code></pre>
+                            </div><template>
+                                <span>Copied!</span>
+                            </template>
+                        </div>
+                        <p>
+                            <code>get_user()</code> gets one random user in <a href="https://realpython.com/python-json/">JSON</a> format. Note the <code>version</code> parameter. The structure of the returned data has changed quite a bit between earlier versions like <code>"1.1"</code> and the current version <code>"1.3"</code>, but in each case, the actual user data are contained in a list inside the <code>"results"</code> array. The function returns the first—and only—user in this list.
+                        </p>
+                        <p> At the time of writing, the latest version of the API is 1.3 and the data has the following structure: </p>
+                        <div data-syntax-language="json" aria-label="Code block">
+                            <div>
+                                <pre><code><span>{</span>
+<span>    </span><span>"gender"</span><span>:</span><span> </span><span>"female"</span><span>,</span>
+<span>    </span><span>"name"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"title"</span><span>:</span><span> </span><span>"Miss"</span><span>,</span>
+<span>        </span><span>"first"</span><span>:</span><span> </span><span>"Ilona"</span><span>,</span>
+<span>        </span><span>"last"</span><span>:</span><span> </span><span>"Jokela"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"location"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"street"</span><span>:</span><span> </span><span>{</span>
+<span>            </span><span>"number"</span><span>:</span><span> </span><span>4473</span><span>,</span>
+<span>            </span><span>"name"</span><span>:</span><span> </span><span>"Mannerheimintie"</span>
+<span>        </span><span>},</span>
+<span>        </span><span>"city"</span><span>:</span><span> </span><span>"Harjavalta"</span><span>,</span>
+<span>        </span><span>"state"</span><span>:</span><span> </span><span>"Ostrobothnia"</span><span>,</span>
+<span>        </span><span>"country"</span><span>:</span><span> </span><span>"Finland"</span><span>,</span>
+<span>        </span><span>"postcode"</span><span>:</span><span> </span><span>44879</span><span>,</span>
+<span>        </span><span>"coordinates"</span><span>:</span><span> </span><span>{</span>
+<span>            </span><span>"latitude"</span><span>:</span><span> </span><span>"-6.0321"</span><span>,</span>
+<span>            </span><span>"longitude"</span><span>:</span><span> </span><span>"123.2213"</span>
+<span>        </span><span>},</span>
+<span>        </span><span>"timezone"</span><span>:</span><span> </span><span>{</span>
+<span>            </span><span>"offset"</span><span>:</span><span> </span><span>"+5:30"</span><span>,</span>
+<span>            </span><span>"description"</span><span>:</span><span> </span><span>"Bombay, Calcutta, Madras, New Delhi"</span>
+<span>        </span><span>}</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"email"</span><span>:</span><span> </span><span>"ilona.jokela@example.com"</span><span>,</span>
+<span>    </span><span>"login"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"uuid"</span><span>:</span><span> </span><span>"632b7617-6312-4edf-9c24-d6334a6af52d"</span><span>,</span>
+<span>        </span><span>"username"</span><span>:</span><span> </span><span>"brownsnake482"</span><span>,</span>
+<span>        </span><span>"password"</span><span>:</span><span> </span><span>"biatch"</span><span>,</span>
+<span>        </span><span>"salt"</span><span>:</span><span> </span><span>"ofk518ZW"</span><span>,</span>
+<span>        </span><span>"md5"</span><span>:</span><span> </span><span>"6d589615ca44f6e583c85d45bf431c54"</span><span>,</span>
+<span>        </span><span>"sha1"</span><span>:</span><span> </span><span>"cd87c931d579bdff77af96c09e0eea82d1edfc19"</span><span>,</span>
+<span>        </span><span>"sha256"</span><span>:</span><span> </span><span>"6038ede83d4ce74116faa67fb3b1b2e6f6898e5749b57b5a0312bd46a539214a"</span>
+<span>    </span><span>},</span>
+<span><span>    </span><span>"dob"</span><span>:</span><span> </span><span>{</span>
+</span><span><span>        </span><span>"age"</span><span>:</span><span> </span><span>64</span>
+</span><span><span>    </span><span>},</span>
+</span><span>    </span><span>"registered"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"date"</span><span>:</span><span> </span><span>,</span>
+<span>        </span><span>"age"</span><span>:</span><span> </span><span>15</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"phone"</span><span>:</span><span> </span><span>"07-369-318"</span><span>,</span>
+<span>    </span><span>"cell"</span><span>:</span><span> </span><span>"048-284-01-59"</span><span>,</span>
+<span>    </span><span>"id"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"name"</span><span>:</span><span> </span><span>"HETU"</span><span>,</span>
+<span>        </span><span>"value"</span><span>:</span><span> </span><span>"NaNNA204undefined"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"picture"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"large"</span><span>:</span><span> </span><span>"https://randomuser.me/api/portraits/women/28.jpg"</span><span>,</span>
+<span>        </span><span>"medium"</span><span>:</span><span> </span><span>"https://randomuser.me/api/portraits/med/women/28.jpg"</span><span>,</span>
+<span>        </span><span>"thumbnail"</span><span>:</span><span> </span><span>"https://randomuser.me/api/portraits/thumb/women/28.jpg"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"nat"</span><span>:</span><span> </span><span>"FI"</span>
+<span>}</span>
+</code></pre>
+                            </div><template>
+                                <span>Copied!</span>
+                            </template>
+                        </div>
+                        <p> One of the members that changed between different versions is <code>"dob"</code>, the date of birth. Note that in version 1.3, this is a JSON object with two members, <code>"date"</code> and <code>"age"</code>. </p>
+                        <p> Compare the result above with a version 1.1 random user: </p>
+                        <div data-syntax-language="json" aria-label="Code block">
+                            <div>
+                                <pre><code><span>{</span>
+<span>    </span><span>"gender"</span><span>:</span><span> </span><span>"female"</span><span>,</span>
+<span>    </span><span>"name"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"title"</span><span>:</span><span> </span><span>"miss"</span><span>,</span>
+<span>        </span><span>"first"</span><span>:</span><span> </span><span>"ilona"</span><span>,</span>
+<span>        </span><span>"last"</span><span>:</span><span> </span><span>"jokela"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"location"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"street"</span><span>:</span><span> </span><span>"7336 myllypuronkatu"</span><span>,</span>
+<span>        </span><span>"city"</span><span>:</span><span> </span><span>"kurikka"</span><span>,</span>
+<span>        </span><span>"state"</span><span>:</span><span> </span><span>"central ostrobothnia"</span><span>,</span>
+<span>        </span><span>"postcode"</span><span>:</span><span> </span><span>53740</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"email"</span><span>:</span><span> </span><span>"ilona.jokela@example.com"</span><span>,</span>
+<span>    </span><span>"login"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"username"</span><span>:</span><span> </span><span>"blackelephant837"</span><span>,</span>
+<span>        </span><span>"password"</span><span>:</span><span> </span><span>"sand"</span><span>,</span>
+<span>        </span><span>"salt"</span><span>:</span><span> </span><span>"yofk518Z"</span><span>,</span>
+<span>        </span><span>"md5"</span><span>:</span><span> </span><span>"b26367ea967600d679ee3e0b9bda012f"</span><span>,</span>
+<span>        </span><span>"sha1"</span><span>:</span><span> </span><span>"87d2910595acba5b8e8aa8b00a841bab08580e2f"</span><span>,</span>
+<span>        </span><span>"sha256"</span><span>:</span><span> </span><span>"73bd0d205d0dc83ae184ae222ff2e9de5ea4039119a962c4f97fabd5bbfa7aca"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"registered"</span><span>:</span><span> </span><span>,</span>
+<span>    </span><span>"phone"</span><span>:</span><span> </span><span>"04-636-931"</span><span>,</span>
+<span>    </span><span>"cell"</span><span>:</span><span> </span><span>"048-828-40-15"</span><span>,</span>
+<span>    </span><span>"id"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"name"</span><span>:</span><span> </span><span>"HETU"</span><span>,</span>
+<span>        </span><span>"value"</span><span>:</span><span> </span><span>"366-9204"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"picture"</span><span>:</span><span> </span><span>{</span>
+<span>        </span><span>"large"</span><span>:</span><span> </span><span>"https://randomuser.me/api/portraits/women/24.jpg"</span><span>,</span>
+<span>        </span><span>"medium"</span><span>:</span><span> </span><span>"https://randomuser.me/api/portraits/med/women/24.jpg"</span><span>,</span>
+<span>        </span><span>"thumbnail"</span><span>:</span><span> </span><span>"https://randomuser.me/api/portraits/thumb/women/24.jpg"</span>
+<span>    </span><span>},</span>
+<span>    </span><span>"nat"</span><span>:</span><span> </span><span>"FI"</span>
+<span>}</span>
+</code></pre>
+                            </div><template>
+                                <span>Copied!</span>
+                            </template>
+                        </div>
+                        <p> Observe that in this older format, the value of the <code>"dob"</code> member is a plain string. </p>
+                    </div>
+                    <p> In this example, you’ll work with the information about the date of birth (<code>dob</code>) for each user. The structure of these data has changed between different versions of the Random User API: </p>
+                    <div data-syntax-language="json" aria-label="Code block">
+                        <div>
+                            <pre><code><span>#</span><span> </span><span>Versio</span><span>n</span><span> </span><span>1.1</span>
+<span>"dob"</span><span>:</span><span> </span>
+
+<span>#</span><span> </span><span>Versio</span><span>n</span><span> </span><span>1.3</span>
+<span>"dob"</span><span>:</span><span> </span><span>{</span><span>"date"</span><span>:</span><span> </span><span>,</span><span> </span><span>"age"</span><span>:</span><span> </span><span>64</span><span>}</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Note that in version 1.1, the date of birth is represented as a simple string, while in version 1.3, it’s a JSON object with two members: <code>"date"</code> and <code>"age"</code>. Say that you want to find the age of a user. Depending on the structure of your data, you’d either need to calculate the age based on the date of birth or look up the age if it’s already available. </p>
+                    <p> Traditionally, you would detect the structure of the data with an <code>if</code> test, maybe based on the type of the <code>"dob"</code> field. You can approach this differently in Python 3.10. Now, you can use structural pattern matching instead: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span> 1</span><span># random_user.py (continued)</span>
+<span> 2</span>
+<span> 3</span><span>from</span> <span>datetime</span> <span>import</span> <span>datetime</span>
+<span> 4</span>
+<span> 5</span><span>def</span> <span>get_age</span><span>(</span><span>user</span><span>):</span>
+<span> 6</span><span>    </span><span>"""Get the age of a user"""</span>
+<span><span> 7</span>    <span>match</span> <span>user</span><span>:</span>
+</span><span><span> 8</span>        <span>case</span> <span>{</span><span>"dob"</span><span>:</span> <span>{</span><span>"age"</span><span>:</span> <span>int</span><span>(</span><span>age</span><span>)}}:</span>
+</span><span> 9</span>            <span>return</span> <span>age</span>
+<span><span>10</span>        <span>case</span> <span>{</span><span>"dob"</span><span>:</span> <span>dob</span><span>}:</span>
+</span><span>11</span>            <span>now</span> <span>=</span> <span>datetime</span><span>.</span><span>now</span><span>()</span>
+<span>12</span>            <span>dob_date</span> <span>=</span> <span>datetime</span><span>.</span><span>strptime</span><span>(</span><span>dob</span><span>,</span> <span>"%Y-%m-</span><span>%d</span><span> %H:%M:%S"</span><span>)</span>
+<span>13</span>            <span>return</span> <span>now</span><span>.</span><span>year</span> <span>-</span> <span>dob_date</span><span>.</span><span>year</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The <code>match ... case</code> construct is new in Python 3.10 and is how you perform structural pattern matching. You start with a <code>match</code> statement that specifies what you want to match. In this example, that’s the <code>user</code> data structure. </p>
+                    <p> One or several <code>case</code> statements follow <code>match</code>. Each <code>case</code> describes one pattern, and the indented block beneath it says what should happen if there’s a match. In this example: </p>
+                    <ul>
+                        <li>
+                            <p>
+                                <strong>Line 8</strong> matches a dictionary with a <code>"dob"</code> key whose value is another dictionary with an integer (<code>int</code>) item named <code>"age"</code>. The name <code>age</code> captures its value.
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                <strong>Line 10</strong> matches any dictionary with a <code>"dob"</code> key. The name <code>dob</code> captures its value.
+                            </p>
+                        </li>
+                    </ul>
+                    <p> One important feature of pattern matching is that at most one pattern will be matched. Since the pattern on line 10 matches any dictionary with <code>"dob"</code>, it’s important that the more specific pattern on line 8 comes first. </p>
+                    <p> Before looking closer at the details of the patterns and how they work, try calling <code>get_age()</code> with different data structures to see the result: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>random_user</span>
+
+<span>&gt;&gt;&gt; </span><span>users11</span> <span>=</span> <span>random_user</span><span>.</span><span>get_user</span><span>(</span><span>version</span><span>=</span><span>"1.1"</span><span>)</span>
+<span>&gt;&gt;&gt; </span><span>random_user</span><span>.</span><span>get_age</span><span>(</span><span>users11</span><span>)</span>
+<span>55</span>
+
+<span>&gt;&gt;&gt; </span><span>users13</span> <span>=</span> <span>random_user</span><span>.</span><span>get_user</span><span>(</span><span>version</span><span>=</span><span>"1.3"</span><span>)</span>
+<span>&gt;&gt;&gt; </span><span>random_user</span><span>.</span><span>get_age</span><span>(</span><span>users13</span><span>)</span>
+<span>64</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Your code can calculate the age correctly for both versions of the user data, which have different dates of birth. </p>
+                    <p> Look closer at those patterns. The first pattern, <code>{"dob": {"age": int(age)}}</code>, matches version 1.3 of the user data: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>{</span>
+    <span>...</span>
+    <span>"dob"</span><span>:</span> <span>{</span><span>"date"</span><span>:</span> <span>,</span> <span>"age"</span><span>:</span> <span>64</span><span>},</span>
+    <span>...</span>
+<span>}</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The first pattern is a nested pattern. The outer curly braces say that a dictionary with the key <code>"dob"</code> is required. The corresponding value should be a dictionary. This nested dictionary must match the subpattern <code>{"age": int(age)}</code>. In other words, it needs to have an <code>"age"</code> key with an integer value. That value is bound to the name <code>age</code>. </p>
+                    <p> The second pattern, <code>{"dob": dob}</code>, matches the older version 1.1 of the user data: </p>
+                    <p> This second pattern is a simpler pattern than the first one. Again, the curly braces indicate that it will match a dictionary. However, any dictionary with a <code>"dob"</code> key is matched because there are no other restrictions specified. The value of that key is bound to the name <code>dob</code>. </p>
+                    <p> The main takeaway is that you can describe the structure of your data using mostly familiar notation. One striking change, though, is that you can use names like <code>dob</code> and <code>age</code>, which aren’t yet defined. Instead, values from your data are <strong>bound</strong> to these names when a pattern matches. </p>
+                    <p> You’ve explored some of the power of structural pattern matching in this example. In the next section, you’ll dive a bit more into the details. </p>
+                </section>
+                <section>
+                    <h3 id="using-different-kinds-of-patterns"> Using Different Kinds of Patterns<a href="#using-different-kinds-of-patterns" title="Permanent link"></a>
+                    </h3>
+                    <p> You’ve seen an example of how you can use patterns to effectively unravel complicated data structures. Now, you’ll take a step back and look at the building blocks that make up this new feature. Many things come together to make it work. In fact, there are three <a href="https://www.python.org/dev/peps/pep-0001/#what-is-a-pep">Python Enhancement Proposals</a> (PEPs) that describe structural pattern matching: </p>
+                    <ol>
+                        <li>
+                            <strong>PEP 634:</strong> <a href="https://www.python.org/dev/peps/pep-0634/">Specification</a>
+                        </li>
+                        <li>
+                            <strong>PEP 635:</strong> <a href="https://www.python.org/dev/peps/pep-0635/">Motivation and Rationale</a>
+                        </li>
+                        <li>
+                            <strong>PEP 636:</strong> <a href="https://www.python.org/dev/peps/pep-0636/">Tutorial</a>
+                        </li>
+                    </ol>
+                    <p> These documents give you a lot of background and detail if you’re interested in a deeper dive than what follows. </p>
+                    <p> Patterns are at the center of structural pattern matching. In this section, you’ll learn about some of the different kinds of patterns that exist: </p>
+                    <ul>
+                        <li>
+                            <strong>Mapping patterns</strong> match mapping structures like dictionaries.
+                        </li>
+                        <li>
+                            <strong>Sequence patterns</strong> match sequence structures like tuples and lists.
+                        </li>
+                        <li>
+                            <strong>Capture patterns</strong> bind values to names.
+                        </li>
+                        <li>
+                            <strong>AS patterns</strong> bind the value of subpatterns to names.
+                        </li>
+                        <li>
+                            <strong>OR patterns</strong> match one of several different subpatterns.
+                        </li>
+                        <li>
+                            <strong>Wildcard patterns</strong> match anything.
+                        </li>
+                        <li>
+                            <strong>Class patterns</strong> match class structures.
+                        </li>
+                        <li>
+                            <strong>Value patterns</strong> match values stored in attributes.
+                        </li>
+                        <li>
+                            <strong>Literal patterns</strong> match literal values.
+                        </li>
+                    </ul>
+                    <p> You already used several of them in the example in the previous section. In particular, you used <strong>mapping patterns</strong> to unravel data stored in dictionaries. In this section, you’ll learn more about how some of these work. All the details are available in the PEPs mentioned above. </p>
+                    <p> A <strong>capture pattern</strong> is used to capture a match to a pattern and bind it to a name. Consider the following <a href="https://realpython.com/python-recursion/">recursive</a> function that sums a list of numbers: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span> 1</span><span>def</span> <span>sum_list</span><span>(</span><span>numbers</span><span>):</span>
+<span> 2</span>    <span>match</span> <span>numbers</span><span>:</span>
+<span> 3</span>        <span>case</span> <span>[]:</span>
+<span> 4</span>            <span>return</span> <span>0</span>
+<span><span> 5</span>        <span>case</span> <span>[</span><span>first</span><span>,</span> <span>*</span><span>rest</span><span>]:</span>
+</span><span> 6</span>            <span>return</span> <span>first</span> <span>+</span> <span>sum_list</span><span>(</span><span>rest</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The first <code>case</code> on line 3 matches the empty list and returns <code>0</code> as its sum. The second <code>case</code> on line 5 uses a <strong>sequence pattern</strong> with two capture patterns to match lists with one or more elements. The first element in the list is captured and bound to the name <code>first</code>. The second capture pattern, <code>*rest</code>, uses <a href="https://realpython.com/python-kwargs-and-args/#unpacking-with-the-asterisk-operators">unpacking syntax</a> to match any number of elements. <code>rest</code> will bind to a list containing all elements of <code>numbers</code> except the first one. </p>
+                    <p>
+                        <code>sum_list()</code> calculates the sum of a list of numbers by recursively adding the first number in the list and the sum of the rest of the numbers. You can use it as follows:
+                    </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>sum_list</span><span>([</span><span>4</span><span>,</span> <span>5</span><span>,</span> <span>9</span><span>,</span> <span>4</span><span>])</span>
+<span>22</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The sum of 4 + 5 + 9 + 4 is correctly calculated to be 22. As an exercise for yourself, you can try to trace the recursive calls to <code>sum_list()</code> to make sure you understand how the code sums the whole list. </p>
+                    <p>
+                        <code>sum_list()</code> handles summing up a list of numbers. Observe what happens if you try to sum anything that isn’t a list:
+                    </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>print</span><span>(</span><span>sum_list</span><span>(</span><span>"4594"</span><span>))</span>
+<span>None</span>
+
+<span>&gt;&gt;&gt; </span><span>print</span><span>(</span><span>sum_list</span><span>(</span><span>4594</span><span>))</span>
+<span>None</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Passing a string or a number to <code>sum_list()</code> returns <code>None</code>. This occurs because none of the patterns match, and the execution continues after the <code>match</code> block. That happens to be the end of the function, so <code>sum_list()</code> implicitly <a href="https://realpython.com/python-return-statement/#implicit-return-statements">returns <code>None</code></a>. </p>
+                    <p> Often, though, you want to be alerted about failed matches. You can add a catchall pattern as the final case that handles this by raising an error, for example. You can use the underscore (<code>_</code>) as a <strong>wildcard pattern</strong> that matches anything without binding it to a name. You can add some error handling to <code>sum_list()</code> as follows: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>def</span> <span>sum_list</span><span>(</span><span>numbers</span><span>):</span>
+    <span>match</span> <span>numbers</span><span>:</span>
+        <span>case</span> <span>[]:</span>
+            <span>return</span> <span>0</span>
+        <span>case</span> <span>[</span><span>first</span><span>,</span> <span>*</span><span>rest</span><span>]:</span>
+            <span>return</span> <span>first</span> <span>+</span> <span>sum_list</span><span>(</span><span>rest</span><span>)</span>
+<span>        <span>case</span><span> </span><span>_</span><span>:</span>
+</span>            <span>wrong_type</span> <span>=</span> <span>numbers</span><span>.</span><span>__class__</span><span>.</span><span>__name__</span>
+            <span>raise</span> <span>ValueError</span><span>(</span><span>f</span><span>"Can only sum lists, not </span><span>{</span><span>wrong_type</span><span>!r}</span><span>"</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The final <code>case</code> will match anything that doesn’t match the first two patterns. This will raise a descriptive error, for instance, if you try to calculate <code>sum_list(4594)</code>. This is useful when you need to alert your users that some input was not matched as expected. </p>
+                    <p> Your patterns are still not foolproof, though. Consider what happens if you try to sum a list of strings: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>sum_list</span><span>([</span><span>"45"</span><span>,</span> <span>"94"</span><span>])</span>
+<span>TypeError: can only concatenate str (not "int") to str</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The base case returns <code>0</code>, so therefore the summing only works for types that you can add with numbers. Python doesn’t know how to add numbers and text strings together. You can restrict your pattern to only match integers using a <strong>class pattern</strong>: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>def</span> <span>sum_list</span><span>(</span><span>numbers</span><span>):</span>
+    <span>match</span> <span>numbers</span><span>:</span>
+        <span>case</span> <span>[]:</span>
+            <span>return</span> <span>0</span>
+<span>        <span>case</span> <span>[</span><span>int</span><span>(</span><span>first</span><span>),</span> <span>*</span><span>rest</span><span>]:</span>
+</span>            <span>return</span> <span>first</span> <span>+</span> <span>sum_list</span><span>(</span><span>rest</span><span>)</span>
+        <span>case</span><span> </span><span>_</span><span>:</span>
+            <span>raise</span> <span>ValueError</span><span>(</span><span>f</span><span>"Can only sum lists of numbers"</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Adding <code>int()</code> around <code>first</code> makes sure that the pattern only matches if the value is an integer. This might be too restrictive, though. Your function should be able to sum both <a href="https://realpython.com/python-numbers/#integers">integers</a> and <a href="https://realpython.com/python-numbers/#floating-point-numbers">floating-point numbers</a>, so how can you allow this in your pattern? </p>
+                    <p> To check whether at least one out of several subpatterns match, you can use an <strong>OR pattern</strong>. OR patterns consist of two or more subpatterns, and the pattern matches if at least one of the subpatterns does. You can use this to match when the first element is either of type <code>int</code> or type <code>float</code>: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>def</span> <span>sum_list</span><span>(</span><span>numbers</span><span>):</span>
+    <span>match</span> <span>numbers</span><span>:</span>
+        <span>case</span> <span>[]:</span>
+            <span>return</span> <span>0</span>
+<span>        <span>case</span> <span>[</span><span>int</span><span>(</span><span>first</span><span>)</span> <span>|</span> <span>float</span><span>(</span><span>first</span><span>),</span> <span>*</span><span>rest</span><span>]:</span>
+</span>            <span>return</span> <span>first</span> <span>+</span> <span>sum_list</span><span>(</span><span>rest</span><span>)</span>
+        <span>case</span><span> </span><span>_</span><span>:</span>
+            <span>raise</span> <span>ValueError</span><span>(</span><span>f</span><span>"Can only sum lists of numbers"</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> You use the pipe symbol (<code>|</code>) to separate the subpatterns in an OR pattern. Your function now allows summing a list of floating-point numbers: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>sum_list</span><span>([</span><span>45.94</span><span>,</span> <span>46.17</span><span>,</span> <span>46.72</span><span>])</span>
+<span>138.82999999999998</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> There’s a lot of power and flexibility within structural pattern matching, even more than what you’ve seen so far. Some things that aren’t covered in this overview are: </p>
+                    <ul>
+                        <li>Using <a href="https://www.python.org/dev/peps/pep-0635/#guards">guards</a> to restrict patterns </li>
+                        <li>Using <a href="https://www.python.org/dev/peps/pep-0635/#as-patterns">AS patterns</a> to capture the value of subpatterns </li>
+                        <li>Using <a href="https://www.python.org/dev/peps/pep-0636/#matching-positional-attributes">class patterns</a> to match custom <a href="https://docs.python.org/3/library/enum.html">enums</a> and <a href="https://realpython.com/python-data-classes/">data classes</a>
+                        </li>
+                    </ul>
+                    <p> If you’re interested, have a look in the documentation to learn more about these features as well. In the next section, you’ll learn about literal patterns and value patterns. </p>
+                </section>
+                <section>
+                    <h3 id="matching-literal-patterns"> Matching Literal Patterns<a href="#matching-literal-patterns" title="Permanent link"></a>
+                    </h3>
+                    <p> A <strong>literal pattern</strong> is a pattern that matches a literal object like an explicit string or number. In a sense, this is the most basic kind of pattern and allows you to emulate <code>switch ... case</code> statements seen in other languages. The following example matches a specific name: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>def</span> <span>greet</span><span>(</span><span>name</span><span>):</span>
+    <span>match</span> <span>name</span><span>:</span>
+<span>        <span>case</span> <span>"Guido"</span><span>:</span>
+</span>            <span>print</span><span>(</span><span>"Hi, Guido!"</span><span>)</span>
+        <span>case</span><span> </span><span>_</span><span>:</span>
+            <span>print</span><span>(</span><span>"Howdy, stranger!"</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The first <code>case</code> matches the literal string <code>"Guido"</code>. In this case, you use <code>_</code> as a wildcard to print a generic greeting whenever <code>name</code> is not <code>"Guido"</code>. Such literal patterns can sometimes take the place of <code>if ... elif ... else</code> constructs and can play the same role that <code>switch ... case</code> does in some other languages. </p>
+                    <p> One limitation with structural pattern matching is that you can’t directly match values stored in variables. Say that you’ve defined <code>bdfl = "Guido"</code>. A pattern like <code>case bdfl:</code> will not match <code>"Guido"</code>. Instead, this will be interpreted as a capture pattern that matches anything and binds that value to <code>bdfl</code>, effectively overwriting the old value. </p>
+                    <p> You can, however, use a <strong>value pattern</strong> to match stored values. A value pattern looks a bit like a capture pattern but uses a previously defined dotted name that holds the value that will be matched against. </p>
+                    <p> You can, for example, use an <a href="https://docs.python.org/3/library/enum.html">enumeration</a> to create such dotted names: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>import</span> <span>enum</span>
+
+<span>class</span> <span>Pythonista</span><span>(</span><span>str</span><span>,</span> <span>enum</span><span>.</span><span>Enum</span><span>):</span>
+    <span>BDFL</span> <span>=</span> <span>"Guido"</span>
+    <span>FLUFL</span> <span>=</span> <span>"Barry"</span>
+
+<span>def</span> <span>greet</span><span>(</span><span>name</span><span>):</span>
+    <span>match</span> <span>name</span><span>:</span>
+<span>        <span>case</span> <span>Pythonista</span><span>.</span><span>BDFL</span><span>:</span>
+</span>            <span>print</span><span>(</span><span>"Hi, Guido!"</span><span>)</span>
+        <span>case</span><span> </span><span>_</span><span>:</span>
+            <span>print</span><span>(</span><span>"Howdy, stranger!"</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The first case now uses a value pattern to match <code>Pythonista.BDFL</code>, which is <code>"Guido"</code>. Note that you can use any dotted name in a value pattern. You could, for example, have used a regular class or a module instead of the enumeration. </p>
+                    <p> To see a bigger example of how to use literal patterns, consider the game of <a href="https://en.wikipedia.org/wiki/Fizz_buzz">FizzBuzz</a>. This is a counting game where you should replace some numbers with words according to the following rules: </p>
+                    <ul>
+                        <li>You replace numbers divisible by <strong>3</strong> with <strong>fizz</strong>. </li>
+                        <li>You replace numbers divisible by <strong>5</strong> with <strong>buzz</strong>. </li>
+                        <li>You replace numbers divisible by both <strong>3</strong> and <strong>5</strong> with <strong>fizzbuzz</strong>. </li>
+                    </ul>
+                    <p> FizzBuzz is sometimes used to introduce conditionals in programming education and as a screening problem in interviews. Even though a solution is quite straightforward, <a href="https://twitter.com/joelgrus">Joel Grus</a> has written a full <a href="https://fizzbuzzbook.com/">book</a> about different ways to program the game. </p>
+                    <p> A typical solution in Python will use <code>if ... elif ... else</code> as follows: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>def</span> <span>fizzbuzz</span><span>(</span><span>number</span><span>):</span>
+    <span>mod_3</span> <span>=</span> <span>number</span> <span>%</span> <span>3</span>
+    <span>mod_5</span> <span>=</span> <span>number</span> <span>%</span> <span>5</span>
+
+    <span>if</span> <span>mod_3</span> <span>==</span> <span>0</span> <span>and</span> <span>mod_5</span> <span>==</span> <span>0</span><span>:</span>
+        <span>return</span> <span>"fizzbuzz"</span>
+    <span>elif</span> <span>mod_3</span> <span>==</span> <span>0</span><span>:</span>
+        <span>return</span> <span>"fizz"</span>
+    <span>elif</span> <span>mod_5</span> <span>==</span> <span>0</span><span>:</span>
+        <span>return</span> <span>"buzz"</span>
+    <span>else</span><span>:</span>
+        <span>return</span> <span>str</span><span>(</span><span>number</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The <a href="https://realpython.com/python-modulo-operator/"><code>%</code> operator</a> calculates the modulus, which you can use to <a href="https://realpython.com/python-modulo-operator/#python-modulo-operator-in-practice">test divisibility</a>. Namely, if <em>a</em> modulus <em>b</em> is 0 for two numbers <em>a</em> and <em>b</em>, then <em>a</em> is divisible by <em>b</em>. </p>
+                    <p> In <code>fizzbuzz()</code>, you calculate <code>number % 3</code> and <code>number % 5</code>, which you then use to test for divisibility with 3 and 5. Note that you must do the test for divisibility with both 3 and 5 first. If not, numbers that are divisible by both 3 and 5 will be covered by either the <code>"fizz"</code> or the <code>"buzz"</code> cases instead. </p>
+                    <p> You can check that your implementation gives the expected result: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>fizzbuzz</span><span>(</span><span>3</span><span>)</span>
+<span>fizz</span>
+
+<span>&gt;&gt;&gt; </span><span>fizzbuzz</span><span>(</span><span>14</span><span>)</span>
+<span>14</span>
+
+<span>&gt;&gt;&gt; </span><span>fizzbuzz</span><span>(</span><span>15</span><span>)</span>
+<span>fizzbuzz</span>
+
+<span>&gt;&gt;&gt; </span><span>fizzbuzz</span><span>(</span><span>92</span><span>)</span>
+<span>92</span>
+
+<span>&gt;&gt;&gt; </span><span>fizzbuzz</span><span>(</span><span>65</span><span>)</span>
+<span>buzz</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> You can confirm for yourself that 3 is divisible by 3, 65 is divisible by 5, and 15 is divisible by both 3 and 5, while 14 and 92 aren’t divisible by either 3 or 5. </p>
+                    <p> An <code>if ... elif ... else</code> structure where you’re comparing one or a few variables several times over is quite straightforward to rewrite using pattern matching instead. For example, you can do the following: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>def</span> <span>fizzbuzz</span><span>(</span><span>number</span><span>):</span>
+    <span>mod_3</span> <span>=</span> <span>number</span> <span>%</span> <span>3</span>
+    <span>mod_5</span> <span>=</span> <span>number</span> <span>%</span> <span>5</span>
+
+    <span>match</span> <span>(</span><span>mod_3</span><span>,</span> <span>mod_5</span><span>):</span>
+        <span>case</span> <span>(</span><span>0</span><span>,</span> <span>0</span><span>):</span>
+            <span>return</span> <span>"fizzbuzz"</span>
+        <span>case</span><span> </span><span>(</span><span>0</span><span>,</span> <span>_</span><span>):</span>
+            <span>return</span> <span>"fizz"</span>
+        <span>case</span><span> </span><span>(</span><span>_</span><span>,</span> <span>0</span><span>):</span>
+            <span>return</span> <span>"buzz"</span>
+        <span>case</span><span> </span><span>_</span><span>:</span>
+            <span>return</span> <span>str</span><span>(</span><span>number</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> You match on both <code>mod_3</code> and <code>mod_5</code>. Each <code>case</code> pattern then matches either the literal number <code>0</code> or the wildcard <code>_</code> on the corresponding values. </p>
+                    <p> Compare and contrast this version with the previous one. Note how the pattern <code>(0, 0)</code> corresponds to the test <code>mod_3 == 0 and mod_5 == 0</code>, while <code>(0, _)</code> corresponds to <code>mod_3 == 0</code>. </p>
+                    <p> As you saw earlier, you can use an OR pattern to match on several different patterns. For example, since <code>mod_3</code> can only take the values <code>0</code>, <code>1</code>, and <code>2</code>, you can replace <code>case (_, 0)</code> with <code>case (1, 0) | (2, 0)</code>. Remember that <code>(0, 0)</code> has already been covered. </p>
+                    <p> The Python core developers have <a href="https://www.python.org/dev/peps/pep-3103/">consciously chosen</a> not to include <code>switch ... case</code> statements in the language earlier. However, there are some third-party packages that do, like <a href="https://pypi.org/project/switchlang/">switchlang</a>, which adds a <code>switch</code> command that also works on earlier versions of Python. </p>
+                </section>
+            </section>
+            <section>
+                <h2 id="type-unions-aliases-and-guards"> Type Unions, Aliases, and Guards<a href="#type-unions-aliases-and-guards" title="Permanent link"></a>
+                </h2>
+                <p> Reliably, each new Python release brings some improvements to the <a href="https://realpython.com/python-type-checking/">static typing</a> system. Python 3.10 is no exception. In fact, four different PEPs about typing accompany this new release: </p>
+                <ol>
+                    <li>
+                        <strong>PEP 604:</strong> <a href="https://www.python.org/dev/peps/pep-0604">Allow writing union types as <code>X | Y</code></a>
+                    </li>
+                    <li>
+                        <strong>PEP 613:</strong> <a href="https://www.python.org/dev/peps/pep-0613">Explicit Type Aliases</a>
+                    </li>
+                    <li>
+                        <strong>PEP 647:</strong> <a href="https://www.python.org/dev/peps/pep-0647/">User-Defined Type Guards</a>
+                    </li>
+                    <li>
+                        <strong>PEP 612:</strong> <a href="https://www.python.org/dev/peps/pep-0612/">Parameter Specification Variables</a>
+                    </li>
+                </ol>
+                <p> PEP 604 will probably be the most widely used of these changes going forward, but you’ll get a brief overview of each of the features in this section. </p>
+                <p> You can use <strong>union types</strong> to declare that a variable can have one of several different types. For example, you’ve been able to type hint a function calculating the mean of a list of numbers, floats, or integers as follows: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>from</span> <span>typing</span> <span>import</span> <span>List</span><span>,</span> <span>Union</span>
+
+<span><span>def</span> <span>mean</span><span>(</span><span>numbers</span><span>:</span> <span>List</span><span>[</span><span>Union</span><span>[</span><span>float</span><span>,</span> <span>int</span><span>]])</span> <span>-&gt;</span> <span>float</span><span>:</span>
+</span>    <span>return</span> <span>sum</span><span>(</span><span>numbers</span><span>)</span> <span>/</span> <span>len</span><span>(</span><span>numbers</span><span>)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The annotation <code>List[Union[float, int]]</code> means that <code>numbers</code> should be a list where each element is either a floating-point number or an integer. This works well, but the notation is a bit verbose. Also, you need to import both <code>List</code> and <code>Union</code> from <code>typing</code>. </p>
+                <p> In Python 3.10, you can replace <code>Union[float, int]</code> with the more succinct <code>float | int</code>. Combine this with the ability to use <a href="https://realpython.com/python-list/"><code>list</code></a> instead of <code>typing.List</code> in type hints, which <a href="https://realpython.com/python39-new-features/#type-hint-lists-and-dictionaries-directly">Python 3.9</a> introduced. You can then simplify your code while keeping all the type information: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span><span>def</span> <span>mean</span><span>(</span><span>numbers</span><span>:</span> <span>list</span><span>[</span><span>float</span> <span>|</span> <span>int</span><span>])</span> <span>-&gt;</span> <span>float</span><span>:</span>
+</span>    <span>return</span> <span>sum</span><span>(</span><span>numbers</span><span>)</span> <span>/</span> <span>len</span><span>(</span><span>numbers</span><span>)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The annotation of <code>numbers</code> is easier to read now, and as an added bonus, you didn’t need to import anything from <code>typing</code>. </p>
+                <p> A special case of union types is when a variable can have either a specific type or be <code>None</code>. You can annotate such <strong>optional types</strong> either as <code>Union[None, T]</code> or, equivalently, <a href="https://realpython.com/python-type-checking/#the-optional-type"><code>Optional[T]</code></a> for some type <code>T</code>. There is no new, special syntax for optional types, but you can use the new union syntax to avoid importing <code>typing.Optional</code>: </p>
+                <p> In this example, <code>address</code> is allowed to be either <code>None</code> or a string. </p>
+                <p> You can also use the new union syntax at runtime in <code>isinstance()</code> or <code>issubclass()</code> tests: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>isinstance</span><span>(</span><span>"mypy"</span><span>,</span> <span>str</span> <span>|</span> <span>int</span><span>)</span>
+<span>True</span>
+
+<span>&gt;&gt;&gt; </span><span>issubclass</span><span>(</span><span>str</span><span>,</span> <span>int</span> <span>|</span> <span>float</span> <span>|</span> <span>bytes</span><span>)</span>
+<span>False</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Traditionally, you’ve used tuples to test for several types at once—for example, <code>(str, int)</code> instead of <code>str | int</code>. This old syntax will still work. </p>
+                <p>
+                    <strong>Type aliases</strong> allow you to quickly <a href="https://realpython.com/python-type-checking/#type-aliases">define new aliases</a> that can stand in for more complicated type declarations. For example, say that you’re <a href="https://realpython.com/python-type-checking/#example-a-deck-of-cards">representing a playing card</a> using a tuple of suit and rank strings and a deck of cards by a list of such playing card tuples. A deck of cards is then type hinted as <code>list[tuple[str, str]]</code>.
+                </p>
+                <p> To simplify type annotation, you define type aliases as follows: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>Card</span> <span>=</span> <span>tuple</span><span>[</span><span>str</span><span>,</span> <span>str</span><span>]</span>
+<span>Deck</span> <span>=</span> <span>list</span><span>[</span><span>Card</span><span>]</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> This usually works okay. However, it’s often not possible for the type checker to know whether such a statement is a type alias or just the definition of a regular global variable. To help the type checker—or really, help the type checker help you—you can now explicitly annotate type aliases: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>from</span> <span>typing</span> <span>import</span> <span>TypeAlias</span>
+
+<span>Card</span><span>:</span> <span>TypeAlias</span> <span>=</span> <span>tuple</span><span>[</span><span>str</span><span>,</span> <span>str</span><span>]</span>
+<span>Deck</span><span>:</span> <span>TypeAlias</span> <span>=</span> <span>list</span><span>[</span><span>Card</span><span>]</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Adding the <code>TypeAlias</code> annotation clarifies the intention, both to a type checker and to anyone reading your code. </p>
+                <p>
+                    <strong>Type guards</strong> are used to narrow down union types. The following function takes in either a string or <code>None</code> but always returns a tuple of strings representing a playing card:
+                </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>def</span> <span>get_ace</span><span>(</span><span>suit</span><span>:</span> <span>str</span> <span>|</span> <span>None</span><span>)</span> <span>-&gt;</span> <span>tuple</span><span>[</span><span>str</span><span>,</span> <span>str</span><span>]:</span>
+<span>    <span>if</span> <span>suit</span> <span>is</span> <span>None</span><span>:</span>
+</span>        <span>suit</span> <span>=</span> <span>"♠"</span>
+    <span>return</span> <span>(</span><span>suit</span><span>,</span> <span>"A"</span><span>)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The highlighted line works as a type guard, and static type checkers are able to realize that <code>suit</code> is necessarily a string when it’s returned. </p>
+                <p> Currently, the type checkers can only use a <a href="https://www.python.org/dev/peps/pep-0647/#motivation">few different constructs</a> to narrow down union types in this way. With the new <a href="https://docs.python.org/3.10/library/typing.html#typing.TypeGuard"><code>typing.TypeGuard</code></a>, you can annotate custom functions that can be used to narrow down union types: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>from</span> <span>typing</span> <span>import</span> <span>Any</span><span>,</span> <span>TypeAlias</span><span>,</span> <span>TypeGuard</span>
+
+<span>Card</span><span>:</span> <span>TypeAlias</span> <span>=</span> <span>tuple</span><span>[</span><span>str</span><span>,</span> <span>str</span><span>]</span>
+<span>Deck</span><span>:</span> <span>TypeAlias</span> <span>=</span> <span>list</span><span>[</span><span>Card</span><span>]</span>
+
+<span><span>def</span> <span>is_deck_of_cards</span><span>(</span><span>obj</span><span>:</span> <span>Any</span><span>)</span> <span>-&gt;</span> <span>TypeGuard</span><span>[</span><span>Deck</span><span>]:</span>
+</span>    <span># Return True if obj is a deck of cards, otherwise False</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p>
+                    <code>is_deck_of_cards()</code> should return <code>True</code> or <code>False</code> depending on whether <code>obj</code> represents a <code>Deck</code> object or not. You can then use your guard function, and the type checker will be able to narrow down the types correctly:
+                </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>def</span> <span>get_score</span><span>(</span><span>card_or_deck</span><span>:</span> <span>Card</span> <span>|</span> <span>Deck</span><span>)</span> <span>-&gt;</span> <span>int</span><span>:</span>
+<span>    <span>if</span> <span>is_deck_of_cards</span><span>(</span><span>card_or_deck</span><span>):</span>
+</span>        <span># Calculate score of a deck of cards</span>
+    <span>...</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Inside of the <code>if</code> block, the type checker knows that <code>card_or_deck</code> is, in fact, of the type <code>Deck</code>. See <a href="https://www.python.org/dev/peps/pep-0647/">PEP 647</a> for more details. </p>
+                <p> The final new typing feature is <strong>Parameter Specification Variables</strong>, which is related to <a href="https://realpython.com/python-type-checking/#type-variables">type variables</a>. Consider the definition of a <a href="https://realpython.com/primer-on-python-decorators/">decorator</a>. In general, it looks something like the following: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>import</span> <span>functools</span>
+<span>from</span> <span>typing</span> <span>import</span> <span>Any</span><span>,</span> <span>Callable</span><span>,</span> <span>TypeVar</span>
+
+<span>R</span> <span>=</span> <span>TypeVar</span><span>(</span><span>"R"</span><span>)</span>
+
+<span><span>def</span> <span>decorator</span><span>(</span><span>func</span><span>:</span> <span>Callable</span><span>[</span><span>...</span><span>,</span> <span>R</span><span>])</span> <span>-&gt;</span> <span>Callable</span><span>[</span><span>...</span><span>,</span> <span>R</span><span>]:</span>
+</span>    <span>@functools</span><span>.</span><span>wraps</span><span>(</span><span>func</span><span>)</span>
+    <span>def</span> <span>wrapper</span><span>(</span><span>*</span><span>args</span><span>:</span> <span>Any</span><span>,</span> <span>**</span><span>kwargs</span><span>:</span> <span>Any</span><span>)</span> <span>-&gt;</span> <span>R</span><span>:</span>
+        <span>...</span>
+    <span>return</span> <span>wrapper</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The annotations mean that the function returned by the decorator is a callable with some parameters and the same return type, <code>R</code>, as the function passed into the decorator. The <a href="https://realpython.com/python-ellipsis/">ellipsis</a> (<code>...</code>) in the function header correctly allows any number of parameters, and each of those parameters can be of any type. However, there’s no validation that the returned callable has the same parameters as the function that was passed in. In practice, this means that type checkers aren’t able to check decorated functions properly. </p>
+                <p> Unfortunately, you can’t use <code>TypeVar</code> for the parameters because you don’t know how many parameters the function will have. In Python 3.10, you’ll have access to <a href="https://docs.python.org/3.10/library/typing.html#typing.ParamSpec"><code>ParamSpec</code></a> in order to type hint these kinds of callables properly. <code>ParamSpec</code> works similarly to <code>TypeVar</code> but stands in for several parameters at once. You can rewrite your decorator as follows to take advantage of <code>ParamSpec</code>: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span>import</span> <span>functools</span>
+<span>from</span> <span>typing</span> <span>import</span> <span>Callable</span><span>,</span> <span>ParamSpec</span><span>,</span> <span>TypeVar</span>
+
+<span>P</span> <span>=</span> <span>ParamSpec</span><span>(</span><span>"P"</span><span>)</span>
+<span>R</span> <span>=</span> <span>TypeVar</span><span>(</span><span>"R"</span><span>)</span>
+
+<span>def</span> <span>decorator</span><span>(</span><span>func</span><span>:</span> <span>Callable</span><span>[</span><span>P</span><span>,</span> <span>R</span><span>])</span> <span>-&gt;</span> <span>Callable</span><span>[</span><span>P</span><span>,</span> <span>R</span><span>]:</span>
+    <span>@functools</span><span>.</span><span>wraps</span><span>(</span><span>func</span><span>)</span>
+    <span>def</span> <span>wrapper</span><span>(</span><span>*</span><span>args</span><span>:</span> <span>P</span><span>.</span><span>args</span><span>,</span> <span>**</span><span>kwargs</span><span>:</span> <span>P</span><span>.</span><span>kwargs</span><span>)</span> <span>-&gt;</span> <span>R</span><span>:</span>
+        <span>...</span>
+    <span>return</span> <span>wrapper</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Note that you also use <code>P</code> when you annotate <code>wrapper()</code>. You can also use the new <a href="https://docs.python.org/3.10/library/typing.html#typing.Concatenate"><code>typing.Concatenate</code></a> to add types to <code>ParamSpec</code>. See the <a href="https://docs.python.org/3.10/library/typing.html">documentation</a> and <a href="https://www.python.org/dev/peps/pep-0612/">PEP 612</a> for details and examples. </p>
+            </section>
+            <section>
+                <h2 id="stricter-zipping-of-sequences"> Stricter Zipping of Sequences<a href="#stricter-zipping-of-sequences" title="Permanent link"></a>
+                </h2>
+                <p>
+                    <a href="https://realpython.com/python-zip-function/"><code>zip()</code></a> is a <a href="https://docs.python.org/3/library/functions.html#built-in-functions">built-in function</a> in Python that can combine elements from several sequences. Python 3.10 introduces the new <code>strict</code> parameter, which adds a runtime test to check that all sequences being zipped have the same length.
+                </p>
+                <p> As an example, consider the following table of <a href="https://www.lego.com/">Lego</a> sets: </p>
+                <p> One way to represent these data in plain Python would be with each column as a list. It could look something like this: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>names</span> <span>=</span> <span>[</span><span>"Louvre"</span><span>,</span> <span>"Diagon Alley"</span><span>,</span> <span>"Saturn V"</span><span>,</span> <span>"Millennium Falcon"</span><span>,</span> <span>"NYC"</span><span>]</span>
+<span>&gt;&gt;&gt; </span><span>set_numbers</span> <span>=</span> <span>[</span><span>"21024"</span><span>,</span> <span>"75978"</span><span>,</span> <span>"92176"</span><span>,</span> <span>"75192"</span><span>,</span> <span>"21028"</span><span>]</span>
+<span>&gt;&gt;&gt; </span><span>num_pieces</span> <span>=</span> <span>[</span><span>695</span><span>,</span> <span>5544</span><span>,</span> <span>1969</span><span>,</span> <span>7541</span><span>,</span> <span>598</span><span>]</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Note that you have three independent lists, but there’s an implicit correspondence between their elements. The first name (<code>"Louvre"</code>), the first set number (<code>"21024"</code>), and the first number of pieces (<code>695</code>) all describe the first Lego set. </p>
+                <p>
+                    <code>zip()</code> can be used to iterate over these three lists in parallel:
+                </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>for</span> <span>name</span><span>,</span> <span>num</span><span>,</span> <span>pieces</span> <span>in</span> <span>zip</span><span>(</span><span>names</span><span>,</span> <span>set_numbers</span><span>,</span> <span>num_pieces</span><span>):</span>
+<span>... </span>    <span>print</span><span>(</span><span>f</span><span>"</span><span>{</span><span>name</span><span>}</span><span> (</span><span>{</span><span>num</span><span>}</span><span>): </span><span>{</span><span>pieces</span><span>}</span><span> pieces"</span><span>)</span>
+<span>...</span>
+<span>Louvre (21024): 695 pieces</span>
+<span>Diagon Alley (75978): 5544 pieces</span>
+<span>Saturn V (92176): 1969 pieces</span>
+<span>Millennium Falcon (75192): 7541 pieces</span>
+<span>NYC (21028): 598 pieces</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Note how each line collects information from all three lists and shows information about one particular set. This is a very common pattern that’s used in a lot of different Python code, including <a href="https://www.python.org/dev/peps/pep-0618/#examples">in the standard library</a>. </p>
+                <p> You can also add <code>list()</code> to collect the contents of all three lists in a single, nested list of tuples: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>list</span><span>(</span><span>zip</span><span>(</span><span>names</span><span>,</span> <span>set_numbers</span><span>,</span> <span>num_pieces</span><span>))</span>
+<span>[('Louvre', '21024', 695),</span>
+<span> ('Diagon Alley', '75978', 5544),</span>
+<span> ('Saturn V', '92176', 1969),</span>
+<span> ('Millennium Falcon', '75192', 7541),</span>
+<span> ('NYC', '21028', 598)]</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Note how the nested list closely resembles the original table. </p>
+                <p> The dark side of using <code>zip()</code> is that it’s quite easy to introduce a subtle bug that can be hard to discover. Note what happens if there’s a missing item in one of your lists: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>set_numbers</span> <span>=</span> <span>[</span><span>"21024"</span><span>,</span> <span>"75978"</span><span>,</span> <span>"75192"</span><span>,</span> <span>"21028"</span><span>]</span>  <span># Saturn V missing</span>
+
+<span>&gt;&gt;&gt; </span><span>list</span><span>(</span><span>zip</span><span>(</span><span>names</span><span>,</span> <span>set_numbers</span><span>,</span> <span>num_pieces</span><span>))</span>
+<span>[('Louvre', '21024', 695),</span>
+<span> ('Diagon Alley', '75978', 5544),</span>
+<span> ('Saturn V', '75192', 1969),</span>
+<span> ('Millennium Falcon', '21028', 7541)]</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> All the information about the New York City set disappeared! Additionally, the set numbers for Saturn V and Millennium Falcon are wrong. If your datasets are bigger, these kinds of errors can be very hard to discover. And even when you observe that something’s wrong, it’s not always easy to diagnose and fix. </p>
+                <p> The issue is that you assumed that the three lists have the same number of elements and that the information is in the same order in each list. After <code>set_numbers</code> gets corrupted, this assumption is no longer true. </p>
+                <p>
+                    <a href="https://www.python.org/dev/peps/pep-0618/">PEP 618</a> introduces a new <code>strict</code> keyword parameter to <code>zip()</code> that you can use to confirm all sequences have the same length. In your example, it would raise an error alerting you to the corrupted list:
+                </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span><span>&gt;&gt;&gt; </span><span>list</span><span>(</span><span>zip</span><span>(</span><span>names</span><span>,</span> <span>set_numbers</span><span>,</span> <span>num_pieces</span><span>,</span> <span>strict</span><span>=</span><span>True</span><span>))</span>
+</span><span>Traceback (most recent call last):</span>
+  File <span>"&lt;stdin&gt;"</span>, line <span>1</span>, in <span>&lt;module&gt;</span>
+<span>ValueError</span>: <span>zip() argument 2 is shorter than argument 1</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> When the iteration reaches the New York City Lego set, the second argument <code>set_numbers</code> is already exhausted, while there are still elements left in the first argument <code>names</code>. Instead of silently giving the wrong result, your code fails with an error, and you can take action to find and fix the mistake. </p>
+                <p> There are use cases when you want to combine sequences of unequal length. Expand the box below to see how <code>zip()</code> and <code>itertools.zip_longest()</code> handle these: </p>
+                <div id="collapse_cardc07d76" data-parent="#collapse_cardc07d76">
+                    <p> The <a href="https://realpython.com/python-itertools/#what-is-itertools-and-why-should-you-use-it">following idiom</a> divides the Lego sets into pairs: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>num_per_group</span> <span>=</span> <span>2</span>
+<span>&gt;&gt;&gt; </span><span>list</span><span>(</span><span>zip</span><span>(</span><span>*</span><span>[</span><span>iter</span><span>(</span><span>names</span><span>)]</span> <span>*</span> <span>num_per_group</span><span>))</span>
+<span>[('Louvre', 'Diagon Alley'), ('Saturn V', 'Millennium Falcon')]</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> There are five sets, a number that doesn’t divide evenly into pairs. In this case, the default behavior of <code>zip()</code>, where the last element is dropped, might make sense. You could use <code>strict=True</code> here as well, but that would raise an error when your list can’t be split into pairs. A third option, which could be the best in this case, is to use <a href="https://docs.python.org/3/library/itertools.html#itertools.zip_longest"><code>zip_longest()</code></a> from the <a href="https://realpython.com/python-itertools/"><code>itertools</code></a> standard library. </p>
+                    <p> As the name suggests, <code>zip_longest()</code> combines sequences until the longest sequence is exhausted. If you use <code>zip_longest()</code> to divide the Lego sets, it becomes more explicit that New York City doesn’t have any pairing: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>from</span> <span>itertools</span> <span>import</span> <span>zip_longest</span>
+
+<span>&gt;&gt;&gt; </span><span>list</span><span>(</span><span>zip_longest</span><span>(</span><span>*</span><span>[</span><span>iter</span><span>(</span><span>names</span><span>)]</span> <span>*</span> <span>num_per_group</span><span>,</span> <span>fillvalue</span><span>=</span><span>""</span><span>))</span>
+<span>[('Louvre', 'Diagon Alley'),</span>
+<span> ('Saturn V', 'Millennium Falcon'),</span>
+<span> ('NYC', '')]</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Note that <code>'NYC'</code> shows up in the last tuple together with an empty string. You can control what’s filled in for missing values with the <code>fillvalue</code> parameter. </p>
+                </div>
+                <p> While <code>strict</code> is not really adding any new functionality to <code>zip()</code>, it can help you avoid those hard-to-find bugs. </p>
+            </section>
+            <section>
+                <h2 id="new-functions-in-the-statistics-module"> New Functions in the <code>statistics</code> Module<a href="#new-functions-in-the-statistics-module" title="Permanent link"></a>
+                </h2>
+                <p> The <a href="https://docs.python.org/3/library/statistics.html"><code>statistics</code></a> module was added to the standard library all the way back in 2014 with the release of <a href="https://www.python.org/downloads/release/python-340/">Python 3.4</a>. The intent of <code>statistics</code> is to make <a href="https://realpython.com/python-statistics/">statistical calculations</a> at the <a href="https://www.python.org/dev/peps/pep-0450/">level of graphing calculators</a> available in Python. </p>
+                <p> Python 3.10 adds a few multivariable functions to <code>statistics</code>: </p>
+                <ul>
+                    <li>
+                        <strong><code>correlation()</code></strong> to calculate Pearson’s <a href="https://realpython.com/numpy-scipy-pandas-correlation-python/">correlation</a> coefficient for two variables
+                    </li>
+                    <li>
+                        <strong><code>covariance()</code></strong> to calculate sample <a href="https://en.wikipedia.org/wiki/Covariance">covariance</a> for two variables
+                    </li>
+                    <li>
+                        <strong><code>linear_regression()</code></strong> to calculate the slope and intercept in a <a href="https://realpython.com/linear-regression-in-python/">linear regression</a>
+                    </li>
+                </ul>
+                <p> You can use each function to describe a certain aspect of the relationship between two variables. As an example, say that you have data from a set of blog posts—the number of words in each blog post and the number of views each post has had over some time period: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>words</span> <span>=</span> <span>[</span><span>7742</span><span>,</span> <span>11539</span><span>,</span> <span>16898</span><span>,</span> <span>13447</span><span>,</span> <span>4608</span><span>,</span> <span>6628</span><span>,</span> <span>2683</span><span>,</span> <span>6156</span><span>,</span> <span>2623</span><span>,</span> <span>6948</span><span>]</span>
+<span>&gt;&gt;&gt; </span><span>views</span> <span>=</span> <span>[</span><span>8368</span><span>,</span> <span>5901</span><span>,</span> <span>3978</span><span>,</span> <span>3329</span><span>,</span> <span>2611</span><span>,</span> <span>2096</span><span>,</span> <span>1515</span><span>,</span> <span>1177</span><span>,</span> <span>814</span><span>,</span> <span>467</span><span>]</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> You now want to investigate whether there’s any (linear) relationship between the number of words and number of views. In Python 3.10, you can calculate the <strong>correlation</strong> between <code>words</code> and <code>views</code> with the new <a href="https://docs.python.org/3.10/library/statistics.html#statistics.correlation"><code>correlation()</code></a> function: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>statistics</span>
+
+<span>&gt;&gt;&gt; </span><span>statistics</span><span>.</span><span>correlation</span><span>(</span><span>words</span><span>,</span> <span>views</span><span>)</span>
+<span>0.454180067865917</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> The correlation between two variables is always a number between -1 and 1. If it’s close to 0, then there’s little correspondence between them, while a correlation close to -1 or 1 indicates that the behaviors of the two variables tend to follow each other. In this example, a correlation of 0.45 indicates that there’s a tendency for posts with more words to have more views, although it’s not a strong connection. </p>
+                <p> You can also calculate the <strong>covariance</strong> between <code>words</code> and <code>views</code>. The covariance is another measure of the joint variability between two variables. You can calculate it with <a href="https://docs.python.org/3.10/library/statistics.html#statistics.covariance"><code>covariance()</code></a>: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>statistics</span>
+
+<span>&gt;&gt;&gt; </span><span>statistics</span><span>.</span><span>covariance</span><span>(</span><span>words</span><span>,</span> <span>views</span><span>)</span>
+<span>5292289.977777777</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> In contrast to correlation, covariance is an absolute measure. It should be interpreted in the context of the variability within the variables themselves. In fact, you can normalize the covariance by the <a href="https://en.wikipedia.org/wiki/Standard_deviation">standard deviation</a> of each variable to recover <a href="https://en.wikipedia.org/wiki/Pearson_correlation_coefficient">Pearson’s correlation coefficient</a>: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>statistics</span>
+
+<span>&gt;&gt;&gt; </span><span>cov</span> <span>=</span> <span>statistics</span><span>.</span><span>covariance</span><span>(</span><span>words</span><span>,</span> <span>views</span><span>)</span>
+<span>&gt;&gt;&gt; </span><span>σ_words</span><span>,</span> <span>σ_views</span> <span>=</span> <span>statistics</span><span>.</span><span>stdev</span><span>(</span><span>words</span><span>),</span> <span>statistics</span><span>.</span><span>stdev</span><span>(</span><span>views</span><span>)</span>
+<span>&gt;&gt;&gt; </span><span>cov</span> <span>/</span> <span>(</span><span>σ_words</span> <span>*</span> <span>σ_views</span><span>)</span>
+<span>0.454180067865917</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Note that this matches your earlier correlation coefficient exactly. </p>
+                <p> A third way of looking at the linear correspondence between the two variables is through <strong>simple linear regression</strong>. You do the <a href="https://en.wikipedia.org/wiki/Simple_linear_regression">linear regression</a> by calculating two numbers, <em>slope</em> and <em>intercept</em>, so that the (squared) error is minimized in the approximation <em>number of views</em> = <em>slope</em> × <em>number of words</em> + <em>intercept</em>. </p>
+                <p> In Python 3.10, you can use <a href="https://docs.python.org/3.10/library/statistics.html#statistics.linear_regression"><code>linear_regression()</code></a>: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>statistics</span>
+
+<span>&gt;&gt;&gt; </span><span>statistics</span><span>.</span><span>linear_regression</span><span>(</span><span>words</span><span>,</span> <span>views</span><span>)</span>
+<span>LinearRegression(slope=0.2424443064354672, intercept=1103.6954940247645)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Based on this regression, a post with 10,074 words could expect about 0.2424 × 10074 + 1104 = 3546 views. However, as you saw earlier, the correlation between the number of words and the number of views is quite weak. Therefore, you shouldn’t expect this prediction to be very accurate. </p>
+                <p> The <code>LinearRegression</code> object is a <a href="https://realpython.com/python-namedtuple/">named tuple</a>. This means that you can unpack the slope and intercept directly: </p>
+                <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                    <div>
+                        <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>statistics</span>
+
+<span>&gt;&gt;&gt; </span><span>slope</span><span>,</span> <span>intercept</span> <span>=</span> <span>statistics</span><span>.</span><span>linear_regression</span><span>(</span><span>words</span><span>,</span> <span>views</span><span>)</span>
+<span>&gt;&gt;&gt; </span><span>slope</span> <span>*</span> <span>10074</span> <span>+</span> <span>intercept</span>
+<span>3546.0794370556605</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> Here, you use <code>slope</code> and <code>intercept</code> to predict the number of views on a blog post with 10,074 words. </p>
+                <p> You still want to use some of the more advanced packages like pandas and statsmodels if you do a lot of statistical analysis. With the new additions to <code>statistics</code> in Python 3.10, however, you have the chance to do basic analysis more easily without bringing in third-party dependencies. </p>
+            </section>
+            <section>
+                <h2 id="other-pretty-cool-features"> Other Pretty Cool Features<a href="#other-pretty-cool-features" title="Permanent link"></a>
+                </h2>
+                <p> So far, you’ve seen the biggest and most impactful new features in Python 3.10. In this section, you’ll get a glimpse of a few of the other changes that the new version brings along. If you’re curious about all the changes made for this new version, check out the <a href="https://docs.python.org/3.10/whatsnew/3.10.html">documentation</a>. </p>
+                <section>
+                    <h3 id="default-text-encodings"> Default Text Encodings<a href="#default-text-encodings" title="Permanent link"></a>
+                    </h3>
+                    <p> When you open a text file, the default encoding used to interpret the characters is system dependent. In particular, <a href="https://docs.python.org/3.10/library/locale.html#locale.getpreferredencoding"><code>locale.getpreferredencoding()</code></a> is used. On Mac and Linux, this usually returns <code>"UTF-8"</code>, while the result on Windows is more varied. </p>
+                    <p> You should therefore always specify an encoding when you attempt to open a text file: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>with</span> <span>open</span><span>(</span><span>"some_file.txt"</span><span>,</span> <span>mode</span><span>=</span><span>"r"</span><span>,</span> <span>encoding</span><span>=</span><span>"utf-8"</span><span>)</span> <span>as</span> <span>file</span><span>:</span>
+    <span>...</span>  <span># Do something with file</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> If you don’t explicitly specify an encoding, the preferred locale encoding is used, and you could experience that a file that can be read on one computer fails to open on another. </p>
+                    <p> Python 3.7 introduced <a href="https://docs.python.org/3.10/library/os.html#utf8-mode">UTF-8 mode</a>, which allows you to force your programs to use UTF-8 encoding independent of the locale encoding. You can enable UTF-8 mode by giving the <code>-X utf8</code> command-line option to the <code>python</code> executable or by setting the <code>PYTHONUTF8</code> environment variable. </p>
+                    <p> In Python 3.10, you can activate a warning that will tell you when a text file is opened without a specified encoding. Consider the following script, which doesn’t specify an encoding: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span># mirror.py</span>
+
+<span>import</span> <span>pathlib</span>
+<span>import</span> <span>sys</span>
+
+<span>def</span> <span>mirror_file</span><span>(</span><span>filename</span><span>):</span>
+<span>    <span>for</span> <span>line</span> <span>in</span> <span>pathlib</span><span>.</span><span>Path</span><span>(</span><span>filename</span><span>)</span><span>.</span><span>open</span><span>(</span><span>mode</span><span>=</span><span>"r"</span><span>):</span>
+</span>        <span>print</span><span>(</span><span>f</span><span>"</span><span>{</span><span>line</span><span>.</span><span>rstrip</span><span>()[::</span><span>-</span><span>1</span><span>]</span><span>:</span><span>&gt;72</span><span>}</span><span>"</span><span>)</span>
+
+<span>if</span> <span>__name__</span> <span>==</span> <span>"__main__"</span><span>:</span>
+    <span>for</span> <span>filename</span> <span>in</span> <span>sys</span><span>.</span><span>argv</span><span>[</span><span>1</span><span>:]:</span>
+        <span>mirror_file</span><span>(</span><span>filename</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The program will echo one or more text files back to the console, but with each line reversed. Run the program on itself with the <a href="https://docs.python.org/3.10/library/io.html#io-encoding-warning">encoding warning</a> enabled: </p>
+                    <div data-is-repl="true" data-syntax-language="console" aria-label="Code block">
+                        <div>
+                            <pre><code><span>$ </span>python<span> </span>-X<span> </span>warn_default_encoding<span> </span>mirror.py<span> </span>mirror.py
+<span><span>/home/rp/mirror.py:7: EncodingWarning: 'encoding' argument not specified</span>
+</span><span><span>  for line in pathlib.Path(filename).open(mode="r"):</span>
+</span><span>                                                             yp.rorrim #</span>
+
+<span>                                                          bilhtap tropmi</span>
+<span>                                                              sys tropmi</span>
+
+<span>                                              :)emanelif(elif_rorrim fed</span>
+<span>                  :)"r"=edom(nepo.)emanelif(htaP.bilhtap ni enil rof</span>
+<span>                             )"}27&gt;:]1-::[)(pirtsr.enil{"f(tnirp</span>
+
+<span>                                              :"__niam__" == __eman__ fi</span>
+<span>                                       :]:1[vgra.sys ni emanelif rof</span>
+<span>                                           )emanelif(elif_rorrim</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Note the <code>EncodingWarning</code> printed to the console. The command-line option <code>-X warn_default_encoding</code> activates it. The warning will disappear if you specify an encoding—for example, <code>encoding="utf-8"</code>—when you open the file. </p>
+                    <p> There are times when you want to use the user-defined local encoding. You can still do so by explicitly using <code>encoding="locale"</code>. However, it’s recommended to use UTF-8 whenever possible. You can check out <a href="https://www.python.org/dev/peps/pep-0597/">PEP 597</a> for more information. </p>
+                </section>
+                <section>
+                    <h3 id="asynchronous-iteration"> Asynchronous Iteration<a href="#asynchronous-iteration" title="Permanent link"></a>
+                    </h3>
+                    <p>
+                        <a href="https://realpython.com/python-async-features/">Asynchronous programming</a> is a powerful programming paradigm that’s been available in Python <a href="https://www.python.org/dev/peps/pep-0492/">since version 3.5</a>. You can recognize an asynchronous program by its use of the <code>async</code> keyword or <a href="https://realpython.com/python-classes/#special-methods-and-protocols">special methods</a> that <a href="https://www.python.org/dev/peps/pep-0492/#why-magic-methods-start-with-a">start with <code>.__a</code></a> like <a href="https://docs.python.org/3/reference/datamodel.html#object.__aiter__"><code>.__aiter__()</code></a> or <a href="https://docs.python.org/3/reference/datamodel.html#object.__aenter__"><code>.__aenter__()</code></a>.
+                    </p>
+                    <p> In Python 3.10, two new asynchronous <a href="https://docs.python.org/3/library/functions.html#built-in-functions">built-in functions</a> are added: <a href="https://docs.python.org/3.10/library/functions.html#aiter"><code>aiter()</code></a> and <a href="https://docs.python.org/3.10/library/functions.html#anext"><code>anext()</code></a>. In practice, these functions call the <code>.__aiter__()</code> and <code>.__anext__()</code> special methods—analogous to the regular <code>iter()</code> and <code>next()</code>—so no new functionality is added. These are convenience functions that make your code more readable. </p>
+                    <p> In other words, in the newest version of Python, the following statements—where <code>things</code> is an <a href="https://www.python.org/dev/peps/pep-0492/#asynchronous-iterators-and-async-for">asynchronous iterable</a>—are equivalent: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>it</span> <span>=</span> <span>things</span><span>.</span><span>__aiter__</span><span>()</span>
+<span>&gt;&gt;&gt; </span><span>it</span> <span>=</span> <span>aiter</span><span>(</span><span>things</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> In either case, <code>it</code> ends up as an asynchronous iterator. Expand the following box to see a complete example using <code>aiter()</code> and <code>anext()</code>: </p>
+                    <div id="collapse_card7ba5eb" data-parent="#collapse_card7ba5eb">
+                        <p> The following program counts the number of lines in several files. In practice, you use Python’s ability to iterate over files to count the number of lines. The script uses asynchronous iteration in order to handle several files concurrently. </p>
+                        <p> Note that you need to install the third-party <a href="https://pypi.org/project/aiofiles/"><code>aiofiles</code></a> package with <a href="https://realpython.com/what-is-pip/"><code>pip</code></a> before running this code: </p>
+                        <div data-syntax-language="python" aria-label="Code block">
+                            <div>
+                                <pre><code><span># line_count.py</span>
+
+<span>import</span> <span>asyncio</span>
+<span>import</span> <span>sys</span>
+<span>import</span> <span>aiofiles</span>
+
+<span>async</span> <span>def</span> <span>count_lines</span><span>(</span><span>filename</span><span>):</span>
+<span>    </span><span>"""Count the number of lines in the given file"""</span>
+    <span>num_lines</span> <span>=</span> <span>0</span>
+
+    <span>async</span> <span>with</span> <span>aiofiles</span><span>.</span><span>open</span><span>(</span><span>filename</span><span>,</span> <span>mode</span><span>=</span><span>"r"</span><span>)</span> <span>as</span> <span>file</span><span>:</span>
+<span>        <span>lines</span> <span>=</span> <span>aiter</span><span>(</span><span>file</span><span>)</span>
+</span>        <span>while</span> <span>True</span><span>:</span>
+            <span>try</span><span>:</span>
+<span>                <span>await</span> <span>anext</span><span>(</span><span>lines</span><span>)</span>
+</span>                <span>num_lines</span> <span>+=</span> <span>1</span>
+            <span>except</span> <span>StopAsyncIteration</span><span>:</span>
+                <span>break</span>
+
+    <span>print</span><span>(</span><span>f</span><span>"</span><span>{</span><span>filename</span><span>}</span><span>: </span><span>{</span><span>num_lines</span><span>}</span><span>"</span><span>)</span>
+
+<span>async</span> <span>def</span> <span>count_all_files</span><span>(</span><span>filenames</span><span>):</span>
+<span>    </span><span>"""Asynchronously count lines in all files"""</span>
+    <span>tasks</span> <span>=</span> <span>[</span><span>asyncio</span><span>.</span><span>create_task</span><span>(</span><span>count_lines</span><span>(</span><span>f</span><span>))</span> <span>for</span> <span>f</span> <span>in</span> <span>filenames</span><span>]</span>
+    <span>await</span> <span>asyncio</span><span>.</span><span>gather</span><span>(</span><span>*</span><span>tasks</span><span>)</span>
+
+<span>if</span> <span>__name__</span> <span>==</span> <span>"__main__"</span><span>:</span>
+    <span>asyncio</span><span>.</span><span>run</span><span>(</span><span>count_all_files</span><span>(</span><span>filenames</span><span>=</span><span>sys</span><span>.</span><span>argv</span><span>[</span><span>1</span><span>:]))</span>
+</code></pre>
+                            </div><template>
+                                <span>Copied!</span>
+                            </template>
+                        </div>
+                        <p>
+                            <code>asyncio</code> is used to create and run one asynchronous task per filename. <code>count_lines()</code> opens one file asynchronously and iterates through it using <code>aiter()</code> and <code>anext()</code> in order to count the number of lines.
+                        </p>
+                    </div>
+                    <p> See <a href="https://www.python.org/dev/peps/pep-0525/">PEP 525</a> to learn more about asynchronous iteration. </p>
+                </section>
+                <section>
+                    <h3 id="context-manager-syntax"> Context Manager Syntax<a href="#context-manager-syntax" title="Permanent link"></a>
+                    </h3>
+                    <p>
+                        <a href="https://realpython.com/python-with-statement/">Context managers</a> are great for managing resources in your programs. Until recently, though, their syntax has included an uncommon wart. You <a href="https://www.python.org/dev/peps/pep-0617/#some-rules-are-not-actually-ll-1">haven’t been allowed</a> to use parentheses to break long <code>with</code> statements like this:
+                    </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>with</span> <span>(</span>
+    <span>read_path</span><span>.</span><span>open</span><span>(</span><span>mode</span><span>=</span><span>"r"</span><span>,</span> <span>encoding</span><span>=</span><span>"utf-8"</span><span>)</span> <span>as</span> <span>read_file</span><span>,</span>
+    <span>write_path</span><span>.</span><span>open</span><span>(</span><span>mode</span><span>=</span><span>"w"</span><span>,</span> <span>encoding</span><span>=</span><span>"utf-8"</span><span>)</span> <span>as</span> <span>write_file</span><span>,</span>
+<span>):</span>
+    <span>...</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> In earlier versions of Python, this causes an <code>invalid syntax</code> error message. Instead, you need to use a backslash (<code>\</code>) if you want to control where you break your lines: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>with</span> <span>read_path</span><span>.</span><span>open</span><span>(</span><span>mode</span><span>=</span><span>"r"</span><span>,</span> <span>encoding</span><span>=</span><span>"utf-8"</span><span>)</span> <span>as</span> <span>read_file</span><span>,</span> \
+     <span>write_path</span><span>.</span><span>open</span><span>(</span><span>mode</span><span>=</span><span>"w"</span><span>,</span> <span>encoding</span><span>=</span><span>"utf-8"</span><span>)</span> <span>as</span> <span>write_file</span><span>:</span>
+    <span>...</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> While <a href="https://realpython.com/python-program-structure/#explicit-line-continuation">explicit line continuation</a> with backslashes is possible in Python, PEP 8 <a href="https://www.python.org/dev/peps/pep-0008/#maximum-line-length">discourages it</a>. The <a href="https://black.readthedocs.io/">Black</a> formatting tool <a href="https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html">avoids</a> backslashes completely. </p>
+                    <p> In Python 3.10, you’re now allowed to add parentheses around <code>with</code> statements to your heart’s content. Especially if you’re employing several context managers at once, like in the example above, this can help improve the readability of your code. Python’s <a href="https://docs.python.org/3.10/whatsnew/3.10.html#parenthesized-context-managers">documentation</a> shows a few other possibilities with this new syntax. </p>
+                    <p> One small <strong>fun fact</strong>: parenthesized <code>with</code> statements actually work in version 3.9 of <a href="https://realpython.com/cpython-source-code-guide/">CPython</a>. Their implementation came almost for free with the introduction of the <a href="https://realpython.com/python39-new-features/#a-more-powerful-python-parser">PEG parser</a> in <a href="https://realpython.com/python39-new-features/">Python 3.9</a>. The reason that this is called a Python 3.10 feature is that using the PEG parser is voluntary in Python 3.9, while Python 3.9, with the old LL(1) parser, doesn’t support parenthesized <code>with</code> statements. </p>
+                </section>
+                <section>
+                    <h3 id="modern-and-secure-ssl"> Modern and Secure SSL<a href="#modern-and-secure-ssl" title="Permanent link"></a>
+                    </h3>
+                    <p> Security can be challenging! A good rule of thumb is to avoid rolling your own security algorithms and instead rely on established packages. </p>
+                    <p> Python uses <a href="https://www.openssl.org/">OpenSSL</a> for different cryptographic features that are exposed in the <a href="https://docs.python.org/3/library/hashlib.html"><code>hashlib</code></a>, <a href="https://docs.python.org/3/library/hmac.html"><code>hmac</code></a>, and <a href="https://docs.python.org/3/library/ssl.html"><code>ssl</code></a> standard library modules. Your system can manage OpenSSL, or a Python installer can include OpenSSL. </p>
+                    <p> Python 3.9 supports using any of the <a href="https://en.wikipedia.org/wiki/OpenSSL#Major_version_releases">OpenSSL versions</a> 1.0.2 LTS, 1.1.0, and 1.1.1 LTS. Both OpenSSL 1.0.2 LTS and OpenSSL 1.1.0 are past their lifetime, so Python 3.10 will only support OpenSSL 1.1.1 LTS, as described in the following table: </p>
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th> Open SSL version </th>
+                                    <th> Python 3.9 </th>
+                                    <th> Python 3.10 </th>
+                                    <th> End-of-life </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td> 1.0.2 LTS </td>
+                                    <td> ✔ </td>
+                                    <td> ✖ </td>
+                                </tr>
+                                <tr>
+                                    <td> 1.1.0 </td>
+                                    <td> ✔ </td>
+                                    <td> ✖ </td>
+                                </tr>
+                                <tr>
+                                    <td> 1.1.1 LTS </td>
+                                    <td> ✔ </td>
+                                    <td> ✔ </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p> This end of support for older versions will only affect you if you need to upgrade the system Python on an older operating system. If you use macOS or Windows, or if you install Python from <a href="https://www.python.org/">python.org</a> or use <a href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html">(Ana)Conda</a>, you’ll see no change. </p>
+                    <p> However, <a href="https://ubuntu.com/">Ubuntu</a> 18.04 LTS uses OpenSSL 1.1.0, while <a href="https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux">Red Hat Enterprise Linux</a> (RHEL) 7 and <a href="https://www.centos.org/">CentOS</a> 7 both use OpenSSL 1.0.2 LTS. If you need to run Python 3.10 on these systems, you should look at installing it yourself using either the <a href="https://www.python.org/">python.org</a> or Conda installer. </p>
+                    <p> Dropping support for older versions of OpenSSL will make Python more secure. It’ll also help the Python developers in that code will be easier to maintain. Ultimately, this helps you because your Python experience will be more robust. See <a href="https://www.python.org/dev/peps/pep-0644/">PEP 644</a> for more details. </p>
+                </section>
+                <section>
+                    <h3 id="more-information-about-your-python-interpreter"> More Information About Your Python Interpreter<a href="#more-information-about-your-python-interpreter" title="Permanent link"></a>
+                    </h3>
+                    <p> The <a href="https://docs.python.org/3/library/sys.html"><code>sys</code></a> module contains a lot of information about your system, the current Python runtime, and the script currently being executed. You can, for example, inquire about the paths where <a href="https://realpython.com/python-import/#pythons-import-path">Python looks for modules</a> with <a href="https://docs.python.org/3/library/sys.html#sys.path"><code>sys.path</code></a> and see all modules that <a href="https://realpython.com/python-import/#import-internals">have been imported</a> in the current session with <a href="https://docs.python.org/3/library/sys.html#sys.modules"><code>sys.modules</code></a>. </p>
+                    <p> In Python 3.10, <code>sys</code> has two new attributes. First, you can now get a list of the names of all modules in the standard library: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>sys</span>
+
+<span>&gt;&gt;&gt; </span><span>len</span><span>(</span><span>sys</span><span>.</span><span>stdlib_module_names</span><span>)</span>
+<span>302</span>
+
+<span>&gt;&gt;&gt; </span><span>sorted</span><span>(</span><span>sys</span><span>.</span><span>stdlib_module_names</span><span>)[</span><span>-</span><span>5</span><span>:]</span>
+<span>['zipapp', 'zipfile', 'zipimport', 'zlib', 'zoneinfo']</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Here, you can see that there are around 300 modules in the standard library, several of which start with the letter <code>z</code>. Note that only top-level modules and packages are listed. Subpackages like <a href="https://realpython.com/python38-new-features/#importlibmetadata"><code>importlib.metadata</code></a> don’t get a separate entry. </p>
+                    <p> You will probably not be using <a href="https://docs.python.org/3.10/library/sys.html#sys.stdlib_module_names"><code>sys.stdlib_module_names</code></a> all that often. Still, the list ties in nicely with similar introspection features like <a href="https://docs.python.org/3/library/keyword.html#keyword.kwlist"><code>keyword.kwlist</code></a> and <a href="https://docs.python.org/3/library/sys.html#sys.builtin_module_names"><code>sys.builtin_module_names</code></a>. </p>
+                    <p> One possible use case for the new attribute is to identify which of the currently imported modules are third-party dependencies: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>pandas</span> <span>as</span> <span>pd</span>
+<span>&gt;&gt;&gt; </span><span>import</span> <span>sys</span>
+
+<span>&gt;&gt;&gt; </span><span>{</span><span>m</span> <span>for</span> <span>m</span> <span>in</span> <span>sys</span><span>.</span><span>modules</span> <span>if</span> <span>"."</span> <span>not</span> <span>in</span> <span>m</span><span>}</span> <span>-</span> <span>sys</span><span>.</span><span>stdlib_module_names</span>
+<span>{'__main__', 'numpy', '_cython_0_29_24', 'dateutil', 'pytz',</span>
+<span> 'six', 'pandas', 'cython_runtime'}</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> You find the imported top-level modules by looking at names in <code>sys.modules</code> that don’t have a dot in their name. By comparing them to the standard library module names, you find that <a href="https://realpython.com/numpy-array-programming/"><code>numpy</code></a>, <a href="https://realpython.com/python-packages/#dateutil-for-working-with-dates-and-times"><code>dateutil</code></a>, and <a href="https://realpython.com/python-pandas-tricks/"><code>pandas</code></a> are some of the imported third-party modules in this example. </p>
+                    <p> The other new attribute is <a href="https://docs.python.org/3.10/library/sys.html#sys.orig_argv"><code>sys.orig_argv</code></a>. This is related to <a href="https://docs.python.org/3/library/sys.html#sys.argv"><code>sys.argv</code></a>, which holds the <a href="https://realpython.com/python-command-line-arguments/#the-sysargv-array">command-line arguments</a> given to your program when it was started. In contrast, <code>sys.orig_argv</code> lists the command-line arguments passed to the <code>python</code> executable itself. Consider the following example: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span># argvs.py</span>
+
+<span>import</span> <span>sys</span>
+
+<span>print</span><span>(</span><span>f</span><span>"argv: </span><span>{</span><span>sys</span><span>.</span><span>argv</span><span>}</span><span>"</span><span>)</span>
+<span>print</span><span>(</span><span>f</span><span>"orig_argv: </span><span>{</span><span>sys</span><span>.</span><span>orig_argv</span><span>}</span><span>"</span><span>)</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> This script echoes back the <code>orig_argv</code> and <code>argv</code> lists. Run it to see how the information is captured: </p>
+                    <div data-is-repl="true" data-syntax-language="console" aria-label="Code block">
+                        <div>
+                            <pre><code><span>$ </span>python<span> </span>-X<span> </span>utf8<span> </span>-O<span> </span>argvs.py<span> </span><span>3</span>.10<span> </span>--upgrade
+<span>argv: ['argvs.py', '3.10', '--upgrade']</span>
+<span>orig_argv: ['python', '-X', 'utf8', '-O', 'argvs.py', '3.10', '--upgrade']</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Essentially, all arguments—including the name of the Python executable—end up in <code>orig_argv</code>. This is in contrast to <code>argv</code>, which only contains the arguments that aren’t handled by <code>python</code> itself. </p>
+                    <p> Again, this is not a feature that you’ll use a lot. If your program needs to concern itself with how it’s being run, you’re usually better off relying on information that’s already exposed instead of trying to parse this list. For example, you can choose to use the <a href="#stricter-zipping-of-sequences">strict <code>zip()</code> mode</a> only when your script is not running with the optimized flag, <code>-O</code>, like this: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>list</span><span>(</span><span>zip</span><span>(</span><span>names</span><span>,</span> <span>set_numbers</span><span>,</span> <span>num_pieces</span><span>,</span> <span>strict</span><span>=</span><span>__debug__</span><span>))</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The <a href="https://docs.python.org/3/library/constants.html#__debug__"><code>__debug__</code></a> flag is set when the interpreter starts. It’ll be <code>False</code> if you’re running <code>python</code> with <a href="https://docs.python.org/3/using/cmdline.html#cmdoption-o"><code>-O</code></a> or <a href="https://docs.python.org/3/using/cmdline.html#cmdoption-oo"><code>-OO</code></a> specified, and <code>True</code> otherwise. Using <code>__debug__</code> is usually preferable to <code>"-O" not in sys.orig_argv</code> or some similar construct. </p>
+                    <p> One of the <a href="https://bugs.python.org/issue23427#msg371028">motivating use cases</a> for <code>sys.orig_argv</code> is that you can use it to spawn a new Python process with the same or modified command-line arguments as your current process. </p>
+                </section>
+                <section>
+                    <h3 id="future-annotations"> Future Annotations<a href="#future-annotations" title="Permanent link"></a>
+                    </h3>
+                    <p>
+                        <a href="https://realpython.com/python-type-checking/#annotations">Annotations</a> were introduced in Python 3 to give you a way to attach metadata to variables, function parameters, and return values. They are most commonly used to add type hints to your code.
+                    </p>
+                    <p> One challenge with annotations is that they must be valid Python code. For one thing, this makes it <a href="https://realpython.com/python37-new-features/#typing-enhancements">hard to type hint</a> recursive classes. <a href="https://www.python.org/dev/peps/pep-0563/">PEP 563</a> introduced <a href="https://realpython.com/python-news-april-2021/#pep-563-pep-649-and-the-future-of-python-type-annotations">postponed evaluation of annotations</a>, making it possible to annotate with names that haven’t yet been defined. Since Python 3.7, you can activate postponed evaluation of annotations with a <a href="https://docs.python.org/3/library/__future__.html"><code>__future__</code></a> import: </p>
+                    <div data-syntax-language="python" aria-label="Code block">
+                        <div>
+                            <pre><code><span>from</span> <span>__future__</span> <span>import</span> <span>annotations</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> The intention was that postponed evaluation would become the default at some point in the future. After the <a href="https://pyfound.blogspot.com/2020/04/the-2020-python-language-summit.html">2020 Python Language Summit</a>, it was decided to make this happen in Python 3.10. </p>
+                    <p> However, after more testing, it became clear that postponed evaluation didn’t work well for projects that use annotations at runtime. Key people in the <a href="https://realpython.com/fastapi-python-web-apis/">FastAPI</a> and the <a href="https://pydantic-docs.helpmanual.io/">Pydantic</a> projects <a href="https://dev.to/tiangolo/the-future-of-fastapi-and-pydantic-is-bright-3pbm">voiced their concerns</a>. At the last minute, it was decided to reschedule these changes for Python 3.11. </p>
+                    <p> To ease the transition into future behavior, a few changes have been made in Python 3.10 as well. Most importantly, a new <a href="https://docs.python.org/3.10/library/inspect.html#inspect.get_annotations"><code>inspect.get_annotations()</code></a> function has been added. You should call this to access annotations at runtime: </p>
+                    <div data-is-repl="true" data-syntax-language="pycon" aria-label="Code block">
+                        <div>
+                            <pre><code><span>&gt;&gt;&gt; </span><span>import</span> <span>inspect</span>
+
+<span>&gt;&gt;&gt; </span><span>def</span> <span>mean</span><span>(</span><span>numbers</span><span>:</span> <span>list</span><span>[</span><span>int</span> <span>|</span> <span>float</span><span>])</span> <span>-&gt;</span> <span>float</span><span>:</span>
+<span>... </span>    <span>return</span> <span>sum</span><span>(</span><span>numbers</span><span>)</span> <span>/</span> <span>len</span><span>(</span><span>numbers</span><span>)</span>
+<span>...</span>
+
+<span>&gt;&gt;&gt; </span><span>inspect</span><span>.</span><span>get_annotations</span><span>(</span><span>mean</span><span>)</span>
+<span>{'numbers': list[int | float], 'return': &lt;class 'float'&gt;}</span>
+</code></pre>
+                        </div><template>
+                            <span>Copied!</span>
+                        </template>
+                    </div>
+                    <p> Check out <a href="https://docs.python.org/3.10/howto/annotations.html">Annotations Best Practices</a> for details. </p>
+                </section>
+            </section>
+            <section>
+                <h2 id="how-to-detect-python-310-at-runtime"> How to Detect Python 3.10 at Runtime<a href="#how-to-detect-python-310-at-runtime" title="Permanent link"></a>
+                </h2>
+                <p> Python 3.10 is the first version of Python with a two-digit minor version number. While this is mostly an interesting fun fact and an indication that Python 3 has been around for quite some time, it does also have some practical consequences. </p>
+                <p> When your code needs to do something specific based on the version of Python at runtime, you’ve gotten away with doing a <a href="https://docs.python.org/3/reference/expressions.html#value-comparisons">lexicographical</a> comparison of version strings until now. While it’s never been good practice, it’s been possible to do the following: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span># bad_version_check.py</span>
+
+<span>import</span> <span>sys</span>
+
+<span># Don't do the following</span>
+<span>if</span> <span>sys</span><span>.</span><span>version</span> <span>&lt;</span> <span>"3.6"</span><span>:</span>
+    <span>raise</span> <span>SystemExit</span><span>(</span><span>"Only Python 3.6 and above is supported"</span><span>)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> In Python 3.10, this code will raise <code>SystemExit</code> and stop your program. This happens because, as strings, <code>"3.10"</code> is less than <code>"3.6"</code>. </p>
+                <p> The correct way to compare version numbers is to use tuples of numbers: </p>
+                <div data-syntax-language="python" aria-label="Code block">
+                    <div>
+                        <pre><code><span># good_version_check.py</span>
+
+<span>import</span> <span>sys</span>
+
+<span>if</span> <span>sys</span><span>.</span><span>version_info</span> <span>&lt;</span> <span>(</span><span>3</span><span>,</span> <span>6</span><span>):</span>
+    <span>raise</span> <span>SystemExit</span><span>(</span><span>"Only Python 3.6 and above is supported"</span><span>)</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p>
+                    <a href="https://docs.python.org/3/library/sys.html#sys.version_info"><code>sys.version_info</code></a> is a tuple object you can use for comparisons.
+                </p>
+                <p> If you’re doing these kinds of comparisons in your code, you should check your code with <a href="https://pypi.org/project/flake8-2020/">flake8-2020</a> to make sure you’re handling versions correctly: </p>
+                <div data-is-repl="true" data-syntax-language="console" aria-label="Code block">
+                    <div>
+                        <pre><code><span>$ </span>python<span> </span>-m<span> </span>pip<span> </span>install<span> </span>flake8-2020
+
+<span>$ </span>flake8<span> </span>bad_version_check.py<span> </span>good_version_check.py
+<span>bad_version_check.py:3:4: YTT103 `sys.version` compared to string</span>
+<span>                          (python3.10), use `sys.version_info`</span>
+</code></pre>
+                    </div><template>
+                        <span>Copied!</span>
+                    </template>
+                </div>
+                <p> With the <code>flake8-2020</code> extension activated, you’ll get a recommendation about replacing <code>sys.version</code> with <code>sys.version_info</code>. </p>
+            </section>
+            <section>
+                <h2 id="so-should-you-upgrade-to-python-310"> So, Should You Upgrade to Python 3.10?<a href="#so-should-you-upgrade-to-python-310" title="Permanent link"></a>
+                </h2>
+                <p> You’ve now seen the coolest features of the newest and latest version of Python. The question now is whether you should upgrade to Python 3.10, and if yes, when you should do so. There are two different aspects to consider when thinking about upgrading to Python 3.10: </p>
+                <ol>
+                    <li>Should you upgrade your environment so that you <strong>run your code</strong> with the Python 3.10 interpreter? </li>
+                    <li>Should you <strong>write your code</strong> using the new Python 3.10 features? </li>
+                </ol>
+                <p> Clearly, if you want to test out structural pattern matching or any of the other cool new features you’ve read about here, you need Python 3.10. It’s possible to install the latest version side by side with your current Python version. A straightforward way to do this is to use an environment manager like <a href="https://realpython.com/intro-to-pyenv/">pyenv</a> or <a href="https://realpython.com/python-windows-machine-learning-setup/">Conda</a>. You can also <a href="https://realpython.com/python-versions-docker/">use Docker</a> to run Python 3.10 without installing it locally. </p>
+                <p> Python 3.10 has been through about five months of beta testing, so there shouldn’t be any big issues with starting to use it for your own development. You may find that some of your dependencies don’t immediately have <a href="https://realpython.com/python-wheels/">wheels for Python 3.10</a> available, which makes them more cumbersome to install. But in general, using the newest Python for local development is fairly safe. </p>
+                <p> As always, you should be careful before upgrading your production environment. Be vigilant about testing that your code runs well on the new version. In particular, you want to be on the lookout for features that are <a href="https://docs.python.org/3.10/whatsnew/3.10.html#deprecated">deprecated</a> or <a href="https://docs.python.org/3.10/whatsnew/3.10.html#removed">removed</a>. </p>
+                <p> Whether you can start using the new features in your code or not depends on your user base and the environment where your code is running. If you can guarantee that Python 3.10 is available, then there’s no danger in using the new union type syntax or any other new feature. </p>
+                <p> If you’re distributing an app or a library that’s used by others instead, you may want to be a bit more conservative. Currently, <a href="https://www.python.org/dev/peps/pep-0494">Python 3.6</a> is the oldest officially supported Python version. It reaches end-of-life in December 2021, after which <a href="https://www.python.org/dev/peps/pep-0537">Python 3.7</a> will be the minimum supported version. </p>
+                <p> The documentation includes a useful guide about <a href="https://docs.python.org/3.10/whatsnew/3.10.html#porting-to-python-3-10">porting your code to Python 3.10</a>. Check it out for more details! </p>
+            </section>
+            <section>
+                <h2 id="conclusion"> Conclusion<a href="#conclusion" title="Permanent link"></a>
+                </h2>
+                <p> The release of a new Python version is always worth celebrating. Even if you can’t start using the new features right away, they’ll become broadly available and part of your daily life within a few years. </p>
+                <p>
+                    <strong>In this tutorial, you’ve seen new features like:</strong>
+                </p>
+                <ul>
+                    <li>Friendlier <strong>error messages</strong>
+                    </li>
+                    <li>Powerful <strong>structural pattern matching</strong>
+                    </li>
+                    <li>
+                        <strong>Type hint</strong> improvements
+                    </li>
+                    <li>Safer <strong>combination of sequences</strong>
+                    </li>
+                    <li>New <strong>statistics functions</strong>
+                    </li>
+                </ul>
+                <p> For more Python 3.10 tips and a discussion with members of the <em>Real Python</em> team, check out <a href="https://realpython.com/podcasts/rpp/81/">Real Python Podcast Episode #81</a>. </p>
+                <p> Have fun trying out the new features! Share your experiences in the comments below. </p>
+            </section>
+            <p>
+                <span> Watch Now</span> This tutorial has a related video course created by the Real Python team. Watch it together with the written tutorial to deepen your understanding: <a href="http://fakehost/courses/cool-new-features-python-310/"><strong>Cool New Features in Python 3.10</strong></a>
+            </p>
+        </div>
+        <div>
+            <p> Get a short &amp; sweet <strong>Python Trick</strong> delivered to your inbox every couple of days. No spam ever. Unsubscribe any time. Curated by the Real Python team. </p>
+            <p><img loading="lazy" src="http://fakehost/static/pytrick-dict-merge.4201a0125a5e.png" width="738" height="490" alt="Python Tricks Dictionary Merge">
+            </p>
+        </div>
+        <div id="author">
+            <div>
+                <p><a href="http://fakehost/team/gahjelle/"><img loading="lazy" src="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=800&h=800&mode=crop&sig=e9b761c6cf1359953014dba05554f5424eb116e1" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=200&h=200&mode=crop&sig=c6390201e73d3e09429d73da5bb29c17ab10403a 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=266&h=266&mode=crop&sig=7df7c39b123c3f9d8a4597311d09c3bd947f5fac 266w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=400&h=400&mode=crop&sig=fcea459ee24a7b320573cadee324cf75509dc1d6 400w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=800&h=800&mode=crop&sig=e9b761c6cf1359953014dba05554f5424eb116e1 800w" sizes="(min-width: 580px) 154px, calc(33.08vw - 24px)" width="800" height="800" alt="Geir Arne Hjelle"></a> <a href="http://fakehost/team/gahjelle/"><img loading="lazy" src="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=800&h=800&mode=crop&sig=e9b761c6cf1359953014dba05554f5424eb116e1" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=200&h=200&mode=crop&sig=c6390201e73d3e09429d73da5bb29c17ab10403a 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=266&h=266&mode=crop&sig=7df7c39b123c3f9d8a4597311d09c3bd947f5fac 266w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=400&h=400&mode=crop&sig=fcea459ee24a7b320573cadee324cf75509dc1d6 400w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/gahjelle.470149ee709e.jpg&w=800&h=800&mode=crop&sig=e9b761c6cf1359953014dba05554f5424eb116e1 800w" sizes="(min-width: 1200px) 140px, calc(-1.5vw + 137px)" width="800" height="800" alt="Geir Arne Hjelle"></a>
+                </p>
+            </div>
+            <hr>
+            <div>
+                <p>
+                    <em>Each tutorial at Real Python is created by a team of developers so that it meets our high quality standards. The team members who worked on this tutorial are:</em>
+                </p>
+                <div>
+                    <p><a href="http://fakehost/team/dbader/"><img loading="lazy" src="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&w=1000&h=1000&mode=crop&sig=304f5f568993310d5e87b2ca3c504260c018effa" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&w=250&h=250&mode=crop&sig=981634b4528584f2e9c7ee663477173599e1781a 250w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&w=333&h=333&mode=crop&sig=96005b865a7753e3bd47fd88dafab70a686b1224 333w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&w=500&h=500&mode=crop&sig=841025b97d25f05c1b90802032e477020462fe01 500w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&w=1000&h=1000&mode=crop&sig=304f5f568993310d5e87b2ca3c504260c018effa 1000w" sizes="(min-width: 1200px) 73px, (min-width: 780px) calc(-0.75vw + 69px), (min-width: 580px) 43px, calc(33.46vw - 64px)" width="1000" height="1000" alt="Dan Bader"></a>
+                    </p>
+                    <p><a href="http://fakehost/team/sparker/"><img loading="lazy" src="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/profpic_sp.a008488b6af0.jpeg&w=800&h=800&mode=crop&sig=ec9f8b060e53c9b35339584491f286fd52c11452" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/profpic_sp.a008488b6af0.jpeg&w=200&h=200&mode=crop&sig=ce5407d34a490d4daf29ad57e74fd3870dd28774 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/profpic_sp.a008488b6af0.jpeg&w=266&h=266&mode=crop&sig=f9684a52e8fabcc7dd3f88e96321df221ac1723a 266w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/profpic_sp.a008488b6af0.jpeg&w=400&h=400&mode=crop&sig=dfd70d0dde444f036864e5cc145df9b18fbae649 400w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/profpic_sp.a008488b6af0.jpeg&w=800&h=800&mode=crop&sig=ec9f8b060e53c9b35339584491f286fd52c11452 800w" sizes="(min-width: 1200px) 73px, (min-width: 780px) calc(-0.75vw + 69px), (min-width: 580px) 43px, calc(33.46vw - 64px)" width="800" height="800" alt="Sadie Parker"></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div>
+                <p> Master <u><span>Real-World Python Skills</span></u> With Unlimited Access to Real&nbsp;Python </p>
+                <p>
+                    <img loading="lazy" src="http://fakehost/static/videos/lesson-locked.f5105cfd26db.svg" width="510" height="260">
+                </p>
+                <p>
+                    <strong>Join us and get access to thousands of tutorials, hands-on video courses, and a community of expert&nbsp;Pythonistas:</strong>
+                </p>
+                <p>
+                    <a href="http://fakehost/account/join/?utm_source=rp_article_footer&utm_content=python310-new-features">Level Up Your Python Skills »</a>
+                </p>
+            </div>
+            <div>
+                <p> Master <u><span>Real-World Python Skills</span></u><br> With Unlimited Access to Real&nbsp;Python </p>
+                <p>
+                    <img loading="lazy" src="http://fakehost/static/videos/lesson-locked.f5105cfd26db.svg" width="510" height="260">
+                </p>
+                <p>
+                    <strong>Join us and get access to thousands of tutorials, hands-on video courses, and a community of expert Pythonistas:</strong>
+                </p>
+                <p>
+                    <a href="http://fakehost/account/join/?utm_source=rp_article_footer&utm_content=python310-new-features">Level Up Your Python Skills »</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</DIV>

@@ -1,21 +1,24 @@
 import axios from 'axios'
 import crypto from 'crypto'
-import * as jwt from 'jsonwebtoken'
 import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
-import { promisify } from 'util'
 import { env } from '../../env'
 import { redisDataSource } from '../../redis_data_source'
+import { validateUrl } from '../../services/create_page_save_request'
+import {
+  updateSubscription,
+  updateSubscriptions,
+} from '../../services/update_subscription'
 import createHttpTaskWithToken from '../../utils/createTask'
+import { logger } from '../../utils/logger'
 import { RSSRefreshContext } from './refreshAllFeeds'
-import { updateSubscription } from '../../services/update_subscription'
 
 type FolderType = 'following' | 'inbox'
 
 interface RefreshFeedRequest {
   subscriptionIds: string[]
   feedUrl: string
-  lastFetchedTimestamps: number[] // unix timestamp in milliseconds
+  mostRecentItemDates: number[] // unix timestamp in milliseconds
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
@@ -28,7 +31,7 @@ export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
   return (
     'subscriptionIds' in data &&
     'feedUrl' in data &&
-    'lastFetchedTimestamps' in data &&
+    'mostRecentItemDates' in data &&
     'scheduledTimestamps' in data &&
     'userIds' in data &&
     'lastFetchedChecksums' in data &&
@@ -71,11 +74,14 @@ interface FetchContentTask {
   item: RssFeedItem
 }
 
-export const isOldItem = (item: RssFeedItem, lastFetchedAt: number) => {
+export const isOldItem = (
+  item: RssFeedItem,
+  mostRecentItemTimestamp: number
+) => {
   // existing items and items that were published before 24h
   const publishedAt = item.isoDate ? new Date(item.isoDate) : new Date()
   return (
-    publishedAt <= new Date(lastFetchedAt) ||
+    publishedAt <= new Date(mostRecentItemTimestamp) ||
     publishedAt < new Date(Date.now() - 24 * 60 * 60 * 1000)
   )
 }
@@ -91,11 +97,11 @@ const isFeedBlocked = async (feedUrl: string) => {
     // if the feed has failed to fetch more than certain times, block it
     const maxFailures = parseInt(process.env.MAX_FEED_FETCH_FAILURES ?? '10')
     if (result && parseInt(result) > maxFailures) {
-      console.log('feed is blocked: ', feedUrl)
+      logger.info(`feed is blocked: ${feedUrl}`)
       return true
     }
   } catch (error) {
-    console.error('Failed to check feed block status', feedUrl, error)
+    logger.error('Failed to check feed block status', { feedUrl, error })
   }
 
   return false
@@ -111,7 +117,7 @@ const incrementFeedFailure = async (feedUrl: string) => {
 
     return result
   } catch (error) {
-    console.error('Failed to block feed', feedUrl, error)
+    logger.error('Failed to block feed', { feedUrl, error })
     return null
   }
 }
@@ -121,6 +127,9 @@ export const isContentFetchBlocked = (feedUrl: string) => {
     return true
   }
   if (feedUrl.startsWith('https://lwn.net/headlines/newrss')) {
+    return true
+  }
+  if (feedUrl.startsWith('https://medium.com')) {
     return true
   }
   return false
@@ -156,7 +165,7 @@ export const fetchAndChecksum = async (url: string) => {
 
     return { url, content: dataStr, checksum: hash.digest('hex') }
   } catch (error) {
-    console.log(`Failed to fetch or hash content from ${url}.`, error)
+    logger.info(`Failed to fetch or hash content from ${url}.`, error)
     return null
   }
 }
@@ -200,7 +209,7 @@ const parseFeed = async (url: string, content: string) => {
     // otherwise the error will be caught by the outer try catch
     return await parser.parseString(content)
   } catch (error) {
-    console.log(error)
+    logger.info(error)
     return null
   }
 }
@@ -211,7 +220,7 @@ const isItemRecentlySaved = async (userId: string, url: string) => {
     const result = await redisDataSource.redisClient?.get(key)
     return !!result
   } catch (err) {
-    console.error('error checking if item is old', err)
+    logger.error('error checking if item is old', err)
   }
   // If we failed to check, assume the item is good
   return false
@@ -247,7 +256,7 @@ const createTask = async (
 ) => {
   const isRecentlySaved = await isItemRecentlySaved(userId, item.link)
   if (isRecentlySaved) {
-    console.log('Item recently saved', item.link)
+    logger.info(`Item recently saved ${item.link}`)
     return true
   }
 
@@ -255,7 +264,7 @@ const createTask = async (
     return createItemWithPreviewContent(userId, feedUrl, item)
   }
 
-  console.log(`adding fetch content task ${userId}  ${item.link.trim()}`)
+  logger.info(`adding fetch content task ${userId}  ${item.link.trim()}`)
   return addFetchContentTask(fetchContentTasks, userId, folder, item)
 }
 
@@ -283,7 +292,7 @@ const fetchContentAndCreateItem = async (
     })
     return !!task
   } catch (error) {
-    console.error('Error while creating task', error)
+    logger.error('Error while creating task', error)
     return false
   }
 }
@@ -325,12 +334,11 @@ const createItemWithPreviewContent = async (
     })
     return !!task
   } catch (error) {
-    console.error('Error while creating task', error)
+    logger.error('Error while creating task', error)
     return false
   }
 }
 
-const signToken = promisify(jwt.sign)
 const parser = new Parser({
   customFields: {
     item: [
@@ -388,7 +396,10 @@ const getUpdatePeriodInHours = (feed: RssFeed) => {
 }
 
 // get link following the order of preference: via, alternate, self
-const getLink = (links: RssFeedItemLink[]): string | undefined => {
+const getLink = (
+  links: RssFeedItemLink[],
+  feedUrl: string
+): string | undefined => {
   // sort links by preference
   const sortedLinks: string[] = []
 
@@ -410,7 +421,18 @@ const getLink = (links: RssFeedItemLink[]): string | undefined => {
   })
 
   // return the first link that is not undefined
-  return sortedLinks.find((link) => !!link)
+  const itemUrl = sortedLinks.find((link) => !!link)
+  if (!itemUrl) {
+    return undefined
+  }
+
+  // convert relative url to absolute url
+  const url = new URL(itemUrl, feedUrl).href
+  if (!validateUrl(url)) {
+    return undefined
+  }
+
+  return url
 }
 
 const processSubscription = async (
@@ -419,107 +441,120 @@ const processSubscription = async (
   userId: string,
   feedUrl: string,
   fetchResult: { content: string; checksum: string },
-  lastFetchedAt: number,
+  mostRecentItemDate: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
   fetchContent: boolean,
   folder: FolderType,
   feed: RssFeed
 ) => {
+  const refreshedAt = new Date()
+
   let lastItemFetchedAt: Date | null = null
   let lastValidItem: RssFeedItem | null = null
 
   if (fetchResult.checksum === lastFetchedChecksum) {
-    console.log('feed has not been updated', feedUrl, lastFetchedChecksum)
+    logger.info('feed has not been updated', { feedUrl, lastFetchedChecksum })
     return
   }
   const updatedLastFetchedChecksum = fetchResult.checksum
 
   // fetch feed
-  let itemCount = 0
+  let itemCount = 0,
+    failedAt: Date | undefined
 
   const feedLastBuildDate = feed.lastBuildDate
-  console.log('Feed last build date', feedLastBuildDate)
+  logger.info(`Feed last build date ${feedLastBuildDate || 'N/A'}`)
   if (
     feedLastBuildDate &&
-    new Date(feedLastBuildDate) <= new Date(lastFetchedAt)
+    new Date(feedLastBuildDate) <= new Date(mostRecentItemDate)
   ) {
-    console.log('Skipping old feed', feedLastBuildDate)
+    logger.info(`Skipping old feed ${feedLastBuildDate}`)
     return
   }
 
   // save each item in the feed
   for (const item of feed.items) {
-    // use published or updated if isoDate is not available for atom feeds
-    const isoDate =
-      item.isoDate || item.published || item.updated || item.created
-    console.log('Processing feed item', item.links, item.isoDate, feedUrl)
+    try {
+      const guid = item.guid || item.link
+      // use published or updated if isoDate is not available for atom feeds
+      const isoDate =
+        item.isoDate || item.published || item.updated || item.created
 
-    if (!item.links || item.links.length === 0) {
-      console.log('Invalid feed item', item)
-      continue
+      logger.info('Processing feed item', {
+        guid,
+        links: item.links,
+        isoDate,
+        feedUrl,
+      })
+
+      if (!item.links || item.links.length === 0 || !guid) {
+        throw new Error('Invalid feed item')
+      }
+
+      // fallback to guid if link is not available
+      const link = getLink(item.links, feedUrl) || guid
+      if (!link) {
+        throw new Error('Invalid feed item link')
+      }
+
+      const feedItem = {
+        ...item,
+        isoDate,
+        link,
+      }
+
+      const publishedAt = feedItem.isoDate
+        ? new Date(feedItem.isoDate)
+        : new Date()
+      // remember the last valid item
+      if (
+        !lastValidItem ||
+        (lastValidItem.isoDate && publishedAt > new Date(lastValidItem.isoDate))
+      ) {
+        lastValidItem = feedItem
+      }
+
+      // Max limit per-feed update
+      if (itemCount > 99) {
+        continue
+      }
+
+      // skip old items
+      if (isOldItem(feedItem, mostRecentItemDate)) {
+        logger.info(`Skipping old feed item ${feedItem.link}`)
+        continue
+      }
+
+      const created = await createTask(
+        fetchContentTasks,
+        userId,
+        feedUrl,
+        feedItem,
+        fetchContent,
+        folder
+      )
+      if (!created) {
+        throw new Error('Failed to create task for feed item')
+      }
+
+      // remember the last item fetched at
+      if (!lastItemFetchedAt || publishedAt > lastItemFetchedAt) {
+        lastItemFetchedAt = publishedAt
+      }
+
+      itemCount = itemCount + 1
+    } catch (error) {
+      logger.error('Error while saving RSS feed item', { error, item })
+      failedAt = new Date()
     }
-
-    const link = getLink(item.links)
-    if (!link) {
-      console.log('Invalid feed item links', item.links)
-      continue
-    }
-
-    const feedItem = {
-      ...item,
-      isoDate,
-      link,
-    }
-
-    const publishedAt = feedItem.isoDate
-      ? new Date(feedItem.isoDate)
-      : new Date()
-    // remember the last valid item
-    if (
-      !lastValidItem ||
-      (lastValidItem.isoDate && publishedAt > new Date(lastValidItem.isoDate))
-    ) {
-      lastValidItem = feedItem
-    }
-
-    // Max limit per-feed update
-    if (itemCount > 99) {
-      continue
-    }
-
-    // skip old items
-    if (isOldItem(feedItem, lastFetchedAt)) {
-      console.log('Skipping old feed item', feedItem.link)
-      continue
-    }
-
-    const created = await createTask(
-      fetchContentTasks,
-      userId,
-      feedUrl,
-      feedItem,
-      fetchContent,
-      folder
-    )
-    if (!created) {
-      console.error('Failed to create task for feed item', feedItem.link)
-      continue
-    }
-
-    // remember the last item fetched at
-    if (!lastItemFetchedAt || publishedAt > lastItemFetchedAt) {
-      lastItemFetchedAt = publishedAt
-    }
-
-    itemCount = itemCount + 1
   }
 
   // no items saved
-  if (!lastItemFetchedAt) {
+  if (!lastItemFetchedAt && !failedAt) {
     // the feed has been fetched before, no new valid items found
-    if (lastFetchedAt || !lastValidItem) {
-      console.log('No new valid items found')
+    if (mostRecentItemDate || !lastValidItem) {
+      logger.info('No new valid items found')
       return
     }
 
@@ -533,95 +568,109 @@ const processSubscription = async (
       folder
     )
     if (!created) {
-      console.error('Failed to create task for feed item', lastValidItem.link)
-      throw new Error('Failed to create task for feed item')
+      logger.error('Failed to create task for feed item', {
+        url: lastValidItem.link,
+      })
+      failedAt = new Date()
     }
 
     lastItemFetchedAt = lastValidItem.isoDate
       ? new Date(lastValidItem.isoDate)
-      : new Date()
+      : refreshedAt
   }
 
   const updateFrequency = getUpdateFrequency(feed)
   const updatePeriodInMs = getUpdatePeriodInHours(feed) * 60 * 60 * 1000
   const nextScheduledAt = scheduledAt + updatePeriodInMs * updateFrequency
 
-  // update subscription lastFetchedAt
+  // update subscription mostRecentItemDate and refreshedAt
   const updatedSubscription = await updateSubscription(userId, subscriptionId, {
-    lastFetchedAt: lastItemFetchedAt,
+    mostRecentItemDate: lastItemFetchedAt,
     lastFetchedChecksum: updatedLastFetchedChecksum,
     scheduledAt: new Date(nextScheduledAt),
+    refreshedAt,
+    failedAt,
   })
-  console.log('Updated subscription', updatedSubscription)
+  logger.info('Updated subscription', updatedSubscription)
 }
 
 export const refreshFeed = async (request: any) => {
   if (isRefreshFeedRequest(request)) {
     return _refreshFeed(request)
   }
-  console.log('not a feed to refresh')
+  logger.info('not a feed to refresh')
   return false
 }
 
 export const _refreshFeed = async (request: RefreshFeedRequest) => {
-  try {
-    const {
-      feedUrl,
-      subscriptionIds,
-      lastFetchedTimestamps,
-      scheduledTimestamps,
-      userIds,
-      lastFetchedChecksums,
-      fetchContents,
-      folders,
-      refreshContext,
-    } = request
-    console.log('Processing feed', feedUrl, { refreshContext: refreshContext })
+  const {
+    feedUrl,
+    subscriptionIds,
+    mostRecentItemDates,
+    scheduledTimestamps,
+    userIds,
+    lastFetchedChecksums,
+    fetchContents,
+    folders,
+    refreshContext,
+  } = request
 
+  logger.info('Processing feed', feedUrl, { refreshContext: refreshContext })
+
+  try {
     const isBlocked = await isFeedBlocked(feedUrl)
     if (isBlocked) {
-      console.log('feed is blocked: ', feedUrl)
-      return
+      logger.info(`feed is blocked: ${feedUrl}`)
+      throw new Error('feed is blocked')
     }
 
     const fetchResult = await fetchAndChecksum(feedUrl)
     if (!fetchResult) {
-      console.error('Failed to fetch RSS feed', feedUrl)
+      logger.error(`Failed to fetch RSS feed ${feedUrl}`)
       await incrementFeedFailure(feedUrl)
-      return
+      throw new Error('Failed to fetch RSS feed')
     }
 
     const feed = await parseFeed(feedUrl, fetchResult.content)
     if (!feed) {
-      console.error('Failed to parse RSS feed', feedUrl)
+      logger.error(`Failed to parse RSS feed ${feedUrl}`)
       await incrementFeedFailure(feedUrl)
-      return
+      throw new Error('Failed to parse RSS feed')
     }
 
     let allowFetchContent = true
     if (isContentFetchBlocked(feedUrl)) {
-      console.log('fetching content blocked for feed: ', feedUrl)
+      logger.info(`fetching content blocked for feed: ${feedUrl}`)
       allowFetchContent = false
     }
 
-    console.log('Fetched feed', feed.title, new Date())
+    logger.info('Fetched feed', { title: feed.title, at: new Date() })
 
     const fetchContentTasks = new Map<string, FetchContentTask>() // url -> FetchContentTask
     // process each subscription sequentially
     for (let i = 0; i < subscriptionIds.length; i++) {
-      await processSubscription(
-        fetchContentTasks,
-        subscriptionIds[i],
-        userIds[i],
-        feedUrl,
-        fetchResult,
-        lastFetchedTimestamps[i],
-        scheduledTimestamps[i],
-        lastFetchedChecksums[i],
-        fetchContents[i] && allowFetchContent,
-        folders[i],
-        feed
-      )
+      const subscriptionId = subscriptionIds[i]
+
+      try {
+        await processSubscription(
+          fetchContentTasks,
+          subscriptionId,
+          userIds[i],
+          feedUrl,
+          fetchResult,
+          mostRecentItemDates[i],
+          scheduledTimestamps[i],
+          lastFetchedChecksums[i],
+          fetchContents[i] && allowFetchContent,
+          folders[i],
+          feed
+        )
+      } catch (error) {
+        logger.error('Error while processing subscription', {
+          error,
+          subscriptionId,
+        })
+      }
     }
 
     // create fetch content tasks
@@ -632,7 +681,22 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
         task.item
       )
     }
-  } catch (e) {
-    console.error('Error while saving RSS feeds', e)
+
+    return true
+  } catch (error) {
+    logger.error('Error while saving RSS feeds', {
+      feedUrl,
+      subscriptionIds,
+      error,
+    })
+
+    const now = new Date()
+    // mark subscriptions as error if we failed to get the feed
+    await updateSubscriptions(subscriptionIds, {
+      refreshedAt: now,
+      failedAt: now,
+    })
+
+    return false
   }
 }

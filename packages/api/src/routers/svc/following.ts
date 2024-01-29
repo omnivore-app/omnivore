@@ -53,15 +53,13 @@ export function followingServiceRouter() {
   const router = express.Router()
 
   router.post('/save', async (req, res) => {
-    logger.info('save following item request', req.body)
-
     if (req.query.token !== process.env.PUBSUB_VERIFICATION_TOKEN) {
-      console.log('query does not include valid token')
+      logger.info('query does not include valid token')
       return res.sendStatus(403)
     }
 
     if (!isSaveFollowingItemRequest(req.body)) {
-      console.error('Invalid request body', req.body)
+      logger.error('Invalid request body', req.body)
       return res.status(400).send('INVALID_REQUEST_BODY')
     }
 
