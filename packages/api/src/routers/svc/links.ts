@@ -29,7 +29,7 @@ const getPruneMessage = (msgStr: string): PruneMessage => {
       return obj
     }
   } catch (err) {
-    console.log('error deserializing event: ', { msgStr, err })
+    logger.error('error deserializing event: ', { msgStr, err })
   }
 
   // default to prune following folder items older than 30 days
@@ -43,7 +43,6 @@ export function linkServiceRouter() {
   const router = express.Router()
 
   router.post('/create', async (req, res) => {
-    logger.info('create link req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
     logger.info('read pubsub message', { msgStr, expired })
 
@@ -71,7 +70,6 @@ export function linkServiceRouter() {
         userId: msg.userId,
         url: msg.url,
       })
-      logger.info('create link request', request)
 
       res.status(200).send(request)
     } catch (err) {
@@ -81,8 +79,6 @@ export function linkServiceRouter() {
   })
 
   router.post('/prune', async (req, res) => {
-    logger.info('prune expired items in folder')
-
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {

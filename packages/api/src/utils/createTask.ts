@@ -67,7 +67,7 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
-    console.error(
+    logger.error(
       'error: attempting to create a cloud task but not running in google cloud.'
     )
     return null
@@ -172,7 +172,6 @@ export const createAppEngineTask = async ({
   }
 
   logger.info('Sending task:')
-  logger.info(task)
   // Send create task request.
   const request = { parent: parent, task: task }
   const [response] = await client.createTask(request)

@@ -75,7 +75,6 @@ export const saveEmail = async (
       existingLibraryItem.id,
       input.userId
     )
-    logger.info('updated page from email', updatedLibraryItem)
 
     return updatedLibraryItem
   }
