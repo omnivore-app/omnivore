@@ -78,6 +78,13 @@ export function HighlightNoteModal(
           event.preventDefault()
           event.stopPropagation()
         }}
+        onKeyDown={(event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+            event.preventDefault()
+            saveNoteChanges()
+            props.onOpenChange(false)
+          }
+        }}
       >
         <form
           onSubmit={(event) => {
