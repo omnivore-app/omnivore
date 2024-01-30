@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Job, Queue, QueueEvents, Worker, JobType } from 'bullmq'
+import { Job, JobType, Queue, QueueEvents, Worker } from 'bullmq'
 import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
@@ -11,10 +11,14 @@ import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
+import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
+import {
+  updateLabelsInLibraryItem,
+  UPDATE_LABELS_IN_LIBRARY_ITEM_JOB,
+} from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
-import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -125,6 +129,8 @@ const main = async () => {
           return findThumbnail(job.data)
         case TRIGGER_RULE_JOB_NAME:
           return triggerRule(job.data)
+        case UPDATE_LABELS_IN_LIBRARY_ITEM_JOB:
+          return updateLabelsInLibraryItem(job.data)
       }
     },
     {

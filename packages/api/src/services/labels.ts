@@ -5,6 +5,8 @@ import { Label } from '../entity/label'
 import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
+import { enqueueUpdateLabelsInLibraryItem } from '../utils/createTask'
+import { logger } from '../utils/logger'
 
 type AddLabelsToLibraryItemEvent = {
   pageId: string
@@ -120,6 +122,10 @@ export const saveLabelsInLibraryItem = async (
       userId
     )
   }
+
+  // update labels in library item
+  const job = await enqueueUpdateLabelsInLibraryItem({ libraryItemId, userId })
+  logger.info('update labels in library item job created', job)
 }
 
 export const addLabelsToLibraryItem = async (

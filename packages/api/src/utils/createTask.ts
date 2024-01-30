@@ -17,6 +17,10 @@ import {
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
+import {
+  UpdateLabelsInLibraryItemData,
+  UPDATE_LABELS_IN_LIBRARY_ITEM_JOB,
+} from '../jobs/update_db'
 import { getBackendQueue } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
@@ -657,6 +661,19 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
     removeOnComplete: true,
     removeOnFail: true,
+  })
+}
+
+export const enqueueUpdateLabelsInLibraryItem = async (
+  data: UpdateLabelsInLibraryItemData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(UPDATE_LABELS_IN_LIBRARY_ITEM_JOB, data, {
+    priority: 1,
   })
 }
 
