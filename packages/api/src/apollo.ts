@@ -25,6 +25,7 @@ import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
+import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -84,6 +85,9 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
         return cb(tx)
       }),
     tracingSpan: tracer.startSpan('apollo.request'),
+    dataSources: {
+      readingProgress: new ReadingProgressDataSource(),
+    },
   }
 
   return ctx

@@ -312,20 +312,6 @@ export const functionResolvers = {
     publishedAt(article: { publishedAt: Date }) {
       return validatedDate(article.publishedAt)
     },
-    // async shareInfo(
-    //   article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
-    //   __: unknown,
-    //   ctx: WithDataSourcesContext
-    // ): Promise<LinkShareInfo | undefined> {
-    //   if (article.shareInfo) return article.shareInfo
-    //   if (!ctx.claims?.uid) return undefined
-    //   return getShareInfoForArticle(
-    //     ctx.kx,
-    //     ctx.claims?.uid,
-    //     article.id,
-    //     ctx.models
-    //   )
-    // },
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 320, 320)
     },
@@ -341,6 +327,42 @@ export const functionResolvers = {
       if (article.labels) return article.labels
 
       return findLabelsByLibraryItemId(article.id, ctx.uid)
+    },
+    async readingProgressPercent(
+      article: { id: string; readingProgressPercent?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
+      if (readingProgress) {
+        return readingProgress.readingProgressPercent
+      }
+      return article.readingProgressPercent
+    },
+    async readingProgressAnchorIndex(
+      article: { id: string; readingProgressAnchorIndex?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
+      if (readingProgress) {
+        return readingProgress.readingProgressAnchorIndex
+      }
+      return article.readingProgressAnchorIndex
+    },
+    async readingProgressTopPercent(
+      article: { id: string; readingProgressTopPercent?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
+      if (readingProgress) {
+        return readingProgress.readingProgressTopPercent
+      }
+      return article.readingProgressTopPercent
     },
   },
   Highlight: {
@@ -446,6 +468,42 @@ export const functionResolvers = {
 
       const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
       return highlights.map(highlightDataToHighlight)
+    },
+    async readingProgressPercent(
+      article: { id: string; readingProgressPercent?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
+      if (readingProgress) {
+        return readingProgress.readingProgressPercent
+      }
+      return article.readingProgressPercent
+    },
+    async readingProgressAnchorIndex(
+      article: { id: string; readingProgressAnchorIndex?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
+      if (readingProgress) {
+        return readingProgress.readingProgressAnchorIndex
+      }
+      return article.readingProgressAnchorIndex
+    },
+    async readingProgressTopPercent(
+      article: { id: string; readingProgressTopPercent?: number },
+      _: unknown,
+      ctx: WithDataSourcesContext
+    ) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
+      if (readingProgress) {
+        return readingProgress.readingProgressTopPercent
+      }
+      return article.readingProgressTopPercent
     },
   },
   Subscription: {

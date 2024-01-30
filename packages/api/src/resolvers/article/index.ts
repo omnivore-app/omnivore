@@ -607,7 +607,7 @@ export const saveArticleReadingProgressResolver = authorized<
         force,
       },
     },
-    { log, pubsub, uid }
+    { log, pubsub, uid, dataSources }
   ) => {
     if (
       readingProgressPercent < 0 ||
@@ -640,6 +640,11 @@ export const saveArticleReadingProgressResolver = authorized<
         }
       }
 
+      dataSources.readingProgress.updateReadingProgress(id, {
+        readingProgressPercent,
+        readingProgressTopPercent,
+        readingProgressAnchorIndex,
+      })
       // update reading progress only if the current value is lower
       const updatedItem = await updateLibraryItemReadingProgress(
         id,
