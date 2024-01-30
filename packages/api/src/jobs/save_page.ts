@@ -139,18 +139,13 @@ const sendImportStatusUpdate = async (
 
 const getCachedFetchResult = async (url: string) => {
   const key = `fetch-result:${url}`
-  if (!redisDataSource.redisClient || !redisDataSource.workerRedisClient) {
+  if (!redisDataSource.redisClient) {
     throw new Error('redis client is not initialized')
   }
 
-  let result = await redisDataSource.redisClient.get(key)
+  const result = await redisDataSource.redisClient.get(key)
   if (!result) {
-    logger.debug(`fetch result is not cached in cache redis ${url}`)
-    // fallback to worker redis client if the result is not found
-    result = await redisDataSource.workerRedisClient.get(key)
-    if (!result) {
-      throw new Error('fetch result is not cached')
-    }
+    throw new Error('fetch result is not cached')
   }
 
   const fetchResult = JSON.parse(result) as unknown
@@ -158,7 +153,7 @@ const getCachedFetchResult = async (url: string) => {
     throw new Error('fetch result is not valid')
   }
 
-  logger.info('fetch result is cached', url)
+  logger.info(`fetch result is cached for: ${url}`)
 
   return fetchResult
 }
