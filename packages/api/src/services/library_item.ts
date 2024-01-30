@@ -1,6 +1,6 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
+import { DeepPartial, FindOptionsWhere, IsNull, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
@@ -20,6 +20,7 @@ import { libraryItemRepository } from '../repository/library_item'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
+import { htmlToMarkdown } from '../utils/parser'
 
 enum ReadFilter {
   ALL = 'all',
@@ -1131,4 +1132,76 @@ export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
   `
 
   return authTrx(async (t) => t.query(sql))
+}
+
+type LibraryItemRepresentation =
+  | 'readable'
+  | 'originalEmail'
+  | 'originalHTML'
+  | 'feedSummary'
+  | 'markdown'
+
+const KNOWN_REPRESENTATIONS = [
+  'readable',
+  'originalEmail',
+  'originalHTML',
+  'feedSummary',
+  'markdown',
+]
+
+export const isLibraryItemRepresentation = (
+  str: any
+): str is LibraryItemRepresentation => {
+  return KNOWN_REPRESENTATIONS.indexOf(str) >= 0
+}
+
+export const getRepresentation = async (
+  uid: string,
+  itemID: string,
+  representation: LibraryItemRepresentation
+): Promise<string | undefined> => {
+  const columns = (() => {
+    switch (representation) {
+      case 'feedSummary':
+        return ['description']
+      case 'originalHTML':
+      case 'originalEmail':
+        return ['originalContent']
+      case 'markdown':
+      case 'readable':
+      default:
+        return ['readableContent']
+    }
+  })() as [keyof LibraryItem]
+
+  const libraryItem = await authTrx(
+    (tx) =>
+      tx.withRepository(libraryItemRepository).findOne({
+        select: columns,
+        where: {
+          id: itemID,
+          deletedAt: IsNull(),
+        },
+      }),
+    undefined,
+    uid
+  )
+
+  if (!libraryItem) {
+    throw new Error('Item not found.')
+  }
+
+  switch (representation) {
+    case 'feedSummary':
+      return libraryItem.description ?? undefined
+    case 'originalEmail':
+    case 'originalHTML':
+      return libraryItem.originalContent ?? undefined
+    case 'markdown':
+      return htmlToMarkdown(libraryItem.readableContent)
+    default:
+    case 'readable':
+      console.log('returning: ', libraryItem.readableContent)
+      return libraryItem.readableContent ?? undefined
+  }
 }

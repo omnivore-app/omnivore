@@ -19,6 +19,12 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { useGetArticleOriginalHtmlQuery } from '../../../lib/networking/queries/useGetArticleOriginalHtmlQuery'
+import {
+  LibraryItemRepresentation,
+  LibraryItemRepresentationType,
+  useGetLibraryItemRepresentation,
+} from '../../../lib/networking/queries/useGetLibraryItemRepresentationQuery'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -118,23 +124,26 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     props.highlightOnRelease
   )
   // iOS app embed can overide the original margin and line height
-  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] = useState<
-    number | null
-  >(null)
-  const [lineHeightOverride, setLineHeightOverride] = useState<number | null>(
-    null
-  )
-  const [fontFamilyOverride, setFontFamilyOverride] = useState<string | null>(
-    null
-  )
-  const [highContrastTextOverride, setHighContrastTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
-  const [justifyTextOverride, setJustifyTextOverride] = useState<
-    boolean | undefined
-  >(undefined)
+  const [maxWidthPercentageOverride, setMaxWidthPercentageOverride] =
+    useState<number | null>(null)
+  const [lineHeightOverride, setLineHeightOverride] =
+    useState<number | null>(null)
+  const [fontFamilyOverride, setFontFamilyOverride] =
+    useState<string | null>(null)
+  const [highContrastTextOverride, setHighContrastTextOverride] =
+    useState<boolean | undefined>(undefined)
+  const [justifyTextOverride, setJustifyTextOverride] =
+    useState<boolean | undefined>(undefined)
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
+  )
+
+  const [representation, setRepresentation] =
+    useState<LibraryItemRepresentationType>('feedSummary')
+
+  const content = useGetLibraryItemRepresentation(
+    props.article.id,
+    representation
   )
 
   const updateFontSize = useCallback(
@@ -446,15 +455,17 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
             />
           )}
         </VStack>
-        <Article
-          articleId={props.article.id}
-          content={props.article.content}
-          highlightHref={highlightHref}
-          initialAnchorIndex={props.article.readingProgressAnchorIndex}
-          initialReadingProgressTop={props.article.readingProgressTopPercent}
-          articleMutations={props.articleMutations}
-          isAppleAppEmbed={props.isAppleAppEmbed}
-        />
+        {content && (
+          <Article
+            articleId={props.article.id}
+            content={content}
+            highlightHref={highlightHref}
+            initialAnchorIndex={props.article.readingProgressAnchorIndex}
+            initialReadingProgressTop={props.article.readingProgressTopPercent}
+            articleMutations={props.articleMutations}
+            isAppleAppEmbed={props.isAppleAppEmbed}
+          />
+        )}
         <Button
           style="ghost"
           css={{

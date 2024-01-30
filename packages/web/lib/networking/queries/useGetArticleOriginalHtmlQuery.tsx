@@ -55,21 +55,3 @@ export function useGetArticleOriginalHtmlQuery({
   const resultData: ArticleData | undefined = data as ArticleData
   return resultData?.article.article.originalHtml
 }
-
-export async function originalHtmlQuery(
-  context: RequestContext,
-  input: ArticleQueryInput
-): Promise<string | undefined> {
-  const resultData = (await ssrFetcher(
-    context,
-    query,
-    input,
-    false
-  )) as ArticleData
-  console.log(JSON.stringify(resultData))
-  // if (resultData?.article.article.originalHtml) {
-  //   return resultData?.article.article.originalHtml
-  // }
-
-  return Promise.reject()
-}

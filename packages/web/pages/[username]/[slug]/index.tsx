@@ -46,6 +46,7 @@ import { updatePageMutation } from '../../../lib/networking/mutations/updatePage
 import { State } from '../../../lib/networking/fragments/articleFragment'
 import { posthog } from 'posthog-js'
 import { PDFDisplaySettingsModal } from '../../../components/templates/article/PDFDisplaySettingsModal'
+import { useGetLibraryItemRepresentation } from '../../../lib/networking/queries/useGetLibraryItemRepresentationQuery'
 
 const PdfArticleContainerNoSSR = dynamic<PdfArticleContainerProps>(
   () => import('./../../../components/templates/article/PdfArticleContainer'),

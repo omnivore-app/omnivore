@@ -45,6 +45,7 @@ import {
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
 import { redisDataSource } from './redis_data_source'
+import { libraryItemRouter } from './routers/library_item'
 
 const PORT = process.env.PORT || 4000
 
@@ -118,6 +119,7 @@ export const createApp = (): {
   app.use('/api/page', pageRouter())
   app.use('/api/user', userRouter())
   app.use('/api/article', articleRouter())
+  app.use('/api/libraryitem', libraryItemRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())

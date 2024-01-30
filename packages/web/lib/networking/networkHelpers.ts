@@ -143,3 +143,16 @@ async function verifyAuth(): Promise<void> {
     return
   }
 }
+
+export function makeHTTPGetFetcher(url: URL): () => Promise<unknown> {
+  const init: RequestInit = {
+    credentials: 'include',
+    mode: 'cors',
+    method: 'GET',
+  }
+
+  return async () => {
+    const result = await fetch(url, init)
+    return await result.json()
+  }
+}
