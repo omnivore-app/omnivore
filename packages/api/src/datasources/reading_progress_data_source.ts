@@ -10,8 +10,6 @@ type ReadingProgressCacheItem = {
 export class ReadingProgressDataSource {
   private cacheItems: { [id: string]: ReadingProgressCacheItem } = {}
 
-  constructor() {}
-
   async getReadingProgress(
     libraryItemID: string
   ): Promise<ReadingProgressCacheItem | undefined> {
