@@ -594,6 +594,7 @@ export const enqueueThumbnailJob = async (
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: 100,
     attempts: 1,
+    removeOnComplete: true,
   })
 }
 
@@ -655,6 +656,8 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   }
 
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
+    priority: 1,
+    attempts: 1,
     removeOnComplete: true,
     removeOnFail: true,
   })
