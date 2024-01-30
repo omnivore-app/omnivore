@@ -594,6 +594,7 @@ export const enqueueThumbnailJob = async (
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: 100,
     attempts: 1,
+    removeOnComplete: true,
   })
 }
 
