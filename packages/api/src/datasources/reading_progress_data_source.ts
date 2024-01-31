@@ -1,16 +1,13 @@
 import { redisDataSource } from '../redis_data_source'
-
-type ReadingProgressCacheItem = {
-  readingProgressPercent: number
-  readingProgressTopPercent: number | undefined
-  readingProgressAnchorIndex: number | undefined
-  updatedAt: string
-}
+import {
+  ReadingProgressCacheItem,
+  fetchCachedReadingPosition,
+  keyForCachedReadingPosition,
+  pushCachedReadingPosition,
+} from '../services/cached_reading_position'
 
 export class ReadingProgressDataSource {
   private cacheItems: { [id: string]: ReadingProgressCacheItem } = {}
-
-  constructor() {}
 
   async getReadingProgress(
     uid: string,
@@ -21,7 +18,7 @@ export class ReadingProgressDataSource {
     if (cached) {
       return cached
     }
-    return this.valueFromRedis(cacheKey)
+    return fetchCachedReadingPosition(uid, libraryItemID)
   }
 
   async updateReadingProgress(
@@ -33,11 +30,14 @@ export class ReadingProgressDataSource {
       readingProgressAnchorIndex: number | undefined
     }
   ): Promise<void> {
-    const cacheKey = `omnivore:reading-progress:${uid}:${libraryItemID}`
     const cacheItem: ReadingProgressCacheItem = {
-      ...progress,
+      uid,
+      libraryItemID,
       updatedAt: new Date().toISOString(),
+      ...progress,
     }
+    const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
+    pushCachedReadingPosition(uid, libraryItemID, cacheItem)
 
     this.cacheItems[cacheKey] = cacheItem
     if (
@@ -50,19 +50,5 @@ export class ReadingProgressDataSource {
     } else {
       console.log('failed to cache reading progress')
     }
-  }
-
-  async valueFromRedis(
-    cacheKey: string
-  ): Promise<ReadingProgressCacheItem | undefined> {
-    const redisCached = await redisDataSource.redisClient?.lrange(
-      cacheKey,
-      0,
-      0
-    )
-    if (redisCached && redisCached.length > 0) {
-      return JSON.parse(redisCached[0])
-    }
-    return undefined
   }
 }
