@@ -1,6 +1,8 @@
 import { redisDataSource } from '../redis_data_source'
 import { logger } from '../utils/logger'
 
+export const CACHED_READING_POSITION_PREFIX = `omnivore:reading-progress`
+
 export type ReadingProgressCacheItem = {
   uid: string
   libraryItemID: string
@@ -10,7 +12,23 @@ export type ReadingProgressCacheItem = {
   updatedAt: string | undefined
 }
 
-export const CACHED_READING_POSITION_PREFIX = `omnivore:reading-progress`
+export const isReadingProgressCacheItem = (
+  item: any
+): item is ReadingProgressCacheItem => {
+  return (
+    'uid' in item && 'libraryItemID' in item && 'readingProgressPercent' in item
+  )
+}
+
+export const parseReadingProgressCacheItem = (
+  item: any
+): ReadingProgressCacheItem | undefined => {
+  const result = JSON.parse(item) as unknown
+  if (isReadingProgressCacheItem(result)) {
+    return result
+  }
+  return undefined
+}
 
 export const keyForCachedReadingPosition = (
   uid: string,
@@ -77,7 +95,6 @@ export const fetchCachedReadingPosition = async (
   uid: string,
   libraryItemID: string
 ): Promise<ReadingProgressCacheItem | undefined> => {
-  console.log('checking uid', uid, 'libraryItemId', libraryItemID)
   const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
   try {
     const cacheItemList = await redisDataSource.redisClient?.lrange(
@@ -85,9 +102,9 @@ export const fetchCachedReadingPosition = async (
       0,
       -1
     )
-    console.log('cacheItemList: ', cacheKey, cacheItemList)
-    const items = cacheItemList?.map((item) => JSON.parse(item))
-    console.log(' items[]: ', items)
+    const items = cacheItemList
+      ?.map((item) => parseReadingProgressCacheItem(item))
+      .filter(isReadingProgressCacheItem)
     if (!items || items.length < 1) {
       return undefined
     }
@@ -99,12 +116,14 @@ export const fetchCachedReadingPosition = async (
     )
     const top = Math.max(
       ...items.map((o) =>
-        'readingProgressTopPercent' in o ? o.readingProgressTopPercent : 0
+        'readingProgressTopPercent' in o ? o.readingProgressTopPercent ?? 0 : 0
       )
     )
     const anchor = Math.max(
       ...items.map((o) =>
-        'readingProgressAnchorIndex' in o ? o.readingProgressAnchorIndex : 0
+        'readingProgressAnchorIndex' in o
+          ? o.readingProgressAnchorIndex ?? 0
+          : 0
       )
     )
 

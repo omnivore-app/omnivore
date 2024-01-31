@@ -37,18 +37,8 @@ export class ReadingProgressDataSource {
       ...progress,
     }
     const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
-    pushCachedReadingPosition(uid, libraryItemID, cacheItem)
-
-    this.cacheItems[cacheKey] = cacheItem
-    if (
-      await redisDataSource.redisClient?.lpush(
-        cacheKey,
-        JSON.stringify(cacheItem)
-      )
-    ) {
-      console.log('cached reading progress', cacheKey)
-    } else {
-      console.log('failed to cache reading progress')
+    if (await pushCachedReadingPosition(uid, libraryItemID, cacheItem)) {
+      this.cacheItems[cacheKey] = cacheItem
     }
   }
 }
