@@ -17,6 +17,7 @@ import {
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
+import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
@@ -1020,7 +1021,17 @@ export const batchUpdateLibraryItems = async (
             return !existingLabel
           })
       )
-      return tx.getRepository(EntityLabel).save(labelsToAdd)
+      const labelsAdded = await tx.getRepository(EntityLabel).save(labelsToAdd)
+
+      const data = labelsAdded.map((label) => ({
+        libraryItemId: label.libraryItemId,
+        userId,
+      }))
+      // update labels in library item
+      const jobs = await bulkEnqueueUpdateLabels(data)
+      logger.info('update labels jobs enqueued', jobs)
+
+      return
     }
 
     // generate raw sql because postgres doesn't support prepared statements in DO blocks

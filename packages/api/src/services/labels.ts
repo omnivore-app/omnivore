@@ -1,6 +1,7 @@
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel, LabelSource } from '../entity/entity_label'
+import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
@@ -187,6 +188,20 @@ export const saveLabelsInHighlight = async (
     { highlightId, labels },
     userId
   )
+
+  const highlight = await authTrx(async (tx) =>
+    tx.getRepository(Highlight).findOne({
+      where: { id: highlightId },
+      relations: ['libraryItem'],
+    })
+  )
+  if (highlight) {
+    // update labels in library item
+    const jobs = await bulkEnqueueUpdateLabels([
+      { libraryItemId: highlight.libraryItem.id, userId },
+    ])
+    logger.info('update labels jobs enqueued', jobs)
+  }
 }
 
 export const findLabelsByIds = async (
