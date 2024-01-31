@@ -42,7 +42,12 @@ import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
 import { createTestLibraryItem, createTestUser } from '../db'
-import { generateFakeUuid, graphqlRequest, request } from '../util'
+import {
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+  waitUntilJobsDone,
+} from '../util'
 
 chai.use(chaiString)
 
@@ -942,6 +947,8 @@ describe('Article API', () => {
         )
         highlights.push(highlight)
       }
+
+      await waitUntilJobsDone()
     })
 
     beforeEach(async () => {
@@ -1287,6 +1294,8 @@ describe('Article API', () => {
         )
         await saveLabelsInLibraryItem([label1], items[0].id, user.id)
         await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+
+        await waitUntilJobsDone()
       })
 
       after(async () => {
@@ -1784,6 +1793,8 @@ describe('Article API', () => {
         )
         await saveLabelsInLibraryItem([label1], items[0].id, user.id)
         await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+
+        await waitUntilJobsDone()
       })
 
       after(async () => {
@@ -1842,6 +1853,8 @@ describe('Article API', () => {
         )
         await saveLabelsInLibraryItem([label1], items[0].id, user.id)
         await saveLabelsInLibraryItem([label2], items[1].id, user.id)
+
+        await waitUntilJobsDone()
       })
 
       after(async () => {

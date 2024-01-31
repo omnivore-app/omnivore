@@ -701,15 +701,10 @@ export const searchResolver = authorized<
 
   const edges = await Promise.all(
     libraryItems.map(async (libraryItem) => {
-      if (
-        libraryItem.highlightAnnotations &&
-        libraryItem.highlightAnnotations.length > 0
-      ) {
-        libraryItem.highlights = await findHighlightsByLibraryItemId(
-          libraryItem.id,
-          uid
-        )
-      }
+      libraryItem.highlights = await findHighlightsByLibraryItemId(
+        libraryItem.id,
+        uid
+      )
 
       if (params.includeContent && libraryItem.readableContent) {
         // convert html to the requested format

@@ -9,7 +9,6 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 import { enqueueUpdateHighlight } from '../utils/createTask'
-import { logger } from '../utils/logger'
 
 type HighlightEvent = { id: string; pageId: string }
 type CreateHighlightEvent = DeepPartial<Highlight> & HighlightEvent
@@ -63,13 +62,10 @@ export const createHighlight = async (
     userId
   )
 
-  if (newHighlight.annotation) {
-    const job = await enqueueUpdateHighlight({
-      libraryItemId,
-      userId,
-    })
-    logger.info('update highlight job enqueued', job)
-  }
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
 
   return newHighlight
 }
@@ -113,13 +109,10 @@ export const mergeHighlights = async (
     userId
   )
 
-  if (newHighlight.annotation) {
-    const job = await enqueueUpdateHighlight({
-      libraryItemId,
-      userId,
-    })
-    logger.info('update highlight job enqueued', job)
-  }
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
 
   return newHighlight
 }
@@ -150,13 +143,10 @@ export const updateHighlight = async (
     userId
   )
 
-  if (highlight.annotation) {
-    const job = await enqueueUpdateHighlight({
-      libraryItemId,
-      userId,
-    })
-    logger.info('update highlight job enqueued', job)
-  }
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
 
   return updatedHighlight
 }
@@ -168,7 +158,6 @@ export const deleteHighlightById = async (highlightId: string) => {
       where: { id: highlightId },
       relations: {
         user: true,
-        libraryItem: true,
       },
     })
 
@@ -176,13 +165,10 @@ export const deleteHighlightById = async (highlightId: string) => {
     return highlight
   })
 
-  if (deletedHighlight.annotation) {
-    const job = await enqueueUpdateHighlight({
-      libraryItemId: deletedHighlight.libraryItem.id,
-      userId: deletedHighlight.user.id,
-    })
-    logger.info('update highlight job enqueued', job)
-  }
+  await enqueueUpdateHighlight({
+    libraryItemId: deletedHighlight.libraryItemId,
+    userId: deletedHighlight.user.id,
+  })
 
   return deletedHighlight
 }

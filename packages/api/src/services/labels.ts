@@ -1,13 +1,12 @@
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel, LabelSource } from '../entity/entity_label'
-import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
-import { logger } from '../utils/logger'
+import { findHighlightById } from './highlights'
 import { findLibraryItemIdsByLabelId } from './library_item'
 
 type AddLabelsToLibraryItemEvent = {
@@ -126,8 +125,7 @@ export const saveLabelsInLibraryItem = async (
   }
 
   // update labels in library item
-  const jobs = await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
-  logger.info('update labels jobs enqueued', jobs)
+  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const addLabelsToLibraryItem = async (
@@ -155,8 +153,7 @@ export const addLabelsToLibraryItem = async (
   )
 
   // update labels in library item
-  const jobs = await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
-  logger.info('update labels jobs enqueued', jobs)
+  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const saveLabelsInHighlight = async (
@@ -189,19 +186,11 @@ export const saveLabelsInHighlight = async (
     userId
   )
 
-  const highlight = await authTrx(async (tx) =>
-    tx.getRepository(Highlight).findOne({
-      where: { id: highlightId },
-      relations: ['libraryItem'],
-    })
-  )
-  if (highlight) {
-    // update labels in library item
-    const jobs = await bulkEnqueueUpdateLabels([
-      { libraryItemId: highlight.libraryItem.id, userId },
-    ])
-    logger.info('update labels jobs enqueued', jobs)
-  }
+  const highlight = await findHighlightById(highlightId, userId)
+  // update labels in library item
+  await bulkEnqueueUpdateLabels([
+    { libraryItemId: highlight.libraryItemId, userId },
+  ])
 }
 
 export const findLabelsByIds = async (
@@ -259,8 +248,7 @@ export const deleteLabelById = async (labelId: string, userId: string) => {
     libraryItemId,
     userId,
   }))
-  const jobs = await bulkEnqueueUpdateLabels(data)
-  logger.info('update labels jobs enqueued', jobs)
+  await bulkEnqueueUpdateLabels(data)
 
   return true
 }
@@ -281,16 +269,13 @@ export const updateLabel = async (
     userId
   )
 
-  if (label.name) {
-    const libraryItemIds = await findLibraryItemIdsByLabelId(id, userId)
+  const libraryItemIds = await findLibraryItemIdsByLabelId(id, userId)
 
-    const data = libraryItemIds.map((libraryItemId) => ({
-      libraryItemId,
-      userId,
-    }))
-    const jobs = await bulkEnqueueUpdateLabels(data)
-    logger.info('update labels jobs enqueued', jobs)
-  }
+  const data = libraryItemIds.map((libraryItemId) => ({
+    libraryItemId,
+    userId,
+  }))
+  await bulkEnqueueUpdateLabels(data)
 
   return updatedLabel
 }

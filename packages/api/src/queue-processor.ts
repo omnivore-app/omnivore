@@ -2,7 +2,14 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Job, JobType, Queue, QueueEvents, Worker } from 'bullmq'
+import {
+  ConnectionOptions,
+  Job,
+  JobType,
+  Queue,
+  QueueEvents,
+  Worker,
+} from 'bullmq'
 import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
@@ -39,6 +46,43 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
   await backendQueue.waitUntilReady()
   return backendQueue
 }
+
+export const createWorker = (connection: ConnectionOptions) =>
+  new Worker(
+    QUEUE_NAME,
+    async (job: Job) => {
+      switch (job.name) {
+        case 'refresh-all-feeds': {
+          const queue = await getBackendQueue()
+          const counts = await queue?.getJobCounts('prioritized')
+          if (counts && counts.wait > 1000) {
+            return
+          }
+          return await refreshAllFeeds(appDataSource)
+        }
+        case 'refresh-feed': {
+          return await refreshFeed(job.data)
+        }
+        case 'save-page': {
+          return savePageJob(job.data, job.attemptsMade)
+        }
+        case 'update-pdf-content': {
+          return updatePDFContentJob(job.data)
+        }
+        case THUMBNAIL_JOB:
+          return findThumbnail(job.data)
+        case TRIGGER_RULE_JOB_NAME:
+          return triggerRule(job.data)
+        case UPDATE_LABELS_JOB:
+          return updateLabels(job.data)
+        case UPDATE_HIGHLIGHT_JOB:
+          return updateHighlight(job.data)
+      }
+    },
+    {
+      connection,
+    }
+  )
 
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
@@ -106,41 +150,7 @@ const main = async () => {
     throw '[queue-processor] error redis is not initialized'
   }
 
-  const worker = new Worker(
-    QUEUE_NAME,
-    async (job: Job) => {
-      switch (job.name) {
-        case 'refresh-all-feeds': {
-          const queue = await getBackendQueue()
-          const counts = await queue?.getJobCounts('prioritized')
-          if (counts && counts.wait > 1000) {
-            return
-          }
-          return await refreshAllFeeds(appDataSource)
-        }
-        case 'refresh-feed': {
-          return await refreshFeed(job.data)
-        }
-        case 'save-page': {
-          return savePageJob(job.data, job.attemptsMade)
-        }
-        case 'update-pdf-content': {
-          return updatePDFContentJob(job.data)
-        }
-        case THUMBNAIL_JOB:
-          return findThumbnail(job.data)
-        case TRIGGER_RULE_JOB_NAME:
-          return triggerRule(job.data)
-        case UPDATE_LABELS_JOB:
-          return updateLabels(job.data)
-        case UPDATE_HIGHLIGHT_JOB:
-          return updateHighlight(job.data)
-      }
-    },
-    {
-      connection: workerRedisClient,
-    }
-  )
+  const worker = createWorker(workerRedisClient)
 
   const queueEvents = new QueueEvents(QUEUE_NAME, {
     connection: workerRedisClient,

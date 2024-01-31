@@ -93,6 +93,7 @@ jobs:
           PG_DB: omnivore_test
           PG_LOGGER: debug
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
+          MQ_REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
   build-docker-images:
     name: Build docker images
     runs-on: ubuntu-latest

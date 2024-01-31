@@ -2,7 +2,9 @@ import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
+import { Highlight } from '../../src/entity/highlight'
 import { User } from '../../src/entity/user'
+import { getRepository } from '../../src/repository'
 import {
   createHighlight,
   deleteHighlightById,
@@ -11,7 +13,12 @@ import {
 import { createLabel, saveLabelsInHighlight } from '../../src/services/labels'
 import { deleteUser } from '../../src/services/user'
 import { createTestLibraryItem, createTestUser } from '../db'
-import { generateFakeShortId, generateFakeUuid, graphqlRequest, request } from '../util'
+import {
+  generateFakeShortId,
+  generateFakeUuid,
+  graphqlRequest,
+  request,
+} from '../util'
 
 chai.use(chaiString)
 
@@ -281,7 +288,7 @@ describe('Highlights API', () => {
         itemId,
         newHighlightId,
         newShortHighlightId,
-        [highlightId],
+        [highlightId]
       )
       const res = await graphqlRequest(query, authToken).expect(200)
 

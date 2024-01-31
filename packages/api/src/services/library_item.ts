@@ -1008,30 +1008,24 @@ export const batchUpdateLibraryItems = async (
       const libraryItems = await queryBuilder.getMany()
       // add labels in library items
       const labelsToAdd = libraryItems.flatMap((libraryItem) =>
-        labels
-          .map((label) => ({
-            labelId: label.id,
-            libraryItemId: libraryItem.id,
-            name: label.name,
-          }))
-          .filter((entityLabel) => {
-            const existingLabel = libraryItem.labelNames?.find(
-              (l) => l.toLowerCase() === entityLabel.name.toLowerCase()
-            )
-            return !existingLabel
-          })
+        labels.map((label) => ({
+          labelId: label.id,
+          libraryItemId: libraryItem.id,
+          name: label.name,
+          // put an zero uuid for highlight to avoid unique constraint violation
+          highlightId: '00000000-0000-0000-0000-000000000000',
+        }))
       )
       const labelsAdded = await tx.getRepository(EntityLabel).save(labelsToAdd)
 
-      const data = labelsAdded.map((label) => ({
-        libraryItemId: label.libraryItemId,
+      const data = libraryItems.map((item) => ({
+        libraryItemId: item.id,
         userId,
       }))
       // update labels in library item
-      const jobs = await bulkEnqueueUpdateLabels(data)
-      logger.info('update labels jobs enqueued', jobs)
+      await bulkEnqueueUpdateLabels(data)
 
-      return
+      return labelsAdded
     }
 
     // generate raw sql because postgres doesn't support prepared statements in DO blocks
