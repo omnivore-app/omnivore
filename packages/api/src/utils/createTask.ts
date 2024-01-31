@@ -669,7 +669,7 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
 export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
   const queue = await getBackendQueue()
   if (!queue) {
-    return undefined
+    return []
   }
 
   const jobs = data.map((d) => ({
@@ -684,6 +684,7 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
     return queue.addBulk(jobs)
   } catch (error) {
     logger.error('error enqueuing update labels jobs', error)
+    return []
   }
 }
 

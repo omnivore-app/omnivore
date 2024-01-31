@@ -125,7 +125,7 @@ export const saveLabelsInLibraryItem = async (
   }
 
   // update labels in library item
-  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  return bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const addLabelsToLibraryItem = async (

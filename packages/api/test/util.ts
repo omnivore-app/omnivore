@@ -1,14 +1,15 @@
-import { ConnectionOptions, Worker } from 'bullmq'
+import { ConnectionOptions, Job, QueueEvents, Worker } from 'bullmq'
 import { nanoid } from 'nanoid'
 import supertest from 'supertest'
 import { v4 } from 'uuid'
-import { createWorker } from '../src/queue-processor'
+import { createWorker, QUEUE_NAME } from '../src/queue-processor'
 import { createApp } from '../src/server'
 import { corsConfig } from '../src/utils/corsConfig'
 
 const { app, apollo } = createApp()
 export const request = supertest(app)
-let worker: Worker | undefined
+let worker: Worker
+let queueEvents: QueueEvents
 
 export const startApolloServer = async () => {
   await apollo.start()
@@ -21,14 +22,18 @@ export const stopApolloServer = async () => {
 
 export const startWorker = async (connection: ConnectionOptions) => {
   worker = createWorker(connection)
+  queueEvents = new QueueEvents(QUEUE_NAME, {
+    connection,
+  })
 }
 
 export const stopWorker = async () => {
-  worker?.close()
+  queueEvents.close()
+  worker.close()
 }
 
-export const waitUntilJobsDone = async () => {
-  await worker?.waitUntilReady()
+export const waitUntilJobsDone = async (jobs: Job[]) => {
+  await Promise.all(jobs.map((job) => job.waitUntilFinished(queueEvents)))
 }
 
 export const graphqlRequest = (
