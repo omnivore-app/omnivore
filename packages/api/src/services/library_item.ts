@@ -2,7 +2,6 @@ import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
 import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -17,10 +16,10 @@ import {
   valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
+import { addLabelsToLibraryItem } from './labels'
 
 enum ReadFilter {
   ALL = 'all',
@@ -1005,27 +1004,16 @@ export const batchUpdateLibraryItems = async (
         throw new Error('Labels are required for this action')
       }
 
+      const labelIds = labels.map((label) => label.id)
       const libraryItems = await queryBuilder.getMany()
       // add labels in library items
-      const labelsToAdd = libraryItems.flatMap((libraryItem) =>
-        labels.map((label) => ({
-          labelId: label.id,
-          libraryItemId: libraryItem.id,
-          name: label.name,
-          // put an zero uuid for highlight to avoid unique constraint violation
-          highlightId: '00000000-0000-0000-0000-000000000000',
-        }))
-      )
-      const labelsAdded = await tx.getRepository(EntityLabel).save(labelsToAdd)
+      for (const libraryItem of libraryItems) {
+        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
 
-      const data = libraryItems.map((item) => ({
-        libraryItemId: item.id,
-        userId,
-      }))
-      // update labels in library item
-      await bulkEnqueueUpdateLabels(data)
+        libraryItem.labels = labels
+      }
 
-      return labelsAdded
+      return
     }
 
     // generate raw sql because postgres doesn't support prepared statements in DO blocks
