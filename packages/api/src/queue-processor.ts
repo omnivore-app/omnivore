@@ -179,13 +179,14 @@ const main = async () => {
 
   const queue = await getBackendQueue()
   if (queue) {
+    // run every 60s
     await queue.add(
       SYNC_READ_POSITIONS_JOB_NAME,
       {},
       {
         priority: 1,
         repeat: {
-          every: 10000,
+          every: 60_000,
           limit: 100,
         },
       }

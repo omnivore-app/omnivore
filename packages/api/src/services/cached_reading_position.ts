@@ -78,7 +78,10 @@ export const pushCachedReadingPosition = async (
 ): Promise<boolean> => {
   const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
   try {
-    const result = await redisDataSource.redisClient?.lpush(
+    // Its critical that the date is set so the entry will be a unique
+    // set value.
+    position.updatedAt = new Date().toISOString()
+    const result = await redisDataSource.redisClient?.sadd(
       cacheKey,
       JSON.stringify(position)
     )
@@ -95,16 +98,35 @@ export const fetchCachedReadingPosition = async (
   uid: string,
   libraryItemID: string
 ): Promise<ReadingProgressCacheItem | undefined> => {
-  const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
   try {
-    const cacheItemList = await redisDataSource.redisClient?.lrange(
-      cacheKey,
-      0,
-      -1
+    const items = await fetchCachedReadingPositionsAndMembers(
+      uid,
+      libraryItemID
     )
-    const items = cacheItemList
-      ?.map((item) => parseReadingProgressCacheItem(item))
-      .filter(isReadingProgressCacheItem)
+    if (!items) {
+      return undefined
+    }
+    return reduceCachedReadingPositionMembers(
+      uid,
+      libraryItemID,
+      items.positionItems
+    )
+  } catch (error) {
+    logger.error('exception looking up cached reading position', {
+      uid,
+      libraryItemID,
+      error,
+    })
+  }
+  return undefined
+}
+
+export const reduceCachedReadingPositionMembers = async (
+  uid: string,
+  libraryItemID: string,
+  items: ReadingProgressCacheItem[]
+): Promise<ReadingProgressCacheItem | undefined> => {
+  try {
     if (!items || items.length < 1) {
       return undefined
     }
@@ -126,7 +148,6 @@ export const fetchCachedReadingPosition = async (
           : 0
       )
     )
-
     return {
       uid,
       libraryItemID,
@@ -135,6 +156,32 @@ export const fetchCachedReadingPosition = async (
       readingProgressAnchorIndex: anchor,
       updatedAt: undefined,
     }
+  } catch (error) {
+    logger.error('exception reducing cached reading items', {
+      uid,
+      libraryItemID,
+      error,
+    })
+  }
+  return undefined
+}
+
+export const fetchCachedReadingPositionsAndMembers = async (
+  uid: string,
+  libraryItemID: string
+): Promise<
+  { positionItems: ReadingProgressCacheItem[]; members: string[] } | undefined
+> => {
+  const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
+  try {
+    const members = await redisDataSource.redisClient?.smembers(cacheKey)
+    if (!members) {
+      return undefined
+    }
+    const positionItems = members
+      ?.map((item) => parseReadingProgressCacheItem(item))
+      .filter(isReadingProgressCacheItem)
+    return { members, positionItems }
   } catch (error) {
     logger.error('exception looking up cached reading position', {
       cacheKey,
