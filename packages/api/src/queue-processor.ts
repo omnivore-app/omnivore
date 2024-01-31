@@ -12,7 +12,12 @@ import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
-import { updateLabels, UPDATE_LABELS_JOB } from './jobs/update_db'
+import {
+  updateHighlight,
+  updateLabels,
+  UPDATE_HIGHLIGHT_JOB,
+  UPDATE_LABELS_JOB,
+} from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
@@ -128,6 +133,8 @@ const main = async () => {
           return triggerRule(job.data)
         case UPDATE_LABELS_JOB:
           return updateLabels(job.data)
+        case UPDATE_HIGHLIGHT_JOB:
+          return updateHighlight(job.data)
       }
     },
     {
