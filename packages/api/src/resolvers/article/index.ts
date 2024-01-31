@@ -60,7 +60,7 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
-import { getColumns } from '../../repository'
+import { authTrx, getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
@@ -640,19 +640,37 @@ export const saveArticleReadingProgressResolver = authorized<
         }
       }
 
-      dataSources.readingProgress.updateReadingProgress(id, {
-        readingProgressPercent,
-        readingProgressTopPercent,
-        readingProgressAnchorIndex,
-      })
-      // update reading progress only if the current value is lower
-      const updatedItem = await updateLibraryItemReadingProgress(
-        id,
-        uid,
-        readingProgressPercent,
-        readingProgressTopPercent,
-        readingProgressAnchorIndex
-      )
+      let updatedItem: LibraryItem | null
+      if (env.redis.cache && env.redis.mq) {
+        // If redis caching and queueing are available we delay this write
+        dataSources.readingProgress.updateReadingProgress(uid, id, {
+          readingProgressPercent,
+          readingProgressTopPercent: readingProgressTopPercent ?? undefined,
+          readingProgressAnchorIndex: readingProgressAnchorIndex ?? undefined,
+        })
+
+        updatedItem = await authTrx(
+          async (t) => {
+            return t.getRepository(LibraryItem).findOne({
+              where: {
+                id,
+              },
+            })
+          },
+          undefined,
+          uid
+        )
+      } else {
+        // update reading progress only if the current value is lower
+        updatedItem = await updateLibraryItemReadingProgress(
+          id,
+          uid,
+          readingProgressPercent,
+          readingProgressTopPercent,
+          readingProgressAnchorIndex
+        )
+      }
+
       if (!updatedItem) {
         return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
       }

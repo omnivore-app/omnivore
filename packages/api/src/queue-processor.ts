@@ -28,6 +28,10 @@ import {
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
+import {
+  SYNC_READ_POSITIONS_JOB_NAME,
+  syncReadPositionsJob,
+} from './jobs/sync_read_positions'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -151,6 +155,21 @@ const main = async () => {
   }
 
   const worker = createWorker(workerRedisClient)
+
+  const queue = await getBackendQueue()
+  if (queue) {
+    await queue.add(
+      SYNC_READ_POSITIONS_JOB_NAME,
+      {},
+      {
+        priority: 1,
+        repeat: {
+          every: 10000,
+          limit: 100,
+        },
+      }
+    )
+  }
 
   const queueEvents = new QueueEvents(QUEUE_NAME, {
     connection: workerRedisClient,

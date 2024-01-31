@@ -158,6 +158,60 @@ const resultResolveTypeResolver = (
   },
 })
 
+const readingProgressHandlers = {
+  async readingProgressPercent(
+    article: { id: string; readingProgressPercent?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress) {
+        return readingProgress.readingProgressPercent
+      }
+    }
+    return article.readingProgressPercent
+  },
+  async readingProgressAnchorIndex(
+    article: { id: string; readingProgressAnchorIndex?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress) {
+        return readingProgress.readingProgressAnchorIndex
+      }
+    }
+    return article.readingProgressAnchorIndex
+  },
+  async readingProgressTopPercent(
+    article: { id: string; readingProgressTopPercent?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress) {
+        return readingProgress.readingProgressTopPercent
+      }
+    }
+    return article.readingProgressTopPercent
+  },
+}
+
 // Provide resolver functions for your schema fields
 export const functionResolvers = {
   Mutation: {
@@ -328,42 +382,7 @@ export const functionResolvers = {
 
       return findLabelsByLibraryItemId(article.id, ctx.uid)
     },
-    async readingProgressPercent(
-      article: { id: string; readingProgressPercent?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const readingProgress =
-        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
-      if (readingProgress) {
-        return readingProgress.readingProgressPercent
-      }
-      return article.readingProgressPercent
-    },
-    async readingProgressAnchorIndex(
-      article: { id: string; readingProgressAnchorIndex?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const readingProgress =
-        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
-      if (readingProgress) {
-        return readingProgress.readingProgressAnchorIndex
-      }
-      return article.readingProgressAnchorIndex
-    },
-    async readingProgressTopPercent(
-      article: { id: string; readingProgressTopPercent?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const readingProgress =
-        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
-      if (readingProgress) {
-        return readingProgress.readingProgressTopPercent
-      }
-      return article.readingProgressTopPercent
-    },
+    ...readingProgressHandlers,
   },
   Highlight: {
     // async reactions(
@@ -469,42 +488,7 @@ export const functionResolvers = {
       const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
       return highlights.map(highlightDataToHighlight)
     },
-    async readingProgressPercent(
-      article: { id: string; readingProgressPercent?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const readingProgress =
-        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
-      if (readingProgress) {
-        return readingProgress.readingProgressPercent
-      }
-      return article.readingProgressPercent
-    },
-    async readingProgressAnchorIndex(
-      article: { id: string; readingProgressAnchorIndex?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const readingProgress =
-        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
-      if (readingProgress) {
-        return readingProgress.readingProgressAnchorIndex
-      }
-      return article.readingProgressAnchorIndex
-    },
-    async readingProgressTopPercent(
-      article: { id: string; readingProgressTopPercent?: number },
-      _: unknown,
-      ctx: WithDataSourcesContext
-    ) {
-      const readingProgress =
-        await ctx.dataSources.readingProgress.getReadingProgress(article.id)
-      if (readingProgress) {
-        return readingProgress.readingProgressTopPercent
-      }
-      return article.readingProgressTopPercent
-    },
+    ...readingProgressHandlers,
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
