@@ -112,7 +112,10 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
-import { clearCachedReadingPosition } from '../../services/cached_reading_position'
+import {
+  clearCachedReadingPosition,
+  fetchCachedReadingPosition,
+} from '../../services/cached_reading_position'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
@@ -647,12 +650,16 @@ export const saveArticleReadingProgressResolver = authorized<
       let updatedItem: LibraryItem | null
       if (env.redis.cache && env.redis.mq) {
         // If redis caching and queueing are available we delay this write
-        dataSources.readingProgress.updateReadingProgress(uid, id, {
-          readingProgressPercent,
-          readingProgressTopPercent: readingProgressTopPercent ?? undefined,
-          readingProgressAnchorIndex: readingProgressAnchorIndex ?? undefined,
-        })
+        const updatedProgress =
+          await dataSources.readingProgress.updateReadingProgress(uid, id, {
+            readingProgressPercent,
+            readingProgressTopPercent: readingProgressTopPercent ?? undefined,
+            readingProgressAnchorIndex: readingProgressAnchorIndex ?? undefined,
+          })
 
+        // We don't need to update the values of reading progress here
+        // because the function resolver will handle that for us when
+        // it resolves the properties of the Article object
         updatedItem = await authTrx(
           async (t) => {
             return t.getRepository(LibraryItem).findOne({
@@ -664,19 +671,7 @@ export const saveArticleReadingProgressResolver = authorized<
           undefined,
           uid
         )
-        if (updatedItem) {
-          updatedItem.readAt = new Date()
-          updatedItem.readingProgressBottomPercent = readingProgressPercent
-          if (readingProgressTopPercent) {
-            updatedItem.readingProgressTopPercent = readingProgressTopPercent
-          }
-          if (readingProgressAnchorIndex) {
-            updatedItem.readingProgressLastReadAnchor =
-              readingProgressAnchorIndex
-          }
-        }
       } else {
-        // update reading progress only if the current value is lower
         updatedItem = await updateLibraryItemReadingProgress(
           id,
           uid,

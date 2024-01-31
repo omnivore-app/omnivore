@@ -29,16 +29,14 @@ export class ReadingProgressDataSource {
       readingProgressTopPercent: number | undefined
       readingProgressAnchorIndex: number | undefined
     }
-  ): Promise<void> {
+  ): Promise<ReadingProgressCacheItem | undefined> {
     const cacheItem: ReadingProgressCacheItem = {
       uid,
       libraryItemID,
       updatedAt: new Date().toISOString(),
       ...progress,
     }
-    const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
-    if (await pushCachedReadingPosition(uid, libraryItemID, cacheItem)) {
-      this.cacheItems[cacheKey] = cacheItem
-    }
+    await pushCachedReadingPosition(uid, libraryItemID, cacheItem)
+    return fetchCachedReadingPosition(uid, libraryItemID)
   }
 }
