@@ -112,6 +112,7 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
+import { clearCachedReadingPosition } from '../../services/cached_reading_position'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
@@ -621,7 +622,10 @@ export const saveArticleReadingProgressResolver = authorized<
     }
     try {
       if (force) {
-        // update reading progress without checking the current value
+        // update reading progress without checking the current value, also
+        // clear any cached values.
+        await clearCachedReadingPosition(uid, id)
+
         const updatedItem = await updateLibraryItem(
           id,
           {
@@ -660,6 +664,17 @@ export const saveArticleReadingProgressResolver = authorized<
           undefined,
           uid
         )
+        if (updatedItem) {
+          updatedItem.readAt = new Date()
+          updatedItem.readingProgressBottomPercent = readingProgressPercent
+          if (readingProgressTopPercent) {
+            updatedItem.readingProgressTopPercent = readingProgressTopPercent
+          }
+          if (readingProgressAnchorIndex) {
+            updatedItem.readingProgressLastReadAnchor =
+              readingProgressAnchorIndex
+          }
+        }
       } else {
         // update reading progress only if the current value is lower
         updatedItem = await updateLibraryItemReadingProgress(
