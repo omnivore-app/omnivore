@@ -18,7 +18,5 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">true</item>
-
-        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 </resources>

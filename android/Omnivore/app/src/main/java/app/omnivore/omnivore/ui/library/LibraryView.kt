@@ -20,7 +20,6 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SwipeToDismiss
@@ -32,11 +31,11 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -70,7 +69,6 @@ import app.omnivore.omnivore.ui.savedItemViews.SavedItemCard
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LibraryView(
     libraryViewModel: LibraryViewModel,
@@ -146,7 +144,7 @@ fun showAddLinkBottomSheet(libraryViewModel: LibraryViewModel) {
     libraryViewModel.bottomSheetState.value = LibraryBottomSheetState.ADD_LINK
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelBottomSheet(
     libraryViewModel: LibraryViewModel,
