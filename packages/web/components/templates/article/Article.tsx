@@ -92,7 +92,7 @@ export function Article(props: ArticleProps): JSX.Element {
 
       setReadingProgress(bottomProgress * 100)
     }
-  }, 3500)
+  }, 2500)
 
   // Scroll to initial anchor position
   useEffect(() => {
