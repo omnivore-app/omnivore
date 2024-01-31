@@ -8,6 +8,11 @@ export interface UpdateLabelsData {
   userId: string
 }
 
+export interface UpdateHighlightData {
+  libraryItemId: string
+  userId: string
+}
+
 export const updateLabels = async (data: UpdateLabelsData) => {
   return authTrx(
     async (tx) =>
@@ -27,11 +32,6 @@ export const updateLabels = async (data: UpdateLabelsData) => {
     undefined,
     data.userId
   )
-}
-
-export interface UpdateHighlightData {
-  libraryItemId: string
-  userId: string
 }
 
 export const updateHighlight = async (data: UpdateHighlightData) => {
