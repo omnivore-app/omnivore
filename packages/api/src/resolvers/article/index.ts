@@ -879,15 +879,13 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      const searchResult = await searchLibraryItems(
-        {
-          query,
-          includePending: true,
-          includeDeleted: true,
-          useFolders: query.includes('use:folders'),
-        },
-        uid
-      )
+      const useFolders = query.includes('use:folders')
+      const searchArgs = {
+        query,
+        size: 0,
+        useFolders,
+      }
+      const searchResult = await searchLibraryItems(searchArgs, uid)
       const count = searchResult.count
       if (count === 0) {
         log.info('No items found for bulk action')
@@ -897,16 +895,7 @@ export const bulkActionResolver = authorized<
       const batchSize = 100
       if (count <= batchSize) {
         // if there are less than 100 items, update them synchronously
-        await batchUpdateLibraryItems(
-          action,
-          {
-            query,
-            useFolders: query.includes('use:folders'),
-          },
-          uid,
-          labelIds,
-          args
-        )
+        await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
 
         return { success: true }
       }
@@ -925,6 +914,7 @@ export const bulkActionResolver = authorized<
         count,
         args,
         batchSize,
+        useFolders,
       }
       await queue.add(BULK_ACTION_JOB_NAME, data, {
         attempts: 1,

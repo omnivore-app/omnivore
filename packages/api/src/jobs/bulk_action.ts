@@ -12,12 +12,22 @@ export interface BulkActionData {
   labelIds: string[]
   batchSize: number
   args?: unknown
+  useFolders?: boolean
 }
 
 export const BULK_ACTION_JOB_NAME = 'bulk-action'
 
 export const bulkAction = async (data: BulkActionData) => {
-  const { userId, action, query, labelIds, count, args, batchSize } = data
+  const {
+    userId,
+    action,
+    query,
+    labelIds,
+    count,
+    args,
+    batchSize,
+    useFolders,
+  } = data
 
   const queue = await getBackendQueue()
   if (!queue) {
@@ -31,6 +41,7 @@ export const bulkAction = async (data: BulkActionData) => {
       size: batchSize,
       from: offset,
       query,
+      useFolders,
     }
 
     const searchResult = await searchLibraryItems(searchArgs, userId)
