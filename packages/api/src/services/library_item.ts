@@ -1132,3 +1132,36 @@ export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
 
   return authTrx(async (t) => t.query(sql))
 }
+
+export const findLibraryItemIdsByLabelId = async (
+  labelId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) => {
+      // find library items have the label or have highlights with the label
+      const result = (await tx.query(
+        `
+        SELECT library_item_id
+        FROM (
+            SELECT library_item_id
+            FROM omnivore.entity_labels
+            WHERE label_id = $1
+                  AND library_item_id IS NOT NULL
+            UNION
+            SELECT h.library_item_id
+            FROM omnivore.highlight h
+            INNER JOIN omnivore.entity_labels ON entity_labels.highlight_id = h.id
+            WHERE label_id = $1
+                  AND highlight_id IS NOT NULL
+        ) AS combined_results
+      `,
+        [labelId]
+      )) as { library_item_id: string }[]
+
+      return result.map((r) => r.library_item_id)
+    },
+    undefined,
+    userId
+  )
+}

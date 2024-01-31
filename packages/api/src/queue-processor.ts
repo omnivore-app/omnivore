@@ -12,10 +12,7 @@ import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
 import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
-import {
-  updateLabelsInLibraryItem,
-  UPDATE_LABELS_IN_LIBRARY_ITEM_JOB,
-} from './jobs/update_db'
+import { updateLabels, UPDATE_LABELS_JOB } from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CustomTypeOrmLogger } from './utils/logger'
@@ -129,8 +126,8 @@ const main = async () => {
           return findThumbnail(job.data)
         case TRIGGER_RULE_JOB_NAME:
           return triggerRule(job.data)
-        case UPDATE_LABELS_IN_LIBRARY_ITEM_JOB:
-          return updateLabelsInLibraryItem(job.data)
+        case UPDATE_LABELS_JOB:
+          return updateLabels(job.data)
       }
     },
     {

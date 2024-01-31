@@ -5,8 +5,9 @@ import { Label } from '../entity/label'
 import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
-import { enqueueUpdateLabelsInLibraryItem } from '../utils/createTask'
+import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { logger } from '../utils/logger'
+import { findLibraryItemIdsByLabelId } from './library_item'
 
 type AddLabelsToLibraryItemEvent = {
   pageId: string
@@ -124,8 +125,8 @@ export const saveLabelsInLibraryItem = async (
   }
 
   // update labels in library item
-  const job = await enqueueUpdateLabelsInLibraryItem({ libraryItemId, userId })
-  logger.info('update labels in library item job created', job)
+  const jobs = await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  logger.info('update labels jobs enqueued', jobs)
 }
 
 export const addLabelsToLibraryItem = async (
@@ -151,6 +152,10 @@ export const addLabelsToLibraryItem = async (
     undefined,
     userId
   )
+
+  // update labels in library item
+  const jobs = await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  logger.info('update labels jobs enqueued', jobs)
 }
 
 export const saveLabelsInHighlight = async (
@@ -224,12 +229,33 @@ export const deleteLabels = async (
   )
 }
 
+export const deleteLabelById = async (labelId: string, userId: string) => {
+  const libraryItemIds = await findLibraryItemIdsByLabelId(labelId, userId)
+
+  const deleteResult = await authTrx(async (tx) => {
+    return tx.withRepository(labelRepository).deleteById(labelId)
+  })
+
+  if (!deleteResult.affected) {
+    return false
+  }
+
+  const data = libraryItemIds.map((libraryItemId) => ({
+    libraryItemId,
+    userId,
+  }))
+  const jobs = await bulkEnqueueUpdateLabels(data)
+  logger.info('update labels jobs enqueued', jobs)
+
+  return true
+}
+
 export const updateLabel = async (
   id: string,
   label: QueryDeepPartialEntity<Label>,
   userId: string
 ) => {
-  return authTrx(
+  const updatedLabel = await authTrx(
     async (t) => {
       const repo = t.withRepository(labelRepository)
       await repo.updateLabel(id, label)
@@ -239,6 +265,19 @@ export const updateLabel = async (
     undefined,
     userId
   )
+
+  if (label.name) {
+    const libraryItemIds = await findLibraryItemIdsByLabelId(id, userId)
+
+    const data = libraryItemIds.map((libraryItemId) => ({
+      libraryItemId,
+      userId,
+    }))
+    const jobs = await bulkEnqueueUpdateLabels(data)
+    logger.info('update labels jobs enqueued', jobs)
+  }
+
+  return updatedLabel
 }
 
 export const findLabelsByUserId = async (userId: string): Promise<Label[]> => {

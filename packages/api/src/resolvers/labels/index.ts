@@ -31,6 +31,7 @@ import {
 import { labelRepository } from '../../repository/label'
 import { userRepository } from '../../repository/user'
 import {
+  deleteLabelById,
   findOrCreateLabels,
   saveLabelsInHighlight,
   saveLabelsInLibraryItem,
@@ -118,13 +119,10 @@ export const deleteLabelResolver = authorized<
   DeleteLabelSuccess,
   DeleteLabelError,
   MutationDeleteLabelArgs
->(async (_, { id: labelId }, { authTrx, log, uid }) => {
+>(async (_, { id: labelId }, { log, uid }) => {
   try {
-    const deleteResult = await authTrx(async (tx) => {
-      return tx.withRepository(labelRepository).deleteById(labelId)
-    })
-
-    if (!deleteResult.affected) {
+    const deleted = await deleteLabelById(labelId, uid)
+    if (!deleted) {
       return {
         errorCodes: [DeleteLabelErrorCode.NotFound],
       }
@@ -281,7 +279,7 @@ export const setLabelsForHighlightResolver = authorized<
       }
     }
 
-    // save labels in the library item
+    // save labels in the highlight
     await saveLabelsInHighlight(labelsSet, input.highlightId, uid, pubsub)
 
     analytics.track({
