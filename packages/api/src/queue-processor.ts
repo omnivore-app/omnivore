@@ -32,6 +32,7 @@ import {
   SYNC_READ_POSITIONS_JOB_NAME,
   syncReadPositionsJob,
 } from './jobs/sync_read_positions'
+import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -135,6 +136,26 @@ const main = async () => {
       output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
       output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
     })
+
+    if (redisDataSource.redisClient) {
+      // Add read-position count, if its more than 10K items just denote
+      // 10_001. As this should never occur and means there is some
+      // other serious issue occurring.
+      const [cursor, batch] = await redisDataSource.redisClient.scan(
+        0,
+        'MATCH',
+        `${CACHED_READING_POSITION_PREFIX}:*`,
+        'COUNT',
+        10_000
+      )
+      if (cursor != '0') {
+        output += `# TYPE omnivore_read_position_messages gauge\n`
+        output += `omnivore_read_position_messages{queue="${QUEUE_NAME}"} ${10_001}\n`
+      } else if (batch) {
+        output += `# TYPE omnivore_read_position_messages gauge\n`
+        output += `omnivore_read_position_messages{queue="${QUEUE_NAME}"} ${batch.length}\n`
+      }
+    }
 
     res.status(200).setHeader('Content-Type', 'text/plain').send(output)
   })
