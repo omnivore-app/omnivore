@@ -16,7 +16,6 @@ import {
   BulkActionError,
   BulkActionErrorCode,
   BulkActionSuccess,
-  BulkActionType,
   ContentReader,
   CreateArticleError,
   CreateArticleErrorCode,
@@ -60,6 +59,8 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
+import { BULK_ACTION_JOB_NAME } from '../../jobs/bulk_action'
+import { getBackendQueue } from '../../queue-processor'
 import { authTrx, getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
@@ -69,7 +70,6 @@ import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   createAndSaveLabelsInLibraryItem,
-  findLabelsByIds,
   findOrCreateLabels,
 } from '../../services/labels'
 import {
@@ -879,35 +879,57 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      // the query size is limited to 4000 characters to allow for 100 items
-      if (!query || query.length > 4000) {
-        log.error('bulkActionResolver error', {
-          error: 'QueryTooLong',
-          query,
-        })
-        return { errorCodes: [BulkActionErrorCode.BadRequest] }
-      }
-
-      // get labels if needed
-      let labels = undefined
-      if (action === BulkActionType.AddLabels) {
-        if (!labelIds || labelIds.length === 0) {
-          return { errorCodes: [BulkActionErrorCode.BadRequest] }
-        }
-
-        labels = await findLabelsByIds(labelIds, uid)
-      }
-
-      await batchUpdateLibraryItems(
-        action,
+      const searchResult = await searchLibraryItems(
         {
           query,
+          includePending: true,
+          includeDeleted: true,
           useFolders: query.includes('use:folders'),
         },
-        uid,
-        labels,
-        args
+        uid
       )
+      const count = searchResult.count
+      if (count === 0) {
+        log.info('No items found for bulk action')
+        return { success: true }
+      }
+
+      const batchSize = 100
+      if (count <= batchSize) {
+        // if there are less than 100 items, update them synchronously
+        await batchUpdateLibraryItems(
+          action,
+          {
+            query,
+            useFolders: query.includes('use:folders'),
+          },
+          uid,
+          labelIds,
+          args
+        )
+
+        return { success: true }
+      }
+
+      // if there are more than 100 items, update them asynchronously
+      const queue = await getBackendQueue()
+      if (!queue) {
+        throw new Error('Queue not initialized')
+      }
+
+      const data = {
+        userId: uid,
+        action,
+        labelIds,
+        query,
+        count,
+        args,
+        batchSize,
+      }
+      await queue.add(BULK_ACTION_JOB_NAME, data, {
+        attempts: 1,
+        priority: 10,
+      })
 
       return { success: true }
     } catch (error) {

@@ -14,6 +14,8 @@ import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
+import { batchUpdate, BATCH_UPDATE_JOB_NAME } from './jobs/batch_update'
+import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
@@ -84,6 +86,10 @@ export const createWorker = (connection: ConnectionOptions) =>
           return updateHighlight(job.data)
         case SYNC_READ_POSITIONS_JOB_NAME:
           return syncReadPositionsJob(job.data)
+        case BULK_ACTION_JOB_NAME:
+          return bulkAction(job.data)
+        case BATCH_UPDATE_JOB_NAME:
+          return batchUpdate(job.data)
       }
     },
     {

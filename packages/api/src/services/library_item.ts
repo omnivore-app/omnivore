@@ -13,7 +13,6 @@ import {
   getColumns,
   isUniqueViolation,
   queryBuilderToRawSql,
-  valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
@@ -927,7 +926,7 @@ export const batchUpdateLibraryItems = async (
   action: BulkActionType,
   searchArgs: SearchArgs,
   userId: string,
-  labels?: Label[],
+  labelIds?: string[] | null,
   args?: unknown
 ) => {
   interface FolderArguments {
@@ -945,14 +944,14 @@ export const batchUpdateLibraryItems = async (
   switch (action) {
     case BulkActionType.Archive:
       values = {
-        archived_at: now,
+        archivedAt: now,
         state: LibraryItemState.Archived,
       }
       break
     case BulkActionType.Delete:
       values = {
         state: LibraryItemState.Deleted,
-        deleted_at: now,
+        deletedAt: now,
       }
       break
     case BulkActionType.AddLabels:
@@ -960,9 +959,9 @@ export const batchUpdateLibraryItems = async (
       break
     case BulkActionType.MarkAsRead:
       values = {
-        read_at: now,
-        reading_progress_top_percent: 100,
-        reading_progress_bottom_percent: 100,
+        readAt: now,
+        readingProgressTopPercent: 100,
+        readingProgressBottomPercent: 100,
       }
       break
     case BulkActionType.MoveToFolder:
@@ -972,7 +971,7 @@ export const batchUpdateLibraryItems = async (
 
       values = {
         folder: args.folder,
-        saved_at: now,
+        savedAt: now,
       }
 
       break
@@ -988,63 +987,37 @@ export const batchUpdateLibraryItems = async (
   const parameters: ObjectLiteral[] = []
   const query = buildQuery(searchQuery, parameters)
 
-  await authTrx(async (tx) => {
-    const queryBuilder = tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.user_id = :userId', { userId })
+  await authTrx(
+    async (tx) => {
+      const queryBuilder = tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .where('library_item.user_id = :userId', { userId })
 
-    if (query) {
-      queryBuilder
-        .andWhere(`(${query})`)
-        .setParameters(paramtersToObject(parameters))
-    }
-
-    if (addLabels) {
-      if (!labels) {
-        throw new Error('Labels are required for this action')
+      if (query) {
+        queryBuilder
+          .andWhere(`(${query})`)
+          .setParameters(paramtersToObject(parameters))
       }
 
-      const labelIds = labels.map((label) => label.id)
-      const libraryItems = await queryBuilder.getMany()
-      // add labels in library items
-      for (const libraryItem of libraryItems) {
-        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+      if (addLabels) {
+        if (!labelIds) {
+          throw new Error('Labels are required for this action')
+        }
 
-        libraryItem.labels = labels
+        const libraryItems = await queryBuilder.getMany()
+        // add labels to library items
+        for (const libraryItem of libraryItems) {
+          await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+        }
+
+        return
       }
 
-      return
-    }
-
-    // generate raw sql because postgres doesn't support prepared statements in DO blocks
-    const countSql = queryBuilderToRawSql(queryBuilder.select('COUNT(1)'))
-    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
-    const valuesSql = valuesToRawSql(values)
-
-    const start = new Date().toISOString()
-    const batchSize = 1000
-    const sql = `
-    -- Set batch size
-    DO $$ 
-    DECLARE 
-        batch_size INT := ${batchSize};
-    BEGIN
-        -- Loop through batches
-        FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
-            -- Update the batch
-            UPDATE omnivore.library_item
-            SET ${valuesSql}
-            WHERE id = ANY(
-              ${subQuery}
-              AND updated_at < '${start}'
-              LIMIT batch_size
-            );
-        END LOOP;
-    END $$
-    `
-
-    return tx.query(sql)
-  })
+      await queryBuilder.update(LibraryItem).set(values).execute()
+    },
+    undefined,
+    userId
+  )
 }
 
 export const deleteLibraryItemById = async (id: string, userId?: string) => {
