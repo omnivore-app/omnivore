@@ -35,6 +35,9 @@ export class Highlight {
   @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
 
+  @Column('uuid')
+  libraryItemId!: string
+
   @Column('text')
   quote?: string | null
 

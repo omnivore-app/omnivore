@@ -8,6 +8,7 @@ import { homePageURL } from '../env'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
+import { enqueueUpdateHighlight } from '../utils/createTask'
 
 type HighlightEvent = { id: string; pageId: string }
 type CreateHighlightEvent = DeepPartial<Highlight> & HighlightEvent
@@ -61,6 +62,11 @@ export const createHighlight = async (
     userId
   )
 
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
+
   return newHighlight
 }
 
@@ -103,6 +109,11 @@ export const mergeHighlights = async (
     userId
   )
 
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
+
   return newHighlight
 }
 
@@ -125,17 +136,23 @@ export const updateHighlight = async (
     })
   })
 
+  const libraryItemId = updatedHighlight.libraryItem.id
   await pubsub.entityUpdated<UpdateHighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...highlight, id: highlightId, pageId: updatedHighlight.libraryItem.id },
+    { ...highlight, id: highlightId, pageId: libraryItemId },
     userId
   )
+
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
 
   return updatedHighlight
 }
 
 export const deleteHighlightById = async (highlightId: string) => {
-  return authTrx(async (tx) => {
+  const deletedHighlight = await authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
     const highlight = await highlightRepo.findOneOrFail({
       where: { id: highlightId },
@@ -147,6 +164,13 @@ export const deleteHighlightById = async (highlightId: string) => {
     await highlightRepo.delete(highlightId)
     return highlight
   })
+
+  await enqueueUpdateHighlight({
+    libraryItemId: deletedHighlight.libraryItemId,
+    userId: deletedHighlight.user.id,
+  })
+
+  return deletedHighlight
 }
 
 export const findHighlightById = async (

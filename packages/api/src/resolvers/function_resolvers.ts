@@ -334,17 +334,13 @@ export const functionResolvers = {
       return article.content ? wordsCount(article.content) : undefined
     },
     async labels(
-      article: { id: string; labels?: Label[]; labelNames?: string[] | null },
+      article: { id: string; labels?: Label[] },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (article.labels) return article.labels
 
-      if (article.labelNames && article.labelNames.length > 0) {
-        return findLabelsByLibraryItemId(article.id, ctx.uid)
-      }
-
-      return []
+      return findLabelsByLibraryItemId(article.id, ctx.uid)
     },
   },
   Highlight: {
@@ -409,17 +405,13 @@ export const functionResolvers = {
       return item.siteIcon
     },
     async labels(
-      item: { id: string; labels?: Label[]; labelNames?: string[] | null },
+      item: { id: string; labels?: Label[] },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.labels) return item.labels
 
-      if (item.labelNames && item.labelNames.length > 0) {
-        return findLabelsByLibraryItemId(item.id, ctx.uid)
-      }
-
-      return []
+      return findLabelsByLibraryItemId(item.id, ctx.uid)
     },
     async recommendations(
       item: {
@@ -446,19 +438,14 @@ export const functionResolvers = {
       item: {
         id: string
         highlights?: Highlight[]
-        highlightAnnotations?: string[] | null
       },
       _: unknown,
       ctx: WithDataSourcesContext
     ) {
       if (item.highlights) return item.highlights
 
-      if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
-        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
-        return highlights.map(highlightDataToHighlight)
-      }
-
-      return []
+      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+      return highlights.map(highlightDataToHighlight)
     },
   },
   Subscription: {

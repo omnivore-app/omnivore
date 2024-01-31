@@ -1,7 +1,7 @@
 import { appDataSource } from '../src/data_source'
 import { env } from '../src/env'
 import { redisDataSource } from '../src/redis_data_source'
-import { stopApolloServer } from './util'
+import { stopApolloServer, stopWorker } from './util'
 
 export const mochaGlobalTeardown = async () => {
   await stopApolloServer()
@@ -13,5 +13,10 @@ export const mochaGlobalTeardown = async () => {
   if (env.redis.cache.url) {
     await redisDataSource.shutdown()
     console.log('redis connection closed')
+
+    if (redisDataSource.workerRedisClient) {
+      stopWorker()
+      console.log('worker closed')
+    }
   }
 }

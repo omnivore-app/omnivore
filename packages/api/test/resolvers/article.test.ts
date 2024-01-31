@@ -21,12 +21,7 @@ import {
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
-import { createHighlight } from '../../src/services/highlights'
-import {
-  createLabel,
-  deleteLabels,
-  saveLabelsInLibraryItem,
-} from '../../src/services/labels'
+import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
   createLibraryItem,
   createLibraryItems,
@@ -41,7 +36,12 @@ import {
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
-import { createTestLibraryItem, createTestUser } from '../db'
+import {
+  createHighlight,
+  createTestLibraryItem,
+  createTestUser,
+  saveLabelsInLibraryItem,
+} from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
