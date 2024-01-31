@@ -10,11 +10,28 @@ export type ReadingProgressCacheItem = {
   updatedAt: string | undefined
 }
 
+export const CACHED_READING_POSITION_PREFIX = `omnivore:reading-progress`
+
 export const keyForCachedReadingPosition = (
   uid: string,
   libraryItemID: string
 ): string => {
-  return `omnivore:reading-progress:${uid}:${libraryItemID}`
+  return `${CACHED_READING_POSITION_PREFIX}:${uid}:${libraryItemID}`
+}
+
+export const componentsForCachedReadingPositionKey = (
+  cacheKey: string
+): { uid: string; libraryItemID: string } | undefined => {
+  try {
+    const [_owner, _prefix, uid, libraryItemID] = cacheKey.split(':')
+    return {
+      uid,
+      libraryItemID,
+    }
+  } catch (error) {
+    logger.log('exception getting cache key components', { cacheKey, error })
+  }
+  return undefined
 }
 
 // Reading positions are cached as an array of positions, when
@@ -60,6 +77,7 @@ export const fetchCachedReadingPosition = async (
   uid: string,
   libraryItemID: string
 ): Promise<ReadingProgressCacheItem | undefined> => {
+  console.log('checking uid', uid, 'libraryItemId', libraryItemID)
   const cacheKey = keyForCachedReadingPosition(uid, libraryItemID)
   try {
     const cacheItemList = await redisDataSource.redisClient?.lrange(
@@ -67,7 +85,9 @@ export const fetchCachedReadingPosition = async (
       0,
       -1
     )
+    console.log('cacheItemList: ', cacheKey, cacheItemList)
     const items = cacheItemList?.map((item) => JSON.parse(item))
+    console.log(' items[]: ', items)
     if (!items || items.length < 1) {
       return undefined
     }
