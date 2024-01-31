@@ -671,6 +671,9 @@ export const saveArticleReadingProgressResolver = authorized<
           undefined,
           uid
         )
+        if (updatedItem) {
+          updatedItem.readAt = new Date()
+        }
       } else {
         updatedItem = await updateLibraryItemReadingProgress(
           id,
