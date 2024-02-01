@@ -15,6 +15,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
+import { CALL_WEBHOOK_JOB_NAME, callWebhook } from './jobs/call_webhook'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
@@ -87,6 +88,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return syncReadPositionsJob(job.data)
         case BULK_ACTION_JOB_NAME:
           return bulkAction(job.data)
+        case CALL_WEBHOOK_JOB_NAME:
+          return callWebhook(job.data)
       }
     },
     {

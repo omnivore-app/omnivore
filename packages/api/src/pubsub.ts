@@ -3,7 +3,7 @@ import express from 'express'
 import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
-import { enqueueTriggerRuleJob } from './utils/createTask'
+import { enqueueTriggerRuleJob, enqueueWebhookJob } from './utils/createTask'
 import { deepDelete } from './utils/helpers'
 import { buildLogger } from './utils/logger'
 
@@ -63,6 +63,13 @@ export const createPubSubClient = (): PubsubClient => {
         [...fieldsToDelete]
       )
 
+      await enqueueWebhookJob({
+        userId,
+        type,
+        action: 'created',
+        data,
+      })
+
       return publish(
         'entityCreated',
         Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
@@ -87,6 +94,13 @@ export const createPubSubClient = (): PubsubClient => {
         data as T & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]
       )
+
+      await enqueueWebhookJob({
+        userId,
+        type,
+        action: 'updated',
+        data,
+      })
 
       return publish(
         'entityUpdated',
