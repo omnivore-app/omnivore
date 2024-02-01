@@ -171,7 +171,10 @@ const readingProgressHandlers = {
           article.id
         )
       if (readingProgress) {
-        return readingProgress.readingProgressPercent
+        return Math.max(
+          article.readingProgressPercent ?? 0,
+          readingProgress.readingProgressPercent
+        )
       }
     }
     return article.readingProgressPercent
@@ -187,8 +190,11 @@ const readingProgressHandlers = {
           ctx.claims?.uid,
           article.id
         )
-      if (readingProgress) {
-        return readingProgress.readingProgressAnchorIndex
+      if (readingProgress && readingProgress.readingProgressAnchorIndex) {
+        return Math.max(
+          article.readingProgressAnchorIndex ?? 0,
+          readingProgress.readingProgressAnchorIndex
+        )
       }
     }
     return article.readingProgressAnchorIndex
@@ -204,8 +210,11 @@ const readingProgressHandlers = {
           ctx.claims?.uid,
           article.id
         )
-      if (readingProgress) {
-        return readingProgress.readingProgressTopPercent
+      if (readingProgress && readingProgress.readingProgressTopPercent) {
+        return Math.max(
+          article.readingProgressTopPercent ?? 0,
+          readingProgress.readingProgressTopPercent
+        )
       }
     }
     return article.readingProgressTopPercent
