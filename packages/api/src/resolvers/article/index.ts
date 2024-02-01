@@ -60,7 +60,7 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
-import { getColumns } from '../../repository'
+import { authTrx, getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
@@ -112,6 +112,10 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
+import {
+  clearCachedReadingPosition,
+  fetchCachedReadingPosition,
+} from '../../services/cached_reading_position'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
@@ -607,7 +611,7 @@ export const saveArticleReadingProgressResolver = authorized<
         force,
       },
     },
-    { log, pubsub, uid }
+    { log, pubsub, uid, dataSources }
   ) => {
     if (
       readingProgressPercent < 0 ||
@@ -621,7 +625,10 @@ export const saveArticleReadingProgressResolver = authorized<
     }
     try {
       if (force) {
-        // update reading progress without checking the current value
+        // update reading progress without checking the current value, also
+        // clear any cached values.
+        await clearCachedReadingPosition(uid, id)
+
         const updatedItem = await updateLibraryItem(
           id,
           {
@@ -640,14 +647,43 @@ export const saveArticleReadingProgressResolver = authorized<
         }
       }
 
-      // update reading progress only if the current value is lower
-      const updatedItem = await updateLibraryItemReadingProgress(
-        id,
-        uid,
-        readingProgressPercent,
-        readingProgressTopPercent,
-        readingProgressAnchorIndex
-      )
+      let updatedItem: LibraryItem | null
+      if (env.redis.cache && env.redis.mq) {
+        // If redis caching and queueing are available we delay this write
+        const updatedProgress =
+          await dataSources.readingProgress.updateReadingProgress(uid, id, {
+            readingProgressPercent,
+            readingProgressTopPercent: readingProgressTopPercent ?? undefined,
+            readingProgressAnchorIndex: readingProgressAnchorIndex ?? undefined,
+          })
+
+        // We don't need to update the values of reading progress here
+        // because the function resolver will handle that for us when
+        // it resolves the properties of the Article object
+        updatedItem = await authTrx(
+          async (t) => {
+            return t.getRepository(LibraryItem).findOne({
+              where: {
+                id,
+              },
+            })
+          },
+          undefined,
+          uid
+        )
+        if (updatedItem) {
+          updatedItem.readAt = new Date()
+        }
+      } else {
+        updatedItem = await updateLibraryItemReadingProgress(
+          id,
+          uid,
+          readingProgressPercent,
+          readingProgressTopPercent,
+          readingProgressAnchorIndex
+        )
+      }
+
       if (!updatedItem) {
         return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
       }
@@ -701,15 +737,10 @@ export const searchResolver = authorized<
 
   const edges = await Promise.all(
     libraryItems.map(async (libraryItem) => {
-      if (
-        libraryItem.highlightAnnotations &&
-        libraryItem.highlightAnnotations.length > 0
-      ) {
-        libraryItem.highlights = await findHighlightsByLibraryItemId(
-          libraryItem.id,
-          uid
-        )
-      }
+      libraryItem.highlights = await findHighlightsByLibraryItemId(
+        libraryItem.id,
+        uid
+      )
 
       if (params.includeContent && libraryItem.readableContent) {
         // convert html to the requested format

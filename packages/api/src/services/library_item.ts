@@ -2,7 +2,6 @@ import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
 import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
-import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -20,6 +19,7 @@ import { libraryItemRepository } from '../repository/library_item'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
+import { addLabelsToLibraryItem } from './labels'
 
 enum ReadFilter {
   ALL = 'all',
@@ -1004,23 +1004,16 @@ export const batchUpdateLibraryItems = async (
         throw new Error('Labels are required for this action')
       }
 
+      const labelIds = labels.map((label) => label.id)
       const libraryItems = await queryBuilder.getMany()
       // add labels in library items
-      const labelsToAdd = libraryItems.flatMap((libraryItem) =>
-        labels
-          .map((label) => ({
-            labelId: label.id,
-            libraryItemId: libraryItem.id,
-            name: label.name,
-          }))
-          .filter((entityLabel) => {
-            const existingLabel = libraryItem.labelNames?.find(
-              (l) => l.toLowerCase() === entityLabel.name.toLowerCase()
-            )
-            return !existingLabel
-          })
-      )
-      return tx.getRepository(EntityLabel).save(labelsToAdd)
+      for (const libraryItem of libraryItems) {
+        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+
+        libraryItem.labels = labels
+      }
+
+      return
     }
 
     // generate raw sql because postgres doesn't support prepared statements in DO blocks
@@ -1131,4 +1124,37 @@ export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
   `
 
   return authTrx(async (t) => t.query(sql))
+}
+
+export const findLibraryItemIdsByLabelId = async (
+  labelId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) => {
+      // find library items have the label or have highlights with the label
+      const result = (await tx.query(
+        `
+        SELECT library_item_id
+        FROM (
+            SELECT library_item_id
+            FROM omnivore.entity_labels
+            WHERE label_id = $1
+                  AND library_item_id IS NOT NULL
+            UNION
+            SELECT h.library_item_id
+            FROM omnivore.highlight h
+            INNER JOIN omnivore.entity_labels ON entity_labels.highlight_id = h.id
+            WHERE label_id = $1
+                  AND highlight_id IS NOT NULL
+        ) AS combined_results
+      `,
+        [labelId]
+      )) as { library_item_id: string }[]
+
+      return result.map((r) => r.library_item_id)
+    },
+    undefined,
+    userId
+  )
 }

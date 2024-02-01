@@ -21,12 +21,7 @@ import {
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
-import { createHighlight } from '../../src/services/highlights'
-import {
-  createLabel,
-  deleteLabels,
-  saveLabelsInLibraryItem,
-} from '../../src/services/labels'
+import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
   createLibraryItem,
   createLibraryItems,
@@ -41,7 +36,12 @@ import {
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
-import { createTestLibraryItem, createTestUser } from '../db'
+import {
+  createHighlight,
+  createTestLibraryItem,
+  createTestUser,
+  saveLabelsInLibraryItem,
+} from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
@@ -628,7 +628,6 @@ describe('Article API', () => {
         ).expect(200)
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
-        console.log('savedItem: ', savedItem)
         expect(savedItem?.archivedAt).to.not.be.null
         expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
@@ -779,7 +778,12 @@ describe('Article API', () => {
 
     it('saves topPercent as 0 if defined as 0', async () => {
       const topPercent = 0
-      query = saveArticleReadingProgressQuery(itemId, progress, topPercent)
+      query = saveArticleReadingProgressQuery(
+        itemId,
+        progress,
+        topPercent,
+        true
+      )
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle

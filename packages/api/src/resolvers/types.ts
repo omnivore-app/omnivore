@@ -5,6 +5,7 @@ import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
 import winston from 'winston'
 import { PubsubClient } from '../pubsub'
+import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 
 export interface Claims {
   uid: string
@@ -37,6 +38,9 @@ export interface RequestContext {
     userRole?: string
   ) => Promise<TResult>
   tracingSpan: Span
+  dataSources: {
+    readingProgress: ReadingProgressDataSource
+  }
 }
 
 export type ResolverContext = ApolloContext<RequestContext>

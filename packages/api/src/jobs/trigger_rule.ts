@@ -1,3 +1,4 @@
+import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
 import { addLabelsToLibraryItem } from '../services/labels'
@@ -21,10 +22,10 @@ interface RuleActionObj {
   action: RuleAction
   libraryItem: LibraryItem
 }
+type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
 
 export const TRIGGER_RULE_JOB_NAME = 'trigger-rule'
-
-type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
+const readingProgressDataSource = new ReadingProgressDataSource()
 
 const addLabels = async (obj: RuleActionObj) => {
   const labelIds = obj.action.params
@@ -48,16 +49,14 @@ const archivePage = async (obj: RuleActionObj) => {
 }
 
 const markPageAsRead = async (obj: RuleActionObj) => {
-  return updateLibraryItem(
+  return readingProgressDataSource.updateReadingProgress(
+    obj.userId,
     obj.libraryItem.id,
     {
+      readingProgressPercent: 100,
       readingProgressTopPercent: 100,
-      readingProgressBottomPercent: 100,
-      readAt: new Date(),
-    },
-    obj.userId,
-    undefined,
-    true
+      readingProgressAnchorIndex: undefined,
+    }
   )
 }
 

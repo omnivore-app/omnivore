@@ -17,6 +17,12 @@ import {
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
+import {
+  UpdateHighlightData,
+  UpdateLabelsData,
+  UPDATE_HIGHLIGHT_JOB,
+  UPDATE_LABELS_JOB,
+} from '../jobs/update_db'
 import { getBackendQueue } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
@@ -594,6 +600,7 @@ export const enqueueThumbnailJob = async (
   return queue.add(THUMBNAIL_JOB, payload, {
     priority: 100,
     attempts: 1,
+    removeOnComplete: true,
   })
 }
 
@@ -655,9 +662,58 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   }
 
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
+    priority: 1,
+    attempts: 1,
     removeOnComplete: true,
     removeOnFail: true,
   })
+}
+
+export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return []
+  }
+
+  const jobs = data.map((d) => ({
+    name: UPDATE_LABELS_JOB,
+    data: d,
+    opts: {
+      attempts: 3,
+      priority: 1,
+      backoff: {
+        type: 'exponential',
+        delay: 1000,
+      },
+    },
+  }))
+
+  try {
+    return queue.addBulk(jobs)
+  } catch (error) {
+    logger.error('error enqueuing update labels jobs', error)
+    return []
+  }
+}
+
+export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  try {
+    return queue.add(UPDATE_HIGHLIGHT_JOB, data, {
+      attempts: 3,
+      priority: 1,
+      backoff: {
+        type: 'exponential',
+        delay: 1000,
+      },
+    })
+  } catch (error) {
+    logger.error('error enqueuing update highlight job', error)
+  }
 }
 
 export default createHttpTaskWithToken
