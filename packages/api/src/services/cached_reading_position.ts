@@ -121,7 +121,7 @@ export const fetchCachedReadingPosition = async (
   return undefined
 }
 
-export const reduceCachedReadingPositionMembers = async (
+export const reduceCachedReadingPositionMembers = (
   uid: string,
   libraryItemID: string,
   items: ReadingProgressCacheItem[]
