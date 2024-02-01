@@ -125,7 +125,7 @@ export const reduceCachedReadingPositionMembers = (
   uid: string,
   libraryItemID: string,
   items: ReadingProgressCacheItem[]
-): Promise<ReadingProgressCacheItem | undefined> => {
+): ReadingProgressCacheItem | undefined => {
   try {
     if (!items || items.length < 1) {
       return undefined

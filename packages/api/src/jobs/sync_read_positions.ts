@@ -39,7 +39,7 @@ const syncReadPosition = async (cacheKey: string) => {
     positions.positionItems &&
     positions.positionItems.length > 0
   ) {
-    const position = await reduceCachedReadingPositionMembers(
+    const position = reduceCachedReadingPositionMembers(
       components.uid,
       components.libraryItemID,
       positions.positionItems
