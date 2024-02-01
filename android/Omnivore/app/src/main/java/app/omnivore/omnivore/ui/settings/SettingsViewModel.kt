@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.DatastoreKeys
 import app.omnivore.omnivore.DatastoreRepository
 import app.omnivore.omnivore.dataService.DataService
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.viewer
+import app.omnivore.omnivore.network.Networker
+import app.omnivore.omnivore.network.viewer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomSpace

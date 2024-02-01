@@ -1,8 +1,7 @@
-package app.omnivore.omnivore.networking
+package app.omnivore.omnivore.network
 
 import app.omnivore.omnivore.graphql.generated.UpdatesSinceQuery
 import app.omnivore.omnivore.graphql.generated.type.UpdateReason
-import app.omnivore.omnivore.persistence.entities.SavedItem
 import com.apollographql.apollo3.api.Optional
 
 data class SavedItemUpdatesQueryResponse(

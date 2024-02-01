@@ -1,6 +1,6 @@
 package app.omnivore.omnivore
 
-import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.network.Networker
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

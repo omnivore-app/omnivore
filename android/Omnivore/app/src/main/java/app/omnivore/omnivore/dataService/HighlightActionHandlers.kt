@@ -1,17 +1,13 @@
 package app.omnivore.omnivore.dataService
 
 import android.util.Log
-import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.network.*
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItemAndHighlightCrossRef
 import app.omnivore.omnivore.persistence.entities.saveHighlightChange
-import com.apollographql.apollo3.api.Optional
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.withContext
 import java.util.*
 

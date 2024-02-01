@@ -9,8 +9,8 @@ import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.graphql.generated.ValidateUsernameQuery
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.viewer
+import app.omnivore.omnivore.network.Networker
+import app.omnivore.omnivore.network.viewer
 import app.omnivore.omnivore.ui.ResourceProvider
 import com.apollographql.apollo3.ApolloClient
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount

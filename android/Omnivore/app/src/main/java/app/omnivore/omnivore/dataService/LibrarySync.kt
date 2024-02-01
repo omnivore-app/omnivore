@@ -2,7 +2,7 @@ package app.omnivore.omnivore.dataService
 
 import android.util.Log
 import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.network.*
 import app.omnivore.omnivore.persistence.entities.*
 
 suspend fun DataService.librarySearch(cursor: String?, query: String): SearchResult {

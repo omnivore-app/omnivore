@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.networking
+package app.omnivore.omnivore.network
 
 import app.omnivore.omnivore.Constants
 import app.omnivore.omnivore.DatastoreKeys

@@ -2,7 +2,7 @@ package app.omnivore.omnivore.dataService
 
 import android.content.Context
 import androidx.room.Room
-import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.network.*
 import app.omnivore.omnivore.persistence.AppDatabase
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItem

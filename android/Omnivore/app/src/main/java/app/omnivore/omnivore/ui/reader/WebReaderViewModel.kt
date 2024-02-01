@@ -15,7 +15,7 @@ import app.omnivore.omnivore.EventTracker
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.network.*
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import app.omnivore.omnivore.ui.components.HighlightColor

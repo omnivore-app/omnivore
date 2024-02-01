@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.networking
+package app.omnivore.omnivore.network
 
 import android.util.Log
 import app.omnivore.omnivore.graphql.generated.CreateHighlightMutation

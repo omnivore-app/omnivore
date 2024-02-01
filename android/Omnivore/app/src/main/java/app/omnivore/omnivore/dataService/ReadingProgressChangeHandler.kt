@@ -1,8 +1,8 @@
 package app.omnivore.omnivore.dataService
 
 import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.networking.ReadingProgressParams
-import app.omnivore.omnivore.networking.updateReadingProgress
+import app.omnivore.omnivore.network.ReadingProgressParams
+import app.omnivore.omnivore.network.updateReadingProgress
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

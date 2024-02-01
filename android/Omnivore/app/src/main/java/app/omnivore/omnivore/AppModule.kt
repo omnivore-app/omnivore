@@ -2,7 +2,7 @@ package app.omnivore.omnivore
 
 import android.content.Context
 import app.omnivore.omnivore.dataService.DataService
-import app.omnivore.omnivore.networking.Networker
+import app.omnivore.omnivore.network.Networker
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

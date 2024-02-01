@@ -3,8 +3,8 @@ package app.omnivore.omnivore.ui
 import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.graphql.generated.type.SetLabelsInput
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.updateLabelsForSavedItem
+import app.omnivore.omnivore.network.Networker
+import app.omnivore.omnivore.network.updateLabelsForSavedItem
 import app.omnivore.omnivore.persistence.entities.SavedItemAndSavedItemLabelCrossRef
 import app.omnivore.omnivore.persistence.entities.SavedItemLabel
 import com.apollographql.apollo3.api.Optional

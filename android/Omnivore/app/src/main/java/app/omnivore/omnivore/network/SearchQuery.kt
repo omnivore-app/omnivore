@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.networking
+package app.omnivore.omnivore.network
 
 import app.omnivore.omnivore.graphql.generated.SearchQuery
 import app.omnivore.omnivore.models.ServerSyncStatus

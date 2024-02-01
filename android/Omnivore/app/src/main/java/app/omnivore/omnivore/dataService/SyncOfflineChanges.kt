@@ -1,21 +1,17 @@
 package app.omnivore.omnivore.dataService
 
 import android.util.Log
-import androidx.room.PrimaryKey
 import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
 import app.omnivore.omnivore.models.ServerSyncStatus
-import app.omnivore.omnivore.networking.*
-import app.omnivore.omnivore.persistence.entities.Highlight
+import app.omnivore.omnivore.network.*
 import app.omnivore.omnivore.persistence.entities.HighlightChange
 import app.omnivore.omnivore.persistence.entities.SavedItem
 import app.omnivore.omnivore.persistence.entities.highlightChangeToHighlight
-import app.omnivore.omnivore.persistence.entities.saveHighlightChange
 import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.delay
-import kotlin.math.log
 
 suspend fun DataService.startSyncChannels() {
   Log.d("sync", "Starting sync channels")

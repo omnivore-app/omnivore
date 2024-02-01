@@ -3,10 +3,10 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
-    id 'com.apollographql.apollo3' version '3.7.2'
+    id("com.apollographql.apollo3") version "3.8.2"
 }
 
-def keystorePropertiesFile = rootProject.file("app/external/keystore.properties");
+def keystorePropertiesFile = rootProject.file("app/external/keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -135,7 +135,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
 
-    implementation 'com.apollographql.apollo3:apollo-runtime:3.7.2'
+    implementation("com.apollographql.apollo3:apollo-runtime:3.8.2")
 
     implementation 'androidx.compose.material3:material3:1.1.2'
     implementation 'androidx.compose.material3:material3-window-size-class:1.1.2'
@@ -163,7 +163,7 @@ dependencies {
 }
 
 apollo {
-    packageName.set 'app.omnivore.omnivore.graphql.generated'
+    packageName.set "app.omnivore.omnivore.graphql.generated"
 }
 
 task printVersion {

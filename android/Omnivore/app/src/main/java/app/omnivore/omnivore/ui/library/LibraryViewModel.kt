@@ -7,7 +7,7 @@ import androidx.lifecycle.*
 import app.omnivore.omnivore.*
 import app.omnivore.omnivore.dataService.*
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.networking.*
+import app.omnivore.omnivore.network.*
 import app.omnivore.omnivore.persistence.entities.*
 import app.omnivore.omnivore.ui.ResourceProvider
 import app.omnivore.omnivore.ui.setSavedItemLabels

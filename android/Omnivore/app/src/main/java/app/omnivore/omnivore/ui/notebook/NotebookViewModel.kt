@@ -4,8 +4,8 @@ import androidx.lifecycle.*
 import app.omnivore.omnivore.dataService.DataService
 import app.omnivore.omnivore.dataService.createNoteHighlight
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
-import app.omnivore.omnivore.networking.Networker
-import app.omnivore.omnivore.networking.updateHighlight
+import app.omnivore.omnivore.network.Networker
+import app.omnivore.omnivore.network.updateHighlight
 import app.omnivore.omnivore.persistence.entities.Highlight
 import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import com.apollographql.apollo3.api.Optional

@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.networking
+package app.omnivore.omnivore.network
 
 import app.omnivore.omnivore.graphql.generated.SaveArticleReadingProgressMutation
 import app.omnivore.omnivore.graphql.generated.type.SaveArticleReadingProgressInput

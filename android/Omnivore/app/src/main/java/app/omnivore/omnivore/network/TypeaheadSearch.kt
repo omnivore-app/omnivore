@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.networking
+package app.omnivore.omnivore.network
 
 import app.omnivore.omnivore.graphql.generated.TypeaheadSearchQuery
 import app.omnivore.omnivore.persistence.entities.TypeaheadCardData
