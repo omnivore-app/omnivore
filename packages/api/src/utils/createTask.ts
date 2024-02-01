@@ -664,7 +664,7 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   }
 
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
-    priority: 1,
+    priority: 5,
     attempts: 1,
     removeOnComplete: true,
     removeOnFail: true,
@@ -678,7 +678,7 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
   }
 
   return queue.add(CALL_WEBHOOK_JOB_NAME, data, {
-    priority: 1,
+    priority: 5,
     attempts: 1,
     removeOnComplete: true,
     removeOnFail: true,
