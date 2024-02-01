@@ -27,7 +27,7 @@ import {
 } from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
-import { CustomTypeOrmLogger } from './utils/logger'
+import { logger, CustomTypeOrmLogger } from './utils/logger'
 import {
   SYNC_READ_POSITIONS_JOB_NAME,
   syncReadPositionsJob,
@@ -90,6 +90,26 @@ export const createWorker = (connection: ConnectionOptions) =>
       connection,
     }
   )
+
+const setupCronJobs = async () => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    logger.error('Unable to setup cron jobs. Queue is not available.')
+    return
+  }
+
+  await queue.add(
+    SYNC_READ_POSITIONS_JOB_NAME,
+    {},
+    {
+      priority: 1,
+      repeat: {
+        every: 60_000,
+        limit: 100,
+      },
+    }
+  )
+}
 
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
@@ -155,7 +175,7 @@ const main = async () => {
         output += `omnivore_read_position_messages{queue="${QUEUE_NAME}"} ${10_001}\n`
       } else if (batch) {
         output += `# TYPE omnivore_read_position_messages gauge\n`
-        output += `omnivore_read_position_messages{queue="${QUEUE_NAME}"} ${batch.length}\n`
+        output += `omnivore_read_position_messages{} ${batch.length}\n`
       }
     }
 
@@ -179,21 +199,7 @@ const main = async () => {
 
   const worker = createWorker(workerRedisClient)
 
-  const queue = await getBackendQueue()
-  if (queue) {
-    // run every 60s
-    await queue.add(
-      SYNC_READ_POSITIONS_JOB_NAME,
-      {},
-      {
-        priority: 1,
-        repeat: {
-          every: 60_000,
-          limit: 100,
-        },
-      }
-    )
-  }
+  await setupCronJobs()
 
   const queueEvents = new QueueEvents(QUEUE_NAME, {
     connection: workerRedisClient,

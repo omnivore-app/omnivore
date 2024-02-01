@@ -73,7 +73,7 @@ const syncReadPosition = async (cacheKey: string) => {
   }
 }
 
-export const syncReadPositionsJob = async (data: any, attempts: number) => {
+export const syncReadPositionsJob = async (_data: any) => {
   const redis = redisDataSource.redisClient
   if (!redis) {
     throw new Error('unable to sync reading position, no redis client')
