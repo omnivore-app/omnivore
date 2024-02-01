@@ -385,6 +385,7 @@ export function useGetLibraryItemsQuery({
         })
         articleReadingProgressMutation({
           id: item.node.id,
+          force: true,
           readingProgressPercent: 100,
           readingProgressTopPercent: 100,
           readingProgressAnchorIndex: 0,
@@ -402,6 +403,7 @@ export function useGetLibraryItemsQuery({
         })
         articleReadingProgressMutation({
           id: item.node.id,
+          force: true,
           readingProgressPercent: 0,
           readingProgressTopPercent: 0,
           readingProgressAnchorIndex: 0,

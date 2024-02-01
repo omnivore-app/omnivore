@@ -57,7 +57,22 @@ export async function mergeHighlightMutation(
   `
 
   try {
-    const data = await gqlFetcher(mutation, { input })
+    const data = await gqlFetcher(mutation, {
+      input: {
+        id: input.id,
+        shortId: input.shortId,
+        articleId: input.articleId,
+        patch: input.patch,
+        quote: input.quote,
+        prefix: input.prefix,
+        suffix: input.suffix,
+        html: input.html,
+        annotation: input.annotation,
+        overlapHighlightIdList: input.overlapHighlightIdList,
+        highlightPositionPercent: input.highlightPositionPercent,
+        highlightPositionAnchorIndex: input.highlightPositionAnchorIndex,
+      },
+    })
     const output = data as MergeHighlightOutput | undefined
     return output?.mergeHighlight.highlight
   } catch {
