@@ -142,6 +142,12 @@ const main = async () => {
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
+  app.get('/lifecyle/prestop', async (req, res) => {
+    logger.info('prestop lifecycle hook called.')
+    await worker.close()
+    res.sendStatus(200)
+  })
+
   app.get('/metrics', async (_, res) => {
     const queue = await getBackendQueue()
     if (!queue) {
