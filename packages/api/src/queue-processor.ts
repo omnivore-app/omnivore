@@ -82,6 +82,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return updateLabels(job.data)
         case UPDATE_HIGHLIGHT_JOB:
           return updateHighlight(job.data)
+        case SYNC_READ_POSITIONS_JOB_NAME:
+          return syncReadPositionsJob(job.data)
       }
     },
     {
