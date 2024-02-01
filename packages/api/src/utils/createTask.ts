@@ -679,7 +679,12 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
     name: UPDATE_LABELS_JOB,
     data: d,
     opts: {
-      priority: 1,
+      attempts: 3,
+      priority: 5,
+      backoff: {
+        type: 'exponential',
+        delay: 1000,
+      },
     },
   }))
 
@@ -699,7 +704,12 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
 
   try {
     return queue.add(UPDATE_HIGHLIGHT_JOB, data, {
-      priority: 1,
+      attempts: 3,
+      priority: 5,
+      backoff: {
+        type: 'exponential',
+        delay: 1000,
+      },
     })
   } catch (error) {
     logger.error('error enqueuing update highlight job', error)
