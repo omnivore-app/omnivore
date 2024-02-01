@@ -679,6 +679,7 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
     name: UPDATE_LABELS_JOB,
     data: d,
     opts: {
+      jobId: `${UPDATE_LABELS_JOB}_${d.libraryItemId}`,
       attempts: 3,
       priority: 1,
       backoff: {
@@ -704,6 +705,7 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
 
   try {
     return queue.add(UPDATE_HIGHLIGHT_JOB, data, {
+      jobId: `${UPDATE_HIGHLIGHT_JOB}_${data.libraryItemId}`,
       attempts: 3,
       priority: 1,
       backoff: {
