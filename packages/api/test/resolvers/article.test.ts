@@ -628,7 +628,6 @@ describe('Article API', () => {
         ).expect(200)
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
-        console.log('savedItem: ', savedItem)
         expect(savedItem?.archivedAt).to.not.be.null
         expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
       })
@@ -779,7 +778,12 @@ describe('Article API', () => {
 
     it('saves topPercent as 0 if defined as 0', async () => {
       const topPercent = 0
-      query = saveArticleReadingProgressQuery(itemId, progress, topPercent)
+      query = saveArticleReadingProgressQuery(
+        itemId,
+        progress,
+        topPercent,
+        true
+      )
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle

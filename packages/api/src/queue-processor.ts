@@ -27,7 +27,12 @@ import {
 } from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
-import { CustomTypeOrmLogger } from './utils/logger'
+import { logger, CustomTypeOrmLogger } from './utils/logger'
+import {
+  SYNC_READ_POSITIONS_JOB_NAME,
+  syncReadPositionsJob,
+} from './jobs/sync_read_positions'
+import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -77,12 +82,34 @@ export const createWorker = (connection: ConnectionOptions) =>
           return updateLabels(job.data)
         case UPDATE_HIGHLIGHT_JOB:
           return updateHighlight(job.data)
+        case SYNC_READ_POSITIONS_JOB_NAME:
+          return syncReadPositionsJob(job.data)
       }
     },
     {
       connection,
     }
   )
+
+const setupCronJobs = async () => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    logger.error('Unable to setup cron jobs. Queue is not available.')
+    return
+  }
+
+  await queue.add(
+    SYNC_READ_POSITIONS_JOB_NAME,
+    {},
+    {
+      priority: 1,
+      repeat: {
+        every: 60_000,
+        limit: 100,
+      },
+    }
+  )
+}
 
 const main = async () => {
   console.log('[queue-processor]: starting queue processor')
@@ -115,6 +142,12 @@ const main = async () => {
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
+  app.get('/lifecycle/prestop', async (req, res) => {
+    logger.info('prestop lifecycle hook called.')
+    await worker.close()
+    res.sendStatus(200)
+  })
+
   app.get('/metrics', async (_, res) => {
     const queue = await getBackendQueue()
     if (!queue) {
@@ -131,6 +164,26 @@ const main = async () => {
       output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
       output += `omnivore_queue_messages_${metric}{queue="${QUEUE_NAME}"} ${counts[metric]}\n`
     })
+
+    if (redisDataSource.redisClient) {
+      // Add read-position count, if its more than 10K items just denote
+      // 10_001. As this should never occur and means there is some
+      // other serious issue occurring.
+      const [cursor, batch] = await redisDataSource.redisClient.scan(
+        0,
+        'MATCH',
+        `${CACHED_READING_POSITION_PREFIX}:*`,
+        'COUNT',
+        10_000
+      )
+      if (cursor != '0') {
+        output += `# TYPE omnivore_read_position_messages gauge\n`
+        output += `omnivore_read_position_messages{queue="${QUEUE_NAME}"} ${10_001}\n`
+      } else if (batch) {
+        output += `# TYPE omnivore_read_position_messages gauge\n`
+        output += `omnivore_read_position_messages{} ${batch.length}\n`
+      }
+    }
 
     res.status(200).setHeader('Content-Type', 'text/plain').send(output)
   })
@@ -151,6 +204,8 @@ const main = async () => {
   }
 
   const worker = createWorker(workerRedisClient)
+
+  await setupCronJobs()
 
   const queueEvents = new QueueEvents(QUEUE_NAME, {
     connection: workerRedisClient,

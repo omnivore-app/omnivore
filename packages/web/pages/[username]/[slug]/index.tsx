@@ -155,6 +155,7 @@ export default function Home(): JSX.Element {
           if (article) {
             articleReadingProgressMutation({
               id: article.id,
+              force: true,
               readingProgressPercent: 100,
               readingProgressTopPercent: 100,
               readingProgressAnchorIndex: 0,

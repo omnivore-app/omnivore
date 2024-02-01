@@ -158,6 +158,69 @@ const resultResolveTypeResolver = (
   },
 })
 
+const readingProgressHandlers = {
+  async readingProgressPercent(
+    article: { id: string; readingProgressPercent?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress) {
+        return Math.max(
+          article.readingProgressPercent ?? 0,
+          readingProgress.readingProgressPercent
+        )
+      }
+    }
+    return article.readingProgressPercent
+  },
+  async readingProgressAnchorIndex(
+    article: { id: string; readingProgressAnchorIndex?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress && readingProgress.readingProgressAnchorIndex) {
+        return Math.max(
+          article.readingProgressAnchorIndex ?? 0,
+          readingProgress.readingProgressAnchorIndex
+        )
+      }
+    }
+    return article.readingProgressAnchorIndex
+  },
+  async readingProgressTopPercent(
+    article: { id: string; readingProgressTopPercent?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress && readingProgress.readingProgressTopPercent) {
+        return Math.max(
+          article.readingProgressTopPercent ?? 0,
+          readingProgress.readingProgressTopPercent
+        )
+      }
+    }
+    return article.readingProgressTopPercent
+  },
+}
+
 // Provide resolver functions for your schema fields
 export const functionResolvers = {
   Mutation: {
@@ -312,20 +375,6 @@ export const functionResolvers = {
     publishedAt(article: { publishedAt: Date }) {
       return validatedDate(article.publishedAt)
     },
-    // async shareInfo(
-    //   article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
-    //   __: unknown,
-    //   ctx: WithDataSourcesContext
-    // ): Promise<LinkShareInfo | undefined> {
-    //   if (article.shareInfo) return article.shareInfo
-    //   if (!ctx.claims?.uid) return undefined
-    //   return getShareInfoForArticle(
-    //     ctx.kx,
-    //     ctx.claims?.uid,
-    //     article.id,
-    //     ctx.models
-    //   )
-    // },
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 320, 320)
     },
@@ -342,6 +391,7 @@ export const functionResolvers = {
 
       return findLabelsByLibraryItemId(article.id, ctx.uid)
     },
+    ...readingProgressHandlers,
   },
   Highlight: {
     // async reactions(
@@ -447,6 +497,7 @@ export const functionResolvers = {
       const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
       return highlights.map(highlightDataToHighlight)
     },
+    ...readingProgressHandlers,
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
