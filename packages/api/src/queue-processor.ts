@@ -14,12 +14,15 @@ import express, { Express } from 'express'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
-import { batchUpdate, BATCH_UPDATE_JOB_NAME } from './jobs/batch_update'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
+import {
+  syncReadPositionsJob,
+  SYNC_READ_POSITIONS_JOB_NAME,
+} from './jobs/sync_read_positions'
 import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
 import {
   updateHighlight,
@@ -29,12 +32,8 @@ import {
 } from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
-import { logger, CustomTypeOrmLogger } from './utils/logger'
-import {
-  SYNC_READ_POSITIONS_JOB_NAME,
-  syncReadPositionsJob,
-} from './jobs/sync_read_positions'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
+import { CustomTypeOrmLogger, logger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 
@@ -87,9 +86,7 @@ export const createWorker = (connection: ConnectionOptions) =>
         case SYNC_READ_POSITIONS_JOB_NAME:
           return syncReadPositionsJob(job.data)
         case BULK_ACTION_JOB_NAME:
-          return bulkAction(job.data, job.id)
-        case BATCH_UPDATE_JOB_NAME:
-          return batchUpdate(job.data)
+          return bulkAction(job.data)
       }
     },
     {

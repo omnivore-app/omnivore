@@ -1,9 +1,7 @@
 import { BulkActionType } from '../generated/graphql'
 import { getBackendQueue } from '../queue-processor'
-import { searchLibraryItems } from '../services/library_item'
-import { stringToHash } from '../utils/helpers'
+import { batchUpdateLibraryItems } from '../services/library_item'
 import { logger } from '../utils/logger'
-import { BATCH_UPDATE_JOB_NAME } from './batch_update'
 
 export interface BulkActionData {
   count: number
@@ -17,49 +15,26 @@ export interface BulkActionData {
 
 export const BULK_ACTION_JOB_NAME = 'bulk-action'
 
-export const bulkAction = async (data: BulkActionData, id?: string) => {
-  if (!id) {
-    throw new Error('Missing id')
-  }
-
-  const { userId, action, query, labelIds, count, args, batchSize } = data
+export const bulkAction = async (data: BulkActionData) => {
+  const { userId, action, query, labelIds, args, batchSize, count } = data
 
   const queue = await getBackendQueue()
   if (!queue) {
     throw new Error('Queue not initialized')
   }
+  const now = new Date().toISOString()
   let offset = 0
 
   do {
     const searchArgs = {
       size: batchSize,
-      from: offset,
-      query,
+      query: `(${query}) AND updated:<${now}`,
     }
 
-    const searchResult = await searchLibraryItems(searchArgs, userId)
-    const libraryItemIds = searchResult.libraryItems.map((item) => item.id)
-    const data = {
-      userId,
-      action,
-      labelIds,
-      libraryItemIds,
-      args,
-    }
-    const libraryItemIdsStr = libraryItemIds.sort().join()
-    const jobId = `${BATCH_UPDATE_JOB_NAME}-${stringToHash(libraryItemIdsStr)}`
-
-    // enqueue job for each batch
     try {
-      await queue.add(BATCH_UPDATE_JOB_NAME, data, {
-        attempts: 1,
-        priority: 10,
-        jobId, // deduplication
-        removeOnComplete: true,
-        removeOnFail: true,
-      })
+      await batchUpdateLibraryItems(action, searchArgs, userId, labelIds, args)
     } catch (error) {
-      logger.error('Error enqueuing batch update job', error)
+      logger.error('batch update error', error)
     }
 
     offset += batchSize

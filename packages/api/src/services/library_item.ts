@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
+import { appDataSource } from '../data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -939,21 +940,34 @@ export const countByCreatedAt = async (
 
 export const batchUpdateLibraryItems = async (
   action: BulkActionType,
-  libraryItemIds: string[],
+  searchArgs: SearchArgs,
   userId: string,
   labelIds?: string[] | null,
   args?: unknown
 ) => {
-  if (libraryItemIds.length === 0) {
-    return
-  }
-
   interface FolderArguments {
     folder: string
   }
 
   const isFolderArguments = (args: any): args is FolderArguments => {
     return 'folder' in args
+  }
+
+  if (!searchArgs.query) {
+    throw new Error('Search query is required')
+  }
+
+  const searchQuery = parseSearchQuery(searchArgs.query)
+  const parameters: ObjectLiteral[] = []
+  const query = buildQuery(searchQuery, parameters)
+  const queryBuilder = appDataSource
+    .createQueryBuilder(LibraryItem, 'library_item')
+    .where('library_item.user_id = :userId', { userId })
+
+  if (query) {
+    queryBuilder
+      .andWhere(`(${query})`)
+      .setParameters(paramtersToObject(parameters))
   }
 
   const now = new Date().toISOString()
@@ -972,24 +986,28 @@ export const batchUpdateLibraryItems = async (
         deletedAt: now,
       }
       break
-    case BulkActionType.AddLabels:
-      if (!labelIds || labelIds.length === 0) {
+    case BulkActionType.AddLabels: {
+      if (!labelIds) {
         throw new Error('Labels are required for this action')
       }
 
+      const libraryItems = await queryBuilder.getMany()
       // add labels to library items
-      for (const libraryItemId of libraryItemIds) {
-        await addLabelsToLibraryItem(labelIds, libraryItemId, userId)
+      for (const libraryItem of libraryItems) {
+        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
       }
 
       return
-    case BulkActionType.MarkAsRead:
+    }
+    case BulkActionType.MarkAsRead: {
+      const libraryItems = await queryBuilder.getMany()
       // update reading progress for library items
-      for (const libraryItemId of libraryItemIds) {
-        await markItemAsRead(libraryItemId, userId)
+      for (const libraryItem of libraryItems) {
+        await markItemAsRead(libraryItem.id, userId)
       }
 
       return
+    }
     case BulkActionType.MoveToFolder:
       if (!args || !isFolderArguments(args)) {
         throw new Error('Invalid arguments')
@@ -1005,11 +1023,7 @@ export const batchUpdateLibraryItems = async (
       throw new Error('Invalid bulk action')
   }
 
-  return authTrx(
-    async (tx) => tx.getRepository(LibraryItem).update(libraryItemIds, values),
-    undefined,
-    userId
-  )
+  await queryBuilder.update(LibraryItem).set(values).execute()
 }
 
 export const deleteLibraryItemById = async (id: string, userId?: string) => {

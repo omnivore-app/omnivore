@@ -734,7 +734,7 @@ export const enqueueBulkAction = async (data: BulkActionData) => {
       removeOnFail: true,
     })
   } catch (error) {
-    logger.error('error enqueuing update highlight job', error)
+    logger.error('error enqueuing bulk action job', error)
   }
 }
 
