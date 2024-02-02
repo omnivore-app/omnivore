@@ -1,9 +1,13 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
+import {
+  DeepPartial,
+  EntityManager,
+  FindOptionsWhere,
+  ObjectLiteral,
+} from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
-import { appDataSource } from '../data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -953,6 +957,26 @@ export const batchUpdateLibraryItems = async (
     return 'folder' in args
   }
 
+  const getQueryBuilder = (userId: string, em: EntityManager) => {
+    const queryBuilder = em
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .where('library_item.user_id = :userId', { userId })
+    if (query) {
+      queryBuilder
+        .andWhere(`(${query})`)
+        .setParameters(paramtersToObject(parameters))
+    }
+    return queryBuilder
+  }
+
+  const getLibraryItemIds = async (
+    userId: string,
+    em: EntityManager
+  ): Promise<string[]> => {
+    const queryBuilder = getQueryBuilder(userId, em)
+    return queryBuilder.select('library_item.id').getRawMany()
+  }
+
   if (!searchArgs.query) {
     throw new Error('Search query is required')
   }
@@ -960,15 +984,6 @@ export const batchUpdateLibraryItems = async (
   const searchQuery = parseSearchQuery(searchArgs.query)
   const parameters: ObjectLiteral[] = []
   const query = buildQuery(searchQuery, parameters)
-  const queryBuilder = appDataSource
-    .createQueryBuilder(LibraryItem, 'library_item')
-    .where('library_item.user_id = :userId', { userId })
-
-  if (query) {
-    queryBuilder
-      .andWhere(`(${query})`)
-      .setParameters(paramtersToObject(parameters))
-  }
 
   const now = new Date().toISOString()
   // build the script
@@ -991,19 +1006,27 @@ export const batchUpdateLibraryItems = async (
         throw new Error('Labels are required for this action')
       }
 
-      const libraryItems = await queryBuilder.getMany()
+      const libraryItemIds = await authTrx(
+        async (tx) => getLibraryItemIds(userId, tx),
+        undefined,
+        userId
+      )
       // add labels to library items
-      for (const libraryItem of libraryItems) {
-        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+      for (const libraryItemId of libraryItemIds) {
+        await addLabelsToLibraryItem(labelIds, libraryItemId, userId)
       }
 
       return
     }
     case BulkActionType.MarkAsRead: {
-      const libraryItems = await queryBuilder.getMany()
+      const libraryItemIds = await authTrx(
+        async (tx) => getLibraryItemIds(userId, tx),
+        undefined,
+        userId
+      )
       // update reading progress for library items
-      for (const libraryItem of libraryItems) {
-        await markItemAsRead(libraryItem.id, userId)
+      for (const libraryItemId of libraryItemIds) {
+        await markItemAsRead(libraryItemId, userId)
       }
 
       return
@@ -1023,7 +1046,12 @@ export const batchUpdateLibraryItems = async (
       throw new Error('Invalid bulk action')
   }
 
-  await queryBuilder.update(LibraryItem).set(values).execute()
+  await authTrx(
+    async (tx) =>
+      getQueryBuilder(userId, tx).update(LibraryItem).set(values).execute(),
+    undefined,
+    userId
+  )
 }
 
 export const deleteLibraryItemById = async (id: string, userId?: string) => {
