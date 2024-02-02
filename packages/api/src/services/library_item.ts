@@ -972,9 +972,9 @@ export const batchUpdateLibraryItems = async (
   const getLibraryItemIds = async (
     userId: string,
     em: EntityManager
-  ): Promise<string[]> => {
+  ): Promise<{ id: string }[]> => {
     const queryBuilder = getQueryBuilder(userId, em)
-    return queryBuilder.select('library_item.id').getRawMany()
+    return queryBuilder.select('library_item.id', 'id').getRawMany()
   }
 
   if (!searchArgs.query) {
@@ -1006,27 +1006,27 @@ export const batchUpdateLibraryItems = async (
         throw new Error('Labels are required for this action')
       }
 
-      const libraryItemIds = await authTrx(
+      const libraryItems = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
         undefined,
         userId
       )
       // add labels to library items
-      for (const libraryItemId of libraryItemIds) {
-        await addLabelsToLibraryItem(labelIds, libraryItemId, userId)
+      for (const libraryItem of libraryItems) {
+        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
       }
 
       return
     }
     case BulkActionType.MarkAsRead: {
-      const libraryItemIds = await authTrx(
+      const libraryItems = await authTrx(
         async (tx) => getLibraryItemIds(userId, tx),
         undefined,
         userId
       )
       // update reading progress for library items
-      for (const libraryItemId of libraryItemIds) {
-        await markItemAsRead(libraryItemId, userId)
+      for (const libraryItem of libraryItems) {
+        await markItemAsRead(libraryItem.id, userId)
       }
 
       return

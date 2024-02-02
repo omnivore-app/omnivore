@@ -878,7 +878,7 @@ export const bulkActionResolver = authorized<
       const batchSize = 100
       const searchArgs = {
         query,
-        size: batchSize,
+        size: 0,
       }
       const searchResult = await searchLibraryItems(searchArgs, uid)
       const count = searchResult.count
@@ -888,6 +888,7 @@ export const bulkActionResolver = authorized<
       }
 
       if (count <= batchSize) {
+        searchArgs.size = count
         // if there are less than 100 items, update them synchronously
         await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
 

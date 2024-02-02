@@ -28,7 +28,7 @@ export const bulkAction = async (data: BulkActionData) => {
   do {
     const searchArgs = {
       size: batchSize,
-      query: `(${query}) AND updated:<${now}`,
+      query: `(${query}) AND updated:*..${now}`, // only process items that have not been updated
     }
 
     try {
