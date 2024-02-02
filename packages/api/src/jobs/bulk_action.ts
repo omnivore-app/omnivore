@@ -66,11 +66,12 @@ export const bulkAction = async (data: BulkActionData, id?: string) => {
     try {
       await queue.add(BATCH_UPDATE_JOB_NAME, data, {
         attempts: 1,
-        priority: 10,
+        priority: 5,
         jobId, // deduplication
         removeOnComplete: true,
         removeOnFail: true,
         parent, // for tracking
+        removeDependencyOnFailure: true,
       })
     } catch (error) {
       logger.error('Error enqueuing batch update job', error)
