@@ -2,6 +2,7 @@ import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
 import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -100,6 +101,20 @@ export interface Sort {
 interface Select {
   column: string
   alias?: string
+}
+
+const readingProgressDataSource = new ReadingProgressDataSource()
+
+const markItemAsRead = async (libraryItemId: string, userId: string) => {
+  return await readingProgressDataSource.updateReadingProgress(
+    userId,
+    libraryItemId,
+    {
+      readingProgressPercent: 100,
+      readingProgressTopPercent: 100,
+      readingProgressAnchorIndex: undefined,
+    }
+  )
 }
 
 const handleNoCase = (value: string) => {
@@ -924,11 +939,15 @@ export const countByCreatedAt = async (
 
 export const batchUpdateLibraryItems = async (
   action: BulkActionType,
-  searchArgs: SearchArgs,
+  libraryItemIds: string[],
   userId: string,
   labelIds?: string[] | null,
   args?: unknown
 ) => {
+  if (libraryItemIds.length === 0) {
+    return
+  }
+
   interface FolderArguments {
     folder: string
   }
@@ -940,7 +959,6 @@ export const batchUpdateLibraryItems = async (
   const now = new Date().toISOString()
   // build the script
   let values: Record<string, string | number> = {}
-  let addLabels = false
   switch (action) {
     case BulkActionType.Archive:
       values = {
@@ -955,15 +973,23 @@ export const batchUpdateLibraryItems = async (
       }
       break
     case BulkActionType.AddLabels:
-      addLabels = true
-      break
-    case BulkActionType.MarkAsRead:
-      values = {
-        readAt: now,
-        readingProgressTopPercent: 100,
-        readingProgressBottomPercent: 100,
+      if (!labelIds || labelIds.length === 0) {
+        throw new Error('Labels are required for this action')
       }
-      break
+
+      // add labels to library items
+      for (const libraryItemId of libraryItemIds) {
+        await addLabelsToLibraryItem(labelIds, libraryItemId, userId)
+      }
+
+      return
+    case BulkActionType.MarkAsRead:
+      // update reading progress for library items
+      for (const libraryItemId of libraryItemIds) {
+        await markItemAsRead(libraryItemId, userId)
+      }
+
+      return
     case BulkActionType.MoveToFolder:
       if (!args || !isFolderArguments(args)) {
         throw new Error('Invalid arguments')
@@ -979,42 +1005,8 @@ export const batchUpdateLibraryItems = async (
       throw new Error('Invalid bulk action')
   }
 
-  if (!searchArgs.query) {
-    throw new Error('Search query is required')
-  }
-
-  const searchQuery = parseSearchQuery(searchArgs.query)
-  const parameters: ObjectLiteral[] = []
-  const query = buildQuery(searchQuery, parameters)
-
-  await authTrx(
-    async (tx) => {
-      const queryBuilder = tx
-        .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.user_id = :userId', { userId })
-
-      if (query) {
-        queryBuilder
-          .andWhere(`(${query})`)
-          .setParameters(paramtersToObject(parameters))
-      }
-
-      if (addLabels) {
-        if (!labelIds) {
-          throw new Error('Labels are required for this action')
-        }
-
-        const libraryItems = await queryBuilder.getMany()
-        // add labels to library items
-        for (const libraryItem of libraryItems) {
-          await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
-        }
-
-        return
-      }
-
-      await queryBuilder.update(LibraryItem).set(values).execute()
-    },
+  return authTrx(
+    async (tx) => tx.getRepository(LibraryItem).update(libraryItemIds, values),
     undefined,
     userId
   )

@@ -87,7 +87,7 @@ export const createWorker = (connection: ConnectionOptions) =>
         case SYNC_READ_POSITIONS_JOB_NAME:
           return syncReadPositionsJob(job.data)
         case BULK_ACTION_JOB_NAME:
-          return bulkAction(job.data)
+          return bulkAction(job.data, job.id)
         case BATCH_UPDATE_JOB_NAME:
           return batchUpdate(job.data)
       }

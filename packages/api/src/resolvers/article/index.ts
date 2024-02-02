@@ -59,12 +59,11 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
-import { BULK_ACTION_JOB_NAME } from '../../jobs/bulk_action'
-import { getBackendQueue } from '../../queue-processor'
 import { authTrx, getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
+import { clearCachedReadingPosition } from '../../services/cached_reading_position'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
@@ -93,6 +92,7 @@ import {
 import { traceAs } from '../../tracing'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
+import { enqueueBulkAction } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 import {
   cleanUrl,
@@ -112,10 +112,6 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
-import {
-  clearCachedReadingPosition,
-  fetchCachedReadingPosition,
-} from '../../services/cached_reading_position'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
@@ -879,10 +875,11 @@ export const bulkActionResolver = authorized<
         },
       })
 
+      const batchSize = 100
       const useFolders = query.includes('use:folders')
       const searchArgs = {
         query,
-        size: 0,
+        size: batchSize,
         useFolders,
       }
       const searchResult = await searchLibraryItems(searchArgs, uid)
@@ -892,34 +889,35 @@ export const bulkActionResolver = authorized<
         return { success: true }
       }
 
-      const batchSize = 100
       if (count <= batchSize) {
         // if there are less than 100 items, update them synchronously
-        await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
+        const libraryItemIds = searchResult.libraryItems.map((item) => item.id)
+        await batchUpdateLibraryItems(
+          action,
+          libraryItemIds,
+          uid,
+          labelIds,
+          args
+        )
 
         return { success: true }
       }
 
       // if there are more than 100 items, update them asynchronously
-      const queue = await getBackendQueue()
-      if (!queue) {
-        throw new Error('Queue not initialized')
-      }
-
       const data = {
         userId: uid,
         action,
-        labelIds,
+        labelIds: labelIds || undefined,
         query,
         count,
         args,
         batchSize,
         useFolders,
       }
-      await queue.add(BULK_ACTION_JOB_NAME, data, {
-        attempts: 1,
-        priority: 10,
-      })
+      const job = await enqueueBulkAction(data)
+      if (!job) {
+        return { errorCodes: [BulkActionErrorCode.BadRequest] }
+      }
 
       return { success: true }
     } catch (error) {
