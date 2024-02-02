@@ -8,10 +8,12 @@ export const libraryItemRepository = appDataSource
       return this.findOneBy({ id })
     },
 
-    findByUrl(url: string) {
-      return this.findOneBy({
-        originalUrl: url,
-      })
+    findByUserIdAndUrl(userId: string, url: string) {
+      // md5 is used to hash the url to avoid the length limit of the index
+      return this.createQueryBuilder()
+        .where('user_id = :userId', { userId })
+        .andWhere('md5(original_url) = md5(:url)', { url })
+        .getOne()
     },
 
     countByCreatedAt(createdAt: Date) {

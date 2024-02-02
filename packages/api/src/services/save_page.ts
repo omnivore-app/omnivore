@@ -13,6 +13,7 @@ import {
   SaveResult,
 } from '../generated/graphql'
 import { authTrx } from '../repository'
+import { libraryItemRepository } from '../repository/library_item'
 import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
@@ -119,10 +120,9 @@ export const savePage = async (
   } else {
     // check if the item already exists
     const existingLibraryItem = await authTrx((t) =>
-      t.getRepository(LibraryItem).findOneBy({
-        user: { id: user.id },
-        originalUrl: itemToSave.originalUrl,
-      })
+      t
+        .withRepository(libraryItemRepository)
+        .findByUserIdAndUrl(input.url, user.id)
     )
     if (existingLibraryItem) {
       clientRequestId = existingLibraryItem.id
