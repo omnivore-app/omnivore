@@ -1,5 +1,5 @@
 import axios, { Method } from 'axios'
-import { findWebhooksByEventTypes } from '../services/webhook'
+import { findWebhooksByEventType } from '../services/webhook'
 import { logger } from '../utils/logger'
 
 export interface CallWebhookJobData {
@@ -15,7 +15,7 @@ const TIMEOUT = 5000 // 5s
 export const callWebhook = async (jobData: CallWebhookJobData) => {
   const { data, type, action, userId } = jobData
   const eventType = `${type}_${action}`.toUpperCase()
-  const webhooks = await findWebhooksByEventTypes(userId, [eventType])
+  const webhooks = await findWebhooksByEventType(userId, eventType)
 
   if (webhooks.length <= 0) {
     return

@@ -1,4 +1,4 @@
-import { ArrayContainedBy, ArrayContains, ILike } from 'typeorm'
+import { ArrayContains, ILike } from 'typeorm'
 import { Rule, RuleAction, RuleEventType } from '../entity/rule'
 import { authTrx, getRepository } from '../repository'
 
@@ -61,6 +61,6 @@ export const findEnabledRules = async (
   return getRepository(Rule).findBy({
     user: { id: userId },
     enabled: true,
-    eventTypes: ArrayContainedBy([eventType]),
+    eventTypes: ArrayContains([eventType]),
   })
 }
