@@ -669,7 +669,7 @@ export const findLibraryItemByUrl = async (
         .leftJoinAndSelect('recommender.profile', 'profile')
         .leftJoinAndSelect('recommendations.group', 'group')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.original_url = :url', { url })
+        .andWhere('md5(library_item.original_url) = md5(:url)', { url })
         .getOne(),
     undefined,
     userId
