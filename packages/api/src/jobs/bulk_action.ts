@@ -13,7 +13,6 @@ export interface BulkActionData {
   batchSize: number
   labelIds?: string[]
   args?: unknown
-  useFolders?: boolean
 }
 
 export const BULK_ACTION_JOB_NAME = 'bulk-action'
@@ -23,22 +22,12 @@ export const bulkAction = async (data: BulkActionData, id?: string) => {
     throw new Error('Missing id')
   }
 
-  const {
-    userId,
-    action,
-    query,
-    labelIds,
-    count,
-    args,
-    batchSize,
-    useFolders,
-  } = data
+  const { userId, action, query, labelIds, count, args, batchSize } = data
 
   const queue = await getBackendQueue()
   if (!queue) {
     throw new Error('Queue not initialized')
   }
-  const parent = { id, queue: queue.name }
   let offset = 0
 
   do {
@@ -46,7 +35,6 @@ export const bulkAction = async (data: BulkActionData, id?: string) => {
       size: batchSize,
       from: offset,
       query,
-      useFolders,
     }
 
     const searchResult = await searchLibraryItems(searchArgs, userId)
@@ -57,7 +45,6 @@ export const bulkAction = async (data: BulkActionData, id?: string) => {
       labelIds,
       libraryItemIds,
       args,
-      size: batchSize,
     }
     const libraryItemIdsStr = libraryItemIds.sort().join()
     const jobId = `${BATCH_UPDATE_JOB_NAME}-${stringToHash(libraryItemIdsStr)}`
@@ -66,12 +53,10 @@ export const bulkAction = async (data: BulkActionData, id?: string) => {
     try {
       await queue.add(BATCH_UPDATE_JOB_NAME, data, {
         attempts: 1,
-        priority: 5,
+        priority: 10,
         jobId, // deduplication
         removeOnComplete: true,
         removeOnFail: true,
-        parent, // for tracking
-        removeDependencyOnFailure: true,
       })
     } catch (error) {
       logger.error('Error enqueuing batch update job', error)

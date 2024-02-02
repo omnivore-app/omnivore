@@ -876,11 +876,9 @@ export const bulkActionResolver = authorized<
       })
 
       const batchSize = 100
-      const useFolders = query.includes('use:folders')
       const searchArgs = {
         query,
         size: batchSize,
-        useFolders,
       }
       const searchResult = await searchLibraryItems(searchArgs, uid)
       const count = searchResult.count
@@ -912,7 +910,6 @@ export const bulkActionResolver = authorized<
         count,
         args,
         batchSize,
-        useFolders,
       }
       const job = await enqueueBulkAction(data)
       if (!job) {
