@@ -16,7 +16,6 @@ import {
   BulkActionError,
   BulkActionErrorCode,
   BulkActionSuccess,
-  BulkActionType,
   ContentReader,
   CreateArticleError,
   CreateArticleErrorCode,
@@ -64,12 +63,12 @@ import { authTrx, getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
+import { clearCachedReadingPosition } from '../../services/cached_reading_position'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { findHighlightsByLibraryItemId } from '../../services/highlights'
 import {
   addLabelsToLibraryItem,
   createAndSaveLabelsInLibraryItem,
-  findLabelsByIds,
   findOrCreateLabels,
 } from '../../services/labels'
 import {
@@ -93,6 +92,7 @@ import {
 import { traceAs } from '../../tracing'
 import { analytics } from '../../utils/analytics'
 import { isSiteBlockedForParse } from '../../utils/blocked'
+import { enqueueBulkAction } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 import {
   cleanUrl,
@@ -112,10 +112,6 @@ import {
   parsePreparedContent,
 } from '../../utils/parser'
 import { getStorageFileDetails } from '../../utils/uploads'
-import {
-  clearCachedReadingPosition,
-  fetchCachedReadingPosition,
-} from '../../services/cached_reading_position'
 
 export enum ArticleFormat {
   Markdown = 'markdown',
@@ -879,35 +875,40 @@ export const bulkActionResolver = authorized<
         },
       })
 
-      // the query size is limited to 4000 characters to allow for 100 items
-      if (!query || query.length > 4000) {
-        log.error('bulkActionResolver error', {
-          error: 'QueryTooLong',
-          query,
-        })
+      const batchSize = 100
+      const searchArgs = {
+        query,
+        size: 0,
+      }
+      const searchResult = await searchLibraryItems(searchArgs, uid)
+      const count = searchResult.count
+      if (count === 0) {
+        log.info('No items found for bulk action')
+        return { success: true }
+      }
+
+      if (count <= batchSize) {
+        searchArgs.size = count
+        // if there are less than 100 items, update them synchronously
+        await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
+
+        return { success: true }
+      }
+
+      // if there are more than 100 items, update them asynchronously
+      const data = {
+        userId: uid,
+        action,
+        labelIds: labelIds || undefined,
+        query,
+        count,
+        args,
+        batchSize,
+      }
+      const job = await enqueueBulkAction(data)
+      if (!job) {
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
       }
-
-      // get labels if needed
-      let labels = undefined
-      if (action === BulkActionType.AddLabels) {
-        if (!labelIds || labelIds.length === 0) {
-          return { errorCodes: [BulkActionErrorCode.BadRequest] }
-        }
-
-        labels = await findLabelsByIds(labelIds, uid)
-      }
-
-      await batchUpdateLibraryItems(
-        action,
-        {
-          query,
-          useFolders: query.includes('use:folders'),
-        },
-        uid,
-        labels,
-        args
-      )
 
       return { success: true }
     } catch (error) {
