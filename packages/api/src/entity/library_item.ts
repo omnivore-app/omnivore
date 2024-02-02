@@ -38,7 +38,6 @@ export enum DirectionalityType {
   RTL = 'RTL',
 }
 
-@Unique('library_item_user_original_url', ['user', 'originalUrl'])
 @Entity({ name: 'library_item' })
 export class LibraryItem {
   @PrimaryGeneratedColumn('uuid')
