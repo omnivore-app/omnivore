@@ -122,7 +122,7 @@ export const savePage = async (
     const existingLibraryItem = await authTrx((t) =>
       t
         .withRepository(libraryItemRepository)
-        .findByUserIdAndUrl(input.url, user.id)
+        .findByUserIdAndUrl(user.id, input.url)
     )
     if (existingLibraryItem) {
       clientRequestId = existingLibraryItem.id
