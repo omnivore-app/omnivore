@@ -1,4 +1,4 @@
-import { DeepPartial, EntityManager } from 'typeorm'
+import { ArrayContains, DeepPartial, EntityManager } from 'typeorm'
 import { Webhook } from '../entity/webhook'
 import { authTrx } from '../repository'
 
@@ -29,6 +29,22 @@ export const createWebhook = async (
 export const findWebhooks = async (userId: string) => {
   return authTrx(
     (tx) => tx.getRepository(Webhook).findBy({ user: { id: userId } }),
+    undefined,
+    userId
+  )
+}
+
+export const findWebhooksByEventType = async (
+  userId: string,
+  eventType: string
+) => {
+  return authTrx(
+    (tx) =>
+      tx.getRepository(Webhook).findBy({
+        user: { id: userId },
+        enabled: true,
+        eventTypes: ArrayContains([eventType]),
+      }),
     undefined,
     userId
   )
