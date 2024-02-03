@@ -18,4 +18,7 @@ export const appDataSource = new DataSource({
   logger: new CustomTypeOrmLogger(['query', 'info']),
   connectTimeoutMS: 40000, // 40 seconds
   maxQueryExecutionTime: 10000, // 10 seconds
+  extra: {
+    options: process.env.PG_EXTRA_OPTIONS,
+  },
 })
