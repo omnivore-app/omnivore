@@ -3,6 +3,7 @@ import Models
 import Services
 import SwiftUI
 import Utils
+import Views
 
 @MainActor
 public class LibraryAddFeedViewModel: NSObject, ObservableObject {
@@ -101,9 +102,9 @@ public class LibraryAddFeedViewModel: NSObject, ObservableObject {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
           if failureCount > 0 {
-            showInLibrarySnackbar("Failed to add \(failureCount) feeds")
+            Snackbar.show(message: "Failed to add \(failureCount) feeds", dismissAfter: 3000)
           } else {
-            showInLibrarySnackbar("Added \(successCount) feed\(successCount == 0 ? "" : "s")")
+            Snackbar.show(message: "Added \(successCount) feed\(successCount == 0 ? "" : "s")", dismissAfter: 3000)
           }
         }
       }
@@ -211,7 +212,7 @@ public struct LibraryScanFeedView: View {
         if viewModel.selected.count > 0 {
           Button(action: {
             dismiss()
-            showInLibrarySnackbar("Adding feeds...")
+            Snackbar.show(message: "Adding feeds...", dismissAfter: 2000)
             Task {
               await viewModel.addFeeds()
             }

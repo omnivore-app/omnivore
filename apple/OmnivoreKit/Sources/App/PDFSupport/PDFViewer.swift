@@ -332,7 +332,7 @@ import Utils
             if let customHighlight = annotation.customData?["omnivoreHighlight"] as? [String: String] {
               if customHighlight["id"]?.lowercased() == highlightId {
                 if !document.remove(annotations: [annotation]) {
-                  viewModel.snackbar(message: "Error removing highlight")
+                  Snackbar.show(message: "Error removing highlight", dismissAfter: 2000)
                 }
               }
             }

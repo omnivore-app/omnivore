@@ -28,10 +28,9 @@ enum LoadingBarStyle {
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
-  @Published var showSnackbar = false
+
   @Published var showAddFeedView = false
   @Published var showHideFollowingAlert = false
-  @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()
 
@@ -235,8 +234,7 @@ enum LoadingBarStyle {
   }
 
   func snackbar(_ message: String, undoAction: SnackbarUndoAction? = nil) {
-    snackbarOperation = SnackbarOperation(message: message, undoAction: undoAction)
-    showSnackbar = true
+    Snackbar.show(message: message, undoAction: undoAction, dismissAfter: 2000)
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {

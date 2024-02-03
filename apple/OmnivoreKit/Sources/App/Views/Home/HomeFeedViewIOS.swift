@@ -222,7 +222,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var body: some View {
-      ZStack {
+      ZStack {        
         HomeFeedView(
           listTitle: $listTitle,
           isListScrolled: $isListScrolled,
@@ -504,29 +504,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         ) {
           viewModel.selectedLabels = $0
           viewModel.negatedLabels = $1
-        }
-      }
-      .popup(isPresented: $viewModel.showSnackbar) {
-        if let operation = viewModel.snackbarOperation {
-          Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
-        } else {
-          EmptyView()
-        }
-      } customize: {
-        $0
-          .type(.toast)
-          .autohideIn(2)
-          .position(.bottom)
-          .animation(.spring())
-          .isOpaque(false)
-      }
-      .onReceive(NSNotification.librarySnackBarPublisher) { notification in
-        if !viewModel.showSnackbar {
-          if let message = notification.userInfo?["message"] as? String {
-            viewModel.snackbarOperation = SnackbarOperation(message: message,
-                                                            undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-            viewModel.showSnackbar = true
-          }
         }
       }
     }

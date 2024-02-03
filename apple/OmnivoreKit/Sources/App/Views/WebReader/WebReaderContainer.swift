@@ -1,6 +1,5 @@
 import AVFoundation
 import Models
-import PopupView
 import Services
 import SwiftUI
 import Transmission
@@ -355,12 +354,6 @@ struct WebReaderContainerView: View {
 
   var body: some View {
     ZStack {
-      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
-        OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
-      } label: {
-        EmptyView()
-      }.buttonStyle(.plain)
-
       if let articleContent = viewModel.articleContent {
         WebReader(
           item: item,
@@ -421,7 +414,7 @@ struct WebReaderContainerView: View {
             #else
               //            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
             #endif
-            showInLibrarySnackbar("Link Copied")
+            Snackbar.show(message: "Link copied", dismissAfter: 2000)
           }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
             if let linkToOpen = linkToOpen {
@@ -533,7 +526,7 @@ struct WebReaderContainerView: View {
                   self.isRecovering = true
                   Task {
                     if !(await dataService.recoverItem(itemID: item.unwrappedID)) {
-                      viewModel.snackbar(message: "Error recovering item")
+                      Snackbar.show(message: "Error recoviering item", dismissAfter: 2000)
                     } else {
                       await viewModel.loadContent(
                         dataService: dataService,
@@ -625,28 +618,7 @@ struct WebReaderContainerView: View {
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
       pop()
     }
-    .popup(isPresented: $viewModel.showSnackbar) {
-      if let operation = viewModel.snackbarOperation {
-        Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
-      } else {
-        EmptyView()
-      }
-    } customize: {
-      $0
-        .type(.toast)
-        .autohideIn(2)
-        .position(.bottom)
-        .animation(.spring())
-        .isOpaque(false)
-    }
     .ignoresSafeArea(.all, edges: .bottom)
-    .onReceive(NSNotification.readerSnackBarPublisher) { notification in
-      if let message = notification.userInfo?["message"] as? String {
-        viewModel.snackbarOperation = SnackbarOperation(message: message,
-                                                        undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-        viewModel.showSnackbar = true
-      }
-    }
   }
 
   func moveToInbox() {
@@ -673,6 +645,7 @@ struct WebReaderContainerView: View {
     dataService.archiveLink(objectID: item.objectID, archived: !isArchived)
     #if os(iOS)
       pop()
+    Snackbar.show(message: isArchived ? "Unarchived" : "Archived", dismissAfter: 2000)
     #endif
   }
 
@@ -693,9 +666,9 @@ struct WebReaderContainerView: View {
         pasteBoard.clearContents()
         pasteBoard.writeObjects([deepLink.absoluteString as NSString])
       #endif
-      showInLibrarySnackbar("Deeplink Copied")
+      Snackbar.show(message: "Deeplink Copied", dismissAfter: 2000)
     } else {
-      showInLibrarySnackbar("Error copying deeplink")
+      Snackbar.show(message: "Error copying deeplink", dismissAfter: 2000)
     }
   }
 

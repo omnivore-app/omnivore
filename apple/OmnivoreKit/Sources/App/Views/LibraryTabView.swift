@@ -7,7 +7,6 @@
 
 import Foundation
 import Models
-import PopupView
 import Services
 import SwiftUI
 import Transmission
@@ -71,8 +70,18 @@ struct LibraryTabView: View {
     }
   }
 
+  @State var showOperationToast = false
+  @State var operationStatus: OperationStatus = .none
+  @State var operationMessage: String?
+  
   var body: some View {
     VStack(spacing: 0) {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
+        OperationToast(operationMessage: $operationMessage, showOperationToast: $showOperationToast, operationStatus: $operationStatus)
+      } label: {
+        EmptyView()
+      }.buttonStyle(.plain)
+
       TabView(selection: $selectedTab) {
         if !hideFollowingTab {
           NavigationView {
@@ -128,6 +137,18 @@ struct LibraryTabView: View {
       )
     }
     .navigationBarHidden(true)
+    .onReceive(NSNotification.snackBarPublisher) { notification in
+      if let message = notification.userInfo?["message"] as? String {
+        showOperationToast = true
+        operationMessage = message
+        operationStatus = .isPerforming
+        if let dismissAfter = notification.userInfo?["dismissAfter"] as? Int {
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(dismissAfter)) {
+            showOperationToast = false
+          }
+        }
+      }
+    }
     .onReceive(NSNotification.performSyncPublisher) { _ in
       Task {
         await syncManager.syncUpdates(dataService: dataService)

@@ -20,14 +20,6 @@ struct SafariWebLink: Identifiable {
   @Published var showOperationToast: Bool = false
   @Published var operationStatus: OperationStatus = .none
 
-  @Published var showSnackbar: Bool = false
-  var snackbarOperation: SnackbarOperation?
-
-  func snackbar(message: String) {
-    snackbarOperation = SnackbarOperation(message: message, undoAction: nil)
-    showSnackbar = true
-  }
-
   func hasOriginalUrl(_ item: Models.LibraryItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
       if host == "omnivore.app" {
@@ -39,7 +31,7 @@ struct SafariWebLink: Identifiable {
   }
 
   func downloadAudio(audioController: AudioController, item: Models.LibraryItem) {
-    snackbar(message: "Downloading Offline Audio")
+    Snackbar.show(message: "Downloading Offline Audio", dismissAfter: 2000)
     isDownloadingAudio = true
 
     if let audioDownloadTask = audioDownloadTask {
@@ -53,7 +45,7 @@ struct SafariWebLink: Identifiable {
       DispatchQueue.main.async {
         self.isDownloadingAudio = false
         if !canceled {
-          self.snackbar(message: downloaded ? "Audio file downloaded" : "Error downloading audio")
+          Snackbar.show(message: downloaded ? "Audio file downloaded" : "Error downloading audio", dismissAfter: 2000)
         }
       }
     }
@@ -214,12 +206,11 @@ struct SafariWebLink: Identifiable {
   func saveLink(dataService: DataService, url: URL) {
     Task {
       do {
-        snackbar(message: "Saving link")
-        print("SAVING: ", url.absoluteString)
+        Snackbar.show(message: "Saving link", dismissAfter: 5000)
         _ = try await dataService.createPageFromUrl(id: UUID().uuidString, url: url.absoluteString)
-        snackbar(message: "Link saved")
+        Snackbar.show(message: "Link saved", dismissAfter: 2000)
       } catch {
-        snackbar(message: "Error saving link")
+        Snackbar.show(message: "Error saving link", dismissAfter: 2000)
       }
     }
   }
@@ -227,14 +218,14 @@ struct SafariWebLink: Identifiable {
   func saveLinkAndFetch(dataService: DataService, username: String, url: URL) {
     Task {
       do {
-        snackbar(message: "Saving link")
+        Snackbar.show(message: "Saving link", dismissAfter: 5000)
         let requestId = UUID().uuidString
         _ = try await dataService.createPageFromUrl(id: requestId, url: url.absoluteString)
-        snackbar(message: "Link saved")
+        Snackbar.show(message: "Link saved", dismissAfter: 2000)
 
         await loadContent(dataService: dataService, username: username, itemID: requestId, retryCount: 0)
       } catch {
-        snackbar(message: "Error saving link")
+        Snackbar.show(message: "Error saving link", dismissAfter: 2000)
       }
     }
   }

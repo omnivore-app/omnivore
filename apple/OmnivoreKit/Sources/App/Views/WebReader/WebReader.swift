@@ -103,7 +103,7 @@ struct WebReader: PlatformViewRepresentable {
       do {
         try (webView as? OmnivoreWebView)?.dispatchEvent(.saveAnnotation(annotation: annotation))
       } catch {
-        showInLibrarySnackbar("Error saving note.")
+        Snackbar.show(message: "Error saving note.", dismissAfter: 2000)
       }
     }
 
