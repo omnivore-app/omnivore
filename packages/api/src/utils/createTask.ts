@@ -695,7 +695,7 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
     name: UPDATE_LABELS_JOB,
     data: d,
     opts: {
-      attempts: 3,
+      attempts: 6,
       priority: 1,
       backoff: {
         type: 'exponential',
@@ -720,7 +720,7 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
 
   try {
     return queue.add(UPDATE_HIGHLIGHT_JOB, data, {
-      attempts: 3,
+      attempts: 6,
       priority: 1,
       backoff: {
         type: 'exponential',
