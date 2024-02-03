@@ -126,6 +126,12 @@ export const isContentFetchBlocked = (feedUrl: string) => {
   if (feedUrl.startsWith('https://arxiv.org/')) {
     return true
   }
+  if (feedUrl.startsWith('https://rss.arxiv.org')) {
+    return true
+  }
+  if (feedUrl.startsWith('https://daringfireball.net/feeds/')) {
+    return true
+  }
   if (feedUrl.startsWith('https://lwn.net/headlines/newrss')) {
     return true
   }
