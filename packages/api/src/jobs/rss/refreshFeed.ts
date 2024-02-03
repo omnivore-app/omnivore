@@ -526,6 +526,9 @@ const processSubscription = async (
 
       // Max limit per-feed update
       if (itemCount > 99) {
+        if (itemCount == 100) {
+          logger.info(`Max limit reached for feed ${feedUrl}`)
+        }
         continue
       }
 
