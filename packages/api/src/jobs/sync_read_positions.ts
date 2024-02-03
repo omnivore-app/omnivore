@@ -75,11 +75,6 @@ const syncReadPosition = async (cacheKey: string) => {
         { cacheKey }
       )
     }
-  } else {
-    logger.warning(
-      'potential error, reading position cache key found with no data',
-      { cacheKey }
-    )
   }
 }
 
