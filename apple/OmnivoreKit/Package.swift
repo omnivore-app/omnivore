@@ -40,8 +40,7 @@ let package = Package(
         "Valet",
         .product(name: "SwiftGraphQL", package: "swift-graphql"),
         "Models",
-        "Utils",
-        .product(name: "AsyncAlgorithms", package: "swift-async-algorithms")
+        "Utils"
       ]
     ),
     .testTarget(name: "ServicesTests", dependencies: ["Services"]),
