@@ -129,6 +129,9 @@ export const isContentFetchBlocked = (feedUrl: string) => {
   if (feedUrl.startsWith('https://rss.arxiv.org')) {
     return true
   }
+  if (feedUrl.startsWith('https://rsshub.app')) {
+    return true
+  }
   if (feedUrl.startsWith('https://xkcd.com')) {
     return true
   }
