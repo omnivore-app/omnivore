@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.ui.reader.OmnivoreWebView.Direction
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -160,6 +161,24 @@ fun WebReader(
           "utf-8",
           null
         )
+        requestFocus()
+        setOnKeyListener { _, keyCode, event ->
+          if (event.action == KeyEvent.ACTION_DOWN) {
+            when (keyCode) {
+              KeyEvent.KEYCODE_VOLUME_UP -> {
+                scrollVertically(Direction.UP)
+                return@setOnKeyListener true
+              }
+
+              KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                scrollVertically(Direction.DOWN)
+                return@setOnKeyListener true
+              }
+            }
+          }
+          // default value
+          false
+        }
       }
     }, update = {
       if (javascriptActionLoopUUID != webReaderViewModel.lastJavascriptActionLoopUUID) {
@@ -192,6 +211,18 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
 
   init {
     setOnScrollChangeListener(this)
+  }
+
+  enum class Direction(val value: Int) {
+    UP(-1),
+    DOWN(1)
+  }
+
+  fun scrollVertically(direction: Direction, heightFactor: Int = 10) {
+    if (canScrollVertically(direction.value)) {
+      val scrollByValue = height.div(heightFactor)
+      scrollBy(0, direction.value.times(scrollByValue))
+    }
   }
 
   private val actionModeCallback = object : ActionMode.Callback2() {
