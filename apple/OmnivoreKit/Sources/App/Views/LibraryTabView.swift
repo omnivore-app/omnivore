@@ -137,18 +137,6 @@ struct LibraryTabView: View {
       )
     }
     .navigationBarHidden(true)
-    .onReceive(NSNotification.snackBarPublisher) { notification in
-      if let message = notification.userInfo?["message"] as? String {
-        showOperationToast = true
-        operationMessage = message
-        operationStatus = .isPerforming
-        if let dismissAfter = notification.userInfo?["dismissAfter"] as? Int {
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(dismissAfter)) {
-            showOperationToast = false
-          }
-        }
-      }
-    }
     .onReceive(NSNotification.performSyncPublisher) { _ in
       Task {
         await syncManager.syncUpdates(dataService: dataService)

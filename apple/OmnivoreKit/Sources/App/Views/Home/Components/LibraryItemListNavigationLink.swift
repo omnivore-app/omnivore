@@ -29,29 +29,15 @@ struct LibraryItemListNavigationLink: View {
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
 
-  @ObservedObject var item: Models.LibraryItem
-  @ObservedObject var viewModel: HomeFeedViewModel
+  let item: Models.LibraryItem
+  let viewModel: HomeFeedViewModel
 
   var body: some View {
-    ZStack {
+    Button(action: {
+      viewModel.presentItem(item: item)
+    }, label: {
       LibraryItemCard(item: LibraryItemData.make(from: item), viewer: dataService.currentViewer)
-      PresentationLink(
-        transition: PresentationLinkTransition.slide(
-          options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
-                                                                     options:
-                                                                     PresentationLinkTransition.Options(
-                                                                       modalPresentationCapturesStatusBarAppearance: true
-                                                                     ))),
-        destination: {
-          LinkItemDetailView(
-            linkedItemObjectID: item.objectID,
-            isPDF: item.isPDF
-          )
-        }, label: {
-          EmptyView()
-        }
-      )
-    }
+    })
   }
 }
 

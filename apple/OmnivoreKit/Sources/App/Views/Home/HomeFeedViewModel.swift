@@ -13,7 +13,7 @@ enum LoadingBarStyle {
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
   let filterKey: String
-  @ObservedObject var fetcher: LibraryItemFetcher
+  @Published var fetcher: LibraryItemFetcher
   let folderConfigs: [String: LibraryListConfig]
 
   @Published var isLoading = false
@@ -67,6 +67,13 @@ enum LoadingBarStyle {
     super.init()
   }
 
+  func presentItem(item: Models.LibraryItem) {
+    withAnimation {
+      self.selectedItem = item
+      self.linkIsActive = true
+    }
+  }
+  
   private var filterState: FetcherFilterState? {
     if let appliedFilter = appliedFilter {
       return FetcherFilterState(
@@ -307,7 +314,7 @@ enum LoadingBarStyle {
     Task {
       do {
         try await dataService.moveItem(itemID: item.unwrappedID, folder: folder)
-        snackbar("Item moved")
+        snackbar("Moved to library")
       } catch {
         snackbar("Error moving item to \(folder)")
       }

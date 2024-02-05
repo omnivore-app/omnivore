@@ -9,8 +9,8 @@ import WebKit
 
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
-  let item: Models.LibraryItem
-  let pop: () -> Void
+  @State var item: Models.LibraryItem
+  @Environment(\.dismiss) private var dismiss
 
   @State private var showPreferencesPopover = false
   @State private var showPreferencesFormsheet = false
@@ -44,7 +44,6 @@ struct WebReaderContainerView: View {
   @EnvironmentObject var audioController: AudioController
   @Environment(\.openURL) var openURL
   @StateObject var viewModel = WebReaderViewModel()
-  @Environment(\.dismiss) var dismiss
 
   @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBarInReader = false
 
@@ -252,7 +251,7 @@ struct WebReaderContainerView: View {
       #if os(iOS)
         Button(
           action: {
-            pop()
+            dismiss()
           },
           label: {
             Image.chevronRight
@@ -492,17 +491,17 @@ struct WebReaderContainerView: View {
             }
           }
         }
-        .sheet(isPresented: $showLabelsModal) {
-          ApplyLabelsView(mode: .item(item), onSave: { labels in
-            showLabelsModal = false
-            item.labels = NSSet(array: labels)
-            readerSettingsChangedTransactionID = UUID()
-          })
-        }
         .sheet(isPresented: $showTitleEdit) {
           LinkedItemMetadataEditView(item: item, onSave: { title, _ in
             item.title = title
             // We dont need to update description because its never rendered in this view
+            readerSettingsChangedTransactionID = UUID()
+          })
+        }
+        .sheet(isPresented: $showLabelsModal) {
+          ApplyLabelsView(mode: .item(item), onSave: { labels in
+            showLabelsModal = false
+            item.labels = NSSet(array: labels)
             readerSettingsChangedTransactionID = UUID()
           })
         }
@@ -616,26 +615,18 @@ struct WebReaderContainerView: View {
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
-      pop()
+      dismiss()
     }
     .ignoresSafeArea(.all, edges: .bottom)
   }
 
   func moveToInbox() {
     Task {
-      viewModel.showOperationToast = true
-      viewModel.operationMessage = "Moving to library..."
-      viewModel.operationStatus = .isPerforming
       do {
         try await dataService.moveItem(itemID: item.unwrappedID, folder: "inbox")
-        viewModel.operationMessage = "Moved to library"
-        viewModel.operationStatus = .success
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-          viewModel.showOperationToast = false
-        }
+        Snackbar.show(message: "Moved to library", dismissAfter: 2000)
       } catch {
-        viewModel.operationMessage = "Error moving"
-        viewModel.operationStatus = .failure
+        Snackbar.show(message: "Error moving item to inbox", dismissAfter: 2000)
       }
     }
   }
@@ -644,8 +635,12 @@ struct WebReaderContainerView: View {
     let isArchived = item.isArchived
     dataService.archiveLink(objectID: item.objectID, archived: !isArchived)
     #if os(iOS)
-      pop()
-    Snackbar.show(message: isArchived ? "Unarchived" : "Archived", dismissAfter: 2000)
+      dismiss()
+
+    Snackbar.show(message: isArchived ? "Unarchived" : "Archived", undoAction: {
+      dataService.archiveLink(objectID: item.objectID, archived: isArchived)
+      Snackbar.show(message: isArchived ? "Archived" : "Unarchived", dismissAfter: 2000)
+    }, dismissAfter: 2000)
     #endif
   }
 
@@ -673,7 +668,8 @@ struct WebReaderContainerView: View {
   }
 
   func delete() {
-    pop()
+    dismiss()
+
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
         removeLibraryItemAction(dataService: dataService, objectID: item.objectID)

@@ -461,6 +461,15 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
 
     let showFeatureCards: Bool
+    var slideTransition: PresentationLinkTransition {
+      PresentationLinkTransition.slide(
+        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                   options:
+                                                                    PresentationLinkTransition.Options(
+                                                                      modalPresentationCapturesStatusBarAppearance: true
+                                                                    )
+                                                                  ))
+    }
 
     var body: some View {
       VStack(spacing: 0) {
@@ -481,6 +490,16 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           )
         }
+        PresentationLink(transition: slideTransition, isPresented: $viewModel.linkIsActive) {
+          if let presentingItem = viewModel.selectedItem {
+            WebReaderContainerView(item: presentingItem)
+          } else {
+            EmptyView()
+          }
+        } label: {
+          EmptyView()
+        }.buttonStyle(.plain)
+
         if prefersListLayout || !enableGrid {
           HomeFeedListView(
             listTitle: $listTitle,
