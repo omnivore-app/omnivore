@@ -13,8 +13,8 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://customers.pspdfkit.com/maven")
         }
-        maven { url 'https://jitpack.io' }
+        maven(url = "https://jitpack.io")
     }
 }
 rootProject.name = "Omnivore"
-include ':app'
+include(":app")

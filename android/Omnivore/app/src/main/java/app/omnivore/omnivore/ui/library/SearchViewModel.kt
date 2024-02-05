@@ -162,6 +162,8 @@ class SearchViewModel @Inject constructor(
             SavedItemAction.EditInfo -> {
                 // TODO
             }
+
+            SavedItemAction.MarkRead -> TODO()
         }
         actionsMenuItemLiveData.postValue(null)
     }

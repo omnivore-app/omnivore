@@ -2,6 +2,7 @@ package app.omnivore.omnivore.ui.savedItemViews
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Share
@@ -97,6 +98,19 @@ fun SavedItemContextMenu(
             leadingIcon = {
                 Icon(
                     Icons.Outlined.Delete,
+                    contentDescription = null
+                )
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.saved_item_context_menu_action_mark_read)) },
+            onClick = {
+                actionHandler(SavedItemAction.MarkRead)
+                onDismiss()
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Outlined.Check,
                     contentDescription = null
                 )
             }

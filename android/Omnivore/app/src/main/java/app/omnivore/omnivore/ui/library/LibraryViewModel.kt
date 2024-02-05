@@ -3,18 +3,41 @@ package app.omnivore.omnivore.ui.library
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.*
-import app.omnivore.omnivore.*
-import app.omnivore.omnivore.dataService.*
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.omnivore.omnivore.DatastoreKeys
+import app.omnivore.omnivore.DatastoreRepository
+import app.omnivore.omnivore.R
+import app.omnivore.omnivore.dataService.DataService
+import app.omnivore.omnivore.dataService.archiveSavedItem
+import app.omnivore.omnivore.dataService.deleteSavedItem
+import app.omnivore.omnivore.dataService.fetchSavedItemContent
+import app.omnivore.omnivore.dataService.isSavedItemContentStoredInDB
+import app.omnivore.omnivore.dataService.librarySearch
+import app.omnivore.omnivore.dataService.sync
+import app.omnivore.omnivore.dataService.syncLabels
+import app.omnivore.omnivore.dataService.syncOfflineItemsWithServerIfNeeded
+import app.omnivore.omnivore.dataService.unarchiveSavedItem
+import app.omnivore.omnivore.dataService.updateWebReadingProgress
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.network.*
-import app.omnivore.omnivore.persistence.entities.*
+import app.omnivore.omnivore.network.Networker
+import app.omnivore.omnivore.network.createNewLabel
+import app.omnivore.omnivore.persistence.entities.SavedItemLabel
+import app.omnivore.omnivore.persistence.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.ui.ResourceProvider
 import app.omnivore.omnivore.ui.setSavedItemLabels
 import com.apollographql.apollo3.api.Optional
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 
@@ -307,6 +330,20 @@ class LibraryViewModel @Inject constructor(
                 currentItemLiveData.value = itemID
                 bottomSheetState.value = LibraryBottomSheetState.EDIT
             }
+
+            SavedItemAction.MarkRead -> {
+                viewModelScope.launch {
+                    dataService.updateWebReadingProgress(
+                        jsonString = Gson().toJson(
+                            mapOf(
+                                "id" to itemID,
+                                "readingProgressPercent" to 100.0,
+                                "readingProgressAnchorIndex" to 0
+                            )
+                        )
+                    )
+                }
+            }
         }
         actionsMenuItemLiveData.postValue(null)
     }
@@ -405,4 +442,5 @@ enum class SavedItemAction {
     Unarchive,
     EditLabels,
     EditInfo,
+    MarkRead
 }

@@ -186,6 +186,7 @@
     <string name="saved_item_context_menu_action_unarchive">Unarchive</string>
     <string name="saved_item_context_menu_action_share_original">Share Original</string>
     <string name="saved_item_context_menu_action_remove_item">Remove Item</string>
+    <string name="saved_item_context_menu_action_mark_read">Mark read</string>
 
     <!-- LogoutDialog -->
     <string name="logout_dialog_title">Logout</string>
