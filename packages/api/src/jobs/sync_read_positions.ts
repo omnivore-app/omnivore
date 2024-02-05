@@ -25,6 +25,14 @@ async function* getSyncUpdatesIterator(redis: Redis) {
   return
 }
 
+const isMoreThan60SecondsOld = (iso8601String: string): boolean => {
+  const currentTime = new Date()
+  const parsedDate = new Date(iso8601String)
+  const timeDifferenceInSeconds =
+    (currentTime.getTime() - parsedDate.getTime()) / 1000
+  return timeDifferenceInSeconds > 60
+}
+
 const syncReadPosition = async (cacheKey: string) => {
   const components = componentsForCachedReadingPositionKey(cacheKey)
   const positions = components
@@ -37,7 +45,9 @@ const syncReadPosition = async (cacheKey: string) => {
     components &&
     positions &&
     positions.positionItems &&
-    positions.positionItems.length > 0
+    positions.positionItems.length > 0 &&
+    positions.positionItems[0].updatedAt &&
+    isMoreThan60SecondsOld(positions.positionItems[0].updatedAt)
   ) {
     const position = reduceCachedReadingPositionMembers(
       components.uid,
@@ -65,11 +75,6 @@ const syncReadPosition = async (cacheKey: string) => {
         { cacheKey }
       )
     }
-  } else {
-    logger.warning(
-      'potential error, reading position cache key found with no data',
-      { cacheKey }
-    )
   }
 }
 

@@ -14,6 +14,8 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
+import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { queueRSSRefreshFeedJob } from '../jobs/rss/refreshAllFeeds'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
@@ -662,7 +664,21 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   }
 
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
-    priority: 1,
+    priority: 5,
+    attempts: 1,
+    removeOnComplete: true,
+    removeOnFail: true,
+  })
+}
+
+export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(CALL_WEBHOOK_JOB_NAME, data, {
+    priority: 5,
     attempts: 1,
     removeOnComplete: true,
     removeOnFail: true,
@@ -713,6 +729,27 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
     })
   } catch (error) {
     logger.error('error enqueuing update highlight job', error)
+  }
+}
+
+export const enqueueBulkAction = async (data: BulkActionData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  const jobId = `${BULK_ACTION_JOB_NAME}-${data.userId}`
+
+  try {
+    return queue.add(BULK_ACTION_JOB_NAME, data, {
+      attempts: 1,
+      priority: 10,
+      jobId, // deduplication
+      removeOnComplete: true,
+      removeOnFail: true,
+    })
+  } catch (error) {
+    logger.error('error enqueuing bulk action job', error)
   }
 }
 

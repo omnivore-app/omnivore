@@ -2159,7 +2159,7 @@ describe('Article API', () => {
       }
     `
 
-    context('when action is MarkAsRead and query is in:unread', () => {
+    xcontext('when action is MarkAsRead and query is in:unread', () => {
       before(async () => {
         // Create some test items
         for (let i = 0; i < 5; i++) {

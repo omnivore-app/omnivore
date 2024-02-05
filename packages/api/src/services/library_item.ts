@@ -1,7 +1,13 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
+import {
+  DeepPartial,
+  EntityManager,
+  FindOptionsWhere,
+  ObjectLiteral,
+} from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -13,7 +19,6 @@ import {
   getColumns,
   isUniqueViolation,
   queryBuilderToRawSql,
-  valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
@@ -101,6 +106,20 @@ export interface Sort {
 interface Select {
   column: string
   alias?: string
+}
+
+const readingProgressDataSource = new ReadingProgressDataSource()
+
+const markItemAsRead = async (libraryItemId: string, userId: string) => {
+  return await readingProgressDataSource.updateReadingProgress(
+    userId,
+    libraryItemId,
+    {
+      readingProgressPercent: 100,
+      readingProgressTopPercent: 100,
+      readingProgressAnchorIndex: undefined,
+    }
+  )
 }
 
 const handleNoCase = (value: string) => {
@@ -669,7 +688,7 @@ export const findLibraryItemByUrl = async (
         .leftJoinAndSelect('recommender.profile', 'profile')
         .leftJoinAndSelect('recommendations.group', 'group')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.original_url = :url', { url })
+        .andWhere('md5(library_item.original_url) = md5(:url)', { url })
         .getOne(),
     undefined,
     userId
@@ -927,7 +946,7 @@ export const batchUpdateLibraryItems = async (
   action: BulkActionType,
   searchArgs: SearchArgs,
   userId: string,
-  labels?: Label[],
+  labelIds?: string[] | null,
   args?: unknown
 ) => {
   interface FolderArguments {
@@ -938,46 +957,24 @@ export const batchUpdateLibraryItems = async (
     return 'folder' in args
   }
 
-  const now = new Date().toISOString()
-  // build the script
-  let values: Record<string, string | number> = {}
-  let addLabels = false
-  switch (action) {
-    case BulkActionType.Archive:
-      values = {
-        archived_at: now,
-        state: LibraryItemState.Archived,
-      }
-      break
-    case BulkActionType.Delete:
-      values = {
-        state: LibraryItemState.Deleted,
-        deleted_at: now,
-      }
-      break
-    case BulkActionType.AddLabels:
-      addLabels = true
-      break
-    case BulkActionType.MarkAsRead:
-      values = {
-        read_at: now,
-        reading_progress_top_percent: 100,
-        reading_progress_bottom_percent: 100,
-      }
-      break
-    case BulkActionType.MoveToFolder:
-      if (!args || !isFolderArguments(args)) {
-        throw new Error('Invalid arguments')
-      }
+  const getQueryBuilder = (userId: string, em: EntityManager) => {
+    const queryBuilder = em
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .where('library_item.user_id = :userId', { userId })
+    if (query) {
+      queryBuilder
+        .andWhere(`(${query})`)
+        .setParameters(paramtersToObject(parameters))
+    }
+    return queryBuilder
+  }
 
-      values = {
-        folder: args.folder,
-        saved_at: now,
-      }
-
-      break
-    default:
-      throw new Error('Invalid bulk action')
+  const getLibraryItemIds = async (
+    userId: string,
+    em: EntityManager
+  ): Promise<{ id: string }[]> => {
+    const queryBuilder = getQueryBuilder(userId, em)
+    return queryBuilder.select('library_item.id', 'id').getRawMany()
   }
 
   if (!searchArgs.query) {
@@ -988,63 +985,73 @@ export const batchUpdateLibraryItems = async (
   const parameters: ObjectLiteral[] = []
   const query = buildQuery(searchQuery, parameters)
 
-  await authTrx(async (tx) => {
-    const queryBuilder = tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.user_id = :userId', { userId })
-
-    if (query) {
-      queryBuilder
-        .andWhere(`(${query})`)
-        .setParameters(paramtersToObject(parameters))
-    }
-
-    if (addLabels) {
-      if (!labels) {
+  const now = new Date().toISOString()
+  // build the script
+  let values: Record<string, string | number> = {}
+  switch (action) {
+    case BulkActionType.Archive:
+      values = {
+        archivedAt: now,
+        state: LibraryItemState.Archived,
+      }
+      break
+    case BulkActionType.Delete:
+      values = {
+        state: LibraryItemState.Deleted,
+        deletedAt: now,
+      }
+      break
+    case BulkActionType.AddLabels: {
+      if (!labelIds) {
         throw new Error('Labels are required for this action')
       }
 
-      const labelIds = labels.map((label) => label.id)
-      const libraryItems = await queryBuilder.getMany()
-      // add labels in library items
+      const libraryItems = await authTrx(
+        async (tx) => getLibraryItemIds(userId, tx),
+        undefined,
+        userId
+      )
+      // add labels to library items
       for (const libraryItem of libraryItems) {
         await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
-
-        libraryItem.labels = labels
       }
 
       return
     }
+    case BulkActionType.MarkAsRead: {
+      const libraryItems = await authTrx(
+        async (tx) => getLibraryItemIds(userId, tx),
+        undefined,
+        userId
+      )
+      // update reading progress for library items
+      for (const libraryItem of libraryItems) {
+        await markItemAsRead(libraryItem.id, userId)
+      }
 
-    // generate raw sql because postgres doesn't support prepared statements in DO blocks
-    const countSql = queryBuilderToRawSql(queryBuilder.select('COUNT(1)'))
-    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
-    const valuesSql = valuesToRawSql(values)
+      return
+    }
+    case BulkActionType.MoveToFolder:
+      if (!args || !isFolderArguments(args)) {
+        throw new Error('Invalid arguments')
+      }
 
-    const start = new Date().toISOString()
-    const batchSize = 1000
-    const sql = `
-    -- Set batch size
-    DO $$ 
-    DECLARE 
-        batch_size INT := ${batchSize};
-    BEGIN
-        -- Loop through batches
-        FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
-            -- Update the batch
-            UPDATE omnivore.library_item
-            SET ${valuesSql}
-            WHERE id = ANY(
-              ${subQuery}
-              AND updated_at < '${start}'
-              LIMIT batch_size
-            );
-        END LOOP;
-    END $$
-    `
+      values = {
+        folder: args.folder,
+        savedAt: now,
+      }
 
-    return tx.query(sql)
-  })
+      break
+    default:
+      throw new Error('Invalid bulk action')
+  }
+
+  await authTrx(
+    async (tx) =>
+      getQueryBuilder(userId, tx).update(LibraryItem).set(values).execute(),
+    undefined,
+    userId
+  )
 }
 
 export const deleteLibraryItemById = async (id: string, userId?: string) => {
