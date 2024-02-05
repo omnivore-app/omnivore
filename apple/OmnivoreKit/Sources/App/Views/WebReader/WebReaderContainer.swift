@@ -231,6 +231,10 @@ struct WebReaderContainerView: View {
         action: copyDeeplink,
         label: { Label("Copy Deeplink", systemImage: "link") }
       )
+//      Button(
+//        action: print,
+//        label: { Label("Print", systemImage: "printer") }
+//      )
       Button(
         action: delete,
         label: { Label("Remove", systemImage: "trash") }
@@ -399,6 +403,7 @@ struct WebReaderContainerView: View {
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
+          viewModel.trackReadEvent(item: item)
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
                             titleVisibility: .visible) {
@@ -649,6 +654,10 @@ struct WebReaderContainerView: View {
   }
 
   func share() {
+    shareActionID = UUID()
+  }
+  
+  func print() {
     shareActionID = UUID()
   }
 

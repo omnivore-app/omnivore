@@ -3,6 +3,7 @@ import Services
 import SwiftUI
 import Views
 import WebKit
+import Utils
 
 struct SafariWebLink: Identifiable {
   let id: UUID
@@ -228,5 +229,20 @@ struct SafariWebLink: Identifiable {
         Snackbar.show(message: "Error saving link", dismissAfter: 2000)
       }
     }
+  }
+  
+  func trackReadEvent(item: Models.LibraryItem) {
+    let itemID = item.unwrappedID
+    let slug = item.unwrappedSlug
+    let originalArticleURL = item.unwrappedPageURLString
+
+    EventTracker.track(
+      .linkRead(
+        linkID: itemID,
+        slug: slug,
+        reader: "WEB",
+        originalArticleURL: originalArticleURL
+      )
+    )
   }
 }

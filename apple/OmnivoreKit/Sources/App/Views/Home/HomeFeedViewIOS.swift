@@ -369,58 +369,74 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         ToolbarItemGroup(placement: .barTrailing) {
-          if isEditMode == .active {
-            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
-          } else {
-            if prefersListLayout {
+
+            if viewModel.appliedFilter?.name == "Deleted" {
+              if viewModel.isEmptyingTrash {
+                ProgressView()
+              } else {
+                Button(
+                  action: {
+                    viewModel.emptyTrash(dataService: dataService)
+                  },
+                  label: {
+                    Text("Empty trash").tint(Color.blue)
+                  })
+                .buttonStyle(.plain)
+                .foregroundColor(Color.blue)
+              }
+            } else {
+              if isEditMode == .active {
+                Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+              } else {
+                if prefersListLayout {
+                  Button(
+                    action: { isEditMode = isEditMode == .active ? .inactive : .active },
+                    label: {
+                      Image
+                        .selectMultiple
+                        .foregroundColor(Color.toolbarItemForeground)
+                    }
+                  ).buttonStyle(.plain)
+                    .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+                }
+                if enableGrid {
+                  Button(
+                    action: { prefersListLayout.toggle() },
+                    label: {
+                      Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                        .foregroundColor(Color.toolbarItemForeground)
+                    }
+                  ).buttonStyle(.plain)
+                    .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+                }
               Button(
-                action: { isEditMode = isEditMode == .active ? .inactive : .active },
+                action: {
+                  if viewModel.currentFolder == "inbox" {
+                    showAddLinkView = true
+                  } else if viewModel.currentFolder == "following" {
+                    viewModel.showAddFeedView = true
+                  }
+                },
                 label: {
-                  Image
-                    .selectMultiple
+                  Image.addLink
                     .foregroundColor(Color.toolbarItemForeground)
                 }
               ).buttonStyle(.plain)
                 .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+                
+                Button(
+                  action: {
+                    searchPresented = true
+                    isEditMode = .inactive
+                  },
+                  label: {
+                    Image
+                      .magnifyingGlass
+                      .foregroundColor(Color.toolbarItemForeground)
+                  }
+                ).buttonStyle(.plain)
+                  .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
             }
-            if enableGrid {
-              Button(
-                action: { prefersListLayout.toggle() },
-                label: {
-                  Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                    .foregroundColor(Color.toolbarItemForeground)
-                }
-              ).buttonStyle(.plain)
-                .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
-            }
-
-            Button(
-              action: {
-                if viewModel.currentFolder == "inbox" {
-                  showAddLinkView = true
-                } else if viewModel.currentFolder == "following" {
-                  viewModel.showAddFeedView = true
-                }
-              },
-              label: {
-                Image.addLink
-                  .foregroundColor(Color.toolbarItemForeground)
-              }
-            ).buttonStyle(.plain)
-              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
-
-            Button(
-              action: {
-                searchPresented = true
-                isEditMode = .inactive
-              },
-              label: {
-                Image
-                  .magnifyingGlass
-                  .foregroundColor(Color.toolbarItemForeground)
-              }
-            ).buttonStyle(.plain)
-              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
           }
         }
 
@@ -430,19 +446,17 @@ struct AnimatingCellHeight: AnimatableModifier {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image.toolbarTrash })
-              .disabled(selection.count < 1)
-              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
-
+            .disabled(selection.count < 1)
+            .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
-
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image.toolbarArchive })
-              .disabled(selection.count < 1)
-              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
+            .disabled(selection.count < 1)
+            .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
           }
         }
       }
@@ -492,7 +506,11 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
         PresentationLink(transition: slideTransition, isPresented: $viewModel.linkIsActive) {
           if let presentingItem = viewModel.selectedItem {
-            WebReaderContainerView(item: presentingItem)
+            if presentingItem.isPDF {
+              PDFContainerView(item: presentingItem)
+            } else {
+              WebReaderContainerView(item: presentingItem)
+            }
           } else {
             EmptyView()
           }
@@ -805,6 +823,15 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .frame(maxWidth: .infinity)
                   .padding()
                   .listRowSeparator(.hidden, edges: .all)
+                } else if viewModel.isEmptyingTrash {
+                    VStack {
+                      Text("Emptying trash")
+                      ProgressView()
+                    }
+                    .frame(minHeight: 400)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .listRowSeparator(.hidden, edges: .all)
                 } else if viewModel.fetcher.items.isEmpty {
                   EmptyState(viewModel: viewModel)
                     .listRowSeparator(.hidden, edges: .all)
@@ -1137,6 +1164,8 @@ struct BottomView: View {
 
   var innerBody: some View {
     if viewModel.fetcher.items.count < 3 {
+      AnyView(Color.clear)
+    } else if viewModel.appliedFilter?.name == "Deleted" {
       AnyView(Color.clear)
     } else {
       AnyView(HStack {

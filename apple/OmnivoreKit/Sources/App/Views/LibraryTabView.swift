@@ -73,11 +73,13 @@ struct LibraryTabView: View {
   @State var showOperationToast = false
   @State var operationStatus: OperationStatus = .none
   @State var operationMessage: String?
-  
+
   var body: some View {
     VStack(spacing: 0) {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
-        OperationToast(operationMessage: $operationMessage, showOperationToast: $showOperationToast, operationStatus: $operationStatus)
+        OperationToast(operationMessage: $operationMessage, 
+                       showOperationToast: $showOperationToast,
+                       operationStatus: $operationStatus)
       } label: {
         EmptyView()
       }.buttonStyle(.plain)

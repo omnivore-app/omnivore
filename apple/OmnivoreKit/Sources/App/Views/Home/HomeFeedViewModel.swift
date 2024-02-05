@@ -377,4 +377,18 @@ enum LoadingBarStyle {
       fetcher.updateFeatureFilter(context: context, filter: filter)
     }
   }
+
+  @Published var isEmptyingTrash = false
+
+  func emptyTrash(dataService: DataService) {
+    self.isEmptyingTrash = true
+    Task {
+      if !(await dataService.emptyTrash()) {
+        snackbar("Error emptying trash")
+      } else {
+        snackbar("Trash emptied")
+      }
+      isEmptyingTrash = false
+    }
+  }
 }
