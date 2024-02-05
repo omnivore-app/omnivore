@@ -624,23 +624,6 @@ export const saveArticleReadingProgressResolver = authorized<
         // update reading progress without checking the current value, also
         // clear any cached values.
         await clearCachedReadingPosition(uid, id)
-
-        const updatedItem = await updateLibraryItem(
-          id,
-          {
-            readingProgressBottomPercent: readingProgressPercent,
-            readingProgressTopPercent: readingProgressTopPercent ?? undefined,
-            readingProgressHighestReadAnchor:
-              readingProgressAnchorIndex ?? undefined,
-            readAt: new Date(),
-          },
-          uid,
-          pubsub
-        )
-
-        return {
-          updatedArticle: libraryItemToArticle(updatedItem),
-        }
       }
 
       let updatedItem: LibraryItem | null
