@@ -4,7 +4,7 @@ public enum TrackableEvent {
   case linkRead(linkID: String, slug: String, reader: String, originalArticleURL: String)
   case debugMessage(message: String)
   case backgroundFetch(jobStatus: BackgroundFetchJobStatus, itemCount: Int, secondsElapsed: Int)
-  case audioSessionStart(linkID: String)
+  case audioSessionStart(linkID: String, voice: String, voiceProvider: String)
   case audioSessionEnd(linkID: String, timeElapsed: Double)
 }
 
@@ -48,9 +48,11 @@ public extension TrackableEvent {
         "seconds_elapsed": String(secondsElapsed),
         "fetched_item_count": String(itemCount)
       ]
-    case let .audioSessionStart(linkID: linkID):
+    case let .audioSessionStart(linkID: linkID, voice: voice, voiceProvider: voiceProvider):
       return [
-        "link": linkID
+        "link": linkID,
+        "voice": voice,
+        "voiceProvider": voiceProvider
       ]
     case let .audioSessionEnd(linkID: linkID, timeElapsed: timeElapsed):
       return [
