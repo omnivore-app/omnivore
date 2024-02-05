@@ -21,6 +21,7 @@ struct WebReaderContainerView: View {
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State private var navBarVisible = true
+  @State var showBottomBar = true
   @State private var progressViewOpacity = 0.0
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
@@ -86,6 +87,7 @@ struct WebReaderContainerView: View {
   private func tapHandler() {
     withAnimation(.easeIn(duration: 0.08)) {
       navBarVisible = !navBarVisible
+      showBottomBar = navBarVisible
       showNavBarActionID = UUID()
     }
   }
@@ -114,6 +116,7 @@ struct WebReaderContainerView: View {
     case "dismissNavBars":
       withAnimation {
         navBarVisible = false
+        showBottomBar = false
         showNavBarActionID = UUID()
       }
     default:
@@ -380,6 +383,7 @@ struct WebReaderContainerView: View {
           navBarVisibilityUpdater: { visible in
             withAnimation {
               navBarVisible = visible
+              showBottomBar = visible
             }
           },
           readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
@@ -387,6 +391,7 @@ struct WebReaderContainerView: View {
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
           annotation: $annotation,
+          showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
@@ -586,13 +591,13 @@ struct WebReaderContainerView: View {
           if let audioProperties = audioController.itemAudioProperties {
             MiniPlayerViewer(itemAudioProperties: audioProperties)
               .padding(.top, 10)
-              .padding(.bottom, navBarVisible ? 10 : 40)
+              .padding(.bottom, showBottomBar ? 10 : 40)
               .background(Color.themeTabBarColor)
               .onTapGesture {
                 showExpandedAudioPlayer = true
               }
           }
-          if navBarVisible {
+          if showBottomBar {
             CustomToolBar(
               isFollowing: item.folder == "following",
               isArchived: item.isArchived,
