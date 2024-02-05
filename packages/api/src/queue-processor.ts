@@ -49,6 +49,14 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
   }
   backendQueue = new Queue(QUEUE_NAME, {
     connection: redisDataSource.workerRedisClient,
+    defaultJobOptions: {
+      backoff: {
+        type: 'exponential',
+        delay: 2000, // 2 seconds
+      },
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
   })
   await backendQueue.waitUntilReady()
   return backendQueue

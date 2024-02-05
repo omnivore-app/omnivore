@@ -666,8 +666,6 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
     priority: 5,
     attempts: 1,
-    removeOnComplete: true,
-    removeOnFail: true,
   })
 }
 
@@ -680,8 +678,6 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
   return queue.add(CALL_WEBHOOK_JOB_NAME, data, {
     priority: 5,
     attempts: 1,
-    removeOnComplete: true,
-    removeOnFail: true,
   })
 }
 
@@ -697,10 +693,6 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
     opts: {
       attempts: 3,
       priority: 1,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
-      },
     },
   }))
 
@@ -722,10 +714,6 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
     return queue.add(UPDATE_HIGHLIGHT_JOB, data, {
       attempts: 3,
       priority: 1,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
-      },
     })
   } catch (error) {
     logger.error('error enqueuing update highlight job', error)
@@ -745,8 +733,6 @@ export const enqueueBulkAction = async (data: BulkActionData) => {
       attempts: 1,
       priority: 10,
       jobId, // deduplication
-      removeOnComplete: true,
-      removeOnFail: true,
     })
   } catch (error) {
     logger.error('error enqueuing bulk action job', error)
