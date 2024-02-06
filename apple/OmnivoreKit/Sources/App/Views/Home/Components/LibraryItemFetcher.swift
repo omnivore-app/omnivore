@@ -100,6 +100,11 @@ import Views
   }
 
   func loadItems(dataService: DataService, filterState: FetcherFilterState, isRefresh: Bool, forceRemote: Bool = false) async {
+    if isRefresh {
+      cursor = nil
+      limit = 5
+    }
+
     await withTaskGroup(of: Void.self) { group in
       group.addTask { await self.loadCurrentViewer(dataService: dataService) }
       group.addTask { await self.loadLabels(dataService: dataService) }
