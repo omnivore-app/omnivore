@@ -6,7 +6,7 @@ import {
   PreparedDocumentInput,
 } from '../../generated/graphql'
 import { createAndSaveLabelsInLibraryItem } from '../../services/labels'
-import { createLibraryItem } from '../../services/library_item'
+import { createOrUpdateLibraryItem } from '../../services/library_item'
 import { parsedContentToLibraryItem } from '../../services/save_page'
 import { cleanUrl, generateSlug } from '../../utils/helpers'
 import { createThumbnailUrl } from '../../utils/imageproxy'
@@ -123,7 +123,7 @@ export function followingServiceRouter() {
         state: ArticleSavingRequestStatus.ContentNotFetched,
       })
 
-      const newItem = await createLibraryItem(itemToSave, userId)
+      const newItem = await createOrUpdateLibraryItem(itemToSave, userId)
       logger.info('feed item saved in following')
 
       // save RSS label in the item

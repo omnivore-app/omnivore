@@ -18,7 +18,7 @@ import {
 import { logger } from '../utils/logger'
 import {
   countByCreatedAt,
-  createLibraryItem,
+  createOrUpdateLibraryItem,
   findLibraryItemByUrl,
   updateLibraryItem,
 } from './library_item'
@@ -118,7 +118,7 @@ export const createPageSaveRequest = async ({
     logger.info('libraryItem does not exist', { url })
 
     // create processing item
-    libraryItem = await createLibraryItem(
+    libraryItem = await createOrUpdateLibraryItem(
       {
         id: articleSavingRequestId,
         user: { id: userId },

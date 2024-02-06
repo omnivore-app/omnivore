@@ -74,7 +74,7 @@ import {
 import {
   batchDelete,
   batchUpdateLibraryItems,
-  createLibraryItem,
+  createOrUpdateLibraryItem,
   findLibraryItemById,
   findLibraryItemByUrl,
   findLibraryItemsByPrefix,
@@ -357,7 +357,7 @@ export const createArticleResolver = authorized<
         )
       } else {
         // create new item in database
-        libraryItemToReturn = await createLibraryItem(
+        libraryItemToReturn = await createOrUpdateLibraryItem(
           libraryItemToSave,
           uid,
           pubsub
