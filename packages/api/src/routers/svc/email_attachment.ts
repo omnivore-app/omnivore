@@ -9,7 +9,7 @@ import { UploadFile } from '../../entity/upload_file'
 import { env } from '../../env'
 import { PageType, UploadFileStatus } from '../../generated/graphql'
 import { authTrx } from '../../repository'
-import { createLibraryItem } from '../../services/library_item'
+import { createOrUpdateLibraryItem } from '../../services/library_item'
 import { findNewsletterEmailByAddress } from '../../services/newsletters'
 import { updateReceivedEmail } from '../../services/received_emails'
 import {
@@ -170,7 +170,7 @@ export function emailAttachmentRouter() {
             : ContentReaderType.EPUB,
       }
 
-      const item = await createLibraryItem(itemToCreate, user.id)
+      const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
 
       // update received email type
       await updateReceivedEmail(receivedEmailId, 'article', user.id)

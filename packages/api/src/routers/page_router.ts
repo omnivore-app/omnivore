@@ -13,7 +13,7 @@ import { PageType, UploadFileStatus } from '../generated/graphql'
 import { authTrx } from '../repository'
 import { Claims } from '../resolvers/types'
 import {
-  createLibraryItem,
+  createOrUpdateLibraryItem,
   findLibraryItemById,
   findLibraryItemByUrl,
   restoreLibraryItem,
@@ -101,7 +101,7 @@ export function pageRouter() {
     if (item) {
       await restoreLibraryItem(item.id, claims.uid)
     } else {
-      await createLibraryItem(
+      await createOrUpdateLibraryItem(
         {
           originalUrl: signedUrl,
           id: clientRequestId,

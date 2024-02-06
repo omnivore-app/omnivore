@@ -295,8 +295,8 @@ describe('Highlights API', () => {
       expect(res.body.data.mergeHighlight.highlight.id).to.eq(newHighlightId)
 
       const highlight = await findHighlightById(newHighlightId, user.id)
-      expect(highlight.labels).to.have.lengthOf(1)
-      expect(highlight.labels?.[0]?.name).to.eq(labelName)
+      expect(highlight?.labels).to.have.lengthOf(1)
+      expect(highlight?.labels?.[0]?.name).to.eq(labelName)
 
       highlightId = newHighlightId
     })

@@ -17,7 +17,7 @@ import {
   generateUploadSignedUrl,
 } from '../utils/uploads'
 import { validateUrl } from './create_page_save_request'
-import { createLibraryItem } from './library_item'
+import { createOrUpdateLibraryItem } from './library_item'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
@@ -122,7 +122,7 @@ export const uploadFile = async (
     // If we have a file:// URL, don't try to match it
     // and create a copy of the item, just create a
     // new item.
-    const item = await createLibraryItem(
+    const item = await createOrUpdateLibraryItem(
       {
         id: input.clientRequestId || undefined,
         originalUrl: isFileUrl(input.url) ? attachmentUrl : input.url,

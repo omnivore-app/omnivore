@@ -1,6 +1,5 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
@@ -12,8 +11,6 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
-import { authTrx } from '../repository'
-import { libraryItemRepository } from '../repository/library_item'
 import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
@@ -28,7 +25,7 @@ import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
 import { createAndSaveLabelsInLibraryItem } from './labels'
-import { createLibraryItem, updateLibraryItem } from './library_item'
+import { createOrUpdateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -103,7 +100,7 @@ export const savePage = async (
   if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest({
-        userId: user.id,
+        user,
         url: itemToSave.originalUrl,
         articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,
@@ -118,44 +115,15 @@ export const savePage = async (
       }
     }
   } else {
-    // check if the item already exists
-    const existingLibraryItem = await authTrx((t) =>
-      t
-        .withRepository(libraryItemRepository)
-        .findByUserIdAndUrl(user.id, input.url)
+    // do not publish a pubsub event if the item is imported
+    const newItem = await createOrUpdateLibraryItem(
+      itemToSave,
+      user.id,
+      undefined,
+      isImported
     )
-    if (existingLibraryItem) {
-      clientRequestId = existingLibraryItem.id
-      slug = existingLibraryItem.slug
-
-      // we don't want to update an rss feed item if rss-feeder is tring to re-save it
-      if (existingLibraryItem.subscription === input.rssFeedUrl) {
-        return {
-          clientRequestId,
-          url: `${homePageURL()}/${user.profile.username}/${slug}`,
-        }
-      }
-
-      // update the item except for id and slug
-      await updateLibraryItem(
-        clientRequestId,
-        {
-          ...itemToSave,
-          id: undefined,
-          slug: undefined,
-        } as QueryDeepPartialEntity<LibraryItem>,
-        user.id
-      )
-    } else {
-      // do not publish a pubsub event if the item is imported
-      const newItem = await createLibraryItem(
-        itemToSave,
-        user.id,
-        undefined,
-        isImported
-      )
-      clientRequestId = newItem.id
-    }
+    clientRequestId = newItem.id
+    slug = newItem.slug
 
     await createAndSaveLabelsInLibraryItem(
       clientRequestId,

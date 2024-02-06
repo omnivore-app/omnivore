@@ -5,6 +5,7 @@ import express from 'express'
 import { LessThan } from 'typeorm'
 import { LibraryItemState } from '../../entity/library_item'
 import { readPushSubscription } from '../../pubsub'
+import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { deleteLibraryItemsByAdmin } from '../../services/library_item'
 import { logger } from '../../utils/logger'
@@ -65,9 +66,14 @@ export function linkServiceRouter() {
     }
     const msg = data as CreateLinkRequestMessage
 
+    const user = await userRepository.findById(msg.userId)
+    if (!user) {
+      return res.status(400).send('Bad Request')
+    }
+
     try {
       const request = await createPageSaveRequest({
-        userId: msg.userId,
+        user,
         url: msg.url,
       })
 

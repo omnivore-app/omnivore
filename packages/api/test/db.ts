@@ -12,7 +12,7 @@ import { authTrx, getRepository, setClaims } from '../src/repository'
 import { highlightRepository } from '../src/repository/highlight'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
-import { createLibraryItem } from '../src/services/library_item'
+import { createOrUpdateLibraryItem } from '../src/services/library_item'
 import { createDeviceToken } from '../src/services/user_device_tokens'
 import {
   bulkEnqueueUpdateLabels,
@@ -120,7 +120,7 @@ export const createTestLibraryItem = async (
     slug: 'test-with-omnivore',
   }
 
-  const createdItem = await createLibraryItem(item, userId)
+  const createdItem = await createOrUpdateLibraryItem(item, userId)
   if (labels) {
     await saveLabelsInLibraryItem(labels, createdItem.id, userId)
   }

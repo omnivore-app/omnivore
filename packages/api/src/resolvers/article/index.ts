@@ -6,7 +6,6 @@
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
 import { IsNull } from 'typeorm'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
@@ -74,9 +73,7 @@ import {
 import {
   batchDelete,
   batchUpdateLibraryItems,
-  createLibraryItem,
-  findLibraryItemById,
-  findLibraryItemByUrl,
+  createOrUpdateLibraryItem,
   findLibraryItemsByPrefix,
   searchLibraryItems,
   sortParamsToSort,
@@ -261,7 +258,7 @@ export const createArticleResolver = authorized<
         FORCE_PUPPETEER_URLS.some((regex) => regex.test(url))
       ) {
         await createPageSaveRequest({
-          userId: uid,
+          user: userData,
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
@@ -286,7 +283,7 @@ export const createArticleResolver = authorized<
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
         await createPageSaveRequest({
-          userId: uid,
+          user: userData,
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
@@ -340,43 +337,18 @@ export const createArticleResolver = authorized<
         }
       }
 
-      let libraryItemToReturn: LibraryItem
-
-      const existingLibraryItem = await findLibraryItemByUrl(
-        libraryItemToSave.originalUrl,
-        uid
+      // create new item in database
+      const libraryItemToReturn = await createOrUpdateLibraryItem(
+        libraryItemToSave,
+        uid,
+        pubsub
       )
-      articleSavingRequestId = existingLibraryItem?.id || articleSavingRequestId
-      if (articleSavingRequestId) {
-        // update existing item's state from processing to succeeded
-        libraryItemToReturn = await updateLibraryItem(
-          articleSavingRequestId,
-          libraryItemToSave as QueryDeepPartialEntity<LibraryItem>,
-          uid,
-          pubsub
-        )
-      } else {
-        // create new item in database
-        libraryItemToReturn = await createLibraryItem(
-          libraryItemToSave,
-          uid,
-          pubsub
-        )
-      }
 
       await createAndSaveLabelsInLibraryItem(
         libraryItemToReturn.id,
         uid,
         inputLabels,
         rssFeedUrl
-      )
-
-      log.info(
-        'item created in database',
-        libraryItemToReturn.id,
-        libraryItemToReturn.originalUrl,
-        libraryItemToReturn.slug,
-        libraryItemToReturn.title
       )
 
       return {
@@ -607,7 +579,7 @@ export const saveArticleReadingProgressResolver = authorized<
         force,
       },
     },
-    { pubsub, uid, dataSources }
+    { authTrx, pubsub, uid, dataSources }
   ) => {
     if (
       readingProgressPercent < 0 ||
@@ -623,7 +595,14 @@ export const saveArticleReadingProgressResolver = authorized<
     // We don't need to update the values of reading progress here
     // because the function resolver will handle that for us when
     // it resolves the properties of the Article object
-    let updatedItem = await findLibraryItemById(id, uid)
+    let updatedItem = await authTrx((tx) =>
+      tx.getRepository(LibraryItem).findOne({
+        where: {
+          id,
+        },
+        relations: ['user'],
+      })
+    )
     if (!updatedItem) {
       return {
         errorCodes: [SaveArticleReadingProgressErrorCode.Unauthorized],
@@ -1002,7 +981,7 @@ export const moveToFolderResolver = authorized<
   if (item.state === LibraryItemState.ContentNotFetched) {
     try {
       await createPageSaveRequest({
-        userId: uid,
+        user: item.user,
         url: item.originalUrl,
         articleSavingRequestId: id,
         priority: 'high',
@@ -1029,7 +1008,7 @@ export const fetchContentResolver = authorized<
   FetchContentSuccess,
   FetchContentError,
   MutationFetchContentArgs
->(async (_, { id }, { uid, log, pubsub }) => {
+>(async (_, { id }, { authTrx, uid, log, pubsub }) => {
   analytics.track({
     userId: uid,
     event: 'fetch_content',
@@ -1038,7 +1017,14 @@ export const fetchContentResolver = authorized<
     },
   })
 
-  const item = await findLibraryItemById(id, uid)
+  const item = await authTrx((tx) =>
+    tx.getRepository(LibraryItem).findOne({
+      where: {
+        id,
+      },
+      relations: ['user'],
+    })
+  )
   if (!item) {
     return {
       errorCodes: [FetchContentErrorCode.Unauthorized],
@@ -1049,7 +1035,7 @@ export const fetchContentResolver = authorized<
   if (item.state === LibraryItemState.ContentNotFetched) {
     try {
       await createPageSaveRequest({
-        userId: uid,
+        user: item.user,
         url: item.originalUrl,
         articleSavingRequestId: id,
         priority: 'high',

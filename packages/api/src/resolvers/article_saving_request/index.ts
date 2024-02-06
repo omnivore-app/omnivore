@@ -42,9 +42,14 @@ export const createArticleSavingRequestResolver = authorized<
     },
   })
 
+  const user = await userRepository.findById(uid)
+  if (!user) {
+    return { errorCodes: [CreateArticleSavingRequestErrorCode.Unauthorized] }
+  }
+
   try {
     const articleSavingRequest = await createPageSaveRequest({
-      userId: uid,
+      user,
       url,
       pubsub,
     })

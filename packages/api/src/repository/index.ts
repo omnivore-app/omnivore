@@ -17,6 +17,10 @@ export const getColumns = <T>(repository: Repository<T>): (keyof T)[] => {
   ) as (keyof T)[]
 }
 
+export const getColumnsDbName = <T>(repository: Repository<T>): string[] => {
+  return repository.metadata.columns.map((col) => col.databaseName)
+}
+
 export const setClaims = async (
   manager: EntityManager,
   uid = '00000000-0000-0000-0000-000000000000',
