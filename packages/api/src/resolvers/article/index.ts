@@ -59,7 +59,7 @@ import {
   UpdatesSinceError,
   UpdatesSinceSuccess,
 } from '../../generated/graphql'
-import { authTrx, getColumns } from '../../repository'
+import { getColumns } from '../../repository'
 import { getInternalLabelWithColor } from '../../repository/label'
 import { libraryItemRepository } from '../../repository/library_item'
 import { userRepository } from '../../repository/user'
@@ -607,7 +607,7 @@ export const saveArticleReadingProgressResolver = authorized<
         force,
       },
     },
-    { log, pubsub, uid, dataSources }
+    { pubsub, uid, dataSources }
   ) => {
     if (
       readingProgressPercent < 0 ||
@@ -619,13 +619,43 @@ export const saveArticleReadingProgressResolver = authorized<
     ) {
       return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
     }
-    try {
+
+    // We don't need to update the values of reading progress here
+    // because the function resolver will handle that for us when
+    // it resolves the properties of the Article object
+    let updatedItem = await findLibraryItemById(id, uid)
+    if (!updatedItem) {
+      return {
+        errorCodes: [SaveArticleReadingProgressErrorCode.Unauthorized],
+      }
+    }
+
+    if (env.redis.cache && env.redis.mq) {
       if (force) {
-        // update reading progress without checking the current value, also
         // clear any cached values.
         await clearCachedReadingPosition(uid, id)
+      }
 
-        const updatedItem = await updateLibraryItem(
+      // If redis caching and queueing are available we delay this write
+      const updatedProgress =
+        await dataSources.readingProgress.updateReadingProgress(uid, id, {
+          readingProgressPercent,
+          readingProgressTopPercent: readingProgressTopPercent ?? undefined,
+          readingProgressAnchorIndex: readingProgressAnchorIndex ?? undefined,
+        })
+      if (updatedProgress) {
+        updatedItem.readAt = new Date()
+        updatedItem.readingProgressBottomPercent =
+          updatedProgress.readingProgressPercent
+        updatedItem.readingProgressTopPercent =
+          updatedProgress.readingProgressTopPercent || 0
+        updatedItem.readingProgressHighestReadAnchor =
+          updatedProgress.readingProgressAnchorIndex || 0
+      }
+    } else {
+      if (force) {
+        // update reading progress without checking the current value
+        updatedItem = await updateLibraryItem(
           id,
           {
             readingProgressBottomPercent: readingProgressPercent,
@@ -637,39 +667,6 @@ export const saveArticleReadingProgressResolver = authorized<
           uid,
           pubsub
         )
-
-        return {
-          updatedArticle: libraryItemToArticle(updatedItem),
-        }
-      }
-
-      let updatedItem: LibraryItem | null
-      if (env.redis.cache && env.redis.mq) {
-        // If redis caching and queueing are available we delay this write
-        const updatedProgress =
-          await dataSources.readingProgress.updateReadingProgress(uid, id, {
-            readingProgressPercent,
-            readingProgressTopPercent: readingProgressTopPercent ?? undefined,
-            readingProgressAnchorIndex: readingProgressAnchorIndex ?? undefined,
-          })
-
-        // We don't need to update the values of reading progress here
-        // because the function resolver will handle that for us when
-        // it resolves the properties of the Article object
-        updatedItem = await authTrx(
-          async (t) => {
-            return t.getRepository(LibraryItem).findOne({
-              where: {
-                id,
-              },
-            })
-          },
-          undefined,
-          uid
-        )
-        if (updatedItem) {
-          updatedItem.readAt = new Date()
-        }
       } else {
         updatedItem = await updateLibraryItemReadingProgress(
           id,
@@ -678,19 +675,17 @@ export const saveArticleReadingProgressResolver = authorized<
           readingProgressTopPercent,
           readingProgressAnchorIndex
         )
-      }
 
-      if (!updatedItem) {
-        return { errorCodes: [SaveArticleReadingProgressErrorCode.BadData] }
+        if (!updatedItem) {
+          return {
+            errorCodes: [SaveArticleReadingProgressErrorCode.BadData],
+          }
+        }
       }
+    }
 
-      return {
-        updatedArticle: libraryItemToArticle(updatedItem),
-      }
-    } catch (error) {
-      log.error('saveArticleReadingProgressResolver error', error)
-
-      return { errorCodes: [SaveArticleReadingProgressErrorCode.Unauthorized] }
+    return {
+      updatedArticle: libraryItemToArticle(updatedItem),
     }
   }
 )
