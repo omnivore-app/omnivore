@@ -180,7 +180,7 @@ export const findHighlightById = async (
   return authTrx(
     async (tx) => {
       const highlightRepo = tx.withRepository(highlightRepository)
-      return highlightRepo.findOneByOrFail({
+      return highlightRepo.findOneBy({
         id: highlightId,
       })
     },
