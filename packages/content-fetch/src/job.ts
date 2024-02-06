@@ -50,7 +50,7 @@ const getOpts = (job: savePageJob): BulkJobOptions => {
     priority: getPriority(job),
     backoff: {
       type: 'exponential',
-      delay: 1000,
+      delay: 2000,
     },
   }
 }
