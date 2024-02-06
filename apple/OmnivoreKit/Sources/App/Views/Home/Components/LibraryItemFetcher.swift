@@ -170,7 +170,7 @@ import Views
     var subPredicates = [NSPredicate]()
 
     // TODO: FOLLOWING MIGRATION: invert this once the following migration has completed
-    if !UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab") {
+    if !(filterState.appliedFilter?.ignoreFolders ?? false), !UserDefaults.standard.bool(forKey: "LibraryTabView::hideFollowingTab") {
       let folderPredicate = NSPredicate(
         format: "%K == %@", #keyPath(Models.LibraryItem.folder), filterState.folder
       )

@@ -309,7 +309,7 @@ private let syncItemEdgeSelection = Selection.SyncUpdatedItemEdge {
 }
 
 private let searchItemSelection = Selection.SearchItem {
-  InternalLibraryItem(
+  return InternalLibraryItem(
     id: try $0.id(),
     title: try $0.title(),
     createdAt: try $0.createdAt().value ?? Date(),
