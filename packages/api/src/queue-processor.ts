@@ -54,8 +54,12 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
         type: 'exponential',
         delay: 2000, // 2 seconds
       },
-      removeOnComplete: true,
-      removeOnFail: true,
+      removeOnComplete: {
+        age: 24 * 3600, // keep up to 24 hours
+      },
+      removeOnFail: {
+        age: 7 * 24 * 3600, // keep up to 7 days
+      },
     },
   })
   await backendQueue.waitUntilReady()
