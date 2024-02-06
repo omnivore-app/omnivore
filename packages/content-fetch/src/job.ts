@@ -38,7 +38,7 @@ const getAttempts = (job: savePageJob): number => {
     return 1
   }
 
-  return 2
+  return 3
 }
 
 const getOpts = (job: savePageJob): BulkJobOptions => {
@@ -48,6 +48,10 @@ const getOpts = (job: savePageJob): BulkJobOptions => {
     // removeOnFail: true,
     attempts: getAttempts(job),
     priority: getPriority(job),
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
   }
 }
 
