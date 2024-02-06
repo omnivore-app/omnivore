@@ -261,7 +261,7 @@ export const createArticleResolver = authorized<
         FORCE_PUPPETEER_URLS.some((regex) => regex.test(url))
       ) {
         await createPageSaveRequest({
-          userId: uid,
+          user: userData,
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
@@ -286,7 +286,7 @@ export const createArticleResolver = authorized<
         // We have a URL but no document, so we try to send this to puppeteer
         // and return a dummy response.
         await createPageSaveRequest({
-          userId: uid,
+          user: userData,
           url,
           state: state || undefined,
           labels: inputLabels || undefined,
@@ -977,7 +977,7 @@ export const moveToFolderResolver = authorized<
   if (item.state === LibraryItemState.ContentNotFetched) {
     try {
       await createPageSaveRequest({
-        userId: uid,
+        user: item.user,
         url: item.originalUrl,
         articleSavingRequestId: id,
         priority: 'high',
@@ -1013,7 +1013,14 @@ export const fetchContentResolver = authorized<
     },
   })
 
-  const item = await findLibraryItemById(id, uid)
+  const item = await authTrx((tx) =>
+    tx.getRepository(LibraryItem).findOne({
+      where: {
+        id,
+      },
+      relations: ['user'],
+    })
+  )
   if (!item) {
     return {
       errorCodes: [FetchContentErrorCode.Unauthorized],
@@ -1024,7 +1031,7 @@ export const fetchContentResolver = authorized<
   if (item.state === LibraryItemState.ContentNotFetched) {
     try {
       await createPageSaveRequest({
-        userId: uid,
+        user: item.user,
         url: item.originalUrl,
         articleSavingRequestId: id,
         priority: 'high',

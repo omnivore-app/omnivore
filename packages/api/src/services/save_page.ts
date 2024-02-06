@@ -100,7 +100,7 @@ export const savePage = async (
   if (shouldParseInBackend(input)) {
     try {
       await createPageSaveRequest({
-        userId: user.id,
+        user,
         url: itemToSave.originalUrl,
         articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,

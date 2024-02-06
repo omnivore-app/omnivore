@@ -1,5 +1,6 @@
 import * as privateIpLib from 'private-ip'
 import { LibraryItemState } from '../entity/library_item'
+import { User } from '../entity/user'
 import {
   ArticleSavingRequest,
   ArticleSavingRequestStatus,
@@ -8,7 +9,6 @@ import {
   PageType,
 } from '../generated/graphql'
 import { createPubSubClient, PubsubClient } from '../pubsub'
-import { userRepository } from '../repository/user'
 import { enqueueParseRequest } from '../utils/createTask'
 import {
   cleanUrl,
@@ -19,7 +19,7 @@ import { logger } from '../utils/logger'
 import { countByCreatedAt, createOrUpdateLibraryItem } from './library_item'
 
 interface PageSaveRequest {
-  userId: string
+  user: User
   url: string
   pubsub?: PubsubClient
   articleSavingRequestId?: string
@@ -75,7 +75,7 @@ export const validateUrl = (url: string): URL => {
 }
 
 export const createPageSaveRequest = async ({
-  userId,
+  user,
   url,
   pubsub = createPubSubClient(),
   articleSavingRequestId,
@@ -97,15 +97,8 @@ export const createPageSaveRequest = async ({
       errorCode: CreateArticleSavingRequestErrorCode.BadData,
     })
   }
-  // if user is not specified, get it from the database
-  const user = await userRepository.findById(userId)
-  if (!user) {
-    logger.info(`User not found: ${userId}`)
-    return Promise.reject({
-      errorCode: CreateArticleSavingRequestErrorCode.BadData,
-    })
-  }
 
+  const userId = user.id
   url = cleanUrl(url)
 
   // create processing item
