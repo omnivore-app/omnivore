@@ -71,7 +71,7 @@ struct LinkItemDetailView: View {
         }
         .navigationViewStyle(.stack)
       } else if let item = viewModel.item {
-        WebReaderContainerView(item: item, pop: { dismiss() })
+        WebReaderContainerView(item: item)
           .background(ThemeManager.currentBgColor)
       }
     }
