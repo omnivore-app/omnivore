@@ -340,43 +340,18 @@ export const createArticleResolver = authorized<
         }
       }
 
-      let libraryItemToReturn: LibraryItem
-
-      const existingLibraryItem = await findLibraryItemByUrl(
-        libraryItemToSave.originalUrl,
-        uid
+      // create new item in database
+      const libraryItemToReturn = await createOrUpdateLibraryItem(
+        libraryItemToSave,
+        uid,
+        pubsub
       )
-      articleSavingRequestId = existingLibraryItem?.id || articleSavingRequestId
-      if (articleSavingRequestId) {
-        // update existing item's state from processing to succeeded
-        libraryItemToReturn = await updateLibraryItem(
-          articleSavingRequestId,
-          libraryItemToSave as QueryDeepPartialEntity<LibraryItem>,
-          uid,
-          pubsub
-        )
-      } else {
-        // create new item in database
-        libraryItemToReturn = await createOrUpdateLibraryItem(
-          libraryItemToSave,
-          uid,
-          pubsub
-        )
-      }
 
       await createAndSaveLabelsInLibraryItem(
         libraryItemToReturn.id,
         uid,
         inputLabels,
         rssFeedUrl
-      )
-
-      log.info(
-        'item created in database',
-        libraryItemToReturn.id,
-        libraryItemToReturn.originalUrl,
-        libraryItemToReturn.slug,
-        libraryItemToReturn.title
       )
 
       return {

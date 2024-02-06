@@ -16,12 +16,7 @@ import {
   libraryItemToArticleSavingRequest,
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
-import {
-  countByCreatedAt,
-  createOrUpdateLibraryItem,
-  findLibraryItemByUrl,
-  updateLibraryItem,
-} from './library_item'
+import { countByCreatedAt, createOrUpdateLibraryItem } from './library_item'
 
 interface PageSaveRequest {
   userId: string
@@ -112,42 +107,26 @@ export const createPageSaveRequest = async ({
   }
 
   url = cleanUrl(url)
-  // look for existing library item
-  let libraryItem = await findLibraryItemByUrl(url, userId)
-  if (!libraryItem) {
-    logger.info('libraryItem does not exist', { url })
 
-    // create processing item
-    libraryItem = await createOrUpdateLibraryItem(
-      {
-        id: articleSavingRequestId,
-        user: { id: userId },
-        readableContent: SAVING_CONTENT,
-        itemType: PageType.Unknown,
-        slug: generateSlug(url),
-        title: url,
-        originalUrl: url,
-        state: LibraryItemState.Processing,
-        publishedAt,
-        folder,
-        subscription,
-        savedAt,
-      },
-      userId,
-      pubsub
-    )
-  }
-  // reset state to processing
-  if (libraryItem.state !== LibraryItemState.Processing) {
-    libraryItem = await updateLibraryItem(
-      libraryItem.id,
-      {
-        state: LibraryItemState.Processing,
-      },
-      userId,
-      pubsub
-    )
-  }
+  // create processing item
+  const libraryItem = await createOrUpdateLibraryItem(
+    {
+      id: articleSavingRequestId,
+      user: { id: userId },
+      readableContent: SAVING_CONTENT,
+      itemType: PageType.Unknown,
+      slug: generateSlug(url),
+      title: url,
+      originalUrl: url,
+      state: LibraryItemState.Processing,
+      publishedAt,
+      folder,
+      subscription,
+      savedAt,
+    },
+    userId,
+    pubsub
+  )
 
   // get priority by checking rate limit if not specified
   priority = priority || (await getPriorityByRateLimit(userId))
