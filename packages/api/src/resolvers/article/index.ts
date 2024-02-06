@@ -6,7 +6,6 @@
 import { Readability } from '@omnivore/readability'
 import graphqlFields from 'graphql-fields'
 import { IsNull } from 'typeorm'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import {
@@ -75,8 +74,6 @@ import {
   batchDelete,
   batchUpdateLibraryItems,
   createOrUpdateLibraryItem,
-  findLibraryItemById,
-  findLibraryItemByUrl,
   findLibraryItemsByPrefix,
   searchLibraryItems,
   sortParamsToSort,
@@ -582,7 +579,7 @@ export const saveArticleReadingProgressResolver = authorized<
         force,
       },
     },
-    { pubsub, uid, dataSources }
+    { authTrx, pubsub, uid, dataSources }
   ) => {
     if (
       readingProgressPercent < 0 ||
@@ -1004,7 +1001,7 @@ export const fetchContentResolver = authorized<
   FetchContentSuccess,
   FetchContentError,
   MutationFetchContentArgs
->(async (_, { id }, { uid, log, pubsub }) => {
+>(async (_, { id }, { authTrx, uid, log, pubsub }) => {
   analytics.track({
     userId: uid,
     event: 'fetch_content',
