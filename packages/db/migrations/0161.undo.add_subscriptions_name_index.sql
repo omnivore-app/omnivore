@@ -4,6 +4,6 @@
 
 BEGIN;
 
-DROP INDEX IF EXISTS subscriptions_name_index;
+DROP INDEX IF EXISTS omnivore.subscriptions_user_id_name_index;
 
 COMMIT;
