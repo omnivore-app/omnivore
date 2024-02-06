@@ -595,7 +595,14 @@ export const saveArticleReadingProgressResolver = authorized<
     // We don't need to update the values of reading progress here
     // because the function resolver will handle that for us when
     // it resolves the properties of the Article object
-    let updatedItem = await findLibraryItemById(id, uid)
+    let updatedItem = await authTrx((tx) =>
+      tx.getRepository(LibraryItem).findOne({
+        where: {
+          id,
+        },
+        relations: ['user'],
+      })
+    )
     if (!updatedItem) {
       return {
         errorCodes: [SaveArticleReadingProgressErrorCode.Unauthorized],
