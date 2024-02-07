@@ -7,16 +7,14 @@ import React from 'react'
 
 export class HeaderToggleListIcon extends React.Component<IconProps> {
   render() {
-    const size = (this.props.size || 26).toString()
-    const color = (this.props.color || '#2A2A2A').toString()
-
     return (
       <SpanBox
         css={{
           display: 'flex',
-          '--inner-color': 'white',
+          '--inner-color': 'var(--colors-thHeaderIconInner)',
           '--ring-color': 'var(--colors-thHeaderIconRing)',
           '&:hover': {
+            '--inner-color': 'white',
             '--ring-fill': '#007AFF',
             '--ring-color': '#007AFF',
           },

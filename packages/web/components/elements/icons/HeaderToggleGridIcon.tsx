@@ -11,9 +11,10 @@ export class HeaderToggleGridIcon extends React.Component<IconProps> {
       <SpanBox
         css={{
           display: 'flex',
-          '--inner-color': 'white',
+          '--inner-color': 'var(--colors-thHeaderIconInner)',
           '--ring-color': 'var(--colors-thHeaderIconRing)',
           '&:hover': {
+            '--inner-color': 'white',
             '--ring-fill': '#007AFF',
             '--ring-color': '#007AFF',
           },
