@@ -2,8 +2,6 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { styled } from '../tokens/stitches.config'
 import { Box, HStack, VStack } from './LayoutPrimitives'
 import { Button } from './Button'
-import { DropdownMenu } from '@radix-ui/react-dropdown-menu'
-import { ArrowDown } from 'phosphor-react'
 import { Dropdown, DropdownOption } from './DropdownElements'
 import { CaretDownIcon } from './icons/CaretDownIcon'
 
@@ -24,9 +22,19 @@ const CaretButton = (): JSX.Element => {
         borderBottomRightRadius: '5px',
         borderTopLeftRadius: '0px',
         borderBottomLeftRadius: '0px',
+        '--caret-color': '#EDEDED',
+        '&:hover': {
+          opacity: 1.0,
+          color: 'white',
+          '--caret-color': 'white',
+        },
+        '&:focus': {
+          outline: 'none',
+          border: '0px solid transparent',
+        },
       }}
     >
-      <CaretDownIcon size={8} color="#EDEDED" />
+      <CaretDownIcon size={8} color="var(--caret-color)" />
     </VStack>
   )
 }
@@ -48,8 +56,8 @@ export const SplitButton = (props: SplitButtonProps): JSX.Element => {
           borderTopRightRadius: '0px',
           borderBottomRightRadius: '0px',
           '&:hover': {
-            opacity: 0.7,
-            border: '0px solid transparent',
+            opacity: 1.0,
+            color: 'white',
           },
           '&:focus': {
             outline: 'none',
@@ -59,7 +67,6 @@ export const SplitButton = (props: SplitButtonProps): JSX.Element => {
       >
         {props.title}
       </Button>
-      {/* <Divider></Divider> */}
       <Dropdown triggerElement={<CaretButton />}>
         <DropdownOption onSelect={() => console.log()} title="Archive (e)" />
       </Dropdown>

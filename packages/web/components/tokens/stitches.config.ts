@@ -167,7 +167,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // once all switch over, we will rename
         thBackground: '#FFFFFF',
         thBackground2: '#F3F3F3',
-        thBackground3: '#FFFFFF',
+        thBackground3: '#FCFCFC',
         thBackground4: '#EBEBEB',
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#FFEA9F',
@@ -180,6 +180,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibraryMenuUnselected: '#898989',
         thLibrarySelectionColor: '#FFEA9F',
         thLibraryNavigationMenuFooter: '#EFEADE',
+        thHeaderIconRing: '#D9D9D9',
+        thHeaderIconInner: '#898989',
 
         thNotebookSubtle: '#6A6968',
         thNotebookBorder: '#D9D9D9',
@@ -293,6 +295,8 @@ const darkThemeSpec = {
     thLibraryMenuUnselected: '#898989',
     thLibrarySelectionColor: '#3D3D3D',
     thLibraryNavigationMenuFooter: '#3D3D3D',
+    thHeaderIconRing: '#3D3D3D',
+    thHeaderIconInner: '#D9D9D9',
 
     thNotebookSubtle: '#898989',
     thNotebookBorder: '#3D3D3D',

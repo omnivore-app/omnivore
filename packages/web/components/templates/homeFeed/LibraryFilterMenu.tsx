@@ -634,7 +634,13 @@ const Footer = (): JSX.Element => {
       }}
     >
       <PrimaryDropdown showThemeSection={true} />
-      <SpanBox css={{ marginLeft: 'auto', marginRight: '5px' }}>
+      <SpanBox
+        css={{
+          marginLeft: 'auto',
+          marginRight: '5px',
+          '&:hover': { opacity: 1.0, color: 'white' },
+        }}
+      >
         <SplitButton title="Add Link" />
       </SpanBox>
     </HStack>

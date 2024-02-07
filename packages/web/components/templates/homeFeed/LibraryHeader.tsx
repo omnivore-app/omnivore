@@ -48,11 +48,7 @@ type LibraryHeaderProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
 
-  searchTerm: string | undefined
-  applySearchQuery: (searchQuery: string) => void
-
-  alwaysShowHeader: boolean
-  allowSelectMultiple: boolean
+  showSearchModal: () => void
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
@@ -62,12 +58,6 @@ type LibraryHeaderProps = {
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
-
-  handleLinkSubmission: (
-    link: string,
-    timezone: string,
-    locale: string
-  ) => Promise<void>
 }
 
 const controlWidths = (
@@ -165,7 +155,9 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             <MenuHeaderButton {...props} />
           </SpanBox>
           <Button
+            title="Select multiple"
             style="plainIcon"
+            css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
             onClick={(e) => {
               props.setMultiSelectMode('visible')
               e.preventDefault()
@@ -173,10 +165,30 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
           >
             <HeaderCheckboxIcon />
           </Button>
-          <HeaderSearchIcon />
+
           <Button
+            title="search"
             style="plainIcon"
-            css={{ display: 'flex', marginLeft: 'auto' }}
+            css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+            onClick={(e) => {
+              props.showSearchModal()
+              e.preventDefault()
+            }}
+          >
+            <HeaderSearchIcon />
+          </Button>
+          <Button
+            title={
+              props.layout == 'GRID_LAYOUT'
+                ? 'Switch to list layout'
+                : 'Switch to grid layout'
+            }
+            style="plainIcon"
+            css={{
+              display: 'flex',
+              marginLeft: 'auto',
+              '&:hover': { opacity: '1.0' },
+            }}
             onClick={(e) => {
               props.updateLayout(
                 props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
@@ -433,9 +445,6 @@ type ControlButtonBoxProps = {
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 
-  searchTerm: string | undefined
-  applySearchQuery: (searchQuery: string) => void
-
   handleLinkSubmission: (
     link: string,
     timezone: string,
@@ -530,7 +539,6 @@ function SearchControlButtonBox(
 ): JSX.Element {
   return (
     <>
-      <SearchBox {...props} />
       <Button
         style="plainIcon"
         css={{ display: 'flex', marginLeft: 'auto' }}
