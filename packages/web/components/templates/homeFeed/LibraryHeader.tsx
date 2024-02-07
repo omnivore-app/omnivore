@@ -122,6 +122,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 }
 
 function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
+  const [showSearchBar, setShowSearchBar] = useState(false)
   const [pinnedSearches, setPinnedSearches] = usePersistedState<
     PinnedSearch[] | null
   >({
@@ -166,17 +167,27 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
             <HeaderCheckboxIcon />
           </Button>
 
-          <Button
-            title="search"
-            style="plainIcon"
-            css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-            onClick={(e) => {
-              props.showSearchModal()
-              e.preventDefault()
-            }}
-          >
-            <HeaderSearchIcon />
-          </Button>
+          {showSearchBar ? (
+            <SearchBox
+              {...props}
+              searchTerm=""
+              applySearchQuery={() => {}}
+              setShowSearchBar={setShowSearchBar}
+            />
+          ) : (
+            <Button
+              title="search"
+              style="plainIcon"
+              css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+              onClick={(e) => {
+                setShowSearchBar(true)
+                e.preventDefault()
+              }}
+            >
+              <HeaderSearchIcon />
+            </Button>
+          )}
+
           <Button
             title={
               props.layout == 'GRID_LAYOUT'
@@ -253,6 +264,7 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
 export type SearchBoxProps = {
   searchTerm: string | undefined
   applySearchQuery: (searchQuery: string) => void
+  setShowSearchBar: (show: boolean) => void
 
   compact?: boolean
   onClose?: () => void
@@ -298,7 +310,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         width: '100%',
         maxWidth: '521px',
         bg: '$thLibrarySearchbox',
-        borderRadius: '6px',
+        borderRadius: '100px',
         border: focused
           ? '2px solid $omnivoreCtaYellow'
           : '2px solid transparent',
@@ -365,7 +377,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             ref={inputRef}
             type="text"
             value={searchTerm}
-            autoFocus={!!props.compact}
+            autoFocus={true}
             placeholder="Search keywords or labels"
             onFocus={(event) => {
               event.target.select()
@@ -385,48 +397,32 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           />
         </form>
-        {searchTerm && searchTerm.length ? (
-          <Box
-            css={{
-              py: '15px',
-              marginLeft: 'auto',
-            }}
-          >
-            <IconButton
-              style="searchButton"
-              onClick={(event) => {
+        <Box
+          css={{
+            py: '15px',
+            marginLeft: 'auto',
+          }}
+        >
+          <IconButton
+            style="searchButton"
+            onClick={(event) => {
+              if (searchTerm && searchTerm.length) {
                 event.preventDefault()
                 setSearchTerm('')
                 props.applySearchQuery('')
-                inputRef.current?.blur()
-              }}
-              tabIndex={-1}
-            >
-              <X
-                width={16}
-                height={16}
-                color={theme.colors.grayTextContrast.toString()}
-              />
-            </IconButton>
-          </Box>
-        ) : (
-          <Box
-            css={{
-              py: '15px',
-              marginLeft: 'auto',
-            }}
-          >
-            <IconButton
-              style="searchButton"
-              onClick={() =>
-                requestAnimationFrame(() => inputRef?.current?.focus())
+              } else {
+                props.setShowSearchBar(false)
               }
-              tabIndex={-1}
-            >
-              <kbd aria-hidden>/</kbd>
-            </IconButton>
-          </Box>
-        )}
+            }}
+            tabIndex={-1}
+          >
+            <X
+              width={16}
+              height={16}
+              color={theme.colors.grayTextContrast.toString()}
+            />
+          </IconButton>
+        </Box>
       </HStack>
     </Box>
   )
