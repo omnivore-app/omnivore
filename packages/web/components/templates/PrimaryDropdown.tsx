@@ -24,8 +24,6 @@ type PrimaryDropdownProps = {
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
-
-  showAddLinkModal?: () => void
 }
 
 export type HeaderDropdownAction =
@@ -68,9 +66,13 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
       <SpanBox
         css={{
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'start',
           fontFamily: '$inter',
           fontSize: '12px',
+          maxWidth: '100px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
       >
         {props.name}
@@ -169,6 +171,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
                   color: '$thTextContrast2',
                   m: '0px',
                   p: '0px',
+                  overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                 }}
