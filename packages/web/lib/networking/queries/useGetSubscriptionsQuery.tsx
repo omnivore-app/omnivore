@@ -22,8 +22,9 @@ export type Subscription = {
   createdAt: string
   updatedAt: string
   lastFetchedAt?: string
-  autoAddToLibrary?: boolean
-  isPrivate?: boolean
+  mostRecentItemDate?: string
+
+  fetchContent?: boolean
 }
 
 type SubscriptionsQueryResponse = {
@@ -63,8 +64,8 @@ export function useGetSubscriptionsQuery(
             createdAt
             updatedAt
             lastFetchedAt
-            autoAddToLibrary
-            isPrivate
+            fetchContent
+            mostRecentItemDate
           }
         }
         ... on SubscriptionsError {
