@@ -2,7 +2,7 @@ import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { Box } from '../../elements/LayoutPrimitives'
 
-export const DEFAULT_HEADER_HEIGHT = '70px'
+export const DEFAULT_HEADER_HEIGHT = '98px'
 
 export const useGetHeaderHeight = () => {
   const [hidePinnedSearches] = usePersistedState({
@@ -17,7 +17,7 @@ export const useGetHeaderHeight = () => {
   })
 
   if (hidePinnedSearches || !pinnedSearches?.length) {
-    return '70px'
+    return '98px'
   }
   return '100px'
 }

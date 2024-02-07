@@ -37,6 +37,10 @@ import { CaretDownIcon } from '../../elements/icons/CaretDownIcon'
 import { PinnedButtons } from './PinnedButtons'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
+import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
+import { HeaderSearchIcon } from '../../elements/icons/HeaderSearchIcon'
+import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
+import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -92,6 +96,16 @@ const controlWidths = (
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   const headerHeight = useGetHeaderHeight()
+  const [small, setSmall] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () =>
+        setSmall(window.pageYOffset > 200)
+      )
+    }
+  }, [])
+
   return (
     <>
       <VStack
@@ -103,12 +117,13 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           left: LIBRARY_LEFT_MENU_WIDTH,
           zIndex: 5,
           position: 'fixed',
-          height: headerHeight,
-          bg: '$thLibraryBackground',
+          height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
+          bg: 'red',
+          transition: '0.5s',
           '@mdDown': {
             left: '0px',
             right: '0',
-            height: DEFAULT_HEADER_HEIGHT,
+            height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
           },
         }}
       >
@@ -132,12 +147,24 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
     initialValue: [],
     isSessionStorage: false,
   })
+  const [small, setSmall] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', () =>
+        setSmall(window.pageYOffset > 200)
+      )
+    }
+  }, [])
 
   return (
     <HStack
       alignment="center"
-      distribution="center"
+      distribution="start"
       css={{
+        gap: '10px',
+        paddingLeft: '50px',
+        paddingRight: '50px',
         width: '100%',
         height: '100%',
         '@mdDown': {
@@ -145,39 +172,16 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         },
       }}
     >
-      <VStack alignment="center" distribution="start">
-        <ControlButtonBox
-          layout={props.layout}
-          updateLayout={props.updateLayout}
-          numItemsSelected={props.numItemsSelected}
-          multiSelectMode={props.multiSelectMode}
-          setMultiSelectMode={props.setMultiSelectMode}
-          showAddLinkModal={props.showAddLinkModal}
-          performMultiSelectAction={props.performMultiSelectAction}
-          searchTerm={props.searchTerm}
-          applySearchQuery={props.applySearchQuery}
-          allowSelectMultiple={props.allowSelectMultiple}
-          handleLinkSubmission={props.handleLinkSubmission}
-        />
-        <SpanBox
-          css={{
-            ...controlWidths(props.layout, props.multiSelectMode),
-            maxWidth: '587px',
-            alignSelf: 'flex-start',
-            '-ms-overflow-style': 'none',
-            scrollbarWidth: 'none',
-            '::-webkit-scrollbar': {
-              display: 'none',
-            },
-          }}
-        >
-          <PinnedButtons
-            items={pinnedSearches ?? []}
-            searchTerm={props.searchTerm}
-            applySearchQuery={props.applySearchQuery}
-          />
-        </SpanBox>
-      </VStack>
+      <HeaderCheckboxIcon />
+      <HeaderSearchIcon />
+
+      <SpanBox css={{ display: 'flex', marginLeft: 'auto' }}>
+        {props.layout == 'LIST_LAYOUT' ? (
+          <HeaderToggleGridIcon />
+        ) : (
+          <HeaderToggleListIcon />
+        )}
+      </SpanBox>
     </HStack>
   )
 }
@@ -588,10 +592,6 @@ function SearchControlButtonBox(
           <GridViewIcon size={30} color={'#898989'} />
         )}
       </Button>
-      <PrimaryDropdown
-        showThemeSection={true}
-        showAddLinkModal={props.showAddLinkModal}
-      />
     </>
   )
 }

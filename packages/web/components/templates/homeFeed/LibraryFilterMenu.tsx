@@ -19,8 +19,11 @@ import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragme
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
+import { SplitButton } from '../../elements/SplitButton'
+import { AvatarDropdown } from '../../elements/AvatarDropdown'
+import { PrimaryDropdown } from '../PrimaryDropdown'
 
-export const LIBRARY_LEFT_MENU_WIDTH = '233px'
+export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
 type LibraryFilterMenuProps = {
   setShowAddLinkModal: (show: boolean) => void
@@ -119,6 +122,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
         <Labels {...props} labels={labels} />
+        <Footer />
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
@@ -241,8 +245,16 @@ function Subscriptions(
     >
       {!collapsed ? (
         <>
-          <FilterButton filterTerm="in:inbox has:subscriptions" text="All" {...props} />
-          <FilterButton filterTerm={`in:inbox label:RSS`} text="Feeds" {...props} />
+          <FilterButton
+            filterTerm="in:inbox has:subscriptions"
+            text="All"
+            {...props}
+          />
+          <FilterButton
+            filterTerm={`in:inbox label:RSS`}
+            text="Feeds"
+            {...props}
+          />
           <FilterButton
             filterTerm={`in:inbox label:Newsletter`}
             text="Newsletters"
@@ -596,5 +608,40 @@ function EditButton(props: EditButtonProps): JSX.Element {
         {props.title}
       </SpanBox>
     </Link>
+  )
+}
+
+const Footer = (): JSX.Element => {
+  return (
+    <HStack
+      css={{
+        gap: '10px',
+        height: '55px',
+        position: 'fixed',
+        bottom: '0%',
+        alignItems: 'center',
+        padding: '5px',
+        backgroundColor: '$thBackground2',
+        width: LIBRARY_LEFT_MENU_WIDTH,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+        '@mdDown': {
+          width: '100%',
+        },
+      }}
+    >
+      <PrimaryDropdown
+        showThemeSection={true}
+        showAddLinkModal={() => {
+          console.log('show')
+        }}
+      />
+      <SpanBox css={{ marginLeft: 'auto', marginRight: '5px' }}>
+        <SplitButton title="Add Link" />
+      </SpanBox>
+    </HStack>
   )
 }
