@@ -123,7 +123,6 @@ const setupCronJobs = async () => {
       priority: 1,
       repeat: {
         every: 60_000,
-        limit: 100,
       },
     }
   )
