@@ -167,6 +167,37 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
           <SwitchThumb />
         </SwitchRoot>
       </HStack>
+
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="auto-highlight-mode" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            Auto highlight mode
+          </StyledText>
+        </Label>
+        <SwitchRoot
+          id="high-contrast-text"
+          checked={readerSettings.highlightOnRelease ?? false}
+          onCheckedChange={(checked) => {
+            readerSettings.setHighlightOnRelease(checked)
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
     </VStack>
   )
 }
