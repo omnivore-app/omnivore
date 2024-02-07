@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterialApi::class)
-
 package app.omnivore.omnivore.feature.components
 
 import android.widget.Toast
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -39,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -66,69 +62,6 @@ import com.dokar.chiptextfield.m3.ChipTextField
 import com.dokar.chiptextfield.m3.ChipTextFieldDefaults
 import com.dokar.chiptextfield.rememberChipTextFieldState
 import com.google.accompanist.flowlayout.FlowRow
-
-
-//@Composable
-//fun LabelsSelectionSheet(viewModel: LibraryViewModel) {
-//  val isActive: Boolean by viewModel.showLabelsSelectionSheetLiveData.observeAsState(false)
-//  val labels: List<SavedItemLabel> by viewModel.savedItemLabelsLiveData.observeAsState(listOf())
-//  val currentSavedItemData = viewModel.currentSavedItemUnderEdit()
-//
-//  val modalBottomSheetState = rememberModalBottomSheetState(
-//    ModalBottomSheetValue.HalfExpanded,
-//    confirmStateChange = { it != ModalBottomSheetValue.Hidden }
-//  )
-//
-//  if (isActive) {
-//    ModalBottomSheetLayout(
-//      sheetBackgroundColor = Color.Transparent,
-//      sheetState = modalBottomSheetState,
-//      sheetContent = {
-//        BottomSheetUI {
-//          if (currentSavedItemData != null) {
-//            LabelsSelectionSheetContent(
-//              labels = labels,
-//              initialSelectedLabels = currentSavedItemData.labels,
-//              onCancel = {
-//                viewModel.showLabelsSelectionSheetLiveData.value = false
-//                viewModel.labelsSelectionCurrentItemLiveData.value = null
-//              },
-//              isLibraryMode = false,
-//              onSave = {
-//                if (it != labels) {
-//                  viewModel.updateSavedItemLabels(
-//                    savedItemID = currentSavedItemData.savedItem.savedItemId,
-//                    labels = it
-//                  )
-//                }
-//                viewModel.labelsSelectionCurrentItemLiveData.value = null
-//                viewModel.showLabelsSelectionSheetLiveData.value = false
-//              },
-//              onCreateLabel = { newLabelName, labelHexValue ->
-//                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
-//              }
-//            )
-//          } else { // Is used in library mode
-//            LabelsSelectionSheetContent(
-//              labels = labels,
-//              initialSelectedLabels = viewModel.activeLabelsLiveData.value ?: listOf(),
-//              onCancel = { viewModel.showLabelsSelectionSheetLiveData.value = false },
-//              isLibraryMode = true,
-//              onSave = {
-//                viewModel.updateAppliedLabels(it)
-//                viewModel.labelsSelectionCurrentItemLiveData.value = null
-//                viewModel.showLabelsSelectionSheetLiveData.value = false
-//              },
-//              onCreateLabel = { newLabelName, labelHexValue ->
-//                viewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
-//              }
-//            )
-//          }
-//        }
-//      }
-//    ) {}
-//  }
-//}
 
 @Composable
 fun CircleIcon(colorHex: String) {
@@ -242,10 +175,7 @@ fun findOrCreateLabel(
 }
 
 @Composable
-@OptIn(
-    ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalMaterial3Api::class)
 fun LabelsSelectionSheetContent(
     isLibraryMode: Boolean,
     labels: List<SavedItemLabel>,
