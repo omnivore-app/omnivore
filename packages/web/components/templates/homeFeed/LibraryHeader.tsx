@@ -80,13 +80,13 @@ const controlWidths = (
       width: multiSelectMode !== 'off' ? '100%' : '95%',
     },
     '@media (min-width: 930px)': {
-      width: layout == 'GRID_LAYOUT' ? '640px' : '640px',
+      width: layout == 'GRID_LAYOUT' ? '640px' : '660px',
     },
     '@media (min-width: 1280px)': {
-      width: '950px',
+      width: layout == 'GRID_LAYOUT' ? '950px' : '1010px',
     },
     '@media (min-width: 1600px)': {
-      width: '1260px',
+      width: layout == 'GRID_LAYOUT' ? '1260px' : '1360px',
     },
   }
 }
@@ -205,7 +205,6 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
   return (
     <HStack
       css={{
-        ml: '10px',
         width: '67px',
         height: '40px',
         bg: props.showFilterMenu ? '$thTextContrast2' : '$thBackground2',
