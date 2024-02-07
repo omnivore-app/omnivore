@@ -18,7 +18,7 @@ const CaretButton = (): JSX.Element => {
         width: '20px',
         height: '100%',
         alignItems: 'center',
-        bg: '#6A6968',
+        bg: '$ctaBlue',
         border: '0px solid transparent',
         borderTopRightRadius: '5px',
         borderBottomRightRadius: '5px',
@@ -38,7 +38,8 @@ export const SplitButton = (props: SplitButtonProps): JSX.Element => {
         css={{
           display: 'flex',
           minWidth: '70px',
-          bg: '#6A6968',
+          bg: '$ctaBlue',
+          color: '#EDEDED',
           fontSize: '12px',
           fontFamily: '$inter',
           border: '0px solid transparent',

@@ -129,7 +129,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBorderHover: 'hsl(0 0% 78.0%)',
         grayText: '#6A6968',
 
-        // Semantic Colors
+        ctaBlue: '#007AFF',
+
         highlightBackground: '255, 210, 52',
         recommendedHighlightBackground: '#E5FFE5',
         highlight: '#FFD234',
@@ -172,7 +173,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thBackgroundActive: '#FFEA9F',
         thBackgroundContrast: '#FFFFFF',
         thLeftMenuBackground: '#FCFCFC',
-        thLibraryBackground: '#F3F3F3',
+        thLibraryBackground: '#FFFFFF',
         thLibrarySearchbox: '#FCFCFC',
         thLibraryMenuPrimary: '#3D3D3D',
         thLibraryMenuSecondary: '#3D3D3D',
@@ -285,7 +286,7 @@ const darkThemeSpec = {
     thBackgroundActive: '#3D3D3D',
     thBackgroundContrast: '#000000',
     thLeftMenuBackground: '#343434',
-    thLibraryBackground: '#333333',
+    thLibraryBackground: '#2A2A2A',
     thLibrarySearchbox: '#3D3D3D',
     thLibraryMenuPrimary: '#EBEBEB',
     thLibraryMenuSecondary: '#EBEBEB',

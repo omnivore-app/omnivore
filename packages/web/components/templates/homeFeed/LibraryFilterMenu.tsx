@@ -633,12 +633,7 @@ const Footer = (): JSX.Element => {
         },
       }}
     >
-      <PrimaryDropdown
-        showThemeSection={true}
-        showAddLinkModal={() => {
-          console.log('show')
-        }}
-      />
+      <PrimaryDropdown showThemeSection={true} />
       <SpanBox css={{ marginLeft: 'auto', marginRight: '5px' }}>
         <SplitButton title="Add Link" />
       </SpanBox>

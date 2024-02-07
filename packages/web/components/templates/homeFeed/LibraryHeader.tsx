@@ -57,8 +57,6 @@ type LibraryHeaderProps = {
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
 
-  showAddLinkModal: () => void
-
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
@@ -80,16 +78,15 @@ const controlWidths = (
     width: '95%',
     '@mdDown': {
       width: multiSelectMode !== 'off' ? '100%' : '95%',
-      display: multiSelectMode !== 'off' ? 'flex' : 'none',
     },
     '@media (min-width: 930px)': {
-      width: layout == 'GRID_LAYOUT' ? '660px' : '640px',
+      width: layout == 'GRID_LAYOUT' ? '640px' : '640px',
     },
     '@media (min-width: 1280px)': {
-      width: '1000px',
+      width: '950px',
     },
     '@media (min-width: 1600px)': {
-      width: '1340px',
+      width: '1260px',
     },
   }
 }
@@ -100,9 +97,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', () =>
-        setSmall(window.pageYOffset > 200)
-      )
+      window.addEventListener('scroll', () => setSmall(window.scrollY > 40))
     }
   }, [])
 
@@ -114,22 +109,19 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
         css={{
           top: '0',
           right: '0',
-          left: LIBRARY_LEFT_MENU_WIDTH,
           zIndex: 5,
+          bg: '$thLibraryBackground',
           position: 'fixed',
+          left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
-          bg: 'red',
           transition: '0.5s',
           '@mdDown': {
             left: '0px',
             right: '0',
-            height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
           },
         }}
       >
-        {/* These will display/hide depending on breakpoints */}
         <LargeHeaderLayout {...props} />
-        <SmallHeaderLayout {...props} />
       </VStack>
 
       {/* This spacer is put in to push library content down 
@@ -147,15 +139,6 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
     initialValue: [],
     isSessionStorage: false,
   })
-  const [small, setSmall] = useState(false)
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', () =>
-        setSmall(window.pageYOffset > 200)
-      )
-    }
-  }, [])
 
   return (
     <HStack
@@ -163,75 +146,50 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       distribution="start"
       css={{
         gap: '10px',
-        paddingLeft: '50px',
-        paddingRight: '50px',
-        width: '100%',
         height: '100%',
-        '@mdDown': {
-          display: 'none',
-        },
+        ...controlWidths(props.layout, props.multiSelectMode),
       }}
     >
-      <HeaderCheckboxIcon />
-      <HeaderSearchIcon />
-
-      <SpanBox css={{ display: 'flex', marginLeft: 'auto' }}>
-        {props.layout == 'LIST_LAYOUT' ? (
-          <HeaderToggleGridIcon />
-        ) : (
-          <HeaderToggleListIcon />
-        )}
-      </SpanBox>
-    </HStack>
-  )
-}
-
-function SmallHeaderLayout(props: LibraryHeaderProps): JSX.Element {
-  const [showInlineSearch, setShowInlineSearch] = useState(false)
-
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{
-        width: '100%',
-        height: '100%',
-        bg: '$thBackground3',
-        '@md': {
-          display: 'none',
-        },
-      }}
-    >
-      {showInlineSearch ? (
-        <HStack css={{ pl: '10px', pr: '0px', width: '100%' }}>
-          <SearchBox {...props} compact={true} />
-          <Button
-            style="cancelGeneric"
-            onClick={(event) => {
-              setShowInlineSearch(false)
-              event.preventDefault()
-            }}
-          >
-            Close
-          </Button>
+      {props.multiSelectMode !== 'off' ? (
+        <HStack alignment="center" css={{ width: '100% ' }}>
+          <MultiSelectControls {...props} />
         </HStack>
       ) : (
         <>
-          {props.multiSelectMode === 'off' && <MenuHeaderButton {...props} />}
-          <ControlButtonBox
-            handleLinkSubmission={props.handleLinkSubmission}
-            layout={props.layout}
-            updateLayout={props.updateLayout}
-            setShowInlineSearch={setShowInlineSearch}
-            numItemsSelected={props.numItemsSelected}
-            multiSelectMode={props.multiSelectMode}
-            setMultiSelectMode={props.setMultiSelectMode}
-            showAddLinkModal={props.showAddLinkModal}
-            performMultiSelectAction={props.performMultiSelectAction}
-            searchTerm={props.searchTerm}
-            applySearchQuery={props.applySearchQuery}
-            allowSelectMultiple={props.allowSelectMultiple}
-          />
+          <SpanBox
+            css={{
+              display: 'none',
+              '@mdDown': { display: 'flex' },
+            }}
+          >
+            <MenuHeaderButton {...props} />
+          </SpanBox>
+          <Button
+            style="plainIcon"
+            onClick={(e) => {
+              props.setMultiSelectMode('visible')
+              e.preventDefault()
+            }}
+          >
+            <HeaderCheckboxIcon />
+          </Button>
+          <HeaderSearchIcon />
+          <Button
+            style="plainIcon"
+            css={{ display: 'flex', marginLeft: 'auto' }}
+            onClick={(e) => {
+              props.updateLayout(
+                props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+              )
+              e.preventDefault()
+            }}
+          >
+            {props.layout == 'LIST_LAYOUT' ? (
+              <HeaderToggleGridIcon />
+            ) : (
+              <HeaderToggleListIcon />
+            )}
+          </Button>
         </>
       )}
     </HStack>
@@ -468,8 +426,6 @@ type ControlButtonBoxProps = {
   updateLayout: (layout: LayoutType) => void
   setShowInlineSearch?: (show: boolean) => void
 
-  showAddLinkModal: () => void
-
   allowSelectMultiple: boolean
 
   numItemsSelected: number
@@ -667,97 +623,87 @@ const MuliSelectControl = (props: ControlButtonBoxProps): JSX.Element => {
   )
 }
 
-function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
-  return (
-    <>
-      <HStack
-        alignment="center"
-        distribution={props.multiSelectMode !== 'off' ? 'center' : 'start'}
-        css={{
-          gap: '10px',
-          ...controlWidths(props.layout, props.multiSelectMode),
-        }}
-      >
-        <MuliSelectControl {...props} />
-        {props.multiSelectMode !== 'off' && (
-          <SpanBox
-            css={{
-              flex: 1,
-              display: 'flex',
-              gap: '2px',
-              alignItems: 'center',
-            }}
-          >
-            <SpanBox
-              css={{
-                color: '#55B938',
-                paddingLeft: '5px',
-                fontSize: '12px',
-                fontWeight: '600',
-                fontFamily: '$inter',
-                '@xlgDown': {
-                  paddingLeft: '5px',
-                },
-              }}
-            >
-              {props.numItemsSelected}{' '}
-              <SpanBox
-                css={{
-                  '@media (max-width: 1280px)': { display: 'none' },
-                }}
-              >
-                selected
-              </SpanBox>
-            </SpanBox>
-          </SpanBox>
-        )}
-        {props.multiSelectMode !== 'off' ? (
-          <>
-            <MultiSelectControls {...props} />
-            <SpanBox css={{ flex: 1 }}></SpanBox>
-          </>
-        ) : (
-          <SearchControlButtonBox {...props} />
-        )}
-      </HStack>
+// function ControlButtonBox(props: ControlButtonBoxProps): JSX.Element {
+//   return (
+//     <>
 
-      {props.setShowInlineSearch && props.multiSelectMode === 'off' && (
-        <HStack
-          alignment="center"
-          distribution="end"
-          css={{
-            marginLeft: 'auto',
-            marginRight: '20px',
-            width: '100px',
-            height: '100%',
-            gap: '20px',
-            '@md': {
-              display: 'none',
-            },
-          }}
-        >
-          <Button
-            style="ghost"
-            onClick={() => {
-              props.setShowInlineSearch && props.setShowInlineSearch(true)
-            }}
-            css={{
-              display: 'flex',
-            }}
-          >
-            <MagnifyingGlass
-              size={20}
-              color={theme.colors.graySolid.toString()}
-            />
-          </Button>
-          <PrimaryDropdown
-            showThemeSection={true}
-            layout={props.layout}
-            updateLayout={props.updateLayout}
-            showAddLinkModal={props.showAddLinkModal}
-          />
-        </HStack>
-      )}
-    </>
-  )
-}
+//           <SpanBox
+//             css={{
+//               flex: 1,
+//               display: 'flex',
+//               gap: '2px',
+//               alignItems: 'center',
+//             }}
+//           >
+//             <SpanBox
+//               css={{
+//                 color: '#55B938',
+//                 paddingLeft: '5px',
+//                 fontSize: '12px',
+//                 fontWeight: '600',
+//                 fontFamily: '$inter',
+//                 '@xlgDown': {
+//                   paddingLeft: '5px',
+//                 },
+//               }}
+//             >
+//               {props.numItemsSelected}{' '}
+//               <SpanBox
+//                 css={{
+//                   '@media (max-width: 1280px)': { display: 'none' },
+//                 }}
+//               >
+//                 selected
+//               </SpanBox>
+//             </SpanBox>
+//           </SpanBox>
+//         )}
+//         {/* {props.multiSelectMode !== 'off' ? (
+//           <>
+//             <MultiSelectControls {...props} />
+//             <SpanBox css={{ flex: 1 }}></SpanBox>
+//           </>
+//         ) : (
+//           <SearchControlButtonBox {...props} />
+//         )} */}
+//       {/* </HStack> */}
+
+//       // {props.setShowInlineSearch && props.multiSelectMode === 'off' && (
+//       //   <HStack
+//       //     alignment="center"
+//       //     distribution="end"
+//       //     css={{
+//       //       marginLeft: 'auto',
+//       //       marginRight: '20px',
+//       //       width: '100px',
+//       //       height: '100%',
+//       //       gap: '20px',
+//       //       '@md': {
+//       //         display: 'none',
+//       //       },
+//       //     }}
+//       //   >
+//       //     <Button
+//       //       style="ghost"
+//       //       onClick={() => {
+//       //         props.setShowInlineSearch && props.setShowInlineSearch(true)
+//       //       }}
+//       //       css={{
+//       //         display: 'flex',
+//       //       }}
+//       //     >
+//       //       <MagnifyingGlass
+//       //         size={20}
+//       //         color={theme.colors.graySolid.toString()}
+//       //       />
+//       //     </Button>
+//       //     <PrimaryDropdown
+//       //       showThemeSection={true}
+//       //       layout={props.layout}
+//       //       updateLayout={props.updateLayout}
+//       //     />
+//       //   </HStack>
+//       // )}
+//     </>
+//   )
+// }
