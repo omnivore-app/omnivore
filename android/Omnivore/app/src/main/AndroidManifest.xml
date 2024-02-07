@@ -31,7 +31,7 @@
         </activity>
 
         <activity
-            android:name=".ui.save.SaveSheetActivity"
+            android:name=".feature.save.SaveSheetActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Translucent">
             <intent-filter>
@@ -47,12 +47,12 @@
             android:windowSoftInputMode="adjustNothing" />
 
         <activity
-            android:name=".ui.reader.PDFReaderActivity"
+            android:name=".feature.reader.PDFReaderActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustNothing" />
 
         <activity
-            android:name=".ui.reader.WebReaderLoadingContainerActivity"
+            android:name=".feature.reader.WebReaderLoadingContainerActivity"
             android:exported="true"
             android:theme="@style/Theme.Omnivore"/>
 
