@@ -37,6 +37,7 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { CustomTypeOrmLogger, logger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
+export const JOB_VERSION = 'v001'
 
 let backendQueue: Queue | undefined
 export const getBackendQueue = async (): Promise<Queue | undefined> => {
