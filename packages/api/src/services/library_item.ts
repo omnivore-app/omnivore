@@ -829,11 +829,14 @@ export const createOrUpdateLibraryItem = async (
   libraryItem: DeepPartial<LibraryItem>,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false
+  skipPubSub = false,
+  finalUrl?: string
 ): Promise<LibraryItem> => {
   const newLibraryItem = await authTrx(
     async (tx) =>
-      tx.withRepository(libraryItemRepository).upsertLibraryItem(libraryItem),
+      tx
+        .withRepository(libraryItemRepository)
+        .upsertLibraryItem(libraryItem, finalUrl),
     undefined,
     userId
   )

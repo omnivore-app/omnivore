@@ -3,7 +3,6 @@ import { getColumnsDbName } from '.'
 import { appDataSource } from '../data_source'
 import { LibraryItem } from '../entity/library_item'
 import { keysToCamelCase, wordsCount } from '../utils/helpers'
-import { logger } from '../utils/logger'
 
 const convertToLibraryItem = (item: DeepPartial<LibraryItem>) => {
   return {
@@ -31,21 +30,30 @@ export const libraryItemRepository = appDataSource
       return this.countBy({ createdAt })
     },
 
-    async upsertLibraryItem(item: DeepPartial<LibraryItem>) {
+    async upsertLibraryItem(item: DeepPartial<LibraryItem>, finalUrl?: string) {
+      const columns = getColumnsDbName(this)
       // overwrites columns except id and slug
-      const overwrites = getColumnsDbName(this).filter(
+      const overwrites = columns.filter(
         (column) => !['id', 'slug'].includes(column)
       )
+
       const hashedUrl = 'md5(original_url)'
+      let conflictColumns = ['user_id', hashedUrl]
+
+      if (item.id && finalUrl && finalUrl !== item.originalUrl) {
+        // update the original url if it's different from the current one in the database
+        conflictColumns = ['id']
+        item.originalUrl = finalUrl
+      }
 
       const [query, params] = this.createQueryBuilder()
         .insert()
         .into(LibraryItem)
         .values(convertToLibraryItem(item))
-        .orUpdate(overwrites, ['user_id', hashedUrl], {
+        .orUpdate(overwrites, conflictColumns, {
           skipUpdateIfNoValuesChanged: true,
         })
-        .returning('*')
+        .returning(columns)
         .getQueryAndParameters()
 
       // this is a workaround for the typeorm bug which quotes the md5 function
