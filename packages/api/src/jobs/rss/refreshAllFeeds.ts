@@ -138,5 +138,7 @@ export const queueRSSRefreshFeedJob = async (
   return queue.add('refresh-feed', payload, {
     jobId: jobid,
     priority: options.priority == 'low' ? 10 : 50,
+    removeOnComplete: true,
+    removeOnFail: true,
   })
 }
