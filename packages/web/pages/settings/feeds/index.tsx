@@ -2,7 +2,11 @@ import { useRouter } from 'next/router'
 import { FloppyDisk, Pencil, XCircle } from 'phosphor-react'
 import { useMemo, useState } from 'react'
 import { FormInput } from '../../../components/elements/FormElements'
-import { HStack, SpanBox } from '../../../components/elements/LayoutPrimitives'
+import {
+  HStack,
+  SpanBox,
+  VStack,
+} from '../../../components/elements/LayoutPrimitives'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
 import {
   EmptySettingsRow,
@@ -200,19 +204,25 @@ export default function Rss(): JSX.Element {
               }}
               deleteTitle="Unsubscribe"
               sublineElement={
-                <SpanBox
+                <VStack
                   css={{
                     my: '8px',
                     fontSize: '11px',
                   }}
                 >
-                  {`URL: ${subscription.url}, `}
-                  {`Last fetched: ${
+                  <SpanBox>{`URL: ${subscription.url}`}</SpanBox>
+                  <SpanBox>{`Last refreshed: ${
                     subscription.lastFetchedAt
                       ? formattedDateTime(subscription.lastFetchedAt)
                       : 'Never'
-                  }`}
-                </SpanBox>
+                  }`}</SpanBox>
+                  <SpanBox>
+                    {subscription.mostRecentItemDate &&
+                      `Most recent item: ${formattedDateTime(
+                        subscription.mostRecentItemDate
+                      )}`}
+                  </SpanBox>
+                </VStack>
               }
               onClick={() => {
                 router.push(`/home?q=in:inbox rss:"${subscription.url}"`)
