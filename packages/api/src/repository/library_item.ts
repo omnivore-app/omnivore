@@ -1,5 +1,5 @@
 import { DeepPartial } from 'typeorm'
-import { getColumnsDbName } from '.'
+import { getColumns, getColumnsDbName } from '.'
 import { appDataSource } from '../data_source'
 import { LibraryItem } from '../entity/library_item'
 import { keysToCamelCase, wordsCount } from '../utils/helpers'
@@ -53,7 +53,7 @@ export const libraryItemRepository = appDataSource
         .orUpdate(overwrites, conflictColumns, {
           skipUpdateIfNoValuesChanged: true,
         })
-        .returning(columns)
+        .returning(getColumns(this))
         .getQueryAndParameters()
 
       // this is a workaround for the typeorm bug which quotes the md5 function

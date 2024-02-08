@@ -1034,7 +1034,8 @@ export const deleteLibraryItems = async (
   userId?: string
 ) => {
   return authTrx(
-    async (tx) => tx.withRepository(libraryItemRepository).remove(items),
+    async (tx) =>
+      tx.withRepository(libraryItemRepository).delete(items.map((i) => i.id)),
     undefined,
     userId
   )
