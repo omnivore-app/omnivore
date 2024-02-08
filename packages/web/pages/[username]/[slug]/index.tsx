@@ -563,6 +563,9 @@ export default function Home(): JSX.Element {
               setShowHighlightsModal={setShowHighlightsModal}
               justifyText={readerSettings.justifyText ?? undefined}
               highContrastText={readerSettings.highContrastText ?? undefined}
+              highlightOnRelease={
+                readerSettings.highlightOnRelease ?? undefined
+              }
               articleMutations={{
                 createHighlightMutation,
                 deleteHighlightMutation,

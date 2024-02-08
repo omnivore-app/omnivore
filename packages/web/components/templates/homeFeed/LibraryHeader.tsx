@@ -48,7 +48,8 @@ type LibraryHeaderProps = {
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
 
-  showSearchModal: () => void
+  searchTerm: string | undefined
+  applySearchQuery: (searchQuery: string) => void
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
@@ -168,12 +169,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
           </Button>
 
           {showSearchBar ? (
-            <SearchBox
-              {...props}
-              searchTerm=""
-              applySearchQuery={() => {}}
-              setShowSearchBar={setShowSearchBar}
-            />
+            <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
           ) : (
             <Button
               title="search"
@@ -397,18 +393,34 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
             }}
           />
         </form>
-        <Box
+        <HStack
+          alignment="center"
           css={{
             py: '15px',
             marginLeft: 'auto',
           }}
         >
-          <IconButton
-            style="searchButton"
+          {/* <Button
+            css={{ padding: '4px', borderRadius: '50px', fontSize: '10px' }}
             onClick={(event) => {
               if (searchTerm && searchTerm.length) {
                 event.preventDefault()
                 setSearchTerm('')
+                props.applySearchQuery('')
+              } else {
+                props.setShowSearchBar(false)
+              }
+            }}
+            tabIndex={-1}
+          >
+            clear
+          </Button> */}
+          <IconButton
+            style="searchButton"
+            onClick={(event) => {
+              if (searchTerm && searchTerm.length && searchTerm != 'in:inbox') {
+                event.preventDefault()
+                setSearchTerm('in:inbox')
                 props.applySearchQuery('')
               } else {
                 props.setShowSearchBar(false)
@@ -422,7 +434,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
               color={theme.colors.grayTextContrast.toString()}
             />
           </IconButton>
-        </Box>
+        </HStack>
       </HStack>
     </Box>
   )
