@@ -56,7 +56,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
         height: '32px',
         padding: '5px',
         '&:hover': {
-          bg: '#6A6968',
+          bg: '$thLibraryMenuFooterHover',
           opacity: '0.7px',
         },
       }}

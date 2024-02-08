@@ -31,13 +31,17 @@ import { StyledText } from '../../elements/StyledText'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
 import { LinkedItemCardAction } from '../../patterns/LibraryCards/CardTypes'
 import { LinkedItemCard } from '../../patterns/LibraryCards/LinkedItemCard'
-import { Box, HStack, VStack } from './../../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { AddLinkModal } from './AddLinkModal'
 import { EditLibraryItemModal } from './EditItemModals'
 import { EmptyLibrary } from './EmptyLibrary'
 import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from './LibraryFilterMenu'
-import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
+import {
+  LibraryHeader,
+  MultiSelectMode,
+  headerControlWidths,
+} from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -53,6 +57,8 @@ import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery
 import { searchQuery } from '../../../lib/networking/queries/search'
 import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
 import { theme } from '../../tokens/stitches.config'
+import { PinnedSearch } from '../../../pages/settings/pinned-searches'
+import { PinnedButtons } from './PinnedButtons'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -1036,6 +1042,14 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
     setShowUnsubscribeConfirmation(false)
   }
 
+  const [pinnedSearches, setPinnedSearches] = usePersistedState<
+    PinnedSearch[] | null
+  >({
+    key: `--library-pinned-searches`,
+    initialValue: [],
+    isSessionStorage: false,
+  })
+
   return (
     <>
       <VStack
@@ -1047,6 +1061,28 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
         }}
       >
         <Toaster />
+
+        <SpanBox
+          css={{
+            alignSelf: 'flex-start',
+            '-ms-overflow-style': 'none',
+            scrollbarWidth: 'none',
+            '::-webkit-scrollbar': {
+              display: 'none',
+            },
+            '@lgDown': {
+              display: 'none',
+            },
+          }}
+        >
+          <PinnedButtons
+            multiSelectMode={props.multiSelectMode}
+            layout={props.layout}
+            items={pinnedSearches ?? []}
+            searchTerm={props.searchTerm}
+            applySearchQuery={props.applySearchQuery}
+          />
+        </SpanBox>
 
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
         <div

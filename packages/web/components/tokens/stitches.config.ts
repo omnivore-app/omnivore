@@ -145,7 +145,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         omnivoreYellow: 'rgb(255, 234, 159)',
         omnivoreLightGray: 'rgb(125, 125, 125)',
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
-        searchActiveOutline: '#866D15',
+        searchActiveOutline: 'rgb(255, 210, 52)',
 
         // Reader Colors
         readerBg: 'white',
@@ -183,6 +183,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibraryMenuUnselected: '#898989',
         thLibrarySelectionColor: '#FFEA9F',
         thLibraryNavigationMenuFooter: '#EFEADE',
+        thLibraryMenuFooterHover: '#FFFFFF',
+
         thHeaderIconRing: '#D9D9D9',
         thHeaderIconInner: '#898989',
 
@@ -303,6 +305,9 @@ const darkThemeSpec = {
     thLibraryMenuUnselected: '#898989',
     thLibrarySelectionColor: '#3D3D3D',
     thLibraryNavigationMenuFooter: '#3D3D3D',
+    thLibraryMenuFooterHover: '#6A6968',
+    searchActiveOutline: '#866D15',
+
     thHeaderIconRing: '#3D3D3D',
     thHeaderIconInner: '#D9D9D9',
 
@@ -333,10 +338,6 @@ const darkThemeSpec = {
 
     highlight_underline_alpha: '0.5',
     highlight_background_alpha: '0.35',
-  },
-  shadows: {
-    cardBoxShadow:
-      '0px 0px 9px -2px rgba(5, 5, 5, 0.16), 0px 7px 12px rgba(0, 0, 0, 0.13)',
   },
 }
 

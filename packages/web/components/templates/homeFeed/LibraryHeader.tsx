@@ -14,13 +14,8 @@ import {
   X,
 } from 'phosphor-react'
 import { LayoutType } from './HomeFeedContainer'
-import { PrimaryDropdown } from '../PrimaryDropdown'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
-import {
-  DEFAULT_HEADER_HEIGHT,
-  HeaderSpacer,
-  useGetHeaderHeight,
-} from './HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
@@ -62,7 +57,7 @@ type LibraryHeaderProps = {
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
 }
 
-const controlWidths = (
+export const headerControlWidths = (
   layout: LayoutType,
   multiSelectMode: MultiSelectMode
 ) => {
@@ -87,8 +82,14 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   const [small, setSmall] = useState(false)
 
   useEffect(() => {
+    const handleScroll = () => {
+      setSmall(window.scrollY > 40)
+    }
     if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', () => setSmall(window.scrollY > 40))
+      window.addEventListener('scroll', handleScroll)
+    }
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
@@ -144,7 +145,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
       css={{
         gap: '10px',
         height: '100%',
-        ...controlWidths(props.layout, props.multiSelectMode),
+        ...headerControlWidths(props.layout, props.multiSelectMode),
       }}
     >
       {props.multiSelectMode !== 'off' ? (

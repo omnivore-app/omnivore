@@ -620,8 +620,6 @@ const Footer = (props: LibraryFilterMenuProps): JSX.Element => {
         position: 'fixed',
         bottom: '0%',
         alignItems: 'center',
-        paddingX: '5px',
-        paddingY: '5px',
 
         backgroundColor: '$thBackground2',
         width: LIBRARY_LEFT_MENU_WIDTH,
@@ -639,7 +637,7 @@ const Footer = (props: LibraryFilterMenuProps): JSX.Element => {
       <SpanBox
         css={{
           marginLeft: 'auto',
-          marginRight: '5px',
+          marginRight: '15px',
         }}
       >
         <SplitButton
