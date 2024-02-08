@@ -62,9 +62,39 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 }
 
 export const savePage = async (
-  input: SavePageInput,
+  input: SavePageInput & {
+    finalUrl?: string
+  },
   user: User
 ): Promise<SaveResult> => {
+  const [slug, croppedPathname] = createSlug(input.url, input.title)
+  let clientRequestId = input.clientRequestId
+
+  // always parse in backend if the url is in the force puppeteer list
+  if (shouldParseInBackend(input)) {
+    try {
+      await createPageSaveRequest({
+        user,
+        url: input.url,
+        articleSavingRequestId: clientRequestId || undefined,
+        state: input.state || undefined,
+        labels: input.labels || undefined,
+        folder: input.folder || undefined,
+      })
+    } catch (e) {
+      return {
+        __typename: 'SaveError',
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create page save request',
+      }
+    }
+
+    return {
+      clientRequestId,
+      url: `${homePageURL()}/${user.profile.username}/${slug}`,
+    }
+  }
+
   const parseResult = await parsePreparedContent(input.url, {
     document: input.originalContent,
     pageInfo: {
@@ -72,9 +102,6 @@ export const savePage = async (
       canonicalUrl: input.url,
     },
   })
-  const [newSlug, croppedPathname] = createSlug(input.url, input.title)
-  let slug = newSlug
-  let clientRequestId = input.clientRequestId
 
   const itemToSave = parsedContentToLibraryItem({
     itemId: clientRequestId,
@@ -96,42 +123,22 @@ export const savePage = async (
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
 
-  // always parse in backend if the url is in the force puppeteer list
-  if (shouldParseInBackend(input)) {
-    try {
-      await createPageSaveRequest({
-        user,
-        url: itemToSave.originalUrl,
-        articleSavingRequestId: clientRequestId || undefined,
-        state: input.state || undefined,
-        labels: input.labels || undefined,
-        folder: input.folder || undefined,
-      })
-    } catch (e) {
-      return {
-        __typename: 'SaveError',
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create page save request',
-      }
-    }
-  } else {
-    // do not publish a pubsub event if the item is imported
-    const newItem = await createOrUpdateLibraryItem(
-      itemToSave,
-      user.id,
-      undefined,
-      isImported
-    )
-    clientRequestId = newItem.id
-    slug = newItem.slug
+  // do not publish a pubsub event if the item is imported
+  const newItem = await createOrUpdateLibraryItem(
+    itemToSave,
+    user.id,
+    undefined,
+    isImported,
+    input.finalUrl
+  )
+  clientRequestId = newItem.id
 
-    await createAndSaveLabelsInLibraryItem(
-      clientRequestId,
-      user.id,
-      input.labels,
-      input.rssFeedUrl
-    )
-  }
+  await createAndSaveLabelsInLibraryItem(
+    clientRequestId,
+    user.id,
+    input.labels,
+    input.rssFeedUrl
+  )
 
   // we don't want to create thumbnail for imported pages and pages that already have thumbnail
   if (!isImported && !parseResult.parsedContent?.previewImage) {
