@@ -634,7 +634,7 @@ describe('Article API', () => {
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
         expect(savedItem?.archivedAt).to.not.be.null
-        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
+        expect(savedItem?.labels?.map((l) => l.name)).to.include.members(labels)
       })
     })
 

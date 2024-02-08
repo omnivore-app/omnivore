@@ -76,7 +76,7 @@ export const savePage = async (
       await createPageSaveRequest({
         user,
         url: input.url,
-        articleSavingRequestId: clientRequestId,
+        articleSavingRequestId: clientRequestId || undefined,
         state: input.state || undefined,
         labels: input.labels || undefined,
         folder: input.folder || undefined,

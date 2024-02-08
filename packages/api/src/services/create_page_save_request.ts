@@ -104,7 +104,7 @@ export const createPageSaveRequest = async ({
   // create processing item
   const libraryItem = await createOrUpdateLibraryItem(
     {
-      id: articleSavingRequestId,
+      id: articleSavingRequestId || undefined,
       user: { id: userId },
       readableContent: SAVING_CONTENT,
       itemType: PageType.Unknown,
