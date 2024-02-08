@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { theme } from '../../tokens/stitches.config'
 import { FormInput } from '../../elements/FormElements'
@@ -41,6 +41,7 @@ import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderSearchIcon } from '../../elements/icons/HeaderSearchIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
+import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -83,7 +84,6 @@ const controlWidths = (
 }
 
 export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
-  const headerHeight = useGetHeaderHeight()
   const [small, setSmall] = useState(false)
 
   useEffect(() => {
@@ -105,7 +105,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
           position: 'fixed',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
-          transition: '0.5s',
+          transition: 'height 0.5s',
           '@mdDown': {
             left: '0px',
             right: '0',
@@ -123,6 +123,7 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 }
 
 function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
+  const dimensions = useWindowDimensions()
   const [showSearchBar, setShowSearchBar] = useState(false)
   const [pinnedSearches, setPinnedSearches] = usePersistedState<
     PinnedSearch[] | null
@@ -131,6 +132,10 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
     initialValue: [],
     isSessionStorage: false,
   })
+
+  const isWideWindow = useMemo(() => {
+    return dimensions.width >= 480
+  }, [dimensions])
 
   return (
     <HStack
@@ -148,25 +153,29 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         </HStack>
       ) : (
         <>
-          <SpanBox
-            css={{
-              display: 'none',
-              '@mdDown': { display: 'flex' },
-            }}
-          >
-            <MenuHeaderButton {...props} />
-          </SpanBox>
-          <Button
-            title="Select multiple"
-            style="plainIcon"
-            css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-            onClick={(e) => {
-              props.setMultiSelectMode('visible')
-              e.preventDefault()
-            }}
-          >
-            <HeaderCheckboxIcon />
-          </Button>
+          {(!showSearchBar || isWideWindow) && (
+            <>
+              <SpanBox
+                css={{
+                  display: 'none',
+                  '@mdDown': { display: 'flex' },
+                }}
+              >
+                <MenuHeaderButton {...props} />
+              </SpanBox>
+              <Button
+                title="Select multiple"
+                style="plainIcon"
+                css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+                onClick={(e) => {
+                  props.setMultiSelectMode('visible')
+                  e.preventDefault()
+                }}
+              >
+                <HeaderCheckboxIcon />
+              </Button>
+            </>
+          )}
 
           {showSearchBar ? (
             <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
@@ -308,7 +317,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         bg: '$thLibrarySearchbox',
         borderRadius: '100px',
         border: focused
-          ? '2px solid $omnivoreCtaYellow'
+          ? '2px solid $searchActiveOutline'
           : '2px solid transparent',
         boxShadow: focused
           ? 'none'

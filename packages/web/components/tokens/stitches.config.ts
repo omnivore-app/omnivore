@@ -103,7 +103,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderWidths: {},
       borderStyles: {},
       shadows: {
-        cardBoxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
+        // cardBoxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
+        cardBoxShadow: '0px 4px 4px rgba(0, 0, 0, 0.20);',
       },
       zIndices: {},
       transitions: {},
@@ -130,6 +131,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayText: '#6A6968',
 
         ctaBlue: '#007AFF',
+        modalBackground: '#FFFFFF',
 
         highlightBackground: '255, 210, 52',
         recommendedHighlightBackground: '#E5FFE5',
@@ -143,6 +145,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         omnivoreYellow: 'rgb(255, 234, 159)',
         omnivoreLightGray: 'rgb(125, 125, 125)',
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
+        searchActiveOutline: '#866D15',
 
         // Reader Colors
         readerBg: 'white',
@@ -234,6 +237,9 @@ const darkThemeSpec = {
   colorScheme: {
     colorScheme: 'dark',
   },
+  shadows: {
+    cardBoxShadow: '0px 4px 8px rgba(0, 0, 0, 0.50);',
+  },
   colors: {
     grayBase: '#252525',
     grayBg: '#3B3938',
@@ -249,6 +255,8 @@ const darkThemeSpec = {
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
     grayText: '#CDCDCD',
+
+    modalBackground: '#2A2A2A',
 
     // Semantic Colors
     highlightBackground: '134, 109, 21',

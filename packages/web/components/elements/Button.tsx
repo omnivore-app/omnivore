@@ -18,6 +18,21 @@ export const Button = styled('button', {
           border: '1px solid $grayBorderHover',
         },
       },
+      ctaBlue: {
+        borderRadius: '5px',
+        px: '20px',
+        py: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+        cursor: 'pointer',
+        border: '1px solid $yellow3',
+        bg: '$ctaBlue',
+        '&:hover': {
+          opacity: '0.6',
+          border: '0px solid $ctaBlue',
+        },
+      },
+
       ctaDarkYellow: {
         border: '1px solid transparent',
         fontSize: '14px',
@@ -214,6 +229,36 @@ export const Button = styled('button', {
         fontFamily: '$display',
         color: '$thLibraryMenuUnselected',
         cursor: 'pointer',
+      },
+      tab: {
+        px: '15px',
+        py: '6px',
+        border: 'none',
+        bg: 'transparent',
+        fontSize: '12px',
+        fontWeight: '500',
+        fontFamily: '$inter',
+        color: '$thBorderSubtle',
+        cursor: 'pointer',
+        borderRadius: '5px',
+        '&:hover': {
+          color: '$thTextContrast',
+        },
+      },
+      tabSelected: {
+        px: '15px',
+        py: '6px',
+        border: 'none',
+        bg: '$thBorderSubtle',
+        fontSize: '12px',
+        fontWeight: '500',
+        fontFamily: '$inter',
+        color: '$textContrast',
+        cursor: 'pointer',
+        borderRadius: '5px',
+        '&:hover': {
+          color: '$thTextContrast',
+        },
       },
       squareIcon: {
         mx: '$1',

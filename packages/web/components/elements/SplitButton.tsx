@@ -5,8 +5,11 @@ import { Button } from './Button'
 import { Dropdown, DropdownOption } from './DropdownElements'
 import { CaretDownIcon } from './icons/CaretDownIcon'
 
+type ShowLinkMode = 'none' | 'link' | 'pdf'
+
 type SplitButtonProps = {
   title: string
+  setShowLinkMode: (mode: ShowLinkMode) => void
 }
 
 const CaretButton = (): JSX.Element => {
@@ -41,35 +44,39 @@ const CaretButton = (): JSX.Element => {
 
 export const SplitButton = (props: SplitButtonProps): JSX.Element => {
   return (
-    <HStack css={{ height: '27px', gap: '1px' }}>
+    <HStack css={{ height: '32px', gap: '1px' }}>
       <Button
         css={{
           display: 'flex',
-          minWidth: '70px',
+          // minWidth: '70px',
           bg: '$ctaBlue',
           color: '#EDEDED',
-          fontSize: '12px',
+          fontSize: '14px',
           fontFamily: '$inter',
           border: '0px solid transparent',
           borderTopLeftRadius: '5px',
           borderBottomLeftRadius: '5px',
-          borderTopRightRadius: '0px',
-          borderBottomRightRadius: '0px',
+          borderTopRightRadius: '5px',
+          borderBottomRightRadius: '5px',
           '&:hover': {
-            opacity: 1.0,
-            color: 'white',
+            opacity: 0.6,
+            border: '0px solid transparent',
           },
           '&:focus': {
             outline: 'none',
             border: '0px solid transparent',
           },
         }}
+        onClick={(event) => {
+          props.setShowLinkMode('link')
+          event.preventDefault()
+        }}
       >
         {props.title}
       </Button>
-      <Dropdown triggerElement={<CaretButton />}>
+      {/* <Dropdown triggerElement={<CaretButton />}>
         <DropdownOption onSelect={() => console.log()} title="Archive (e)" />
-      </Dropdown>
+      </Dropdown> */}
     </HStack>
   )
 }

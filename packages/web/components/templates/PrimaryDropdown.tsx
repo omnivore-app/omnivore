@@ -49,12 +49,12 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
   return (
     <HStack
       css={{
+        mx: '10px',
         gap: '10px',
         alignItems: 'center',
         borderRadius: '5px',
-        height: '27px',
-        paddingLeft: '5px',
-        paddingRight: '5px',
+        height: '32px',
+        padding: '5px',
         '&:hover': {
           bg: '#6A6968',
           opacity: '0.7px',

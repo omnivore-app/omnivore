@@ -122,7 +122,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
         <Labels {...props} labels={labels} />
-        <Footer />
+        <Footer {...props} />
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
@@ -611,16 +611,18 @@ function EditButton(props: EditButtonProps): JSX.Element {
   )
 }
 
-const Footer = (): JSX.Element => {
+const Footer = (props: LibraryFilterMenuProps): JSX.Element => {
   return (
     <HStack
       css={{
         gap: '10px',
-        height: '55px',
+        height: '65px',
         position: 'fixed',
         bottom: '0%',
         alignItems: 'center',
-        padding: '5px',
+        paddingX: '5px',
+        paddingY: '5px',
+
         backgroundColor: '$thBackground2',
         width: LIBRARY_LEFT_MENU_WIDTH,
         overflowY: 'auto',
@@ -638,10 +640,12 @@ const Footer = (): JSX.Element => {
         css={{
           marginLeft: 'auto',
           marginRight: '5px',
-          '&:hover': { opacity: 1.0, color: 'white' },
         }}
       >
-        <SplitButton title="Add Link" />
+        <SplitButton
+          title="Add"
+          setShowLinkMode={() => props.setShowAddLinkModal(true)}
+        />
       </SpanBox>
     </HStack>
   )

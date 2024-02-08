@@ -963,9 +963,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         applySearchQuery={(searchQuery: string) => {
           props.applySearchQuery(searchQuery)
         }}
-        handleLinkSubmission={props.handleLinkSubmission}
-        allowSelectMultiple={props.mode !== 'highlights'}
-        alwaysShowHeader={props.mode == 'highlights'}
         showFilterMenu={showFilterMenu}
         setShowFilterMenu={setShowFilterMenu}
         multiSelectMode={props.multiSelectMode}
@@ -1234,7 +1231,8 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
               outline: 'none',
             },
             '&> div': {
-              bg: '$thBackground3',
+              bg: '$thLeftMenuBackground',
+              // bg: '$thLibraryBackground',
             },
             '&:focus': {
               outline: 'none',
@@ -1246,6 +1244,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
             '&:hover': {
               '> div': {
                 bg: '$thBackgroundActive',
+                boxShadow: '$cardBoxShadow',
               },
               '> a': {
                 bg: '$thBackgroundActive',
