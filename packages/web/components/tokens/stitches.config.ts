@@ -103,7 +103,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
       borderWidths: {},
       borderStyles: {},
       shadows: {
-        cardBoxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
+        // cardBoxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05);',
+        cardBoxShadow: '0px 4px 4px rgba(0, 0, 0, 0.20);',
       },
       zIndices: {},
       transitions: {},
@@ -129,7 +130,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         grayBorderHover: 'hsl(0 0% 78.0%)',
         grayText: '#6A6968',
 
-        // Semantic Colors
+        ctaBlue: '#007AFF',
+        modalBackground: '#FFFFFF',
+
         highlightBackground: '255, 210, 52',
         recommendedHighlightBackground: '#E5FFE5',
         highlight: '#FFD234',
@@ -142,6 +145,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         omnivoreYellow: 'rgb(255, 234, 159)',
         omnivoreLightGray: 'rgb(125, 125, 125)',
         omnivoreCtaYellow: 'rgb(255, 210, 52)',
+        searchActiveOutline: 'rgb(255, 210, 52)',
 
         // Reader Colors
         readerBg: 'white',
@@ -166,18 +170,24 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         // once all switch over, we will rename
         thBackground: '#FFFFFF',
         thBackground2: '#F3F3F3',
-        thBackground3: '#FFFFFF',
+        thBackground3: '#FCFCFC',
         thBackground4: '#EBEBEB',
         thBackground5: '#F5F5F5',
         thBackgroundActive: '#FFEA9F',
         thBackgroundContrast: '#FFFFFF',
         thLeftMenuBackground: '#FCFCFC',
-        thLibraryBackground: '#F3F3F3',
+        thLibraryBackground: '#FFFFFF',
         thLibrarySearchbox: '#FCFCFC',
         thLibraryMenuPrimary: '#3D3D3D',
         thLibraryMenuSecondary: '#3D3D3D',
         thLibraryMenuUnselected: '#898989',
         thLibrarySelectionColor: '#FFEA9F',
+        thLibraryNavigationMenuFooter: '#EFEADE',
+        thLibraryMenuFooterHover: '#FFFFFF',
+        thFormInput: '#EBEBEB',
+
+        thHeaderIconRing: '#D9D9D9',
+        thHeaderIconInner: '#898989',
 
         thNotebookSubtle: '#6A6968',
         thNotebookBorder: '#D9D9D9',
@@ -193,6 +203,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         thBorderColor: '#E1E1E1',
         thBorderSubtle: '#EEEEEE',
+        tabTextUnselected: '#898989',
 
         thProgressFg: '#FFD234',
 
@@ -230,6 +241,9 @@ const darkThemeSpec = {
   colorScheme: {
     colorScheme: 'dark',
   },
+  shadows: {
+    cardBoxShadow: '0px 4px 8px rgba(0, 0, 0, 0.50);',
+  },
   colors: {
     grayBase: '#252525',
     grayBg: '#3B3938',
@@ -245,6 +259,8 @@ const darkThemeSpec = {
     grayLine: 'hsl(0 0% 19.9%)',
     grayBorderHover: 'hsl(0 0% 31.2%)',
     grayText: '#CDCDCD',
+
+    modalBackground: '#2A2A2A',
 
     // Semantic Colors
     highlightBackground: '134, 109, 21',
@@ -283,13 +299,20 @@ const darkThemeSpec = {
     thBackground5: '#3D3D3D',
     thBackgroundActive: '#3D3D3D',
     thBackgroundContrast: '#000000',
-    thLeftMenuBackground: '#1D1D1D',
-    thLibraryBackground: '#333333',
+    thLeftMenuBackground: '#343434',
+    thLibraryBackground: '#2A2A2A',
     thLibrarySearchbox: '#3D3D3D',
     thLibraryMenuPrimary: '#EBEBEB',
     thLibraryMenuSecondary: '#EBEBEB',
     thLibraryMenuUnselected: '#898989',
     thLibrarySelectionColor: '#3D3D3D',
+    thLibraryNavigationMenuFooter: '#3D3D3D',
+    thLibraryMenuFooterHover: '#6A6968',
+    searchActiveOutline: '#866D15',
+    thFormInput: '#3D3D3D',
+
+    thHeaderIconRing: '#3D3D3D',
+    thHeaderIconInner: '#D9D9D9',
 
     thNotebookSubtle: '#898989',
     thNotebookBorder: '#3D3D3D',
@@ -306,6 +329,7 @@ const darkThemeSpec = {
 
     thBorderColor: '#4F4F4F',
     thBorderSubtle: '#6A6968',
+    tabTextUnselected: '#6A6968',
 
     thProgressFg: '#FFD234',
 
@@ -318,10 +342,6 @@ const darkThemeSpec = {
 
     highlight_underline_alpha: '0.5',
     highlight_background_alpha: '0.35',
-  },
-  shadows: {
-    cardBoxShadow:
-      '0px 0px 9px -2px rgba(5, 5, 5, 0.16), 0px 7px 12px rgba(0, 0, 0, 0.13)',
   },
 }
 

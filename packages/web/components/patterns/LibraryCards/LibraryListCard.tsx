@@ -66,7 +66,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         height: '100%',
         cursor: 'pointer',
         gap: '10px',
-        border: '1px solid $grayBorder',
+        borderStyle: 'none',
         borderBottom: 'none',
         borderRadius: '6px',
         width: '100vw',
@@ -74,24 +74,22 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
         },
         '@media (min-width: 930px)': {
-          width: '640px',
+          width: '580px',
         },
         '@media (min-width: 1280px)': {
-          width: '1000px',
+          width: '890px',
         },
         '@media (min-width: 1600px)': {
-          width: '1340px',
-        },
-        boxShadow:
-          '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
-        '@media (max-width: 930px)': {
-          boxShadow: 'unset',
-          borderRadius: 'unset',
+          width: '1200px',
         },
       }}
       alignment="start"
       distribution="start"
       onClick={(event) => {
+        if (props.multiSelectMode !== 'off') {
+          props.setIsChecked(props.item.id, !props.isChecked)
+          return
+        }
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

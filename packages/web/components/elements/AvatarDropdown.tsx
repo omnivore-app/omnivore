@@ -8,7 +8,7 @@ type AvatarDropdownProps = {
 export function AvatarDropdown(props: AvatarDropdownProps): JSX.Element {
   return (
     <HStack alignment="center" css={{ gap: '6px' }}>
-      <Avatar height="32px" fallbackText={props.userInitials} />
+      <Avatar height="25px" fallbackText={props.userInitials} />
     </HStack>
   )
 }

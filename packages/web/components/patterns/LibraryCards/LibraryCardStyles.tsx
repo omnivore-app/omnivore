@@ -45,7 +45,7 @@ export const TitleStyle = {
   fontSize: '16px',
   fontWeight: '700',
   maxLines: 2,
-  lineHeight: 1.25,
+  lineHeight: 1.5,
   fontFamily: '$display',
   overflow: 'hidden',
   textOverflow: 'ellipsis',

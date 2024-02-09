@@ -14,8 +14,8 @@ export function CloseButton(props: CloseButtonProps): JSX.Element {
     <Box
       css={{
         display: 'flex',
-        height: '20px',
-        width: '20px',
+        height: '25px',
+        width: '25px',
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: '1000px',
@@ -44,8 +44,8 @@ export function CloseButton(props: CloseButtonProps): JSX.Element {
         }}
       >
         <X
-          width={10}
-          height={10}
+          width={12}
+          height={12}
           weight="bold"
           color={hover ? '#EBEBEB' : '#898989'}
           className="xMark"

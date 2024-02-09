@@ -532,6 +532,7 @@ const processSubscription = async (
         if (itemCount == 100) {
           logger.info(`Max limit reached for feed ${feedUrl}`)
         }
+        itemCount = itemCount + 1
         continue
       }
 
