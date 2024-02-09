@@ -3,10 +3,7 @@ import { Button } from '../../elements/Button'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
 import { ReactNode } from 'react'
-import {
-  DEFAULT_HEADER_HEIGHT,
-  useGetHeaderHeight,
-} from '../homeFeed/HeaderSpacer'
+import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'

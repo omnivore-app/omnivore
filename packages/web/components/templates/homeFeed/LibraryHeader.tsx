@@ -274,11 +274,6 @@ export type SearchBoxProps = {
 
   compact?: boolean
   onClose?: () => void
-  handleLinkSubmission: (
-    link: string,
-    timezone: string,
-    locale: string
-  ) => Promise<void>
 }
 
 export function SearchBox(props: SearchBoxProps): JSX.Element {
@@ -364,14 +359,7 @@ export function SearchBox(props: SearchBoxProps): JSX.Element {
         <form
           onSubmit={async (event) => {
             event.preventDefault()
-
-            if (!isAddAction) {
-              props.applySearchQuery(searchTerm || '')
-            } else {
-              await props.handleLinkSubmission(searchTerm, timeZone, locale)
-              setSearchTerm(props.searchTerm ?? '')
-              props.applySearchQuery(props.searchTerm ?? '')
-            }
+            props.applySearchQuery(searchTerm || '')
             inputRef.current?.blur()
             if (props.onClose) {
               props.onClose()
@@ -455,19 +443,11 @@ type ControlButtonBoxProps = {
   updateLayout: (layout: LayoutType) => void
   setShowInlineSearch?: (show: boolean) => void
 
-  allowSelectMultiple: boolean
-
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
   setMultiSelectMode: (mode: MultiSelectMode) => void
 
   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
-
-  handleLinkSubmission: (
-    link: string,
-    timezone: string,
-    locale: string
-  ) => Promise<void>
 }
 
 function MultiSelectControls(props: ControlButtonBoxProps): JSX.Element {
