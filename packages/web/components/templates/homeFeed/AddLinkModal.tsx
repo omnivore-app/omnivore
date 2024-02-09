@@ -386,7 +386,7 @@ type UploadInfo = {
 }
 
 type UploadPadProps = {
-  info?: React.Node
+  info?: React.ReactNode
   description: string
   accept: Accept
 }
