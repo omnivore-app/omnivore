@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import * as Progress from '@radix-ui/react-progress'
-import { File } from 'phosphor-react'
+import { File, Info } from 'phosphor-react'
 import toast from 'react-hot-toast'
 import { locale, timeZone } from '../../../lib/dateFormatting'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
@@ -262,14 +262,21 @@ const UploadPDFTab = (props: AddLinkModalProps): JSX.Element => {
       css={{ height: '180px', width: '100%' }}
     >
       <UploadPad
+        info={
+          <HStack
+            distribution="start"
+            alignment="center"
+            css={{ gap: '5px', whiteSpace: 'pre-line' }}
+          >
+            <Info size={14} color="#007AFF" />
+            PDFs have a maximum size of 8MB.{' '}
+          </HStack>
+        }
         description="Drag PDFs here to add to your library"
         accept={{
           'application/pdf': ['.pdf'],
         }}
       />
-      <SpanBox css={{ fontSize: '12px', color: '$thTextSubtle' }}>
-        * PDFs have a maximum size of 8MB
-      </SpanBox>
     </VStack>
   )
 }
@@ -282,23 +289,30 @@ const UploadImportTab = (props: AddLinkModalProps): JSX.Element => {
       css={{ height: '180px', width: '100%' }}
     >
       <UploadPad
+        info={
+          <HStack
+            distribution="start"
+            alignment="center"
+            css={{ gap: '5px', whiteSpace: 'pre-line' }}
+          >
+            <Info size={14} color="#007AFF" />
+            Imports must be in a supported format.{' '}
+            <a
+              href="https://docs.omnivore.app/using/importing.html"
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: '#007AFF' }}
+            >
+              Read more
+            </a>
+          </HStack>
+        }
         description="Drop import files here"
         accept={{
           'text/csv': ['.csv'],
           'application/zip': ['.zip'],
         }}
       />
-      <SpanBox css={{ fontSize: '12px', color: '$thTextSubtle' }}>
-        * Imports must be in a supported format{' '}
-        <a
-          href="https://docs.omnivore.app/using/importing.html"
-          target="_blank"
-          rel="noreferrer"
-        >
-          read more
-        </a>
-        .
-      </SpanBox>
     </VStack>
   )
 }
@@ -372,6 +386,7 @@ type UploadInfo = {
 }
 
 type UploadPadProps = {
+  info: React.Node
   description: string
   accept: Accept
 }
@@ -547,7 +562,29 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
   )
 
   return (
-    <VStack distribution="start" css={{ width: '100%', height: '100%' }}>
+    <VStack
+      distribution="start"
+      css={{ gap: '10px', width: '100%', height: '100%' }}
+    >
+      {props.info && (
+        <HStack
+          distribution="start"
+          alignment="start"
+          css={{
+            width: '100%',
+            bg: '#007AFF10',
+            p: '5px',
+            pl: '10px',
+            fontSize: '12px',
+            fontFamily: '$inter',
+            textAlign: 'center',
+            color: '$ctaBlue',
+            borderRadius: '5px',
+          }}
+        >
+          {props.info}
+        </HStack>
+      )}
       <Dropzone
         ref={dropzoneRef}
         onDragEnter={() => {
@@ -585,14 +622,17 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                   >
                     <File
                       size={40}
-                      color={theme.colors.thTextSubtle2.toString()}
+                      color={theme.colors.tabTextUnselected.toString()}
                     />
                     {inDragOperation ? (
                       <>
                         <Box
                           css={{
                             p: '0px',
-                            fontSize: '14px',
+                            fontSize: '12px',
+                            fontFamily: '$inter',
+                            textAlign: 'center',
+                            color: '$tabTextUnselected',
                           }}
                         >
                           Drop to upload your file
@@ -602,8 +642,10 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                       <>
                         <Box
                           css={{
-                            fontSize: '14px',
+                            fontSize: '12px',
+                            fontFamily: '$inter',
                             textAlign: 'center',
+                            color: '$tabTextUnselected',
                           }}
                         >
                           {props.description}
