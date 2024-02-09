@@ -67,13 +67,13 @@ export const headerControlWidths = (
       width: multiSelectMode !== 'off' ? '100%' : '95%',
     },
     '@media (min-width: 930px)': {
-      width: layout == 'GRID_LAYOUT' ? '640px' : '660px',
+      width: '620px',
     },
     '@media (min-width: 1280px)': {
-      width: layout == 'GRID_LAYOUT' ? '950px' : '1010px',
+      width: '940px',
     },
     '@media (min-width: 1600px)': {
-      width: layout == 'GRID_LAYOUT' ? '1260px' : '1360px',
+      width: '1232px',
     },
   }
 }

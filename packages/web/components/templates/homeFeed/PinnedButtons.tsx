@@ -63,13 +63,13 @@ export const PinnedButtons = (props: PinnedButtonsProps): JSX.Element => {
           },
           '@media (min-width: 930px)': {
             px: '0px',
-            maxWidth: '600px',
+            maxWidth: '580px',
           },
           '@media (min-width: 1280px)': {
-            maxWidth: '950px',
+            maxWidth: '890px',
           },
           '@media (min-width: 1600px)': {
-            maxWidth: '1260px',
+            maxWidth: '1200px',
           },
         }}
       >
