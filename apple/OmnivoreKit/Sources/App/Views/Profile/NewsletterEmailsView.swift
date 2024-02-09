@@ -1,5 +1,4 @@
 import Models
-import PopupView
 import Services
 import SwiftUI
 import Transmission
@@ -7,7 +6,6 @@ import Views
 
 @MainActor final class NewsletterEmailsViewModel: ObservableObject {
   @Published var isLoading = false
-  @Published var showAddressCopied = false
   @Published var emails = [NewsletterEmail]()
 
   @Published var showOperationToast = false
@@ -74,12 +72,6 @@ struct NewsletterEmailsView: View {
     Group {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
         OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
-      } label: {
-        EmptyView()
-      }.buttonStyle(.plain)
-
-      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showAddressCopied) {
-        MessageToast()
       } label: {
         EmptyView()
       }.buttonStyle(.plain)
@@ -162,10 +154,7 @@ struct NewsletterEmailRow: View {
               pasteBoard.writeObjects([newsletterEmail.unwrappedEmail as NSString])
             #endif
 
-            viewModel.showAddressCopied = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
-              viewModel.showAddressCopied = false
-            }
+            Snackbar.show(message: "Address copied", undoAction: nil, dismissAfter: 2000)
           },
           label: {
             Text("Copy")
@@ -191,22 +180,3 @@ struct NewsletterEmailRow: View {
   }
 }
 
-struct MessageToast: View {
-  var body: some View {
-    VStack {
-      HStack {
-        Text("Address copied")
-        Spacer()
-      }
-      .padding(10)
-      .frame(minHeight: 50)
-      .frame(maxWidth: 380)
-      .background(Color(hex: "2A2A2A"))
-      .cornerRadius(4.0)
-      .tint(Color.green)
-    }
-    .padding(.bottom, 70)
-    .padding(.horizontal, 10)
-    .ignoresSafeArea(.all, edges: .bottom)
-  }
-}

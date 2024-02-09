@@ -1,7 +1,7 @@
 import { Job } from 'bullmq'
 import { DataSource } from 'typeorm'
 import { v4 as uuid } from 'uuid'
-import { getBackendQueue } from '../../queue-processor'
+import { getBackendQueue, JOB_VERSION } from '../../queue-processor'
 import { validateUrl } from '../../services/create_page_save_request'
 import { RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
@@ -136,9 +136,9 @@ export const queueRSSRefreshFeedJob = async (
     return undefined
   }
   return queue.add('refresh-feed', payload, {
-    jobId: jobid,
+    jobId: `${jobid}_${JOB_VERSION}`,
+    priority: options.priority == 'low' ? 10 : 50,
     removeOnComplete: true,
     removeOnFail: true,
-    priority: options.priority == 'low' ? 10 : 50,
   })
 }

@@ -1,6 +1,5 @@
 import AVFoundation
 import Models
-import PopupView
 import Services
 import SwiftUI
 import Transmission
@@ -10,8 +9,8 @@ import WebKit
 
 // swiftlint:disable file_length type_body_length
 struct WebReaderContainerView: View {
-  let item: Models.LibraryItem
-  let pop: () -> Void
+  @State var item: Models.LibraryItem
+  @Environment(\.dismiss) private var dismiss
 
   @State private var showPreferencesPopover = false
   @State private var showPreferencesFormsheet = false
@@ -22,6 +21,7 @@ struct WebReaderContainerView: View {
   @State private var hasPerformedHighlightMutations = false
   @State var showHighlightAnnotationModal = false
   @State private var navBarVisible = true
+  @State var showBottomBar = true
   @State private var progressViewOpacity = 0.0
   @State var readerSettingsChangedTransactionID: UUID?
   @State var annotationSaveTransactionID: UUID?
@@ -45,7 +45,6 @@ struct WebReaderContainerView: View {
   @EnvironmentObject var audioController: AudioController
   @Environment(\.openURL) var openURL
   @StateObject var viewModel = WebReaderViewModel()
-  @Environment(\.dismiss) var dismiss
 
   @AppStorage(UserDefaultKey.prefersHideStatusBarInReader.rawValue) var prefersHideStatusBarInReader = false
 
@@ -88,6 +87,7 @@ struct WebReaderContainerView: View {
   private func tapHandler() {
     withAnimation(.easeIn(duration: 0.08)) {
       navBarVisible = !navBarVisible
+      showBottomBar = navBarVisible
       showNavBarActionID = UUID()
     }
   }
@@ -116,6 +116,7 @@ struct WebReaderContainerView: View {
     case "dismissNavBars":
       withAnimation {
         navBarVisible = false
+        showBottomBar = false
         showNavBarActionID = UUID()
       }
     default:
@@ -233,6 +234,10 @@ struct WebReaderContainerView: View {
         action: copyDeeplink,
         label: { Label("Copy Deeplink", systemImage: "link") }
       )
+//      Button(
+//        action: print,
+//        label: { Label("Print", systemImage: "printer") }
+//      )
       Button(
         action: delete,
         label: { Label("Remove", systemImage: "trash") }
@@ -253,7 +258,7 @@ struct WebReaderContainerView: View {
       #if os(iOS)
         Button(
           action: {
-            pop()
+            dismiss()
           },
           label: {
             Image.chevronRight
@@ -355,12 +360,6 @@ struct WebReaderContainerView: View {
 
   var body: some View {
     ZStack {
-      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $viewModel.showOperationToast) {
-        OperationToast(operationMessage: $viewModel.operationMessage, showOperationToast: $viewModel.showOperationToast, operationStatus: $viewModel.operationStatus)
-      } label: {
-        EmptyView()
-      }.buttonStyle(.plain)
-
       if let articleContent = viewModel.articleContent {
         WebReader(
           item: item,
@@ -384,6 +383,7 @@ struct WebReaderContainerView: View {
           navBarVisibilityUpdater: { visible in
             withAnimation {
               navBarVisible = visible
+              showBottomBar = visible
             }
           },
           readerSettingsChangedTransactionID: $readerSettingsChangedTransactionID,
@@ -391,6 +391,7 @@ struct WebReaderContainerView: View {
           showNavBarActionID: $showNavBarActionID,
           shareActionID: $shareActionID,
           annotation: $annotation,
+          showBottomBar: $showBottomBar,
           showHighlightAnnotationModal: $showHighlightAnnotationModal
         )
         .background(ThemeManager.currentBgColor)
@@ -407,6 +408,7 @@ struct WebReaderContainerView: View {
           Task {
             await audioController.preload(itemIDs: [item.unwrappedID])
           }
+          viewModel.trackReadEvent(item: item)
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
                             titleVisibility: .visible) {
@@ -421,7 +423,7 @@ struct WebReaderContainerView: View {
             #else
               //            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
             #endif
-            showInLibrarySnackbar("Link Copied")
+            Snackbar.show(message: "Link copied", dismissAfter: 2000)
           }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
             if let linkToOpen = linkToOpen {
@@ -499,17 +501,17 @@ struct WebReaderContainerView: View {
             }
           }
         }
-        .sheet(isPresented: $showLabelsModal) {
-          ApplyLabelsView(mode: .item(item), onSave: { labels in
-            showLabelsModal = false
-            item.labels = NSSet(array: labels)
-            readerSettingsChangedTransactionID = UUID()
-          })
-        }
         .sheet(isPresented: $showTitleEdit) {
           LinkedItemMetadataEditView(item: item, onSave: { title, _ in
             item.title = title
             // We dont need to update description because its never rendered in this view
+            readerSettingsChangedTransactionID = UUID()
+          })
+        }
+        .sheet(isPresented: $showLabelsModal) {
+          ApplyLabelsView(mode: .item(item), onSave: { labels in
+            showLabelsModal = false
+            item.labels = NSSet(array: labels)
             readerSettingsChangedTransactionID = UUID()
           })
         }
@@ -533,7 +535,7 @@ struct WebReaderContainerView: View {
                   self.isRecovering = true
                   Task {
                     if !(await dataService.recoverItem(itemID: item.unwrappedID)) {
-                      viewModel.snackbar(message: "Error recovering item")
+                      Snackbar.show(message: "Error recoviering item", dismissAfter: 2000)
                     } else {
                       await viewModel.loadContent(
                         dataService: dataService,
@@ -589,13 +591,13 @@ struct WebReaderContainerView: View {
           if let audioProperties = audioController.itemAudioProperties {
             MiniPlayerViewer(itemAudioProperties: audioProperties)
               .padding(.top, 10)
-              .padding(.bottom, navBarVisible ? 10 : 40)
+              .padding(.bottom, showBottomBar ? 10 : 40)
               .background(Color.themeTabBarColor)
               .onTapGesture {
                 showExpandedAudioPlayer = true
               }
           }
-          if navBarVisible {
+          if showBottomBar {
             CustomToolBar(
               isFollowing: item.folder == "following",
               isArchived: item.isArchived,
@@ -623,47 +625,18 @@ struct WebReaderContainerView: View {
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
-      pop()
-    }
-    .popup(isPresented: $viewModel.showSnackbar) {
-      if let operation = viewModel.snackbarOperation {
-        Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
-      } else {
-        EmptyView()
-      }
-    } customize: {
-      $0
-        .type(.toast)
-        .autohideIn(2)
-        .position(.bottom)
-        .animation(.spring())
-        .isOpaque(false)
+      dismiss()
     }
     .ignoresSafeArea(.all, edges: .bottom)
-    .onReceive(NSNotification.readerSnackBarPublisher) { notification in
-      if let message = notification.userInfo?["message"] as? String {
-        viewModel.snackbarOperation = SnackbarOperation(message: message,
-                                                        undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-        viewModel.showSnackbar = true
-      }
-    }
   }
 
   func moveToInbox() {
     Task {
-      viewModel.showOperationToast = true
-      viewModel.operationMessage = "Moving to library..."
-      viewModel.operationStatus = .isPerforming
       do {
         try await dataService.moveItem(itemID: item.unwrappedID, folder: "inbox")
-        viewModel.operationMessage = "Moved to library"
-        viewModel.operationStatus = .success
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-          viewModel.showOperationToast = false
-        }
+        Snackbar.show(message: "Moved to library", dismissAfter: 2000)
       } catch {
-        viewModel.operationMessage = "Error moving"
-        viewModel.operationStatus = .failure
+        Snackbar.show(message: "Error moving item to inbox", dismissAfter: 2000)
       }
     }
   }
@@ -672,7 +645,12 @@ struct WebReaderContainerView: View {
     let isArchived = item.isArchived
     dataService.archiveLink(objectID: item.objectID, archived: !isArchived)
     #if os(iOS)
-      pop()
+      dismiss()
+
+    Snackbar.show(message: isArchived ? "Unarchived" : "Archived", undoAction: {
+      dataService.archiveLink(objectID: item.objectID, archived: isArchived)
+      Snackbar.show(message: isArchived ? "Archived" : "Unarchived", dismissAfter: 2000)
+    }, dismissAfter: 2000)
     #endif
   }
 
@@ -681,6 +659,10 @@ struct WebReaderContainerView: View {
   }
 
   func share() {
+    shareActionID = UUID()
+  }
+  
+  func print() {
     shareActionID = UUID()
   }
 
@@ -693,14 +675,15 @@ struct WebReaderContainerView: View {
         pasteBoard.clearContents()
         pasteBoard.writeObjects([deepLink.absoluteString as NSString])
       #endif
-      showInLibrarySnackbar("Deeplink Copied")
+      Snackbar.show(message: "Deeplink Copied", dismissAfter: 2000)
     } else {
-      showInLibrarySnackbar("Error copying deeplink")
+      Snackbar.show(message: "Error copying deeplink", dismissAfter: 2000)
     }
   }
 
   func delete() {
-    pop()
+    dismiss()
+
     #if os(iOS)
       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
         removeLibraryItemAction(dataService: dataService, objectID: item.objectID)

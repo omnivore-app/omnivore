@@ -8,20 +8,12 @@ final class PDFViewerViewModel: ObservableObject {
   @Published var errorMessage: String?
   @Published var readerView: Bool = false
 
-  @Published var showSnackbar: Bool = false
-  var snackbarMessage: String?
-
   let pdfItem: PDFItem
   var highlights: [Highlight]
 
   init(pdfItem: PDFItem) {
     self.pdfItem = pdfItem
     self.highlights = pdfItem.highlights
-  }
-
-  func snackbar(message: String) {
-    snackbarMessage = message
-    showSnackbar = true
   }
 
   func findHighlight(dataService: DataService, highlightID: String) -> Highlight? {

@@ -5,7 +5,7 @@ import { Recommendation } from '../entity/recommendation'
 import { authTrx } from '../repository'
 import { logger } from '../utils/logger'
 import { createHighlights } from './highlights'
-import { createLibraryItem, findLibraryItemByUrl } from './library_item'
+import { createOrUpdateLibraryItem, findLibraryItemByUrl } from './library_item'
 
 export const addRecommendation = async (
   item: LibraryItem,
@@ -39,7 +39,7 @@ export const addRecommendation = async (
         publishedAt: item.publishedAt,
       }
 
-      recommendedItem = await createLibraryItem(newItem, userId)
+      recommendedItem = await createOrUpdateLibraryItem(newItem, userId)
 
       const highlights = item.highlights
         ?.filter((highlight) => highlightIds?.includes(highlight.id))

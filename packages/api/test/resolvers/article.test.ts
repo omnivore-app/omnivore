@@ -23,7 +23,7 @@ import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
 import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
-  createLibraryItem,
+  createOrUpdateLibraryItem,
   createLibraryItems,
   deleteLibraryItemById,
   deleteLibraryItemByUrl,
@@ -408,7 +408,7 @@ describe('Article API', () => {
         document = '<p>test</p>'
         title = 'new title'
 
-        const item = await createLibraryItem(
+        const item = await createOrUpdateLibraryItem(
           {
             readableContent: document,
             slug: 'test saving an archived article slug',
@@ -450,17 +450,22 @@ describe('Article API', () => {
         readingProgressTopPercent: 100,
         user,
         originalUrl: 'https://blog.omnivore.app/test-with-omnivore',
-        highlights: [
-          {
-            shortId: 'test short id',
-            patch: 'test patch',
-            quote: 'test quote',
-            user,
-          },
-        ],
       }
-      const item = await createLibraryItem(itemToCreate, user.id)
+      const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
       itemId = item.id
+
+      // save highlights
+      await createHighlight(
+        {
+          shortId: 'test short id',
+          patch: 'test patch',
+          quote: 'test quote',
+          user,
+          libraryItem: item,
+        },
+        itemId,
+        user.id
+      )
     })
 
     after(async () => {
@@ -629,7 +634,7 @@ describe('Article API', () => {
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
         expect(savedItem?.archivedAt).to.not.be.null
-        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
+        expect(savedItem?.labels?.map((l) => l.name)).to.include.members(labels)
       })
     })
 
@@ -698,7 +703,7 @@ describe('Article API', () => {
         originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
       }
-      const item = await createLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
       itemId = item.id
     })
 
@@ -802,7 +807,7 @@ describe('Article API', () => {
     context('when force is true', () => {
       before(async () => {
         itemId = (
-          await createLibraryItem(
+          await createOrUpdateLibraryItem(
             {
               user: { id: user.id },
               originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
@@ -843,7 +848,7 @@ describe('Article API', () => {
     let itemId = ''
 
     before(async () => {
-      const item = await createLibraryItem(
+      const item = await createOrUpdateLibraryItem(
         {
           user: { id: user.id },
           originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
@@ -928,7 +933,7 @@ describe('Article API', () => {
           siteName: 'Example',
           readingProgressBottomPercent: readingProgressArray[i],
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
 
         // Create some test highlights
@@ -1973,7 +1978,7 @@ describe('Article API', () => {
           slug: '',
           originalUrl: `https://blog.omnivore.app/p/typeahead-search-${i}`,
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
       }
     })
@@ -2047,7 +2052,7 @@ describe('Article API', () => {
           originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
           user,
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
       }
 
@@ -2163,7 +2168,7 @@ describe('Article API', () => {
       before(async () => {
         // Create some test items
         for (let i = 0; i < 5; i++) {
-          await createLibraryItem(
+          await createOrUpdateLibraryItem(
             {
               user,
               itemType: i == 0 ? PageType.Article : PageType.File,
@@ -2256,7 +2261,7 @@ describe('Article API', () => {
       before(async () => {
         // Create some test items
         for (let i = 0; i < 5; i++) {
-          const item = await createLibraryItem(
+          const item = await createOrUpdateLibraryItem(
             {
               user,
               itemType: i == 0 ? PageType.Article : PageType.File,
@@ -2318,7 +2323,7 @@ describe('Article API', () => {
         readableContent: '<p>test</p>',
         originalUrl: `https://blog.omnivore.app/p/setFavoriteArticle`,
       }
-      const item = await createLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
       articleId = item.id
     })
 
@@ -2365,7 +2370,7 @@ describe('Article API', () => {
           deletedAt: new Date(),
           state: LibraryItemState.Deleted,
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
       }
     })

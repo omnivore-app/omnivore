@@ -5,8 +5,7 @@ import Models
 public extension NSNotification {
   static let PushJSONArticle = Notification.Name("PushJSONArticle")
   static let PushReaderItem = Notification.Name("PushReaderItem")
-  static let LibrarySnackBar = Notification.Name("LibrarySnackBar")
-  static let ReaderSnackBar = Notification.Name("ReaderSnackBar")
+  static let SnackBar = Notification.Name("SnackBar")
   static let OperationFailure = Notification.Name("OperationFailure")
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
   static let SpeakingReaderItem = Notification.Name("SpeakingReaderItem")
@@ -27,12 +26,8 @@ public extension NSNotification {
     NotificationCenter.default.publisher(for: PushReaderItem)
   }
 
-  static var readerSnackBarPublisher: NotificationCenter.Publisher {
-    NotificationCenter.default.publisher(for: ReaderSnackBar)
-  }
-
-  static var librarySnackBarPublisher: NotificationCenter.Publisher {
-    NotificationCenter.default.publisher(for: LibrarySnackBar)
+  static var snackBarPublisher: NotificationCenter.Publisher {
+    NotificationCenter.default.publisher(for: SnackBar)
   }
 
   static var operationFailedPublisher: NotificationCenter.Publisher {
@@ -82,10 +77,12 @@ public extension NSNotification {
     )
   }
 
-  static func librarySnackBar(message: String, undoAction: (() -> Void)?) {
-    NotificationCenter.default.post(name: NSNotification.LibrarySnackBar,
+  static func snackBar(message: String, undoAction: (() -> Void)?, dismissAfter: Int?) {
+    NotificationCenter.default.post(name: NSNotification.SnackBar,
                                     object: nil,
-                                    userInfo: ["message": message, "undoAction": undoAction as Any])
+                                    userInfo: ["message": message, 
+                                               "undoAction": undoAction as Any,
+                                               "dismissAfter": dismissAfter as Any])
   }
 
   static func operationFailed(message: String) {

@@ -116,7 +116,8 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       userId: user.id,
       data: {
         userId: user.id,
-        url: finalUrl,
+        url,
+        finalUrl,
         articleSavingRequestId,
         state,
         labels,

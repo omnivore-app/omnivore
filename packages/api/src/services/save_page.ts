@@ -1,6 +1,5 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
@@ -12,8 +11,6 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
-import { authTrx } from '../repository'
-import { libraryItemRepository } from '../repository/library_item'
 import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
@@ -28,7 +25,7 @@ import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
 import { createAndSaveLabelsInLibraryItem } from './labels'
-import { createLibraryItem, updateLibraryItem } from './library_item'
+import { createOrUpdateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -65,9 +62,39 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
 }
 
 export const savePage = async (
-  input: SavePageInput,
+  input: SavePageInput & {
+    finalUrl?: string
+  },
   user: User
 ): Promise<SaveResult> => {
+  const [slug, croppedPathname] = createSlug(input.url, input.title)
+  let clientRequestId = input.clientRequestId
+
+  // always parse in backend if the url is in the force puppeteer list
+  if (shouldParseInBackend(input)) {
+    try {
+      await createPageSaveRequest({
+        user,
+        url: input.url,
+        articleSavingRequestId: clientRequestId || undefined,
+        state: input.state || undefined,
+        labels: input.labels || undefined,
+        folder: input.folder || undefined,
+      })
+    } catch (e) {
+      return {
+        __typename: 'SaveError',
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create page save request',
+      }
+    }
+
+    return {
+      clientRequestId,
+      url: `${homePageURL()}/${user.profile.username}/${slug}`,
+    }
+  }
+
   const parseResult = await parsePreparedContent(input.url, {
     document: input.originalContent,
     pageInfo: {
@@ -75,9 +102,6 @@ export const savePage = async (
       canonicalUrl: input.url,
     },
   })
-  const [newSlug, croppedPathname] = createSlug(input.url, input.title)
-  let slug = newSlug
-  let clientRequestId = input.clientRequestId
 
   const itemToSave = parsedContentToLibraryItem({
     itemId: clientRequestId,
@@ -99,71 +123,22 @@ export const savePage = async (
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
 
-  // always parse in backend if the url is in the force puppeteer list
-  if (shouldParseInBackend(input)) {
-    try {
-      await createPageSaveRequest({
-        userId: user.id,
-        url: itemToSave.originalUrl,
-        articleSavingRequestId: clientRequestId || undefined,
-        state: input.state || undefined,
-        labels: input.labels || undefined,
-        folder: input.folder || undefined,
-      })
-    } catch (e) {
-      return {
-        __typename: 'SaveError',
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create page save request',
-      }
-    }
-  } else {
-    // check if the item already exists
-    const existingLibraryItem = await authTrx((t) =>
-      t
-        .withRepository(libraryItemRepository)
-        .findByUserIdAndUrl(user.id, input.url)
-    )
-    if (existingLibraryItem) {
-      clientRequestId = existingLibraryItem.id
-      slug = existingLibraryItem.slug
+  // do not publish a pubsub event if the item is imported
+  const newItem = await createOrUpdateLibraryItem(
+    itemToSave,
+    user.id,
+    undefined,
+    isImported,
+    input.finalUrl
+  )
+  clientRequestId = newItem.id
 
-      // we don't want to update an rss feed item if rss-feeder is tring to re-save it
-      if (existingLibraryItem.subscription === input.rssFeedUrl) {
-        return {
-          clientRequestId,
-          url: `${homePageURL()}/${user.profile.username}/${slug}`,
-        }
-      }
-
-      // update the item except for id and slug
-      await updateLibraryItem(
-        clientRequestId,
-        {
-          ...itemToSave,
-          id: undefined,
-          slug: undefined,
-        } as QueryDeepPartialEntity<LibraryItem>,
-        user.id
-      )
-    } else {
-      // do not publish a pubsub event if the item is imported
-      const newItem = await createLibraryItem(
-        itemToSave,
-        user.id,
-        undefined,
-        isImported
-      )
-      clientRequestId = newItem.id
-    }
-
-    await createAndSaveLabelsInLibraryItem(
-      clientRequestId,
-      user.id,
-      input.labels,
-      input.rssFeedUrl
-    )
-  }
+  await createAndSaveLabelsInLibraryItem(
+    clientRequestId,
+    user.id,
+    input.labels,
+    input.rssFeedUrl
+  )
 
   // we don't want to create thumbnail for imported pages and pages that already have thumbnail
   if (!isImported && !parseResult.parsedContent?.previewImage) {

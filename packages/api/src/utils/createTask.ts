@@ -25,7 +25,7 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
-import { getBackendQueue } from '../queue-processor'
+import { getBackendQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
@@ -666,8 +666,6 @@ export const enqueueTriggerRuleJob = async (data: TriggerRuleJobData) => {
   return queue.add(TRIGGER_RULE_JOB_NAME, data, {
     priority: 5,
     attempts: 1,
-    removeOnComplete: true,
-    removeOnFail: true,
   })
 }
 
@@ -680,8 +678,6 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
   return queue.add(CALL_WEBHOOK_JOB_NAME, data, {
     priority: 5,
     attempts: 1,
-    removeOnComplete: true,
-    removeOnFail: true,
   })
 }
 
@@ -695,12 +691,11 @@ export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
     name: UPDATE_LABELS_JOB,
     data: d,
     opts: {
-      attempts: 3,
+      jobId: `${UPDATE_LABELS_JOB}_${d.libraryItemId}_${JOB_VERSION}`,
+      attempts: 6,
       priority: 1,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
-      },
+      removeOnComplete: true,
+      removeOnFail: true,
     },
   }))
 
@@ -720,12 +715,11 @@ export const enqueueUpdateHighlight = async (data: UpdateHighlightData) => {
 
   try {
     return queue.add(UPDATE_HIGHLIGHT_JOB, data, {
-      attempts: 3,
+      jobId: `${UPDATE_HIGHLIGHT_JOB}_${data.libraryItemId}_${JOB_VERSION}`,
+      attempts: 6,
       priority: 1,
-      backoff: {
-        type: 'exponential',
-        delay: 1000,
-      },
+      removeOnComplete: true,
+      removeOnFail: true,
     })
   } catch (error) {
     logger.error('error enqueuing update highlight job', error)
@@ -738,7 +732,7 @@ export const enqueueBulkAction = async (data: BulkActionData) => {
     return undefined
   }
 
-  const jobId = `${BULK_ACTION_JOB_NAME}-${data.userId}`
+  const jobId = `${BULK_ACTION_JOB_NAME}_${data.userId}_${JOB_VERSION}`
 
   try {
     return queue.add(BULK_ACTION_JOB_NAME, data, {

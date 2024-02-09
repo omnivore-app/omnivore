@@ -187,10 +187,12 @@ export const saveLabelsInHighlight = async (
   )
 
   const highlight = await findHighlightById(highlightId, userId)
-  // update labels in library item
-  await bulkEnqueueUpdateLabels([
-    { libraryItemId: highlight.libraryItemId, userId },
-  ])
+  if (highlight) {
+    // update labels in library item
+    await bulkEnqueueUpdateLabels([
+      { libraryItemId: highlight.libraryItemId, userId },
+    ])
+  }
 }
 
 export const findLabelsByIds = async (

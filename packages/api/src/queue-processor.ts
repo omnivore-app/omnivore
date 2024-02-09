@@ -37,6 +37,7 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { CustomTypeOrmLogger, logger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
+export const JOB_VERSION = 'v001'
 
 let backendQueue: Queue | undefined
 export const getBackendQueue = async (): Promise<Queue | undefined> => {
@@ -49,6 +50,18 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
   }
   backendQueue = new Queue(QUEUE_NAME, {
     connection: redisDataSource.workerRedisClient,
+    defaultJobOptions: {
+      backoff: {
+        type: 'exponential',
+        delay: 2000, // 2 seconds
+      },
+      removeOnComplete: {
+        age: 24 * 3600, // keep up to 24 hours
+      },
+      removeOnFail: {
+        age: 7 * 24 * 3600, // keep up to 7 days
+      },
+    },
   })
   await backendQueue.waitUntilReady()
   return backendQueue
@@ -111,7 +124,6 @@ const setupCronJobs = async () => {
       priority: 1,
       repeat: {
         every: 60_000,
-        limit: 100,
       },
     }
   )

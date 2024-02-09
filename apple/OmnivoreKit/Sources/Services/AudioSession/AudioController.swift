@@ -80,7 +80,12 @@
       startAudio(atIndex: itemAudioProperties.startIndex, andOffset: itemAudioProperties.startOffset)
 
       EventTracker.track(
-        .audioSessionStart(linkID: itemAudioProperties.itemID)
+        .audioSessionStart(
+          linkID: itemAudioProperties.itemID,
+          voice: currentVoice.lowercased(),
+          voiceProvider: Voices.isUltraRealisticVoice(currentVoice) ? "ultra" :
+            Voices.isOpenAIVoice(currentVoice) ? "openai" : "default"
+        )
       )
     }
 
