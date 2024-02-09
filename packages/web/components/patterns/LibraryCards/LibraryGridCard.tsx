@@ -64,15 +64,14 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
       css={{
         pl: '0px',
         padding: '0px',
-        width: '320px',
+        width: '293px',
         height: '100%',
         minHeight: '270px',
         background: 'white',
         borderRadius: '5px',
         borderWidth: '1px',
-        borderStyle: 'solid',
+        borderStyle: 'none',
         overflow: 'hidden',
-        borderColor: '$thBorderColor',
         cursor: 'pointer',
         '@media (max-width: 930px)': {
           m: '15px',
@@ -88,6 +87,10 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         setIsHovered(false)
       }}
       onClick={(event) => {
+        if (props.multiSelectMode !== 'off') {
+          props.setIsChecked(props.item.id, !props.isChecked)
+          return
+        }
         if (event.metaKey || event.ctrlKey) {
           window.open(
             `/${props.viewer.profile.username}/${props.item.slug}`,

@@ -173,7 +173,11 @@ export function Dropdown(
     <Root modal={modal} onOpenChange={props.onOpenChange}>
       <DropdownTrigger
         disabled={disabled}
-        css={{ height: '100%', cursor: 'pointer' }}
+        css={{
+          height: '100%',
+          cursor: 'pointer',
+          '&:hover': { opacity: '1.0' },
+        }}
       >
         {triggerElement}
       </DropdownTrigger>

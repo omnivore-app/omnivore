@@ -40,7 +40,7 @@ const StyledFallback = styled(Fallback, {
   justifyContent: 'center',
   fontSize: '15px',
   fontWeight: 600,
-  fontFamily: 'Inter',
+  fontFamily: '$inter',
   color: '$avatarFont',
   backgroundColor: '$avatarBg',
 })

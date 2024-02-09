@@ -2,13 +2,14 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { styled } from '../tokens/stitches.config'
 import { Box, HStack, VStack } from './LayoutPrimitives'
 import { Button } from './Button'
-import { DropdownMenu } from '@radix-ui/react-dropdown-menu'
-import { ArrowDown } from 'phosphor-react'
 import { Dropdown, DropdownOption } from './DropdownElements'
 import { CaretDownIcon } from './icons/CaretDownIcon'
 
+type ShowLinkMode = 'none' | 'link' | 'pdf'
+
 type SplitButtonProps = {
   title: string
+  setShowLinkMode: (mode: ShowLinkMode) => void
 }
 
 const CaretButton = (): JSX.Element => {
@@ -18,36 +19,47 @@ const CaretButton = (): JSX.Element => {
         width: '20px',
         height: '100%',
         alignItems: 'center',
-        bg: '#6A6968',
+        bg: '$ctaBlue',
         border: '0px solid transparent',
         borderTopRightRadius: '5px',
         borderBottomRightRadius: '5px',
         borderTopLeftRadius: '0px',
         borderBottomLeftRadius: '0px',
+        '--caret-color': '#EDEDED',
+        '&:hover': {
+          opacity: 1.0,
+          color: 'white',
+          '--caret-color': 'white',
+        },
+        '&:focus': {
+          outline: 'none',
+          border: '0px solid transparent',
+        },
       }}
     >
-      <CaretDownIcon size={8} color="#EDEDED" />
+      <CaretDownIcon size={8} color="var(--caret-color)" />
     </VStack>
   )
 }
 
 export const SplitButton = (props: SplitButtonProps): JSX.Element => {
   return (
-    <HStack css={{ height: '27px', gap: '1px' }}>
+    <HStack css={{ height: '32px', gap: '1px' }}>
       <Button
         css={{
           display: 'flex',
-          minWidth: '70px',
-          bg: '#6A6968',
-          fontSize: '12px',
+          // minWidth: '70px',
+          bg: '$ctaBlue',
+          color: '#EDEDED',
+          fontSize: '14px',
           fontFamily: '$inter',
           border: '0px solid transparent',
           borderTopLeftRadius: '5px',
           borderBottomLeftRadius: '5px',
-          borderTopRightRadius: '0px',
-          borderBottomRightRadius: '0px',
+          borderTopRightRadius: '5px',
+          borderBottomRightRadius: '5px',
           '&:hover': {
-            opacity: 0.7,
+            opacity: 0.6,
             border: '0px solid transparent',
           },
           '&:focus': {
@@ -55,13 +67,16 @@ export const SplitButton = (props: SplitButtonProps): JSX.Element => {
             border: '0px solid transparent',
           },
         }}
+        onClick={(event) => {
+          props.setShowLinkMode('link')
+          event.preventDefault()
+        }}
       >
         {props.title}
       </Button>
-      {/* <Divider></Divider> */}
-      <Dropdown triggerElement={<CaretButton />}>
+      {/* <Dropdown triggerElement={<CaretButton />}>
         <DropdownOption onSelect={() => console.log()} title="Archive (e)" />
-      </Dropdown>
+      </Dropdown> */}
     </HStack>
   )
 }
