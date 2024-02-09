@@ -18,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Scaffold
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -277,10 +276,10 @@ fun LabelsSelectionSheetContent(
                     focusedBorderColor = Color(0xFF2A2A2A),
                     focusedBackgroundColor = Color(0xFF2A2A2A)
                 ),
-                colors = TextFieldDefaults.textFieldColors(
+/*                colors = androidx.compose.material3.TextFieldDefaults.colors(
                     textColor = MaterialTheme.colorScheme.onBackground,
                     backgroundColor = MaterialTheme.colorScheme.surface
-                ),
+                ),*/
                 contentPadding = PaddingValues(10.dp),
                 modifier = Modifier
                     .defaultMinSize(minHeight = 45.dp)

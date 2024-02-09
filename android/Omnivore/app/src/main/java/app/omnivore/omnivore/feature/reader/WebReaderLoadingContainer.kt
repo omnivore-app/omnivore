@@ -52,7 +52,7 @@ import androidx.core.view.WindowInsetsCompat
 import app.omnivore.omnivore.MainActivity
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
-import app.omnivore.omnivore.feature.components.LabelsSelectionSheetContent2
+import app.omnivore.omnivore.feature.components.LabelsSelectionSheetContent
 import app.omnivore.omnivore.feature.components.LabelsViewModel
 import app.omnivore.omnivore.feature.editinfo.EditInfoSheetContent
 import app.omnivore.omnivore.feature.editinfo.EditInfoViewModel
@@ -299,7 +299,7 @@ fun WebReaderLoadingContainer(
 
                 BottomSheetState.LABELS -> {
                     BottomSheetUI {
-                        LabelsSelectionSheetContent2(
+                        LabelsSelectionSheetContent(
                             labels = labels,
                             labelsViewModel = labelsViewModel,
                             initialSelectedLabels = webReaderParams?.labels ?: listOf(),

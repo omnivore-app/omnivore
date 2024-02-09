@@ -1,7 +1,13 @@
 package app.omnivore.omnivore.feature.settings
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -21,47 +27,47 @@ import app.omnivore.omnivore.R
 
 @Composable
 fun ManageAccountDialog(onDismiss: () -> Unit, settingsViewModel: SettingsViewModel) {
-  Dialog(onDismissRequest = { onDismiss() }) {
-    Surface(
-      shape = RoundedCornerShape(16.dp),
-      color = Color.White,
-      modifier = Modifier
-        .height(300.dp)
-    ) {
-      ManageAccountView(settingsViewModel = settingsViewModel)
+    Dialog(onDismissRequest = { onDismiss() }) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
+            modifier = Modifier
+                .height(300.dp)
+        ) {
+            ManageAccountView(settingsViewModel = settingsViewModel)
+        }
     }
-  }
 }
 
 @Composable
 fun ManageAccountView(settingsViewModel: SettingsViewModel) {
-  Column(
-    modifier = Modifier
-      .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
-  ) {
-    Row(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 12.dp, bottom = 12.dp),
-      horizontalArrangement = Arrangement.Center
-    ) {
-      Text(stringResource(R.string.manage_account_title))
-    }
-
     Column(
-      modifier = Modifier
-        .verticalScroll(rememberScrollState())
-    ) {
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-          .clickable(onClick = { settingsViewModel.resetDataCache() })
-      ) {
-        Text(stringResource(R.string.manage_account_action_reset_data_cache))
-        Spacer(modifier = Modifier.weight(1.0F))
-        Icon(imageVector = Icons.Filled.Refresh, contentDescription = null)
-      }
+            .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
+    ) {
+        Row(
+            modifier = Modifier
+              .fillMaxWidth()
+              .padding(top = 12.dp, bottom = 12.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(stringResource(R.string.manage_account_title))
+        }
+
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clickable(onClick = { settingsViewModel.resetDataCache() })
+            ) {
+                Text(stringResource(R.string.manage_account_action_reset_data_cache))
+                Spacer(modifier = Modifier.weight(1.0F))
+                Icon(imageVector = Icons.Filled.Refresh, contentDescription = null)
+            }
+        }
     }
-  }
 }
 

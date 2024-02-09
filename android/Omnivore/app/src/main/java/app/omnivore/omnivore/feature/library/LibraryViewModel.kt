@@ -48,8 +48,8 @@ class LibraryViewModel @Inject constructor(
     private val datastoreRepo: DatastoreRepository,
     private val resourceProvider: ResourceProvider
 ) : ViewModel(), SavedItemViewModel {
-    private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
 
+    private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
     private var cursor: String? = null
     private var librarySearchCursor: String? = null
 
