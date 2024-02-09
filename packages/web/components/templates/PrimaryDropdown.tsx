@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { Moon, Sun } from 'phosphor-react'
-import { ReactNode, useCallback } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { currentTheme, updateTheme } from '../../lib/themeUpdater'
 import { Avatar } from '../elements/Avatar'
@@ -271,6 +271,16 @@ export const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
+  const [displayTheme, setDisplayTheme] = useState(currentTheme())
+
+  const doUpdateTheme = useCallback(
+    (newTheme: ThemeId) => {
+      updateTheme(newTheme)
+      setDisplayTheme(newTheme)
+    },
+    [displayTheme, setDisplayTheme]
+  )
+
   return (
     <>
       <VStack>
@@ -307,7 +317,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             <StyledToggleButton
               data-state={currentTheme() != ThemeId.Dark ? 'on' : 'off'}
               onClick={() => {
-                updateTheme(ThemeId.Light)
+                doUpdateTheme(ThemeId.Light)
               }}
             >
               Light
@@ -316,7 +326,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             <StyledToggleButton
               data-state={currentTheme() == ThemeId.Dark ? 'on' : 'off'}
               onClick={() => {
-                updateTheme(ThemeId.Dark)
+                doUpdateTheme(ThemeId.Dark)
               }}
             >
               Dark
