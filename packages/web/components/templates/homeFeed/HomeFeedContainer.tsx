@@ -885,7 +885,7 @@ export function HomeFeedContainer(): JSX.Element {
   )
 }
 
-type HomeFeedContentProps = {
+export type HomeFeedContentProps = {
   items: LibraryItem[]
   searchTerm?: string
   reloadItems: () => void
@@ -1027,7 +1027,9 @@ type LibraryItemsLayoutProps = {
   setIsChecked: (itemId: string, set: boolean) => void
 } & HomeFeedContentProps
 
-function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
+export function LibraryItemsLayout(
+  props: LibraryItemsLayoutProps
+): JSX.Element {
   const [showUnsubscribeConfirmation, setShowUnsubscribeConfirmation] =
     useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
