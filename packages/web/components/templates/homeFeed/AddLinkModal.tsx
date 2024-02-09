@@ -219,7 +219,7 @@ const AddFromURL = (props: AddFromURLProps): JSX.Element => {
             mb: '13px',
             fontSize: '14px',
             color: '$thTextContrast',
-            bg: '$thLibrarySearchbox',
+            bg: '$thFormInput',
           }}
         />
         <Button

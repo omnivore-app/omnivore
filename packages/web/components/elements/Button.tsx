@@ -27,6 +27,7 @@ export const Button = styled('button', {
         cursor: 'pointer',
         border: '1px solid $yellow3',
         bg: '$ctaBlue',
+        color: 'white',
         '&:hover': {
           opacity: '0.6',
           border: '0px solid $ctaBlue',
@@ -238,7 +239,7 @@ export const Button = styled('button', {
         fontSize: '12px',
         fontWeight: '500',
         fontFamily: '$inter',
-        color: '$thBorderSubtle',
+        color: '$tabTextUnselected',
         cursor: 'pointer',
         borderRadius: '5px',
         '&:hover': {
@@ -249,16 +250,16 @@ export const Button = styled('button', {
         px: '15px',
         py: '6px',
         border: 'none',
-        bg: '$thBorderSubtle',
+        bg: '#6A6968',
         fontSize: '12px',
         fontWeight: '500',
         fontFamily: '$inter',
-        color: '$textContrast',
+        color: 'white',
         cursor: 'pointer',
         borderRadius: '5px',
-        '&:hover': {
-          color: '$thTextContrast',
-        },
+        // '&:hover': {
+        //   color: '$thTextContrast',
+        // },
       },
       squareIcon: {
         mx: '$1',

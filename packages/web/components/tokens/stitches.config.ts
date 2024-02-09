@@ -184,6 +184,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibrarySelectionColor: '#FFEA9F',
         thLibraryNavigationMenuFooter: '#EFEADE',
         thLibraryMenuFooterHover: '#FFFFFF',
+        thFormInput: '#EBEBEB',
 
         thHeaderIconRing: '#D9D9D9',
         thHeaderIconInner: '#898989',
@@ -202,6 +203,7 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         thBorderColor: '#E1E1E1',
         thBorderSubtle: '#EEEEEE',
+        tabTextUnselected: '#898989',
 
         thProgressFg: '#FFD234',
 
@@ -307,6 +309,7 @@ const darkThemeSpec = {
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
     searchActiveOutline: '#866D15',
+    thFormInput: '#3D3D3D',
 
     thHeaderIconRing: '#3D3D3D',
     thHeaderIconInner: '#D9D9D9',
@@ -326,6 +329,7 @@ const darkThemeSpec = {
 
     thBorderColor: '#4F4F4F',
     thBorderSubtle: '#6A6968',
+    tabTextUnselected: '#6A6968',
 
     thProgressFg: '#FFD234',
 

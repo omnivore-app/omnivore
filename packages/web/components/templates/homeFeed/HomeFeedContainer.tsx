@@ -1073,6 +1073,7 @@ function LibraryItemsLayout(props: LibraryItemsLayoutProps): JSX.Element {
             '@lgDown': {
               display: 'none',
             },
+            mb: '10px',
           }}
         >
           <PinnedButtons
