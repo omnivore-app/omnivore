@@ -74,13 +74,13 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
           width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
         },
         '@media (min-width: 930px)': {
-          width: '640px',
+          width: '580px',
         },
         '@media (min-width: 1280px)': {
-          width: '1000px',
+          width: '890px',
         },
         '@media (min-width: 1600px)': {
-          width: '1340px',
+          width: '1200px',
         },
       }}
       alignment="start"
