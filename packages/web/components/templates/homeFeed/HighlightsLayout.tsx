@@ -122,7 +122,7 @@ export function HighlightItemsLayout(
       <HStack
         css={{
           width: '100%',
-          height: `calc(100vh - ${headerHeight})`,
+          height: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
           '@lgDown': {
             overflowY: 'scroll',
           },
@@ -153,7 +153,7 @@ export function HighlightItemsLayout(
         >
           <VStack
             css={{
-              minHeight: `calc(100vh - ${headerHeight})`,
+              minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
               bg: '$thBackground',
             }}
             distribution="start"

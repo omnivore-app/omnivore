@@ -962,21 +962,23 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         width: props.mode == 'highlights' ? '100%' : 'unset',
       }}
     >
-      <LibraryHeader
-        layout={layout}
-        updateLayout={updateLayout}
-        searchTerm={props.searchTerm}
-        applySearchQuery={(searchQuery: string) => {
-          props.applySearchQuery(searchQuery)
-        }}
-        showFilterMenu={showFilterMenu}
-        setShowFilterMenu={setShowFilterMenu}
-        multiSelectMode={props.multiSelectMode}
-        setMultiSelectMode={props.setMultiSelectMode}
-        numItemsSelected={props.numItemsSelected}
-        showAddLinkModal={() => props.setShowAddLinkModal(true)}
-        performMultiSelectAction={props.performMultiSelectAction}
-      />
+      {props.mode != 'highlights' && (
+        <LibraryHeader
+          layout={layout}
+          updateLayout={updateLayout}
+          searchTerm={props.searchTerm}
+          applySearchQuery={(searchQuery: string) => {
+            props.applySearchQuery(searchQuery)
+          }}
+          showFilterMenu={showFilterMenu}
+          setShowFilterMenu={setShowFilterMenu}
+          multiSelectMode={props.multiSelectMode}
+          setMultiSelectMode={props.setMultiSelectMode}
+          numItemsSelected={props.numItemsSelected}
+          performMultiSelectAction={props.performMultiSelectAction}
+        />
+      )}
+
       <HStack css={{ width: '100%', height: '100%' }}>
         <LibraryFilterMenu
           setShowAddLinkModal={props.setShowAddLinkModal}
