@@ -154,8 +154,7 @@ export const createApp = (): {
     includeStatusCode: true,
     includeUp: true,
     customLabels: {
-      project_name: 'hello_world',
-      project_type: 'test_metrics_labels',
+      service: 'api',
     },
     promClient: {
       collectDefaultMetrics: {},
@@ -173,6 +172,9 @@ export const createApp = (): {
     app,
     hostnameLabel: false,
     defaultMetrics: false,
+    defaultLabels: {
+      service: 'api',
+    },
   })
   const apollo = makeApolloServer(promExporter)
   const httpServer = createServer(app)
