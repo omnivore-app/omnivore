@@ -45,6 +45,9 @@ import {
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
 import { redisDataSource } from './redis_data_source'
+import * as prom from 'prom-client'
+import promBundle from 'express-prom-bundle'
+import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 
 const PORT = process.env.PORT || 4000
 
@@ -145,7 +148,33 @@ export const createApp = (): {
   // The error handler must be before any other error middleware and after all routes
   app.use(Sentry.Handlers.errorHandler())
 
-  const apollo = makeApolloServer()
+  const metricsMiddleware = promBundle({
+    includeMethod: true,
+    includePath: true,
+    includeStatusCode: true,
+    includeUp: true,
+    customLabels: {
+      project_name: 'hello_world',
+      project_type: 'test_metrics_labels',
+    },
+    promClient: {
+      collectDefaultMetrics: {},
+    },
+  })
+  // add the prometheus middleware to all routes
+  app.use(metricsMiddleware)
+
+  app.get('/metrics', async (req, res) => {
+    res.setHeader('Content-Type', prom.register.contentType)
+    res.end(await prom.register.metrics())
+  })
+
+  const promExporter = createPrometheusExporterPlugin({
+    app,
+    hostnameLabel: false,
+    defaultMetrics: false,
+  })
+  const apollo = makeApolloServer(promExporter)
   const httpServer = createServer(app)
 
   return { app, apollo, httpServer }
