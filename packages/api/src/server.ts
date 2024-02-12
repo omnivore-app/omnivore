@@ -168,15 +168,7 @@ export const createApp = (): {
     res.end(await prom.register.metrics())
   })
 
-  const promExporter = createPrometheusExporterPlugin({
-    app,
-    hostnameLabel: false,
-    defaultMetrics: false,
-    defaultLabels: {
-      service: 'api',
-    },
-  })
-  const apollo = makeApolloServer(promExporter)
+  const apollo = makeApolloServer(app)
   const httpServer = createServer(app)
 
   return { app, apollo, httpServer }
