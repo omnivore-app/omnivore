@@ -11,6 +11,8 @@ if (!process.env.VERIFICATION_TOKEN) {
   throw new Error('VERIFICATION_TOKEN environment variable is not set')
 }
 
+app.get('/_ah/health', (req, res) => res.sendStatus(200))
+
 app.all('/', (req, res, next) => {
   if (req.method !== 'GET' && req.method !== 'POST') {
     console.error('request method is not GET or POST')
