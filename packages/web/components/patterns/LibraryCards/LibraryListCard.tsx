@@ -14,7 +14,7 @@ import {
   FLAIR_ICON_NAMES,
 } from './LibraryCardStyles'
 import { sortedLabels } from '../../../lib/labelsSort'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/navMenu/LibraryMenu'
 import { LibraryHoverActions } from './LibraryHoverActions'
 import {
   useHover,

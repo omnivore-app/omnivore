@@ -16,7 +16,7 @@ import {
 import { LayoutType } from './HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../../templates/homeFeed/LibraryFilterMenu'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { CardCheckbox } from '../../patterns/LibraryCards/LibraryCardStyles'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -36,7 +36,6 @@ import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderSearchIcon } from '../../elements/icons/HeaderSearchIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
-import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -124,20 +123,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 }
 
 function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
-  const dimensions = useWindowDimensions()
-  const [showSearchBar, setShowSearchBar] = useState(false)
-  const [pinnedSearches, setPinnedSearches] = usePersistedState<
-    PinnedSearch[] | null
-  >({
-    key: `--library-pinned-searches`,
-    initialValue: [],
-    isSessionStorage: false,
-  })
-
-  const isWideWindow = useMemo(() => {
-    return dimensions.width >= 480
-  }, [dimensions])
-
   return (
     <HStack
       alignment="center"
@@ -153,75 +138,78 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
           <MultiSelectControls {...props} />
         </HStack>
       ) : (
-        <>
-          {(!showSearchBar || isWideWindow) && (
-            <>
-              <SpanBox
-                css={{
-                  display: 'none',
-                  '@mdDown': { display: 'flex' },
-                }}
-              >
-                <MenuHeaderButton {...props} />
-              </SpanBox>
-              <Button
-                title="Select multiple"
-                style="plainIcon"
-                css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-                onClick={(e) => {
-                  props.setMultiSelectMode('visible')
-                  e.preventDefault()
-                }}
-              >
-                <HeaderCheckboxIcon />
-              </Button>
-            </>
-          )}
-
-          {showSearchBar ? (
-            <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
-          ) : (
-            <Button
-              title="search"
-              style="plainIcon"
-              css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-              onClick={(e) => {
-                setShowSearchBar(true)
-                e.preventDefault()
-              }}
-            >
-              <HeaderSearchIcon />
-            </Button>
-          )}
-
-          <Button
-            title={
-              props.layout == 'GRID_LAYOUT'
-                ? 'Switch to list layout'
-                : 'Switch to grid layout'
-            }
-            style="plainIcon"
-            css={{
-              display: 'flex',
-              marginLeft: 'auto',
-              '&:hover': { opacity: '1.0' },
-            }}
-            onClick={(e) => {
-              props.updateLayout(
-                props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
-              )
-              e.preventDefault()
-            }}
-          >
-            {props.layout == 'LIST_LAYOUT' ? (
-              <HeaderToggleGridIcon />
-            ) : (
-              <HeaderToggleListIcon />
-            )}
-          </Button>
-        </>
+        <HeaderControls {...props} />
       )}
     </HStack>
+  )
+}
+
+const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
+  const [showSearchBar, setShowSearchBar] = useState(false)
+  return (
+    <>
+      <SpanBox
+        css={{
+          display: 'none',
+          '@mdDown': { display: 'flex' },
+        }}
+      >
+        <MenuHeaderButton {...props} />
+      </SpanBox>
+      <Button
+        title="Select multiple"
+        style="plainIcon"
+        css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+        onClick={(e) => {
+          props.setMultiSelectMode('visible')
+          e.preventDefault()
+        }}
+      >
+        <HeaderCheckboxIcon />
+      </Button>
+
+      {showSearchBar ? (
+        <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
+      ) : (
+        <Button
+          title="search"
+          style="plainIcon"
+          css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+          onClick={(e) => {
+            setShowSearchBar(true)
+            e.preventDefault()
+          }}
+        >
+          <HeaderSearchIcon />
+        </Button>
+      )}
+
+      <Button
+        title={
+          props.layout == 'GRID_LAYOUT'
+            ? 'Switch to list layout'
+            : 'Switch to grid layout'
+        }
+        style="plainIcon"
+        css={{
+          display: 'flex',
+          marginLeft: 'auto',
+          '&:hover': { opacity: '1.0' },
+        }}
+        onClick={(e) => {
+          props.updateLayout(
+            props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+          )
+          e.preventDefault()
+        }}
+      >
+        {props.layout == 'LIST_LAYOUT' ? (
+          <HeaderToggleGridIcon />
+        ) : (
+          <HeaderToggleListIcon />
+        )}
+      </Button>
+    </>
   )
 }
 

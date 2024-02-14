@@ -192,6 +192,8 @@ const textVariants = {
       fontSize: '12px',
       lineHeight: '20px',
       color: '$thTextSubtle2',
+      marginBlockStart: '0',
+      marginTop: '10px',
     },
     error: {
       color: '$error',

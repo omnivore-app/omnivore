@@ -30,7 +30,7 @@ export default function Debug(): JSX.Element {
     includeFriendsHighlights: false,
   })
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const sortedAttributes = useMemo(() => {
     // if (!sortedAttributes) {

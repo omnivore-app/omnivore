@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
-import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
-import { LIBRARY_LEFT_MENU_WIDTH } from './homeFeed/LibraryFilterMenu'
-import { LogoBox } from '../elements/LogoBox'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryMenu'
+import { LogoBox } from '../../elements/LogoBox'
 import Link from 'next/link'
-import { styled, theme } from '../tokens/stitches.config'
-import { Button } from '../elements/Button'
+import { styled, theme } from '../../tokens/stitches.config'
+import { Button } from '../../elements/Button'
 import { ArrowSquareUpRight } from 'phosphor-react'
 import { useRouter } from 'next/router'
+import { NavMenuFooter } from './Footer'
 
 const HorizontalDivider = styled(SpanBox, {
   width: '100%',
@@ -173,6 +174,7 @@ export function SettingsMenu(): JSX.Element {
             destination="https://docs.omnivore.app"
             title="Documentation"
           />
+          <NavMenuFooter />
         </VStack>
       </Box>
       {/* This spacer pushes library content to the right of 

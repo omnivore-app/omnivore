@@ -198,7 +198,7 @@ export default function Account(): JSX.Element {
     })()
   }, [email])
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   return (
     <SettingsLayout>

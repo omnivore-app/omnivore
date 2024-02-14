@@ -7,6 +7,7 @@ export enum ThemeId {
   Sepia = 'Sepia',
   Apollo = 'Apollo',
   Black = 'Black',
+  System = 'System',
 }
 
 export const { styled, css, theme, getCssText, globalCss, keyframes, config } =

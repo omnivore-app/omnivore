@@ -65,7 +65,7 @@ export default function Webhooks(): JSX.Element {
     return rows
   }, [webhooks])
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   function validateEventTypes(eventTypes: WebhookEvent[]): boolean {
     if (eventTypes.length > 0) return true

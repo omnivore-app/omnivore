@@ -6,7 +6,7 @@ type LoadingViewProps = {
 }
 
 export function LoadingView(props: LoadingViewProps): JSX.Element {
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   return (
     <VStack

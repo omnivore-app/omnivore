@@ -3,7 +3,11 @@ import { Box, VStack } from '../../elements/LayoutPrimitives'
 import { v4 as uuidv4 } from 'uuid'
 import { nanoid } from 'nanoid'
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { currentTheme, getTheme, isDarkTheme } from '../../../lib/themeUpdater'
+import {
+  getCurrentLocalTheme,
+  getTheme,
+  isDarkTheme,
+} from '../../../lib/themeUpdater'
 import PSPDFKit from 'pspdfkit'
 import { Instance, HighlightAnnotation, List, Annotation, Rect } from 'pspdfkit'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
@@ -38,15 +42,13 @@ type EpubPatch = {
 export default function EpubContainer(props: EpubContainerProps): JSX.Element {
   const epubRef = useRef<HTMLDivElement | null>(null)
   const renditionRef = useRef<Rendition | undefined>(undefined)
-  const [shareTarget, setShareTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [shareTarget, setShareTarget] =
+    useState<Highlight | undefined>(undefined)
   const [touchStart, setTouchStart] = useState(0)
   const [notebookKey, setNotebookKey] = useState<string>(uuidv4())
   const [noteTarget, setNoteTarget] = useState<Highlight | undefined>(undefined)
-  const [noteTargetPageIndex, setNoteTargetPageIndex] = useState<
-    number | undefined
-  >(undefined)
+  const [noteTargetPageIndex, setNoteTargetPageIndex] =
+    useState<number | undefined>(undefined)
   const highlightsRef = useRef<Highlight[]>([])
 
   const book = useMemo(() => {
@@ -102,7 +104,7 @@ export default function EpubContainer(props: EpubContainerProps): JSX.Element {
       }
     })
 
-    const themeId = currentTheme()
+    const themeId = getCurrentLocalTheme()
     if (themeId) {
       const readerTheme = getTheme(themeId)
       renditionRef.current.themes.override(

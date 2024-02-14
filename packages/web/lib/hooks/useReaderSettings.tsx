@@ -37,7 +37,7 @@ export type ReaderSettings = {
 }
 
 export const useReaderSettings = (): ReaderSettings => {
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const [, updateState] = useState({})
 

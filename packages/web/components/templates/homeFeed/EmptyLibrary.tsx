@@ -1,6 +1,6 @@
 import { Box } from '../../elements/LayoutPrimitives'
 import { useMemo } from 'react'
-import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { LayoutType } from './HomeFeedContainer'
 import { SuggestionBox, SuggestionAction } from '../../elements/SuggestionBox'
 

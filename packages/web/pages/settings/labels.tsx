@@ -153,16 +153,15 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
-    string | null
-  >(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] =
+    useState<string | null>(null)
   const [showLabelPageHelp, setShowLabelPageHelp] = usePersistedState<boolean>({
     key: `--settings-labels-show-help`,
     initialValue: true,
   })
   const breakpoint = 768
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const sortedLabels = useMemo(() => {
     return labels.sort((left: Label, right: Label) =>

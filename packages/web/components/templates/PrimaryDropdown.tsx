@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import { Moon, Sun } from 'phosphor-react'
 import { ReactNode, useCallback, useState } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { currentTheme, updateTheme } from '../../lib/themeUpdater'
+import { getCurrentLocalTheme, updateTheme } from '../../lib/themeUpdater'
 import { Avatar } from '../elements/Avatar'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import {
@@ -271,7 +271,7 @@ export const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
-  const [displayTheme, setDisplayTheme] = useState(currentTheme())
+  const [displayTheme, setDisplayTheme] = useState(getCurrentLocalTheme())
 
   const doUpdateTheme = useCallback(
     (newTheme: ThemeId) => {
@@ -315,7 +315,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={currentTheme() != ThemeId.Dark ? 'on' : 'off'}
+              data-state={getCurrentLocalTheme() != ThemeId.Dark ? 'on' : 'off'}
               onClick={() => {
                 doUpdateTheme(ThemeId.Light)
               }}
@@ -324,7 +324,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
               <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={currentTheme() == ThemeId.Dark ? 'on' : 'off'}
+              data-state={getCurrentLocalTheme() == ThemeId.Dark ? 'on' : 'off'}
               onClick={() => {
                 doUpdateTheme(ThemeId.Dark)
               }}
