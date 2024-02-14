@@ -8,6 +8,8 @@ import {
 } from '../components/tokens/stitches.config'
 
 const themeKey = 'theme'
+const preferredDarkThemeKey = 'preferredDarkThemeKey'
+const preferredLightThemeKey = 'preferredLightThemeKey'
 
 // Map legacy theme names to their new equivelents
 const LEGACY_THEMES: { [string: string]: string } = {
@@ -25,8 +27,36 @@ export function updateTheme(themeId: string): void {
   updateThemeLocally(themeId)
 }
 
+const visibleThemeId = (themeId: string) => {
+  if (themeId == ThemeId.System) {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        try {
+          const preferred = window.localStorage.getItem(preferredDarkThemeKey)
+          if (preferred) {
+            return JSON.parse(preferred)
+          }
+        } catch {}
+        return ThemeId.Dark
+      } else {
+        try {
+          const preferred = window.localStorage.getItem(preferredLightThemeKey)
+          if (preferred) {
+            return JSON.parse(preferred)
+          }
+        } catch {}
+        return ThemeId.Light
+      }
+    }
+    return ThemeId.Light
+  } else {
+    return themeId
+  }
+}
+
 export function getTheme(themeId: string) {
-  switch (themeId) {
+  const themeToUse = visibleThemeId(themeId)
+  switch (themeToUse) {
     case ThemeId.Dark:
       return darkTheme
     case ThemeId.Sepia:
@@ -56,7 +86,7 @@ export function updateThemeLocally(themeId: string): void {
 }
 
 export function currentThemeName(): string {
-  switch (currentTheme()) {
+  switch (getCurrentLocalTheme()) {
     case ThemeId.Light:
       return 'Light'
     case ThemeId.Dark:
@@ -71,7 +101,7 @@ export function currentThemeName(): string {
   return 'Light'
 }
 
-export function currentTheme(): ThemeId | undefined {
+export function getCurrentLocalTheme(): ThemeId | undefined {
   if (typeof window === 'undefined') {
     return undefined
   }

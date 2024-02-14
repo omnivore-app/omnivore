@@ -13,11 +13,17 @@ import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useCallback, useState } from 'react'
-import { currentThemeName, updateTheme } from '../../../lib/themeUpdater'
+import {
+  getCurrentLocalTheme,
+  currentThemeName,
+  updateTheme,
+} from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
 import * as Switch from '@radix-ui/react-switch'
 import { Checkbox } from '@radix-ui/react-checkbox'
+import { useCurrentTheme } from '../../../lib/hooks/useCurrentTheme'
+import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
 
 type ReaderSettingsProps = {
   readerSettings: ReaderSettings
@@ -565,7 +571,9 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
 }
 
 function ThemeSelector(): JSX.Element {
-  const [currentTheme, setCurrentTheme] = useState(currentThemeName())
+  const isDarkMode = useDarkModeListener()
+  const { currentTheme, setCurrentTheme, resetSystemTheme } = useCurrentTheme()
+
   return (
     <VStack
       css={{
@@ -587,6 +595,10 @@ function ThemeSelector(): JSX.Element {
           alignment="center"
           distribution="center"
           css={{ ml: 'auto', gap: '5px', mt: '10px', cursor: 'pointer' }}
+          onClick={() => {
+            console.log('clicked use system')
+            updateTheme(ThemeId.System)
+          }}
         >
           <Label
             htmlFor="auto-checkbox"
@@ -600,7 +612,19 @@ function ThemeSelector(): JSX.Element {
           >
             Auto
           </Label>
-          <input id="auto-checkbox" type="checkbox" />
+          <input
+            type="checkbox"
+            id="auto-checkbox"
+            checked={currentTheme == ThemeId.System}
+            onChange={(event) => {
+              if (event.target.checked) {
+                setCurrentTheme(ThemeId.System)
+              } else {
+                resetSystemTheme()
+              }
+              event.stopPropagation()
+            }}
+          ></input>
         </HStack>
       </HStack>
 
@@ -633,8 +657,7 @@ function ThemeSelector(): JSX.Element {
           }}
           data-state={currentTheme == ThemeId.Light ? 'selected' : 'unselected'}
           onClick={() => {
-            updateTheme(ThemeId.Light)
-            setCurrentTheme(currentThemeName())
+            setCurrentTheme(ThemeId.Light)
           }}
         >
           {currentTheme == ThemeId.Light && (
@@ -663,8 +686,7 @@ function ThemeSelector(): JSX.Element {
           }}
           data-state={currentTheme == ThemeId.Dark ? 'selected' : 'unselected'}
           onClick={() => {
-            updateTheme(ThemeId.Dark)
-            setCurrentTheme(currentThemeName())
+            setCurrentTheme(ThemeId.Dark)
           }}
         >
           {currentTheme == ThemeId.Dark && <Check color="#F9D354" size={20} />}
@@ -691,8 +713,7 @@ function ThemeSelector(): JSX.Element {
           }}
           data-state={currentTheme == ThemeId.Sepia ? 'selected' : 'unselected'}
           onClick={() => {
-            updateTheme(ThemeId.Sepia)
-            setCurrentTheme(currentThemeName())
+            setCurrentTheme(ThemeId.Sepia)
           }}
         >
           {currentTheme == ThemeId.Sepia && <Check color="#6A6968" size={20} />}
@@ -721,8 +742,7 @@ function ThemeSelector(): JSX.Element {
             currentTheme == ThemeId.Apollo ? 'selected' : 'unselected'
           }
           onClick={() => {
-            updateTheme(ThemeId.Apollo)
-            setCurrentTheme(currentThemeName())
+            setCurrentTheme(ThemeId.Apollo)
           }}
         >
           {currentTheme == ThemeId.Apollo && (
