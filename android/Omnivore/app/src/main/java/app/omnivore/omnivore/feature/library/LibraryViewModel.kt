@@ -332,7 +332,8 @@ class LibraryViewModel @Inject constructor(
                             mapOf(
                                 "id" to itemID,
                                 "readingProgressPercent" to 100.0,
-                                "readingProgressAnchorIndex" to 0
+                                "readingProgressAnchorIndex" to 0,
+                                "force" to true
                             )
                         )
                     )
@@ -346,7 +347,8 @@ class LibraryViewModel @Inject constructor(
                             mapOf(
                                 "id" to itemID,
                                 "readingProgressPercent" to 0,
-                                "readingProgressAnchorIndex" to 0
+                                "readingProgressAnchorIndex" to 0,
+                                "force" to true
                             )
                         )
                     )
