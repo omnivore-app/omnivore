@@ -7,6 +7,7 @@ import { styled, theme } from '../tokens/stitches.config'
 import { Button } from '../elements/Button'
 import { ArrowSquareUpRight } from 'phosphor-react'
 import { useRouter } from 'next/router'
+import { NavMenuFooter } from './navMenu/Footer'
 
 const HorizontalDivider = styled(SpanBox, {
   width: '100%',
@@ -173,6 +174,7 @@ export function SettingsMenu(): JSX.Element {
             destination="https://docs.omnivore.app"
             title="Documentation"
           />
+          <NavMenuFooter />
         </VStack>
       </Box>
       {/* This spacer pushes library content to the right of 

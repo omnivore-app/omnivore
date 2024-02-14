@@ -31,9 +31,6 @@ export function SettingsHeader(props: HeaderProps): JSX.Element {
         }}
       >
         <LogoBox />
-        <HStack css={{ ml: 'auto' }}>
-          <PrimaryDropdown showThemeSection={true} />
-        </HStack>
       </HStack>
     </nav>
   )

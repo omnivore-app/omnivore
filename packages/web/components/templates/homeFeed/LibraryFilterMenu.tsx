@@ -22,6 +22,7 @@ import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 import { SplitButton } from '../../elements/SplitButton'
 import { AvatarDropdown } from '../../elements/AvatarDropdown'
 import { PrimaryDropdown } from '../PrimaryDropdown'
+import { NavMenuFooter } from '../navMenu/Footer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -122,7 +123,7 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
         <Labels {...props} labels={labels} />
-        <Footer {...props} />
+        <NavMenuFooter {...props} />
         <Box css={{ height: '250px ' }} />
       </Box>
       {/* This spacer pushes library content to the right of 
@@ -608,43 +609,5 @@ function EditButton(props: EditButtonProps): JSX.Element {
         {props.title}
       </SpanBox>
     </Link>
-  )
-}
-
-const Footer = (props: LibraryFilterMenuProps): JSX.Element => {
-  return (
-    <HStack
-      css={{
-        gap: '10px',
-        height: '65px',
-        position: 'fixed',
-        bottom: '0%',
-        alignItems: 'center',
-
-        backgroundColor: '$thBackground2',
-        width: LIBRARY_LEFT_MENU_WIDTH,
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        '&::-webkit-scrollbar': {
-          display: 'none',
-        },
-        '@mdDown': {
-          width: '100%',
-        },
-      }}
-    >
-      <PrimaryDropdown showThemeSection={true} />
-      <SpanBox
-        css={{
-          marginLeft: 'auto',
-          marginRight: '15px',
-        }}
-      >
-        <SplitButton
-          title="Add"
-          setShowLinkMode={() => props.setShowAddLinkModal(true)}
-        />
-      </SpanBox>
-    </HStack>
   )
 }
