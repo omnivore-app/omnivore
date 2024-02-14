@@ -123,15 +123,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 }
 
 function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
-  const [showSearchBar, setShowSearchBar] = useState(false)
-  const [pinnedSearches, setPinnedSearches] = usePersistedState<
-    PinnedSearch[] | null
-  >({
-    key: `--library-pinned-searches`,
-    initialValue: [],
-    isSessionStorage: false,
-  })
-
   return (
     <HStack
       alignment="center"
@@ -147,71 +138,78 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
           <MultiSelectControls {...props} />
         </HStack>
       ) : (
-        <>
-          <SpanBox
-            css={{
-              display: 'none',
-              '@mdDown': { display: 'flex' },
-            }}
-          >
-            <MenuHeaderButton {...props} />
-          </SpanBox>
-          <Button
-            title="Select multiple"
-            style="plainIcon"
-            css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-            onClick={(e) => {
-              props.setMultiSelectMode('visible')
-              e.preventDefault()
-            }}
-          >
-            <HeaderCheckboxIcon />
-          </Button>
-
-          {showSearchBar ? (
-            <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
-          ) : (
-            <Button
-              title="search"
-              style="plainIcon"
-              css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-              onClick={(e) => {
-                setShowSearchBar(true)
-                e.preventDefault()
-              }}
-            >
-              <HeaderSearchIcon />
-            </Button>
-          )}
-
-          <Button
-            title={
-              props.layout == 'GRID_LAYOUT'
-                ? 'Switch to list layout'
-                : 'Switch to grid layout'
-            }
-            style="plainIcon"
-            css={{
-              display: 'flex',
-              marginLeft: 'auto',
-              '&:hover': { opacity: '1.0' },
-            }}
-            onClick={(e) => {
-              props.updateLayout(
-                props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
-              )
-              e.preventDefault()
-            }}
-          >
-            {props.layout == 'LIST_LAYOUT' ? (
-              <HeaderToggleGridIcon />
-            ) : (
-              <HeaderToggleListIcon />
-            )}
-          </Button>
-        </>
+        <HeaderControls {...props} />
       )}
     </HStack>
+  )
+}
+
+const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
+  const [showSearchBar, setShowSearchBar] = useState(false)
+  return (
+    <>
+      <SpanBox
+        css={{
+          display: 'none',
+          '@mdDown': { display: 'flex' },
+        }}
+      >
+        <MenuHeaderButton {...props} />
+      </SpanBox>
+      <Button
+        title="Select multiple"
+        style="plainIcon"
+        css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+        onClick={(e) => {
+          props.setMultiSelectMode('visible')
+          e.preventDefault()
+        }}
+      >
+        <HeaderCheckboxIcon />
+      </Button>
+
+      {showSearchBar ? (
+        <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
+      ) : (
+        <Button
+          title="search"
+          style="plainIcon"
+          css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+          onClick={(e) => {
+            setShowSearchBar(true)
+            e.preventDefault()
+          }}
+        >
+          <HeaderSearchIcon />
+        </Button>
+      )}
+
+      <Button
+        title={
+          props.layout == 'GRID_LAYOUT'
+            ? 'Switch to list layout'
+            : 'Switch to grid layout'
+        }
+        style="plainIcon"
+        css={{
+          display: 'flex',
+          marginLeft: 'auto',
+          '&:hover': { opacity: '1.0' },
+        }}
+        onClick={(e) => {
+          props.updateLayout(
+            props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+          )
+          e.preventDefault()
+        }}
+      >
+        {props.layout == 'LIST_LAYOUT' ? (
+          <HeaderToggleGridIcon />
+        ) : (
+          <HeaderToggleListIcon />
+        )}
+      </Button>
+    </>
   )
 }
 
