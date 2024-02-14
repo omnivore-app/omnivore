@@ -11,7 +11,7 @@ import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { logout } from '../../lib/logout'
-import { SettingsMenu } from './SettingsMenu'
+import { SettingsMenu } from './navMenu/SettingsMenu'
 
 type SettingsLayoutProps = {
   title?: string

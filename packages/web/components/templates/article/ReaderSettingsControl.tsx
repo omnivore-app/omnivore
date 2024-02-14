@@ -17,6 +17,7 @@ import { currentThemeName, updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
 import * as Switch from '@radix-ui/react-switch'
+import { Checkbox } from '@radix-ui/react-checkbox'
 
 type ReaderSettingsProps = {
   readerSettings: ReaderSettings
@@ -575,7 +576,34 @@ function ThemeSelector(): JSX.Element {
         height: '100%',
       }}
     >
-      <StyledText style="displaySettingsLabel">Themes</StyledText>
+      <HStack
+        distribution="start"
+        css={{
+          width: '100%',
+        }}
+      >
+        <StyledText style="displaySettingsLabel">Themes</StyledText>
+        <HStack
+          alignment="center"
+          distribution="center"
+          css={{ ml: 'auto', gap: '5px', mt: '10px', cursor: 'pointer' }}
+        >
+          <Label
+            htmlFor="auto-checkbox"
+            css={{
+              fontFamily: '$display',
+              fontWeight: '500',
+              fontSize: '12px',
+              lineHeight: '20px',
+              color: '$thTextSubtle2',
+            }}
+          >
+            Auto
+          </Label>
+          <input id="auto-checkbox" type="checkbox" />
+        </HStack>
+      </HStack>
+
       <HStack
         distribution="start"
         css={{

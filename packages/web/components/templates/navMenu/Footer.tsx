@@ -1,7 +1,7 @@
 import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { SplitButton } from '../../elements/SplitButton'
 import { PrimaryDropdown } from '../PrimaryDropdown'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../homeFeed/LibraryFilterMenu'
+import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryMenu'
 
 type NavMenuFooterProps = {
   setShowAddLinkModal?: (show: true) => void
