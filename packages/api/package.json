@@ -15,6 +15,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.html dist/"
   },
   "dependencies": {
+    "@bmatei/apollo-prometheus-exporter": "^3.0.0",
     "@google-cloud/logging-winston": "^6.0.0",
     "@google-cloud/monitoring": "^4.0.0",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.0.0",
@@ -61,6 +62,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-http-context2": "^1.0.0",
+    "express-prom-bundle": "^7.0.0",
     "express-rate-limit": "^6.3.0",
     "fast-safe-stringify": "^2.1.1",
     "firebase-admin": "^11.5.0",
@@ -87,6 +89,7 @@
     "pg": "^8.3.3",
     "postgrator": "^4.2.0",
     "private-ip": "^2.3.3",
+    "prom-client": "^15.1.0",
     "rss-parser": "^3.13.0",
     "sanitize-html": "^2.3.2",
     "sax": "^1.3.0",
