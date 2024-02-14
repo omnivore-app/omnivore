@@ -4,7 +4,7 @@ controllers:
   api:
     enabled: true
     type: deployment
-    strategy: Recreate
+    strategy: RollingUpdate
     containers:
       api:
         image:
@@ -57,7 +57,7 @@ controllers:
   web:
     enabled: true
     type: deployment
-    strategy: Recreate
+    strategy: RollingUpdate
     containers:
       web:
         image:
@@ -68,7 +68,7 @@ controllers:
   content-fetch:
     enabled: true
     type: deployment
-    strategy: Recreate
+    strategy: RollingUpdate
     containers:
       content-fetch:
         image:
