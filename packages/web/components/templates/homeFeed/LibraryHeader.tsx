@@ -36,7 +36,6 @@ import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderSearchIcon } from '../../elements/icons/HeaderSearchIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
-import useWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -124,7 +123,6 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
 }
 
 function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
-  const dimensions = useWindowDimensions()
   const [showSearchBar, setShowSearchBar] = useState(false)
   const [pinnedSearches, setPinnedSearches] = usePersistedState<
     PinnedSearch[] | null
@@ -133,10 +131,6 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
     initialValue: [],
     isSessionStorage: false,
   })
-
-  const isWideWindow = useMemo(() => {
-    return dimensions.width >= 480
-  }, [dimensions])
 
   return (
     <HStack
@@ -154,29 +148,25 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         </HStack>
       ) : (
         <>
-          {(!showSearchBar || isWideWindow) && (
-            <>
-              <SpanBox
-                css={{
-                  display: 'none',
-                  '@mdDown': { display: 'flex' },
-                }}
-              >
-                <MenuHeaderButton {...props} />
-              </SpanBox>
-              <Button
-                title="Select multiple"
-                style="plainIcon"
-                css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-                onClick={(e) => {
-                  props.setMultiSelectMode('visible')
-                  e.preventDefault()
-                }}
-              >
-                <HeaderCheckboxIcon />
-              </Button>
-            </>
-          )}
+          <SpanBox
+            css={{
+              display: 'none',
+              '@mdDown': { display: 'flex' },
+            }}
+          >
+            <MenuHeaderButton {...props} />
+          </SpanBox>
+          <Button
+            title="Select multiple"
+            style="plainIcon"
+            css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
+            onClick={(e) => {
+              props.setMultiSelectMode('visible')
+              e.preventDefault()
+            }}
+          >
+            <HeaderCheckboxIcon />
+          </Button>
 
           {showSearchBar ? (
             <SearchBox {...props} setShowSearchBar={setShowSearchBar} />
