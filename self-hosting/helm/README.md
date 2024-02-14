@@ -4,9 +4,9 @@ Helm chart to self-host Omnivore.
 
 ## Notes and General Information
 
-This helm chart uses docker images from [`sejaeger/omnivore-*`](https://hub.docker.com/u/sejaeger). If you want to use the Web-UI or build your own images, checkout `../.build-and-push-images.sh`. You will find some hard-coded environment variables (e.g., `PG_DB` or `PG_USER`), please don't change them! Those are also hard-coded in the code base and changing them will likely cause problems. Please have a look at [the values file](values.yaml) and [change it accordingly](https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml) to your setup, especially: postgres hostname, elasticsearch URL, omnivore URL.
+This helm chart uses docker images from [`sejaeger/omnivore-*`](https://hub.docker.com/u/sejaeger). If you want to use the Web-UI or build your own images, checkout `../.build-and-push-images.sh`. You will find some hard-coded environment variables (e.g., `PG_DB` or `PG_USER`), please don't change them! Those are also hard-coded in the code base and changing them will likely cause problems. Please have a look at [the values file](values.yaml) and [change it accordingly](https://github.com/bjw-s/helm-charts/blob/main/charts/library/common/values.yaml) to your setup, especially: postgres hostname, omnivore URL.
 
-Omnivore requires Postgres (+vector extension!) and Elasticsearch to store its information. Please make sure to have them up and running. Using the bitnami Helm charts works perfectly fine. However, for Postgres you need to use a custom built image that contains the vector extension: [See this descriptions](https://github.com/pgvector/pgvector/issues/126#issuecomment-1589203644) for more information or simply use `sejaeger/postgres-vector` from docker hub.
+Omnivore requires Postgres (+vector extension!) to store its information. Please make sure to have it up and running. Using the bitnami Helm charts works perfectly fine but you need to use a custom built image that contains the vector extension: [See this descriptions](https://github.com/pgvector/pgvector/issues/126#issuecomment-1589203644) for more information or simply use `sejaeger/postgres-vector` from docker hub.
 
 This setup uses a couple of secrets to safely store passwords, tokens and private information. It's your responsibility to generate them and create the following secretes accordingly. 
 
@@ -21,8 +21,6 @@ This setup uses a couple of secrets to safely store passwords, tokens and privat
 * postgres-admin-user-and-password
     * PGPASSWORD
     * POSTGRES_USER
-* elasticsearch-auth-secret
-    * ES_PASSWORD
 * omnivore-content-fetch-verification-token
     * VERIFICATION_TOKEN
 
