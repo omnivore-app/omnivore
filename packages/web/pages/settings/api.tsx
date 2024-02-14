@@ -28,7 +28,7 @@ export default function Api(): JSX.Element {
   const neverExpiresDate = new Date(8640000000000000)
   const defaultExpiresAt = 'Never'
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   async function onDelete(id: string): Promise<void> {
     const result = await revokeApiKeyMutation(id)

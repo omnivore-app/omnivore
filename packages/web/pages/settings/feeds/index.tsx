@@ -99,7 +99,7 @@ export default function Rss(): JSX.Element {
     revalidate()
   }
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   return (
     <SettingsTable

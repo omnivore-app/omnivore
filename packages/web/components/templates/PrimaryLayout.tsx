@@ -23,7 +23,7 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()

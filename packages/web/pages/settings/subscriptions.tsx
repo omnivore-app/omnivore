@@ -22,7 +22,7 @@ export default function SubscriptionsPage(): JSX.Element {
   const [confirmUnsubscribeSubscription, setConfirmUnsubscribeSubscription] =
     useState<Subscription | null>(null)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   async function onUnsubscribe(subscription: Subscription): Promise<void> {
     const result = await unsubscribeMutation(subscription.name, subscription.id)
@@ -86,7 +86,8 @@ export default function SubscriptionsPage(): JSX.Element {
                         at{' '}
                         <Link
                           href={`/settings/emails?address=${subscription.newsletterEmail}`}
-                          legacyBehavior>
+                          legacyBehavior
+                        >
                           {subscription.newsletterEmail}
                         </Link>
                       </>
@@ -101,7 +102,7 @@ export default function SubscriptionsPage(): JSX.Element {
                   </StyledText>
                 }
               />
-            );
+            )
           })
         ) : (
           <EmptySettingsRow
@@ -125,5 +126,5 @@ export default function SubscriptionsPage(): JSX.Element {
         ) : null}
       </>
     </SettingsTable>
-  );
+  )
 }

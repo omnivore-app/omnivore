@@ -152,15 +152,13 @@ const ViewRecentEmailModal = (
 
 export default function RecentEmails(): JSX.Element {
   const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
-  const [viewingEmailText, setViewingEmailText] = useState<
-    RecentEmail | undefined
-  >(undefined)
+  const [viewingEmailText, setViewingEmailText] =
+    useState<RecentEmail | undefined>(undefined)
 
-  const [viewingEmailHtml, setViewingEmailHtml] = useState<
-    RecentEmail | undefined
-  >(undefined)
+  const [viewingEmailHtml, setViewingEmailHtml] =
+    useState<RecentEmail | undefined>(undefined)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const sortedRecentEmails = useMemo(() => {
     return recentEmails.sort((a, b) => b.createdAt.localeCompare(a.createdAt))

@@ -88,7 +88,7 @@ export function currentTheme(): ThemeId | undefined {
   return ThemeId.Light
 }
 
-export function applyStoredTheme(syncWithServer = true): ThemeId | undefined {
+export function applyStoredTheme(): ThemeId | undefined {
   if (typeof window === 'undefined') {
     return undefined
   }

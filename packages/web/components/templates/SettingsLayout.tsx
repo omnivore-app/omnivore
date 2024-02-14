@@ -26,7 +26,7 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
     useState(false)
 
   useKeyboardShortcuts(navigationCommands(router))
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)

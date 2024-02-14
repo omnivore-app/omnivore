@@ -2,6 +2,6 @@ import { TermsAndConditions } from '../../components/templates/TermsAndCondition
 import { applyStoredTheme } from '../../lib/themeUpdater'
 
 export default function Terms(): JSX.Element {
-  applyStoredTheme(false) // false to skip server sync
+  applyStoredTheme()
   return <TermsAndConditions isAppEmbed />
 }

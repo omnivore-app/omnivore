@@ -25,13 +25,12 @@ type AppArticleEmbedContentProps = {
 }
 
 export default function AppArticleEmbed(): JSX.Element {
-  applyStoredTheme(false) // false to skip server sync
+  applyStoredTheme()
 
   const router = useRouter()
 
-  const [contentProps, setContentProps] = useState<
-    AppArticleEmbedContentProps | undefined
-  >(undefined)
+  const [contentProps, setContentProps] =
+    useState<AppArticleEmbedContentProps | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return

@@ -20,7 +20,7 @@ export default function ArticleSavingRequestPage(): JSX.Element {
   const readerSettings = useReaderSettings()
   const [articleId, setArticleId] = useState<string | undefined>(undefined)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   useEffect(() => {
     if (!router.isReady) return

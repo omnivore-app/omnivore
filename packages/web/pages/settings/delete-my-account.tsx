@@ -20,7 +20,7 @@ export default function DeleteMyAccount(): JSX.Element {
   const viewer = useGetViewerQuery()
   const [showConfirm, setShowConfirm] = useState(false)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   async function deleteAccount(): Promise<void> {
     const viewerId = viewer.viewerData?.me?.id
