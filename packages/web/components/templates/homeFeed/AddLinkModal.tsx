@@ -87,9 +87,8 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
 }
 
 const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   const addLink = useCallback(
     async (link: string) => {
@@ -110,9 +109,8 @@ const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
 }
 
 const AddFeedTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
 
   const subscribe = useCallback(
     async (feedUrl: string) => {
@@ -144,6 +142,7 @@ const AddFeedTab = (props: AddLinkModalProps): JSX.Element => {
       }
 
       showSuccessToast('New feed has been added.')
+      props.onOpenChange(false)
     },
     [errorMessage, setErrorMessage]
   )
@@ -167,7 +166,6 @@ type AddFromURLProps = {
 
 const AddFromURL = (props: AddFromURLProps): JSX.Element => {
   const [url, setURL] = useState('')
-  const [errorMessage, setErrorMessage] = useState(props.errorMessage)
 
   const validateURL = useCallback(
     (link: string) => {
@@ -198,7 +196,7 @@ const AddFromURL = (props: AddFromURLProps): JSX.Element => {
           event.preventDefault()
 
           if (!validateURL(url)) {
-            setErrorMessage('Invalid URL')
+            props.setErrorMessage('Invalid URL')
             return
           }
 
@@ -222,6 +220,32 @@ const AddFromURL = (props: AddFromURLProps): JSX.Element => {
             bg: '$thFormInput',
           }}
         />
+        {props.errorMessage && (
+          <HStack
+            distribution="start"
+            alignment="start"
+            css={{
+              width: '100%',
+              bg: '#FF000010',
+              p: '5px',
+              pl: '10px',
+              fontSize: '12px',
+              fontFamily: '$inter',
+              textAlign: 'center',
+              color: '$ctaBlue',
+              borderRadius: '5px',
+            }}
+          >
+            <HStack
+              distribution="start"
+              alignment="center"
+              css={{ gap: '5px', whiteSpace: 'pre-line', color: 'red' }}
+            >
+              <Info size={14} color="red" />
+              {props.errorMessage}
+            </HStack>
+          </HStack>
+        )}
         <Button
           style="ctaBlue"
           type="submit"
@@ -640,20 +664,22 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
                       </>
                     ) : (
                       <>
-                        <Box
-                          css={{
-                            fontSize: '12px',
-                            fontFamily: '$inter',
-                            textAlign: 'center',
-                            color: '$tabTextUnselected',
-                          }}
-                        >
-                          {props.description}
-                          <br /> or{' '}
-                          <a href="" onClick={openDialog}>
-                            choose your files
-                          </a>
-                        </Box>
+                        {(!uploadFiles || uploadFiles.length == 0) && (
+                          <Box
+                            css={{
+                              fontSize: '12px',
+                              fontFamily: '$inter',
+                              textAlign: 'center',
+                              color: '$tabTextUnselected',
+                            }}
+                          >
+                            {props.description}
+                            <br /> or{' '}
+                            <a href="" onClick={openDialog}>
+                              choose your files
+                            </a>
+                          </Box>
+                        )}
                       </>
                     )}
                   </VStack>
