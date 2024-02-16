@@ -1,11 +1,6 @@
 import { gql } from 'graphql-request'
-import useSWRImmutable, { Cache } from 'swr'
-import {
-  gqlFetcher,
-  makeGqlFetcher,
-  RequestContext,
-  ssrFetcher,
-} from '../networkHelpers'
+import { Cache } from 'swr'
+import { gqlFetcher, makeGqlFetcher } from '../networkHelpers'
 import {
   articleFragment,
   ContentReader,
