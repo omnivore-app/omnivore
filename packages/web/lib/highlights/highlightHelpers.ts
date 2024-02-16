@@ -1,4 +1,4 @@
-import { highlightColor, highlightColorVar } from '../themeUpdater'
+import { highlightColorVar } from '../themeUpdater'
 
 export type SelectionAttributes = {
   selection: Selection

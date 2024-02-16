@@ -400,9 +400,8 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       <HStack css={{ width: '100%' }} distribution="start" alignment="center">
         <StyledText
           css={{
-            fontFamily: 'Inter',
-            fontWeight: '600',
-            fontSize: '16px',
+            fontFamily: '$display',
+            fontSize: '14px',
             lineHeight: '125%',
             color: '$thLibraryMenuPrimary',
             pl: '10px',
