@@ -47,6 +47,7 @@ import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { PinnedButtons } from './PinnedButtons'
+import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
