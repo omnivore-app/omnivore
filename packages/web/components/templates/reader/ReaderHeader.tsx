@@ -26,6 +26,7 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
           left: '0',
           zIndex: 1,
           pt: '0px',
+          pb: '15px',
           position: 'fixed',
           width: '100%',
           height: DEFAULT_HEADER_HEIGHT,

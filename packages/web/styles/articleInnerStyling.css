@@ -44,23 +44,25 @@
   font-family: var(--text-font-family);
 }
 
-.article-inner-css .highlight_with_note .highlight_note_button {
+.article-inner-css .highlight_note_button {
   display: unset !important;
   margin: 0px !important;
   max-width: unset !important;
   height: unset !important;
   padding: 0px 8px;
   cursor: pointer;
+  margin-left: 5px !important;
 }
-/* 
-on smaller screens we display the note icon
-@media (max-width: 768px) {
-  .highlight_with_note.last_element:after { 
-    content: url(/static/icons/highlight-note-icon.svg);
-    padding: 0 3px;
-    cursor: pointer;
-  }
-} */
+
+.article-inner-css .highlight_label_button {
+  display: unset !important;
+  margin: 0px !important;
+  max-width: unset !important;
+  height: unset !important;
+  padding: 0px 8px;
+  cursor: pointer;
+  margin-left: 4px !important;
+}
 
 .article-inner-css h1,
 .article-inner-css h2,

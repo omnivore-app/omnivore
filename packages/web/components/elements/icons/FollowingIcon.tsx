@@ -22,20 +22,20 @@ export class FollowingIcon extends React.Component<IconProps> {
             d="M12.5 4.5L4.5 8.5L12.5 12.5L20.5 8.5L12.5 4.5Z"
             fill={color}
             stroke={color}
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
             d="M4.5 12.5L12.5 16.5L20.5 12.5"
             stroke={color}
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
           <path
             d="M4.5 16.5L12.5 20.5L20.5 16.5"
             stroke={color}
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </g>
       </svg>
