@@ -1,16 +1,7 @@
 import { useRouter } from 'next/router'
-import {
-  useGetArticleQuery,
-  ArticleAttributes,
-} from '../../../lib/networking/queries/useGetArticleQuery'
+import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { useMemo } from 'react'
-import {
-  EmptySettingsRow,
-  SettingsTable,
-  SettingsTableRow,
-} from '../../../components/templates/settings/SettingsTable'
-import { StyledText } from '../../../components/elements/StyledText'
 import {
   Box,
   HStack,

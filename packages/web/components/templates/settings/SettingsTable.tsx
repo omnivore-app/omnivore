@@ -8,7 +8,6 @@ import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import { SettingsLayout } from '../SettingsLayout'
-import { SuggestionBox } from '../../elements/SuggestionBox'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { FeatureHelpBox } from '../../elements/FeatureHelpBox'
 

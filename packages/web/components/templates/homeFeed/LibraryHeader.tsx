@@ -17,10 +17,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
-import {
-  HeaderCheckboxCheckedIcon,
-  HeaderCheckboxIcon,
-} from '../../elements/icons/HeaderCheckboxIcon'
+import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderSearchIcon } from '../../elements/icons/HeaderSearchIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
@@ -565,82 +562,5 @@ function MultiSelectControls(props: ControlButtonBoxProps): JSX.Element {
         </Button>
       </HStack>
     </Box>
-
-    // <HStack
-    //   alignment="center"
-    //   distribution="center"
-    //   css={{ gap: '20px', width: '100% ' }}
-    // >
-    //   <Button
-    //     style="outline"
-    //     onClick={(e) => {
-    //       props.performMultiSelectAction(BulkAction.ARCHIVE)
-    //       e.preventDefault()
-    //     }}
-    //   >
-    //     <ArchiveIcon
-    //       size={20}
-    //       color={theme.colors.thTextContrast2.toString()}
-    //     />
-    //     <SpanBox css={{ '@lgDown': { display: 'none' } }}>Archive</SpanBox>
-    //   </Button>
-    //   <Button
-    //     style="outline"
-    //     onClick={(e) => {
-    //       setShowLabelsModal(true)
-    //       e.preventDefault()
-    //     }}
-    //   >
-    //     <LabelIcon size={20} color={theme.colors.thTextContrast2.toString()} />
-    //     <SpanBox css={{ '@lgDown': { display: 'none' } }}>Add Labels</SpanBox>
-    //   </Button>
-    //   <Button
-    //     style="outline"
-    //     onClick={(e) => {
-    //       setShowConfirmDelete(true)
-    //       e.preventDefault()
-    //     }}
-    //   >
-    //     <TrashIcon size={20} color={theme.colors.thTextContrast2.toString()} />
-    //     <SpanBox css={{ '@lgDown': { display: 'none' } }}>Delete</SpanBox>
-    //   </Button>
-    //   <Button
-    //     style="cancel"
-    //     onClick={(e) => {
-    //       props.setMultiSelectMode('off')
-    //       e.preventDefault()
-    //     }}
-    //   >
-    //     <Prohibit
-    //       width={20}
-    //       height={20}
-    //       color={theme.colors.thTextContrast2.toString()}
-    //     />
-    //     <SpanBox css={{ '@lgDown': { display: 'none' } }}>Cancel</SpanBox>
-    //   </Button>
-    //   {showConfirmDelete && (
-    //     <ConfirmationModal
-    //       message={`You are about to delete ${props.numItemsSelected} items. All associated notes and highlights will be deleted.`}
-    //       acceptButtonLabel={'Delete'}
-    //       onAccept={() => {
-    //         props.performMultiSelectAction(BulkAction.DELETE)
-    //       }}
-    //       onOpenChange={(open: boolean) => {
-    //         setShowConfirmDelete(false)
-    //       }}
-    //     />
-    //   )}
-    //   {showLabelsModal && (
-    //     <AddBulkLabelsModal
-    //       bulkSetLabels={(labels: Label[]) => {
-    //         const labelIds = labels.map((l) => l.id)
-    //         props.performMultiSelectAction(BulkAction.ADD_LABELS, labelIds)
-    //       }}
-    //       onOpenChange={(open: boolean) => {
-    //         setShowLabelsModal(false)
-    //       }}
-    //     />
-    //   )}
-    // </HStack>
   )
 }

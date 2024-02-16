@@ -72,7 +72,12 @@ export function useCurrentTheme() {
       setCurrentThemeInternal(themeId)
       updateThemeLocally(themeId)
     },
-    [setCurrentThemeInternal]
+    [
+      currentThemeInternal,
+      setCurrentThemeInternal,
+      setPreferredDarkTheme,
+      setPreferredLightTheme,
+    ]
   )
 
   // This is used when the user disables "System" theme

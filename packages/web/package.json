@@ -32,7 +32,6 @@
     "@stitches/react": "^1.2.5",
     "antd": "4.24.3",
     "axios": "^1.2.0",
-    "color2k": "^2.0.0",
     "cookie": "^0.5.0",
     "csv-file-validator": "^2.1.0",
     "dayjs": "^1.11.7",

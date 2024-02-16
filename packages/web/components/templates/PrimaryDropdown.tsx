@@ -279,7 +279,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
       updateTheme(newTheme)
       setDisplayTheme(newTheme)
     },
-    [displayTheme, setDisplayTheme]
+    [setDisplayTheme]
   )
 
   return (

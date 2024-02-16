@@ -22,7 +22,6 @@ import {
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import { SuggestionBox } from '../../../components/elements/SuggestionBox'
 
 enum TextType {
   EmailAddress,

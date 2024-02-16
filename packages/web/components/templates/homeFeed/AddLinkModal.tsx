@@ -1,22 +1,17 @@
 import { useCallback, useRef, useState } from 'react'
 import * as Progress from '@radix-ui/react-progress'
 import { File, Info } from 'phosphor-react'
-import toast from 'react-hot-toast'
 import { locale, timeZone } from '../../../lib/dateFormatting'
-import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { Button } from '../../elements/Button'
 import { FormInput } from '../../elements/FormElements'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import {
-  ModalButtonBar,
   ModalContent,
   ModalOverlay,
   ModalRoot,
-  ModalTitleBar,
 } from '../../elements/ModalPrimitives'
 import { CloseButton } from '../../elements/CloseButton'
-import { StyledText } from '../../elements/StyledText'
 import { styled } from '@stitches/react'
 import Dropzone, {
   Accept,
@@ -95,7 +90,7 @@ const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
       await props.handleLinkSubmission(link, timeZone, locale)
       props.onOpenChange(false)
     },
-    [errorMessage, setErrorMessage]
+    [props, errorMessage, setErrorMessage]
   )
 
   return (
@@ -144,7 +139,7 @@ const AddFeedTab = (props: AddLinkModalProps): JSX.Element => {
       showSuccessToast('New feed has been added.')
       props.onOpenChange(false)
     },
-    [errorMessage, setErrorMessage]
+    [props, errorMessage, setErrorMessage]
   )
 
   return (
@@ -167,20 +162,17 @@ type AddFromURLProps = {
 const AddFromURL = (props: AddFromURLProps): JSX.Element => {
   const [url, setURL] = useState('')
 
-  const validateURL = useCallback(
-    (link: string) => {
-      try {
-        const url = new URL(link)
-        if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-          return false
-        }
-      } catch (e) {
+  const validateURL = useCallback((link: string) => {
+    try {
+      const url = new URL(link)
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') {
         return false
       }
-      return true
-    },
-    [url]
-  )
+    } catch (e) {
+      return false
+    }
+    return true
+  }, [])
 
   return (
     <VStack css={{ width: '100%', height: '180px' }}>
@@ -258,7 +250,7 @@ const AddFromURL = (props: AddFromURLProps): JSX.Element => {
   )
 }
 
-const UploadOPMLTab = (props: AddLinkModalProps): JSX.Element => {
+const UploadOPMLTab = (): JSX.Element => {
   return (
     <VStack
       alignment="start"
@@ -278,7 +270,7 @@ const UploadOPMLTab = (props: AddLinkModalProps): JSX.Element => {
   )
 }
 
-const UploadPDFTab = (props: AddLinkModalProps): JSX.Element => {
+const UploadPDFTab = (): JSX.Element => {
   return (
     <VStack
       alignment="start"

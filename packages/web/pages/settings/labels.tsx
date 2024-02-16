@@ -17,13 +17,7 @@ import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { StyledText } from '../../components/elements/StyledText'
-import {
-  ArrowClockwise,
-  DotsThree,
-  PencilSimple,
-  Trash,
-  Plus,
-} from 'phosphor-react'
+import { ArrowClockwise, DotsThree, PencilSimple, Trash } from 'phosphor-react'
 import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
 import { TooltipWrapped } from '../../components/elements/Tooltip'
@@ -35,7 +29,6 @@ import {
 import { LabelChip } from '../../components/elements/LabelChip'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
-import { SuggestionBox } from '../../components/elements/SuggestionBox'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { FeatureHelpBox } from '../../components/elements/FeatureHelpBox'
 

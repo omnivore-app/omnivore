@@ -9,7 +9,7 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { Button } from '../../components/elements/Button'
-import { HStack, VStack } from '../../components/elements/LayoutPrimitives'
+import { VStack } from '../../components/elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { Loader } from '../../components/templates/SavingRequest'
 import { deleteAccountMutation } from '../../lib/networking/mutations/deleteAccountMutation'

@@ -1,10 +1,6 @@
-import { getLuminance } from 'color2k'
-import { useRouter } from 'next/router'
-import { Button } from './Button'
 import { SpanBox, HStack } from './LayoutPrimitives'
 import { Circle, X } from 'phosphor-react'
 import { isDarkTheme } from '../../lib/themeUpdater'
-import { theme } from '../tokens/stitches.config'
 
 type LabelChipProps = {
   text: string

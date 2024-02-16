@@ -19,9 +19,6 @@ import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragme
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
-import { SplitButton } from '../../elements/SplitButton'
-import { AvatarDropdown } from '../../elements/AvatarDropdown'
-import { PrimaryDropdown } from '../PrimaryDropdown'
 import { NavMenuFooter } from './Footer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
