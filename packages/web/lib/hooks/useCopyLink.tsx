@@ -14,10 +14,10 @@ export const useCopyLink = (
     url || (typeof window !== 'undefined' ? window.location.toString() : '')
 
   const copyLink = useCallback(async (): Promise<void> => {
-    const res = await navigator.clipboard.writeText(link)
+    await navigator.clipboard.writeText(link)
     setIsLinkCopied(true)
     window.setTimeout(() => setIsLinkCopied(false), 5000)
-  }, [link, type])
+  }, [link])
 
   return { link, copyLink, isLinkCopied }
 }

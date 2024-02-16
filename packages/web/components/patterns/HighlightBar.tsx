@@ -1,21 +1,8 @@
 import { isAndroid } from '../../lib/deviceType'
-
 import { styled, theme } from '../tokens/stitches.config'
-
-import { StyledText } from '../elements/StyledText'
 import { Button } from '../elements/Button'
 import { HStack, Box } from '../elements/LayoutPrimitives'
-import { PenWithColorIcon } from '../elements/images/PenWithColorIcon'
-import {
-  Note,
-  Tag,
-  Trash,
-  Copy,
-  Circle,
-  CopySimple,
-  CheckCircle,
-} from 'phosphor-react'
-import { TrashIcon } from '../elements/icons/TrashIcon'
+import { Circle, CheckCircle } from 'phosphor-react'
 import { LabelIcon } from '../elements/icons/LabelIcon'
 import { NotebookIcon } from '../elements/icons/NotebookIcon'
 import { highlightColor, highlightColors } from '../../lib/themeUpdater'

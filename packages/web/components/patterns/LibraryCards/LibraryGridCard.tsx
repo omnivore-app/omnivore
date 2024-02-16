@@ -195,7 +195,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
   const handleCheckChanged = useCallback(() => {
     const newValue = !isChecked
     setIsChecked(item.id, newValue)
-  }, [setIsChecked, isChecked, props])
+  }, [item, setIsChecked, isChecked, props])
 
   return (
     <VStack css={{ p: '0px', m: '0px', width: '100%' }}>

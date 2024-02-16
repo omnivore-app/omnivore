@@ -37,28 +37,17 @@ import { EditLibraryItemModal } from './EditItemModals'
 import { EmptyLibrary } from './EmptyLibrary'
 import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
-import {
-  LibraryHeader,
-  MultiSelectMode,
-  headerControlWidths,
-} from './LibraryHeader'
+import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
-import {
-  showErrorToast,
-  showSuccessToast,
-  showSuccessToastWithUndo,
-} from '../../../lib/toastHelpers'
+import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
-import { searchQuery } from '../../../lib/networking/queries/search'
-import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
-import { theme } from '../../tokens/stitches.config'
-import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { PinnedButtons } from './PinnedButtons'
+import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'

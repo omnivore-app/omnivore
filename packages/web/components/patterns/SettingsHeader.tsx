@@ -1,7 +1,5 @@
-import { Box, HStack } from '../elements/LayoutPrimitives'
-import { OmnivoreNameLogo } from '../elements/images/OmnivoreNameLogo'
+import { HStack } from '../elements/LayoutPrimitives'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
-import { PrimaryDropdown } from '../templates/PrimaryDropdown'
 import { DEFAULT_HEADER_HEIGHT } from '../templates/homeFeed/HeaderSpacer'
 import { LogoBox } from '../elements/LogoBox'
 

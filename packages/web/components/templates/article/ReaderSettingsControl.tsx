@@ -13,15 +13,10 @@ import { TickedRangeSlider } from '../../elements/TickedRangeSlider'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 import { ReaderSettings } from '../../../lib/hooks/useReaderSettings'
 import { useCallback, useState } from 'react'
-import {
-  getCurrentLocalTheme,
-  currentThemeName,
-  updateTheme,
-} from '../../../lib/themeUpdater'
+import { updateTheme } from '../../../lib/themeUpdater'
 import { LineHeightIncreaseIcon } from '../../elements/images/LineHeightIncreaseIconProps'
 import { LineHeightDecreaseIcon } from '../../elements/images/LineHeightDecreaseIcon'
 import * as Switch from '@radix-ui/react-switch'
-import { Checkbox } from '@radix-ui/react-checkbox'
 import { useCurrentTheme } from '../../../lib/hooks/useCurrentTheme'
 import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
 
@@ -571,7 +566,7 @@ function LayoutControls(props: LayoutControlsProps): JSX.Element {
 }
 
 function ThemeSelector(): JSX.Element {
-  const isDarkMode = useDarkModeListener()
+  useDarkModeListener()
   const { currentTheme, setCurrentTheme, resetSystemTheme } = useCurrentTheme()
 
   return (

@@ -39,8 +39,6 @@ export type ReaderSettings = {
 export const useReaderSettings = (): ReaderSettings => {
   applyStoredTheme()
 
-  const [, updateState] = useState({})
-
   const [fontSize, setFontSize] = usePersistedState({
     key: 'fontSize',
     initialValue: 20,

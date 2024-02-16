@@ -1,8 +1,6 @@
-import { Tray } from 'phosphor-react'
 import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
 import { Button } from '../../elements/Button'
 import { HStack } from '../../elements/LayoutPrimitives'
-import { TooltipWrapped } from '../../elements/Tooltip'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderDropdownMenu } from '../../patterns/ReaderDropdownMenu'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'

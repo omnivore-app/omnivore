@@ -4,14 +4,7 @@ import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryIt
 import { LinkedItemCardAction } from './CardTypes'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
-import {
-  ArchiveBox,
-  DotsThree,
-  Notebook,
-  Tag,
-  Trash,
-  Tray,
-} from 'phosphor-react'
+import { DotsThree } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
