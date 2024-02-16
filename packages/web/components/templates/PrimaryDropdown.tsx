@@ -131,10 +131,11 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
 
   return (
     <Dropdown
+      side="top"
       triggerElement={
         props.children ?? <TriggerButton name={viewerData?.me?.name ?? 'O'} />
       }
-      css={{ width: '240px' }}
+      css={{ width: '240px', ml: '15px' }}
     >
       <HStack
         alignment="center"
