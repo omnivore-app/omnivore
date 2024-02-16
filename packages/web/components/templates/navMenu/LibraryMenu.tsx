@@ -20,6 +20,10 @@ import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 import { NavMenuFooter } from './Footer'
+import { FollowingIcon } from '../../elements/icons/FollowingIcon'
+import { HomeIcon } from '../../elements/icons/HomeIcon'
+import { LibraryIcon } from '../../elements/icons/LibraryIcon'
+import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -110,13 +114,14 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           css={{
             width: '100%',
             px: '25px',
-            pb: '25px',
+            pb: '17px',
             pt: '4.5px',
             lineHeight: '1',
           }}
         >
           <LogoBox />
         </Box>
+        <LibraryNav {...props} />
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
         <Labels {...props} labels={labels} />
@@ -136,6 +141,48 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         }}
       ></Box>
     </>
+  )
+}
+
+const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
+  return (
+    <VStack
+      css={{
+        m: '0px',
+        gap: '5px',
+        width: '100%',
+        borderBottom: '1px solid $thBorderColor',
+        px: '15px',
+        pb: '25px',
+      }}
+      alignment="start"
+      distribution="start"
+    >
+      <NavButton
+        {...props}
+        text="Home"
+        filterTerm="in:library OR in:following use:folders"
+        icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
+      />
+      <NavButton
+        {...props}
+        text="Following"
+        filterTerm="in:following use:folders"
+        icon={<FollowingIcon color="#F59932" />}
+      />
+      <NavButton
+        {...props}
+        text="Library"
+        filterTerm="in:library use:folders"
+        icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
+      />
+      <NavButton
+        {...props}
+        text="Highlights"
+        filterTerm="in:all has:highlights mode:highlights"
+        icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
+      />
+    </VStack>
   )
 }
 
@@ -175,7 +222,7 @@ function SavedSearches(
 
   return (
     <MenuPanel
-      title="Saved Searches"
+      title="SHORTCUTS"
       collapsed={collapsed}
       setCollapsed={setCollapsed}
     >
@@ -397,6 +444,78 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       </HStack>
       {props.children}
     </VStack>
+  )
+}
+
+type NavButtonProps = {
+  text: string
+  icon: ReactNode
+
+  filterTerm: string
+  searchTerm: string | undefined
+
+  applySearchQuery: (searchTerm: string) => void
+  setShowFilterMenu: (show: boolean) => void
+}
+
+function NavButton(props: NavButtonProps): JSX.Element {
+  const isInboxFilter = (filter: string) => {
+    return filter === '' || filter === 'in:inbox'
+  }
+  const selected = useMemo(() => {
+    if (isInboxFilter(props.filterTerm) && !props.searchTerm) {
+      return true
+    }
+    return props.searchTerm === props.filterTerm
+  }, [props.searchTerm, props.filterTerm])
+
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{
+        pl: '10px',
+        mb: '2px',
+        gap: '10px',
+        display: 'flex',
+        width: '100%',
+        maxWidth: '100%',
+        height: '34px',
+
+        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
+        fontSize: '15px',
+        fontWeight: 'regular',
+        fontFamily: '$display',
+        color: selected
+          ? '$thLibraryMenuSecondary'
+          : '$thLibraryMenuUnselected',
+        verticalAlign: 'middle',
+        borderRadius: '3px',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        '&:hover': {
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
+        },
+        '&:active': {
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
+        },
+      }}
+      title={props.text}
+      onClick={(e) => {
+        props.applySearchQuery(props.filterTerm)
+        props.setShowFilterMenu(false)
+        e.preventDefault()
+      }}
+    >
+      {props.icon}
+      {props.text}
+    </HStack>
   )
 }
 

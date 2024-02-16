@@ -982,6 +982,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             gridContainerRef={props.gridContainerRef}
             items={props.items}
             viewer={viewerData?.me}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
           />
         )}
 
