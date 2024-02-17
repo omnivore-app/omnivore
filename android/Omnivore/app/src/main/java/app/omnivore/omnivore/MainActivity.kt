@@ -35,7 +35,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val loginViewModel: LoginViewModel by viewModels()
-        val libraryViewModel: LibraryViewModel by viewModels()
         val settingsViewModel: SettingsViewModel by viewModels()
         val searchViewModel: SearchViewModel by viewModels()
         val labelsViewModel: LabelsViewModel by viewModels()
@@ -65,7 +64,6 @@ class MainActivity : ComponentActivity() {
                     RootView(
                         loginViewModel,
                         searchViewModel,
-                        libraryViewModel,
                         settingsViewModel,
                         labelsViewModel,
                         saveViewModel,
