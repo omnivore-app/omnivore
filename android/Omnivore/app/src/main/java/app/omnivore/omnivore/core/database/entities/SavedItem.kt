@@ -3,7 +3,7 @@ package app.omnivore.omnivore.core.database.entities
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import java.util.*
+import kotlinx.coroutines.flow.Flow
 
 @Entity
 data class SavedItem(
@@ -216,7 +216,7 @@ interface SavedItemDao {
         requiredLabels: List<String>,
         excludedLabels: List<String>,
         allowedContentReaders: List<String>
-    ): LiveData<List<SavedItemWithLabelsAndHighlights>>
+    ): Flow<List<SavedItemWithLabelsAndHighlights>>
 
     fun filteredLibraryData(
         allowedArchiveStates: List<Int>,
@@ -224,7 +224,7 @@ interface SavedItemDao {
         requiredLabels: List<String>,
         excludedLabels: List<String>,
         allowedContentReaders: List<String>
-    ): LiveData<List<SavedItemWithLabelsAndHighlights>> {
+    ): Flow<List<SavedItemWithLabelsAndHighlights>> {
         return _filteredLibraryData(
             allowedArchiveStates = allowedArchiveStates,
             sortKey = sortKey,

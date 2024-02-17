@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.feature.components
 
 import androidx.lifecycle.*
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate

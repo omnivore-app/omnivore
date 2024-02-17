@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

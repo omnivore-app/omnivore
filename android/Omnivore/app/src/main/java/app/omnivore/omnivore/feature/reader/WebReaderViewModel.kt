@@ -333,31 +333,11 @@ class WebReaderViewModel @Inject constructor(
             }
 
             SavedItemAction.MarkRead -> {
-                viewModelScope.launch {
-                    dataService.updateWebReadingProgress(
-                        jsonString = Gson().toJson(
-                            mapOf(
-                                "id" to itemID,
-                                "readingProgressPercent" to 100.0,
-                                "readingProgressAnchorIndex" to 0
-                            )
-                        )
-                    )
-                }
+                // TODO
             }
 
             SavedItemAction.MarkUnread -> {
-                viewModelScope.launch {
-                    dataService.updateWebReadingProgress(
-                        jsonString = Gson().toJson(
-                            mapOf(
-                                "id" to itemID,
-                                "readingProgressPercent" to 0,
-                                "readingProgressAnchorIndex" to 0
-                            )
-                        )
-                    )
-                }
+                // TODO
             }
         }
     }
@@ -381,14 +361,8 @@ class WebReaderViewModel @Inject constructor(
         }
     }
 
-//  fun setHighlightColor(color: HighlightColor) {
-//    CoroutineScope(Dispatchers.Main).launch {
-//      highlightColor.postValue(color)
-//    }
-//  }
-
     fun handleIncomingWebMessage(actionID: String, jsonString: String) {
-        Log.d("sync", "incoming change: ${actionID}: ${jsonString}")
+        Log.d("sync", "incoming change: ${actionID}: $jsonString")
         when (actionID) {
             "createHighlight" -> {
                 viewModelScope.launch {

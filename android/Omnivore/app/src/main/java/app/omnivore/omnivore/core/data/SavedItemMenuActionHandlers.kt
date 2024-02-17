@@ -1,6 +1,6 @@
 package app.omnivore.omnivore.core.data
 
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import app.omnivore.omnivore.core.network.archiveSavedItem
 import app.omnivore.omnivore.core.network.deleteSavedItem
 import app.omnivore.omnivore.core.network.unarchiveSavedItem

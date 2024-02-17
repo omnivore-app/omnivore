@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.core.model
+package app.omnivore.omnivore.core.data.model
 
 enum class ServerSyncStatus(val rawValue: Int) {
     IS_SYNCED(0),

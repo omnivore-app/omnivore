@@ -52,6 +52,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
@@ -71,7 +73,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LibraryView(
-    libraryViewModel: LibraryViewModel,
+    libraryViewModel: LibraryViewModel = hiltViewModel(),
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
@@ -80,6 +82,8 @@ fun LibraryView(
     val scaffoldState: ScaffoldState = rememberScaffoldState()
 
     val coroutineScope = rememberCoroutineScope()
+
+    val uiState by libraryViewModel.uiState.collectAsStateWithLifecycle()
 
     val showBottomSheet: LibraryBottomSheetState by libraryViewModel.bottomSheetState.observeAsState(
         LibraryBottomSheetState.HIDDEN
@@ -132,11 +136,17 @@ fun LibraryView(
             )
         },
     ) { paddingValues ->
-        LibraryViewContent(
-            libraryViewModel,
-            modifier = Modifier
-                .padding(top = paddingValues.calculateTopPadding())
-        )
+        when (uiState) {
+            is LibraryUiState.Success -> {
+                LibraryViewContent(
+                    libraryViewModel,
+                    modifier = Modifier
+                        .padding(top = paddingValues.calculateTopPadding()),
+                    cardsData = (uiState as LibraryUiState.Success).items
+                )
+            }
+            else -> {}
+        }
     }
 }
 
@@ -169,7 +179,7 @@ fun LabelBottomSheet(
                 labelsViewModel = labelsViewModel,
                 initialSelectedLabels = currentSavedItemData.labels,
                 onCancel = {
-                    libraryViewModel.currentItemLiveData.value = null
+                    libraryViewModel.currentItem.value = null
                     onDismiss()
                 },
                 isLibraryMode = false,
@@ -180,7 +190,7 @@ fun LabelBottomSheet(
                             labels = it
                         )
                     }
-                    libraryViewModel.currentItemLiveData.value = null
+                    libraryViewModel.currentItem.value = null
                     onDismiss()
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
@@ -196,7 +206,7 @@ fun LabelBottomSheet(
                 isLibraryMode = true,
                 onSave = {
                     libraryViewModel.updateAppliedLabels(it)
-                    libraryViewModel.currentItemLiveData.value = null
+                    libraryViewModel.currentItem.value = null
                     onDismiss()
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
@@ -257,11 +267,11 @@ fun EditBottomSheet(
             description = currentSavedItemData?.savedItem?.descriptionText,
             viewModel = editInfoViewModel,
             onCancel = {
-                libraryViewModel.currentItemLiveData.value = null
+                libraryViewModel.currentItem.value = null
                 onDismiss()
             },
             onUpdated = {
-                libraryViewModel.currentItemLiveData.value = null
+                libraryViewModel.currentItem.value = null
                 libraryViewModel.refresh()
                 onDismiss()
             }
@@ -272,7 +282,11 @@ fun EditBottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
+fun LibraryViewContent(
+    libraryViewModel: LibraryViewModel,
+    modifier: Modifier,
+    cardsData: List<SavedItemWithLabelsAndHighlights>
+) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
@@ -282,9 +296,9 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     )
 
     val selectedItem: SavedItemWithLabelsAndHighlights? by libraryViewModel.actionsMenuItemLiveData.observeAsState()
-    val cardsData: List<SavedItemWithLabelsAndHighlights> by libraryViewModel.itemsLiveData.observeAsState(
+/*    val cardsData: List<SavedItemWithLabelsAndHighlights> by libraryViewModel.itemsLiveData.observeAsState(
         listOf()
-    )
+    )*/
 
     Box(
         modifier = Modifier
@@ -299,7 +313,6 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
             modifier = modifier
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
-                .padding(horizontal = 6.dp)
         ) {
             item {
                 LibraryFilterBar(libraryViewModel)

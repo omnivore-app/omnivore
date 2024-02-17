@@ -16,12 +16,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.feature.components.LabelChipColors
 
 @Composable
-fun LibraryFilterBar(viewModel: LibraryViewModel) {
+fun LibraryFilterBar(
+  viewModel: LibraryViewModel = hiltViewModel()
+) {
   var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }
   val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(SavedItemFilter.INBOX)
   val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())

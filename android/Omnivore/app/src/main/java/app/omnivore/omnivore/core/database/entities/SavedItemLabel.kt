@@ -2,7 +2,7 @@ package app.omnivore.omnivore.core.database.entities
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 
 @Entity
 data class SavedItemLabel(

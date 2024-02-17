@@ -13,7 +13,7 @@ import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import app.omnivore.omnivore.core.database.entities.HighlightChange
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.highlightChangeToHighlight
