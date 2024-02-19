@@ -212,17 +212,35 @@ const main = async (): Promise<void> => {
   listener.headersTimeout = 640 * 1000 // 10s more than above
   listener.timeout = 640 * 1000 // match headersTimeout
 
-  process.on('SIGINT', async () => {
+  const gracefulShutdown = async (signal: string) => {
+    console.log(`[api]: Received ${signal}, closing server...`)
+
+    await apollo.stop()
+    console.log('[api]: Apollo server stopped')
+
+    await new Promise<void>((resolve) => {
+      listener.close((err) => {
+        console.log('[api]: Express listener closed')
+        if (err) {
+          console.log('[api]: error stopping listener', { err })
+        }
+        resolve()
+      })
+    })
+
     // Shutdown redis before DB because the quit sequence can
     // cause appDataSource to get reloaded in the callback
     await redisDataSource.shutdown()
-    console.log('Redis connection closed.')
+    console.log('[api]: Redis connection closed.')
 
     await appDataSource.destroy()
-    console.log('DB connection closed.')
+    console.log('[api]: DB connection closed.')
 
     process.exit(0)
-  })
+  }
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module
