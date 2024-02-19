@@ -57,38 +57,6 @@ export const libraryItemRepository = appDataSource
       return result.generatedMaps[0] as LibraryItem
     },
 
-    async updateLibraryItem(item: DeepPartial<LibraryItem>) {
-      return this.save(item)
-
-      // const columns = getColumnsDbName(this)
-      // // overwrites columns except id and slug
-      // const overwrites = columns.filter(
-      //   (column) => !['id', 'slug'].includes(column)
-      // )
-
-      // const hashedUrl = 'md5(original_url)'
-      // const conflictColumns = ['user_id', hashedUrl]
-
-      // const [query, params] = this.createQueryBuilder()
-      //   .insert()
-      //   .into(LibraryItem)
-      //   .values(convertToLibraryItem(item))
-      //   .orUpdate(overwrites, conflictColumns, {
-      //     skipUpdateIfNoValuesChanged: true,
-      //   })
-      //   .returning(getColumns(this))
-      //   .getQueryAndParameters()
-
-      // // this is a workaround for the typeorm bug which quotes the md5 function
-      // const newQuery = query.replace(`"${hashedUrl}"`, hashedUrl)
-      // const results = (await this.query(newQuery, params)) as never[]
-
-      // // convert to camel case
-      // const newItem = keysToCamelCase(results[0]) as LibraryItem
-
-      // return newItem
-    },
-
     createByPopularRead(name: string, userId: string) {
       return this.query(
         `

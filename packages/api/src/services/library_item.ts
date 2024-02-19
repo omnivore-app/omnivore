@@ -839,7 +839,7 @@ export const createOrUpdateLibraryItem = async (
   const newLibraryItem = await authTrx(
     async (tx) => {
       const repo = tx.withRepository(libraryItemRepository)
-      // find existing library item by user_id and url
+      // find existing library item by user_id and url for update
       const existingLibraryItem = await repo.findByUserIdAndUrl(
         userId,
         libraryItem.originalUrl,
@@ -848,11 +848,18 @@ export const createOrUpdateLibraryItem = async (
 
       if (existingLibraryItem) {
         // update existing library item
-        return repo.save({
+        const newItem = await repo.save({
           ...libraryItem,
           id: existingLibraryItem.id,
           slug: existingLibraryItem.slug, // keep the original slug
         })
+
+        // delete the new item if it's different from the existing one
+        if (libraryItem.id && libraryItem.id !== existingLibraryItem.id) {
+          await repo.delete(libraryItem.id)
+        }
+
+        return newItem
       }
 
       // create or update library item
