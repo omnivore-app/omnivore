@@ -16,6 +16,7 @@ export type Subscription = {
   newsletterEmail?: string
 
   url?: string
+  icon?: string
   description?: string
 
   status: SubscriptionStatus
@@ -57,6 +58,7 @@ export function useGetSubscriptionsQuery(
             type
             newsletterEmail
             url
+            icon
             description
             status
             unsubscribeMailTo

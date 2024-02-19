@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle } from 'phosphor-react'
+import { Circle, Gear, GearSix, UserGear } from 'phosphor-react'
 import {
   Subscription,
   SubscriptionType,
@@ -24,6 +24,7 @@ import { FollowingIcon } from '../../elements/icons/FollowingIcon'
 import { HomeIcon } from '../../elements/icons/HomeIcon'
 import { LibraryIcon } from '../../elements/icons/LibraryIcon'
 import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
+import { CoverImage } from '../../elements/CoverImage'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -122,9 +123,10 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
           <LogoBox />
         </Box>
         <LibraryNav {...props} />
-        <SavedSearches {...props} savedSearches={savedSearches} />
+        <Shortcuts {...props} />
+        {/* <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
-        <Labels {...props} labels={labels} />
+        <Labels {...props} labels={labels} /> */}
         <NavMenuFooter {...props} />
         <Box css={{ height: '250px ' }} />
       </Box>
@@ -149,6 +151,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
     <VStack
       css={{
         m: '0px',
+        mt: '10px',
         gap: '5px',
         width: '100%',
         borderBottom: '1px solid $thBorderColor',
@@ -182,6 +185,65 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         filterTerm="in:all has:highlights mode:highlights"
         icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
       />
+    </VStack>
+  )
+}
+
+const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
+  const shortcuts = [
+    {
+      id: '12asdfasdf',
+      name: 'Omnivore Blog',
+      icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+      filter: 'subscription:"Money Talk"',
+      type: 'newsletter',
+    },
+  ]
+
+  return (
+    <VStack
+      css={{
+        m: '0px',
+        gap: '5px',
+        width: '100%',
+        px: '15px',
+        pb: '25px',
+      }}
+      alignment="start"
+      distribution="start"
+    >
+      <HStack>
+        <StyledText
+          css={{
+            fontFamily: '$display',
+            fontSize: '14px',
+            lineHeight: '125%',
+            color: '$thLibraryMenuPrimary',
+            pl: '10px',
+            // mt: '20px',
+            mb: '10px',
+          }}
+        >
+          SHORTCUTS
+        </StyledText>
+        <Gear fill="" />
+      </HStack>
+      {shortcuts.map((shortcut) => {
+        return (
+          <HStack
+            alignment="center"
+            distribution="start"
+            css={{ p: '10px', width: '100%', gap: '10px' }}
+            key={`search-${shortcut.id}`}
+          >
+            <CoverImage src={shortcut.icon} width={20} height={20} />
+            <StyledText style="settingsItem">{shortcut.name}</StyledText>
+            {/* <HStack css={{ ml: 'auto' }}>
+              <DragIcon />
+            </HStack> */}
+          </HStack>
+        )
+      })}
     </VStack>
   )
 }
