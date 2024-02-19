@@ -20,7 +20,6 @@ import app.omnivore.omnivore.core.data.sync
 import app.omnivore.omnivore.core.data.syncLabels
 import app.omnivore.omnivore.core.data.syncOfflineItemsWithServerIfNeeded
 import app.omnivore.omnivore.core.data.unarchiveSavedItem
-import app.omnivore.omnivore.core.data.updateWebReadingProgress
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
@@ -31,7 +30,6 @@ import app.omnivore.omnivore.feature.setSavedItemLabels
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.utils.DatastoreKeys
 import com.apollographql.apollo3.api.Optional
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,11 +77,14 @@ class LibraryViewModel @Inject constructor(
 
     val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
         libraryRepository.getSavedItems(query)
-    }.map(LibraryUiState::Success).stateIn(
+    }
+        .map(LibraryUiState::Success)
+        .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000), // Adjust as needed
+            started = SharingStarted.Eagerly,
             initialValue = LibraryUiState.Loading
         )
+
 
     private val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
     val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
@@ -99,6 +100,7 @@ class LibraryViewModel @Inject constructor(
     private var hasLoadedInitialFilters = false
 
     private fun loadInitialFilterValues() {
+
         if (hasLoadedInitialFilters) {
             return
         }
@@ -336,31 +338,13 @@ class LibraryViewModel @Inject constructor(
 
             SavedItemAction.MarkRead -> {
                 viewModelScope.launch {
-                    dataService.updateWebReadingProgress(
-                        jsonString = Gson().toJson(
-                            mapOf(
-                                "id" to itemID,
-                                "readingProgressPercent" to 100.0,
-                                "readingProgressAnchorIndex" to 0,
-                                "force" to true
-                            )
-                        )
-                    )
+                    libraryRepository.updateReadingProgress(itemID, 100.0, 0)
                 }
             }
 
             SavedItemAction.MarkUnread -> {
                 viewModelScope.launch {
-                    dataService.updateWebReadingProgress(
-                        jsonString = Gson().toJson(
-                            mapOf(
-                                "id" to itemID,
-                                "readingProgressPercent" to 0,
-                                "readingProgressAnchorIndex" to 0,
-                                "force" to true
-                            )
-                        )
-                    )
+                    libraryRepository.updateReadingProgress(itemID, 0.0, 0)
                 }
             }
         }

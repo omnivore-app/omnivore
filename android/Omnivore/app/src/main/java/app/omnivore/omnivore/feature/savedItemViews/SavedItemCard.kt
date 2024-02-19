@@ -160,36 +160,6 @@ fun readingProgress(item: SavedItemWithLabelsAndHighlights): String {
     return ""
 }
 
-//var highlightsText: String {
-//  item.hig ?.let {
-//  if let highlights = item.highlights, highlights.count > 0 {
-//    let fmted = LocalText.pluralizedText(key: "number_of_highlights", count: highlights.count)
-//    if item.wordsCount > 0 {
-//      return " • \(fmted)"
-//    }
-//    return fmted
-//  }
-//  return ""
-//}
-//
-//var notesText: String {
-//  let notes = item.highlights?.filter { item in
-//          if let highlight = item as? Highlight {
-//            return !(highlight.annotation ?? "").isEmpty
-//          }
-//    return false
-//  }
-//
-//  if let notes = notes, notes.count > 0 {
-//    let fmted = LocalText.pluralizedText(key: "number_of_notes", count: notes.count)
-//    if item.wordsCount > 0 {
-//      return " • \(fmted)"
-//    }
-//    return fmted
-//  }
-//  return ""
-//}
-
 
 enum class FlairIcon(
     val rawValue: String, val sortOrder: Int

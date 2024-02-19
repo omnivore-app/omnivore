@@ -13,10 +13,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.utils.DatastoreKeys
-import app.omnivore.omnivore.core.datastore.DatastoreRepository
-import app.omnivore.omnivore.core.analytics.EventTracker
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.core.analytics.EventTracker
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.data.archiveSavedItem
 import app.omnivore.omnivore.core.data.createWebHighlight
@@ -26,16 +24,19 @@ import app.omnivore.omnivore.core.data.mergeWebHighlights
 import app.omnivore.omnivore.core.data.unarchiveSavedItem
 import app.omnivore.omnivore.core.data.updateWebHighlight
 import app.omnivore.omnivore.core.data.updateWebReadingProgress
-import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
+import app.omnivore.omnivore.core.database.dao.SavedItemDao
+import app.omnivore.omnivore.core.database.entities.SavedItem
+import app.omnivore.omnivore.core.database.entities.SavedItemLabel
+import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.network.Networker
 import app.omnivore.omnivore.core.network.createNewLabel
 import app.omnivore.omnivore.core.network.saveUrl
 import app.omnivore.omnivore.core.network.savedItem
-import app.omnivore.omnivore.core.database.entities.SavedItem
-import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.feature.components.HighlightColor
 import app.omnivore.omnivore.feature.library.SavedItemAction
 import app.omnivore.omnivore.feature.setSavedItemLabels
+import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
+import app.omnivore.omnivore.utils.DatastoreKeys
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -80,6 +81,7 @@ class WebReaderViewModel @Inject constructor(
     private val dataService: DataService,
     private val networker: Networker,
     private val eventTracker: EventTracker,
+    private val savedItemDao: SavedItemDao // TODO - Use repo
 ) : ViewModel() {
     var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
     var javascriptDispatchQueue: MutableList<String> = mutableListOf()
@@ -384,7 +386,7 @@ class WebReaderViewModel @Inject constructor(
 
             "articleReadingProgress" -> {
                 viewModelScope.launch {
-                    dataService.updateWebReadingProgress(jsonString)
+                    dataService.updateWebReadingProgress(jsonString, savedItemDao)
                 }
             }
 
