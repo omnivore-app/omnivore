@@ -128,8 +128,7 @@ export const savePage = async (
     itemToSave,
     user.id,
     undefined,
-    isImported,
-    input.finalUrl
+    isImported
   )
   clientRequestId = newItem.id
 

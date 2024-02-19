@@ -32,6 +32,7 @@ import {
   findLibraryItemById,
   findLibraryItemByUrl,
   updateLibraryItem,
+  CreateOrUpdateLibraryItemArgs,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -443,7 +444,7 @@ describe('Article API', () => {
     let itemId: string
 
     before(async () => {
-      const itemToCreate: DeepPartial<LibraryItem> = {
+      const itemToCreate: CreateOrUpdateLibraryItemArgs = {
         title: 'test title',
         originalContent: '<p>test</p>',
         slug: realSlug,
@@ -696,7 +697,7 @@ describe('Article API', () => {
     let itemId: string
 
     before(async () => {
-      const itemToSave: DeepPartial<LibraryItem> = {
+      const itemToSave: CreateOrUpdateLibraryItemArgs = {
         user,
         title: 'test title',
         readableContent: '<p>test</p>',
@@ -924,7 +925,7 @@ describe('Article API', () => {
       const readingProgressArray = [0, 2, 97, 98, 100]
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           user,
           title: 'test title',
           readableContent: `<p>test ${searchedKeyword}</p>`,
@@ -1971,7 +1972,7 @@ describe('Article API', () => {
     before(async () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           user,
           title: 'typeahead search item',
           readableContent: '<p>test</p>',
@@ -2045,7 +2046,7 @@ describe('Article API', () => {
     before(async () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           title: 'test item',
           slug: '',
           readableContent: '<p>test</p>',
@@ -2316,7 +2317,7 @@ describe('Article API', () => {
     let articleId = ''
 
     before(async () => {
-      const itemToSave: DeepPartial<LibraryItem> = {
+      const itemToSave: CreateOrUpdateLibraryItemArgs = {
         user,
         title: 'test setFavoriteArticle',
         slug: '',
@@ -2361,7 +2362,7 @@ describe('Article API', () => {
     before(async () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           user,
           title: 'test item',
           readableContent: '<p>test</p>',
