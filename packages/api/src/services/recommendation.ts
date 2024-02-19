@@ -5,7 +5,11 @@ import { Recommendation } from '../entity/recommendation'
 import { authTrx } from '../repository'
 import { logger } from '../utils/logger'
 import { createHighlights } from './highlights'
-import { createOrUpdateLibraryItem, findLibraryItemByUrl } from './library_item'
+import {
+  createOrUpdateLibraryItem,
+  CreateOrUpdateLibraryItemArgs,
+  findLibraryItemByUrl,
+} from './library_item'
 
 export const addRecommendation = async (
   item: LibraryItem,
@@ -18,7 +22,7 @@ export const addRecommendation = async (
     let recommendedItem = await findLibraryItemByUrl(item.originalUrl, userId)
     if (!recommendedItem) {
       // create a new item
-      const newItem: DeepPartial<LibraryItem> = {
+      const newItem: CreateOrUpdateLibraryItemArgs = {
         user: { id: userId },
         slug: item.slug,
         title: item.title,

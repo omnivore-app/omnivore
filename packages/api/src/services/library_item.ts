@@ -16,6 +16,7 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
 import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
+import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
 import { parseSearchQuery } from '../utils/search'
 import { addLabelsToLibraryItem } from './labels'
@@ -825,18 +826,38 @@ export const createLibraryItems = async (
   )
 }
 
+export type CreateOrUpdateLibraryItemArgs = Merge<
+  DeepPartial<LibraryItem>,
+  { originalUrl: string }
+>
 export const createOrUpdateLibraryItem = async (
-  libraryItem: DeepPartial<LibraryItem>,
+  libraryItem: CreateOrUpdateLibraryItemArgs,
   userId: string,
   pubsub = createPubSubClient(),
-  skipPubSub = false,
-  finalUrl?: string
+  skipPubSub = false
 ): Promise<LibraryItem> => {
   const newLibraryItem = await authTrx(
-    async (tx) =>
-      tx
-        .withRepository(libraryItemRepository)
-        .upsertLibraryItem(libraryItem, finalUrl),
+    async (tx) => {
+      const repo = tx.withRepository(libraryItemRepository)
+      // find existing library item by user_id and url
+      const existingLibraryItem = await repo.findByUserIdAndUrl(
+        userId,
+        libraryItem.originalUrl,
+        true
+      )
+
+      if (existingLibraryItem) {
+        // update existing library item
+        return repo.save({
+          ...libraryItem,
+          id: existingLibraryItem.id,
+          slug: existingLibraryItem.slug, // keep the original slug
+        })
+      }
+
+      // create or update library item
+      return repo.upsertLibraryItemById(libraryItem)
+    },
     undefined,
     userId
   )
