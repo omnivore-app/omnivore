@@ -112,9 +112,10 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            visibility: props.showFilterMenu ? 'visible' : 'hidden',
             width: '100%',
-            transition: 'visibility 0s, top 150ms',
+            transition: 'left 50ms, top 750ms',
+            left: props.showFilterMenu ? '0' : '-500px',
+            visibility: props.showFilterMenu ? 'visible' : 'hidden',
           },
           zIndex: 10,
         }}
