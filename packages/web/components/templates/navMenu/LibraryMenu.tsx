@@ -37,6 +37,9 @@ import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
 import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
 import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
 import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
+import { DropdownMenu } from '@radix-ui/react-dropdown-menu'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { useRouter } from 'next/router'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -202,6 +205,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
 }
 
 const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
+  const router = useRouter()
   const shortcuts: Shortcut[] = [
     {
       id: '12asdfasdf',
@@ -283,9 +287,20 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
         >
           SHORTCUTS
         </StyledText>
-        <Button style="plainIcon" css={{ display: 'flex', ml: 'auto' }}>
-          <DotsThree size={20} />
-        </Button>
+        <SpanBox css={{ display: 'flex', ml: 'auto' }}>
+          <Dropdown
+            side="bottom"
+            triggerElement={<DotsThree size={20} />}
+            css={{ ml: 'auto' }}
+          >
+            <DropdownOption
+              onSelect={() => {
+                router.push(`/settings/shortcuts`)
+              }}
+              title="Edit shortcuts"
+            />
+          </Dropdown>
+        </SpanBox>
       </HStack>
       {shortcuts.map((shortcut) => {
         return (
