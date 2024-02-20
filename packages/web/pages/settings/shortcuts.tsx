@@ -17,6 +17,7 @@ import { StyledText } from '../../components/elements/StyledText'
 import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSubscriptionsQuery'
 import { DragIcon } from '../../components/elements/icons/DragIcon'
 import { CoverImage } from '../../components/elements/CoverImage'
+import { Label } from '../../lib/networking/fragments/labelFragment'
 
 export default function Shortcuts(): JSX.Element {
   applyStoredTheme()
@@ -150,11 +151,15 @@ const AvailableItems = (): JSX.Element => {
   )
 }
 
-type Shortcut = {
-  name: string
-  icon: string
-  filter: string
+export type Shortcut = {
   type: 'search' | 'label' | 'newsletter' | 'feed'
+
+  id: string
+  name: string
+  filter: string
+
+  icon?: string
+  label?: Label
 }
 
 const SelectedItems = (): JSX.Element => {

@@ -188,6 +188,12 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thFormInput: '#EBEBEB',
         thHomeIcon: '#2A2A2A',
 
+        thLabelChipForeground: '#2A2A2A', // : '#2A2A2A'
+        thLabelChipBackground: '#F5F5F5',
+        thLabelChipSelectedBorder: 'black',
+        thLabelChipUnselectedBorder: '#F5F5F5',
+        thLabelOutlineChipBorder: '#D9D9D9',
+
         thHeaderIconRing: '#D9D9D9',
         thHeaderIconInner: '#898989',
 
@@ -307,12 +313,18 @@ const darkThemeSpec = {
     thLibraryMenuPrimary: '#EBEBEB',
     thLibraryMenuSecondary: '#EBEBEB',
     thLibraryMenuUnselected: 'white',
-    thLibrarySelectionColor: '#3D3D3D',
+    thLibrarySelectionColor: '#6A6968',
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
     searchActiveOutline: '#866D15',
     thFormInput: '#3D3D3D',
     thHomeIcon: '#FFFFFF',
+
+    thLabelChipForeground: '#EBEBEB',
+    thLabelChipBackground: '#2A2A2A',
+    thLabelChipSelectedBorder: '#FFEA9F',
+    thLabelChipUnselectedBorder: '#2A2A2A',
+    thLabelOutlineChipBorder: '#6A696850',
 
     thHeaderIconRing: '#3D3D3D',
     thHeaderIconInner: '#D9D9D9',

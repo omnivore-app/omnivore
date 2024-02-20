@@ -2,7 +2,14 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, Gear, GearSix, UserGear } from 'phosphor-react'
+import {
+  Circle,
+  DotsThree,
+  Gear,
+  GearSix,
+  MagnifyingGlass,
+  UserGear,
+} from 'phosphor-react'
 import {
   Subscription,
   SubscriptionType,
@@ -25,6 +32,11 @@ import { HomeIcon } from '../../elements/icons/HomeIcon'
 import { LibraryIcon } from '../../elements/icons/LibraryIcon'
 import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
 import { CoverImage } from '../../elements/CoverImage'
+import { Shortcut } from '../../../pages/settings/shortcuts'
+import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
+import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
+import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
+import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -190,21 +202,62 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
 }
 
 const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
-  const shortcuts = [
+  const shortcuts: Shortcut[] = [
     {
       id: '12asdfasdf',
       name: 'Omnivore Blog',
       icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
       filter: 'subscription:"Money Talk"',
+      type: 'feed',
+    },
+    {
+      id: 'sdfsdfgdsfg',
+      name: 'Follow the Money | Arne & Harr',
+      filter: 'subscription:"Money Talk"',
+      type: 'feed',
+    },
+    {
+      id: 'sdfasdfasdfsdfsdfsgasdfg',
+      name: 'Andrew Kenneson from Center for the Study of Partisanship and Ideology',
+      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+      filter: 'in:all label:"Hockey"',
       type: 'newsletter',
     },
+    {
+      id: 'sdfasdfasdfsdfsdfsgasdfg',
+      name: 'Robert的博客',
+      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+      filter: 'in:all label:"Hockey"',
+      type: 'feed',
+    },
+    {
+      id: 'sdfasdfasdfasdfasf',
+      name: 'Oldest First',
+      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+      filter: 'in:all label:"Hockey"',
+      type: 'search',
+    },
+    {
+      id: 'sdfasdfasdfgasdfg',
+      name: 'Hockey',
+      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+      filter: 'in:all label:"Hockey"',
+      type: 'label',
+      label: {
+        id: 'sdfsdfsdf',
+        name: 'Hockey',
+        color: '#E98B8B',
+        createdAt: new Date(),
+      },
+    },
   ]
+  const selected = false
 
   return (
     <VStack
       css={{
         m: '0px',
-        gap: '5px',
+        gap: '8px',
         width: '100%',
         px: '15px',
         pb: '25px',
@@ -212,7 +265,11 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
       alignment="start"
       distribution="start"
     >
-      <HStack>
+      <HStack
+        alignment="center"
+        distribution="start"
+        css={{ width: '100%', pr: '0px' }}
+      >
         <StyledText
           css={{
             fontFamily: '$display',
@@ -226,25 +283,129 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
         >
           SHORTCUTS
         </StyledText>
-        <Gear fill="" />
+        <Button style="plainIcon" css={{ display: 'flex', ml: 'auto' }}>
+          <DotsThree size={20} />
+        </Button>
       </HStack>
       {shortcuts.map((shortcut) => {
         return (
-          <HStack
-            alignment="center"
-            distribution="start"
-            css={{ p: '10px', width: '100%', gap: '10px' }}
-            key={`search-${shortcut.id}`}
+          <Box
+            css={{
+              display: 'flex',
+              width: '100%',
+              maxWidth: '100%',
+              height: '32px',
+
+              backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
+              color: selected
+                ? '$thLibraryMenuSecondary'
+                : '$thLibraryMenuUnselected',
+              verticalAlign: 'middle',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                backgroundColor: selected
+                  ? '$thLibrarySelectionColor'
+                  : '$thBackground4',
+              },
+              '&:active': {
+                backgroundColor: selected
+                  ? '$thLibrarySelectionColor'
+                  : '$thBackground4',
+              },
+            }}
+            title={shortcut.name}
+            onClick={(e) => {
+              props.applySearchQuery(shortcut.filter)
+              props.setShowFilterMenu(false)
+              e.preventDefault()
+            }}
           >
-            <CoverImage src={shortcut.icon} width={20} height={20} />
-            <StyledText style="settingsItem">{shortcut.name}</StyledText>
-            {/* <HStack css={{ ml: 'auto' }}>
-              <DragIcon />
-            </HStack> */}
-          </HStack>
+            {(shortcut.type == 'feed' || shortcut.type == 'newsletter') && (
+              <FeedOrNewsletterShortcut shortcut={shortcut} />
+            )}
+            {shortcut.type == 'search' && (
+              <SearchShortcut shortcut={shortcut} />
+            )}
+            {shortcut.type == 'label' && <LabelShortcut shortcut={shortcut} />}
+          </Box>
         )
       })}
     </VStack>
+  )
+}
+
+type ShortcutItemProps = {
+  shortcut: Shortcut
+}
+
+const FeedOrNewsletterShortcut = (props: ShortcutItemProps): JSX.Element => {
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{ pl: '10px', width: '100%', gap: '10px' }}
+      key={`search-${props.shortcut.id}`}
+    >
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ minWidth: '20px' }}
+      >
+        {props.shortcut.icon ? (
+          <CoverImage
+            src={props.shortcut.icon}
+            width={20}
+            height={20}
+            css={{ borderRadius: '20px' }}
+          />
+        ) : props.shortcut.type == 'newsletter' ? (
+          <NewsletterIcon color="#F59932" size={18} />
+        ) : (
+          <FollowingIcon color="#F59932" size={21} />
+        )}
+      </HStack>
+      <StyledText style="settingsItem">{props.shortcut.name}</StyledText>
+    </HStack>
+  )
+}
+
+const SearchShortcut = (props: ShortcutItemProps): JSX.Element => {
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{ pl: '10px', width: '100%', gap: '10px' }}
+      key={`search-${props.shortcut.id}`}
+    >
+      <HStack
+        distribution="start"
+        alignment="center"
+        css={{ minWidth: '20px' }}
+      >
+        <MagnifyingGlass size={18} />
+      </HStack>
+      <StyledText style="settingsItem">{props.shortcut.name}</StyledText>
+    </HStack>
+  )
+}
+
+const LabelShortcut = (props: ShortcutItemProps): JSX.Element => {
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{ pl: '5px', width: '100%' }}
+      key={`search-${props.shortcut.id}`}
+    >
+      <OutlinedLabelChip
+        text={props.shortcut.name}
+        color={props.shortcut.label?.color ?? 'gray'}
+      />
+    </HStack>
   )
 }
 

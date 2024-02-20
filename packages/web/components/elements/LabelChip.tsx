@@ -1,20 +1,13 @@
 import { SpanBox, HStack } from './LayoutPrimitives'
 import { Circle, X } from 'phosphor-react'
-import { isDarkTheme } from '../../lib/themeUpdater'
 
 type LabelChipProps = {
   text: string
   color: string // expected to be a RGB hex color string
   isSelected?: boolean
-  useAppAppearance?: boolean
 }
 
 export function LabelChip(props: LabelChipProps): JSX.Element {
-  const isDark = isDarkTheme()
-
-  const selectedBorder = isDark ? '#FFEA9F' : 'black'
-  const unSelectedBorder = isDark ? '#2A2A2A' : '#F5F5F5'
-
   return (
     <SpanBox
       css={{
@@ -30,9 +23,11 @@ export function LabelChip(props: LabelChipProps): JSX.Element {
         borderRadius: '5px',
         borderWidth: '1px',
         borderStyle: 'solid',
-        color: isDark ? '#EBEBEB' : '#2A2A2A',
-        borderColor: props.isSelected ? selectedBorder : unSelectedBorder,
-        backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5',
+        color: '$thLabelChipForeground',
+        borderColor: props.isSelected
+          ? '$thLabelChipSelectedBorder'
+          : '$thLabelChipUnselectedBorder',
+        backgroundColor: '$thLabelChipBackground',
       }}
     >
       <HStack alignment="center" css={{ gap: '5px' }}>
