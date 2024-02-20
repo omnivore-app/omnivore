@@ -12,8 +12,9 @@ import { NavMenuFooter } from './Footer'
 const HorizontalDivider = styled(SpanBox, {
   width: '100%',
   height: '1px',
-  my: '25px',
-  background: `${theme.colors.grayLine.toString()}`,
+  my: '5px',
+  opacity: '0.1',
+  background: `${theme.colors.thTextSubtle3.toString()}`,
 })
 
 const StyledLink = styled(SpanBox, {
