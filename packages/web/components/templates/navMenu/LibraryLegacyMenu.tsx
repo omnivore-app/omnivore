@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle } from 'phosphor-react'
+import { Circle, X } from 'phosphor-react'
 import {
   Subscription,
   SubscriptionType,
@@ -103,19 +103,45 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
             width: '100%',
             transition: 'visibility 0s, top 150ms',
           },
-          zIndex: 3,
+          zIndex: 10,
         }}
       >
         <Box
           css={{
             width: '100%',
             px: '25px',
-            pb: '25px',
+            pb: '17px',
             pt: '4.5px',
             lineHeight: '1',
+            '@mdDown': {
+              pb: '0px',
+              pt: '5px',
+              px: '15px',
+            },
           }}
         >
-          <LogoBox />
+          <SpanBox css={{ '@mdDown': { display: 'none' } }}>
+            <LogoBox />
+          </SpanBox>
+
+          <Button
+            style="plainIcon"
+            css={{
+              display: 'none',
+              '@mdDown': {
+                display: 'flex',
+                ml: 'auto',
+                pt: '10px',
+                pb: '0px',
+              },
+            }}
+            onClick={(event) => {
+              props.setShowFilterMenu(false)
+              event.preventDefault()
+            }}
+          >
+            <X size={30} />
+          </Button>
         </Box>
         <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
