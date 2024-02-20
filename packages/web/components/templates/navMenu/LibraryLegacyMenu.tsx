@@ -99,9 +99,10 @@ export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
             display: 'none',
           },
           '@mdDown': {
-            visibility: props.showFilterMenu ? 'visible' : 'hidden',
             width: '100%',
-            transition: 'visibility 0s, top 150ms',
+            transition: 'top 100ms, visibility 100ms',
+            top: props.showFilterMenu ? '0' : '100%',
+            visibility: props.showFilterMenu ? 'visible' : 'hidden',
           },
           zIndex: 10,
         }}
