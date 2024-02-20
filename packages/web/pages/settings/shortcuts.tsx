@@ -18,9 +18,17 @@ import { useGetSubscriptionsQuery } from '../../lib/networking/queries/useGetSub
 import { DragIcon } from '../../components/elements/icons/DragIcon'
 import { CoverImage } from '../../components/elements/CoverImage'
 import { Label } from '../../lib/networking/fragments/labelFragment'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { CheckSquare, Square } from 'phosphor-react'
 
 export default function Shortcuts(): JSX.Element {
   applyStoredTheme()
+  const [navMenuStyle, setNavMenuStyle] = usePersistedState<
+    'legacy' | 'shortcuts'
+  >({
+    key: 'library-nav-menu-style',
+    initialValue: 'shortcuts',
+  })
 
   return (
     <SettingsLayout>
@@ -44,6 +52,56 @@ export default function Shortcuts(): JSX.Element {
             maxWidth: '880px',
           }}
         >
+          <Box css={{}}>
+            <StyledText style="fixedHeadline" css={{ my: '6px' }}>
+              Shortcuts
+            </StyledText>
+            <StyledText style="caption" css={{}}>
+              Use shortcuts to access your most important reads quickly
+            </StyledText>
+          </Box>
+          <HStack
+            css={{
+              px: '10px',
+              pt: '2px',
+              height: '30px',
+              gap: '5px',
+
+              fontSize: '14px',
+              fontWeight: 'regular',
+              fontFamily: '$display',
+              color:
+                navMenuStyle !== 'shortcuts'
+                  ? '$thLibraryMenuSecondary'
+                  : '$thLibraryMenuUnselected',
+
+              verticalAlign: 'middle',
+              borderRadius: '3px',
+              cursor: 'pointer',
+
+              '&:hover': {
+                backgroundColor: '$thBackground4',
+              },
+            }}
+            alignment="center"
+            distribution="start"
+            onClick={(event) => {
+              //  setHidePinnedSearches(!hidePinnedSearches)
+              setNavMenuStyle(
+                navMenuStyle == 'shortcuts' ? 'legacy' : 'shortcuts'
+              )
+              event.preventDefault()
+            }}
+          >
+            {navMenuStyle === 'shortcuts' ? (
+              <CheckSquare size={20} weight="duotone" />
+            ) : (
+              <Square size={20} weight="duotone" />
+            )}
+            <StyledText style="modalTitle" css={{}}>
+              Enable shortcuts
+            </StyledText>
+          </HStack>
           <Box
             css={{
               py: '$3',

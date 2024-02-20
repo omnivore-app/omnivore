@@ -37,6 +37,7 @@ import { EditLibraryItemModal } from './EditItemModals'
 import { EmptyLibrary } from './EmptyLibrary'
 import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
+import { LibraryLegacyMenu } from '../navMenu/LibraryLegacyMenu'
 import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -85,11 +86,13 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [notebookTarget, setNotebookTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -931,6 +934,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     key: 'libraryLayout',
     initialValue: 'LIST_LAYOUT',
   })
+  const [navMenuStyle] = usePersistedState<'legacy' | 'shortcuts'>({
+    key: 'library-nav-menu-style',
+    initialValue: 'shortcuts',
+  })
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -967,16 +974,28 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       )}
 
       <HStack css={{ width: '100%', height: '100%' }}>
-        <LibraryFilterMenu
-          setShowAddLinkModal={props.setShowAddLinkModal}
-          searchTerm={props.searchTerm}
-          applySearchQuery={(searchQuery: string) => {
-            props.applySearchQuery(searchQuery)
-          }}
-          showFilterMenu={showFilterMenu}
-          setShowFilterMenu={setShowFilterMenu}
-        />
-
+        {navMenuStyle == 'shortcuts' && (
+          <LibraryFilterMenu
+            setShowAddLinkModal={props.setShowAddLinkModal}
+            searchTerm={props.searchTerm}
+            applySearchQuery={(searchQuery: string) => {
+              props.applySearchQuery(searchQuery)
+            }}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
+          />
+        )}
+        {navMenuStyle == 'legacy' && (
+          <LibraryLegacyMenu
+            setShowAddLinkModal={props.setShowAddLinkModal}
+            searchTerm={props.searchTerm}
+            applySearchQuery={(searchQuery: string) => {
+              props.applySearchQuery(searchQuery)
+            }}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
+          />
+        )}
         {!props.isValidating && props.mode == 'highlights' && (
           <HighlightItemsLayout
             gridContainerRef={props.gridContainerRef}
