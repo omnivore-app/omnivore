@@ -305,6 +305,7 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
       {shortcuts.map((shortcut) => {
         return (
           <Box
+            key={`shortcut-${shortcut.id}`}
             css={{
               display: 'flex',
               width: '100%',
