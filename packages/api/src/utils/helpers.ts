@@ -10,6 +10,7 @@ import { Highlight as HighlightData } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Recommendation as RecommendationData } from '../entity/recommendation'
 import { RegistrationType, User } from '../entity/user'
+import { env } from '../env'
 import {
   Article,
   ArticleSavingRequest,
@@ -400,3 +401,6 @@ export const setRecentlySavedItemInRedis = async (
     })
   }
 }
+
+export const highlightUrl = (slug: string, highlightId: string): string =>
+  `${env.client.url}/me/${slug}#${highlightId}`

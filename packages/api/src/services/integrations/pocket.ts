@@ -35,4 +35,8 @@ export class PocketClient implements IntegrationClient {
       return null
     }
   }
+
+  export = async (): Promise<boolean> => {
+    return Promise.resolve(false)
+  }
 }
