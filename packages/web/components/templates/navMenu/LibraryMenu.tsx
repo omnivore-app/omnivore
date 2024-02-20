@@ -226,56 +226,62 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
 
 const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
   const router = useRouter()
-  const shortcuts: Shortcut[] = [
-    {
-      id: '12asdfasdf',
-      name: 'Omnivore Blog',
-      icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-      filter: 'subscription:"Money Talk"',
-      type: 'feed',
-    },
-    {
-      id: 'sdfsdfgdsfg',
-      name: 'Follow the Money | Arne & Harr',
-      filter: 'subscription:"Money Talk"',
-      type: 'feed',
-    },
-    {
-      id: 'sdfasdfasdfsdfsdfsgasdfg',
-      name: 'Andrew Kenneson from Center for the Study of Partisanship and Ideology',
-      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-      filter: 'in:all label:"Hockey"',
-      type: 'newsletter',
-    },
-    {
-      id: 'sdfasdfasdfsdfsdfsgasdfg',
-      name: 'Robert的博客',
-      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-      filter: 'in:all label:"Hockey"',
-      type: 'feed',
-    },
-    {
-      id: 'sdfasdfasdfasdfasf',
-      name: 'Oldest First',
-      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-      filter: 'in:all label:"Hockey"',
-      type: 'search',
-    },
-    {
-      id: 'sdfasdfasdfgasdfg',
-      name: 'Hockey',
-      // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-      filter: 'in:all label:"Hockey"',
-      type: 'label',
-      label: {
-        id: 'sdfsdfsdf',
-        name: 'Hockey',
-        color: '#E98B8B',
-        createdAt: new Date(),
-      },
-    },
-  ]
-  const selected = false
+  const [shortcuts] = usePersistedState<Shortcut[]>({
+    key: 'shortcuts',
+    isSessionStorage: false,
+    initialValue: [],
+  })
+
+  // const shortcuts: Shortcut[] = [
+  //   {
+  //     id: '12asdfasdf',
+  //     name: 'Omnivore Blog',
+  //     icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+  //     filter: 'subscription:"Money Talk"',
+  //     type: 'feed',
+  //   },
+  //   {
+  //     id: 'sdfsdfgdsfg',
+  //     name: 'Follow the Money | Arne & Harr',
+  //     filter: 'subscription:"Money Talk"',
+  //     type: 'feed',
+  //   },
+  //   {
+  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
+  //     name: 'Andrew Kenneson from Center for the Study of Partisanship and Ideology',
+  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+  //     filter: 'in:all label:"Hockey"',
+  //     type: 'newsletter',
+  //   },
+  //   {
+  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
+  //     name: 'Robert的博客',
+  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+  //     filter: 'in:all label:"Hockey"',
+  //     type: 'feed',
+  //   },
+  //   {
+  //     id: 'sdfasdfasdfasdfasf',
+  //     name: 'Oldest First',
+  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+  //     filter: 'in:all label:"Hockey"',
+  //     type: 'search',
+  //   },
+  //   {
+  //     id: 'sdfasdfasdfgasdfg',
+  //     name: 'Hockey',
+  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
+  //     filter: 'in:all label:"Hockey"',
+  //     type: 'label',
+  //     label: {
+  //       id: 'sdfsdfsdf',
+  //       name: 'Hockey',
+  //       color: '#E98B8B',
+  //       createdAt: new Date(),
+  //     },
+  //   },
+  // ]
+  //
 
   return (
     <VStack
@@ -323,6 +329,7 @@ const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
         </SpanBox>
       </HStack>
       {shortcuts.map((shortcut) => {
+        const selected = props.searchTerm === shortcut.filter
         return (
           <Box
             key={`shortcut-${shortcut.id}`}
