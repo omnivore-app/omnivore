@@ -936,7 +936,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
   })
   const [navMenuStyle] = usePersistedState<'legacy' | 'shortcuts'>({
     key: 'library-nav-menu-style',
-    initialValue: 'shortcuts',
+    initialValue: 'legacy',
   })
 
   const updateLayout = useCallback(
