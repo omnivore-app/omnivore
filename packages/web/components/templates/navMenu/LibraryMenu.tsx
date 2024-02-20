@@ -227,7 +227,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
 const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
   const router = useRouter()
   const [shortcuts] = usePersistedState<Shortcut[]>({
-    key: 'shortcuts',
+    key: 'library-shortcuts',
     isSessionStorage: false,
     initialValue: [],
   })

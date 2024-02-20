@@ -42,6 +42,10 @@ const textVariants = {
       fontSize: '17px',
       fontFamily: '$inter',
       color: '$grayText',
+      m: '0px',
+      my: '15px',
+      marginBlockStart: '0px',
+      marginBlockEnd: '0px',
     },
     settingsItem: {
       fontSize: '13px',
