@@ -16,9 +16,11 @@ export const appDataSource = new DataSource({
   subscribers: [__dirname + '/events/**/*{.js,.ts}'],
   namingStrategy: new SnakeNamingStrategy(),
   logger: new CustomTypeOrmLogger(['query', 'info']),
-  connectTimeoutMS: 40000, // 40 seconds
+  connectTimeoutMS: 10000, // 10 seconds
   maxQueryExecutionTime: 10000, // 10 seconds
   extra: {
     options: process.env.PG_EXTRA_OPTIONS,
+    max: env.pg.pool.max,
+    idleTimeoutMillis: 10000, // 10 seconds
   },
 })
