@@ -69,7 +69,7 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
 // We set a relatively high delay for the refresh at the end, as it's likely there's an issue
 // in processing. We give it the best attempt to be able to resolve, but if it doesn't we set
 // the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
-const TIMEOUT_DELAYS = [1000, 2000, 2500, 3500, 5000, 10000, 60000]
+const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
 export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -209,8 +209,19 @@ export function HomeFeedContainer(): JSX.Element {
       let startIdx = 0
 
       const seeIfUpdated = async () => {
-        if (startIdx > TIMEOUT_DELAYS.length) {
+        console.log(
+          'checking if updated: ',
+          startIdx,
+          TIMEOUT_DELAYS,
+          TIMEOUT_DELAYS.length
+        )
+        if (startIdx >= TIMEOUT_DELAYS.length) {
           item.node.state = State.FAILED
+          const updatedArticle = { ...item }
+          updatedArticle.node = { ...item.node }
+          updatedArticle.isLoading = false
+          console.log(`Updating Metadata of ${item.node.slug}.`)
+          performActionOnItem('update-item', updatedArticle)
           return
         }
 
