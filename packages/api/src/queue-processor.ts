@@ -153,8 +153,12 @@ const main = async () => {
     subscribers: [__dirname + '/events/**/*{.js,.ts}'],
     namingStrategy: new SnakeNamingStrategy(),
     logger: new CustomTypeOrmLogger(['query', 'info']),
-    connectTimeoutMS: 40000, // 40 seconds
+    connectTimeoutMS: 10000, // 10 seconds
     maxQueryExecutionTime: 10000, // 10 seconds
+    extra: {
+      max: env.pg.pool.max,
+      idleTimeoutMillis: 10000, // 10 seconds
+    },
   })
 
   // respond healthy to auto-scaler.
