@@ -209,12 +209,6 @@ export function HomeFeedContainer(): JSX.Element {
       let startIdx = 0
 
       const seeIfUpdated = async () => {
-        console.log(
-          'checking if updated: ',
-          startIdx,
-          TIMEOUT_DELAYS,
-          TIMEOUT_DELAYS.length
-        )
         if (startIdx >= TIMEOUT_DELAYS.length) {
           item.node.state = State.FAILED
           const updatedArticle = { ...item }
