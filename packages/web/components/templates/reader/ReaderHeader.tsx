@@ -2,11 +2,37 @@ import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { PrimaryDropdown } from '../PrimaryDropdown'
 import { LogoBox } from '../../elements/LogoBox'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { DEFAULT_HEADER_HEIGHT } from '../homeFeed/HeaderSpacer'
 import { theme } from '../../tokens/stitches.config'
 import { ReaderSettingsIcon } from '../../elements/icons/ReaderSettingsIcon'
 import { CircleUtilityMenuIcon } from '../../elements/icons/CircleUtilityMenuIcon'
+
+function useScrollDirection() {
+  const [scrollDirection, setScrollDirection] = useState('up')
+
+  useEffect(() => {
+    let lastScrollY = window.pageYOffset
+
+    const updateScrollDirection = () => {
+      const scrollY = window.pageYOffset
+      const direction = scrollY > lastScrollY ? 'down' : 'up'
+      if (
+        direction !== scrollDirection &&
+        (scrollY - lastScrollY > 10 || scrollY - lastScrollY < -10)
+      ) {
+        setScrollDirection(direction)
+      }
+      lastScrollY = scrollY > 0 ? scrollY : 0
+    }
+    window.addEventListener('scroll', updateScrollDirection) // add event listener
+    return () => {
+      window.removeEventListener('scroll', updateScrollDirection) // clean up
+    }
+  }, [scrollDirection])
+
+  return scrollDirection
+}
 
 type ReaderHeaderProps = {
   alwaysDisplayToolbar: boolean
@@ -16,6 +42,8 @@ type ReaderHeaderProps = {
 }
 
 export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
+  const scrollDirection = useScrollDirection()
+
   return (
     <>
       <VStack
@@ -38,8 +66,12 @@ export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
             pointerEvents: 'unset',
           },
           '@mdDown': {
+            top: scrollDirection === 'down' ? '-90px' : '0',
             bg: '$readerBg',
             pointerEvents: 'unset',
+            transitionProperty: 'top',
+            transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            transitionDuration: '200ms',
           },
           '@media print': {
             display: 'none',
