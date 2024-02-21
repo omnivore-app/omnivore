@@ -13,7 +13,7 @@ import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighli
 @Composable
 fun SavedItemLibraryContextMenu(
     savedItemViewModel: SavedItemViewModel,
-    savedItem: SavedItem,
+    savedItem: SavedItemWithLabelsAndHighlights,
     isExpanded: Boolean,
     onDismiss: () -> Unit,
 ) {
@@ -33,7 +33,7 @@ fun SavedItemLibraryContextMenu(
             DropdownMenuItem(
                 text = { Text( text = stringResource(option.textResourceId), fontWeight = FontWeight.Normal) },
                 onClick = {
-                    savedItemViewModel.handleSavedItemAction(savedItem.savedItemId, option.action)
+                    savedItemViewModel.handleSavedItemAction(savedItem, option.action)
                     onDismiss()
                 }
             )

@@ -82,7 +82,7 @@ fun LibraryNavigationBar(
             actionsMenuItem?.let {
                 IconButton(onClick = {
                     savedItemViewModel.handleSavedItemAction(
-                        it.savedItem.savedItemId,
+                        it,
                         if (it.savedItem.isArchived) SavedItemAction.Unarchive else SavedItemAction.Archive
                     )
                 }) {
@@ -100,7 +100,7 @@ fun LibraryNavigationBar(
                 }
                 IconButton(onClick = {
                     savedItemViewModel.handleSavedItemAction(
-                        it.savedItem.savedItemId,
+                        it,
                         SavedItemAction.EditInfo
                     )
                 }) {
@@ -111,7 +111,7 @@ fun LibraryNavigationBar(
                 }
                 IconButton(onClick = {
                     savedItemViewModel.handleSavedItemAction(
-                        it.savedItem.savedItemId,
+                        it,
                         SavedItemAction.EditLabels
                     )
                 }) {
@@ -122,7 +122,7 @@ fun LibraryNavigationBar(
                 }
                 IconButton(onClick = {
                     savedItemViewModel.handleSavedItemAction(
-                        it.savedItem.savedItemId,
+                        it,
                         SavedItemAction.Delete
                     )
                 }) {
@@ -139,7 +139,7 @@ fun LibraryNavigationBar(
                     if (isMenuExpanded) {
                         SavedItemLibraryContextMenu(
                             savedItemViewModel = savedItemViewModel,
-                            savedItem = it.savedItem,
+                            savedItem = it,
                             isExpanded = true,
                             onDismiss = { isMenuExpanded = false },
                         )

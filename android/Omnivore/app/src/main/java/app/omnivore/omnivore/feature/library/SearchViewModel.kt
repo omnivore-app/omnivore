@@ -153,23 +153,23 @@ class SearchViewModel @Inject constructor(
         isRefreshing.postValue(false)
     }
 
-    override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
+    override fun handleSavedItemAction(item: SavedItemWithLabelsAndHighlights, action: SavedItemAction) {
         when (action) {
             SavedItemAction.Delete -> {
                 viewModelScope.launch {
-                    dataService.deleteSavedItem(itemID)
+                    dataService.deleteSavedItem(item.savedItem.savedItemId)
                 }
             }
 
             SavedItemAction.Archive -> {
                 viewModelScope.launch {
-                    dataService.archiveSavedItem(itemID)
+                    dataService.archiveSavedItem(item.savedItem.savedItemId)
                 }
             }
 
             SavedItemAction.Unarchive -> {
                 viewModelScope.launch {
-                    dataService.unarchiveSavedItem(itemID)
+                    dataService.unarchiveSavedItem(item.savedItem.savedItemId)
                 }
             }
 

@@ -178,7 +178,6 @@ fun TypeaheadSearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
                     intent.putExtra("SAVED_ITEM_SLUG", cardData.slug)
                     context.startActivity(intent)
                 },
-                actionHandler = { viewModel.handleSavedItemAction(cardData.savedItemId, it) }
             )
         }
     }
@@ -216,7 +215,7 @@ fun SearchViewContent(viewModel: SearchViewModel, modifier: Modifier) {
                 },
                 actionHandler = {
                     viewModel.handleSavedItemAction(
-                        cardDataWithLabels.savedItem.savedItemId,
+                        cardDataWithLabels,
                         it
                     )
                 }

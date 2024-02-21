@@ -181,8 +181,8 @@ fun LabelBottomSheet(
             skipPartiallyExpanded = true
         ),
     ) {
-
         val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
+        Log.d("ITEM", "currentSavedItemData: ${currentSavedItemData}")
         val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(
             listOf()
         )
@@ -273,6 +273,7 @@ fun EditBottomSheet(
         ),
     ) {
         val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
+        Log.d("item", "EDIT CURRENT SAVED ITEM DATA: ${currentSavedItemData}")
         EditInfoSheetContent(
             savedItemId = currentSavedItemData?.savedItem?.savedItemId,
             title = currentSavedItemData?.savedItem?.title,
@@ -334,7 +335,7 @@ fun LibraryViewContent(
                 val swipeThreshold = 0.45f
 
                 val currentThresholdFraction = remember { mutableStateOf(0f) }
-                val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
+                val currentItem by rememberUpdatedState(cardDataWithLabels)
                 val swipeState = rememberDismissState(
                     confirmStateChange = {
                         when(it) {
@@ -354,13 +355,13 @@ fun LibraryViewContent(
                         }
 
                         if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
-                            if (currentItem.isArchived) {
-                                libraryViewModel.unarchiveSavedItem(currentItem.savedItemId)
+                            if (currentItem.savedItem.isArchived) {
+                                libraryViewModel.unarchiveSavedItem(currentItem.savedItem.savedItemId)
                             } else {
-                                libraryViewModel.archiveSavedItem(currentItem.savedItemId)
+                                libraryViewModel.archiveSavedItem(currentItem.savedItem.savedItemId)
                             }
                         } else if (it == DismissValue.DismissedToStart) { // Deleting.
-                            libraryViewModel.deleteSavedItem(currentItem.savedItemId)
+                            libraryViewModel.deleteSavedItem(currentItem.savedItem.savedItemId)
                         }
 
                         true
@@ -385,7 +386,7 @@ fun LibraryViewContent(
                             DismissDirection.EndToStart -> Alignment.CenterEnd
                         }
                         val icon = when (direction) {
-                            DismissDirection.StartToEnd -> if (currentItem.isArchived) Icons.Default.Unarchive else Icons.Default.Archive
+                            DismissDirection.StartToEnd -> if (currentItem.savedItem.isArchived) Icons.Default.Unarchive else Icons.Default.Archive
                             DismissDirection.EndToStart -> Icons.Default.Delete
                         }
                         val scale by animateFloatAsState(
@@ -410,7 +411,7 @@ fun LibraryViewContent(
                     },
                     dismissContent = {
                         val selected =
-                            currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
+                            currentItem.savedItem.savedItemId == selectedItem?.savedItem?.savedItemId
                         val test = SavedItemWithLabelsAndHighlights(
                             savedItem = cardDataWithLabels.savedItem,
                             labels = listOf(),
@@ -423,14 +424,14 @@ fun LibraryViewContent(
                             onClickHandler = {
                                 libraryViewModel.actionsMenuItemLiveData.postValue(null)
                                 val activityClass =
-                                    if (currentItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+                                    if (currentItem.savedItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
                                 val intent = Intent(context, activityClass)
-                                intent.putExtra("SAVED_ITEM_SLUG", currentItem.slug)
+                                intent.putExtra("SAVED_ITEM_SLUG", currentItem.savedItem.slug)
                                 context.startActivity(intent)
                             },
                             actionHandler = {
                                 libraryViewModel.handleSavedItemAction(
-                                    currentItem.savedItemId,
+                                    currentItem,
                                     it
                                 )
                             }

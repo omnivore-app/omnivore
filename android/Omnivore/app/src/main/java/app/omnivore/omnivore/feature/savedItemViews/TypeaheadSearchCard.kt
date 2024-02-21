@@ -15,7 +15,7 @@ import app.omnivore.omnivore.feature.library.SavedItemAction
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TypeaheadSearchCard(cardData: TypeaheadCardData, onClickHandler: () -> Unit, actionHandler: (SavedItemAction) -> Unit) {
+fun TypeaheadSearchCard(cardData: TypeaheadCardData, onClickHandler: () -> Unit) {
     Column(
         modifier = Modifier
             .combinedClickable(

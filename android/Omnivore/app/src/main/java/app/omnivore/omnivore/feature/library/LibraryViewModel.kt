@@ -1,5 +1,7 @@
 package app.omnivore.omnivore.feature.library
 
+import android.util.Log
+import android.util.Log.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -97,11 +99,10 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    private val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
     val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
     val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
-    val currentItem = mutableStateOf<String?>(null)
+    val currentItem = mutableStateOf<SavedItemWithLabelsAndHighlights?>(null)
     val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
     val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
@@ -324,34 +325,34 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    override fun handleSavedItemAction(itemID: String, action: SavedItemAction) {
+    override fun handleSavedItemAction(item: SavedItemWithLabelsAndHighlights, action: SavedItemAction) {
         when (action) {
             SavedItemAction.Delete -> {
-                deleteSavedItem(itemID)
+                deleteSavedItem(item.savedItem.savedItemId)
             }
 
             SavedItemAction.Archive -> {
-                archiveSavedItem(itemID)
+                archiveSavedItem(item.savedItem.savedItemId)
             }
 
             SavedItemAction.Unarchive -> {
-                unarchiveSavedItem(itemID)
+                unarchiveSavedItem(item.savedItem.savedItemId)
             }
 
             SavedItemAction.EditLabels -> {
-                currentItem.value = itemID
+                currentItem.value = item
                 bottomSheetState.value = LibraryBottomSheetState.LABEL
             }
 
             SavedItemAction.EditInfo -> {
-                currentItem.value = itemID
+                currentItem.value = item
                 bottomSheetState.value = LibraryBottomSheetState.EDIT
             }
 
             SavedItemAction.MarkRead -> {
                 viewModelScope.launch {
                     _uiState.value = LibraryUiState.Success(emptyList())
-                    libraryRepository.updateReadingProgress(itemID, 100.0, 0)
+                    libraryRepository.updateReadingProgress(item.savedItem.savedItemId, 100.0, 0)
                     loadSavedItems()
                 }
             }
@@ -359,7 +360,7 @@ class LibraryViewModel @Inject constructor(
             SavedItemAction.MarkUnread -> {
                 viewModelScope.launch {
                     _uiState.value = LibraryUiState.Success(emptyList())
-                    libraryRepository.updateReadingProgress(itemID, 0.0, 0)
+                    libraryRepository.updateReadingProgress(item.savedItem.savedItemId, 0.0, 0)
                     loadSavedItems()
                 }
             }
@@ -433,11 +434,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
-        currentItem.value?.let { itemID ->
-            return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
-        }
-
-        return null
+        return currentItem.value
     }
 
     private fun searchQueryString(): String {
