@@ -873,17 +873,6 @@ export const createOrUpdateLibraryItem = async (
 
       if (existingLibraryItem) {
         const id = existingLibraryItem.id
-        // update existing library item
-        const newItem = await repo.save({
-          ...libraryItem,
-          id,
-          slug: existingLibraryItem.slug, // keep the original slug
-        })
-
-        // delete the new item if it's different from the existing one
-        if (libraryItem.id && libraryItem.id !== id) {
-          await repo.delete(libraryItem.id)
-        }
 
         try {
           // delete labels and highlights if the item was deleted
@@ -898,10 +887,25 @@ export const createOrUpdateLibraryItem = async (
             await tx.getRepository(EntityLabel).delete({
               libraryItemId: existingLibraryItem.id,
             })
+
+            libraryItem.labelNames = []
+            libraryItem.highlightAnnotations = []
           }
         } catch (error) {
           // continue to save the item even if we failed to delete labels and highlights
           logger.error('Failed to delete labels and highlights', error)
+        }
+
+        // update existing library item
+        const newItem = await repo.save({
+          ...libraryItem,
+          id,
+          slug: existingLibraryItem.slug, // keep the original slug
+        })
+
+        // delete the new item if it's different from the existing one
+        if (libraryItem.id && libraryItem.id !== id) {
+          await repo.delete(libraryItem.id)
         }
 
         return newItem
