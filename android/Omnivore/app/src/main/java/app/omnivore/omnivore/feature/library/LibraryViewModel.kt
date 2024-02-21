@@ -7,8 +7,6 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.omnivore.omnivore.utils.DatastoreKeys
-import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.data.archiveSavedItem
@@ -16,25 +14,29 @@ import app.omnivore.omnivore.core.data.deleteSavedItem
 import app.omnivore.omnivore.core.data.fetchSavedItemContent
 import app.omnivore.omnivore.core.data.isSavedItemContentStoredInDB
 import app.omnivore.omnivore.core.data.librarySearch
+import app.omnivore.omnivore.core.data.model.LibraryQuery
+import app.omnivore.omnivore.core.data.repository.LibraryRepository
 import app.omnivore.omnivore.core.data.sync
 import app.omnivore.omnivore.core.data.syncLabels
 import app.omnivore.omnivore.core.data.syncOfflineItemsWithServerIfNeeded
 import app.omnivore.omnivore.core.data.unarchiveSavedItem
-import app.omnivore.omnivore.core.data.updateWebReadingProgress
-import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
-import app.omnivore.omnivore.core.network.Networker
-import app.omnivore.omnivore.core.network.createNewLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
+import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.core.network.Networker
+import app.omnivore.omnivore.core.network.createNewLabel
 import app.omnivore.omnivore.feature.ResourceProvider
 import app.omnivore.omnivore.feature.setSavedItemLabels
+import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
+import app.omnivore.omnivore.utils.DatastoreKeys
 import com.apollographql.apollo3.api.Optional
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -46,34 +48,60 @@ class LibraryViewModel @Inject constructor(
     private val networker: Networker,
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    private val libraryRepository: LibraryRepository,
 ) : ViewModel(), SavedItemViewModel {
 
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
     private var cursor: String? = null
     private var librarySearchCursor: String? = null
 
-    // These are used to make sure we handle search result
-    // responses in the right order
-    private var searchIdx = 0
-    private var receivedIdx = 0
-
     var snackbarMessage by mutableStateOf<String?>(null)
         private set
 
-    // Live Data
-    private var itemsLiveDataInternal = dataService.db.savedItemDao().filteredLibraryData(
-        allowedArchiveStates = listOf(0),
-        sortKey = "newest",
-        requiredLabels = listOf(),
-        excludedLabels = listOf(),
-        allowedContentReaders = listOf("WEB", "PDF", "EPUB")
+    private val _libraryQuery = MutableStateFlow(
+        LibraryQuery(
+            allowedArchiveStates = listOf(0),
+            sortKey = "newest",
+            requiredLabels = listOf(),
+            excludedLabels = listOf(),
+            allowedContentReaders = listOf("WEB", "PDF", "EPUB")
+        )
     )
-    val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
+
+    // Correct way - but not working
+/*    val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
+        libraryRepository.getSavedItems(query)
+    }
+        .map(LibraryUiState::Success)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = LibraryUiState.Loading
+        )*/
+
+    // This approach needs to be replaced with the StateFlow above after fixing Room Flow
+    private val _uiState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
+    val uiState: StateFlow<LibraryUiState> = _uiState
+
+    init {
+        loadSavedItems()
+    }
+
+    private fun loadSavedItems() {
+        viewModelScope.launch {
+            libraryRepository.getSavedItems(_libraryQuery.value)
+                .collect { favoriteNews ->
+                    _uiState.value = LibraryUiState.Success(favoriteNews)
+                }
+        }
+    }
+
+    private val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
     val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
     val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
-    val currentItemLiveData = MutableLiveData<String?>(null)
+    val currentItem = mutableStateOf<String?>(null)
     val savedItemLabelsLiveData = dataService.db.savedItemLabelDao().getSavedItemLabelsLiveData()
     val activeLabelsLiveData = MutableLiveData<List<SavedItemLabel>>(listOf())
 
@@ -83,6 +111,7 @@ class LibraryViewModel @Inject constructor(
     private var hasLoadedInitialFilters = false
 
     private fun loadInitialFilterValues() {
+
         if (hasLoadedInitialFilters) {
             return
         }
@@ -130,8 +159,6 @@ class LibraryViewModel @Inject constructor(
             hasLoadedInitialFilters = false
             cursor = null
             librarySearchCursor = null
-            searchIdx = 0
-            receivedIdx = 0
         }
 
         if (hasLoadedInitialFilters) {
@@ -153,8 +180,7 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val result = dataService.librarySearch(
-                    cursor = librarySearchCursor,
-                    query = searchQueryString()
+                    cursor = librarySearchCursor, query = searchQueryString()
                 )
                 result.cursor?.let {
                     librarySearchCursor = it
@@ -237,17 +263,14 @@ class LibraryViewModel @Inject constructor(
                 else -> listOf()
             }
 
-            val newData = dataService.db.savedItemDao().filteredLibraryData(
+            _libraryQuery.value = LibraryQuery(
                 allowedArchiveStates = allowedArchiveStates,
                 sortKey = sortKey,
                 requiredLabels = requiredLabels,
                 excludedLabels = excludeLabels,
                 allowedContentReaders = allowedContentReaders
             )
-
-            itemsLiveData.removeSource(itemsLiveDataInternal)
-            itemsLiveDataInternal = newData
-            itemsLiveData.addSource(itemsLiveDataInternal, itemsLiveData::setValue)
+            loadSavedItems()
         }
     }
 
@@ -316,42 +339,28 @@ class LibraryViewModel @Inject constructor(
             }
 
             SavedItemAction.EditLabels -> {
-                currentItemLiveData.value = itemID
+                currentItem.value = itemID
                 bottomSheetState.value = LibraryBottomSheetState.LABEL
             }
 
             SavedItemAction.EditInfo -> {
-                currentItemLiveData.value = itemID
+                currentItem.value = itemID
                 bottomSheetState.value = LibraryBottomSheetState.EDIT
             }
 
             SavedItemAction.MarkRead -> {
                 viewModelScope.launch {
-                    dataService.updateWebReadingProgress(
-                        jsonString = Gson().toJson(
-                            mapOf(
-                                "id" to itemID,
-                                "readingProgressPercent" to 100.0,
-                                "readingProgressAnchorIndex" to 0,
-                                "force" to true
-                            )
-                        )
-                    )
+                    _uiState.value = LibraryUiState.Success(emptyList())
+                    libraryRepository.updateReadingProgress(itemID, 100.0, 0)
+                    loadSavedItems()
                 }
             }
 
             SavedItemAction.MarkUnread -> {
                 viewModelScope.launch {
-                    dataService.updateWebReadingProgress(
-                        jsonString = Gson().toJson(
-                            mapOf(
-                                "id" to itemID,
-                                "readingProgressPercent" to 0,
-                                "readingProgressAnchorIndex" to 0,
-                                "force" to true
-                            )
-                        )
-                    )
+                    _uiState.value = LibraryUiState.Success(emptyList())
+                    libraryRepository.updateReadingProgress(itemID, 0.0, 0)
+                    loadSavedItems()
                 }
             }
         }
@@ -424,7 +433,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
-        currentItemLiveData.value?.let { itemID ->
+        currentItem.value?.let { itemID ->
             return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
         }
 
@@ -446,12 +455,16 @@ class LibraryViewModel @Inject constructor(
     }
 }
 
+sealed interface LibraryUiState {
+    data object Loading : LibraryUiState
+
+    data class Success(
+        val items: List<SavedItemWithLabelsAndHighlights>,
+    ) : LibraryUiState
+
+    data object Error : LibraryUiState
+}
+
 enum class SavedItemAction {
-    Delete,
-    Archive,
-    Unarchive,
-    EditLabels,
-    EditInfo,
-    MarkRead,
-    MarkUnread
+    Delete, Archive, Unarchive, EditLabels, EditInfo, MarkRead, MarkUnread
 }

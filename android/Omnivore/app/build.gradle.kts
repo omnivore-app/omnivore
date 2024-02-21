@@ -118,6 +118,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.util)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
     androidTestImplementation(libs.androidx.compose.ui.test)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
@@ -164,6 +165,8 @@ dependencies {
     implementation(libs.intercom)
     implementation(libs.compose.markdown)
     implementation(libs.chiptextfield.m3)
+
+    implementation(libs.androidx.lifecycle.runtimeCompose)
 
 }
 

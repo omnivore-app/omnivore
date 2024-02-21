@@ -8,7 +8,7 @@ import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighli
 import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.core.network.savedItemUpdates
 import app.omnivore.omnivore.core.network.search
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 
 suspend fun DataService.librarySearch(cursor: String?, query: String): SearchResult {
   val searchResult = networker.search(cursor = cursor, limit = 10, query = query)

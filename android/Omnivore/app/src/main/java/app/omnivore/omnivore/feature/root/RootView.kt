@@ -8,25 +8,23 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import app.omnivore.omnivore.navigation.Routes
 import app.omnivore.omnivore.feature.auth.LoginViewModel
 import app.omnivore.omnivore.feature.auth.WelcomeScreen
 import app.omnivore.omnivore.feature.components.LabelsViewModel
 import app.omnivore.omnivore.feature.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.feature.library.LibraryView
-import app.omnivore.omnivore.feature.library.LibraryViewModel
 import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.settings.PolicyWebView
 import app.omnivore.omnivore.feature.settings.SettingsView
 import app.omnivore.omnivore.feature.settings.SettingsViewModel
+import app.omnivore.omnivore.navigation.Routes
 
 @Composable
 fun RootView(
     loginViewModel: LoginViewModel,
     searchViewModel: SearchViewModel,
-    libraryViewModel: LibraryViewModel,
     settingsViewModel: SettingsViewModel,
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
@@ -39,7 +37,6 @@ fun RootView(
             PrimaryNavigator(
                 loginViewModel = loginViewModel,
                 searchViewModel = searchViewModel,
-                libraryViewModel = libraryViewModel,
                 settingsViewModel = settingsViewModel,
                 labelsViewModel = labelsViewModel,
                 saveViewModel = saveViewModel,
@@ -61,7 +58,6 @@ fun RootView(
 @Composable
 fun PrimaryNavigator(
     loginViewModel: LoginViewModel,
-    libraryViewModel: LibraryViewModel,
     searchViewModel: SearchViewModel,
     settingsViewModel: SettingsViewModel,
     labelsViewModel: LabelsViewModel,
@@ -73,7 +69,6 @@ fun PrimaryNavigator(
     NavHost(navController = navController, startDestination = Routes.Library.route) {
         composable(Routes.Library.route) {
             LibraryView(
-                libraryViewModel = libraryViewModel,
                 navController = navController,
                 labelsViewModel = labelsViewModel,
                 saveViewModel = saveViewModel,

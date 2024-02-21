@@ -1,9 +1,13 @@
 package app.omnivore.omnivore.core.database.entities
 
 import androidx.core.net.toUri
-import androidx.lifecycle.LiveData
-import androidx.room.*
-import java.util.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Transaction
 
 @Entity
 data class SavedItem(
@@ -128,114 +132,7 @@ abstract class SavedItemWithLabelsAndHighlightsDao {
     }
 }
 
-@Dao
-interface SavedItemDao {
-    @Query("SELECT * FROM savedItem")
-    fun getAll(): List<SavedItem>
 
-    @Query("SELECT * FROM savedItem WHERE savedItemId = :itemID")
-    fun findById(itemID: String): SavedItem?
-
-    @Query("SELECT * FROM savedItem WHERE serverSyncStatus != 0")
-    fun getUnSynced(): List<SavedItem>
-
-    @Query("SELECT * FROM savedItem WHERE slug = :slug")
-    fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
-
-    @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
-    fun deleteById(itemID: String)
-
-    @Query("DELETE FROM savedItem WHERE savedItemId in (:itemIDs)")
-    fun deleteByIds(itemIDs: List<String>)
-
-    @Update
-    fun update(savedItem: SavedItem)
-
-    @Transaction
-    @Query(
-        "SELECT ${SavedItemQueryConstants.libraryColumns} " +
-                "FROM SavedItem " +
-                "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
-                "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
-
-                "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
-                "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
-
-                "WHERE SavedItem.savedItemId = :savedItemId " +
-
-                "GROUP BY SavedItem.savedItemId "
-    )
-    fun getLibraryItemById(savedItemId: String): LiveData<SavedItemWithLabelsAndHighlights>
-
-    @Transaction
-    @Query(
-        "SELECT ${SavedItemQueryConstants.libraryColumns} " +
-                "FROM SavedItem " +
-                "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
-                "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
-
-                "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
-                "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
-
-                "WHERE SavedItem.savedItemId = :savedItemId " +
-
-                "GROUP BY SavedItem.savedItemId "
-    )
-    suspend fun getById(savedItemId: String): SavedItemWithLabelsAndHighlights?
-
-    @Transaction
-    @Query(
-        "SELECT ${SavedItemQueryConstants.libraryColumns} " +
-                "FROM SavedItem " +
-                "LEFT OUTER JOIN SavedItemAndSavedItemLabelCrossRef on SavedItem.savedItemId = SavedItemAndSavedItemLabelCrossRef.savedItemId " +
-                "LEFT OUTER JOIN SavedItemAndHighlightCrossRef on SavedItem.savedItemId = SavedItemAndHighlightCrossRef.savedItemId " +
-
-                "LEFT OUTER JOIN SavedItemLabel on SavedItemLabel.savedItemLabelId = SavedItemAndSavedItemLabelCrossRef.savedItemLabelId " +
-                "LEFT OUTER  JOIN Highlight on highlight.highlightId = SavedItemAndHighlightCrossRef.highlightId " +
-
-                "WHERE SavedItem.serverSyncStatus != 2 " +
-                "AND SavedItem.isArchived IN (:allowedArchiveStates) " +
-                "AND SavedItem.contentReader IN (:allowedContentReaders) " +
-                "AND CASE WHEN :hasRequiredLabels THEN SavedItemLabel.name in (:requiredLabels) ELSE 1 END " +
-                "AND CASE WHEN :hasExcludedLabels THEN  SavedItemLabel.name is NULL OR SavedItemLabel.name not in (:excludedLabels)  ELSE 1 END " +
-
-                "GROUP BY SavedItem.savedItemId " +
-
-                "ORDER BY \n" +
-                "CASE WHEN :sortKey = 'newest' THEN SavedItem.savedAt END DESC,\n" +
-                "CASE WHEN :sortKey = 'oldest' THEN SavedItem.savedAt END ASC,\n" +
-
-                "CASE WHEN :sortKey = 'recentlyRead' THEN SavedItem.readAt END DESC,\n" +
-                "CASE WHEN :sortKey = 'recentlyPublished' THEN SavedItem.publishDate END DESC"
-    )
-    fun _filteredLibraryData(
-        allowedArchiveStates: List<Int>,
-        sortKey: String,
-        hasRequiredLabels: Int,
-        hasExcludedLabels: Int,
-        requiredLabels: List<String>,
-        excludedLabels: List<String>,
-        allowedContentReaders: List<String>
-    ): LiveData<List<SavedItemWithLabelsAndHighlights>>
-
-    fun filteredLibraryData(
-        allowedArchiveStates: List<Int>,
-        sortKey: String,
-        requiredLabels: List<String>,
-        excludedLabels: List<String>,
-        allowedContentReaders: List<String>
-    ): LiveData<List<SavedItemWithLabelsAndHighlights>> {
-        return _filteredLibraryData(
-            allowedArchiveStates = allowedArchiveStates,
-            sortKey = sortKey,
-            hasRequiredLabels = requiredLabels.size,
-            hasExcludedLabels = excludedLabels.size,
-            requiredLabels = requiredLabels,
-            excludedLabels = excludedLabels,
-            allowedContentReaders = allowedContentReaders
-        )
-    }
-}
 
 
 object SavedItemQueryConstants {

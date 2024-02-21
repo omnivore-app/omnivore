@@ -1,6 +1,10 @@
 package app.omnivore.omnivore.core.data
 
 import android.util.Log
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
+import app.omnivore.omnivore.core.database.entities.HighlightChange
+import app.omnivore.omnivore.core.database.entities.SavedItem
+import app.omnivore.omnivore.core.database.entities.highlightChangeToHighlight
 import app.omnivore.omnivore.core.network.ReadingProgressParams
 import app.omnivore.omnivore.core.network.createHighlight
 import app.omnivore.omnivore.core.network.deleteHighlights
@@ -13,10 +17,6 @@ import app.omnivore.omnivore.graphql.generated.type.CreateHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.HighlightType
 import app.omnivore.omnivore.graphql.generated.type.MergeHighlightInput
 import app.omnivore.omnivore.graphql.generated.type.UpdateHighlightInput
-import app.omnivore.omnivore.core.model.ServerSyncStatus
-import app.omnivore.omnivore.core.database.entities.HighlightChange
-import app.omnivore.omnivore.core.database.entities.SavedItem
-import app.omnivore.omnivore.core.database.entities.highlightChangeToHighlight
 import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.delay
 
@@ -50,7 +50,7 @@ suspend fun DataService.syncOfflineItemsWithServerIfNeeded() {
 }
 
 private suspend fun DataService.syncSavedItem(item: SavedItem) {
-  fun updateSyncStatus(status: ServerSyncStatus) {
+  suspend fun updateSyncStatus(status: ServerSyncStatus) {
     item.serverSyncStatus = status.rawValue
     db.savedItemDao().update(item)
   }

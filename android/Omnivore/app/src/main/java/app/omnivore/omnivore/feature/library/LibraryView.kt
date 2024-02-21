@@ -20,7 +20,6 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
@@ -32,9 +31,11 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +51,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
@@ -70,50 +74,52 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @Composable
-fun LibraryView(
-    libraryViewModel: LibraryViewModel,
+internal fun LibraryView(
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val scaffoldState: ScaffoldState = rememberScaffoldState()
 
     val coroutineScope = rememberCoroutineScope()
 
-    val showBottomSheet: LibraryBottomSheetState by libraryViewModel.bottomSheetState.observeAsState(
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val showBottomSheet: LibraryBottomSheetState by viewModel.bottomSheetState.observeAsState(
         LibraryBottomSheetState.HIDDEN
     )
 
-    libraryViewModel.snackbarMessage?.let {
+    viewModel.snackbarMessage?.let {
         coroutineScope.launch {
             scaffoldState.snackbarHostState.showSnackbar(it)
-            libraryViewModel.clearSnackbarMessage()
+            viewModel.clearSnackbarMessage()
         }
     }
 
     when (showBottomSheet) {
         LibraryBottomSheetState.ADD_LINK -> {
             AddLinkBottomSheet(saveViewModel) {
-                libraryViewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
+                viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
             }
         }
 
         LibraryBottomSheetState.LABEL -> {
             LabelBottomSheet(
-                libraryViewModel,
+                viewModel,
                 labelsViewModel
             ) {
-                libraryViewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
+                viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
             }
         }
 
         LibraryBottomSheetState.EDIT -> {
             EditBottomSheet(
                 editInfoViewModel,
-                libraryViewModel
+                viewModel
             ) {
-                libraryViewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
+                viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
             }
         }
 
@@ -122,21 +128,38 @@ fun LibraryView(
     }
 
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = {
             LibraryNavigationBar(
-                savedItemViewModel = libraryViewModel,
+                savedItemViewModel = viewModel,
                 onSearchClicked = { navController.navigate(Routes.Search.route) },
-                onAddLinkClicked = { showAddLinkBottomSheet(libraryViewModel) },
+                onAddLinkClicked = { showAddLinkBottomSheet(viewModel) },
                 onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
             )
         },
     ) { paddingValues ->
-        LibraryViewContent(
-            libraryViewModel,
-            modifier = Modifier
-                .padding(top = paddingValues.calculateTopPadding())
-        )
+        when (uiState) {
+            is LibraryUiState.Success -> {
+                LibraryViewContent(
+                    viewModel,
+                    modifier = Modifier
+                        .padding(top = paddingValues.calculateTopPadding()),
+                    uiState = uiState
+                )
+            }
+            is LibraryUiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(strokeCap  = StrokeCap.Round)
+                }
+            }
+            else -> {
+                // TODO
+            }
+        }
     }
 }
 
@@ -169,7 +192,7 @@ fun LabelBottomSheet(
                 labelsViewModel = labelsViewModel,
                 initialSelectedLabels = currentSavedItemData.labels,
                 onCancel = {
-                    libraryViewModel.currentItemLiveData.value = null
+                    libraryViewModel.currentItem.value = null
                     onDismiss()
                 },
                 isLibraryMode = false,
@@ -180,7 +203,7 @@ fun LabelBottomSheet(
                             labels = it
                         )
                     }
-                    libraryViewModel.currentItemLiveData.value = null
+                    libraryViewModel.currentItem.value = null
                     onDismiss()
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
@@ -196,7 +219,7 @@ fun LabelBottomSheet(
                 isLibraryMode = true,
                 onSave = {
                     libraryViewModel.updateAppliedLabels(it)
-                    libraryViewModel.currentItemLiveData.value = null
+                    libraryViewModel.currentItem.value = null
                     onDismiss()
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
@@ -257,11 +280,11 @@ fun EditBottomSheet(
             description = currentSavedItemData?.savedItem?.descriptionText,
             viewModel = editInfoViewModel,
             onCancel = {
-                libraryViewModel.currentItemLiveData.value = null
+                libraryViewModel.currentItem.value = null
                 onDismiss()
             },
             onUpdated = {
-                libraryViewModel.currentItemLiveData.value = null
+                libraryViewModel.currentItem.value = null
                 libraryViewModel.refresh()
                 onDismiss()
             }
@@ -272,7 +295,11 @@ fun EditBottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
+fun LibraryViewContent(
+    libraryViewModel: LibraryViewModel,
+    modifier: Modifier,
+    uiState: LibraryUiState
+) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
 
@@ -282,9 +309,6 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
     )
 
     val selectedItem: SavedItemWithLabelsAndHighlights? by libraryViewModel.actionsMenuItemLiveData.observeAsState()
-    val cardsData: List<SavedItemWithLabelsAndHighlights> by libraryViewModel.itemsLiveData.observeAsState(
-        listOf()
-    )
 
     Box(
         modifier = Modifier
@@ -299,13 +323,12 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
             modifier = modifier
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
-                .padding(horizontal = 6.dp)
         ) {
             item {
                 LibraryFilterBar(libraryViewModel)
             }
             items(
-                items = cardsData,
+                items = (uiState as LibraryUiState.Success).items,
                 key = { item -> item.savedItem.savedItemId }
             ) { cardDataWithLabels ->
                 val swipeThreshold = 0.45f
@@ -388,10 +411,15 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
                     dismissContent = {
                         val selected =
                             currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
+                        val test = SavedItemWithLabelsAndHighlights(
+                            savedItem = cardDataWithLabels.savedItem,
+                            labels = listOf(),
+                            highlights = listOf()
+                        )
                         SavedItemCard(
                             selected = selected,
                             savedItemViewModel = libraryViewModel,
-                            savedItem = cardDataWithLabels,
+                            savedItem = test,
                             onClickHandler = {
                                 libraryViewModel.actionsMenuItemLiveData.postValue(null)
                                 val activityClass =
@@ -417,7 +445,7 @@ fun LibraryViewContent(libraryViewModel: LibraryViewModel, modifier: Modifier) {
         }
 
         InfiniteListHandler(listState = listState) {
-            if (cardsData.isEmpty()) {
+            if ((uiState as LibraryUiState.Success).items.isEmpty()) {
                 Log.d("sync", "loading with load func")
                 libraryViewModel.initialLoad()
             } else {

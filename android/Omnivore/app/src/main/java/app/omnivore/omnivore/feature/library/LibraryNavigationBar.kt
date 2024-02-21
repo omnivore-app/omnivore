@@ -131,7 +131,7 @@ fun LibraryNavigationBar(
                         contentDescription = null
                     )
                 }
-/*                IconButton(onClick = { isMenuExpanded = true } ) {
+                IconButton(onClick = { isMenuExpanded = true } ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = null
@@ -144,7 +144,7 @@ fun LibraryNavigationBar(
                             onDismiss = { isMenuExpanded = false },
                         )
                     }
-                }*/
+                }
             } ?: run {
                 IconButton(onClick = onSearchClicked) {
                     Icon(

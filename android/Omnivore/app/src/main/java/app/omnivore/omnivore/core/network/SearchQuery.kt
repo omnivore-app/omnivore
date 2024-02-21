@@ -4,7 +4,7 @@ import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.graphql.generated.SearchQuery
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import com.apollographql.apollo3.api.Optional
 
 data class LibrarySearchQueryResponse(

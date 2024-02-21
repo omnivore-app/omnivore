@@ -1,7 +1,7 @@
 package app.omnivore.omnivore.core.database.entities
 
 import androidx.room.*
-import app.omnivore.omnivore.core.model.ServerSyncStatus
+import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import com.google.gson.annotations.SerializedName
 
 
@@ -73,7 +73,20 @@ data class SavedItemWithLabelsAndHighlights(
     associateBy = Junction(SavedItemAndHighlightCrossRef::class)
   )
   val highlights: List<Highlight>
-)
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as SavedItemWithLabelsAndHighlights
+
+    return savedItem.savedItemId == other.savedItem.savedItemId
+  }
+
+  override fun hashCode(): Int {
+    return savedItem.savedItemId.hashCode()
+  }
+}
 
 @Dao
 interface HighlightDao {
