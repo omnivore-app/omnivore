@@ -140,23 +140,6 @@ const main = async () => {
     mq: env.redis.mq,
   })
 
-  appDataSource.setOptions({
-    type: 'postgres',
-    host: env.pg.host,
-    port: env.pg.port,
-    schema: 'omnivore',
-    username: env.pg.userName,
-    password: env.pg.password,
-    database: env.pg.dbName,
-    logging: ['query', 'info'],
-    entities: [__dirname + '/entity/**/*{.js,.ts}'],
-    subscribers: [__dirname + '/events/**/*{.js,.ts}'],
-    namingStrategy: new SnakeNamingStrategy(),
-    logger: new CustomTypeOrmLogger(['query', 'info']),
-    connectTimeoutMS: 40000, // 40 seconds
-    maxQueryExecutionTime: 10000, // 10 seconds
-  })
-
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
