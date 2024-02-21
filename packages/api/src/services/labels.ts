@@ -63,8 +63,7 @@ export const createAndAddLabelsToLibraryItem = async (
   userId: string,
   labels?: CreateLabelInput[] | null,
   rssFeedUrl?: string | null,
-  source?: LabelSource,
-  pubsub?: PubsubClient
+  source?: LabelSource
 ) => {
   if (rssFeedUrl) {
     // add rss label to labels
@@ -77,11 +76,10 @@ export const createAndAddLabelsToLibraryItem = async (
     const newLabels = await findOrCreateLabels(labels, userId)
 
     await addLabelsToLibraryItem(
-      newLabels,
+      newLabels.map((l) => l.id),
       libraryItemId,
       userId,
-      source,
-      pubsub
+      source
     )
   }
 }

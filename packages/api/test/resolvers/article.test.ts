@@ -21,9 +21,11 @@ import {
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
+import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
-  createOrUpdateLibraryItem,
   createLibraryItems,
+  createOrUpdateLibraryItem,
+  CreateOrUpdateLibraryItemArgs,
   deleteLibraryItemById,
   deleteLibraryItemByUrl,
   deleteLibraryItems,
@@ -32,7 +34,6 @@ import {
   findLibraryItemByUrl,
   softDeleteLibraryItem,
   updateLibraryItem,
-  CreateOrUpdateLibraryItemArgs,,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -43,12 +44,7 @@ import {
   createTestUser,
   saveLabelsInLibraryItem,
 } from '../db'
-import {
-  generateFakeShortId,
-  generateFakeUuid,
-  graphqlRequest,
-  request,
-} from '../util'
+import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
 
