@@ -23,16 +23,17 @@ import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
 import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
-  createOrUpdateLibraryItem,
   createLibraryItems,
+  createOrUpdateLibraryItem,
+  CreateOrUpdateLibraryItemArgs,
   deleteLibraryItemById,
   deleteLibraryItemByUrl,
   deleteLibraryItems,
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
+  softDeleteLibraryItem,
   updateLibraryItem,
-  CreateOrUpdateLibraryItemArgs,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
@@ -712,7 +713,7 @@ describe('Article API', () => {
       await deleteLibraryItemById(itemId, user.id)
     })
 
-    it('marks an article as deleted', async () => {
+    it('soft deletes the item', async () => {
       await graphqlRequest(setBookmarkQuery(itemId, false), authToken).expect(
         200
       )
@@ -2062,11 +2063,8 @@ describe('Article API', () => {
 
       // Delete some items
       for (let i = 0; i < 3; i++) {
-        await updateLibraryItem(
-          items[i].id,
-          { state: LibraryItemState.Deleted, deletedAt: new Date() },
-          user.id
-        )
+        await softDeleteLibraryItem(items[i].id, user.id)
+
         deletedItems.push(items[i])
       }
     })

@@ -8,6 +8,7 @@ import {
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
+import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -18,6 +19,7 @@ import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { addLabelsToLibraryItem } from './labels'
 
@@ -708,6 +710,32 @@ export const restoreLibraryItem = async (
   )
 }
 
+export const softDeleteLibraryItem = async (
+  id: string,
+  userId: string,
+  pubsub = createPubSubClient()
+): Promise<LibraryItem> => {
+  const deletedLibraryItem = await authTrx(
+    async (tx) => {
+      const itemRepo = tx.withRepository(libraryItemRepository)
+
+      // mark item as deleted
+      await itemRepo.update(id, {
+        state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
+      })
+
+      return itemRepo.findOneByOrFail({ id })
+    },
+    undefined,
+    userId
+  )
+
+  await pubsub.entityDeleted(EntityType.PAGE, id, userId)
+
+  return deletedLibraryItem
+}
+
 export const updateLibraryItem = async (
   id: string,
   libraryItem: QueryDeepPartialEntity<LibraryItem>,
@@ -719,13 +747,10 @@ export const updateLibraryItem = async (
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
 
-      // reset deletedAt and archivedAt
+      // reset archivedAt
       switch (libraryItem.state) {
         case LibraryItemState.Archived:
           libraryItem.archivedAt = new Date()
-          break
-        case LibraryItemState.Deleted:
-          libraryItem.deletedAt = new Date()
           break
         case LibraryItemState.Processing:
         case LibraryItemState.Succeeded:
@@ -847,15 +872,39 @@ export const createOrUpdateLibraryItem = async (
       )
 
       if (existingLibraryItem) {
+        const id = existingLibraryItem.id
+
+        try {
+          // delete labels and highlights if the item was deleted
+          if (existingLibraryItem.state === LibraryItemState.Deleted) {
+            logger.info('Deleting labels and highlights for item', {
+              id,
+            })
+            await tx.getRepository(Highlight).delete({
+              libraryItem: { id: existingLibraryItem.id },
+            })
+
+            await tx.getRepository(EntityLabel).delete({
+              libraryItemId: existingLibraryItem.id,
+            })
+
+            libraryItem.labelNames = []
+            libraryItem.highlightAnnotations = []
+          }
+        } catch (error) {
+          // continue to save the item even if we failed to delete labels and highlights
+          logger.error('Failed to delete labels and highlights', error)
+        }
+
         // update existing library item
         const newItem = await repo.save({
           ...libraryItem,
-          id: existingLibraryItem.id,
+          id,
           slug: existingLibraryItem.slug, // keep the original slug
         })
 
         // delete the new item if it's different from the existing one
-        if (libraryItem.id && libraryItem.id !== existingLibraryItem.id) {
+        if (libraryItem.id && libraryItem.id !== id) {
           await repo.delete(libraryItem.id)
         }
 

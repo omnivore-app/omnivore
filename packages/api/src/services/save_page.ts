@@ -24,7 +24,7 @@ import { parsePreparedContent } from '../utils/parser'
 import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
-import { createAndSaveLabelsInLibraryItem } from './labels'
+import { createAndAddLabelsToLibraryItem } from './labels'
 import { createOrUpdateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
@@ -132,7 +132,8 @@ export const savePage = async (
   )
   clientRequestId = newItem.id
 
-  await createAndSaveLabelsInLibraryItem(
+  // merge labels
+  await createAndAddLabelsToLibraryItem(
     clientRequestId,
     user.id,
     input.labels,
@@ -157,6 +158,7 @@ export const savePage = async (
       libraryItem: { id: clientRequestId },
     }
 
+    // merge highlights
     try {
       await createHighlight(highlight, clientRequestId, user.id)
     } catch (error) {
@@ -214,7 +216,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
-  logger.info('save_page: state', { url, state, itemId })
+  logger.info('save_page', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,
@@ -254,5 +256,6 @@ export const parsedContentToLibraryItem = ({
     folder: folder || 'inbox',
     archivedAt:
       state === ArticleSavingRequestStatus.Archived ? new Date() : null,
+    deletedAt: state === ArticleSavingRequestStatus.Deleted ? new Date() : null,
   }
 }

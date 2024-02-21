@@ -198,4 +198,10 @@ export class LibraryItem {
 
   @Column('text')
   folder!: string
+
+  @Column('text')
+  labelNames?: string[]
+
+  @Column('text')
+  highlightAnnotations?: string[]
 }
