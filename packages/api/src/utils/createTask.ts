@@ -283,6 +283,7 @@ export const enqueueParseRequest = async ({
     publishedAt,
     folder,
     rssFeedUrl,
+    priority,
   }
 
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment

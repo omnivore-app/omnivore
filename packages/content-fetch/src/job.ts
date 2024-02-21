@@ -9,6 +9,7 @@ interface savePageJob {
   data: unknown
   isRss: boolean
   isImport: boolean
+  priority: 'low' | 'high'
 }
 
 const queue = new Queue(QUEUE_NAME, {
@@ -29,7 +30,7 @@ const getPriority = (job: savePageJob): number => {
     return 100
   }
 
-  return 1
+  return job.priority === 'low' ? 10 : 1
 }
 
 const getAttempts = (job: savePageJob): number => {

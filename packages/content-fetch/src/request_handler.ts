@@ -23,6 +23,7 @@ interface RequestBody {
   publishedAt?: string
   folder?: string
   users?: User[]
+  priority: 'high' | 'low'
 }
 
 interface LogRecord {
@@ -88,6 +89,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   const rssFeedUrl = body.rssFeedUrl
   const savedAt = body.savedAt
   const publishedAt = body.publishedAt
+  const priority = body.priority
 
   const logRecord: LogRecord = {
     url,
@@ -130,6 +132,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
       },
       isRss: !!rssFeedUrl,
       isImport: !!taskId,
+      priority,
     }))
 
     const cacheResult = await cacheFetchResult(fetchResult)
