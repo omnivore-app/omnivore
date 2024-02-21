@@ -36,6 +36,7 @@ RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
 FROM node:18.16 as runner
+LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 RUN apt-get update && apt-get install -y netcat-openbsd
 
