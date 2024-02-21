@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SavedItemDao {
 
-    @Transaction
     @Query("SELECT * FROM savedItem")
     fun getAll(): Flow<List<SavedItem>>
 

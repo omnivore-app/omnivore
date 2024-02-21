@@ -2,7 +2,7 @@ package app.omnivore.omnivore.di
 
 import android.content.Context
 import androidx.room.Room
-import app.omnivore.omnivore.core.database.AppDatabase
+import app.omnivore.omnivore.core.database.OmnivoreDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,9 +17,9 @@ object DatabaseModule {
     @Singleton
     fun providesOmnivoreDatabase(
         @ApplicationContext context: Context,
-    ): AppDatabase = Room.databaseBuilder(
+    ): OmnivoreDatabase = Room.databaseBuilder(
         context,
-        AppDatabase::class.java,
+        OmnivoreDatabase::class.java,
         "omnivore-database",
     ).build()
 }

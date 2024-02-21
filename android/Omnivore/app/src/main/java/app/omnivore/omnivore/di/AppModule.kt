@@ -3,7 +3,7 @@ package app.omnivore.omnivore.di
 import android.content.Context
 import app.omnivore.omnivore.core.analytics.EventTracker
 import app.omnivore.omnivore.core.data.DataService
-import app.omnivore.omnivore.core.database.AppDatabase
+import app.omnivore.omnivore.core.database.OmnivoreDatabase
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
 import app.omnivore.omnivore.core.datastore.OmnivoreDatastore
 import app.omnivore.omnivore.core.network.Networker
@@ -35,8 +35,8 @@ object AppModule {
   @Singleton
   @Provides
   fun provideDataService(
-    networker: Networker,
-    appDatabase: AppDatabase
-  ) = DataService(networker, appDatabase)
+      networker: Networker,
+      omnivoreDatabase: OmnivoreDatabase
+  ) = DataService(networker, omnivoreDatabase)
 
 }

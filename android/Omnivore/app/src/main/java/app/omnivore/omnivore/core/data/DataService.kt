@@ -1,6 +1,6 @@
 package app.omnivore.omnivore.core.data
 
-import app.omnivore.omnivore.core.database.AppDatabase
+import app.omnivore.omnivore.core.database.OmnivoreDatabase
 import app.omnivore.omnivore.core.database.entities.SavedItem
 import app.omnivore.omnivore.core.network.Networker
 import kotlinx.coroutines.CoroutineScope
@@ -11,11 +11,11 @@ import javax.inject.Inject
 
 class DataService @Inject constructor(
     val networker: Networker,
-    appDatabase: AppDatabase
+    omnivoreDatabase: OmnivoreDatabase
 ) {
     val savedItemSyncChannel = Channel<SavedItem>(capacity = Channel.UNLIMITED)
 
-    val db = appDatabase
+    val db = omnivoreDatabase
 
     init {
         CoroutineScope(Dispatchers.IO).launch {

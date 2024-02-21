@@ -20,7 +20,6 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
@@ -36,6 +35,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +45,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -127,7 +128,6 @@ internal fun LibraryView(
     }
 
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = {
             LibraryNavigationBar(
                 savedItemViewModel = viewModel,
@@ -334,8 +334,7 @@ fun LibraryViewContent(
                 val swipeThreshold = 0.45f
 
                 val currentThresholdFraction = remember { mutableStateOf(0f) }
-                //val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
-                val currentItem = cardDataWithLabels.savedItem
+                val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
                 val swipeState = rememberDismissState(
                     confirmStateChange = {
                         when(it) {
@@ -412,10 +411,15 @@ fun LibraryViewContent(
                     dismissContent = {
                         val selected =
                             currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
+                        val test = SavedItemWithLabelsAndHighlights(
+                            savedItem = cardDataWithLabels.savedItem,
+                            labels = listOf(),
+                            highlights = listOf()
+                        )
                         SavedItemCard(
                             selected = selected,
                             savedItemViewModel = libraryViewModel,
-                            savedItem = cardDataWithLabels,
+                            savedItem = test,
                             onClickHandler = {
                                 libraryViewModel.actionsMenuItemLiveData.postValue(null)
                                 val activityClass =
