@@ -1,4 +1,5 @@
 FROM node:18.16
+LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 # Installs latest Chromium (92) package.
 RUN apt-get update && apt-get install -y \
