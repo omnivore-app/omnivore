@@ -33,6 +33,8 @@ RUN yarn workspace @omnivore/web build
 
 
 FROM node:18.16-alpine as runner
+LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
+
 ENV NODE_ENV production
 ENV PORT=8080
 ENV NEXT_TELEMETRY_DISABLED 1
