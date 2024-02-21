@@ -131,7 +131,9 @@ build-docker-images:
         fetch-depth: 0
     - name: Build the API docker image
       run: 'docker build --file packages/api/Dockerfile .'
-    - name: Build the content-fetch cloud function docker image
-      run: 'docker build --file packages/content-fetch/Dockerfile-gcf .'
+    - name: Build the content-fetch docker image
+      run: 'docker build --file packages/content-fetch/Dockerfile .'
     - name: Build the inbound-email-handler docker image
       run: 'docker build --file packages/inbound-email-handler/Dockerfile .'
+    - name: Build the content-fetch cloud function docker image
+      run: 'docker build --file packages/content-fetch/Dockerfile-gcf .'
