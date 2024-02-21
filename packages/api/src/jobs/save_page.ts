@@ -246,8 +246,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     // for non-pdf content, we need to save the page
     const result = await savePage(
       {
-        url,
-        finalUrl,
+        url: finalUrl,
         clientRequestId: articleSavingRequestId,
         title,
         originalContent: content,

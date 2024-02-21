@@ -2,7 +2,7 @@ import { DeepPartial } from 'typeorm'
 import { getColumns, getColumnsDbName } from '.'
 import { appDataSource } from '../data_source'
 import { LibraryItem } from '../entity/library_item'
-import { keysToCamelCase, wordsCount } from '../utils/helpers'
+import { wordsCount } from '../utils/helpers'
 
 const convertToLibraryItem = (item: DeepPartial<LibraryItem>) => {
   return {
@@ -18,52 +18,43 @@ export const libraryItemRepository = appDataSource
       return this.findOneBy({ id })
     },
 
-    findByUserIdAndUrl(userId: string, url: string) {
+    findByUserIdAndUrl(userId: string, url: string, forUpdate = false) {
       // md5 is used to hash the url to avoid the length limit of the index
-      return this.createQueryBuilder()
+      const qb = this.createQueryBuilder()
         .where('user_id = :userId', { userId })
         .andWhere('md5(original_url) = md5(:url)', { url })
-        .getOne()
+
+      if (forUpdate) {
+        qb.setLock('pessimistic_write')
+      }
+
+      return qb.getOne()
     },
 
     countByCreatedAt(createdAt: Date) {
       return this.countBy({ createdAt })
     },
 
-    async upsertLibraryItem(item: DeepPartial<LibraryItem>, finalUrl?: string) {
+    async upsertLibraryItemById(item: DeepPartial<LibraryItem>) {
       const columns = getColumnsDbName(this)
-      // overwrites columns except id and slug
-      const overwrites = columns.filter(
-        (column) => !['id', 'slug'].includes(column)
-      )
+      // overwrites columns except slug
+      const overwrites = columns.filter((column) => column !== 'slug')
 
-      const hashedUrl = 'md5(original_url)'
-      let conflictColumns = ['user_id', hashedUrl]
-
-      if (item.id && finalUrl && finalUrl !== item.originalUrl) {
-        // update the original url if it's different from the current one in the database
-        conflictColumns = ['id']
-        item.originalUrl = finalUrl
-      }
-
-      const [query, params] = this.createQueryBuilder()
+      const result = await this.createQueryBuilder()
         .insert()
         .into(LibraryItem)
         .values(convertToLibraryItem(item))
-        .orUpdate(overwrites, conflictColumns, {
+        .orUpdate(overwrites, ['id'], {
           skipUpdateIfNoValuesChanged: true,
         })
         .returning(getColumns(this))
-        .getQueryAndParameters()
+        .execute()
 
-      // this is a workaround for the typeorm bug which quotes the md5 function
-      const newQuery = query.replace(`"${hashedUrl}"`, hashedUrl)
-      const results = (await this.query(newQuery, params)) as never[]
+      if (result.generatedMaps.length === 0) {
+        throw new Error('Failed to upsert library item')
+      }
 
-      // convert to camel case
-      const newItem = keysToCamelCase(results[0]) as LibraryItem
-
-      return newItem
+      return result.generatedMaps[0] as LibraryItem
     },
 
     createByPopularRead(name: string, userId: string) {
