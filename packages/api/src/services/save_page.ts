@@ -216,7 +216,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
-  logger.info('save_page: state', { url, state, itemId })
+  logger.info('save_page', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,
@@ -256,5 +256,6 @@ export const parsedContentToLibraryItem = ({
     folder: folder || 'inbox',
     archivedAt:
       state === ArticleSavingRequestStatus.Archived ? new Date() : null,
+    deletedAt: state === ArticleSavingRequestStatus.Deleted ? new Date() : null,
   }
 }

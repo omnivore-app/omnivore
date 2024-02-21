@@ -872,16 +872,36 @@ export const createOrUpdateLibraryItem = async (
       )
 
       if (existingLibraryItem) {
+        const id = existingLibraryItem.id
         // update existing library item
         const newItem = await repo.save({
           ...libraryItem,
-          id: existingLibraryItem.id,
+          id,
           slug: existingLibraryItem.slug, // keep the original slug
         })
 
         // delete the new item if it's different from the existing one
-        if (libraryItem.id && libraryItem.id !== existingLibraryItem.id) {
+        if (libraryItem.id && libraryItem.id !== id) {
           await repo.delete(libraryItem.id)
+        }
+
+        try {
+          // delete labels and highlights if the item was deleted
+          if (existingLibraryItem.state === LibraryItemState.Deleted) {
+            logger.info('Deleting labels and highlights for item', {
+              id,
+            })
+            await tx.getRepository(Highlight).delete({
+              libraryItem: { id: existingLibraryItem.id },
+            })
+
+            await tx.getRepository(EntityLabel).delete({
+              libraryItemId: existingLibraryItem.id,
+            })
+          }
+        } catch (error) {
+          // continue to save the item even if we failed to delete labels and highlights
+          logger.error('Failed to delete labels and highlights', error)
         }
 
         return newItem
@@ -1185,45 +1205,4 @@ export const findLibraryItemIdsByLabelId = async (
     undefined,
     userId
   )
-}
-
-export const recreateLibraryItem = async (
-  id: string,
-  userId: string,
-  existingItemState: LibraryItemState,
-  itemToSave: DeepPartial<LibraryItem>,
-  pubsub = createPubSubClient()
-) => {
-  // update the item except for id and slug
-  const updatedItem = await updateLibraryItem(
-    id,
-    {
-      ...itemToSave,
-      id: undefined,
-      slug: undefined,
-    } as QueryDeepPartialEntity<LibraryItem>,
-    userId,
-    pubsub
-  )
-
-  try {
-    // delete labels and highlights if the item was deleted
-    if (existingItemState === LibraryItemState.Deleted) {
-      logger.info('Deleting labels and highlights for item', { id })
-      await authTrx(async (t) => {
-        await t.getRepository(Highlight).delete({
-          libraryItem: { id },
-        })
-
-        await t.getRepository(EntityLabel).delete({
-          libraryItemId: id,
-        })
-      })
-    }
-  } catch (error) {
-    // continue to save the item even if we failed to delete labels and highlights
-    logger.error('Failed to delete labels and highlights', error)
-  }
-
-  return updatedItem
 }
