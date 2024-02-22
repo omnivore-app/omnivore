@@ -652,6 +652,21 @@ export const searchLibraryItems = async (
   )
 }
 
+export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .leftJoinAndSelect('highlights.user', 'user')
+        .where('library_item.id IN (:...ids)', { ids })
+        .getMany(),
+    undefined,
+    userId
+  )
+}
+
 export const findLibraryItemById = async (
   id: string,
   userId: string
@@ -775,6 +790,7 @@ export const updateLibraryItem = async (
     {
       ...libraryItem,
       id,
+      libraryItemId: id,
       // don't send original content and readable content
       originalContent: undefined,
       readableContent: undefined,
@@ -935,6 +951,7 @@ export const createOrUpdateLibraryItem = async (
     EntityType.PAGE,
     {
       ...newLibraryItem,
+      libraryItemId: newLibraryItem.id,
       // don't send original content and readable content
       originalContent: undefined,
       readableContent: undefined,

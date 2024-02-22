@@ -34,7 +34,7 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
-  enqueueExportToIntegration,
+  enqueueExportAllItems,
   enqueueImportFromIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
@@ -98,17 +98,7 @@ export const setIntegrationResolver = authorized<
       }
 
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const taskName = await enqueueExportToIntegration(
-        integration.id,
-        integration.name,
-        0,
-        authToken
-      )
-      log.info('enqueued task', taskName)
-
-      // update task name in integration
-      await updateIntegration(integration.id, { taskName }, uid)
-      integration.taskName = taskName
+      await enqueueExportAllItems(integration.id, uid)
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
       const result = await deleteTask(integrationToSave.taskName)

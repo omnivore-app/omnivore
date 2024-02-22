@@ -17,6 +17,11 @@ import {
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
+import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
+import {
+  ExportItemJobData,
+  EXPORT_ITEM_JOB_NAME,
+} from '../jobs/integration/export_item'
 import {
   queueRSSRefreshFeedJob,
   REFRESH_ALL_FEEDS_JOB_NAME,
@@ -59,12 +64,14 @@ export const getJobPriority = (jobName: string): number => {
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
+    case EXPORT_ITEM_JOB_NAME:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
       return 10
     case `${REFRESH_FEED_JOB_NAME}_low`:
       return 50
+    case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
       return 100
@@ -574,55 +581,22 @@ export const enqueueImportFromIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueExportToIntegration = async (
+export const enqueueExportAllItems = async (
   integrationId: string,
-  integrationName: string,
-  syncAt: number, // unix timestamp in milliseconds
-  authToken: string
-): Promise<string> => {
-  const { GOOGLE_CLOUD_PROJECT } = process.env
+  userId: string
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
   const payload = {
+    userId,
     integrationId,
-    integrationName,
-    syncAt,
   }
-
-  const headers = {
-    [OmnivoreAuthorizationHeader]: authToken,
-  }
-  // If there is no Google Cloud Project Id exposed, it means that we are in local environment
-  if (env.dev.isLocal || !GOOGLE_CLOUD_PROJECT) {
-    if (env.queue.integrationExporterUrl) {
-      // Calling the handler function directly.
-      setTimeout(() => {
-        axios
-          .post(env.queue.integrationExporterUrl, payload, {
-            headers,
-          })
-          .catch((error) => {
-            logError(error)
-          })
-      }, 0)
-    }
-    return nanoid()
-  }
-
-  const createdTasks = await createHttpTaskWithToken({
-    project: GOOGLE_CLOUD_PROJECT,
-    payload,
-    taskHandlerUrl: env.queue.integrationExporterUrl,
-    priority: 'low',
-    requestHeaders: headers,
+  return queue.add(EXPORT_ALL_ITEMS_JOB_NAME, payload, {
+    priority: getJobPriority(EXPORT_ALL_ITEMS_JOB_NAME),
+    attempts: 1,
   })
-
-  if (!createdTasks || !createdTasks[0].name) {
-    logger.error(`Unable to get the name of the task`, {
-      payload,
-      createdTasks,
-    })
-    throw new CreateTaskError(`Unable to get the name of the task`)
-  }
-  return createdTasks[0].name
 }
 
 export const enqueueThumbnailJob = async (
@@ -783,6 +757,18 @@ export const enqueueBulkAction = async (data: BulkActionData) => {
   } catch (error) {
     logger.error('error enqueuing bulk action job', error)
   }
+}
+
+export const enqueueExportItem = async (jobData: ExportItemJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(EXPORT_ITEM_JOB_NAME, jobData, {
+    attempts: 1,
+    priority: getJobPriority(EXPORT_ITEM_JOB_NAME),
+  })
 }
 
 export default createHttpTaskWithToken

@@ -1,7 +1,11 @@
-import 'mocha'
 import * as chai from 'chai'
 import { expect } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 import fs from 'fs'
+import 'mocha'
+import nock from 'nock'
+import { User } from '../../src/entity/user'
+import { deleteUser } from '../../src/services/user'
 import {
   getTitleFromEmailSubject,
   isProbablyArticle,
@@ -9,11 +13,7 @@ import {
   parsePageMetadata,
   parsePreparedContent,
 } from '../../src/utils/parser'
-import nock from 'nock'
-import chaiAsPromised from 'chai-as-promised'
-import { User } from '../../src/entity/user'
 import { createTestUser } from '../db'
-import { deleteUser } from '../../src/services/user'
 
 chai.use(chaiAsPromised)
 

@@ -15,7 +15,7 @@ export const mochaGlobalTeardown = async () => {
     console.log('redis connection closed')
 
     if (redisDataSource.workerRedisClient) {
-      stopWorker()
+      await stopWorker()
       console.log('worker closed')
     }
   }

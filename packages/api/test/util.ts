@@ -20,7 +20,7 @@ export const stopApolloServer = async () => {
   await apollo.stop()
 }
 
-export const startWorker = async (connection: ConnectionOptions) => {
+export const startWorker = (connection: ConnectionOptions) => {
   worker = createWorker(connection)
   queueEvents = new QueueEvents(QUEUE_NAME, {
     connection,
@@ -28,8 +28,8 @@ export const startWorker = async (connection: ConnectionOptions) => {
 }
 
 export const stopWorker = async () => {
-  queueEvents.close()
-  worker.close()
+  await queueEvents.close()
+  await worker.close()
 }
 
 export const waitUntilJobsDone = async (jobs: Job[]) => {
