@@ -432,7 +432,7 @@ struct WebReaderContainerView: View {
           }, label: { Text(LocalText.readerSave) })
         }
         #if os(iOS)
-          .sheet(item: $safariWebLink) {
+          .fullScreenCover(item: $safariWebLink) {
             SafariView(url: $0.url)
               .ignoresSafeArea(.all, edges: .bottom)
           }
