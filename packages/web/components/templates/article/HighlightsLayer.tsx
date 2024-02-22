@@ -12,6 +12,7 @@ import type { Highlight } from '../../../lib/networking/fragments/highlightFragm
 import {
   getHighlightElements,
   highlightIdAttribute,
+  highlightLabelIdAttribute,
   highlightNoteIdAttribute,
   SelectionAttributes,
 } from '../../../lib/highlights/highlightHelpers'
@@ -79,15 +80,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
-  const [focusedHighlight, setFocusedHighlight] = useState<
-    Highlight | undefined
-  >(undefined)
+  const [focusedHighlight, setFocusedHighlight] =
+    useState<Highlight | undefined>(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
-    undefined
-  )
+  const [labelsTarget, setLabelsTarget] =
+    useState<Highlight | undefined>(undefined)
 
   const [
     confirmDeleteHighlightWithNoteId,
@@ -388,6 +387,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlight: highlight,
           highlightModalAction: 'addComment',
         })
+      } else if ((target as Element).hasAttribute(highlightLabelIdAttribute)) {
+        const id = (target as HTMLSpanElement).getAttribute(
+          highlightLabelIdAttribute
+        )
+        const highlight = highlights.find(($0) => $0.id === id)
+        setFocusedHighlight(highlight)
+        setLabelsTarget(highlight)
       } else {
         window?.webkit?.messageHandlers.viewerAction?.postMessage({
           actionID: 'pageTapped',
@@ -395,7 +401,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [openNoteModal, highlights]
+    [openNoteModal, highlights, setLabelsTarget]
   )
 
   const handleDoubleClick = useCallback(

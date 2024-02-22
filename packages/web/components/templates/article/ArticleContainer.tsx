@@ -435,7 +435,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                   key={label.id}
                   text={label.name}
                   color={label.color}
-                  useAppAppearance={props.isAppleAppEmbed}
                 />
               ))}
             </SpanBox>

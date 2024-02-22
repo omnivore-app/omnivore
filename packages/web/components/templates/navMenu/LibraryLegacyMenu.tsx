@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, DotsThree, MagnifyingGlass, X } from 'phosphor-react'
+import { Circle, X } from 'phosphor-react'
 import {
   Subscription,
   SubscriptionType,
@@ -20,19 +20,6 @@ import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
 import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
 import { NavMenuFooter } from './Footer'
-import { FollowingIcon } from '../../elements/icons/FollowingIcon'
-import { HomeIcon } from '../../elements/icons/HomeIcon'
-import { LibraryIcon } from '../../elements/icons/LibraryIcon'
-import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
-import { CoverImage } from '../../elements/CoverImage'
-import { Shortcut } from '../../../pages/settings/shortcuts'
-import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
-import { NewsletterFlairIcon } from '../../elements/icons/NewsletterFlairIcon'
-import { FeedFlairIcon } from '../../elements/icons/FeedFlairIcon'
-import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
-import { DropdownMenu } from '@radix-ui/react-dropdown-menu'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { useRouter } from 'next/router'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -46,7 +33,7 @@ type LibraryFilterMenuProps = {
   setShowFilterMenu: (show: boolean) => void
 }
 
-export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
+export function LibraryLegacyMenu(props: LibraryFilterMenuProps): JSX.Element {
   const [labels, setLabels] = usePersistedState<Label[]>({
     key: 'menu-labels',
     isSessionStorage: false,
@@ -157,11 +144,9 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
             <X size={30} />
           </Button>
         </Box>
-        <LibraryNav {...props} />
-        <Shortcuts {...props} />
-        {/* <SavedSearches {...props} savedSearches={savedSearches} />
+        <SavedSearches {...props} savedSearches={savedSearches} />
         <Subscriptions {...props} subscriptions={subscriptions} />
-        <Labels {...props} labels={labels} /> */}
+        <Labels {...props} labels={labels} />
         <NavMenuFooter {...props} />
         <Box css={{ height: '250px ' }} />
       </Box>
@@ -178,277 +163,6 @@ export function LibraryFilterMenu(props: LibraryFilterMenuProps): JSX.Element {
         }}
       ></Box>
     </>
-  )
-}
-
-const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
-  return (
-    <VStack
-      css={{
-        m: '0px',
-        mt: '10px',
-        gap: '5px',
-        width: '100%',
-        borderBottom: '1px solid $thBorderColor',
-        px: '15px',
-        pb: '25px',
-      }}
-      alignment="start"
-      distribution="start"
-    >
-      <NavButton
-        {...props}
-        text="Home"
-        filterTerm="in:library OR in:following use:folders"
-        icon={<HomeIcon color={theme.colors.thHomeIcon.toString()} />}
-      />
-      <NavButton
-        {...props}
-        text="Following"
-        filterTerm="in:following use:folders"
-        icon={<FollowingIcon color="#F59932" />}
-      />
-      <NavButton
-        {...props}
-        text="Library"
-        filterTerm="in:library use:folders"
-        icon={<LibraryIcon color={theme.colors.ctaBlue.toString()} />}
-      />
-      <NavButton
-        {...props}
-        text="Highlights"
-        filterTerm="in:all has:highlights mode:highlights"
-        icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
-      />
-    </VStack>
-  )
-}
-
-const Shortcuts = (props: LibraryFilterMenuProps): JSX.Element => {
-  const router = useRouter()
-  const [shortcuts] = usePersistedState<Shortcut[]>({
-    key: 'library-shortcuts',
-    isSessionStorage: false,
-    initialValue: [],
-  })
-
-  // const shortcuts: Shortcut[] = [
-  //   {
-  //     id: '12asdfasdf',
-  //     name: 'Omnivore Blog',
-  //     icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'subscription:"Money Talk"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfsdfgdsfg',
-  //     name: 'Follow the Money | Arne & Harr',
-  //     filter: 'subscription:"Money Talk"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
-  //     name: 'Andrew Kenneson from Center for the Study of Partisanship and Ideology',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'newsletter',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfsdfsdfsgasdfg',
-  //     name: 'Robert的博客',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'feed',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfasdfasf',
-  //     name: 'Oldest First',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'search',
-  //   },
-  //   {
-  //     id: 'sdfasdfasdfgasdfg',
-  //     name: 'Hockey',
-  //     // icon: 'https://substackcdn.com/image/fetch/w_256,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F052c15c4-ecfd-4d32-87db-13bcac9afad5_512x512.png',
-  //     filter: 'in:all label:"Hockey"',
-  //     type: 'label',
-  //     label: {
-  //       id: 'sdfsdfsdf',
-  //       name: 'Hockey',
-  //       color: '#E98B8B',
-  //       createdAt: new Date(),
-  //     },
-  //   },
-  // ]
-  //
-
-  return (
-    <VStack
-      css={{
-        m: '0px',
-        gap: '8px',
-        width: '100%',
-        px: '15px',
-        pb: '25px',
-      }}
-      alignment="start"
-      distribution="start"
-    >
-      <HStack
-        alignment="center"
-        distribution="start"
-        css={{ width: '100%', pr: '0px' }}
-      >
-        <StyledText
-          css={{
-            fontFamily: '$display',
-            fontSize: '14px',
-            lineHeight: '125%',
-            color: '$thLibraryMenuPrimary',
-            pl: '10px',
-            // mt: '20px',
-            mb: '10px',
-          }}
-        >
-          SHORTCUTS
-        </StyledText>
-        <SpanBox css={{ display: 'flex', ml: 'auto' }}>
-          <Dropdown
-            side="bottom"
-            triggerElement={<DotsThree size={20} />}
-            css={{ ml: 'auto' }}
-          >
-            <DropdownOption
-              onSelect={() => {
-                router.push(`/settings/shortcuts`)
-              }}
-              title="Edit shortcuts"
-            />
-          </Dropdown>
-        </SpanBox>
-      </HStack>
-      {shortcuts.map((shortcut) => {
-        const selected = props.searchTerm === shortcut.filter
-        return (
-          <Box
-            key={`shortcut-${shortcut.id}`}
-            css={{
-              display: 'flex',
-              width: '100%',
-              maxWidth: '100%',
-              height: '32px',
-
-              backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
-              color: selected
-                ? '$thLibraryMenuSecondary'
-                : '$thLibraryMenuUnselected',
-              verticalAlign: 'middle',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              '&:hover': {
-                backgroundColor: selected
-                  ? '$thLibrarySelectionColor'
-                  : '$thBackground4',
-              },
-              '&:active': {
-                backgroundColor: selected
-                  ? '$thLibrarySelectionColor'
-                  : '$thBackground4',
-              },
-            }}
-            title={shortcut.name}
-            onClick={(e) => {
-              props.applySearchQuery(shortcut.filter)
-              props.setShowFilterMenu(false)
-              e.preventDefault()
-            }}
-          >
-            {(shortcut.type == 'feed' || shortcut.type == 'newsletter') && (
-              <FeedOrNewsletterShortcut shortcut={shortcut} />
-            )}
-            {shortcut.type == 'search' && (
-              <SearchShortcut shortcut={shortcut} />
-            )}
-            {shortcut.type == 'label' && <LabelShortcut shortcut={shortcut} />}
-          </Box>
-        )
-      })}
-    </VStack>
-  )
-}
-
-type ShortcutItemProps = {
-  shortcut: Shortcut
-}
-
-const FeedOrNewsletterShortcut = (props: ShortcutItemProps): JSX.Element => {
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{ pl: '10px', width: '100%', gap: '10px' }}
-      key={`search-${props.shortcut.id}`}
-    >
-      <HStack
-        distribution="start"
-        alignment="center"
-        css={{ minWidth: '20px' }}
-      >
-        {props.shortcut.icon ? (
-          <CoverImage
-            src={props.shortcut.icon}
-            width={20}
-            height={20}
-            css={{ borderRadius: '20px' }}
-          />
-        ) : props.shortcut.type == 'newsletter' ? (
-          <NewsletterIcon color="#F59932" size={18} />
-        ) : (
-          <FollowingIcon color="#F59932" size={21} />
-        )}
-      </HStack>
-      <StyledText style="settingsItem">{props.shortcut.name}</StyledText>
-    </HStack>
-  )
-}
-
-const SearchShortcut = (props: ShortcutItemProps): JSX.Element => {
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{ pl: '10px', width: '100%', gap: '10px' }}
-      key={`search-${props.shortcut.id}`}
-    >
-      <HStack
-        distribution="start"
-        alignment="center"
-        css={{ minWidth: '20px' }}
-      >
-        <MagnifyingGlass size={18} />
-      </HStack>
-      <StyledText style="settingsItem">{props.shortcut.name}</StyledText>
-    </HStack>
-  )
-}
-
-const LabelShortcut = (props: ShortcutItemProps): JSX.Element => {
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{ pl: '5px', width: '100%' }}
-      key={`search-${props.shortcut.id}`}
-    >
-      <OutlinedLabelChip
-        text={props.shortcut.name}
-        color={props.shortcut.label?.color ?? 'gray'}
-      />
-    </HStack>
   )
 }
 
@@ -488,7 +202,7 @@ function SavedSearches(
 
   return (
     <MenuPanel
-      title="SHORTCUTS"
+      title="Saved Searches"
       collapsed={collapsed}
       setCollapsed={setCollapsed}
     >
@@ -666,8 +380,9 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       <HStack css={{ width: '100%' }} distribution="start" alignment="center">
         <StyledText
           css={{
-            fontFamily: '$display',
-            fontSize: '14px',
+            fontFamily: 'Inter',
+            fontWeight: '600',
+            fontSize: '16px',
             lineHeight: '125%',
             color: '$thLibraryMenuPrimary',
             pl: '10px',
@@ -709,78 +424,6 @@ function MenuPanel(props: MenuPanelProps): JSX.Element {
       </HStack>
       {props.children}
     </VStack>
-  )
-}
-
-type NavButtonProps = {
-  text: string
-  icon: ReactNode
-
-  filterTerm: string
-  searchTerm: string | undefined
-
-  applySearchQuery: (searchTerm: string) => void
-  setShowFilterMenu: (show: boolean) => void
-}
-
-function NavButton(props: NavButtonProps): JSX.Element {
-  const isInboxFilter = (filter: string) => {
-    return filter === '' || filter === 'in:inbox'
-  }
-  const selected = useMemo(() => {
-    if (isInboxFilter(props.filterTerm) && !props.searchTerm) {
-      return true
-    }
-    return props.searchTerm === props.filterTerm
-  }, [props.searchTerm, props.filterTerm])
-
-  return (
-    <HStack
-      alignment="center"
-      distribution="start"
-      css={{
-        pl: '10px',
-        mb: '2px',
-        gap: '10px',
-        display: 'flex',
-        width: '100%',
-        maxWidth: '100%',
-        height: '34px',
-
-        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
-        fontSize: '15px',
-        fontWeight: 'regular',
-        fontFamily: '$display',
-        color: selected
-          ? '$thLibraryMenuSecondary'
-          : '$thLibraryMenuUnselected',
-        verticalAlign: 'middle',
-        borderRadius: '3px',
-        cursor: 'pointer',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        '&:hover': {
-          backgroundColor: selected
-            ? '$thLibrarySelectionColor'
-            : '$thBackground4',
-        },
-        '&:active': {
-          backgroundColor: selected
-            ? '$thLibrarySelectionColor'
-            : '$thBackground4',
-        },
-      }}
-      title={props.text}
-      onClick={(e) => {
-        props.applySearchQuery(props.filterTerm)
-        props.setShowFilterMenu(false)
-        e.preventDefault()
-      }}
-    >
-      {props.icon}
-      {props.text}
-    </HStack>
   )
 }
 

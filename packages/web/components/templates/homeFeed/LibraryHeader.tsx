@@ -48,7 +48,8 @@ export const headerControlWidths = (
   return {
     width: '95%',
     '@mdDown': {
-      width: multiSelectMode !== 'off' ? '100%' : '95%',
+      padding: '15px',
+      width: '100%',
     },
     '@media (min-width: 930px)': {
       width: '620px',

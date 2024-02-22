@@ -2,7 +2,6 @@ import { Box, VStack, HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { LabelChip } from '../../elements/LabelChip'
 import type { LinkedItemCardProps } from './CardTypes'
 import { useCallback, useState } from 'react'
-import Link from 'next/link'
 import {
   AuthorInfoStyle,
   CardCheckbox,

@@ -218,19 +218,14 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         onSelect={() => headerDropdownActionHandler('navigate-to-rules')}
         title="Rules"
       />
-      <DropdownMenu>
-        <DropdownOption
-          onSelect={() => headerDropdownActionHandler('navigate-to-api')}
-          title="API Keys"
-        />
-        <DropdownOption
-          onSelect={() =>
-            headerDropdownActionHandler('navigate-to-integrations')
-          }
-          title="Integrations"
-        />
-      </DropdownMenu>
-
+      <DropdownOption
+        onSelect={() => headerDropdownActionHandler('navigate-to-api')}
+        title="API Keys"
+      />
+      <DropdownOption
+        onSelect={() => headerDropdownActionHandler('navigate-to-integrations')}
+        title="Integrations"
+      />
       <DropdownOption
         onSelect={() => window.open('https://docs.omnivore.app', '_blank')}
         title="Documentation"

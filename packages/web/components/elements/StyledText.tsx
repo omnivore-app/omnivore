@@ -37,6 +37,23 @@ const textVariants = {
       my: '6px',
       color: '$grayText',
     },
+    settingsSection: {
+      fontWeight: '600',
+      fontSize: '17px',
+      fontFamily: '$inter',
+      color: '$grayText',
+      m: '0px',
+      my: '15px',
+      marginBlockStart: '0px',
+      marginBlockEnd: '0px',
+    },
+    settingsItem: {
+      fontSize: '13px',
+      fontFamily: '$display',
+      color: '$grayText',
+      marginBlockStart: '0px',
+      marginBlockEnd: '0px',
+    },
     userNote: {
       fontSize: '16px',
       paddingTop: '0px',

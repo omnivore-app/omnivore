@@ -37,6 +37,7 @@ import { EditLibraryItemModal } from './EditItemModals'
 import { EmptyLibrary } from './EmptyLibrary'
 import { HighlightItemsLayout } from './HighlightsLayout'
 import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
+import { LibraryLegacyMenu } from '../navMenu/LibraryLegacyMenu'
 import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
@@ -68,7 +69,7 @@ const debouncedFetchSearchResults = debounce((query, cb) => {
 // We set a relatively high delay for the refresh at the end, as it's likely there's an issue
 // in processing. We give it the best attempt to be able to resolve, but if it doesn't we set
 // the state as Failed. On refresh it will try again if the backend sends "PROCESSING"
-const TIMEOUT_DELAYS = [1000, 2000, 2500, 3500, 5000, 10000, 60000]
+const TIMEOUT_DELAYS = [2000, 3500, 5000]
 
 export function HomeFeedContainer(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -85,11 +86,13 @@ export function HomeFeedContainer(): JSX.Element {
 
   const gridContainerRef = useRef<HTMLDivElement>(null)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
-  const [notebookTarget, setNotebookTarget] =
-    useState<LibraryItem | undefined>(undefined)
+  const [notebookTarget, setNotebookTarget] = useState<LibraryItem | undefined>(
+    undefined
+  )
 
   const [showAddLinkModal, setShowAddLinkModal] = useState(false)
   const [showEditTitleModal, setShowEditTitleModal] = useState(false)
@@ -206,8 +209,13 @@ export function HomeFeedContainer(): JSX.Element {
       let startIdx = 0
 
       const seeIfUpdated = async () => {
-        if (startIdx > TIMEOUT_DELAYS.length) {
+        if (startIdx >= TIMEOUT_DELAYS.length) {
           item.node.state = State.FAILED
+          const updatedArticle = { ...item }
+          updatedArticle.node = { ...item.node }
+          updatedArticle.isLoading = false
+          console.log(`Updating Metadata of ${item.node.slug}.`)
+          performActionOnItem('update-item', updatedArticle)
           return
         }
 
@@ -931,6 +939,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     key: 'libraryLayout',
     initialValue: 'LIST_LAYOUT',
   })
+  const [navMenuStyle] = usePersistedState<'legacy' | 'shortcuts'>({
+    key: 'library-nav-menu-style',
+    initialValue: 'legacy',
+  })
 
   const updateLayout = useCallback(
     async (newLayout: LayoutType) => {
@@ -967,21 +979,35 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       )}
 
       <HStack css={{ width: '100%', height: '100%' }}>
-        <LibraryFilterMenu
-          setShowAddLinkModal={props.setShowAddLinkModal}
-          searchTerm={props.searchTerm}
-          applySearchQuery={(searchQuery: string) => {
-            props.applySearchQuery(searchQuery)
-          }}
-          showFilterMenu={showFilterMenu}
-          setShowFilterMenu={setShowFilterMenu}
-        />
-
+        {navMenuStyle == 'shortcuts' && (
+          <LibraryFilterMenu
+            setShowAddLinkModal={props.setShowAddLinkModal}
+            searchTerm={props.searchTerm}
+            applySearchQuery={(searchQuery: string) => {
+              props.applySearchQuery(searchQuery)
+            }}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
+          />
+        )}
+        {navMenuStyle == 'legacy' && (
+          <LibraryLegacyMenu
+            setShowAddLinkModal={props.setShowAddLinkModal}
+            searchTerm={props.searchTerm}
+            applySearchQuery={(searchQuery: string) => {
+              props.applySearchQuery(searchQuery)
+            }}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
+          />
+        )}
         {!props.isValidating && props.mode == 'highlights' && (
           <HighlightItemsLayout
             gridContainerRef={props.gridContainerRef}
             items={props.items}
             viewer={viewerData?.me}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
           />
         )}
 

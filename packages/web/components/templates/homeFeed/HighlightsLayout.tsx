@@ -20,12 +20,15 @@ import {
 import { LibraryHighlightGridCard } from '../../patterns/LibraryCards/LibraryHighlightGridCard'
 import { NotebookContent } from '../article/Notebook'
 import { EmptyHighlights } from './EmptyHighlights'
-import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
 import { highlightsAsMarkdown } from './HighlightItem'
+import { MenuHeaderButton } from './LibraryHeader'
 
 type HighlightItemsLayoutProps = {
   items: LibraryItem[]
   viewer: UserBasicData | undefined
+
+  showFilterMenu: boolean
+  setShowFilterMenu: (show: boolean) => void
 
   gridContainerRef: React.RefObject<HTMLDivElement>
 }
@@ -33,10 +36,8 @@ type HighlightItemsLayoutProps = {
 export function HighlightItemsLayout(
   props: HighlightItemsLayoutProps
 ): JSX.Element {
-  // const headerHeight = useGetHeaderHeight()
-  const [currentItem, setCurrentItem] = useState<LibraryItem | undefined>(
-    undefined
-  )
+  const [currentItem, setCurrentItem] =
+    useState<LibraryItem | undefined>(undefined)
 
   const listReducer = (
     state: LibraryItem[],
@@ -106,10 +107,7 @@ export function HighlightItemsLayout(
       <Box
         css={{
           width: '100%',
-          height: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
-          '@mdDown': {
-            height: DEFAULT_HEADER_HEIGHT,
-          },
+          height: `100vh`,
         }}
       >
         <EmptyHighlights />
@@ -122,15 +120,12 @@ export function HighlightItemsLayout(
       <HStack
         css={{
           width: '100%',
-          height: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
+          height: `100vh`,
           '@lgDown': {
             overflowY: 'scroll',
           },
           bg: '$thBackground2',
           overflow: 'hidden',
-          '@mdDown': {
-            height: DEFAULT_HEADER_HEIGHT,
-          },
         }}
         distribution="start"
         alignment="start"
@@ -153,7 +148,7 @@ export function HighlightItemsLayout(
         >
           <VStack
             css={{
-              minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
+              minHeight: `100vh`,
               bg: '$thBackground',
             }}
             distribution="start"
@@ -167,8 +162,22 @@ export function HighlightItemsLayout(
                 borderBottom: '1px solid $thBorderColor',
               }}
               alignment="center"
-              distribution="center"
-            ></HStack>
+              distribution="start"
+            >
+              <SpanBox
+                css={{
+                  display: 'none',
+                  '@mdDown': {
+                    display: 'flex',
+                  },
+                }}
+              >
+                <MenuHeaderButton
+                  showFilterMenu={props.showFilterMenu}
+                  setShowFilterMenu={props.setShowFilterMenu}
+                />
+              </SpanBox>
+            </HStack>
             <LibraryItemsList
               items={items}
               viewer={props.viewer}
