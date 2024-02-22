@@ -69,6 +69,7 @@ export const getJobPriority = (jobName: string): number => {
     case THUMBNAIL_JOB:
       return 100
     default:
+      logger.error(`unknown job name: ${jobName}`)
       return 1
   }
 }
