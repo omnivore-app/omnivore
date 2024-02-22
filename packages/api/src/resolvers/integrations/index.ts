@@ -98,8 +98,7 @@ export const setIntegrationResolver = authorized<
       }
 
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const job = await enqueueExportAllItems(integration.id, uid)
-      log.info('enqueued job', job)
+      await enqueueExportAllItems(integration.id, uid)
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
       const result = await deleteTask(integrationToSave.taskName)
