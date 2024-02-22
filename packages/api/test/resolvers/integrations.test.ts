@@ -130,17 +130,6 @@ describe('Integrations resolvers', () => {
           )
           expect(res.body.data.setIntegration.integration.enabled).to.be.true
         })
-
-        it('creates new cloud task to sync all existing articles and highlights', async () => {
-          const res = await graphqlRequest(
-            query(integrationId, integrationName, token),
-            authToken
-          )
-          const integration = await findIntegration({
-            id: res.body.data.setIntegration.integration.id,
-          }, loginUser.id)
-          expect(integration?.taskName).not.to.be.null
-        })
       })
     })
 

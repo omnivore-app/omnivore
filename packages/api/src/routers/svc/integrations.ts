@@ -50,13 +50,7 @@ export function integrationsServiceRouter() {
             return
           }
 
-          const syncAt = integration.syncedAt?.getTime() || 0
-          return enqueueExportAllItems(
-            integration.id,
-            integration.name,
-            syncAt,
-            authToken
-          )
+          return enqueueExportAllItems(integration.id, integration.user.id)
         })
       )
     } catch (err) {
