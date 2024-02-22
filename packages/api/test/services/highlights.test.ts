@@ -1,12 +1,12 @@
-import 'mocha'
 import { expect } from 'chai'
+import 'mocha'
 import { getHighlightLocation } from '../../src/services/highlights'
 
 describe('getHighlightLocation', () => {
   let patch: string
   let location: number
 
-  before(async () => {
+  before(() => {
     location = 109
     patch = `@@ -${location + 1},16 +${location + 1},36 @@
  . We're
@@ -18,7 +18,7 @@ describe('getHighlightLocation', () => {
   coming`
   })
 
-  it('returns highlight location from patch', async () => {
+  it('returns highlight location from patch', () => {
     const result = getHighlightLocation(patch)
     expect(result).to.eql(location)
   })

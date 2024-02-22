@@ -30,7 +30,7 @@ describe('Emails Router', () => {
     user = await createTestUser('fakeUser')
 
     newsletterEmail = await createNewsletterEmail(user.id)
-    token = process.env.PUBSUB_VERIFICATION_TOKEN!
+    token = process.env.PUBSUB_VERIFICATION_TOKEN || ''
     receivedEmail = await saveReceivedEmail(
       from,
       newsletterEmail.address,
@@ -52,7 +52,7 @@ describe('Emails Router', () => {
   describe('forward', () => {
     const html = '<html>test html</html>'
 
-    beforeEach(async () => {
+    beforeEach(() => {
       sinon.replace(
         sendNotification,
         'sendMulticastPushNotifications',
