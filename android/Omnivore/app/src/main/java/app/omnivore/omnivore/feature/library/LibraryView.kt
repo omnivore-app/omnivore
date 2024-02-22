@@ -413,8 +413,8 @@ fun LibraryViewContent(
                             currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
                         val test = SavedItemWithLabelsAndHighlights(
                             savedItem = cardDataWithLabels.savedItem,
-                            labels = listOf(),
-                            highlights = listOf()
+                            labels = cardDataWithLabels.labels,
+                            highlights = cardDataWithLabels.highlights
                         )
                         SavedItemCard(
                             selected = selected,
