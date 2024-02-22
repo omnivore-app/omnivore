@@ -40,7 +40,7 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
   }
 
   const maxItems = 1000
-  const limit = 50
+  const limit = 100
   let offset = 0
   // get max 1000 most recent items from the database
   while (offset < maxItems) {
