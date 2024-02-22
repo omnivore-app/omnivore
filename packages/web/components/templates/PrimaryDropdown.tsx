@@ -41,7 +41,7 @@ export type HeaderDropdownAction =
   | 'logout'
 
 type TriggerButtonProps = {
-  name: string
+  name?: string
 }
 
 const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
@@ -60,7 +60,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
         },
       }}
     >
-      <AvatarDropdown userInitials={props.name.charAt(0) ?? ''} />
+      <AvatarDropdown userInitials={props.name?.charAt(0) ?? ''} />
 
       <SpanBox
         css={{
@@ -74,7 +74,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
           whiteSpace: 'nowrap',
         }}
       >
-        {props.name}
+        {props.name ?? 'Settings'}
       </SpanBox>
     </HStack>
   )
@@ -124,15 +124,11 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
     [router]
   )
 
-  if (!viewerData?.me) {
-    return <></>
-  }
-
   return (
     <Dropdown
       side="top"
       triggerElement={
-        props.children ?? <TriggerButton name={viewerData?.me?.name ?? 'O'} />
+        props.children ?? <TriggerButton name={viewerData?.me?.name} />
       }
       css={{ width: '240px', ml: '15px' }}
     >
@@ -153,7 +149,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         }}
       >
         <Avatar
-          imageURL={viewerData.me.profile.pictureUrl}
+          imageURL={viewerData?.me?.profile.pictureUrl}
           height="40px"
           fallbackText={viewerData?.me?.name.charAt(0) ?? ''}
         />
@@ -162,7 +158,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           alignment="start"
           distribution="around"
         >
-          {viewerData.me && (
+          {viewerData?.me && (
             <>
               <StyledText
                 css={{

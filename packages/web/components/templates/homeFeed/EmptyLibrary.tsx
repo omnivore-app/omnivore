@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { LayoutType } from './HomeFeedContainer'
 import { SuggestionBox, SuggestionAction } from '../../elements/SuggestionBox'
+import { ConfusedSlothIcon } from '../../elements/icons/ConfusedSlothIcon'
 
 type EmptyLibraryProps = {
   searchTerm: string | undefined
@@ -225,6 +226,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
         },
       }}
     >
+      <ConfusedSlothIcon />
       <ErrorBox type={type} />
       <Suggestion type={type} />
     </Box>

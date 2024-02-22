@@ -49,6 +49,8 @@ import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutati
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { PinnedButtons } from './PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
+import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
+import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -109,7 +111,10 @@ export function HomeFeedContainer(): JSX.Element {
     isValidating,
     performActionOnItem,
     mutate,
+    error: fetchItemsError,
   } = useGetLibraryItemsQuery(queryInputs)
+
+  console.log('fetchItemsError: ', fetchItemsError)
 
   useEffect(() => {
     const handleRevalidate = () => {
@@ -856,6 +861,7 @@ export function HomeFeedContainer(): JSX.Element {
       hasData={!!itemsPages}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
+      fetchItemsError={!!fetchItemsError}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
       notebookTarget={notebookTarget}
@@ -880,6 +886,51 @@ export function HomeFeedContainer(): JSX.Element {
   )
 }
 
+const FetchItemsError = (): JSX.Element => {
+  return (
+    <VStack
+      alignment="center"
+      distribution="center"
+      css={{
+        gap: '5px',
+        width: '100%',
+        height: '100%',
+        pb: '100px',
+        minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
+      }}
+    >
+      <ErrorSlothIcon />
+      <StyledText
+        css={{
+          display: 'flex',
+          marginBlockStart: '0px',
+          marginBlockEnd: '0px',
+          lineHeight: '125%',
+          fontSize: '20px',
+          fontFamily: '$inter',
+          fontWeight: 'bold',
+        }}
+      >
+        Something has gone wrong.
+      </StyledText>
+      <StyledText
+        css={{
+          display: 'flex',
+          marginBlockStart: '0px',
+          marginBlockEnd: '0px',
+          fontSize: '15px',
+          lineHeight: '125%',
+          fontFamily: '$inter',
+          color: '$thTextSubtle2',
+        }}
+      >
+        We have encountered unexpected problems.{' '}
+        <a href="https://docs.omnivore.app/">Get help</a>
+      </StyledText>
+    </VStack>
+  )
+}
+
 export type HomeFeedContentProps = {
   items: LibraryItem[]
   searchTerm?: string
@@ -890,6 +941,8 @@ export type HomeFeedContentProps = {
   hasData: boolean
   totalItems: number
   isValidating: boolean
+  fetchItemsError: boolean
+
   loadMore: () => void
   labelsTarget: LibraryItem | undefined
   setLabelsTarget: (target: LibraryItem | undefined) => void
@@ -1001,24 +1054,31 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             setShowFilterMenu={setShowFilterMenu}
           />
         )}
-        {!props.isValidating && props.mode == 'highlights' && (
-          <HighlightItemsLayout
-            gridContainerRef={props.gridContainerRef}
-            items={props.items}
-            viewer={viewerData?.me}
-            showFilterMenu={showFilterMenu}
-            setShowFilterMenu={setShowFilterMenu}
-          />
-        )}
 
-        {props.mode == 'reads' && (
-          <LibraryItemsLayout
-            viewer={viewerData?.me}
-            layout={layout}
-            isChecked={props.itemIsChecked}
-            {...props}
-          />
-        )}
+        {props.fetchItemsError && <FetchItemsError />}
+
+        {!props.isValidating &&
+          !props.fetchItemsError &&
+          props.mode == 'highlights' && (
+            <HighlightItemsLayout
+              gridContainerRef={props.gridContainerRef}
+              items={props.items}
+              viewer={viewerData?.me}
+              showFilterMenu={showFilterMenu}
+              setShowFilterMenu={setShowFilterMenu}
+            />
+          )}
+
+        {!props.isValidating &&
+          !props.fetchItemsError &&
+          props.mode == 'reads' && (
+            <LibraryItemsLayout
+              viewer={viewerData?.me}
+              layout={layout}
+              isChecked={props.itemIsChecked}
+              {...props}
+            />
+          )}
 
         {props.showAddLinkModal && (
           <AddLinkModal
