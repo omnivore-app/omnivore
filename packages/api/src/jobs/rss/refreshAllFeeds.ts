@@ -3,9 +3,12 @@ import { DataSource } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import { getBackendQueue, JOB_VERSION } from '../../queue-processor'
 import { validateUrl } from '../../services/create_page_save_request'
-import { RssSubscriptionGroup } from '../../utils/createTask'
+import { getJobPriority, RssSubscriptionGroup } from '../../utils/createTask'
 import { stringToHash } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
+
+export const REFRESH_ALL_FEEDS_JOB_NAME = 'refresh-all-feeds'
+export const REFRESH_FEED_JOB_NAME = 'refresh-feed'
 
 export type RSSRefreshContext = {
   type: 'all' | 'user-added'
@@ -116,10 +119,10 @@ export const queueRSSRefreshAllFeedsJob = async () => {
     return false
   }
   return queue.add(
-    'refresh-all-feeds',
+    REFRESH_ALL_FEEDS_JOB_NAME,
     {},
     {
-      priority: 100,
+      priority: getJobPriority(REFRESH_ALL_FEEDS_JOB_NAME),
     }
   )
 }
@@ -129,15 +132,15 @@ type QueuePriority = 'low' | 'high'
 export const queueRSSRefreshFeedJob = async (
   jobid: string,
   payload: any,
-  options = { priority: 'high' as QueuePriority }
+  options = { priority: 'low' as QueuePriority }
 ): Promise<Job | undefined> => {
   const queue = await getBackendQueue()
   if (!queue) {
     return undefined
   }
-  return queue.add('refresh-feed', payload, {
+  return queue.add(REFRESH_FEED_JOB_NAME, payload, {
     jobId: `${jobid}_${JOB_VERSION}`,
-    priority: options.priority == 'low' ? 10 : 50,
+    priority: getJobPriority(`${REFRESH_FEED_JOB_NAME}_${options.priority}`),
     removeOnComplete: true,
     removeOnFail: true,
   })

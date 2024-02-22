@@ -11,11 +11,10 @@ import {
   Worker,
 } from 'bullmq'
 import express, { Express } from 'express'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
-import { CALL_WEBHOOK_JOB_NAME, callWebhook } from './jobs/call_webhook'
+import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
@@ -34,7 +33,8 @@ import {
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
-import { CustomTypeOrmLogger, logger } from './utils/logger'
+import { getJobPriority } from './utils/createTask'
+import { logger } from './utils/logger'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -121,7 +121,7 @@ const setupCronJobs = async () => {
     SYNC_READ_POSITIONS_JOB_NAME,
     {},
     {
-      priority: 1,
+      priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
       },
