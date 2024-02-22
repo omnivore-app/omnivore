@@ -16,9 +16,9 @@ import app.omnivore.omnivore.feature.library.LibraryView
 import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
-import app.omnivore.omnivore.feature.settings.PolicyWebView
 import app.omnivore.omnivore.feature.settings.SettingsScreen
 import app.omnivore.omnivore.feature.settings.SettingsViewModel
+import app.omnivore.omnivore.feature.web.WebViewScreen
 import app.omnivore.omnivore.navigation.Routes
 
 @Composable
@@ -92,15 +92,15 @@ fun PrimaryNavigator(
         }
 
         composable(Routes.Documentation.route) {
-            PolicyWebView(navController = navController, url = "https://docs.omnivore.app")
+            WebViewScreen(navController = navController, url = "https://docs.omnivore.app")
         }
 
         composable(Routes.PrivacyPolicy.route) {
-            PolicyWebView(navController = navController, url = "https://omnivore.app/privacy")
+            WebViewScreen(navController = navController, url = "https://omnivore.app/privacy")
         }
 
         composable(Routes.TermsAndConditions.route) {
-            PolicyWebView(navController = navController, url = "https://omnivore.app/app/terms")
+            WebViewScreen(navController = navController, url = "https://omnivore.app/app/terms")
         }
     }
 }

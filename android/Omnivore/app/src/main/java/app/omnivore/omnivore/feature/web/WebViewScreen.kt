@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings
+package app.omnivore.omnivore.feature.web
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
@@ -27,7 +27,7 @@ import app.omnivore.omnivore.navigation.Routes
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PolicyWebView(navController: NavHostController, url: String) {
+fun WebViewScreen(navController: NavHostController, url: String) {
     Scaffold(topBar = {
         TopAppBar(title = { Text(stringResource(R.string.policy_webview_title)) }, actions = {
             IconButton(onClick = { navController.navigate(Routes.Settings.route) }) {
@@ -66,9 +66,6 @@ fun PolicyWebView(navController: NavHostController, url: String) {
                             view?.animate()?.alpha(1.0f)?.duration = 200
                         }
                     }
-
-//          val themeID = if (isDarkMode) "Gray" else "LightGray"
-//          loadUrl(url, mutableMapOf("Set-Cookie" to "theme=$themeID; Max-Age=31536000;"))
                     loadUrl(url, mutableMapOf())
                 }
             }, update = {})
