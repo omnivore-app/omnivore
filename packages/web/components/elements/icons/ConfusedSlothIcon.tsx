@@ -1,13 +1,14 @@
 /* eslint-disable functional/no-class */
 /* eslint-disable functional/no-this-expression */
-import { isDarkTheme } from '../../../lib/themeUpdater'
+import { useCurrentTheme } from '../../../lib/hooks/useCurrentTheme'
+import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
 import { IconProps } from './IconProps'
 
 import React from 'react'
 
 export function ConfusedSlothIcon(): JSX.Element {
-  const isDark = isDarkTheme()
-  return isDark ? <ConfusedSlothIconDark /> : <ConfusedSlothIconLight />
+  const isDarkMode = useDarkModeListener()
+  return isDarkMode ? <ConfusedSlothIconDark /> : <ConfusedSlothIconLight />
 }
 
 class ConfusedSlothIconDark extends React.Component<IconProps> {
