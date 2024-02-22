@@ -3,7 +3,6 @@ package app.omnivore.omnivore.feature.library
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -97,7 +96,6 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    private val itemsLiveData = MediatorLiveData<List<SavedItemWithLabelsAndHighlights>>()
     val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
     val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
@@ -434,7 +432,7 @@ class LibraryViewModel @Inject constructor(
 
     fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
         currentItem.value?.let { itemID ->
-            return itemsLiveData.value?.first { it.savedItem.savedItemId == itemID }
+            return (uiState.value as LibraryUiState.Success).items.first { it.savedItem.savedItemId == itemID }
         }
 
         return null
