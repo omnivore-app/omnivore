@@ -14,6 +14,14 @@ import Views
         label: { Label("Edit Info", systemImage: "info.circle") }
       )
       Button(
+        action: { viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived) },
+        label: { Label(item.isArchived ? "Unarchive" : "Archive", systemImage: "inbox") }
+      )
+      Button(
+        action: { viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID) },
+        label: { Label("Remove", systemImage: "trash") }
+      )
+      Button(
         action: { viewModel.itemUnderLabelEdit = item },
         label: { Label(item.labels?.count == 0 ? "Add Labels" : "Edit Labels", systemImage: "tag") }
       )
