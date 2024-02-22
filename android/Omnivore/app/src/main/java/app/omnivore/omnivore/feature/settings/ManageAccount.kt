@@ -31,8 +31,7 @@ fun ManageAccountDialog(onDismiss: () -> Unit, settingsViewModel: SettingsViewMo
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
-            modifier = Modifier
-                .height(300.dp)
+            modifier = Modifier.height(300.dp)
         ) {
             ManageAccountView(settingsViewModel = settingsViewModel)
         }
@@ -42,26 +41,23 @@ fun ManageAccountDialog(onDismiss: () -> Unit, settingsViewModel: SettingsViewMo
 @Composable
 fun ManageAccountView(settingsViewModel: SettingsViewModel) {
     Column(
-        modifier = Modifier
-            .padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
+        modifier = Modifier.padding(top = 6.dp, start = 6.dp, end = 6.dp, bottom = 6.dp)
     ) {
         Row(
             modifier = Modifier
-              .fillMaxWidth()
-              .padding(top = 12.dp, bottom = 12.dp),
+                .fillMaxWidth()
+                .padding(top = 12.dp, bottom = 12.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(stringResource(R.string.manage_account_title))
         }
 
         Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clickable(onClick = { settingsViewModel.resetDataCache() })
+                modifier = Modifier.clickable(onClick = { settingsViewModel.resetDataCache() })
             ) {
                 Text(stringResource(R.string.manage_account_action_reset_data_cache))
                 Spacer(modifier = Modifier.weight(1.0F))

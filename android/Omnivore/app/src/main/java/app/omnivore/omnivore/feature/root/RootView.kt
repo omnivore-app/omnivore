@@ -17,7 +17,7 @@ import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.settings.PolicyWebView
-import app.omnivore.omnivore.feature.settings.SettingsView
+import app.omnivore.omnivore.feature.settings.SettingsScreen
 import app.omnivore.omnivore.feature.settings.SettingsViewModel
 import app.omnivore.omnivore.navigation.Routes
 
@@ -84,7 +84,7 @@ fun PrimaryNavigator(
         }
 
         composable(Routes.Settings.route) {
-            SettingsView(
+            SettingsScreen(
                 loginViewModel = loginViewModel,
                 settingsViewModel = settingsViewModel,
                 navController = navController

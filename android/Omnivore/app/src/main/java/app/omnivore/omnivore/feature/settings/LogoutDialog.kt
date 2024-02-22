@@ -12,31 +12,29 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable
 fun LogoutDialog(onClose: (Boolean) -> Unit) {
-  val context = LocalContext.current
+    val context = LocalContext.current
 
-  AlertDialog(
-    onDismissRequest = { onClose(false) },
-    title = { Text(text = stringResource(R.string.logout_dialog_title)) },
-    text = {
-      Text(stringResource(R.string.logout_dialog_confirm_msg))
-    },
-    confirmButton = {
-      Button(onClick = {
-        // Sign out google users
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-          .build()
+    AlertDialog(onDismissRequest = { onClose(false) },
+        title = { Text(text = stringResource(R.string.logout_dialog_title)) },
+        text = {
+            Text(stringResource(R.string.logout_dialog_confirm_msg))
+        },
+        confirmButton = {
+            Button(onClick = {
+                // Sign out google users
+                val signInOptions =
+                    GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
 
-        val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
-        googleSignIn.signOut()
-        onClose(true)
-      }) {
-        Text(stringResource(R.string.logout_dialog_action_confirm))
-      }
-    },
-    dismissButton = {
-      Button(onClick = { onClose(false) }) {
-        Text(stringResource(R.string.logout_dialog_action_cancel))
-      }
-    }
-  )
+                val googleSignIn = GoogleSignIn.getClient(context, signInOptions)
+                googleSignIn.signOut()
+                onClose(true)
+            }) {
+                Text(stringResource(R.string.logout_dialog_action_confirm))
+            }
+        },
+        dismissButton = {
+            Button(onClick = { onClose(false) }) {
+                Text(stringResource(R.string.logout_dialog_action_cancel))
+            }
+        })
 }
