@@ -775,6 +775,7 @@ export const updateLibraryItem = async (
     {
       ...libraryItem,
       id,
+      libraryItemId: id,
       // don't send original content and readable content
       originalContent: undefined,
       readableContent: undefined,
@@ -935,6 +936,7 @@ export const createOrUpdateLibraryItem = async (
     EntityType.PAGE,
     {
       ...newLibraryItem,
+      libraryItemId: newLibraryItem.id,
       // don't send original content and readable content
       originalContent: undefined,
       readableContent: undefined,

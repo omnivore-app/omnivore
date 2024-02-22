@@ -15,6 +15,7 @@ import { appDataSource } from './data_source'
 import { env } from './env'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
+import { exportItem, EXPORT_ITEM_JOB_NAME } from './jobs/export_item'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
@@ -103,6 +104,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return bulkAction(job.data)
         case CALL_WEBHOOK_JOB_NAME:
           return callWebhook(job.data)
+        case EXPORT_ITEM_JOB_NAME:
+          return exportItem(job.data)
       }
     },
     {

@@ -16,6 +16,7 @@ import {
 } from '../generated/graphql'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
+import { ExportItemJobData, EXPORT_ITEM_JOB_NAME } from '../jobs/export_item'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import {
   queueRSSRefreshFeedJob,
@@ -59,6 +60,7 @@ export const getJobPriority = (jobName: string): number => {
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
+    case EXPORT_ITEM_JOB_NAME:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
@@ -783,6 +785,18 @@ export const enqueueBulkAction = async (data: BulkActionData) => {
   } catch (error) {
     logger.error('error enqueuing bulk action job', error)
   }
+}
+
+export const enqueueExportItem = async (jobData: ExportItemJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(EXPORT_ITEM_JOB_NAME, jobData, {
+    attempts: 1,
+    priority: getJobPriority(EXPORT_ITEM_JOB_NAME),
+  })
 }
 
 export default createHttpTaskWithToken

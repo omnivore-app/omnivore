@@ -1,21 +1,30 @@
 import { IntegrationType } from '../entity/integration'
-import { LibraryItem } from '../entity/library_item'
 import {
   findIntegrations,
   getIntegrationClient,
   updateIntegration,
 } from '../services/integrations'
+import { findLibraryItemById } from '../services/library_item'
 import { logger } from '../utils/logger'
 
 export interface ExportItemJobData {
   userId: string
-  libraryItem: LibraryItem
+  libraryItemId: string
 }
 
 export const EXPORT_ITEM_JOB_NAME = 'export-item'
 
 export const exportItem = async (jobData: ExportItemJobData) => {
-  const { libraryItem, userId } = jobData
+  const { libraryItemId, userId } = jobData
+  const libraryItem = await findLibraryItemById(libraryItemId, userId)
+  if (!libraryItem) {
+    logger.error('library item not found', {
+      userId,
+      libraryItemId,
+    })
+    return
+  }
+
   const integrations = await findIntegrations(userId, {
     enabled: true,
     type: IntegrationType.Export,
@@ -29,7 +38,7 @@ export const exportItem = async (jobData: ExportItemJobData) => {
     integrations.map(async (integration) => {
       const logObject = {
         userId,
-        libraryItemId: libraryItem.id,
+        libraryItemId,
         integrationId: integration.id,
       }
       logger.info('exporting item...', logObject)
