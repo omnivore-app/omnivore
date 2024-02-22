@@ -411,7 +411,7 @@ fun LibraryViewContent(
                     dismissContent = {
                         val selected =
                             currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
-                        val test = SavedItemWithLabelsAndHighlights(
+                        val savedItem = SavedItemWithLabelsAndHighlights(
                             savedItem = cardDataWithLabels.savedItem,
                             labels = cardDataWithLabels.labels,
                             highlights = cardDataWithLabels.highlights
@@ -419,7 +419,7 @@ fun LibraryViewContent(
                         SavedItemCard(
                             selected = selected,
                             savedItemViewModel = libraryViewModel,
-                            savedItem = test,
+                            savedItem = savedItem,
                             onClickHandler = {
                                 libraryViewModel.actionsMenuItemLiveData.postValue(null)
                                 val activityClass =
