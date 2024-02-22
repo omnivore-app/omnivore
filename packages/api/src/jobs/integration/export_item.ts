@@ -1,31 +1,33 @@
-import { IntegrationType } from '../entity/integration'
+import { IntegrationType } from '../../entity/integration'
 import {
   findIntegrations,
   getIntegrationClient,
   updateIntegration,
-} from '../services/integrations'
-import { findLibraryItemById } from '../services/library_item'
-import { logger } from '../utils/logger'
+} from '../../services/integrations'
+import { findLibraryItemsByIds } from '../../services/library_item'
+import { logger } from '../../utils/logger'
 
 export interface ExportItemJobData {
   userId: string
-  libraryItemId: string
+  libraryItemIds: string[]
+  integrationId?: string
 }
 
 export const EXPORT_ITEM_JOB_NAME = 'export-item'
 
 export const exportItem = async (jobData: ExportItemJobData) => {
-  const { libraryItemId, userId } = jobData
-  const libraryItem = await findLibraryItemById(libraryItemId, userId)
-  if (!libraryItem) {
-    logger.error('library item not found', {
+  const { libraryItemIds, userId, integrationId } = jobData
+  const libraryItems = await findLibraryItemsByIds(libraryItemIds, userId)
+  if (libraryItems.length === 0) {
+    logger.error('library items not found', {
       userId,
-      libraryItemId,
+      libraryItemIds,
     })
     return
   }
 
   const integrations = await findIntegrations(userId, {
+    id: integrationId,
     enabled: true,
     type: IntegrationType.Export,
   })
@@ -38,7 +40,7 @@ export const exportItem = async (jobData: ExportItemJobData) => {
     integrations.map(async (integration) => {
       const logObject = {
         userId,
-        libraryItemId,
+        libraryItemIds,
         integrationId: integration.id,
       }
       logger.info('exporting item...', logObject)
@@ -46,23 +48,23 @@ export const exportItem = async (jobData: ExportItemJobData) => {
       try {
         const client = getIntegrationClient(integration.name)
 
-        const synced = await client.export(integration.token, [libraryItem])
+        const synced = await client.export(integration.token, libraryItems)
         if (!synced) {
           logger.error('failed to export item', logObject)
           return Promise.resolve(false)
         }
 
-        const lastItemUpdatedAt = libraryItem.updatedAt
+        const syncedAt = new Date()
         logger.info('updating integration...', {
           ...logObject,
-          syncedAt: lastItemUpdatedAt,
+          syncedAt,
         })
 
         // update integration syncedAt if successful
         const updated = await updateIntegration(
           integration.id,
           {
-            syncedAt: lastItemUpdatedAt,
+            syncedAt,
           },
           userId
         )

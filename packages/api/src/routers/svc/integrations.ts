@@ -5,7 +5,7 @@ import express from 'express'
 import { Integration, IntegrationType } from '../../entity/integration'
 import { readPushSubscription } from '../../pubsub'
 import { getRepository } from '../../repository'
-import { enqueueExportToIntegration } from '../../utils/createTask'
+import { enqueueExportAllItems } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 import { createIntegrationToken } from '../auth/jwt_helpers'
 
@@ -51,7 +51,7 @@ export function integrationsServiceRouter() {
           }
 
           const syncAt = integration.syncedAt?.getTime() || 0
-          return enqueueExportToIntegration(
+          return enqueueExportAllItems(
             integration.id,
             integration.name,
             syncAt,

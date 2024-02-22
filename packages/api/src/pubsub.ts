@@ -64,10 +64,10 @@ export const createPubSubClient = (): PubsubClient => {
           libraryItemId,
         })
       }
-
+      // queue export item job
       await enqueueExportItem({
         userId,
-        libraryItemId,
+        libraryItemIds: [libraryItemId],
       })
 
       const cleanData = deepDelete(
@@ -102,10 +102,10 @@ export const createPubSubClient = (): PubsubClient => {
           libraryItemId,
         })
       }
-
+      // queue export item job
       await enqueueExportItem({
         userId,
-        libraryItemId,
+        libraryItemIds: [libraryItemId],
       })
 
       const cleanData = deepDelete(

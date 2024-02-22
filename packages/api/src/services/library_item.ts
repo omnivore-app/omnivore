@@ -652,6 +652,21 @@ export const searchLibraryItems = async (
   )
 }
 
+export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .leftJoinAndSelect('highlights.user', 'user')
+        .where('library_item.id IN (:...ids)', { ids })
+        .getMany(),
+    undefined,
+    userId
+  )
+}
+
 export const findLibraryItemById = async (
   id: string,
   userId: string
