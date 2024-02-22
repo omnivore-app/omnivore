@@ -1,6 +1,6 @@
 import { IntegrationType } from '../../entity/integration'
 import { findIntegration } from '../../services/integrations'
-import { searchLibraryItems } from '../../services/library_item'
+import { findRecentLibraryItems } from '../../services/library_item'
 import { findActiveUser } from '../../services/user'
 import { enqueueExportItem } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
@@ -39,24 +39,24 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
     return
   }
 
-  // get paginated items from the database
-  const first = 50
-  let after = 0
-  for (;;) {
-    console.log('searching for items...', {
-      userId,
-      first,
-      after,
-    })
-    const searchResult = await searchLibraryItems(
-      { from: after, size: first },
-      userId
-    )
-    const libraryItems = searchResult.libraryItems
-    const size = libraryItems.length
-    if (size === 0) {
-      break
+  const maxItems = 1000
+  const limit = 50
+  let offset = 0
+  // get max 1000 most recent items from the database
+  while (offset < maxItems) {
+    const libraryItems = await findRecentLibraryItems(userId, limit, offset)
+    if (libraryItems.length === 0) {
+      logger.info('no library items found', {
+        userId,
+      })
+      return
     }
+
+    logger.info('enqueuing export item...', {
+      userId,
+      offset,
+      integrationId,
+    })
 
     await enqueueExportItem({
       userId,
@@ -64,6 +64,12 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
       integrationId,
     })
 
-    after += size
+    offset += libraryItems.length
+
+    logger.info('exported items', {
+      userId,
+      offset,
+      integrationId,
+    })
   }
 }

@@ -21,7 +21,6 @@ export const exportItem = async (jobData: ExportItemJobData) => {
   if (libraryItems.length === 0) {
     logger.error('library items not found', {
       userId,
-      libraryItemIds,
     })
     return
   }
@@ -40,7 +39,6 @@ export const exportItem = async (jobData: ExportItemJobData) => {
     integrations.map(async (integration) => {
       const logObject = {
         userId,
-        libraryItemIds,
         integrationId: integration.id,
       }
       logger.info('exporting item...', logObject)
