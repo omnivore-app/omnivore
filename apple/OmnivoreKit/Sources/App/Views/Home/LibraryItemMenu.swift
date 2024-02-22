@@ -15,7 +15,12 @@ import Views
       )
       Button(
         action: { viewModel.setLinkArchived(dataService: dataService, objectID: item.objectID, archived: !item.isArchived) },
-        label: { Label(item.isArchived ? "Unarchive" : "Archive", systemImage: "inbox") }
+        label: {
+          Label(
+            item.isArchived ? "Unarchive" : "Archive",
+            systemImage: item.isArchived ? "tray.and.arrow.down.fill" : "archivebox"
+          )
+        }
       )
       Button(
         action: { viewModel.removeLibraryItem(dataService: dataService, objectID: item.objectID) },
