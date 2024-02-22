@@ -60,7 +60,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
         },
       }}
     >
-      <AvatarDropdown userInitials={props.name?.charAt(0) ?? ''} />
+      <AvatarDropdown userInitials={props.name?.charAt(0) ?? 'S'} />
 
       <SpanBox
         css={{
