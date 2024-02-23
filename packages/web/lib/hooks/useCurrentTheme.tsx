@@ -94,9 +94,17 @@ export function useCurrentTheme() {
     setCurrentThemeInternal,
   ])
 
+  const currentThemeIsDark = useMemo(() => {
+    if (currentTheme) {
+      return isDarkTheme(currentTheme)
+    }
+    return false
+  }, [currentTheme])
+
   return {
     currentTheme,
     setCurrentTheme,
     resetSystemTheme,
+    currentThemeIsDark,
   }
 }

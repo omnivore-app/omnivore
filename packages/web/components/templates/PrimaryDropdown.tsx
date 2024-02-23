@@ -15,7 +15,7 @@ import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
-import { useCurrentTheme, isDarkTheme } from '../../lib/hooks/useCurrentTheme'
+import { useCurrentTheme } from '../../lib/hooks/useCurrentTheme'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -41,7 +41,7 @@ export type HeaderDropdownAction =
   | 'logout'
 
 type TriggerButtonProps = {
-  name: string
+  name?: string
 }
 
 const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
@@ -60,7 +60,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
         },
       }}
     >
-      <AvatarDropdown userInitials={props.name.charAt(0) ?? ''} />
+      <AvatarDropdown userInitials={props.name?.charAt(0) ?? 'S'} />
 
       <SpanBox
         css={{
@@ -74,7 +74,7 @@ const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
           whiteSpace: 'nowrap',
         }}
       >
-        {props.name}
+        {props.name ?? 'Settings'}
       </SpanBox>
     </HStack>
   )
@@ -124,15 +124,11 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
     [router]
   )
 
-  if (!viewerData?.me) {
-    return <></>
-  }
-
   return (
     <Dropdown
       side="top"
       triggerElement={
-        props.children ?? <TriggerButton name={viewerData?.me?.name ?? 'O'} />
+        props.children ?? <TriggerButton name={viewerData?.me?.name} />
       }
       css={{ width: '240px', ml: '15px' }}
     >
@@ -153,7 +149,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         }}
       >
         <Avatar
-          imageURL={viewerData.me.profile.pictureUrl}
+          imageURL={viewerData?.me?.profile.pictureUrl}
           height="40px"
           fallbackText={viewerData?.me?.name.charAt(0) ?? ''}
         />
@@ -162,7 +158,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           alignment="start"
           distribution="around"
         >
-          {viewerData.me && (
+          {viewerData?.me && (
             <>
               <StyledText
                 css={{
@@ -266,7 +262,8 @@ export const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
-  const { currentTheme, setCurrentTheme } = useCurrentTheme()
+  const { currentTheme, setCurrentTheme, currentThemeIsDark } =
+    useCurrentTheme()
 
   return (
     <>
@@ -302,9 +299,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={
-                !(currentTheme && isDarkTheme(currentTheme)) ? 'on' : 'off'
-              }
+              data-state={!currentThemeIsDark ? 'on' : 'off'}
               onClick={() => {
                 setCurrentTheme(ThemeId.Light)
               }}
@@ -313,9 +308,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
               <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={
-                currentTheme && isDarkTheme(currentTheme) ? 'on' : 'off'
-              }
+              data-state={currentThemeIsDark ? 'on' : 'off'}
               onClick={() => {
                 setCurrentTheme(ThemeId.Dark)
               }}
