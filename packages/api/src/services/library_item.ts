@@ -652,6 +652,28 @@ export const searchLibraryItems = async (
   )
 }
 
+export const findRecentLibraryItems = async (
+  userId: string,
+  limit = 1000,
+  offset?: number
+) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.state = :state', {
+          state: LibraryItemState.Succeeded,
+        })
+        .orderBy('library_item.saved_at', 'DESC', 'NULLS LAST')
+        .take(limit)
+        .skip(offset)
+        .getMany(),
+    undefined,
+    userId
+  )
+}
+
 export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
   return authTrx(
     async (tx) =>
@@ -659,7 +681,6 @@ export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
         .createQueryBuilder(LibraryItem, 'library_item')
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
-        .leftJoinAndSelect('highlights.user', 'user')
         .where('library_item.id IN (:...ids)', { ids })
         .getMany(),
     undefined,
