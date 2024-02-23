@@ -16556,9 +16556,9 @@ graphql-fields@^2.0.3:
   integrity sha512-x3VE5lUcR4XCOxPIqaO4CE+bTK8u6gVouOdpQX9+EKHr+scqtK5Pp/l8nIGqIpN1TUlkKE6jDCCycm/WtLRAwA==
 
 graphql-middleware@^6.0.10:
-  version "6.1.32"
-  resolved "https://registry.yarnpkg.com/graphql-middleware/-/graphql-middleware-6.1.32.tgz#1b8a121d615efcf6d4b21d63f0a4818189700e0a"
-  integrity sha512-4vL+o9lljc1JavXNtMZg+gwDiZ9ORhgzAxf+7ef8r9/gn6D5sWxm2w8SdG6PLkKOsSM/tDunwSpfSJinn0XPCw==
+  version "6.1.35"
+  resolved "https://registry.yarnpkg.com/graphql-middleware/-/graphql-middleware-6.1.35.tgz#7297d41ceb35742b80640cca5cd85d1e47e8ab24"
+  integrity sha512-azawK7ApUYtcuPGRGBR9vDZu795pRuaFhO5fgomdJppdfKRt7jwncuh0b7+D3i574/4B+16CNWgVpnGVlg3ZCg==
   dependencies:
     "@graphql-tools/delegate" "^8.8.1"
     "@graphql-tools/schema" "^8.5.1"
