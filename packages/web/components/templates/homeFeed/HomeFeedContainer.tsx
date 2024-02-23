@@ -51,6 +51,7 @@ import { PinnedButtons } from './PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
 import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
+import { FetchItemsError } from './FetchItemsError'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -886,51 +887,6 @@ export function HomeFeedContainer(): JSX.Element {
   )
 }
 
-const FetchItemsError = (): JSX.Element => {
-  return (
-    <VStack
-      alignment="center"
-      distribution="center"
-      css={{
-        gap: '5px',
-        width: '100%',
-        height: '100%',
-        pb: '100px',
-        minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
-      }}
-    >
-      <ErrorSlothIcon />
-      <StyledText
-        css={{
-          display: 'flex',
-          marginBlockStart: '0px',
-          marginBlockEnd: '0px',
-          lineHeight: '125%',
-          fontSize: '20px',
-          fontFamily: '$inter',
-          fontWeight: 'bold',
-        }}
-      >
-        Something has gone wrong.
-      </StyledText>
-      <StyledText
-        css={{
-          display: 'flex',
-          marginBlockStart: '0px',
-          marginBlockEnd: '0px',
-          fontSize: '15px',
-          lineHeight: '125%',
-          fontFamily: '$inter',
-          color: '$thTextSubtle2',
-        }}
-      >
-        We have encountered unexpected problems.{' '}
-        <a href="https://docs.omnivore.app/using/help.html">Get help</a>
-      </StyledText>
-    </VStack>
-  )
-}
-
 export type HomeFeedContentProps = {
   items: LibraryItem[]
   searchTerm?: string
@@ -1007,6 +963,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const [showFilterMenu, setShowFilterMenu] = useState(false)
 
+  const showItems = useMemo(() => {
+    if (props.fetchItemsError) {
+      return false
+    }
+    if (!props.isValidating && props.items.length <= 0) {
+      return false
+    }
+    return true
+  }, [props])
+
   return (
     <VStack
       css={{
@@ -1056,29 +1022,33 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
         )}
 
         {props.fetchItemsError && <FetchItemsError />}
+        {!props.isValidating && props.items.length <= 0 && (
+          <EmptyLibrary
+            searchTerm={props.searchTerm}
+            onAddLinkClicked={() => {
+              props.setShowAddLinkModal(true)
+            }}
+          />
+        )}
 
-        {!props.isValidating &&
-          !props.fetchItemsError &&
-          props.mode == 'highlights' && (
-            <HighlightItemsLayout
-              gridContainerRef={props.gridContainerRef}
-              items={props.items}
-              viewer={viewerData?.me}
-              showFilterMenu={showFilterMenu}
-              setShowFilterMenu={setShowFilterMenu}
-            />
-          )}
+        {showItems && props.mode == 'highlights' && (
+          <HighlightItemsLayout
+            gridContainerRef={props.gridContainerRef}
+            items={props.items}
+            viewer={viewerData?.me}
+            showFilterMenu={showFilterMenu}
+            setShowFilterMenu={setShowFilterMenu}
+          />
+        )}
 
-        {!props.isValidating &&
-          !props.fetchItemsError &&
-          props.mode == 'reads' && (
-            <LibraryItemsLayout
-              viewer={viewerData?.me}
-              layout={layout}
-              isChecked={props.itemIsChecked}
-              {...props}
-            />
-          )}
+        {showItems && props.mode == 'reads' && (
+          <LibraryItemsLayout
+            viewer={viewerData?.me}
+            layout={layout}
+            isChecked={props.itemIsChecked}
+            {...props}
+          />
+        )}
 
         {props.showAddLinkModal && (
           <AddLinkModal

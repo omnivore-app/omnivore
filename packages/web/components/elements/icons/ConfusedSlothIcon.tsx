@@ -7,8 +7,13 @@ import { IconProps } from './IconProps'
 import React from 'react'
 
 export function ConfusedSlothIcon(): JSX.Element {
-  const isDarkMode = useDarkModeListener()
-  return isDarkMode ? <ConfusedSlothIconDark /> : <ConfusedSlothIconLight />
+  const { currentThemeIsDark } = useCurrentTheme()
+  console.log('is dark mdoe: ', currentThemeIsDark)
+  return currentThemeIsDark ? (
+    <ConfusedSlothIconDark />
+  ) : (
+    <ConfusedSlothIconLight />
+  )
 }
 
 class ConfusedSlothIconDark extends React.Component<IconProps> {

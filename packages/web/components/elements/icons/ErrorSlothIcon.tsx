@@ -1,14 +1,13 @@
 /* eslint-disable functional/no-class */
 /* eslint-disable functional/no-this-expression */
 import { useCurrentTheme } from '../../../lib/hooks/useCurrentTheme'
-import { useDarkModeListener } from '../../../lib/hooks/useDarkModeListener'
 import { IconProps } from './IconProps'
 
 import React from 'react'
 
 export function ErrorSlothIcon(): JSX.Element {
-  const isDarkMode = useDarkModeListener()
-  return isDarkMode ? <ErrorSlothIconDark /> : <ErrorSlothIconLight />
+  const { currentThemeIsDark } = useCurrentTheme()
+  return currentThemeIsDark ? <ErrorSlothIconDark /> : <ErrorSlothIconLight />
 }
 
 class ErrorSlothIconDark extends React.Component<IconProps> {
