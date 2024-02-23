@@ -273,7 +273,7 @@ const createTask = async (
   }
 
   if (folder === 'following' && !fetchContent) {
-    return createItemWithPreviewContent(userId, feedUrl, item)
+    return createItemWithFeedContent(userId, feedUrl, item)
   }
 
   logger.info(`adding fetch content task ${userId}  ${item.link.trim()}`)
@@ -309,7 +309,7 @@ const fetchContentAndCreateItem = async (
   }
 }
 
-const createItemWithPreviewContent = async (
+const createItemWithFeedContent = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem
@@ -321,7 +321,7 @@ const createItemWithPreviewContent = async (
     author: item.creator,
     description: item.summary,
     addedToFollowingFrom: 'feed',
-    previewContent: item.content || item.contentSnippet || item.summary,
+    feedContent: item.content || item.contentSnippet || item.summary,
     addedToFollowingBy: feedUrl,
     savedAt: item.isoDate,
     publishedAt: item.isoDate,

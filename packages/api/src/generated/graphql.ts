@@ -94,6 +94,7 @@ export type Article = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  feedContent?: Maybe<Scalars['String']>;
   folder: Scalars['String'];
   hasContent?: Maybe<Scalars['Boolean']>;
   hash: Scalars['String'];
@@ -2396,6 +2397,7 @@ export type SearchItem = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  feedContent?: Maybe<Scalars['String']>;
   folder: Scalars['String'];
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
@@ -2408,7 +2410,6 @@ export type SearchItem = {
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
   pageType: PageType;
-  previewContent?: Maybe<Scalars['String']>;
   previewContentType?: Maybe<Scalars['String']>;
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
@@ -4584,6 +4585,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  feedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasContent?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5930,6 +5932,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  feedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5942,7 +5945,6 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
-  previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   previewContentType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

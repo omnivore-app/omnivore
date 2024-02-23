@@ -397,6 +397,7 @@ const schema = gql`
     recommendations: [Recommendation!]
     wordsCount: Int
     folder: String!
+    feedContent: String
   }
 
   # Query: article
@@ -1634,7 +1635,7 @@ const schema = gql`
     wordsCount: Int
     content: String
     archivedAt: Date
-    previewContent: String
+    feedContent: String
     previewContentType: String
     links: JSON
     folder: String!

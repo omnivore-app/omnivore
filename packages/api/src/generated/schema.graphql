@@ -69,6 +69,7 @@ type Article {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  feedContent: String
   folder: String!
   hasContent: Boolean
   hash: String!
@@ -1824,6 +1825,7 @@ type SearchItem {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  feedContent: String
   folder: String!
   highlights: [Highlight!]
   id: ID!
@@ -1836,7 +1838,6 @@ type SearchItem {
   ownedByViewer: Boolean
   pageId: ID
   pageType: PageType!
-  previewContent: String
   previewContentType: String
   publishedAt: Date
   quote: String

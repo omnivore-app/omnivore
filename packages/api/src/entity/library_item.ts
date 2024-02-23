@@ -191,7 +191,7 @@ export class LibraryItem {
   links?: any | null
 
   @Column('text')
-  previewContent?: string | null
+  feedContent?: string | null
 
   @Column('text')
   previewContentType?: string | null
