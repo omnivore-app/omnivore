@@ -23,11 +23,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.BuildConfig
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.ui.LinkIcon
-import app.omnivore.omnivore.feature.settings.LogoHeader
 import app.omnivore.omnivore.feature.settings.RELEASE_URL
 import app.omnivore.omnivore.feature.settings.SettingRow
 import app.omnivore.omnivore.feature.settings.SettingsViewModel
@@ -37,7 +37,7 @@ import app.omnivore.omnivore.navigation.Routes
 @Composable
 internal fun AboutScreen(
     navController: NavHostController,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
 
     val uriHandler = LocalUriHandler.current
@@ -69,14 +69,6 @@ internal fun AboutScreen(
 
             item {
                 SettingRow(
-                    title = stringResource(R.string.about_view_row_version),
-                    subtitle = getVersionName(),
-                    onClick = { },
-                )
-            }
-
-            item {
-                SettingRow(
                     title = stringResource(R.string.about_view_row_whats_new),
                     onClick = { uriHandler.openUri(RELEASE_URL) },
                 )
@@ -104,6 +96,14 @@ internal fun AboutScreen(
                 SettingRow(title = stringResource(R.string.settings_view_setting_row_terms_and_conditions)) {
                     navController.navigate(Routes.TermsAndConditions.route)
                 }
+            }
+
+            item {
+                SettingRow(
+                    title = stringResource(R.string.about_view_row_version),
+                    subtitle = getVersionName(),
+                    onClick = { },
+                )
             }
 
             item {

@@ -212,7 +212,7 @@
     <string name="settings_view_setting_row_manage_account">Manage Account</string>
     <string name="settings_view_setting_row_logout">Logout</string>
 
-    <!-- AboutView -->
+    <!-- About -->
     <string name="about_view_title">About</string>
     <string name="about_view_row_version">Version</string>
     <string name="about_view_row_whats_new">What\'s new</string>

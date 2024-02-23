@@ -31,15 +31,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.feature.auth.LoginViewModel
-import app.omnivore.omnivore.feature.settings.account.ManageAccountDialog
 import app.omnivore.omnivore.navigation.Routes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsScreen(
     loginViewModel: LoginViewModel,
-    settingsViewModel: SettingsViewModel,
-    navController: NavHostController,
+    navController: NavHostController
 ) {
     Scaffold(topBar = {
         TopAppBar(
@@ -60,7 +58,6 @@ internal fun SettingsScreen(
     }) { paddingValues ->
         SettingsViewContent(
             loginViewModel = loginViewModel,
-            settingsViewModel = settingsViewModel,
             navController = navController,
             paddingValues = paddingValues
         )
@@ -70,12 +67,10 @@ internal fun SettingsScreen(
 @Composable
 fun SettingsViewContent(
     loginViewModel: LoginViewModel,
-    settingsViewModel: SettingsViewModel,
     navController: NavHostController,
     paddingValues: PaddingValues
 ) {
     val showLogoutDialog = remember { mutableStateOf(false) }
-    val showManageAccountDialog = remember { mutableStateOf(false) }
 
     val state = rememberLazyListState()
 
@@ -86,7 +81,7 @@ fun SettingsViewContent(
 
         item {
             SettingRow(title = stringResource(R.string.settings_view_setting_row_manage_account)) {
-                showManageAccountDialog.value = true
+                navController.navigate(Routes.Account.route)
             }
         }
 
@@ -112,13 +107,6 @@ fun SettingsViewContent(
             }
             showLogoutDialog.value = false
         }
-    }
-
-    if (showManageAccountDialog.value) {
-        ManageAccountDialog(
-            onDismiss = { showManageAccountDialog.value = false },
-            settingsViewModel = settingsViewModel
-        )
     }
 }
 

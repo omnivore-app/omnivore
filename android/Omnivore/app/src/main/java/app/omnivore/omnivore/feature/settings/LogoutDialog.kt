@@ -1,8 +1,8 @@
 package app.omnivore.omnivore.feature.settings
 
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -20,8 +20,7 @@ fun LogoutDialog(onClose: (Boolean) -> Unit) {
             Text(stringResource(R.string.logout_dialog_confirm_msg))
         },
         confirmButton = {
-            Button(onClick = {
-                // Sign out google users
+            TextButton(onClick = {
                 val signInOptions =
                     GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
 
@@ -33,7 +32,7 @@ fun LogoutDialog(onClose: (Boolean) -> Unit) {
             }
         },
         dismissButton = {
-            Button(onClick = { onClose(false) }) {
+            TextButton(onClick = { onClose(false) }) {
                 Text(stringResource(R.string.logout_dialog_action_cancel))
             }
         })

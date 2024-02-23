@@ -17,8 +17,8 @@ import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.settings.SettingsScreen
-import app.omnivore.omnivore.feature.settings.SettingsViewModel
 import app.omnivore.omnivore.feature.settings.about.AboutScreen
+import app.omnivore.omnivore.feature.settings.account.AccountScreen
 import app.omnivore.omnivore.feature.web.WebViewScreen
 import app.omnivore.omnivore.navigation.Routes
 
@@ -26,7 +26,6 @@ import app.omnivore.omnivore.navigation.Routes
 fun RootView(
     loginViewModel: LoginViewModel,
     searchViewModel: SearchViewModel,
-    settingsViewModel: SettingsViewModel,
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
@@ -38,7 +37,6 @@ fun RootView(
             PrimaryNavigator(
                 loginViewModel = loginViewModel,
                 searchViewModel = searchViewModel,
-                settingsViewModel = settingsViewModel,
                 labelsViewModel = labelsViewModel,
                 saveViewModel = saveViewModel,
                 editInfoViewModel = editInfoViewModel,
@@ -60,14 +58,16 @@ fun RootView(
 fun PrimaryNavigator(
     loginViewModel: LoginViewModel,
     searchViewModel: SearchViewModel,
-    settingsViewModel: SettingsViewModel,
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.Library.route) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.Library.route
+    ) {
         composable(Routes.Library.route) {
             LibraryView(
                 navController = navController,
@@ -79,23 +79,26 @@ fun PrimaryNavigator(
 
         composable(Routes.Search.route) {
             SearchView(
-                viewModel = searchViewModel,
-                navController = navController
+                viewModel = searchViewModel, navController = navController
             )
         }
 
         composable(Routes.Settings.route) {
             SettingsScreen(
                 loginViewModel = loginViewModel,
-                settingsViewModel = settingsViewModel,
                 navController = navController
             )
         }
 
         composable(Routes.About.route) {
             AboutScreen(
-                navController = navController,
-                settingsViewModel = settingsViewModel
+                navController = navController
+            )
+        }
+
+        composable(Routes.Account.route) {
+            AccountScreen(
+                navController = navController
             )
         }
 
