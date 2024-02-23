@@ -4,3 +4,4 @@
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS library_item_user_id_state_idx ON omnivore.library_item (user_id, state);
 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS api_key_key_idx ON omnivore.api_key (key);

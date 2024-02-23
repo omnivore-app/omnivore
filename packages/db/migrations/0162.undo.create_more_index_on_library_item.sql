@@ -4,6 +4,7 @@
 
 BEGIN;
 
+DROP INDEX IF EXISTS api_key_key_idx;
 DROP INDEX IF EXISTS library_item_user_id_state_idx;
 
 COMMIT;
