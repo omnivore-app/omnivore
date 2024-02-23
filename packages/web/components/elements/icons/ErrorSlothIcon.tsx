@@ -80,7 +80,7 @@ class ErrorSlothIconDark extends React.Component<IconProps> {
           d="M79.7 33.5C79.7 33.5 81.8 28.7 93.8 30.5L85.1 34.1M106.4 33.5C106.4 33.5 109.7 29.6 117.5 29.9L112.1 33.5H106.4Z"
           fill="#3D3D3D"
         />
-        <g clip-path="url(#clip0_7350_4130)">
+        <g clipPath="url(#clip0_7350_4130)">
           <path
             d="M23.9999 68L18.9999 73"
             stroke="#3D3D3D"
@@ -96,7 +96,7 @@ class ErrorSlothIconDark extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <g clip-path="url(#clip1_7350_4130)">
+        <g clipPath="url(#clip1_7350_4130)">
           <path
             d="M53 68L48 73"
             stroke="#3D3D3D"
@@ -205,7 +205,7 @@ class ErrorSlothIconLight extends React.Component<IconProps> {
           d="M79.7 33.5C79.7 33.5 81.8 28.7 93.8 30.5L85.1 34.1M106.4 33.5C106.4 33.5 109.7 29.6 117.5 29.9L112.1 33.5H106.4Z"
           fill="#898989"
         />
-        <g clip-path="url(#clip0_7356_34483)">
+        <g clipPath="url(#clip0_7356_34483)">
           <path
             d="M23.9999 68.0002L18.9999 73.0002"
             stroke="#6A6968"
@@ -221,7 +221,7 @@ class ErrorSlothIconLight extends React.Component<IconProps> {
             strokeLinejoin="round"
           />
         </g>
-        <g clip-path="url(#clip1_7356_34483)">
+        <g clipPath="url(#clip1_7356_34483)">
           <path
             d="M53 68.0002L48 73.0002"
             stroke="#6A6968"
