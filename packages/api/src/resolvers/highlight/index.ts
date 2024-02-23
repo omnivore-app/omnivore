@@ -131,6 +131,7 @@ export const mergeHighlightResolver = authorized<
       libraryItem: { id: input.articleId },
       highlightPositionAnchorIndex: input.highlightPositionAnchorIndex || 0,
       highlightPositionPercent: input.highlightPositionPercent || 0,
+      representation: input.representation || RepresentationType.Content,
     }
 
     const newHighlight = await mergeHighlights(
