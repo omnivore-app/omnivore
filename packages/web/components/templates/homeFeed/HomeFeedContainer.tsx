@@ -925,7 +925,7 @@ const FetchItemsError = (): JSX.Element => {
         }}
       >
         We have encountered unexpected problems.{' '}
-        <a href="https://docs.omnivore.app/">Get help</a>
+        <a href="https://docs.omnivore.app/using/help.html">Get help</a>
       </StyledText>
     </VStack>
   )
