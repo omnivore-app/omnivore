@@ -115,7 +115,7 @@ export function HomeFeedContainer(): JSX.Element {
     error: fetchItemsError,
   } = useGetLibraryItemsQuery(queryInputs)
 
-  console.log('fetchItemsError: ', fetchItemsError)
+  console.log('fetchItemsError fetchItemsError: ', fetchItemsError)
 
   useEffect(() => {
     const handleRevalidate = () => {
@@ -973,6 +973,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     return true
   }, [props])
 
+  console.log('props.fetchItemsError', props.fetchItemsError)
+
   return (
     <VStack
       css={{
@@ -1021,8 +1023,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           />
         )}
 
-        {props.fetchItemsError && <FetchItemsError />}
-        {!props.isValidating && props.items.length <= 0 && (
+        {!showItems && props.fetchItemsError && <FetchItemsError />}
+        {!showItems && !props.fetchItemsError && props.items.length <= 0 && (
           <EmptyLibrary
             searchTerm={props.searchTerm}
             onAddLinkClicked={() => {
