@@ -18,6 +18,7 @@ import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.settings.SettingsScreen
 import app.omnivore.omnivore.feature.settings.SettingsViewModel
+import app.omnivore.omnivore.feature.settings.about.AboutScreen
 import app.omnivore.omnivore.feature.web.WebViewScreen
 import app.omnivore.omnivore.navigation.Routes
 
@@ -88,6 +89,13 @@ fun PrimaryNavigator(
                 loginViewModel = loginViewModel,
                 settingsViewModel = settingsViewModel,
                 navController = navController
+            )
+        }
+
+        composable(Routes.About.route) {
+            AboutScreen(
+                navController = navController,
+                settingsViewModel = settingsViewModel
             )
         }
 

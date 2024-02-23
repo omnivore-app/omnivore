@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings
+package app.omnivore.omnivore.feature.settings.account
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.feature.settings.SettingsViewModel
 
 @Composable
 fun ManageAccountDialog(onDismiss: () -> Unit, settingsViewModel: SettingsViewModel) {
