@@ -1,8 +1,7 @@
 import { useRouter } from 'next/router'
 import { Moon, Sun } from 'phosphor-react'
-import { ReactNode, useCallback, useState } from 'react'
+import { ReactNode, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { getCurrentLocalTheme, updateTheme } from '../../lib/themeUpdater'
 import { Avatar } from '../elements/Avatar'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import {
@@ -16,7 +15,7 @@ import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
-import { DropdownMenu } from '@radix-ui/react-dropdown-menu'
+import { useCurrentTheme, isDarkTheme } from '../../lib/hooks/useCurrentTheme'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -267,15 +266,7 @@ export const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
-  const [displayTheme, setDisplayTheme] = useState(getCurrentLocalTheme())
-
-  const doUpdateTheme = useCallback(
-    (newTheme: ThemeId) => {
-      updateTheme(newTheme)
-      setDisplayTheme(newTheme)
-    },
-    [setDisplayTheme]
-  )
+  const { currentTheme, setCurrentTheme } = useCurrentTheme()
 
   return (
     <>
@@ -311,18 +302,22 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={getCurrentLocalTheme() != ThemeId.Dark ? 'on' : 'off'}
+              data-state={
+                !(currentTheme && isDarkTheme(currentTheme)) ? 'on' : 'off'
+              }
               onClick={() => {
-                doUpdateTheme(ThemeId.Light)
+                setCurrentTheme(ThemeId.Light)
               }}
             >
               Light
               <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={getCurrentLocalTheme() == ThemeId.Dark ? 'on' : 'off'}
+              data-state={
+                currentTheme && isDarkTheme(currentTheme) ? 'on' : 'off'
+              }
               onClick={() => {
-                doUpdateTheme(ThemeId.Dark)
+                setCurrentTheme(ThemeId.Dark)
               }}
             >
               Dark

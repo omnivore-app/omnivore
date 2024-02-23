@@ -7,6 +7,25 @@ const themeKey = 'currentTheme'
 const preferredDarkThemeKey = 'preferredDarkThemeKey'
 const preferredLightThemeKey = 'preferredLightThemeKey'
 
+export const isDarkTheme = (themeId: string): boolean => {
+  if (
+    themeId === 'Dark' ||
+    themeId === 'Darker' ||
+    themeId === 'Apollo' ||
+    themeId == 'Black'
+  ) {
+    return true
+  }
+  return false
+}
+
+export const isLightTheme = (themeId: string): boolean => {
+  if (themeId === 'Sepia' || themeId == 'Light') {
+    return true
+  }
+  return false
+}
+
 export function useCurrentTheme() {
   const isDarkMode = useDarkModeListener()
   const [currentThemeInternal, setCurrentThemeInternal] = usePersistedState<
@@ -28,25 +47,6 @@ export function useCurrentTheme() {
       initialValue: 'Dark',
     }
   )
-
-  const isDarkTheme = (themeId: string): boolean => {
-    if (
-      themeId === 'Dark' ||
-      themeId === 'Darker' ||
-      themeId === 'Apollo' ||
-      themeId == 'Black'
-    ) {
-      return true
-    }
-    return false
-  }
-
-  const isLightTheme = (themeId: string): boolean => {
-    if (themeId === 'Sepia' || themeId == 'Light') {
-      return true
-    }
-    return false
-  }
 
   const currentTheme = useMemo(() => {
     return currentThemeInternal
