@@ -983,7 +983,7 @@ export const findLibraryItemsByPrefix = async (
   )
 }
 
-export const countByCreatedAt = async (
+export const countBySavedAt = async (
   userId: string,
   startDate = new Date(0),
   endDate = new Date()
@@ -993,7 +993,7 @@ export const countByCreatedAt = async (
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.created_at between :startDate and :endDate', {
+        .andWhere('library_item.saved_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
