@@ -16,7 +16,7 @@ import {
   libraryItemToArticleSavingRequest,
 } from '../utils/helpers'
 import { logger } from '../utils/logger'
-import { countByCreatedAt, createOrUpdateLibraryItem } from './library_item'
+import { countBySavedAt, createOrUpdateLibraryItem } from './library_item'
 
 interface PageSaveRequest {
   user: User
@@ -38,12 +38,12 @@ const SAVING_CONTENT = 'Your link is being saved...'
 
 const isPrivateIP = privateIpLib.default
 
-// 5 articles added in the last minute: use low queue
+// 5 items saved in the last minute: use low queue
 // default: use normal queue
 const getPriorityByRateLimit = async (
   userId: string
 ): Promise<'low' | 'high'> => {
-  const count = await countByCreatedAt(userId, new Date(Date.now() - 60 * 1000))
+  const count = await countBySavedAt(userId, new Date(Date.now() - 60 * 1000))
   return count >= 5 ? 'low' : 'high'
 }
 

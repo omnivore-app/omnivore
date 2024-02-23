@@ -40,8 +40,7 @@ export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
         .withRepository(libraryItemRepository)
         .createQueryBuilder('item')
         .innerJoinAndSelect('item.uploadFile', 'file')
-        .where('item.user = :userId', { userId: uploadFile.user.id })
-        .andWhere('file.id = :fileId', { fileId })
+        .where('file.id = :fileId', { fileId })
         .getOne(),
     undefined,
     uploadFile.user.id
