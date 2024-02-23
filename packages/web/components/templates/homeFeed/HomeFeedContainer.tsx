@@ -973,8 +973,6 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     return true
   }, [props])
 
-  console.log('props.fetchItemsError', props.fetchItemsError)
-
   return (
     <VStack
       css={{
