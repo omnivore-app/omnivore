@@ -2135,6 +2135,7 @@ const schema = gql`
   enum RuleActionType {
     ADD_LABEL
     ARCHIVE
+    DELETE
     MARK_AS_READ
     SEND_NOTIFICATION
   }

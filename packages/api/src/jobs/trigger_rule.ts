@@ -5,6 +5,7 @@ import { addLabelsToLibraryItem } from '../services/labels'
 import {
   SearchArgs,
   searchLibraryItems,
+  softDeleteLibraryItem,
   updateLibraryItem,
 } from '../services/library_item'
 import { findEnabledRules } from '../services/rules'
@@ -36,6 +37,10 @@ const addLabels = async (obj: RuleActionObj) => {
     obj.userId,
     'system'
   )
+}
+
+const deleteLibraryItem = async (obj: RuleActionObj) => {
+  return softDeleteLibraryItem(obj.libraryItem.id, obj.userId)
 }
 
 const archivePage = async (obj: RuleActionObj) => {
@@ -76,6 +81,8 @@ const getRuleAction = (actionType: RuleActionType): RuleActionFunc => {
       return addLabels
     case RuleActionType.Archive:
       return archivePage
+    case RuleActionType.Delete:
+      return deleteLibraryItem
     case RuleActionType.MarkAsRead:
       return markPageAsRead
     case RuleActionType.SendNotification:

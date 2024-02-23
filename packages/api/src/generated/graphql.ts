@@ -2215,6 +2215,7 @@ export type RuleActionInput = {
 export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
   Archive = 'ARCHIVE',
+  Delete = 'DELETE',
   MarkAsRead = 'MARK_AS_READ',
   SendNotification = 'SEND_NOTIFICATION'
 }
