@@ -4,6 +4,6 @@
 
 BEGIN;
 
-DROP INDEX IF EXISTS library_item_user_id_state_idx;
+DROP INDEX IF EXISTS omnivore.library_item_user_id_state_idx;
 
 COMMIT;

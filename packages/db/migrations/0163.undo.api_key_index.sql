@@ -4,6 +4,6 @@
 
 BEGIN;
 
-DROP INDEX IF EXISTS api_key_key_idx;
+DROP INDEX IF EXISTS omnivore.api_key_key_idx;
 
 COMMIT;
