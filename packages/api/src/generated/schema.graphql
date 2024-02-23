@@ -758,6 +758,12 @@ type FetchContentSuccess {
   success: Boolean!
 }
 
+enum FetchContentType {
+  ALWAYS
+  NEVER
+  WHEN_EMPTY
+}
+
 type Filter {
   category: String
   createdAt: Date!
@@ -2216,6 +2222,7 @@ enum SubscribeErrorCode {
 input SubscribeInput {
   autoAddToLibrary: Boolean
   fetchContent: Boolean
+  fetchContentType: FetchContentType
   folder: String
   isPrivate: Boolean
   subscriptionType: SubscriptionType
@@ -2235,6 +2242,7 @@ type Subscription {
   description: String
   failedAt: Date
   fetchContent: Boolean!
+  fetchContentType: FetchContentType!
   folder: String!
   icon: String
   id: ID!
@@ -2581,6 +2589,7 @@ input UpdateSubscriptionInput {
   description: String
   failedAt: Date
   fetchContent: Boolean
+  fetchContentType: FetchContentType
   folder: String
   id: ID!
   isPrivate: Boolean

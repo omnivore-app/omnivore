@@ -31,7 +31,7 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
         ARRAY_AGG(s.most_recent_item_date) AS "mostRecentItemDates",
         ARRAY_AGG(coalesce(s.scheduled_at, NOW())) AS "scheduledDates",
         ARRAY_AGG(s.last_fetched_checksum) AS checksums,
-        ARRAY_AGG(s.fetch_content) AS "fetchContents",
+        ARRAY_AGG(s.fetch_content_type) AS "fetchContentTypes",
         ARRAY_AGG(coalesce(s.folder, $3)) AS folders
       FROM
         omnivore.subscriptions s
@@ -106,7 +106,7 @@ const updateSubscriptionGroup = async (
       timestamp.getTime()
     ), // unix timestamp in milliseconds
     userIds: group.userIds,
-    fetchContents: group.fetchContents,
+    fetchContents: group.fetchContentTypes,
     folders: group.folders,
   }
 

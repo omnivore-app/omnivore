@@ -23,6 +23,12 @@ export enum SubscriptionType {
   Rss = 'RSS',
 }
 
+export enum FetchContentType {
+  Always = 'ALWAYS',
+  Never = 'NEVER',
+  WhenEmpty = 'WHEN_EMPTY',
+}
+
 @Entity({ name: 'subscriptions' })
 export class Subscription {
   @PrimaryGeneratedColumn('uuid')
@@ -97,6 +103,12 @@ export class Subscription {
 
   @Column('boolean')
   fetchContent!: boolean
+
+  @Column('enum', {
+    enum: FetchContentType,
+    default: FetchContentType.Always,
+  })
+  fetchContentType!: FetchContentType
 
   @Column('text')
   folder?: string | null

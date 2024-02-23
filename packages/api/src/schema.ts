@@ -1671,6 +1671,12 @@ const schema = gql`
     NEWSLETTER
   }
 
+  enum FetchContentType {
+    ALWAYS
+    NEVER
+    WHEN_EMPTY
+  }
+
   type Subscription {
     id: ID!
     name: String!
@@ -1689,6 +1695,7 @@ const schema = gql`
     isPrivate: Boolean
     autoAddToLibrary: Boolean
     fetchContent: Boolean!
+    fetchContentType: FetchContentType!
     folder: String!
     mostRecentItemDate: Date
     refreshedAt: Date
@@ -2597,6 +2604,7 @@ const schema = gql`
     isPrivate: Boolean
     autoAddToLibrary: Boolean
     fetchContent: Boolean
+    fetchContentType: FetchContentType
     folder: String
   }
 
@@ -2610,6 +2618,7 @@ const schema = gql`
     isPrivate: Boolean
     autoAddToLibrary: Boolean
     fetchContent: Boolean
+    fetchContentType: FetchContentType
     folder: String
     refreshedAt: Date
     mostRecentItemDate: Date

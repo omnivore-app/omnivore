@@ -9,6 +9,7 @@ import { DeepPartial } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 import { ImportItemState } from '../entity/integration'
 import { Recommendation } from '../entity/recommendation'
+import { FetchContentType } from '../entity/subscription'
 import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
@@ -625,7 +626,7 @@ export interface RssSubscriptionGroup {
   mostRecentItemDates: (Date | null)[]
   scheduledDates: Date[]
   checksums: (string | null)[]
-  fetchContents: boolean[]
+  fetchContentTypes: FetchContentType[]
   folders: string[]
 }
 
@@ -648,7 +649,7 @@ export const enqueueRssFeedFetch = async (
       timestamp.getTime()
     ), // unix timestamp in milliseconds
     userIds: subscriptionGroup.userIds,
-    fetchContents: subscriptionGroup.fetchContents,
+    fetchContentTypes: subscriptionGroup.fetchContentTypes,
     folders: subscriptionGroup.folders,
   }
 

@@ -854,6 +854,12 @@ export type FetchContentSuccess = {
   success: Scalars['Boolean'];
 };
 
+export enum FetchContentType {
+  Always = 'ALWAYS',
+  Never = 'NEVER',
+  WhenEmpty = 'WHEN_EMPTY'
+}
+
 export type Filter = {
   __typename?: 'Filter';
   category?: Maybe<Scalars['String']>;
@@ -2818,6 +2824,7 @@ export enum SubscribeErrorCode {
 export type SubscribeInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   fetchContent?: InputMaybe<Scalars['Boolean']>;
+  fetchContentType?: InputMaybe<FetchContentType>;
   folder?: InputMaybe<Scalars['String']>;
   isPrivate?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
@@ -2839,6 +2846,7 @@ export type Subscription = {
   description?: Maybe<Scalars['String']>;
   failedAt?: Maybe<Scalars['Date']>;
   fetchContent: Scalars['Boolean'];
+  fetchContentType: FetchContentType;
   folder: Scalars['String'];
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -3214,6 +3222,7 @@ export type UpdateSubscriptionInput = {
   description?: InputMaybe<Scalars['String']>;
   failedAt?: InputMaybe<Scalars['Date']>;
   fetchContent?: InputMaybe<Scalars['Boolean']>;
+  fetchContentType?: InputMaybe<FetchContentType>;
   folder?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: InputMaybe<Scalars['Boolean']>;
@@ -3711,6 +3720,7 @@ export type ResolversTypes = {
   FetchContentErrorCode: FetchContentErrorCode;
   FetchContentResult: ResolversTypes['FetchContentError'] | ResolversTypes['FetchContentSuccess'];
   FetchContentSuccess: ResolverTypeWrapper<FetchContentSuccess>;
+  FetchContentType: FetchContentType;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -6198,6 +6208,7 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
   failedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "failedAt", ParentType, ContextType>;
   fetchContent?: SubscriptionResolver<ResolversTypes['Boolean'], "fetchContent", ParentType, ContextType>;
+  fetchContentType?: SubscriptionResolver<ResolversTypes['FetchContentType'], "fetchContentType", ParentType, ContextType>;
   folder?: SubscriptionResolver<ResolversTypes['String'], "folder", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;
