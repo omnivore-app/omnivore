@@ -52,7 +52,7 @@ export const updateSubscription = async (
     failedAt: newData.failedAt || undefined,
     autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
     isPrivate: newData.isPrivate ?? undefined,
-    fetchContentType: newData.fetchContentType ?? undefined,
+    fetchContentType: newData.fetchContentType || undefined,
     folder: newData.folder ?? undefined,
   })
 
