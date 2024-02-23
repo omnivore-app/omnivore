@@ -704,6 +704,11 @@ const schema = gql`
     NOTE
   }
 
+  enum RepresentationType {
+    CONTENT
+    FEED_CONTENT
+  }
+
   # Highlight
   type Highlight {
     id: ID!
@@ -729,6 +734,7 @@ const schema = gql`
     type: HighlightType!
     html: String
     color: String
+    representation: RepresentationType!
   }
 
   input CreateHighlightInput {
@@ -746,6 +752,7 @@ const schema = gql`
     type: HighlightType
     html: String
     color: String
+    representation: RepresentationType
   }
 
   type CreateHighlightSuccess {
@@ -780,6 +787,7 @@ const schema = gql`
     highlightPositionAnchorIndex: Int
     html: String
     color: String
+    representation: RepresentationType
   }
 
   type MergeHighlightSuccess {

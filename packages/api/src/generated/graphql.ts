@@ -368,6 +368,7 @@ export type CreateHighlightInput = {
   patch?: InputMaybe<Scalars['String']>;
   prefix?: InputMaybe<Scalars['String']>;
   quote?: InputMaybe<Scalars['String']>;
+  representation?: InputMaybe<RepresentationType>;
   sharedAt?: InputMaybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: InputMaybe<Scalars['String']>;
@@ -1024,6 +1025,7 @@ export type Highlight = {
   quote?: Maybe<Scalars['String']>;
   reactions: Array<Reaction>;
   replies: Array<HighlightReply>;
+  representation: RepresentationType;
   sharedAt?: Maybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: Maybe<Scalars['String']>;
@@ -1281,6 +1283,7 @@ export type MergeHighlightInput = {
   patch: Scalars['String'];
   prefix?: InputMaybe<Scalars['String']>;
   quote: Scalars['String'];
+  representation?: InputMaybe<RepresentationType>;
   shortId: Scalars['ID'];
   suffix?: InputMaybe<Scalars['String']>;
 };
@@ -2176,6 +2179,11 @@ export enum ReportType {
   ContentDisplay = 'CONTENT_DISPLAY',
   ContentViolation = 'CONTENT_VIOLATION',
   Spam = 'SPAM'
+}
+
+export enum RepresentationType {
+  Content = 'CONTENT',
+  FeedContent = 'FEED_CONTENT'
 }
 
 export type RevokeApiKeyError = {
@@ -3870,6 +3878,7 @@ export type ResolversTypes = {
   ReportItemInput: ReportItemInput;
   ReportItemResult: ResolverTypeWrapper<ReportItemResult>;
   ReportType: ReportType;
+  RepresentationType: RepresentationType;
   RevokeApiKeyError: ResolverTypeWrapper<RevokeApiKeyError>;
   RevokeApiKeyErrorCode: RevokeApiKeyErrorCode;
   RevokeApiKeyResult: ResolversTypes['RevokeApiKeyError'] | ResolversTypes['RevokeApiKeySuccess'];
@@ -5256,6 +5265,7 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   replies?: Resolver<Array<ResolversTypes['HighlightReply']>, ParentType, ContextType>;
+  representation?: Resolver<ResolversTypes['RepresentationType'], ParentType, ContextType>;
   sharedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   shortId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   suffix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

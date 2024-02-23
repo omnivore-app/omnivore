@@ -319,6 +319,7 @@ input CreateHighlightInput {
   patch: String
   prefix: String
   quote: String
+  representation: RepresentationType
   sharedAt: Date
   shortId: String!
   suffix: String
@@ -912,6 +913,7 @@ type Highlight {
   quote: String
   reactions: [Reaction!]!
   replies: [HighlightReply!]!
+  representation: RepresentationType!
   sharedAt: Date
   shortId: String!
   suffix: String
@@ -1148,6 +1150,7 @@ input MergeHighlightInput {
   patch: String!
   prefix: String
   quote: String!
+  representation: RepresentationType
   shortId: ID!
   suffix: String
 }
@@ -1620,6 +1623,11 @@ enum ReportType {
   CONTENT_DISPLAY
   CONTENT_VIOLATION
   SPAM
+}
+
+enum RepresentationType {
+  CONTENT
+  FEED_CONTENT
 }
 
 type RevokeApiKeyError {
