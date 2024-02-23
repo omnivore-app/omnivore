@@ -15,7 +15,7 @@ import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
-import { useCurrentTheme, isDarkTheme } from '../../lib/hooks/useCurrentTheme'
+import { useCurrentTheme } from '../../lib/hooks/useCurrentTheme'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -262,7 +262,8 @@ export const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
-  const { currentTheme, setCurrentTheme } = useCurrentTheme()
+  const { currentTheme, setCurrentTheme, currentThemeIsDark } =
+    useCurrentTheme()
 
   return (
     <>
@@ -298,9 +299,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={
-                !(currentTheme && isDarkTheme(currentTheme)) ? 'on' : 'off'
-              }
+              data-state={!currentThemeIsDark ? 'on' : 'off'}
               onClick={() => {
                 setCurrentTheme(ThemeId.Light)
               }}
@@ -309,9 +308,7 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
               <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={
-                currentTheme && isDarkTheme(currentTheme) ? 'on' : 'off'
-              }
+              data-state={currentThemeIsDark ? 'on' : 'off'}
               onClick={() => {
                 setCurrentTheme(ThemeId.Dark)
               }}
