@@ -281,7 +281,7 @@ const createTask = async (
   const feedContent = item.content || item.contentSnippet || item.summary
   if (
     fetchContentType === FetchContentType.Never ||
-    (fetchContentType === FetchContentType.WhenEmpty && !feedContent)
+    (fetchContentType === FetchContentType.WhenEmpty && feedContent)
   ) {
     return createItemWithFeedContent(userId, feedUrl, item, folder, feedContent)
   }
