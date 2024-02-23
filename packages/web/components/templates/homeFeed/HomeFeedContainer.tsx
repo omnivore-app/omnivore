@@ -1143,30 +1143,20 @@ export function LibraryItemsLayout(
           }}
           style={{ height: '100%', width: '100%' }}
         >
-          {!props.isValidating && props.items.length == 0 ? (
-            <EmptyLibrary
-              layoutType={props.layout}
-              searchTerm={props.searchTerm}
-              onAddLinkClicked={() => {
-                props.setShowAddLinkModal(true)
-              }}
-            />
-          ) : (
-            <LibraryItems
-              items={props.items}
-              layout={props.layout}
-              viewer={props.viewer}
-              isChecked={props.isChecked}
-              setIsChecked={props.setIsChecked}
-              gridContainerRef={props.gridContainerRef}
-              setShowEditTitleModal={props.setShowEditTitleModal}
-              setLinkToEdit={props.setLinkToEdit}
-              setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
-              setLinkToUnsubscribe={props.setLinkToUnsubscribe}
-              actionHandler={props.actionHandler}
-              multiSelectMode={props.multiSelectMode}
-            />
-          )}
+          <LibraryItems
+            items={props.items}
+            layout={props.layout}
+            viewer={props.viewer}
+            isChecked={props.isChecked}
+            setIsChecked={props.setIsChecked}
+            gridContainerRef={props.gridContainerRef}
+            setShowEditTitleModal={props.setShowEditTitleModal}
+            setLinkToEdit={props.setLinkToEdit}
+            setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
+            setLinkToUnsubscribe={props.setLinkToUnsubscribe}
+            actionHandler={props.actionHandler}
+            multiSelectMode={props.multiSelectMode}
+          />
           <HStack
             distribution="center"
             css={{ width: '100%', mt: '$2', mb: '$4' }}
