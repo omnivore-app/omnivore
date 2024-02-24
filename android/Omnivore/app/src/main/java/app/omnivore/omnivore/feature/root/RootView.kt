@@ -1,10 +1,23 @@
 package app.omnivore.omnivore.feature.root
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -31,25 +44,42 @@ fun RootView(
     editInfoViewModel: EditInfoViewModel,
 ) {
     val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Box {
-        if (hasAuthToken) {
-            PrimaryNavigator(
-                loginViewModel = loginViewModel,
-                searchViewModel = searchViewModel,
-                labelsViewModel = labelsViewModel,
-                saveViewModel = saveViewModel,
-                editInfoViewModel = editInfoViewModel,
-            )
-        } else {
-            WelcomeScreen(viewModel = loginViewModel)
-        }
-
-        DisposableEffect(hasAuthToken) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal,
+                    ),
+                )
+        ){
             if (hasAuthToken) {
-                loginViewModel.registerUser()
+                PrimaryNavigator(
+                    loginViewModel = loginViewModel,
+                    searchViewModel = searchViewModel,
+                    labelsViewModel = labelsViewModel,
+                    saveViewModel = saveViewModel,
+                    editInfoViewModel = editInfoViewModel,
+                    snackbarHostState = snackbarHostState
+
+                )
+            } else {
+                WelcomeScreen(viewModel = loginViewModel)
             }
-            onDispose {}
+
+            DisposableEffect(hasAuthToken) {
+                if (hasAuthToken) {
+                    loginViewModel.registerUser()
+                }
+                onDispose {}
+            }
         }
     }
 }
@@ -61,6 +91,7 @@ fun PrimaryNavigator(
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
+    snackbarHostState: SnackbarHostState
 ) {
     val navController = rememberNavController()
 
@@ -98,7 +129,8 @@ fun PrimaryNavigator(
 
         composable(Routes.Account.route) {
             AccountScreen(
-                navController = navController
+                navController = navController,
+                snackbarHostState = snackbarHostState,
             )
         }
 

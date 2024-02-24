@@ -1,5 +1,8 @@
 package app.omnivore.omnivore.feature.settings
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.omnivore.omnivore.core.data.DataService
@@ -10,6 +13,7 @@ import app.omnivore.omnivore.utils.DatastoreKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.intercom.android.sdk.Intercom
 import io.intercom.android.sdk.IntercomSpace
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,10 +23,24 @@ class SettingsViewModel @Inject constructor(
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository
 ) : ViewModel() {
+
+    var snackbarMessage by mutableStateOf("Resetting data...")
+
+    var isResettingData by mutableStateOf(false)
+    var isDataResetCompleted by mutableStateOf(false)
+
     fun resetDataCache() {
+        isResettingData = true
+
         viewModelScope.launch {
             datastoreRepo.clearValue(DatastoreKeys.libraryLastSyncTimestamp)
             dataService.clearDatabase()
+            delay(1000)
+            isResettingData = false
+
+            if (!isDataResetCompleted) {
+                isDataResetCompleted = true
+            }
         }
     }
 

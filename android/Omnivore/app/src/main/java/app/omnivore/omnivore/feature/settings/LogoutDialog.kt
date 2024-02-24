@@ -1,6 +1,8 @@
 package app.omnivore.omnivore.feature.settings
 
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -19,8 +21,13 @@ fun LogoutDialog(onClose: (Boolean) -> Unit) {
         text = {
             Text(stringResource(R.string.logout_dialog_confirm_msg))
         },
+        containerColor = MaterialTheme.colorScheme.background,
         confirmButton = {
-            TextButton(onClick = {
+            TextButton(
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                onClick = {
                 val signInOptions =
                     GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
 
@@ -32,7 +39,11 @@ fun LogoutDialog(onClose: (Boolean) -> Unit) {
             }
         },
         dismissButton = {
-            TextButton(onClick = { onClose(false) }) {
+            TextButton(
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                onClick = { onClose(false) }) {
                 Text(stringResource(R.string.logout_dialog_action_cancel))
             }
         })
