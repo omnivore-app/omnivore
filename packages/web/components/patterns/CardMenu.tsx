@@ -79,7 +79,7 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         onSelect={() => {
           props.actionHandler('delete')
         }}
-        title="Delete"
+        title="Remove"
       />
       {!!props.item.subscription && (
         <DropdownOption
