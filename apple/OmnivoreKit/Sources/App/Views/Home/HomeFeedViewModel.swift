@@ -13,7 +13,7 @@ enum LoadingBarStyle {
 
 @MainActor final class HomeFeedViewModel: NSObject, ObservableObject {
   let filterKey: String
-  @Published var fetcher: LibraryItemFetcher
+  @ObservedObject var fetcher: LibraryItemFetcher
   let folderConfigs: [String: LibraryListConfig]
 
   @Published var isLoading = false

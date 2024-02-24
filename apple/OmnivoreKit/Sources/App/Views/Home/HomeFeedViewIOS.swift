@@ -530,8 +530,13 @@ struct AnimatingCellHeight: AnimatableModifier {
           )
         } else {
           HomeFeedGridView(
+            listTitle: $listTitle,
+            isListScrolled: $isListScrolled,
+            prefersListLayout: $prefersListLayout,
+            isEditMode: $isEditMode,
+            selection: $selection,
             viewModel: viewModel,
-            isListScrolled: $isListScrolled
+            showFeatureCards: showFeatureCards
           )
         }
       }.sheet(isPresented: $viewModel.showLabelsSheet) {
@@ -572,10 +577,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           .frame(width: nil, height: 0.5, alignment: .bottom)
           .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
         .dynamicTypeSize(.small ... .accessibility1)
-    }
-
-    func menuItems(for item: Models.LibraryItem) -> some View {
-      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var featureCard: some View {
@@ -745,7 +746,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         .listRowSeparatorTint(Color.thBorderColor)
         .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
         .contextMenu {
-          menuItems(for: item)
+          libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
           if let listConfig = viewModel.currentListConfig {
@@ -938,11 +939,20 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
-    @State var isContextMenuOpen = false
+    @Binding var listTitle: String
+    @Binding var isListScrolled: Bool
+    @Binding var prefersListLayout: Bool
+    @Binding var isEditMode: EditMode
+    @State private var showHideFeatureAlert = false
 
+    @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    @Binding var isListScrolled: Bool
+    let showFeatureCards: Bool
+
+    @State var shouldScrollToTop = false
+    @State var topItem: Models.LibraryItem?
+    @ObservedObject var networkMonitor = NetworkMonitor()
 
     func contextMenuActionHandler(item: Models.LibraryItem, action: GridCardAction) {
       switch action {
@@ -970,10 +980,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           .frame(width: nil, height: 0.5, alignment: .bottom)
           .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
         .dynamicTypeSize(.small ... .accessibility1)
-    }
-
-    func menuItems(for item: Models.LibraryItem) -> some View {
-      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var body: some View {
@@ -1018,7 +1024,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                     viewModel: viewModel
                   )
                   .contextMenu {
-                    menuItems(for: item)
+                    libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
                   }
                   .onAppear {
                     if idx >= viewModel.fetcher.items.count - 5 {

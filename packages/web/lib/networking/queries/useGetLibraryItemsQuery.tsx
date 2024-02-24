@@ -34,6 +34,7 @@ type LibraryItemsQueryResponse = {
   itemsDataError?: unknown
   isLoading: boolean
   isValidating: boolean
+  error: boolean
   size: number
   setSize: (
     size: number | ((_size: number) => number)
@@ -447,5 +448,6 @@ export function useGetLibraryItemsQuery({
     size,
     setSize,
     mutate,
+    error: !!error,
   }
 }

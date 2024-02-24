@@ -49,6 +49,9 @@ import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutati
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { PinnedButtons } from './PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
+import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
+import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
+import { FetchItemsError } from './FetchItemsError'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
 export type LibraryMode = 'reads' | 'highlights'
@@ -109,7 +112,10 @@ export function HomeFeedContainer(): JSX.Element {
     isValidating,
     performActionOnItem,
     mutate,
+    error: fetchItemsError,
   } = useGetLibraryItemsQuery(queryInputs)
+
+  console.log('fetchItemsError fetchItemsError: ', fetchItemsError)
 
   useEffect(() => {
     const handleRevalidate = () => {
@@ -856,6 +862,7 @@ export function HomeFeedContainer(): JSX.Element {
       hasData={!!itemsPages}
       totalItems={itemsPages?.[0].search.pageInfo.totalCount || 0}
       isValidating={isValidating}
+      fetchItemsError={!!fetchItemsError}
       labelsTarget={labelsTarget}
       setLabelsTarget={setLabelsTarget}
       notebookTarget={notebookTarget}
@@ -890,6 +897,8 @@ export type HomeFeedContentProps = {
   hasData: boolean
   totalItems: number
   isValidating: boolean
+  fetchItemsError: boolean
+
   loadMore: () => void
   labelsTarget: LibraryItem | undefined
   setLabelsTarget: (target: LibraryItem | undefined) => void
@@ -954,6 +963,16 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
 
   const [showFilterMenu, setShowFilterMenu] = useState(false)
 
+  const showItems = useMemo(() => {
+    if (props.fetchItemsError) {
+      return false
+    }
+    if (!props.isValidating && props.items.length <= 0) {
+      return false
+    }
+    return true
+  }, [props])
+
   return (
     <VStack
       css={{
@@ -1001,7 +1020,18 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             setShowFilterMenu={setShowFilterMenu}
           />
         )}
-        {!props.isValidating && props.mode == 'highlights' && (
+
+        {!showItems && props.fetchItemsError && <FetchItemsError />}
+        {!showItems && !props.fetchItemsError && props.items.length <= 0 && (
+          <EmptyLibrary
+            searchTerm={props.searchTerm}
+            onAddLinkClicked={() => {
+              props.setShowAddLinkModal(true)
+            }}
+          />
+        )}
+
+        {showItems && props.mode == 'highlights' && (
           <HighlightItemsLayout
             gridContainerRef={props.gridContainerRef}
             items={props.items}
@@ -1011,7 +1041,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           />
         )}
 
-        {props.mode == 'reads' && (
+        {showItems && props.mode == 'reads' && (
           <LibraryItemsLayout
             viewer={viewerData?.me}
             layout={layout}
@@ -1113,30 +1143,20 @@ export function LibraryItemsLayout(
           }}
           style={{ height: '100%', width: '100%' }}
         >
-          {!props.isValidating && props.items.length == 0 ? (
-            <EmptyLibrary
-              layoutType={props.layout}
-              searchTerm={props.searchTerm}
-              onAddLinkClicked={() => {
-                props.setShowAddLinkModal(true)
-              }}
-            />
-          ) : (
-            <LibraryItems
-              items={props.items}
-              layout={props.layout}
-              viewer={props.viewer}
-              isChecked={props.isChecked}
-              setIsChecked={props.setIsChecked}
-              gridContainerRef={props.gridContainerRef}
-              setShowEditTitleModal={props.setShowEditTitleModal}
-              setLinkToEdit={props.setLinkToEdit}
-              setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
-              setLinkToUnsubscribe={props.setLinkToUnsubscribe}
-              actionHandler={props.actionHandler}
-              multiSelectMode={props.multiSelectMode}
-            />
-          )}
+          <LibraryItems
+            items={props.items}
+            layout={props.layout}
+            viewer={props.viewer}
+            isChecked={props.isChecked}
+            setIsChecked={props.setIsChecked}
+            gridContainerRef={props.gridContainerRef}
+            setShowEditTitleModal={props.setShowEditTitleModal}
+            setLinkToEdit={props.setLinkToEdit}
+            setShowUnsubscribeConfirmation={setShowUnsubscribeConfirmation}
+            setLinkToUnsubscribe={props.setLinkToUnsubscribe}
+            actionHandler={props.actionHandler}
+            multiSelectMode={props.multiSelectMode}
+          />
           <HStack
             distribution="center"
             css={{ width: '100%', mt: '$2', mb: '$4' }}
