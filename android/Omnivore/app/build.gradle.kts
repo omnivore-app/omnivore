@@ -168,6 +168,8 @@ dependencies {
 
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
 }
 
 apollo {

@@ -12,6 +12,5 @@
     <color name="yellow_E6E4BF">#E6E4BF</color>
     <color name="cta_yellow">#F8D457</color>
 
-<!--    <color name="F8F8F8">#F8F8F8</color>-->
-<!--    <color name="2E2E2B">#2E2E2B</color>-->
+    <color name="background">#FCFCFC</color>
 </resources>
