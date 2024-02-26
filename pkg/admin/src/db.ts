@@ -306,8 +306,11 @@ export class Subscription extends BaseEntity {
   @Column('integer', { default: 0 })
   count!: number
 
-  @Column({ type: 'timestamp', name: 'last_fetched_at', nullable: true })
-  lastFetchedAt?: Date | null
+  @Column({ type: 'timestamp', name: 'refreshed_at', nullable: true })
+  refreshedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'most_recent_item_date', nullable: true })
+  mostRecentItemDate?: Date | null
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
