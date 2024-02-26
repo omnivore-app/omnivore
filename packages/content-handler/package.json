@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "addressparser": "^1.0.1",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "ioredis": "^5.3.2",
     "linkedom": "^0.14.16",
     "lodash": "^4.17.21",

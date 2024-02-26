@@ -29,7 +29,7 @@
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^7.0.1",
     "@sentry/serverless": "^7.77.0",
-    "axios": "^1.2.2",
+    "axios": "^0.28.0",
     "csv-stringify": "^6.4.0",
     "dotenv": "^16.0.1",
     "jsonwebtoken": "^8.5.1",

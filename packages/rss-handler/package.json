@@ -25,7 +25,7 @@
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/tasks": "^4.0.0",
     "@sentry/serverless": "^7.77.0",
-    "axios": "^1.4.0",
+    "axios": "^0.28.0",
     "dotenv": "^16.0.1",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^8.5.1",

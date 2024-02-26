@@ -40,7 +40,7 @@
     "@omnivore/readability": "1.0.0",
     "@sentry/serverless": "^7.77.0",
     "@types/express": "^4.17.13",
-    "axios": "^1.2.2",
+    "axios": "^0.28.0",
     "dompurify": "^2.4.3",
     "fs-extra": "^11.1.0",
     "glob": "^8.1.0",

@@ -36,7 +36,7 @@
     "@google-cloud/functions-framework": "3.1.2",
     "@google-cloud/storage": "^7.0.1",
     "@sentry/serverless": "^7.77.0",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "dotenv": "^16.0.1",
     "fluent-ffmpeg": "^2.1.2",
     "html-to-text": "^8.2.1",

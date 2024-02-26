@@ -10,7 +10,7 @@
   "dependencies": {
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/readability": "1.0.0",
-    "axios": "^1.4.0",
+    "axios": "^0.28.0",
     "crypto": "^1.0.1",
     "dompurify": "^2.4.1",
     "linkedom": "^0.14.9",

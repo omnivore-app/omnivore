@@ -47,7 +47,7 @@
     "addressparser": "^1.0.1",
     "apollo-datasource": "^3.3.1",
     "apollo-server-express": "^3.6.3",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "bcryptjs": "^2.4.3",
     "bullmq": "^5.1.1",
     "cookie": "^0.5.0",
