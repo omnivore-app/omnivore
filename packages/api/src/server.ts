@@ -9,12 +9,15 @@ import { json, urlencoded } from 'body-parser'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
+import promBundle from 'express-prom-bundle'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
+import * as prom from 'prom-client'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
+import { redisDataSource } from './redis_data_source'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -37,6 +40,7 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
+import { analytics } from './utils/analytics'
 import {
   getClaimsByToken,
   getTokenByRequest,
@@ -44,10 +48,6 @@ import {
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
-import { redisDataSource } from './redis_data_source'
-import * as prom from 'prom-client'
-import promBundle from 'express-prom-bundle'
-import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 
 const PORT = process.env.PORT || 4000
 
@@ -213,6 +213,10 @@ const main = async (): Promise<void> => {
   listener.timeout = 640 * 1000 // match headersTimeout
 
   const gracefulShutdown = async (signal: string) => {
+    console.log('[posthog]: flushing events')
+    await analytics.shutdownAsync()
+    console.log('[posthog]: events flushed')
+
     console.log(`[api]: Received ${signal}, closing server...`)
 
     await apollo.stop()
