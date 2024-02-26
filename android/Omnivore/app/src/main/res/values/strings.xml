@@ -212,6 +212,12 @@
     <string name="settings_view_setting_row_manage_account">Manage Account</string>
     <string name="settings_view_setting_row_logout">Logout</string>
 
+    <!-- About -->
+    <string name="about_view_title">About</string>
+    <string name="about_view_row_version">Version</string>
+    <string name="about_view_row_whats_new">What\'s new</string>
+    <string name="website">Website</string>
+
     <!-- stock filters -->
     <string name="library_filter_inbox">Inbox</string>
     <string name="library_filter_non_feed">Non-Feed Items</string>

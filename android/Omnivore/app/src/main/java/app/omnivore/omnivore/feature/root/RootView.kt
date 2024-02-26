@@ -1,10 +1,23 @@
 package app.omnivore.omnivore.feature.root
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -16,41 +29,57 @@ import app.omnivore.omnivore.feature.library.LibraryView
 import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
-import app.omnivore.omnivore.feature.settings.PolicyWebView
-import app.omnivore.omnivore.feature.settings.SettingsView
-import app.omnivore.omnivore.feature.settings.SettingsViewModel
+import app.omnivore.omnivore.feature.settings.SettingsScreen
+import app.omnivore.omnivore.feature.settings.about.AboutScreen
+import app.omnivore.omnivore.feature.settings.account.AccountScreen
+import app.omnivore.omnivore.feature.web.WebViewScreen
 import app.omnivore.omnivore.navigation.Routes
 
 @Composable
 fun RootView(
     loginViewModel: LoginViewModel,
     searchViewModel: SearchViewModel,
-    settingsViewModel: SettingsViewModel,
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
 ) {
     val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Box {
-        if (hasAuthToken) {
-            PrimaryNavigator(
-                loginViewModel = loginViewModel,
-                searchViewModel = searchViewModel,
-                settingsViewModel = settingsViewModel,
-                labelsViewModel = labelsViewModel,
-                saveViewModel = saveViewModel,
-                editInfoViewModel = editInfoViewModel,
-            )
-        } else {
-            WelcomeScreen(viewModel = loginViewModel)
-        }
-
-        DisposableEffect(hasAuthToken) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal,
+                    ),
+                )
+        ){
             if (hasAuthToken) {
-                loginViewModel.registerUser()
+                PrimaryNavigator(
+                    loginViewModel = loginViewModel,
+                    searchViewModel = searchViewModel,
+                    labelsViewModel = labelsViewModel,
+                    saveViewModel = saveViewModel,
+                    editInfoViewModel = editInfoViewModel,
+                    snackbarHostState = snackbarHostState
+
+                )
+            } else {
+                WelcomeScreen(viewModel = loginViewModel)
             }
-            onDispose {}
+
+            DisposableEffect(hasAuthToken) {
+                if (hasAuthToken) {
+                    loginViewModel.registerUser()
+                }
+                onDispose {}
+            }
         }
     }
 }
@@ -59,14 +88,17 @@ fun RootView(
 fun PrimaryNavigator(
     loginViewModel: LoginViewModel,
     searchViewModel: SearchViewModel,
-    settingsViewModel: SettingsViewModel,
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
+    snackbarHostState: SnackbarHostState
 ) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.Library.route) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.Library.route
+    ) {
         composable(Routes.Library.route) {
             LibraryView(
                 navController = navController,
@@ -78,29 +110,40 @@ fun PrimaryNavigator(
 
         composable(Routes.Search.route) {
             SearchView(
-                viewModel = searchViewModel,
-                navController = navController
+                viewModel = searchViewModel, navController = navController
             )
         }
 
         composable(Routes.Settings.route) {
-            SettingsView(
+            SettingsScreen(
                 loginViewModel = loginViewModel,
-                settingsViewModel = settingsViewModel,
                 navController = navController
             )
         }
 
+        composable(Routes.About.route) {
+            AboutScreen(
+                navController = navController
+            )
+        }
+
+        composable(Routes.Account.route) {
+            AccountScreen(
+                navController = navController,
+                snackbarHostState = snackbarHostState,
+            )
+        }
+
         composable(Routes.Documentation.route) {
-            PolicyWebView(navController = navController, url = "https://docs.omnivore.app")
+            WebViewScreen(navController = navController, url = "https://docs.omnivore.app")
         }
 
         composable(Routes.PrivacyPolicy.route) {
-            PolicyWebView(navController = navController, url = "https://omnivore.app/privacy")
+            WebViewScreen(navController = navController, url = "https://omnivore.app/privacy")
         }
 
         composable(Routes.TermsAndConditions.route) {
-            PolicyWebView(navController = navController, url = "https://omnivore.app/app/terms")
+            WebViewScreen(navController = navController, url = "https://omnivore.app/app/terms")
         }
     }
 }
