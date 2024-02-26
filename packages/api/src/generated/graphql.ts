@@ -94,6 +94,7 @@ export type Article = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  feedContent?: Maybe<Scalars['String']>;
   folder: Scalars['String'];
   hasContent?: Maybe<Scalars['Boolean']>;
   hash: Scalars['String'];
@@ -367,6 +368,7 @@ export type CreateHighlightInput = {
   patch?: InputMaybe<Scalars['String']>;
   prefix?: InputMaybe<Scalars['String']>;
   quote?: InputMaybe<Scalars['String']>;
+  representation?: InputMaybe<RepresentationType>;
   sharedAt?: InputMaybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: InputMaybe<Scalars['String']>;
@@ -853,6 +855,12 @@ export type FetchContentSuccess = {
   success: Scalars['Boolean'];
 };
 
+export enum FetchContentType {
+  Always = 'ALWAYS',
+  Never = 'NEVER',
+  WhenEmpty = 'WHEN_EMPTY'
+}
+
 export type Filter = {
   __typename?: 'Filter';
   category?: Maybe<Scalars['String']>;
@@ -1017,6 +1025,7 @@ export type Highlight = {
   quote?: Maybe<Scalars['String']>;
   reactions: Array<Reaction>;
   replies: Array<HighlightReply>;
+  representation: RepresentationType;
   sharedAt?: Maybe<Scalars['Date']>;
   shortId: Scalars['String'];
   suffix?: Maybe<Scalars['String']>;
@@ -1274,6 +1283,7 @@ export type MergeHighlightInput = {
   patch: Scalars['String'];
   prefix?: InputMaybe<Scalars['String']>;
   quote: Scalars['String'];
+  representation?: InputMaybe<RepresentationType>;
   shortId: Scalars['ID'];
   suffix?: InputMaybe<Scalars['String']>;
 };
@@ -2171,6 +2181,11 @@ export enum ReportType {
   Spam = 'SPAM'
 }
 
+export enum RepresentationType {
+  Content = 'CONTENT',
+  FeedContent = 'FEED_CONTENT'
+}
+
 export type RevokeApiKeyError = {
   __typename?: 'RevokeApiKeyError';
   errorCodes: Array<RevokeApiKeyErrorCode>;
@@ -2397,6 +2412,7 @@ export type SearchItem = {
   contentReader: ContentReader;
   createdAt: Scalars['Date'];
   description?: Maybe<Scalars['String']>;
+  feedContent?: Maybe<Scalars['String']>;
   folder: Scalars['String'];
   highlights?: Maybe<Array<Highlight>>;
   id: Scalars['ID'];
@@ -2409,7 +2425,6 @@ export type SearchItem = {
   ownedByViewer?: Maybe<Scalars['Boolean']>;
   pageId?: Maybe<Scalars['ID']>;
   pageType: PageType;
-  previewContent?: Maybe<Scalars['String']>;
   previewContentType?: Maybe<Scalars['String']>;
   publishedAt?: Maybe<Scalars['Date']>;
   quote?: Maybe<Scalars['String']>;
@@ -2818,6 +2833,7 @@ export enum SubscribeErrorCode {
 export type SubscribeInput = {
   autoAddToLibrary?: InputMaybe<Scalars['Boolean']>;
   fetchContent?: InputMaybe<Scalars['Boolean']>;
+  fetchContentType?: InputMaybe<FetchContentType>;
   folder?: InputMaybe<Scalars['String']>;
   isPrivate?: InputMaybe<Scalars['Boolean']>;
   subscriptionType?: InputMaybe<SubscriptionType>;
@@ -2839,6 +2855,7 @@ export type Subscription = {
   description?: Maybe<Scalars['String']>;
   failedAt?: Maybe<Scalars['Date']>;
   fetchContent: Scalars['Boolean'];
+  fetchContentType: FetchContentType;
   folder: Scalars['String'];
   icon?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -3214,6 +3231,7 @@ export type UpdateSubscriptionInput = {
   description?: InputMaybe<Scalars['String']>;
   failedAt?: InputMaybe<Scalars['Date']>;
   fetchContent?: InputMaybe<Scalars['Boolean']>;
+  fetchContentType?: InputMaybe<FetchContentType>;
   folder?: InputMaybe<Scalars['String']>;
   id: Scalars['ID'];
   isPrivate?: InputMaybe<Scalars['Boolean']>;
@@ -3711,6 +3729,7 @@ export type ResolversTypes = {
   FetchContentErrorCode: FetchContentErrorCode;
   FetchContentResult: ResolversTypes['FetchContentError'] | ResolversTypes['FetchContentSuccess'];
   FetchContentSuccess: ResolverTypeWrapper<FetchContentSuccess>;
+  FetchContentType: FetchContentType;
   Filter: ResolverTypeWrapper<Filter>;
   FiltersError: ResolverTypeWrapper<FiltersError>;
   FiltersErrorCode: FiltersErrorCode;
@@ -3860,6 +3879,7 @@ export type ResolversTypes = {
   ReportItemInput: ReportItemInput;
   ReportItemResult: ResolverTypeWrapper<ReportItemResult>;
   ReportType: ReportType;
+  RepresentationType: RepresentationType;
   RevokeApiKeyError: ResolverTypeWrapper<RevokeApiKeyError>;
   RevokeApiKeyErrorCode: RevokeApiKeyErrorCode;
   RevokeApiKeyResult: ResolversTypes['RevokeApiKeyError'] | ResolversTypes['RevokeApiKeySuccess'];
@@ -4585,6 +4605,7 @@ export type ArticleResolvers<ContextType = ResolverContext, ParentType extends R
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  feedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasContent?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   hash?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -5245,6 +5266,7 @@ export type HighlightResolvers<ContextType = ResolverContext, ParentType extends
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   reactions?: Resolver<Array<ResolversTypes['Reaction']>, ParentType, ContextType>;
   replies?: Resolver<Array<ResolversTypes['HighlightReply']>, ParentType, ContextType>;
+  representation?: Resolver<ResolversTypes['RepresentationType'], ParentType, ContextType>;
   sharedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   shortId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   suffix?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -5931,6 +5953,7 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   contentReader?: Resolver<ResolversTypes['ContentReader'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  feedContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   folder?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   highlights?: Resolver<Maybe<Array<ResolversTypes['Highlight']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5943,7 +5966,6 @@ export type SearchItemResolvers<ContextType = ResolverContext, ParentType extend
   ownedByViewer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   pageId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   pageType?: Resolver<ResolversTypes['PageType'], ParentType, ContextType>;
-  previewContent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   previewContentType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publishedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   quote?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6197,6 +6219,7 @@ export type SubscriptionResolvers<ContextType = ResolverContext, ParentType exte
   description?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "description", ParentType, ContextType>;
   failedAt?: SubscriptionResolver<Maybe<ResolversTypes['Date']>, "failedAt", ParentType, ContextType>;
   fetchContent?: SubscriptionResolver<ResolversTypes['Boolean'], "fetchContent", ParentType, ContextType>;
+  fetchContentType?: SubscriptionResolver<ResolversTypes['FetchContentType'], "fetchContentType", ParentType, ContextType>;
   folder?: SubscriptionResolver<ResolversTypes['String'], "folder", ParentType, ContextType>;
   icon?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "icon", ParentType, ContextType>;
   id?: SubscriptionResolver<ResolversTypes['ID'], "id", ParentType, ContextType>;

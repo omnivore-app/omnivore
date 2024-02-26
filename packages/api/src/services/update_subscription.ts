@@ -1,4 +1,8 @@
-import { Subscription, SubscriptionStatus } from '../entity/subscription'
+import {
+  FetchContentType,
+  Subscription,
+  SubscriptionStatus,
+} from '../entity/subscription'
 import { getRepository } from '../repository'
 
 const ensureOwns = async (userId: string, subscriptionId: string) => {
@@ -16,7 +20,7 @@ const ensureOwns = async (userId: string, subscriptionId: string) => {
 type UpdateSubscriptionData = {
   autoAddToLibrary?: boolean | null
   description?: string | null
-  fetchContent?: boolean | null
+  fetchContentType?: FetchContentType | null
   folder?: string | null
   isPrivate?: boolean | null
   mostRecentItemDate?: Date | null
@@ -48,7 +52,7 @@ export const updateSubscription = async (
     failedAt: newData.failedAt || undefined,
     autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
     isPrivate: newData.isPrivate ?? undefined,
-    fetchContent: newData.fetchContent ?? undefined,
+    fetchContentType: newData.fetchContentType || undefined,
     folder: newData.folder ?? undefined,
   })
 
@@ -75,7 +79,7 @@ export const updateSubscriptions = async (
       failedAt: newData.failedAt || undefined,
       autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
       isPrivate: newData.isPrivate ?? undefined,
-      fetchContent: newData.fetchContent ?? undefined,
+      fetchContentType: newData.fetchContentType ?? undefined,
       folder: newData.folder ?? undefined,
     }))
   )

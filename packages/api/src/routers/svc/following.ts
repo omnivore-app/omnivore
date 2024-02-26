@@ -28,7 +28,7 @@ export interface SaveFollowingItemRequest {
   author?: string
   description?: string
   links?: any
-  previewContent?: string
+  feedContent?: string
   previewContentType?: string
   publishedAt?: Date
   savedAt?: Date
@@ -76,7 +76,7 @@ export function followingServiceRouter() {
       const url = cleanUrl(req.body.url)
 
       const preparedDocument: PreparedDocumentInput = {
-        document: req.body.previewContent || '',
+        document: req.body.feedContent || '',
         pageInfo: {
           title: req.body.title,
           author: req.body.author,
@@ -89,7 +89,7 @@ export function followingServiceRouter() {
       let parsedResult: ParsedContentPuppeteer | undefined
 
       // parse the content if we have a preview content
-      if (req.body.previewContent) {
+      if (req.body.feedContent) {
         parsedResult = await parsePreparedContent(url, preparedDocument)
       }
 
@@ -112,7 +112,7 @@ export function followingServiceRouter() {
         userId,
         slug,
         croppedPathname,
-        originalHtml: req.body.previewContent,
+        originalHtml: req.body.feedContent,
         itemType: parsedResult?.pageType || PageType.Unknown,
         canonicalUrl: url,
         folder: FOLDER,

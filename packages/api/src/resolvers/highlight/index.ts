@@ -5,6 +5,7 @@ import { DeepPartial } from 'typeorm'
 import {
   Highlight as HighlightData,
   HighlightType,
+  RepresentationType,
 } from '../../entity/highlight'
 import { Label } from '../../entity/label'
 import { env } from '../../env'
@@ -34,8 +35,8 @@ import {
   updateHighlight,
 } from '../../services/highlights'
 import { analytics } from '../../utils/analytics'
-import { highlightDataToHighlight } from '../../utils/helpers'
 import { authorized } from '../../utils/gql-utils'
+import { highlightDataToHighlight } from '../../utils/helpers'
 
 export const createHighlightResolver = authorized<
   CreateHighlightSuccess,
@@ -51,6 +52,7 @@ export const createHighlightResolver = authorized<
         highlightType: input.type || HighlightType.Highlight,
         highlightPositionAnchorIndex: input.highlightPositionAnchorIndex || 0,
         highlightPositionPercent: input.highlightPositionPercent || 0,
+        representation: input.representation || RepresentationType.Content,
       },
       input.articleId,
       uid,
@@ -129,6 +131,7 @@ export const mergeHighlightResolver = authorized<
       libraryItem: { id: input.articleId },
       highlightPositionAnchorIndex: input.highlightPositionAnchorIndex || 0,
       highlightPositionPercent: input.highlightPositionPercent || 0,
+      representation: input.representation || RepresentationType.Content,
     }
 
     const newHighlight = await mergeHighlights(
