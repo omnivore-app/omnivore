@@ -1655,6 +1655,7 @@ input RuleActionInput {
 enum RuleActionType {
   ADD_LABEL
   ARCHIVE
+  DELETE
   MARK_AS_READ
   SEND_NOTIFICATION
 }

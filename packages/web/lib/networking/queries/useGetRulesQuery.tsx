@@ -11,6 +11,7 @@ export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
   Archive = 'ARCHIVE',
   MarkAsRead = 'MARK_AS_READ',
+  Delete = 'DELETE',
   SendNotification = 'SEND_NOTIFICATION',
 }
 
