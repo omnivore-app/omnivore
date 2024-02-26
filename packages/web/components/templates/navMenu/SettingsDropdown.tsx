@@ -17,6 +17,7 @@ export const SettingsDropdown = (): JSX.Element => {
       {SETTINGS_SECTION_1.map((item) => {
         return (
           <DropdownOption
+            key={`menu1-${item.name}`}
             onSelect={() => router.push(item.destination)}
             title={item.name}
           />
@@ -28,6 +29,7 @@ export const SettingsDropdown = (): JSX.Element => {
       {SETTINGS_SECTION_2.map((item) => {
         return (
           <DropdownOption
+            key={`menu2-${item.name}`}
             onSelect={() => router.push(item.destination)}
             title={item.name}
           />
