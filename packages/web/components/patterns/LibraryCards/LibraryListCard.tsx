@@ -81,6 +81,9 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         '@media (min-width: 1600px)': {
           width: '1200px',
         },
+        '@media (max-width: 930px)': {
+          borderRadius: '0px',
+        },
       }}
       alignment="start"
       distribution="start"
