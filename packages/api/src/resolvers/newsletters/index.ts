@@ -40,10 +40,10 @@ export const createNewsletterEmailResolver = authorized<
   CreateNewsletterEmailSuccessPartial,
   CreateNewsletterEmailError,
   MutationCreateNewsletterEmailArgs
->(async (_parent, { input }, { claims, log }) => {
+>(async (_parent, { input }, { uid, log }) => {
   log.info('createNewsletterEmailResolver')
-  analytics.track({
-    userId: claims.uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'newsletter_email_address_created',
     properties: {
       env: env.server.apiEnv,
@@ -52,7 +52,7 @@ export const createNewsletterEmailResolver = authorized<
 
   try {
     const newsletterEmail = await createNewsletterEmail(
-      claims.uid,
+      uid,
       undefined,
       input?.folder || DEFAULT_NEWSLETTER_FOLDER,
       input?.name || undefined,
@@ -103,8 +103,8 @@ export const deleteNewsletterEmailResolver = authorized<
   DeleteNewsletterEmailError,
   MutationDeleteNewsletterEmailArgs
 >(async (_parent, args, { uid, log }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'newsletter_email_address_deleted',
     properties: {
       env: env.server.apiEnv,
@@ -158,8 +158,8 @@ export const updateNewsletterEmailResolver = authorized<
   UpdateNewsletterEmailError,
   MutationUpdateNewsletterEmailArgs
 >(async (_parent, { input }, { uid, log }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'newsletter_email_updated',
     properties: {
       env: env.server.apiEnv,

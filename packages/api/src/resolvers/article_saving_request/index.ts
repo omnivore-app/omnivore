@@ -18,13 +18,12 @@ import {
   findLibraryItemByUrl,
 } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
+import { authorized } from '../../utils/gql-utils'
 import {
   cleanUrl,
   isParsingTimeout,
   libraryItemToArticleSavingRequest,
 } from '../../utils/helpers'
-import { authorized } from '../../utils/gql-utils'
-
 import { isErrorWithCode } from '../user'
 
 export const createArticleSavingRequestResolver = authorized<
@@ -32,8 +31,8 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { uid, pubsub, log }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: url,

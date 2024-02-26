@@ -61,12 +61,12 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         })
       })
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'labels',
         properties: {
           env: env.server.apiEnv,
-          $set: {
+          $set_once: {
             email: user.email,
             username: user.profile.username,
           },
@@ -95,8 +95,8 @@ export const createLabelResolver = authorized<
       return tx.withRepository(labelRepository).createLabel(input, uid)
     })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_created',
       properties: {
         ...input,
@@ -128,8 +128,8 @@ export const deleteLabelResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_deleted',
       properties: {
         labelId,
@@ -207,8 +207,8 @@ export const setLabelsResolver = authorized<
       // save labels in the library item
       await saveLabelsInLibraryItem(labelsSet, pageId, uid, labelSource, pubsub)
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'labels_set',
         properties: {
           pageId,
@@ -282,8 +282,8 @@ export const setLabelsForHighlightResolver = authorized<
     // save labels in the highlight
     await saveLabelsInHighlight(labelsSet, input.highlightId, uid, pubsub)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'labels_set_for_highlight',
       properties: {
         highlightId,
@@ -374,8 +374,8 @@ export const moveLabelResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_moved',
       properties: {
         labelId,

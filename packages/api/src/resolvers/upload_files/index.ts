@@ -12,8 +12,8 @@ export const uploadFileRequestResolver = authorized<
   UploadFileRequestError,
   MutationUploadFileRequestArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'file_upload_request',
     properties: {
       url: input.url,

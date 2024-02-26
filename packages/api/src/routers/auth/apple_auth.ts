@@ -3,9 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
+import { StatusType } from '../../entity/user'
 import { env, homePageURL } from '../../env'
 import { LoginErrorCode } from '../../generated/graphql'
 import { userRepository } from '../../repository/user'
+import { analytics } from '../../utils/analytics'
 import { logger } from '../../utils/logger'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { DecodeTokenResult } from './auth_types'
@@ -14,8 +16,6 @@ import {
   createWebAuthToken,
   suggestedUsername,
 } from './jwt_helpers'
-import { analytics } from '../../utils/analytics'
-import { StatusType } from '../../entity/user'
 
 const appleBaseURL = 'https://appleid.apple.com'
 const audienceName = 'app.omnivore.app'
@@ -147,8 +147,8 @@ export async function handleAppleWebAuth(
         ? ssoRedirectURL(ssoToken)
         : `${baseURL()}/home`
 
-      analytics.track({
-        userId: user.id,
+      analytics.capture({
+        distinctId: user.id,
         event: 'login',
         properties: {
           method: 'apple',

@@ -65,8 +65,8 @@ export const setLinkArchivedResolver = authorized<
     event = 'link_unarchived'
   }
 
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event,
     properties: {
       env: env.server.apiEnv,

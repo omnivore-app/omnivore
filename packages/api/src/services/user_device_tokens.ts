@@ -47,8 +47,8 @@ export const createDeviceToken = async (
   userId: string,
   token: string
 ): Promise<UserDeviceToken> => {
-  analytics.track({
-    userId: userId,
+  analytics.capture({
+    distinctId: userId,
     event: 'device_token_created',
     properties: {
       env: env.server.apiEnv,
@@ -70,8 +70,8 @@ export const deleteDeviceToken = async (
   id: string,
   userId: string
 ): Promise<boolean> => {
-  analytics.track({
-    userId: userId,
+  analytics.capture({
+    distinctId: userId,
     event: 'device_token_deleted',
     properties: {
       env: env.server.apiEnv,

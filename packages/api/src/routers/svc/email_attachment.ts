@@ -49,8 +49,8 @@ export function emailAttachmentRouter() {
 
     const user = newsletterEmail.user
 
-    analytics.track({
-      userId: user.id,
+    analytics.capture({
+      distinctId: user.id,
       event: 'email_attachment_upload',
       properties: {
         env: env.server.apiEnv,
@@ -116,8 +116,8 @@ export function emailAttachmentRouter() {
 
     const user = newsletterEmail.user
 
-    analytics.track({
-      userId: user.id,
+    analytics.capture({
+      distinctId: user.id,
       event: 'email_attachment_create_article',
       properties: {
         env: env.server.apiEnv,

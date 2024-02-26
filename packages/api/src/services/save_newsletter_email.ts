@@ -28,8 +28,8 @@ export const saveNewsletter = async (
   newsletterEmail: NewsletterEmail,
   existingSubscription?: Subscription
 ): Promise<boolean> => {
-  analytics.track({
-    userId: newsletterEmail.user.id,
+  analytics.capture({
+    distinctId: newsletterEmail.user.id,
     event: 'newsletter_email_received',
     properties: {
       url: data.url,

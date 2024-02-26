@@ -59,8 +59,8 @@ export const createHighlightResolver = authorized<
       pubsub
     )
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'highlight_created',
       properties: {
         libraryItemId: input.articleId,
@@ -143,8 +143,8 @@ export const mergeHighlightResolver = authorized<
       pubsub
     )
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'highlight_created',
       properties: {
         libraryItemId: input.articleId,
