@@ -30,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -61,7 +60,6 @@ import app.omnivore.omnivore.feature.notebook.NotebookView
 import app.omnivore.omnivore.feature.notebook.NotebookViewModel
 import app.omnivore.omnivore.feature.savedItemViews.SavedItemContextMenu
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -81,18 +79,6 @@ class WebReaderLoadingContainerActivity : ComponentActivity() {
         viewModel.loadItem(slug = slug, requestID = requestID)
 
         setContent {
-            val systemUiController = rememberSystemUiController()
-            val useDarkIcons = !isSystemInDarkTheme()
-
-            DisposableEffect(systemUiController, useDarkIcons) {
-                systemUiController.setSystemBarsColor(
-                    color = Color.Black,
-                    darkIcons = false
-                )
-
-                onDispose {}
-            }
-
             OmnivoreTheme {
                 Box(
                     modifier = Modifier

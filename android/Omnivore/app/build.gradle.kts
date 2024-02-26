@@ -148,8 +148,6 @@ dependencies {
 
     implementation(libs.apollo.runtime)
 
-    // TODO: Remove in favor of new Compose libs
-    implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.flowlayout)
 
     implementation(libs.coil.kt.compose)
