@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { WithDataSourcesContext } from '../types'
+import { env } from '../../env'
 import {
   MutationReportItemArgs,
   ReportItemResult,
@@ -11,7 +11,7 @@ import {
   saveContentDisplayReport,
 } from '../../services/reports'
 import { analytics } from '../../utils/analytics'
-import { env } from '../../env'
+import { WithDataSourcesContext } from '../types'
 
 const SUCCESS_MESSAGE = `Your report has been submitted. Thank you.`
 const FAILURE_MESSAGE =
@@ -42,8 +42,8 @@ export const reportItemResolver: ResolverFn<
   const { sharedBy, reportTypes } = args.input
 
   if (sharedBy && isAbuseReport(reportTypes)) {
-    analytics.track({
-      userId: sharedBy,
+    analytics.capture({
+      distinctId: sharedBy,
       event: 'report_created',
       properties: {
         type: 'abuse',
@@ -70,8 +70,8 @@ export const reportItemResolver: ResolverFn<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'report_created',
       properties: {
         type: 'content',

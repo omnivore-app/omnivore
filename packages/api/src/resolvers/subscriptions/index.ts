@@ -153,8 +153,8 @@ export const unsubscribeResolver = authorized<
 
     await unsubscribe(subscription)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'unsubscribed',
       properties: {
         name,
@@ -183,8 +183,8 @@ export const subscribeResolver = authorized<
   MutationSubscribeArgs
 >(async (_, { input }, { uid, log }) => {
   try {
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'subscribed',
       properties: {
         ...input,
@@ -323,8 +323,8 @@ export const updateSubscriptionResolver = authorized<
   MutationUpdateSubscriptionArgs
 >(async (_, { input }, { uid, log }) => {
   try {
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'update_subscription',
       properties: {
         ...input,
@@ -401,8 +401,8 @@ export const scanFeedsResolver = authorized<
   ScanFeedsError,
   QueryScanFeedsArgs
 >(async (_, { input: { opml, url } }, { log, uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'scan_feeds',
     properties: {
       opml,

@@ -52,8 +52,8 @@ export const generateApiKeyResolver = authorized<
       expiresAt: exp,
     })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'api_key_generated',
       properties: {
         name,
@@ -92,8 +92,8 @@ export const revokeApiKeyResolver = authorized<
 
     const deletedApiKey = await apiRepo.remove(apiKey)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'api_key_revoked',
       properties: {
         id,
