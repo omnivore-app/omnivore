@@ -206,19 +206,19 @@ export function makeHighlightNodeAttributes(
 
     lastElement.appendChild(ctr)
   }
-  if (withLabels && lastElement) {
-    const svg = labelsImage(customColor)
-    svg.setAttribute(highlightLabelIdAttribute, id)
+  // if (withLabels && lastElement) {
+  //   const svg = labelsImage(customColor)
+  //   svg.setAttribute(highlightLabelIdAttribute, id)
 
-    const ctr = document.createElement('span')
-    ctr.className = 'highlight_label_button'
-    ctr.appendChild(svg)
-    ctr.setAttribute(highlightLabelIdAttribute, id)
-    ctr.setAttribute('width', '14px')
-    ctr.setAttribute('height', '14px')
+  //   const ctr = document.createElement('span')
+  //   ctr.className = 'highlight_label_button'
+  //   ctr.appendChild(svg)
+  //   ctr.setAttribute(highlightLabelIdAttribute, id)
+  //   ctr.setAttribute('width', '14px')
+  //   ctr.setAttribute('height', '14px')
 
-    lastElement.appendChild(ctr)
-  }
+  //   lastElement.appendChild(ctr)
+  // }
 
   return {
     prefix,

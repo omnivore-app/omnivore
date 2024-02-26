@@ -4,7 +4,7 @@ import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryIt
 import { LinkedItemCardAction } from './CardTypes'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
-import { DotsThree } from 'phosphor-react'
+import { DotsThree, Share } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
@@ -31,7 +31,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         overflow: 'clip',
 
         height: '33px',
-        width: '162px',
+        width: '184px',
         bg: '$thBackground',
         display: 'flex',
 
@@ -110,6 +110,17 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         }}
       >
         <LabelIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
+      </Button>
+      <Button
+        title="Open original (o)"
+        style="hoverActionIcon"
+        onClick={(event) => {
+          props.handleAction('showOriginal')
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        <Share size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
       <CardMenu
         item={props.item}

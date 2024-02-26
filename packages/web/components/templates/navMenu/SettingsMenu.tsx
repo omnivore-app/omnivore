@@ -9,6 +9,23 @@ import { ArrowSquareUpRight } from 'phosphor-react'
 import { useRouter } from 'next/router'
 import { NavMenuFooter } from './Footer'
 
+export const SETTINGS_SECTION_1 = [
+  { name: 'Account', destination: '/settings/account' },
+  { name: 'API Keys', destination: '/settings/api' },
+  { name: 'Emails', destination: '/settings/emails' },
+  { name: 'Feeds', destination: '/settings/feeds' },
+  { name: 'Subscriptions', destination: '/settings/subscriptions' },
+  { name: 'Labels', destination: '/settings/labels' },
+  { name: 'Shortcuts', destination: '/settings/shortcuts' },
+  { name: 'Saved Searches', destination: '/settings/saved-searches' },
+  { name: 'Pinned Searches', destination: '/settings/pinned-searches' },
+]
+
+export const SETTINGS_SECTION_2 = [
+  { name: 'Integrations', destination: '/settings/integrations' },
+  { name: 'Install', destination: '/settings/installation' },
+]
+
 const HorizontalDivider = styled(SpanBox, {
   width: '100%',
   height: '1px',
@@ -81,22 +98,6 @@ function ExternalLink(props: ExternalLinkProps): JSX.Element {
 }
 
 export function SettingsMenu(): JSX.Element {
-  const section1 = [
-    { name: 'Account', destination: '/settings/account' },
-    { name: 'API Keys', destination: '/settings/api' },
-    { name: 'Emails', destination: '/settings/emails' },
-    { name: 'Feeds', destination: '/settings/feeds' },
-    { name: 'Subscriptions', destination: '/settings/subscriptions' },
-    { name: 'Labels', destination: '/settings/labels' },
-    { name: 'Shortcuts', destination: '/settings/shortcuts' },
-    { name: 'Saved Searches', destination: '/settings/saved-searches' },
-    { name: 'Pinned Searches', destination: '/settings/pinned-searches' },
-  ]
-
-  const section2 = [
-    { name: 'Integrations', destination: '/settings/integrations' },
-    { name: 'Install', destination: '/settings/installation' },
-  ]
   return (
     <>
       <Box
@@ -124,7 +125,7 @@ export function SettingsMenu(): JSX.Element {
           css={{
             width: '100%',
             px: '25px',
-            pb: '50px',
+            pb: '25px',
             pt: '4.5px',
             lineHeight: '1',
           }}
@@ -136,15 +137,17 @@ export function SettingsMenu(): JSX.Element {
           css={{
             gap: '10px',
             width: '100%',
+            overflowY: 'scroll',
+            paddingBottom: '120px',
           }}
           distribution="start"
           alignment="start"
         >
-          {section1.map((item) => {
+          {SETTINGS_SECTION_1.map((item) => {
             return <SettingsButton key={item.name} {...item} />
           })}
           <HorizontalDivider />
-          {section2.map((item) => {
+          {SETTINGS_SECTION_2.map((item) => {
             return <SettingsButton key={item.name} {...item} />
           })}
           <HorizontalDivider />
@@ -176,8 +179,8 @@ export function SettingsMenu(): JSX.Element {
             destination="https://docs.omnivore.app"
             title="Documentation"
           />
-          <NavMenuFooter />
         </VStack>
+        <NavMenuFooter />
       </Box>
       {/* This spacer pushes library content to the right of 
       the fixed left side menu. */}

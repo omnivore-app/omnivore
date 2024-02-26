@@ -115,8 +115,6 @@ export function HomeFeedContainer(): JSX.Element {
     error: fetchItemsError,
   } = useGetLibraryItemsQuery(queryInputs)
 
-  console.log('fetchItemsError fetchItemsError: ', fetchItemsError)
-
   useEffect(() => {
     const handleRevalidate = () => {
       ;(async () => {

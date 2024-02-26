@@ -28,6 +28,12 @@ export function getHighlightNoteButton(highlightId: string): Element[] {
   )
 }
 
+export function getHighlightLabelButton(highlightId: string): Element[] {
+  return Array.from(
+    document.querySelectorAll(`[${highlightLabelIdAttribute}='${highlightId}']`)
+  )
+}
+
 export function noteImage(color: string | undefined): SVGSVGElement {
   const svgURI = 'http://www.w3.org/2000/svg'
   const svg = document.createElementNS(svgURI, 'svg')

@@ -3,6 +3,7 @@ import { useSetPageLabels } from '../../../lib/hooks/useSetPageLabels'
 import { LabelsProvider } from './SetLabelsControl'
 import { SetLabelsModal } from './SetLabelsModal'
 import { useSetHighlightLabels } from '../../../lib/hooks/useSetHighlightLabels'
+import { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 
 type SetPageLabelsModalPresenterProps = {
   articleId: string
@@ -15,19 +16,19 @@ export function SetPageLabelsModalPresenter(
 ): JSX.Element {
   const [labels, dispatchLabels] = useSetPageLabels(props.articleId)
 
-  useEffect(() => {
-    dispatchLabels({
-      type: 'RESET',
-      labels: props.article.labels ?? [],
-    })
-  }, [props.article, dispatchLabels])
-
   const onOpenChange = useCallback(() => {
     if (props.article) {
       props.article.labels = labels.labels
     }
     props.onOpenChange(true)
   }, [props, labels])
+
+  useEffect(() => {
+    dispatchLabels({
+      type: 'RESET',
+      labels: props.article.labels ?? [],
+    })
+  }, [props.article, dispatchLabels])
 
   return (
     <SetLabelsModal
@@ -41,7 +42,9 @@ export function SetPageLabelsModalPresenter(
 
 type SetHighlightLabelsModalPresenterProps = {
   highlightId: string
-  highlight: LabelsProvider
+  highlight: Highlight
+
+  onUpdate: (updatedHighlight: Highlight) => void
   onOpenChange: (open: boolean) => void
 }
 
@@ -57,12 +60,18 @@ export function SetHighlightLabelsModalPresenter(
     })
   }, [props.highlight, dispatchLabels])
 
+  const onOpenChange = useCallback(() => {
+    props.highlight.labels = labels.labels
+    props.onUpdate(props.highlight)
+    props.onOpenChange(true)
+  }, [props])
+
   return (
     <SetLabelsModal
       provider={props.highlight}
       selectedLabels={labels.labels}
       dispatchLabels={dispatchLabels}
-      onOpenChange={props.onOpenChange}
+      onOpenChange={onOpenChange}
     />
   )
 }
