@@ -31,7 +31,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         overflow: 'clip',
 
         height: '33px',
-        width: '182px',
+        width: '184px',
         bg: '$thBackground',
         display: 'flex',
 
