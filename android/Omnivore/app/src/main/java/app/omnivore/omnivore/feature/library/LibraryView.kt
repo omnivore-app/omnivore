@@ -368,7 +368,6 @@ fun LibraryViewContent(
                 )
                 SwipeToDismiss(
                     state = swipeState,
-                    modifier = Modifier.padding(vertical = 4.dp),
                     directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
                     dismissThresholds = { FractionalThreshold(swipeThreshold) },
                     background = {
