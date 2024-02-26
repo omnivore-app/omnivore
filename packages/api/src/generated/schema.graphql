@@ -1286,6 +1286,10 @@ type Mutation {
   uploadImportFile(contentType: String!, type: UploadImportFileType!): UploadImportFileResult!
 }
 
+type MySubscription {
+  contentFetched(articleId: ID!): Article!
+}
+
 type NewsletterEmail {
   address: String!
   confirmationCode: String

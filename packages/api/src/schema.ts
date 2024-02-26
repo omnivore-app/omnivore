@@ -2976,6 +2976,10 @@ const schema = gql`
     feeds(input: FeedsInput!): FeedsResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   }
+
+  type MySubscription {
+    contentFetched(articleId: ID!): Article!
+  }
 `
 
 export default schema

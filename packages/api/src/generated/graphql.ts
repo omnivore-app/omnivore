@@ -1740,6 +1740,16 @@ export type MutationUploadImportFileArgs = {
   type: UploadImportFileType;
 };
 
+export type MySubscription = {
+  __typename?: 'MySubscription';
+  contentFetched: Article;
+};
+
+
+export type MySubscriptionContentFetchedArgs = {
+  articleId: Scalars['ID'];
+};
+
 export type NewsletterEmail = {
   __typename?: 'NewsletterEmail';
   address: Scalars['String'];
@@ -3827,6 +3837,7 @@ export type ResolversTypes = {
   MoveToFolderResult: ResolversTypes['MoveToFolderError'] | ResolversTypes['MoveToFolderSuccess'];
   MoveToFolderSuccess: ResolverTypeWrapper<MoveToFolderSuccess>;
   Mutation: ResolverTypeWrapper<{}>;
+  MySubscription: ResolverTypeWrapper<MySubscription>;
   NewsletterEmail: ResolverTypeWrapper<NewsletterEmail>;
   NewsletterEmailsError: ResolverTypeWrapper<NewsletterEmailsError>;
   NewsletterEmailsErrorCode: NewsletterEmailsErrorCode;
@@ -4313,6 +4324,7 @@ export type ResolversParentTypes = {
   MoveToFolderResult: ResolversParentTypes['MoveToFolderError'] | ResolversParentTypes['MoveToFolderSuccess'];
   MoveToFolderSuccess: MoveToFolderSuccess;
   Mutation: {};
+  MySubscription: MySubscription;
   NewsletterEmail: NewsletterEmail;
   NewsletterEmailsError: NewsletterEmailsError;
   NewsletterEmailsResult: ResolversParentTypes['NewsletterEmailsError'] | ResolversParentTypes['NewsletterEmailsSuccess'];
@@ -5578,6 +5590,11 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   uploadImportFile?: Resolver<ResolversTypes['UploadImportFileResult'], ParentType, ContextType, RequireFields<MutationUploadImportFileArgs, 'contentType' | 'type'>>;
 };
 
+export type MySubscriptionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['MySubscription'] = ResolversParentTypes['MySubscription']> = {
+  contentFetched?: Resolver<ResolversTypes['Article'], ParentType, ContextType, RequireFields<MySubscriptionContentFetchedArgs, 'articleId'>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type NewsletterEmailResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['NewsletterEmail'] = ResolversParentTypes['NewsletterEmail']> = {
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   confirmationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6805,6 +6822,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   MoveToFolderResult?: MoveToFolderResultResolvers<ContextType>;
   MoveToFolderSuccess?: MoveToFolderSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  MySubscription?: MySubscriptionResolvers<ContextType>;
   NewsletterEmail?: NewsletterEmailResolvers<ContextType>;
   NewsletterEmailsError?: NewsletterEmailsErrorResolvers<ContextType>;
   NewsletterEmailsResult?: NewsletterEmailsResultResolvers<ContextType>;

@@ -4,30 +4,37 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
+import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import * as Sentry from '@sentry/node'
-import { ContextFunction, PluginDefinition } from 'apollo-server-core'
-import { Express } from 'express'
+import {
+  ApolloServerPluginDrainHttpServer,
+  ContextFunction,
+  PluginDefinition,
+} from 'apollo-server-core'
 import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
+import { Express } from 'express'
 import * as httpContext from 'express-http-context2'
+import { useServer } from 'graphql-ws/lib/use/ws'
+import { Server } from 'http'
 import * as jwt from 'jsonwebtoken'
 import { EntityManager } from 'typeorm'
 import { promisify } from 'util'
+import { WebSocketServer } from 'ws'
+import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
 import { appDataSource } from './data_source'
 import { sanitizeDirectiveTransformer } from './directives'
 import { env } from './env'
 import { createPubSubClient } from './pubsub'
 import { functionResolvers } from './resolvers/function_resolvers'
-import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
+import { ClaimsToSet, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
-import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
-import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -95,7 +102,10 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
   return ctx
 }
 
-export function makeApolloServer(app: Express): ApolloServer {
+export function makeApolloServer(
+  app: Express,
+  httpServer: Server
+): ApolloServer {
   let schema = makeExecutableSchema({
     resolvers,
     typeDefs,
@@ -112,10 +122,37 @@ export function makeApolloServer(app: Express): ApolloServer {
     },
   })
 
+  // Creating the WebSocket server
+  const wsServer = new WebSocketServer({
+    // This is the `httpServer` we created in a previous step.
+    server: httpServer,
+    // Pass a different path here if app.use
+    // serves expressMiddleware at a different path
+    path: '/api/graphql',
+  })
+
+  // Hand in the schema we just created and have the
+  // WebSocketServer start listening.
+  const serverCleanup = useServer({ schema }, wsServer)
+
   const apollo = new ApolloServer({
     schema: schema,
     context: contextFunc,
-    plugins: [promExporter],
+    plugins: [
+      promExporter,
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose()
+            },
+          }
+        },
+      },
+    ],
     formatError: (err) => {
       logger.info('server error', err)
       Sentry.captureException(err)

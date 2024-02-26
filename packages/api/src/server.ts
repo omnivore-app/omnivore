@@ -47,7 +47,6 @@ import { buildLogger, buildLoggerTransport } from './utils/logger'
 import { redisDataSource } from './redis_data_source'
 import * as prom from 'prom-client'
 import promBundle from 'express-prom-bundle'
-import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 
 const PORT = process.env.PORT || 4000
 
@@ -168,8 +167,8 @@ export const createApp = (): {
     res.end(await prom.register.metrics())
   })
 
-  const apollo = makeApolloServer(app)
   const httpServer = createServer(app)
+  const apollo = makeApolloServer(app, httpServer)
 
   return { app, apollo, httpServer }
 }
