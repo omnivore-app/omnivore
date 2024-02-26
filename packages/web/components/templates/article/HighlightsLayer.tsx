@@ -80,13 +80,15 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   const focusedHighlightMousePos = useRef({ pageX: 0, pageY: 0 })
 
   const [currentHighlightIdx, setCurrentHighlightIdx] = useState(0)
-  const [focusedHighlight, setFocusedHighlight] =
-    useState<Highlight | undefined>(undefined)
+  const [focusedHighlight, setFocusedHighlight] = useState<
+    Highlight | undefined
+  >(undefined)
 
   const [selectionData, setSelectionData] = useSelection(highlightLocations)
 
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
 
   const [
     confirmDeleteHighlightWithNoteId,
@@ -811,7 +813,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         <SetHighlightLabelsModalPresenter
           highlight={labelsTarget}
           highlightId={labelsTarget.id}
-          onOpenChange={() => setLabelsTarget(undefined)}
+          onUpdate={updateHighlightsCallback}
+          onOpenChange={() => {
+            setLabelsTarget(undefined)
+          }}
         />
       )}
       {confirmDeleteHighlightWithNoteId && (

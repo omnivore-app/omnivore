@@ -57,8 +57,9 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
   const [noteText, setNoteText] = useState<string>('')
   const [showConfirmDeleteHighlightId, setShowConfirmDeleteHighlightId] =
     useState<undefined | string>(undefined)
-  const [labelsTarget, setLabelsTarget] =
-    useState<Highlight | undefined>(undefined)
+  const [labelsTarget, setLabelsTarget] = useState<Highlight | undefined>(
+    undefined
+  )
   const noteState = useRef<NoteState>({
     isCreating: false,
     note: undefined,
@@ -359,6 +360,10 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         <SetHighlightLabelsModalPresenter
           highlight={labelsTarget}
           highlightId={labelsTarget.id}
+          onUpdate={(highlight) => {
+            // Don't actually need to do something here
+            console.log('update highlight: ', highlight)
+          }}
           onOpenChange={() => {
             mutate()
             setLabelsTarget(undefined)
