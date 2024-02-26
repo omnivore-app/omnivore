@@ -71,6 +71,7 @@
     "graphql-fields": "^2.0.3",
     "graphql-middleware": "^6.0.10",
     "graphql-shield": "^7.5.0",
+    "graphql-ws": "^5.15.0",
     "highlightjs": "^9.16.2",
     "html-entities": "^2.3.2",
     "image-size": "^1.0.2",
@@ -104,7 +105,8 @@
     "uuid": "^8.3.1",
     "voca": "^1.4.0",
     "winston": "^3.3.3",
-    "word-counting": "^1.1.4"
+    "word-counting": "^1.1.4",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@babel/register": "^7.14.5",
