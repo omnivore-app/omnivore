@@ -1,6 +1,7 @@
 import { HighlightLocation } from './highlightGenerator'
 import {
   getHighlightElements,
+  getHighlightLabelButton,
   getHighlightNoteButton,
 } from './highlightHelpers'
 
@@ -11,8 +12,13 @@ export function removeHighlights(
   ids.forEach((id) => {
     const elements = getHighlightElements(id)
     const noteButtons = getHighlightNoteButton(id)
+    const labelButtons = getHighlightLabelButton(id)
 
     noteButtons.forEach((button) => {
+      button.remove()
+    })
+
+    labelButtons.forEach((button) => {
       button.remove()
     })
 
