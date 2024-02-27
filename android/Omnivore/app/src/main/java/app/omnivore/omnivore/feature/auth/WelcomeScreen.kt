@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
@@ -22,31 +21,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.common.GoogleApiAvailability
 import kotlinx.coroutines.launch
 
 @Composable
 fun WelcomeScreen(viewModel: LoginViewModel) {
-
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = !isSystemInDarkTheme()
-
-    DisposableEffect(systemUiController, useDarkIcons) {
-        systemUiController.setSystemBarsColor(
-            color = Color.Black,
-            darkIcons = true
-        )
-        onDispose {
-            systemUiController.setSystemBarsColor(
-                color = Color.Black,
-                darkIcons = useDarkIcons
-            )
-        }
-    }
-
     OmnivoreTheme(darkTheme = false) {
-        Surface(modifier = Modifier.fillMaxSize(), color = Color(0xFFFCEBA8)) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFFCEBA8)
+        ) {
             WelcomeScreenContent(viewModel = viewModel)
         }
     }
@@ -55,9 +39,9 @@ fun WelcomeScreen(viewModel: LoginViewModel) {
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun WelcomeScreenContent(viewModel: LoginViewModel) {
-    val registrationState: RegistrationState by viewModel
-        .registrationStateLiveData
-        .observeAsState(RegistrationState.SocialLogin)
+    val registrationState: RegistrationState by viewModel.registrationStateLiveData.observeAsState(
+            RegistrationState.SocialLogin
+        )
 
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -92,11 +76,13 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
             RegistrationState.SocialLogin -> {
                 Text(
                     text = stringResource(id = R.string.welcome_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineLarge
                 )
 
                 Text(
                     text = stringResource(id = R.string.welcome_subtitle),
+                    color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleSmall
                 )
 
@@ -117,8 +103,7 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
     if (viewModel.errorMessage != null) {
         coroutineScope.launch {
-            val result = snackBarHostState
-                .showSnackbar(
+            val result = snackBarHostState.showSnackbar(
                     viewModel.errorMessage!!,
                     actionLabel = "Dismiss",
                     duration = SnackbarDuration.Indefinite
@@ -135,9 +120,8 @@ fun WelcomeScreenContent(viewModel: LoginViewModel) {
 
 @Composable
 fun AuthProviderView(viewModel: LoginViewModel) {
-    val isGoogleAuthAvailable: Boolean = GoogleApiAvailability
-        .getInstance()
-        .isGooglePlayServicesAvailable(LocalContext.current) == 0
+    val isGoogleAuthAvailable: Boolean =
+        GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LocalContext.current) == 0
 
     Row(
         horizontalArrangement = Arrangement.Center
@@ -153,22 +137,17 @@ fun AuthProviderView(viewModel: LoginViewModel) {
 
             AppleAuthButton(viewModel)
 
-            ClickableText(
-                text = AnnotatedString(stringResource(R.string.welcome_screen_action_continue_with_email)),
-                style = MaterialTheme.typography.titleMedium
-                    .plus(TextStyle(textDecoration = TextDecoration.Underline)),
-                onClick = { viewModel.showEmailSignIn() }
-            )
+            ClickableText(text = AnnotatedString(stringResource(R.string.welcome_screen_action_continue_with_email)),
+                style = MaterialTheme.typography.titleMedium.plus(TextStyle(textDecoration = TextDecoration.Underline)),
+                onClick = { viewModel.showEmailSignIn() })
 
             Spacer(modifier = Modifier.weight(1.0F))
 
             ClickableText(
                 text = AnnotatedString(stringResource(R.string.welcome_screen_action_self_hosting_options)),
-                style = MaterialTheme.typography.titleMedium
-                    .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+                style = MaterialTheme.typography.titleMedium.plus(TextStyle(textDecoration = TextDecoration.Underline)),
                 onClick = { viewModel.showSelfHostedSettings() },
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
+                modifier = Modifier.padding(vertical = 10.dp)
             )
         }
         Spacer(modifier = Modifier.weight(1.0F))
@@ -184,8 +163,7 @@ fun MoreInfoButton() {
         text = AnnotatedString(
             stringResource(id = R.string.learn_more),
         ),
-        style = MaterialTheme.typography.titleSmall
-            .plus(TextStyle(textDecoration = TextDecoration.Underline)),
+        style = MaterialTheme.typography.titleSmall.plus(TextStyle(textDecoration = TextDecoration.Underline)),
         onClick = {
             context.startActivity(intent)
         },

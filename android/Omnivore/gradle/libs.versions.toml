@@ -4,12 +4,12 @@ accompanistFlowLayout = "0.32.0"
 androidGradlePlugin = "8.2.2"
 androidxActivity = "1.8.2"
 androidxAppCompat = "1.6.1"
-androidxComposeBom = "2024.02.00"
+androidxComposeBom = "2024.02.01"
 androidxComposeCompiler = "1.5.9"
 androidxCore = "1.12.0"
 androidxDataStore = "1.0.0"
 androidxEspresso = "3.5.1"
-androidxHiltNavigationCompose = "1.1.0"
+androidxHiltNavigationCompose = "1.2.0"
 androidxLifecycle = "2.7.0"
 androidxNavigation = "2.7.7"
 androidxSecurity = "1.0.0"
@@ -18,6 +18,7 @@ apollo = "3.8.2"
 chiptextfieldM3 = "0.6.5"
 coil = "2.5.0"
 composeMarkdown = "0.3.3"
+coreSplashscreen = "1.0.1"
 gson = "2.10.1"
 hilt = "2.50"
 intercom = "15.1.0"
@@ -26,7 +27,7 @@ kotlin = "1.9.22"
 ksp = "1.9.22-1.0.17"
 kotlinxCoroutines = "1.7.3"
 playServices = "18.3.0"
-playServicesAuth = "20.7.0"
+playServicesAuth = "21.0.0"
 posthog = "2.0.3"
 pspdfkit = "8.9.1"
 retrofit = "2.9.0"
@@ -48,6 +49,7 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-dataStore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
 androidx-lifecycle-viewModelKtx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }

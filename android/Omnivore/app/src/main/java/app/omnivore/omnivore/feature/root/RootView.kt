@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.feature.root
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -50,7 +52,7 @@ fun RootView(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Box(
-            modifier = Modifier
+            modifier = if (!hasAuthToken) Modifier.background(Color(0xFFFCEBA8)) else Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .consumeWindowInsets(padding)

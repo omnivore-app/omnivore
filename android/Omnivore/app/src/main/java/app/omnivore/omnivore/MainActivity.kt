@@ -19,7 +19,6 @@ import app.omnivore.omnivore.feature.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.root.RootView
 import app.omnivore.omnivore.feature.save.SaveViewModel
-import app.omnivore.omnivore.feature.settings.SettingsViewModel
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 import com.pspdfkit.PSPDFKit
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,6 +57,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+
             OmnivoreTheme {
                 Box(
                     modifier = Modifier

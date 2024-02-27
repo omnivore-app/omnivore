@@ -16,6 +16,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:largeHeap="true"
+        android:theme="@style/Theme.AppCompat.Translucent"
         tools:targetApi="31">
 
         <activity
