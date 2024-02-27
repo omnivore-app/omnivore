@@ -23,6 +23,7 @@
     "@google-cloud/storage": "^7.0.1",
     "@google-cloud/tasks": "^4.0.0",
     "@graphql-tools/utils": "^9.1.1",
+    "@langchain/openai": "^0.0.14",
     "@omnivore/content-handler": "1.0.0",
     "@omnivore/liqe": "1.0.0",
     "@omnivore/readability": "1.0.0",

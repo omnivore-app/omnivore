@@ -412,6 +412,49 @@ export default function Account(): JSX.Element {
               width: '100%',
               height: '100%',
               bg: '$grayBg',
+              gap: '10px',
+              borderRadius: '5px',
+            }}
+          >
+            <StyledLabel>Beta features</StyledLabel>
+            {!isValidating && (
+              <>
+                {viewerData?.me?.features.map((feature) => {
+                  return (
+                    <StyledText
+                      key={`feature-${feature}`}
+                      style="footnote"
+                      css={{ display: 'flex', gap: '5px' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={true}
+                        disabled={true}
+                      ></input>
+                      {feature}
+                    </StyledText>
+                  )
+                })}
+                <StyledText
+                  style="footnote"
+                  css={{ display: 'flex', gap: '5px' }}
+                >
+                  To learn more about beta features available,{' '}
+                  <a href="https://discord.gg/h2z5rppzz9">
+                    join the Omnivore Discord
+                  </a>
+                </StyledText>
+              </>
+            )}
+            {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
+          </VStack>
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
               gap: '20px',
               borderRadius: '5px',
             }}

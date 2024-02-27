@@ -6,7 +6,7 @@ import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShor
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
 import { FunnelSimple, MagnifyingGlass, Plus, X } from 'phosphor-react'
-import { LayoutType } from './HomeFeedContainer'
+import { LayoutType, LibraryMode } from './HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
@@ -21,6 +21,7 @@ import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderSearchIcon } from '../../elements/icons/HeaderSearchIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
+import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -33,6 +34,9 @@ type LibraryHeaderProps = {
 
   showFilterMenu: boolean
   setShowFilterMenu: (show: boolean) => void
+
+  mode: LibraryMode
+  setMode: (set: LibraryMode) => void
 
   numItemsSelected: number
   multiSelectMode: MultiSelectMode
@@ -186,31 +190,53 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
         </Button>
       )}
 
-      <Button
-        title={
-          props.layout == 'GRID_LAYOUT'
-            ? 'Switch to list layout'
-            : 'Switch to grid layout'
-        }
-        style="plainIcon"
-        css={{
-          display: 'flex',
-          marginLeft: 'auto',
-          '&:hover': { opacity: '1.0' },
-        }}
-        onClick={(e) => {
-          props.updateLayout(
-            props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
-          )
-          e.preventDefault()
-        }}
-      >
-        {props.layout == 'LIST_LAYOUT' ? (
-          <HeaderToggleGridIcon />
-        ) : (
-          <HeaderToggleListIcon />
-        )}
-      </Button>
+      <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
+        <Button
+          title="TLDR Summaries"
+          style="plainIcon"
+          css={{
+            display: 'flex',
+            marginLeft: 'auto',
+            '&:hover': { opacity: '1.0' },
+          }}
+          onClick={(e) => {
+            if (props.mode == 'reads') {
+              props.setMode('tldr')
+            } else {
+              props.setMode('reads')
+            }
+            e.preventDefault()
+          }}
+        >
+          <HeaderToggleTLDRIcon />
+        </Button>
+
+        <Button
+          title={
+            props.layout == 'GRID_LAYOUT'
+              ? 'Switch to list layout'
+              : 'Switch to grid layout'
+          }
+          style="plainIcon"
+          css={{
+            display: 'flex',
+            marginLeft: 'auto',
+            '&:hover': { opacity: '1.0' },
+          }}
+          onClick={(e) => {
+            props.updateLayout(
+              props.layout == 'GRID_LAYOUT' ? 'LIST_LAYOUT' : 'GRID_LAYOUT'
+            )
+            e.preventDefault()
+          }}
+        >
+          {props.layout == 'LIST_LAYOUT' ? (
+            <HeaderToggleGridIcon />
+          ) : (
+            <HeaderToggleListIcon />
+          )}
+        </Button>
+      </SpanBox>
     </>
   )
 }

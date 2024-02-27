@@ -33,6 +33,25 @@ export const Button = styled('button', {
           border: '0px solid $ctaBlue',
         },
       },
+      tldr: {
+        gap: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: '5px',
+        px: '10px',
+        py: '5px',
+        fontFamily: '$inter',
+        fontSize: '12px',
+        fontWeight: '500',
+        cursor: 'pointer',
+        color: '#EDEDED',
+        border: '1px solid #6A6968',
+        bg: 'transparent',
+        '&:hover': {
+          opacity: '0.6',
+          border: '0px solid $ctaBlue',
+        },
+      },
 
       ctaDarkYellow: {
         border: '1px solid transparent',

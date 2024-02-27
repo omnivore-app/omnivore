@@ -99,6 +99,7 @@ export type LibraryItemNode = {
   readAt?: string
   savedAt?: string
   wordsCount?: number
+  aiSummary?: string
   recommendations?: Recommendation[]
   highlights?: Highlight[]
 }
@@ -172,6 +173,7 @@ export function useGetLibraryItemsQuery({
               ownedByViewer
               originalArticleUrl
               uploadFileId
+              aiSummary
               labels {
                 id
                 name

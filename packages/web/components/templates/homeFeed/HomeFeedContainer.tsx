@@ -52,9 +52,10 @@ import { PinnedSearch } from '../../../pages/settings/pinned-searches'
 import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
 import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
 import { FetchItemsError } from './FetchItemsError'
+import { TLDRLayout } from './TLDRLayout'
 
 export type LayoutType = 'LIST_LAYOUT' | 'GRID_LAYOUT'
-export type LibraryMode = 'reads' | 'highlights'
+export type LibraryMode = 'reads' | 'highlights' | 'tldr'
 
 const fetchSearchResults = async (query: string, cb: any) => {
   if (!query.startsWith('#')) return
@@ -140,11 +141,17 @@ export function HomeFeedContainer(): JSX.Element {
   }, [queryValue])
 
   useEffect(() => {
+    console.log('ueryInputs.searchQuery', queryInputs.searchQuery)
     if (
       queryInputs.searchQuery &&
       queryInputs.searchQuery?.indexOf('mode:highlights') > -1
     ) {
       setMode('highlights')
+    } else if (
+      queryInputs.searchQuery &&
+      queryInputs.searchQuery?.indexOf('mode:tldr') > -1
+    ) {
+      setMode('tldr')
     } else {
       setMode('reads')
     }
@@ -218,7 +225,6 @@ export function HomeFeedContainer(): JSX.Element {
           const updatedArticle = { ...item }
           updatedArticle.node = { ...item.node }
           updatedArticle.isLoading = false
-          console.log(`Updating Metadata of ${item.node.slug}.`)
           performActionOnItem('update-item', updatedArticle)
           return
         }
@@ -986,6 +992,8 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
           applySearchQuery={(searchQuery: string) => {
             props.applySearchQuery(searchQuery)
           }}
+          mode={props.mode}
+          setMode={props.setMode}
           showFilterMenu={showFilterMenu}
           setShowFilterMenu={setShowFilterMenu}
           multiSelectMode={props.multiSelectMode}
@@ -1046,6 +1054,10 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
             isChecked={props.itemIsChecked}
             {...props}
           />
+        )}
+
+        {showItems && props.mode == 'tldr' && (
+          <TLDRLayout viewer={viewerData?.me} layout={layout} {...props} />
         )}
 
         {props.showAddLinkModal && (

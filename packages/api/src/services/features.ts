@@ -100,6 +100,16 @@ export const signFeatureToken = (
   )
 }
 
+export const findUserFeatures = async (userId: string): Promise<string[]> => {
+  return (
+    await getRepository(Feature).find({
+      where: {
+        user: { id: userId },
+      },
+    })
+  ).map((feature) => feature.name)
+}
+
 export const findFeatureByName = async (
   name: FeatureName,
   userId: string

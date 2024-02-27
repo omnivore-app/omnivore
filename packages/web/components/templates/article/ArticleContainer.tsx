@@ -19,6 +19,7 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { AISummary } from './AISummary'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -444,6 +445,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               recommendationsWithNotes={recommendationsWithNotes}
             />
           )}
+          <AISummary
+            libraryItemId={props.article.id}
+            idx="latest"
+            fontFamily={styles.fontFamily}
+            fontSize={styles.fontSize}
+            lineHeight={styles.lineHeight}
+            readerFontColor={styles.readerFontColor}
+          />
         </VStack>
         <Article
           articleId={props.article.id}

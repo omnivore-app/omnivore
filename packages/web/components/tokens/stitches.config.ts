@@ -218,6 +218,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thHighContrast: '#3D3D3D',
         thHighlightBar: '#D9D9D9',
 
+        thLibraryAISummaryBorder: '#6A6968',
+        thLibraryAISummaryBackground: '#343434',
+
         thFallbackImageForeground: '#2A2A2A',
         thFallbackImageBackground: '#EDEDED',
 
@@ -351,6 +354,9 @@ const darkThemeSpec = {
     thHighContrast: '#D9D9D9',
 
     thHighlightBar: '#6A6968',
+
+    thLibraryAISummaryBorder: '#6A6968',
+    thLibraryAISummaryBackground: '#343434',
 
     thFallbackImageForeground: '#FEFFFF',
     thFallbackImageBackground: '#3C3C3C',

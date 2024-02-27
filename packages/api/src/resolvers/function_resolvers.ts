@@ -141,6 +141,8 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
+import { getAISummary } from '../services/ai-summaries'
+import { findUserFeatures, getFeatureName } from '../services/features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -346,6 +348,16 @@ export const functionResolvers = {
       }
       return undefined
     },
+    async features(
+      user: User,
+      __: Record<string, unknown>,
+      ctx: WithDataSourcesContext
+    ) {
+      if (!ctx.claims?.uid) {
+        return undefined
+      }
+      return findUserFeatures(ctx.claims.uid)
+    },
   },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
@@ -484,6 +496,15 @@ export const functionResolvers = {
       }
 
       return []
+    },
+    async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
+      return (
+        await getAISummary({
+          userId: ctx.uid,
+          libraryItemId: item.id,
+          idx: 'latest',
+        })
+      )?.summary
     },
     async highlights(
       item: {
