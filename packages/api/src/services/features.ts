@@ -7,6 +7,7 @@ import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
+  AISummaries = 'ai-summaries',
   UltraRealisticVoice = 'ultra-realistic-voice',
 }
 
@@ -21,7 +22,6 @@ export const optInFeature = async (
   if (name === FeatureName.UltraRealisticVoice) {
     return optInUltraRealisticVoice(uid)
   }
-
   return undefined
 }
 

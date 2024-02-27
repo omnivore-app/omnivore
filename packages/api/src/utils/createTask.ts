@@ -44,6 +44,7 @@ import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
+import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -66,6 +67,7 @@ export const getJobPriority = (jobName: string): number => {
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
     case EXPORT_ITEM_JOB_NAME:
+    case AI_SUMMARIZE_JOB_NAME:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
@@ -691,6 +693,18 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
   return queue.add(CALL_WEBHOOK_JOB_NAME, data, {
     priority: getJobPriority(CALL_WEBHOOK_JOB_NAME),
     attempts: 1,
+  })
+}
+
+export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(AI_SUMMARIZE_JOB_NAME, data, {
+    priority: getJobPriority(AI_SUMMARIZE_JOB_NAME),
+    attempts: 3,
   })
 }
 
