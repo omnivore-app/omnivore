@@ -5,7 +5,7 @@ import { FormInput } from '../../elements/FormElements'
 import { searchBarCommands } from '../../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { Button, IconButton } from '../../elements/Button'
-import { FunnelSimple, MagnifyingGlass, Plus, X } from 'phosphor-react'
+import { FunnelSimple, X } from 'phosphor-react'
 import { LayoutType, LibraryMode } from './HomeFeedContainer'
 import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
@@ -21,10 +21,13 @@ import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
+import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
 type LibraryHeaderProps = {
+  viewer: UserBasicData | undefined
+
   layout: LayoutType
   updateLayout: (layout: LayoutType) => void
 
@@ -176,25 +179,27 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
       <SearchBox {...props} />
 
       <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
-        <Button
-          title="TLDR Summaries"
-          style="plainIcon"
-          css={{
-            display: 'flex',
-            marginLeft: 'auto',
-            '&:hover': { opacity: '1.0' },
-          }}
-          onClick={(e) => {
-            if (props.mode == 'reads') {
-              props.setMode('tldr')
-            } else {
-              props.setMode('reads')
-            }
-            e.preventDefault()
-          }}
-        >
-          <HeaderToggleTLDRIcon />
-        </Button>
+        {props.viewer?.features.includes('ai-summaries') && (
+          <Button
+            title="TLDR Summaries"
+            style="plainIcon"
+            css={{
+              display: 'flex',
+              marginLeft: 'auto',
+              '&:hover': { opacity: '1.0' },
+            }}
+            onClick={(e) => {
+              if (props.mode == 'reads') {
+                props.setMode('tldr')
+              } else {
+                props.setMode('reads')
+              }
+              e.preventDefault()
+            }}
+          >
+            <HeaderToggleTLDRIcon />
+          </Button>
+        )}
 
         <Button
           title={
@@ -311,7 +316,7 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
           alignment="center"
           distribution="center"
           css={{
-            width: '55px',
+            width: '53px',
             height: '100%',
             display: 'flex',
             bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
@@ -397,18 +402,6 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
   )
 }
 
-// type ControlButtonBoxProps = {
-//   layout: LayoutType
-//   updateLayout: (layout: LayoutType) => void
-//   setShowInlineSearch?: (show: boolean) => void
-
-//   numItemsSelected: number
-//   multiSelectMode: MultiSelectMode
-//   setMultiSelectMode: (mode: MultiSelectMode) => void
-
-//   performMultiSelectAction: (action: BulkAction, labelIds?: string[]) => void
-// }
-
 function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
@@ -442,7 +435,7 @@ function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
           alignment="center"
           distribution="center"
           css={{
-            width: '55px',
+            width: '54px',
             height: '100%',
             display: 'flex',
             bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',

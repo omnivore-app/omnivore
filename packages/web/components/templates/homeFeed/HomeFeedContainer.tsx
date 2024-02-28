@@ -987,6 +987,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
       {props.mode != 'highlights' && (
         <LibraryHeader
           layout={layout}
+          viewer={viewerData?.me}
           updateLayout={updateLayout}
           searchTerm={props.searchTerm}
           applySearchQuery={(searchQuery: string) => {

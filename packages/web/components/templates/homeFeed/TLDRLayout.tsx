@@ -38,7 +38,7 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
           gap: '50px',
           height: '100%',
           minHeight: '100vh',
-          px: '70px',
+          px: '13px',
           width: '100%',
           maxWidth: '800px',
           '@mdDown': {
