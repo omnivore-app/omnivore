@@ -85,18 +85,20 @@ export function LibraryHeader(props: LibraryHeaderProps): JSX.Element {
   return (
     <>
       <VStack
-        alignment="center"
+        alignment="start"
         distribution="start"
         css={{
           top: '0',
           right: '0',
           zIndex: 5,
+          px: '70px',
           bg: '$thLibraryBackground',
           position: 'fixed',
           left: LIBRARY_LEFT_MENU_WIDTH,
           height: small ? '60px' : DEFAULT_HEADER_HEIGHT,
           transition: 'height 0.5s',
           '@mdDown': {
+            px: '0px',
             left: '0px',
             right: '0',
           },
