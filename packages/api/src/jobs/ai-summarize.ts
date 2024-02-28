@@ -28,7 +28,9 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
     )
     if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
       logger.info(
-        `Not ready to summarize library item job state: ${libraryItem?.state}`
+        `Not ready to summarize library item job state: ${
+          libraryItem?.state ?? 'null'
+        }`
       )
       return
     }
@@ -52,10 +54,13 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       input_documents: docs,
     })
 
-    const summary = response.text
-    console.log('SUMMARY: ', summary)
+    if (typeof response.text !== 'string') {
+      logger.error(`AI summary did not return text`)
+      return
+    }
 
-    const aiSummary = await authTrx(
+    const summary = response.text
+    const _ = await authTrx(
       async (t) => {
         return t.getRepository(AISummary).save({
           user: { id: jobData.userId },
