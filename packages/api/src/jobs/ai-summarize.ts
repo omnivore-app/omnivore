@@ -26,7 +26,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       undefined,
       jobData.userId
     )
-    if (libraryItem?.state !== LibraryItemState.Succeeded) {
+    if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
       logger.info(
         `Not ready to summarize library item job state: ${libraryItem?.state}`
       )
