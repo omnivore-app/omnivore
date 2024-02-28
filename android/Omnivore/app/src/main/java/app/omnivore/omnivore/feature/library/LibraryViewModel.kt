@@ -52,7 +52,6 @@ class LibraryViewModel @Inject constructor(
 ) : ViewModel(), SavedItemViewModel {
 
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
-    private var cursor: String? = null
     private var librarySearchCursor: String? = null
 
     var snackbarMessage by mutableStateOf<String?>(null)
@@ -136,7 +135,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun refresh() {
-        cursor = null
         librarySearchCursor = null
         isRefreshing = true
         load()
@@ -155,7 +153,6 @@ class LibraryViewModel @Inject constructor(
     fun initialLoad() {
         if (getLastSyncTime() == null) {
             hasLoadedInitialFilters = false
-            cursor = null
             librarySearchCursor = null
         }
 
