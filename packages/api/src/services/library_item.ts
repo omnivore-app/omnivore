@@ -5,6 +5,7 @@ import {
   EntityManager,
   FindOptionsWhere,
   ObjectLiteral,
+  SelectQueryBuilder,
 } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
@@ -15,7 +16,12 @@ import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
-import { authTrx, getColumns, queryBuilderToRawSql } from '../repository'
+import {
+  authTrx,
+  getColumns,
+  getRepository,
+  queryBuilderToRawSql,
+} from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
@@ -198,7 +204,7 @@ const getColumnName = (field: string) => {
   }
 }
 
-export const buildQuery = (
+export const buildQueryString = (
   searchQuery: LiqeQuery,
   parameters: ObjectLiteral[] = [],
   selects: Select[] = [],
@@ -268,12 +274,12 @@ export const buildQuery = (
             case InFilter.ALL:
               return null
             case InFilter.ARCHIVE:
-              return 'library_item.archived_at IS NOT NULL'
+              return "library_item.state = 'ARCHIVED'"
             case InFilter.TRASH:
               // return only deleted pages within 14 days
-              return "library_item.deleted_at >= now() - interval '14 days'"
+              return "(library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days')"
             default: {
-              let sql = 'library_item.archived_at IS NULL'
+              let sql = "library_item.state <> 'ARCHIVED'"
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
@@ -568,12 +574,11 @@ export const buildQuery = (
   return serialize(searchQuery)
 }
 
-export const searchLibraryItems = async (
+export const buildQuery = (
+  queryBuilder: SelectQueryBuilder<LibraryItem>,
   args: SearchArgs,
   userId: string
-): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
-  const { from = 0, size = 10 } = args
-
+) => {
   // select all columns except content
   const selects: Select[] = getColumns(libraryItemRepository)
     .map((column) => ({ column: `library_item.${column}` }))
@@ -585,13 +590,13 @@ export const searchLibraryItems = async (
 
   const parameters: ObjectLiteral[] = []
   const orders: Sort[] = []
-  let query: string | null = null
+  let queryString: string | null = null
 
   if (args.query) {
     const searchQuery = parseSearchQuery(args.query)
 
-    // build query and save parameters
-    query = buildQuery(
+    // build query string and save parameters
+    queryString = buildQueryString(
       searchQuery,
       parameters,
       selects,
@@ -599,50 +604,70 @@ export const searchLibraryItems = async (
       args.useFolders
     )
   }
+  queryBuilder.where('library_item.user_id = :userId', { userId })
 
-  // add pagination and sorting
+  // add select
+  selects.forEach((select) => {
+    queryBuilder.addSelect(select.column, select.alias)
+  })
+
+  if (!args.includePending) {
+    queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
+  }
+
+  if (!args.includeDeleted) {
+    queryBuilder.andWhere("library_item.state <> 'DELETED'")
+  }
+
+  if (queryString) {
+    // add where clause from query string
+    queryBuilder
+      .andWhere(`(${queryString})`)
+      .setParameters(paramtersToObject(parameters))
+  }
+
+  // default order by saved at descending
+  if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+    orders.push({
+      by: 'library_item.saved_at',
+      order: SortOrder.DESCENDING,
+      nulls: 'NULLS LAST',
+    })
+  }
+
+  // add order by
+  orders.forEach((order) => {
+    queryBuilder.addOrderBy(order.by, order.order, order.nulls)
+  })
+}
+
+export const countLibraryItems = async (args: SearchArgs, userId: string) => {
+  const queryBuilder =
+    getRepository(LibraryItem).createQueryBuilder('library_item')
+
+  buildQuery(queryBuilder, args, userId)
+
+  return queryBuilder.getCount()
+}
+
+export const searchLibraryItems = async (
+  args: SearchArgs,
+  userId: string
+): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
+  const { from = 0, size = 10 } = args
+
   return authTrx(
     async (tx) => {
-      const queryBuilder = tx
-        .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.user_id = :userId', { userId })
-
-      // add select
-      selects.forEach((select) => {
-        queryBuilder.addSelect(select.column, select.alias)
-      })
-
-      if (!args.includePending) {
-        queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
-      }
-
-      if (!args.includeDeleted) {
-        queryBuilder.andWhere("library_item.state <> 'DELETED'")
-      }
-
-      if (query) {
-        // add where clause from query
-        queryBuilder
-          .andWhere(`(${query})`)
-          .setParameters(paramtersToObject(parameters))
-      }
+      const queryBuilder = tx.createQueryBuilder(LibraryItem, 'library_item')
+      buildQuery(queryBuilder, args, userId)
 
       const count = await queryBuilder.getCount()
-
-      // default order by saved at descending
-      if (!orders.find((order) => order.by === 'library_item.saved_at')) {
-        orders.push({
-          by: 'library_item.saved_at',
-          order: SortOrder.DESCENDING,
-          nulls: 'NULLS LAST',
-        })
+      if (size === 0) {
+        // return only count if size is 0 because limit 0 is not allowed in typeorm
+        return { libraryItems: [], count }
       }
 
-      // add order by
-      orders.forEach((order) => {
-        queryBuilder.addOrderBy(order.by, order.order, order.nulls)
-      })
-
+      // add pagination
       const libraryItems = await queryBuilder.skip(from).take(size).getMany()
 
       return { libraryItems, count }
@@ -1043,9 +1068,9 @@ export const batchUpdateLibraryItems = async (
     const queryBuilder = em
       .createQueryBuilder(LibraryItem, 'library_item')
       .where('library_item.user_id = :userId', { userId })
-    if (query) {
+    if (queryString) {
       queryBuilder
-        .andWhere(`(${query})`)
+        .andWhere(`(${queryString})`)
         .setParameters(paramtersToObject(parameters))
     }
     return queryBuilder
@@ -1065,7 +1090,7 @@ export const batchUpdateLibraryItems = async (
 
   const searchQuery = parseSearchQuery(searchArgs.query)
   const parameters: ObjectLiteral[] = []
-  const query = buildQuery(searchQuery, parameters)
+  const queryString = buildQueryString(searchQuery, parameters)
 
   const now = new Date().toISOString()
   // build the script

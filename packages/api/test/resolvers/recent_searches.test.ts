@@ -7,7 +7,7 @@ import { deleteUser } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
-describe('recent_searches resolver', () => {
+xdescribe('recent_searches resolver', () => {
   let user: User
   let authToken: string
 

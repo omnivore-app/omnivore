@@ -1383,6 +1383,7 @@ describe('Article API', () => {
               originalUrl: `${url}/test1`,
               itemType: PageType.File,
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1391,6 +1392,7 @@ describe('Article API', () => {
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
               readingProgressBottomPercent: 100,
             },
             {
@@ -1433,6 +1435,7 @@ describe('Article API', () => {
               originalUrl: `${url}/test1`,
               subscription: 'feed',
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1449,6 +1452,7 @@ describe('Article API', () => {
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
           ],
           user.id
@@ -1482,6 +1486,7 @@ describe('Article API', () => {
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
               deletedAt: new Date(),
+              state: LibraryItemState.Deleted,
             },
             {
               user,
@@ -1491,6 +1496,7 @@ describe('Article API', () => {
               originalUrl: `${url}/test2`,
               readingProgressBottomPercent: 100,
               deletedAt: new Date(),
+              state: LibraryItemState.Deleted,
             },
             {
               user,
