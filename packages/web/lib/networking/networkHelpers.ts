@@ -62,8 +62,7 @@ export function gqlFetcher(
 
 export function apiFetcher(path: string): Promise<unknown> {
   const url = new URL(path, fetchEndpoint)
-  console.log('fetching: ', url)
-  return fetch(url, {
+  return fetch(url.toString(), {
     headers: requestHeaders(),
     credentials: 'include',
     mode: 'cors',
