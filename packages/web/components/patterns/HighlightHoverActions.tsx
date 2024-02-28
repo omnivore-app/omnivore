@@ -28,7 +28,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
     <Box
       css={{
         height: '33px',
-        width: '135px',
+        minWidth: '150px',
         bg: '$thBackground',
         display: 'flex',
 
