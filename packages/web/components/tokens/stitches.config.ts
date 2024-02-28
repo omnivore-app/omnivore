@@ -185,10 +185,14 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibrarySelectionColor: '#FFEA9F',
         thLibraryNavigationMenuFooter: '#EFEADE',
         thLibraryMenuFooterHover: '#FFFFFF',
+        thLibraryMultiselectHover: '#D9D9D9',
+        thLibraryMultiselectCheckbox: '#3D3D3D',
+        thLibraryMultiselectCheckboxHover: '#3D3D3D',
+
         thFormInput: '#EBEBEB',
         thHomeIcon: '#2A2A2A',
 
-        thLabelChipForeground: '#2A2A2A', // : '#2A2A2A'
+        thLabelChipForeground: '#2A2A2A',
         thLabelChipBackground: '#F5F5F5',
         thLabelChipSelectedBorder: 'black',
         thLabelChipUnselectedBorder: '#F5F5F5',
@@ -319,6 +323,10 @@ const darkThemeSpec = {
     thLibrarySelectionColor: '#6A6968',
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
+    thLibraryMultiselectHover: '#6A6968',
+    thLibraryMultiselectCheckbox: 'white',
+    thLibraryMultiselectCheckboxHover: 'white',
+
     searchActiveOutline: '#866D15',
     thFormInput: '#3D3D3D',
     thHomeIcon: '#FFFFFF',

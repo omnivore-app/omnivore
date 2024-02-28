@@ -140,6 +140,7 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
 }
 
 const CheckBoxButton = (props: LibraryHeaderProps): JSX.Element => {
+  const color = theme.colors.thLibraryMenuUnselected.toString()
   return (
     <Button
       title="Select multiple"
@@ -159,7 +160,10 @@ const CheckBoxButton = (props: LibraryHeaderProps): JSX.Element => {
         e.preventDefault()
       }}
     >
-      <HeaderCheckboxIcon multiSelectMode={props.multiSelectMode} />
+      <HeaderCheckboxIcon
+        multiSelectMode={props.multiSelectMode}
+        color={color}
+      />
     </Button>
   )
 }
@@ -322,8 +326,11 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
             bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
             borderTopLeftRadius: '6px',
             borderBottomLeftRadius: '6px',
+            '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
             '&:hover': {
-              bg: '#6A6968',
+              bg: '$thLibraryMultiselectHover',
+              '--checkbox-color':
+                'var(--colors-thLibraryMultiselectCheckboxHover)',
             },
           }}
         >
@@ -435,14 +442,17 @@ function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
           alignment="center"
           distribution="center"
           css={{
-            width: '54px',
+            width: '53px',
             height: '100%',
             display: 'flex',
             bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
             borderTopLeftRadius: '6px',
             borderBottomLeftRadius: '6px',
+            '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
             '&:hover': {
-              bg: '#6A6968',
+              bg: '$thLibraryMultiselectHover',
+              '--checkbox-color':
+                'var(--colors-thLibraryMultiselectCheckboxHover)',
             },
           }}
         >
