@@ -73,6 +73,7 @@ import {
 import {
   batchDelete,
   batchUpdateLibraryItems,
+  countLibraryItems,
   createOrUpdateLibraryItem,
   findLibraryItemsByPrefix,
   searchLibraryItems,
@@ -847,8 +848,7 @@ export const bulkActionResolver = authorized<
         query,
         size: 0,
       }
-      const searchResult = await searchLibraryItems(searchArgs, uid)
-      const count = searchResult.count
+      const count = await countLibraryItems(searchArgs, uid)
       if (count === 0) {
         log.info('No items found for bulk action')
         return { success: true }
@@ -856,6 +856,11 @@ export const bulkActionResolver = authorized<
 
       if (count <= batchSize) {
         searchArgs.size = count
+        log.info('Bulk action: updating items synchronously', {
+          query,
+          action,
+          count,
+        })
         // if there are less than 100 items, update them synchronously
         await batchUpdateLibraryItems(action, searchArgs, uid, labelIds, args)
 
@@ -872,6 +877,7 @@ export const bulkActionResolver = authorized<
         args,
         batchSize,
       }
+      log.info('enqueue bulk action job', data)
       const job = await enqueueBulkAction(data)
       if (!job) {
         return { errorCodes: [BulkActionErrorCode.BadRequest] }
