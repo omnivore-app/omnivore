@@ -17,10 +17,6 @@ export interface AISummarizeJobData {
 export const AI_SUMMARIZE_JOB_NAME = 'ai-summary-job'
 
 export const aiSummarize = async (jobData: AISummarizeJobData) => {
-  console.log(
-    'starting summary: *************************************************************************************'
-  )
-
   try {
     const libraryItem = await authTrx(
       async (tx) =>
@@ -37,7 +33,6 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       return
     }
 
-    logger.info(`summarizing with openai: ${process.env.OPENAI_API_KEY}`)
     const llm = new ChatOpenAI({
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
@@ -73,13 +68,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       undefined,
       jobData.userId
     )
-
-    console.log('created:V ', aiSummary)
   } catch (err) {
     console.log('error creating summary: ', err)
   }
-
-  console.log(
-    'ending summary: *************************************************************************************'
-  )
 }

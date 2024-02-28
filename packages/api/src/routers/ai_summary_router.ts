@@ -3,12 +3,10 @@
 import { htmlToSpeechFile } from '@omnivore/text-to-speech-handler'
 import cors from 'cors'
 import express from 'express'
-import * as jwt from 'jsonwebtoken'
 import { userRepository } from '../repository/user'
 import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
-import { logger } from '../utils/logger'
-import { getAISummary, getRecentAISummaries } from '../services/ai-summaries'
+import { getAISummary } from '../services/ai-summaries'
 
 export function aiSummariesRouter() {
   const router = express.Router()
@@ -49,39 +47,6 @@ export function aiSummariesRouter() {
 
       return res.send({
         summary: result?.summary,
-      })
-    }
-  )
-
-  router.get(
-    '/recents',
-    cors<express.Request>(corsConfig),
-    async (req, res) => {
-      const token = req?.cookies?.auth || req?.headers?.authorization
-      const claims = await getClaimsByToken(token)
-      if (!claims) {
-        return res.status(401).send('UNAUTHORIZED')
-      }
-
-      const { uid } = claims
-      const user = await userRepository.findById(uid)
-      if (!user) {
-        return res.status(400).send('Bad Request')
-      }
-
-      const offset = parseInt(req.params.offset) || 0
-      const count = Math.max(10, parseInt(req.params.count) || 10)
-
-      const result = await getRecentAISummaries({
-        user,
-        offset,
-        count,
-      })
-
-      return res.send({
-        count,
-        offset,
-        summaries: result,
       })
     }
   )
