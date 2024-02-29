@@ -439,3 +439,28 @@ export class GroupMembership extends BaseEntity {
   @Column('boolean', { default: false })
   is_admin!: boolean
 }
+
+@Entity({ name: 'features' })
+export class Feature extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('text')
+  name!: string
+
+  @Column('timestamp', { nullable: true })
+  grantedAt?: Date | null
+
+  @Column('timestamp', { nullable: true })
+  expiresAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+}
