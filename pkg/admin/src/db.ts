@@ -343,12 +343,6 @@ export class LibraryItem extends BaseEntity {
   @Column('text', { nullable: true })
   subscription?: string | null
 
-  @Column('text', { array: true, nullable: true })
-  recommender_names?: string[] | null
-
-  @Column('text', { array: true, nullable: true })
-  label_names?: string[] | null
-
   @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'upload_file_id' })
   uploadFile?: UploadFile
@@ -358,6 +352,9 @@ export class LibraryItem extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'deleted_at' })
   deletedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'archived_at' })
+  archivedAt!: Date | null
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
