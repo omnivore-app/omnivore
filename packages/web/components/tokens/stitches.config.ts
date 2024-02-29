@@ -189,6 +189,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibraryMultiselectCheckbox: '#3D3D3D',
         thLibraryMultiselectCheckboxHover: '#3D3D3D',
 
+        thTLDRText: '#434343',
+
         thFormInput: '#EBEBEB',
         thHomeIcon: '#2A2A2A',
 
@@ -326,6 +328,8 @@ const darkThemeSpec = {
     thLibraryMultiselectHover: '#6A6968',
     thLibraryMultiselectCheckbox: 'white',
     thLibraryMultiselectCheckboxHover: 'white',
+
+    thTLDRText: '#D9D9D9',
 
     searchActiveOutline: '#866D15',
     thFormInput: '#3D3D3D',

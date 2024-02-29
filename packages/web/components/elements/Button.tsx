@@ -46,11 +46,11 @@ export const Button = styled('button', {
         fontWeight: '500',
         cursor: 'pointer',
         color: '#EDEDED',
-        border: '1px solid #6A6968',
+        border: '1px solid $thLibraryMultiselectHover',
         bg: 'transparent',
         '&:hover': {
           opacity: '0.6',
-          border: '0px solid $ctaBlue',
+          border: '1px solid $ctaBlue',
         },
       },
 

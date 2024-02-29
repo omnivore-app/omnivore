@@ -194,7 +194,7 @@ export const AddLabelsButton = (props: AddLabelsButtonProps): JSX.Element => {
   )
   return (
     <Button
-      title="Archive"
+      title="Add labels"
       css={{
         p: '5px',
         display: 'flex',
@@ -235,7 +235,7 @@ export const RemoveItemsButton = (
   )
   return (
     <Button
-      title="Archive"
+      title="Remove"
       css={{
         p: '5px',
         display: 'flex',
@@ -270,7 +270,7 @@ export const CancelButton = (props: LibraryHeaderProps): JSX.Element => {
   )
   return (
     <Button
-      title="Archive"
+      title="Cancel"
       css={{
         p: '5px',
         display: 'flex',

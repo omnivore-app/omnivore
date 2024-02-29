@@ -9,6 +9,11 @@ import { Button } from '../../elements/Button'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { BrowserIcon } from '../../elements/icons/BrowserIcon'
+import { styled } from '@stitches/react'
+import { siteName } from '../../patterns/LibraryCards/LibraryCardStyles'
+import { theme } from '../../tokens/stitches.config'
+import { DotsThree } from 'phosphor-react'
+import { useState } from 'react'
 
 type TLDRLayoutProps = {
   layout: LayoutType
@@ -23,6 +28,12 @@ type TLDRLayoutProps = {
   loadMore: () => void
 }
 
+const SiteIcon = styled('img', {
+  width: '22px',
+  height: '22px',
+  borderRadius: '100px',
+})
+
 export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
   return (
     <>
@@ -30,10 +41,11 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
         alignment="start"
         distribution="start"
         css={{
+          mt: '30px',
           gap: '50px',
           height: '100%',
           minHeight: '100vh',
-          px: '13px',
+          px: '0px',
           width: '100%',
           maxWidth: '800px',
           '@mdDown': {
@@ -46,52 +58,121 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
 
         {props.items.map((item) => {
+          const source = siteName(
+            item.node.originalArticleUrl,
+            item.node.url,
+            item.node.siteName
+          )
           return (
-            <HStack
-              key={`tldr-${item.node.id}`}
-              css={{
-                gap: '10px',
-              }}
-            >
-              <SpanBox css={{ pt: '1px' }}>
-                <input type="checkbox" />
-              </SpanBox>
-
-              <VStack alignment="start" distribution="start">
-                <SpanBox
+            <VStack css={{ gap: '10px' }}>
+              <HStack
+                alignment="center"
+                distribution="start"
+                css={{
+                  gap: '5px',
+                  width: '100%',
+                  height: '25px',
+                  pb: 'red',
+                }}
+              >
+                <VStack
+                  distribution="center"
+                  alignment="center"
                   css={{
-                    fontFamily: '$inter',
-                    fontWeight: '600',
-                    fontSize: '20px',
-                    textDecoration: 'underline',
+                    mr: '5px',
+                    display: 'flex',
+                    w: '22px',
+                    h: '22px',
+                    borderRadius: '100px',
+                    bg: '$ctaBlue',
+                    color: '$thTextSubtle',
                   }}
                 >
-                  {item.node.title}
+                  <SiteIcon src={item.node.siteIcon} />
+                </VStack>
+                {source && (
+                  <SpanBox
+                    css={{
+                      display: 'flex',
+                      fontFamily: '$inter',
+                      fontSize: '16px',
+                    }}
+                  >
+                    {item.node.siteName}
+                  </SpanBox>
+                )}
+                {source && item.node.author && (
+                  <SpanBox
+                    css={{
+                      display: 'flex',
+                      fontFamily: '$inter',
+                      fontSize: '16px',
+                    }}
+                  >
+                    •
+                  </SpanBox>
+                )}
+                {item.node.author && (
+                  <SpanBox
+                    css={{
+                      display: 'flex',
+                      fontFamily: '$inter',
+                      fontSize: '16px',
+                    }}
+                  >
+                    {item.node.author}
+                  </SpanBox>
+                )}
+                <SpanBox css={{ ml: 'auto' }}>
+                  <DotsThree
+                    size={20}
+                    color={theme.colors.thTextSubtle.toString()}
+                  />
                 </SpanBox>
-                <SpanBox
-                  css={{
-                    fontFamily: '$inter',
-                    fontWeight: '500',
-                    fontSize: '14px',
-                    lineHeight: '30px',
-                    color: '#D9D9D9',
-                  }}
+              </HStack>
+              <HStack
+                key={`tldr-${item.node.id}`}
+                css={{
+                  gap: '10px',
+                }}
+              >
+                <VStack
+                  alignment="start"
+                  distribution="start"
+                  css={{ gap: '10px' }}
                 >
-                  {item.node.aiSummary}
-                </SpanBox>
-                <HStack css={{ gap: '15px', pt: '5px' }}>
-                  <Button style="tldr">
-                    <ArchiveIcon size={20} color="#EDEDED" />
-                  </Button>
-                  <Button style="tldr">
-                    <TrashIcon size={20} color="#EDEDED" />
-                  </Button>
-                  <Button style="tldr">
-                    <BrowserIcon size={20} color="#EDEDED" />
-                  </Button>
-                </HStack>
-              </VStack>
-            </HStack>
+                  <SpanBox
+                    css={{
+                      fontFamily: '$inter',
+                      fontWeight: '700',
+                      fontSize: '20px',
+                      textDecoration: 'underline',
+                      a: {
+                        color: '$thTLDRText',
+                      },
+                    }}
+                  >
+                    <a href={``}>{item.node.title}</a>
+                  </SpanBox>
+                  <SpanBox
+                    css={{
+                      fontFamily: '$inter',
+                      fontWeight: '500',
+                      fontSize: '14px',
+                      lineHeight: '30px',
+                      color: '$thTLDRText',
+                    }}
+                  >
+                    {item.node.aiSummary}
+                  </SpanBox>
+                  <HStack css={{ gap: '15px', pt: '5px' }}>
+                    <ArchiveButton />
+                    <RemoveButton />
+                    <OpenOriginalButton />
+                  </HStack>
+                </VStack>
+              </HStack>
+            </VStack>
           )
         })}
 
@@ -116,5 +197,101 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
         </HStack>
       </VStack>
     </>
+  )
+}
+
+const ArchiveButton = (): JSX.Element => {
+  const [foreground, setForegroundColor] = useState<string>(
+    theme.colors.thTextContrast2.toString()
+  )
+  return (
+    <Button
+      title="Archive"
+      style="tldr"
+      css={{
+        '&:hover': {
+          bg: '$ctaBlue',
+          opacity: 1.0,
+        },
+      }}
+      onMouseEnter={(event) => {
+        setForegroundColor('white')
+        event.preventDefault()
+      }}
+      onMouseLeave={(event) => {
+        setForegroundColor(theme.colors.thTextContrast2.toString())
+        event.preventDefault()
+      }}
+      onClick={(e) => {
+        // props.setShowConfirmDelete(true)
+        e.preventDefault()
+      }}
+    >
+      <ArchiveIcon size={20} color={foreground} />
+    </Button>
+  )
+}
+
+const RemoveButton = (): JSX.Element => {
+  const [foreground, setForegroundColor] = useState<string>(
+    theme.colors.thTextContrast2.toString()
+  )
+  return (
+    <Button
+      title="Remove"
+      style="tldr"
+      css={{
+        '&:hover': {
+          bg: '$ctaBlue',
+          opacity: 1.0,
+        },
+      }}
+      onMouseEnter={(event) => {
+        setForegroundColor('white')
+        event.preventDefault()
+      }}
+      onMouseLeave={(event) => {
+        setForegroundColor(theme.colors.thTextContrast2.toString())
+        event.preventDefault()
+      }}
+      onClick={(e) => {
+        // props.setShowConfirmDelete(true)
+        e.preventDefault()
+      }}
+    >
+      <TrashIcon size={20} color={foreground} />
+    </Button>
+  )
+}
+
+const OpenOriginalButton = (): JSX.Element => {
+  const [foreground, setForegroundColor] = useState<string>(
+    theme.colors.thTextContrast2.toString()
+  )
+  return (
+    <Button
+      title="Open original"
+      style="tldr"
+      css={{
+        '&:hover': {
+          bg: '$ctaBlue',
+          opacity: 1.0,
+        },
+      }}
+      onMouseEnter={(event) => {
+        setForegroundColor('white')
+        event.preventDefault()
+      }}
+      onMouseLeave={(event) => {
+        setForegroundColor(theme.colors.thTextContrast2.toString())
+        event.preventDefault()
+      }}
+      onClick={(e) => {
+        // props.setShowConfirmDelete(true)
+        e.preventDefault()
+      }}
+    >
+      <BrowserIcon size={20} color={foreground} />
+    </Button>
   )
 }

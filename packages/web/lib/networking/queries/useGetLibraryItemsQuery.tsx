@@ -95,6 +95,7 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
+  siteIcon?: string
   subscription?: string
   readAt?: string
   savedAt?: string
@@ -185,6 +186,7 @@ export function useGetLibraryItemsQuery({
               annotation
               state
               siteName
+              siteIcon
               subscription
               readAt
               savedAt
