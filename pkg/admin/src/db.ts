@@ -71,6 +71,15 @@ export enum AuthProvider {
   Email = 'EMAIL',
 }
 
+export enum LibraryItemState {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
+  Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
+}
+
 @Entity({ name: 'admin_user' })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -327,6 +336,9 @@ export class LibraryItem extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
+
+  @Column({ type: 'enum', name: 'state' })
+  state!: LibraryItemState
 
   @Column({ type: 'text', name: 'original_url' })
   originalUrl!: string
