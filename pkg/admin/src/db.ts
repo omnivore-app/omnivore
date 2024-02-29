@@ -71,6 +71,15 @@ export enum AuthProvider {
   Email = 'EMAIL',
 }
 
+export enum LibraryItemState {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
+  Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
+}
+
 @Entity({ name: 'admin_user' })
 export class AdminUser extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -328,6 +337,9 @@ export class LibraryItem extends BaseEntity {
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
 
+  @Column({ type: 'enum', name: 'state' })
+  state!: LibraryItemState
+
   @Column({ type: 'text', name: 'original_url' })
   originalUrl!: string
 
@@ -343,12 +355,6 @@ export class LibraryItem extends BaseEntity {
   @Column('text', { nullable: true })
   subscription?: string | null
 
-  @Column('text', { array: true, nullable: true })
-  recommender_names?: string[] | null
-
-  @Column('text', { array: true, nullable: true })
-  label_names?: string[] | null
-
   @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'upload_file_id' })
   uploadFile?: UploadFile
@@ -358,6 +364,9 @@ export class LibraryItem extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'deleted_at' })
   deletedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'archived_at' })
+  archivedAt!: Date | null
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
