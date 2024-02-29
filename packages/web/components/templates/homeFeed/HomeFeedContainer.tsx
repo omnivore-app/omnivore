@@ -981,7 +981,7 @@ function HomeFeedGrid(props: HomeFeedContentProps): JSX.Element {
     <VStack
       css={{
         height: '100%',
-        width: props.mode == 'highlights' ? '100%' : 'unset',
+        width: !showItems || props.mode == 'highlights' ? '100%' : 'unset',
       }}
     >
       {props.mode != 'highlights' && (
