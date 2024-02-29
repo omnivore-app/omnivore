@@ -185,10 +185,16 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         thLibrarySelectionColor: '#FFEA9F',
         thLibraryNavigationMenuFooter: '#EFEADE',
         thLibraryMenuFooterHover: '#FFFFFF',
+        thLibraryMultiselectHover: '#D9D9D9',
+        thLibraryMultiselectCheckbox: '#3D3D3D',
+        thLibraryMultiselectCheckboxHover: '#3D3D3D',
+
+        thTLDRText: '#434343',
+
         thFormInput: '#EBEBEB',
         thHomeIcon: '#2A2A2A',
 
-        thLabelChipForeground: '#2A2A2A', // : '#2A2A2A'
+        thLabelChipForeground: '#2A2A2A',
         thLabelChipBackground: '#F5F5F5',
         thLabelChipSelectedBorder: 'black',
         thLabelChipUnselectedBorder: '#F5F5F5',
@@ -217,6 +223,9 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
 
         thHighContrast: '#3D3D3D',
         thHighlightBar: '#D9D9D9',
+
+        thLibraryAISummaryBorder: '#6A6968',
+        thLibraryAISummaryBackground: '#343434',
 
         thFallbackImageForeground: '#2A2A2A',
         thFallbackImageBackground: '#EDEDED',
@@ -316,6 +325,12 @@ const darkThemeSpec = {
     thLibrarySelectionColor: '#6A6968',
     thLibraryNavigationMenuFooter: '#3D3D3D',
     thLibraryMenuFooterHover: '#6A6968',
+    thLibraryMultiselectHover: '#6A6968',
+    thLibraryMultiselectCheckbox: 'white',
+    thLibraryMultiselectCheckboxHover: 'white',
+
+    thTLDRText: '#D9D9D9',
+
     searchActiveOutline: '#866D15',
     thFormInput: '#3D3D3D',
     thHomeIcon: '#FFFFFF',
@@ -351,6 +366,9 @@ const darkThemeSpec = {
     thHighContrast: '#D9D9D9',
 
     thHighlightBar: '#6A6968',
+
+    thLibraryAISummaryBorder: '#6A6968',
+    thLibraryAISummaryBackground: '#343434',
 
     thFallbackImageForeground: '#FEFFFF',
     thFallbackImageBackground: '#3C3C3C',

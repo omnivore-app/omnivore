@@ -5,12 +5,18 @@ import { env } from './env'
 import { ReportType } from './generated/graphql'
 import { Merge } from './util'
 import {
+  enqueueAISummarizeJob,
   enqueueExportItem,
   enqueueTriggerRuleJob,
   enqueueWebhookJob,
 } from './utils/createTask'
 import { deepDelete } from './utils/helpers'
 import { buildLogger } from './utils/logger'
+import {
+  FeatureName,
+  findFeatureByName,
+  getFeatureName,
+} from './services/features'
 
 const logger = buildLogger('pubsub')
 
@@ -81,6 +87,13 @@ export const createPubSubClient = (): PubsubClient => {
         action: 'created',
         data,
       })
+
+      if (await findFeatureByName(FeatureName.AISummaries, userId)) {
+        await enqueueAISummarizeJob({
+          userId,
+          libraryItemId,
+        })
+      }
 
       return publish(
         'entityCreated',

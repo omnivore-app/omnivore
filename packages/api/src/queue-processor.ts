@@ -43,6 +43,7 @@ import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
+import { AI_SUMMARIZE_JOB_NAME, aiSummarize } from './jobs/ai-summarize'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -113,6 +114,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return callWebhook(job.data)
         case EXPORT_ITEM_JOB_NAME:
           return exportItem(job.data)
+        case AI_SUMMARIZE_JOB_NAME:
+          return aiSummarize(job.data)
         case EXPORT_ALL_ITEMS_JOB_NAME:
           return exportAllItems(job.data)
       }

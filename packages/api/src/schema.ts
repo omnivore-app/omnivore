@@ -88,6 +88,7 @@ const schema = gql`
     email: String
     source: String
     intercomHash: String
+    features: [String]
   }
 
   type Profile {
@@ -1647,6 +1648,7 @@ const schema = gql`
     previewContentType: String
     links: JSON
     folder: String!
+    aiSummary: String
   }
 
   type SearchItemEdge {

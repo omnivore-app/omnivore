@@ -74,7 +74,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         overflow: 'hidden',
         cursor: 'pointer',
         '@media (max-width: 930px)': {
-          m: '15px',
+          // m: '15px',
           width: 'calc(100% - 30px)',
         },
       }}
@@ -101,7 +101,7 @@ export function LibraryGridCard(props: LinkedItemCardProps): JSX.Element {
         }
       }}
     >
-      {!isTouchScreenDevice() && (
+      {!isTouchScreenDevice() && props.multiSelectMode == 'off' && (
         <Box
           ref={refs.setFloating}
           style={{ ...floatingStyles, zIndex: 3 }}
@@ -211,7 +211,7 @@ const LibraryGridCardContent = (props: LinkedItemCardProps): JSX.Element => {
             position: 'absolute',
             top: 0,
             left: 0,
-            m: '10px',
+            m: '12px',
             lineHeight: '1',
           }}
         >

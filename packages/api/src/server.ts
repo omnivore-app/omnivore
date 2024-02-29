@@ -48,6 +48,7 @@ import {
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { aiSummariesRouter } from './routers/ai_summary_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -121,6 +122,7 @@ export const createApp = (): {
   app.use('/api/page', pageRouter())
   app.use('/api/user', userRouter())
   app.use('/api/article', articleRouter())
+  app.use('/api/ai-summary', aiSummariesRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())

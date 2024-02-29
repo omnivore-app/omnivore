@@ -16,7 +16,7 @@ export const SETTINGS_SECTION_1 = [
   { name: 'Feeds', destination: '/settings/feeds' },
   { name: 'Subscriptions', destination: '/settings/subscriptions' },
   { name: 'Labels', destination: '/settings/labels' },
-  { name: 'Shortcuts', destination: '/settings/shortcuts' },
+  // { name: 'Shortcuts', destination: '/settings/shortcuts' },
   { name: 'Saved Searches', destination: '/settings/saved-searches' },
   { name: 'Pinned Searches', destination: '/settings/pinned-searches' },
 ]
