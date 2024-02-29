@@ -49,7 +49,6 @@ export const headerControlWidths = (
   return {
     width: '95%',
     '@mdDown': {
-      padding: '15px',
       width: '100%',
     },
     '@media (min-width: 930px)': {
@@ -135,18 +134,26 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
 }
 
 const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
+  const [searchBoxFocused, setSearchBoxFocused] = useState(false)
+
   return (
     <>
-      <SpanBox
-        css={{
-          display: 'none',
-          '@mdDown': { display: 'flex' },
-        }}
-      >
-        <MenuHeaderButton {...props} />
-      </SpanBox>
+      {!searchBoxFocused && (
+        <SpanBox
+          css={{
+            display: 'none',
+            '@mdDown': { display: 'flex' },
+          }}
+        >
+          <MenuHeaderButton {...props} />
+        </SpanBox>
+      )}
 
-      <SearchBox {...props} />
+      <SearchBox
+        {...props}
+        searchBoxFocused={searchBoxFocused}
+        setSearchBoxFocused={setSearchBoxFocused}
+      />
 
       <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
         {userHasFeature(props.viewer, 'ai-summaries') && (
@@ -243,9 +250,13 @@ export function MenuHeaderButton(props: MenuHeaderButtonProps): JSX.Element {
   )
 }
 
-export function SearchBox(props: LibraryHeaderProps): JSX.Element {
+type SearchBoxProps = LibraryHeaderProps & {
+  searchBoxFocused: boolean
+  setSearchBoxFocused: (show: boolean) => void
+}
+
+export function SearchBox(props: SearchBoxProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const [focused, setFocused] = useState(false)
   const [searchTerm, setSearchTerm] = useState(props.searchTerm ?? '')
 
   useEffect(() => {
@@ -272,7 +283,7 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
         maxWidth: '521px',
         bg: '$thLibrarySearchbox',
         borderRadius: '6px',
-        boxShadow: focused
+        boxShadow: props.searchBoxFocused
           ? 'none'
           : '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
       }}
@@ -306,7 +317,7 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
           alignment="center"
           distribution="start"
           css={{
-            border: focused
+            border: props.searchBoxFocused
               ? '2px solid $searchActiveOutline'
               : '2px solid transparent',
             borderTopRightRadius: '6px',
@@ -331,10 +342,10 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
               placeholder="Search keywords or labels"
               onFocus={(event) => {
                 event.target.select()
-                setFocused(true)
+                props.setSearchBoxFocused(true)
               }}
               onBlur={() => {
-                setFocused(false)
+                props.setSearchBoxFocused(false)
               }}
               onChange={(event) => {
                 setSearchTerm(event.target.value)
