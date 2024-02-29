@@ -107,6 +107,46 @@ const showToastWithUndo = (
   )
 }
 
+const showToastWithAction = (
+  message: string,
+  background: string,
+  actionName: string,
+  action: () => Promise<void>,
+  options?: ToastOptions
+) => {
+  return toast(
+    ({ id }) => (
+      <FullWidthContainer alignment="center">
+        <CheckCircle size={24} color="white" />
+        <MessageContainer>{message}</MessageContainer>
+        <HStack distribution="end" css={{ marginLeft: 16 }}>
+          <Button
+            style="ctaLightGray"
+            onClick={(event) => {
+              event.preventDefault()
+
+              toast.dismiss(id)
+              ;(async () => {
+                await action()
+              })()
+            }}
+          >
+            {actionName}
+          </Button>
+        </HStack>
+      </FullWidthContainer>
+    ),
+    {
+      style: {
+        ...toastStyles,
+        background: background,
+      },
+      duration: 3500,
+      ...options,
+    }
+  )
+}
+
 export const showSuccessToast = (message: string, options?: ToastOptions) => {
   return showToast(message, '#55B938', 'success', {
     position: 'bottom-right',
@@ -126,6 +166,16 @@ export const showSuccessToastWithUndo = (
   undoAction: () => Promise<void>
 ) => {
   return showToastWithUndo(message, '#55B938', undoAction, {
+    position: 'bottom-right',
+  })
+}
+
+export const showSuccessToastWithAction = (
+  message: string,
+  actionName: string,
+  action: () => Promise<void>
+) => {
+  return showToastWithAction(message, '#55B938', actionName, action, {
     position: 'bottom-right',
   })
 }

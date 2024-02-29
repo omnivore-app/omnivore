@@ -2,7 +2,7 @@ import { Action, createAction, useKBar, useRegisterActions } from 'kbar'
 import debounce from 'lodash/debounce'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import toast, { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { useFetchMore } from '../../../lib/hooks/useFetchMoreScroll'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
@@ -42,15 +42,17 @@ import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithAction,
+} from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
 import { articleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { PinnedButtons } from './PinnedButtons'
 import { PinnedSearch } from '../../../pages/settings/pinned-searches'
-import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
-import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
 import { FetchItemsError } from './FetchItemsError'
 import { TLDRLayout } from './TLDRLayout'
 
@@ -797,26 +799,10 @@ export function HomeFeedContainer(): JSX.Element {
   ) => {
     const result = await saveUrlMutation(link, timezone, locale)
     if (result) {
-      toast(
-        () => (
-          <Box>
-            Link Saved
-            <span style={{ padding: '16px' }} />
-            <Button
-              style="ctaDarkYellow"
-              autoFocus
-              onClick={() => {
-                window.location.href = `/article?url=${encodeURIComponent(
-                  link
-                )}`
-              }}
-            >
-              Read Now
-            </Button>
-          </Box>
-        ),
-        { position: 'bottom-right' }
-      )
+      showSuccessToastWithAction('Link saved', 'Read now', async () => {
+        window.location.href = `/article?url=${encodeURIComponent(link)}`
+        return Promise.resolve()
+      })
       const id = result.url?.match(/[^/]+$/)?.[0] ?? ''
       performActionOnItem('refresh', undefined as unknown as any)
     } else {
