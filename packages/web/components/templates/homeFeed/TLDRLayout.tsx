@@ -64,7 +64,7 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
             item.node.siteName
           )
           return (
-            <VStack css={{ gap: '10px' }}>
+            <VStack key={`tldr-${item.node.id}`} css={{ gap: '10px' }}>
               <HStack
                 alignment="center"
                 distribution="start"
@@ -131,7 +131,6 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                 </SpanBox>
               </HStack>
               <HStack
-                key={`tldr-${item.node.id}`}
                 css={{
                   gap: '10px',
                 }}
