@@ -279,7 +279,7 @@ export const buildQueryString = (
               // return only deleted pages within 14 days
               return "(library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days')"
             default: {
-              let sql = 'library_item.archived_at is not null'
+              let sql = 'library_item.archived_at is null'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
