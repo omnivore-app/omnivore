@@ -59,13 +59,3 @@ export class BrowserIcon extends React.Component<IconProps> {
     )
   }
 }
-
-// <path
-// d="M10.4167 2.5C11.8206 4.74968 12.5649 7.34822 12.5649 10C12.5649 12.6518 11.8206 15.2503 10.4167 17.5"
-// stroke={color}
-// strokeWidth="1.25"
-// strokeLinecap="round"
-// strokeLinejoin="round"
-// />
-// </g>
-// </svg>

@@ -11,22 +11,16 @@ import { OmnivoreSmallLogo } from '../../elements/images/OmnivoreNameLogo'
 import { DEFAULT_HEADER_HEIGHT, HeaderSpacer } from './HeaderSpacer'
 import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryMenu'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
-import { ConfirmationModal } from '../../patterns/ConfirmationModal'
-import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
-import { TrashIcon } from '../../elements/icons/TrashIcon'
-import { LabelIcon } from '../../elements/icons/LabelIcon'
-import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
 import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { userHasFeature } from '../../../lib/featureFlag'
+import { MultiSelectControls, CheckBoxButton } from './MultiSelectControls'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
-type LibraryHeaderProps = {
+export type LibraryHeaderProps = {
   viewer: UserBasicData | undefined
 
   layout: LayoutType
@@ -137,32 +131,6 @@ function LargeHeaderLayout(props: LibraryHeaderProps): JSX.Element {
         <HeaderControls {...props} />
       )}
     </HStack>
-  )
-}
-
-const CheckBoxButton = (props: LibraryHeaderProps): JSX.Element => {
-  const color = theme.colors.thLibraryMenuUnselected.toString()
-  return (
-    <Button
-      title="Select multiple"
-      style="plainIcon"
-      css={{ display: 'flex', '&:hover': { opacity: '1.0' } }}
-      onClick={(e) => {
-        switch (props.multiSelectMode) {
-          case 'off':
-          case 'none':
-          case 'some':
-            props.setMultiSelectMode('visible')
-            break
-          default:
-            props.setMultiSelectMode('off')
-            break
-        }
-        e.preventDefault()
-      }}
-    >
-      <HeaderCheckboxIcon multiSelectMode={props.multiSelectMode} />
-    </Button>
   )
 }
 
@@ -341,6 +309,8 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
             border: focused
               ? '2px solid $searchActiveOutline'
               : '2px solid transparent',
+            borderTopRightRadius: '6px',
+            borderBottomRightRadius: '6px',
             width: '100%',
             height: '100%',
           }}
@@ -381,25 +351,17 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
             alignment="center"
             css={{
               py: '15px',
+              mr: '10px',
               marginLeft: 'auto',
             }}
           >
-            <IconButton
-              style="searchButton"
-              onClick={(event) => {
-                event.preventDefault()
+            <CancelSearchButton
+              onClick={() => {
                 setSearchTerm('in:inbox')
                 props.applySearchQuery('')
                 inputRef.current?.blur()
               }}
-              tabIndex={-1}
-            >
-              <X
-                width={16}
-                height={16}
-                color={theme.colors.grayTextContrast.toString()}
-              />
-            </IconButton>
+            />
           </HStack>
         </HStack>
       </HStack>
@@ -407,164 +369,41 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
   )
 }
 
-function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
-  const [showLabelsModal, setShowLabelsModal] = useState(false)
-  // Don't change on immediate hover, the button has to be blurred at least once
-  const [hoveredOut, setHoveredOut] = useState(false)
-  const compact = false
+type CancelSearchButtonProps = {
+  onClick: () => void
+}
 
+const CancelSearchButton = (props: CancelSearchButtonProps): JSX.Element => {
+  const [color, setColor] = useState<string>(
+    theme.colors.thTextContrast2.toString()
+  )
   return (
-    <Box
+    <Button
+      title="Cancel"
+      style="plainIcon"
       css={{
-        height: '38px',
-        width: '100%',
-        maxWidth: '521px',
-        bg: '$thLibrarySearchbox',
-        borderRadius: '6px',
-        boxShadow:
-          '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
+        p: '5px',
+        display: 'flex',
+        '&:hover': {
+          bg: '$ctaBlue',
+          borderRadius: '100px',
+          opacity: 1.0,
+        },
       }}
-      onMouseLeave={(event) => {
-        setHoveredOut(true)
+      onMouseEnter={(event) => {
+        setColor('white')
         event.preventDefault()
       }}
+      onMouseLeave={(event) => {
+        setColor(theme.colors.thTextContrast2.toString())
+        event.preventDefault()
+      }}
+      onClick={(event) => {
+        event.preventDefault()
+        props.onClick()
+      }}
     >
-      <HStack
-        alignment="center"
-        distribution="end"
-        css={{
-          width: '100%',
-          height: '100%',
-          pr: compact ? '5px' : '10px',
-        }}
-        onClick={(e) => {
-          e.preventDefault()
-        }}
-      >
-        <HStack
-          alignment="center"
-          distribution="center"
-          css={{
-            width: '53px',
-            height: '100%',
-            display: 'flex',
-            bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
-            borderTopLeftRadius: '6px',
-            borderBottomLeftRadius: '6px',
-            '--checkbox-color': 'white',
-            '&:hover': {
-              bg: hoveredOut ? '$thLibraryMultiselectHover' : '$ctaBlue',
-              '--checkbox-color': hoveredOut
-                ? 'var(--colors-thLibraryMultiselectCheckboxHover)'
-                : 'white',
-            },
-          }}
-        >
-          <CheckBoxButton {...props} />
-        </HStack>
-        <HStack
-          alignment="center"
-          distribution="start"
-          css={{
-            gap: '15px',
-            pl: '15px',
-            border: '2px solid transparent',
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <SpanBox
-            css={{
-              fontSize: '14px',
-              fontFamily: '$display',
-              marginRight: 'auto',
-            }}
-          >
-            {props.numItemsSelected} items selected
-          </SpanBox>
-          <Button
-            title="Archive"
-            css={{ display: 'flex' }}
-            style="plainIcon"
-            onClick={(e) => {
-              props.performMultiSelectAction(BulkAction.ARCHIVE)
-              e.preventDefault()
-            }}
-          >
-            <ArchiveIcon
-              size={20}
-              color={theme.colors.thTextContrast2.toString()}
-            />
-          </Button>
-          <Button
-            title="Add labels"
-            css={{ display: 'flex' }}
-            style="plainIcon"
-            onClick={(e) => {
-              setShowLabelsModal(true)
-              e.preventDefault()
-            }}
-          >
-            <LabelIcon
-              size={20}
-              color={theme.colors.thTextContrast2.toString()}
-            />
-          </Button>
-          <Button
-            title="Delete"
-            css={{ display: 'flex' }}
-            style="plainIcon"
-            onClick={(e) => {
-              setShowConfirmDelete(true)
-              e.preventDefault()
-            }}
-          >
-            <TrashIcon
-              size={20}
-              color={theme.colors.thTextContrast2.toString()}
-            />
-          </Button>
-          {showConfirmDelete && (
-            <ConfirmationModal
-              message={`You are about to delete ${props.numItemsSelected} items. All associated notes and highlights will be deleted.`}
-              acceptButtonLabel={'Delete'}
-              onAccept={() => {
-                props.performMultiSelectAction(BulkAction.DELETE)
-              }}
-              onOpenChange={(open: boolean) => {
-                setShowConfirmDelete(false)
-              }}
-            />
-          )}
-          {showLabelsModal && (
-            <AddBulkLabelsModal
-              bulkSetLabels={(labels: Label[]) => {
-                const labelIds = labels.map((l) => l.id)
-                props.performMultiSelectAction(BulkAction.ADD_LABELS, labelIds)
-              }}
-              onOpenChange={(open: boolean) => {
-                setShowLabelsModal(false)
-              }}
-            />
-          )}
-          <Button
-            title="Cancel"
-            css={{ display: 'flex', mr: '10px' }}
-            style="plainIcon"
-            onClick={(event) => {
-              props.setMultiSelectMode('off')
-            }}
-            tabIndex={-1}
-          >
-            <X
-              width={20}
-              height={20}
-              color={theme.colors.thTextContrast2.toString()}
-            />
-          </Button>
-        </HStack>
-      </HStack>
-    </Box>
+      <X width={19} height={19} color={color} />
+    </Button>
   )
 }
