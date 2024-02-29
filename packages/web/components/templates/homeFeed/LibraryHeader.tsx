@@ -161,10 +161,7 @@ const CheckBoxButton = (props: LibraryHeaderProps): JSX.Element => {
         e.preventDefault()
       }}
     >
-      <HeaderCheckboxIcon
-        multiSelectMode={props.multiSelectMode}
-        color={color}
-      />
+      <HeaderCheckboxIcon multiSelectMode={props.multiSelectMode} />
     </Button>
   )
 }
@@ -413,6 +410,8 @@ export function SearchBox(props: LibraryHeaderProps): JSX.Element {
 function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [showLabelsModal, setShowLabelsModal] = useState(false)
+  // Don't change on immediate hover, the button has to be blurred at least once
+  const [hoveredOut, setHoveredOut] = useState(false)
   const compact = false
 
   return (
@@ -425,6 +424,10 @@ function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
         borderRadius: '6px',
         boxShadow:
           '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
+      }}
+      onMouseLeave={(event) => {
+        setHoveredOut(true)
+        event.preventDefault()
       }}
     >
       <HStack
@@ -449,11 +452,12 @@ function MultiSelectControls(props: LibraryHeaderProps): JSX.Element {
             bg: props.multiSelectMode !== 'off' ? '$ctaBlue' : 'transparent',
             borderTopLeftRadius: '6px',
             borderBottomLeftRadius: '6px',
-            '--checkbox-color': 'var(--colors-thLibraryMultiselectCheckbox)',
+            '--checkbox-color': 'white',
             '&:hover': {
-              bg: '$thLibraryMultiselectHover',
-              '--checkbox-color':
-                'var(--colors-thLibraryMultiselectCheckboxHover)',
+              bg: hoveredOut ? '$thLibraryMultiselectHover' : '$ctaBlue',
+              '--checkbox-color': hoveredOut
+                ? 'var(--colors-thLibraryMultiselectCheckboxHover)'
+                : 'white',
             },
           }}
         >
