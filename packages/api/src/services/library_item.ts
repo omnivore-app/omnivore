@@ -274,12 +274,12 @@ export const buildQueryString = (
             case InFilter.ALL:
               return null
             case InFilter.ARCHIVE:
-              return "library_item.state = 'ARCHIVED'"
+              return "(library_item.state = 'ARCHIVED' or (library_item.state != 'DELETED' and library_item.archived_at is not null))"
             case InFilter.TRASH:
               // return only deleted pages within 14 days
               return "(library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days')"
             default: {
-              let sql = "library_item.state <> 'ARCHIVED'"
+              let sql = 'library_item.archived_at is not null'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
