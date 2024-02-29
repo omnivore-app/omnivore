@@ -42,7 +42,11 @@ import { LibraryHeader, MultiSelectMode } from './LibraryHeader'
 import { UploadModal } from '../UploadModal'
 import { BulkAction } from '../../../lib/networking/mutations/bulkActionMutation'
 import { bulkActionMutation } from '../../../lib/networking/mutations/bulkActionMutation'
-import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
+import {
+  showErrorToast,
+  showSuccessToast,
+  showSuccessToastWithAction,
+} from '../../../lib/toastHelpers'
 import { SetPageLabelsModalPresenter } from '../article/SetLabelsModalPresenter'
 import { NotebookPresenter } from '../article/NotebookPresenter'
 import { saveUrlMutation } from '../../../lib/networking/mutations/saveUrlMutation'
@@ -797,26 +801,10 @@ export function HomeFeedContainer(): JSX.Element {
   ) => {
     const result = await saveUrlMutation(link, timezone, locale)
     if (result) {
-      toast(
-        () => (
-          <Box>
-            Link Saved
-            <span style={{ padding: '16px' }} />
-            <Button
-              style="ctaDarkYellow"
-              autoFocus
-              onClick={() => {
-                window.location.href = `/article?url=${encodeURIComponent(
-                  link
-                )}`
-              }}
-            >
-              Read Now
-            </Button>
-          </Box>
-        ),
-        { position: 'bottom-right' }
-      )
+      showSuccessToastWithAction('Link saved', 'Read now', async () => {
+        window.location.href = `/article?url=${encodeURIComponent(link)}`
+        return Promise.resolve()
+      })
       const id = result.url?.match(/[^/]+$/)?.[0] ?? ''
       performActionOnItem('refresh', undefined as unknown as any)
     } else {
