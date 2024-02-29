@@ -1,19 +1,14 @@
-import { useState } from 'react'
-import { UploadModal } from '../UploadModal'
 import { LayoutType } from './HomeFeedContainer'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
-import { MultiSelectMode } from './LibraryHeader'
 import { LibraryItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Toaster } from 'react-hot-toast'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import { StyledText } from '../../elements/StyledText'
 import { Button } from '../../elements/Button'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../navMenu/LibraryLegacyMenu'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { BrowserIcon } from '../../elements/icons/BrowserIcon'
-import CheckboxComponent from '../../elements/Checkbox'
 
 type TLDRLayoutProps = {
   layout: LayoutType
