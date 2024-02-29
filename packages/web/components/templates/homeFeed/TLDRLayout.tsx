@@ -62,38 +62,7 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                 <input type="checkbox" />
               </SpanBox>
 
-              <VStack
-                alignment="start"
-                css={
-                  {
-                    // px: '60px',
-                    // pl: '10px',
-                    // py: '15px',
-                    // gap: '15px',
-                    // height: '100%',
-                    // color: '#EDEDED',
-                    // borderStyle: 'none',
-                    // borderBottom: 'none',
-                    // borderRadius: '6px',
-                    // '@media (min-width: 768px)': {
-                    //   width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
-                    // },
-                    // '@media (min-width: 930px)': {
-                    //   width: '580px',
-                    // },
-                    // '@media (min-width: 1280px)': {
-                    //   width: '890px',
-                    // },
-                    // '@media (min-width: 1600px)': {
-                    //   width: '1200px',
-                    // },
-                    // '@media (max-width: 930px)': {
-                    //   borderRadius: '0px',
-                    // },
-                  }
-                }
-                distribution="start"
-              >
+              <VStack alignment="start" distribution="start">
                 <SpanBox
                   css={{
                     fontFamily: '$inter',
@@ -118,15 +87,12 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                 <HStack css={{ gap: '15px', pt: '5px' }}>
                   <Button style="tldr">
                     <ArchiveIcon size={20} color="#EDEDED" />
-                    Archive
                   </Button>
                   <Button style="tldr">
                     <TrashIcon size={20} color="#EDEDED" />
-                    Remove
                   </Button>
                   <Button style="tldr">
                     <BrowserIcon size={20} color="#EDEDED" />
-                    Open original
                   </Button>
                 </HStack>
               </VStack>

@@ -37,9 +37,10 @@ export const Button = styled('button', {
         gap: '10px',
         display: 'flex',
         alignItems: 'center',
-        borderRadius: '5px',
+        borderRadius: '100px',
         px: '10px',
-        py: '5px',
+        py: '10px',
+
         fontFamily: '$inter',
         fontSize: '12px',
         fontWeight: '500',
