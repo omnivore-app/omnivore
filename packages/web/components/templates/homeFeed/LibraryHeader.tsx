@@ -49,7 +49,6 @@ export const headerControlWidths = (
   return {
     width: '95%',
     '@mdDown': {
-      padding: '15px',
       width: '100%',
     },
     '@media (min-width: 930px)': {
