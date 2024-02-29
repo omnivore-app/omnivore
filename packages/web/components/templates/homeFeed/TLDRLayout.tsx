@@ -58,11 +58,14 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
         {props.isValidating && props.items.length == 0 && <TopBarProgress />}
 
         {props.items.map((item) => {
-          const source = siteName(
+          const sourceName = siteName(
             item.node.originalArticleUrl,
             item.node.url,
             item.node.siteName
           )
+          const source =
+            sourceName == item.node.author ? undefined : item.node.author
+
           return (
             <VStack key={`tldr-${item.node.id}`} css={{ gap: '10px' }}>
               <HStack
@@ -96,6 +99,12 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                       display: 'flex',
                       fontFamily: '$inter',
                       fontSize: '16px',
+                      maxWidth: '150px',
+                      maxLines: '1',
+                      textOverflow: 'ellipsis',
+                      '@mdDown': {
+                        fontSize: '12px',
+                      },
                     }}
                   >
                     {item.node.siteName}
@@ -104,9 +113,14 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                 {source && item.node.author && (
                   <SpanBox
                     css={{
+                      maxLines: '1',
                       display: 'flex',
                       fontFamily: '$inter',
-                      fontSize: '16px',
+                      maxWidth: '150px',
+                      textOverflow: 'ellipsis',
+                      '@mdDown': {
+                        fontSize: '12px',
+                      },
                     }}
                   >
                     •
@@ -118,6 +132,12 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                       display: 'flex',
                       fontFamily: '$inter',
                       fontSize: '16px',
+                      maxWidth: '120px',
+                      maxLines: '1',
+                      textOverflow: 'ellipsis',
+                      '@mdDown': {
+                        fontSize: '12px',
+                      },
                     }}
                   >
                     {item.node.author}
@@ -145,6 +165,7 @@ export function TLDRLayout(props: TLDRLayoutProps): JSX.Element {
                       fontFamily: '$inter',
                       fontWeight: '700',
                       fontSize: '20px',
+                      wordBreak: 'break-all',
                       textDecoration: 'underline',
                       a: {
                         color: '$thTLDRText',

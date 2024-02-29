@@ -85,12 +85,29 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
         >
           <SpanBox
             css={{
+              display: 'flex',
               fontSize: '14px',
               fontFamily: '$display',
               marginRight: 'auto',
+              '@mdDown': {
+                display: 'none',
+              },
             }}
           >
             {props.numItemsSelected} items selected
+          </SpanBox>
+          <SpanBox
+            css={{
+              display: 'none',
+              fontSize: '14px',
+              fontFamily: '$display',
+              marginRight: 'auto',
+              '@mdDown': {
+                display: 'flex',
+              },
+            }}
+          >
+            {props.numItemsSelected} items
           </SpanBox>
           <ArchiveButton {...props} />
           <AddLabelsButton setShowLabelsModal={setShowLabelsModal} />
