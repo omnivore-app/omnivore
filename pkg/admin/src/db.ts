@@ -337,7 +337,7 @@ export class LibraryItem extends BaseEntity {
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
 
-  @Column({ type: 'enum', name: 'state' })
+  @Column({ type: 'enum', enum: LibraryItemState })
   state!: LibraryItemState
 
   @Column({ type: 'text', name: 'original_url' })
