@@ -11,6 +11,7 @@ import { AddBulkLabelsModal } from '../article/AddBulkLabelsModal'
 import { X } from 'phosphor-react'
 import { LibraryHeaderProps } from './LibraryHeader'
 import { HeaderCheckboxIcon } from '../../elements/icons/HeaderCheckboxIcon'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
 
 export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
