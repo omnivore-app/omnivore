@@ -54,6 +54,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       UploadFile,
       Recommendation,
       GroupMembership,
+      Features,
     ],
   })
 
@@ -450,7 +451,7 @@ export class GroupMembership extends BaseEntity {
 }
 
 @Entity({ name: 'features' })
-export class Feature extends BaseEntity {
+export class Features extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
