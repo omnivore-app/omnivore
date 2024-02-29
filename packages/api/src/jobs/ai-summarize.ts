@@ -7,6 +7,7 @@ import { libraryItemRepository } from '../repository/library_item'
 import { htmlToMarkdown } from '../utils/parser'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
+import { getAISummary } from '../services/ai-summaries'
 
 export interface AISummarizeJobData {
   userId: string
@@ -31,6 +32,19 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
         `Not ready to summarize library item job state: ${
           libraryItem?.state ?? 'null'
         }`
+      )
+      return
+    }
+
+    const existingSummary = await getAISummary({
+      userId: jobData.userId,
+      idx: 'latest',
+      libraryItemId: jobData.libraryItemId,
+    })
+
+    if (existingSummary) {
+      logger.info(
+        `Library item already has a summary: ${jobData.libraryItemId}`
       )
       return
     }
