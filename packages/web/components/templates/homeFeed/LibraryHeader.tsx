@@ -22,6 +22,7 @@ import { HeaderToggleGridIcon } from '../../elements/icons/HeaderToggleGridIcon'
 import { HeaderToggleListIcon } from '../../elements/icons/HeaderToggleListIcon'
 import { HeaderToggleTLDRIcon } from '../../elements/icons/HeaderToggleTLDRIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { userHasFeature } from '../../../lib/featureFlag'
 
 export type MultiSelectMode = 'off' | 'none' | 'some' | 'visible' | 'search'
 
@@ -183,7 +184,7 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
       <SearchBox {...props} />
 
       <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
-        {props.viewer?.features.includes('ai-summaries') && (
+        {userHasFeature(props.viewer, 'ai-summaries') && (
           <Button
             title="TLDR Summaries"
             style="plainIcon"
