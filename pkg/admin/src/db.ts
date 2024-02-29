@@ -462,10 +462,10 @@ export class Features extends BaseEntity {
   @Column('text')
   name!: string
 
-  @Column('timestamp', { nullable: true })
+  @Column('timestamp', { nullable: true, name: 'granted_at' })
   grantedAt?: Date | null
 
-  @Column('timestamp', { nullable: true })
+  @Column('timestamp', { nullable: true, name: 'expires_at' })
   expiresAt?: Date | null
 
   @Column({ type: 'timestamp', name: 'created_at' })
