@@ -41,6 +41,9 @@ export const FormInput = styled('input', {
   '&:focus': {
     outline: 'none',
   },
+  '@mdDown': {
+    pl: '5px',
+  },
 })
 
 export const FormLabel = styled('label', {

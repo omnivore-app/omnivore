@@ -21,7 +21,6 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
   const [hoverColor, setHoverColor] = useState<string>(
     theme.colors.thTextContrast2.toString()
   )
-  const compact = false
 
   return (
     <Box
@@ -45,7 +44,7 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
         css={{
           width: '100%',
           height: '100%',
-          pr: compact ? '5px' : '10px',
+          pr: '10px',
         }}
         onClick={(e) => {
           e.preventDefault()
@@ -81,6 +80,9 @@ export const MultiSelectControls = (props: LibraryHeaderProps): JSX.Element => {
             border: '2px solid transparent',
             width: '100%',
             height: '100%',
+            '@mdDown': {
+              pl: '5px',
+            },
           }}
         >
           <SpanBox
