@@ -150,9 +150,8 @@ export function KeyboardShortcutListModal(
             minWidth: '320px',
           },
         }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
       >
         <VStack

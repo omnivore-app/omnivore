@@ -57,9 +57,8 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
           maxHeight: '300',
           fontFamily: '$inter',
         }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
       >
         <VStack distribution="start" css={{ gap: '20px' }}>
@@ -82,8 +81,9 @@ export function AddLinkModal(props: AddLinkModalProps): JSX.Element {
 }
 
 const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   const addLink = useCallback(
     async (link: string) => {
@@ -104,8 +104,9 @@ const AddLinkTab = (props: AddLinkModalProps): JSX.Element => {
 }
 
 const AddFeedTab = (props: AddLinkModalProps): JSX.Element => {
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
 
   const subscribe = useCallback(
     async (feedUrl: string) => {
