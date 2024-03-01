@@ -35,47 +35,41 @@ export const exportItem = async (jobData: ExportItemJobData) => {
     return
   }
 
-  await Promise.all(
-    integrations.map(async (integration) => {
-      const logObject = {
-        userId,
-        integrationId: integration.id,
-      }
-      logger.info('exporting item...', logObject)
+  // currently only readwise integration is supported
+  const integration = integrations[0]
 
-      try {
-        const client = getIntegrationClient(integration.name)
+  const logObject = {
+    userId,
+    integrationId: integration.id,
+  }
+  logger.info('exporting item...', logObject)
 
-        const synced = await client.export(integration.token, libraryItems)
-        if (!synced) {
-          logger.error('failed to export item', logObject)
-          return Promise.resolve(false)
-        }
+  const client = getIntegrationClient(integration.name)
 
-        const syncedAt = new Date()
-        logger.info('updating integration...', {
-          ...logObject,
-          syncedAt,
-        })
+  const synced = await client.export(integration.token, libraryItems)
+  if (!synced) {
+    logger.error('failed to export item', logObject)
+    return false
+  }
 
-        // update integration syncedAt if successful
-        const updated = await updateIntegration(
-          integration.id,
-          {
-            syncedAt,
-          },
-          userId
-        )
-        logger.info('integration updated', {
-          ...logObject,
-          updated,
-        })
+  const syncedAt = new Date()
+  logger.info('updating integration...', {
+    ...logObject,
+    syncedAt,
+  })
 
-        return Promise.resolve(true)
-      } catch (err) {
-        logger.error('export with integration failed', err)
-        return Promise.resolve(false)
-      }
-    })
+  // update integration syncedAt if successful
+  const updated = await updateIntegration(
+    integration.id,
+    {
+      syncedAt,
+    },
+    userId
   )
+  logger.info('integration updated', {
+    ...logObject,
+    updated,
+  })
+
+  return true
 }

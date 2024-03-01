@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { LibraryItem } from '../../entity/library_item'
-import { highlightUrl, wait } from '../../utils/helpers'
+import { highlightUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { IntegrationClient } from './integration'
 
@@ -95,40 +95,22 @@ export class ReadwiseClient implements IntegrationClient {
 
   syncWithReadwise = async (
     token: string,
-    highlights: ReadwiseHighlight[],
-    retryCount = 0
+    highlights: ReadwiseHighlight[]
   ): Promise<boolean> => {
     const url = `${this.apiUrl}/highlights`
-    try {
-      const response = await axios.post(
-        url,
-        {
-          highlights,
+    const response = await axios.post(
+      url,
+      {
+        highlights,
+      },
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+          'Content-Type': 'application/json',
         },
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 5000, // 5 seconds
-        }
-      )
-      return response.status === 200
-    } catch (error) {
-      console.error(error)
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 429 && retryCount < 3) {
-          console.log('Readwise API rate limit exceeded, retrying...')
-          // wait for Retry-After seconds in the header if rate limited
-          // max retry count is 3
-          const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
-          await wait(parseInt(retryAfter, 10) * 1000)
-          return this.syncWithReadwise(token, highlights, retryCount + 1)
-        }
+        timeout: 5000, // 5 seconds
       }
-
-      return false
-    }
+    )
+    return response.status === 200
   }
 }
