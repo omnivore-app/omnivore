@@ -156,7 +156,7 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
       />
 
       <SpanBox css={{ display: 'flex', ml: 'auto', gap: '10px' }}>
-        {userHasFeature(props.viewer, 'ai-summaries') && (
+        {/* {userHasFeature(props.viewer, 'ai-summaries') && (
           <Button
             title="TLDR Summaries"
             style="plainIcon"
@@ -176,7 +176,7 @@ const HeaderControls = (props: LibraryHeaderProps): JSX.Element => {
           >
             <HeaderToggleTLDRIcon />
           </Button>
-        )}
+        )} */}
 
         <Button
           title={
