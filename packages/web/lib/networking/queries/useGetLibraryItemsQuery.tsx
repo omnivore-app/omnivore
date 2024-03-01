@@ -174,7 +174,6 @@ export function useGetLibraryItemsQuery({
               ownedByViewer
               originalArticleUrl
               uploadFileId
-              aiSummary
               labels {
                 id
                 name

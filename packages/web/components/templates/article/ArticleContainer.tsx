@@ -446,7 +446,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               recommendationsWithNotes={recommendationsWithNotes}
             />
           )}
-          {userHasFeature(props.viewer, 'ai-summaries') && (
+          {/* {userHasFeature(props.viewer, 'ai-summaries') && (
             <AISummary
               libraryItemId={props.article.id}
               idx="latest"
@@ -455,7 +455,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               lineHeight={styles.lineHeight}
               readerFontColor={styles.readerFontColor}
             />
-          )}
+          )} */}
         </VStack>
         <Article
           articleId={props.article.id}
