@@ -37,7 +37,7 @@ const validScheduleTime = (str: string): Date | undefined => {
 //     }
 //   }
 
-//   analytics.track({
+//   analytics.capture({
 //     userId: uid,
 //     event: 'reminder_created',
 //     properties: {
@@ -123,7 +123,7 @@ const validScheduleTime = (str: string): Date | undefined => {
 // >(async (_, { linkId: pageId }, { models, claims: { uid }, log }) => {
 //   log.info('reminderResolver')
 
-//   analytics.track({
+//   analytics.capture({
 //     userId: uid,
 //     event: 'reminder',
 //     properties: {
@@ -191,7 +191,7 @@ const validScheduleTime = (str: string): Date | undefined => {
 //     }
 //   }
 
-//   analytics.track({
+//   analytics.capture({
 //     userId: uid,
 //     event: 'reminder_updated',
 //     properties: {
@@ -265,7 +265,7 @@ const validScheduleTime = (str: string): Date | undefined => {
 // >(async (_, { id }, { models, claims: { uid }, log, authTrx }) => {
 //   log.info('deleteReminderResolver')
 
-//   analytics.track({
+//   analytics.capture({
 //     userId: uid,
 //     event: 'reminder_deleted',
 //     properties: {

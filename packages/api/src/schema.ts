@@ -88,6 +88,7 @@ const schema = gql`
     email: String
     source: String
     intercomHash: String
+    features: [String]
   }
 
   type Profile {
@@ -397,6 +398,7 @@ const schema = gql`
     recommendations: [Recommendation!]
     wordsCount: Int
     folder: String!
+    feedContent: String
   }
 
   # Query: article
@@ -703,6 +705,11 @@ const schema = gql`
     NOTE
   }
 
+  enum RepresentationType {
+    CONTENT
+    FEED_CONTENT
+  }
+
   # Highlight
   type Highlight {
     id: ID!
@@ -728,6 +735,7 @@ const schema = gql`
     type: HighlightType!
     html: String
     color: String
+    representation: RepresentationType!
   }
 
   input CreateHighlightInput {
@@ -745,6 +753,7 @@ const schema = gql`
     type: HighlightType
     html: String
     color: String
+    representation: RepresentationType
   }
 
   type CreateHighlightSuccess {
@@ -779,6 +788,7 @@ const schema = gql`
     highlightPositionAnchorIndex: Int
     html: String
     color: String
+    representation: RepresentationType
   }
 
   type MergeHighlightSuccess {
@@ -1634,10 +1644,11 @@ const schema = gql`
     wordsCount: Int
     content: String
     archivedAt: Date
-    previewContent: String
+    feedContent: String
     previewContentType: String
     links: JSON
     folder: String!
+    aiSummary: String
   }
 
   type SearchItemEdge {
@@ -1670,6 +1681,12 @@ const schema = gql`
     NEWSLETTER
   }
 
+  enum FetchContentType {
+    ALWAYS
+    NEVER
+    WHEN_EMPTY
+  }
+
   type Subscription {
     id: ID!
     name: String!
@@ -1688,6 +1705,7 @@ const schema = gql`
     isPrivate: Boolean
     autoAddToLibrary: Boolean
     fetchContent: Boolean!
+    fetchContentType: FetchContentType!
     folder: String!
     mostRecentItemDate: Date
     refreshedAt: Date
@@ -2135,6 +2153,7 @@ const schema = gql`
   enum RuleActionType {
     ADD_LABEL
     ARCHIVE
+    DELETE
     MARK_AS_READ
     SEND_NOTIFICATION
   }
@@ -2596,6 +2615,7 @@ const schema = gql`
     isPrivate: Boolean
     autoAddToLibrary: Boolean
     fetchContent: Boolean
+    fetchContentType: FetchContentType
     folder: String
   }
 
@@ -2609,6 +2629,7 @@ const schema = gql`
     isPrivate: Boolean
     autoAddToLibrary: Boolean
     fetchContent: Boolean
+    fetchContentType: FetchContentType
     folder: String
     refreshedAt: Date
     mostRecentItemDate: Date

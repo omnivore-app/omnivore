@@ -9,7 +9,7 @@ import { PrimaryLayout } from '../../../../components/templates/PrimaryLayout'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
 
 export default function LinkRequestPage(): JSX.Element {
-  applyStoredTheme(false) // false to skip server sync
+  applyStoredTheme()
 
   const router = useRouter()
   const [requestID, setRequestID] = useState<string | undefined>(undefined)

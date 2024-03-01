@@ -244,8 +244,8 @@ export const moveFilterResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'filter_moved',
       properties: {
         filterId,

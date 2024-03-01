@@ -139,7 +139,7 @@ export const updateHighlight = async (
   const libraryItemId = updatedHighlight.libraryItem.id
   await pubsub.entityUpdated<UpdateHighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...highlight, id: highlightId, pageId: libraryItemId },
+    { ...highlight, id: highlightId, pageId: libraryItemId, libraryItemId },
     userId
   )
 
@@ -180,7 +180,7 @@ export const findHighlightById = async (
   return authTrx(
     async (tx) => {
       const highlightRepo = tx.withRepository(highlightRepository)
-      return highlightRepo.findOneByOrFail({
+      return highlightRepo.findOneBy({
         id: highlightId,
       })
     },

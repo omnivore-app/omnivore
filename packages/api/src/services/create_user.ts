@@ -48,8 +48,8 @@ export const createUser = async (input: {
       user: existingUser,
     })
 
-    analytics.track({
-      userId: existingUser.id,
+    analytics.capture({
+      distinctId: existingUser.id,
       event: 'create_user',
       properties: {
         env: env.server.apiEnv,
@@ -131,8 +131,8 @@ export const createUser = async (input: {
     profile.username
   )
 
-  analytics.track({
-    userId: user.id,
+  analytics.capture({
+    distinctId: user.id,
     event: 'create_user',
     properties: {
       env: env.server.apiEnv,

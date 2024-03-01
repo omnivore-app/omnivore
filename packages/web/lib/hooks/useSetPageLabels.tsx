@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import { useCallback, useEffect, useReducer } from 'react'
 import { setLabelsMutation } from '../networking/mutations/setLabelsMutation'
 import { Label } from '../networking/fragments/labelFragment'
 import { showErrorToast } from '../toastHelpers'

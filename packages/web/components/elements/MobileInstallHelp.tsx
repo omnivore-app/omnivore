@@ -7,7 +7,6 @@ import {
 import { Box, HStack } from '../elements/LayoutPrimitives'
 import { StyledText, StyledAnchor } from '../elements/StyledText'
 import { TooltipWrapped } from './Tooltip'
-import Link from 'next/link'
 
 const TooltipStyle = {
   backgroundColor: '#F9D354',

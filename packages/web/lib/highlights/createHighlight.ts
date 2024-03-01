@@ -99,6 +99,7 @@ export async function createHighlight(
     patch,
     id,
     annotations.length > 0,
+    false,
     input.color
   )
 

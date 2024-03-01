@@ -60,8 +60,8 @@ export const setDeviceTokenResolver = authorized<
         }
       }
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'device_token_deleted',
         properties: {
           id: deviceToken.id,
@@ -77,8 +77,8 @@ export const setDeviceTokenResolver = authorized<
       // create token
       const deviceToken = await createDeviceToken(uid, token)
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'device_token_created',
         properties: {
           id: deviceToken.id,

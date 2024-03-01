@@ -1,6 +1,7 @@
 import Models
 import Utils
 import WebKit
+
 // swiftlint:disable file_length
 
 /// Describes actions that can be sent from the WebView back to native views.
@@ -191,6 +192,14 @@ public final class OmnivoreWebView: WKWebView {
       }
     }
   #endif
+  
+  // Because all the snackbar stuff lives in app we just use notifications here
+  func showInReaderSnackbar(_ message: String) {
+    NotificationCenter.default.post(name: Notification.Name("SnackBar"),
+                                    object: nil,
+                                    userInfo: ["message": message,
+                                               "dismissAfter": 2000 as Any])
+  }
 }
 
 #if os(iOS)

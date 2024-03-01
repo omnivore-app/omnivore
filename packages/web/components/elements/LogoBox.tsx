@@ -1,4 +1,4 @@
-import { LIBRARY_LEFT_MENU_WIDTH } from '../templates/homeFeed/LibraryFilterMenu'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../templates/navMenu/LibraryMenu'
 import { theme } from '../tokens/stitches.config'
 import { OmnivoreFullLogo } from './images/OmnivoreFullLogo'
 import { OmnivoreNameLogo } from './images/OmnivoreNameLogo'

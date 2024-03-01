@@ -1,14 +1,12 @@
-import { Box } from '../../elements/LayoutPrimitives'
+import { Box, VStack } from '../../elements/LayoutPrimitives'
 import { useMemo } from 'react'
-import { LIBRARY_LEFT_MENU_WIDTH } from './LibraryFilterMenu'
-import { LayoutType } from './HomeFeedContainer'
 import { SuggestionBox, SuggestionAction } from '../../elements/SuggestionBox'
+import { ConfusedSlothIcon } from '../../elements/icons/ConfusedSlothIcon'
+import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
 
 type EmptyLibraryProps = {
   searchTerm: string | undefined
   onAddLinkClicked: () => void
-
-  layoutType: LayoutType
 }
 
 type MessageType =
@@ -58,21 +56,13 @@ export const ErrorBox = (props: HelpMessageProps) => {
   return (
     <Box
       css={{
-        width: 'fit-content',
-        borderRadius: '5px',
-        background: 'rgba(255, 59, 48, 0.3)',
-        fontSize: '15px',
+        display: 'flex',
+        marginBlockStart: '0px',
+        marginBlockEnd: '10px',
+        lineHeight: '125%',
+        fontSize: '20px',
         fontFamily: '$inter',
-        fontWeight: '500',
-        color: '$thTextContrast',
-        py: '10px',
-        px: '15px',
-        '@smDown': {
-          width: '100%',
-        },
-        '@xlgDown': {
-          justifyContent: 'flex-start',
-        },
+        fontWeight: 'bold',
       }}
     >
       {errorTitle}
@@ -181,6 +171,7 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
           return 'files'
         case 'in:archive':
           return 'archive'
+        case 'in:following use:folders':
         case 'label:RSS':
           return 'feed'
         case 'has:subscriptions':
@@ -193,40 +184,20 @@ export const EmptyLibrary = (props: EmptyLibraryProps) => {
   }, [props])
 
   return (
-    <Box
+    <VStack
+      alignment="center"
+      distribution="center"
       css={{
-        display: 'inline-flex',
-        color: '$grayTextContrast',
-        gap: '10px',
-        pl: '0px',
-
+        gap: '5px',
         width: '100%',
-        flexDirection: 'column',
-
-        '@media (max-width: 768px)': {
-          p: '15px',
-        },
-
-        '@media (min-width: 768px)': {
-          pl: '15px',
-          width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
-        },
-        '@media (min-width: 930px)': {
-          pl: '0px',
-          width: props.layoutType == 'GRID_LAYOUT' ? '660px' : '640px',
-        },
-        '@media (min-width: 1280px)': {
-          pl: '0px',
-          width: '1000px',
-        },
-        '@media (min-width: 1600px)': {
-          pl: '0px',
-          width: '1340px',
-        },
+        height: '100%',
+        pb: '100px',
+        minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
       }}
     >
+      <ConfusedSlothIcon />
       <ErrorBox type={type} />
       <Suggestion type={type} />
-    </Box>
+    </VStack>
   )
 }

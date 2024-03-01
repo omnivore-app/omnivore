@@ -74,7 +74,7 @@ type integrationsCard = {
   }
 }
 export default function Integrations(): JSX.Element {
-  applyStoredTheme(false)
+  applyStoredTheme()
   const { integrations, revalidate } = useGetIntegrationsQuery()
   const { webhooks } = useGetWebhooksQuery()
 

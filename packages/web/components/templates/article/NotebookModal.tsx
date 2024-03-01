@@ -9,7 +9,7 @@ import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useState } from 'react'
-import { ArrowsIn, ArrowsOut, X } from 'phosphor-react'
+import { X } from 'phosphor-react'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { diff_match_patch } from 'diff-match-patch'
@@ -37,17 +37,15 @@ export const getHighlightLocation = (patch: string): number | undefined => {
 
 export function NotebookModal(props: NotebookModalProps): JSX.Element {
   const [showConfirmDeleteNote, setShowConfirmDeleteNote] = useState(false)
-  const [allAnnotations, setAllAnnotations] = useState<Highlight[] | undefined>(
-    undefined
-  )
+  const [allAnnotations, setAllAnnotations] =
+    useState<Highlight[] | undefined>(undefined)
 
-  const [deletedHighlights, setDeletedAnnotations] = useState<
-    Highlight[] | undefined
-  >(undefined)
+  const [deletedHighlights, setDeletedAnnotations] =
+    useState<Highlight[] | undefined>(undefined)
 
   const handleClose = useCallback(() => {
     props.onClose(allAnnotations ?? [], deletedHighlights ?? [])
-  }, [props, allAnnotations])
+  }, [props, allAnnotations, deletedHighlights])
 
   const handleAnnotationsChange = useCallback((allAnnotations: Highlight[]) => {
     setAllAnnotations(allAnnotations)
@@ -159,11 +157,6 @@ export function NotebookModal(props: NotebookModalProps): JSX.Element {
       </ModalContent>
     </ModalRoot>
   )
-}
-
-type SizeToggleProps = {
-  mode: 'normal' | 'maximized'
-  setMode: (mode: 'normal' | 'maximized') => void
 }
 
 function CloseButton(props: { close: () => void }): JSX.Element {

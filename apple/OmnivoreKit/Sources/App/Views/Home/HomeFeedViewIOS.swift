@@ -222,7 +222,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var body: some View {
-      ZStack {
+      ZStack {        
         HomeFeedView(
           listTitle: $listTitle,
           isListScrolled: $isListScrolled,
@@ -369,58 +369,74 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
 
         ToolbarItemGroup(placement: .barTrailing) {
-          if isEditMode == .active {
-            Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
-          } else {
-            if prefersListLayout {
+
+            if viewModel.appliedFilter?.name == "Deleted" {
+              if viewModel.isEmptyingTrash {
+                ProgressView()
+              } else {
+                Button(
+                  action: {
+                    viewModel.emptyTrash(dataService: dataService)
+                  },
+                  label: {
+                    Text("Empty trash").tint(Color.blue)
+                  })
+                .buttonStyle(.plain)
+                .foregroundColor(Color.blue)
+              }
+            } else {
+              if isEditMode == .active {
+                Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
+              } else {
+                if prefersListLayout {
+                  Button(
+                    action: { isEditMode = isEditMode == .active ? .inactive : .active },
+                    label: {
+                      Image
+                        .selectMultiple
+                        .foregroundColor(Color.toolbarItemForeground)
+                    }
+                  ).buttonStyle(.plain)
+                    .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+                }
+                if enableGrid {
+                  Button(
+                    action: { prefersListLayout.toggle() },
+                    label: {
+                      Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
+                        .foregroundColor(Color.toolbarItemForeground)
+                    }
+                  ).buttonStyle(.plain)
+                    .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+                }
               Button(
-                action: { isEditMode = isEditMode == .active ? .inactive : .active },
+                action: {
+                  if viewModel.currentFolder == "inbox" {
+                    showAddLinkView = true
+                  } else if viewModel.currentFolder == "following" {
+                    viewModel.showAddFeedView = true
+                  }
+                },
                 label: {
-                  Image
-                    .selectMultiple
+                  Image.addLink
                     .foregroundColor(Color.toolbarItemForeground)
                 }
               ).buttonStyle(.plain)
                 .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
+                
+                Button(
+                  action: {
+                    searchPresented = true
+                    isEditMode = .inactive
+                  },
+                  label: {
+                    Image
+                      .magnifyingGlass
+                      .foregroundColor(Color.toolbarItemForeground)
+                  }
+                ).buttonStyle(.plain)
+                  .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
             }
-            if enableGrid {
-              Button(
-                action: { prefersListLayout.toggle() },
-                label: {
-                  Image(systemName: prefersListLayout ? "square.grid.2x2" : "list.bullet")
-                    .foregroundColor(Color.toolbarItemForeground)
-                }
-              ).buttonStyle(.plain)
-                .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
-            }
-
-            Button(
-              action: {
-                if viewModel.currentFolder == "inbox" {
-                  showAddLinkView = true
-                } else if viewModel.currentFolder == "following" {
-                  viewModel.showAddFeedView = true
-                }
-              },
-              label: {
-                Image.addLink
-                  .foregroundColor(Color.toolbarItemForeground)
-              }
-            ).buttonStyle(.plain)
-              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
-
-            Button(
-              action: {
-                searchPresented = true
-                isEditMode = .inactive
-              },
-              label: {
-                Image
-                  .magnifyingGlass
-                  .foregroundColor(Color.toolbarItemForeground)
-              }
-            ).buttonStyle(.plain)
-              .padding(.horizontal, UIDevice.isIPad ? 5 : 0)
           }
         }
 
@@ -430,19 +446,17 @@ struct AnimatingCellHeight: AnimatableModifier {
               viewModel.bulkAction(dataService: dataService, action: .delete, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image.toolbarTrash })
-              .disabled(selection.count < 1)
-              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
-
+            .disabled(selection.count < 1)
+            .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
             Spacer()
             Text("\(selection.count) selected").font(.footnote)
             Spacer()
-
             Button(action: {
               viewModel.bulkAction(dataService: dataService, action: .archive, items: Array(selection))
               isEditMode = .inactive
             }, label: { Image.toolbarArchive })
-              .disabled(selection.count < 1)
-              .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
+            .disabled(selection.count < 1)
+            .padding(.horizontal, UIDevice.isIPad ? 10 : 5)
           }
         }
       }
@@ -461,6 +475,15 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
 
     let showFeatureCards: Bool
+    var slideTransition: PresentationLinkTransition {
+      PresentationLinkTransition.slide(
+        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
+                                                                   options:
+                                                                    PresentationLinkTransition.Options(
+                                                                      modalPresentationCapturesStatusBarAppearance: true
+                                                                    )
+                                                                  ))
+    }
 
     var body: some View {
       VStack(spacing: 0) {
@@ -481,6 +504,20 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           )
         }
+        PresentationLink(transition: slideTransition, isPresented: $viewModel.linkIsActive) {
+          if let presentingItem = viewModel.selectedItem {
+            if presentingItem.isPDF {
+              PDFContainerView(item: presentingItem)
+            } else {
+              WebReaderContainerView(item: presentingItem)
+            }
+          } else {
+            EmptyView()
+          }
+        } label: {
+          EmptyView()
+        }.buttonStyle(.plain)
+
         if prefersListLayout || !enableGrid {
           HomeFeedListView(
             listTitle: $listTitle,
@@ -493,8 +530,13 @@ struct AnimatingCellHeight: AnimatableModifier {
           )
         } else {
           HomeFeedGridView(
+            listTitle: $listTitle,
+            isListScrolled: $isListScrolled,
+            prefersListLayout: $prefersListLayout,
+            isEditMode: $isEditMode,
+            selection: $selection,
             viewModel: viewModel,
-            isListScrolled: $isListScrolled
+            showFeatureCards: showFeatureCards
           )
         }
       }.sheet(isPresented: $viewModel.showLabelsSheet) {
@@ -504,29 +546,6 @@ struct AnimatingCellHeight: AnimatableModifier {
         ) {
           viewModel.selectedLabels = $0
           viewModel.negatedLabels = $1
-        }
-      }
-      .popup(isPresented: $viewModel.showSnackbar) {
-        if let operation = viewModel.snackbarOperation {
-          Snackbar(isShowing: $viewModel.showSnackbar, operation: operation)
-        } else {
-          EmptyView()
-        }
-      } customize: {
-        $0
-          .type(.toast)
-          .autohideIn(2)
-          .position(.bottom)
-          .animation(.spring())
-          .isOpaque(false)
-      }
-      .onReceive(NSNotification.librarySnackBarPublisher) { notification in
-        if !viewModel.showSnackbar {
-          if let message = notification.userInfo?["message"] as? String {
-            viewModel.snackbarOperation = SnackbarOperation(message: message,
-                                                            undoAction: notification.userInfo?["undoAction"] as? SnackbarUndoAction)
-            viewModel.showSnackbar = true
-          }
         }
       }
     }
@@ -558,10 +577,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           .frame(width: nil, height: 0.5, alignment: .bottom)
           .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
         .dynamicTypeSize(.small ... .accessibility1)
-    }
-
-    func menuItems(for item: Models.LibraryItem) -> some View {
-      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var featureCard: some View {
@@ -731,7 +746,7 @@ struct AnimatingCellHeight: AnimatableModifier {
         .listRowSeparatorTint(Color.thBorderColor)
         .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
         .contextMenu {
-          menuItems(for: item)
+          libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
           if let listConfig = viewModel.currentListConfig {
@@ -809,6 +824,15 @@ struct AnimatingCellHeight: AnimatableModifier {
                   .frame(maxWidth: .infinity)
                   .padding()
                   .listRowSeparator(.hidden, edges: .all)
+                } else if viewModel.isEmptyingTrash {
+                    VStack {
+                      Text("Emptying trash")
+                      ProgressView()
+                    }
+                    .frame(minHeight: 400)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .listRowSeparator(.hidden, edges: .all)
                 } else if viewModel.fetcher.items.isEmpty {
                   EmptyState(viewModel: viewModel)
                     .listRowSeparator(.hidden, edges: .all)
@@ -915,11 +939,20 @@ struct AnimatingCellHeight: AnimatableModifier {
     @EnvironmentObject var dataService: DataService
     @EnvironmentObject var audioController: AudioController
 
-    @State var isContextMenuOpen = false
+    @Binding var listTitle: String
+    @Binding var isListScrolled: Bool
+    @Binding var prefersListLayout: Bool
+    @Binding var isEditMode: EditMode
+    @State private var showHideFeatureAlert = false
 
+    @Binding var selection: Set<String>
     @ObservedObject var viewModel: HomeFeedViewModel
 
-    @Binding var isListScrolled: Bool
+    let showFeatureCards: Bool
+
+    @State var shouldScrollToTop = false
+    @State var topItem: Models.LibraryItem?
+    @ObservedObject var networkMonitor = NetworkMonitor()
 
     func contextMenuActionHandler(item: Models.LibraryItem, action: GridCardAction) {
       switch action {
@@ -947,10 +980,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           .frame(width: nil, height: 0.5, alignment: .bottom)
           .foregroundColor(isListScrolled && UIDevice.isIPhone ? Color(hex: "#3D3D3D") : Color.systemBackground), alignment: .bottom)
         .dynamicTypeSize(.small ... .accessibility1)
-    }
-
-    func menuItems(for item: Models.LibraryItem) -> some View {
-      libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
     }
 
     var body: some View {
@@ -995,7 +1024,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                     viewModel: viewModel
                   )
                   .contextMenu {
-                    menuItems(for: item)
+                    libraryItemMenu(dataService: dataService, viewModel: viewModel, item: item)
                   }
                   .onAppear {
                     if idx >= viewModel.fetcher.items.count - 5 {
@@ -1141,6 +1170,8 @@ struct BottomView: View {
 
   var innerBody: some View {
     if viewModel.fetcher.items.count < 3 {
+      AnyView(Color.clear)
+    } else if viewModel.appliedFilter?.name == "Deleted" {
       AnyView(Color.clear)
     } else {
       AnyView(HStack {

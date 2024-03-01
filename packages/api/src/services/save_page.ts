@@ -1,6 +1,5 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { Highlight } from '../entity/highlight'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { User } from '../entity/user'
@@ -12,7 +11,7 @@ import {
   SavePageInput,
   SaveResult,
 } from '../generated/graphql'
-import { authTrx } from '../repository'
+import { Merge } from '../util'
 import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
@@ -26,8 +25,8 @@ import { parsePreparedContent } from '../utils/parser'
 import { contentReaderForLibraryItem } from '../utils/uploads'
 import { createPageSaveRequest } from './create_page_save_request'
 import { createHighlight } from './highlights'
-import { createAndSaveLabelsInLibraryItem } from './labels'
-import { createLibraryItem, updateLibraryItem } from './library_item'
+import { createAndAddLabelsToLibraryItem } from './labels'
+import { createOrUpdateLibraryItem } from './library_item'
 
 // where we can use APIs to fetch their underlying content.
 const FORCE_PUPPETEER_URLS = [
@@ -63,20 +62,52 @@ const shouldParseInBackend = (input: SavePageInput): boolean => {
   )
 }
 
+export type SavePageArgs = Merge<
+  SavePageInput,
+  { feedContent?: string; previewImage?: string; author?: string }
+>
+
 export const savePage = async (
-  input: SavePageInput,
+  input: SavePageArgs,
   user: User
 ): Promise<SaveResult> => {
+  const [slug, croppedPathname] = createSlug(input.url, input.title)
+  let clientRequestId = input.clientRequestId
+
+  // always parse in backend if the url is in the force puppeteer list
+  if (shouldParseInBackend(input)) {
+    try {
+      await createPageSaveRequest({
+        user,
+        url: input.url,
+        articleSavingRequestId: clientRequestId || undefined,
+        state: input.state || undefined,
+        labels: input.labels || undefined,
+        folder: input.folder || undefined,
+      })
+    } catch (e) {
+      return {
+        __typename: 'SaveError',
+        errorCodes: [SaveErrorCode.Unknown],
+        message: 'Failed to create page save request',
+      }
+    }
+
+    return {
+      clientRequestId,
+      url: `${homePageURL()}/${user.profile.username}/${slug}`,
+    }
+  }
+
   const parseResult = await parsePreparedContent(input.url, {
     document: input.originalContent,
     pageInfo: {
       title: input.title,
       canonicalUrl: input.url,
+      previewImage: input.previewImage,
+      author: input.author,
     },
   })
-  const [newSlug, croppedPathname] = createSlug(input.url, input.title)
-  let slug = newSlug
-  let clientRequestId = input.clientRequestId
 
   const itemToSave = parsedContentToLibraryItem({
     itemId: clientRequestId,
@@ -94,76 +125,27 @@ export const savePage = async (
     state: input.state || undefined,
     rssFeedUrl: input.rssFeedUrl,
     folder: input.folder,
+    feedContent: input.feedContent,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
 
-  // always parse in backend if the url is in the force puppeteer list
-  if (shouldParseInBackend(input)) {
-    try {
-      await createPageSaveRequest({
-        userId: user.id,
-        url: itemToSave.originalUrl,
-        articleSavingRequestId: clientRequestId || undefined,
-        state: input.state || undefined,
-        labels: input.labels || undefined,
-        folder: input.folder || undefined,
-      })
-    } catch (e) {
-      return {
-        __typename: 'SaveError',
-        errorCodes: [SaveErrorCode.Unknown],
-        message: 'Failed to create page save request',
-      }
-    }
-  } else {
-    // check if the item already exists
-    const existingLibraryItem = await authTrx((t) =>
-      t.getRepository(LibraryItem).findOneBy({
-        user: { id: user.id },
-        originalUrl: itemToSave.originalUrl,
-      })
-    )
-    if (existingLibraryItem) {
-      clientRequestId = existingLibraryItem.id
-      slug = existingLibraryItem.slug
+  // do not publish a pubsub event if the item is imported
+  const newItem = await createOrUpdateLibraryItem(
+    itemToSave,
+    user.id,
+    undefined,
+    isImported
+  )
+  clientRequestId = newItem.id
 
-      // we don't want to update an rss feed item if rss-feeder is tring to re-save it
-      if (existingLibraryItem.subscription === input.rssFeedUrl) {
-        return {
-          clientRequestId,
-          url: `${homePageURL()}/${user.profile.username}/${slug}`,
-        }
-      }
-
-      // update the item except for id and slug
-      await updateLibraryItem(
-        clientRequestId,
-        {
-          ...itemToSave,
-          id: undefined,
-          slug: undefined,
-        } as QueryDeepPartialEntity<LibraryItem>,
-        user.id
-      )
-    } else {
-      // do not publish a pubsub event if the item is imported
-      const newItem = await createLibraryItem(
-        itemToSave,
-        user.id,
-        undefined,
-        isImported
-      )
-      clientRequestId = newItem.id
-    }
-
-    await createAndSaveLabelsInLibraryItem(
-      clientRequestId,
-      user.id,
-      input.labels,
-      input.rssFeedUrl
-    )
-  }
+  // merge labels
+  await createAndAddLabelsToLibraryItem(
+    clientRequestId,
+    user.id,
+    input.labels,
+    input.rssFeedUrl
+  )
 
   // we don't want to create thumbnail for imported pages and pages that already have thumbnail
   if (!isImported && !parseResult.parsedContent?.previewImage) {
@@ -183,6 +165,7 @@ export const savePage = async (
       libraryItem: { id: clientRequestId },
     }
 
+    // merge highlights
     try {
       await createHighlight(highlight, clientRequestId, user.id)
     } catch (error) {
@@ -220,6 +203,7 @@ export const parsedContentToLibraryItem = ({
   state,
   rssFeedUrl,
   folder,
+  feedContent,
 }: {
   url: string
   userId: string
@@ -239,8 +223,9 @@ export const parsedContentToLibraryItem = ({
   state?: ArticleSavingRequestStatus | null
   rssFeedUrl?: string | null
   folder?: string | null
+  feedContent?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
-  logger.info('save_page: state', { url, state, itemId })
+  logger.info('save_page', { url, state, itemId })
   return {
     id: itemId || undefined,
     slug,
@@ -280,5 +265,7 @@ export const parsedContentToLibraryItem = ({
     folder: folder || 'inbox',
     archivedAt:
       state === ArticleSavingRequestStatus.Archived ? new Date() : null,
+    deletedAt: state === ArticleSavingRequestStatus.Deleted ? new Date() : null,
+    feedContent,
   }
 }

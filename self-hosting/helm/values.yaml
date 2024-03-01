@@ -4,12 +4,12 @@ controllers:
   api:
     enabled: true
     type: deployment
-    strategy: Recreate
+    strategy: RollingUpdate
     containers:
       api:
         image:
           repository: sejaeger/omnivore-api
-          tag: e44616b01
+          tag: 150444efb
           pullPolicy: IfNotPresent
         env:
           API_ENV: local
@@ -20,8 +20,6 @@ controllers:
           PG_POOL_MAX: 20
           CLIENT_URL: https://omnivore.example.com # URL any client can use to reach the server
           GATEWAY_URL: http://omnivore-api:8080/api
-          ES_URL: http://elasticsearch.elasticsearch.svc.cluster.local:9200
-          ES_USERNAME: elastic
           CONTENT_FETCH_URL: http://omnivore-content-fetch:8080/?token=$(VERIFICATION_TOKEN)
         envFrom:
           - secretRef:
@@ -33,14 +31,12 @@ controllers:
           - secretRef:
               name: omnivore-pg-password
           - secretRef:
-              name: elasticsearch-auth-secret
-          - secretRef:
               name: omnivore-content-fetch-verification-token
     initContainers:
       migrate:
         image:
           repository: sejaeger/omnivore-migrate
-          tag: e44616b01
+          tag: 150444efb
           pullPolicy: IfNotPresent
         command: ["/bin/sh", "-c", "--"]
         args: ["./packages/db/setup.sh"]
@@ -61,18 +57,18 @@ controllers:
   web:
     enabled: true
     type: deployment
-    strategy: Recreate
+    strategy: RollingUpdate
     containers:
       web:
         image:
           repository: sejaeger/omnivore-web
-          tag: e44616b01
+          tag: 150444efb
           pullPolicy: IfNotPresent
 
   content-fetch:
     enabled: true
     type: deployment
-    strategy: Recreate
+    strategy: RollingUpdate
     containers:
       content-fetch:
         image:

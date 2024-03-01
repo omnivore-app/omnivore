@@ -3,13 +3,26 @@ import express from 'express'
 import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
-import { enqueueTriggerRuleJob } from './utils/createTask'
+import { Merge } from './util'
+import {
+  enqueueAISummarizeJob,
+  enqueueExportItem,
+  enqueueTriggerRuleJob,
+  enqueueWebhookJob,
+} from './utils/createTask'
 import { deepDelete } from './utils/helpers'
 import { buildLogger } from './utils/logger'
+import {
+  FeatureName,
+  findFeatureByName,
+  getFeatureName,
+} from './services/features'
 
 const logger = buildLogger('pubsub')
 
 const client = new PubSub()
+
+type EntityData<T> = Merge<T, { libraryItemId: string }>
 
 export const createPubSubClient = (): PubsubClient => {
   const fieldsToDelete = ['user'] as const
@@ -45,23 +58,42 @@ export const createPubSubClient = (): PubsubClient => {
     },
     entityCreated: async <T>(
       type: EntityType,
-      data: T,
+      data: EntityData<T>,
       userId: string
     ): Promise<void> => {
+      const libraryItemId = data.libraryItemId
       // queue trigger rule job
       if (type === EntityType.PAGE) {
-        const libraryItemId = (data as T & { id: string }).id
         await enqueueTriggerRuleJob({
           userId,
           ruleEventType: RuleEventType.PageCreated,
           libraryItemId,
         })
       }
+      // queue export item job
+      await enqueueExportItem({
+        userId,
+        libraryItemIds: [libraryItemId],
+      })
 
       const cleanData = deepDelete(
-        data as T & Record<typeof fieldsToDelete[number], unknown>,
+        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]
       )
+
+      await enqueueWebhookJob({
+        userId,
+        type,
+        action: 'created',
+        data,
+      })
+
+      if (await findFeatureByName(FeatureName.AISummaries, userId)) {
+        await enqueueAISummarizeJob({
+          userId,
+          libraryItemId,
+        })
+      }
 
       return publish(
         'entityCreated',
@@ -70,23 +102,36 @@ export const createPubSubClient = (): PubsubClient => {
     },
     entityUpdated: async <T>(
       type: EntityType,
-      data: T,
+      data: EntityData<T>,
       userId: string
     ): Promise<void> => {
+      const libraryItemId = data.libraryItemId
+
       // queue trigger rule job
       if (type === EntityType.PAGE) {
-        const libraryItemId = (data as T & { id: string }).id
         await enqueueTriggerRuleJob({
           userId,
           ruleEventType: RuleEventType.PageUpdated,
           libraryItemId,
         })
       }
+      // queue export item job
+      await enqueueExportItem({
+        userId,
+        libraryItemIds: [libraryItemId],
+      })
 
       const cleanData = deepDelete(
-        data as T & Record<typeof fieldsToDelete[number], unknown>,
+        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]
       )
+
+      await enqueueWebhookJob({
+        userId,
+        type,
+        action: 'updated',
+        data,
+      })
 
       return publish(
         'entityUpdated',
@@ -132,8 +177,16 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  entityCreated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
-  entityUpdated: <T>(type: EntityType, data: T, userId: string) => Promise<void>
+  entityCreated: <T>(
+    type: EntityType,
+    data: EntityData<T>,
+    userId: string
+  ) => Promise<void>
+  entityUpdated: <T>(
+    type: EntityType,
+    data: EntityData<T>,
+    userId: string
+  ) => Promise<void>
   entityDeleted: (type: EntityType, id: string, userId: string) => Promise<void>
   reportSubmitted(
     submitterId: string | undefined,

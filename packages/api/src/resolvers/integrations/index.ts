@@ -34,7 +34,7 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
-  enqueueExportToIntegration,
+  enqueueExportAllItems,
   enqueueImportFromIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
@@ -98,17 +98,7 @@ export const setIntegrationResolver = authorized<
       }
 
       // create a task to sync all the pages if new integration or enable integration (export type)
-      const taskName = await enqueueExportToIntegration(
-        integration.id,
-        integration.name,
-        0,
-        authToken
-      )
-      log.info('enqueued task', taskName)
-
-      // update task name in integration
-      await updateIntegration(integration.id, { taskName }, uid)
-      integration.taskName = taskName
+      await enqueueExportAllItems(integration.id, uid)
     } else if (integrationToSave.taskName) {
       // delete the task if disable integration and task exists
       const result = await deleteTask(integrationToSave.taskName)
@@ -127,8 +117,8 @@ export const setIntegrationResolver = authorized<
       integration.taskName = null
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'integration_set',
       properties: {
         id: integrationToSave.id,
@@ -192,8 +182,8 @@ export const deleteIntegrationResolver = authorized<
     const deletedIntegration = await removeIntegration(integration, uid)
     deletedIntegration.id = id
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'integration_delete',
       properties: {
         integrationId: deletedIntegration.id,
@@ -248,8 +238,8 @@ export const importFromIntegrationResolver = authorized<
     // update task name in integration
     await updateIntegration(integration.id, { taskName }, uid)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'integration_import',
       properties: {
         integrationId,

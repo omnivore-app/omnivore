@@ -60,6 +60,17 @@ export function gqlFetcher(
   return graphQLClient.request(query, variables, requestHeaders())
 }
 
+export function apiFetcher(path: string): Promise<unknown> {
+  const url = new URL(path, fetchEndpoint)
+  return fetch(url.toString(), {
+    headers: requestHeaders(),
+    credentials: 'include',
+    mode: 'cors',
+  }).then((result) => {
+    return result.json()
+  })
+}
+
 export function makePublicGqlFetcher(
   variables?: unknown
 ): (query: string) => Promise<unknown> {

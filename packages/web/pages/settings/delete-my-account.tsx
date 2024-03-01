@@ -9,7 +9,7 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { Button } from '../../components/elements/Button'
-import { HStack, VStack } from '../../components/elements/LayoutPrimitives'
+import { VStack } from '../../components/elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { Loader } from '../../components/templates/SavingRequest'
 import { deleteAccountMutation } from '../../lib/networking/mutations/deleteAccountMutation'
@@ -20,7 +20,7 @@ export default function DeleteMyAccount(): JSX.Element {
   const viewer = useGetViewerQuery()
   const [showConfirm, setShowConfirm] = useState(false)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   async function deleteAccount(): Promise<void> {
     const viewerId = viewer.viewerData?.me?.id

@@ -11,13 +11,26 @@ import {
   Worker,
 } from 'bullmq'
 import express, { Express } from 'express'
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { appDataSource } from './data_source'
 import { env } from './env'
+import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
+import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
+import {
+  exportAllItems,
+  EXPORT_ALL_ITEMS_JOB_NAME,
+} from './jobs/integration/export_all_items'
+import {
+  exportItem,
+  EXPORT_ITEM_JOB_NAME,
+} from './jobs/integration/export_item'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
+import {
+  syncReadPositionsJob,
+  SYNC_READ_POSITIONS_JOB_NAME,
+} from './jobs/sync_read_positions'
 import { triggerRule, TRIGGER_RULE_JOB_NAME } from './jobs/trigger_rule'
 import {
   updateHighlight,
@@ -27,14 +40,13 @@ import {
 } from './jobs/update_db'
 import { updatePDFContentJob } from './jobs/update_pdf_content'
 import { redisDataSource } from './redis_data_source'
-import { logger, CustomTypeOrmLogger } from './utils/logger'
-import {
-  SYNC_READ_POSITIONS_JOB_NAME,
-  syncReadPositionsJob,
-} from './jobs/sync_read_positions'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
+import { getJobPriority } from './utils/createTask'
+import { logger } from './utils/logger'
+import { AI_SUMMARIZE_JOB_NAME, aiSummarize } from './jobs/ai-summarize'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
+export const JOB_VERSION = 'v001'
 
 let backendQueue: Queue | undefined
 export const getBackendQueue = async (): Promise<Queue | undefined> => {
@@ -47,6 +59,18 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
   }
   backendQueue = new Queue(QUEUE_NAME, {
     connection: redisDataSource.workerRedisClient,
+    defaultJobOptions: {
+      backoff: {
+        type: 'exponential',
+        delay: 2000, // 2 seconds
+      },
+      removeOnComplete: {
+        age: 24 * 3600, // keep up to 24 hours
+      },
+      removeOnFail: {
+        age: 7 * 24 * 3600, // keep up to 7 days
+      },
+    },
   })
   await backendQueue.waitUntilReady()
   return backendQueue
@@ -84,6 +108,16 @@ export const createWorker = (connection: ConnectionOptions) =>
           return updateHighlight(job.data)
         case SYNC_READ_POSITIONS_JOB_NAME:
           return syncReadPositionsJob(job.data)
+        case BULK_ACTION_JOB_NAME:
+          return bulkAction(job.data)
+        case CALL_WEBHOOK_JOB_NAME:
+          return callWebhook(job.data)
+        case EXPORT_ITEM_JOB_NAME:
+          return exportItem(job.data)
+        case AI_SUMMARIZE_JOB_NAME:
+          return aiSummarize(job.data)
+        case EXPORT_ALL_ITEMS_JOB_NAME:
+          return exportAllItems(job.data)
       }
     },
     {
@@ -102,10 +136,9 @@ const setupCronJobs = async () => {
     SYNC_READ_POSITIONS_JOB_NAME,
     {},
     {
-      priority: 1,
+      priority: getJobPriority(SYNC_READ_POSITIONS_JOB_NAME),
       repeat: {
         every: 60_000,
-        limit: 100,
       },
     }
   )
@@ -122,27 +155,10 @@ const main = async () => {
     mq: env.redis.mq,
   })
 
-  appDataSource.setOptions({
-    type: 'postgres',
-    host: env.pg.host,
-    port: env.pg.port,
-    schema: 'omnivore',
-    username: env.pg.userName,
-    password: env.pg.password,
-    database: env.pg.dbName,
-    logging: ['query', 'info'],
-    entities: [__dirname + '/entity/**/*{.js,.ts}'],
-    subscribers: [__dirname + '/events/**/*{.js,.ts}'],
-    namingStrategy: new SnakeNamingStrategy(),
-    logger: new CustomTypeOrmLogger(['query', 'info']),
-    connectTimeoutMS: 40000, // 40 seconds
-    maxQueryExecutionTime: 10000, // 10 seconds
-  })
-
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
 
-  app.get('/lifecyle/prestop', async (req, res) => {
+  app.get('/lifecycle/prestop', async (req, res) => {
     logger.info('prestop lifecycle hook called.')
     await worker.close()
     res.sendStatus(200)

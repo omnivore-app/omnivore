@@ -108,9 +108,8 @@ const ViewRecentEmailModal = (
           width: '100%',
           maxWidth: '650px',
         }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
@@ -160,7 +159,7 @@ export default function RecentEmails(): JSX.Element {
     RecentEmail | undefined
   >(undefined)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const sortedRecentEmails = useMemo(() => {
     return recentEmails.sort((a, b) => b.createdAt.localeCompare(a.createdAt))

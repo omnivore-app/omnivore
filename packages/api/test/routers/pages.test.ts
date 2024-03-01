@@ -1,5 +1,5 @@
-import { request } from '../util'
 import 'mocha'
+import { request } from '../util'
 
 describe('Upload Router', () => {
   const token = process.env.PUBSUB_VERIFICATION_TOKEN || ''

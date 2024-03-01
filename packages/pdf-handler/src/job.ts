@@ -17,5 +17,12 @@ type UpdatePageJobData = {
 }
 
 export const queueUpdatePageJob = async (data: UpdatePageJobData) => {
-  return queue.add(JOB_NAME, data)
+  return queue.add(JOB_NAME, data, {
+    priority: 5,
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    },
+  })
 }

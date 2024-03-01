@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { ChangeEvent, useMemo } from 'react'
+import { useMemo } from 'react'
 import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { HStack, SpanBox } from '../../elements/LayoutPrimitives'
 import { RecommendedFlairIcon } from '../../elements/icons/RecommendedFlairIcon'
 import { PinnedFlairIcon } from '../../elements/icons/PinnedFlairIcon'
 import { FavoriteFlairIcon } from '../../elements/icons/FavoriteFlairIcon'
@@ -45,7 +45,7 @@ export const TitleStyle = {
   fontSize: '16px',
   fontWeight: '700',
   maxLines: 2,
-  lineHeight: 1.25,
+  lineHeight: 1.5,
   fontFamily: '$display',
   overflow: 'hidden',
   textOverflow: 'ellipsis',

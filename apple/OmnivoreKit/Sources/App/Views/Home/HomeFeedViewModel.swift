@@ -28,10 +28,9 @@ enum LoadingBarStyle {
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
-  @Published var showSnackbar = false
+
   @Published var showAddFeedView = false
   @Published var showHideFollowingAlert = false
-  @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()
 
@@ -68,6 +67,13 @@ enum LoadingBarStyle {
     super.init()
   }
 
+  func presentItem(item: Models.LibraryItem) {
+    withAnimation {
+      self.selectedItem = item
+      self.linkIsActive = true
+    }
+  }
+  
   private var filterState: FetcherFilterState? {
     if let appliedFilter = appliedFilter {
       return FetcherFilterState(
@@ -235,8 +241,7 @@ enum LoadingBarStyle {
   }
 
   func snackbar(_ message: String, undoAction: SnackbarUndoAction? = nil) {
-    snackbarOperation = SnackbarOperation(message: message, undoAction: undoAction)
-    showSnackbar = true
+    Snackbar.show(message: message, undoAction: undoAction, dismissAfter: 2000)
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
@@ -309,7 +314,7 @@ enum LoadingBarStyle {
     Task {
       do {
         try await dataService.moveItem(itemID: item.unwrappedID, folder: folder)
-        snackbar("Item moved")
+        snackbar("Moved to library")
       } catch {
         snackbar("Error moving item to \(folder)")
       }
@@ -370,6 +375,20 @@ enum LoadingBarStyle {
     if let filter = filter {
       featureFilter = filter.rawValue
       fetcher.updateFeatureFilter(context: context, filter: filter)
+    }
+  }
+
+  @Published var isEmptyingTrash = false
+
+  func emptyTrash(dataService: DataService) {
+    self.isEmptyingTrash = true
+    Task {
+      if !(await dataService.emptyTrash()) {
+        snackbar("Error emptying trash")
+      } else {
+        snackbar("Trash emptied")
+      }
+      isEmptyingTrash = false
     }
   }
 }

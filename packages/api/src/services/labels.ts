@@ -6,15 +6,18 @@ import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
+import { logger } from '../utils/logger'
 import { findHighlightById } from './highlights'
 import { findLibraryItemIdsByLabelId } from './library_item'
 
 type AddLabelsToLibraryItemEvent = {
+  libraryItemId: string
   pageId: string
   labels: DeepPartial<Label>[]
   source?: LabelSource
 }
 type AddLabelsToHighlightEvent = {
+  libraryItemId: string
   highlightId: string
   labels: DeepPartial<Label>[]
 }
@@ -56,6 +59,32 @@ export const findOrCreateLabels = async (
     undefined,
     userId
   )
+}
+
+export const createAndAddLabelsToLibraryItem = async (
+  libraryItemId: string,
+  userId: string,
+  labels?: CreateLabelInput[] | null,
+  rssFeedUrl?: string | null,
+  source?: LabelSource
+) => {
+  if (rssFeedUrl) {
+    // add rss label to labels
+    labels = (labels || []).concat({ name: 'RSS' })
+    source = 'system'
+  }
+
+  // save labels in item
+  if (labels && labels.length > 0) {
+    const newLabels = await findOrCreateLabels(labels, userId)
+
+    await addLabelsToLibraryItem(
+      newLabels.map((l) => l.id),
+      libraryItemId,
+      userId,
+      source
+    )
+  }
 }
 
 export const createAndSaveLabelsInLibraryItem = async (
@@ -119,7 +148,7 @@ export const saveLabelsInLibraryItem = async (
     // create pubsub event
     await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
       EntityType.LABEL,
-      { pageId: libraryItemId, labels, source },
+      { pageId: libraryItemId, labels, source, libraryItemId },
       userId
     )
   }
@@ -179,18 +208,22 @@ export const saveLabelsInHighlight = async (
     )
   })
 
+  const highlight = await findHighlightById(highlightId, userId)
+  if (!highlight) {
+    logger.error('Highlight not found', { highlightId, userId })
+    return
+  }
+
+  const libraryItemId = highlight.libraryItemId
   // create pubsub event
   await pubsub.entityCreated<AddLabelsToHighlightEvent>(
     EntityType.LABEL,
-    { highlightId, labels },
+    { highlightId, labels, libraryItemId },
     userId
   )
 
-  const highlight = await findHighlightById(highlightId, userId)
   // update labels in library item
-  await bulkEnqueueUpdateLabels([
-    { libraryItemId: highlight.libraryItemId, userId },
-  ])
+  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const findLabelsByIds = async (

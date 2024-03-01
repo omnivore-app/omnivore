@@ -1,5 +1,4 @@
 import { Box, HStack, VStack, SpanBox } from '../../elements/LayoutPrimitives'
-import { StyledText } from '../../elements/StyledText'
 import { theme } from '../../tokens/stitches.config'
 import type { Highlight } from '../../../lib/networking/fragments/highlightFragment'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -17,7 +16,6 @@ import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ReadableItem } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { SetHighlightLabelsModalPresenter } from './SetLabelsModalPresenter'
-import { Button } from '../../elements/Button'
 import { ArticleNotes } from '../../patterns/ArticleNotes'
 import { useGetArticleQuery } from '../../../lib/networking/queries/useGetArticleQuery'
 import { formattedShortTime } from '../../../lib/dateFormatting'
@@ -87,34 +85,37 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         }
       })()
     },
-    []
+    [props]
   )
 
-  const createNote = useCallback((text: string) => {
-    noteState.current.isCreating = true
-    noteState.current.createStarted = new Date()
-    ;(async () => {
-      try {
-        const success = await createHighlightMutation({
-          id: newNoteId,
-          shortId: nanoid(8),
-          type: 'NOTE',
-          articleId: props.item.id,
-          annotation: text,
-        })
-        if (success) {
-          noteState.current.note = success
+  const createNote = useCallback(
+    (text: string) => {
+      noteState.current.isCreating = true
+      noteState.current.createStarted = new Date()
+      ;(async () => {
+        try {
+          const success = await createHighlightMutation({
+            id: newNoteId,
+            shortId: nanoid(8),
+            type: 'NOTE',
+            articleId: props.item.id,
+            annotation: text,
+          })
+          if (success) {
+            noteState.current.note = success
+            noteState.current.isCreating = false
+          } else {
+            setErrorSaving('Error creating note')
+          }
+        } catch (error) {
+          console.error('error creating note: ', error)
           noteState.current.isCreating = false
-        } else {
           setErrorSaving('Error creating note')
         }
-      } catch (error) {
-        console.error('error creating note: ', error)
-        noteState.current.isCreating = false
-        setErrorSaving('Error creating note')
-      }
-    })()
-  }, [])
+      })()
+    },
+    [props, newNoteId]
+  )
 
   const highlights = useMemo(() => {
     const result = articleData?.article.article.highlights
@@ -133,7 +134,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
     if (highlights && props.onAnnotationsChanged) {
       props.onAnnotationsChanged(highlights)
     }
-  }, [highlights])
+  }, [props, highlights])
 
   const sortedHighlights = useMemo(() => {
     const sorted = (a: number, b: number) => {
@@ -188,7 +189,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       }
       createNote(text)
     },
-    [noteText, noteState, createNote, updateNote, highlights]
+    [noteState, createNote, updateNote]
   )
 
   const deleteDocumentNote = useCallback(() => {
@@ -204,7 +205,7 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
       noteState.current.note = undefined
     })()
     setNoteText('')
-  }, [noteState, highlights])
+  }, [props, noteState, highlights])
 
   const [errorSaving, setErrorSaving] = useState<string | undefined>(undefined)
   const [lastChanged, setLastChanged] = useState<Date | undefined>(undefined)
@@ -359,6 +360,10 @@ export function NotebookContent(props: NotebookContentProps): JSX.Element {
         <SetHighlightLabelsModalPresenter
           highlight={labelsTarget}
           highlightId={labelsTarget.id}
+          onUpdate={(highlight) => {
+            // Don't actually need to do something here
+            console.log('update highlight: ', highlight)
+          }}
           onOpenChange={() => {
             mutate()
             setLabelsTarget(undefined)

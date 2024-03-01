@@ -17,7 +17,7 @@ import {
 } from '../utils/parser'
 import { createAndSaveLabelsInLibraryItem } from './labels'
 import {
-  createLibraryItem,
+  createOrUpdateLibraryItem,
   findLibraryItemByUrl,
   restoreLibraryItem,
 } from './library_item'
@@ -80,7 +80,7 @@ export const saveEmail = async (
   }
 
   // start a transaction to create the library item and update the received email
-  const newLibraryItem = await createLibraryItem(
+  const newLibraryItem = await createOrUpdateLibraryItem(
     {
       user: { id: input.userId },
       slug,

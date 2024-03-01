@@ -1,9 +1,8 @@
 import { useGetArticleQuery } from '../../../../lib/networking/queries/useGetArticleQuery'
 import { Box, VStack } from './../../../../components/elements/LayoutPrimitives'
 import { ArticleContainer } from './../../../../components/templates/article/ArticleContainer'
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { webBaseURL } from '../../../../lib/appConfig'
 import { LoadingView } from '../../../../components/patterns/LoadingView'
 import { cookieValue } from '../../../../lib/cookieHelpers'
 import { applyStoredTheme } from '../../../../lib/themeUpdater'
@@ -25,13 +24,12 @@ type AppArticleEmbedContentProps = {
 }
 
 export default function AppArticleEmbed(): JSX.Element {
-  applyStoredTheme(false) // false to skip server sync
+  applyStoredTheme()
 
   const router = useRouter()
 
-  const [contentProps, setContentProps] = useState<
-    AppArticleEmbedContentProps | undefined
-  >(undefined)
+  const [contentProps, setContentProps] =
+    useState<AppArticleEmbedContentProps | undefined>(undefined)
 
   useEffect(() => {
     if (!router.isReady) return

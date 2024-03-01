@@ -26,7 +26,7 @@ describe('Sanitize Directive', () => {
   })
 
   describe('Update user with a bio that is too long', () => {
-    let bio = ''.padStart(500, '*')
+    const bio = ''.padStart(500, '*')
     let query: string
 
     beforeEach(() => {

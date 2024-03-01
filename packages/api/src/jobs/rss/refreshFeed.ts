@@ -2,14 +2,20 @@ import axios from 'axios'
 import crypto from 'crypto'
 import { parseHTML } from 'linkedom'
 import Parser, { Item } from 'rss-parser'
+import { FetchContentType } from '../../entity/subscription'
 import { env } from '../../env'
+import { ArticleSavingRequestStatus } from '../../generated/graphql'
 import { redisDataSource } from '../../redis_data_source'
 import { validateUrl } from '../../services/create_page_save_request'
+import { savePage } from '../../services/save_page'
 import {
   updateSubscription,
   updateSubscriptions,
 } from '../../services/update_subscription'
+import { findActiveUser } from '../../services/user'
 import createHttpTaskWithToken from '../../utils/createTask'
+import { cleanUrl } from '../../utils/helpers'
+import { createThumbnailUrl } from '../../utils/imageproxy'
 import { logger } from '../../utils/logger'
 import { RSSRefreshContext } from './refreshAllFeeds'
 
@@ -22,7 +28,7 @@ interface RefreshFeedRequest {
   scheduledTimestamps: number[] // unix timestamp in milliseconds
   lastFetchedChecksums: string[]
   userIds: string[]
-  fetchContents: boolean[]
+  fetchContentTypes: FetchContentType[]
   folders: FolderType[]
   refreshContext?: RSSRefreshContext
 }
@@ -35,7 +41,7 @@ export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
     'scheduledTimestamps' in data &&
     'userIds' in data &&
     'lastFetchedChecksums' in data &&
-    'fetchContents' in data &&
+    'fetchContentTypes' in data &&
     'folders' in data
   )
 }
@@ -124,6 +130,18 @@ const incrementFeedFailure = async (feedUrl: string) => {
 
 export const isContentFetchBlocked = (feedUrl: string) => {
   if (feedUrl.startsWith('https://arxiv.org/')) {
+    return true
+  }
+  if (feedUrl.startsWith('https://rss.arxiv.org')) {
+    return true
+  }
+  if (feedUrl.startsWith('https://rsshub.app')) {
+    return true
+  }
+  if (feedUrl.startsWith('https://xkcd.com')) {
+    return true
+  }
+  if (feedUrl.startsWith('https://daringfireball.net/feeds/')) {
     return true
   }
   if (feedUrl.startsWith('https://lwn.net/headlines/newrss')) {
@@ -251,7 +269,7 @@ const createTask = async (
   userId: string,
   feedUrl: string,
   item: RssFeedItem,
-  fetchContent: boolean,
+  fetchContentType: FetchContentType,
   folder: FolderType
 ) => {
   const isRecentlySaved = await isItemRecentlySaved(userId, item.link)
@@ -260,8 +278,12 @@ const createTask = async (
     return true
   }
 
-  if (folder === 'following' && !fetchContent) {
-    return createItemWithPreviewContent(userId, feedUrl, item)
+  const feedContent = item.content || item.contentSnippet || item.summary
+  if (
+    fetchContentType === FetchContentType.Never ||
+    (fetchContentType === FetchContentType.WhenEmpty && feedContent)
+  ) {
+    return createItemWithFeedContent(userId, feedUrl, item, folder, feedContent)
   }
 
   logger.info(`adding fetch content task ${userId}  ${item.link.trim()}`)
@@ -297,44 +319,60 @@ const fetchContentAndCreateItem = async (
   }
 }
 
-const createItemWithPreviewContent = async (
+const createItemWithFeedContent = async (
   userId: string,
   feedUrl: string,
-  item: RssFeedItem
+  item: RssFeedItem,
+  folder: FolderType,
+  feedContent?: string
 ) => {
-  const input = {
-    userIds: [userId],
-    url: item.link,
-    title: item.title,
-    author: item.creator,
-    description: item.summary,
-    addedToFollowingFrom: 'feed',
-    previewContent: item.content || item.contentSnippet || item.summary,
-    addedToFollowingBy: feedUrl,
-    savedAt: item.isoDate,
-    publishedAt: item.isoDate,
-    previewContentType: 'text/html', // TODO: get content type from feed
-    thumbnail: getThumbnail(item),
-  }
-
   try {
-    const serviceBaseUrl = process.env.INTERNAL_API_URL
-    const token = process.env.PUBSUB_VERIFICATION_TOKEN
-    if (!serviceBaseUrl || !token) {
-      throw 'Environment not configured correctly'
+    logger.info('saving feed item with feed content', {
+      userId,
+      feedUrl,
+      item,
+      folder,
+    })
+
+    const thumbnail = getThumbnail(item)
+    const previewImage = thumbnail && createThumbnailUrl(thumbnail)
+    const url = cleanUrl(item.link)
+
+    const user = await findActiveUser(userId)
+    if (!user) {
+      logger.error('User not found', { userId })
+      return false
     }
 
-    // save page
-    const taskHandlerUrl = `${serviceBaseUrl}/svc/following/save?token=${token}`
-    const task = await createHttpTaskWithToken({
-      queue: env.queue.name,
-      priority: 'low',
-      taskHandlerUrl: taskHandlerUrl,
-      payload: input,
-    })
-    return !!task
+    const result = await savePage(
+      {
+        url,
+        feedContent,
+        title: item.title,
+        folder,
+        rssFeedUrl: feedUrl,
+        savedAt: item.isoDate,
+        publishedAt: item.isoDate,
+        originalContent: feedContent || '',
+        source: 'rss-feeder',
+        state: ArticleSavingRequestStatus.ContentNotFetched,
+        clientRequestId: '',
+        author: item.creator,
+        previewImage,
+      },
+      user
+    )
+
+    if (result.__typename === 'SaveError') {
+      logger.error(
+        `Error while saving feed item with feed content: ${result.errorCodes[0]}`
+      )
+      return false
+    }
+
+    return true
   } catch (error) {
-    logger.error('Error while creating task', error)
+    logger.error('Error while saving feed item with feed content', error)
     return false
   }
 }
@@ -444,7 +482,7 @@ const processSubscription = async (
   mostRecentItemDate: number,
   scheduledAt: number,
   lastFetchedChecksum: string,
-  fetchContent: boolean,
+  fetchContentType: FetchContentType,
   folder: FolderType,
   feed: RssFeed
 ) => {
@@ -517,6 +555,10 @@ const processSubscription = async (
 
       // Max limit per-feed update
       if (itemCount > 99) {
+        if (itemCount == 100) {
+          logger.info(`Max limit reached for feed ${feedUrl}`)
+        }
+        itemCount = itemCount + 1
         continue
       }
 
@@ -531,7 +573,7 @@ const processSubscription = async (
         userId,
         feedUrl,
         feedItem,
-        fetchContent,
+        fetchContentType,
         folder
       )
       if (!created) {
@@ -564,7 +606,7 @@ const processSubscription = async (
       userId,
       feedUrl,
       lastValidItem,
-      fetchContent,
+      fetchContentType,
       folder
     )
     if (!created) {
@@ -610,7 +652,7 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     scheduledTimestamps,
     userIds,
     lastFetchedChecksums,
-    fetchContents,
+    fetchContentTypes,
     folders,
     refreshContext,
   } = request
@@ -650,6 +692,9 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
     // process each subscription sequentially
     for (let i = 0; i < subscriptionIds.length; i++) {
       const subscriptionId = subscriptionIds[i]
+      const fetchContentType = allowFetchContent
+        ? fetchContentTypes[i]
+        : FetchContentType.Never
 
       try {
         await processSubscription(
@@ -661,7 +706,7 @@ export const _refreshFeed = async (request: RefreshFeedRequest) => {
           mostRecentItemDates[i],
           scheduledTimestamps[i],
           lastFetchedChecksums[i],
-          fetchContents[i] && allowFetchContent,
+          fetchContentType,
           folders[i],
           feed
         )

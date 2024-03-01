@@ -19,6 +19,8 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { AISummary } from './AISummary'
+import { userHasFeature } from '../../../lib/featureFlag'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -435,7 +437,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
                   key={label.id}
                   text={label.name}
                   color={label.color}
-                  useAppAppearance={props.isAppleAppEmbed}
                 />
               ))}
             </SpanBox>
@@ -445,6 +446,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               recommendationsWithNotes={recommendationsWithNotes}
             />
           )}
+          {/* {userHasFeature(props.viewer, 'ai-summaries') && (
+            <AISummary
+              libraryItemId={props.article.id}
+              idx="latest"
+              fontFamily={styles.fontFamily}
+              fontSize={styles.fontSize}
+              lineHeight={styles.lineHeight}
+              readerFontColor={styles.readerFontColor}
+            />
+          )} */}
         </VStack>
         <Article
           articleId={props.article.id}

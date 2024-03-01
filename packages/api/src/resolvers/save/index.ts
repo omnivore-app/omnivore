@@ -19,8 +19,8 @@ export const savePageResolver = authorized<
   SaveError,
   MutationSavePageArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -43,8 +43,8 @@ export const saveUrlResolver = authorized<
   SaveError,
   MutationSaveUrlArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -67,8 +67,8 @@ export const saveFileResolver = authorized<
   SaveError,
   MutationSaveFileArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,

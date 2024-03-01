@@ -11,6 +11,7 @@ import axios from 'axios'
 import cors from 'cors'
 import type { Request, Response } from 'express'
 import express from 'express'
+import rateLimit from 'express-rate-limit'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
 import { promisify } from 'util'
@@ -46,7 +47,6 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
-import rateLimit from 'express-rate-limit'
 
 export interface SignupRequest {
   email: string
@@ -328,8 +328,8 @@ export function authRouter() {
       )
     }
 
-    analytics.track({
-      userId: user.id,
+    analytics.capture({
+      distinctId: user.id,
       event: 'login',
       properties: {
         method: 'google',
@@ -463,8 +463,8 @@ export function authRouter() {
           )
         }
 
-        analytics.track({
-          userId: user.id,
+        analytics.capture({
+          distinctId: user.id,
           event: 'login',
           properties: {
             method: 'email',
@@ -576,8 +576,8 @@ export function authRouter() {
           }
         }
 
-        analytics.track({
-          userId: user.id,
+        analytics.capture({
+          distinctId: user.id,
           event: 'login',
           properties: {
             method: 'email_verification',
@@ -708,8 +708,8 @@ export function authRouter() {
           )
         }
 
-        analytics.track({
-          userId: user.id,
+        analytics.capture({
+          distinctId: user.id,
           event: 'login',
           properties: {
             method: 'password_reset',

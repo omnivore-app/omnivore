@@ -25,7 +25,7 @@ type RunningState = 'none' | 'confirming' | 'running' | 'completed'
 export default function BulkPerformer(): JSX.Element {
   const router = useRouter()
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const [action, setAction] = useState<BulkAction | undefined>()
   const [query, setQuery] = useState<string>('in:all')

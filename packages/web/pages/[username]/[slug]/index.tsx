@@ -89,7 +89,9 @@ export default function Home(): JSX.Element {
     //     return
     //   }
     // }
-    router.push(`/home`)
+    const query = window.sessionStorage.getItem('q')
+    router.push(`/home?${query}`)
+    // router.push(`/home`)
   }, [router, viewerData, article])
 
   const goPreviousOrHome = useCallback(() => {
@@ -103,7 +105,9 @@ export default function Home(): JSX.Element {
     //     return
     //   }
     // }
-    router.push(`/home`)
+    const query = window.sessionStorage.getItem('q')
+    router.push(`/home?${query}`)
+    // router.push(`/home`)
   }, [router, viewerData, article])
 
   const actionHandler = useCallback(
@@ -559,6 +563,9 @@ export default function Home(): JSX.Element {
               setShowHighlightsModal={setShowHighlightsModal}
               justifyText={readerSettings.justifyText ?? undefined}
               highContrastText={readerSettings.highContrastText ?? undefined}
+              highlightOnRelease={
+                readerSettings.highlightOnRelease ?? undefined
+              }
               articleMutations={{
                 createHighlightMutation,
                 deleteHighlightMutation,

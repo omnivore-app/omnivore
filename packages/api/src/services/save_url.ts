@@ -12,7 +12,7 @@ export const saveUrl = async (
   try {
     const pageSaveRequest = await createPageSaveRequest({
       ...input,
-      userId: user.id,
+      user,
       articleSavingRequestId: input.clientRequestId,
       state: input.state || undefined,
       labels: input.labels || undefined,

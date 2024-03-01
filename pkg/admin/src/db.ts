@@ -54,6 +54,7 @@ export const registerDatabase = async (secrets: any): Promise<Connection> => {
       UploadFile,
       Recommendation,
       GroupMembership,
+      Features,
     ],
   })
 
@@ -69,6 +70,15 @@ export enum AuthProvider {
   Apple = 'APPLE',
   Google = 'GOOGLE',
   Email = 'EMAIL',
+}
+
+export enum LibraryItemState {
+  Failed = 'FAILED',
+  Processing = 'PROCESSING',
+  Succeeded = 'SUCCEEDED',
+  Deleted = 'DELETED',
+  Archived = 'ARCHIVED',
+  ContentNotFetched = 'CONTENT_NOT_FETCHED',
 }
 
 @Entity({ name: 'admin_user' })
@@ -306,8 +316,11 @@ export class Subscription extends BaseEntity {
   @Column('integer', { default: 0 })
   count!: number
 
-  @Column({ type: 'timestamp', name: 'last_fetched_at', nullable: true })
-  lastFetchedAt?: Date | null
+  @Column({ type: 'timestamp', name: 'refreshed_at', nullable: true })
+  refreshedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'most_recent_item_date', nullable: true })
+  mostRecentItemDate?: Date | null
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
@@ -325,6 +338,9 @@ export class LibraryItem extends BaseEntity {
   @ManyToOne(() => User, (user) => user.articles, { eager: true })
   user!: User
 
+  @Column({ type: 'enum', enum: LibraryItemState })
+  state!: LibraryItemState
+
   @Column({ type: 'text', name: 'original_url' })
   originalUrl!: string
 
@@ -340,12 +356,6 @@ export class LibraryItem extends BaseEntity {
   @Column('text', { nullable: true })
   subscription?: string | null
 
-  @Column('text', { array: true, nullable: true })
-  recommender_names?: string[] | null
-
-  @Column('text', { array: true, nullable: true })
-  label_names?: string[] | null
-
   @OneToOne(() => UploadFile, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'upload_file_id' })
   uploadFile?: UploadFile
@@ -355,6 +365,9 @@ export class LibraryItem extends BaseEntity {
 
   @Column({ type: 'timestamp', name: 'deleted_at' })
   deletedAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'archived_at' })
+  archivedAt!: Date | null
 
   @Column({ type: 'timestamp', name: 'created_at' })
   createdAt!: Date
@@ -435,4 +448,29 @@ export class GroupMembership extends BaseEntity {
 
   @Column('boolean', { default: false })
   is_admin!: boolean
+}
+
+@Entity({ name: 'features' })
+export class Features extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.articles, { eager: true })
+  user!: User
+
+  @Column('text')
+  name!: string
+
+  @Column('timestamp', { nullable: true, name: 'granted_at' })
+  grantedAt?: Date | null
+
+  @Column('timestamp', { nullable: true, name: 'expires_at' })
+  expiresAt?: Date | null
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
 }

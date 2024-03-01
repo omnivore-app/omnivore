@@ -24,9 +24,9 @@
     @State var showLabelsModal = false
     @State var showNotebookView = false
 
-    @State var showOperationToast = false
+    @State var showSnackbar = false
     @State var operationStatus: OperationStatus = .none
-    @State var operationMessage: String?
+    @State var snackbarMessage: String?
 
     var playPauseButtonImage: String {
       switch audioController.state {
@@ -384,8 +384,8 @@
 
     func playerContent(_: LinkedItemAudioProperties) -> some View {
       ZStack {
-        WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
-          OperationToast(operationMessage: $operationMessage, showOperationToast: $showOperationToast, operationStatus: $operationStatus)
+        WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showSnackbar) {
+          OperationToast(operationMessage: $snackbarMessage, showOperationToast: $showSnackbar, operationStatus: $operationStatus)
             .offset(y: -90)
         } label: {
           EmptyView()

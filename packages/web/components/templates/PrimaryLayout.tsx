@@ -7,11 +7,10 @@ import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardSho
 import { useRouter } from 'next/router'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
-import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
-import { deinitAnalytics, setupAnalytics } from '../../lib/analytics'
+import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { applyStoredTheme } from '../../lib/themeUpdater'
 import { logout } from '../../lib/logout'
+import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -23,7 +22,7 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
-  applyStoredTheme(false)
+  useApplyLocalTheme()
 
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()

@@ -24,6 +24,7 @@ const REQUEST_TIMEOUT = 30000 // 30 seconds
 interface Data {
   userId: string
   url: string
+  finalUrl: string
   articleSavingRequestId: string
   state?: string
   labels?: CreateLabelInput[]
@@ -175,16 +176,21 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     publishedAt,
     taskId,
     url,
+    finalUrl,
   } = data
   let isImported,
     isSaved,
     state = data.state
 
   try {
-    logger.info(`savePageJob: ${userId} ${url}`)
+    logger.info('savePageJob', {
+      userId,
+      url,
+      finalUrl,
+    })
 
     // get the fetch result from cache
-    const fetchedResult = await getCachedFetchResult(url)
+    const fetchedResult = await getCachedFetchResult(finalUrl)
     const { title, contentType } = fetchedResult
     let content = fetchedResult.content
 
@@ -200,11 +206,15 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
 
     // for pdf content, we need to upload the pdf
     if (contentType === 'application/pdf') {
-      const uploadResult = await uploadPdf(url, userId, articleSavingRequestId)
+      const uploadResult = await uploadPdf(
+        finalUrl,
+        userId,
+        articleSavingRequestId
+      )
 
       const result = await saveFile(
         {
-          url,
+          url: finalUrl,
           uploadFileId: uploadResult.uploadFileId,
           state: state ? (state as ArticleSavingRequestStatus) : undefined,
           labels,
@@ -227,7 +237,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     }
 
     if (!content) {
-      logger.info('content is not fetched', url)
+      logger.info(`content is not fetched: ${finalUrl}`)
       // set the state to failed if we don't have content
       content = 'Failed to fetch content'
       state = ArticleSavingRequestStatus.Failed
@@ -236,7 +246,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     // for non-pdf content, we need to save the page
     const result = await savePage(
       {
-        url,
+        url: finalUrl,
         clientRequestId: articleSavingRequestId,
         title,
         originalContent: content,

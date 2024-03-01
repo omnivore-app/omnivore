@@ -208,6 +208,10 @@ public struct InternalFilter: Encodable, Identifiable, Hashable, Equatable {
     predicate != nil
   }
 
+  public var ignoreFolders: Bool {
+    return name == "Deleted"
+  }
+
   public var predicate: NSPredicate? {
     let undeletedPredicate = NSPredicate(
       format: "%K != %i AND %K != \"DELETED\"",

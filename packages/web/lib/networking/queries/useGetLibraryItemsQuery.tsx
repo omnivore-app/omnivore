@@ -34,6 +34,7 @@ type LibraryItemsQueryResponse = {
   itemsDataError?: unknown
   isLoading: boolean
   isValidating: boolean
+  error: boolean
   size: number
   setSize: (
     size: number | ((_size: number) => number)
@@ -94,10 +95,12 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
+  siteIcon?: string
   subscription?: string
   readAt?: string
   savedAt?: string
   wordsCount?: number
+  aiSummary?: string
   recommendations?: Recommendation[]
   highlights?: Highlight[]
 }
@@ -182,6 +185,7 @@ export function useGetLibraryItemsQuery({
               annotation
               state
               siteName
+              siteIcon
               subscription
               readAt
               savedAt
@@ -447,5 +451,6 @@ export function useGetLibraryItemsQuery({
     size,
     setSize,
     mutate,
+    error: !!error,
   }
 }

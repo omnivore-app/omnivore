@@ -20,7 +20,7 @@ import { Tray } from 'phosphor-react'
 type UploadState = 'none' | 'uploading' | 'completed'
 
 export default function ImportUploader(): JSX.Element {
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [uploadState, setUploadState] = useState<UploadState>('none')

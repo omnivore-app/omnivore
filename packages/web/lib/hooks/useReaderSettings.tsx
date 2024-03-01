@@ -31,12 +31,13 @@ export type ReaderSettings = {
   setJustifyText: (set: boolean) => void
   highContrastText: boolean | undefined
   setHighContrastText: (set: boolean) => void
+
+  highlightOnRelease: boolean | undefined
+  setHighlightOnRelease: (set: boolean) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
-  applyStoredTheme(false)
-
-  const [, updateState] = useState({})
+  applyStoredTheme()
 
   const [fontSize, setFontSize] = usePersistedState({
     key: 'fontSize',
@@ -58,6 +59,13 @@ export const useReaderSettings = (): ReaderSettings => {
     boolean | undefined
   >({
     key: `--display-high-contrast-text`,
+    initialValue: false,
+  })
+
+  const [highlightOnRelease, setHighlightOnRelease] = usePersistedState<
+    boolean | undefined
+  >({
+    key: `--display-highlight-on-release`,
     initialValue: false,
   })
 
@@ -216,5 +224,7 @@ export const useReaderSettings = (): ReaderSettings => {
     setJustifyText,
     highContrastText,
     setHighContrastText,
+    highlightOnRelease,
+    setHighlightOnRelease,
   }
 }

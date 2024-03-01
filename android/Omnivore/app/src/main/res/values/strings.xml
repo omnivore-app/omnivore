@@ -12,6 +12,7 @@
     <string name="highlight_note">Note</string>
     <string name="copyTextSelection">Copy</string>
     <string name="pdf_highlight_menu_note">Note</string>
+    <string name="back">Back</string>
 
     <!-- Apple Auth -->
     <string name="apple_auth_text">Continue with Apple</string>
@@ -186,6 +187,8 @@
     <string name="saved_item_context_menu_action_unarchive">Unarchive</string>
     <string name="saved_item_context_menu_action_share_original">Share Original</string>
     <string name="saved_item_context_menu_action_remove_item">Remove Item</string>
+    <string name="saved_item_context_menu_action_mark_read">Mark read</string>
+    <string name="saved_item_context_menu_action_mark_unread">Mark unread</string>
 
     <!-- LogoutDialog -->
     <string name="logout_dialog_title">Logout</string>
@@ -208,6 +211,12 @@
     <string name="settings_view_setting_row_terms_and_conditions">Terms and Conditions</string>
     <string name="settings_view_setting_row_manage_account">Manage Account</string>
     <string name="settings_view_setting_row_logout">Logout</string>
+
+    <!-- About -->
+    <string name="about_view_title">About</string>
+    <string name="about_view_row_version">Version</string>
+    <string name="about_view_row_whats_new">What\'s new</string>
+    <string name="website">Website</string>
 
     <!-- stock filters -->
     <string name="library_filter_inbox">Inbox</string>

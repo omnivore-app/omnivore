@@ -16,14 +16,16 @@ export type Subscription = {
   newsletterEmail?: string
 
   url?: string
+  icon?: string
   description?: string
 
   status: SubscriptionStatus
   createdAt: string
   updatedAt: string
   lastFetchedAt?: string
-  autoAddToLibrary?: boolean
-  isPrivate?: boolean
+  mostRecentItemDate?: string
+
+  fetchContent?: boolean
 }
 
 type SubscriptionsQueryResponse = {
@@ -56,6 +58,7 @@ export function useGetSubscriptionsQuery(
             type
             newsletterEmail
             url
+            icon
             description
             status
             unsubscribeMailTo
@@ -63,8 +66,8 @@ export function useGetSubscriptionsQuery(
             createdAt
             updatedAt
             lastFetchedAt
-            autoAddToLibrary
-            isPrivate
+            fetchContent
+            mostRecentItemDate
           }
         }
         ... on SubscriptionsError {

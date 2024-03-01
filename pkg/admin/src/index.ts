@@ -15,6 +15,7 @@ import {
   LibraryItem,
   Recommendation,
   GroupMembership,
+  Features,
 } from './db'
 import { compare, hashSync } from 'bcryptjs'
 const readYamlFile = require('read-yaml-file')
@@ -50,6 +51,7 @@ const ADMIN_USER_EMAIL =
       },
       { resource: Recommendation, options: { parent: { name: 'Users' } } },
       { resource: GroupMembership, options: { parent: { name: 'Users' } } },
+      { resource: Features, options: { parent: { name: 'Users' } } },
     ],
   })
 

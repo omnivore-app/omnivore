@@ -1,4 +1,3 @@
-import AsyncAlgorithms
 import CoreData
 import CoreImage
 import Foundation
@@ -26,7 +25,6 @@ public final class DataService: ObservableObject {
   public let networker: Networker
 
   public let prefetchQueue = OperationQueue()
-  public let itemLoaderChannel = AsyncChannel<String>()
 
   var persistentContainer: PersistentContainer
   public var backgroundContext: NSManagedObjectContext

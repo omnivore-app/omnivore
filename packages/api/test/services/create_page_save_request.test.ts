@@ -1,5 +1,5 @@
-import 'mocha'
 import { expect } from 'chai'
+import 'mocha'
 import { validateUrl } from '../../src/services/create_page_save_request'
 
 describe('validateUrl', () => {

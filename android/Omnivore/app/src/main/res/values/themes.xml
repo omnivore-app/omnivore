@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Omnivore" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="NightAdjusted.Theme.Omnivore" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Omnivore" parent="NightAdjusted.Theme.Omnivore" />
+
+    <style name="NightAdjusted.Theme.Splash" parent="Theme.SplashScreen">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+    <style name="Theme.Omnivore.Splash" parent="NightAdjusted.Theme.Splash">
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@drawable/ic_launcher_dark</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@color/background</item>
+        <item name="postSplashScreenTheme">@style/Theme.Omnivore</item>
     </style>
 
     <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.NoActionBar">
@@ -14,11 +26,10 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowTranslucentStatus">true</item>
-
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">true</item>
-
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
 </resources>

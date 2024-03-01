@@ -38,7 +38,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { emptyTrashResolver } from './article'
+import { emptyTrashResolver, fetchContentResolver } from './article'
 import { optInFeatureResolver } from './features'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
@@ -141,6 +141,8 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
+import { getAISummary } from '../services/ai-summaries'
+import { findUserFeatures, getFeatureName } from '../services/features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -296,6 +298,7 @@ export const functionResolvers = {
     moveToFolder: moveToFolderResolver,
     updateNewsletterEmail: updateNewsletterEmailResolver,
     emptyTrash: emptyTrashResolver,
+    fetchContent: fetchContentResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -344,6 +347,16 @@ export const functionResolvers = {
           .digest('hex')
       }
       return undefined
+    },
+    async features(
+      user: User,
+      __: Record<string, unknown>,
+      ctx: WithDataSourcesContext
+    ) {
+      if (!ctx.claims?.uid) {
+        return undefined
+      }
+      return findUserFeatures(ctx.claims.uid)
     },
   },
   Article: {
@@ -484,6 +497,15 @@ export const functionResolvers = {
 
       return []
     },
+    async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
+      return (
+        await getAISummary({
+          userId: ctx.uid,
+          libraryItemId: item.id,
+          idx: 'latest',
+        })
+      )?.summary
+    },
     async highlights(
       item: {
         id: string
@@ -623,4 +645,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('MoveToFolder'),
   ...resultResolveTypeResolver('UpdateNewsletterEmail'),
   ...resultResolveTypeResolver('EmptyTrash'),
+  ...resultResolveTypeResolver('FetchContent'),
 }
