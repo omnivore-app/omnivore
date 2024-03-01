@@ -224,7 +224,7 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
       <ModalOverlay />
       <ModalContent
         css={{ bg: '$grayBg', p: '20px', maxWidth: '480px' }}
-        onInteractOutside={(event) => {
+        onPointerDownOutside={(event) => {
           event.preventDefault()
         }}
         onEscapeKeyDown={(event) => {
