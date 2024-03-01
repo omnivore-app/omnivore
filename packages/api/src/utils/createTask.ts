@@ -781,8 +781,12 @@ export const enqueueExportItem = async (jobData: ExportItemJobData) => {
   }
 
   return queue.add(EXPORT_ITEM_JOB_NAME, jobData, {
-    attempts: 1,
+    attempts: 3,
     priority: getJobPriority(EXPORT_ITEM_JOB_NAME),
+    backoff: {
+      type: 'exponential',
+      delay: 10000, // 10 seconds
+    },
   })
 }
 
