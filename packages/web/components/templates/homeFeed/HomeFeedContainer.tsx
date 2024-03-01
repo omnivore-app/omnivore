@@ -1180,7 +1180,10 @@ export function LibraryItemsLayout(
           updateItem={(item: LibraryItem) =>
             props.actionHandler('update-item', item)
           }
-          onOpenChange={() => props.setShowEditTitleModal(false)}
+          onOpenChange={() => {
+            props.setShowEditTitleModal(false)
+            props.setLinkToEdit(undefined)
+          }}
           item={props.linkToEdit as LibraryItem}
         />
       )}
