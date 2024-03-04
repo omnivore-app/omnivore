@@ -172,6 +172,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
 
   const safeOnOpenChange = useCallback(
     (open: boolean) => {
+      console.log('safe on open change called')
       document.body.style.removeProperty('pointer-events')
       props.onOpenChange(open)
     },
