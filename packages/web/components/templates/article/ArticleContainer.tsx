@@ -311,7 +311,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'handleAutoHighlightModeChange',
       updateHighlightMode
     )
-    document.addEventListener('updateTextDirection', handleUpdateTextDirection)
 
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
@@ -336,10 +335,6 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         updateHighlightMode
       )
       document.removeEventListener('saveReadPosition', saveReadPosition)
-      document.removeEventListener(
-        'updateTextDirection',
-        handleUpdateTextDirection
-      )
     }
   })
 
