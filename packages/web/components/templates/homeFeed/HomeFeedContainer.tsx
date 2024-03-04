@@ -1345,7 +1345,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
                 } else {
                   props.actionHandler(action, linkedItem)
                 }
-                document.body.style.removeProperty('pointer-events')
+                // document.body.style.removeProperty('pointer-events')
               }}
             />
           )}
