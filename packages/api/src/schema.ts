@@ -354,6 +354,11 @@ const schema = gql`
     note: String
   }
 
+  enum DirectionalityType {
+    LTR
+    RTL
+  }
+
   type Article {
     id: ID!
     title: String!
@@ -399,6 +404,7 @@ const schema = gql`
     wordsCount: Int
     folder: String!
     feedContent: String
+    directionality: DirectionalityType
   }
 
   # Query: article
@@ -1649,6 +1655,7 @@ const schema = gql`
     links: JSON
     folder: String!
     aiSummary: String
+    directionality: DirectionalityType
   }
 
   type SearchItemEdge {

@@ -18,6 +18,7 @@ import {
   ContentReader,
   CreateArticleError,
   CreateArticleSuccess,
+  DirectionalityType,
   FeedArticle,
   Highlight,
   PageType,
@@ -227,6 +228,7 @@ export const libraryItemToArticle = (item: LibraryItem): Article => ({
   uploadFileId: item.uploadFile?.id,
   pageType: item.itemType as unknown as PageType,
   wordsCount: item.wordCount,
+  directionality: item.directionality as unknown as DirectionalityType,
 })
 
 export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
@@ -245,6 +247,7 @@ export const libraryItemToSearchItem = (item: LibraryItem): SearchItem => ({
   image: item.thumbnail,
   highlights: item.highlights?.map(highlightDataToHighlight),
   wordsCount: item.wordCount,
+  directionality: item.directionality as unknown as DirectionalityType,
 })
 
 export const isParsingTimeout = (libraryItem: LibraryItem): boolean => {

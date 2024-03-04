@@ -432,8 +432,8 @@ async function retrievePage(
     const finalUrl = response.url()
     const contentType = response.headers()['content-type']
 
-    logRecord.finalUrl = response.url()
-    logRecord.contentType = response.headers()['content-type']
+    logRecord.finalUrl = finalUrl
+    logRecord.contentType = contentType
 
     return { context, page, response, finalUrl, contentType }
   } catch (error) {

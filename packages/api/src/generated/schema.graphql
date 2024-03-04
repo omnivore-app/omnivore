@@ -69,6 +69,7 @@ type Article {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  directionality: DirectionalityType
   feedContent: String
   folder: String!
   hasContent: Boolean
@@ -644,6 +645,11 @@ union DeviceTokensResult = DeviceTokensError | DeviceTokensSuccess
 
 type DeviceTokensSuccess {
   deviceTokens: [DeviceToken!]!
+}
+
+enum DirectionalityType {
+  LTR
+  RTL
 }
 
 type EmptyTrashError {
@@ -1832,6 +1838,7 @@ enum SearchErrorCode {
 }
 
 type SearchItem {
+  aiSummary: String
   annotation: String
   archivedAt: Date
   author: String
@@ -1840,6 +1847,7 @@ type SearchItem {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  directionality: DirectionalityType
   feedContent: String
   folder: String!
   highlights: [Highlight!]
@@ -2733,6 +2741,7 @@ enum UploadImportFileType {
 
 type User {
   email: String
+  features: [String]
   followersCount: Int
   friendsCount: Int
   id: ID!
