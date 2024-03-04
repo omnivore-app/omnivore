@@ -250,7 +250,7 @@ async function fetchSource(url, callbackFn) {
           }
         }
       })
-      return document.documentElement.innerHTML
+      return document.documentElement.outerHTML
     })
 
     sanitizeSource(domContent, callbackFn)
@@ -344,7 +344,7 @@ async function runReadability(source, destPath, metadataDestPath, options) {
     delete result.content
     delete result.textContent
     delete result.length
-    delete result.dom
+    delete result.documentElement
 
     // Add isProbablyReaderable result
     result.readerable = readerable
