@@ -1265,7 +1265,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
-        overflow: 'hidden',
+        overflow: 'visible',
         '@media (max-width: 930px)': {
           gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
         },
@@ -1345,6 +1345,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
                 } else {
                   props.actionHandler(action, linkedItem)
                 }
+                document.body.style.removeProperty('pointer-events')
               }}
             />
           )}
