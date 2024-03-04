@@ -36,8 +36,8 @@ export class PocketClient implements IntegrationClient {
     }
   }
 
-  export = async (): Promise<boolean> => {
-    return Promise.resolve(false)
+  export = () => {
+    throw new Error('Method not implemented.')
   }
 
   async auth(state: string) {

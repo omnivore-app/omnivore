@@ -67,7 +67,7 @@ export class ReadwiseClient implements IntegrationClient {
     return result
   }
 
-  auth(state: string): Promise<string> {
+  auth = () => {
     throw new Error('Method not implemented.')
   }
 

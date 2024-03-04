@@ -1,7 +1,36 @@
 import axios from 'axios'
+import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import { IntegrationClient } from './integration'
+
+interface NotionPage {
+  parent: {
+    database_id: string
+  }
+  cover?: {
+    external: {
+      url: string
+    }
+  }
+  properties: {
+    Name: {
+      title: Array<{
+        text: {
+          content: string
+        }
+      }>
+    }
+    URL: {
+      url: string
+    }
+    Tags: {
+      multi_select: Array<{
+        name: string
+      }>
+    }
+  }
+}
 
 export class NotionClient implements IntegrationClient {
   name = 'NOTION'
@@ -9,7 +38,9 @@ export class NotionClient implements IntegrationClient {
   headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    'Notion-Version': '2022-06-28',
   }
+  timeout = 5000 // 5 seconds
 
   accessToken = async (code: string): Promise<string | null> => {
     const authUrl = `${this.apiUrl}/oauth/token`
@@ -31,7 +62,7 @@ export class NotionClient implements IntegrationClient {
             authorization: `Basic ${encoded}`,
             ...this.headers,
           },
-          timeout: 5000, // 5 seconds
+          timeout: this.timeout,
         }
       )
       return response.data.access_token
@@ -45,11 +76,66 @@ export class NotionClient implements IntegrationClient {
     }
   }
 
-  async auth(state: string): Promise<string> {
+  async auth(): Promise<string> {
     return Promise.resolve(env.notion.authUrl)
   }
 
-  export = () => {
-    throw new Error('Method not implemented.')
+  private _itemToNotionPage = (item: LibraryItem): NotionPage => {
+    return {
+      parent: {
+        database_id: item.id,
+      },
+      cover: item.thumbnail
+        ? {
+            external: {
+              url: item.thumbnail,
+            },
+          }
+        : undefined,
+      properties: {
+        Name: {
+          title: [
+            {
+              text: {
+                content: item.title,
+              },
+            },
+          ],
+        },
+        URL: {
+          url: item.originalUrl,
+        },
+        Tags: {
+          multi_select:
+            item.labels?.map((label) => {
+              return {
+                name: label.name,
+              }
+            }) || [],
+        },
+      },
+    }
+  }
+
+  export = async (token: string, items: LibraryItem[]): Promise<boolean> => {
+    const url = `${this.apiUrl}/pages`
+    const page = this._itemToNotionPage(items[0])
+    try {
+      const response = await axios.post(url, page, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...this.headers,
+        },
+        timeout: this.timeout,
+      })
+      return response.status === 200
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        logger.error(error.response)
+      } else {
+        logger.error(error)
+      }
+      return false
+    }
   }
 }
