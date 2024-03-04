@@ -180,7 +180,7 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   )
 
   return (
-    <ModalRoot defaultOpen onOpenChange={safeOnOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <Dialog.Portal>
         <ModalOverlay />
         <ModalContent
