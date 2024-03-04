@@ -66,7 +66,7 @@ const generateActions = (router: NextRouter) => {
   return defaultActions
 }
 
-function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
+export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
 
   useEffect(() => {
