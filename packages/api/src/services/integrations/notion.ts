@@ -4,7 +4,7 @@ import { logger } from '../../utils/logger'
 import { IntegrationClient } from './integration'
 
 export class NotionClient implements IntegrationClient {
-  name = 'notion'
+  name = 'NOTION'
   apiUrl = 'https://api.notion.com/v1'
   headers = {
     'Content-Type': 'application/json',
@@ -24,6 +24,7 @@ export class NotionClient implements IntegrationClient {
         {
           grant_type: 'authorization_code',
           code,
+          redirect_uri: `${env.client.url}/settings/integrations`,
         },
         {
           headers: {
