@@ -39,6 +39,8 @@ type NestedArticleData = {
   errorCodes?: string[]
 }
 
+export type TextDirection = 'RTL' | 'LTR'
+
 export type ArticleAttributes = {
   id: string
   title: string
@@ -64,6 +66,7 @@ export type ArticleAttributes = {
   linkId: string
   labels?: Label[]
   state?: State
+  directionality?: TextDirection
   recommendations?: Recommendation[]
 }
 

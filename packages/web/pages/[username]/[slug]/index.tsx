@@ -566,6 +566,7 @@ export default function Home(): JSX.Element {
               highlightOnRelease={
                 readerSettings.highlightOnRelease ?? undefined
               }
+              textDirection={readerSettings.textDirection}
               articleMutations={{
                 createHighlightMutation,
                 deleteHighlightMutation,

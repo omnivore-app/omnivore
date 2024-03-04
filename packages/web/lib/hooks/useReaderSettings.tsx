@@ -2,6 +2,7 @@ import { useRegisterActions } from 'kbar'
 import { useCallback, useState } from 'react'
 import { applyStoredTheme } from '../themeUpdater'
 import { usePersistedState } from './usePersistedState'
+import { TextDirection } from '../networking/queries/useGetArticleQuery'
 
 const DEFAULT_FONT = 'Inter'
 
@@ -34,6 +35,9 @@ export type ReaderSettings = {
 
   highlightOnRelease: boolean | undefined
   setHighlightOnRelease: (set: boolean) => void
+
+  textDirection: TextDirection | undefined
+  setTextDirection: (textDirection: TextDirection) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
@@ -72,6 +76,12 @@ export const useReaderSettings = (): ReaderSettings => {
   const [justifyText, setJustifyText] = usePersistedState<boolean | undefined>({
     key: `--display-justify-text`,
     initialValue: false,
+  })
+  const [textDirection, setTextDirection] = usePersistedState<
+    TextDirection | undefined
+  >({
+    key: `--display-text-direction`,
+    initialValue: 'LTR',
   })
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] =
@@ -226,5 +236,7 @@ export const useReaderSettings = (): ReaderSettings => {
     setHighContrastText,
     highlightOnRelease,
     setHighlightOnRelease,
+    textDirection,
+    setTextDirection,
   }
 }

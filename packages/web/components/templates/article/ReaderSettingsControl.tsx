@@ -187,6 +187,37 @@ function AdvancedSettings(props: SettingsProps): JSX.Element {
       >
         <Label htmlFor="auto-highlight-mode" css={{ width: '100%' }}>
           <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
+            Right-to-left text
+          </StyledText>
+        </Label>
+        <SwitchRoot
+          id="rtl-text"
+          checked={readerSettings.textDirection == 'RTL'}
+          onCheckedChange={(checked) => {
+            readerSettings.setTextDirection(checked ? 'RTL' : 'LTR')
+          }}
+        >
+          <SwitchThumb />
+        </SwitchRoot>
+      </HStack>
+
+      <HStack
+        css={{
+          width: '100%',
+          pr: '30px',
+          alignItems: 'center',
+          '&:hover': {
+            opacity: 0.8,
+          },
+          '&[data-state="on"]': {
+            bg: '$thBackground',
+          },
+        }}
+        alignment="start"
+        distribution="between"
+      >
+        <Label htmlFor="auto-highlight-mode" css={{ width: '100%' }}>
+          <StyledText style="displaySettingsLabel" css={{ pl: '20px' }}>
             Auto highlight mode
           </StyledText>
         </Label>
