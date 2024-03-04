@@ -150,7 +150,7 @@
      * capture them separately and concatenate them here with head and body tags
      * preserved.
      */
-    const contentCopyHtml = `<html dir="${dir}"><head>${document.head.innerHTML}</head><body>${contentCopyEl.innerHTML}</body></html>`
+    const contentCopyHtml = `<html ${dir.toLowerCase() === 'rtl' ? 'dir="rtl"': ''}><head>${document.head.innerHTML}</head><body>${contentCopyEl.innerHTML}</body></html>`
     // Cleaning up the copy element
     contentCopyEl.remove()
     return contentCopyHtml
