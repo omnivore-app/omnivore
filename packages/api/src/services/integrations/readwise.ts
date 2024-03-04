@@ -57,17 +57,23 @@ export class ReadwiseClient implements IntegrationClient {
   export = async (token: string, items: LibraryItem[]): Promise<boolean> => {
     let result = true
 
-    const highlights = items.flatMap(this.itemToReadwiseHighlight)
+    const highlights = items.flatMap(this._itemToReadwiseHighlight)
 
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
-      result = await this.syncWithReadwise(token, highlights)
+      result = await this._syncWithReadwise(token, highlights)
     }
 
     return result
   }
 
-  itemToReadwiseHighlight = (item: LibraryItem): ReadwiseHighlight[] => {
+  auth(state: string): Promise<string> {
+    throw new Error('Method not implemented.')
+  }
+
+  private _itemToReadwiseHighlight = (
+    item: LibraryItem
+  ): ReadwiseHighlight[] => {
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
     return item.highlights
       ?.map((highlight) => {
@@ -93,7 +99,7 @@ export class ReadwiseClient implements IntegrationClient {
       .filter((highlight) => highlight !== undefined) as ReadwiseHighlight[]
   }
 
-  syncWithReadwise = async (
+  private _syncWithReadwise = async (
     token: string,
     highlights: ReadwiseHighlight[]
   ): Promise<boolean> => {

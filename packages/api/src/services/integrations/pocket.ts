@@ -39,4 +39,27 @@ export class PocketClient implements IntegrationClient {
   export = async (): Promise<boolean> => {
     return Promise.resolve(false)
   }
+
+  async auth(state: string) {
+    const consumerKey = env.pocket.consumerKey
+    const redirectUri = `${env.client.url}/settings/integrations`
+
+    // make a POST request to Pocket to get a request token
+    const response = await axios.post<{ code: string }>(
+      `${this.apiUrl}/oauth/request`,
+      {
+        consumer_key: consumerKey,
+        redirect_uri: redirectUri,
+      },
+      {
+        headers: this.headers,
+        timeout: 5000, // 5 seconds
+      }
+    )
+    const { code } = response.data
+
+    return `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}${encodeURIComponent(
+      `?pocketToken=${code}&state=${state}`
+    )}`
+  }
 }

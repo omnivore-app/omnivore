@@ -2,16 +2,20 @@ import { DeepPartial, FindOptionsWhere } from 'typeorm'
 import { Integration } from '../../entity/integration'
 import { authTrx } from '../../repository'
 import { IntegrationClient } from './integration'
+import { NotionClient } from './notion'
 import { PocketClient } from './pocket'
 import { ReadwiseClient } from './readwise'
 
 const integrations: IntegrationClient[] = [
   new ReadwiseClient(),
   new PocketClient(),
+  new NotionClient(),
 ]
 
 export const getIntegrationClient = (name: string): IntegrationClient => {
-  const service = integrations.find((s) => s.name === name)
+  const service = integrations.find(
+    (s) => s.name.toLowerCase() === name.toLowerCase()
+  )
   if (!service) {
     throw new Error(`Integration client not found: ${name}`)
   }

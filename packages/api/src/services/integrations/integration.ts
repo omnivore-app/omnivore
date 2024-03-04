@@ -24,5 +24,7 @@ export interface IntegrationClient {
 
   accessToken(token: string): Promise<string | null>
 
+  auth(state: string): Promise<string>
+
   export(token: string, items: LibraryItem[]): Promise<boolean>
 }
