@@ -1,4 +1,7 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import {
+  ArticleAttributes,
+  TextDirection,
+} from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
@@ -38,6 +41,7 @@ type ArticleContainerProps = {
   showHighlightsModal: boolean
   highlightOnRelease?: boolean
   justifyText?: boolean
+  textDirection?: TextDirection
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -138,6 +142,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
+  const [textDirection, setTextDirection] = useState(
+    props.textDirection ?? 'LTR'
+  )
 
   const updateFontSize = useCallback(
     (newFontSize: number) => {
@@ -171,6 +178,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
       const isEnabled = event.enableHighlightOnRelease === 'on'
       setHighlightOnRelease(isEnabled)
+    }
+
+    interface UpdateTextDirectionEvent extends Event {
+      textDirection: TextDirection
+    }
+
+    const handleUpdateTextDirection = (event: UpdateTextDirectionEvent) => {
+      setTextDirection(event.textDirection)
     }
 
     interface UpdateMaxWidthPercentageEvent extends Event {
@@ -296,6 +311,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
       'handleAutoHighlightModeChange',
       updateHighlightMode
     )
+    document.addEventListener('updateTextDirection', handleUpdateTextDirection)
 
     return () => {
       document.removeEventListener('updateFontFamily', updateFontFamily)
@@ -320,6 +336,10 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
         updateHighlightMode
       )
       document.removeEventListener('saveReadPosition', saveReadPosition)
+      document.removeEventListener(
+        'updateTextDirection',
+        handleUpdateTextDirection
+      )
     }
   })
 
@@ -367,6 +387,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   return (
     <>
       <Box
+        dir={textDirection}
         id="article-container"
         css={{
           padding: 30,
