@@ -170,15 +170,6 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
     }
   }, [highlightLastLabel, selectedLabels, dispatchLabels])
 
-  const safeOnOpenChange = useCallback(
-    (open: boolean) => {
-      console.log('safe on open change called')
-      // document.body.style.removeProperty('pointer-events')
-      props.onOpenChange(open)
-    },
-    [props]
-  )
-
   return (
     <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <Dialog.Portal>
