@@ -635,7 +635,7 @@ export function HomeFeedContainer(): JSX.Element {
     createAction({
       section: 'Library',
       name: 'Mark item as read',
-      shortcut: ['m', 'r'],
+      shortcut: ['-'],
       perform: () => {
         handleCardAction('mark-read', activeItem)
       },
@@ -643,7 +643,7 @@ export function HomeFeedContainer(): JSX.Element {
     createAction({
       section: 'Library',
       name: 'Mark item as unread',
-      shortcut: ['m', 'u'],
+      shortcut: ['_'],
       perform: () => handleCardAction('mark-unread', activeItem),
     }),
   ]
