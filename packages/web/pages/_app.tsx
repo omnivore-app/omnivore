@@ -90,9 +90,7 @@ export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
         </KBarPositioner>
       </KBarPortal>
       <IdProvider>
-        <TooltipProvider delayDuration={200}>
-          <Component {...pageProps} />
-        </TooltipProvider>
+        <Component {...pageProps} />
       </IdProvider>
     </KBarProvider>
   )
