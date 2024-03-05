@@ -635,7 +635,7 @@ export function HomeFeedContainer(): JSX.Element {
     createAction({
       section: 'Library',
       name: 'Mark item as read',
-      shortcut: ['m', 'r'],
+      shortcut: ['-'],
       perform: () => {
         handleCardAction('mark-read', activeItem)
       },
@@ -643,7 +643,7 @@ export function HomeFeedContainer(): JSX.Element {
     createAction({
       section: 'Library',
       name: 'Mark item as unread',
-      shortcut: ['m', 'u'],
+      shortcut: ['_'],
       perform: () => handleCardAction('mark-unread', activeItem),
     }),
   ]
@@ -1265,7 +1265,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
-        overflow: 'hidden',
+        overflow: 'visible',
         '@media (max-width: 930px)': {
           gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
         },
@@ -1345,6 +1345,7 @@ function LibraryItems(props: LibraryItemsProps): JSX.Element {
                 } else {
                   props.actionHandler(action, linkedItem)
                 }
+                document.body.style.removeProperty('pointer-events')
               }}
             />
           )}

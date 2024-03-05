@@ -35,9 +35,9 @@ export function searchBarCommands(
       callback: () => setTimeout(() => actionHandler('focusSearchBar'), 0),
     },
     {
-      shortcutKeys: ['x'],
+      shortcutKeys: ['c', 's'],
       actionDescription: 'Clear search bar',
-      shortcutKeyDescription: 'x',
+      shortcutKeyDescription: 'c then s',
       callback: () => actionHandler('clearSearch'),
     },
   ]

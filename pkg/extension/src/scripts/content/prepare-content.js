@@ -134,6 +134,7 @@
     contentCopyEl.style.left = '-2000px'
     contentCopyEl.style.zIndex = '-2000'
     contentCopyEl.innerHTML = document.body.innerHTML
+    const dir = document.dir
 
     // Appending copy of the content to the DOM to enable computed styles capturing ability
     // Without adding that copy to the DOM the `window.getComputedStyle` method will always return undefined.
@@ -149,7 +150,7 @@
      * capture them separately and concatenate them here with head and body tags
      * preserved.
      */
-    const contentCopyHtml = `<html><head>${document.head.innerHTML}</head><body>${contentCopyEl.innerHTML}</body></html>`
+    const contentCopyHtml = `<html ${dir.toLowerCase() === 'rtl' ? 'dir="rtl"': ''}><head>${document.head.innerHTML}</head><body>${contentCopyEl.innerHTML}</body></html>`
     // Cleaning up the copy element
     contentCopyEl.remove()
     return contentCopyHtml

@@ -8,7 +8,7 @@ export default class Document extends NextDocument {
     globalStyles()
 
     return (
-      <Html lang="en">
+      <Html lang="en" dir="ltr">
         <Head>
           <style
             id="stitches"

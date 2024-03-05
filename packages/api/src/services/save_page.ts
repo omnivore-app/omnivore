@@ -1,7 +1,11 @@
 import { Readability } from '@omnivore/readability'
 import { DeepPartial } from 'typeorm'
 import { Highlight } from '../entity/highlight'
-import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import {
+  DirectionalityType,
+  LibraryItem,
+  LibraryItemState,
+} from '../entity/library_item'
 import { User } from '../entity/user'
 import { homePageURL } from '../env'
 import {
@@ -126,6 +130,7 @@ export const savePage = async (
     rssFeedUrl: input.rssFeedUrl,
     folder: input.folder,
     feedContent: input.feedContent,
+    dir: parseResult.parsedContent?.dir,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
@@ -204,6 +209,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl,
   folder,
   feedContent,
+  dir,
 }: {
   url: string
   userId: string
@@ -224,6 +230,7 @@ export const parsedContentToLibraryItem = ({
   rssFeedUrl?: string | null
   folder?: string | null
   feedContent?: string | null
+  dir?: string | null
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   logger.info('save_page', { url, state, itemId })
   return {
@@ -267,5 +274,9 @@ export const parsedContentToLibraryItem = ({
       state === ArticleSavingRequestStatus.Archived ? new Date() : null,
     deletedAt: state === ArticleSavingRequestStatus.Deleted ? new Date() : null,
     feedContent,
+    directionality:
+      dir?.toLowerCase() === 'rtl'
+        ? DirectionalityType.RTL
+        : DirectionalityType.LTR, // default to LTR
   }
 }

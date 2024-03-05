@@ -19,6 +19,7 @@ import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { ProgressBar } from '../../components/elements/ProgressBar'
+import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMutation'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -197,6 +198,18 @@ export default function Account(): JSX.Element {
       setEmailUpdating(false)
     })()
   }, [email])
+
+  const emptyTrash = useCallback(() => {
+    ;(async () => {
+      showSuccessToast('Emptying trash')
+      const result = await emptyTrashMutation()
+      if (result) {
+        showSuccessToast('Emptied trash')
+      } else {
+        showErrorToast('Error emptying trash')
+      }
+    })()
+  }, [])
 
   applyStoredTheme()
 
@@ -396,11 +409,20 @@ export default function Account(): JSX.Element {
                 <StyledText style="footnote" css={{ mt: '0px' }}>
                   {`${libraryCount} of ${ACCOUNT_LIMIT} library items used.`}
                 </StyledText>
-                <StyledText style="footnote" css={{ m: '0px' }}>
+                <StyledText style="footnote" css={{ m: '0px', mb: '10px' }}>
                   NOTE: this is a soft limit, if you are approaching or have
                   exceeded this limit please contact support to have your limit
                   raised.
                 </StyledText>
+                <Button
+                  style="ctaDarkYellow"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    emptyTrash()
+                  }}
+                >
+                  Empty trash
+                </Button>
               </>
             )}
             {/* <Button style="ctaDarkYellow">Upgrade</Button> */}

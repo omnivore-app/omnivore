@@ -16,7 +16,6 @@ import { useCopyLink } from '../../../lib/hooks/useCopyLink'
 import { CloseIcon } from '../../elements/images/CloseIcon'
 import { OmnivoreLogoIcon } from '../../elements/images/OmnivoreNameLogo'
 import { useState } from 'react'
-import { TooltipWrapped } from '../../elements/Tooltip'
 import { TwitterLogo, FacebookLogo } from 'phosphor-react'
 
 type ShareType = 'link' | 'highlight'
@@ -102,49 +101,36 @@ export function ShareModalLayout(props: ShareModalLayoutProps): JSX.Element {
             <StyledText style="boldText" css={{ m: '0' }}>
               Secret URL
             </StyledText>
-            <TooltipWrapped
-              tooltipContent="Link copied!"
-              tooltipSide="top"
-              active={isLinkCopied}
+            <button
+              onClick={toggleSwitch}
+              className="track"
               style={{
-                background:
-                  'linear-gradient(0deg, rgba(10, 8, 6, 0.8), rgba(10, 8, 6, 0.8)), #FFFFFF;',
-              }}
-              arrowStyles={{
-                fill: 'linear-gradient(0deg, rgba(10, 8, 6, 0.8), rgba(10, 8, 6, 0.8)), #FFFFFF;',
+                display: 'flex',
+                padding: '2px',
+                flexDirection: `${switchOn ? 'row-reverse' : 'row'}`,
+                alignItems: 'center',
+                width: '40px',
+                height: '24px',
+                background: `${
+                  switchOn ? 'rgba(255, 210, 52, 1)' : 'rgba(10, 8, 6, 0.15)'
+                }`,
+                borderRadius: '12px',
+                borderColor: theme.colors.grayBorder.toString(),
+                borderWidth: 1,
+                borderStyle: 'solid',
               }}
             >
-              <button
-                onClick={toggleSwitch}
-                className="track"
+              <div
+                className="thumb"
                 style={{
-                  display: 'flex',
-                  padding: '2px',
-                  flexDirection: `${switchOn ? 'row-reverse' : 'row'}`,
-                  alignItems: 'center',
-                  width: '40px',
-                  height: '24px',
-                  background: `${
-                    switchOn ? 'rgba(255, 210, 52, 1)' : 'rgba(10, 8, 6, 0.15)'
-                  }`,
-                  borderRadius: '12px',
-                  borderColor: theme.colors.grayBorder.toString(),
-                  borderWidth: 1,
-                  borderStyle: 'solid',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '20px',
+                  background: 'rgba(255, 255, 255, 1)',
+                  border: '2px solid rgba(0, 0, 0, 0.06)',
                 }}
-              >
-                <div
-                  className="thumb"
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '20px',
-                    background: 'rgba(255, 255, 255, 1)',
-                    border: '2px solid rgba(0, 0, 0, 0.06)',
-                  }}
-                ></div>
-              </button>
-            </TooltipWrapped>
+              ></div>
+            </button>
             {switchOn && (
               <Button style="ctaModal" onClick={copyLink}>
                 Copy Link

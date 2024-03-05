@@ -6,6 +6,7 @@ import {
 import { VStack, HStack } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { StyledText } from '../elements/StyledText'
+import { useCallback } from 'react'
 
 type ConfirmationModalProps = {
   message?: string
