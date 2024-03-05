@@ -20,7 +20,6 @@ import { StyledText } from '../../components/elements/StyledText'
 import { ArrowClockwise, DotsThree, PencilSimple, Trash } from 'phosphor-react'
 import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
 import {
   Dropdown,

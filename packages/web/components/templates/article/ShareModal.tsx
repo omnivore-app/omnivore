@@ -16,7 +16,6 @@ import { useCopyLink } from '../../../lib/hooks/useCopyLink'
 import { CloseIcon } from '../../elements/images/CloseIcon'
 import { OmnivoreLogoIcon } from '../../elements/images/OmnivoreNameLogo'
 import { useState } from 'react'
-import { TooltipWrapped } from '../../elements/Tooltip'
 import { TwitterLogo, FacebookLogo } from 'phosphor-react'
 
 type ShareType = 'link' | 'highlight'

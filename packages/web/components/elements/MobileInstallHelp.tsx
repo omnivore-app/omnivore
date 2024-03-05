@@ -6,7 +6,6 @@ import {
 } from 'phosphor-react'
 import { Box, HStack } from '../elements/LayoutPrimitives'
 import { StyledText, StyledAnchor } from '../elements/StyledText'
-import { TooltipWrapped } from './Tooltip'
 
 const TooltipStyle = {
   backgroundColor: '#F9D354',
@@ -234,51 +233,45 @@ export default function MobileInstallHelp({
           }
         >
           {platformSizes.map((item, idx) => (
-            <TooltipWrapped
+            <Box
               key={`platformSize-${idx}`}
-              tooltipContent={item.label}
-              tooltipSide={'top'}
-              style={TooltipStyle}
-              arrowStyles={{ fill: '#F9D354' }}
+              title={item.label}
+              css={{
+                ml: '$1',
+              }}
             >
-              <Box
+              <StyledAnchor
+                onClick={() => setSelectedTooltip(item.label)}
                 css={{
-                  ml: '$1',
+                  mx: 'auto',
+                  borderRadius: '50%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 35,
+                  width: 35,
+                  cursor: 'pointer',
+                  backgroundColor: '$labelButtonsBg',
+                  ...(selectedTooltip !== item.label && {
+                    filter: 'grayscale(1)',
+                  }),
+                  '&:focus': {
+                    filter: 'grayscale(0)',
+                  },
+                  '&:active': {
+                    filter: 'grayscale(0)',
+                  },
+                  '@lg': {
+                    transition: 'filter .3s linear',
+                    '&:hover': {
+                      filter: 'grayscale(0)',
+                    },
+                  },
                 }}
               >
-                <StyledAnchor
-                  onClick={() => setSelectedTooltip(item.label)}
-                  css={{
-                    mx: 'auto',
-                    borderRadius: '50%',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: 35,
-                    width: 35,
-                    cursor: 'pointer',
-                    backgroundColor: '$labelButtonsBg',
-                    ...(selectedTooltip !== item.label && {
-                      filter: 'grayscale(1)',
-                    }),
-                    '&:focus': {
-                      filter: 'grayscale(0)',
-                    },
-                    '&:active': {
-                      filter: 'grayscale(0)',
-                    },
-                    '@lg': {
-                      transition: 'filter .3s linear',
-                      '&:hover': {
-                        filter: 'grayscale(0)',
-                      },
-                    },
-                  }}
-                >
-                  {item.icon}
-                </StyledAnchor>
-              </Box>
-            </TooltipWrapped>
+                {item.icon}
+              </StyledAnchor>
+            </Box>
           ))}
         </HStack>
       </HStack>
