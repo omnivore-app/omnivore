@@ -16,7 +16,7 @@ type PageCoordinates = {
 
 type LinkHoverBarProps = {
   anchorCoordinates: PageCoordinates
-  handleButtonClick: (action: HighlightAction, param?: string) => void
+  handleButtonClick: () => void
 }
 
 export function LinkHoverBar(props: LinkHoverBarProps): JSX.Element {
