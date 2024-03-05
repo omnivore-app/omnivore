@@ -26,7 +26,6 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
-  useVerifyAuth()
   useApplyLocalTheme()
 
   const { viewerData } = useGetViewerQuery()
