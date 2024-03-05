@@ -23,6 +23,10 @@ interface NotionPage {
   }
 }
 
+interface Settings {
+  parentPageId: string
+}
+
 export class NotionClient implements IntegrationClient {
   name = 'NOTION'
   _headers = {
@@ -39,13 +43,15 @@ export class NotionClient implements IntegrationClient {
 
   _token: string
   _client: Client
+  _settings: Settings
 
-  constructor(token: string) {
+  constructor(token: string, settings: Settings) {
     this._token = token
     this._client = new Client({
       auth: token,
       timeoutMs: this._timeout,
     })
+    this._settings = settings
   }
 
   accessToken = async (): Promise<string | null> => {

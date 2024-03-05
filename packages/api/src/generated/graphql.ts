@@ -1085,6 +1085,7 @@ export type Integration = {
   enabled: Scalars['Boolean'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  settings?: Maybe<Scalars['JSON']>;
   taskName?: Maybe<Scalars['String']>;
   token: Scalars['String'];
   type: IntegrationType;
@@ -2404,6 +2405,7 @@ export enum SearchErrorCode {
 
 export type SearchItem = {
   __typename?: 'SearchItem';
+  aiSummary?: Maybe<Scalars['String']>;
   annotation?: Maybe<Scalars['String']>;
   archivedAt?: Maybe<Scalars['Date']>;
   author?: Maybe<Scalars['String']>;
@@ -2586,6 +2588,7 @@ export type SetIntegrationInput = {
   id?: InputMaybe<Scalars['ID']>;
   importItemState?: InputMaybe<ImportItemState>;
   name: Scalars['String'];
+  settings?: InputMaybe<Scalars['JSON']>;
   syncedAt?: InputMaybe<Scalars['Date']>;
   taskName?: InputMaybe<Scalars['String']>;
   token: Scalars['String'];
@@ -3378,6 +3381,7 @@ export enum UploadImportFileType {
 export type User = {
   __typename?: 'User';
   email?: Maybe<Scalars['String']>;
+  features?: Maybe<Array<Maybe<Scalars['String']>>>;
   followersCount?: Maybe<Scalars['Int']>;
   friendsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -5310,6 +5314,7 @@ export type IntegrationResolvers<ContextType = ResolverContext, ParentType exten
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  settings?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   taskName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['IntegrationType'], ParentType, ContextType>;
@@ -5945,6 +5950,7 @@ export type SearchErrorResolvers<ContextType = ResolverContext, ParentType exten
 };
 
 export type SearchItemResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['SearchItem'] = ResolversParentTypes['SearchItem']> = {
+  aiSummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   annotation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   archivedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   author?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -6528,6 +6534,7 @@ export type UploadImportFileSuccessResolvers<ContextType = ResolverContext, Pare
 
 export type UserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  features?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   followersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   friendsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

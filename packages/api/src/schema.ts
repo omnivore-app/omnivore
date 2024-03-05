@@ -2008,6 +2008,7 @@ const schema = gql`
     createdAt: Date!
     updatedAt: Date
     taskName: String
+    settings: JSON
   }
 
   enum IntegrationType {
@@ -2043,6 +2044,7 @@ const schema = gql`
     syncedAt: Date
     importItemState: ImportItemState
     taskName: String
+    settings: JSON
   }
 
   union IntegrationsResult = IntegrationsSuccess | IntegrationsError

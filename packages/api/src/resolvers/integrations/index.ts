@@ -55,6 +55,8 @@ export const setIntegrationResolver = authorized<
         input.type === IntegrationType.Import
           ? input.importItemState || ImportItemState.Unarchived // default to unarchived
           : undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      settings: input.settings,
     }
     if (input.id) {
       // Update
@@ -69,7 +71,11 @@ export const setIntegrationResolver = authorized<
       integrationToSave.taskName = existingIntegration.taskName
     } else {
       // Create
-      const integrationService = getIntegrationClient(input.name, input.token)
+      const integrationService = getIntegrationClient(
+        input.name,
+        input.token,
+        input.settings
+      )
       // authorize and get access token
       const token = await integrationService.accessToken()
       if (!token) {

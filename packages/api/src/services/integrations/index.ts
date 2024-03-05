@@ -8,7 +8,8 @@ import { ReadwiseClient } from './readwise'
 
 export const getIntegrationClient = (
   name: string,
-  token: string
+  token: string,
+  settings: any
 ): IntegrationClient => {
   switch (name.toLowerCase()) {
     case 'readwise':
@@ -16,7 +17,7 @@ export const getIntegrationClient = (
     case 'pocket':
       return new PocketClient(token)
     case 'notion':
-      return new NotionClient(token)
+      return new NotionClient(token, settings)
     default:
       throw new Error(`Integration client not found: ${name}`)
   }
