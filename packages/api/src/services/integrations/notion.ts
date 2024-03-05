@@ -1,30 +1,45 @@
 import { Client } from '@notionhq/client'
 import axios from 'axios'
-import { LibraryItem } from '../../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../../entity/library_item'
 import { env } from '../../env'
 import { logger } from '../../utils/logger'
 import { IntegrationClient } from './integration'
 
 interface NotionPage {
   parent: {
-    page_id: string
+    database_id: string
   }
+  id: string
+  created_time: string
+  last_edited_time: string
+  archived: boolean
+  public_url: string
   cover?: {
     external: {
       url: string
     }
   }
+  icon?: {
+    external: {
+      url: string
+    }
+  }
   properties: {
-    title: Array<{
-      text: {
-        content: string
+    title: [
+      {
+        text: {
+          content: string
+          link: {
+            url: string
+          }
+        }
       }
-    }>
+    ]
   }
 }
 
 interface Settings {
-  parentPageId: string
+  parentDatabaseId: string
 }
 
 export class NotionClient implements IntegrationClient {
@@ -92,8 +107,20 @@ export class NotionClient implements IntegrationClient {
   private _itemToNotionPage = (item: LibraryItem): NotionPage => {
     return {
       parent: {
-        page_id: this._settings.parentPageId,
+        database_id: this._settings.parentDatabaseId,
       },
+      id: item.id,
+      archived: item.state === LibraryItemState.Archived,
+      created_time: item.savedAt.toISOString(),
+      last_edited_time: item.updatedAt.toISOString(),
+      public_url: item.originalUrl,
+      icon: item.siteIcon
+        ? {
+            external: {
+              url: item.siteIcon,
+            },
+          }
+        : undefined,
       cover: item.thumbnail
         ? {
             external: {
@@ -106,6 +133,9 @@ export class NotionClient implements IntegrationClient {
           {
             text: {
               content: item.title,
+              link: {
+                url: item.originalUrl,
+              },
             },
           },
         ],
@@ -119,6 +149,7 @@ export class NotionClient implements IntegrationClient {
 
   export = async (items: LibraryItem[]): Promise<boolean> => {
     const pages = items.map(this._itemToNotionPage)
+    console.log('pages', JSON.stringify(pages, null, 2))
     await Promise.all(pages.map((page) => this._createPage(page)))
 
     return true
