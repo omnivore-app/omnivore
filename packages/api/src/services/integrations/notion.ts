@@ -35,6 +35,8 @@ export class NotionClient implements IntegrationClient {
     baseURL: 'https://api.notion.com/v1',
     timeout: this._timeout,
   })
+  _parentPageId = process.env.NOTION_PAGE_ID
+
   _token: string
   _client: Client
 
@@ -83,9 +85,13 @@ export class NotionClient implements IntegrationClient {
   }
 
   private _itemToNotionPage = (item: LibraryItem): NotionPage => {
+    if (!this._parentPageId) {
+      throw new Error('Notion parent page ID is not set')
+    }
+
     return {
       parent: {
-        page_id: '83a3f627ab9e44ac83fe657141aec615',
+        page_id: this._parentPageId,
       },
       cover: item.thumbnail
         ? {
@@ -111,9 +117,6 @@ export class NotionClient implements IntegrationClient {
   }
 
   export = async (items: LibraryItem[]): Promise<boolean> => {
-    // find/create a parent page for all the items
-    const parentPageName = 'Omnivore'
-
     const pages = items.map(this._itemToNotionPage)
     await Promise.all(pages.map((page) => this._createPage(page)))
 
