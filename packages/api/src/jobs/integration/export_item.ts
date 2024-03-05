@@ -44,9 +44,9 @@ export const exportItem = async (jobData: ExportItemJobData) => {
   }
   logger.info('exporting item...', logObject)
 
-  const client = getIntegrationClient(integration.name)
+  const client = getIntegrationClient(integration.name, integration.token)
 
-  const synced = await client.export(integration.token, libraryItems)
+  const synced = await client.export(libraryItems)
   if (!synced) {
     logger.error('failed to export item', logObject)
     return false

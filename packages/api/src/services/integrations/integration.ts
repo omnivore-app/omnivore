@@ -20,11 +20,11 @@ export interface RetrieveRequest {
 
 export interface IntegrationClient {
   name: string
-  apiUrl: string
+  _token: string
 
-  accessToken(token: string): Promise<string | null>
+  accessToken(): Promise<string | null>
 
   auth(state: string): Promise<string>
 
-  export(token: string, items: LibraryItem[]): Promise<boolean>
+  export(items: LibraryItem[]): Promise<boolean>
 }

@@ -33,17 +33,28 @@ interface ReadwiseHighlight {
 
 export class ReadwiseClient implements IntegrationClient {
   name = 'READWISE'
-  apiUrl = 'https://readwise.io/api/v2'
+  _headers = {
+    'Content-Type': 'application/json',
+  }
+  _axios = axios.create({
+    baseURL: 'https://readwise.io/api/v2',
+    timeout: 5000, // 5 seconds
+  })
+  _token: string
 
-  accessToken = async (token: string): Promise<string | null> => {
-    const authUrl = `${this.apiUrl}/auth`
+  constructor(token: string) {
+    this._token = token
+  }
+
+  accessToken = async (): Promise<string | null> => {
     try {
-      const response = await axios.get(authUrl, {
+      const response = await this._axios.get('/auth', {
         headers: {
-          Authorization: `Token ${token}`,
+          ...this._headers,
+          Authorization: `Token ${this._token}`,
         },
       })
-      return response.status === 204 ? token : null
+      return response.status === 204 ? this._token : null
     } catch (error) {
       if (axios.isAxiosError(error)) {
         logger.error(error.response)
@@ -54,14 +65,14 @@ export class ReadwiseClient implements IntegrationClient {
     }
   }
 
-  export = async (token: string, items: LibraryItem[]): Promise<boolean> => {
+  export = async (items: LibraryItem[]): Promise<boolean> => {
     let result = true
 
     const highlights = items.flatMap(this._itemToReadwiseHighlight)
 
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
-      result = await this._syncWithReadwise(token, highlights)
+      result = await this._syncWithReadwise(highlights)
     }
 
     return result
@@ -100,21 +111,18 @@ export class ReadwiseClient implements IntegrationClient {
   }
 
   private _syncWithReadwise = async (
-    token: string,
     highlights: ReadwiseHighlight[]
   ): Promise<boolean> => {
-    const url = `${this.apiUrl}/highlights`
-    const response = await axios.post(
-      url,
+    const response = await this._axios.post(
+      '/highlights',
       {
         highlights,
       },
       {
         headers: {
-          Authorization: `Token ${token}`,
-          'Content-Type': 'application/json',
+          ...this._headers,
+          Authorization: `Token ${this._token}`,
         },
-        timeout: 5000, // 5 seconds
       }
     )
     return response.status === 200

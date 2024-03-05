@@ -6,20 +6,20 @@ import { NotionClient } from './notion'
 import { PocketClient } from './pocket'
 import { ReadwiseClient } from './readwise'
 
-const integrations: IntegrationClient[] = [
-  new ReadwiseClient(),
-  new PocketClient(),
-  new NotionClient(),
-]
-
-export const getIntegrationClient = (name: string): IntegrationClient => {
-  const service = integrations.find(
-    (s) => s.name.toLowerCase() === name.toLowerCase()
-  )
-  if (!service) {
-    throw new Error(`Integration client not found: ${name}`)
+export const getIntegrationClient = (
+  name: string,
+  token: string
+): IntegrationClient => {
+  switch (name.toLowerCase()) {
+    case 'readwise':
+      return new ReadwiseClient(token)
+    case 'pocket':
+      return new PocketClient(token)
+    case 'notion':
+      return new NotionClient(token)
+    default:
+      throw new Error(`Integration client not found: ${name}`)
   }
-  return service
 }
 
 export const deleteIntegrations = async (
