@@ -5,7 +5,6 @@ import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'
 import { NextRouter, useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { TooltipProvider } from '../components/elements/Tooltip'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import {
   KBarProvider,
