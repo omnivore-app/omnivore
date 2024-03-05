@@ -19,15 +19,8 @@ type ConfirmationModalProps = {
 }
 
 export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
-  const safeOnOpenChange = useCallback(
-    (open: boolean) => {
-      document.body.style.removeProperty('pointer-events')
-      props.onOpenChange(open)
-    },
-    [props]
-  )
   return (
-    <ModalRoot defaultOpen onOpenChange={safeOnOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
       <ModalOverlay />
       <ModalContent css={{ bg: '$grayBg', maxWidth: '20em', zIndex: '20' }}>
         <VStack alignment="center" distribution="center" css={{ p: '15px' }}>

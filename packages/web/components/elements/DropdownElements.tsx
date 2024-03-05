@@ -48,6 +48,7 @@ const StyledTriggerItem = styled(Trigger, {
 
 export const DropdownContent = styled(Content, {
   width: 195,
+  zIndex: 100,
   backgroundColor: '$grayBg',
   borderRadius: '6px',
   outline: '1px solid #323232',
