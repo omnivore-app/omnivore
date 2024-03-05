@@ -39,7 +39,6 @@ export class NotionClient implements IntegrationClient {
     baseURL: 'https://api.notion.com/v1',
     timeout: this._timeout,
   })
-  _parentPageId = process.env.NOTION_PAGE_ID
 
   _token: string
   _client: Client
@@ -91,13 +90,9 @@ export class NotionClient implements IntegrationClient {
   }
 
   private _itemToNotionPage = (item: LibraryItem): NotionPage => {
-    if (!this._parentPageId) {
-      throw new Error('Notion parent page ID is not set')
-    }
-
     return {
       parent: {
-        page_id: this._parentPageId,
+        page_id: this._settings.parentPageId,
       },
       cover: item.thumbnail
         ? {
