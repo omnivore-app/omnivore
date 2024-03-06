@@ -144,7 +144,7 @@ export default function MobileInstallHelp({
         }}
       >
         With the Omnivore for iOS and macOS app installed you can save any link
-        using our share extension.
+        using our Share extension.
         <br />
         {!onboarding && (
           <StyledAnchor
