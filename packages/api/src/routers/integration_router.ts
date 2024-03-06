@@ -21,7 +21,7 @@ export function integrationRouter() {
         return res.status(401).send('UNAUTHORIZED')
       }
 
-      const integrationClient = getIntegrationClient(req.params.name, '', null)
+      const integrationClient = getIntegrationClient(req.params.name, '')
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const state = req.body.state as string

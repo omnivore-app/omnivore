@@ -47,7 +47,7 @@ export const exportItem = async (jobData: ExportItemJobData) => {
         const client = getIntegrationClient(
           integration.name,
           integration.token,
-          integration.settings
+          integration
         )
 
         const synced = await client.export(libraryItems)

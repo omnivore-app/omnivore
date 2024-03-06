@@ -71,11 +71,7 @@ export const setIntegrationResolver = authorized<
       integrationToSave.taskName = existingIntegration.taskName
     } else {
       // Create
-      const integrationService = getIntegrationClient(
-        input.name,
-        input.token,
-        input.settings
-      )
+      const integrationService = getIntegrationClient(input.name, input.token)
       // authorize and get access token
       const token = await integrationService.accessToken()
       if (!token) {
