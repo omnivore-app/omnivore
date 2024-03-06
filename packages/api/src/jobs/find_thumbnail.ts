@@ -59,7 +59,7 @@ const getImageSize = async (src: string): Promise<ImageSize | null> => {
       height,
     }
   } catch (e) {
-    logger.error(e)
+    logger.error('get image size error', e)
     return null
   }
 }
