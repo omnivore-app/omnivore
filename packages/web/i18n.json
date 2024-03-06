@@ -1,8 +1,0 @@
-{
-  "locales": ["en"],
-  "defaultLocale": "en",
-  "pages": {
-    "/login": ["login", "errors"],
-    "/feed": ["feed", "errors"]
-  }
-}

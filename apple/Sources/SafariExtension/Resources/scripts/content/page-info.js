@@ -1,1 +1,0 @@
-"use strict";window.getPageInfo=function(){return{title:function(){const n=document.querySelector(SELECTORS.TITLE),t=n&&n.content;return document.title||t||""}(),canonicalUrl:function(){const n=window.location.href,t=document.querySelector(SELECTORS.CANONICAL_URL),e=t&&t.href;return e?new URL(e,n).href:n}(),contentType:document.contentType}};

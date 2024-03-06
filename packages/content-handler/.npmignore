@@ -1,7 +1,0 @@
-/test/
-src
-tsconfig.json
-.eslintrc
-.eslintignore
-.gitignore
-mocha-config.json

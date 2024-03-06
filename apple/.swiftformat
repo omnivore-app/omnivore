@@ -1,6 +1,0 @@
---exclude build,.build,vendor,docs,.bundle
---indent 2
---tabwidth 2
---commas inline
---self init-only
---swiftversion 5.5
