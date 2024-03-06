@@ -6,7 +6,6 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -79,14 +78,12 @@ class WebReaderLoadingContainerActivity : ComponentActivity() {
 
         viewModel.loadItem(slug = slug, requestID = requestID)
 
-        enableEdgeToEdge()
-
         setContent {
             OmnivoreTheme {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = if (isSystemInDarkTheme()) Color.Black else Color.White)
+                      .fillMaxSize()
+                      .background(color = Color.Black)
                 ) {
                     if (viewModel.hasFetchError.value == true) {
                         Text(stringResource(R.string.web_reader_loading_container_error_msg))
@@ -502,11 +499,11 @@ fun ReaderTopAppBar(
 fun BottomSheetUI(content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
-            .wrapContentHeight()
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
-            .background(Color.White)
-            .statusBarsPadding()
+          .wrapContentHeight()
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+          .background(Color.White)
+          .statusBarsPadding()
     ) {
         Scaffold { paddingValues ->
             Box(modifier = Modifier.fillMaxSize()) {

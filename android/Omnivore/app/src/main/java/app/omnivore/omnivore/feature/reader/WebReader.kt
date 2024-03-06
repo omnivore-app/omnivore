@@ -41,9 +41,11 @@ fun WebReader(
 
     WebView.setWebContentsDebuggingEnabled(true)
 
+
     Box {
         AndroidView(factory = {
             OmnivoreWebView(it).apply {
+                systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
                 viewModel = webReaderViewModel
 
                 layoutParams = ViewGroup.LayoutParams(
@@ -54,6 +56,7 @@ fun WebReader(
                 settings.allowContentAccess = true
                 settings.allowFileAccess = true
                 settings.domStorageEnabled = true
+                settings.loadWithOverviewMode = false
 
                 alpha = 1.0f
                 viewModel?.showNavBar()
@@ -169,18 +172,22 @@ fun WebReader(
                 setOnKeyListener { _, keyCode, event ->
                     if (event.action == KeyEvent.ACTION_DOWN) {
                         when (keyCode) {
-                            KeyEvent.KEYCODE_VOLUME_UP -> {
-                                scrollVertically(OmnivoreWebView.Direction.UP)
+                            KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_PAGE_UP, KeyEvent.KEYCODE_DPAD_UP -> {
+                                // Trigger the scrollContent function for scroll back
+                                val script = "scrollBack();"
+                                evaluateJavascript(script, null)
                                 return@setOnKeyListener true
                             }
 
-                            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                                scrollVertically(OmnivoreWebView.Direction.DOWN)
+                            KeyEvent.KEYCODE_VOLUME_DOWN, KeyEvent.KEYCODE_PAGE_DOWN, KeyEvent.KEYCODE_DPAD_DOWN -> {
+                                // Trigger the scrollContent function for scroll forward
+                                val script = "scrollForward();"
+                                evaluateJavascript(script, null)
+                                systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
                                 return@setOnKeyListener true
                             }
                         }
                     }
-                    // default value
                     false
                 }
             }
@@ -206,15 +213,18 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
     }
 
     enum class Direction(val value: Int) {
-        UP(-1), DOWN(1)
+        UP(-1), DOWN(1),
+        LEFT(-1), RIGHT(1)
     }
 
-    fun scrollVertically(direction: Direction, heightFactor: Int = 10) {
+    fun scrollVertically(direction: Direction, heightFactor: Float = 1.03f) {
         if (canScrollVertically(direction.value)) {
-            val scrollByValue = height.div(heightFactor)
-            scrollBy(0, direction.value.times(scrollByValue))
+            val scrollByValue = height / heightFactor
+            scrollBy(0, (direction.value * scrollByValue).toInt())
         }
     }
+
+
 
     private val actionModeCallback = object : ActionMode.Callback2() {
         // Called when the action mode is created; startActionMode() was called
@@ -344,6 +354,7 @@ class OmnivoreWebView(context: Context) : WebView(context), OnScrollChangeListen
 
     override fun onScrollChange(view: View?, x: Int, y: Int, oldX: Int, oldY: Int) {
         viewModel?.onScrollChange((oldY - y).toFloat())
+        viewModel?.onScrollChange((oldX - x).toFloat())
     }
 }
 
@@ -359,3 +370,4 @@ data class TapCoordinates(
 )
 
 data class HighlightQuote(val quote: String?)
+

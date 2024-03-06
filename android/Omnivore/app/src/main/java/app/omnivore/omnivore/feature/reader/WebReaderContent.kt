@@ -71,14 +71,88 @@ data class WebReaderContent(
               <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
                 <style>
                   @import url("$highlightCssFilePath");
+                   
+                        body {
+                        overflow-y: hidden !important; /* Disable horizontal scrolling */
+                        overflow-x: hidden !important; /* Disable horizontal scrolling */
+
+
+                    }
+                   .container {
+                    height: 100vh !important;
+                    padding-top: 50px;
+                    padding-bottom: 10px;
+                    column-width: 100vw; 
+                    column-gap: 0px;
+                    display: inline-block; 
+                    overflow-x: auto; 
+                    bottom: 0px !important;
+                    transform: translateY(0vh) !important;
+
+                    
+
+                }
+                   
+      #scrollButtonForward {
+      position: fixed !important;
+      bottom: 50% !important;
+      right: 0 !important;
+      height: 200px !important;
+      width: 70px;
+      transform: translateY(100px) !important;
+      background-color: transparent !important; /* Adjust the color as needed */
+      color: #DDDDDD !important; /* Adjust the color as needed */
+      padding: 5px !important;
+      cursor: pointer !important;
+      z-index: 1000 !important; /* Adjust the z-index as needed */
+      font-size: 40px !important; /* Adjust the font size as needed */
+      display: flex !important;
+      justify-content: right !important;
+      align-items: center !important;
+    }
+    
+      #scrollButtonBack {
+      position: fixed !important;
+      bottom: 50% !important;
+      left: 0 !important;
+      height: 200px !important;
+      width: 70px;
+      transform: translateY(100px) !important;
+      background-color: transparent !important; /* Adjust the color as needed */
+      color: #DDDDDD !important; /* Adjust the color as needed */
+      padding: 5px !important;
+      cursor: pointer !important;
+      z-index: 1000 !important; /* Adjust the z-index as needed */
+      font-size: 40px !important; /* Adjust the font size as needed */
+      display: flex !important;
+      justify-content: left !important;
+      align-items: center !important;
+    }
+      
+    }
+                    
                 </style>
             </head>
+             <div id="scrollButtonForward" onclick="scrollForward()">»</div>
+             <div id="scrollButtonBack" onclick="scrollBack()">«</div>
+
             <body>
-              <div id="root" />
-              <div id='_omnivore-htmlContent'>
+              <div id="root" class="container" />
+              <div id='_omnivore-htmlContent'; class="column">
                 ${articleContent.htmlContent}
               </div>
+               
+
+              
               <script type="text/javascript">
+              
+              function scrollForward() {
+      document.getElementById("root").scrollLeft += window.innerWidth;
+    }
+                  function scrollBack() {
+      document.getElementById("root").scrollLeft -= window.innerWidth;
+    }
+
                 window.omnivoreEnv = {
                   "NEXT_PUBLIC_APP_ENV": "prod",
                   "NEXT_PUBLIC_BASE_URL": "unset",
@@ -112,7 +186,10 @@ data class WebReaderContent(
                 window.prefersHighContrastFont = ${preferences.prefersHighContrastText}
                 window.justifyText = ${preferences.prefersJustifyText}
                 window.enableHighlightBar = false
-              </script>
+              </script>  
+              
+              
+              
               <script src="bundle.js"></script>
               <script src="mathJaxConfiguration.js" id="MathJax-script"></script>
               <script src="mathjax.js" id="MathJax-script"></script>

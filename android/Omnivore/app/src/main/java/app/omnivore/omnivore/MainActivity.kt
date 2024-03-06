@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+
 
         val loginViewModel: LoginViewModel by viewModels()
         val searchViewModel: SearchViewModel by viewModels()
