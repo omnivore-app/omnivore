@@ -5,6 +5,7 @@ import { StatusType, User } from '../entity/user'
 import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
 import { SetClaimsRole } from '../utils/dictionary'
+import { logger } from '../utils/logger'
 import {
   PushNotificationType,
   sendMulticastPushNotifications,
@@ -135,7 +136,8 @@ export const sendPushNotifications = async (
 ) => {
   const tokens = await findDeviceTokensByUserId(userId)
   if (tokens.length === 0) {
-    throw new Error('No device tokens found')
+    logger.info(`No device tokens found for user ${userId}`)
+    return
   }
 
   const message = {
