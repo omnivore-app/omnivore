@@ -103,7 +103,10 @@
 
             if (!consentCheckbox.checked) {
                 alert('You must grant consent to use this extension.')
+                return
             }
+
+            document.location.href = 'https://omnivore.app/landing/firefox-get-started'
         }
 
         document.getElementById('uninstall-link').addEventListener('click', function (e) {
