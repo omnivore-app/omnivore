@@ -35,7 +35,7 @@ export default function LandingPage(): JSX.Element {
           },
         }}
       >
-        <h1>Thank you for install the Omnivore Firefox Extension</h1>
+        <h1>Thank you for installing the Omnivore Firefox Extension</h1>
 
         <p>
           Thank you for installing our Firefox extension. A few considerations
