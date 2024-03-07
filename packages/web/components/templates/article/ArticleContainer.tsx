@@ -348,12 +348,22 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     return isJustified ? 'justify' : 'start'
   }
 
+  const appliedFont = (name: string | undefined | null) => {
+    if (name === 'System Default') {
+      return 'unset'
+    }
+    return name
+  }
+
   const styles = {
     fontSize,
     margin: props.margin ?? 360,
     maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
-    fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
+    fontFamily:
+      appliedFont(fontFamilyOverride) ??
+      appliedFont(props.fontFamily) ??
+      'inter',
     readerFontColor:
       highContrastTextOverride != undefined
         ? textColorValue(highContrastTextOverride)
