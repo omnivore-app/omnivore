@@ -2,8 +2,8 @@
   "manifest_version": 2,
   "name": "process.env.EXTENSION_NAME",
   "short_name": "process.env.EXTENSION_NAME",
-  "version": "2.8.9",
-  "description": "Save PDFs and Articles to your Omnivore library",
+  "version": "2.10.0",
+  "description": "Save PDFs and articles to your Omnivore library",
   "author": "Omnivore Media, Inc",
   "default_locale": "en",
   "developer": {
