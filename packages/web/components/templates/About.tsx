@@ -16,7 +16,7 @@ export function About(props: AboutProps): JSX.Element {
       <LandingHeader />
       <VStack
         alignment="center"
-        css={{ background: '#3D3D3D', color: '#EDEDED' }}
+        css={{ background: '#FEFCF5', color: '#3D3D3D' }}
       >
         <VStack
           css={{
@@ -50,7 +50,7 @@ export function About(props: AboutProps): JSX.Element {
             readers.`}
           </Box>
           <Box
-            as="p"
+          as="p"
             css={{
               color: 'rgb(125, 125, 125)',
               padding: '10px',
