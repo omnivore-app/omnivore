@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -735,10 +735,12 @@ type NavButtonRedirectProps = {
 }
 
 function NavRedirectButton(props: NavButtonRedirectProps): JSX.Element {
-  const selected = useMemo(() => {
-    return window.location.pathname.includes(props.redirectLocation)
-  }, [props.redirectLocation])
+  const [selected, setSelected] = useState(false);
   const router = useRouter()
+
+  useEffect(() => {
+    setSelected(window.location.pathname.includes(props.redirectLocation))
+  }, [])
 
   return (
     <HStack
