@@ -53,6 +53,13 @@ interface NotionPage {
         }
       ]
     }
+    Author: {
+      rich_text: Array<{
+        text: {
+          content: string
+        }
+      }>
+    }
     'Original URL': {
       url: string | null
     }
@@ -185,6 +192,15 @@ export class NotionClient implements IntegrationClient {
             },
           ],
         },
+        Author: {
+          rich_text: [
+            {
+              text: {
+                content: item.author || 'unknown',
+              },
+            },
+          ],
+        },
         'Original URL': {
           url: item.originalUrl,
         },
@@ -210,7 +226,7 @@ export class NotionClient implements IntegrationClient {
                 },
                 {
                   text: {
-                    content: highlight.annotation || '',
+                    content: `\n${highlight.annotation || ''}`,
                   },
                   annotations: {
                     italic: true,
@@ -263,6 +279,9 @@ export class NotionClient implements IntegrationClient {
         properties: {
           Title: {
             title: {},
+          },
+          Author: {
+            rich_text: {},
           },
           'Original URL': {
             url: {},
