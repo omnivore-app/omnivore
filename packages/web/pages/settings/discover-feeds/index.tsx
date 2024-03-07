@@ -60,7 +60,7 @@ export default function DiscoverFeedsSettings(): JSX.Element {
     revalidate()
   }
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   return (
     <SettingsTable
