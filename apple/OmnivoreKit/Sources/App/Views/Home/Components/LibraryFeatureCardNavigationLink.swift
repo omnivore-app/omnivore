@@ -21,23 +21,11 @@ struct LibraryFeatureCardNavigationLink: View {
   @State var showFeatureActions = false
 
   var body: some View {
-    PresentationLink(
-      transition: PresentationLinkTransition.slide(
-        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
-                                                                   options:
-                                                                   PresentationLinkTransition.Options(
-                                                                     modalPresentationCapturesStatusBarAppearance: true
-                                                                   ))),
-      destination: {
-        LinkItemDetailView(
-          linkedItemObjectID: item.objectID,
-          isPDF: item.isPDF
-        )
-        .background(ThemeManager.currentBgColor)
-      }, label: {
-        LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
-      }
-    )
+    Button(action: {
+      viewModel.presentItem(item: item)
+    }, label: {
+      LibraryFeatureCard(item: item, viewer: dataService.currentViewer)
+    })
     .buttonStyle(.plain)
     .confirmationDialog("", isPresented: $showFeatureActions) {
       if FeaturedItemFilter(rawValue: viewModel.fetcher.featureFilter) == .pinned {

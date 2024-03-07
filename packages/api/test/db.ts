@@ -1,18 +1,24 @@
 import { DeepPartial } from 'typeorm'
 import { appDataSource } from '../src/data_source'
+import { EntityLabel, LabelSource } from '../src/entity/entity_label'
 import { Filter } from '../src/entity/filter'
+import { Highlight } from '../src/entity/highlight'
 import { Label } from '../src/entity/label'
 import { LibraryItem } from '../src/entity/library_item'
 import { Reminder } from '../src/entity/reminder'
 import { User } from '../src/entity/user'
 import { UserDeviceToken } from '../src/entity/user_device_tokens'
-import { getRepository, setClaims } from '../src/repository'
+import { authTrx, getRepository, setClaims } from '../src/repository'
+import { highlightRepository } from '../src/repository/highlight'
 import { userRepository } from '../src/repository/user'
 import { createUser } from '../src/services/create_user'
-import { saveLabelsInLibraryItem } from '../src/services/labels'
-import { createLibraryItem } from '../src/services/library_item'
+import { createOrUpdateLibraryItem } from '../src/services/library_item'
 import { createDeviceToken } from '../src/services/user_device_tokens'
-import { generateFakeUuid } from './util'
+import {
+  bulkEnqueueUpdateLabels,
+  enqueueUpdateHighlight,
+} from '../src/utils/createTask'
+import { generateFakeUuid, waitUntilJobsDone } from './util'
 
 export const createTestConnection = async (): Promise<void> => {
   appDataSource.setOptions({
@@ -106,7 +112,7 @@ export const createTestLibraryItem = async (
   userId: string,
   labels?: Label[]
 ): Promise<LibraryItem> => {
-  const item: DeepPartial<LibraryItem> = {
+  const item = {
     user: { id: userId },
     title: 'test title',
     originalContent: '<p>test content</p>',
@@ -114,10 +120,75 @@ export const createTestLibraryItem = async (
     slug: 'test-with-omnivore',
   }
 
-  const createdItem = await createLibraryItem(item, userId)
+  const createdItem = await createOrUpdateLibraryItem(item, userId)
   if (labels) {
     await saveLabelsInLibraryItem(labels, createdItem.id, userId)
   }
 
   return createdItem
+}
+
+export const saveLabelsInLibraryItem = async (
+  labels: Label[],
+  libraryItemId: string,
+  userId: string,
+  source: LabelSource = 'user'
+) => {
+  await authTrx(
+    async (tx) => {
+      const repo = tx.getRepository(EntityLabel)
+
+      // delete existing labels
+      await repo.delete({
+        libraryItemId,
+      })
+
+      // save new labels
+      await repo.save(
+        labels.map((l) => ({
+          labelId: l.id,
+          libraryItemId,
+          source,
+        }))
+      )
+    },
+    undefined,
+    userId
+  )
+
+  // update labels in library item
+  const jobs = await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+
+  await waitUntilJobsDone(jobs)
+}
+
+export const createHighlight = async (
+  highlight: DeepPartial<Highlight>,
+  libraryItemId: string,
+  userId: string
+) => {
+  const newHighlight = await authTrx(
+    async (tx) => {
+      const repo = tx.withRepository(highlightRepository)
+      const newHighlight = await repo.createAndSave(highlight)
+      return repo.findOneOrFail({
+        where: { id: newHighlight.id },
+        relations: {
+          user: true,
+        },
+      })
+    },
+    undefined,
+    userId
+  )
+
+  const job = await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
+  if (job) {
+    await waitUntilJobsDone([job])
+  }
+
+  return newHighlight
 }

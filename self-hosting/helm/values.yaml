@@ -1,0 +1,103 @@
+controllers:
+  main:
+    enabled: false
+  api:
+    enabled: true
+    type: deployment
+    strategy: RollingUpdate
+    containers:
+      api:
+        image:
+          repository: sejaeger/omnivore-api
+          tag: 150444efb
+          pullPolicy: IfNotPresent
+        env:
+          API_ENV: local
+          PG_HOST: postgres.postgres.svc.cluster.local
+          PG_USER: app_user
+          PG_DB: omnivore
+          PG_PORT: 5432
+          PG_POOL_MAX: 20
+          CLIENT_URL: https://omnivore.example.com # URL any client can use to reach the server
+          GATEWAY_URL: http://omnivore-api:8080/api
+          CONTENT_FETCH_URL: http://omnivore-content-fetch:8080/?token=$(VERIFICATION_TOKEN)
+        envFrom:
+          - secretRef:
+              name: omnivore-image-proxy-secret
+          - secretRef:
+              name: omnivore-jwt-secret
+          - secretRef:
+              name: omnivore-sso-jwt-secret
+          - secretRef:
+              name: omnivore-pg-password
+          - secretRef:
+              name: omnivore-content-fetch-verification-token
+    initContainers:
+      migrate:
+        image:
+          repository: sejaeger/omnivore-migrate
+          tag: 150444efb
+          pullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "--"]
+        args: ["./packages/db/setup.sh"]
+        env:
+          PG_HOST: postgres.postgres.svc.cluster.local
+          PG_USER: app_user
+          PG_DB: omnivore
+          NO_DEMO_USER: 1
+        envFrom:
+          - secretRef:
+              name: omnivore-pg-password
+          - secretRef:
+              name: postgres-admin-user-and-password
+
+  # NOTE: You need to build this image for your specific setup because NEXT.js burns some environment variables into client code
+  # See: https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables#bundling-environment-variables-for-the-browser
+  # Use the ../build-and-push-images.sh script for your convenience
+  web:
+    enabled: true
+    type: deployment
+    strategy: RollingUpdate
+    containers:
+      web:
+        image:
+          repository: sejaeger/omnivore-web
+          tag: 150444efb
+          pullPolicy: IfNotPresent
+
+  content-fetch:
+    enabled: true
+    type: deployment
+    strategy: RollingUpdate
+    containers:
+      content-fetch:
+        image:
+          repository: sejaeger/omnivore-content-fetch
+          tag: e44616b01
+          pullPolicy: IfNotPresent
+        env:
+          REST_BACKEND_ENDPOINT: http://omnivore-api:8080/api
+        envFrom:
+          - secretRef:
+              name: omnivore-jwt-secret
+          - secretRef:
+              name: omnivore-content-fetch-token
+
+service:
+  main:
+    enabled: false
+  api:
+    controller: api
+    ports:
+      http:
+        port: 8080
+  web:
+    controller: web
+    ports:
+      http:
+        port: 8080
+  content-fetch:
+    controller: content-fetch
+    ports:
+      http:
+        port: 8080

@@ -1,4 +1,4 @@
-import { authorized } from '../../../utils/helpers'
+import { authorized } from '../../../utils/gql-utils'
 import {
   GetDiscoverFeedArticleSuccess,
   GetDiscoverFeedArticleError,
@@ -32,7 +32,7 @@ const getPopularTopics = (
   uid: string,
   after: string,
   amt: number,
-  feedId: string | null = null,
+  feedId: string | null = null
 ): Promise<DiscoverFeedArticleDBRows> => {
   const params = [uid, amt + 1, after]
   if (feedId) {
@@ -51,7 +51,7 @@ const getPopularTopics = (
       ORDER BY popularity_score DESC
       LIMIT $2 OFFSET $3
       `,
-    params,
+    params
   ) as Promise<DiscoverFeedArticleDBRows>
 }
 
@@ -60,7 +60,7 @@ const getAllTopics = (
   uid: string,
   after: string,
   amt: number,
-  feedId: string | null = null,
+  feedId: string | null = null
 ): Promise<DiscoverFeedArticleDBRows> => {
   const params = [uid, amt + 1, after]
   if (feedId) {
@@ -76,7 +76,7 @@ const getAllTopics = (
       ORDER BY published_at DESC
       LIMIT $2 OFFSET $3
       `,
-    params,
+    params
   ) as Promise<DiscoverFeedArticleDBRows>
 }
 
@@ -86,7 +86,7 @@ const getTopicInformation = (
   uid: string,
   after: string,
   amt: number,
-  feedId: string | null = null,
+  feedId: string | null = null
 ): Promise<DiscoverFeedArticleDBRows> => {
   const params = [uid, discoverTopicId, amt + 1, Number(after)]
   if (feedId) {
@@ -102,7 +102,7 @@ const getTopicInformation = (
      ORDER BY published_at DESC
      LIMIT $3 OFFSET $4
      `,
-    params,
+    params
   ) as Promise<DiscoverFeedArticleDBRows>
 }
 
@@ -121,7 +121,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
 
     const { rows: topics } = (await queryRunner.query(
       `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
-      [discoverTopicId],
+      [discoverTopicId]
     )) as { rows: unknown[] }
 
     if (topics.length == 0) {
@@ -138,7 +138,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
         uid,
         startCursor,
         firstAmnt,
-        feedId ?? null,
+        feedId ?? null
       )
     } else if (discoverTopicId === 'All') {
       discoverArticles = await getAllTopics(
@@ -146,7 +146,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
         uid,
         startCursor,
         firstAmnt,
-        feedId ?? null,
+        feedId ?? null
       )
     } else {
       discoverArticles = await getTopicInformation(
@@ -155,7 +155,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
         uid,
         startCursor,
         firstAmnt,
-        feedId ?? null,
+        feedId ?? null
       )
     }
 

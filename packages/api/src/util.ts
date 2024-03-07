@@ -4,7 +4,12 @@
 import * as dotenv from 'dotenv'
 import os from 'os'
 
-interface BackendEnv {
+interface redisConfig {
+  url?: string
+  cert?: string
+}
+
+export interface BackendEnv {
   pg: {
     host: string
     port: number
@@ -22,11 +27,10 @@ interface BackendEnv {
     apiEnv: string
     instanceId: string
     trustProxy: boolean
+    internalApiUrl: string
   }
   client: {
     url: string
-    previewGenerationServiceUrl: string
-    previewImageWrapperId: string
   }
   google: {
     auth: {
@@ -36,8 +40,8 @@ interface BackendEnv {
       secret: string
     }
   }
-  segment: {
-    writeKey: string
+  posthog: {
+    apiKey: string
   }
   intercom: {
     token: string
@@ -69,9 +73,9 @@ interface BackendEnv {
     textToSpeechTaskHandlerUrl: string
     recommendationTaskHandlerUrl: string
     thumbnailTaskHandlerUrl: string
-    rssFeedTaskHandlerUrl: string
     integrationExporterUrl: string
     integrationImporterUrl: string
+    importerMetricsUrl: string
   }
   fileUpload: {
     gcsUploadBucket: string
@@ -93,10 +97,6 @@ interface BackendEnv {
   readwise: {
     apiUrl: string
   }
-  azure: {
-    speechKey: string
-    speechRegion: string
-  }
   gcp: {
     location: string
   }
@@ -110,22 +110,9 @@ interface BackendEnv {
     }
   }
   redis: {
-    url?: string
-    cert?: string
+    mq: redisConfig
+    cache: redisConfig
   }
-}
-
-/***
- * Checks if we are running on Google App Engine.
- * See https://cloud.google.com/appengine/docs/standard/nodejs/runtime#environment_variables
- */
-export function isAppEngine(): boolean {
-  return (
-    process.env.GOOGLE_CLOUD_PROJECT !== undefined &&
-    process.env.GAE_INSTANCE !== undefined &&
-    process.env.GAE_SERVICE !== undefined &&
-    process.env.GAE_VERSION !== undefined
-  )
 }
 
 const nullableEnvVars = [
@@ -144,14 +131,12 @@ const nullableEnvVars = [
   'PUPPETEER_QUEUE_NAME',
   'CONTENT_FETCH_URL',
   'CONTENT_FETCH_GCF_URL',
-  'PREVIEW_IMAGE_WRAPPER_ID',
-  'PREVIEW_GENERATION_SERVICE_URL',
   'GCS_UPLOAD_SA_KEY_FILE_PATH',
   'GAUTH_IOS_CLIENT_ID',
   'GAUTH_ANDROID_CLIENT_ID',
   'GAUTH_CLIENT_ID',
   'GAUTH_SECRET',
-  'SEGMENT_WRITE_KEY',
+  'POSTHOG_API_KEY',
   'TWITTER_BEARER_TOKEN',
   'GCS_UPLOAD_PRIVATE_BUCKET',
   'SENDER_MESSAGE',
@@ -164,13 +149,10 @@ const nullableEnvVars = [
   'READWISE_API_URL',
   'INTEGRATION_TASK_HANDLER_URL',
   'TEXT_TO_SPEECH_TASK_HANDLER_URL',
-  'AZURE_SPEECH_KEY',
-  'AZURE_SPEECH_REGION',
   'GCP_LOCATION',
   'RECOMMENDATION_TASK_HANDLER_URL',
   'POCKET_CONSUMER_KEY',
   'THUMBNAIL_TASK_HANDLER_URL',
-  'RSS_FEED_TASK_HANDLER_URL',
   'SENDGRID_VERIFICATION_TEMPLATE_ID',
   'REMINDER_TASK_HANDLER_URL',
   'TRUST_PROXY',
@@ -179,16 +161,15 @@ const nullableEnvVars = [
   'SUBSCRIPTION_FEED_MAX',
   'REDIS_URL',
   'REDIS_CERT',
+  'MQ_REDIS_URL',
+  'MQ_REDIS_CERT',
+  'IMPORTER_METRICS_COLLECTOR_URL',
+  'INTERNAL_API_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
-if (
-  !isAppEngine() &&
-  ['prod', 'qa', 'demo'].indexOf(process.env.API_ENV || '') === -1
-) {
-  nullableEnvVars.push(
-    ...['GCS_UPLOAD_BUCKET', 'PREVIEW_GENERATION_SERVICE_URL']
-  )
+if (process.env.API_ENV == 'local') {
+  nullableEnvVars.push(...['GCS_UPLOAD_BUCKET'])
 }
 
 const envParser =
@@ -204,6 +185,10 @@ const envParser =
       `Missing ${varName} with a non-empty value in process environment`
     )
   }
+
+interface Dict<T> {
+  [key: string]: T | undefined
+}
 
 export function getEnv(): BackendEnv {
   // Dotenv parses env file merging into proces.env which is then read into custom struct here.
@@ -228,11 +213,10 @@ export function getEnv(): BackendEnv {
     instanceId:
       parse('GAE_INSTANCE') || `x${os.userInfo().username}_${os.hostname()}`,
     trustProxy: parse('TRUST_PROXY') === 'true',
+    internalApiUrl: parse('INTERNAL_API_URL'),
   }
   const client = {
     url: parse('CLIENT_URL'),
-    previewGenerationServiceUrl: parse('PREVIEW_GENERATION_SERVICE_URL'),
-    previewImageWrapperId: parse('PREVIEW_IMAGE_WRAPPER_ID'),
   }
   const google = {
     auth: {
@@ -242,8 +226,8 @@ export function getEnv(): BackendEnv {
       secret: parse('GAUTH_SECRET'),
     },
   }
-  const segment = {
-    writeKey: parse('SEGMENT_WRITE_KEY'),
+  const posthog = {
+    apiKey: parse('POSTHOG_API_KEY'),
   }
   const intercom = {
     token: parse('INTERCOM_TOKEN'),
@@ -256,7 +240,7 @@ export function getEnv(): BackendEnv {
     host: parse('JAEGER_HOST'),
   }
   const dev = {
-    isLocal: !isAppEngine(),
+    isLocal: parse('API_ENV') == 'local',
   }
   const queue = {
     location: parse('PUPPETEER_QUEUE_LOCATION'),
@@ -268,9 +252,9 @@ export function getEnv(): BackendEnv {
     textToSpeechTaskHandlerUrl: parse('TEXT_TO_SPEECH_TASK_HANDLER_URL'),
     recommendationTaskHandlerUrl: parse('RECOMMENDATION_TASK_HANDLER_URL'),
     thumbnailTaskHandlerUrl: parse('THUMBNAIL_TASK_HANDLER_URL'),
-    rssFeedTaskHandlerUrl: parse('RSS_FEED_TASK_HANDLER_URL'),
     integrationExporterUrl: parse('INTEGRATION_EXPORTER_URL'),
     integrationImporterUrl: parse('INTEGRATION_IMPORTER_URL'),
+    importerMetricsUrl: parse('IMPORTER_METRICS_COLLECTOR_URL'),
   }
   const imageProxy = {
     url: parse('IMAGE_PROXY_URL'),
@@ -302,11 +286,6 @@ export function getEnv(): BackendEnv {
     apiUrl: parse('READWISE_API_URL'),
   }
 
-  const azure = {
-    speechKey: parse('AZURE_SPEECH_KEY'),
-    speechRegion: parse('AZURE_SPEECH_REGION'),
-  }
-
   const gcp = {
     location: parse('GCP_LOCATION'),
   }
@@ -323,8 +302,14 @@ export function getEnv(): BackendEnv {
     },
   }
   const redis = {
-    url: parse('REDIS_URL'),
-    cert: parse('REDIS_CERT'),
+    mq: {
+      url: parse('MQ_REDIS_URL'),
+      cert: parse('MQ_REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+    },
+    cache: {
+      url: parse('REDIS_URL'),
+      cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
+    },
   }
 
   return {
@@ -332,7 +317,7 @@ export function getEnv(): BackendEnv {
     client,
     server,
     google,
-    segment,
+    posthog,
     intercom,
     sentry,
     jaeger,
@@ -344,7 +329,6 @@ export function getEnv(): BackendEnv {
     sender,
     sendgrid,
     readwise,
-    azure,
     gcp,
     pocket,
     subscription,

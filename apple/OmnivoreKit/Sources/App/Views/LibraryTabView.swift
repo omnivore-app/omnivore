@@ -7,7 +7,6 @@
 
 import Foundation
 import Models
-import PopupView
 import Services
 import SwiftUI
 import Transmission
@@ -21,6 +20,8 @@ struct LibraryTabView: View {
 
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
+
+  @State var isEditMode: EditMode = .inactive
   @State var showExpandedAudioPlayer = false
 
   private let syncManager = LibrarySyncManager()
@@ -69,19 +70,31 @@ struct LibraryTabView: View {
     }
   }
 
+  @State var showOperationToast = false
+  @State var operationStatus: OperationStatus = .none
+  @State var operationMessage: String?
+
   var body: some View {
     VStack(spacing: 0) {
+      WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
+        OperationToast(operationMessage: $operationMessage, 
+                       showOperationToast: $showOperationToast,
+                       operationStatus: $operationStatus)
+      } label: {
+        EmptyView()
+      }.buttonStyle(.plain)
+
       TabView(selection: $selectedTab) {
         if !hideFollowingTab {
           NavigationView {
-            HomeFeedContainerView(viewModel: followingViewModel)
+            HomeFeedContainerView(viewModel: followingViewModel, isEditMode: $isEditMode)
               .navigationBarTitleDisplayMode(.inline)
               .navigationViewStyle(.stack)
           }.tag("following")
         }
 
         NavigationView {
-          HomeFeedContainerView(viewModel: inboxViewModel)
+          HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
             .navigationBarTitleDisplayMode(.inline)
             .navigationViewStyle(.stack)
         }.tag("inbox")
@@ -101,10 +114,12 @@ struct LibraryTabView: View {
           .frame(height: 1)
           .frame(maxWidth: .infinity)
       }
-      CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
-        .padding(0)
+      if isEditMode != .active {
+        CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
+          .padding(0)
+      }
     }
-    .fullScreenCover(isPresented: $showExpandedAudioPlayer) {
+    .sheet(isPresented: $showExpandedAudioPlayer) {
       ExpandedAudioPlayer(
         delete: {
           showExpandedAudioPlayer = false
@@ -131,6 +146,11 @@ struct LibraryTabView: View {
     }
     .onOpenURL { url in
       inboxViewModel.linkRequest = nil
+
+      withoutAnimation {
+        NotificationCenter.default.post(Notification(name: Notification.Name("PopToRoot")))
+      }
+
       if let deepLink = DeepLink.make(from: url) {
         switch deepLink {
         case let .search(query):
@@ -140,6 +160,7 @@ struct LibraryTabView: View {
             inboxViewModel.appliedFilter = filter
           }
         case let .webAppLinkRequest(requestID):
+
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
             withoutAnimation {
               inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)

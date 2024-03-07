@@ -2,6 +2,7 @@ import { useRegisterActions } from 'kbar'
 import { useCallback, useState } from 'react'
 import { applyStoredTheme } from '../themeUpdater'
 import { usePersistedState } from './usePersistedState'
+import { TextDirection } from '../networking/queries/useGetArticleQuery'
 
 const DEFAULT_FONT = 'Inter'
 
@@ -31,12 +32,16 @@ export type ReaderSettings = {
   setJustifyText: (set: boolean) => void
   highContrastText: boolean | undefined
   setHighContrastText: (set: boolean) => void
+
+  highlightOnRelease: boolean | undefined
+  setHighlightOnRelease: (set: boolean) => void
+
+  textDirection: TextDirection | undefined
+  setTextDirection: (textDirection: TextDirection) => void
 }
 
 export const useReaderSettings = (): ReaderSettings => {
-  applyStoredTheme(false)
-
-  const [, updateState] = useState({})
+  applyStoredTheme()
 
   const [fontSize, setFontSize] = usePersistedState({
     key: 'fontSize',
@@ -61,9 +66,22 @@ export const useReaderSettings = (): ReaderSettings => {
     initialValue: false,
   })
 
+  const [highlightOnRelease, setHighlightOnRelease] = usePersistedState<
+    boolean | undefined
+  >({
+    key: `--display-highlight-on-release`,
+    initialValue: false,
+  })
+
   const [justifyText, setJustifyText] = usePersistedState<boolean | undefined>({
     key: `--display-justify-text`,
     initialValue: false,
+  })
+  const [textDirection, setTextDirection] = usePersistedState<
+    TextDirection | undefined
+  >({
+    key: `--display-text-direction`,
+    initialValue: 'LTR',
   })
   const [showSetLabelsModal, setShowSetLabelsModal] = useState(false)
   const [showEditDisplaySettingsModal, setShowEditDisplaySettingsModal] =
@@ -216,5 +234,9 @@ export const useReaderSettings = (): ReaderSettings => {
     setJustifyText,
     highContrastText,
     setHighContrastText,
+    highlightOnRelease,
+    setHighlightOnRelease,
+    textDirection,
+    setTextDirection,
   }
 }

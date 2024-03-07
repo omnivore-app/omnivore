@@ -6,9 +6,6 @@ import React from 'react'
 
 export class NewsletterFlairIcon extends React.Component<IconProps> {
   render() {
-    const size = (this.props.size || 26).toString()
-    const color = (this.props.color || '#2A2A2A').toString()
-
     return (
       <svg
         width="17"

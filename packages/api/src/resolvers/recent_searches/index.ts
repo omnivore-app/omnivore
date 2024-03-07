@@ -3,7 +3,7 @@ import {
   RecentSearchesSuccess,
 } from '../../generated/graphql'
 import { getRecentSearches } from '../../services/search_history'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const recentSearchesResolver = authorized<
   RecentSearchesSuccess,

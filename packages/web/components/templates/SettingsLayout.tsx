@@ -1,6 +1,5 @@
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { SettingsHeader } from '../patterns/SettingsHeader'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
@@ -11,7 +10,9 @@ import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
 import { PageMetaData } from '../patterns/PageMetaData'
 import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { logout } from '../../lib/logout'
-import { SettingsMenu } from './SettingsMenu'
+import { SettingsMenu } from './navMenu/SettingsMenu'
+import { SettingsDropdown } from './navMenu/SettingsDropdown'
+import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 
 type SettingsLayoutProps = {
   title?: string
@@ -19,14 +20,15 @@ type SettingsLayoutProps = {
 }
 
 export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
+  useVerifyAuth()
+
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =
     useState(false)
 
   useKeyboardShortcuts(navigationCommands(router))
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const showLogout = useCallback(() => {
     setShowLogoutConfirmation(true)
@@ -47,13 +49,27 @@ export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
       css={{ width: '100%', height: '100%', minHeight: '100vh' }}
     >
       <PageMetaData path="settings" title="Settings" />
-      <SettingsHeader user={viewerData?.me} />
       <VStack css={{ width: '100%', height: '100%' }}>
         <Box
           css={{
             height: DEFAULT_HEADER_HEIGHT,
+            '@mdDown': {
+              display: 'none',
+            },
           }}
         ></Box>
+        <Box
+          css={{
+            p: '15px',
+            display: 'none',
+            height: DEFAULT_HEADER_HEIGHT,
+            '@mdDown': {
+              display: 'flex',
+            },
+          }}
+        >
+          <SettingsDropdown />
+        </Box>
         <HStack css={{ width: '100%', height: '100%' }} distribution="start">
           <SettingsMenu />
           {props.children}

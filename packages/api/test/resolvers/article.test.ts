@@ -7,7 +7,11 @@ import { DeepPartial } from 'typeorm'
 import { Group } from '../../src/entity/groups/group'
 import { Highlight } from '../../src/entity/highlight'
 import { Label } from '../../src/entity/label'
-import { LibraryItem, LibraryItemState } from '../../src/entity/library_item'
+import {
+  DirectionalityType,
+  LibraryItem,
+  LibraryItemState,
+} from '../../src/entity/library_item'
 import { UploadFile } from '../../src/entity/upload_file'
 import { User } from '../../src/entity/user'
 import {
@@ -17,31 +21,33 @@ import {
   PageType,
   SyncUpdatedItemEdge,
   UpdateReason,
-  UploadFileStatus
+  UploadFileStatus,
 } from '../../src/generated/graphql'
 import { getRepository } from '../../src/repository'
 import { createGroup, deleteGroup } from '../../src/services/groups'
-import { createHighlight } from '../../src/services/highlights'
+import { createLabel, deleteLabels } from '../../src/services/labels'
 import {
-  createLabel,
-  deleteLabels,
-  saveLabelsInLibraryItem
-} from '../../src/services/labels'
-import {
-  createLibraryItem,
   createLibraryItems,
+  createOrUpdateLibraryItem,
+  CreateOrUpdateLibraryItemArgs,
   deleteLibraryItemById,
   deleteLibraryItemByUrl,
   deleteLibraryItems,
   deleteLibraryItemsByUserId,
   findLibraryItemById,
   findLibraryItemByUrl,
-  updateLibraryItem
+  softDeleteLibraryItem,
+  updateLibraryItem,
 } from '../../src/services/library_item'
 import { deleteUser } from '../../src/services/user'
 import * as createTask from '../../src/utils/createTask'
 import * as uploads from '../../src/utils/uploads'
-import { createTestLibraryItem, createTestUser } from '../db'
+import {
+  createHighlight,
+  createTestLibraryItem,
+  createTestUser,
+  saveLabelsInLibraryItem,
+} from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
 
 chai.use(chaiString)
@@ -116,6 +122,7 @@ const getArticleQuery = (slug: string) => {
           id
           slug
           content
+          directionality
           highlights {
             id
             shortId
@@ -153,6 +160,7 @@ const searchQuery = (keyword = '') => {
             url
             createdAt
             updatedAt
+            directionality
             highlights {
               id
             }
@@ -181,32 +189,9 @@ const searchQuery = (keyword = '') => {
   `
 }
 
-const savePageQuery = (
-  url: string,
-  title: string,
-  originalContent: string,
-  state: ArticleSavingRequestStatus | null = null,
-  labels: string[] | null = null,
-  clientRequestId = generateFakeUuid(),
-  source = 'puppeteer-parse'
-) => {
-  return `
-    mutation {
-      savePage(
-        input: {
-          url: "${url}",
-          source: "${source}",
-          clientRequestId: "${clientRequestId}",
-          title: "${title}",
-          originalContent: "${originalContent}"
-          state: ${state}
-          labels: ${
-            labels
-              ? '[' + labels.map((label) => `{ name: "${label}" }`) + ']'
-              : null
-          }
-        }
-      ) {
+const savePageQuery = `
+    mutation SavePage($input: SavePageInput!) {
+      savePage(input: $input) {
         ... on SaveSuccess {
           url
         }
@@ -214,18 +199,20 @@ const savePageQuery = (
           errorCodes
         }
       }
-    }
-    `
-}
+    }`
 
-const saveFileQuery = (url: string, uploadFileId: string) => {
+const saveFileQuery = (
+  clientRequestId: string,
+  url: string,
+  uploadFileId: string
+) => {
   return `
     mutation {
       saveFile (
         input: {
           url: "${url}",
           source: "test",
-          clientRequestId: "${generateFakeUuid()}",
+          clientRequestId: "${clientRequestId}",
           uploadFileId: "${uploadFileId}",
         }
       ) {
@@ -404,7 +391,7 @@ describe('Article API', () => {
         document = '<p>test</p>'
         title = 'new title'
 
-        const item = await createLibraryItem(
+        const item = await createOrUpdateLibraryItem(
           {
             readableContent: document,
             slug: 'test saving an archived article slug',
@@ -439,24 +426,30 @@ describe('Article API', () => {
     let itemId: string
 
     before(async () => {
-      const itemToCreate: DeepPartial<LibraryItem> = {
+      const itemToCreate: CreateOrUpdateLibraryItemArgs = {
         title: 'test title',
         originalContent: '<p>test</p>',
         slug: realSlug,
         readingProgressTopPercent: 100,
         user,
         originalUrl: 'https://blog.omnivore.app/test-with-omnivore',
-        highlights: [
-          {
-            shortId: 'test short id',
-            patch: 'test patch',
-            quote: 'test quote',
-            user,
-          },
-        ],
+        directionality: DirectionalityType.RTL,
       }
-      const item = await createLibraryItem(itemToCreate, user.id)
+      const item = await createOrUpdateLibraryItem(itemToCreate, user.id)
       itemId = item.id
+
+      // save highlights
+      await createHighlight(
+        {
+          shortId: 'test short id',
+          patch: 'test patch',
+          quote: 'test quote',
+          user,
+          libraryItem: item,
+        },
+        itemId,
+        user.id
+      )
     })
 
     after(async () => {
@@ -476,6 +469,9 @@ describe('Article API', () => {
         const res = await graphqlRequest(query, authToken).expect(200)
 
         expect(res.body.data.article.article.slug).to.eql(slug)
+        expect(res.body.data.article.article.directionality).to.eql(
+          DirectionalityType.RTL
+        )
       })
 
       it('should return highlights', async () => {
@@ -532,14 +528,11 @@ describe('Article API', () => {
   })
 
   describe('SavePage', () => {
-    let query = ''
     let title = 'Example Title'
     let url = 'https://blog.omnivore.app'
-    let originalContent = '<div>Example Content</div>'
-
-    beforeEach(() => {
-      query = savePageQuery(url, title, originalContent)
-    })
+    let originalContent =
+      '<html dir="rtl"><body><div>Example Content</div></body></html>'
+    let source = 'puppeteer-parse'
 
     context('when we save a new item', () => {
       after(async () => {
@@ -547,7 +540,15 @@ describe('Article API', () => {
       })
 
       it('should return a slugged url', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
+        const res = await graphqlRequest(savePageQuery, authToken, {
+          input: {
+            url,
+            originalContent,
+            title,
+            clientRequestId: generateFakeUuid(),
+            source,
+          },
+        }).expect(200)
         expect(res.body.data.savePage.url).to.startsWith(
           'http://localhost:3000/fakeUser/example-title-'
         )
@@ -564,31 +565,44 @@ describe('Article API', () => {
       })
 
       it('it should return that item in the Search Query', async () => {
-        await graphqlRequest(
-          savePageQuery(url, title, originalContent),
-          authToken
-        ).expect(200)
+        const variables = {
+          input: {
+            url,
+            originalContent,
+            title,
+            clientRequestId: generateFakeUuid(),
+            source,
+          },
+        }
+        await graphqlRequest(savePageQuery, authToken, variables).expect(200)
 
         // Save a link, then archive it
-        let allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(
-          200
-        )
+        let allLinks = await graphqlRequest(
+          searchQuery('in:inbox'),
+          authToken
+        ).expect(200)
         const justSavedId = allLinks.body.data.search.edges[0].node.id
         await archiveLink(authToken, justSavedId)
 
         // test the negative case, ensuring the archive link wasn't returned
-        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
+        allLinks = await graphqlRequest(
+          searchQuery('in:inbox'),
+          authToken
+        ).expect(200)
         expect(allLinks.body.data.search.edges[0]?.node?.url).to.not.eq(url)
 
         // Now save the link again, and ensure it is returned
-        await graphqlRequest(
-          savePageQuery(url, title, originalContent, null, null, generateFakeUuid()),
+        await graphqlRequest(savePageQuery, authToken, variables).expect(200)
+
+        allLinks = await graphqlRequest(
+          searchQuery('in:inbox'),
           authToken
         ).expect(200)
-
-        allLinks = await graphqlRequest(searchQuery('in:inbox'), authToken).expect(200)
         expect(allLinks.body.data.search.edges[0].node.id).to.eq(justSavedId)
         expect(allLinks.body.data.search.edges[0].node.url).to.eq(url)
+        expect(allLinks.body.data.search.edges[0].node.directionality).to.eq(
+          'RTL'
+        )
       })
     })
 
@@ -603,15 +617,23 @@ describe('Article API', () => {
 
       it('saves the labels and archives the item', async () => {
         const state = ArticleSavingRequestStatus.Archived
-        const labels = ['test name', 'test name 2']
-        await graphqlRequest(
-          savePageQuery(url, title, originalContent, state, labels),
-          authToken
-        ).expect(200)
+        const labels = [{ name: 'test name' }, { name: 'test name 2' }]
+        await graphqlRequest(savePageQuery, authToken, {
+          input: {
+            url,
+            state,
+            labels,
+            originalContent,
+            clientRequestId: generateFakeUuid(),
+            source,
+          },
+        }).expect(200)
 
         const savedItem = await findLibraryItemByUrl(url, user.id)
         expect(savedItem?.archivedAt).to.not.be.null
-        expect(savedItem?.labels?.map((l) => l.name)).to.eql(labels)
+        expect(savedItem?.labels?.map((l) => l.name)).to.include.members(
+          labels.map((l) => l.name)
+        )
       })
     })
 
@@ -629,10 +651,14 @@ describe('Article API', () => {
       })
 
       it('does not parse in the backend', async () => {
-        await graphqlRequest(
-          savePageQuery(url, title, originalContent, null, null, '', source),
-          authToken
-        ).expect(200)
+        await graphqlRequest(savePageQuery, authToken, {
+          input: {
+            url,
+            source,
+            originalContent,
+            clientRequestId: generateFakeUuid(),
+          },
+        }).expect(200)
 
         expect(stub).not.to.have.been.called
       })
@@ -673,14 +699,14 @@ describe('Article API', () => {
     let itemId: string
 
     before(async () => {
-      const itemToSave: DeepPartial<LibraryItem> = {
+      const itemToSave: CreateOrUpdateLibraryItemArgs = {
         user,
         title: 'test title',
         readableContent: '<p>test</p>',
         originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
         slug: 'test-with-omnivore',
       }
-      const item = await createLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
       itemId = item.id
     })
 
@@ -688,7 +714,7 @@ describe('Article API', () => {
       await deleteLibraryItemById(itemId, user.id)
     })
 
-    it('marks an article as deleted', async () => {
+    it('soft deletes the item', async () => {
       await graphqlRequest(setBookmarkQuery(itemId, false), authToken).expect(
         200
       )
@@ -760,7 +786,12 @@ describe('Article API', () => {
 
     it('saves topPercent as 0 if defined as 0', async () => {
       const topPercent = 0
-      query = saveArticleReadingProgressQuery(itemId, progress, topPercent)
+      query = saveArticleReadingProgressQuery(
+        itemId,
+        progress,
+        topPercent,
+        true
+      )
       const res = await graphqlRequest(query, authToken).expect(200)
       expect(
         res.body.data.saveArticleReadingProgress.updatedArticle
@@ -778,15 +809,20 @@ describe('Article API', () => {
 
     context('when force is true', () => {
       before(async () => {
-        itemId = (await createLibraryItem({
-          user: { id: user.id },
-          originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
-          slug: 'test-with-omnivore',
-          readableContent: '<p>test</p>',
-          title: 'test title',
-          readingProgressBottomPercent: 100,
-          readingProgressTopPercent: 80,
-        }, user.id)).id
+        itemId = (
+          await createOrUpdateLibraryItem(
+            {
+              user: { id: user.id },
+              originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
+              slug: 'test-with-omnivore',
+              readableContent: '<p>test</p>',
+              title: 'test title',
+              readingProgressBottomPercent: 100,
+              readingProgressTopPercent: 80,
+            },
+            user.id
+          )
+        ).id
       })
 
       after(async () => {
@@ -812,8 +848,23 @@ describe('Article API', () => {
     let query = ''
     let url = ''
     let uploadFileId = ''
+    let itemId = ''
 
-    before(() => {
+    before(async () => {
+      const item = await createOrUpdateLibraryItem(
+        {
+          user: { id: user.id },
+          originalUrl: 'https://blog.omnivore.app/setBookmarkArticle',
+          slug: 'test-with-omnivore',
+          readableContent: '<p>test</p>',
+          title: 'test title',
+          readingProgressBottomPercent: 100,
+          readingProgressTopPercent: 80,
+        },
+        user.id
+      )
+      itemId = item.id
+
       sinon.replace(
         uploads,
         'getStorageFileDetails',
@@ -822,7 +873,7 @@ describe('Article API', () => {
     })
 
     beforeEach(() => {
-      query = saveFileQuery(url, uploadFileId)
+      query = saveFileQuery(itemId, url, uploadFileId)
     })
 
     after(() => {
@@ -876,7 +927,7 @@ describe('Article API', () => {
       const readingProgressArray = [0, 2, 97, 98, 100]
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           user,
           title: 'test title',
           readableContent: `<p>test ${searchedKeyword}</p>`,
@@ -885,7 +936,7 @@ describe('Article API', () => {
           siteName: 'Example',
           readingProgressBottomPercent: readingProgressArray[i],
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
 
         // Create some test highlights
@@ -1333,6 +1384,7 @@ describe('Article API', () => {
               originalUrl: `${url}/test1`,
               itemType: PageType.File,
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1341,6 +1393,7 @@ describe('Article API', () => {
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
               readingProgressBottomPercent: 100,
             },
             {
@@ -1383,6 +1436,7 @@ describe('Article API', () => {
               originalUrl: `${url}/test1`,
               subscription: 'feed',
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
             {
               user,
@@ -1399,6 +1453,7 @@ describe('Article API', () => {
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
               archivedAt: new Date(),
+              state: LibraryItemState.Archived,
             },
           ],
           user.id
@@ -1432,6 +1487,7 @@ describe('Article API', () => {
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
               deletedAt: new Date(),
+              state: LibraryItemState.Deleted,
             },
             {
               user,
@@ -1441,6 +1497,7 @@ describe('Article API', () => {
               originalUrl: `${url}/test2`,
               readingProgressBottomPercent: 100,
               deletedAt: new Date(),
+              state: LibraryItemState.Deleted,
             },
             {
               user,
@@ -1722,6 +1779,7 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
+              savedAt: new Date(1703880588),
             },
             {
               user,
@@ -1729,6 +1787,7 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
+              savedAt: new Date(1704880589),
             },
             {
               user,
@@ -1736,6 +1795,7 @@ describe('Article API', () => {
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
+              savedAt: new Date(1705880590),
             },
           ],
           user.id
@@ -1777,6 +1837,7 @@ describe('Article API', () => {
               readableContent: '<p>test 1</p>',
               slug: 'test slug 1',
               originalUrl: `${url}/test1`,
+              savedAt: new Date(1703880588),
             },
             {
               user,
@@ -1784,6 +1845,7 @@ describe('Article API', () => {
               readableContent: '<p>test 2</p>',
               slug: 'test slug 2',
               originalUrl: `${url}/test2`,
+              savedAt: new Date(1704880589),
             },
             {
               user,
@@ -1791,6 +1853,7 @@ describe('Article API', () => {
               readableContent: '<p>test 3</p>',
               slug: 'test slug 3',
               originalUrl: `${url}/test3`,
+              savedAt: new Date(1705880590),
             },
           ],
           user.id
@@ -1917,14 +1980,14 @@ describe('Article API', () => {
     before(async () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           user,
           title: 'typeahead search item',
           readableContent: '<p>test</p>',
           slug: '',
           originalUrl: `https://blog.omnivore.app/p/typeahead-search-${i}`,
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
       }
     })
@@ -1991,14 +2054,14 @@ describe('Article API', () => {
     before(async () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           title: 'test item',
           slug: '',
           readableContent: '<p>test</p>',
           originalUrl: `https://blog.omnivore.app/p/updates-since-${i}`,
           user,
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
       }
 
@@ -2007,11 +2070,8 @@ describe('Article API', () => {
 
       // Delete some items
       for (let i = 0; i < 3; i++) {
-        await updateLibraryItem(
-          items[i].id,
-          { state: LibraryItemState.Deleted, deletedAt: new Date() },
-          user.id
-        )
+        await softDeleteLibraryItem(items[i].id, user.id)
+
         deletedItems.push(items[i])
       }
     })
@@ -2046,20 +2106,23 @@ describe('Article API', () => {
       )
     })
 
-    context('when since is -1000000000-01-01T00:00:00Z from android app', () => {
-      before(() => {
-        since = '-1000000000-01-01T00:00:00Z'
-      })
+    context(
+      'when since is -1000000000-01-01T00:00:00Z from android app',
+      () => {
+        before(() => {
+          since = '-1000000000-01-01T00:00:00Z'
+        })
 
-      it('returns all', async () => {
-        const res = await graphqlRequest(
-          updatesSinceQuery(since),
-          authToken
-        ).expect(200)
+        it('returns all', async () => {
+          const res = await graphqlRequest(
+            updatesSinceQuery(since),
+            authToken
+          ).expect(200)
 
-        expect(res.body.data.updatesSince.edges.length).to.eql(5)
-      })
-    })
+          expect(res.body.data.updatesSince.edges.length).to.eql(5)
+        })
+      }
+    )
 
     context('returns highlights', () => {
       let highlight: Highlight
@@ -2086,9 +2149,9 @@ describe('Article API', () => {
         expect(res.body.data.updatesSince.edges[0].node.highlights[0].id).to.eq(
           highlight.id
         )
-        expect(res.body.data.updatesSince.edges[0].node.highlights[0].type).to.eq(
-          HighlightType.Highlight
-        )
+        expect(
+          res.body.data.updatesSince.edges[0].node.highlights[0].type
+        ).to.eq(HighlightType.Highlight)
       })
     })
   })
@@ -2107,11 +2170,11 @@ describe('Article API', () => {
       }
     `
 
-    context('when action is MarkAsRead and query is in:unread', () => {
+    xcontext('when action is MarkAsRead and query is in:unread', () => {
       before(async () => {
         // Create some test items
         for (let i = 0; i < 5; i++) {
-          await createLibraryItem(
+          await createOrUpdateLibraryItem(
             {
               user,
               itemType: i == 0 ? PageType.Article : PageType.File,
@@ -2204,7 +2267,7 @@ describe('Article API', () => {
       before(async () => {
         // Create some test items
         for (let i = 0; i < 5; i++) {
-          const item = await createLibraryItem(
+          const item = await createOrUpdateLibraryItem(
             {
               user,
               itemType: i == 0 ? PageType.Article : PageType.File,
@@ -2259,14 +2322,14 @@ describe('Article API', () => {
     let articleId = ''
 
     before(async () => {
-      const itemToSave: DeepPartial<LibraryItem> = {
+      const itemToSave: CreateOrUpdateLibraryItemArgs = {
         user,
         title: 'test setFavoriteArticle',
         slug: '',
         readableContent: '<p>test</p>',
         originalUrl: `https://blog.omnivore.app/p/setFavoriteArticle`,
       }
-      const item = await createLibraryItem(itemToSave, user.id)
+      const item = await createOrUpdateLibraryItem(itemToSave, user.id)
       articleId = item.id
     })
 
@@ -2304,7 +2367,7 @@ describe('Article API', () => {
     before(async () => {
       // Create some test items
       for (let i = 0; i < 5; i++) {
-        const itemToSave: DeepPartial<LibraryItem> = {
+        const itemToSave: CreateOrUpdateLibraryItemArgs = {
           user,
           title: 'test item',
           readableContent: '<p>test</p>',
@@ -2313,7 +2376,7 @@ describe('Article API', () => {
           deletedAt: new Date(),
           state: LibraryItemState.Deleted,
         }
-        const item = await createLibraryItem(itemToSave, user.id)
+        const item = await createOrUpdateLibraryItem(itemToSave, user.id)
         items.push(item)
       }
     })

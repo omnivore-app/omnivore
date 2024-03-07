@@ -4,24 +4,32 @@ import {
   EntityTarget,
   ObjectLiteral,
   QueryBuilder,
+  QueryFailedError,
   Repository,
 } from 'typeorm'
+import { DatabaseError } from 'pg'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
 
 export const getColumns = <T extends ObjectLiteral>(
-  repository: Repository<T>,
+  repository: Repository<T>
 ): (keyof T)[] => {
   return repository.metadata.columns.map(
-    (col) => col.propertyName,
+    (col) => col.propertyName
   ) as (keyof T)[]
+}
+
+export const getColumnsDbName = <T extends ObjectLiteral>(
+  repository: Repository<T>
+): string[] => {
+  return repository.metadata.columns.map((col) => col.databaseName)
 }
 
 export const setClaims = async (
   manager: EntityManager,
   uid = '00000000-0000-0000-0000-000000000000',
-  userRole = 'user',
+  userRole = 'user'
 ): Promise<unknown> => {
   const dbRole =
     userRole === SetClaimsRole.ADMIN ? 'omnivore_admin' : 'omnivore_user'
@@ -35,7 +43,7 @@ export const authTrx = async <T>(
   fn: (manager: EntityManager) => Promise<T>,
   em = appDataSource.manager,
   uid?: string,
-  userRole?: string,
+  userRole?: string
 ): Promise<T> => {
   // if uid and dbRole are not passed in, then get them from the claims
   if (!uid && !userRole) {
@@ -51,13 +59,13 @@ export const authTrx = async <T>(
 }
 
 export const getRepository = <T extends ObjectLiteral>(
-  entity: EntityTarget<T>,
+  entity: EntityTarget<T>
 ) => {
   return appDataSource.getRepository(entity)
 }
 
 export const queryBuilderToRawSql = <T extends ObjectLiteral>(
-  q: QueryBuilder<T>,
+  q: QueryBuilder<T>
 ): string => {
   const queryAndParams = q.getQueryAndParameters()
   let sql = queryAndParams[0]
@@ -85,7 +93,7 @@ export const queryBuilderToRawSql = <T extends ObjectLiteral>(
                 }
               })
               .join(',') +
-            "}'",
+            "}'"
         )
       } else if (value instanceof Date) {
         sql = sql.replace(`$${index + 1}`, `'${value.toISOString()}'`)
@@ -99,7 +107,7 @@ export const queryBuilderToRawSql = <T extends ObjectLiteral>(
 }
 
 export const valuesToRawSql = (
-  values: Record<string, string | number | boolean>,
+  values: Record<string, string | number | boolean>
 ): string => {
   let sql = ''
 
@@ -117,4 +125,16 @@ export const valuesToRawSql = (
   })
 
   return sql
+}
+
+const isQueryFailedError = (
+  err: unknown
+): err is QueryFailedError & DatabaseError => err instanceof QueryFailedError
+
+export const isUniqueViolation = (err: unknown): boolean => {
+  if (isQueryFailedError(err)) {
+    return err.code === '23505'
+  }
+
+  return false
 }

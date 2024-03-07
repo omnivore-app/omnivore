@@ -4,7 +4,9 @@ import type { Highlight } from '../networking/fragments/highlightFragment'
 import { interpolationSearch } from './interpolationSearch'
 import {
   highlightIdAttribute,
+  highlightLabelIdAttribute,
   highlightNoteIdAttribute,
+  labelsImage,
   noteImage,
 } from './highlightHelpers'
 
@@ -80,10 +82,18 @@ function nodeAttributesFromHighlight(
   const patch = highlight.patch
   const id = highlight.id
   const withNote = !!highlight.annotation
+  const withLabels = (highlight.labels?.length ?? 0) > 0
   const tooltip = undefined
   const customColor = highlight.color
 
-  return makeHighlightNodeAttributes(patch, id, withNote, customColor, tooltip)
+  return makeHighlightNodeAttributes(
+    patch,
+    id,
+    withNote,
+    withLabels,
+    customColor,
+    tooltip
+  )
 }
 
 /**
@@ -100,6 +110,7 @@ export function makeHighlightNodeAttributes(
   patch: string,
   id: string,
   withNote: boolean,
+  withLabels: boolean,
   customColor?: string,
   tooltip?: string
 ): HighlightNodeAttributes {
@@ -183,12 +194,10 @@ export function makeHighlightNodeAttributes(
     startingTextNodeIndex++
   }
   if (withNote && lastElement) {
-    lastElement.classList.add('last_element')
-
     const svg = noteImage(customColor)
     svg.setAttribute(highlightNoteIdAttribute, id)
 
-    const ctr = document.createElement('div')
+    const ctr = document.createElement('span')
     ctr.className = 'highlight_note_button'
     ctr.appendChild(svg)
     ctr.setAttribute(highlightNoteIdAttribute, id)
@@ -197,6 +206,19 @@ export function makeHighlightNodeAttributes(
 
     lastElement.appendChild(ctr)
   }
+  // if (withLabels && lastElement) {
+  //   const svg = labelsImage(customColor)
+  //   svg.setAttribute(highlightLabelIdAttribute, id)
+
+  //   const ctr = document.createElement('span')
+  //   ctr.className = 'highlight_label_button'
+  //   ctr.appendChild(svg)
+  //   ctr.setAttribute(highlightLabelIdAttribute, id)
+  //   ctr.setAttribute('width', '14px')
+  //   ctr.setAttribute('height', '14px')
+
+  //   lastElement.appendChild(ctr)
+  // }
 
   return {
     prefix,
@@ -209,10 +231,10 @@ export function makeHighlightNodeAttributes(
 
 /**
  * Given a text selection by user, annotate the article around the selection and
- * produce a {@link https://github.com/google/diff-match-patch | diff patch} 
- * 
+ * produce a {@link https://github.com/google/diff-match-patch | diff patch}
+ *
  * The diff patch is used for identifying the selection/highlight location
- * 
+ *
  * @param range text selection range
  * @returns diff patch
  */
@@ -304,11 +326,11 @@ const getArticleTextNodes = (
 
 /**
  * Return the offsets to the selection/highlight
- * 
+ *
  * @param patch {@link generateDiffPatch|diff patch} identifying a selection/highlight location
- * @returns 
+ * @returns
  * - highlightTextStart - The start of highlight, offset from the start of article by characters
- * - highlightTextEnd - The end of highlight (non-inclusive), offset from the start of article by characters 
+ * - highlightTextEnd - The end of highlight (non-inclusive), offset from the start of article by characters
  * - matchingHighlightContent - the matched highlight
  */
 const selectionOffsetsFromPatch = (

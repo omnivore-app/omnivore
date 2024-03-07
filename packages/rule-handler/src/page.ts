@@ -27,7 +27,7 @@ export const archivePage = async (
   })
 
   try {
-    return axios.post(`${apiEndpoint}/graphql`, data, {
+    return await axios.post(`${apiEndpoint}/graphql`, data, {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export const markPageAsRead = async (
   })
 
   try {
-    return axios.post(`${apiEndpoint}/graphql`, data, {
+    return await axios.post(`${apiEndpoint}/graphql`, data, {
       headers: {
         Cookie: `auth=${auth};`,
         'Content-Type': 'application/json',

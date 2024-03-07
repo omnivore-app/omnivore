@@ -13,7 +13,7 @@ import {
 } from '../../generated/graphql'
 import { updateReceivedEmail } from '../../services/received_emails'
 import { saveNewsletter } from '../../services/save_newsletter_email'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
 import { sendEmail } from '../../utils/sendEmail'
 

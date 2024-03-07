@@ -406,14 +406,14 @@ struct SubscriptionSettingsView: View {
   }
 
   var ruleName: String {
-    if let url = subscription.url, subscription.type == .newsletter {
+    if let url = subscription.url, subscription.type == .feed {
       return "system.autoLabel.(\(url))"
     }
     return "system.autoLabel.(\(subscription.name))"
   }
 
   var ruleFilter: String {
-    if let url = subscription.url, subscription.type == .newsletter {
+    if let url = subscription.url, subscription.type == .feed {
       return "rss:\"\(url)\""
     }
     return "subscription:\"\(subscription.name)\""

@@ -1,6 +1,7 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 import {
+  FetchContentType,
   Subscription,
   SubscriptionStatus,
 } from '../queries/useGetSubscriptionsQuery'
@@ -28,6 +29,7 @@ export interface UpdateSubscriptionInput {
   status?: SubscriptionStatus
   autoAddToLibrary?: boolean
   isPrivate?: boolean
+  fetchContentType?: FetchContentType
 }
 
 export async function updateSubscriptionMutation(

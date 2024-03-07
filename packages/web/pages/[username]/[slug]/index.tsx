@@ -89,7 +89,9 @@ export default function Home(): JSX.Element {
     //     return
     //   }
     // }
-    router.push(`/home`)
+    const query = window.sessionStorage.getItem('q')
+    router.push(`/home?${query}`)
+    // router.push(`/home`)
   }, [router, viewerData, article])
 
   const goPreviousOrHome = useCallback(() => {
@@ -103,7 +105,9 @@ export default function Home(): JSX.Element {
     //     return
     //   }
     // }
-    router.push(`/home`)
+    const query = window.sessionStorage.getItem('q')
+    router.push(`/home?${query}`)
+    // router.push(`/home`)
   }, [router, viewerData, article])
 
   const actionHandler = useCallback(
@@ -155,6 +159,7 @@ export default function Home(): JSX.Element {
           if (article) {
             articleReadingProgressMutation({
               id: article.id,
+              force: true,
               readingProgressPercent: 100,
               readingProgressTopPercent: 100,
               readingProgressAnchorIndex: 0,
@@ -340,7 +345,7 @@ export default function Home(): JSX.Element {
         id: 'mark_read',
         section: 'Article',
         name: 'Mark current item as read',
-        shortcut: ['m', 'r'],
+        shortcut: ['-'],
         perform: () => {
           document.dispatchEvent(new Event('mark-read'))
         },
@@ -558,6 +563,12 @@ export default function Home(): JSX.Element {
               setShowHighlightsModal={setShowHighlightsModal}
               justifyText={readerSettings.justifyText ?? undefined}
               highContrastText={readerSettings.highContrastText ?? undefined}
+              highlightOnRelease={
+                readerSettings.highlightOnRelease ?? undefined
+              }
+              textDirection={
+                article.directionality ?? readerSettings.textDirection
+              }
               articleMutations={{
                 createHighlightMutation,
                 deleteHighlightMutation,

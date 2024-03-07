@@ -1,5 +1,5 @@
-import 'mocha'
 import { expect } from 'chai'
+import 'mocha'
 import { validatedDate } from '../../src/utils/helpers'
 
 describe('validatedDate', () => {

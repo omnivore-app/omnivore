@@ -6,6 +6,7 @@ import SwiftUI
 @MainActor
 public struct LibrarySplitView: View {
   @EnvironmentObject var dataService: DataService
+  @State var isEditMode: EditMode = .inactive
 
   @StateObject private var viewModel = HomeFeedViewModel(
     filterKey: "lastSelected",
@@ -37,7 +38,7 @@ public struct LibrarySplitView: View {
           .navigationBarTitleDisplayMode(.inline)
           .navigationTitle("")
 
-        HomeFeedContainerView(viewModel: viewModel)
+        HomeFeedContainerView(viewModel: viewModel, isEditMode: $isEditMode)
           .navigationViewStyle(.stack)
           .navigationBarTitleDisplayMode(.inline)
       }
@@ -47,27 +48,32 @@ public struct LibrarySplitView: View {
         $0.preferredPrimaryColumnWidth = 230
         $0.displayModeButtonVisibility = .always
       }
-//      .onOpenURL { url in
-//        inboxViewModel.linkRequest = nil
-//        if let deepLink = DeepLink.make(from: url) {
-//          switch deepLink {
-//          case let .search(query):
-//            inboxViewModel.searchTerm = query
-//          case let .savedSearch(named):
-//            if let filter = inboxViewModel.findFilter(dataService, named: named) {
-//              inboxViewModel.appliedFilter = filter
-//            }
-//          case let .webAppLinkRequest(requestID):
-//            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-//              withoutAnimation {
-//                inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
-//                inboxViewModel.presentWebContainer = true
-//              }
-//            }
-//          }
-//        }
-//        // selectedTab = "inbox"
-//      }
+      .onOpenURL { url in
+        viewModel.linkRequest = nil
+
+        withoutAnimation {
+          NotificationCenter.default.post(Notification(name: Notification.Name("PopToRoot")))
+        }
+
+        if let deepLink = DeepLink.make(from: url) {
+          switch deepLink {
+          case let .search(query):
+            viewModel.searchTerm = query
+          case let .savedSearch(named):
+            if let filter = viewModel.findFilter(dataService, named: named) {
+              viewModel.appliedFilter = filter
+            }
+          case let .webAppLinkRequest(requestID):
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+              withoutAnimation {
+                viewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
+                viewModel.presentWebContainer = true
+              }
+            }
+          }
+        }
+      }
       .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
         Task {
           await syncManager.syncUpdates(dataService: dataService)

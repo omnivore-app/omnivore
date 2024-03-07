@@ -1,20 +1,8 @@
 import { useState } from 'react'
-import { Box, SpanBox } from '../elements/LayoutPrimitives'
-import { LibraryItemNode } from '../../lib/networking/queries/useGetLibraryItemsQuery'
+import { Box } from '../elements/LayoutPrimitives'
 import { Button } from '../elements/Button'
 import { theme } from '../tokens/stitches.config'
-import {
-  ArchiveBox,
-  Book,
-  BookOpen,
-  Copy,
-  DotsThree,
-  Notebook,
-  Tag,
-  Trash,
-  Tray,
-} from 'phosphor-react'
-//import { CardMenu } from '../CardMenu'
+import { BookOpen, Copy } from 'phosphor-react'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import { Highlight } from '../../lib/networking/fragments/highlightFragment'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -40,7 +28,7 @@ export const HighlightHoverActions = (props: HighlightHoverActionsProps) => {
     <Box
       css={{
         height: '33px',
-        width: '135px',
+        minWidth: '150px',
         bg: '$thBackground',
         display: 'flex',
 

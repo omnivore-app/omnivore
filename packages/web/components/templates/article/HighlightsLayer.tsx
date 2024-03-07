@@ -12,6 +12,7 @@ import type { Highlight } from '../../../lib/networking/fragments/highlightFragm
 import {
   getHighlightElements,
   highlightIdAttribute,
+  highlightLabelIdAttribute,
   highlightNoteIdAttribute,
   SelectionAttributes,
 } from '../../../lib/highlights/highlightHelpers'
@@ -187,7 +188,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       }
 
       const didDeleteHighlight =
-        await props.articleMutations.deleteHighlightMutation(highlightId)
+        await props.articleMutations.deleteHighlightMutation(
+          props.articleId,
+          highlightId
+        )
 
       if (didDeleteHighlight) {
         removeHighlights(
@@ -222,6 +226,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       updateHighlightsCallback(highlight)
       ;(async () => {
         const update = await props.articleMutations.updateHighlightMutation({
+          libraryItemId: props.articleId,
           highlightId: highlight.id,
           color: color,
         })
@@ -384,6 +389,13 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlight: highlight,
           highlightModalAction: 'addComment',
         })
+      } else if ((target as Element).hasAttribute(highlightLabelIdAttribute)) {
+        const id = (target as HTMLSpanElement).getAttribute(
+          highlightLabelIdAttribute
+        )
+        const highlight = highlights.find(($0) => $0.id === id)
+        setFocusedHighlight(highlight)
+        setLabelsTarget(highlight)
       } else {
         window?.webkit?.messageHandlers.viewerAction?.postMessage({
           actionID: 'pageTapped',
@@ -391,7 +403,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         setFocusedHighlight(undefined)
       }
     },
-    [openNoteModal, highlights]
+    [openNoteModal, highlights, setLabelsTarget]
   )
 
   const handleDoubleClick = useCallback(
@@ -569,7 +581,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
   )
 
   useEffect(() => {
-    if (props.highlightOnRelease && selectionData?.wasDragEvent) {
+    if (props.highlightOnRelease) {
       handleAction('create')
       setSelectionData(null)
     }
@@ -705,6 +717,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         const annotation = event.annotation ?? ''
 
         const result = await props.articleMutations.updateHighlightMutation({
+          libraryItemId: props.articleId,
           highlightId: focusedHighlight.id,
           annotation: event.annotation ?? '',
         })
@@ -788,6 +801,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           highlight={highlightModalAction.highlight}
           author={props.articleAuthor}
           title={props.articleTitle}
+          libraryItemId={props.articleId}
           onUpdate={updateHighlightsCallback}
           onOpenChange={() =>
             setHighlightModalAction({ highlightModalAction: 'none' })
@@ -799,7 +813,10 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
         <SetHighlightLabelsModalPresenter
           highlight={labelsTarget}
           highlightId={labelsTarget.id}
-          onOpenChange={() => setLabelsTarget(undefined)}
+          onUpdate={updateHighlightsCallback}
+          onOpenChange={() => {
+            setLabelsTarget(undefined)
+          }}
         />
       )}
       {confirmDeleteHighlightWithNoteId && (

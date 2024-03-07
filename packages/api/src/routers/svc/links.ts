@@ -5,6 +5,7 @@ import express from 'express'
 import { LessThan } from 'typeorm'
 import { LibraryItemState } from '../../entity/library_item'
 import { readPushSubscription } from '../../pubsub'
+import { userRepository } from '../../repository/user'
 import { createPageSaveRequest } from '../../services/create_page_save_request'
 import { deleteLibraryItemsByAdmin } from '../../services/library_item'
 import { logger } from '../../utils/logger'
@@ -29,7 +30,7 @@ const getPruneMessage = (msgStr: string): PruneMessage => {
       return obj
     }
   } catch (err) {
-    console.log('error deserializing event: ', { msgStr, err })
+    logger.error('error deserializing event: ', { msgStr, err })
   }
 
   // default to prune following folder items older than 30 days
@@ -43,7 +44,6 @@ export function linkServiceRouter() {
   const router = express.Router()
 
   router.post('/create', async (req, res) => {
-    logger.info('create link req', req)
     const { message: msgStr, expired } = readPushSubscription(req)
     logger.info('read pubsub message', { msgStr, expired })
 
@@ -66,12 +66,16 @@ export function linkServiceRouter() {
     }
     const msg = data as CreateLinkRequestMessage
 
+    const user = await userRepository.findById(msg.userId)
+    if (!user) {
+      return res.status(400).send('Bad Request')
+    }
+
     try {
       const request = await createPageSaveRequest({
-        userId: msg.userId,
+        user,
         url: msg.url,
       })
-      logger.info('create link request', request)
 
       res.status(200).send(request)
     } catch (err) {
@@ -81,8 +85,6 @@ export function linkServiceRouter() {
   })
 
   router.post('/prune', async (req, res) => {
-    logger.info('prune expired items in folder')
-
     const { message: msgStr, expired } = readPushSubscription(req)
 
     if (!msgStr) {

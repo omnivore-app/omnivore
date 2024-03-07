@@ -1,5 +1,5 @@
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { enqueueThumbnailTask } from '../utils/createTask'
+import { enqueueThumbnailJob } from '../utils/createTask'
 import {
   cleanUrl,
   generateSlug,
@@ -17,7 +17,7 @@ import {
 } from '../utils/parser'
 import { createAndSaveLabelsInLibraryItem } from './labels'
 import {
-  createLibraryItem,
+  createOrUpdateLibraryItem,
   findLibraryItemByUrl,
   restoreLibraryItem,
 } from './library_item'
@@ -53,7 +53,6 @@ export const saveEmail = async (
         // can leave this empty for now
       },
     },
-    null,
     true
   )
 
@@ -76,13 +75,12 @@ export const saveEmail = async (
       existingLibraryItem.id,
       input.userId
     )
-    logger.info('updated page from email', updatedLibraryItem)
 
     return updatedLibraryItem
   }
 
   // start a transaction to create the library item and update the received email
-  const newLibraryItem = await createLibraryItem(
+  const newLibraryItem = await createOrUpdateLibraryItem(
     {
       user: { id: input.userId },
       slug,
@@ -133,12 +131,14 @@ export const saveEmail = async (
 
   await updateReceivedEmail(input.receivedEmailId, 'article', input.userId)
 
-  // create a task to update thumbnail and pre-cache all images
-  try {
-    const taskId = await enqueueThumbnailTask(input.userId, slug)
-    logger.info('Created thumbnail task', { taskId })
-  } catch (e) {
-    logger.error('Failed to create thumbnail task', e)
+  if (!newLibraryItem.thumbnail) {
+    // create a task to update thumbnail and pre-cache all images
+    try {
+      const job = await enqueueThumbnailJob(input.userId, newLibraryItem.id)
+      logger.info('Created thumbnail job', { taskId: job })
+    } catch (e) {
+      logger.error('Failed to create thumbnail job', e)
+    }
   }
 
   return newLibraryItem

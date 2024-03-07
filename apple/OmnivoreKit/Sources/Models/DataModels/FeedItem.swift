@@ -286,7 +286,8 @@ public extension LibraryItem {
     newAuthor: String? = nil,
     listenPositionIndex: Int? = nil,
     listenPositionOffset: Double? = nil,
-    listenPositionTime: Double? = nil
+    listenPositionTime: Double? = nil,
+    readAt: Date? = nil
   ) {
     context.perform {
       if let newReadingProgress = newReadingProgress {
@@ -323,6 +324,10 @@ public extension LibraryItem {
 
       if let listenPositionTime = listenPositionTime {
         self.listenPositionTime = listenPositionTime
+      }
+
+      if let readAt = readAt {
+        self.readAt = readAt
       }
 
       guard context.hasChanges else { return }

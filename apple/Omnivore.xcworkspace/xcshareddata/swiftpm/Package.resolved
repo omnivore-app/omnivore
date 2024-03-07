@@ -145,15 +145,6 @@
       }
     },
     {
-      "identity" : "popupview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/exyte/PopupView.git",
-      "state" : {
-        "revision" : "68349a0ae704b9a7041f756f3f4f460ddbf7ba8d",
-        "version" : "2.6.0"
-      }
-    },
-    {
       "identity" : "posthog-ios",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/PostHog/posthog-ios.git",
@@ -248,8 +239,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "872e7034f54aeee3f20acf790ecc13e1383f7360",
-        "version" : "0.48.4"
+        "revision" : "fef156a6135e584985ed26713dd2e9ee41f952cb",
+        "version" : "0.53.0"
       }
     },
     {

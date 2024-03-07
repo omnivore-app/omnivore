@@ -1,11 +1,6 @@
 import { gql } from 'graphql-request'
-import useSWRImmutable, { Cache } from 'swr'
-import {
-  gqlFetcher,
-  makeGqlFetcher,
-  RequestContext,
-  ssrFetcher,
-} from '../networkHelpers'
+import { Cache } from 'swr'
+import { gqlFetcher, makeGqlFetcher } from '../networkHelpers'
 import {
   articleFragment,
   ContentReader,
@@ -44,6 +39,8 @@ type NestedArticleData = {
   errorCodes?: string[]
 }
 
+export type TextDirection = 'RTL' | 'LTR'
+
 export type ArticleAttributes = {
   id: string
   title: string
@@ -69,6 +66,7 @@ export type ArticleAttributes = {
   linkId: string
   labels?: Label[]
   state?: State
+  directionality?: TextDirection
   recommendations?: Recommendation[]
 }
 

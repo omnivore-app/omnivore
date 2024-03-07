@@ -575,7 +575,7 @@
       }
       case 'enter': {
         if (event.target.id == 'omnivore-edit-label-input') {
-          if (event.target.value) {
+          if (event.target.value && !event.isComposing) {
             const labelList = event.target.form.querySelector('#label-list')
             addLabel(labelList, event.target, event.target.value)
           }

@@ -9,7 +9,6 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm'
 import { Highlight } from './highlight'
@@ -38,7 +37,6 @@ export enum DirectionalityType {
   RTL = 'RTL',
 }
 
-@Unique('library_item_user_original_url', ['user', 'originalUrl'])
 @Entity({ name: 'library_item' })
 export class LibraryItem {
   @PrimaryGeneratedColumn('uuid')
@@ -184,15 +182,6 @@ export class LibraryItem {
   highlights?: Highlight[]
 
   @Column('text', { nullable: true })
-  labelNames?: string[] | null
-
-  @Column('text', { nullable: true })
-  highlightLabels?: string[] | null
-
-  @Column('text', { nullable: true })
-  highlightAnnotations?: string[] | null
-
-  @Column('text', { nullable: true })
   note?: string | null
 
   @Column('text', { nullable: true })
@@ -202,11 +191,17 @@ export class LibraryItem {
   links?: any | null
 
   @Column('text')
-  previewContent?: string | null
+  feedContent?: string | null
 
   @Column('text')
   previewContentType?: string | null
 
   @Column('text')
   folder!: string
+
+  @Column('text')
+  labelNames?: string[]
+
+  @Column('text')
+  highlightAnnotations?: string[]
 }

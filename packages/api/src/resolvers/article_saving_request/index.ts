@@ -18,8 +18,8 @@ import {
   findLibraryItemByUrl,
 } from '../../services/library_item'
 import { analytics } from '../../utils/analytics'
+import { authorized } from '../../utils/gql-utils'
 import {
-  authorized,
   cleanUrl,
   isParsingTimeout,
   libraryItemToArticleSavingRequest,
@@ -31,8 +31,8 @@ export const createArticleSavingRequestResolver = authorized<
   CreateArticleSavingRequestError,
   MutationCreateArticleSavingRequestArgs
 >(async (_, { input: { url } }, { uid, pubsub, log }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: url,
@@ -41,9 +41,14 @@ export const createArticleSavingRequestResolver = authorized<
     },
   })
 
+  const user = await userRepository.findById(uid)
+  if (!user) {
+    return { errorCodes: [CreateArticleSavingRequestErrorCode.Unauthorized] }
+  }
+
   try {
     const articleSavingRequest = await createPageSaveRequest({
-      userId: uid,
+      user,
       url,
       pubsub,
     })

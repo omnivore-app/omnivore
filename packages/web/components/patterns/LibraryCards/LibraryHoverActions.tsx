@@ -4,14 +4,7 @@ import { LibraryItemNode } from '../../../lib/networking/queries/useGetLibraryIt
 import { LinkedItemCardAction } from './CardTypes'
 import { Button } from '../../elements/Button'
 import { theme } from '../../tokens/stitches.config'
-import {
-  ArchiveBox,
-  DotsThree,
-  Notebook,
-  Tag,
-  Trash,
-  Tray,
-} from 'phosphor-react'
+import { DotsThree, Share } from 'phosphor-react'
 import { CardMenu } from '../CardMenu'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
 import { ArchiveIcon } from '../../elements/icons/ArchiveIcon'
@@ -19,6 +12,7 @@ import { NotebookIcon } from '../../elements/icons/NotebookIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { BrowserIcon } from '../../elements/icons/BrowserIcon'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
@@ -38,7 +32,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         overflow: 'clip',
 
         height: '33px',
-        width: '162px',
+        width: '200px',
         bg: '$thBackground',
         display: 'flex',
 
@@ -55,6 +49,9 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           boxShadow:
             '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
         },
+      }}
+      onClick={(event) => {
+        event.stopPropagation()
       }}
     >
       <Button
@@ -117,6 +114,20 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         }}
       >
         <LabelIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
+      </Button>
+      <Button
+        title="Open original (o)"
+        style="hoverActionIcon"
+        onClick={(event) => {
+          props.handleAction('showOriginal')
+          event.preventDefault()
+          event.stopPropagation()
+        }}
+      >
+        <BrowserIcon
+          size={21}
+          color={theme.colors.thNotebookSubtle.toString()}
+        />
       </Button>
       <CardMenu
         item={props.item}

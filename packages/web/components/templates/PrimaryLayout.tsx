@@ -4,14 +4,17 @@ import { ReactNode, useEffect, useState, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
-import { useRouter } from 'next/router'
+import { NextRouter, useRouter } from 'next/router'
 import { ConfirmationModal } from '../patterns/ConfirmationModal'
 import { KeyboardShortcutListModal } from './KeyboardShortcutListModal'
-import { logoutMutation } from '../../lib/networking/mutations/logoutMutation'
-import { deinitAnalytics, setupAnalytics } from '../../lib/analytics'
+import { setupAnalytics } from '../../lib/analytics'
 import { primaryCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
-import { applyStoredTheme } from '../../lib/themeUpdater'
 import { logout } from '../../lib/logout'
+import { useApplyLocalTheme } from '../../lib/hooks/useApplyLocalTheme'
+import { updateTheme } from '../../lib/themeUpdater'
+import { Priority, useRegisterActions } from 'kbar'
+import { ThemeId } from '../tokens/stitches.config'
+import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 
 type PrimaryLayoutProps = {
   children: ReactNode
@@ -23,7 +26,7 @@ type PrimaryLayoutProps = {
 }
 
 export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
-  applyStoredTheme(false)
+  useApplyLocalTheme()
 
   const { viewerData } = useGetViewerQuery()
   const router = useRouter()
@@ -41,6 +44,38 @@ export function PrimaryLayout(props: PrimaryLayoutProps): JSX.Element {
           break
       }
     })
+  )
+
+  useRegisterActions(
+    [
+      {
+        id: 'home',
+        section: 'Navigation',
+        name: 'Go to Home (Library) ',
+        shortcut: ['g h'],
+        keywords: 'go home',
+        perform: () => router?.push('/home'),
+      },
+      {
+        id: 'lightTheme',
+        section: 'Preferences',
+        name: 'Change theme (light) ',
+        shortcut: ['v', 'l'],
+        keywords: 'light theme',
+        priority: Priority.LOW,
+        perform: () => updateTheme(ThemeId.Light),
+      },
+      {
+        id: 'darkTheme',
+        section: 'Preferences',
+        name: 'Change theme (dark) ',
+        shortcut: ['v', 'd'],
+        keywords: 'dark theme',
+        priority: Priority.LOW,
+        perform: () => updateTheme(ThemeId.Dark),
+      },
+    ],
+    [router]
   )
 
   // Attempt to identify the user if they are logged in.

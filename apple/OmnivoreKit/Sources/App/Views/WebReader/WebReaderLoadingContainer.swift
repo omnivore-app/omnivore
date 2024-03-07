@@ -45,11 +45,13 @@ public struct WebReaderLoadingContainer: View {
     if let item = viewModel.item {
       if let pdfItem = PDFItem.make(item: item) {
         #if os(iOS)
+        NavigationView {
           PDFViewer(viewModel: PDFViewerViewModel(pdfItem: pdfItem))
             .navigationBarHidden(true)
             .navigationViewStyle(.stack)
             .accentColor(.appGrayTextContrast)
             .onAppear { viewModel.trackReadEvent() }
+        }
         #else
           if let pdfURL = pdfItem.pdfURL {
             PDFWrapperView(pdfURL: pdfURL)
@@ -58,7 +60,7 @@ public struct WebReaderLoadingContainer: View {
       } else if item.state == "CONTENT_NOT_FETCHED" {
         ProgressView()
       } else {
-        WebReaderContainerView(item: item, pop: { dismiss() })
+        WebReaderContainerView(item: item)
         #if os(iOS)
           .navigationViewStyle(.stack)
         #endif

@@ -7,6 +7,7 @@ import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 export enum FeatureName {
+  AISummaries = 'ai-summaries',
   UltraRealisticVoice = 'ultra-realistic-voice',
 }
 
@@ -21,7 +22,6 @@ export const optInFeature = async (
   if (name === FeatureName.UltraRealisticVoice) {
     return optInUltraRealisticVoice(uid)
   }
-
   return undefined
 }
 
@@ -98,6 +98,16 @@ export const signFeatureToken = (
     env.server.jwtSecret,
     { expiresIn: '1y' }
   )
+}
+
+export const findUserFeatures = async (userId: string): Promise<string[]> => {
+  return (
+    await getRepository(Feature).find({
+      where: {
+        user: { id: userId },
+      },
+    })
+  ).map((feature) => feature.name)
 }
 
 export const findFeatureByName = async (

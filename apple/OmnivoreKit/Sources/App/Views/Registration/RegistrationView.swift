@@ -59,7 +59,8 @@ import Views
   }
 
   func handleGoogleAuth(authenticator: Authenticator) async {
-    let googleAuthResponse = await authenticator.handleGoogleAuth()
+    let presentingVC = presentingViewController()
+    let googleAuthResponse = await authenticator.handleGoogleAuth(presentingVC: presentingVC)
 
     switch googleAuthResponse {
     case let .loginError(error):
@@ -70,4 +71,16 @@ import Views
       break
     }
   }
+}
+
+@MainActor private func presentingViewController() -> PlatformViewController? {
+  #if os(iOS)
+    let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+    return scene?.windows
+      .filter(\.isKeyWindow)
+      .first?
+      .rootViewController
+  #elseif os(macOS)
+    return NSApplication.shared.windows.first
+  #endif
 }

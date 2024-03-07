@@ -9,6 +9,12 @@ export enum SubscriptionType {
   NEWSLETTER = 'NEWSLETTER',
 }
 
+export enum FetchContentType {
+  ALWAYS = 'ALWAYS',
+  NEVER = 'NEVER',
+  WHEN_EMPTY = 'WHEN_EMPTY',
+}
+
 export type Subscription = {
   id: string
   name: string
@@ -16,14 +22,16 @@ export type Subscription = {
   newsletterEmail?: string
 
   url?: string
+  icon?: string
   description?: string
 
   status: SubscriptionStatus
   createdAt: string
   updatedAt: string
   lastFetchedAt?: string
-  autoAddToLibrary?: boolean
-  isPrivate?: boolean
+  mostRecentItemDate?: string
+
+  fetchContentType?: FetchContentType
 }
 
 type SubscriptionsQueryResponse = {
@@ -56,6 +64,7 @@ export function useGetSubscriptionsQuery(
             type
             newsletterEmail
             url
+            icon
             description
             status
             unsubscribeMailTo
@@ -63,8 +72,8 @@ export function useGetSubscriptionsQuery(
             createdAt
             updatedAt
             lastFetchedAt
-            autoAddToLibrary
-            isPrivate
+            fetchContentType
+            mostRecentItemDate
           }
         }
         ... on SubscriptionsError {

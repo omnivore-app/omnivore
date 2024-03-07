@@ -90,6 +90,8 @@ type Article {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  directionality: DirectionalityType
+  feedContent: String
   folder: String!
   hasContent: Boolean
   hash: String!
@@ -339,6 +341,7 @@ input CreateHighlightInput {
   patch: String
   prefix: String
   quote: String
+  representation: RepresentationType
   sharedAt: Date
   shortId: String!
   suffix: String
@@ -706,18 +709,9 @@ type DeviceTokensSuccess {
   deviceTokens: [DeviceToken!]!
 }
 
-type EmptyTrashError {
-  errorCodes: [EmptyTrashErrorCode!]!
-}
-
-enum EmptyTrashErrorCode {
-  UNAUTHORIZED
-}
-
-union EmptyTrashResult = EmptyTrashError | EmptyTrashSuccess
-
-type EmptyTrashSuccess {
-  success: Boolean
+enum DirectionalityType {
+  LTR
+  RTL
 }
 
 type DiscoverFeed {
@@ -784,6 +778,20 @@ union EditDiscoverFeedResult = EditDiscoverFeedError | EditDiscoverFeedSuccess
 
 type EditDiscoverFeedSuccess {
   id: ID!
+}
+
+type EmptyTrashError {
+  errorCodes: [EmptyTrashErrorCode!]!
+}
+
+enum EmptyTrashErrorCode {
+  UNAUTHORIZED
+}
+
+union EmptyTrashResult = EmptyTrashError | EmptyTrashSuccess
+
+type EmptyTrashSuccess {
+  success: Boolean
 }
 
 type Feature {
@@ -883,6 +891,12 @@ union FetchContentResult = FetchContentError | FetchContentSuccess
 
 type FetchContentSuccess {
   success: Boolean!
+}
+
+enum FetchContentType {
+  ALWAYS
+  NEVER
+  WHEN_EMPTY
 }
 
 type Filter {
@@ -1064,6 +1078,7 @@ type Highlight {
   quote: String
   reactions: [Reaction!]!
   replies: [HighlightReply!]!
+  representation: RepresentationType!
   sharedAt: Date
   shortId: String!
   suffix: String
@@ -1300,6 +1315,7 @@ input MergeHighlightInput {
   patch: String!
   prefix: String
   quote: String!
+  representation: RepresentationType
   shortId: ID!
   suffix: String
 }
@@ -1782,6 +1798,11 @@ enum ReportType {
   SPAM
 }
 
+enum RepresentationType {
+  CONTENT
+  FEED_CONTENT
+}
+
 type RevokeApiKeyError {
   errorCodes: [RevokeApiKeyErrorCode!]!
 }
@@ -1822,6 +1843,7 @@ input RuleActionInput {
 enum RuleActionType {
   ADD_LABEL
   ARCHIVE
+  DELETE
   MARK_AS_READ
   SEND_NOTIFICATION
 }
@@ -1908,8 +1930,11 @@ input SaveFileInput {
   clientRequestId: ID!
   folder: String
   labels: [CreateLabelInput!]
+  publishedAt: Date
+  savedAt: Date
   source: String!
   state: ArticleSavingRequestStatus
+  subscription: String
   uploadFileId: ID!
   url: String!
 }
@@ -2003,6 +2028,7 @@ enum SearchErrorCode {
 }
 
 type SearchItem {
+  aiSummary: String
   annotation: String
   archivedAt: Date
   author: String
@@ -2011,6 +2037,8 @@ type SearchItem {
   contentReader: ContentReader!
   createdAt: Date!
   description: String
+  directionality: DirectionalityType
+  feedContent: String
   folder: String!
   highlights: [Highlight!]
   id: ID!
@@ -2023,7 +2051,6 @@ type SearchItem {
   ownedByViewer: Boolean
   pageId: ID
   pageType: PageType!
-  previewContent: String
   previewContentType: String
   publishedAt: Date
   quote: String
@@ -2402,6 +2429,7 @@ enum SubscribeErrorCode {
 input SubscribeInput {
   autoAddToLibrary: Boolean
   fetchContent: Boolean
+  fetchContentType: FetchContentType
   folder: String
   isPrivate: Boolean
   subscriptionType: SubscriptionType
@@ -2419,14 +2447,18 @@ type Subscription {
   count: Int!
   createdAt: Date!
   description: String
+  failedAt: Date
   fetchContent: Boolean!
+  fetchContentType: FetchContentType!
   folder: String!
   icon: String
   id: ID!
   isPrivate: Boolean
   lastFetchedAt: Date
+  mostRecentItemDate: Date
   name: String!
   newsletterEmail: String
+  refreshedAt: Date
   status: SubscriptionStatus!
   type: SubscriptionType!
   unsubscribeHttpUrl: String
@@ -2762,13 +2794,16 @@ enum UpdateSubscriptionErrorCode {
 input UpdateSubscriptionInput {
   autoAddToLibrary: Boolean
   description: String
+  failedAt: Date
   fetchContent: Boolean
+  fetchContentType: FetchContentType
   folder: String
   id: ID!
   isPrivate: Boolean
-  lastFetchedAt: Date
   lastFetchedChecksum: String
+  mostRecentItemDate: Date
   name: String
+  refreshedAt: Date
   scheduledAt: Date
   status: SubscriptionStatus
 }
@@ -2896,6 +2931,7 @@ enum UploadImportFileType {
 
 type User {
   email: String
+  features: [String]
   followersCount: Int
   friendsCount: Int
   id: ID!

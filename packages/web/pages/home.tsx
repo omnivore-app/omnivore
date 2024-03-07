@@ -16,9 +16,14 @@ function LoadedContent(): JSX.Element {
       pageTestId="home-page-tag"
     >
       <VStack
-        alignment="center"
+        alignment="start"
         distribution="center"
-        css={{ backgroundColor: '$thLibraryBackground' }}
+        css={{
+          px: '70px',
+          backgroundColor: '$thLibraryBackground',
+          '@lgDown': { px: '20px' },
+          '@mdDown': { px: '10px' },
+        }}
       >
         <HomeFeedContainer />
       </VStack>

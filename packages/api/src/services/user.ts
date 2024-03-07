@@ -1,8 +1,16 @@
+import { Notification } from 'firebase-admin/messaging'
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
+import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
 import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
 import { SetClaimsRole } from '../utils/dictionary'
+import { logger } from '../utils/logger'
+import {
+  PushNotificationType,
+  sendMulticastPushNotifications,
+} from '../utils/sendNotification'
+import { findDeviceTokensByUserId } from './user_device_tokens'
 
 export const deleteUser = async (userId: string) => {
   await authTrx(
@@ -17,6 +25,32 @@ export const deleteUser = async (userId: string) => {
 export const updateUser = async (userId: string, update: Partial<User>) => {
   return authTrx(
     async (t) => t.getRepository(User).update(userId, update),
+    undefined,
+    userId
+  )
+}
+
+export const softDeleteUser = async (userId: string) => {
+  return authTrx(
+    async (t) => {
+      // change email address and username for user to sign up again
+      await t.getRepository(Profile).update(
+        {
+          user: {
+            id: userId,
+          },
+        },
+        {
+          username: `deleted_user_${userId}`,
+        }
+      )
+
+      return t.getRepository(User).update(userId, {
+        status: StatusType.Deleted,
+        email: `deleted_user_${userId}@omnivore.app`,
+        sourceUserId: `deleted_user_${userId}`,
+      })
+    },
     undefined,
     userId
   )
@@ -92,4 +126,25 @@ export const batchDelete = async (criteria: FindOptionsWhere<User>) => {
     undefined,
     SetClaimsRole.ADMIN
   )
+}
+
+export const sendPushNotifications = async (
+  userId: string,
+  notification: Notification,
+  notificationType: PushNotificationType,
+  data?: { [key: string]: string }
+) => {
+  const tokens = await findDeviceTokensByUserId(userId)
+  if (tokens.length === 0) {
+    logger.info(`No device tokens found for user ${userId}`)
+    return
+  }
+
+  const message = {
+    notification,
+    data,
+    tokens: tokens.map((token) => token.token),
+  }
+
+  return sendMulticastPushNotifications(userId, message, notificationType)
 }

@@ -5,11 +5,13 @@ on:
       - main
     paths-ignore:
       - 'apple/**'
+      - 'android/**'
   pull_request:
     branches:
       - main
     paths-ignore:
       - 'apple/**'
+      - 'android/**'
 
 env:
   NEXT_PUBLIC_APP_ENV: prod
@@ -93,11 +95,13 @@ jobs:
           PG_DB: omnivore_test
           PG_LOGGER: debug
           REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
+          MQ_REDIS_URL: redis://localhost:${{ job.services.redis.ports[6379] }}
   build-docker-images:
     name: Build docker images
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - name: Build the API docker image

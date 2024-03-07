@@ -14,7 +14,7 @@ import {
   SetRuleSuccess,
 } from '../../generated/graphql'
 import { deleteRule } from '../../services/rules'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const setRuleResolver = authorized<
   SetRuleSuccess,

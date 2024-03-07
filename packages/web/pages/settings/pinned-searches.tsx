@@ -139,7 +139,7 @@ export default function PinnedSearches(): JSX.Element {
     dispatchList({ type: 'RESET' })
   }, [])
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   return (
     <SettingsLayout>

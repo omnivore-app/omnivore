@@ -9,13 +9,15 @@ import { json, urlencoded } from 'body-parser'
 import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
+import promBundle from 'express-prom-bundle'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
+import * as prom from 'prom-client'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
-import { redisClient } from './redis'
+import { redisDataSource } from './redis_data_source'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -38,13 +40,15 @@ import { webhooksServiceRouter } from './routers/svc/webhooks'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
+import { analytics } from './utils/analytics'
 import {
   getClaimsByToken,
   getTokenByRequest,
   isSystemRequest,
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
-import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
+import { aiSummariesRouter } from './routers/ai_summary_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -118,6 +122,7 @@ export const createApp = (): {
   app.use('/api/page', pageRouter())
   app.use('/api/user', userRouter())
   app.use('/api/article', articleRouter())
+  app.use('/api/ai-summary', aiSummariesRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())
@@ -145,7 +150,27 @@ export const createApp = (): {
   // The error handler must be before any other error middleware and after all routes
   app.use(Sentry.Handlers.errorHandler())
 
-  const apollo = makeApolloServer()
+  const metricsMiddleware = promBundle({
+    includeMethod: true,
+    includePath: true,
+    includeStatusCode: true,
+    includeUp: true,
+    customLabels: {
+      service: 'api',
+    },
+    promClient: {
+      collectDefaultMetrics: {},
+    },
+  })
+  // add the prometheus middleware to all routes
+  app.use(metricsMiddleware)
+
+  app.get('/metrics', async (req, res) => {
+    res.setHeader('Content-Type', prom.register.contentType)
+    res.end(await prom.register.metrics())
+  })
+
+  const apollo = makeApolloServer(app)
   const httpServer = createServer(app)
 
   return { app, apollo, httpServer }
@@ -158,14 +183,9 @@ const main = async (): Promise<void> => {
   // as healthy.
   await appDataSource.initialize()
 
-  // redis is optional
-  if (env.redis.url) {
-    redisClient.on('error', (err) => {
-      console.error('Redis Client Error', err)
-    })
-
-    await redisClient.connect()
-    console.log('Redis Client Connected:', env.redis.url)
+  // redis is optional for the API server
+  if (env.redis.cache.url) {
+    await redisDataSource.initialize()
   }
 
   const { app, apollo, httpServer } = createApp()
@@ -193,6 +213,50 @@ const main = async (): Promise<void> => {
   // And a workaround for node.js bug: https://github.com/nodejs/node/issues/27363
   listener.headersTimeout = 640 * 1000 // 10s more than above
   listener.timeout = 640 * 1000 // match headersTimeout
+
+  const gracefulShutdown = async (signal: string) => {
+    console.log('[posthog]: flushing events')
+    await analytics.shutdownAsync()
+    console.log('[posthog]: events flushed')
+
+    console.log(`[api]: Received ${signal}, closing server...`)
+
+    await apollo.stop()
+    console.log('[api]: Apollo server stopped')
+
+    await new Promise<void>((resolve) => {
+      listener.close((err) => {
+        console.log('[api]: Express listener closed')
+        if (err) {
+          console.log('[api]: error stopping listener', { err })
+        }
+        resolve()
+      })
+    })
+
+    // Shutdown redis before DB because the quit sequence can
+    // cause appDataSource to get reloaded in the callback
+    await redisDataSource.shutdown()
+    console.log('[api]: Redis connection closed.')
+
+    await appDataSource.destroy()
+    console.log('[api]: DB connection closed.')
+
+    process.exit(0)
+  }
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+
+  process.on('uncaughtException', function (err) {
+    // Handle the error safely
+    logger.error('Uncaught exception', err)
+  })
+
+  process.on('unhandledRejection', (reason, promise) => {
+    // Handle the error safely
+    logger.error('Unhandled Rejection at: Promise', { promise, reason })
+  })
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

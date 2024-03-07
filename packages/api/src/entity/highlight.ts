@@ -19,6 +19,11 @@ export enum HighlightType {
   Note = 'NOTE', // to be deleted in favor of note on library item
 }
 
+export enum RepresentationType {
+  Content = 'CONTENT',
+  FeedContent = 'FEED_CONTENT',
+}
+
 @Entity({ name: 'highlight' })
 export class Highlight {
   @PrimaryGeneratedColumn('uuid')
@@ -34,6 +39,9 @@ export class Highlight {
   @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
+
+  @Column('uuid')
+  libraryItemId!: string
 
   @Column('text')
   quote?: string | null
@@ -84,4 +92,10 @@ export class Highlight {
     inverseJoinColumn: { name: 'label_id' },
   })
   labels?: Label[]
+
+  @Column('enum', {
+    enum: RepresentationType,
+    default: RepresentationType.Content,
+  })
+  representation!: RepresentationType
 }

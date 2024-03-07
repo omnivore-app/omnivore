@@ -31,13 +31,14 @@ import {
 import { labelRepository } from '../../repository/label'
 import { userRepository } from '../../repository/user'
 import {
+  deleteLabelById,
   findOrCreateLabels,
   saveLabelsInHighlight,
   saveLabelsInLibraryItem,
   updateLabel,
 } from '../../services/labels'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
   async (_obj, _params, { authTrx, log, uid }) => {
@@ -60,12 +61,12 @@ export const labelsResolver = authorized<LabelsSuccess, LabelsError>(
         })
       })
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'labels',
         properties: {
           env: env.server.apiEnv,
-          $set: {
+          $set_once: {
             email: user.email,
             username: user.profile.username,
           },
@@ -94,8 +95,8 @@ export const createLabelResolver = authorized<
       return tx.withRepository(labelRepository).createLabel(input, uid)
     })
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_created',
       properties: {
         ...input,
@@ -118,20 +119,17 @@ export const deleteLabelResolver = authorized<
   DeleteLabelSuccess,
   DeleteLabelError,
   MutationDeleteLabelArgs
->(async (_, { id: labelId }, { authTrx, log, uid }) => {
+>(async (_, { id: labelId }, { log, uid }) => {
   try {
-    const deleteResult = await authTrx(async (tx) => {
-      return tx.withRepository(labelRepository).deleteById(labelId)
-    })
-
-    if (!deleteResult.affected) {
+    const deleted = await deleteLabelById(labelId, uid)
+    if (!deleted) {
       return {
         errorCodes: [DeleteLabelErrorCode.NotFound],
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_deleted',
       properties: {
         labelId,
@@ -209,8 +207,8 @@ export const setLabelsResolver = authorized<
       // save labels in the library item
       await saveLabelsInLibraryItem(labelsSet, pageId, uid, labelSource, pubsub)
 
-      analytics.track({
-        userId: uid,
+      analytics.capture({
+        distinctId: uid,
         event: 'labels_set',
         properties: {
           pageId,
@@ -281,11 +279,11 @@ export const setLabelsForHighlightResolver = authorized<
       }
     }
 
-    // save labels in the library item
+    // save labels in the highlight
     await saveLabelsInHighlight(labelsSet, input.highlightId, uid, pubsub)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'labels_set_for_highlight',
       properties: {
         highlightId,
@@ -376,8 +374,8 @@ export const moveLabelResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'label_moved',
       properties: {
         labelId,

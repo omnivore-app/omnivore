@@ -31,7 +31,6 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
         marginBottom: '0px',
         paddingTop: '0',
         paddingBottom: '0px',
-        overflow: 'hidden',
         '@media (max-width: 930px)': {
           gridGap: props.layout == 'LIST_LAYOUT' ? '0px' : '20px',
         },
@@ -60,8 +59,6 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
     >
       {props.items.map((linkedItem) => (
         <Box
-          className="linkedItemCard"
-          data-testid="linkedItemCard"
           id={linkedItem.id}
           tabIndex={0}
           key={linkedItem.id + linkedItem.image}
@@ -71,7 +68,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
               outline: 'none',
             },
             '&> div': {
-              bg: '$thBackground3',
+              bg: '$thLeftMenuBackground',
             },
             '&:focus': {
               outline: 'none',
@@ -83,6 +80,7 @@ export function DiscoverItems(props: DiscoverItemsProps): JSX.Element {
             '&:hover': {
               '> div': {
                 bg: '$thBackgroundActive',
+                boxShadow: '$cardBoxShadow',
               },
               '> a': {
                 bg: '$thBackgroundActive',

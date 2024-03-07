@@ -34,6 +34,11 @@ interface Envelope {
 
 const signToken = promisify(jwt.sign)
 
+Sentry.GCPFunction.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0,
+})
+
 const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
 const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
 const pubsub = new PubSub()
@@ -112,8 +117,6 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         }
       }
       const headers = parseHeaders(parsed.headers)
-      console.log('parsed: ', parsed)
-      console.log('headers: ', headers)
 
       // original sender email address
       const from = parsed['from']

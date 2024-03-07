@@ -14,7 +14,6 @@ const mutation = async (name, input) => {
         actionID: name,
         ...input,
       })
-    console.log('action result', name, result, result.result)
     return result.result
   } else {
     // Send android a message
@@ -33,6 +32,7 @@ const mutation = async (name, input) => {
       case 'mergeHighlight':
         return {
           id: input['id'],
+          type: input['type'],
           shortID: input['shortId'],
           quote: input['quote'],
           patch: input['patch'],
@@ -83,8 +83,8 @@ const App = () => {
             articleMutations={{
               createHighlightMutation: (input) =>
                 mutation('createHighlight', input),
-              deleteHighlightMutation: (highlightId) =>
-                mutation('deleteHighlight', { highlightId }),
+              deleteHighlightMutation: (libraryItemId, highlightId) =>
+                mutation('deleteHighlight', { libraryItemId, highlightId }),
               mergeHighlightMutation: (input) =>
                 mutation('mergeHighlight', input),
               updateHighlightMutation: (input) =>

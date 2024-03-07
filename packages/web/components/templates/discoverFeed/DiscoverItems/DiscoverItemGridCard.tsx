@@ -56,18 +56,20 @@ export function DiscoverGridCard(props: DiscoverItemSubCardProps): JSX.Element {
       css={{
         pl: '0px',
         padding: '0px',
-        width: '320px',
+        width: '293px',
         height: '100%',
         minHeight: '270px',
         background: 'white',
         borderRadius: '5px',
         borderWidth: '1px',
-        borderStyle: 'solid',
+        borderStyle: 'none',
         overflow: 'hidden',
-        borderColor: '$thBorderColor',
+        cursor: 'pointer',
         '@media (max-width: 930px)': {
-          m: '15px',
           width: 'calc(100% - 30px)',
+        },
+        '@mdDown': {
+          width: '100%',
         },
       }}
       alignment="start"

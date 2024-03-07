@@ -1,16 +1,14 @@
-import { PubSub } from '@google-cloud/pubsub'
 import { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import * as Sentry from '@sentry/serverless'
 import { parsePdf } from './pdf'
+import { queueUpdatePageJob } from './job'
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 0,
 })
 
-const pubsub = new PubSub()
 const storage = new Storage()
-const CONTENT_UPDATE_TOPIC = 'updatePageContent'
 
 interface StorageEventData {
   bucket: string
@@ -50,24 +48,21 @@ const getDocumentUrl = async (
   }
 }
 
-export const updatePageContent = (
+export const updatePageContent = async (
   fileId: string,
   content: string,
   title?: string,
   author?: string,
   description?: string
 ): Promise<string | undefined> => {
-  return pubsub
-    .topic(CONTENT_UPDATE_TOPIC)
-    .publish(
-      Buffer.from(
-        JSON.stringify({ fileId, content, title, author, description })
-      )
-    )
-    .catch((err) => {
-      console.error('error publishing conentUpdate:', err)
-      return undefined
-    })
+  const job = await queueUpdatePageJob({
+    fileId,
+    content,
+    title,
+    author,
+    description,
+  })
+  return job.id
 }
 
 const getStorageEventData = (

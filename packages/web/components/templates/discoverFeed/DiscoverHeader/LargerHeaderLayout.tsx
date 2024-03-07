@@ -1,13 +1,11 @@
 import { HStack, VStack } from '../../../elements/LayoutPrimitives'
 import { TopicBar } from './TopicBar'
 import { Button } from '../../../elements/Button'
-import { GridViewIcon } from '../../../elements/icons/GridViewIcon'
-import { PrimaryDropdown } from '../../PrimaryDropdown'
 import { DiscoverHeaderProps } from './DiscoverHeader'
-import { HeaderText } from './HeaderText'
 import React from 'react'
-import { ListViewIcon } from '../../../elements/icons/ListViewIcon'
 import { PinnedFeeds } from "./PinnedFeeds"
+import { HeaderToggleGridIcon } from "../../../elements/icons/HeaderToggleGridIcon"
+import { HeaderToggleListIcon } from "../../../elements/icons/HeaderToggleListIcon"
 
 export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
   return (
@@ -59,16 +57,12 @@ export function LargeHeaderLayout(props: DiscoverHeaderProps): JSX.Element {
               e.preventDefault()
             }}
           >
-            {props.layout == 'GRID_LAYOUT' ? (
-              <ListViewIcon size={30} color={'#898989'} />
+            {props.layout == 'LIST_LAYOUT' ? (
+              <HeaderToggleGridIcon />
             ) : (
-              <GridViewIcon size={30} color={'#898989'} />
+              <HeaderToggleListIcon />
             )}
           </Button>
-          <PrimaryDropdown
-            showThemeSection={true}
-            showAddLinkModal={() => props.setShowAddLinkModal(true)}
-          />
         </HStack>
         <HStack
           alignment="center"

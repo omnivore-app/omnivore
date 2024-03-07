@@ -71,13 +71,16 @@ extension DataService {
       )
     }
 
-    let sort = InputObjects.SortParams(by: .updatedTime,
-                                       order: OptionalArgument(descending ? .descending : .ascending))
+    let sort = InputObjects.SortParams(
+      by: .updatedTime,
+      order: OptionalArgument(descending ? .descending : .ascending)
+    )
 
     let query = Selection.Query {
       try $0.updatesSince(
         after: OptionalArgument(cursor),
         first: OptionalArgument(limit),
+        folder: OptionalArgument("all"),
         since: DateTime(from: since),
         sort: OptionalArgument(sort),
         selection: selection
@@ -306,7 +309,7 @@ private let syncItemEdgeSelection = Selection.SyncUpdatedItemEdge {
 }
 
 private let searchItemSelection = Selection.SearchItem {
-  InternalLibraryItem(
+  return InternalLibraryItem(
     id: try $0.id(),
     title: try $0.title(),
     createdAt: try $0.createdAt().value ?? Date(),

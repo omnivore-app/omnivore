@@ -1,9 +1,5 @@
-import { createClient } from 'redis'
+import Redis from 'ioredis'
 import { sendImportCompletedEmail } from '.'
-import { lua } from './redis'
-
-// explicitly create the return type of RedisClient
-type RedisClient = ReturnType<typeof createClient>
 
 export enum ImportStatus {
   STARTED = 'started',
@@ -31,7 +27,7 @@ interface ImportMetrics {
 }
 
 export const createMetrics = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   taskId: string,
   source: string
@@ -39,7 +35,7 @@ export const createMetrics = async (
   const key = `import:${userId}:${taskId}`
   try {
     // set multiple fields
-    await redisClient.hSet(key, {
+    await redisClient.hset(key, {
       ['start_time']: Date.now(),
       ['source']: source,
       ['state']: ImportTaskState.STARTED,
@@ -50,22 +46,66 @@ export const createMetrics = async (
 }
 
 export const updateMetrics = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   taskId: string,
   status: ImportStatus
 ) => {
   const key = `import:${userId}:${taskId}`
 
+  /**
+   * Define our command
+   */
+  redisClient.defineCommand('updatemetrics', {
+    numberOfKeys: 1,
+    lua: `
+      local key = tostring(KEYS[1]);
+      local status = tostring(ARGV[1]);
+      local timestamp = tonumber(ARGV[2]);
+
+      -- increment the status counter
+      redis.call('HINCRBY', key, status, 1);
+
+      if (status == "imported" or status == "failed") then
+        -- get the current metrics
+        local bulk = redis.call('HGETALL', key);
+        -- get the total, imported and failed counters
+        local result = {}
+        local nextkey
+        for i, v in ipairs(bulk) do
+          if i % 2 == 1 then
+            nextkey = v
+          else
+            result[nextkey] = v
+          end
+        end
+        
+        local imported = tonumber(result['imported']) or 0;
+        local failed = tonumber(result['failed']) or 0;
+        local total = tonumber(result['total']) or 0;
+        local state = tonumber(result['state']) or 0;
+        if (state == 0 and imported + failed >= total) then
+          -- all the records have been processed
+          -- update the metrics
+          redis.call('HSET', key, 'end_time', timestamp, 'state', 1);
+          return 1
+        end
+      end
+
+      return 0;
+    `,
+  })
+
   try {
     // use lua script to increment hash field
-    const state = await redisClient.evalSha(lua.sha, {
-      keys: [key],
-      arguments: [status, Date.now().toString()],
-    })
+    const state = await redisClient.updatemetrics(
+      key,
+      status,
+      Date.now().toString()
+    )
 
     // if the task is finished, send email
-    if (state == ImportTaskState.FINISHED) {
+    if ((state as ImportTaskState) == ImportTaskState.FINISHED) {
       const metrics = await getMetrics(redisClient, userId, taskId)
       if (metrics) {
         await sendImportCompletedEmail(userId, metrics.imported, metrics.failed)
@@ -77,13 +117,13 @@ export const updateMetrics = async (
 }
 
 export const getMetrics = async (
-  redisClient: RedisClient,
+  redisClient: Redis,
   userId: string,
   taskId: string
 ): Promise<ImportMetrics | null> => {
   const key = `import:${userId}:${taskId}`
   try {
-    const metrics = await redisClient.hGetAll(key)
+    const metrics = await redisClient.hgetall(key)
 
     return {
       // convert to integer

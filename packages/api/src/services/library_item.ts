@@ -1,23 +1,33 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
 import { DateTime } from 'luxon'
-import { DeepPartial, FindOptionsWhere, ObjectLiteral } from 'typeorm'
+import {
+  DeepPartial,
+  EntityManager,
+  FindOptionsWhere,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
-import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityType } from '../pubsub'
+import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
   getColumns,
+  getRepository,
   queryBuilderToRawSql,
-  valuesToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { setRecentlySavedItemInRedis, wordsCount } from '../utils/helpers'
+import { Merge } from '../util'
+import { setRecentlySavedItemInRedis } from '../utils/helpers'
+import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
+import { addLabelsToLibraryItem } from './labels'
 
 enum ReadFilter {
   ALL = 'all',
@@ -93,11 +103,26 @@ export enum SortOrder {
 export interface Sort {
   by: string
   order?: SortOrder
+  nulls?: 'NULLS FIRST' | 'NULLS LAST'
 }
 
 interface Select {
   column: string
   alias?: string
+}
+
+const readingProgressDataSource = new ReadingProgressDataSource()
+
+const markItemAsRead = async (libraryItemId: string, userId: string) => {
+  return await readingProgressDataSource.updateReadingProgress(
+    userId,
+    libraryItemId,
+    {
+      readingProgressPercent: 100,
+      readingProgressTopPercent: 100,
+      readingProgressAnchorIndex: undefined,
+    }
+  )
 }
 
 const handleNoCase = (value: string) => {
@@ -179,7 +204,7 @@ const getColumnName = (field: string) => {
   }
 }
 
-export const buildQuery = (
+export const buildQueryString = (
   searchQuery: LiqeQuery,
   parameters: ObjectLiteral[] = [],
   selects: Select[] = [],
@@ -249,12 +274,12 @@ export const buildQuery = (
             case InFilter.ALL:
               return null
             case InFilter.ARCHIVE:
-              return 'library_item.archived_at IS NOT NULL'
+              return "(library_item.state = 'ARCHIVED' or (library_item.state != 'DELETED' and library_item.archived_at is not null))"
             case InFilter.TRASH:
               // return only deleted pages within 14 days
-              return "library_item.deleted_at >= now() - interval '14 days'"
+              return "(library_item.state = 'DELETED' AND library_item.deleted_at >= now() - interval '14 days')"
             default: {
-              let sql = 'library_item.archived_at IS NULL'
+              let sql = 'library_item.archived_at is null'
               if (useFolders) {
                 const param = `folder_${parameters.length}`
                 const folderSql = escapeQueryWithParameters(
@@ -332,8 +357,10 @@ export const buildQuery = (
 
           const order =
             sortOrder === 'asc' ? SortOrder.ASCENDING : SortOrder.DESCENDING
+          const nulls =
+            order === SortOrder.ASCENDING ? 'NULLS FIRST' : 'NULLS LAST'
 
-          orders.push({ by: `library_item.${column}`, order })
+          orders.push({ by: `library_item.${column}`, order, nulls })
           return null
         }
         case 'has':
@@ -547,12 +574,11 @@ export const buildQuery = (
   return serialize(searchQuery)
 }
 
-export const searchLibraryItems = async (
+export const buildQuery = (
+  queryBuilder: SelectQueryBuilder<LibraryItem>,
   args: SearchArgs,
   userId: string
-): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
-  const { from = 0, size = 10 } = args
-
+) => {
   // select all columns except content
   const selects: Select[] = getColumns(libraryItemRepository)
     .map((column) => ({ column: `library_item.${column}` }))
@@ -564,13 +590,13 @@ export const searchLibraryItems = async (
 
   const parameters: ObjectLiteral[] = []
   const orders: Sort[] = []
-  let query: string | null = null
+  let queryString: string | null = null
 
   if (args.query) {
     const searchQuery = parseSearchQuery(args.query)
 
-    // build query and save parameters
-    query = buildQuery(
+    // build query string and save parameters
+    queryString = buildQueryString(
       searchQuery,
       parameters,
       selects,
@@ -578,53 +604,110 @@ export const searchLibraryItems = async (
       args.useFolders
     )
   }
+  queryBuilder.where('library_item.user_id = :userId', { userId })
 
-  // add pagination and sorting
+  // add select
+  selects.forEach((select) => {
+    queryBuilder.addSelect(select.column, select.alias)
+  })
+
+  if (!args.includePending) {
+    queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
+  }
+
+  if (!args.includeDeleted) {
+    queryBuilder.andWhere("library_item.state <> 'DELETED'")
+  }
+
+  if (queryString) {
+    // add where clause from query string
+    queryBuilder
+      .andWhere(`(${queryString})`)
+      .setParameters(paramtersToObject(parameters))
+  }
+
+  // default order by saved at descending
+  if (!orders.find((order) => order.by === 'library_item.saved_at')) {
+    orders.push({
+      by: 'library_item.saved_at',
+      order: SortOrder.DESCENDING,
+      nulls: 'NULLS LAST',
+    })
+  }
+
+  // add order by
+  orders.forEach((order) => {
+    queryBuilder.addOrderBy(order.by, order.order, order.nulls)
+  })
+}
+
+export const countLibraryItems = async (args: SearchArgs, userId: string) => {
+  const queryBuilder =
+    getRepository(LibraryItem).createQueryBuilder('library_item')
+
+  buildQuery(queryBuilder, args, userId)
+
+  return queryBuilder.getCount()
+}
+
+export const searchLibraryItems = async (
+  args: SearchArgs,
+  userId: string
+): Promise<{ libraryItems: LibraryItem[]; count: number }> => {
+  const { from = 0, size = 10 } = args
+
   return authTrx(
     async (tx) => {
-      const queryBuilder = tx
-        .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.user_id = :userId', { userId })
-
-      // add select
-      selects.forEach((select) => {
-        queryBuilder.addSelect(select.column, select.alias)
-      })
-
-      if (!args.includePending) {
-        queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
-      }
-
-      if (!args.includeDeleted) {
-        queryBuilder.andWhere("library_item.state <> 'DELETED'")
-      }
-
-      if (query) {
-        // add where clause from query
-        queryBuilder
-          .andWhere(`(${query})`)
-          .setParameters(paramtersToObject(parameters))
-      }
+      const queryBuilder = tx.createQueryBuilder(LibraryItem, 'library_item')
+      buildQuery(queryBuilder, args, userId)
 
       const count = await queryBuilder.getCount()
-
-      // default order by saved at descending
-      if (!orders.find((order) => order.by === 'library_item.saved_at')) {
-        orders.push({
-          by: 'library_item.saved_at',
-          order: SortOrder.DESCENDING,
-        })
+      if (size === 0) {
+        // return only count if size is 0 because limit 0 is not allowed in typeorm
+        return { libraryItems: [], count }
       }
 
-      // add order by
-      orders.forEach((order) => {
-        queryBuilder.addOrderBy(order.by, order.order, 'NULLS LAST')
-      })
-
+      // add pagination
       const libraryItems = await queryBuilder.skip(from).take(size).getMany()
 
       return { libraryItems, count }
     },
+    undefined,
+    userId
+  )
+}
+
+export const findRecentLibraryItems = async (
+  userId: string,
+  limit = 1000,
+  offset?: number
+) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .where('library_item.user_id = :userId', { userId })
+        .andWhere('library_item.state = :state', {
+          state: LibraryItemState.Succeeded,
+        })
+        .orderBy('library_item.saved_at', 'DESC', 'NULLS LAST')
+        .take(limit)
+        .skip(offset)
+        .getMany(),
+    undefined,
+    userId
+  )
+}
+
+export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
+  return authTrx(
+    async (tx) =>
+      tx
+        .createQueryBuilder(LibraryItem, 'library_item')
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .where('library_item.id IN (:...ids)', { ids })
+        .getMany(),
     undefined,
     userId
   )
@@ -663,7 +746,7 @@ export const findLibraryItemByUrl = async (
         .leftJoinAndSelect('recommender.profile', 'profile')
         .leftJoinAndSelect('recommendations.group', 'group')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.original_url = :url', { url })
+        .andWhere('md5(library_item.original_url) = md5(:url)', { url })
         .getOne(),
     undefined,
     userId
@@ -688,23 +771,47 @@ export const restoreLibraryItem = async (
   )
 }
 
+export const softDeleteLibraryItem = async (
+  id: string,
+  userId: string,
+  pubsub = createPubSubClient()
+): Promise<LibraryItem> => {
+  const deletedLibraryItem = await authTrx(
+    async (tx) => {
+      const itemRepo = tx.withRepository(libraryItemRepository)
+
+      // mark item as deleted
+      await itemRepo.update(id, {
+        state: LibraryItemState.Deleted,
+        deletedAt: new Date(),
+      })
+
+      return itemRepo.findOneByOrFail({ id })
+    },
+    undefined,
+    userId
+  )
+
+  await pubsub.entityDeleted(EntityType.PAGE, id, userId)
+
+  return deletedLibraryItem
+}
+
 export const updateLibraryItem = async (
   id: string,
   libraryItem: QueryDeepPartialEntity<LibraryItem>,
   userId: string,
-  pubsub = createPubSubClient()
+  pubsub = createPubSubClient(),
+  skipPubSub = false
 ): Promise<LibraryItem> => {
   const updatedLibraryItem = await authTrx(
     async (tx) => {
       const itemRepo = tx.withRepository(libraryItemRepository)
 
-      // reset deletedAt and archivedAt
+      // reset archivedAt
       switch (libraryItem.state) {
         case LibraryItemState.Archived:
           libraryItem.archivedAt = new Date()
-          break
-        case LibraryItemState.Deleted:
-          libraryItem.deletedAt = new Date()
           break
         case LibraryItemState.Processing:
         case LibraryItemState.Succeeded:
@@ -720,11 +827,16 @@ export const updateLibraryItem = async (
     userId
   )
 
+  if (skipPubSub) {
+    return updatedLibraryItem
+  }
+
   await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
     EntityType.PAGE,
     {
       ...libraryItem,
       id,
+      libraryItemId: id,
       // don't send original content and readable content
       originalContent: undefined,
       readableContent: undefined,
@@ -801,27 +913,80 @@ export const createLibraryItems = async (
   )
 }
 
-export const createLibraryItem = async (
-  libraryItem: DeepPartial<LibraryItem>,
+export type CreateOrUpdateLibraryItemArgs = Merge<
+  DeepPartial<LibraryItem>,
+  { originalUrl: string }
+>
+export const createOrUpdateLibraryItem = async (
+  libraryItem: CreateOrUpdateLibraryItemArgs,
   userId: string,
   pubsub = createPubSubClient(),
   skipPubSub = false
 ): Promise<LibraryItem> => {
   const newLibraryItem = await authTrx(
-    async (tx) =>
-      tx.withRepository(libraryItemRepository).save({
-        ...libraryItem,
-        wordCount:
-          libraryItem.wordCount ??
-          wordsCount(libraryItem.readableContent || ''),
-      }),
+    async (tx) => {
+      const repo = tx.withRepository(libraryItemRepository)
+      // find existing library item by user_id and url for update
+      const existingLibraryItem = await repo.findByUserIdAndUrl(
+        userId,
+        libraryItem.originalUrl,
+        true
+      )
+
+      if (existingLibraryItem) {
+        const id = existingLibraryItem.id
+
+        try {
+          // delete labels and highlights if the item was deleted
+          if (existingLibraryItem.state === LibraryItemState.Deleted) {
+            logger.info('Deleting labels and highlights for item', {
+              id,
+            })
+            await tx.getRepository(Highlight).delete({
+              libraryItem: { id: existingLibraryItem.id },
+            })
+
+            await tx.getRepository(EntityLabel).delete({
+              libraryItemId: existingLibraryItem.id,
+            })
+
+            libraryItem.labelNames = []
+            libraryItem.highlightAnnotations = []
+          }
+        } catch (error) {
+          // continue to save the item even if we failed to delete labels and highlights
+          logger.error('Failed to delete labels and highlights', error)
+        }
+
+        // update existing library item
+        const newItem = await repo.save({
+          ...libraryItem,
+          id,
+          slug: existingLibraryItem.slug, // keep the original slug
+        })
+
+        // delete the new item if it's different from the existing one
+        if (libraryItem.id && libraryItem.id !== id) {
+          await repo.delete(libraryItem.id)
+        }
+
+        return newItem
+      }
+
+      // create or update library item
+      return repo.upsertLibraryItemById(libraryItem)
+    },
     undefined,
     userId
   )
 
   // set recently saved item in redis if redis is enabled
-  if (env.redis.url) {
-    await setRecentlySavedItemInRedis(userId, newLibraryItem.originalUrl)
+  if (redisDataSource.redisClient) {
+    await setRecentlySavedItemInRedis(
+      redisDataSource.redisClient,
+      userId,
+      newLibraryItem.originalUrl
+    )
   }
 
   if (skipPubSub) {
@@ -832,6 +997,7 @@ export const createLibraryItem = async (
     EntityType.PAGE,
     {
       ...newLibraryItem,
+      libraryItemId: newLibraryItem.id,
       // don't send original content and readable content
       originalContent: undefined,
       readableContent: undefined,
@@ -863,7 +1029,7 @@ export const findLibraryItemsByPrefix = async (
   )
 }
 
-export const countByCreatedAt = async (
+export const countBySavedAt = async (
   userId: string,
   startDate = new Date(0),
   endDate = new Date()
@@ -873,7 +1039,7 @@ export const countByCreatedAt = async (
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.created_at between :startDate and :endDate', {
+        .andWhere('library_item.saved_at between :startDate and :endDate', {
           startDate,
           endDate,
         })
@@ -887,7 +1053,7 @@ export const batchUpdateLibraryItems = async (
   action: BulkActionType,
   searchArgs: SearchArgs,
   userId: string,
-  labels?: Label[],
+  labelIds?: string[] | null,
   args?: unknown
 ) => {
   interface FolderArguments {
@@ -898,46 +1064,24 @@ export const batchUpdateLibraryItems = async (
     return 'folder' in args
   }
 
-  const now = new Date().toISOString()
-  // build the script
-  let values: Record<string, string | number> = {}
-  let addLabels = false
-  switch (action) {
-    case BulkActionType.Archive:
-      values = {
-        archived_at: now,
-        state: LibraryItemState.Archived,
-      }
-      break
-    case BulkActionType.Delete:
-      values = {
-        state: LibraryItemState.Deleted,
-        deleted_at: now,
-      }
-      break
-    case BulkActionType.AddLabels:
-      addLabels = true
-      break
-    case BulkActionType.MarkAsRead:
-      values = {
-        read_at: now,
-        reading_progress_top_percent: 100,
-        reading_progress_bottom_percent: 100,
-      }
-      break
-    case BulkActionType.MoveToFolder:
-      if (!args || !isFolderArguments(args)) {
-        throw new Error('Invalid arguments')
-      }
+  const getQueryBuilder = (userId: string, em: EntityManager) => {
+    const queryBuilder = em
+      .createQueryBuilder(LibraryItem, 'library_item')
+      .where('library_item.user_id = :userId', { userId })
+    if (queryString) {
+      queryBuilder
+        .andWhere(`(${queryString})`)
+        .setParameters(paramtersToObject(parameters))
+    }
+    return queryBuilder
+  }
 
-      values = {
-        folder: args.folder,
-        saved_at: now,
-      }
-
-      break
-    default:
-      throw new Error('Invalid bulk action')
+  const getLibraryItemIds = async (
+    userId: string,
+    em: EntityManager
+  ): Promise<{ id: string }[]> => {
+    const queryBuilder = getQueryBuilder(userId, em)
+    return queryBuilder.select('library_item.id', 'id').getRawMany()
   }
 
   if (!searchArgs.query) {
@@ -946,72 +1090,75 @@ export const batchUpdateLibraryItems = async (
 
   const searchQuery = parseSearchQuery(searchArgs.query)
   const parameters: ObjectLiteral[] = []
-  const query = buildQuery(searchQuery, parameters)
+  const queryString = buildQueryString(searchQuery, parameters)
 
-  await authTrx(async (tx) => {
-    const queryBuilder = tx
-      .createQueryBuilder(LibraryItem, 'library_item')
-      .where('library_item.user_id = :userId', { userId })
-
-    if (query) {
-      queryBuilder
-        .andWhere(`(${query})`)
-        .setParameters(paramtersToObject(parameters))
-    }
-
-    if (addLabels) {
-      if (!labels) {
+  const now = new Date().toISOString()
+  // build the script
+  let values: Record<string, string | number> = {}
+  switch (action) {
+    case BulkActionType.Archive:
+      values = {
+        archivedAt: now,
+        state: LibraryItemState.Archived,
+      }
+      break
+    case BulkActionType.Delete:
+      values = {
+        state: LibraryItemState.Deleted,
+        deletedAt: now,
+      }
+      break
+    case BulkActionType.AddLabels: {
+      if (!labelIds) {
         throw new Error('Labels are required for this action')
       }
 
-      const libraryItems = await queryBuilder.getMany()
-      // add labels in library items
-      const labelsToAdd = libraryItems.flatMap((libraryItem) =>
-        labels
-          .map((label) => ({
-            labelId: label.id,
-            libraryItemId: libraryItem.id,
-            name: label.name,
-          }))
-          .filter((entityLabel) => {
-            const existingLabel = libraryItem.labelNames?.find(
-              (l) => l.toLowerCase() === entityLabel.name.toLowerCase()
-            )
-            return !existingLabel
-          })
+      const libraryItems = await authTrx(
+        async (tx) => getLibraryItemIds(userId, tx),
+        undefined,
+        userId
       )
-      return tx.getRepository(EntityLabel).save(labelsToAdd)
+      // add labels to library items
+      for (const libraryItem of libraryItems) {
+        await addLabelsToLibraryItem(labelIds, libraryItem.id, userId)
+      }
+
+      return
     }
+    case BulkActionType.MarkAsRead: {
+      const libraryItems = await authTrx(
+        async (tx) => getLibraryItemIds(userId, tx),
+        undefined,
+        userId
+      )
+      // update reading progress for library items
+      for (const libraryItem of libraryItems) {
+        await markItemAsRead(libraryItem.id, userId)
+      }
 
-    // generate raw sql because postgres doesn't support prepared statements in DO blocks
-    const countSql = queryBuilderToRawSql(queryBuilder.select('COUNT(1)'))
-    const subQuery = queryBuilderToRawSql(queryBuilder.select('id'))
-    const valuesSql = valuesToRawSql(values)
+      return
+    }
+    case BulkActionType.MoveToFolder:
+      if (!args || !isFolderArguments(args)) {
+        throw new Error('Invalid arguments')
+      }
 
-    const start = new Date().toISOString()
-    const batchSize = 1000
-    const sql = `
-    -- Set batch size
-    DO $$ 
-    DECLARE 
-        batch_size INT := ${batchSize};
-    BEGIN
-        -- Loop through batches
-        FOR i IN 0..CEIL((${countSql}) * 1.0 / batch_size) - 1 LOOP
-            -- Update the batch
-            UPDATE omnivore.library_item
-            SET ${valuesSql}
-            WHERE id = ANY(
-              ${subQuery}
-              AND updated_at < '${start}'
-              LIMIT batch_size
-            );
-        END LOOP;
-    END $$
-    `
+      values = {
+        folder: args.folder,
+        savedAt: now,
+      }
 
-    return tx.query(sql)
-  })
+      break
+    default:
+      throw new Error('Invalid bulk action')
+  }
+
+  await authTrx(
+    async (tx) =>
+      getQueryBuilder(userId, tx).update(LibraryItem).set(values).execute(),
+    undefined,
+    userId
+  )
 }
 
 export const deleteLibraryItemById = async (id: string, userId?: string) => {
@@ -1027,7 +1174,8 @@ export const deleteLibraryItems = async (
   userId?: string
 ) => {
   return authTrx(
-    async (tx) => tx.withRepository(libraryItemRepository).remove(items),
+    async (tx) =>
+      tx.withRepository(libraryItemRepository).delete(items.map((i) => i.id)),
     undefined,
     userId
   )
@@ -1091,4 +1239,37 @@ export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
   `
 
   return authTrx(async (t) => t.query(sql))
+}
+
+export const findLibraryItemIdsByLabelId = async (
+  labelId: string,
+  userId: string
+) => {
+  return authTrx(
+    async (tx) => {
+      // find library items have the label or have highlights with the label
+      const result = (await tx.query(
+        `
+        SELECT library_item_id
+        FROM (
+            SELECT library_item_id
+            FROM omnivore.entity_labels
+            WHERE label_id = $1
+                  AND library_item_id IS NOT NULL
+            UNION
+            SELECT h.library_item_id
+            FROM omnivore.highlight h
+            INNER JOIN omnivore.entity_labels ON entity_labels.highlight_id = h.id
+            WHERE label_id = $1
+                  AND highlight_id IS NOT NULL
+        ) AS combined_results
+      `,
+        [labelId]
+      )) as { library_item_id: string }[]
+
+      return result.map((r) => r.library_item_id)
+    },
+    undefined,
+    userId
+  )
 }

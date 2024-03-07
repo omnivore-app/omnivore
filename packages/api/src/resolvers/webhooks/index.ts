@@ -22,7 +22,7 @@ import {
 import { authTrx } from '../../repository'
 import { deleteWebhook } from '../../services/webhook'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const webhooksResolver = authorized<WebhooksSuccess, WebhooksError>(
   async (_obj, _params, { uid, log }) => {
@@ -85,8 +85,8 @@ export const deleteWebhookResolver = authorized<
   try {
     const webhook = await deleteWebhook(id, uid)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'webhook_delete',
       properties: {
         webhookId: id,
@@ -144,8 +144,8 @@ export const setWebhookResolver = authorized<
       })
     )
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'webhook_set',
       properties: {
         webhookId: webhook.id,

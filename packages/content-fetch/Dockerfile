@@ -1,4 +1,5 @@
 FROM node:18.16
+LABEL org.opencontainers.image.source="https://github.com/omnivore-app/omnivore"
 
 # Installs latest Chromium (92) package.
 RUN apt-get update && apt-get install -y \
@@ -21,6 +22,7 @@ COPY tsconfig.json .
 COPY .prettierrc .
 COPY .eslintrc .
 
+COPY /packages/content-fetch/package.json ./packages/content-fetch/package.json
 COPY /packages/readabilityjs/package.json ./packages/readabilityjs/package.json
 COPY /packages/content-handler/package.json ./packages/content-handler/package.json
 COPY /packages/puppeteer-parse/package.json ./packages/puppeteer-parse/package.json
@@ -32,6 +34,8 @@ ADD /packages/content-handler ./packages/content-handler
 ADD /packages/puppeteer-parse ./packages/puppeteer-parse
 ADD /packages/readabilityjs ./packages/readabilityjs
 RUN yarn workspace @omnivore/content-handler build
+RUN yarn workspace @omnivore/puppeteer-parse build
+RUN yarn workspace @omnivore/content-fetch build
 
 # After building, fetch the production dependencies
 RUN rm -rf /app/packages/content-fetch/node_modules

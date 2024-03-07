@@ -1,16 +1,9 @@
-import React, { useState } from 'react'
-import { Box, HStack, VStack } from '../../../elements/LayoutPrimitives'
-import {
-  DEFAULT_HEADER_HEIGHT,
-  HeaderSpacer,
-  useGetHeaderHeight,
-} from '../../homeFeed/HeaderSpacer'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../../../templates/homeFeed/LibraryFilterMenu'
+import React from 'react'
+import { Box, VStack } from '../../../elements/LayoutPrimitives'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../../navMenu/LibraryMenu'
 import { LargeHeaderLayout } from './LargerHeaderLayout'
 import { SmallHeaderLayout } from './SmallerHeaderLayout'
-import { HeaderText } from './HeaderText'
 import { LayoutType, TopicTabData } from '../DiscoverContainer'
-import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { DiscoverFeed } from "../../../../lib/networking/queries/useGetDiscoverFeeds"
 
 export type DiscoverHeaderProps = {

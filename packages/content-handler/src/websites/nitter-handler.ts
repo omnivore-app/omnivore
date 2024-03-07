@@ -1,9 +1,10 @@
 import axios from 'axios'
+import Redis from 'ioredis'
 import { parseHTML } from 'linkedom'
 import _, { truncate } from 'lodash'
 import { DateTime } from 'luxon'
 import { ContentHandler, PreHandleResult } from '../content-handler'
-import { createRedisClient, RedisClient } from '../redis'
+import { createRedisClient } from '../redis'
 
 interface Tweet {
   url: string
@@ -30,7 +31,7 @@ interface Tweet {
 export class NitterHandler extends ContentHandler {
   // matches twitter.com and nitter.net urls
   URL_MATCH =
-    /((twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
+    /((x\.com)|(twitter\.com)|(nitter\.net))\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)(?:\/.*)?/
   INSTANCES = [
     { value: 'https://nitter.moomoo.me', score: 0 },
     { value: 'https://nitter.net', score: 1 }, // the official instance
@@ -50,18 +51,24 @@ export class NitterHandler extends ContentHandler {
     this.instance = ''
   }
 
-  async getInstances(redisClient: RedisClient) {
+  async getInstances(redisClient: Redis) {
     // get instances by score in ascending order
-    const instances = await redisClient.zRange(this.REDIS_KEY, '-inf', '+inf', {
-      BY: 'SCORE',
-    })
+    const instances = await redisClient.zrange(
+      this.REDIS_KEY,
+      '-inf',
+      '+inf',
+      'BYSCORE'
+    )
     console.debug('instances', instances)
 
     // if no instance is found, save the default instances
     if (instances.length === 0) {
-      const result = await redisClient.zAdd(this.REDIS_KEY, this.INSTANCES, {
-        NX: true, // only add if the key does not exist
-      })
+      // only add if the key does not exist
+      const result = await redisClient.zadd(
+        this.REDIS_KEY,
+        'NX',
+        ...this.INSTANCES.map((i) => [i.score, i.value]).flat()
+      )
       console.debug('add instances', result)
 
       // expire the key after 1 day
@@ -75,11 +82,11 @@ export class NitterHandler extends ContentHandler {
   }
 
   async incrementInstanceScore(
-    redisClient: RedisClient,
+    redisClient: Redis,
     instance: string,
     score = 1
   ) {
-    await redisClient.zIncrBy(this.REDIS_KEY, score, instance)
+    await redisClient.zincrby(this.REDIS_KEY, score, instance)
   }
 
   async getTweets(username: string, tweetId: string) {
@@ -177,7 +184,7 @@ export class NitterHandler extends ContentHandler {
       }
     }
 
-    const redisClient = await createRedisClient(
+    const redisClient = createRedisClient(
       process.env.REDIS_URL,
       process.env.REDIS_CERT
     )
@@ -309,7 +316,7 @@ export class NitterHandler extends ContentHandler {
   parseTweetUrl = (url: string) => {
     const match = url.match(this.URL_MATCH)
     return {
-      domain: match?.[1],
+      domain: match?.[1]?.replace('x', 'twitter'),
       username: match?.[4],
       tweetId: match?.[5],
     }

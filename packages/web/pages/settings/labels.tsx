@@ -17,16 +17,9 @@ import { applyStoredTheme, isDarkTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { Label, LabelColor } from '../../lib/networking/fragments/labelFragment'
 import { StyledText } from '../../components/elements/StyledText'
-import {
-  ArrowClockwise,
-  DotsThree,
-  PencilSimple,
-  Trash,
-  Plus,
-} from 'phosphor-react'
+import { ArrowClockwise, DotsThree, PencilSimple, Trash } from 'phosphor-react'
 import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
 import {
   Dropdown,
@@ -35,7 +28,6 @@ import {
 import { LabelChip } from '../../components/elements/LabelChip'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { InfoLink } from '../../components/elements/InfoLink'
-import { SuggestionBox } from '../../components/elements/SuggestionBox'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
 import { FeatureHelpBox } from '../../components/elements/FeatureHelpBox'
 
@@ -162,7 +154,7 @@ export default function LabelsPage(): JSX.Element {
   })
   const breakpoint = 768
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   const sortedLabels = useMemo(() => {
     return labels.sort((left: Label, right: Label) =>
@@ -663,30 +655,23 @@ function GenericTableCard(
             />
           )}
           {showInput && (
-            <TooltipWrapped
-              tooltipSide={'top'}
-              tooltipContent="Random Color"
-              arrowStyles={{ fill: '#F9D354' }}
-              style={{ backgroundColor: '#F9D354', color: 'black' }}
-            >
-              <Box css={{ py: 4 }}>
-                <IconButton
-                  style="ctaWhite"
-                  css={{
-                    mr: '$1',
-                    width: 40,
-                    height: 40,
-                    background: '$labelButtonsBg',
-                  }}
-                  onClick={() => handleGenerateRandomColor(label?.id)}
-                  disabled={
-                    !(isCreateMode && !label) && !(editingLabelId === label?.id)
-                  }
-                >
-                  <ArrowClockwise size={16} color={iconColor} />
-                </IconButton>
-              </Box>
-            </TooltipWrapped>
+            <Box title="Random color" css={{ py: 4 }}>
+              <IconButton
+                style="ctaWhite"
+                css={{
+                  mr: '$1',
+                  width: 40,
+                  height: 40,
+                  background: '$labelButtonsBg',
+                }}
+                onClick={() => handleGenerateRandomColor(label?.id)}
+                disabled={
+                  !(isCreateMode && !label) && !(editingLabelId === label?.id)
+                }
+              >
+                <ArrowClockwise size={16} color={iconColor} />
+              </IconButton>
+            </Box>
           )}
           {!showInput && (
             <Box css={{ marginLeft: 'auto', '@md': { display: 'none' } }}>

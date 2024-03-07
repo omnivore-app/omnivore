@@ -38,7 +38,7 @@ import {
   generateDownloadSignedUrl,
   generateUploadFilePathName,
 } from '../utils/uploads'
-import { emptyTrashResolver } from './article'
+import { emptyTrashResolver, fetchContentResolver } from './article'
 import { optInFeatureResolver } from './features'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
@@ -150,6 +150,8 @@ import {
   deleteDiscoverFeedsResolver,
   editDiscoverFeedsResolver,
 } from './discover_feeds'
+import { getAISummary } from '../services/ai-summaries'
+import { findUserFeatures, getFeatureName } from '../services/features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -166,6 +168,69 @@ const resultResolveTypeResolver = (
       obj.errorCodes ? `${resolverName}Error` : `${resolverName}Success`,
   },
 })
+
+const readingProgressHandlers = {
+  async readingProgressPercent(
+    article: { id: string; readingProgressPercent?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress) {
+        return Math.max(
+          article.readingProgressPercent ?? 0,
+          readingProgress.readingProgressPercent
+        )
+      }
+    }
+    return article.readingProgressPercent
+  },
+  async readingProgressAnchorIndex(
+    article: { id: string; readingProgressAnchorIndex?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress && readingProgress.readingProgressAnchorIndex) {
+        return Math.max(
+          article.readingProgressAnchorIndex ?? 0,
+          readingProgress.readingProgressAnchorIndex
+        )
+      }
+    }
+    return article.readingProgressAnchorIndex
+  },
+  async readingProgressTopPercent(
+    article: { id: string; readingProgressTopPercent?: number },
+    _: unknown,
+    ctx: WithDataSourcesContext
+  ) {
+    if (ctx.claims?.uid) {
+      const readingProgress =
+        await ctx.dataSources.readingProgress.getReadingProgress(
+          ctx.claims?.uid,
+          article.id
+        )
+      if (readingProgress && readingProgress.readingProgressTopPercent) {
+        return Math.max(
+          article.readingProgressTopPercent ?? 0,
+          readingProgress.readingProgressTopPercent
+        )
+      }
+    }
+    return article.readingProgressTopPercent
+  },
+}
 
 // Provide resolver functions for your schema fields
 export const functionResolvers = {
@@ -247,6 +312,7 @@ export const functionResolvers = {
     deleteDiscoverFeed: deleteDiscoverFeedsResolver,
     editDiscoverFeed: editDiscoverFeedsResolver,
     emptyTrash: emptyTrashResolver,
+    fetchContent: fetchContentResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -298,6 +364,16 @@ export const functionResolvers = {
       }
       return undefined
     },
+    async features(
+      user: User,
+      __: Record<string, unknown>,
+      ctx: WithDataSourcesContext
+    ) {
+      if (!ctx.claims?.uid) {
+        return undefined
+      }
+      return findUserFeatures(ctx.claims.uid)
+    },
   },
   Article: {
     async url(article: Article, _: unknown, ctx: WithDataSourcesContext) {
@@ -328,20 +404,6 @@ export const functionResolvers = {
     publishedAt(article: { publishedAt: Date }) {
       return validatedDate(article.publishedAt)
     },
-    // async shareInfo(
-    //   article: { id: string; sharedBy?: User; shareInfo?: LinkShareInfo },
-    //   __: unknown,
-    //   ctx: WithDataSourcesContext
-    // ): Promise<LinkShareInfo | undefined> {
-    //   if (article.shareInfo) return article.shareInfo
-    //   if (!ctx.claims?.uid) return undefined
-    //   return getShareInfoForArticle(
-    //     ctx.kx,
-    //     ctx.claims?.uid,
-    //     article.id,
-    //     ctx.models
-    //   )
-    // },
     image(article: { image?: string }): string | undefined {
       return article.image && createImageProxyUrl(article.image, 320, 320)
     },
@@ -350,18 +412,15 @@ export const functionResolvers = {
       return article.content ? wordsCount(article.content) : undefined
     },
     async labels(
-      article: { id: string; labels?: Label[]; labelNames?: string[] | null },
+      article: { id: string; labels?: Label[] },
       _: unknown,
       ctx: WithDataSourcesContext,
     ) {
       if (article.labels) return article.labels
 
-      if (article.labelNames && article.labelNames.length > 0) {
-        return findLabelsByLibraryItemId(article.id, ctx.uid)
-      }
-
-      return []
+      return findLabelsByLibraryItemId(article.id, ctx.uid)
     },
+    ...readingProgressHandlers,
   },
   Highlight: {
     // async reactions(
@@ -425,17 +484,13 @@ export const functionResolvers = {
       return item.siteIcon
     },
     async labels(
-      item: { id: string; labels?: Label[]; labelNames?: string[] | null },
+      item: { id: string; labels?: Label[] },
       _: unknown,
       ctx: WithDataSourcesContext,
     ) {
       if (item.labels) return item.labels
 
-      if (item.labelNames && item.labelNames.length > 0) {
-        return findLabelsByLibraryItemId(item.id, ctx.uid)
-      }
-
-      return []
+      return findLabelsByLibraryItemId(item.id, ctx.uid)
     },
     async recommendations(
       item: {
@@ -458,24 +513,29 @@ export const functionResolvers = {
 
       return []
     },
+    async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
+      return (
+        await getAISummary({
+          userId: ctx.uid,
+          libraryItemId: item.id,
+          idx: 'latest',
+        })
+      )?.summary
+    },
     async highlights(
       item: {
         id: string
         highlights?: Highlight[]
-        highlightAnnotations?: string[] | null
       },
       _: unknown,
       ctx: WithDataSourcesContext,
     ) {
       if (item.highlights) return item.highlights
 
-      if (item.highlightAnnotations && item.highlightAnnotations.length > 0) {
-        const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
-        return highlights.map(highlightDataToHighlight)
-      }
-
-      return []
+      const highlights = await findHighlightsByLibraryItemId(item.id, ctx.uid)
+      return highlights.map(highlightDataToHighlight)
     },
+    ...readingProgressHandlers,
   },
   Subscription: {
     newsletterEmail(subscription: Subscription) {
@@ -492,6 +552,10 @@ export const functionResolvers = {
         subscription.newsletterEmail?.folder ||
         DEFAULT_SUBSCRIPTION_FOLDER
       )
+    },
+    // for campability with old clients
+    lastFetchedAt(subscription: Subscription) {
+      return subscription.refreshedAt
     },
   },
   NewsletterEmail: {
@@ -597,4 +661,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('MoveToFolder'),
   ...resultResolveTypeResolver('UpdateNewsletterEmail'),
   ...resultResolveTypeResolver('EmptyTrash'),
+  ...resultResolveTypeResolver('FetchContent'),
 }

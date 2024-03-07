@@ -9,15 +9,11 @@ import {
   SpanBox,
   HStack,
 } from '../elements/LayoutPrimitives'
-import { styled, theme } from '../tokens/stitches.config'
+import { styled } from '../tokens/stitches.config'
 import { HighlightViewNote } from './HighlightNotes'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import {
-  highlightColor,
-  highlightColorVar,
-  isDarkTheme,
-} from '../../lib/themeUpdater'
+import { highlightColorVar } from '../../lib/themeUpdater'
 import { ReadableItem } from '../../lib/networking/queries/useGetLibraryItemsQuery'
 import { UserBasicData } from '../../lib/networking/queries/useGetViewerQuery'
 import {
@@ -54,7 +50,6 @@ const StyledQuote = styled(Blockquote, {
 })
 
 export function HighlightView(props: HighlightViewProps): JSX.Element {
-  const isDark = isDarkTheme()
   const [noteMode, setNoteMode] = useState<'preview' | 'edit'>('preview')
   const [isOpen, setIsOpen] = useState(false)
 

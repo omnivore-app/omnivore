@@ -20,6 +20,7 @@ final class WebReaderCoordinator: NSObject {
   var previousShowNavBarActionID: UUID?
   var previousShareActionID: UUID?
   var updateNavBarVisibility: (Bool) -> Void = { _ in }
+  var updateShowBottomBar: (Bool) -> Void = { _ in }
   var articleContentID = UUID()
   private var yOffsetAtStartOfDrag: Double?
   private var lastYOffset: Double = 0
@@ -123,8 +124,9 @@ extension WebReaderCoordinator: WKNavigationDelegate {
 
       // if at bottom show the controls
       if yOffset + scrollView.visibleSize.height > scrollView.contentSize.height - 140 {
-        navBarVisible = true
-        scrollView.contentInset.top = navBarVisible ? readerViewNavBarHeight : 0
+        updateShowBottomBar(true)
+      } else {
+        updateShowBottomBar(false)
       }
 
       let percent = Int(((yOffset + scrollView.visibleSize.height) / scrollView.contentSize.height) * 100)

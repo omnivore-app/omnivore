@@ -1,11 +1,14 @@
 import { diff_match_patch } from 'diff-match-patch'
 import { DeepPartial } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
+import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
+import { Label } from '../entity/label'
 import { homePageURL } from '../env'
 import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
+import { enqueueUpdateHighlight } from '../utils/createTask'
 
 type HighlightEvent = { id: string; pageId: string }
 type CreateHighlightEvent = DeepPartial<Highlight> & HighlightEvent
@@ -59,12 +62,18 @@ export const createHighlight = async (
     userId
   )
 
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
+
   return newHighlight
 }
 
 export const mergeHighlights = async (
   highlightsToRemove: string[],
   highlightToAdd: DeepPartial<Highlight>,
+  labels: Label[],
   libraryItemId: string,
   userId: string,
   pubsub = createPubSubClient()
@@ -75,6 +84,17 @@ export const mergeHighlights = async (
     await highlightRepo.delete(highlightsToRemove)
 
     const newHighlight = await highlightRepo.createAndSave(highlightToAdd)
+
+    if (labels.length > 0) {
+      // save new labels
+      await tx.getRepository(EntityLabel).save(
+        labels.map((l) => ({
+          labelId: l.id,
+          highlightId: newHighlight.id,
+        }))
+      )
+    }
+
     return highlightRepo.findOneOrFail({
       where: { id: newHighlight.id },
       relations: {
@@ -88,6 +108,11 @@ export const mergeHighlights = async (
     { ...newHighlight, pageId: libraryItemId },
     userId
   )
+
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
 
   return newHighlight
 }
@@ -111,17 +136,23 @@ export const updateHighlight = async (
     })
   })
 
+  const libraryItemId = updatedHighlight.libraryItem.id
   await pubsub.entityUpdated<UpdateHighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...highlight, id: highlightId, pageId: updatedHighlight.libraryItem.id },
+    { ...highlight, id: highlightId, pageId: libraryItemId, libraryItemId },
     userId
   )
+
+  await enqueueUpdateHighlight({
+    libraryItemId,
+    userId,
+  })
 
   return updatedHighlight
 }
 
 export const deleteHighlightById = async (highlightId: string) => {
-  return authTrx(async (tx) => {
+  const deletedHighlight = await authTrx(async (tx) => {
     const highlightRepo = tx.withRepository(highlightRepository)
     const highlight = await highlightRepo.findOneOrFail({
       where: { id: highlightId },
@@ -133,6 +164,13 @@ export const deleteHighlightById = async (highlightId: string) => {
     await highlightRepo.delete(highlightId)
     return highlight
   })
+
+  await enqueueUpdateHighlight({
+    libraryItemId: deletedHighlight.libraryItemId,
+    userId: deletedHighlight.user.id,
+  })
+
+  return deletedHighlight
 }
 
 export const findHighlightById = async (
@@ -142,7 +180,7 @@ export const findHighlightById = async (
   return authTrx(
     async (tx) => {
       const highlightRepo = tx.withRepository(highlightRepository)
-      return highlightRepo.findOneByOrFail({
+      return highlightRepo.findOneBy({
         id: highlightId,
       })
     },

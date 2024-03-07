@@ -42,13 +42,13 @@ const libraryItemCommands = () => {
     },
     {
       actionDescription: 'Mark item as read',
-      shortcutKeys: ['m', 'r'],
+      shortcutKeys: ['-'],
       shortcutKeyDescription: 'm then r',
       callback: () => {},
     },
     {
       actionDescription: 'Mark item as unread',
-      shortcutKeys: ['m', 'u'],
+      shortcutKeys: ['_'],
       shortcutKeyDescription: 'm then u',
       callback: () => {},
     },
@@ -90,7 +90,7 @@ const readerCommands = () => {
     },
     {
       actionDescription: 'Mark current item as read',
-      shortcutKeys: ['m', 'r'],
+      shortcutKeys: ['-'],
       shortcutKeyDescription: 'm then r',
       callback: () => {},
     },
@@ -150,9 +150,8 @@ export function KeyboardShortcutListModal(
             minWidth: '320px',
           },
         }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
       >
         <VStack

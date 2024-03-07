@@ -22,8 +22,8 @@ export const sendPushNotification = async (
   type: PushNotificationType
 ): Promise<string | undefined> => {
   try {
-    analytics.track({
-      userId,
+    analytics.capture({
+      distinctId: userId,
       event: 'notification_sent',
       properties: {
         type,
@@ -49,8 +49,8 @@ export const sendMulticastPushNotifications = async (
   type: PushNotificationType
 ): Promise<BatchResponse | undefined> => {
   try {
-    analytics.track({
-      userId,
+    analytics.capture({
+      distinctId: userId,
       event: 'notification_sent',
       properties: {
         type,
@@ -60,7 +60,7 @@ export const sendMulticastPushNotifications = async (
     })
 
     logger.info('sending multicast message: ', message)
-    const res = await getMessaging().sendMulticast(message)
+    const res = await getMessaging().sendEachForMulticast(message)
     logger.info('send notification result: ', res.responses)
 
     return res
@@ -75,7 +75,7 @@ export const sendBatchPushNotifications = async (
   messages: Message[]
 ): Promise<BatchResponse | undefined> => {
   try {
-    const res = await getMessaging().sendAll(messages)
+    const res = await getMessaging().sendEach(messages)
     logger.info(`success count: ${res.successCount}`)
 
     return res

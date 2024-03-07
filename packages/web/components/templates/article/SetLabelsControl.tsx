@@ -241,7 +241,7 @@ function Footer(props: FooterProps): JSX.Element {
             alignment="center"
             distribution="start"
             css={{ gap: '8px', fontSize: '12px', pointer: 'cursor' }}
-            onClick={async (event) => {
+            onClick={async () => {
               switch (textMatch) {
                 case 'available':
                   await props.selectEnteredLabel()
@@ -414,7 +414,6 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       filteredLabels,
       focusedIndex,
       createLabelFromFilterText,
-      router,
       toggleLabel,
     ]
   )
@@ -423,7 +422,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
     const _filterText = inputValue
     setInputValue('')
     return createLabelFromFilterText(_filterText)
-  }, [inputValue])
+  }, [inputValue, setInputValue, createLabelFromFilterText])
 
   const selectEnteredLabel = useCallback(() => {
     const label = labels.find(
@@ -433,7 +432,7 @@ export function SetLabelsControl(props: SetLabelsControlProps): JSX.Element {
       return Promise.resolve()
     }
     return toggleLabel(label)
-  }, [labels, inputValue])
+  }, [labels, inputValue, toggleLabel])
 
   return (
     <VStack

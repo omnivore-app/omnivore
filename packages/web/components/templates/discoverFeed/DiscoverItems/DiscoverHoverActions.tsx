@@ -12,6 +12,7 @@ import { timeZone, locale } from '../../../../lib/dateFormatting'
 import React from 'react'
 import { SaveDiscoverArticleOutput } from "../../../../lib/networking/mutations/saveDiscoverArticle"
 import { DiscoverFeedItem } from "../../../../lib/networking/queries/useGetDiscoverFeedItems"
+import { BrowserIcon } from "../../../elements/icons/BrowserIcon"
 
 type DiscoverHoverActionsProps = {
   viewer?: UserBasicData
@@ -119,7 +120,7 @@ export const DiscoverHoverActions = (props: DiscoverHoverActionsProps) => {
           event.stopPropagation()
         }}
       >
-        <Browsers size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        <BrowserIcon size={21} color={theme.colors.thNotebookSubtle.toString()} />
       </Button>
     </Box>
   )

@@ -26,11 +26,11 @@ const prepareTitle = (article: OmnivoreArticle): string =>
     .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>{}[]\\\/]/gi, '')
 
 const getEmbeddingForArticle = async (
-  it: OmnivoreArticle,
+  it: OmnivoreArticle
 ): Promise<EmbeddedOmnivoreArticle> => {
-  console.log(`${prepareTitle(it)}: ${it.description}`)
+  // console.log(`${prepareTitle(it)}: ${it.description}`)
   const embedding = await client.getEmbeddings(
-    `${prepareTitle(it)}: ${it.summary}`,
+    `${prepareTitle(it)}: ${it.summary}`
   )
 
   return {
@@ -41,7 +41,7 @@ const getEmbeddingForArticle = async (
 }
 
 const addTopicsToArticle = async (
-  it: EmbeddedOmnivoreArticle,
+  it: EmbeddedOmnivoreArticle
 ): Promise<EmbeddedOmnivoreArticle> => {
   const articleEmbedding = it.embedding
 
@@ -49,7 +49,7 @@ const addTopicsToArticle = async (
     `SELECT name, similarity
      FROM (SELECT discover_topic_name as name, MAX(ABS(embed.embedding <#> $1)) AS "similarity" FROM omnivore.omnivore.discover_topic_embedding_link embed group by discover_topic_name)  topics
      ORDER BY similarity desc`,
-    [toSql(articleEmbedding)],
+    [toSql(articleEmbedding)]
   )
 
   // OpenAI seems to cluster things around 0.7-0.9. Through trial and error I have found 0.77 to be a fairly accurate score.
@@ -60,6 +60,25 @@ const addTopicsToArticle = async (
   if (topicNames.length == 0) {
     topicNames.push(topics.rows[0]?.name)
   }
+
+  // I basically want to check if there's anything between the top one and the others.
+  // If the gap is miniscule, then we should include it. IE: 0.7688 and 0.765
+  const topTopic = topics.rows[0]
+  const extraTopics = topics.rows
+    .filter(
+      ({ similarity, name }) =>
+        similarity < 0.77 &&
+        topTopic.name != name &&
+        topTopic.similarity - similarity < 0.01
+    )
+    .map(({ name }) => name as string)
+
+  if (extraTopics.length > 0) {
+    console.log(`${it.article.title}: ${it.article.description}`)
+    console.log(topics.rows)
+    console.log(extraTopics)
+  }
+  topicNames.push(...extraTopics)
 
   if (it.article.type == 'community') {
     topicNames.push('Community Picks')
@@ -72,13 +91,13 @@ const addTopicsToArticle = async (
 }
 
 const getEmbeddingForLabel = async (
-  label: Label,
+  label: Label
 ): Promise<EmbeddedOmnivoreLabel> => {
   const embedding = await client.getEmbeddings(
-    `${label.name}${label.description ? ' : ' + label.description : ''}`,
+    `${label.name}${label.description ? ' : ' + label.description : ''}`
   )
   console.log(
-    `${label.name}${label.description ? ' : ' + label.description : ''}`,
+    `${label.name}${label.description ? ' : ' + label.description : ''}`
   )
 
   return {
@@ -92,12 +111,12 @@ export const rateLimitEmbedding = <T>() =>
 
 export const rateLimiting = rateLimitEmbedding<any>()
 
-export const addEmbeddingToLabel: OperatorFunction<
+export const addEmbeddingToLabel$: OperatorFunction<
   Label,
   EmbeddedOmnivoreLabel
 > = pipe(
   rateLimiting,
-  mergeMap((it: Label) => fromPromise(getEmbeddingForLabel(it))),
+  mergeMap((it: Label) => fromPromise(getEmbeddingForLabel(it)))
 )
 
 export const addEmbeddingToArticle$: OperatorFunction<
@@ -106,8 +125,8 @@ export const addEmbeddingToArticle$: OperatorFunction<
 > = pipe(
   rateLimiting,
   onErrorContinue(
-    mergeMap((it: OmnivoreArticle) => fromPromise(getEmbeddingForArticle(it))),
-  ),
+    mergeMap((it: OmnivoreArticle) => fromPromise(getEmbeddingForArticle(it)))
+  )
 )
 
 export const addTopicsToArticle$: OperatorFunction<
@@ -116,7 +135,7 @@ export const addTopicsToArticle$: OperatorFunction<
 > = pipe(
   onErrorContinue(
     mergeMap((it: EmbeddedOmnivoreArticle) =>
-      fromPromise(addTopicsToArticle(it)),
-    ),
-  ),
+      fromPromise(addTopicsToArticle(it))
+    )
+  )
 )

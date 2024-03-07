@@ -20,6 +20,7 @@ export type UserBasicData = {
   email: string
   source: string
   intercomHash: string
+  features: string[]
 }
 
 export type UserProfile = {
@@ -45,6 +46,7 @@ export function useGetViewerQuery(): ViewerQueryResponse {
         email
         source
         intercomHash
+        features
       }
     }
   `

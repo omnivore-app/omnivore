@@ -12,15 +12,15 @@ import { saveFile } from '../../services/save_file'
 import { savePage } from '../../services/save_page'
 import { saveUrl } from '../../services/save_url'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const savePageResolver = authorized<
   SaveSuccess,
   SaveError,
   MutationSavePageArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -43,8 +43,8 @@ export const saveUrlResolver = authorized<
   SaveError,
   MutationSaveUrlArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,
@@ -67,8 +67,8 @@ export const saveFileResolver = authorized<
   SaveError,
   MutationSaveFileArgs
 >(async (_, { input }, { uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'link_saved',
     properties: {
       url: input.url,

@@ -1,5 +1,5 @@
 import { Box, HStack, VStack } from '../../elements/LayoutPrimitives'
-import { LibraryFilterMenu } from '../homeFeed/LibraryFilterMenu'
+import { LibraryFilterMenu } from '../navMenu/LibraryMenu'
 import { DiscoverHeader } from './DiscoverHeader/DiscoverHeader'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from "react"

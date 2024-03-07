@@ -25,7 +25,7 @@ import {
 } from '../../generated/graphql'
 import { authTrx } from '../../repository'
 import { analytics } from '../../utils/analytics'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const saveFilterResolver = authorized<
   SaveFilterSuccess,
@@ -244,8 +244,8 @@ export const moveFilterResolver = authorized<
       }
     }
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'filter_moved',
       properties: {
         filterId,

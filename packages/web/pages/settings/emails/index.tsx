@@ -22,7 +22,6 @@ import {
   SettingsTableRow,
 } from '../../../components/templates/settings/SettingsTable'
 import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import { SuggestionBox } from '../../../components/elements/SuggestionBox'
 
 enum TextType {
   EmailAddress,
@@ -81,11 +80,10 @@ function CopyTextButton(props: CopyTextButtonProps): JSX.Element {
 export default function EmailsPage(): JSX.Element {
   const { emailAddresses, revalidate, isValidating } =
     useGetNewsletterEmailsQuery()
-  const [confirmDeleteEmailId, setConfirmDeleteEmailId] = useState<
-    undefined | string
-  >(undefined)
+  const [confirmDeleteEmailId, setConfirmDeleteEmailId] =
+    useState<undefined | string>(undefined)
 
-  applyStoredTheme(false)
+  applyStoredTheme()
 
   async function createEmail(): Promise<void> {
     const email = await createNewsletterEmailMutation()
@@ -114,143 +112,148 @@ export default function EmailsPage(): JSX.Element {
     return emailAddresses.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [emailAddresses])
 
-  return <>
-    <SettingsTable
-      pageId="settings-emails-tag"
-      pageInfoLink="https://docs.omnivore.app/using/inbox.html"
-      headerTitle="Address"
-      createTitle="Create a new email address"
-      createAction={createEmail}
-      suggestionInfo={{
-        title: 'Subscribe to newsletters with an Omnivore Email Address',
-        message:
-          'Create an Omnivore email address and use it to subscribe to newsletters or send yourself documents. Newsletters and documents will be categorized and added to your library when we receive a message. View all received emails with the "Recently Received Emails" link at the bottom of this page.',
-        docs: 'https://docs.omnivore.app/using/inbox.html',
-        key: '--settings-emails-show-help',
-        CTAText: 'Create an email address',
-        onClickCTA: () => {
-          createEmail()
-        },
-      }}
-    >
-      {sortedEmailAddresses.length > 0 ? (
-        sortedEmailAddresses.map((email, i) => {
-          return (
-            <SettingsTableRow
-              key={email.address}
-              title={email.address}
-              isLast={i === sortedEmailAddresses.length - 1}
-              onDelete={() => setConfirmDeleteEmailId(email.id)}
-              deleteTitle="Delete"
-              sublineElement={
-                <StyledText
-                  css={{
-                    my: '5px',
-                    fontSize: '11px',
-                    a: {
-                      color: '$omnivoreCtaYellow',
-                    },
-                  }}
-                >
-                  {`created ${formattedShortDate(email.createdAt)}, `}
-                  <Link href="/settings/subscriptions" legacyBehavior>{`${email.subscriptionCount} subscriptions`}</Link>
-                </StyledText>
-              }
-              titleElement={
-                <CopyTextBtnWrapper
-                  css={{
-                    marginLeft: '20px',
-                    '@mdDown': {
-                      marginRight: '10px',
-                    },
-                  }}
-                >
-                  <CopyTextButton
-                    text={email.address}
-                    type={TextType.EmailAddress}
-                  />
-                </CopyTextBtnWrapper>
-              }
-              extraElement={
-                email.confirmationCode ? (
-                  <HStack
-                    alignment="start"
-                    distribution="center"
-                    css={{
-                      width: '100%',
-                      backgroundColor: '$grayBgActive',
-                      borderRadius: '6px',
-                      padding: '4px 4px 4px 0px',
-                      '@md': {
-                        width: '30%',
-                        backgroundColor: 'transparent',
-                      },
-                    }}
-                  >
-                    <>
-                      <StyledText
-                        css={{
-                          fontSize: '11px',
-                          '@md': {
-                            marginTop: '5px',
-                          },
-                          '@mdDown': {
-                            marginLeft: 'auto',
-                          },
-                          marginRight: '10px',
-                        }}
-                      >
-                        {`Gmail: ${email.confirmationCode}`}
-                      </StyledText>
-                      <Box>
-                        <CopyTextBtnWrapper>
-                          <CopyTextButton
-                            text={email.confirmationCode || ''}
-                            type={TextType.ConfirmationCode}
-                          />
-                        </CopyTextBtnWrapper>
-                      </Box>
-                    </>
-                  </HStack>
-                ) : (
-                  <></>
-                )
-              }
-            />
-          );
-        })
-      ) : (
-        <EmptySettingsRow
-          text={isValidating ? '-' : 'No Email Addresses Found'}
-        />
-      )}
-      <SpanBox
-        css={{
-          pt: '15px',
-          fontSize: '12px',
-          marginLeft: 'auto',
-          a: {
-            color: '$omnivoreCtaYellow',
+  return (
+    <>
+      <SettingsTable
+        pageId="settings-emails-tag"
+        pageInfoLink="https://docs.omnivore.app/using/inbox.html"
+        headerTitle="Address"
+        createTitle="Create a new email address"
+        createAction={createEmail}
+        suggestionInfo={{
+          title: 'Subscribe to newsletters with an Omnivore Email Address',
+          message:
+            'Create an Omnivore email address and use it to subscribe to newsletters or send yourself documents. Newsletters and documents will be categorized and added to your library when we receive a message. View all received emails with the "Recently Received Emails" link at the bottom of this page.',
+          docs: 'https://docs.omnivore.app/using/inbox.html',
+          key: '--settings-emails-show-help',
+          CTAText: 'Create an email address',
+          onClickCTA: () => {
+            createEmail()
           },
         }}
       >
-        <Link href="/settings/emails/recent">
-          View recently received emails
-        </Link>
-      </SpanBox>
-    </SettingsTable>
+        {sortedEmailAddresses.length > 0 ? (
+          sortedEmailAddresses.map((email, i) => {
+            return (
+              <SettingsTableRow
+                key={email.address}
+                title={email.address}
+                isLast={i === sortedEmailAddresses.length - 1}
+                onDelete={() => setConfirmDeleteEmailId(email.id)}
+                deleteTitle="Delete"
+                sublineElement={
+                  <StyledText
+                    css={{
+                      my: '5px',
+                      fontSize: '11px',
+                      a: {
+                        color: '$omnivoreCtaYellow',
+                      },
+                    }}
+                  >
+                    {`created ${formattedShortDate(email.createdAt)}, `}
+                    <Link
+                      href="/settings/subscriptions"
+                      legacyBehavior
+                    >{`${email.subscriptionCount} subscriptions`}</Link>
+                  </StyledText>
+                }
+                titleElement={
+                  <CopyTextBtnWrapper
+                    css={{
+                      marginLeft: '20px',
+                      '@mdDown': {
+                        marginRight: '10px',
+                      },
+                    }}
+                  >
+                    <CopyTextButton
+                      text={email.address}
+                      type={TextType.EmailAddress}
+                    />
+                  </CopyTextBtnWrapper>
+                }
+                extraElement={
+                  email.confirmationCode ? (
+                    <HStack
+                      alignment="start"
+                      distribution="center"
+                      css={{
+                        width: '100%',
+                        backgroundColor: '$grayBgActive',
+                        borderRadius: '6px',
+                        padding: '4px 4px 4px 0px',
+                        '@md': {
+                          width: '30%',
+                          backgroundColor: 'transparent',
+                        },
+                      }}
+                    >
+                      <>
+                        <StyledText
+                          css={{
+                            fontSize: '11px',
+                            '@md': {
+                              marginTop: '5px',
+                            },
+                            '@mdDown': {
+                              marginLeft: 'auto',
+                            },
+                            marginRight: '10px',
+                          }}
+                        >
+                          {`Gmail: ${email.confirmationCode}`}
+                        </StyledText>
+                        <Box>
+                          <CopyTextBtnWrapper>
+                            <CopyTextButton
+                              text={email.confirmationCode || ''}
+                              type={TextType.ConfirmationCode}
+                            />
+                          </CopyTextBtnWrapper>
+                        </Box>
+                      </>
+                    </HStack>
+                  ) : (
+                    <></>
+                  )
+                }
+              />
+            )
+          })
+        ) : (
+          <EmptySettingsRow
+            text={isValidating ? '-' : 'No Email Addresses Found'}
+          />
+        )}
+        <SpanBox
+          css={{
+            pt: '15px',
+            fontSize: '12px',
+            marginLeft: 'auto',
+            a: {
+              color: '$omnivoreCtaYellow',
+            },
+          }}
+        >
+          <Link href="/settings/emails/recent">
+            View recently received emails
+          </Link>
+        </SpanBox>
+      </SettingsTable>
 
-    {confirmDeleteEmailId ? (
-      <ConfirmationModal
-        message={
-          'Are you sure? You will stop receiving emails sent to this address.'
-        }
-        onAccept={async () => {
-          await deleteEmail(confirmDeleteEmailId)
-          setConfirmDeleteEmailId(undefined)
-        }}
-        onOpenChange={() => setConfirmDeleteEmailId(undefined)}
-      />
-    ) : null}
-  </>;
+      {confirmDeleteEmailId ? (
+        <ConfirmationModal
+          message={
+            'Are you sure? You will stop receiving emails sent to this address.'
+          }
+          onAccept={async () => {
+            await deleteEmail(confirmDeleteEmailId)
+            setConfirmDeleteEmailId(undefined)
+          }}
+          onOpenChange={() => setConfirmDeleteEmailId(undefined)}
+        />
+      ) : null}
+    </>
+  )
 }

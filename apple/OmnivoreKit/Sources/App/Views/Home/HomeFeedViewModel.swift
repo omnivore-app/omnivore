@@ -28,10 +28,9 @@ enum LoadingBarStyle {
   @Published var linkIsActive = false
 
   @Published var showLabelsSheet = false
-  @Published var showSnackbar = false
+
   @Published var showAddFeedView = false
   @Published var showHideFollowingAlert = false
-  @Published var snackbarOperation: SnackbarOperation?
 
   @Published var filters = [InternalFilter]()
 
@@ -48,6 +47,8 @@ enum LoadingBarStyle {
   @AppStorage(UserDefaultKey.hideFeatureSection.rawValue) var hideFeatureSection = false
   @AppStorage(UserDefaultKey.stopUsingFollowingPrimer.rawValue) var stopUsingFollowingPrimer = false
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
+
+  @AppStorage(UserDefaultKey.lastSelectedFeaturedItemFilter.rawValue) var featureFilter = FeaturedItemFilter.continueReading.rawValue
 
   @Published var appliedFilter: InternalFilter? {
     didSet {
@@ -66,6 +67,13 @@ enum LoadingBarStyle {
     super.init()
   }
 
+  func presentItem(item: Models.LibraryItem) {
+    withAnimation {
+      self.selectedItem = item
+      self.linkIsActive = true
+    }
+  }
+  
   private var filterState: FetcherFilterState? {
     if let appliedFilter = appliedFilter {
       return FetcherFilterState(
@@ -167,10 +175,9 @@ enum LoadingBarStyle {
     let availableFolders = folderConfigs.keys
     let appliedFilterName = UserDefaults.standard.string(forKey: filterKey)
 
-    filters = newFilters
+    filters = (defaultFilters + newFilters)
       .filter { availableFolders.contains($0.folder) }
       .sorted(by: { $0.position < $1.position })
-      + defaultFilters
 
     if let newFilter = filters.first(where: { $0.name.lowercased() == appliedFilterName }), newFilter.id != appliedFilter?.id {
       appliedFilter = newFilter
@@ -234,8 +241,7 @@ enum LoadingBarStyle {
   }
 
   func snackbar(_ message: String, undoAction: SnackbarUndoAction? = nil) {
-    snackbarOperation = SnackbarOperation(message: message, undoAction: undoAction)
-    showSnackbar = true
+    Snackbar.show(message: message, undoAction: undoAction, dismissAfter: 2000)
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
@@ -308,7 +314,7 @@ enum LoadingBarStyle {
     Task {
       do {
         try await dataService.moveItem(itemID: item.unwrappedID, folder: folder)
-        snackbar("Item moved")
+        snackbar("Moved to library")
       } catch {
         snackbar("Error moving item to \(folder)")
       }
@@ -362,6 +368,27 @@ enum LoadingBarStyle {
       }
     } catch {
       snackbar("Error modifying emails")
+    }
+  }
+
+  func updateFeatureFilter(context: NSManagedObjectContext, filter: FeaturedItemFilter?) {
+    if let filter = filter {
+      featureFilter = filter.rawValue
+      fetcher.updateFeatureFilter(context: context, filter: filter)
+    }
+  }
+
+  @Published var isEmptyingTrash = false
+
+  func emptyTrash(dataService: DataService) {
+    self.isEmptyingTrash = true
+    Task {
+      if !(await dataService.emptyTrash()) {
+        snackbar("Error emptying trash")
+      } else {
+        snackbar("Trash emptied")
+      }
+      isEmptyingTrash = false
     }
   }
 }

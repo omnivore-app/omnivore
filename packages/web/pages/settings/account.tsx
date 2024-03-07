@@ -19,6 +19,7 @@ import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { ProgressBar } from '../../components/elements/ProgressBar'
+import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMutation'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -198,7 +199,19 @@ export default function Account(): JSX.Element {
     })()
   }, [email])
 
-  applyStoredTheme(false)
+  const emptyTrash = useCallback(() => {
+    ;(async () => {
+      showSuccessToast('Emptying trash')
+      const result = await emptyTrashMutation()
+      if (result) {
+        showSuccessToast('Emptied trash')
+      } else {
+        showErrorToast('Error emptying trash')
+      }
+    })()
+  }, [])
+
+  applyStoredTheme()
 
   return (
     <SettingsLayout>
@@ -396,10 +409,62 @@ export default function Account(): JSX.Element {
                 <StyledText style="footnote" css={{ mt: '0px' }}>
                   {`${libraryCount} of ${ACCOUNT_LIMIT} library items used.`}
                 </StyledText>
-                <StyledText style="footnote" css={{ m: '0px' }}>
+                <StyledText style="footnote" css={{ m: '0px', mb: '10px' }}>
                   NOTE: this is a soft limit, if you are approaching or have
                   exceeded this limit please contact support to have your limit
                   raised.
+                </StyledText>
+                <Button
+                  style="ctaDarkYellow"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    emptyTrash()
+                  }}
+                >
+                  Empty trash
+                </Button>
+              </>
+            )}
+            {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
+          </VStack>
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '10px',
+              borderRadius: '5px',
+            }}
+          >
+            <StyledLabel>Beta features</StyledLabel>
+            {!isValidating && (
+              <>
+                {viewerData?.me?.features.map((feature) => {
+                  return (
+                    <StyledText
+                      key={`feature-${feature}`}
+                      style="footnote"
+                      css={{ display: 'flex', gap: '5px' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={true}
+                        disabled={true}
+                      ></input>
+                      {feature}
+                    </StyledText>
+                  )
+                })}
+                <StyledText
+                  style="footnote"
+                  css={{ display: 'flex', gap: '5px' }}
+                >
+                  To learn more about beta features available,{' '}
+                  <a href="https://discord.gg/h2z5rppzz9">
+                    join the Omnivore Discord
+                  </a>
                 </StyledText>
               </>
             )}

@@ -28,8 +28,6 @@
     "benny": "^3.7.1",
     "coveralls": "^3.1.1",
     "del-cli": "^4.0.1",
-    "eslint": "^7.32.0",
-    "eslint-config-canonical": "^28.0.0",
     "faker": "^5.5.3",
     "husky": "^7.0.4",
     "npm-watch": "^0.11.0",

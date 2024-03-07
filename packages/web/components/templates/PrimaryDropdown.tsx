@@ -2,7 +2,6 @@ import { useRouter } from 'next/router'
 import { Moon, Sun } from 'phosphor-react'
 import { ReactNode, useCallback } from 'react'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { currentTheme, updateTheme } from '../../lib/themeUpdater'
 import { Avatar } from '../elements/Avatar'
 import { AvatarDropdown } from '../elements/AvatarDropdown'
 import {
@@ -12,10 +11,11 @@ import {
 } from '../elements/DropdownElements'
 import GridLayoutIcon from '../elements/images/GridLayoutIcon'
 import ListLayoutIcon from '../elements/images/ListLayoutIcon'
-import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
+import { Box, HStack, SpanBox, VStack } from '../elements/LayoutPrimitives'
 import { StyledText } from '../elements/StyledText'
 import { styled, theme, ThemeId } from '../tokens/stitches.config'
 import { LayoutType } from './homeFeed/HomeFeedContainer'
+import { useCurrentTheme } from '../../lib/hooks/useCurrentTheme'
 
 type PrimaryDropdownProps = {
   children?: ReactNode
@@ -23,8 +23,6 @@ type PrimaryDropdownProps = {
 
   layout?: LayoutType
   updateLayout?: (layout: LayoutType) => void
-
-  showAddLinkModal?: () => void
 }
 
 export type HeaderDropdownAction =
@@ -32,6 +30,7 @@ export type HeaderDropdownAction =
   | 'navigate-to-feeds'
   | 'navigate-to-emails'
   | 'navigate-to-labels'
+  | 'navigate-to-rules'
   | 'navigate-to-profile'
   | 'navigate-to-subscriptions'
   | 'navigate-to-api'
@@ -40,6 +39,46 @@ export type HeaderDropdownAction =
   | 'increaseFontSize'
   | 'decreaseFontSize'
   | 'logout'
+
+type TriggerButtonProps = {
+  name?: string
+}
+
+const TriggerButton = (props: TriggerButtonProps): JSX.Element => {
+  return (
+    <HStack
+      css={{
+        mx: '10px',
+        gap: '10px',
+        alignItems: 'center',
+        borderRadius: '5px',
+        height: '32px',
+        padding: '5px',
+        '&:hover': {
+          bg: '$thLibraryMenuFooterHover',
+          opacity: '0.7px',
+        },
+      }}
+    >
+      <AvatarDropdown userInitials={props.name?.charAt(0) ?? 'S'} />
+
+      <SpanBox
+        css={{
+          display: 'flex',
+          justifyContent: 'start',
+          fontFamily: '$inter',
+          fontSize: '12px',
+          maxWidth: '100px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {props.name ?? 'Settings'}
+      </SpanBox>
+    </HStack>
+  )
+}
 
 export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
   const { viewerData } = useGetViewerQuery()
@@ -59,6 +98,9 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           break
         case 'navigate-to-labels':
           router.push('/settings/labels')
+          break
+        case 'navigate-to-rules':
+          router.push('/settings/rules')
           break
         case 'navigate-to-subscriptions':
           router.push('/settings/subscriptions')
@@ -82,18 +124,13 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
     [router]
   )
 
-  if (!viewerData?.me) {
-    return <></>
-  }
-
   return (
     <Dropdown
+      side="top"
       triggerElement={
-        props.children ?? (
-          <AvatarDropdown userInitials={viewerData?.me?.name.charAt(0) ?? ''} />
-        )
+        props.children ?? <TriggerButton name={viewerData?.me?.name} />
       }
-      css={{ width: '240px' }}
+      css={{ width: '240px', ml: '15px' }}
     >
       <HStack
         alignment="center"
@@ -112,7 +149,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         }}
       >
         <Avatar
-          imageURL={viewerData.me.profile.pictureUrl}
+          imageURL={viewerData?.me?.profile.pictureUrl}
           height="40px"
           fallbackText={viewerData?.me?.name.charAt(0) ?? ''}
         />
@@ -121,7 +158,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
           alignment="start"
           distribution="around"
         >
-          {viewerData.me && (
+          {viewerData?.me && (
             <>
               <StyledText
                 css={{
@@ -130,6 +167,7 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
                   color: '$thTextContrast2',
                   m: '0px',
                   p: '0px',
+                  overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                 }}
@@ -171,16 +209,10 @@ export function PrimaryDropdown(props: PrimaryDropdownProps): JSX.Element {
         onSelect={() => headerDropdownActionHandler('navigate-to-labels')}
         title="Labels"
       />
-      {props.showAddLinkModal && (
-        <>
-          <DropdownSeparator />
-
-          <DropdownOption
-            onSelect={() => props.showAddLinkModal && props.showAddLinkModal()}
-            title="Add Link"
-          />
-        </>
-      )}
+      <DropdownOption
+        onSelect={() => headerDropdownActionHandler('navigate-to-rules')}
+        title="Rules"
+      />
       <DropdownOption
         onSelect={() => headerDropdownActionHandler('navigate-to-api')}
         title="API Keys"
@@ -230,6 +262,9 @@ export const StyledToggleButton = styled('button', {
 })
 
 function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
+  const { currentTheme, setCurrentTheme, currentThemeIsDark } =
+    useCurrentTheme()
+
   return (
     <>
       <VStack>
@@ -264,18 +299,18 @@ function ThemeSection(props: PrimaryDropdownProps): JSX.Element {
             }}
           >
             <StyledToggleButton
-              data-state={currentTheme() != ThemeId.Dark ? 'on' : 'off'}
+              data-state={!currentThemeIsDark ? 'on' : 'off'}
               onClick={() => {
-                updateTheme(ThemeId.Light)
+                setCurrentTheme(ThemeId.Light)
               }}
             >
               Light
               <Sun size={15} color={theme.colors.thTextContrast2.toString()} />
             </StyledToggleButton>
             <StyledToggleButton
-              data-state={currentTheme() == ThemeId.Dark ? 'on' : 'off'}
+              data-state={currentThemeIsDark ? 'on' : 'off'}
               onClick={() => {
-                updateTheme(ThemeId.Dark)
+                setCurrentTheme(ThemeId.Dark)
               }}
             >
               Dark

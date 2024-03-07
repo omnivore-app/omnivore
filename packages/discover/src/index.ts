@@ -16,11 +16,11 @@ const enrichedArticles$ = (): Observable<OmnivoreArticle> => {
 ;(() => {
   enrichedArticles$()
     .pipe(
-      removeDuplicateArticles$,
+      // removeDuplicateArticles$,
       addEmbeddingToArticle$,
       addTopicsToArticle$,
       putImageInProxy$,
-      insertArticleToStore$,
+      insertArticleToStore$
     )
     .subscribe((_it) => {})
 })()

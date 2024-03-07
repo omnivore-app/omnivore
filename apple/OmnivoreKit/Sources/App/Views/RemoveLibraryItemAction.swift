@@ -33,7 +33,7 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
     print("checking if task is canceled: ", Task.isCancelled)
   }
 
-  Snackbar.showInLibrary(message: "Item removed", undoAction: {
+  Snackbar.show(message: "Item removed", undoAction: {
     print("canceling task", syncTask)
     syncTask.cancel()
     dataService.viewContext.performAndWait {
@@ -42,5 +42,5 @@ func removeLibraryItemAction(dataService: DataService, objectID: NSManagedObject
         try? dataService.viewContext.save()
       }
     }
-  })
+  }, dismissAfter: 2000)
 }

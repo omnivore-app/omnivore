@@ -28,9 +28,8 @@ export function AddBulkLabelsModal(
   const [tabCount, setTabCount] = useState(-1)
   const [inputValue, setInputValue] = useState('')
   const [tabStartValue, setTabStartValue] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(
-    undefined
-  )
+  const [errorMessage, setErrorMessage] =
+    useState<string | undefined>(undefined)
   const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
   const [isSaving, setIsSaving] = useState(false)

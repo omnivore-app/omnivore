@@ -48,6 +48,7 @@ const StyledTriggerItem = styled(Trigger, {
 
 export const DropdownContent = styled(Content, {
   width: 195,
+  zIndex: 100,
   backgroundColor: '$grayBg',
   borderRadius: '6px',
   outline: '1px solid #323232',
@@ -173,7 +174,11 @@ export function Dropdown(
     <Root modal={modal} onOpenChange={props.onOpenChange}>
       <DropdownTrigger
         disabled={disabled}
-        css={{ height: '100%', cursor: 'pointer' }}
+        css={{
+          height: '100%',
+          cursor: 'pointer',
+          '&:hover': { opacity: '1.0' },
+        }}
       >
         {triggerElement}
       </DropdownTrigger>

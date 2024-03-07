@@ -13,7 +13,7 @@ import {
   SpanBox,
   VStack,
 } from '../../../elements/LayoutPrimitives'
-import { LIBRARY_LEFT_MENU_WIDTH } from '../../homeFeed/LibraryFilterMenu'
+import { LIBRARY_LEFT_MENU_WIDTH } from '../../navMenu/LibraryMenu'
 import { isTouchScreenDevice } from '../../../../lib/deviceType'
 import { ListFallbackImage } from '../../../patterns/LibraryCards/FallbackImage'
 import { CoverImage } from '../../../elements/CoverImage'
@@ -59,16 +59,17 @@ export function DiscoverItemListCard(
         pl: '10px',
         py: '15px',
         height: '100%',
+        cursor: 'pointer',
         gap: '10px',
-        border: '1px solid $grayBorder',
+        borderStyle: 'none',
         borderBottom: 'none',
         borderRadius: '6px',
-        width: '100vw',
+        width: '100%',
         '@media (min-width: 768px)': {
           width: `calc(100vw - ${LIBRARY_LEFT_MENU_WIDTH})`,
         },
         '@media (min-width: 930px)': {
-          width: '640px',
+          width: '660px',
         },
         '@media (min-width: 1280px)': {
           width: '1000px',
@@ -76,11 +77,8 @@ export function DiscoverItemListCard(
         '@media (min-width: 1600px)': {
           width: '1340px',
         },
-        boxShadow:
-          '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
         '@media (max-width: 930px)': {
-          boxShadow: 'unset',
-          borderRadius: 'unset',
+          borderRadius: '0px',
         },
       }}
       alignment="start"

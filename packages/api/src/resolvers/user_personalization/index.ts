@@ -8,7 +8,7 @@ import {
   SetUserPersonalizationSuccess,
   SortOrder,
 } from '../../generated/graphql'
-import { authorized } from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
 
 export const setUserPersonalizationResolver = authorized<
   SetUserPersonalizationSuccess,

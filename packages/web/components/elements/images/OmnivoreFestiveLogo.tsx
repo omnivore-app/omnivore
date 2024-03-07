@@ -14,22 +14,21 @@ export function OmnivoreFestiveLogo(
   const href = props.href || '/home'
 
   return (
-    (<Link
+    <Link
       passHref
       href={href}
       style={{
         textDecoration: 'none',
         display: 'flex',
         alignItems: 'center',
-      }}>
-
+      }}
+    >
       <Image
         src="/static/images/omnivore-logo-santa.png"
         width="27"
         height="27"
         alt=""
       />
-
-    </Link>)
-  );
+    </Link>
+  )
 }

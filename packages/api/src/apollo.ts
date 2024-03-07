@@ -6,7 +6,8 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import * as Sentry from '@sentry/node'
-import { ContextFunction } from 'apollo-server-core'
+import { ContextFunction, PluginDefinition } from 'apollo-server-core'
+import { Express } from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
 import * as httpContext from 'express-http-context2'
@@ -18,13 +19,15 @@ import { sanitizeDirectiveTransformer } from './directives'
 import { env } from './env'
 import { createPubSubClient } from './pubsub'
 import { functionResolvers } from './resolvers/function_resolvers'
-import { ClaimsToSet, ResolverContext } from './resolvers/types'
+import { ClaimsToSet, RequestContext, ResolverContext } from './resolvers/types'
 import ScalarResolvers from './scalars'
 import typeDefs from './schema'
 import { tracer } from './tracing'
 import { getClaimsByToken, setAuthInCookie } from './utils/auth'
 import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
+import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
+import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -84,12 +87,15 @@ const contextFunc: ContextFunction<ExpressContext, ResolverContext> = async ({
         return cb(tx)
       }),
     tracingSpan: tracer.startSpan('apollo.request'),
+    dataSources: {
+      readingProgress: new ReadingProgressDataSource(),
+    },
   }
 
   return ctx
 }
 
-export function makeApolloServer(): ApolloServer {
+export function makeApolloServer(app: Express): ApolloServer {
   let schema = makeExecutableSchema({
     resolvers,
     typeDefs,
@@ -97,9 +103,19 @@ export function makeApolloServer(): ApolloServer {
 
   schema = sanitizeDirectiveTransformer(schema)
 
+  const promExporter: PluginDefinition = createPrometheusExporterPlugin({
+    app,
+    hostnameLabel: false,
+    defaultMetrics: false,
+    defaultLabels: {
+      service: 'api',
+    },
+  })
+
   const apollo = new ApolloServer({
     schema: schema,
     context: contextFunc,
+    plugins: [promExporter],
     formatError: (err) => {
       logger.info('server error', err)
       Sentry.captureException(err)

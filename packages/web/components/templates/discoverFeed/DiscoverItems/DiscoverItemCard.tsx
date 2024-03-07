@@ -36,8 +36,6 @@ export function DiscoverItemCard(props: DiscoverItemCardProps): JSX.Element {
   const deleteDiscoverItem = (item: DiscoverFeedItem) : Promise<void> => {
     return deleteDiscoverArticleMutation({ discoverArticleId: item.id })
       .then(it => {
-
-        console.log(it);
         if (it?.deleteDiscoverArticle.id) {
           showSuccessToast('Article deleted', { position: 'bottom-right' })
           setSavedId(undefined)

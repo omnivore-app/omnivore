@@ -6,8 +6,6 @@ import {
 } from 'phosphor-react'
 import { Box, HStack } from '../elements/LayoutPrimitives'
 import { StyledText, StyledAnchor } from '../elements/StyledText'
-import { TooltipWrapped } from './Tooltip'
-import Link from 'next/link'
 
 const TooltipStyle = {
   backgroundColor: '#F9D354',
@@ -120,7 +118,7 @@ export default function MobileInstallHelp({
             },
           }}
         >
-          Install Omnivore for iOS
+          Install Omnivore for iOS and macOS
         </StyledText>
       </Box>
       <StyledText
@@ -145,8 +143,8 @@ export default function MobileInstallHelp({
           },
         }}
       >
-        With the Omnivore iOS app installed you can save any link using our
-        share extension.
+        With the Omnivore for iOS and macOS app installed you can save any link
+        using our Share extension.
         <br />
         {!onboarding && (
           <StyledAnchor
@@ -160,7 +158,7 @@ export default function MobileInstallHelp({
               textDecoration: 'underline',
             }}
           >
-            Learn more about the iOS app -&gt;
+            Learn more about the iOS and macOS app -&gt;
           </StyledAnchor>
         )}
       </StyledText>
@@ -235,51 +233,45 @@ export default function MobileInstallHelp({
           }
         >
           {platformSizes.map((item, idx) => (
-            <TooltipWrapped
+            <Box
               key={`platformSize-${idx}`}
-              tooltipContent={item.label}
-              tooltipSide={'top'}
-              style={TooltipStyle}
-              arrowStyles={{ fill: '#F9D354' }}
+              title={item.label}
+              css={{
+                ml: '$1',
+              }}
             >
-              <Box
+              <StyledAnchor
+                onClick={() => setSelectedTooltip(item.label)}
                 css={{
-                  ml: '$1',
+                  mx: 'auto',
+                  borderRadius: '50%',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 35,
+                  width: 35,
+                  cursor: 'pointer',
+                  backgroundColor: '$labelButtonsBg',
+                  ...(selectedTooltip !== item.label && {
+                    filter: 'grayscale(1)',
+                  }),
+                  '&:focus': {
+                    filter: 'grayscale(0)',
+                  },
+                  '&:active': {
+                    filter: 'grayscale(0)',
+                  },
+                  '@lg': {
+                    transition: 'filter .3s linear',
+                    '&:hover': {
+                      filter: 'grayscale(0)',
+                    },
+                  },
                 }}
               >
-                <StyledAnchor
-                  onClick={() => setSelectedTooltip(item.label)}
-                  css={{
-                    mx: 'auto',
-                    borderRadius: '50%',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: 35,
-                    width: 35,
-                    cursor: 'pointer',
-                    backgroundColor: '$labelButtonsBg',
-                    ...(selectedTooltip !== item.label && {
-                      filter: 'grayscale(1)',
-                    }),
-                    '&:focus': {
-                      filter: 'grayscale(0)',
-                    },
-                    '&:active': {
-                      filter: 'grayscale(0)',
-                    },
-                    '@lg': {
-                      transition: 'filter .3s linear',
-                      '&:hover': {
-                        filter: 'grayscale(0)',
-                      },
-                    },
-                  }}
-                >
-                  {item.icon}
-                </StyledAnchor>
-              </Box>
-            </TooltipWrapped>
+                {item.icon}
+              </StyledAnchor>
+            </Box>
           ))}
         </HStack>
       </HStack>

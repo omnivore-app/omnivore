@@ -3,7 +3,10 @@ import { parseHTML } from 'linkedom'
 import { Brackets, In } from 'typeorm'
 import {
   DEFAULT_SUBSCRIPTION_FOLDER,
+  FetchContentType,
   Subscription,
+  SubscriptionStatus,
+  SubscriptionType,
 } from '../../entity/subscription'
 import { env } from '../../env'
 import {
@@ -28,8 +31,6 @@ import {
   SubscriptionsError,
   SubscriptionsErrorCode,
   SubscriptionsSuccess,
-  SubscriptionStatus,
-  SubscriptionType,
   UnsubscribeError,
   UnsubscribeErrorCode,
   UnsubscribeSuccess,
@@ -39,15 +40,14 @@ import {
 } from '../../generated/graphql'
 import { getRepository } from '../../repository'
 import { feedRepository } from '../../repository/feed'
+import { validateUrl } from '../../services/create_page_save_request'
 import { unsubscribe } from '../../services/subscriptions'
+import { updateSubscription } from '../../services/update_subscription'
 import { Merge } from '../../util'
 import { analytics } from '../../utils/analytics'
 import { enqueueRssFeedFetch } from '../../utils/createTask'
-import {
-  authorized,
-  getAbsoluteUrl,
-  keysToCamelCase,
-} from '../../utils/helpers'
+import { authorized } from '../../utils/gql-utils'
+import { getAbsoluteUrl, keysToCamelCase } from '../../utils/helpers'
 import { parseFeed, parseOpml, RSS_PARSER_CONFIG } from '../../utils/parser'
 
 type PartialSubscription = Omit<Subscription, 'newsletterEmail'>
@@ -62,8 +62,7 @@ export const subscriptionsResolver = authorized<
   QuerySubscriptionsArgs
 >(async (_obj, { sort, type }, { uid, log }) => {
   try {
-    const sortBy =
-      sort?.by === SortBy.UpdatedTime ? 'lastFetchedAt' : 'createdAt'
+    const sortBy = sort?.by === SortBy.UpdatedTime ? 'refreshedAt' : 'createdAt'
     const sortOrder = sort?.order === SortOrder.Ascending ? 'ASC' : 'DESC'
 
     const queryBuilder = getRepository(Subscription)
@@ -154,8 +153,8 @@ export const unsubscribeResolver = authorized<
 
     await unsubscribe(subscription)
 
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'unsubscribed',
       properties: {
         name,
@@ -184,23 +183,33 @@ export const subscribeResolver = authorized<
   MutationSubscribeArgs
 >(async (_, { input }, { uid, log }) => {
   try {
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'subscribed',
       properties: {
         ...input,
         env: env.server.apiEnv,
       },
     })
+    // use user provided url
+    const feedUrl = input.url
+    try {
+      validateUrl(feedUrl)
+    } catch (error) {
+      log.error('invalid feedUrl', { feedUrl, error })
+
+      return {
+        errorCodes: [SubscribeErrorCode.BadRequest],
+      }
+    }
 
     // validate rss feed
-    const feed = await parseFeed(input.url)
+    const feed = await parseFeed(feedUrl)
     if (!feed) {
       return {
         errorCodes: [SubscribeErrorCode.NotFound],
       }
     }
-    const feedUrl = feed.url
 
     // find existing subscription
     const existingSubscription = await getRepository(Subscription).findOneBy({
@@ -218,7 +227,9 @@ export const subscribeResolver = authorized<
       // re-subscribe
       const updatedSubscription = await getRepository(Subscription).save({
         ...existingSubscription,
-        fetchContent: input.fetchContent ?? undefined,
+        fetchContentType: input.fetchContentType
+          ? (input.fetchContentType as FetchContentType)
+          : undefined,
         folder: input.folder ?? undefined,
         isPrivate: input.isPrivate,
         status: SubscriptionStatus.Active,
@@ -230,9 +241,9 @@ export const subscribeResolver = authorized<
         url: feedUrl,
         subscriptionIds: [updatedSubscription.id],
         scheduledDates: [new Date()], // fetch immediately
-        fetchedDates: [updatedSubscription.lastFetchedAt || null],
+        mostRecentItemDates: [updatedSubscription.mostRecentItemDate || null],
         checksums: [updatedSubscription.lastFetchedChecksum || null],
-        fetchContents: [updatedSubscription.fetchContent],
+        fetchContentTypes: [updatedSubscription.fetchContentType],
         folders: [updatedSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
       })
 
@@ -246,7 +257,7 @@ export const subscribeResolver = authorized<
 
     // limit number of rss subscriptions to max
     const results = (await getRepository(Subscription).query(
-      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, is_private, fetch_content, folder) 
+      `insert into omnivore.subscriptions (name, url, description, type, user_id, icon, is_private, fetch_content_type, folder) 
           select $1, $2, $3, $4, $5, $6, $7, $8, $9 from omnivore.subscriptions 
           where user_id = $5 and type = 'RSS' and status = 'ACTIVE' 
           having count(*) < $10
@@ -259,7 +270,7 @@ export const subscribeResolver = authorized<
         uid,
         feed.thumbnail,
         input.isPrivate,
-        input.fetchContent ?? true,
+        input.fetchContentType ?? FetchContentType.Always,
         input.folder ?? 'following',
         MAX_RSS_SUBSCRIPTIONS,
       ]
@@ -280,9 +291,9 @@ export const subscribeResolver = authorized<
       url: feedUrl,
       subscriptionIds: [newSubscription.id],
       scheduledDates: [new Date()], // fetch immediately
-      fetchedDates: [null],
+      mostRecentItemDates: [null],
       checksums: [null],
-      fetchContents: [newSubscription.fetchContent],
+      fetchContentTypes: [newSubscription.fetchContentType],
       folders: [newSubscription.folder || DEFAULT_SUBSCRIPTION_FOLDER],
     })
 
@@ -310,10 +321,10 @@ export const updateSubscriptionResolver = authorized<
   UpdateSubscriptionSuccessPartial,
   UpdateSubscriptionError,
   MutationUpdateSubscriptionArgs
->(async (_, { input }, { authTrx, uid, log }) => {
+>(async (_, { input }, { uid, log }) => {
   try {
-    analytics.track({
-      userId: uid,
+    analytics.capture({
+      distinctId: uid,
       event: 'update_subscription',
       properties: {
         ...input,
@@ -321,34 +332,7 @@ export const updateSubscriptionResolver = authorized<
       },
     })
 
-    const updatedSubscription = await authTrx(async (t) => {
-      const repo = t.getRepository(Subscription)
-
-      // update subscription
-      await t.getRepository(Subscription).save({
-        id: input.id,
-        name: input.name || undefined,
-        description: input.description || undefined,
-        lastFetchedAt: input.lastFetchedAt
-          ? new Date(input.lastFetchedAt)
-          : undefined,
-        lastFetchedChecksum: input.lastFetchedChecksum || undefined,
-        status: input.status || undefined,
-        scheduledAt: input.scheduledAt
-          ? new Date(input.scheduledAt)
-          : undefined,
-        autoAddToLibrary: input.autoAddToLibrary ?? undefined,
-        isPrivate: input.isPrivate ?? undefined,
-        fetchContent: input.fetchContent ?? undefined,
-        folder: input.folder ?? undefined,
-      })
-
-      return repo.findOneByOrFail({
-        id: input.id,
-        user: { id: uid },
-      })
-    })
-
+    const updatedSubscription = await updateSubscription(uid, input.id, input)
     return {
       subscription: updatedSubscription,
     }
@@ -417,8 +401,8 @@ export const scanFeedsResolver = authorized<
   ScanFeedsError,
   QueryScanFeedsArgs
 >(async (_, { input: { opml, url } }, { log, uid }) => {
-  analytics.track({
-    userId: uid,
+  analytics.capture({
+    distinctId: uid,
     event: 'scan_feeds',
     properties: {
       opml,
