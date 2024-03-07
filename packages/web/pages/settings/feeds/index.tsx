@@ -21,6 +21,7 @@ import {
   updateSubscriptionMutation,
 } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
+  FetchContentType,
   SubscriptionStatus,
   SubscriptionType,
   useGetSubscriptionsQuery,
@@ -95,6 +96,23 @@ export default function Rss(): JSX.Element {
       })
     } else {
       showErrorToast(`Failed to ${action}`, { position: 'bottom-right' })
+    }
+    revalidate()
+  }
+
+  const updateFetchContent = async (
+    id: string,
+    fetchContent: FetchContentType
+  ): Promise<void> => {
+    const result = await updateSubscriptionMutation({
+      id,
+      fetchContentType: fetchContent,
+    })
+
+    if (result) {
+      showSuccessToast(`Updated feed fetch rule`)
+    } else {
+      showErrorToast(`Error updating feed fetch rule`)
     }
     revalidate()
   }
@@ -222,6 +240,31 @@ export default function Rss(): JSX.Element {
                         subscription.mostRecentItemDate
                       )}`}
                   </SpanBox>
+                  <select
+                    tabIndex={-1}
+                    onChange={(event) => {
+                      ;(async () => {
+                        updateFetchContent(
+                          subscription.id,
+                          event.target.value as FetchContentType
+                        )
+                      })()
+                    }}
+                    defaultValue={subscription.fetchContentType}
+                    style={{
+                      padding: '5px',
+                      marginTop: '5px',
+                      borderRadius: '6px',
+                      minWidth: '196px',
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                    }}
+                  >
+                    <option value="ALWAYS">Fetch link: Always</option>
+                    <option value="NEVER">Fetch link: Never</option>
+                    <option value="WHEN_EMPTY">Fetch link: When empty</option>
+                  </select>
                 </VStack>
               }
               onClick={() => {

@@ -130,7 +130,7 @@ const triggerActions = async (
   try {
     await Promise.all(actionPromises)
   } catch (error) {
-    logger.error(error)
+    logger.error('Error triggering rule actions', error)
   }
 }
 

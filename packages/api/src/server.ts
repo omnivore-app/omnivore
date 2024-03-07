@@ -47,7 +47,7 @@ import {
   isSystemRequest,
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
-import { buildLogger, buildLoggerTransport } from './utils/logger'
+import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { aiSummariesRouter } from './routers/ai_summary_router'
 
 const PORT = process.env.PORT || 4000
@@ -247,6 +247,16 @@ const main = async (): Promise<void> => {
 
   process.on('SIGINT', () => gracefulShutdown('SIGINT'))
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+
+  process.on('uncaughtException', function (err) {
+    // Handle the error safely
+    logger.error('Uncaught exception', err)
+  })
+
+  process.on('unhandledRejection', (reason, promise) => {
+    // Handle the error safely
+    logger.error('Unhandled Rejection at: Promise', { promise, reason })
+  })
 }
 
 // only call main if the file was called from the CLI and wasn't required from another module

@@ -118,7 +118,7 @@ export default function MobileInstallHelp({
             },
           }}
         >
-          Install Omnivore for iOS
+          Install Omnivore for iOS and macOS
         </StyledText>
       </Box>
       <StyledText
@@ -143,8 +143,8 @@ export default function MobileInstallHelp({
           },
         }}
       >
-        With the Omnivore iOS app installed you can save any link using our
-        share extension.
+        With the Omnivore for iOS and macOS app installed you can save any link
+        using our Share extension.
         <br />
         {!onboarding && (
           <StyledAnchor
@@ -158,7 +158,7 @@ export default function MobileInstallHelp({
               textDecoration: 'underline',
             }}
           >
-            Learn more about the iOS app -&gt;
+            Learn more about the iOS and macOS app -&gt;
           </StyledAnchor>
         )}
       </StyledText>

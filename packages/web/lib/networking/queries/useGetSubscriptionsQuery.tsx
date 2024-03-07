@@ -9,6 +9,12 @@ export enum SubscriptionType {
   NEWSLETTER = 'NEWSLETTER',
 }
 
+export enum FetchContentType {
+  ALWAYS = 'ALWAYS',
+  NEVER = 'NEVER',
+  WHEN_EMPTY = 'WHEN_EMPTY',
+}
+
 export type Subscription = {
   id: string
   name: string
@@ -25,7 +31,7 @@ export type Subscription = {
   lastFetchedAt?: string
   mostRecentItemDate?: string
 
-  fetchContent?: boolean
+  fetchContentType?: FetchContentType
 }
 
 type SubscriptionsQueryResponse = {
@@ -66,7 +72,7 @@ export function useGetSubscriptionsQuery(
             createdAt
             updatedAt
             lastFetchedAt
-            fetchContent
+            fetchContentType
             mostRecentItemDate
           }
         }
