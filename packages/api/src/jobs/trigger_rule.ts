@@ -73,6 +73,7 @@ const sendNotification = async (obj: RuleActionObj) => {
     image: item.thumbnail,
   }
   const data = {
+    folder: item.folder,
     libraryItemId: item.id,
   }
 

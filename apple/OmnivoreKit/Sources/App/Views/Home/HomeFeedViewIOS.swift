@@ -324,10 +324,6 @@ struct AnimatingCellHeight: AnimatableModifier {
           await viewModel.loadNewItems(dataService: dataService)
         }
       }
-      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
-        guard let libraryItemId = notification.userInfo?["libraryItemId"] as? String else { return }
-        viewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
-      }
       .sheet(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)
       }

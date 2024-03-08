@@ -69,7 +69,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     let userInfo = response.notification.request.content.userInfo
 
     if let libraryItemId = userInfo["libraryItemId"] as? String {
-      NSNotification.pushJSONArticle(libraryItemId: libraryItemId)
+      NSNotification.pushLibraryItem(folder: userInfo["folder"] as? String, libraryItemId: libraryItemId)
     }
 
     completionHandler()

@@ -144,6 +144,17 @@ struct LibraryTabView: View {
         await syncManager.syncUpdates(dataService: dataService)
       }
     }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushLibraryItem"))) { notification in
+      guard let folder = notification.userInfo?["libraryItemId"] as? String else { return }
+      guard let libraryItemId = notification.userInfo?["libraryItemId"] as? String else { return }
+      if folder == "following" {
+        selectedTab = "following"
+        followingViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
+      } else {
+        selectedTab = "inbox"
+        inboxViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
+      }
+    }
     .onOpenURL { url in
       inboxViewModel.linkRequest = nil
 
@@ -162,10 +173,7 @@ struct LibraryTabView: View {
         case let .webAppLinkRequest(requestID):
 
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-            withoutAnimation {
-              inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
-              inboxViewModel.presentWebContainer = true
-            }
+            inboxViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: requestID))
           }
         }
       }
