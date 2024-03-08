@@ -210,7 +210,7 @@
       }
       .onChange(of: viewModel.operationStatus) { newValue in
         if newValue == .success  || newValue == .failure {
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(2000)) {
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1000)) {
             viewModel.showOperationToast = false
           }
         }
