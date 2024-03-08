@@ -11,7 +11,7 @@ public enum GridCardAction {
 }
 
 public struct GridCard: View {
-  let item: Models.LibraryItem
+  @ObservedObject var item: Models.LibraryItem
 
   public init(
     item: Models.LibraryItem

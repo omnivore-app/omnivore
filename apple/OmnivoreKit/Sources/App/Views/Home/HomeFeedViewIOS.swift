@@ -832,7 +832,9 @@ struct AnimatingCellHeight: AnimatableModifier {
             }, header: {
               filtersHeader
             })
-            BottomView(viewModel: viewModel)
+            if viewModel.showLoadingBar == .none {
+              BottomView(viewModel: viewModel)
+            }
           }
           .padding(0)
           .listStyle(.plain)
@@ -1038,7 +1040,7 @@ struct AnimatingCellHeight: AnimatableModifier {
             }
           }
 
-          if viewModel.fetcher.items.isEmpty {
+          if viewModel.fetcher.items.isEmpty || viewModel.showLoadingBar == .redacted  || viewModel.showLoadingBar == .simple {
             EmptyState(viewModel: viewModel)
           } else {
             HStack {
