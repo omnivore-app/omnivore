@@ -76,7 +76,7 @@ const sendNotification = async (obj: RuleActionObj) => {
     libraryItemId: item.id,
   }
 
-  return sendPushNotifications(obj.userId, message, 'rule')
+  return sendPushNotifications(obj.userId, message, 'rule', data)
 }
 
 const getRuleAction = (actionType: RuleActionType): RuleActionFunc => {
