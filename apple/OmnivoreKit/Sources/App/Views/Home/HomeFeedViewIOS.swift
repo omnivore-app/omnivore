@@ -325,12 +325,8 @@ struct AnimatingCellHeight: AnimatableModifier {
         }
       }
       .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushJSONArticle"))) { notification in
-        guard let jsonArticle = notification.userInfo?["article"] as? JSONArticle else { return }
-        guard let objectID = dataService.persist(jsonArticle: jsonArticle) else { return }
-        guard let linkedItem = dataService.viewContext.object(with: objectID) as? Models.LibraryItem else { return }
-        viewModel.pushFeedItem(item: linkedItem)
-        viewModel.selectedItem = linkedItem
-        viewModel.linkIsActive = true
+        guard let libraryItemId = notification.userInfo?["libraryItemId"] as? String else { return }
+        viewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
       }
       .sheet(isPresented: $searchPresented) {
         LibrarySearchView(homeFeedViewModel: self.viewModel)

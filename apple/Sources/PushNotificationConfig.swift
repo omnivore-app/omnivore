@@ -68,12 +68,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
     let userInfo = response.notification.request.content.userInfo
 
-    if let linkData = userInfo["link"] as? String {
-      guard let jsonData = Data(base64Encoded: linkData) else { return }
-
-      if let article = try? JSONDecoder().decode(JSONArticle.self, from: jsonData) {
-        NSNotification.pushJSONArticle(article: article)
-      }
+    if let libraryItemId = userInfo["libraryItemId"] as? String {
+      NSNotification.pushJSONArticle(libraryItemId: libraryItemId)
     }
 
     completionHandler()

@@ -61,11 +61,11 @@ public extension NSNotification {
     return nil
   }
 
-  static func pushJSONArticle(article: JSONArticle) {
+  static func pushJSONArticle(libraryItemId: String) {
     NotificationCenter.default.post(
       name: NSNotification.PushJSONArticle,
       object: nil,
-      userInfo: ["article": article]
+      userInfo: ["libraryItemId": libraryItemId]
     )
   }
 
