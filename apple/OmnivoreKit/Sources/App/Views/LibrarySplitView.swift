@@ -48,6 +48,10 @@ public struct LibrarySplitView: View {
         $0.preferredPrimaryColumnWidth = 230
         $0.displayModeButtonVisibility = .always
       }
+      .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushLibraryItem"))) { notification in
+        guard let libraryItemId = notification.userInfo?["libraryItemId"] as? String else { return }
+        viewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
+      }
       .onOpenURL { url in
         viewModel.linkRequest = nil
 
