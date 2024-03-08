@@ -150,13 +150,15 @@ struct EmptyState: View {
       return AnyView(Group {
         Spacer()
 
-        VStack(alignment: .center, spacing: 20) {
-          Text("No results found for this query")
-            .font(Font.system(size: 18, weight: .bold))
+        if viewModel.showLoadingBar == .none {
+          VStack(alignment: .center, spacing: 20) {
+            Text("No results found for this query")
+              .font(Font.system(size: 18, weight: .bold))
+          }
+          .frame(minHeight: 400)
+          .frame(maxWidth: .infinity)
+          .padding()
         }
-        .frame(minHeight: 400)
-        .frame(maxWidth: .infinity)
-        .padding()
 
         Spacer()
       })
