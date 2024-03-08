@@ -73,7 +73,12 @@ enum LoadingBarStyle {
       self.linkIsActive = true
     }
   }
-  
+
+  func pushLinkedRequest(request: LinkRequest) {
+    self.linkRequest = request
+    self.presentWebContainer = true
+  }
+
   private var filterState: FetcherFilterState? {
     if let appliedFilter = appliedFilter {
       return FetcherFilterState(

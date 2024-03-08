@@ -493,7 +493,8 @@ struct AnimatingCellHeight: AnimatableModifier {
               options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
                                                                          options:
                                                                          PresentationLinkTransition.Options(
-                                                                           modalPresentationCapturesStatusBarAppearance: true
+                                                                           modalPresentationCapturesStatusBarAppearance: true,
+                                                                           preferredPresentationBackgroundColor: ThemeManager.currentBgColor
                                                                          ))),
             isPresented: $viewModel.presentWebContainer,
             destination: {
