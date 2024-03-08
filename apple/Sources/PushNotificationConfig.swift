@@ -55,7 +55,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
     let userInfo = notification.request.content.userInfo
     UIApplication.shared.applicationIconBadgeNumber = 0
-    print(userInfo) // extract data sent along with PN
+    print("push data", userInfo) // extract data sent along with PN
     completionHandler([[.banner, .sound]])
   }
 

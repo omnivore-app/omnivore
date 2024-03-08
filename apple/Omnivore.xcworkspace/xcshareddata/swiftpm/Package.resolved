@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Engine",
       "state" : {
-        "revision" : "31949c114698e4fd43fd76290913bca415fa87bc",
-        "version" : "1.1.0"
+        "revision" : "e9867eb6df013abc65c3437d295e594077469a13",
+        "version" : "1.5.1"
       }
     },
     {
@@ -181,24 +181,6 @@
       }
     },
     {
-      "identity" : "swift-async-algorithms",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-async-algorithms",
-      "state" : {
-        "revision" : "da4e36f86544cdf733a40d59b3a2267e3a7bbf36",
-        "version" : "1.0.0"
-      }
-    },
-    {
-      "identity" : "swift-collections",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-collections.git",
-      "state" : {
-        "revision" : "d029d9d39c87bed85b1c50adee7c41795261a192",
-        "version" : "1.0.6"
-      }
-    },
-    {
       "identity" : "swift-graphql",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/maticzav/swift-graphql",
@@ -257,8 +239,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Transmission",
       "state" : {
-        "revision" : "9517912f8f528c777f86f7896b5c35d7e43fa916",
-        "version" : "1.0.1"
+        "revision" : "3dac53ae4bddc7ab99e6374622a9c5eefbe50eed",
+        "version" : "1.1.4"
       }
     },
     {
@@ -266,8 +248,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nathantannar4/Turbocharger",
       "state" : {
-        "revision" : "b4201ba0bc094facf6cabe3b36fd3763b51ccfc8",
-        "version" : "1.0.1"
+        "revision" : "095344c0cac57873e1552f30d3561ab1bec5ae35",
+        "version" : "1.1.4"
       }
     },
     {

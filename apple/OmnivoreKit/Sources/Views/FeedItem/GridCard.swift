@@ -11,10 +11,10 @@ public enum GridCardAction {
 }
 
 public struct GridCard: View {
-  let item: LibraryItemData
+  @ObservedObject var item: Models.LibraryItem
 
   public init(
-    item: LibraryItemData
+    item: Models.LibraryItem
   ) {
     self.item = item
   }
@@ -67,7 +67,7 @@ public struct GridCard: View {
   var fallbackImage: some View {
     GeometryReader { geo in
       HStack {
-        Text(item.title)
+        Text(item.title ?? "")
           .font(fallbackFont)
           .frame(alignment: .center)
           .multilineTextAlignment(.leading)
@@ -232,7 +232,7 @@ public struct GridCard: View {
               .dynamicTypeSize(.xSmall ... .medium)
               .padding(.horizontal, 15)
 
-            Text(item.title)
+            Text(item.title ?? "")
               .lineLimit(2)
               .font(.appHeadline)
               .foregroundColor(.appGrayTextContrast)
@@ -246,7 +246,7 @@ public struct GridCard: View {
 
           // Link description and image
           HStack(alignment: .top) {
-            Text(item.descriptionText ?? item.title)
+            Text(item.descriptionText ?? item.title ?? "")
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
               .lineLimit(2)
