@@ -273,7 +273,7 @@ struct SubscriptionsView: View {
                     await viewModel.cancelSubscription(dataService: dataService, subscription: subscription)
                   }
                 }
-              )
+              ).background(Color.systemBackground)
             } label: {
               SubscriptionCell(subscription: subscription)
             }
@@ -526,6 +526,25 @@ struct SubscriptionSettingsView: View {
       }
     }
   }
+//  
+//  var notificationRuleRow: some View {
+//    HStack {
+//      Text("Add Labels")
+//      Spacer()
+//      if isLoadingRule || viewModel.rules != nil {
+//        Button(action: { showLabelsSelector = true }, label: {
+//          if let ruleLabels = ruleLabels {
+//            let labelNames = ruleLabels.map(\.unwrappedName)
+//            Text("[\(labelNames.joined(separator: ","))]")
+//          } else {
+//            Text("Create Rule")
+//          }
+//        }).tint(Color.blue)
+//      } else {
+//        ProgressView()
+//      }
+//    }
+//  }
 
   var body: some View {
     VStack {
