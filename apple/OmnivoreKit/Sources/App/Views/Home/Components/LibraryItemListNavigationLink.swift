@@ -14,7 +14,7 @@ struct MacFeedCardNavigationLink: View {
 
   var body: some View {
     ZStack {
-      LibraryItemCard(item: LibraryItemData.make(from: item), viewer: dataService.currentViewer)
+      LibraryItemCard(item: item, viewer: dataService.currentViewer)
       NavigationLink(destination: LinkItemDetailView(
         linkedItemObjectID: item.objectID,
         isPDF: item.isPDF
@@ -36,7 +36,7 @@ struct LibraryItemListNavigationLink: View {
     Button(action: {
       viewModel.presentItem(item: item)
     }, label: {
-      LibraryItemCard(item: LibraryItemData.make(from: item), viewer: dataService.currentViewer)
+      LibraryItemCard(item: item, viewer: dataService.currentViewer)
     })
   }
 }
@@ -54,7 +54,7 @@ struct LibraryItemGridCardNavigationLink: View {
     Button(action: {
       viewModel.presentItem(item: item)
     }, label: {
-      GridCard(item: LibraryItemData.make(from: item))
+      GridCard(item: item)
     })
     .buttonStyle(.plain)
     .aspectRatio(1.0, contentMode: .fill)

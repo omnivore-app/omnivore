@@ -715,15 +715,6 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
     }
 
-    var redactedItems: some View {
-      ForEach(Array(fakeLibraryItems(dataService: dataService).enumerated()), id: \.1.id) { _, item in
-        let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
-        LibraryItemCard(item: item, viewer: dataService.currentViewer)
-          .listRowSeparatorTint(Color.thBorderColor)
-          .listRowInsets(.init(top: 0, leading: horizontalInset, bottom: 10, trailing: horizontalInset))
-      }.redacted(reason: .placeholder)
-    }
-
     var listItems: some View {
       ForEach(Array(viewModel.fetcher.items.enumerated()), id: \.1.unwrappedID) { idx, item in
         let horizontalInset = CGFloat(UIDevice.isIPad ? 20 : 10)
@@ -814,9 +805,7 @@ struct AnimatingCellHeight: AnimatableModifier {
                     }
                 }
 
-                if viewModel.showLoadingBar == .redacted {
-                  redactedItems
-                } else if viewModel.showLoadingBar == .simple {
+                if viewModel.showLoadingBar == .redacted || viewModel.showLoadingBar == .simple {
                   VStack {
                     ProgressView()
                   }
@@ -1001,14 +990,7 @@ struct AnimatingCellHeight: AnimatableModifier {
 
         ScrollView {
           LazyVGrid(columns: [GridItem(.adaptive(minimum: 325, maximum: 400), spacing: 16)], alignment: .center, spacing: 30) {
-            if viewModel.showLoadingBar == .redacted {
-              ForEach(fakeLibraryItems(dataService: dataService), id: \.id) { item in
-                GridCard(item: item)
-                  .aspectRatio(1.0, contentMode: .fill)
-                  .background(Color.systemBackground)
-                  .cornerRadius(6)
-              }.redacted(reason: .placeholder)
-            } else if viewModel.showLoadingBar == .simple {
+            if viewModel.showLoadingBar == .redacted  || viewModel.showLoadingBar == .simple {
               VStack {
                 ProgressView()
               }
@@ -1123,31 +1105,6 @@ struct LinkDestination: View {
       }
     }
   }
-}
-
-func fakeLibraryItems(dataService _: DataService) -> [LibraryItemData] {
-  Array(
-    repeatElement(0, count: 20)
-      .map { _ in
-        LibraryItemData(
-          id: UUID().uuidString,
-          title: "fake title that is kind of long so it looks better",
-          pageURLString: "",
-          isArchived: false,
-          author: "fake author",
-          deepLink: nil,
-          hasLabels: false,
-          noteText: nil,
-          readingProgress: 10,
-          wordsCount: 10,
-          isPDF: false,
-          highlights: nil,
-          sortedLabels: [],
-          imageURL: nil,
-          publisherDisplayName: "fake publisher",
-          descriptionText: "This is a fake description"
-        )
-      })
 }
 
 struct BottomView: View {
