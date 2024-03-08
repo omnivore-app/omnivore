@@ -70,6 +70,8 @@ const sendNotification = async (obj: RuleActionObj) => {
   const message = {
     title: item.author || item.siteName || 'Omnivore',
     body: item.title,
+    libraryItemId: item.id,
+    thumbnail: item.thumbnail,
   }
 
   return sendPushNotifications(obj.userId, message, 'rule')
