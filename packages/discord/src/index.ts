@@ -6,6 +6,8 @@ import {
   MessageReaction,
   User,
   Embed,
+  PartialMessageReaction,
+  PartialUser,
 } from 'discord.js'
 import { PubSub } from '@google-cloud/pubsub'
 import { OmnivoreArticle } from './types/OmnivoreArticle'
@@ -41,7 +43,10 @@ client.once(Events.ClientReady, () => {
   console.log('Ready!')
 })
 
-const createMessageFromEmbed = (embed: Embed): OmnivoreArticle => {
+const createMessageFromEmbed = (embed: Embed): OmnivoreArticle | undefined => {
+  if (!embed.url || !embed.title || !embed.description) {
+    return undefined
+  }
   return {
     slug: slugify(embed.url),
     title: embed.title,
@@ -57,19 +62,24 @@ const createMessageFromEmbed = (embed: Embed): OmnivoreArticle => {
 
 client.on(
   Events.MessageReactionAdd,
-  async (props: MessageReaction, user: User): Promise<void> => {
+  async (
+    props: MessageReaction | PartialMessageReaction,
+    user: User | PartialUser
+  ): Promise<void> => {
     const emoji = props.emoji.name
     const message = props.message.partial
       ? await props.message.fetch(true)
       : props.message
     const embed = message.embeds[0]
     const userName = user.username
-    console.log('message embed:', embed)
 
-    if (emoji === '🦥' && VALID_USERS.has(userName) && embed) {
-      await pubSubClient
-        .topic(TOPIC_NAME)
-        .publishMessage({ json: createMessageFromEmbed(embed) })
+    if (emoji === '🦥' && userName && VALID_USERS.has(userName) && embed) {
+      const jsonMessage = createMessageFromEmbed(embed)
+      if (message) {
+        await pubSubClient
+          .topic(TOPIC_NAME)
+          .publishMessage({ json: jsonMessage })
+      }
     }
   }
 )
