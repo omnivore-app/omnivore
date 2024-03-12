@@ -46,9 +46,9 @@ import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import {
-  PROCESS_YOU_TUBE_VIDEO_JOB_NAME,
+  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
   ProcessYouTubeVideoJobData,
-} from '../jobs/get-youtube-info'
+} from '../jobs/process-youtube-video'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -82,7 +82,7 @@ export const getJobPriority = (jobName: string): number => {
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
       return 100
-    case PROCESS_YOU_TUBE_VIDEO_JOB_NAME:
+    case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
       return 20
     default:
       logger.error(`unknown job name: ${jobName}`)
@@ -722,8 +722,8 @@ export const enqueueProcessYouTubeVideo = async (
     return undefined
   }
 
-  return queue.add(PROCESS_YOU_TUBE_VIDEO_JOB_NAME, data, {
-    priority: getJobPriority(PROCESS_YOU_TUBE_VIDEO_JOB_NAME),
+  return queue.add(PROCESS_YOUTUBE_VIDEO_JOB_NAME, data, {
+    priority: getJobPriority(PROCESS_YOUTUBE_VIDEO_JOB_NAME),
     attempts: 3,
   })
 }

@@ -45,9 +45,9 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
 import {
-  PROCESS_YOU_TUBE_VIDEO_JOB_NAME,
+  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
   processYouTubeVideo,
-} from './jobs/get-youtube-info'
+} from './jobs/process-youtube-video'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -120,7 +120,7 @@ export const createWorker = (connection: ConnectionOptions) =>
           return exportItem(job.data)
         case AI_SUMMARIZE_JOB_NAME:
           return aiSummarize(job.data)
-        case PROCESS_YOU_TUBE_VIDEO_JOB_NAME:
+        case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
           return processYouTubeVideo(job.data)
         case EXPORT_ALL_ITEMS_JOB_NAME:
           return exportAllItems(job.data)

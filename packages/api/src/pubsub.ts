@@ -18,13 +18,25 @@ import {
   findFeatureByName,
   getFeatureName,
 } from './services/features'
-import { processYouTubeVideo } from './jobs/get-youtube-info'
+import { processYouTubeVideo } from './jobs/process-youtube-video'
 
 const logger = buildLogger('pubsub')
 
 const client = new PubSub()
 
 type EntityData<T> = Merge<T, { libraryItemId: string }>
+
+const isYouTubeVideoURL = (url: string | undefined): Boolean => {
+  if (!url) {
+    return false
+  }
+  const u = new URL(url)
+  if (!u.host.endsWith('youtube.com') && !u.host.endsWith('youtu.be')) {
+    return false
+  }
+  const videoId = u.searchParams.get('v')
+  return videoId != null
+}
 
 export const createPubSubClient = (): PubsubClient => {
   const fieldsToDelete = ['user'] as const
@@ -95,6 +107,12 @@ export const createPubSubClient = (): PubsubClient => {
         //   userId,
         //   libraryItemId,
         // })
+      }
+
+      if (
+        'originalUrl' in data &&
+        isYouTubeVideoURL(data['originalUrl'] as string | undefined)
+      ) {
         await enqueueProcessYouTubeVideo({
           userId,
           libraryItemId,
