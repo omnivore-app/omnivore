@@ -995,7 +995,7 @@ export const createOrUpdateLibraryItem = async (
     )
   }
 
-  if (skipPubSub) {
+  if (skipPubSub || libraryItem.state === LibraryItemState.Processing) {
     return newLibraryItem
   }
 

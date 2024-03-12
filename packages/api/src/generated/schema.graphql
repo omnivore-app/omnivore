@@ -974,6 +974,7 @@ type Integration {
   enabled: Boolean!
   id: ID!
   name: String!
+  settings: JSON
   taskName: String
   token: String!
   type: IntegrationType!
@@ -2009,6 +2010,7 @@ input SetIntegrationInput {
   id: ID
   importItemState: ImportItemState
   name: String!
+  settings: JSON
   syncedAt: Date
   taskName: String
   token: String!

@@ -35,41 +35,54 @@ export const exportItem = async (jobData: ExportItemJobData) => {
     return
   }
 
-  // currently only readwise integration is supported
-  const integration = integrations[0]
+  await Promise.all(
+    integrations.map(async (integration) => {
+      try {
+        const logObject = {
+          userId,
+          integrationId: integration.id,
+        }
+        logger.info('exporting item...', logObject)
 
-  const logObject = {
-    userId,
-    integrationId: integration.id,
-  }
-  logger.info('exporting item...', logObject)
+        const client = getIntegrationClient(
+          integration.name,
+          integration.token,
+          integration
+        )
 
-  const client = getIntegrationClient(integration.name)
+        const synced = await client.export(libraryItems)
+        if (!synced) {
+          logger.error('failed to export item', logObject)
+          return false
+        }
 
-  const synced = await client.export(integration.token, libraryItems)
-  if (!synced) {
-    logger.error('failed to export item', logObject)
-    return false
-  }
+        const syncedAt = new Date()
+        logger.info('updating integration...', {
+          ...logObject,
+          syncedAt,
+        })
 
-  const syncedAt = new Date()
-  logger.info('updating integration...', {
-    ...logObject,
-    syncedAt,
-  })
-
-  // update integration syncedAt if successful
-  const updated = await updateIntegration(
-    integration.id,
-    {
-      syncedAt,
-    },
-    userId
+        // update integration syncedAt if successful
+        const updated = await updateIntegration(
+          integration.id,
+          {
+            syncedAt,
+          },
+          userId
+        )
+        logger.info('integration updated', {
+          ...logObject,
+          updated,
+        })
+      } catch (error) {
+        logger.error('failed to export item', {
+          userId,
+          integrationId: integration.id,
+          error,
+        })
+      }
+    })
   )
-  logger.info('integration updated', {
-    ...logObject,
-    updated,
-  })
 
   return true
 }
