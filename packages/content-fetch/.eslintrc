@@ -9,7 +9,6 @@
       {
         "ignoreIIFE": true
       }
-    ],
-    "@typescript-eslint/no-unsafe-call": "warn"
+    ]
   }
 }
