@@ -7,6 +7,7 @@ import { Merge } from './util'
 import {
   enqueueAISummarizeJob,
   enqueueExportItem,
+  enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
   enqueueWebhookJob,
 } from './utils/createTask'
@@ -17,6 +18,7 @@ import {
   findFeatureByName,
   getFeatureName,
 } from './services/features'
+import { processYouTubeVideo } from './jobs/get-youtube-info'
 
 const logger = buildLogger('pubsub')
 
@@ -89,7 +91,11 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       if (await findFeatureByName(FeatureName.AISummaries, userId)) {
-        await enqueueAISummarizeJob({
+        // await enqueueAISummarizeJob({
+        //   userId,
+        //   libraryItemId,
+        // })
+        await enqueueProcessYouTubeVideo({
           userId,
           libraryItemId,
         })
