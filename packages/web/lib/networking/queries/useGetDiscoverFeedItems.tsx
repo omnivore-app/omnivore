@@ -1,13 +1,13 @@
-import { gql } from "graphql-request"
-import { publicGqlFetcher } from "../networkHelpers"
-import { useEffect, useState } from "react"
-import { TopicTabData } from "../../../components/templates/discoverFeed/DiscoverContainer"
+import { gql } from 'graphql-request'
+import { publicGqlFetcher } from '../networkHelpers'
+import { useEffect, useState } from 'react'
+import { TopicTabData } from '../../../components/templates/discoverFeed/DiscoverContainer'
 
-const OMNIVORE_COMMUNITY_ID = "8217d320-aa5a-11ee-bbfe-a7cde356f524";
+const OMNIVORE_COMMUNITY_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
 
 export type DiscoverFeedItem = {
-  id: string,
-  feed: string,
+  id: string
+  feed: string
   title: string
   url: string
   author?: string
@@ -16,7 +16,7 @@ export type DiscoverFeedItem = {
   slug: string
   description: string
   siteName?: string
-  saves?: number;
+  saves?: number
   savedId?: string // Has the user saved this? If so then we can get it from here. This will allow us to link back
   savedLinkUrl?: string
 }
@@ -35,20 +35,25 @@ type DiscoverItemResponse = {
 
 export function useGetDiscoverFeedItems(
   startingTopic: TopicTabData,
-  selectedFeed: string = "All Feeds",
-  limit = 10,
+  selectedFeed = 'All Feeds',
+  limit = 10
 ): DiscoverItemResponse {
   const [activeTopic, setTopic] = useState(startingTopic)
   const [discoverItems, setDiscoverItems] = useState<DiscoverFeedItem[]>([])
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [page, setPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasMore, setHasMore] = useState(false)
+  const [page, setPage] = useState(0)
 
-  const fixedSelectedFeed = selectedFeed == "Community" ? OMNIVORE_COMMUNITY_ID : selectedFeed
+  const fixedSelectedFeed =
+    selectedFeed == 'Community' ? OMNIVORE_COMMUNITY_ID : selectedFeed
   const callDiscoverItems = () => {
     const query = gql`
     query GetDiscoverFeedItems {
-      getDiscoverFeedArticles(discoverTopicId: "${activeTopic.title}", first: ${limit}, after: "${page * limit}" ${fixedSelectedFeed == "All Feeds" ? "" : `feedId: "${fixedSelectedFeed}"`}) {
+      getDiscoverFeedArticles(discoverTopicId: "${
+        activeTopic.title
+      }", first: ${limit}, after: "${page * limit}" ${
+      fixedSelectedFeed == 'All Feeds' ? '' : `feedId: "${fixedSelectedFeed}"`
+    }) {
         ... on GetDiscoverFeedArticleSuccess {
           discoverArticles {
             id, 
@@ -78,34 +83,33 @@ export function useGetDiscoverFeedItems(
       }
     }
   `
-    return publicGqlFetcher(query);
+    return publicGqlFetcher(query)
   }
-
 
   useEffect(() => {
     setDiscoverItems([])
     if (page == 0) {
-      setIsLoading(true);
-      callDiscoverItems()
-        .then((it: any) => {
-          setIsLoading(false);
-          setDiscoverItems(it.getDiscoverFeedArticles.discoverArticles)
-          setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
-        })
+      setIsLoading(true)
+      callDiscoverItems().then((it: any) => {
+        setIsLoading(false)
+        setDiscoverItems(it.getDiscoverFeedArticles.discoverArticles)
+        setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
+      })
     } else {
       setPage(0)
     }
   }, [activeTopic, selectedFeed])
 
-
   useEffect(() => {
-    setIsLoading(true);
-    callDiscoverItems()
-      .then((it: any) => {
-        setIsLoading(false);
-        setDiscoverItems([...(discoverItems || []), ...(it.getDiscoverFeedArticles.discoverArticles|| [])])
-        setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
-      })
+    setIsLoading(true)
+    callDiscoverItems().then((it: any) => {
+      setIsLoading(false)
+      setDiscoverItems([
+        ...(discoverItems || []),
+        ...(it.getDiscoverFeedArticles.discoverArticles || []),
+      ])
+      setHasMore(it.getDiscoverFeedArticles.pageInfo.hasNextPage)
+    })
   }, [page])
 
   return {
@@ -115,6 +119,6 @@ export function useGetDiscoverFeedItems(
     isLoading,
     hasMore,
     page,
-    setPage
+    setPage,
   }
 }
