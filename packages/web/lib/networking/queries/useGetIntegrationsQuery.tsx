@@ -11,6 +11,7 @@ export interface Integration {
   createdAt: Date
   updatedAt: Date
   taskName?: string
+  settings?: unknown
 }
 
 export type IntegrationType = 'EXPORT' | 'IMPORT'
@@ -43,6 +44,7 @@ export function useGetIntegrationsQuery(): IntegrationsQueryResponse {
             createdAt
             updatedAt
             taskName
+            settings
           }
         }
         ... on IntegrationsError {

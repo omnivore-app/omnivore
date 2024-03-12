@@ -110,11 +110,14 @@ export default function Integrations(): JSX.Element {
     }
   }
 
-  const redirectToPocket = (importItemState: ImportItemState) => {
+  const redirectToIntegration = (
+    name: string,
+    importItemState: ImportItemState
+  ) => {
     // create a form and submit it to the backend
     const form = document.createElement('form')
     form.method = 'POST'
-    form.action = `${fetchEndpoint}/integration/pocket/auth`
+    form.action = `${fetchEndpoint}/integration/${name.toLowerCase()}/auth`
     const input = document.createElement('input')
     input.type = 'hidden'
     input.name = 'state'
@@ -158,9 +161,38 @@ export default function Integrations(): JSX.Element {
         router.replace('/settings/integrations')
       }
     }
+
+    const connectWithNotion = async () => {
+      try {
+        // get the token from query string
+        const token = router.query.code as string
+        const result = await setIntegrationMutation({
+          token,
+          name: 'NOTION',
+          type: 'EXPORT',
+          enabled: true,
+        })
+        if (result) {
+          revalidate()
+          showSuccessToast('Connected with Notion.')
+        } else {
+          showErrorToast('There was an error connecting to Notion.')
+        }
+      } catch (err) {
+        showErrorToast(
+          'There was an error connecting to Notion. Please try again.',
+          { duration: 5000 }
+        )
+      } finally {
+        router.replace('/settings/integrations')
+      }
+    }
     if (!router.isReady) return
     if (router.query.pocketToken && router.query.state && !pocketConnected) {
       connectToPocket()
+    }
+    if (router.query.code) {
+      connectWithNotion()
     }
   }, [router])
 
@@ -210,7 +242,7 @@ export default function Integrations(): JSX.Element {
           action: () => {
             pocketConnected
               ? deleteIntegration(pocketConnected.id)
-              : redirectToPocket(ImportItemState.Unarchived)
+              : redirectToIntegration('pocket', ImportItemState.Unarchived)
           },
           disabled: isImporting(pocketConnected),
           isDropdown: !pocketConnected,
@@ -218,16 +250,31 @@ export default function Integrations(): JSX.Element {
             {
               text: 'Import All',
               action: () => {
-                redirectToPocket(ImportItemState.All)
+                redirectToIntegration('pocket', ImportItemState.All)
               },
             },
             {
               text: 'Import Unarchived',
               action: () => {
-                redirectToPocket(ImportItemState.Unarchived)
+                redirectToIntegration('pocket', ImportItemState.Unarchived)
               },
             },
           ],
+        },
+      },
+      {
+        icon: '/static/icons/notion.png',
+        title: 'Notion',
+        subText:
+          'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
+        button: {
+          text: 'Settings',
+          icon: <Link size={16} weight={'bold'} />,
+          style: 'ctaWhite',
+          action: () =>
+            router.push(
+              '/settings/integrations/notion'
+            ),
         },
       },
       {
