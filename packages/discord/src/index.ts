@@ -11,6 +11,9 @@ import {
 import { PubSub } from '@google-cloud/pubsub'
 import { OmnivoreArticle } from './types/OmnivoreArticle'
 import { slugify } from 'voca'
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 const client = new Client({
   partials: [Partials.Message, Partials.Reaction],
@@ -60,14 +63,14 @@ client.on(
       : props.message
     const embed = message.embeds[0]
     const userName = user.username
-    console.log(embed)
+    console.log('message embed:', embed)
 
     if (emoji === '🦥' && VALID_USERS.has(userName) && embed) {
       await pubSubClient
         .topic(TOPIC_NAME)
         .publishMessage({ json: createMessageFromEmbed(embed) })
     }
-  },
+  }
 )
 
 client.login(process.env.DISCORD_BOT_KEY)
