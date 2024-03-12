@@ -610,3 +610,31 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+
+.is-sticky {
+  position: fixed;
+  right: 5px;
+  bottom: 5px;
+  top: auto;
+  left: auto;
+  max-width: 400px;
+  max-height: 222px;
+  width: 400px;
+  height: 222px;
+  animation-name: fadeInUp;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeInUp {
+  0% {
+      opacity: 0;
+      -webkit-transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, 100%, 0);
+  }
+  100% {
+      opacity: 1;
+      -webkit-transform: none;
+      transform: none;
+  }
+}
