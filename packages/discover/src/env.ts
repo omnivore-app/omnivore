@@ -31,7 +31,7 @@ const envParser =
 
     if (throwOnUndefined) {
       throw new Error(
-        `Missing ${varName} with a non-empty value in process environment`,
+        `Missing ${varName} with a non-empty value in process environment`
       )
     }
 
@@ -56,7 +56,7 @@ export function getEnv(): BackendEnv {
   return {
     pg,
     apiKey: parse('OMNIVORE_API_KEY')!,
-    openAiApiKey: parse('OPEN_AI_KEY')!,
+    openAiApiKey: parse('OPENAI_API_KEY')!,
     imageProxy: {
       url: parse('IMAGE_PROXY_URL', false),
       secretKey: parse('IMAGE_PROXY_SECRET', false),
