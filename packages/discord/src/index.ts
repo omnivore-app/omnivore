@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   Client,
   Partials,
@@ -26,6 +25,8 @@ const client = new Client({
 })
 
 const pubSubClient = new PubSub()
+
+// Will have missed people here
 const VALID_USERS = new Set([
   'danielprindii',
   'riiku',
@@ -33,7 +34,7 @@ const VALID_USERS = new Set([
   'mollydot',
   'jackson.harper',
   'podginator',
-]) // Will have missed people here
+])
 const TOPIC_NAME = 'discordCommunityArticles'
 
 client.once(Events.ClientReady, () => {
@@ -73,4 +74,6 @@ client.on(
   }
 )
 
-client.login(process.env.DISCORD_BOT_KEY)
+client.login(process.env.DISCORD_BOT_KEY).catch((error) => {
+  console.log('error logging in:', error)
+})

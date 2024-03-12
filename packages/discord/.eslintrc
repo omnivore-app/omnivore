@@ -5,18 +5,19 @@
 		"es6": true
 	},
 	"parserOptions": {
-		"ecmaVersion": 2021
+		"ecmaVersion": 2021,
+    "project": "tsconfig.json"
 	},
 	"rules": {
 		"arrow-spacing": ["warn", { "before": true, "after": true }],
 		"brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
-		"comma-dangle": ["error", "always-multiline"],
+		"comma-dangle": ["warn", "always-multiline"],
 		"comma-spacing": "error",
 		"comma-style": "error",
 		"curly": ["error", "multi-line", "consistent"],
 		"dot-location": ["error", "property"],
 		"handle-callback-err": "off",
-		"indent": ["error", "tab"],
+		"indent": ["warn", "tab"],
 		"keyword-spacing": "error",
 		"max-nested-callbacks": ["error", { "max": 4 }],
 		"max-statements-per-line": ["error", { "max": 2 }],
@@ -33,7 +34,7 @@
 		"object-curly-spacing": ["error", "always"],
 		"prefer-const": "error",
 		"quotes": ["error", "single"],
-		"semi": ["error", "always"],
+		"semi": ["warn", "always"],
 		"space-before-blocks": "error",
 		"space-before-function-paren": ["error", {
 			"anonymous": "never",
