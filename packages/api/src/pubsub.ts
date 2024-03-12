@@ -22,7 +22,10 @@ const logger = buildLogger('pubsub')
 
 const client = new PubSub()
 
-type EntityData<T> = Merge<T, { libraryItemId: string }>
+type EntityData<T extends Record<string, any>> = Merge<
+  T,
+  { libraryItemId: string }
+>
 
 export const createPubSubClient = (): PubsubClient => {
   const fieldsToDelete = ['user'] as const
@@ -56,7 +59,7 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    entityCreated: async <T>(
+    entityCreated: async <T extends Record<string, any>>(
       type: EntityType,
       data: EntityData<T>,
       userId: string
@@ -77,7 +80,8 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       const cleanData = deepDelete(
-        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
+        data as EntityData<T> &
+          Record<(typeof fieldsToDelete)[number], unknown>,
         [...fieldsToDelete]
       )
 
@@ -100,7 +104,7 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
       )
     },
-    entityUpdated: async <T>(
+    entityUpdated: async <T extends Record<string, any>>(
       type: EntityType,
       data: EntityData<T>,
       userId: string
@@ -122,7 +126,8 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       const cleanData = deepDelete(
-        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
+        data as EntityData<T> &
+          Record<(typeof fieldsToDelete)[number], unknown>,
         [...fieldsToDelete]
       )
 
@@ -168,6 +173,7 @@ export enum EntityType {
   PAGE = 'page',
   HIGHLIGHT = 'highlight',
   LABEL = 'label',
+  RSS_FEED = 'feed',
 }
 
 export interface PubsubClient {
@@ -177,12 +183,12 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  entityCreated: <T>(
+  entityCreated: <T extends Record<string, any>>(
     type: EntityType,
     data: EntityData<T>,
     userId: string
   ) => Promise<void>
-  entityUpdated: <T>(
+  entityUpdated: <T extends Record<string, any>>(
     type: EntityType,
     data: EntityData<T>,
     userId: string

@@ -1,12 +1,19 @@
 {
-  "extends": "@tsconfig/node14/tsconfig.json",
   "ts-node": {
     "files": true
   },
   "compilerOptions": {
     "outDir": "dist",
     "experimentalDecorators": true,
-    "lib": ["dom"]
+    "lib": ["dom", "es2020"],
+    "module": "commonjs",
+    "target": "es2020",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node"
   },
   "include": ["src", "test"],
   "exclude": ["./src/generated"]

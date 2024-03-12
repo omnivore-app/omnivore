@@ -42,7 +42,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
 
   const MAX_USERS = 1500
   // opt in to feature for the first 1500 users
-  const optedInFeatures = (await appDataSource.query(
+  const optedInFeatures: Feature[] = await appDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 
@@ -51,7 +51,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     do update set granted_at = $3 
     returning *, granted_at as "grantedAt", created_at as "createdAt", updated_at as "updatedAt";`,
     [uid, FeatureName.UltraRealisticVoice, new Date(), MAX_USERS]
-  )) as Feature[]
+  )
 
   // if no new features were created then user has exceeded max users
   if (optedInFeatures.length === 0) {
