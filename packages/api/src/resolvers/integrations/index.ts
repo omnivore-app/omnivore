@@ -34,7 +34,6 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
-  enqueueExportAllItems,
   enqueueImportFromIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
@@ -84,40 +83,6 @@ export const setIntegrationResolver = authorized<
 
     // save integration
     const integration = await saveIntegration(integrationToSave, uid)
-
-    if (integrationToSave.type === IntegrationType.Export && !input.id) {
-      const authToken = await createIntegrationToken({
-        uid,
-        token: integration.token,
-      })
-      if (!authToken) {
-        log.error('failed to create auth token', {
-          integrationId: integration.id,
-        })
-        return {
-          errorCodes: [SetIntegrationErrorCode.BadRequest],
-        }
-      }
-
-      // create a task to sync all the pages if new integration or enable integration (export type)
-      await enqueueExportAllItems(integration.id, uid)
-    } else if (integrationToSave.taskName) {
-      // delete the task if disable integration and task exists
-      const result = await deleteTask(integrationToSave.taskName)
-      if (result) {
-        log.info('task deleted', integrationToSave.taskName)
-      }
-
-      // update task name in integration
-      await updateIntegration(
-        integration.id,
-        {
-          taskName: null,
-        },
-        uid
-      )
-      integration.taskName = null
-    }
 
     analytics.capture({
       distinctId: uid,

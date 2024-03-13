@@ -80,7 +80,11 @@ export const saveIntegration = async (
   userId: string
 ) => {
   return authTrx(
-    async (t) => t.getRepository(Integration).save(integration),
+    async (t) => {
+      const repo = t.getRepository(Integration)
+      const newIntegration = await repo.save(integration)
+      return repo.findOneByOrFail({ id: newIntegration.id })
+    },
     undefined,
     userId
   )
