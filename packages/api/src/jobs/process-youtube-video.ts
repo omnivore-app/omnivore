@@ -3,7 +3,7 @@ import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 
-import { Video, Client as YouTubeClient } from 'youtubei'
+import { Chapter, Client as YouTubeClient } from 'youtubei'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -18,6 +18,44 @@ const calculateWordCount = (durationInSeconds: number): number => {
   const wordsPerSecond = 3.92
   const wordCount = Math.round(durationInSeconds * wordsPerSecond)
   return wordCount
+}
+
+interface ChapterProperties {
+  title: string
+  start: number
+}
+
+interface TranscriptProperties {
+  text: string
+  start: number
+  duration: number
+}
+
+export const addTranscriptChapters = (
+  chapters: ChapterProperties[],
+  transcript: TranscriptProperties[]
+): TranscriptProperties[] => {
+  chapters.sort((a, b) => a.start - b.start)
+
+  for (const chapter of chapters) {
+    const startOffset = chapter.start
+    const title = '## ' + chapter.title + '\n\n'
+
+    const index = transcript.findIndex(
+      (textItem) => textItem.start > startOffset
+    )
+
+    if (index !== -1) {
+      transcript.splice(index, 0, {
+        text: title,
+        duration: 1,
+        start: startOffset,
+      })
+    } else {
+      transcript.push({ text: title, duration: 0, start: startOffset })
+    }
+  }
+  return transcript
 }
 
 export const processYouTubeVideo = async (
@@ -66,13 +104,31 @@ export const processYouTubeVideo = async (
       libraryItem.description = video.description
     }
 
-    if ('duration' in video && (video as Video).duration > 0) {
+    if ('duration' in video && video.duration > 0) {
       needsUpdate = true
-      libraryItem.wordCount = calculateWordCount((video as Video).duration)
+      libraryItem.wordCount = calculateWordCount(video.duration)
+    }
+
+    let chapters: Chapter[] = []
+    if ('chapters' in video) {
+      chapters = video.chapters
+      console.log('video.chapters: ', video.chapters)
+    }
+
+    let transcript: TranscriptProperties[] | undefined = undefined
+    if ('getTranscript' in video) {
+      transcript = await video.getTranscript()
+      console.log('transcript: ', transcript)
+    }
+
+    if (transcript) {
+      if (chapters) {
+        transcript = addTranscriptChapters(chapters, transcript)
+      }
     }
 
     if (needsUpdate) {
-      const _ = await authTrx(
+      const updated = await authTrx(
         async (t) => {
           return t
             .getRepository(LibraryItem)
@@ -81,8 +137,11 @@ export const processYouTubeVideo = async (
         undefined,
         jobData.userId
       )
+      if (!updated) {
+        console.warn('could not updated library item')
+      }
     }
   } catch (err) {
-    console.log('error creating summary: ', err)
+    console.warn('error creating summary: ', err)
   }
 }
