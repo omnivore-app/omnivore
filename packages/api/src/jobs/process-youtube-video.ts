@@ -114,7 +114,7 @@ export const createTranscriptHTML = async (
     transcriptMarkdown = transcript.map((item) => item.text).join(' ')
   }
 
-  var converter = new showdown.Converter()
+  const converter = new showdown.Converter()
   return converter.makeHtml(transcriptMarkdown)
 }
 
