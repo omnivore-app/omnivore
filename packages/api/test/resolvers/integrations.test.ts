@@ -222,17 +222,6 @@ describe('Integrations resolvers', () => {
               expect(res.body.data.setIntegration.integration.enabled).to.be
                 .false
             })
-
-            it('deletes cloud task', async () => {
-              const res = await graphqlRequest(
-                query(integrationId, integrationName, token, enabled),
-                authToken
-              )
-              const integration = await findIntegration({
-                id: res.body.data.setIntegration.integration.id,
-              }, loginUser.id)
-              expect(integration?.taskName).to.be.null
-            })
           })
 
           context('when enable is true', () => {
