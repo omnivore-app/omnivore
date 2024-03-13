@@ -1,4 +1,3 @@
-import { styled } from '@stitches/react'
 import {
   Button,
   Checkbox,
@@ -14,13 +13,10 @@ import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
-import {
-  Box,
-  HStack,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
+import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
+import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
@@ -42,13 +38,6 @@ type FieldType = {
   autoSync?: boolean
   properties?: string[]
 }
-
-// Styles
-const Header = styled(Box, {
-  color: '$utilityTextDefault',
-  fontSize: 'x-large',
-  margin: '20px 20px 40px 40px',
-})
 
 export default function Notion(): JSX.Element {
   applyStoredTheme()
@@ -138,11 +127,18 @@ export default function Notion(): JSX.Element {
       <SettingsLayout>
         <VStack
           css={{
-            margin: 'auto',
+            margin: '0 auto',
             width: '80%',
           }}
         >
-          <HStack>
+          <HStack
+            css={{
+              width: '100%',
+              pb: '$2',
+              borderBottom: '1px solid $utilityTextDefault',
+              pr: '$1',
+            }}
+          >
             <Image
               src="/static/icons/notion.png"
               alt="Integration Image"
@@ -154,12 +150,11 @@ export default function Notion(): JSX.Element {
           </HStack>
 
           {notion && (
-            <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', marginTop: '40px' }}>
               <Form
-                labelCol={{ span: 4 }}
-                wrapperCol={{ span: 6 }}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 8 }}
                 labelAlign="left"
-                style={{ width: '100%' }}
                 form={form}
                 fields={fields}
                 onFinish={onFinish}

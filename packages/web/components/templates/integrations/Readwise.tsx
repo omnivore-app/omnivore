@@ -1,27 +1,18 @@
-import { useCallback, useMemo, useState } from 'react'
-import { styled } from '@stitches/react'
 import Image from 'next/image'
-
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { Button } from '../../elements/Button'
-import { StyledText } from '../../elements/StyledText'
-import { FormInput } from '../../elements/FormElements'
-
+import { useRouter } from 'next/router'
+import { useCallback, useMemo, useState } from 'react'
+import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
 import {
   Integration,
   useGetIntegrationsQuery,
 } from '../../../lib/networking/queries/useGetIntegrationsQuery'
-import { useRouter } from 'next/router'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
-
-// Styles
-const Header = styled(Box, {
-  color: '$utilityTextDefault',
-  fontSize: 'x-large',
-  margin: '20px',
-})
+import { Button } from '../../elements/Button'
+import { FormInput } from '../../elements/FormElements'
+import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { StyledText } from '../../elements/StyledText'
+import { Header } from '../settings/SettingsTable'
 
 export function Readwise(): JSX.Element {
   const { integrations, revalidate } = useGetIntegrationsQuery()
