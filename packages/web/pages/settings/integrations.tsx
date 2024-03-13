@@ -128,6 +128,7 @@ export default function Integrations(): JSX.Element {
       input.value = importItemState
       form.appendChild(input)
     }
+    document.body.appendChild(form)
 
     form.submit()
   }
@@ -163,7 +164,7 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
       } finally {
-        router.replace('/settings/integrations')
+        router.push('/settings/integrations')
       }
     }
 
@@ -189,7 +190,7 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
       } finally {
-        router.replace('/settings/integrations/notion')
+        router.push('/settings/integrations/notion')
       }
     }
 
@@ -276,7 +277,7 @@ export default function Integrations(): JSX.Element {
         button: {
           text: isConnected('NOTION') ? 'Settings' : 'Connect',
           icon: <Link size={16} weight={'bold'} />,
-          style: 'ctaWhite',
+          style: isConnected('NOTION') ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
             isConnected('NOTION')
               ? router.push('/settings/integrations/notion')

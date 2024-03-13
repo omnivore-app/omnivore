@@ -12,6 +12,7 @@ import {
 import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import {
   Box,
@@ -21,8 +22,11 @@ import {
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
 import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import { applyStoredTheme } from '../../../lib/themeUpdater'
+import { showSuccessToast } from '../../../lib/toastHelpers'
 
 interface FieldData {
   name: string | number | (string | number)[]
@@ -47,6 +51,9 @@ const Header = styled(Box, {
 })
 
 export default function Notion(): JSX.Element {
+  applyStoredTheme()
+
+  const router = useRouter()
   const { integrations, revalidate } = useGetIntegrationsQuery()
   const notion = useMemo(
     () => integrations.find((i) => i.name == 'NOTION' && i.type == 'EXPORT'),
@@ -76,6 +83,17 @@ export default function Notion(): JSX.Element {
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()
+
+  const deleteNotion = async () => {
+    if (!notion) {
+      throw new Error('Notion integration not found')
+    }
+
+    await deleteIntegrationMutation(notion.id)
+    showSuccessToast('Notion integration disconnected successfully.')
+
+    router.push('/settings/integrations')
+  }
 
   const updateNotion = async (values: FieldType) => {
     if (!notion) {
@@ -194,7 +212,7 @@ export default function Notion(): JSX.Element {
 
           <Space>
             <Button type="primary">Export Recent Items</Button>
-            <Button type="primary" danger>
+            <Button type="primary" danger onClick={deleteNotion}>
               Disconnect
             </Button>
           </Space>
