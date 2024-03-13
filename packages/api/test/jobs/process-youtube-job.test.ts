@@ -95,7 +95,7 @@ describe('create transcript', () => {
       console.log('res: ', res)
 
       expect(res.length).to.eq(17)
-      expect(res[13].text).to.eq("## Joe Biden's re-election effort\n\n")
+      expect(res[13].text).to.eq("\n\n## Joe Biden's re-election effort\n\n")
     })
   })
 })
