@@ -4,6 +4,11 @@ import { libraryItemRepository } from '../repository/library_item'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 
 import { Chapter, Client as YouTubeClient } from 'youtubei'
+import showdown from 'showdown'
+import { parseHTML } from 'linkedom'
+import { parsePreparedContent } from '../utils/parser'
+import { OpenAI } from '@langchain/openai'
+import { PromptTemplate } from '@langchain/core/prompts'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -39,7 +44,7 @@ export const addTranscriptChapters = (
 
   for (const chapter of chapters) {
     const startOffset = chapter.start
-    const title = '## ' + chapter.title + '\n\n'
+    const title = '\n\n## ' + chapter.title + '\n\n'
 
     const index = transcript.findIndex(
       (textItem) => textItem.start > startOffset
@@ -58,6 +63,92 @@ export const addTranscriptChapters = (
   return transcript
 }
 
+export const createTranscriptHTML = async (
+  transcript: TranscriptProperties[]
+): Promise<string> => {
+  let transcriptMarkdown = ''
+  if (process.env.YOUTUBE_TRANSCRIPT_PROMPT && process.env.OPENAI_API_KEY) {
+    const llm = new OpenAI({
+      modelName: 'gpt-4',
+      configuration: {
+        apiKey: process.env.OPENAI_API_KEY,
+      },
+    })
+    const promptTemplate = PromptTemplate.fromTemplate(
+      `${process.env.YOUTUBE_TRANSCRIPT_PROMPT}
+
+       Data:
+       {transcriptData}`
+    )
+    const chain = promptTemplate.pipe(llm)
+
+    let transcriptChunkLength = 0
+    let transcriptChunk: TranscriptProperties[] = []
+    for (const item of transcript) {
+      if (transcriptChunkLength + item.text.length > 8000) {
+        const result = await chain.invoke({
+          transcriptData: transcriptChunk.map((item) => item.text).join(' '),
+        })
+
+        transcriptMarkdown += result
+
+        transcriptChunk = []
+        transcriptChunkLength = 0
+      }
+
+      transcriptChunk.push(item)
+      transcriptChunkLength += item.text.length
+    }
+
+    if (transcriptChunk.length > 0) {
+      const result = await chain.invoke({
+        transcriptData: transcriptChunk.map((item) => item.text).join(' '),
+      })
+
+      transcriptMarkdown += result
+    }
+  }
+
+  // If the LLM didn't give us enough data fallback to the raw template
+  if (transcriptMarkdown.length < 1) {
+    transcriptMarkdown = transcript.map((item) => item.text).join(' ')
+  }
+
+  var converter = new showdown.Converter()
+  return converter.makeHtml(transcriptMarkdown)
+}
+
+export const addTranscriptToReadableContent = async (
+  originalUrl: string,
+  originalHTML: string,
+  transcriptHTML: string
+): Promise<string | undefined> => {
+  const html = parseHTML(originalHTML)
+
+  const transcriptNode = html.document.querySelector(
+    '#_omnivore_youtube_transcript'
+  )
+
+  if (transcriptNode) {
+    transcriptNode.innerHTML = transcriptHTML
+  } else {
+    const div = html.document.createElement('div')
+    div.innerHTML = transcriptHTML
+    html.document.body.appendChild(div)
+  }
+
+  const preparedDocument = {
+    document: html.document.toString(),
+    pageInfo: {},
+  }
+  const updatedContent = await parsePreparedContent(
+    originalUrl,
+    preparedDocument,
+    true
+  )
+  return updatedContent.parsedContent?.content
+}
+
 export const processYouTubeVideo = async (
   jobData: ProcessYouTubeVideoJobData
 ) => {
@@ -70,7 +161,11 @@ export const processYouTubeVideo = async (
       undefined,
       jobData.userId
     )
-    if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
+    if (
+      !libraryItem ||
+      libraryItem.state !== LibraryItemState.Succeeded ||
+      !libraryItem.originalContent
+    ) {
       logger.info(
         `Not ready to get YouTube metadata job state: ${
           libraryItem?.state ?? 'null'
@@ -112,18 +207,27 @@ export const processYouTubeVideo = async (
     let chapters: Chapter[] = []
     if ('chapters' in video) {
       chapters = video.chapters
-      console.log('video.chapters: ', video.chapters)
     }
 
     let transcript: TranscriptProperties[] | undefined = undefined
     if ('getTranscript' in video) {
       transcript = await video.getTranscript()
-      console.log('transcript: ', transcript)
     }
 
     if (transcript) {
       if (chapters) {
         transcript = addTranscriptChapters(chapters, transcript)
+      }
+      const transcriptHTML = await createTranscriptHTML(transcript)
+      const updatedContent = await addTranscriptToReadableContent(
+        libraryItem.originalUrl,
+        libraryItem.originalContent,
+        transcriptHTML
+      )
+
+      if (updatedContent) {
+        needsUpdate = true
+        libraryItem.readableContent = updatedContent
       }
     }
 

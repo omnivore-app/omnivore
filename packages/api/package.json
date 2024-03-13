@@ -46,6 +46,7 @@
     "@sentry/integrations": "^7.10.0",
     "@sentry/node": "^5.26.0",
     "@sentry/tracing": "^7.9.0",
+    "@types/showdown": "^2.0.6",
     "addressparser": "^1.0.1",
     "apollo-datasource": "^3.3.1",
     "apollo-server-express": "^3.6.3",

@@ -725,6 +725,7 @@ export const enqueueProcessYouTubeVideo = async (
   return queue.add(PROCESS_YOUTUBE_VIDEO_JOB_NAME, data, {
     priority: getJobPriority(PROCESS_YOUTUBE_VIDEO_JOB_NAME),
     attempts: 3,
+    delay: 2000,
   })
 }
 
