@@ -1,5 +1,14 @@
 import { styled } from '@stitches/react'
-import { Button, Checkbox, Form, FormProps, Input, Space, Switch } from 'antd'
+import {
+  Button,
+  Checkbox,
+  Form,
+  FormProps,
+  Input,
+  message,
+  Space,
+  Switch,
+} from 'antd'
 import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
@@ -12,6 +21,7 @@ import {
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
+import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
 import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
 
 interface FieldData {
@@ -38,11 +48,12 @@ const Header = styled(Box, {
 
 export default function Notion(): JSX.Element {
   const { integrations, revalidate } = useGetIntegrationsQuery()
-  const fields = useMemo<FieldData[]>(() => {
-    const notion = integrations.find(
-      (i) => i.name == 'NOTION' && i.type == 'EXPORT'
-    )
-    return [
+  const notion = useMemo(
+    () => integrations.find((i) => i.name == 'NOTION' && i.type == 'EXPORT'),
+    [integrations]
+  )
+  const fields = useMemo<FieldData[]>(
+    () => [
       {
         name: 'parentPageId',
         value: notion?.settings?.parentPageId,
@@ -53,19 +64,43 @@ export default function Notion(): JSX.Element {
       },
       {
         name: 'autoSync',
-        checked: notion?.settings?.autoSync,
+        value: notion?.settings?.autoSync,
       },
       {
         name: 'properties',
         value: notion?.settings?.properties,
       },
-    ]
-  }, [integrations])
+    ],
+    [notion]
+  )
 
   const [form] = Form.useForm<FieldType>()
+  const [messageApi, contextHolder] = message.useMessage()
 
-  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Success:', values)
+  const updateNotion = async (values: FieldType) => {
+    if (!notion) {
+      throw new Error('Notion integration not found')
+    }
+
+    await setIntegrationMutation({
+      id: notion.id,
+      name: notion.name,
+      type: notion.type,
+      token: notion.token,
+      enabled: notion.enabled,
+      settings: values,
+    })
+  }
+
+  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+    try {
+      await updateNotion(values)
+
+      revalidate()
+      messageApi.success('Notion settings updated successfully.')
+    } catch (error) {
+      messageApi.error('There was an error updating Notion settings.')
+    }
   }
 
   const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (
@@ -76,11 +111,11 @@ export default function Notion(): JSX.Element {
 
   const onDataChange = (value: Array<CheckboxValueType>) => {
     form.setFieldsValue({ properties: value.map((v) => v.toString()) })
-    form.submit()
   }
 
   return (
     <>
+      {contextHolder}
       <PageMetaData title="Notion" path="/integrations/notion" />
       <SettingsLayout>
         <VStack
@@ -120,12 +155,7 @@ export default function Notion(): JSX.Element {
                 },
               ]}
             >
-              <Space>
-                <Input />
-                <Button type="primary" htmlType="submit">
-                  Save
-                </Button>
-              </Space>
+              <Input />
             </Form.Item>
 
             <Form.Item<FieldType>
@@ -136,7 +166,11 @@ export default function Notion(): JSX.Element {
               <Input disabled />
             </Form.Item>
 
-            <Form.Item<FieldType> label="Automatic Sync" name="autoSync">
+            <Form.Item<FieldType>
+              label="Automatic Sync"
+              name="autoSync"
+              valuePropName="checked"
+            >
               <Switch />
             </Form.Item>
 
@@ -149,6 +183,12 @@ export default function Notion(): JSX.Element {
                 <Checkbox value="labels">Labels</Checkbox>
                 <Checkbox value="notes">Notes</Checkbox>
               </Checkbox.Group>
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Save
+              </Button>
             </Form.Item>
           </Form>
 
