@@ -172,25 +172,23 @@ export default function Integrations(): JSX.Element {
       try {
         // get the token from query string
         const token = router.query.code as string
-        const result = await setIntegrationMutation({
+        await setIntegrationMutation({
           token,
           name: 'NOTION',
           type: 'EXPORT',
           enabled: true,
         })
-        if (result) {
-          revalidate()
-          showSuccessToast('Connected with Notion.')
-        } else {
-          showErrorToast('There was an error connecting to Notion.')
-        }
+
+        showSuccessToast('Connected with Notion.')
+
+        router.push('/settings/integrations/notion')
       } catch (err) {
         showErrorToast(
           'There was an error connecting to Notion. Please try again.',
           { duration: 5000 }
         )
-      } finally {
-        router.push('/settings/integrations/notion')
+
+        router.push('/settings/integrations')
       }
     }
 

@@ -12,7 +12,7 @@ import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
@@ -20,17 +20,12 @@ import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
-import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import {
+  Integration,
+  useGetIntegrationsQuery,
+} from '../../../lib/networking/queries/useGetIntegrationsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
-
-interface FieldData {
-  name: string | number | (string | number)[]
-  value?: any
-  checked?: boolean
-  validating?: boolean
-  errors?: string[]
-}
 
 type FieldType = {
   parentPageId?: string
@@ -44,34 +39,27 @@ export default function Notion(): JSX.Element {
 
   const router = useRouter()
   const { integrations, revalidate } = useGetIntegrationsQuery()
-  const notion = useMemo(
-    () => integrations.find((i) => i.name == 'NOTION' && i.type == 'EXPORT'),
-    [integrations]
-  )
-  const fields = useMemo<FieldData[]>(
-    () => [
-      {
-        name: 'parentPageId',
-        value: notion?.settings?.parentPageId,
-      },
-      {
-        name: 'parentDatabaseId',
-        value: notion?.settings?.parentDatabaseId,
-      },
-      {
-        name: 'autoSync',
-        value: notion?.settings?.autoSync,
-      },
-      {
-        name: 'properties',
-        value: notion?.settings?.properties,
-      },
-    ],
-    [notion]
-  )
+  const [notion, setNotion] = useState<Integration>()
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()
+
+  useEffect(() => {
+    const notion = integrations.find(
+      (i) => i.name == 'NOTION' && i.type == 'EXPORT'
+    )
+
+    if (notion) {
+      setNotion(notion)
+
+      form.setFieldsValue({
+        parentPageId: notion.settings?.parentPageId,
+        parentDatabaseId: notion.settings?.parentDatabaseId,
+        autoSync: notion.settings?.autoSync,
+        properties: notion.settings?.properties,
+      })
+    }
+  }, [form, integrations])
 
   const deleteNotion = async () => {
     if (!notion) {
@@ -156,7 +144,6 @@ export default function Notion(): JSX.Element {
                 wrapperCol={{ span: 8 }}
                 labelAlign="left"
                 form={form}
-                fields={fields}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
               >
@@ -201,18 +188,16 @@ export default function Notion(): JSX.Element {
                 </Form.Item>
 
                 <Form.Item>
-                  <Button type="primary" htmlType="submit">
-                    Save
-                  </Button>
+                  <Space>
+                    <Button type="primary" htmlType="submit">
+                      Save
+                    </Button>
+                    <Button type="primary" danger onClick={deleteNotion}>
+                      Disconnect
+                    </Button>
+                  </Space>
                 </Form.Item>
               </Form>
-
-              <Space>
-                <Button type="primary">Export Recent Items</Button>
-                <Button type="primary" danger onClick={deleteNotion}>
-                  Disconnect
-                </Button>
-              </Space>
             </div>
           )}
         </VStack>
