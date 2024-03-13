@@ -153,69 +153,73 @@ export default function Notion(): JSX.Element {
             <Beta />
           </HStack>
 
-          <Form
-            labelCol={{ span: 4 }}
-            wrapperCol={{ span: 6 }}
-            labelAlign="left"
-            style={{ width: '100%' }}
-            form={form}
-            fields={fields}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-          >
-            <Form.Item<FieldType>
-              label="Notion Page Id"
-              name="parentPageId"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input your Notion Page Id!',
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
+          {notion && (
+            <div style={{ width: '100%' }}>
+              <Form
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 6 }}
+                labelAlign="left"
+                style={{ width: '100%' }}
+                form={form}
+                fields={fields}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
+              >
+                <Form.Item<FieldType>
+                  label="Notion Page Id"
+                  name="parentPageId"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please input your Notion Page Id!',
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
 
-            <Form.Item<FieldType>
-              label="Notion Database Id"
-              name="parentDatabaseId"
-              hidden
-            >
-              <Input disabled />
-            </Form.Item>
+                <Form.Item<FieldType>
+                  label="Notion Database Id"
+                  name="parentDatabaseId"
+                  hidden
+                >
+                  <Input disabled />
+                </Form.Item>
 
-            <Form.Item<FieldType>
-              label="Automatic Sync"
-              name="autoSync"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
+                <Form.Item<FieldType>
+                  label="Automatic Sync"
+                  name="autoSync"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
 
-            <Form.Item<FieldType>
-              label="Properties to Export"
-              name="properties"
-            >
-              <Checkbox.Group onChange={onDataChange}>
-                <Checkbox value="highlights">Highlights</Checkbox>
-                <Checkbox value="labels">Labels</Checkbox>
-                <Checkbox value="notes">Notes</Checkbox>
-              </Checkbox.Group>
-            </Form.Item>
+                <Form.Item<FieldType>
+                  label="Properties to Export"
+                  name="properties"
+                >
+                  <Checkbox.Group onChange={onDataChange}>
+                    <Checkbox value="highlights">Highlights</Checkbox>
+                    <Checkbox value="labels">Labels</Checkbox>
+                    <Checkbox value="notes">Notes</Checkbox>
+                  </Checkbox.Group>
+                </Form.Item>
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Save
-              </Button>
-            </Form.Item>
-          </Form>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    Save
+                  </Button>
+                </Form.Item>
+              </Form>
 
-          <Space>
-            <Button type="primary">Export Recent Items</Button>
-            <Button type="primary" danger onClick={deleteNotion}>
-              Disconnect
-            </Button>
-          </Space>
+              <Space>
+                <Button type="primary">Export Recent Items</Button>
+                <Button type="primary" danger onClick={deleteNotion}>
+                  Disconnect
+                </Button>
+              </Space>
+            </div>
+          )}
         </VStack>
       </SettingsLayout>
     </>
