@@ -26,7 +26,7 @@ const client = new PubSub()
 
 type EntityData<T> = Merge<T, { libraryItemId: string }>
 
-const isYouTubeVideoURL = (url: string | undefined): Boolean => {
+const isYouTubeVideoURL = (url: string | undefined): boolean => {
   if (!url) {
     return false
   }
