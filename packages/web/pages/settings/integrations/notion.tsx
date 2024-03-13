@@ -9,6 +9,7 @@ import {
   VStack,
 } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
+import { BetaFeature } from '../../../components/templates/BetaFeature'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
 
@@ -43,6 +44,7 @@ export default function Notion(): JSX.Element {
               height={75}
             />
             <Header>Notion integration settings</Header>
+            <BetaFeature />
           </HStack>
 
           {notion && (
