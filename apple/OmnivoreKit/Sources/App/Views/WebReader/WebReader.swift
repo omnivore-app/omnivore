@@ -66,6 +66,10 @@ struct WebReader: PlatformViewRepresentable {
       webView.scrollView.verticalScrollIndicatorInsets.top = readerViewNavBarHeight
       webView.configuration.userContentController.add(webView, name: "viewerAction")
 
+      if #available(iOS 15.4, *) {
+        webView.configuration.preferences.isElementFullscreenEnabled = true
+      }
+
       webView.scrollView.indicatorStyle = ThemeManager.currentTheme.isDark ?
         UIScrollView.IndicatorStyle.white :
         UIScrollView.IndicatorStyle.black
