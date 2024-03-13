@@ -49,7 +49,6 @@ import {
   saveLabelsInLibraryItem,
 } from '../db'
 import { generateFakeUuid, graphqlRequest, request } from '../util'
-import { processYouTubeVideo } from '../../src/jobs/process-youtube-video'
 
 chai.use(chaiString)
 
