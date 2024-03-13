@@ -11,7 +11,7 @@ export interface Integration {
   createdAt: Date
   updatedAt: Date
   taskName?: string
-  settings?: unknown
+  settings?: any
 }
 
 export type IntegrationType = 'EXPORT' | 'IMPORT'

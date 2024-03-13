@@ -89,6 +89,9 @@ export default function Integrations(): JSX.Element {
   const pocketConnected = useMemo(() => {
     return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
   }, [integrations])
+  const isConnected = (name: string) => {
+    return integrations.find((i) => i.name == name)?.enabled
+  }
 
   const deleteIntegration = async (id: string) => {
     try {
@@ -112,18 +115,20 @@ export default function Integrations(): JSX.Element {
 
   const redirectToIntegration = (
     name: string,
-    importItemState: ImportItemState
+    importItemState?: ImportItemState
   ) => {
     // create a form and submit it to the backend
     const form = document.createElement('form')
     form.method = 'POST'
     form.action = `${fetchEndpoint}/integration/${name.toLowerCase()}/auth`
-    const input = document.createElement('input')
-    input.type = 'hidden'
-    input.name = 'state'
-    input.value = importItemState
-    form.appendChild(input)
-    document.body.appendChild(form)
+    if (importItemState) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = 'state'
+      input.value = importItemState
+      form.appendChild(input)
+    }
+
     form.submit()
   }
 
@@ -184,9 +189,10 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
       } finally {
-        router.replace('/settings/integrations')
+        router.replace('/settings/integrations/notion')
       }
     }
+
     if (!router.isReady) return
     if (router.query.pocketToken && router.query.state && !pocketConnected) {
       connectToPocket()
@@ -268,13 +274,14 @@ export default function Integrations(): JSX.Element {
         subText:
           'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
         button: {
-          text: 'Settings',
+          text: isConnected('NOTION') ? 'Settings' : 'Connect',
           icon: <Link size={16} weight={'bold'} />,
           style: 'ctaWhite',
-          action: () =>
-            router.push(
-              '/settings/integrations/notion'
-            ),
+          action: () => {
+            isConnected('NOTION')
+              ? router.push('/settings/integrations/notion')
+              : redirectToIntegration('NOTION')
+          },
         },
       },
       {
@@ -305,7 +312,7 @@ export default function Integrations(): JSX.Element {
         },
       },
     ])
-  }, [pocketConnected, readwiseConnected, webhooks])
+  }, [pocketConnected, readwiseConnected, webhooks, integrations])
 
   return (
     <SettingsLayout>
