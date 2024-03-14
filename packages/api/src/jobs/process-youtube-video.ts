@@ -305,7 +305,7 @@ const fetchCachedYouTubeTranscript = async (
       `youtube-transcripts/${videoId}/${transcriptHash}.${promptHash}.html`
     )
   } catch (err) {
-    logger.info(`unable to fetch cached transcript: ${err}`)
+    logger.info(`unable to fetch cached transcript`, { error: err })
   }
 
   return undefined
@@ -326,7 +326,7 @@ const cacheYouTubeTranscript = async (
       transcript
     )
   } catch (err) {
-    logger.info(`unable to cache transcript: ${err}`)
+    logger.info(`unable to cache transcript`, { error: err })
   }
 }
 
