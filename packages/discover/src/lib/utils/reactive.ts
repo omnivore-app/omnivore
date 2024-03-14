@@ -16,14 +16,14 @@ import { OmnivoreArticle } from '../../types/OmnivoreArticle'
 import { fromPromise } from 'rxjs/internal/observable/innerFrom'
 
 export const exponentialBackOff = <T>(
-  count: number,
+  count: number
 ): MonoTypeOperatorFunction<T> =>
   retry({
     count,
     delay: (error, retryIndex, interval = 200) => {
       const delay = Math.pow(2, retryIndex - 1) * interval
       console.log(
-        `Backing off: attempt ${retryIndex}, Trying again in: ${delay}ms`,
+        `Backing off: attempt ${retryIndex}, Trying again in: ${delay}ms`
       )
 
       return timer(delay)
@@ -41,7 +41,7 @@ export const onErrorContinue = (...pipes: OperatorFunction<any, any>[]) =>
       catchError((e) => {
         console.error('Error caught in pipe, skipping', e)
         return EMPTY
-      }),
+      })
     )
   })
 
@@ -59,11 +59,11 @@ export function mapOrNull(project: (article: any) => Promise<OmnivoreArticle>) {
     concatMap((item: any, _value: number) => {
       try {
         return fromPromise(project(item).catch((_e) => null)).pipe(
-          filter((it) => !!it),
+          filter((it) => !!it)
         ) as Observable<OmnivoreArticle>
       } catch (e) {
         return EMPTY
       }
-    }),
+    })
   )
 }

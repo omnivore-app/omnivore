@@ -220,7 +220,7 @@ export class OmnivoreClient {
             Cookie: `auth=${this.token};`,
             'Content-Type': 'application/json',
           },
-        },
+        }
       )
       .then((_) => true)
   }

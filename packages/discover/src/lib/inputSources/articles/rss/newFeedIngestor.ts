@@ -60,10 +60,10 @@ export const newFeeds$ = new Observable<OmnivoreFeed>(
       .catch((e) => {
         console.error(
           'Error creating Subscription, continuing without new feed parsing...',
-          e,
+          e
         )
       })
-  },
+  }
 ).pipe(
   catchError((err) => {
     console.log('Caught Error, continuing')
@@ -71,5 +71,5 @@ export const newFeeds$ = new Observable<OmnivoreFeed>(
 
     // Return an empty Observable which gets collapsed in the output
     return EMPTY
-  }),
+  })
 )

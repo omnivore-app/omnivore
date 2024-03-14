@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { JSDOM } from 'jsdom'
 import { get } from 'lodash'
 import { fromArrayLike } from 'rxjs/internal/observable/innerFrom'
@@ -103,11 +108,11 @@ export const parseRss = (feed: OmnivoreFeed) => (parsedXml: any) => {
         image: image ?? '',
         site: new URL(article.link).host,
         publishedAt: new Date(
-          article.pubDate ?? article['dc:date'] ?? Date.now(),
+          article.pubDate ?? article['dc:date'] ?? Date.now()
         ),
         type: 'rss',
         feedId: feed.id,
       }
-    }),
+    })
   )
 }

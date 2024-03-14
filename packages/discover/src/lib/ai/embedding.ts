@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { mergeMap } from 'rxjs/operators'
 import { OmnivoreArticle } from '../../types/OmnivoreArticle'
 import { OperatorFunction, pipe, share } from 'rxjs'

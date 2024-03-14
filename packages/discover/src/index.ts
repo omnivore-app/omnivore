@@ -22,5 +22,7 @@ const enrichedArticles$ = (): Observable<OmnivoreArticle> => {
       putImageInProxy$,
       insertArticleToStore$
     )
-    .subscribe((_it) => {})
+    .subscribe((it) => {
+      console.log('enriched: ', it)
+    })
 })()

@@ -23,6 +23,6 @@ export const putImageInProxy$ = pipe(
           image: it.article.image && addImageToProxy(it.article.image),
         },
       }
-    }),
-  ),
+    })
+  )
 )

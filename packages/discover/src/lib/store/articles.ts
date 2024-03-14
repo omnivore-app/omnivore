@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { EmbeddedOmnivoreArticle } from '../ai/embedding'
 import { filter, map, mergeMap, bufferTime } from 'rxjs/operators'
 import { toSql } from 'pgvector/pg'
@@ -12,7 +17,7 @@ import { onErrorContinue } from '../utils/reactive'
 const hasStoredInDatabase = async (articleSlug: string, feedId: string) => {
   const { rows } = await sqlClient.query(
     'SELECT slug FROM omnivore.discover_feed_articles WHERE slug = $1 and feed_id = $2',
-    [articleSlug, feedId],
+    [articleSlug, feedId]
   )
   return rows && rows.length === 0
 }
@@ -21,13 +26,13 @@ export const removeDuplicateArticles$ = onErrorContinue(
   mergeMap((x: OmnivoreArticle) =>
     fromPromise(hasStoredInDatabase(x.slug, x.feedId)).pipe(
       filter(Boolean),
-      map(() => x),
-    ),
-  ),
+      map(() => x)
+    )
+  )
 )
 
 export const batchInsertArticlesSql = async (
-  articles: EmbeddedOmnivoreArticle[],
+  articles: EmbeddedOmnivoreArticle[]
 ) => {
   const params = articles.map((embedded) => [
     v4(),
@@ -45,7 +50,7 @@ export const batchInsertArticlesSql = async (
   if (articles.length > 0) {
     const formattedMultiInsert = pgformat(
       `INSERT INTO omnivore.discover_feed_articles(id, title, feed_id, slug, description, url, author, image, published_at, embedding) VALUES %L ON CONFLICT DO NOTHING`,
-      params,
+      params
     )
 
     await sqlClient.query(formattedMultiInsert)
@@ -57,7 +62,7 @@ export const batchInsertArticlesSql = async (
 
     const formattedTopicInsert = pgformat(
       `INSERT INTO omnivore.discover_feed_article_topic_link(discover_topic_name, discover_feed_article_id) VALUES %L ON CONFLICT DO NOTHING`,
-      topicLinks,
+      topicLinks
     )
     await sqlClient.query(formattedTopicInsert)
 
@@ -71,8 +76,8 @@ export const insertArticleToStore$ = pipe(
   bufferTime<EmbeddedOmnivoreArticle>(5000, null, 100),
   onErrorContinue(
     mergeMap((x: EmbeddedOmnivoreArticle[]) =>
-      fromPromise(batchInsertArticlesSql(x)),
-    ),
+      fromPromise(batchInsertArticlesSql(x))
+    )
   ),
-  mergeMap((it: EmbeddedOmnivoreArticle[]) => from(it)),
+  mergeMap((it: EmbeddedOmnivoreArticle[]) => from(it))
 )

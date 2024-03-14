@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { OmnivoreArticle } from '../../../../../types/OmnivoreArticle'
 import { XMLParser } from 'fast-xml-parser'
 import { Observable } from 'rxjs'
@@ -92,7 +96,7 @@ export const parseAtomOrRss = (contentFeed: OmnivoreContentFeed) => {
     ? parseRss(contentFeed.feed)(
         parsedXml.rss?.channel?.item ||
           parsedXml['rdf:RDF'].channel?.item ||
-          parsedXml['rdf:RDF'].item,
+          parsedXml['rdf:RDF'].item
       )
     : convertAtomStream(contentFeed.feed)(parsedXml)
 }

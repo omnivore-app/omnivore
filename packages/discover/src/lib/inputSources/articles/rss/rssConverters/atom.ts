@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { OmnivoreArticle } from '../../../../../types/OmnivoreArticle'
 import { slugify } from 'voca'
 import { Observable, tap } from 'rxjs'
@@ -63,6 +68,6 @@ export const convertAtomStream = (feed: OmnivoreFeed) => (parsedXml: any) => {
         type: 'rss',
         feedId: feed.title,
       }
-    }),
+    })
   )
 }
