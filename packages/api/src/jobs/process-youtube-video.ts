@@ -9,6 +9,7 @@ import { parseHTML } from 'linkedom'
 import { parsePreparedContent } from '../utils/parser'
 import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
+import { enqueueProcessYouTubeTranscript } from '../utils/createTask'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -16,6 +17,10 @@ export interface ProcessYouTubeVideoJobData {
 }
 
 export const PROCESS_YOUTUBE_VIDEO_JOB_NAME = 'process-youtube-video'
+export const PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME = 'process-youtube-transcript'
+
+const TRANSCRIPT_PLACEHOLDER_TEXT =
+  '* Omnivore is preparing a transcript for this video'
 
 const calculateWordCount = (durationInSeconds: number): number => {
   // Calculate word count using the formula: word count = read time (in seconds) * words per second
@@ -77,7 +82,6 @@ export const createTranscriptHTML = async (
     const promptTemplate = PromptTemplate.fromTemplate(
       `${process.env.YOUTUBE_TRANSCRIPT_PROMPT}
 
-       Data:
        {transcriptData}`
     )
     const chain = promptTemplate.pipe(llm)
@@ -114,7 +118,9 @@ export const createTranscriptHTML = async (
     transcriptMarkdown = transcript.map((item) => item.text).join(' ')
   }
 
-  const converter = new showdown.Converter()
+  const converter = new showdown.Converter({
+    backslashEscapesHTMLTags: true,
+  })
   return converter.makeHtml(transcriptMarkdown)
 }
 
@@ -134,6 +140,36 @@ export const addTranscriptToReadableContent = async (
   } else {
     const div = html.document.createElement('div')
     div.innerHTML = transcriptHTML
+    html.document.body.appendChild(div)
+  }
+
+  const preparedDocument = {
+    document: html.document.toString(),
+    pageInfo: {},
+  }
+  const updatedContent = await parsePreparedContent(
+    originalUrl,
+    preparedDocument,
+    true
+  )
+  return updatedContent.parsedContent?.content
+}
+
+export const addTranscriptPlaceholdReadableContent = async (
+  originalUrl: string,
+  originalHTML: string
+): Promise<string | undefined> => {
+  const html = parseHTML(originalHTML)
+
+  const transcriptNode = html.document.querySelector(
+    '#_omnivore_youtube_transcript'
+  )
+
+  if (transcriptNode) {
+    transcriptNode.innerHTML = TRANSCRIPT_PLACEHOLDER_TEXT
+  } else {
+    const div = html.document.createElement('div')
+    div.innerHTML = TRANSCRIPT_PLACEHOLDER_TEXT
     html.document.body.appendChild(div)
   }
 
@@ -199,9 +235,90 @@ export const processYouTubeVideo = async (
       libraryItem.description = video.description
     }
 
+    let duration = -1
     if ('duration' in video && video.duration > 0) {
       needsUpdate = true
       libraryItem.wordCount = calculateWordCount(video.duration)
+      duration = video.duration
+    }
+
+    if ('getTranscript' in video && duration > 0 && duration < 1801) {
+      // If the video has a transcript available, put a placehold in and
+      // enqueue a job to process the full transcript
+      const updatedContent = await addTranscriptPlaceholdReadableContent(
+        libraryItem.originalUrl,
+        libraryItem.originalContent
+      )
+
+      if (updatedContent) {
+        needsUpdate = true
+        libraryItem.readableContent = updatedContent
+      }
+
+      await enqueueProcessYouTubeTranscript({
+        videoId,
+        ...jobData,
+      })
+    }
+
+    if (needsUpdate) {
+      const updated = await authTrx(
+        async (t) => {
+          return t
+            .getRepository(LibraryItem)
+            .update(jobData.libraryItemId, libraryItem)
+        },
+        undefined,
+        jobData.userId
+      )
+      if (!updated) {
+        console.warn('could not updated library item')
+      }
+    }
+  } catch (err) {
+    console.warn('error creating summary: ', err)
+  }
+}
+
+export interface ProcessYouTubeTranscriptJobData {
+  userId: string
+  videoId: string
+  libraryItemId: string
+}
+
+export const processYouTubeTranscript = async (
+  jobData: ProcessYouTubeTranscriptJobData
+) => {
+  try {
+    const libraryItem = await authTrx(
+      async (tx) =>
+        tx
+          .withRepository(libraryItemRepository)
+          .findById(jobData.libraryItemId),
+      undefined,
+      jobData.userId
+    )
+    if (
+      !libraryItem ||
+      libraryItem.state !== LibraryItemState.Succeeded ||
+      !libraryItem.originalContent
+    ) {
+      logger.info(
+        `Not ready to get YouTube metadata job state: ${
+          libraryItem?.state ?? 'null'
+        }`
+      )
+      return
+    }
+
+    let needsUpdate = false
+    const youtube = new YouTubeClient()
+    const video = await youtube.getVideo(jobData.videoId)
+    if (!video) {
+      logger.warn('no video found for youtube url', {
+        url: libraryItem.originalUrl,
+      })
+      return
     }
 
     let chapters: Chapter[] = []

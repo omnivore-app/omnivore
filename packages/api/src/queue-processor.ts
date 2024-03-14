@@ -45,7 +45,9 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
 import {
+  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
   PROCESS_YOUTUBE_VIDEO_JOB_NAME,
+  processYouTubeTranscript,
   processYouTubeVideo,
 } from './jobs/process-youtube-video'
 
@@ -122,8 +124,12 @@ export const createWorker = (connection: ConnectionOptions) =>
           return aiSummarize(job.data)
         case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
           return processYouTubeVideo(job.data)
+        case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+          return processYouTubeTranscript(job.data)
         case EXPORT_ALL_ITEMS_JOB_NAME:
           return exportAllItems(job.data)
+        default:
+          logger.warn(`[queue-processor] unhandled job: ${job.name}`)
       }
     },
     {
