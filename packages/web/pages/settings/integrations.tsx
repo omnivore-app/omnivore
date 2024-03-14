@@ -176,7 +176,7 @@ export default function Integrations(): JSX.Element {
           token,
           name: 'NOTION',
           type: 'EXPORT',
-          enabled: true,
+          enabled: false,
         })
 
         showSuccessToast('Connected with Notion.')
