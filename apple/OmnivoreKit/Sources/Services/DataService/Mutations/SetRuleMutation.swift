@@ -12,6 +12,7 @@ public struct Rule {
 public enum RuleActionType {
   case addLabel
   case archive
+  case delete
   case markAsRead
   case sendNotification
 
@@ -25,6 +26,8 @@ public enum RuleActionType {
       return .markAsRead
     case Enums.RuleActionType.sendNotification:
       return .sendNotification
+    case .delete:
+      return .delete
     }
   }
 }
