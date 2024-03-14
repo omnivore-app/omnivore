@@ -43,7 +43,7 @@ export const refreshAllFeeds = async (db: DataSource): Promise<boolean> => {
         AND (s.scheduled_at <= NOW() OR s.scheduled_at IS NULL)
         AND u.status = $4
       GROUP BY
-        s.url
+        url
       `,
     ['RSS', 'ACTIVE', 'following', 'ACTIVE']
   )) as RssSubscriptionGroup[]
@@ -76,7 +76,10 @@ const updateSubscriptionGroup = async (
   refreshContext: RSSRefreshContext
 ) => {
   let feedURL = group.url
-  const userList = JSON.stringify(group.userIds.sort())
+  const userIds = group.userIds
+  // sort the user ids so that the job id is consistent
+  // [...userIds] creates a shallow copy, so sort() does not mutate the original
+  const userList = JSON.stringify([...userIds].sort())
   if (!feedURL) {
     logger.error('no url for feed group', group)
     return
@@ -105,7 +108,7 @@ const updateSubscriptionGroup = async (
     scheduledTimestamps: group.scheduledDates.map((timestamp) =>
       timestamp.getTime()
     ), // unix timestamp in milliseconds
-    userIds: group.userIds,
+    userIds,
     fetchContentTypes: group.fetchContentTypes,
     folders: group.folders,
   }
