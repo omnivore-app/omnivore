@@ -356,12 +356,32 @@ export class NotionClient implements IntegrationClient {
             properties: notionPage.properties,
           })
 
-          // append the children
-          if (notionPage.children) {
-            await this.client.blocks.children.append({
+          const children = notionPage.children
+          if (children) {
+            // get the existing children
+            const response = await this.client.blocks.children.list({
               block_id: existingPage.id,
-              children: notionPage.children,
             })
+            if (response.results.length > 0) {
+              const existingChildren =
+                response.results as NotionPage['children']
+              // delete the existing children from children
+              notionPage.children = children.filter(
+                (child) =>
+                  !existingChildren?.some(
+                    (existingChild) =>
+                      existingChild.paragraph.rich_text[0].text.link?.url ===
+                      child.paragraph.rich_text[0].text.link?.url
+                  )
+              )
+            }
+            // append the children
+            if (notionPage.children && notionPage.children.length > 0) {
+              await this.client.blocks.children.append({
+                block_id: existingPage.id,
+                children: notionPage.children,
+              })
+            }
           }
 
           return
