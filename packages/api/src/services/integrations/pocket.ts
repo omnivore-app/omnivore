@@ -5,7 +5,7 @@ import { IntegrationClient } from './integration'
 
 export class PocketClient implements IntegrationClient {
   name = 'POCKET'
-  _token: string
+  token: string
   _axios = axios.create({
     baseURL: 'https://getpocket.com/v3',
     headers: {
@@ -16,7 +16,7 @@ export class PocketClient implements IntegrationClient {
   })
 
   constructor(token: string) {
-    this._token = token
+    this.token = token
   }
 
   accessToken = async (): Promise<string | null> => {
@@ -25,7 +25,7 @@ export class PocketClient implements IntegrationClient {
         '/oauth/authorize',
         {
           consumer_key: env.pocket.consumerKey,
-          code: this._token,
+          code: this.token,
         }
       )
       return response.data.access_token
