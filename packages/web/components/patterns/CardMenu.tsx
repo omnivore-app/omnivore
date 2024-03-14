@@ -81,14 +81,14 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         }}
         title="Remove"
       />
-      {!!props.item.subscription && (
+      {/* {!!props.item.subscription && (
         <DropdownOption
           onSelect={() => {
             props.actionHandler('unsubscribe')
           }}
           title="Unsubscribe"
         />
-      )}
+      )} */}
     </Dropdown>
   )
 }
