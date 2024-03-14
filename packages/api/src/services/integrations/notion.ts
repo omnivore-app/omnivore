@@ -61,10 +61,10 @@ interface NotionPage {
       }>
     }
     'Original URL': {
-      url: string | null
+      url: string
     }
     'Omnivore URL': {
-      url: string | null
+      url: string
     }
     Tags?: {
       multi_select: Array<{ name: string }>
@@ -158,89 +158,106 @@ export class NotionClient implements IntegrationClient {
     return Promise.resolve(env.notion.authUrl)
   }
 
-  private _itemToNotionPage = (item: LibraryItem): NotionPage => {
-    const databaseId = this._integrationData?.settings?.parentDatabaseId
-    if (!databaseId) {
-      throw new Error('Notion database id not found')
-    }
+  private itemToNotionPage = (
+    item: LibraryItem,
+    databaseId: string
+  ): NotionPage => ({
+    parent: {
+      database_id: databaseId,
+    },
+    icon: item.siteIcon
+      ? {
+          external: {
+            url: item.siteIcon,
+          },
+        }
+      : undefined,
+    cover: item.thumbnail
+      ? {
+          external: {
+            url: item.thumbnail,
+          },
+        }
+      : undefined,
+    properties: {
+      Title: {
+        title: [
+          {
+            text: {
+              content: item.title,
+            },
+          },
+        ],
+      },
+      Author: {
+        rich_text: [
+          {
+            text: {
+              content: item.author || 'unknown',
+            },
+          },
+        ],
+      },
+      'Original URL': {
+        url: item.originalUrl,
+      },
+      'Omnivore URL': {
+        url: `${env.client.url}/me/${item.slug}`,
+      },
+      Tags: item.labels
+        ? { multi_select: item.labels.map((label) => ({ name: label.name })) }
+        : undefined,
+    },
+    children: item.highlights
+      ? item.highlights.map((highlight) => ({
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [
+              {
+                text: {
+                  content: highlight.quote || '',
+                  link: {
+                    url: `${env.client.url}/me/${item.slug}#${highlight.id}`,
+                  },
+                },
+                annotations: {
+                  color: highlight.color as AnnotationColor,
+                },
+              },
+              {
+                text: {
+                  content: `\n${highlight.annotation || ''}`,
+                },
+                annotations: {
+                  italic: true,
+                },
+              },
+            ],
+          },
+        }))
+      : undefined,
+  })
 
-    return {
-      parent: {
-        database_id: databaseId,
-      },
-      icon: item.siteIcon
-        ? {
-            external: {
-              url: item.siteIcon,
-            },
-          }
-        : undefined,
-      cover: item.thumbnail
-        ? {
-            external: {
-              url: item.thumbnail,
-            },
-          }
-        : undefined,
-      properties: {
-        Title: {
-          title: [
-            {
-              text: {
-                content: item.title,
-              },
-            },
-          ],
-        },
-        Author: {
-          rich_text: [
-            {
-              text: {
-                content: item.author || 'unknown',
-              },
-            },
-          ],
-        },
-        'Original URL': {
-          url: item.originalUrl,
-        },
-        'Omnivore URL': {
-          url: `${env.client.url}/me/${item.slug}`,
-        },
-        Tags: item.labels
-          ? { multi_select: item.labels.map((label) => ({ name: label.name })) }
-          : undefined,
-      },
-      children: item.highlights
-        ? item.highlights.map((highlight) => ({
-            type: 'paragraph',
-            paragraph: {
-              rich_text: [
-                {
-                  text: {
-                    content: highlight.quote || '',
-                  },
-                  annotations: {
-                    color: highlight.color as AnnotationColor,
-                  },
-                },
-                {
-                  text: {
-                    content: `\n${highlight.annotation || ''}`,
-                  },
-                  annotations: {
-                    italic: true,
-                  },
-                },
-              ],
-            },
-          }))
-        : undefined,
-    }
+  private createPage = async (page: NotionPage) => {
+    await this._client.pages.create(page)
   }
 
-  _createPage = async (page: NotionPage) => {
-    await this._client.pages.create(page)
+  private findPage = async (url: string, databaseId: string) => {
+    const response = await this._client.databases.query({
+      database_id: databaseId,
+      page_size: 1,
+      filter: {
+        property: 'Omnivore URL',
+        url: {
+          equals: url,
+        },
+      },
+    })
+    if (response.results.length > 0) {
+      return response.results[0]
+    }
+
+    return null
   }
 
   export = async (items: LibraryItem[]): Promise<boolean> => {
@@ -255,7 +272,7 @@ export class NotionClient implements IntegrationClient {
       return false
     }
 
-    const databaseId = this._integrationData.settings.parentDatabaseId
+    let databaseId = this._integrationData.settings.parentDatabaseId
     if (!databaseId) {
       // create a database for the items
       const database = await this._client.databases.create({
@@ -296,18 +313,47 @@ export class NotionClient implements IntegrationClient {
       })
 
       // save the database id
-      this._integrationData.settings.parentDatabaseId = database.id
+      databaseId = database.id
       await updateIntegration(
         this._integrationData.id,
         {
-          settings: this._integrationData.settings,
+          settings: {
+            ...this._integrationData.settings,
+            parentDatabaseId: databaseId,
+          },
         },
         this._integrationData.user.id
       )
     }
 
-    const pages = items.map(this._itemToNotionPage)
-    await Promise.all(pages.map((page) => this._createPage(page)))
+    await Promise.all(
+      items.map(async (item) => {
+        const notionPage = this.itemToNotionPage(item, databaseId)
+        const url = notionPage.properties['Omnivore URL'].url
+
+        const existingPage = await this.findPage(url, databaseId)
+        if (existingPage) {
+          // update the page
+          await this._client.pages.update({
+            page_id: existingPage.id,
+            properties: notionPage.properties,
+          })
+
+          // append the children
+          if (notionPage.children) {
+            await this._client.blocks.children.append({
+              block_id: existingPage.id,
+              children: notionPage.children,
+            })
+          }
+
+          return
+        }
+
+        // create the page
+        return this.createPage(notionPage)
+      })
+    )
 
     return true
   }
