@@ -30,7 +30,7 @@ import { showSuccessToast } from '../../../lib/toastHelpers'
 type FieldType = {
   parentPageId?: string
   parentDatabaseId?: string
-  autoSync?: boolean
+  enabled: boolean
   properties?: string[]
 }
 
@@ -55,7 +55,7 @@ export default function Notion(): JSX.Element {
       form.setFieldsValue({
         parentPageId: notion.settings?.parentPageId,
         parentDatabaseId: notion.settings?.parentDatabaseId,
-        autoSync: notion.settings?.autoSync,
+        enabled: notion.enabled,
         properties: notion.settings?.properties,
       })
     }
@@ -82,7 +82,7 @@ export default function Notion(): JSX.Element {
       name: notion.name,
       type: notion.type,
       token: notion.token,
-      enabled: notion.enabled,
+      enabled: values.enabled,
       settings: values,
     })
   }
@@ -170,7 +170,7 @@ export default function Notion(): JSX.Element {
 
                 <Form.Item<FieldType>
                   label="Automatic Sync"
-                  name="autoSync"
+                  name="enabled"
                   valuePropName="checked"
                 >
                   <Switch />
