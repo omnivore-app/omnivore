@@ -33,6 +33,8 @@ interface ReadwiseHighlight {
 
 export class ReadwiseClient implements IntegrationClient {
   name = 'READWISE'
+  token: string
+
   _headers = {
     'Content-Type': 'application/json',
   }
@@ -40,10 +42,9 @@ export class ReadwiseClient implements IntegrationClient {
     baseURL: 'https://readwise.io/api/v2',
     timeout: 5000, // 5 seconds
   })
-  _token: string
 
   constructor(token: string) {
-    this._token = token
+    this.token = token
   }
 
   accessToken = async (): Promise<string | null> => {
@@ -51,10 +52,10 @@ export class ReadwiseClient implements IntegrationClient {
       const response = await this._axios.get('/auth', {
         headers: {
           ...this._headers,
-          Authorization: `Token ${this._token}`,
+          Authorization: `Token ${this.token}`,
         },
       })
-      return response.status === 204 ? this._token : null
+      return response.status === 204 ? this.token : null
     } catch (error) {
       if (axios.isAxiosError(error)) {
         logger.error(error.response)
@@ -121,7 +122,7 @@ export class ReadwiseClient implements IntegrationClient {
       {
         headers: {
           ...this._headers,
-          Authorization: `Token ${this._token}`,
+          Authorization: `Token ${this.token}`,
         },
       }
     )

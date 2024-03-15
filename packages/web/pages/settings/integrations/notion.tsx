@@ -12,7 +12,7 @@ import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
@@ -20,17 +20,14 @@ import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
-import {
-  Integration,
-  useGetIntegrationsQuery,
-} from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type FieldType = {
   parentPageId?: string
   parentDatabaseId?: string
-  autoSync?: boolean
+  enabled: boolean
   properties?: string[]
 }
 
@@ -39,27 +36,21 @@ export default function Notion(): JSX.Element {
 
   const router = useRouter()
   const { integrations, revalidate } = useGetIntegrationsQuery()
-  const [notion, setNotion] = useState<Integration>()
+  const notion = useMemo(() => {
+    return integrations.find((i) => i.name == 'NOTION' && i.type == 'EXPORT')
+  }, [integrations])
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()
 
   useEffect(() => {
-    const notion = integrations.find(
-      (i) => i.name == 'NOTION' && i.type == 'EXPORT'
-    )
-
-    if (notion) {
-      setNotion(notion)
-
-      form.setFieldsValue({
-        parentPageId: notion.settings?.parentPageId,
-        parentDatabaseId: notion.settings?.parentDatabaseId,
-        autoSync: notion.settings?.autoSync,
-        properties: notion.settings?.properties,
-      })
-    }
-  }, [form, integrations])
+    form.setFieldsValue({
+      parentPageId: notion?.settings?.parentPageId,
+      parentDatabaseId: notion?.settings?.parentDatabaseId,
+      enabled: notion?.enabled,
+      properties: notion?.settings?.properties,
+    })
+  }, [form, notion])
 
   const deleteNotion = async () => {
     if (!notion) {
@@ -69,6 +60,7 @@ export default function Notion(): JSX.Element {
     await deleteIntegrationMutation(notion.id)
     showSuccessToast('Notion integration disconnected successfully.')
 
+    revalidate()
     router.push('/settings/integrations')
   }
 
@@ -82,7 +74,7 @@ export default function Notion(): JSX.Element {
       name: notion.name,
       type: notion.type,
       token: notion.token,
-      enabled: notion.enabled,
+      enabled: values.enabled,
       settings: values,
     })
   }
@@ -170,7 +162,7 @@ export default function Notion(): JSX.Element {
 
                 <Form.Item<FieldType>
                   label="Automatic Sync"
-                  name="autoSync"
+                  name="enabled"
                   valuePropName="checked"
                 >
                   <Switch />

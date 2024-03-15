@@ -5,6 +5,7 @@ import { Integration } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { Merge } from '../../util'
+import { highlightUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
 import { IntegrationClient } from './integration'
 
@@ -61,10 +62,10 @@ interface NotionPage {
       }>
     }
     'Original URL': {
-      url: string | null
+      url: string
     }
     'Omnivore URL': {
-      url: string | null
+      url: string
     }
     Tags?: {
       multi_select: Array<{ name: string }>
@@ -91,35 +92,39 @@ interface NotionPage {
   }>
 }
 
+type Property = 'highlights' | 'labels' | 'notes'
+
 interface Settings {
   parentPageId: string
   parentDatabaseId: string
+  properties: Property[]
 }
 
 export class NotionClient implements IntegrationClient {
   name = 'NOTION'
-  _headers = {
+  token: string
+
+  private headers = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     'Notion-Version': '2022-06-28',
   }
-  _timeout = 5000 // 5 seconds
-  _axios = axios.create({
+  private timeout = 5000 // 5 seconds
+  private axiosInstance = axios.create({
     baseURL: 'https://api.notion.com/v1',
-    timeout: this._timeout,
+    timeout: this.timeout,
   })
 
-  _token: string
-  _client: Client
-  _integrationData?: Merge<Integration, { settings?: Settings }>
+  private client: Client
+  private integrationData?: Merge<Integration, { settings?: Settings }>
 
   constructor(token: string, integration?: Integration) {
-    this._token = token
-    this._client = new Client({
+    this.token = token
+    this.client = new Client({
       auth: token,
-      timeoutMs: this._timeout,
+      timeoutMs: this.timeout,
     })
-    this._integrationData = integration
+    this.integrationData = integration
   }
 
   accessToken = async (): Promise<string | null> => {
@@ -129,16 +134,16 @@ export class NotionClient implements IntegrationClient {
         `${env.notion.clientId}:${env.notion.clientSecret}`
       ).toString('base64')
 
-      const response = await this._axios.post<{ access_token: string }>(
+      const response = await this.axiosInstance.post<{ access_token: string }>(
         '/oauth/token',
         {
           grant_type: 'authorization_code',
-          code: this._token,
+          code: this.token,
           redirect_uri: `${env.client.url}/settings/integrations`,
         },
         {
           headers: {
-            ...this._headers,
+            ...this.headers,
             Authorization: `Basic ${encoded}`,
           },
         }
@@ -158,15 +163,13 @@ export class NotionClient implements IntegrationClient {
     return Promise.resolve(env.notion.authUrl)
   }
 
-  private _itemToNotionPage = (item: LibraryItem): NotionPage => {
-    const databaseId = this._integrationData?.settings?.parentDatabaseId
-    if (!databaseId) {
-      throw new Error('Notion database id not found')
-    }
-
+  private itemToNotionPage = (
+    item: LibraryItem,
+    settings: Settings
+  ): NotionPage => {
     return {
       parent: {
-        database_id: databaseId,
+        database_id: settings.parentDatabaseId,
       },
       icon: item.siteIcon
         ? {
@@ -207,9 +210,14 @@ export class NotionClient implements IntegrationClient {
         'Omnivore URL': {
           url: `${env.client.url}/me/${item.slug}`,
         },
-        Tags: item.labels
-          ? { multi_select: item.labels.map((label) => ({ name: label.name })) }
-          : undefined,
+        Tags:
+          item.labels && settings.properties.includes('labels')
+            ? {
+                multi_select: item.labels.map((label) => ({
+                  name: label.name,
+                })),
+              }
+            : undefined,
       },
       children: item.highlights
         ? item.highlights.map((highlight) => ({
@@ -218,7 +226,12 @@ export class NotionClient implements IntegrationClient {
               rich_text: [
                 {
                   text: {
-                    content: highlight.quote || '',
+                    content: settings.properties.includes('highlights')
+                      ? highlight.quote || ''
+                      : '',
+                    link: {
+                      url: highlightUrl(item.slug, highlight.id),
+                    },
                   },
                   annotations: {
                     color: highlight.color as AnnotationColor,
@@ -226,7 +239,9 @@ export class NotionClient implements IntegrationClient {
                 },
                 {
                   text: {
-                    content: `\n${highlight.annotation || ''}`,
+                    content: settings.properties.includes('notes')
+                      ? `\n${highlight.annotation || ''}`
+                      : '',
                   },
                   annotations: {
                     italic: true,
@@ -239,26 +254,45 @@ export class NotionClient implements IntegrationClient {
     }
   }
 
-  _createPage = async (page: NotionPage) => {
-    await this._client.pages.create(page)
+  private createPage = async (page: NotionPage) => {
+    await this.client.pages.create(page)
+  }
+
+  private findPage = async (url: string, databaseId: string) => {
+    const response = await this.client.databases.query({
+      database_id: databaseId,
+      page_size: 1,
+      filter: {
+        property: 'Omnivore URL',
+        url: {
+          equals: url,
+        },
+      },
+    })
+    if (response.results.length > 0) {
+      return response.results[0]
+    }
+
+    return null
   }
 
   export = async (items: LibraryItem[]): Promise<boolean> => {
-    if (!this._integrationData || !this._integrationData.settings) {
+    const settings = this.integrationData?.settings
+    if (!this.integrationData || !settings) {
       logger.error('Notion integration data not found')
       return false
     }
 
-    const pageId = this._integrationData.settings.parentPageId
+    const pageId = settings.parentPageId
     if (!pageId) {
       logger.error('Notion parent page id not found')
       return false
     }
 
-    const databaseId = this._integrationData.settings.parentDatabaseId
+    let databaseId = settings.parentDatabaseId
     if (!databaseId) {
       // create a database for the items
-      const database = await this._client.databases.create({
+      const database = await this.client.databases.create({
         parent: {
           page_id: pageId,
         },
@@ -296,18 +330,67 @@ export class NotionClient implements IntegrationClient {
       })
 
       // save the database id
-      this._integrationData.settings.parentDatabaseId = database.id
+      databaseId = database.id
       await updateIntegration(
-        this._integrationData.id,
+        this.integrationData.id,
         {
-          settings: this._integrationData.settings,
+          settings: {
+            ...this.integrationData.settings,
+            parentDatabaseId: databaseId,
+          },
         },
-        this._integrationData.user.id
+        this.integrationData.user.id
       )
     }
 
-    const pages = items.map(this._itemToNotionPage)
-    await Promise.all(pages.map((page) => this._createPage(page)))
+    await Promise.all(
+      items.map(async (item) => {
+        const notionPage = this.itemToNotionPage(item, settings)
+        const url = notionPage.properties['Omnivore URL'].url
+
+        const existingPage = await this.findPage(url, databaseId)
+        if (existingPage) {
+          // update the page
+          await this.client.pages.update({
+            page_id: existingPage.id,
+            properties: notionPage.properties,
+          })
+
+          const children = notionPage.children
+          if (children) {
+            // get the existing children
+            const response = await this.client.blocks.children.list({
+              block_id: existingPage.id,
+            })
+            if (response.results.length > 0) {
+              const existingChildren =
+                response.results as NotionPage['children']
+              // delete the existing children from children
+              notionPage.children = children.filter(
+                (child) =>
+                  !existingChildren?.some(
+                    (existingChild) =>
+                      existingChild.paragraph.rich_text[0].text.link?.url ===
+                      child.paragraph.rich_text[0].text.link?.url
+                  )
+              )
+            }
+            // append the children
+            if (notionPage.children && notionPage.children.length > 0) {
+              await this.client.blocks.children.append({
+                block_id: existingPage.id,
+                children: notionPage.children,
+              })
+            }
+          }
+
+          return
+        }
+
+        // create the page
+        return this.createPage(notionPage)
+      })
+    )
 
     return true
   }

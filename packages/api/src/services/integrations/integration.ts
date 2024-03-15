@@ -20,7 +20,7 @@ export interface RetrieveRequest {
 
 export interface IntegrationClient {
   name: string
-  _token: string
+  token: string
 
   accessToken(): Promise<string | null>
 
