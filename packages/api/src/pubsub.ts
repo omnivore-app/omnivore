@@ -80,8 +80,7 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       const cleanData = deepDelete(
-        data as EntityData<T> &
-          Record<(typeof fieldsToDelete)[number], unknown>,
+        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]
       )
 
@@ -126,8 +125,7 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       const cleanData = deepDelete(
-        data as EntityData<T> &
-          Record<(typeof fieldsToDelete)[number], unknown>,
+        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
         [...fieldsToDelete]
       )
 

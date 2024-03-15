@@ -46,8 +46,8 @@ const getPopularTopics = (
       LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
       AND (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}')       ${
-        feedId != null ? `AND feed_id = $4` : ''
-      }
+      feedId != null ? `AND feed_id = $4` : ''
+    }
       ORDER BY popularity_score DESC
       LIMIT $2 OFFSET $3
       `,
