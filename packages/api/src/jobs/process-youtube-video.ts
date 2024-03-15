@@ -15,6 +15,7 @@ import * as stream from 'stream'
 
 import { Storage } from '@google-cloud/storage'
 import { stringToHash } from '../utils/helpers'
+import { FeatureName, findFeatureByName } from '../services/features'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -387,23 +388,27 @@ export const processYouTubeVideo = async (
       duration = video.duration
     }
 
-    if ('getTranscript' in video && duration > 0 && duration < 1801) {
-      // If the video has a transcript available, put a placehold in and
-      // enqueue a job to process the full transcript
-      const updatedContent = await addTranscriptPlaceholdReadableContent(
-        libraryItem.originalUrl,
-        libraryItem.originalContent
-      )
+    if (
+      await findFeatureByName(FeatureName.YouTubeTranscripts, jobData.userId)
+    ) {
+      if ('getTranscript' in video && duration > 0 && duration < 1801) {
+        // If the video has a transcript available, put a placehold in and
+        // enqueue a job to process the full transcript
+        const updatedContent = await addTranscriptPlaceholdReadableContent(
+          libraryItem.originalUrl,
+          libraryItem.originalContent
+        )
 
-      if (updatedContent) {
-        needsUpdate = true
-        libraryItem.readableContent = updatedContent
+        if (updatedContent) {
+          needsUpdate = true
+          libraryItem.readableContent = updatedContent
+        }
+
+        await enqueueProcessYouTubeTranscript({
+          videoId,
+          ...jobData,
+        })
       }
-
-      await enqueueProcessYouTubeTranscript({
-        videoId,
-        ...jobData,
-      })
     }
 
     if (needsUpdate) {
