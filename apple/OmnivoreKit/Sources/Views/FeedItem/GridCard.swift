@@ -12,11 +12,13 @@ public enum GridCardAction {
 
 public struct GridCard: View {
   @ObservedObject var item: Models.LibraryItem
+  let savedAtStr: String
 
   public init(
     item: Models.LibraryItem
   ) {
     self.item = item
+    self.savedAtStr = savedDateString(item.savedAt)
   }
 
   var imageBox: some View {
@@ -198,6 +200,10 @@ public struct GridCard: View {
         $0.icon
       }
 
+      Text(savedAtStr)
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
++
       Text("\(estimatedReadingTime)")
         .font(.caption2).fontWeight(.medium)
         .foregroundColor(Color.themeLibraryItemSubtle)
