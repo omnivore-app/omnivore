@@ -8,6 +8,7 @@ import { logger } from '../utils/logger'
 
 export enum FeatureName {
   AISummaries = 'ai-summaries',
+  YouTubeTranscripts = 'youtube-transcripts',
   UltraRealisticVoice = 'ultra-realistic-voice',
 }
 
