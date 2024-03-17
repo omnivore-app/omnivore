@@ -2434,6 +2434,7 @@ export type Rule = {
   createdAt: Scalars['Date'];
   enabled: Scalars['Boolean'];
   eventTypes: Array<RuleEventType>;
+  failedAt?: Maybe<Scalars['Date']>;
   filter: Scalars['String'];
   id: Scalars['ID'];
   name: Scalars['String'];
@@ -6322,6 +6323,7 @@ export type RuleResolvers<ContextType = ResolverContext, ParentType extends Reso
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   eventTypes?: Resolver<Array<ResolversTypes['RuleEventType']>, ParentType, ContextType>;
+  failedAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   filter?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

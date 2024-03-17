@@ -59,4 +59,7 @@ export class Rule {
 
   @UpdateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   updatedAt!: Date
+
+  @Column('timestamptz')
+  failedAt?: Date
 }

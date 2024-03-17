@@ -235,6 +235,7 @@ export default function Rules(): JSX.Element {
         filter: rule.filter,
         actions: rule.actions,
         eventTypes: rule.eventTypes,
+        failedAt: rule.failedAt,
       }
     })
   }, [rules])
@@ -317,6 +318,11 @@ export default function Rules(): JSX.Element {
           })}
         </>
       ),
+    },
+    {
+      title: 'Failed At',
+      dataIndex: 'failedAt',
+      key: 'failedAt',
     },
     {
       title: '',
