@@ -45,6 +45,12 @@ import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
+import {
+  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
+  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
+  ProcessYouTubeTranscriptJobData,
+  ProcessYouTubeVideoJobData,
+} from '../jobs/process-youtube-video'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -67,10 +73,13 @@ export const getJobPriority = (jobName: string): number => {
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
     case AI_SUMMARIZE_JOB_NAME:
+    case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
       return 10
+    case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+      return 20
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
       return 50
@@ -78,6 +87,7 @@ export const getJobPriority = (jobName: string): number => {
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
       return 100
+
     default:
       logger.error(`unknown job name: ${jobName}`)
       return 1
@@ -705,6 +715,36 @@ export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
   return queue.add(AI_SUMMARIZE_JOB_NAME, data, {
     priority: getJobPriority(AI_SUMMARIZE_JOB_NAME),
     attempts: 3,
+  })
+}
+
+export const enqueueProcessYouTubeVideo = async (
+  data: ProcessYouTubeVideoJobData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(PROCESS_YOUTUBE_VIDEO_JOB_NAME, data, {
+    priority: getJobPriority(PROCESS_YOUTUBE_VIDEO_JOB_NAME),
+    attempts: 3,
+    delay: 2000,
+  })
+}
+
+export const enqueueProcessYouTubeTranscript = async (
+  data: ProcessYouTubeTranscriptJobData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME, data, {
+    priority: getJobPriority(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME),
+    attempts: 3,
+    delay: 2000,
   })
 }
 

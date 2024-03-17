@@ -640,6 +640,7 @@ describe('Article API', () => {
     context('when the source is rss-feeder and url is from youtube.com', () => {
       const source = 'rss-feeder'
       const stub = sinon.stub(createTask, 'enqueueParseRequest')
+      const stub2 = sinon.stub(createTask, 'enqueueProcessYouTubeVideo')
 
       before(() => {
         url = 'https://www.youtube.com/watch?v=123'
