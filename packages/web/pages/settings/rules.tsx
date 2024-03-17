@@ -32,13 +32,19 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
     const name = form.getFieldValue('name')
     const filter = form.getFieldValue('filter')
     const eventTypes = form.getFieldValue('eventTypes')
-    await setRuleMutation({
-      name,
-      filter,
-      actions: [],
-      enabled: true,
-      eventTypes,
-    })
+    try {
+      await setRuleMutation({
+        name,
+        filter,
+        actions: [],
+        enabled: true,
+        eventTypes,
+      })
+    } catch (error) {
+      showErrorToast('Error creating rule')
+      return
+    }
+
     form.resetFields()
     props.setIsModalOpen(false)
     props.revalidate()
