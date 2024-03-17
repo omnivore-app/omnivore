@@ -8,7 +8,7 @@ import {
   softDeleteLibraryItem,
   updateLibraryItem,
 } from '../services/library_item'
-import { findEnabledRules } from '../services/rules'
+import { findEnabledRules, markRuleAsFailed } from '../services/rules'
 import { sendPushNotifications } from '../services/user'
 import { logger } from '../utils/logger'
 
@@ -112,13 +112,26 @@ const triggerActions = async (
       query: `(${rule.filter}) AND includes:${itemId}`,
     }
 
-    const libraryItems = await searchLibraryItems(searchArgs, userId)
-    if (libraryItems.count === 0) {
-      logger.info(`No pages found for rule ${rule.id}`)
+    let libraryItem: LibraryItem
+
+    try {
+      const { libraryItems, count } = await searchLibraryItems(
+        searchArgs,
+        userId
+      )
+      if (count === 0) {
+        logger.info(`No pages found for rule ${rule.id}`)
+        continue
+      }
+
+      libraryItem = libraryItems[0]
+    } catch (error) {
+      // failed to search for library items, mark rule as failed
+      logger.error('Error parsing filter in rules', error)
+      await markRuleAsFailed(rule.id, userId)
+
       continue
     }
-
-    const libraryItem = libraryItems.libraryItems[0]
 
     for (const action of rule.actions) {
       const actionFunc = getRuleAction(action.type)

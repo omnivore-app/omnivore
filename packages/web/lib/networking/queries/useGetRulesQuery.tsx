@@ -29,6 +29,7 @@ export interface Rule {
   createdAt: Date
   updatedAt: Date
   eventTypes: RuleEventType[]
+  failedAt?: Date
 }
 
 interface RulesQueryResponse {
@@ -62,6 +63,7 @@ export function useGetRulesQuery(): RulesQueryResponse {
             createdAt
             updatedAt
             eventTypes
+            failedAt
           }
         }
         ... on RulesError {
