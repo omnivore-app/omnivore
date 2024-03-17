@@ -1,11 +1,20 @@
 import { logger } from '../utils/logger'
 import { libraryItemRepository } from '../repository/library_item'
-import { htmlToMarkdown } from '../utils/parser'
+import { htmlToMarkdown, parsePreparedContent } from '../utils/parser'
 import { LibraryItem } from '../entity/library_item'
-import { searchLibraryItems } from '../services/library_item'
+import {
+  createOrUpdateLibraryItem,
+  searchLibraryItems,
+} from '../services/library_item'
 import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
+import { v4 as uuid } from 'uuid'
+
 import { env } from '../env'
+import showdown from 'showdown'
+import { parsedContentToLibraryItem, savePage } from '../services/save_page'
+import { generateSlug } from '../utils/helpers'
+import { PageType } from '../generated/graphql'
 
 export interface BuildDigestJobData {
   userId: string
@@ -156,7 +165,14 @@ const createDigestArticleContent = async (
 
   console.log(`[digest]: markdown:`, { introductionResult })
 
-  return introductionResult
+  const converter = new showdown.Converter({
+    backslashEscapesHTMLTags: true,
+  })
+
+  const originalContent = converter.makeHtml(`
+  Hello, this is your Omnivore daily digest. We want to make it easy for you to enjoy reading every day. To do 
+  that we've picked some of the best items that were recently added to your library and created a digest. Enjoy!\n\n${introductionResult}`)
+  return originalContent
 }
 
 export const buildDigest = async (jobData: BuildDigestJobData) => {
@@ -189,6 +205,43 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       candidates,
       selection
     )
+
+    if (articleHTML) {
+      const preparedDocument = {
+        document: articleHTML,
+        pageInfo: {},
+      }
+      const formattedDate = new Date().toLocaleTimeString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+
+      const title = `Your Omnivore Daily Digest for ${formattedDate}`
+      const originalURL = `https://omnivore.app/me/digest?q=${uuid()}`
+      const updatedContent = await parsePreparedContent(
+        originalURL,
+        preparedDocument,
+        true
+      )
+
+      const slug = generateSlug(title)
+      const libraryItemToSave = parsedContentToLibraryItem({
+        croppedPathname: 'digest',
+        itemType: PageType.Article,
+        url: originalURL,
+        slug: slug,
+        userId: jobData.userId,
+        title: title,
+        parsedContent: updatedContent.parsedContent,
+        originalHtml: articleHTML,
+        preparedDocument: preparedDocument,
+      })
+
+      // create new item in database
+      await createOrUpdateLibraryItem(libraryItemToSave, jobData.userId)
+    }
 
     console.log('[digest]: INTRODUCTION RESULT: ', articleHTML)
   } catch (err) {
