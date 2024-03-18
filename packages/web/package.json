@@ -16,7 +16,7 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
-    "@floating-ui/react": "^0.24.3",
+    "@floating-ui/react": "^0.26.9",
     "@radix-ui/react-avatar": "^0.1.1",
     "@radix-ui/react-checkbox": "^0.1.5",
     "@radix-ui/react-dialog": "1.0.5",
