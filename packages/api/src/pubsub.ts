@@ -4,7 +4,6 @@ import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
 import { FeatureName, findFeatureByName } from './services/features'
-import { Merge } from './util'
 import {
   enqueueAISummarizeJob,
   enqueueExportItem,
@@ -16,8 +15,6 @@ import { buildLogger } from './utils/logger'
 const logger = buildLogger('pubsub')
 
 const client = new PubSub()
-
-type EntityData<T> = Merge<T, { libraryItemId: string }>
 
 export const createPubSubClient = (): PubsubClient => {
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
@@ -51,16 +48,17 @@ export const createPubSubClient = (): PubsubClient => {
     },
     entityCreated: async <T>(
       type: EntityType,
-      data: EntityData<T>,
-      userId: string
+      data: T,
+      userId: string,
+      libraryItemId: string
     ): Promise<void> => {
-      const libraryItemId = data.libraryItemId
       // queue trigger rule job
       if (type === EntityType.PAGE) {
         await enqueueTriggerRuleJob({
           userId,
           ruleEventType: RuleEventType.PageCreated,
           libraryItemId,
+          data,
         })
       }
       // queue export item job
@@ -85,17 +83,17 @@ export const createPubSubClient = (): PubsubClient => {
     },
     entityUpdated: async <T>(
       type: EntityType,
-      data: EntityData<T>,
-      userId: string
+      data: T,
+      userId: string,
+      libraryItemId: string
     ): Promise<void> => {
-      const libraryItemId = data.libraryItemId
-
       // queue trigger rule job
       if (type === EntityType.PAGE) {
         await enqueueTriggerRuleJob({
           userId,
           ruleEventType: RuleEventType.PageUpdated,
           libraryItemId,
+          data,
         })
       }
       // queue export item job
@@ -150,13 +148,15 @@ export interface PubsubClient {
   ) => Promise<void>
   entityCreated: <T>(
     type: EntityType,
-    data: EntityData<T>,
-    userId: string
+    data: T,
+    userId: string,
+    libraryItemId: string
   ) => Promise<void>
   entityUpdated: <T>(
     type: EntityType,
-    data: EntityData<T>,
-    userId: string
+    data: T,
+    userId: string,
+    libraryItemId: string
   ) => Promise<void>
   entityDeleted: (type: EntityType, id: string, userId: string) => Promise<void>
   reportSubmitted(

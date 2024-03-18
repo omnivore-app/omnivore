@@ -29,7 +29,6 @@ import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { addLabelsToLibraryItem } from './labels'
 
-type ItemEvent = { libraryItemId: string; userId: string }
 type IgnoredFields =
   | 'user'
   | 'uploadFile'
@@ -39,14 +38,10 @@ type IgnoredFields =
   | 'links'
   | 'recommenderNames'
   | 'textContentHash'
-
-type CreateItemEvent = Merge<
-  Omit<DeepPartial<LibraryItem>, IgnoredFields>,
-  ItemEvent
->
-type UpdateItemEvent = Merge<
-  Omit<QueryDeepPartialEntity<LibraryItem>, IgnoredFields>,
-  ItemEvent
+export type CreateItemEvent = Omit<DeepPartial<LibraryItem>, IgnoredFields>
+export type UpdateItemEvent = Omit<
+  QueryDeepPartialEntity<LibraryItem>,
+  IgnoredFields
 >
 
 enum ReadFilter {
@@ -861,12 +856,9 @@ export const updateLibraryItem = async (
     // send create event if the item was created
     await pubsub.entityCreated<CreateItemEvent>(
       EntityType.PAGE,
-      {
-        ...updatedLibraryItem,
-        libraryItemId: id,
-        userId,
-      },
-      userId
+      updatedLibraryItem,
+      userId,
+      id
     )
 
     return updatedLibraryItem
@@ -874,13 +866,9 @@ export const updateLibraryItem = async (
 
   await pubsub.entityUpdated<UpdateItemEvent>(
     EntityType.PAGE,
-    {
-      ...libraryItem,
-      id,
-      libraryItemId: id,
-      userId,
-    },
-    userId
+    libraryItem,
+    userId,
+    id
   )
 
   return updatedLibraryItem
@@ -1034,12 +1022,9 @@ export const createOrUpdateLibraryItem = async (
 
   await pubsub.entityCreated<CreateItemEvent>(
     EntityType.PAGE,
-    {
-      ...newLibraryItem,
-      libraryItemId: newLibraryItem.id,
-      userId,
-    },
-    userId
+    newLibraryItem,
+    userId,
+    newLibraryItem.id
   )
 
   return newLibraryItem
