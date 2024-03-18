@@ -6,6 +6,9 @@ import { env } from '../env'
 import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
+const MAX_ULTRA_REALISTIC_USERS = 1500
+const MAX_YOUTUBE_TRANSCRIPT_USERS = 100
+
 export enum FeatureName {
   AISummaries = 'ai-summaries',
   YouTubeTranscripts = 'youtube-transcripts',
@@ -20,16 +23,31 @@ export const optInFeature = async (
   name: FeatureName,
   uid: string
 ): Promise<Feature | undefined> => {
-  if (name === FeatureName.UltraRealisticVoice) {
-    return optInUltraRealisticVoice(uid)
+  switch (name) {
+    case FeatureName.UltraRealisticVoice:
+      return optInLimitedFeature(
+        FeatureName.UltraRealisticVoice,
+        uid,
+        MAX_ULTRA_REALISTIC_USERS
+      )
+    case FeatureName.YouTubeTranscripts:
+      return optInLimitedFeature(
+        FeatureName.YouTubeTranscripts,
+        uid,
+        MAX_YOUTUBE_TRANSCRIPT_USERS
+      )
   }
   return undefined
 }
 
-const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
+const optInLimitedFeature = async (
+  featureName: string,
+  uid: string,
+  maxUsers: number
+): Promise<Feature> => {
   const feature = await getRepository(Feature).findOne({
     where: {
-      name: FeatureName.UltraRealisticVoice,
+      name: featureName,
       grantedAt: Not(IsNull()),
       user: { id: uid },
     },
@@ -41,8 +59,6 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     return feature
   }
 
-  const MAX_USERS = 1500
-  // opt in to feature for the first 1500 users
   const optedInFeatures = (await appDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
@@ -51,7 +67,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     on conflict (user_id, name) 
     do update set granted_at = $3 
     returning *, granted_at as "grantedAt", created_at as "createdAt", updated_at as "updatedAt";`,
-    [uid, FeatureName.UltraRealisticVoice, new Date(), MAX_USERS]
+    [uid, featureName, new Date(), maxUsers]
   )) as Feature[]
 
   // if no new features were created then user has exceeded max users
@@ -61,7 +77,7 @@ const optInUltraRealisticVoice = async (uid: string): Promise<Feature> => {
     // create/update an opt-in record with null grantedAt
     const optInRecord = {
       user: { id: uid },
-      name: FeatureName.UltraRealisticVoice,
+      name: featureName,
       grantedAt: null,
     }
     const result = await getRepository(Feature).upsert(optInRecord, [
