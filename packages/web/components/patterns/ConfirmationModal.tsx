@@ -21,10 +21,11 @@ type ConfirmationModalProps = {
 export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
   const safeOnOpenChange = useCallback(
     (open: boolean) => {
-      props.onOpenChange(open)
       setTimeout(() => {
+        console.log('body style: ', document.body.style)
         document.body.style.removeProperty('pointer-events')
       }, 200)
+      props.onOpenChange(open)
     },
     [props]
   )

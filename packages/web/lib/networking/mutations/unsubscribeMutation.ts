@@ -12,12 +12,12 @@ type Unsubscribe = {
 }
 
 export async function unsubscribeMutation(
-  subscribeName: string,
-  id = ''
+  subscribtionName: string,
+  id: string
 ): Promise<any | undefined> {
   const mutation = gql`
-    mutation {
-      unsubscribe(name: "${subscribeName}", subscriptionId: "${id}") {
+    mutation Unsubscribe($subscribtionName: String!, $subscriptionId: ID!) {
+      unsubscribe(name: $subscribtionName, subscriptionId: $subscriptionId) {
         ... on UnsubscribeSuccess {
           subscription {
             id
@@ -31,7 +31,11 @@ export async function unsubscribeMutation(
   `
 
   try {
-    const data = (await gqlFetcher(mutation)) as UnsubscribeResult
+    const data = (await gqlFetcher(mutation, {
+      subscriptionId: id,
+      subscribtionName: subscribtionName,
+    })) as UnsubscribeResult
+
     return data.unsubscribe.errorCodes
       ? undefined
       : data.unsubscribe.subscription.id
