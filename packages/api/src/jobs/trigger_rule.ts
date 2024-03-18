@@ -1,28 +1,32 @@
+import { filter } from '@omnivore/liqe'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
-import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
 import { addLabelsToLibraryItem } from '../services/labels'
 import {
-  SearchArgs,
-  searchLibraryItems,
+  CreateItemEvent,
   softDeleteLibraryItem,
+  UpdateItemEvent,
   updateLibraryItem,
 } from '../services/library_item'
 import { findEnabledRules, markRuleAsFailed } from '../services/rules'
 import { sendPushNotifications } from '../services/user'
 import { logger } from '../utils/logger'
+import { parseSearchQuery } from '../utils/search'
 
+type Data = CreateItemEvent | UpdateItemEvent
 export interface TriggerRuleJobData {
   libraryItemId: string
   userId: string
   ruleEventType: RuleEventType
-  data: unknown
+  data: Data
 }
 
 interface RuleActionObj {
+  libraryItemId: string
   userId: string
   action: RuleAction
-  libraryItem: LibraryItem
+  data: Data
 }
 type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
 
@@ -34,19 +38,19 @@ const addLabels = async (obj: RuleActionObj) => {
 
   return addLabelsToLibraryItem(
     labelIds,
-    obj.libraryItem.id,
+    obj.libraryItemId,
     obj.userId,
     'system'
   )
 }
 
 const deleteLibraryItem = async (obj: RuleActionObj) => {
-  return softDeleteLibraryItem(obj.libraryItem.id, obj.userId)
+  return softDeleteLibraryItem(obj.libraryItemId, obj.userId)
 }
 
 const archivePage = async (obj: RuleActionObj) => {
   return updateLibraryItem(
-    obj.libraryItem.id,
+    obj.libraryItemId,
     { archivedAt: new Date(), state: LibraryItemState.Archived },
     obj.userId,
     undefined,
@@ -57,7 +61,7 @@ const archivePage = async (obj: RuleActionObj) => {
 const markPageAsRead = async (obj: RuleActionObj) => {
   return readingProgressDataSource.updateReadingProgress(
     obj.userId,
-    obj.libraryItem.id,
+    obj.libraryItemId,
     {
       readingProgressPercent: 100,
       readingProgressTopPercent: 100,
@@ -67,15 +71,15 @@ const markPageAsRead = async (obj: RuleActionObj) => {
 }
 
 const sendNotification = async (obj: RuleActionObj) => {
-  const item = obj.libraryItem
+  const item = obj.data
   const message = {
-    title: item.author || item.siteName || 'Omnivore',
-    body: item.title,
+    title: item.author?.toString() || item.siteName?.toString() || 'Omnivore',
+    body: item.title?.toString(),
     image: item.thumbnail,
   }
   const data = {
-    folder: item.folder,
-    libraryItemId: item.id,
+    folder: item.folder?.toString() || 'inbox',
+    libraryItemId: obj.libraryItemId,
   }
 
   return sendPushNotifications(obj.userId, message, 'rule', data)
@@ -97,35 +101,26 @@ const getRuleAction = (actionType: RuleActionType): RuleActionFunc => {
 }
 
 const triggerActions = async (
+  libraryItemId: string,
   userId: string,
   rules: Rule[],
-  data: TriggerRuleJobData
+  data: Data
 ) => {
   const actionPromises: Promise<unknown>[] = []
 
   for (const rule of rules) {
-    const itemId = data.libraryItemId
-    const searchArgs: SearchArgs = {
-      includeContent: false,
-      includeDeleted: false,
-      includePending: false,
-      size: 1,
-      query: `(${rule.filter}) AND includes:${itemId}`,
-    }
-
-    let libraryItem: LibraryItem
+    let filteredData: Data
 
     try {
-      const { libraryItems, count } = await searchLibraryItems(
-        searchArgs,
-        userId
-      )
-      if (count === 0) {
-        logger.info(`No pages found for rule ${rule.id}`)
+      const ast = parseSearchQuery(rule.filter)
+      // filter library item by rule filter
+      const results = filter(ast, [data])
+      if (results.length === 0) {
+        logger.info(`No items found for rule ${rule.id}`)
         continue
       }
 
-      libraryItem = libraryItems[0]
+      filteredData = results[0]
     } catch (error) {
       // failed to search for library items, mark rule as failed
       logger.error('Error parsing filter in rules', error)
@@ -137,9 +132,10 @@ const triggerActions = async (
     for (const action of rule.actions) {
       const actionFunc = getRuleAction(action.type)
       const actionObj: RuleActionObj = {
+        libraryItemId,
         userId,
         action,
-        libraryItem,
+        data: filteredData,
       }
 
       actionPromises.push(actionFunc(actionObj))
@@ -153,8 +149,8 @@ const triggerActions = async (
   }
 }
 
-export const triggerRule = async (data: TriggerRuleJobData) => {
-  const { userId, ruleEventType } = data
+export const triggerRule = async (jobData: TriggerRuleJobData) => {
+  const { userId, ruleEventType, data, libraryItemId } = jobData
 
   // get rules by calling api
   const rules = await findEnabledRules(userId, ruleEventType)
@@ -163,7 +159,7 @@ export const triggerRule = async (data: TriggerRuleJobData) => {
     return false
   }
 
-  await triggerActions(userId, rules, data)
+  await triggerActions(libraryItemId, userId, rules, data)
 
   return true
 }
