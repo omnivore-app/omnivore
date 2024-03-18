@@ -11,13 +11,11 @@ import { findHighlightById } from './highlights'
 import { findLibraryItemIdsByLabelId } from './library_item'
 
 type AddLabelsToLibraryItemEvent = {
-  libraryItemId: string
   pageId: string
   labels: DeepPartial<Label>[]
   source?: LabelSource
 }
 type AddLabelsToHighlightEvent = {
-  libraryItemId: string
   highlightId: string
   labels: DeepPartial<Label>[]
 }
@@ -148,8 +146,9 @@ export const saveLabelsInLibraryItem = async (
     // create pubsub event
     await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
       EntityType.LABEL,
-      { pageId: libraryItemId, labels, source, libraryItemId },
-      userId
+      { pageId: libraryItemId, labels, source },
+      userId,
+      libraryItemId
     )
   }
 
@@ -218,8 +217,9 @@ export const saveLabelsInHighlight = async (
   // create pubsub event
   await pubsub.entityCreated<AddLabelsToHighlightEvent>(
     EntityType.LABEL,
-    { highlightId, labels, libraryItemId },
-    userId
+    { highlightId, labels },
+    userId,
+    libraryItemId
   )
 
   // update labels in library item

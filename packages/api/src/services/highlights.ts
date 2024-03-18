@@ -59,7 +59,8 @@ export const createHighlight = async (
   await pubsub.entityCreated<CreateHighlightEvent>(
     EntityType.HIGHLIGHT,
     { ...newHighlight, pageId: libraryItemId },
-    userId
+    userId,
+    libraryItemId
   )
 
   await enqueueUpdateHighlight({
@@ -106,7 +107,8 @@ export const mergeHighlights = async (
   await pubsub.entityCreated<CreateHighlightEvent>(
     EntityType.HIGHLIGHT,
     { ...newHighlight, pageId: libraryItemId },
-    userId
+    userId,
+    libraryItemId
   )
 
   await enqueueUpdateHighlight({
@@ -139,8 +141,9 @@ export const updateHighlight = async (
   const libraryItemId = updatedHighlight.libraryItem.id
   await pubsub.entityUpdated<UpdateHighlightEvent>(
     EntityType.HIGHLIGHT,
-    { ...highlight, id: highlightId, pageId: libraryItemId, libraryItemId },
-    userId
+    { ...highlight, id: highlightId, pageId: libraryItemId },
+    userId,
+    libraryItemId
   )
 
   await enqueueUpdateHighlight({

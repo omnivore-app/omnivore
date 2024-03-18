@@ -16,6 +16,7 @@ export interface TriggerRuleJobData {
   libraryItemId: string
   userId: string
   ruleEventType: RuleEventType
+  data: unknown
 }
 
 interface RuleActionObj {
