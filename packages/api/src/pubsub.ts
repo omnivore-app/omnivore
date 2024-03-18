@@ -5,14 +5,12 @@ import { env } from './env'
 import { ReportType } from './generated/graphql'
 import { FeatureName, findFeatureByName } from './services/features'
 import {
-  enqueueAISummarizeJob,
   enqueueExportItem,
   enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
   enqueueWebhookJob,
 } from './utils/createTask'
 import { buildLogger } from './utils/logger'
-import { processYouTubeVideo } from './jobs/process-youtube-video'
 
 const logger = buildLogger('pubsub')
 
@@ -95,10 +93,11 @@ export const createPubSubClient = (): PubsubClient => {
         // })
       }
 
-      if (
-        'originalUrl' in data &&
-        isYouTubeVideoURL(data['originalUrl'] as string | undefined)
-      ) {
+      const isYoutubeVideo = (data: any): data is { originalUrl: string } => {
+        return 'originalUrl' in data
+      }
+
+      if (isYoutubeVideo(data) && isYouTubeVideoURL(data['originalUrl'])) {
         await enqueueProcessYouTubeVideo({
           userId,
           libraryItemId,
