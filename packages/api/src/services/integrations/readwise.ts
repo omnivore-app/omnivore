@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { LibraryItem } from '../../entity/library_item'
-import { highlightUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
+import { getHighlightUrl } from '../highlights'
 import { IntegrationClient } from './integration'
 
 interface ReadwiseHighlight {
@@ -98,7 +98,7 @@ export class ReadwiseClient implements IntegrationClient {
           text: highlight.quote,
           title: item.title,
           author: item.author || undefined,
-          highlight_url: highlightUrl(item.slug, highlight.id),
+          highlight_url: getHighlightUrl(item.slug, highlight.id),
           highlighted_at: new Date(highlight.createdAt).toISOString(),
           category,
           image_url: item.thumbnail || undefined,

@@ -3,6 +3,7 @@ import express from 'express'
 import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
+import { FeatureName, findFeatureByName } from './services/features'
 import { Merge } from './util'
 import {
   enqueueAISummarizeJob,
@@ -10,13 +11,7 @@ import {
   enqueueTriggerRuleJob,
   enqueueWebhookJob,
 } from './utils/createTask'
-import { deepDelete } from './utils/helpers'
 import { buildLogger } from './utils/logger'
-import {
-  FeatureName,
-  findFeatureByName,
-  getFeatureName,
-} from './services/features'
 
 const logger = buildLogger('pubsub')
 
@@ -25,8 +20,6 @@ const client = new PubSub()
 type EntityData<T> = Merge<T, { libraryItemId: string }>
 
 export const createPubSubClient = (): PubsubClient => {
-  const fieldsToDelete = ['user'] as const
-
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
     if (env.dev.isLocal) {
       logger.info(`Publishing ${topicName}: ${msg.toString()}`)
@@ -76,11 +69,6 @@ export const createPubSubClient = (): PubsubClient => {
         libraryItemIds: [libraryItemId],
       })
 
-      const cleanData = deepDelete(
-        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
-        [...fieldsToDelete]
-      )
-
       await enqueueWebhookJob({
         userId,
         type,
@@ -94,11 +82,6 @@ export const createPubSubClient = (): PubsubClient => {
           libraryItemId,
         })
       }
-
-      return publish(
-        'entityCreated',
-        Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
-      )
     },
     entityUpdated: async <T>(
       type: EntityType,
@@ -121,32 +104,20 @@ export const createPubSubClient = (): PubsubClient => {
         libraryItemIds: [libraryItemId],
       })
 
-      const cleanData = deepDelete(
-        data as EntityData<T> & Record<typeof fieldsToDelete[number], unknown>,
-        [...fieldsToDelete]
-      )
-
       await enqueueWebhookJob({
         userId,
         type,
         action: 'updated',
         data,
       })
-
-      return publish(
-        'entityUpdated',
-        Buffer.from(JSON.stringify({ type, userId, ...cleanData }))
-      )
     },
-    entityDeleted: (
+    entityDeleted: async (
       type: EntityType,
       id: string,
       userId: string
     ): Promise<void> => {
-      return publish(
-        'entityDeleted',
-        Buffer.from(JSON.stringify({ type, id, userId }))
-      )
+      logger.info(`entityDeleted: ${type} ${id} ${userId}`)
+      await Promise.resolve()
     },
     reportSubmitted: (
       submitterId: string,

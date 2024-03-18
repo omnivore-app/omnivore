@@ -5,8 +5,8 @@ import { Integration } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { Merge } from '../../util'
-import { highlightUrl } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
+import { getHighlightUrl } from '../highlights'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -230,7 +230,7 @@ export class NotionClient implements IntegrationClient {
                       ? highlight.quote || ''
                       : '',
                     link: {
-                      url: highlightUrl(item.slug, highlight.id),
+                      url: getHighlightUrl(item.slug, highlight.id),
                     },
                   },
                   annotations: {
