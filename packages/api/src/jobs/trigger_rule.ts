@@ -4,9 +4,8 @@ import { LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
 import { addLabelsToLibraryItem } from '../services/labels'
 import {
-  CreateItemEvent,
+  ItemEvent,
   softDeleteLibraryItem,
-  UpdateItemEvent,
   updateLibraryItem,
 } from '../services/library_item'
 import { findEnabledRules, markRuleAsFailed } from '../services/rules'
@@ -14,19 +13,18 @@ import { sendPushNotifications } from '../services/user'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 
-type Data = CreateItemEvent | UpdateItemEvent
 export interface TriggerRuleJobData {
   libraryItemId: string
   userId: string
   ruleEventType: RuleEventType
-  data: Data
+  data: ItemEvent
 }
 
 interface RuleActionObj {
   libraryItemId: string
   userId: string
   action: RuleAction
-  data: Data
+  data: ItemEvent
 }
 type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
 
@@ -104,12 +102,12 @@ const triggerActions = async (
   libraryItemId: string,
   userId: string,
   rules: Rule[],
-  data: Data
+  data: ItemEvent
 ) => {
   const actionPromises: Promise<unknown>[] = []
 
   for (const rule of rules) {
-    let filteredData: Data
+    let filteredData: ItemEvent
 
     try {
       const ast = parseSearchQuery(rule.filter)

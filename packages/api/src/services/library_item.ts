@@ -1,4 +1,5 @@
 import { ExpressionToken, LiqeQuery } from '@omnivore/liqe'
+import { camelCase } from 'lodash'
 import { DateTime } from 'luxon'
 import {
   DeepPartial,
@@ -32,12 +33,10 @@ import { addLabelsToLibraryItem } from './labels'
 type IgnoredFields =
   | 'user'
   | 'uploadFile'
-  | 'labelNames'
-  | 'highlightAnnotations'
   | 'previewContentType'
   | 'links'
-  | 'recommenderNames'
   | 'textContentHash'
+export type ItemEvent = CreateItemEvent | UpdateItemEvent
 export type CreateItemEvent = Omit<DeepPartial<LibraryItem>, IgnoredFields>
 export type UpdateItemEvent = Omit<
   QueryDeepPartialEntity<LibraryItem>,
@@ -1294,4 +1293,298 @@ export const findLibraryItemIdsByLabelId = async (
     undefined,
     userId
   )
+}
+
+export const filterItemEvents = (
+  ast: LiqeQuery,
+  events: readonly ItemEvent[]
+): readonly ItemEvent[] => {
+  const testNo = (value: string, event: ItemEvent) => {
+    const keywordRegexMap: Record<string, RegExp> = {
+      highlightAnnotations: /^highlight(s)?$/i,
+      labelNames: /^label(s)?$/i,
+      subscription: /^subscription(s)?$/i,
+    }
+
+    const matchingKeyword = Object.keys(keywordRegexMap).find((keyword) =>
+      value.match(keywordRegexMap[keyword])
+    )
+
+    if (!matchingKeyword) {
+      throw new Error(`Unexpected keyword: ${value}`)
+    }
+
+    const key = matchingKeyword as
+      | 'highlightAnnotations'
+      | 'labelNames'
+      | 'subscription'
+    const eventValue = event[key] as string | string[]
+
+    return !eventValue || (Array.isArray(eventValue) && eventValue.length === 0)
+  }
+
+  const testEvent = (ast: LiqeQuery, event: ItemEvent) => {
+    if (ast.type !== 'Tag') {
+      throw new Error('Expected a tag expression.')
+    }
+
+    const { field, expression } = ast
+
+    if (field.type === 'ImplicitField') {
+      // TODO: Implement full text search
+      throw new Error('Full text search is not supported.')
+    }
+    if (expression.type !== 'LiteralExpression') {
+      // ignore empty values
+      throw new Error('Expected a literal expression.')
+    }
+
+    const value = expression.value?.toString()
+    if (!value) {
+      // ignore empty values
+      throw new Error('Expected a non-empty value.')
+    }
+
+    switch (field.name.toLowerCase()) {
+      case 'in': {
+        switch (value.toLowerCase()) {
+          case InFilter.ALL:
+            return true
+          case InFilter.ARCHIVE:
+            return event.state === LibraryItemState.Archived
+          case InFilter.TRASH:
+            return event.state === LibraryItemState.Deleted
+          default:
+            return event.state === LibraryItemState.Succeeded
+        }
+      }
+
+      case 'is': {
+        switch (value.toLowerCase()) {
+          case ReadFilter.READ:
+            return (
+              event.readingProgressBottomPercent &&
+              event.readingProgressBottomPercent > 98
+            )
+          case ReadFilter.READING:
+            return (
+              event.readingProgressBottomPercent &&
+              event.readingProgressBottomPercent >= 2 &&
+              event.readingProgressBottomPercent <= 98
+            )
+          case ReadFilter.UNREAD:
+            return (
+              !event.readingProgressBottomPercent ||
+              event.readingProgressBottomPercent < 2
+            )
+          default:
+            throw new Error(`Unexpected keyword: ${value}`)
+        }
+      }
+      case 'type': {
+        return event.itemType?.toString().toLowerCase() === value.toLowerCase()
+      }
+      case 'label': {
+        const labels = event.labelNames as string[]
+        const labelsToTest = value.toLowerCase().split(',')
+        return labelsToTest.some((label) => {
+          const hasWildcard = label.includes('*')
+          if (hasWildcard) {
+            return labels.some((l) => l.match(new RegExp(label, 'i')))
+          }
+
+          return labels.some((l) => l.toLowerCase() === label)
+        })
+      }
+      case 'has':
+        return !testNo(value, event)
+      case 'read':
+      case 'updated':
+      case 'published': {
+        let startDate: Date | undefined
+        let endDate: Date | undefined
+        // check for special date filters
+        switch (value.toLowerCase()) {
+          case 'today':
+            startDate = DateTime.local().startOf('day').toJSDate()
+            break
+          case 'yesterday': {
+            const yesterday = DateTime.local().minus({ days: 1 })
+            startDate = yesterday.startOf('day').toJSDate()
+            endDate = yesterday.endOf('day').toJSDate()
+            break
+          }
+          case 'this week':
+            startDate = DateTime.local().startOf('week').toJSDate()
+            break
+          case 'this month':
+            startDate = DateTime.local().startOf('month').toJSDate()
+            break
+          default: {
+            // check for date ranges
+            const [start, end] = value.split('..')
+            // validate date
+            if (start && start !== '*') {
+              startDate = new Date(start)
+              if (isNaN(startDate.getTime())) {
+                throw new Error('Invalid start date')
+              }
+            }
+
+            if (end && end !== '*') {
+              endDate = new Date(end)
+              if (isNaN(endDate.getTime())) {
+                throw new Error('Invalid end date')
+              }
+            }
+          }
+        }
+
+        const start = startDate ?? new Date(0)
+        const end = endDate ?? new Date()
+        const key = `${field.name.toLowerCase()}At` as
+          | 'readAt'
+          | 'updatedAt'
+          | 'publishedAt'
+        const eventValue = event[key] as Date
+
+        return eventValue >= start && eventValue <= end
+      }
+      // term filters
+      case 'subscription':
+      case 'rss':
+      case 'language': {
+        const columnName = getColumnName(field.name)
+        // get camel case column name
+        const key = camelCase(columnName) as 'subscription' | 'itemLanguage'
+
+        return event[key]?.toString().toLowerCase() === value.toLowerCase()
+      }
+      // match filters
+      case 'author':
+      case 'title':
+      case 'description':
+      case 'note':
+      case 'site': {
+        const columnName = getColumnName(field.name)
+        const key = camelCase(columnName) as
+          | 'author'
+          | 'title'
+          | 'description'
+          | 'note'
+          | 'siteName'
+
+        // TODO: Implement full text search
+        return event[key]?.toString().match(new RegExp(value, 'i'))
+      }
+      case 'includes': {
+        const ids = value.split(',')
+        if (!ids || ids.length === 0) {
+          throw new Error('Expected ids')
+        }
+
+        return event.id && ids.includes(event.id.toString())
+      }
+      case 'recommendedby': {
+        if (value === '*') {
+          // select all if * is provided
+          return event.recommenderNames && event.recommenderNames.length > 0
+        }
+
+        return (
+          event.recommenderNames &&
+          (event.recommenderNames as string[]).some(
+            (name) => name.toLowerCase() === value.toLowerCase()
+          )
+        )
+      }
+      case 'no':
+        return testNo(value, event)
+      case 'use':
+      case 'mode':
+      case 'event':
+        // mode is ignored and used only by the frontend
+        return true
+      case 'readposition':
+      case 'wordscount': {
+        const operatorRegex = /([<>]=?)/
+        const operator = value.match(operatorRegex)?.[0]
+        if (!operator) {
+          throw new Error('Expected operator')
+        }
+
+        const newValue = value.replace(operatorRegex, '')
+        const intValue = parseInt(newValue, 10)
+
+        const column = getColumnName(field.name)
+        const key = camelCase(column) as
+          | 'wordCount'
+          | 'readingProgressBottomPercent'
+        const eventValue = event[key] as number
+
+        switch (operator) {
+          case '>':
+            return eventValue > intValue
+          case '>=':
+            return eventValue >= intValue
+          case '<':
+            return eventValue < intValue
+          case '<=':
+            return eventValue <= intValue
+          default:
+            throw new Error('Unexpected operator')
+        }
+      }
+      default:
+        // TODO: Implement full text search
+        return false
+      // treat unknown fields as implicit fields
+      // return serializeImplicitField({
+      //   ...expression,
+      //   value: `${field.name}:${value}`,
+      // })
+    }
+  }
+
+  if (ast.type === 'Tag') {
+    return events.filter((event) => {
+      return testEvent(ast, event)
+    })
+  }
+
+  if (ast.type === 'UnaryOperator') {
+    const removeRows = filterItemEvents(ast.operand, events)
+
+    return events.filter((row) => {
+      return !removeRows.includes(row)
+    })
+  }
+
+  if (ast.type === 'ParenthesizedExpression') {
+    return filterItemEvents(ast.expression, events)
+  }
+
+  if (!ast.left) {
+    throw new Error('Expected left to be defined.')
+  }
+
+  const leftRows = filterItemEvents(ast.left, events)
+
+  if (!ast.right) {
+    throw new Error('Expected right to be defined.')
+  }
+
+  if (ast.type !== 'LogicalExpression') {
+    throw new Error('Expected a tag expression.')
+  }
+
+  if (ast.operator.operator === 'OR') {
+    const rightRows = filterItemEvents(ast.right, events)
+
+    return Array.from(new Set([...leftRows, ...rightRows]))
+  } else if (ast.operator.operator === 'AND') {
+    return filterItemEvents(ast.right, leftRows)
+  }
+
+  throw new Error('Unexpected state.')
 }
