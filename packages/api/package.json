@@ -99,7 +99,7 @@
     "sax": "^1.3.0",
     "search-query-parser": "^1.6.0",
     "showdown": "^2.1.0",
-    "snake-case": "^3.0.3",
+    "snake-case": "^4.0.0",
     "supertest": "^6.2.2",
     "ts-loader": "^9.3.0",
     "typeorm": "^0.3.4",

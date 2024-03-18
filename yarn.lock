@@ -22511,6 +22511,11 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
+no-case@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/no-case/-/no-case-4.0.0.tgz#d728c0ca7e7a5475e392738d94113c29509e5232"
+  integrity sha512-WmS3EUGw+vXHlTgiUPi3NzbZNwH6+uGX0QLGgqG+aFSJ5rkX/Ee0nuwHBJfZTfQwwR8lGO819NEIwQ7CGhkdEQ==
+
 nock@^13.2.4:
   version "13.2.4"
   resolved "https://registry.yarnpkg.com/nock/-/nock-13.2.4.tgz#43a309d93143ee5cdcca91358614e7bde56d20e1"
@@ -27858,13 +27863,20 @@ snake-case@^2.1.0:
   dependencies:
     no-case "^2.2.0"
 
-snake-case@^3.0.3, snake-case@^3.0.4:
+snake-case@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/snake-case/-/snake-case-3.0.4.tgz#4f2bbd568e9935abdfd593f34c691dadb49c452c"
   integrity sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==
   dependencies:
     dot-case "^3.0.4"
     tslib "^2.0.3"
+
+snake-case@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/snake-case/-/snake-case-4.0.0.tgz#9884b364087ca90a7334a966595d9fbb7f650865"
+  integrity sha512-slvG6efKZ3GYUUZdhPOq/lLIqutwQ4TdPViD1VKqsbf0u76U/aPRswPKjOaAS9T7fAPmRmXuN6C/nM0xsMaFLQ==
+  dependencies:
+    no-case "^4.0.0"
 
 snapdragon-node@^2.0.1:
   version "2.1.1"
