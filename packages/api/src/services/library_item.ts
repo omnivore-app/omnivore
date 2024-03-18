@@ -1322,11 +1322,7 @@ export const filterItemEvents = (
       throw new Error(`Unexpected keyword: ${value}`)
     }
 
-    const key = matchingKeyword as
-      | 'highlightAnnotations'
-      | 'labelNames'
-      | 'subscription'
-    const eventValue = event[key] as string | string[]
+    const eventValue = event[matchingKeyword as keyof ItemEvent]
 
     return !eventValue || (Array.isArray(eventValue) && eventValue.length === 0)
   }
@@ -1350,10 +1346,21 @@ export const filterItemEvents = (
         return true
       }
 
+      const textFields = [
+        'author',
+        'title',
+        'description',
+        'note',
+        'siteName',
+        'readableContent',
+        'originalUrl',
+      ]
+      const text = textFields
+        .map((field) => event[field as keyof ItemEvent])
+        .join(' ')
+
       // TODO: Implement full text search
-      return event.readableContent
-        ?.toString()
-        ?.match(new RegExp(lowercasedValue, 'i'))
+      return text.match(new RegExp(lowercasedValue, 'i'))
     }
 
     if (!lowercasedValue) {
@@ -1461,10 +1468,7 @@ export const filterItemEvents = (
 
         const start = startDate ?? new Date(0)
         const end = endDate ?? new Date()
-        const key = `${field.name.toLowerCase()}At` as
-          | 'readAt'
-          | 'updatedAt'
-          | 'publishedAt'
+        const key = `${field.name.toLowerCase()}At` as keyof ItemEvent
         const eventValue = event[key] as Date
 
         return eventValue >= start && eventValue <= end
