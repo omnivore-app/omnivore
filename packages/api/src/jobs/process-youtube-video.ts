@@ -16,6 +16,7 @@ import * as stream from 'stream'
 import { Storage } from '@google-cloud/storage'
 import { stringToHash } from '../utils/helpers'
 import { FeatureName, findFeatureByName } from '../services/features'
+import { readStringFromStorage } from '../utils/uploads'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -218,42 +219,6 @@ export const addTranscriptPlaceholdReadableContent = async (
     true
   )
   return updatedContent.parsedContent?.content
-}
-
-async function readStringFromStorage(
-  bucketName: string,
-  fileName: string
-): Promise<string> {
-  try {
-    const storage = env.fileUpload?.gcsUploadSAKeyFilePath
-      ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
-      : new Storage()
-
-    const existsResponse = await storage
-      .bucket(bucketName)
-      .file(fileName)
-      .exists()
-    const exists = existsResponse[0]
-
-    if (!exists) {
-      throw new Error(
-        `File '${fileName}' does not exist in bucket '${bucketName}'.`
-      )
-    }
-
-    // Download the file contents as a string
-    const fileContentResponse = await storage
-      .bucket(bucketName)
-      .file(fileName)
-      .download()
-    const fileContent = fileContentResponse[0].toString()
-
-    console.log(`File '${fileName}' downloaded successfully as string.`)
-    return fileContent
-  } catch (error) {
-    console.error('Error downloading file:', error)
-    throw error
-  }
 }
 
 const writeStringToStorage = async (

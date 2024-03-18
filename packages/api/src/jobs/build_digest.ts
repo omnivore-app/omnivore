@@ -15,12 +15,32 @@ import showdown from 'showdown'
 import { parsedContentToLibraryItem, savePage } from '../services/save_page'
 import { generateSlug } from '../utils/helpers'
 import { PageType } from '../generated/graphql'
+import * as stream from 'stream'
+
+import { Storage } from '@google-cloud/storage'
+import { readStringFromStorage } from '../utils/uploads'
 
 export interface BuildDigestJobData {
   userId: string
 }
 
 export const BUILD_DIGEST_JOB_NAME = 'build-digest-job'
+
+interface Selector {
+  query: string
+  count: number
+  reason: string
+}
+
+interface DigestDefinition {
+  name: string
+  preferenceSelectors: Selector[]
+  candidateSelectors: Selector[]
+  fastMatchAttributes: string[]
+  selectionPrompt: string
+  assemblePrompt: string
+  introductionCopy: string[]
+}
 
 interface SelectionResultItem {
   id: string
@@ -36,22 +56,22 @@ interface SelectedLibraryItem {
   url: string
 }
 
-const createPreferencesList = async (
-  userId: string
-): Promise<LibraryItem[]> => {
-  const recentPreferences = await searchLibraryItems(
-    {
-      from: 0,
-      size: 21,
-      includePending: false,
-      includeDeleted: false,
-      includeContent: false,
-      useFolders: false,
-      query: `is:read OR has:highlights sort:saved-desc`,
-    },
-    userId
-  )
-  return recentPreferences.libraryItems
+const fetchDigestDefinition = async (): Promise<
+  DigestDefinition | undefined
+> => {
+  const bucketName = env.fileUpload.gcsUploadBucket
+
+  try {
+    const str = await readStringFromStorage(
+      bucketName,
+      `digest-builders/simple-001.json`
+    )
+    return JSON.parse(str) as DigestDefinition
+  } catch (err) {
+    logger.info(`unable to digest definition`, { error: err })
+  }
+
+  return undefined
 }
 
 function removeDuplicateTitles(items: LibraryItem[]): LibraryItem[] {
@@ -68,20 +88,50 @@ function removeDuplicateTitles(items: LibraryItem[]): LibraryItem[] {
   return uniqueItems
 }
 
-const createCandidatesList = async (userId: string): Promise<LibraryItem[]> => {
-  const candidates = await searchLibraryItems(
-    {
-      from: 0,
-      size: 100,
-      includePending: false,
-      includeDeleted: false,
-      includeContent: false,
-      useFolders: false,
-      query: `is:unread sort:saved-desc`,
-    },
-    userId
-  )
-  return removeDuplicateTitles(candidates.libraryItems)
+const createPreferencesList = async (
+  digestDefinition: DigestDefinition,
+  userId: string
+): Promise<LibraryItem[]> => {
+  const result: LibraryItem[] = []
+  for (const selector of digestDefinition.preferenceSelectors) {
+    const recentPreferences = await searchLibraryItems(
+      {
+        from: 0,
+        size: selector.count,
+        includePending: false,
+        includeDeleted: false,
+        includeContent: false,
+        useFolders: false,
+        query: selector.query,
+      },
+      userId
+    )
+    result.push(...recentPreferences.libraryItems)
+  }
+  return result
+}
+
+const createCandidatesList = async (
+  digestDefinition: DigestDefinition,
+  userId: string
+): Promise<LibraryItem[]> => {
+  const result: LibraryItem[] = []
+  for (const selector of digestDefinition.candidateSelectors) {
+    const candidates = await searchLibraryItems(
+      {
+        from: 0,
+        size: selector.count,
+        includePending: false,
+        includeDeleted: false,
+        includeContent: false,
+        useFolders: false,
+        query: selector.query,
+      },
+      userId
+    )
+    result.push(...candidates.libraryItems)
+  }
+  return removeDuplicateTitles(result)
 }
 
 const isSelectedLibraryItem = (
@@ -92,15 +142,12 @@ const isSelectedLibraryItem = (
 
 const getSelection = async (
   llm: OpenAI,
+  digestDefinition: DigestDefinition,
   candidates: LibraryItem[],
   recentPreferences: LibraryItem[]
 ): Promise<SelectedLibraryItem[]> => {
-  if (!process.env.DIGEST_SELECTION_PROMPT) {
-    return []
-  }
-
   const selectionTemplate = PromptTemplate.fromTemplate(
-    process.env.DIGEST_SELECTION_PROMPT
+    digestDefinition.selectionPrompt
   )
   const selectionChain = selectionTemplate.pipe(llm)
   const selectionResult = await selectionChain.invoke(
@@ -149,14 +196,12 @@ const getSelection = async (
 
 const createDigestArticleContent = async (
   llm: OpenAI,
+  digestDefinition: DigestDefinition,
   candidates: LibraryItem[],
   selection: SelectedLibraryItem[]
 ): Promise<string | undefined> => {
-  if (!process.env.DIGEST_INTRODUCTION_PROMPT) {
-    return undefined
-  }
   const introductionTemplate = PromptTemplate.fromTemplate(
-    process.env.DIGEST_INTRODUCTION_PROMPT
+    digestDefinition.assemblePrompt
   )
   const introductionChain = introductionTemplate.pipe(llm)
   const introductionResult = await introductionChain.invoke({
@@ -180,8 +225,20 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
     console.log(
       '[digest]: ********************************* building daily digest ***********************************'
     )
-    const candidates = await createCandidatesList(jobData.userId)
-    const recentPreferences = await createPreferencesList(jobData.userId)
+    const digestDefinition = await fetchDigestDefinition()
+    if (!digestDefinition) {
+      logger.warn('[digest] no digest definition found')
+      return
+    }
+
+    const candidates = await createCandidatesList(
+      digestDefinition,
+      jobData.userId
+    )
+    const recentPreferences = await createPreferencesList(
+      digestDefinition,
+      jobData.userId
+    )
 
     console.log(
       '[digest]: preferences: ',
@@ -199,9 +256,15 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       },
     })
 
-    const selection = await getSelection(llm, candidates, recentPreferences)
+    const selection = await getSelection(
+      llm,
+      digestDefinition,
+      candidates,
+      recentPreferences
+    )
     const articleHTML = await createDigestArticleContent(
       llm,
+      digestDefinition,
       candidates,
       selection
     )
@@ -211,12 +274,12 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
         document: articleHTML,
         pageInfo: {},
       }
-      const formattedDate = new Date().toLocaleTimeString('en-US', {
+
+      const formattedDate = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
-        year: 'numeric',
         month: 'long',
         day: 'numeric',
-      })
+      }).format(new Date())
 
       const title = `Your Omnivore Daily Digest for ${formattedDate}`
       const originalURL = `https://omnivore.app/me/digest?q=${uuid()}`

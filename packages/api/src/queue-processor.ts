@@ -188,15 +188,15 @@ const setupCronJobs = async () => {
   )
 
   // TEMP: for testing locally
-  // await queue.add(
-  //   BUILD_DIGEST_JOB_NAME,
-  //   {
-  //     userId: 'a03a7396-909b-11ed-9075-c3f3cf07eed9',
-  //   },
-  //   {
-  //     priority: 1,
-  //   }
-  // )
+  await queue.add(
+    BUILD_DIGEST_JOB_NAME,
+    {
+      userId: 'a03a7396-909b-11ed-9075-c3f3cf07eed9',
+    },
+    {
+      priority: 1,
+    }
+  )
 }
 
 const main = async () => {
