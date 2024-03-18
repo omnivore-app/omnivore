@@ -29,6 +29,26 @@ import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { addLabelsToLibraryItem } from './labels'
 
+type ItemEvent = { libraryItemId: string; userId: string }
+type IgnoredFields =
+  | 'user'
+  | 'uploadFile'
+  | 'labelNames'
+  | 'highlightAnnotations'
+  | 'previewContentType'
+  | 'links'
+  | 'recommenderNames'
+  | 'textContentHash'
+
+type CreateItemEvent = Merge<
+  Omit<DeepPartial<LibraryItem>, IgnoredFields>,
+  ItemEvent
+>
+type UpdateItemEvent = Merge<
+  Omit<QueryDeepPartialEntity<LibraryItem>, IgnoredFields>,
+  ItemEvent
+>
+
 enum ReadFilter {
   ALL = 'all',
   READ = 'read',
@@ -833,19 +853,32 @@ export const updateLibraryItem = async (
     userId
   )
 
-  if (skipPubSub) {
+  if (skipPubSub || libraryItem.state === LibraryItemState.Processing) {
     return updatedLibraryItem
   }
 
-  await pubsub.entityUpdated<QueryDeepPartialEntity<LibraryItem>>(
+  if (libraryItem.state === LibraryItemState.Succeeded) {
+    // send create event if the item was created
+    await pubsub.entityCreated<CreateItemEvent>(
+      EntityType.PAGE,
+      {
+        ...updatedLibraryItem,
+        libraryItemId: id,
+        userId,
+      },
+      userId
+    )
+
+    return updatedLibraryItem
+  }
+
+  await pubsub.entityUpdated<UpdateItemEvent>(
     EntityType.PAGE,
     {
       ...libraryItem,
       id,
       libraryItemId: id,
-      // don't send original content and readable content
-      originalContent: undefined,
-      readableContent: undefined,
+      userId,
     },
     userId
   )
@@ -999,14 +1032,12 @@ export const createOrUpdateLibraryItem = async (
     return newLibraryItem
   }
 
-  await pubsub.entityCreated<DeepPartial<LibraryItem>>(
+  await pubsub.entityCreated<CreateItemEvent>(
     EntityType.PAGE,
     {
       ...newLibraryItem,
       libraryItemId: newLibraryItem.id,
-      // don't send original content and readable content
-      originalContent: undefined,
-      readableContent: undefined,
+      userId,
     },
     userId
   )
