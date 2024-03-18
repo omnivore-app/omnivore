@@ -1,9 +1,9 @@
-import { filter } from '@omnivore/liqe'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
 import { addLabelsToLibraryItem } from '../services/labels'
 import {
+  filterItemEvents,
   ItemEvent,
   softDeleteLibraryItem,
   updateLibraryItem,
@@ -112,7 +112,7 @@ const triggerActions = async (
     try {
       const ast = parseSearchQuery(rule.filter)
       // filter library item by rule filter
-      const results = filter(ast, [data])
+      const results = filterItemEvents(ast, [data])
       if (results.length === 0) {
         logger.info(`No items found for rule ${rule.id}`)
         continue

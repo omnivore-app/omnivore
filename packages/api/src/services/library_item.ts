@@ -878,7 +878,8 @@ export const updateLibraryItemReadingProgress = async (
   userId: string,
   bottomPercent: number,
   topPercent: number | null = null,
-  anchorIndex: number | null = null
+  anchorIndex: number | null = null,
+  pubsub = createPubSubClient()
 ): Promise<LibraryItem | null> => {
   // If we have a top percent, we only save it if it's greater than the current top percent
   // or set to zero if the top percent is zero.
@@ -925,6 +926,13 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
+  await pubsub.entityUpdated<UpdateItemEvent>(
+    EntityType.PAGE,
+    updatedItem,
+    userId,
+    id
+  )
+
   return updatedItem
 }
 
@@ -1330,24 +1338,32 @@ export const filterItemEvents = (
 
     const { field, expression } = ast
 
-    if (field.type === 'ImplicitField') {
-      // TODO: Implement full text search
-      throw new Error('Full text search is not supported.')
-    }
     if (expression.type !== 'LiteralExpression') {
       // ignore empty values
       throw new Error('Expected a literal expression.')
     }
 
-    const value = expression.value?.toString()
-    if (!value) {
+    const lowercasedValue = expression.value?.toString().toLowerCase()
+
+    if (field.type === 'ImplicitField') {
+      if (!lowercasedValue) {
+        return true
+      }
+
+      // TODO: Implement full text search
+      return event.readableContent
+        ?.toString()
+        ?.match(new RegExp(lowercasedValue, 'i'))
+    }
+
+    if (!lowercasedValue) {
       // ignore empty values
       throw new Error('Expected a non-empty value.')
     }
 
     switch (field.name.toLowerCase()) {
       case 'in': {
-        switch (value.toLowerCase()) {
+        switch (lowercasedValue) {
           case InFilter.ALL:
             return true
           case InFilter.ARCHIVE:
@@ -1355,12 +1371,15 @@ export const filterItemEvents = (
           case InFilter.TRASH:
             return event.state === LibraryItemState.Deleted
           default:
-            return event.state === LibraryItemState.Succeeded
+            return (
+              event.state != LibraryItemState.Archived &&
+              event.state != LibraryItemState.Deleted
+            )
         }
       }
 
       case 'is': {
-        switch (value.toLowerCase()) {
+        switch (lowercasedValue) {
           case ReadFilter.READ:
             return (
               event.readingProgressBottomPercent &&
@@ -1378,15 +1397,15 @@ export const filterItemEvents = (
               event.readingProgressBottomPercent < 2
             )
           default:
-            throw new Error(`Unexpected keyword: ${value}`)
+            throw new Error(`Unexpected keyword: ${lowercasedValue}`)
         }
       }
       case 'type': {
-        return event.itemType?.toString().toLowerCase() === value.toLowerCase()
+        return event.itemType?.toString().toLowerCase() === lowercasedValue
       }
       case 'label': {
         const labels = event.labelNames as string[]
-        const labelsToTest = value.toLowerCase().split(',')
+        const labelsToTest = lowercasedValue.split(',')
         return labelsToTest.some((label) => {
           const hasWildcard = label.includes('*')
           if (hasWildcard) {
@@ -1397,14 +1416,14 @@ export const filterItemEvents = (
         })
       }
       case 'has':
-        return !testNo(value, event)
+        return !testNo(lowercasedValue, event)
       case 'read':
       case 'updated':
       case 'published': {
         let startDate: Date | undefined
         let endDate: Date | undefined
         // check for special date filters
-        switch (value.toLowerCase()) {
+        switch (lowercasedValue) {
           case 'today':
             startDate = DateTime.local().startOf('day').toJSDate()
             break
@@ -1422,7 +1441,7 @@ export const filterItemEvents = (
             break
           default: {
             // check for date ranges
-            const [start, end] = value.split('..')
+            const [start, end] = lowercasedValue.split('..')
             // validate date
             if (start && start !== '*') {
               startDate = new Date(start)
@@ -1458,7 +1477,7 @@ export const filterItemEvents = (
         // get camel case column name
         const key = camelCase(columnName) as 'subscription' | 'itemLanguage'
 
-        return event[key]?.toString().toLowerCase() === value.toLowerCase()
+        return event[key]?.toString().toLowerCase() === lowercasedValue
       }
       // match filters
       case 'author':
@@ -1475,10 +1494,10 @@ export const filterItemEvents = (
           | 'siteName'
 
         // TODO: Implement full text search
-        return event[key]?.toString().match(new RegExp(value, 'i'))
+        return event[key]?.toString().match(new RegExp(lowercasedValue, 'i'))
       }
       case 'includes': {
-        const ids = value.split(',')
+        const ids = lowercasedValue.split(',')
         if (!ids || ids.length === 0) {
           throw new Error('Expected ids')
         }
@@ -1486,7 +1505,7 @@ export const filterItemEvents = (
         return event.id && ids.includes(event.id.toString())
       }
       case 'recommendedby': {
-        if (value === '*') {
+        if (lowercasedValue === '*') {
           // select all if * is provided
           return event.recommenderNames && event.recommenderNames.length > 0
         }
@@ -1494,12 +1513,12 @@ export const filterItemEvents = (
         return (
           event.recommenderNames &&
           (event.recommenderNames as string[]).some(
-            (name) => name.toLowerCase() === value.toLowerCase()
+            (name) => name.toLowerCase() === lowercasedValue
           )
         )
       }
       case 'no':
-        return testNo(value, event)
+        return testNo(lowercasedValue, event)
       case 'use':
       case 'mode':
       case 'event':
@@ -1508,12 +1527,12 @@ export const filterItemEvents = (
       case 'readposition':
       case 'wordscount': {
         const operatorRegex = /([<>]=?)/
-        const operator = value.match(operatorRegex)?.[0]
+        const operator = lowercasedValue.match(operatorRegex)?.[0]
         if (!operator) {
           throw new Error('Expected operator')
         }
 
-        const newValue = value.replace(operatorRegex, '')
+        const newValue = lowercasedValue.replace(operatorRegex, '')
         const intValue = parseInt(newValue, 10)
 
         const column = getColumnName(field.name)
@@ -1536,13 +1555,7 @@ export const filterItemEvents = (
         }
       }
       default:
-        // TODO: Implement full text search
         return false
-      // treat unknown fields as implicit fields
-      // return serializeImplicitField({
-      //   ...expression,
-      //   value: `${field.name}:${value}`,
-      // })
     }
   }
 
@@ -1555,8 +1568,8 @@ export const filterItemEvents = (
   if (ast.type === 'UnaryOperator') {
     const removeRows = filterItemEvents(ast.operand, events)
 
-    return events.filter((row) => {
-      return !removeRows.includes(row)
+    return events.filter((event) => {
+      return !removeRows.includes(event)
     })
   }
 
