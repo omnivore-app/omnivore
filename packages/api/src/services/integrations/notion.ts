@@ -256,7 +256,7 @@ export class NotionClient implements IntegrationClient {
                       text: {
                         content: highlight.quote || '',
                         link: {
-                          url: highlightUrl(item.slug, highlight.id),
+                          url: getHighlightUrl(item.slug, highlight.id),
                         },
                       },
                       annotations: {
