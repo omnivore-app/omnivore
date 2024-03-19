@@ -7,6 +7,7 @@ import { Merge } from './util'
 import {
   enqueueAISummarizeJob,
   enqueueExportItem,
+  enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
   enqueueWebhookJob,
 } from './utils/createTask'
@@ -17,6 +18,7 @@ import {
   findFeatureByName,
   getFeatureName,
 } from './services/features'
+import { processYouTubeVideo } from './jobs/process-youtube-video'
 
 const logger = buildLogger('pubsub')
 
@@ -26,6 +28,18 @@ type EntityData<T extends Record<string, any>> = Merge<
   T,
   { libraryItemId: string }
 >
+
+const isYouTubeVideoURL = (url: string | undefined): boolean => {
+  if (!url) {
+    return false
+  }
+  const u = new URL(url)
+  if (!u.host.endsWith('youtube.com') && !u.host.endsWith('youtu.be')) {
+    return false
+  }
+  const videoId = u.searchParams.get('v')
+  return videoId != null
+}
 
 export const createPubSubClient = (): PubsubClient => {
   const fieldsToDelete = ['user'] as const
@@ -92,7 +106,17 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       if (await findFeatureByName(FeatureName.AISummaries, userId)) {
-        await enqueueAISummarizeJob({
+        // await enqueueAISummarizeJob({
+        //   userId,
+        //   libraryItemId,
+        // })
+      }
+
+      if (
+        'originalUrl' in data &&
+        isYouTubeVideoURL(data['originalUrl'] as string | undefined)
+      ) {
+        await enqueueProcessYouTubeVideo({
           userId,
           libraryItemId,
         })

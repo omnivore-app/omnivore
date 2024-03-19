@@ -113,6 +113,11 @@ export interface BackendEnv {
     mq: redisConfig
     cache: redisConfig
   }
+  notion: {
+    clientId: string
+    clientSecret: string
+    authUrl: string
+  }
 }
 
 const nullableEnvVars = [
@@ -165,6 +170,9 @@ const nullableEnvVars = [
   'MQ_REDIS_CERT',
   'IMPORTER_METRICS_COLLECTOR_URL',
   'INTERNAL_API_URL',
+  'NOTION_CLIENT_ID',
+  'NOTION_CLIENT_SECRET',
+  'NOTION_AUTH_URL',
 ] // Allow some vars to be null/empty
 
 /* If not in GAE and Prod/QA/Demo env (f.e. on localhost/dev env), allow following env vars to be null */
@@ -311,6 +319,11 @@ export function getEnv(): BackendEnv {
       cert: parse('REDIS_CERT')?.replace(/\\n/g, '\n'), // replace \n with new line
     },
   }
+  const notion = {
+    clientId: parse('NOTION_CLIENT_ID'),
+    clientSecret: parse('NOTION_CLIENT_SECRET'),
+    authUrl: parse('NOTION_AUTH_URL'),
+  }
 
   return {
     pg,
@@ -333,6 +346,7 @@ export function getEnv(): BackendEnv {
     pocket,
     subscription,
     redis,
+    notion,
   }
 }
 

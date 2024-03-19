@@ -700,10 +700,16 @@ export const findRecentLibraryItems = async (
 }
 
 export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
+  const selectColumns = getColumns(libraryItemRepository)
+    .filter(
+      (column) => column !== 'readableContent' && column !== 'originalContent'
+    )
+    .map((column) => `library_item.${column}`)
   return authTrx(
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
+        .select(selectColumns)
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
         .where('library_item.id IN (:...ids)', { ids })
@@ -989,7 +995,7 @@ export const createOrUpdateLibraryItem = async (
     )
   }
 
-  if (skipPubSub) {
+  if (skipPubSub || libraryItem.state === LibraryItemState.Processing) {
     return newLibraryItem
   }
 

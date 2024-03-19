@@ -591,7 +591,7 @@ describe('auth router', () => {
         await deleteUser(user.id)
       })
 
-      it('adds popular reads to the library', async () => {
+      it('adds popular reads to the continue reading section', async () => {
         const pendingUserToken = await createPendingUserToken({
           sourceUserId,
           email,
@@ -608,7 +608,7 @@ describe('auth router', () => {
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
         const { count } = await searchLibraryItems(
-          { query: 'in:all' },
+          { query: 'in:inbox sort:read-desc is:reading' },
           user.id
         )
 

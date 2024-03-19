@@ -44,14 +44,33 @@ public extension View {
   }
 }
 
+func savedDateString(_ savedAt: Date?) -> String {
+  if let savedAt = savedAt {
+    let locale = Locale.current
+    let dateFormatter = DateFormatter()
+    if Calendar.current.isDateInToday(savedAt) {
+      dateFormatter.dateStyle = .none
+      dateFormatter.timeStyle = .short
+    } else {
+      dateFormatter.dateFormat = "MMM dd"
+    }
+    dateFormatter.locale = locale
+    return dateFormatter.string(from: savedAt) + " • "
+  }
+  return ""
+}
+
 public struct LibraryItemCard: View {
   let viewer: Viewer?
   @ObservedObject var item: Models.LibraryItem
   @State var noteLineLimit: Int? = 3
 
+  let savedAtStr: String
+
   public init(item: Models.LibraryItem, viewer: Viewer?) {
     self.item = item
     self.viewer = viewer
+    self.savedAtStr = savedDateString(item.savedAt)
   }
 
   public var body: some View {
@@ -215,23 +234,28 @@ public struct LibraryItemCard: View {
         $0.icon
       }
 
+      Text(savedAtStr)
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
+
+      +
       Text("\(estimatedReadingTime)")
-        .font(.caption2).fontWeight(.medium)
+        .font(.footnote)
         .foregroundColor(Color.themeLibraryItemSubtle)
 
         +
         Text("\(readingProgress)")
-        .font(.caption2).fontWeight(.medium)
+        .font(.footnote)
         .foregroundColor(isPartiallyRead ? Color.appGreenSuccess : Color.themeLibraryItemSubtle)
 
         +
         Text("\(highlightsText)")
-        .font(.caption2).fontWeight(.medium)
+        .font(.footnote)
         .foregroundColor(Color.themeLibraryItemSubtle)
 
         +
         Text("\(notesText)")
-        .font(.caption2).fontWeight(.medium)
+        .font(.footnote)
         .foregroundColor(Color.themeLibraryItemSubtle)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
@@ -281,13 +305,13 @@ public struct LibraryItemCard: View {
   var byLine: some View {
     if let origin = cardSiteName(item.pageURLString) {
       Text(bylineStr + " | " + origin)
-        .font(.caption2)
+        .font(.footnote)
         .foregroundColor(Color.themeLibraryItemSubtle)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lineLimit(1)
     } else {
       Text(bylineStr)
-        .font(.caption2)
+        .font(.footnote)
         .foregroundColor(Color.themeLibraryItemSubtle)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lineLimit(1)
@@ -295,7 +319,7 @@ public struct LibraryItemCard: View {
   }
 
   public var articleInfo: some View {
-    VStack(alignment: .leading, spacing: 5) {
+    VStack(alignment: .leading, spacing: 7) {
       readInfo
         .dynamicTypeSize(.xSmall ... .medium)
 

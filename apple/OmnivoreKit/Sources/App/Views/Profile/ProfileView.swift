@@ -155,12 +155,21 @@ struct ProfileView: View {
           label: { Text(LocalText.documentationGeneric) }
         )
 
-        #if os(iOS)
-          Button(
-            action: { DataService.showIntercomMessenger?() },
-            label: { Text(LocalText.feedbackGeneric) }
-          )
-        #endif
+#if os(iOS)
+        Button(
+          action: { DataService.showIntercomMessenger?() },
+          label: { Text(LocalText.feedbackGeneric) }
+        )
+#endif
+
+        Button(
+          action: {
+            if let url = URL(string: "https://apps.apple.com/app/id1564031042?action=write-review") {
+              openURL(url)
+            }
+          },
+          label: { Text("Review Omnivore") }
+        )
 
         Button(
           action: {
@@ -170,7 +179,9 @@ struct ProfileView: View {
           },
           label: { Text("Join community on Discord") }
         )
+      }
 
+      Section {
         Button(
           action: {
             if let url = URL(string: "https://omnivore.app/privacy") {

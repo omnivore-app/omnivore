@@ -301,7 +301,7 @@ public final class OmnivoreWebView: WKWebView {
       case Selector(("_lookup:")): return (currentMenu == .defaultMenu)
       case Selector(("_define:")): return (currentMenu == .defaultMenu)
       case Selector(("_translate:")): return (currentMenu == .defaultMenu)
-      case Selector(("_findSelected:")): return (currentMenu == .defaultMenu)
+      // case Selector(("_findSelected:")): return (currentMenu == .defaultMenu)
       default: return false
       }
     }
