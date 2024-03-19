@@ -134,6 +134,7 @@ export const savePage = async (
     feedContent: input.feedContent,
     dir: parseResult.parsedContent?.dir,
     preparedDocument,
+    labelNames: input.labels?.map((label) => label.name),
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
@@ -213,6 +214,7 @@ export const parsedContentToLibraryItem = ({
   folder,
   feedContent,
   dir,
+  labelNames,
 }: {
   url: string
   userId: string
@@ -234,6 +236,7 @@ export const parsedContentToLibraryItem = ({
   folder?: string | null
   feedContent?: string | null
   dir?: string | null
+  labelNames?: string[]
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   logger.info('save_page', { url, state, itemId })
   return {
@@ -281,5 +284,6 @@ export const parsedContentToLibraryItem = ({
       dir?.toLowerCase() === 'rtl'
         ? DirectionalityType.RTL
         : DirectionalityType.LTR, // default to LTR
+    labelNames,
   }
 }
