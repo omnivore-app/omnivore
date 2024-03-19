@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { TermsAndConditions } from '../components/templates/TermsAndConditions'
-import { EmptyLayout } from '../components/templates/DocsLayout'
+import { EmptyLayout } from '../components/templates/EmptyLayout'
 
 export default function Terms(): JSX.Element {
   const router = useRouter()
