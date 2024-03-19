@@ -106,12 +106,17 @@ export default function Notion(): JSX.Element {
       <PageMetaData title="Notion" path="/integrations/notion" />
       <SettingsLayout>
         <VStack
+          distribution={'start'}
+          alignment={'start'}
           css={{
             margin: '0 auto',
             width: '80%',
+            height: '500px',
           }}
         >
           <HStack
+            alignment={'start'}
+            distribution={'start'}
             css={{
               width: '100%',
               pb: '$2',
