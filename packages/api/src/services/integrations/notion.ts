@@ -67,32 +67,46 @@ interface NotionPage {
     'Omnivore URL': {
       url: string
     }
+    'Saved At': {
+      date: {
+        start: string
+      }
+    }
+    'Last Updated': {
+      date: {
+        start: string
+      }
+    }
     Tags?: {
       multi_select: Array<{ name: string }>
     }
   }
   children?: Array<{
-    type: 'paragraph'
     paragraph: {
       rich_text: Array<{
         text: {
           content: string
           link?: { url: string }
         }
-        annotations?: {
-          bold?: boolean
-          italic?: boolean
-          strikethrough?: boolean
-          underline?: boolean
-          code?: boolean
-          color?: AnnotationColor
+        annotations: {
+          code: boolean
+          color: AnnotationColor
+        }
+      }>
+      children?: Array<{
+        paragraph: {
+          rich_text: Array<{
+            text: {
+              content: string
+            }
+          }>
         }
       }>
     }
   }>
 }
 
-type Property = 'highlights' | 'labels' | 'notes'
+type Property = 'highlights'
 
 interface Settings {
   parentPageId: string
@@ -165,7 +179,8 @@ export class NotionClient implements IntegrationClient {
 
   private itemToNotionPage = (
     item: LibraryItem,
-    settings: Settings
+    settings: Settings,
+    lastSync?: Date | null
   ): NotionPage => {
     return {
       parent: {
@@ -210,47 +225,64 @@ export class NotionClient implements IntegrationClient {
         'Omnivore URL': {
           url: `${env.client.url}/me/${item.slug}`,
         },
-        Tags:
-          item.labels && settings.properties.includes('labels')
-            ? {
-                multi_select: item.labels.map((label) => ({
-                  name: label.name,
-                })),
-              }
-            : undefined,
+        'Saved At': {
+          date: {
+            start: item.createdAt.toISOString(),
+          },
+        },
+        'Last Updated': {
+          date: {
+            start: item.updatedAt.toISOString(),
+          },
+        },
+        Tags: item.labels
+          ? {
+              multi_select: item.labels.map((label) => ({
+                name: label.name,
+              })),
+            }
+          : undefined,
       },
-      children: item.highlights
-        ? item.highlights.map((highlight) => ({
-            type: 'paragraph',
-            paragraph: {
-              rich_text: [
-                {
-                  text: {
-                    content: settings.properties.includes('highlights')
-                      ? highlight.quote || ''
-                      : '',
-                    link: {
-                      url: highlightUrl(item.slug, highlight.id),
+      children:
+        settings.properties.includes('highlights') && item.highlights
+          ? item.highlights
+              .filter(
+                (highlight) => !lastSync || highlight.updatedAt > lastSync // only new highlights
+              )
+              .map((highlight) => ({
+                paragraph: {
+                  rich_text: [
+                    {
+                      text: {
+                        content: highlight.quote || '',
+                        link: {
+                          url: highlightUrl(item.slug, highlight.id),
+                        },
+                      },
+                      annotations: {
+                        code: true,
+                        color: highlight.color as AnnotationColor,
+                      },
                     },
-                  },
-                  annotations: {
-                    color: highlight.color as AnnotationColor,
-                  },
+                  ],
+                  children: highlight.annotation
+                    ? [
+                        {
+                          paragraph: {
+                            rich_text: [
+                              {
+                                text: {
+                                  content: highlight.annotation || '',
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      ]
+                    : undefined,
                 },
-                {
-                  text: {
-                    content: settings.properties.includes('notes')
-                      ? `\n${highlight.annotation || ''}`
-                      : '',
-                  },
-                  annotations: {
-                    italic: true,
-                  },
-                },
-              ],
-            },
-          }))
-        : undefined,
+              }))
+          : undefined,
     }
   }
 
@@ -323,6 +355,12 @@ export class NotionClient implements IntegrationClient {
           'Omnivore URL': {
             url: {},
           },
+          'Saved At': {
+            date: {},
+          },
+          'Last Updated': {
+            date: {},
+          },
           Tags: {
             multi_select: {},
           },
@@ -331,13 +369,11 @@ export class NotionClient implements IntegrationClient {
 
       // save the database id
       databaseId = database.id
+      settings.parentDatabaseId = databaseId
       await updateIntegration(
         this.integrationData.id,
         {
-          settings: {
-            ...this.integrationData.settings,
-            parentDatabaseId: databaseId,
-          },
+          settings,
         },
         this.integrationData.user.id
       )
@@ -345,7 +381,11 @@ export class NotionClient implements IntegrationClient {
 
     await Promise.all(
       items.map(async (item) => {
-        const notionPage = this.itemToNotionPage(item, settings)
+        const notionPage = this.itemToNotionPage(
+          item,
+          settings,
+          this.integrationData?.syncedAt
+        )
         const url = notionPage.properties['Omnivore URL'].url
 
         const existingPage = await this.findPage(url, databaseId)
@@ -356,32 +396,12 @@ export class NotionClient implements IntegrationClient {
             properties: notionPage.properties,
           })
 
-          const children = notionPage.children
-          if (children) {
-            // get the existing children
-            const response = await this.client.blocks.children.list({
+          // append the children incrementally
+          if (notionPage.children && notionPage.children.length > 0) {
+            await this.client.blocks.children.append({
               block_id: existingPage.id,
+              children: notionPage.children,
             })
-            if (response.results.length > 0) {
-              const existingChildren =
-                response.results as NotionPage['children']
-              // delete the existing children from children
-              notionPage.children = children.filter(
-                (child) =>
-                  !existingChildren?.some(
-                    (existingChild) =>
-                      existingChild.paragraph.rich_text[0].text.link?.url ===
-                      child.paragraph.rich_text[0].text.link?.url
-                  )
-              )
-            }
-            // append the children
-            if (notionPage.children && notionPage.children.length > 0) {
-              await this.client.blocks.children.append({
-                block_id: existingPage.id,
-                children: notionPage.children,
-              })
-            }
           }
 
           return
