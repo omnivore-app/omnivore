@@ -3,6 +3,7 @@ import useSWR from 'swr'
 import { publicGqlFetcher } from '../networkHelpers'
 
 type ViewerQueryResponse = {
+  mutate: () => void
   viewerData?: ViewerQueryResponseData
   viewerDataError?: unknown
   isLoading: boolean
@@ -51,9 +52,10 @@ export function useGetViewerQuery(): ViewerQueryResponse {
     }
   `
 
-  const { data, error } = useSWR(query, publicGqlFetcher)
+  const { data, error, mutate } = useSWR(query, publicGqlFetcher)
 
   return {
+    mutate,
     viewerData: data as ViewerQueryResponseData,
     viewerDataError: error, // TODO: figure out error possibilities
     isLoading: !error && !data,

@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react'
 import { Button } from '../components/elements/Button'
 import { HStack } from '../components/elements/LayoutPrimitives'
-import { SettingsLayout } from '../components/templates/SettingsLayout'
+import { EmptyLayout } from '../components/templates/EmptyLayout'
 import { setupAnalytics } from '../lib/analytics'
 
 export default function Support(): JSX.Element {
@@ -18,7 +18,7 @@ export default function Support(): JSX.Element {
   }, [initAnalytics])
 
   return (
-    <SettingsLayout title="Support">
+    <EmptyLayout title="Support">
       <HStack
         alignment="center"
         distribution="end"
@@ -46,6 +46,6 @@ export default function Support(): JSX.Element {
           {'Open Chat Window'}
         </Button>
       </HStack>
-    </SettingsLayout>
+    </EmptyLayout>
   )
 }

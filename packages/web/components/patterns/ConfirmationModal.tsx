@@ -19,8 +19,19 @@ type ConfirmationModalProps = {
 }
 
 export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
+  const safeOnOpenChange = useCallback(
+    (open: boolean) => {
+      setTimeout(() => {
+        console.log('body style: ', document.body.style)
+        document.body.style.removeProperty('pointer-events')
+      }, 200)
+      props.onOpenChange(open)
+    },
+    [props]
+  )
+
   return (
-    <ModalRoot defaultOpen onOpenChange={props.onOpenChange}>
+    <ModalRoot defaultOpen onOpenChange={safeOnOpenChange}>
       <ModalOverlay />
       <ModalContent css={{ bg: '$grayBg', maxWidth: '20em', zIndex: '20' }}>
         <VStack alignment="center" distribution="center" css={{ p: '15px' }}>
@@ -46,11 +57,15 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
             </Button>
             <Button
               style="ctaDarkYellow"
-              onClick={props.onAccept}
+              onClick={() => {
+                props.onAccept()
+                document.body.style.removeProperty('pointer-events')
+              }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   event.preventDefault()
                   props.onAccept()
+                  document.body.style.removeProperty('pointer-events')
                 }
               }}
             >

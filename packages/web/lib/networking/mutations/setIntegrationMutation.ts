@@ -16,6 +16,7 @@ export type SetIntegrationInput = {
   token: string
   enabled: boolean
   importItemState?: ImportItemState
+  settings?: any
 }
 
 type SetIntegrationResult = {
@@ -52,6 +53,7 @@ export async function setIntegrationMutation(
             enabled
             createdAt
             updatedAt
+            settings
           }
         }
         ... on SetIntegrationError {

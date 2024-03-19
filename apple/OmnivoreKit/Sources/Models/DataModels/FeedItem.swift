@@ -50,27 +50,6 @@ public struct LinkedItemAudioProperties {
   public let startOffset: Double
 }
 
-// Internal model used for parsing a push notification object only
-public struct JSONArticle: Decodable {
-  public let id: String
-  public let title: String
-  public let createdAt: Date
-  public let updatedAt: Date
-  public let savedAt: Date
-  public let readAt: Date?
-  public let folder: String
-  public let image: String
-  public let readingProgressPercent: Double
-  public let readingProgressAnchorIndex: Int
-  public let slug: String
-  public let contentReader: String
-  public let url: String
-  public let isArchived: Bool
-  public let language: String?
-  public let wordsCount: Int?
-  public let downloadURL: String
-}
-
 public extension LibraryItem {
   var unwrappedID: String { id ?? "" }
   var unwrappedSlug: String { slug ?? "" }

@@ -101,7 +101,8 @@
                 Spacer()
                 Image(systemName: "chevron.right")
               }.onTapGesture {
-                viewModel.linkRequest = LinkRequest(id: UUID(), serverID: item.id)
+                homeFeedViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: item.id))
+                dismiss()
               }
             }
           }

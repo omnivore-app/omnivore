@@ -59,4 +59,7 @@ export class Integration {
 
   @Column('enum', { enum: ImportItemState, nullable: true })
   importItemState?: ImportItemState | null
+
+  @Column('jsonb', { nullable: true })
+  settings?: any
 }

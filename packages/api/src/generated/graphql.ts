@@ -1091,6 +1091,7 @@ export type Integration = {
   enabled: Scalars['Boolean'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  settings?: Maybe<Scalars['JSON']>;
   taskName?: Maybe<Scalars['String']>;
   token: Scalars['String'];
   type: IntegrationType;
@@ -2594,6 +2595,7 @@ export type SetIntegrationInput = {
   id?: InputMaybe<Scalars['ID']>;
   importItemState?: InputMaybe<ImportItemState>;
   name: Scalars['String'];
+  settings?: InputMaybe<Scalars['JSON']>;
   syncedAt?: InputMaybe<Scalars['Date']>;
   taskName?: InputMaybe<Scalars['String']>;
   token: Scalars['String'];
@@ -5321,6 +5323,7 @@ export type IntegrationResolvers<ContextType = ResolverContext, ParentType exten
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  settings?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   taskName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['IntegrationType'], ParentType, ContextType>;
