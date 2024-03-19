@@ -2049,14 +2049,14 @@ Readability.prototype = {
       values["article:date"];
 
     // get preview image
-    metadata.previewImage = jsonld.previewImage ||
-      values["image"] ||
+    metadata.previewImage = values["image"] ||
       values["twitter:image"] ||
       values["dc:image"] ||
       values["dcterm:image"] ||
       values["og:image"] ||
       values["weibo:article:image"] ||
-      values["weibo:webpage:image"];
+      values["weibo:webpage:image"] || 
+      jsonld.previewImage
 
     metadata.locale = values["og:locale"];
 
