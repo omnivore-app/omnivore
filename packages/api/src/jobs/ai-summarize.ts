@@ -4,13 +4,10 @@ import { ChatOpenAI } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
+import { htmlToMarkdown } from '../utils/parser'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
-import {
-  createSummarizableDocument,
-  getAISummary,
-} from '../services/ai-summaries'
-import { NodeHtmlMarkdown, TranslatorConfigObject } from 'node-html-markdown'
+import { getAISummary } from '../services/ai-summaries'
 
 export interface AISummarizeJobData {
   userId: string
@@ -58,20 +55,18 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       },
     })
     const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 12000,
+      chunkSize: 2000,
     })
 
-    const document = createSummarizableDocument(libraryItem.readableContent)
+    const document = htmlToMarkdown(libraryItem.readableContent)
     const docs = await textSplitter.createDocuments([document])
     const chain = loadSummarizationChain(llm, {
       type: 'map_reduce', // you can choose from map_reduce, stuff or refine
       verbose: true, // to view the steps in the console
     })
-    const response = await chain.invoke({
+    const response = await chain.call({
       input_documents: docs,
     })
-
-    console.log('summary response: ', JSON.stringify(response))
 
     if (typeof response.text !== 'string') {
       logger.error(`AI summary did not return text`)
