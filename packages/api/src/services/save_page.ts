@@ -103,7 +103,7 @@ export const savePage = async (
     }
   }
 
-  const parseResult = await parsePreparedContent(input.url, {
+  const preparedDocument: PreparedDocumentInput = {
     document: input.originalContent,
     pageInfo: {
       title: input.title,
@@ -111,7 +111,9 @@ export const savePage = async (
       previewImage: input.previewImage,
       author: input.author,
     },
-  })
+  }
+
+  const parseResult = await parsePreparedContent(input.url, preparedDocument)
 
   const itemToSave = parsedContentToLibraryItem({
     itemId: clientRequestId,
@@ -131,6 +133,7 @@ export const savePage = async (
     folder: input.folder,
     feedContent: input.feedContent,
     dir: parseResult.parsedContent?.dir,
+    preparedDocument,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
@@ -247,7 +250,7 @@ export const parsedContentToLibraryItem = ({
       croppedPathname ||
       parsedContent?.siteName ||
       url,
-    author: parsedContent?.byline,
+    author: preparedDocument?.pageInfo.author || parsedContent?.byline,
     originalUrl: cleanUrl(canonicalUrl || url),
     itemType,
     textContentHash:
