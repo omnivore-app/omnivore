@@ -174,8 +174,6 @@ export default function Notion(): JSX.Element {
                 >
                   <Checkbox.Group onChange={onDataChange}>
                     <Checkbox value="highlights">Highlights</Checkbox>
-                    <Checkbox value="labels">Labels</Checkbox>
-                    <Checkbox value="notes">Notes</Checkbox>
                   </Checkbox.Group>
                 </Form.Item>
 
