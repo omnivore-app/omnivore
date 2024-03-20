@@ -1244,7 +1244,7 @@ export const deleteLibraryItemsByAdmin = async (
 }
 
 export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
-  const batchSize = 1000
+  const batchSize = 100
 
   const qb = libraryItemRepository.createQueryBuilder().where(criteria)
   const countSql = queryBuilderToRawSql(qb.select('COUNT(1)'))
@@ -1411,15 +1411,15 @@ export const filterItemEvents = (
         return event.itemType?.toString().toLowerCase() === lowercasedValue
       }
       case 'label': {
-        const labels = event.labelNames as string[]
+        const labels = event.labelNames as string[] | undefined
         const labelsToTest = lowercasedValue.split(',')
         return labelsToTest.some((label) => {
           const hasWildcard = label.includes('*')
           if (hasWildcard) {
-            return labels.some((l) => l.match(new RegExp(label, 'i')))
+            return labels?.some((l) => l.match(new RegExp(label, 'i')))
           }
 
-          return labels.some((l) => l.toLowerCase() === label)
+          return labels?.some((l) => l.toLowerCase() === label)
         })
       }
       case 'has':

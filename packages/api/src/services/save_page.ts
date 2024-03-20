@@ -135,6 +135,7 @@ export const savePage = async (
     dir: parseResult.parsedContent?.dir,
     preparedDocument,
     labelNames: input.labels?.map((label) => label.name),
+    highlightAnnotations: parseResult.highlightData ? [''] : undefined,
   })
   const isImported =
     input.source === 'csv-importer' || input.source === 'pocket'
@@ -215,6 +216,7 @@ export const parsedContentToLibraryItem = ({
   feedContent,
   dir,
   labelNames,
+  highlightAnnotations,
 }: {
   url: string
   userId: string
@@ -237,6 +239,7 @@ export const parsedContentToLibraryItem = ({
   feedContent?: string | null
   dir?: string | null
   labelNames?: string[]
+  highlightAnnotations?: string[]
 }): DeepPartial<LibraryItem> & { originalUrl: string } => {
   logger.info('save_page', { url, state, itemId })
   return {
@@ -285,5 +288,6 @@ export const parsedContentToLibraryItem = ({
         ? DirectionalityType.RTL
         : DirectionalityType.LTR, // default to LTR
     labelNames,
+    highlightAnnotations,
   }
 }
