@@ -3009,6 +3009,20 @@ const schema = gql`
     name: String!
   }
 
+  union IntegrationResult = IntegrationSuccess | IntegrationError
+
+  type IntegrationSuccess {
+    integration: Integration!
+  }
+
+  type IntegrationError {
+    errorCodes: [IntegrationErrorCode!]!
+  }
+
+  enum IntegrationErrorCode {
+    NOT_FOUND
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3191,6 +3205,7 @@ const schema = gql`
       sort: SortParams
       folder: String
     ): UpdatesSinceResult!
+    integration(id: ID!): IntegrationResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!

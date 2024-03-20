@@ -1140,6 +1140,20 @@ type Integration {
   updatedAt: Date
 }
 
+type IntegrationError {
+  errorCodes: [IntegrationErrorCode!]!
+}
+
+enum IntegrationErrorCode {
+  NOT_FOUND
+}
+
+union IntegrationResult = IntegrationError | IntegrationSuccess
+
+type IntegrationSuccess {
+  integration: Integration!
+}
+
 enum IntegrationType {
   EXPORT
   IMPORT
@@ -1591,6 +1605,7 @@ type Query {
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
+  integration(id: ID!): IntegrationResult!
   integrations: IntegrationsResult!
   labels: LabelsResult!
   me: User

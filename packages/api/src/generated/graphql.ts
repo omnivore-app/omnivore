@@ -1274,6 +1274,22 @@ export type Integration = {
   updatedAt?: Maybe<Scalars['Date']>;
 };
 
+export type IntegrationError = {
+  __typename?: 'IntegrationError';
+  errorCodes: Array<IntegrationErrorCode>;
+};
+
+export enum IntegrationErrorCode {
+  NotFound = 'NOT_FOUND'
+}
+
+export type IntegrationResult = IntegrationError | IntegrationSuccess;
+
+export type IntegrationSuccess = {
+  __typename?: 'IntegrationSuccess';
+  integration: Integration;
+};
+
 export enum IntegrationType {
   Export = 'EXPORT',
   Import = 'IMPORT'
@@ -2096,6 +2112,7 @@ export type Query = {
   getUserPersonalization: GetUserPersonalizationResult;
   groups: GroupsResult;
   hello?: Maybe<Scalars['String']>;
+  integration: IntegrationResult;
   integrations: IntegrationsResult;
   labels: LabelsResult;
   me?: Maybe<User>;
@@ -2140,6 +2157,11 @@ export type QueryGetDiscoverFeedArticlesArgs = {
   discoverTopicId: Scalars['String'];
   feedId?: InputMaybe<Scalars['ID']>;
   first?: InputMaybe<Scalars['Int']>;
+};
+
+
+export type QueryIntegrationArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -4063,6 +4085,10 @@ export type ResolversTypes = {
   ImportItemState: ImportItemState;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Integration: ResolverTypeWrapper<Integration>;
+  IntegrationError: ResolverTypeWrapper<IntegrationError>;
+  IntegrationErrorCode: IntegrationErrorCode;
+  IntegrationResult: ResolversTypes['IntegrationError'] | ResolversTypes['IntegrationSuccess'];
+  IntegrationSuccess: ResolverTypeWrapper<IntegrationSuccess>;
   IntegrationType: IntegrationType;
   IntegrationsError: ResolverTypeWrapper<IntegrationsError>;
   IntegrationsErrorCode: IntegrationsErrorCode;
@@ -4594,6 +4620,9 @@ export type ResolversParentTypes = {
   ImportFromIntegrationSuccess: ImportFromIntegrationSuccess;
   Int: Scalars['Int'];
   Integration: Integration;
+  IntegrationError: IntegrationError;
+  IntegrationResult: ResolversParentTypes['IntegrationError'] | ResolversParentTypes['IntegrationSuccess'];
+  IntegrationSuccess: IntegrationSuccess;
   IntegrationsError: IntegrationsError;
   IntegrationsResult: ResolversParentTypes['IntegrationsError'] | ResolversParentTypes['IntegrationsSuccess'];
   IntegrationsSuccess: IntegrationsSuccess;
@@ -5777,6 +5806,20 @@ export type IntegrationResolvers<ContextType = ResolverContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type IntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationError'] = ResolversParentTypes['IntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['IntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type IntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationResult'] = ResolversParentTypes['IntegrationResult']> = {
+  __resolveType: TypeResolveFn<'IntegrationError' | 'IntegrationSuccess', ParentType, ContextType>;
+};
+
+export type IntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationSuccess'] = ResolversParentTypes['IntegrationSuccess']> = {
+  integration?: Resolver<ResolversTypes['Integration'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type IntegrationsErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['IntegrationsError'] = ResolversParentTypes['IntegrationsError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['IntegrationsErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -6132,6 +6175,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'id'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -7277,6 +7321,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   ImportFromIntegrationResult?: ImportFromIntegrationResultResolvers<ContextType>;
   ImportFromIntegrationSuccess?: ImportFromIntegrationSuccessResolvers<ContextType>;
   Integration?: IntegrationResolvers<ContextType>;
+  IntegrationError?: IntegrationErrorResolvers<ContextType>;
+  IntegrationResult?: IntegrationResultResolvers<ContextType>;
+  IntegrationSuccess?: IntegrationSuccessResolvers<ContextType>;
   IntegrationsError?: IntegrationsErrorResolvers<ContextType>;
   IntegrationsResult?: IntegrationsResultResolvers<ContextType>;
   IntegrationsSuccess?: IntegrationsSuccessResolvers<ContextType>;

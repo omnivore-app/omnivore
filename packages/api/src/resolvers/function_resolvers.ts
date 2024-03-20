@@ -22,6 +22,8 @@ import {
   SearchItem,
   User,
 } from '../generated/graphql'
+import { getAISummary } from '../services/ai-summaries'
+import { findUserFeatures } from '../services/features'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
@@ -79,6 +81,7 @@ import {
   googleSignupResolver,
   groupsResolver,
   importFromIntegrationResolver,
+  integrationResolver,
   integrationsResolver,
   joinGroupResolver,
   labelsResolver,
@@ -150,8 +153,6 @@ import {
   deleteDiscoverFeedsResolver,
   editDiscoverFeedsResolver,
 } from './discover_feeds'
-import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures, getFeatureName } from '../services/features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -348,6 +349,7 @@ export const functionResolvers = {
     recentEmails: recentEmailsResolver,
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
+    integration: integrationResolver,
   },
   User: {
     async intercomHash(
@@ -662,4 +664,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateNewsletterEmail'),
   ...resultResolveTypeResolver('EmptyTrash'),
   ...resultResolveTypeResolver('FetchContent'),
+  ...resultResolveTypeResolver('Integration'),
 }
