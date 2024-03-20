@@ -1,6 +1,5 @@
 import { logger } from '../utils/logger'
-import { libraryItemRepository } from '../repository/library_item'
-import { htmlToMarkdown, parsePreparedContent } from '../utils/parser'
+import { parsePreparedContent } from '../utils/parser'
 import { LibraryItem } from '../entity/library_item'
 import {
   createOrUpdateLibraryItem,
@@ -8,8 +7,6 @@ import {
 } from '../services/library_item'
 import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
-import { RunnableSequence } from '@langchain/core/runnables'
-import { StructuredOutputParser } from 'langchain/output_parsers'
 import { v4 as uuid } from 'uuid'
 
 import { env } from '../env'
@@ -17,9 +14,6 @@ import showdown from 'showdown'
 import { parsedContentToLibraryItem, savePage } from '../services/save_page'
 import { generateSlug } from '../utils/helpers'
 import { PageType } from '../generated/graphql'
-import * as stream from 'stream'
-
-import { Storage } from '@google-cloud/storage'
 import { readStringFromStorage } from '../utils/uploads'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
 
@@ -154,18 +148,18 @@ const createCandidatesList = async (
   return removeDuplicateTitles(result)
 }
 
-const isSelectedLibraryItem = (
-  item: SelectedLibraryItem | undefined
-): item is SelectedLibraryItem => {
+const isContextualLibraryItem = (
+  item: ContextualizedItem | undefined
+): item is ContextualizedItem => {
   return !!item
 }
 
 const getSelection = async (
   llm: OpenAI,
   digestDefinition: DigestDefinition,
-  candidates: LibraryItem[],
-  recentPreferences: LibraryItem[]
-): Promise<SelectedLibraryItem[]> => {
+  preferences: LibraryItem[],
+  candidates: ContextualizedItem[]
+): Promise<ContextualizedItem[]> => {
   const selectionTemplate = PromptTemplate.fromTemplate(
     digestDefinition.selectionPrompt
   )
@@ -173,12 +167,16 @@ const getSelection = async (
   const selectionResult = await selectionChain.invoke(
     {
       candidates: JSON.stringify(
-        candidates.map((item: LibraryItem) => {
-          return { id: item.id, title: item.title }
+        candidates.map((item: ContextualizedItem) => {
+          return {
+            id: item.libraryItem.id,
+            title: item.libraryItem.title,
+            topic: item.context.topic,
+          }
         })
       ),
       preferences: JSON.stringify(
-        recentPreferences.map((item: LibraryItem) => {
+        preferences.map((item: LibraryItem) => {
           return { id: item.id, title: item.title }
         })
       ),
@@ -190,28 +188,19 @@ const getSelection = async (
 
   const selection = JSON.parse(selectionResult) as SelectionResultItem[]
   console.log('[digest]: selection: ', selection)
-  console.log(
-    '[digest]:  candidates: ',
-    candidates.map((item) => item.id)
-  )
 
   return selection
     .map((item) => {
-      const libraryItem = candidates.find((candidate) => {
-        return candidate.id == item.id
+      const selected = candidates.find((candidate) => {
+        return candidate.libraryItem.id == item.id
       })
-      if (!libraryItem) {
+      if (!selected) {
         console.log('[digest]:  missing library item: ', item)
         return undefined
       }
-      return {
-        id: libraryItem.id,
-        title: libraryItem.title,
-        topic: item.topic,
-        url: `${env.client.url}/me/${libraryItem.slug}`,
-      }
+      return selected
     })
-    .filter(isSelectedLibraryItem)
+    .filter(isContextualLibraryItem)
 }
 
 const assemble = async (
@@ -300,14 +289,14 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       digestDefinition,
       jobData.userId
     )
-    const recentPreferences = await createPreferencesList(
+    const preferences = await createPreferencesList(
       digestDefinition,
       jobData.userId
     )
 
     console.log(
       '[digest]: preferences: ',
-      recentPreferences.map((item: LibraryItem) => item.title)
+      preferences.map((item: LibraryItem) => item.title)
     )
 
     console.log(
@@ -322,15 +311,24 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       },
     })
 
-    const contextualizeData = await contextualize(
+    const contextualizedItems = await contextualize(
       llm,
       digestDefinition,
       candidates
     )
 
-    console.log('contextualizedData: ', { contextualizeData })
+    console.log('contextualizedData: ', {
+      contextualizeData: contextualizedItems,
+    })
 
-    const articleHTML = await assemble(llm, digestDefinition, contextualizeData)
+    const selection = await getSelection(
+      llm,
+      digestDefinition,
+      preferences,
+      contextualizedItems
+    )
+
+    const articleHTML = await assemble(llm, digestDefinition, selection)
     if (articleHTML) {
       const preparedDocument = {
         document: articleHTML,
