@@ -8,6 +8,8 @@ import {
 } from '../services/library_item'
 import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
+import { RunnableSequence } from '@langchain/core/runnables'
+import { StructuredOutputParser } from 'langchain/output_parsers'
 import { v4 as uuid } from 'uuid'
 
 import { env } from '../env'
@@ -19,6 +21,7 @@ import * as stream from 'stream'
 
 import { Storage } from '@google-cloud/storage'
 import { readStringFromStorage } from '../utils/uploads'
+import { NodeHtmlMarkdown } from 'node-html-markdown'
 
 export interface BuildDigestJobData {
   userId: string
@@ -37,9 +40,24 @@ interface DigestDefinition {
   preferenceSelectors: Selector[]
   candidateSelectors: Selector[]
   fastMatchAttributes: string[]
+
   selectionPrompt: string
   assemblePrompt: string
   introductionCopy: string[]
+
+  topics: string[]
+  contextualizeItemsPrompt: string
+}
+
+interface ItemContext {
+  topic: string
+  //  summary: string
+  introduction: string
+}
+
+type ContextualizedItem = {
+  libraryItem: LibraryItem
+  context: ItemContext
 }
 
 interface SelectionResultItem {
@@ -117,13 +135,15 @@ const createCandidatesList = async (
 ): Promise<LibraryItem[]> => {
   const result: LibraryItem[] = []
   for (const selector of digestDefinition.candidateSelectors) {
+    console.log(`candidate selector: ${selector.query}`)
+
     const candidates = await searchLibraryItems(
       {
         from: 0,
         size: selector.count,
         includePending: false,
         includeDeleted: false,
-        includeContent: false,
+        includeContent: true,
         useFolders: false,
         query: selector.query,
       },
@@ -194,21 +214,28 @@ const getSelection = async (
     .filter(isSelectedLibraryItem)
 }
 
-const createDigestArticleContent = async (
+const assemble = async (
   llm: OpenAI,
   digestDefinition: DigestDefinition,
-  candidates: LibraryItem[],
-  selection: SelectedLibraryItem[]
+  contextualizedData: ContextualizedItem[]
 ): Promise<string | undefined> => {
-  const introductionTemplate = PromptTemplate.fromTemplate(
-    digestDefinition.assemblePrompt
-  )
-  const introductionChain = introductionTemplate.pipe(llm)
-  const introductionResult = await introductionChain.invoke({
-    selections: JSON.stringify(selection),
-  })
+  var markdown = ''
 
-  console.log(`[digest]: markdown:`, { introductionResult })
+  for (const topic of digestDefinition.topics) {
+    const matches = contextualizedData.filter(
+      (item) => item.context.topic == topic
+    )
+    if (matches.length > 0) {
+      markdown += '## ' + topic + '\n\n'
+      for (const item of matches) {
+        markdown += `### [${item.libraryItem.title}](${env.client.url}/me/${item.libraryItem.slug})\n\n`
+        markdown += item.context.introduction
+        markdown += '\n\n'
+      }
+    }
+  }
+
+  console.log(`[digest]: markdown:`, { markdown })
 
   const converter = new showdown.Converter({
     backslashEscapesHTMLTags: true,
@@ -216,8 +243,46 @@ const createDigestArticleContent = async (
 
   const originalContent = converter.makeHtml(`
   Hello, this is your Omnivore daily digest. We want to make it easy for you to enjoy reading every day. To do 
-  that we've picked some of the best items that were recently added to your library and created a digest. Enjoy!\n\n${introductionResult}`)
+  that we've picked some of the best items that were recently added to your library and created a digest. Enjoy!\n\n${markdown}`)
   return originalContent
+}
+
+export const createSummarizableDocument = (readable: string): string => {
+  const nhm = new NodeHtmlMarkdown({
+    keepDataImages: false,
+  })
+  return nhm.translate(readable)
+}
+
+const contextualize = async (
+  llm: OpenAI,
+  digestDefinition: DigestDefinition,
+  items: LibraryItem[]
+): Promise<ContextualizedItem[]> => {
+  let result: ContextualizedItem[] = []
+  const contextualTemplate = PromptTemplate.fromTemplate(
+    digestDefinition.contextualizeItemsPrompt
+  )
+
+  for (const item of items) {
+    const markdown = createSummarizableDocument(item.readableContent)
+    const chain = contextualTemplate.pipe(llm)
+    const contextStr = await chain.invoke({
+      content: markdown,
+      topics: JSON.stringify(digestDefinition.topics),
+    })
+
+    console.log(`[digest]: contextualize result:`, {
+      title: item.title,
+      context: contextStr,
+    })
+    result.push({
+      libraryItem: item,
+      context: JSON.parse(contextStr) as ItemContext,
+    })
+  }
+
+  return result
 }
 
 export const buildDigest = async (jobData: BuildDigestJobData) => {
@@ -244,31 +309,28 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       '[digest]: preferences: ',
       recentPreferences.map((item: LibraryItem) => item.title)
     )
+
     console.log(
       '[digest]: candidates: ',
       candidates.map((item: LibraryItem) => `${item.id}: ${item.title}`)
     )
 
     const llm = new OpenAI({
-      modelName: 'gpt-4', // gpt-4-1106-preview
+      modelName: 'gpt-4',
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
     })
 
-    const selection = await getSelection(
+    const contextualizeData = await contextualize(
       llm,
       digestDefinition,
-      candidates,
-      recentPreferences
-    )
-    const articleHTML = await createDigestArticleContent(
-      llm,
-      digestDefinition,
-      candidates,
-      selection
+      candidates
     )
 
+    console.log('contextualizedData: ', { contextualizeData })
+
+    const articleHTML = await assemble(llm, digestDefinition, contextualizeData)
     if (articleHTML) {
       const preparedDocument = {
         document: articleHTML,
@@ -306,7 +368,7 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       await createOrUpdateLibraryItem(libraryItemToSave, jobData.userId)
     }
 
-    console.log('[digest]: INTRODUCTION RESULT: ', articleHTML)
+    // console.log('[digest]: INTRODUCTION RESULT: ', articleHTML)
   } catch (err) {
     console.log('error creating summary: ', err)
   }
