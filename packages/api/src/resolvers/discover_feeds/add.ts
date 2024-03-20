@@ -2,7 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
-import { authorized } from '../../utils/gql-utils'
+import axios from 'axios'
+import { XMLParser } from 'fast-xml-parser'
+import { QueryRunner } from 'typeorm'
+import { v4 } from 'uuid'
+import { appDataSource } from '../../data_source'
 import {
   AddDiscoverFeedError,
   AddDiscoverFeedErrorCode,
@@ -10,13 +14,9 @@ import {
   DiscoverFeed,
   MutationAddDiscoverFeedArgs,
 } from '../../generated/graphql'
-import { appDataSource } from '../../data_source'
-import { QueryRunner } from 'typeorm'
-import axios from 'axios'
-import { RSS_PARSER_CONFIG } from '../../utils/parser'
-import { XMLParser } from 'fast-xml-parser'
 import { EntityType } from '../../pubsub'
-import { v4 } from 'uuid'
+import { authorized } from '../../utils/gql-utils'
+import { RSS_PARSER_CONFIG } from '../../utils/parser'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -183,13 +183,14 @@ export const addDiscoverFeedResolver = authorized<
     }
 
     const result = await addNewSubscription(queryRunner, url, uid)
-    if (result.__typename == 'AddDiscoverFeedSuccess') {
-      await pubsub.entityCreated(
-        EntityType.RSS_FEED,
-        { feed: result.feed, libraryItemId: 'NA' },
-        uid
-      )
-    }
+    // TODO: Add pubsub for new feed
+    // if (result.__typename == 'AddDiscoverFeedSuccess') {
+    //   await pubsub.entityCreated(
+    //     EntityType.RSS_FEED,
+    //     { feed: result.feed, libraryItemId: 'NA' },
+    //     uid
+    //   )
+    // }
 
     return result
   } catch (error) {

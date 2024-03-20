@@ -1825,6 +1825,7 @@ type Rule {
   createdAt: Date!
   enabled: Boolean!
   eventTypes: [RuleEventType!]!
+  failedAt: Date
   filter: String!
   id: ID!
   name: String!

@@ -15,6 +15,7 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
@@ -23,6 +24,12 @@ import {
   ExportItemJobData,
   EXPORT_ITEM_JOB_NAME,
 } from '../jobs/integration/export_item'
+import {
+  ProcessYouTubeTranscriptJobData,
+  ProcessYouTubeVideoJobData,
+  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
+  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
+} from '../jobs/process-youtube-video'
 import {
   queueRSSRefreshFeedJob,
   REFRESH_ALL_FEEDS_JOB_NAME,
@@ -44,13 +51,6 @@ import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
-import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
-import {
-  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
-  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
-  ProcessYouTubeTranscriptJobData,
-  ProcessYouTubeVideoJobData,
-} from '../jobs/process-youtube-video'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -132,9 +132,18 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
-    logger.error(
-      'error: attempting to create a cloud task but not running in google cloud.'
-    )
+    setTimeout(() => {
+      axios
+        .post(taskHandlerUrl, payload, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...requestHeaders,
+          },
+        })
+        .catch((error) => {
+          logError(error)
+        })
+    })
     return null
   }
 

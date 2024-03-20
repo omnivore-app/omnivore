@@ -2152,6 +2152,7 @@ const schema = gql`
     createdAt: Date!
     updatedAt: Date
     eventTypes: [RuleEventType!]!
+    failedAt: Date
   }
 
   type RuleAction {
