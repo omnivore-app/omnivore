@@ -396,6 +396,20 @@ export const buildQueryString = (
               endDate = yesterday.endOf('day').toJSDate()
               break
             }
+            case 'last12hrs':
+              {
+                const ago = new Date()
+                ago.setHours(ago.getHours() - 12)
+                startDate = ago
+              }
+              break
+            case 'last24hrs':
+              {
+                const ago = new Date()
+                ago.setHours(ago.getHours() - 24)
+                startDate = ago
+              }
+              break
             case 'this week':
               startDate = DateTime.local().startOf('week').toJSDate()
               break
