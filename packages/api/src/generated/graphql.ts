@@ -2161,7 +2161,7 @@ export type QueryGetDiscoverFeedArticlesArgs = {
 
 
 export type QueryIntegrationArgs = {
-  id: Scalars['ID'];
+  name: Scalars['String'];
 };
 
 
@@ -6175,7 +6175,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   getUserPersonalization?: Resolver<ResolversTypes['GetUserPersonalizationResult'], ParentType, ContextType>;
   groups?: Resolver<ResolversTypes['GroupsResult'], ParentType, ContextType>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'id'>>;
+  integration?: Resolver<ResolversTypes['IntegrationResult'], ParentType, ContextType, RequireFields<QueryIntegrationArgs, 'name'>>;
   integrations?: Resolver<ResolversTypes['IntegrationsResult'], ParentType, ContextType>;
   labels?: Resolver<ResolversTypes['LabelsResult'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;

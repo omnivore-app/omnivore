@@ -1605,7 +1605,7 @@ type Query {
   getUserPersonalization: GetUserPersonalizationResult!
   groups: GroupsResult!
   hello: String
-  integration(id: ID!): IntegrationResult!
+  integration(name: String!): IntegrationResult!
   integrations: IntegrationsResult!
   labels: LabelsResult!
   me: User

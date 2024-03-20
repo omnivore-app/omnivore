@@ -3205,7 +3205,7 @@ const schema = gql`
       sort: SortParams
       folder: String
     ): UpdatesSinceResult!
-    integration(id: ID!): IntegrationResult!
+    integration(name: String!): IntegrationResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!

@@ -28,6 +28,7 @@ import {
 import { createIntegrationToken } from '../../routers/auth/jwt_helpers'
 import {
   findIntegration,
+  findIntegrationByName,
   findIntegrations,
   getIntegrationClient,
   removeIntegration,
@@ -115,11 +116,11 @@ export const integrationResolver = authorized<
   IntegrationSuccess,
   IntegrationError,
   QueryIntegrationArgs
->(async (_, { id }, { uid, log }) => {
-  const integration = await findIntegration({ id }, uid)
+>(async (_, { name }, { uid, log }) => {
+  const integration = await findIntegrationByName(name, uid)
 
   if (!integration) {
-    log.error('integration not found', id)
+    log.error('integration not found', name)
 
     return {
       errorCodes: [IntegrationErrorCode.NotFound],

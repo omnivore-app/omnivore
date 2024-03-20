@@ -12,7 +12,7 @@ import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
@@ -20,7 +20,7 @@ import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
-import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import { useGetIntegrationQuery } from '../../../lib/networking/queries/useGetIntegrationQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
@@ -35,10 +35,7 @@ export default function Notion(): JSX.Element {
   applyStoredTheme()
 
   const router = useRouter()
-  const { integrations, revalidate } = useGetIntegrationsQuery()
-  const notion = useMemo(() => {
-    return integrations.find((i) => i.name == 'NOTION' && i.type == 'EXPORT')
-  }, [integrations])
+  const { integration: notion, revalidate } = useGetIntegrationQuery('notion')
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()

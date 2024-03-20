@@ -406,8 +406,8 @@ describe('Integrations resolvers', () => {
 
   describe('integration API', () => {
     const query = `
-      query Integration ($id: ID!) {
-        integration(id: $id) {
+      query Integration ($name: String!) {
+        integration(name: $name) {
           ... on IntegrationSuccess {
             integration {
               id
@@ -441,7 +441,7 @@ describe('Integrations resolvers', () => {
 
     it('returns the integration', async () => {
       const res = await graphqlRequest(query, authToken, {
-        id: existingIntegration.id,
+        name: existingIntegration.name,
       })
       expect(res.body.data.integration.integration.id).to.equal(
         existingIntegration.id
