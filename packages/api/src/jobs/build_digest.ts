@@ -208,7 +208,7 @@ const assemble = async (
   digestDefinition: DigestDefinition,
   contextualizedData: ContextualizedItem[]
 ): Promise<string | undefined> => {
-  var markdown = ''
+  let markdown = ''
 
   for (const topic of digestDefinition.topics) {
     const matches = contextualizedData.filter(
@@ -233,7 +233,8 @@ const assemble = async (
   const originalContent = converter.makeHtml(`
   Hello, this is your Omnivore daily digest. We want to make it easy for you to enjoy reading every day. To do 
   that we've picked some of the best items that were recently added to your library and created a digest. Enjoy!\n\n${markdown}`)
-  return originalContent
+
+  return Promise.resolve(originalContent)
 }
 
 export const createSummarizableDocument = (readable: string): string => {
@@ -248,7 +249,7 @@ const contextualize = async (
   digestDefinition: DigestDefinition,
   items: LibraryItem[]
 ): Promise<ContextualizedItem[]> => {
-  let result: ContextualizedItem[] = []
+  const result: ContextualizedItem[] = []
   const contextualTemplate = PromptTemplate.fromTemplate(
     digestDefinition.contextualizeItemsPrompt
   )
