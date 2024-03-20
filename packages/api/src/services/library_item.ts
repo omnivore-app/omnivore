@@ -1244,7 +1244,7 @@ export const deleteLibraryItemsByAdmin = async (
 }
 
 export const batchDelete = async (criteria: FindOptionsWhere<LibraryItem>) => {
-  const batchSize = 100
+  const batchSize = 1000
 
   const qb = libraryItemRepository.createQueryBuilder().where(criteria)
   const countSql = queryBuilderToRawSql(qb.select('COUNT(1)'))
