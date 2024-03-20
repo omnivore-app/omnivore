@@ -59,7 +59,7 @@ const optInLimitedFeature = async (
     return feature
   }
 
-  const optedInFeatures = (await appDataSource.query(
+  const optedInFeatures: Feature[] = (await appDataSource.query(
     `insert into omnivore.features (user_id, name, granted_at) 
     select $1, $2, $3 from omnivore.features 
     where name = $2 and granted_at is not null 

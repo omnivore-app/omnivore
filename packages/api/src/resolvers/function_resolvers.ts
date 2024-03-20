@@ -141,6 +141,15 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
+import {
+  addDiscoverFeedResolver,
+  getDiscoverFeedsResolver,
+  getDiscoverFeedArticlesResolver,
+  saveDiscoverArticleResolver,
+  deleteDiscoverArticleResolver,
+  deleteDiscoverFeedsResolver,
+  editDiscoverFeedsResolver,
+} from './discover_feeds'
 import { getAISummary } from '../services/ai-summaries'
 import { findUserFeatures, getFeatureName } from '../services/features'
 
@@ -295,13 +304,20 @@ export const functionResolvers = {
     updateSubscription: updateSubscriptionResolver,
     updateFilter: updateFilterResolver,
     updateEmail: updateEmailResolver,
+    saveDiscoverArticle: saveDiscoverArticleResolver,
+    deleteDiscoverArticle: deleteDiscoverArticleResolver,
     moveToFolder: moveToFolderResolver,
     updateNewsletterEmail: updateNewsletterEmailResolver,
+    addDiscoverFeed: addDiscoverFeedResolver,
+    deleteDiscoverFeed: deleteDiscoverFeedsResolver,
+    editDiscoverFeed: editDiscoverFeedsResolver,
     emptyTrash: emptyTrashResolver,
     fetchContent: fetchContentResolver,
   },
   Query: {
     me: getMeUserResolver,
+    getDiscoverFeedArticles: getDiscoverFeedArticlesResolver,
+    discoverFeeds: getDiscoverFeedsResolver,
     user: getUserResolver,
     users: getAllUsersResolver,
     validateUsername: validateUsernameResolver,

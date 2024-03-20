@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
@@ -30,6 +30,7 @@ import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
 import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
 import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
 import { useRouter } from 'next/router'
+import { DiscoverIcon } from "../../elements/icons/DiscoverIcon"
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -216,6 +217,12 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
         text="Highlights"
         filterTerm="in:all has:highlights mode:highlights"
         icon={<HighlightsIcon color={theme.colors.highlight.toString()} />}
+      />
+      <NavRedirectButton
+        {...props}
+        text="Discover"
+        redirectLocation={"/discover"}
+        icon={<DiscoverIcon color={theme.colors.discover.toString()} />}
       />
     </VStack>
   )
@@ -718,6 +725,70 @@ type NavButtonProps = {
 
   applySearchQuery: (searchTerm: string) => void
   setShowFilterMenu: (show: boolean) => void
+}
+
+type NavButtonRedirectProps = {
+  text: string
+  icon: ReactNode
+
+  redirectLocation: string
+}
+
+function NavRedirectButton(props: NavButtonRedirectProps): JSX.Element {
+  const [selected, setSelected] = useState(false);
+  const router = useRouter()
+
+  useEffect(() => {
+    setSelected(window.location.pathname.includes(props.redirectLocation))
+  }, [])
+
+  return (
+    <HStack
+      alignment="center"
+      distribution="start"
+      css={{
+        pl: '10px',
+        mb: '2px',
+        gap: '10px',
+        display: 'flex',
+        width: '100%',
+        maxWidth: '100%',
+        height: '34px',
+
+        backgroundColor: selected ? '$thLibrarySelectionColor' : 'unset',
+        fontSize: '15px',
+        fontWeight: 'regular',
+        fontFamily: '$display',
+        color: selected
+          ? '$thLibraryMenuSecondary'
+          : '$thLibraryMenuUnselected',
+        verticalAlign: 'middle',
+        borderRadius: '3px',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        '&:hover': {
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
+        },
+        '&:active': {
+          backgroundColor: selected
+            ? '$thLibrarySelectionColor'
+            : '$thBackground4',
+        },
+      }}
+      title={props.text}
+      onClick={(e) => {
+        router.push(props.redirectLocation)
+        e.preventDefault()
+      }}
+    >
+      {props.icon}
+      {props.text}
+    </HStack>
+  )
 }
 
 function NavButton(props: NavButtonProps): JSX.Element {
