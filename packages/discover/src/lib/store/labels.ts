@@ -26,10 +26,12 @@ export const removeDuplicateLabels = mergeMap((x: Label) =>
 export const insertLabels = async (
   label: EmbeddedOmnivoreLabel
 ): Promise<EmbeddedOmnivoreLabel> => {
-  await sqlClient.query(
-    'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, embedding_description, embedding) VALUES($1, $2, $3)',
-    [label.label.name, label.label.description, toSql(label.embedding)]
-  )
+  if (label.label.name && label.label.description) {
+    await sqlClient.query(
+      'INSERT INTO omnivore.discover_topic_embedding_link(discover_topic_name, embedding_description, embedding) VALUES($1, $2, $3)',
+      [label.label.name, label.label.description, toSql(label.embedding)]
+    )
+  }
   return label
 }
 
