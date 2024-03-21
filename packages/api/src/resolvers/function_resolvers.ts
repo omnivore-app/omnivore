@@ -22,6 +22,8 @@ import {
   SearchItem,
   User,
 } from '../generated/graphql'
+import { getAISummary } from '../services/ai-summaries'
+import { findUserFeatures } from '../services/features'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
@@ -39,6 +41,15 @@ import {
   generateUploadFilePathName,
 } from '../utils/uploads'
 import { emptyTrashResolver, fetchContentResolver } from './article'
+import {
+  addDiscoverFeedResolver,
+  deleteDiscoverArticleResolver,
+  deleteDiscoverFeedsResolver,
+  editDiscoverFeedsResolver,
+  getDiscoverFeedArticlesResolver,
+  getDiscoverFeedsResolver,
+  saveDiscoverArticleResolver,
+} from './discover_feeds'
 import { optInFeatureResolver } from './features'
 import { uploadImportFileResolver } from './importers/uploadImportFileResolver'
 import {
@@ -63,6 +74,7 @@ import {
   deleteRuleResolver,
   deleteWebhookResolver,
   deviceTokensResolver,
+  exportToIntegrationResolver,
   feedsResolver,
   filtersResolver,
   generateApiKeyResolver,
@@ -79,6 +91,7 @@ import {
   googleSignupResolver,
   groupsResolver,
   importFromIntegrationResolver,
+  integrationResolver,
   integrationsResolver,
   joinGroupResolver,
   labelsResolver,
@@ -141,17 +154,6 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
-import {
-  addDiscoverFeedResolver,
-  getDiscoverFeedsResolver,
-  getDiscoverFeedArticlesResolver,
-  saveDiscoverArticleResolver,
-  deleteDiscoverArticleResolver,
-  deleteDiscoverFeedsResolver,
-  editDiscoverFeedsResolver,
-} from './discover_feeds'
-import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures, getFeatureName } from '../services/features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {
@@ -313,6 +315,7 @@ export const functionResolvers = {
     editDiscoverFeed: editDiscoverFeedsResolver,
     emptyTrash: emptyTrashResolver,
     fetchContent: fetchContentResolver,
+    exportToIntegration: exportToIntegrationResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -348,6 +351,7 @@ export const functionResolvers = {
     recentEmails: recentEmailsResolver,
     feeds: feedsResolver,
     scanFeeds: scanFeedsResolver,
+    integration: integrationResolver,
   },
   User: {
     async intercomHash(
@@ -662,4 +666,6 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('UpdateNewsletterEmail'),
   ...resultResolveTypeResolver('EmptyTrash'),
   ...resultResolveTypeResolver('FetchContent'),
+  ...resultResolveTypeResolver('Integration'),
+  ...resultResolveTypeResolver('ExportToIntegration'),
 }

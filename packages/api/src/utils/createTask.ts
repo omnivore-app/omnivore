@@ -603,7 +603,7 @@ export const enqueueImportFromIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueExportAllItems = async (
+export const enqueueExportToIntegration = async (
   integrationId: string,
   userId: string
 ) => {

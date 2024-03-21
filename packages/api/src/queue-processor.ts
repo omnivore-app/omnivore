@@ -5,6 +5,7 @@
 import {
   ConnectionOptions,
   Job,
+  JobState,
   JobType,
   Queue,
   QueueEvents,
@@ -13,6 +14,7 @@ import {
 import express, { Express } from 'express'
 import { appDataSource } from './data_source'
 import { env } from './env'
+import { TaskState } from './generated/graphql'
 import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
@@ -25,6 +27,12 @@ import {
   exportItem,
   EXPORT_ITEM_JOB_NAME,
 } from './jobs/integration/export_item'
+import {
+  processYouTubeTranscript,
+  processYouTubeVideo,
+  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
+  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
+} from './jobs/process-youtube-video'
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
@@ -44,12 +52,6 @@ import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
-import {
-  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
-  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
-  processYouTubeTranscript,
-  processYouTubeVideo,
-} from './jobs/process-youtube-video'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -80,6 +82,33 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
   })
   await backendQueue.waitUntilReady()
   return backendQueue
+}
+
+export const getJob = async (jobId: string) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return
+  }
+  return queue.getJob(jobId)
+}
+
+export const jobStateToTaskState = (
+  jobState: JobState | 'unknown'
+): TaskState => {
+  switch (jobState) {
+    case 'completed':
+      return TaskState.Succeeded
+    case 'failed':
+      return TaskState.Failed
+    case 'active':
+      return TaskState.Running
+    case 'delayed':
+      return TaskState.Pending
+    case 'waiting':
+      return TaskState.Pending
+    default:
+      return TaskState.Pending
+  }
 }
 
 export const createWorker = (connection: ConnectionOptions) =>

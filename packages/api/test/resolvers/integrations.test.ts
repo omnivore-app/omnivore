@@ -403,4 +403,55 @@ describe('Integrations resolvers', () => {
       })
     })
   })
+
+  describe('integration API', () => {
+    const query = `
+      query Integration ($name: String!) {
+        integration(name: $name) {
+          ... on IntegrationSuccess {
+            integration {
+              id
+              type
+              enabled
+            }
+          }
+          ... on IntegrationError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    let existingIntegration: Integration
+
+    before(async () => {
+      existingIntegration = await saveIntegration(
+        {
+          user: { id: loginUser.id },
+          name: 'READWISE',
+          token: 'fakeToken',
+        },
+        loginUser.id
+      )
+    })
+
+    after(async () => {
+      await deleteIntegrations(loginUser.id, [existingIntegration.id])
+    })
+
+    it('returns the integration', async () => {
+      const res = await graphqlRequest(query, authToken, {
+        name: existingIntegration.name,
+      })
+      expect(res.body.data.integration.integration.id).to.equal(
+        existingIntegration.id
+      )
+      expect(res.body.data.integration.integration.type).to.equal(
+        existingIntegration.type
+      )
+      expect(res.body.data.integration.integration.enabled).to.equal(
+        existingIntegration.enabled
+      )
+    })
+  })
 })

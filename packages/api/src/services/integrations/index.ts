@@ -60,6 +60,22 @@ export const findIntegration = async (
   )
 }
 
+export const findIntegrationByName = async (name: string, userId: string) => {
+  return authTrx(
+    async (t) =>
+      t
+        .getRepository(Integration)
+        .createQueryBuilder()
+        .where({
+          user: { id: userId },
+        })
+        .andWhere('LOWER(name) = LOWER(:name)', { name }) // case insensitive
+        .getOne(),
+    undefined,
+    userId
+  )
+}
+
 export const findIntegrations = async (
   userId: string,
   where?: FindOptionsWhere<Integration> | FindOptionsWhere<Integration>[]

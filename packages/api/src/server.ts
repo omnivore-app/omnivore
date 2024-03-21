@@ -18,6 +18,7 @@ import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { redisDataSource } from './redis_data_source'
+import { aiSummariesRouter } from './routers/ai_summary_router'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -29,7 +30,6 @@ import { contentServiceRouter } from './routers/svc/content'
 import { emailsServiceRouter } from './routers/svc/emails'
 import { emailAttachmentRouter } from './routers/svc/email_attachment'
 import { followingServiceRouter } from './routers/svc/following'
-import { integrationsServiceRouter } from './routers/svc/integrations'
 import { linkServiceRouter } from './routers/svc/links'
 import { newsletterServiceRouter } from './routers/svc/newsletters'
 // import { remindersServiceRouter } from './routers/svc/reminders'
@@ -37,6 +37,7 @@ import { rssFeedRouter } from './routers/svc/rss_feed'
 import { uploadServiceRouter } from './routers/svc/upload'
 import { userServiceRouter } from './routers/svc/user'
 import { webhooksServiceRouter } from './routers/svc/webhooks'
+import { taskRouter } from './routers/task_router'
 import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
@@ -48,7 +49,6 @@ import {
 } from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
-import { aiSummariesRouter } from './routers/ai_summary_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -126,13 +126,13 @@ export const createApp = (): {
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())
+  app.use('/api/tasks', taskRouter())
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
   app.use('/svc/pubsub/emails', emailsServiceRouter())
   app.use('/svc/pubsub/upload', uploadServiceRouter())
   app.use('/svc/pubsub/webhooks', webhooksServiceRouter())
-  app.use('/svc/pubsub/integrations', integrationsServiceRouter())
   app.use('/svc/pubsub/rss-feed', rssFeedRouter())
   app.use('/svc/pubsub/user', userServiceRouter())
   // app.use('/svc/reminders', remindersServiceRouter())
