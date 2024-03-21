@@ -14,12 +14,14 @@ import { env } from '../env'
 import showdown from 'showdown'
 import { parsedContentToLibraryItem, savePage } from '../services/save_page'
 import { generateSlug } from '../utils/helpers'
-import { PageType } from '../generated/graphql'
+import { Highlight, PageType } from '../generated/graphql'
 import { readStringFromStorage } from '../utils/uploads'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
 import { MarkdownTextSplitter } from 'langchain/text_splitter'
 import { loadSummarizationChain } from 'langchain/chains'
 import { JsonOutputParser } from '@langchain/core/output_parsers'
+import { highlightRepository } from '../repository/highlight'
+import { authTrx } from '../repository'
 
 export interface BuildDigestJobData {
   userId: string
@@ -167,7 +169,8 @@ const getSelection = async (
   const selectionTemplate = PromptTemplate.fromTemplate(
     digestDefinition.selectionPrompt
   )
-  const selectionChain = selectionTemplate.pipe(llm)
+  const outputParser = new JsonOutputParser()
+  const selectionChain = selectionTemplate.pipe(llm).pipe(outputParser)
   const selectionResult = await selectionChain.invoke({
     candidates: JSON.stringify(
       candidates.map((item: ContextualizedItem) => {
@@ -185,7 +188,7 @@ const getSelection = async (
     ),
   })
 
-  const selection = JSON.parse(selectionResult) as SelectionResultItem[]
+  const selection = selectionResult as SelectionResultItem[]
   console.log('[digest]: selection: ', selection)
 
   return selection
@@ -308,6 +311,22 @@ const contextualize = async (
   return result
 }
 
+// const selectRandomHighlights = async (
+//   userId: string
+// ): Promise<Highlight[] | undefined> => {
+//   return authTrx(
+//     async (tx) =>
+//       tx
+//         .withRepository(highlightRepository)
+//         .createQueryBuilder()
+//         .orderBy('RANDOM()')
+//         .limit(10)
+//         .execute(),
+//     undefined,
+//     userId
+//   )
+// }
+
 export const buildDigest = async (jobData: BuildDigestJobData) => {
   try {
     console.log(
@@ -327,6 +346,10 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       digestDefinition,
       jobData.userId
     )
+
+    // const highlights = await selectRandomHighlights(jobData.userId)
+
+    // console.log('highlights: ', highlights)
 
     console.log(
       '[digest]: preferences: ',
@@ -407,8 +430,6 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       // create new item in database
       await createOrUpdateLibraryItem(libraryItemToSave, jobData.userId)
     }
-
-    console.log('[digest]: INTRODUCTION RESULT: ', articleHTML)
   } catch (err) {
     console.log('error creating summary: ', err)
   }
