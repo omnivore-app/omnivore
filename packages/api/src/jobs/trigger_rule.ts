@@ -86,7 +86,9 @@ const sendNotification = async (obj: RuleActionObj) => {
   return sendPushNotifications(obj.userId, message, 'rule', data)
 }
 
-const getRuleAction = (actionType: RuleActionType): RuleActionFunc => {
+const getRuleAction = (
+  actionType: RuleActionType
+): RuleActionFunc | undefined => {
   switch (actionType) {
     case RuleActionType.AddLabel:
       return addLabels
@@ -98,6 +100,9 @@ const getRuleAction = (actionType: RuleActionType): RuleActionFunc => {
       return markPageAsRead
     case RuleActionType.SendNotification:
       return sendNotification
+    default:
+      logger.error('Unknown rule action type', actionType)
+      return undefined
   }
 }
 
@@ -150,6 +155,11 @@ const triggerActions = async (
 
     for (const action of rule.actions) {
       const actionFunc = getRuleAction(action.type)
+      if (!actionFunc) {
+        logger.error('No action function found for action', action.type)
+        continue
+      }
+
       const actionObj: RuleActionObj = {
         libraryItemId,
         userId,
