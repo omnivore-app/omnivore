@@ -8,7 +8,7 @@ import { CreateLabelInput, labelRepository } from '../repository/label'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { logger } from '../utils/logger'
 import { findHighlightById } from './highlights'
-import { findLibraryItemIdsByLabelId } from './library_item'
+import { findLibraryItemIdsByLabelId, UpdateItemEvent } from './library_item'
 
 type AddLabelsToLibraryItemEvent = {
   pageId: string
@@ -144,9 +144,9 @@ export const saveLabelsInLibraryItem = async (
 
   if (source === 'user') {
     // create pubsub event
-    await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
+    await pubsub.entityCreated<UpdateItemEvent>(
       EntityType.LABEL,
-      { pageId: libraryItemId, labels, source },
+      { id: libraryItemId, labels },
       userId,
       libraryItemId
     )
@@ -215,9 +215,9 @@ export const saveLabelsInHighlight = async (
 
   const libraryItemId = highlight.libraryItemId
   // create pubsub event
-  await pubsub.entityCreated<AddLabelsToHighlightEvent>(
+  await pubsub.entityCreated<UpdateItemEvent>(
     EntityType.LABEL,
-    { highlightId, labels },
+    { id: libraryItemId, highlights: [{ id: highlightId, labels }] },
     userId,
     libraryItemId
   )

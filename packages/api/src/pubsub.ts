@@ -53,14 +53,12 @@ export const createPubSubClient = (): PubsubClient => {
       libraryItemId: string
     ): Promise<void> => {
       // queue trigger rule job
-      if (type === EntityType.PAGE) {
-        await enqueueTriggerRuleJob({
-          userId,
-          ruleEventType: RuleEventType.PageCreated,
-          libraryItemId,
-          data,
-        })
-      }
+      await enqueueTriggerRuleJob({
+        userId,
+        ruleEventType: `${type.toUpperCase()}_CREATED` as RuleEventType,
+        libraryItemId,
+        data,
+      })
       // queue export item job
       await enqueueExportItem({
         userId,
