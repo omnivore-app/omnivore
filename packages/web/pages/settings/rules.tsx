@@ -30,7 +30,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
 
   const onOk = async (values: any) => {
     const name = form.getFieldValue('name')
-    const filter = form.getFieldValue('filter')
+    const filter = form.getFieldValue('filter') || 'in:all'
     const eventTypes = form.getFieldValue('eventTypes')
     try {
       await setRuleMutation({
@@ -81,11 +81,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label="Filter"
-          name="filter"
-          rules={[{ required: true, message: 'Please enter the rule filter' }]}
-        >
+        <Form.Item label="Filter" name="filter">
           <Input />
         </Form.Item>
 
@@ -131,8 +127,13 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
 
   const onOk = async (values: any) => {
     const actionType = form.getFieldValue('actionType') as RuleActionType
-    const params =
-      actionType == RuleActionType.AddLabel ? form.getFieldValue('labels') : []
+    let params = []
+    if (actionType == RuleActionType.AddLabel) {
+      params = form.getFieldValue('labels')
+    } else if (actionType == RuleActionType.Webhook) {
+      params = [form.getFieldValue('url')]
+    }
+
     if (props.rule) {
       await setRuleMutation({
         id: props.rule.id,
@@ -155,8 +156,9 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     }
   }
 
-  const [actionType, setActionType] =
-    useState<RuleActionType | undefined>(undefined)
+  const [actionType, setActionType] = useState<RuleActionType | undefined>(
+    undefined
+  )
 
   return (
     <Modal
@@ -213,6 +215,18 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
                 )
               })}
             </Select>
+          </Form.Item>
+        )}
+
+        {actionType == RuleActionType.Webhook && (
+          <Form.Item
+            label="URL"
+            name="url"
+            rules={[
+              { required: true, message: 'Please key in your webhook url' },
+            ]}
+          >
+            <Input />
           </Form.Item>
         )}
       </Form>

@@ -7,7 +7,6 @@ import {
   enqueueExportItem,
   enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
-  enqueueWebhookJob,
 } from './utils/createTask'
 import { buildLogger } from './utils/logger'
 import { isYouTubeVideoURL } from './utils/youtube'
@@ -67,14 +66,7 @@ export const createPubSubClient = (): PubsubClient => {
         libraryItemIds: [libraryItemId],
       })
 
-      await enqueueWebhookJob({
-        userId,
-        type,
-        action: 'created',
-        data,
-      })
-
-      if (type === EntityType.PAGE) {
+      if (type === EntityType.ITEM) {
         // if (await findGrantedFeatureByName(FeatureName.AISummaries, userId)) {
         // await enqueueAISummarizeJob({
         //   userId,
@@ -112,13 +104,6 @@ export const createPubSubClient = (): PubsubClient => {
       await enqueueExportItem({
         userId,
         libraryItemIds: [libraryItemId],
-      })
-
-      await enqueueWebhookJob({
-        userId,
-        type,
-        action: 'updated',
-        data,
       })
     },
     entityDeleted: async (

@@ -8,17 +8,9 @@ import { CreateLabelInput, labelRepository } from '../repository/label'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { logger } from '../utils/logger'
 import { findHighlightById } from './highlights'
-import { findLibraryItemIdsByLabelId, UpdateItemEvent } from './library_item'
+import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
-type AddLabelsToLibraryItemEvent = {
-  pageId: string
-  labels: DeepPartial<Label>[]
-  source?: LabelSource
-}
-type AddLabelsToHighlightEvent = {
-  highlightId: string
-  labels: DeepPartial<Label>[]
-}
+export type LabelEvent = Omit<DeepPartial<Label>, 'description' | 'createdAt'>
 
 // const batchGetLabelsFromLinkIds = async (
 //   linkIds: readonly string[]
@@ -144,7 +136,7 @@ export const saveLabelsInLibraryItem = async (
 
   if (source === 'user') {
     // create pubsub event
-    await pubsub.entityCreated<UpdateItemEvent>(
+    await pubsub.entityCreated<ItemEvent>(
       EntityType.LABEL,
       { id: libraryItemId, labels, userId },
       userId,
@@ -215,7 +207,7 @@ export const saveLabelsInHighlight = async (
 
   const libraryItemId = highlight.libraryItemId
   // create pubsub event
-  await pubsub.entityCreated<UpdateItemEvent>(
+  await pubsub.entityCreated<ItemEvent>(
     EntityType.LABEL,
     { id: libraryItemId, highlights: [{ id: highlightId, labels }], userId },
     userId,
