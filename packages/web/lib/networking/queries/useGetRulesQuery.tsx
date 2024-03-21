@@ -13,11 +13,14 @@ export enum RuleActionType {
   MarkAsRead = 'MARK_AS_READ',
   Delete = 'DELETE',
   SendNotification = 'SEND_NOTIFICATION',
+  Webhook = 'WEBHOOK',
 }
 
 export enum RuleEventType {
   PAGE_CREATED = 'PAGE_CREATED',
   PAGE_UPDATED = 'PAGE_UPDATED',
+  LABEL_CREATED = 'LABEL_CREATED',
+  HIGHLIGHT_CREATED = 'HIGHLIGHT_CREATED',
 }
 
 export interface Rule {

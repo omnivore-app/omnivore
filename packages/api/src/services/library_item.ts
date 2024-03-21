@@ -28,7 +28,8 @@ import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { addLabelsToLibraryItem } from './labels'
+import { HighlightEvent } from './highlights'
+import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
 type IgnoredFields =
   | 'user'
@@ -36,15 +37,14 @@ type IgnoredFields =
   | 'previewContentType'
   | 'links'
   | 'textContentHash'
-export type ItemEvent = CreateItemEvent | UpdateItemEvent
-export type CreateItemEvent = Merge<
+type ItemBaseEvent = Merge<
   Omit<DeepPartial<LibraryItem>, IgnoredFields>,
-  BaseEntityEvent
+  {
+    labels?: LabelEvent[]
+    highlights?: HighlightEvent[]
+  }
 >
-export type UpdateItemEvent = Merge<
-  Omit<QueryDeepPartialEntity<LibraryItem>, IgnoredFields>,
-  BaseEntityEvent
->
+export type ItemEvent = Merge<ItemBaseEvent, BaseEntityEvent>
 
 export class RequiresSearchQueryError extends Error {
   constructor() {
@@ -876,7 +876,7 @@ export const updateLibraryItem = async (
 
   if (libraryItem.state === LibraryItemState.Succeeded) {
     // send create event if the item was created
-    await pubsub.entityCreated<CreateItemEvent>(
+    await pubsub.entityCreated<ItemEvent>(
       EntityType.ITEM,
       { ...updatedLibraryItem, userId },
       userId,
@@ -886,9 +886,9 @@ export const updateLibraryItem = async (
     return updatedLibraryItem
   }
 
-  await pubsub.entityUpdated<UpdateItemEvent>(
+  await pubsub.entityUpdated<ItemEvent>(
     EntityType.ITEM,
-    { ...libraryItem, id, userId },
+    { ...libraryItem, id, userId } as ItemEvent,
     userId,
     id
   )
@@ -949,7 +949,7 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<UpdateItemEvent>(
+  await pubsub.entityUpdated<ItemEvent>(
     EntityType.ITEM,
     { ...updatedItem, id, userId },
     userId,
@@ -1050,7 +1050,7 @@ export const createOrUpdateLibraryItem = async (
     return newLibraryItem
   }
 
-  await pubsub.entityCreated<CreateItemEvent>(
+  await pubsub.entityCreated<ItemEvent>(
     EntityType.ITEM,
     { ...newLibraryItem, userId },
     userId,
@@ -1413,7 +1413,7 @@ export const filterItemEvents = (
         }
       }
       case 'type': {
-        return event.itemType?.toString()?.toLowerCase() === lowercasedValue
+        return event.itemType?.toLowerCase() === lowercasedValue
       }
       case 'label': {
         const labels = event.labelNames as string[] | undefined
@@ -1488,7 +1488,7 @@ export const filterItemEvents = (
         // get camel case column name
         const key = camelCase(columnName) as 'subscription' | 'itemLanguage'
 
-        return event[key]?.toString()?.toLowerCase() === lowercasedValue
+        return event[key]?.toLowerCase() === lowercasedValue
       }
       // match filters
       case 'author':
@@ -1505,7 +1505,7 @@ export const filterItemEvents = (
           | 'siteName'
 
         // TODO: Implement full text search
-        return event[key]?.toString()?.match(new RegExp(lowercasedValue, 'i'))
+        return event[key]?.match(new RegExp(lowercasedValue, 'i'))
       }
       case 'includes': {
         const ids = lowercasedValue.split(',')
@@ -1513,7 +1513,7 @@ export const filterItemEvents = (
           throw new Error('Expected ids')
         }
 
-        return event.id && ids.includes(event.id.toString())
+        return event.id && ids.includes(event.id)
       }
       case 'recommendedby': {
         if (!event.recommenderNames) {

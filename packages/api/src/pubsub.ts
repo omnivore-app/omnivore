@@ -8,7 +8,6 @@ import {
   enqueueExportItem,
   enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
-  enqueueWebhookJob,
 } from './utils/createTask'
 import { buildLogger } from './utils/logger'
 
@@ -79,13 +78,6 @@ export const createPubSubClient = (): PubsubClient => {
         libraryItemIds: [libraryItemId],
       })
 
-      await enqueueWebhookJob({
-        userId,
-        type,
-        action: 'created',
-        data,
-      })
-
       if (await findFeatureByName(FeatureName.AISummaries, userId)) {
         // await enqueueAISummarizeJob({
         //   userId,
@@ -122,13 +114,6 @@ export const createPubSubClient = (): PubsubClient => {
       await enqueueExportItem({
         userId,
         libraryItemIds: [libraryItemId],
-      })
-
-      await enqueueWebhookJob({
-        userId,
-        type,
-        action: 'updated',
-        data,
       })
     },
     entityDeleted: async (

@@ -9,11 +9,12 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 import { enqueueUpdateHighlight } from '../utils/createTask'
-import { UpdateItemEvent } from './library_item'
+import { ItemEvent } from './library_item'
 
-type HighlightEvent = { id: string; pageId: string }
-type CreateHighlightEvent = DeepPartial<Highlight> & HighlightEvent
-type UpdateHighlightEvent = QueryDeepPartialEntity<Highlight> & HighlightEvent
+export type HighlightEvent = Omit<
+  DeepPartial<Highlight>,
+  'user' | 'userId' | 'sharedAt'
+>
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
@@ -57,7 +58,7 @@ export const createHighlight = async (
     userId
   )
 
-  await pubsub.entityCreated<UpdateItemEvent>(
+  await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
     { id: libraryItemId, highlights: [newHighlight], userId },
     userId,
@@ -105,7 +106,7 @@ export const mergeHighlights = async (
     })
   })
 
-  await pubsub.entityCreated<UpdateItemEvent>(
+  await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
     { id: libraryItemId, highlights: [newHighlight], userId },
     userId,
@@ -140,9 +141,9 @@ export const updateHighlight = async (
   })
 
   const libraryItemId = updatedHighlight.libraryItem.id
-  await pubsub.entityUpdated<UpdateItemEvent>(
+  await pubsub.entityUpdated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [highlight], userId },
+    { id: libraryItemId, highlights: [highlight], userId } as ItemEvent,
     userId,
     libraryItemId
   )

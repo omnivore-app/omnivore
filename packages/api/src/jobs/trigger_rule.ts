@@ -1,5 +1,5 @@
 import { LiqeQuery } from '@omnivore/liqe'
-import axios, { Method } from 'axios'
+import axios from 'axios'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
@@ -89,24 +89,19 @@ const sendNotification = async (obj: RuleActionObj) => {
 }
 
 const sendToWebhook = async (obj: RuleActionObj) => {
-  const [url, method, contentType] = obj.action.params
-  const [type, action] = obj.ruleEventType.split('_')
+  const [url] = obj.action.params
 
-  const body = {
-    action,
-    userId: obj.userId,
-    [type]: obj.data,
+  const data = {
+    event: obj.ruleEventType,
+    data: obj.data,
   }
 
-  logger.info('triggering webhook', { url, method })
+  logger.info(`triggering webhook: ${url}`)
 
-  return axios.request({
-    url,
-    method: method as Method,
+  return axios.post(url, data, {
     headers: {
-      'Content-Type': contentType,
+      'Content-Type': 'application/json',
     },
-    data: body,
     timeout: 5000, // 5s
   })
 }
