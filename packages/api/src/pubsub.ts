@@ -12,6 +12,8 @@ import {
 } from './utils/createTask'
 import { buildLogger } from './utils/logger'
 
+export type BaseEntityEvent = { id: string; userId: string }
+
 const logger = buildLogger('pubsub')
 
 const client = new PubSub()
@@ -58,7 +60,7 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    entityCreated: async <T extends Record<string, any>>(
+    entityCreated: async <T extends BaseEntityEvent>(
       type: EntityType,
       data: T,
       userId: string,
@@ -66,10 +68,10 @@ export const createPubSubClient = (): PubsubClient => {
     ): Promise<void> => {
       // queue trigger rule job
       await enqueueTriggerRuleJob({
-        userId,
         ruleEventType: `${type.toUpperCase()}_CREATED` as RuleEventType,
-        libraryItemId,
         data,
+        userId,
+        libraryItemId,
       })
       // queue export item job
       await enqueueExportItem({
@@ -102,21 +104,20 @@ export const createPubSubClient = (): PubsubClient => {
         })
       }
     },
-    entityUpdated: async <T extends Record<string, any>>(
+    entityUpdated: async <T extends BaseEntityEvent>(
       type: EntityType,
       data: T,
       userId: string,
       libraryItemId: string
     ): Promise<void> => {
       // queue trigger rule job
-      if (type === EntityType.PAGE) {
-        await enqueueTriggerRuleJob({
-          userId,
-          ruleEventType: RuleEventType.PageUpdated,
-          libraryItemId,
-          data,
-        })
-      }
+      await enqueueTriggerRuleJob({
+        userId,
+        ruleEventType: RuleEventType.PageUpdated,
+        libraryItemId,
+        data,
+      })
+
       // queue export item job
       await enqueueExportItem({
         userId,
@@ -155,7 +156,7 @@ export const createPubSubClient = (): PubsubClient => {
 }
 
 export enum EntityType {
-  PAGE = 'page',
+  ITEM = 'page',
   HIGHLIGHT = 'highlight',
   LABEL = 'label',
   RSS_FEED = 'feed',
@@ -168,13 +169,13 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  entityCreated: <T extends Record<string, any>>(
+  entityCreated: <T extends BaseEntityEvent>(
     type: EntityType,
     data: T,
     userId: string,
     libraryItemId: string
   ) => Promise<void>
-  entityUpdated: <T extends Record<string, any>>(
+  entityUpdated: <T extends BaseEntityEvent>(
     type: EntityType,
     data: T,
     userId: string,

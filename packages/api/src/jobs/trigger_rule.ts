@@ -1,4 +1,5 @@
 import { LiqeQuery } from '@omnivore/liqe'
+import axios, { Method } from 'axios'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
@@ -28,6 +29,7 @@ interface RuleActionObj {
   userId: string
   action: RuleAction
   data: ItemEvent | LibraryItem
+  ruleEventType: RuleEventType
 }
 type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
 
@@ -86,6 +88,29 @@ const sendNotification = async (obj: RuleActionObj) => {
   return sendPushNotifications(obj.userId, message, 'rule', data)
 }
 
+const sendToWebhook = async (obj: RuleActionObj) => {
+  const [url, method, contentType] = obj.action.params
+  const [type, action] = obj.ruleEventType.split('_')
+
+  const body = {
+    action,
+    userId: obj.userId,
+    [type]: obj.data,
+  }
+
+  logger.info('triggering webhook', { url, method })
+
+  return axios.request({
+    url,
+    method: method as Method,
+    headers: {
+      'Content-Type': contentType,
+    },
+    data: body,
+    timeout: 5000, // 5s
+  })
+}
+
 const getRuleAction = (
   actionType: RuleActionType
 ): RuleActionFunc | undefined => {
@@ -100,6 +125,8 @@ const getRuleAction = (
       return markPageAsRead
     case RuleActionType.SendNotification:
       return sendNotification
+    case RuleActionType.Webhook:
+      return sendToWebhook
     default:
       logger.error('Unknown rule action type', actionType)
       return undefined
@@ -110,7 +137,8 @@ const triggerActions = async (
   libraryItemId: string,
   userId: string,
   rules: Rule[],
-  data: ItemEvent
+  data: ItemEvent,
+  ruleEventType: RuleEventType
 ) => {
   const actionPromises: Promise<unknown>[] = []
 
@@ -165,6 +193,7 @@ const triggerActions = async (
         userId,
         action,
         data: results[0],
+        ruleEventType,
       }
 
       actionPromises.push(actionFunc(actionObj))
@@ -188,7 +217,7 @@ export const triggerRule = async (jobData: TriggerRuleJobData) => {
     return false
   }
 
-  await triggerActions(libraryItemId, userId, rules, data)
+  await triggerActions(libraryItemId, userId, rules, data, ruleEventType)
 
   return true
 }
