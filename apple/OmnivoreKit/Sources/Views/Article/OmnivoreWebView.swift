@@ -291,7 +291,6 @@ public final class OmnivoreWebView: WKWebView {
 
     // swiftlint:disable:next cyclomatic_complexity
     override public func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
-
       switch action {
       case #selector(annotateSelection): return true
       case #selector(highlightSelection): return true
@@ -299,6 +298,12 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
       case #selector(setLabels(_:)): return true
+
+      case Selector(("_lookup:")): return (currentMenu == .defaultMenu)
+      case Selector(("_define:")): return (currentMenu == .defaultMenu)
+      case Selector(("_translate:")): return (currentMenu == .defaultMenu)
+      case Selector(("_findSelected:")): return (currentMenu == .defaultMenu)
+
       case Selector(("lookup:")): return (currentMenu == .defaultMenu)
       case Selector(("define:")): return (currentMenu == .defaultMenu)
       case Selector(("translate:")): return (currentMenu == .defaultMenu)
