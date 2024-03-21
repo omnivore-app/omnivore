@@ -5,16 +5,15 @@ import { Integration } from './useGetIntegrationsQuery'
 
 interface IntegrationQueryResponse {
   isValidating: boolean
-  integration: Integration | null
+  integration: Integration
   revalidate: () => void
 }
 
 interface IntegrationQueryResponseData {
-  integration: IntegrationData
-}
-
-interface IntegrationData {
-  integration: unknown
+  integration: {
+    integration: Integration
+    errorCodes?: string[]
+  }
 }
 
 export function useGetIntegrationQuery(name: string): IntegrationQueryResponse {
@@ -42,25 +41,15 @@ export function useGetIntegrationQuery(name: string): IntegrationQueryResponse {
   `
 
   const { data, mutate, isValidating } = useSWR(query, makeGqlFetcher({ name }))
-  try {
-    if (data) {
-      const result = data as IntegrationQueryResponseData
-      const integration = result.integration.integration as Integration
-      return {
-        isValidating,
-        integration,
-        revalidate: () => {
-          mutate()
-        },
-      }
-    }
-  } catch (error) {
-    console.log('error', error)
+  const result = data as IntegrationQueryResponseData
+  const error = result.integration.errorCodes?.find(() => true)
+  if (error) {
+    throw error
   }
 
   return {
-    isValidating: false,
-    integration: null,
+    isValidating,
+    integration: result.integration.integration,
     revalidate: () => {
       mutate()
     },
