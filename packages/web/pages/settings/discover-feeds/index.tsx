@@ -14,8 +14,11 @@ import { unsubscribeDiscoverFeedMutation } from '../../../lib/networking/mutatio
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
 import { formatMessage } from '../../../locales/en/messages'
-import { useGetDiscoverFeeds } from "../../../lib/networking/queries/useGetDiscoverFeeds"
-import { UpdateDiscoverFeedInput, updateDiscoverFeedMutation } from "../../../lib/networking/mutations/updateDiscoverFeedMutation"
+import { useGetDiscoverFeeds } from '../../../lib/networking/queries/useGetDiscoverFeeds'
+import {
+  UpdateDiscoverFeedInput,
+  updateDiscoverFeedMutation,
+} from '../../../lib/networking/mutations/updateDiscoverFeedMutation'
 
 export default function DiscoverFeedsSettings(): JSX.Element {
   const router = useRouter()
@@ -53,7 +56,9 @@ export default function DiscoverFeedsSettings(): JSX.Element {
   async function onDelete(id: string): Promise<void> {
     const result = await unsubscribeDiscoverFeedMutation(id)
     if (result) {
-      showSuccessToast('Discover Feed unsubscribed', { position: 'bottom-right' })
+      showSuccessToast('Discover Feed unsubscribed', {
+        position: 'bottom-right',
+      })
     } else {
       showErrorToast('Failed to unsubscribe', { position: 'bottom-right' })
     }
@@ -74,7 +79,7 @@ export default function DiscoverFeedsSettings(): JSX.Element {
       suggestionInfo={{
         title: 'Add RSS and Atom feeds to your Omnivore account',
         message:
-          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every hour, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
+          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every four hours, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
         docs: 'https://docs.omnivore.app/using/feeds.html',
         key: '--settings-feeds-show-help',
         CTAText: 'Add a feed',
