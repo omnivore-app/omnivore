@@ -377,6 +377,14 @@ public final class OmnivoreWebView: WKWebView {
 
         let items: [UIMenuElement]
         if currentMenu == .defaultMenu {
+          let autoHighlightEnabled = UserDefaults.standard.value(forKey: UserDefaultKey.enableHighlightOnRelease.rawValue)
+          if let autoHighlightEnabled = autoHighlightEnabled as? Bool, autoHighlightEnabled  {
+            builder.remove(menu: .standardEdit)
+            builder.remove(menu: .lookup)
+            builder.remove(menu: .find)
+            super.buildMenu(with: builder)
+            return
+          }
           let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
           items = [highlight, annotate]
         } else {
