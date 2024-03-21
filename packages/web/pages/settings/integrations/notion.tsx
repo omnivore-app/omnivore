@@ -6,6 +6,7 @@ import {
   Input,
   message,
   Space,
+  Spin,
   Switch,
 } from 'antd'
 import 'antd/dist/antd.compact.css'
@@ -106,7 +107,7 @@ export default function Notion(): JSX.Element {
         if (updatedTask.state === TaskState.Succeeded) {
           clearInterval(interval)
           setExporting(false)
-          showSuccessToast('Exported to Notion successfully.')
+          messageApi.success('Exported to Notion successfully.')
           return
         }
         if (updatedTask.state === TaskState.Failed) {
@@ -116,7 +117,7 @@ export default function Notion(): JSX.Element {
           return
         }
       }, 10000)
-      showSuccessToast('Exporting to Notion...')
+      messageApi.info('Exporting to Notion...')
     } catch (error) {
       messageApi.error('There was an error exporting to Notion.')
     }
@@ -157,71 +158,73 @@ export default function Notion(): JSX.Element {
           </HStack>
 
           <div style={{ width: '100%', marginTop: '40px' }}>
-            <Form
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 8 }}
-              labelAlign="left"
-              form={form}
-              onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
-            >
-              <Form.Item<FieldType>
-                label="Notion Page Id"
-                name="parentPageId"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please input your Notion Page Id!',
-                  },
-                ]}
+            <Spin spinning={exporting} tip="Exporting" size="large">
+              <Form
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 8 }}
+                labelAlign="left"
+                form={form}
+                onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
               >
-                <Input />
-              </Form.Item>
+                <Form.Item<FieldType>
+                  label="Notion Page Id"
+                  name="parentPageId"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please input your Notion Page Id!',
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
 
-              <Form.Item<FieldType>
-                label="Notion Database Id"
-                name="parentDatabaseId"
-                hidden
+                <Form.Item<FieldType>
+                  label="Notion Database Id"
+                  name="parentDatabaseId"
+                  hidden
+                >
+                  <Input disabled />
+                </Form.Item>
+
+                <Form.Item<FieldType>
+                  label="Automatic Sync"
+                  name="enabled"
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </Form.Item>
+
+                <Form.Item<FieldType>
+                  label="Properties to Export"
+                  name="properties"
+                >
+                  <Checkbox.Group onChange={onDataChange}>
+                    <Checkbox value="highlights">Highlights</Checkbox>
+                  </Checkbox.Group>
+                </Form.Item>
+
+                <Form.Item>
+                  <Space>
+                    <Button type="primary" htmlType="submit">
+                      Save
+                    </Button>
+                    <Button type="primary" danger onClick={deleteNotion}>
+                      Disconnect
+                    </Button>
+                  </Space>
+                </Form.Item>
+              </Form>
+
+              <Button
+                type="primary"
+                onClick={exportToNotion}
+                disabled={exporting}
               >
-                <Input disabled />
-              </Form.Item>
-
-              <Form.Item<FieldType>
-                label="Automatic Sync"
-                name="enabled"
-                valuePropName="checked"
-              >
-                <Switch />
-              </Form.Item>
-
-              <Form.Item<FieldType>
-                label="Properties to Export"
-                name="properties"
-              >
-                <Checkbox.Group onChange={onDataChange}>
-                  <Checkbox value="highlights">Highlights</Checkbox>
-                </Checkbox.Group>
-              </Form.Item>
-
-              <Form.Item>
-                <Space>
-                  <Button type="primary" htmlType="submit">
-                    Save
-                  </Button>
-                  <Button type="primary" danger onClick={deleteNotion}>
-                    Disconnect
-                  </Button>
-                </Space>
-              </Form.Item>
-            </Form>
-
-            <Button
-              type="primary"
-              onClick={exportToNotion}
-              disabled={exporting}
-            >
-              {exporting ? 'Exporting' : 'Export most recent items to Notion'}
-            </Button>
+                {exporting ? 'Exporting' : 'Export most recent items to Notion'}
+              </Button>
+            </Spin>
           </div>
         </VStack>
       </SettingsLayout>
