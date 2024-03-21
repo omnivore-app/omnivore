@@ -134,67 +134,69 @@ export default function Notion(): JSX.Element {
             <Beta />
           </HStack>
 
-          <Form
-            labelCol={{ span: 6 }}
-            wrapperCol={{ span: 8 }}
-            labelAlign="left"
-            form={form}
-            onFinish={onFinish}
-            onFinishFailed={onFinishFailed}
-          >
-            <Form.Item<FieldType>
-              label="Notion Page Id"
-              name="parentPageId"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input your Notion Page Id!',
-                },
-              ]}
+          <div style={{ width: '100%', marginTop: '40px' }}>
+            <Form
+              labelCol={{ span: 6 }}
+              wrapperCol={{ span: 8 }}
+              labelAlign="left"
+              form={form}
+              onFinish={onFinish}
+              onFinishFailed={onFinishFailed}
             >
-              <Input />
-            </Form.Item>
+              <Form.Item<FieldType>
+                label="Notion Page Id"
+                name="parentPageId"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please input your Notion Page Id!',
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
 
-            <Form.Item<FieldType>
-              label="Notion Database Id"
-              name="parentDatabaseId"
-              hidden
-            >
-              <Input disabled />
-            </Form.Item>
+              <Form.Item<FieldType>
+                label="Notion Database Id"
+                name="parentDatabaseId"
+                hidden
+              >
+                <Input disabled />
+              </Form.Item>
 
-            <Form.Item<FieldType>
-              label="Automatic Sync"
-              name="enabled"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
+              <Form.Item<FieldType>
+                label="Automatic Sync"
+                name="enabled"
+                valuePropName="checked"
+              >
+                <Switch />
+              </Form.Item>
 
-            <Form.Item<FieldType>
-              label="Properties to Export"
-              name="properties"
-            >
-              <Checkbox.Group onChange={onDataChange}>
-                <Checkbox value="highlights">Highlights</Checkbox>
-              </Checkbox.Group>
-            </Form.Item>
+              <Form.Item<FieldType>
+                label="Properties to Export"
+                name="properties"
+              >
+                <Checkbox.Group onChange={onDataChange}>
+                  <Checkbox value="highlights">Highlights</Checkbox>
+                </Checkbox.Group>
+              </Form.Item>
 
-            <Form.Item>
-              <Space>
-                <Button type="primary" htmlType="submit">
-                  Save
-                </Button>
-                <Button type="primary" danger onClick={deleteNotion}>
-                  Disconnect
-                </Button>
-              </Space>
-            </Form.Item>
-          </Form>
+              <Form.Item>
+                <Space>
+                  <Button type="primary" htmlType="submit">
+                    Save
+                  </Button>
+                  <Button type="primary" danger onClick={deleteNotion}>
+                    Disconnect
+                  </Button>
+                </Space>
+              </Form.Item>
+            </Form>
 
-          <Button type="primary" onClick={exportToNotion}>
-            Export most recent items to Notion
-          </Button>
+            <Button type="primary" onClick={exportToNotion}>
+              Export most recent items to Notion
+            </Button>
+          </div>
         </VStack>
       </SettingsLayout>
     </>

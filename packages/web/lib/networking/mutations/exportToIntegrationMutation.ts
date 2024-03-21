@@ -1,3 +1,4 @@
+import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
 export interface Task {
@@ -18,9 +19,9 @@ interface ExportToIntegrationDataResponseData {
 }
 
 export async function exportToIntegrationMutation(integrationId: string) {
-  const mutation = `
+  const mutation = gql`
     mutation ExportToIntegration($integrationId: ID!) {
-      exportToIntegration(integrationId:$integrationId) {
+      exportToIntegration(integrationId: $integrationId) {
         ... on ExportToIntegrationError {
           errorCodes
         }
@@ -30,7 +31,8 @@ export async function exportToIntegrationMutation(integrationId: string) {
           }
         }
       }
-    }`
+    }
+  `
 
   const data = await gqlFetcher(mutation, { integrationId })
   const output = data as ExportToIntegrationDataResponseData

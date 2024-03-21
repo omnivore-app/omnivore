@@ -41,6 +41,16 @@ export function useGetIntegrationQuery(name: string): IntegrationQueryResponse {
   `
 
   const { data, mutate, isValidating } = useSWR(query, makeGqlFetcher({ name }))
+  if (!data) {
+    return {
+      isValidating,
+      integration: {} as Integration,
+      revalidate: () => {
+        mutate()
+      },
+    }
+  }
+  
   const result = data as IntegrationQueryResponseData
   const error = result.integration.errorCodes?.find(() => true)
   if (error) {
