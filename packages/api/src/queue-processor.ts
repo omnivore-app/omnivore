@@ -187,7 +187,7 @@ const setupCronJobs = async () => {
     }
   )
 
-  // // TEMP: for testing locally
+  // // // TEMP: for testing locally
   // await queue.add(
   //   BUILD_DIGEST_JOB_NAME,
   //   {

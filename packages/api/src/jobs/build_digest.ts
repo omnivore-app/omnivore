@@ -3,6 +3,7 @@ import { parsePreparedContent } from '../utils/parser'
 import { LibraryItem } from '../entity/library_item'
 import {
   createOrUpdateLibraryItem,
+  findLibraryItemById,
   searchLibraryItems,
 } from '../services/library_item'
 import { OpenAI } from '@langchain/openai'
@@ -16,6 +17,8 @@ import { generateSlug } from '../utils/helpers'
 import { PageType } from '../generated/graphql'
 import { readStringFromStorage } from '../utils/uploads'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
+import { MarkdownTextSplitter } from 'langchain/text_splitter'
+import { loadSummarizationChain } from 'langchain/chains'
 
 export interface BuildDigestJobData {
   userId: string
@@ -164,27 +167,22 @@ const getSelection = async (
     digestDefinition.selectionPrompt
   )
   const selectionChain = selectionTemplate.pipe(llm)
-  const selectionResult = await selectionChain.invoke(
-    {
-      candidates: JSON.stringify(
-        candidates.map((item: ContextualizedItem) => {
-          return {
-            id: item.libraryItem.id,
-            title: item.libraryItem.title,
-            topic: item.context.topic,
-          }
-        })
-      ),
-      preferences: JSON.stringify(
-        preferences.map((item: LibraryItem) => {
-          return { id: item.id, title: item.title }
-        })
-      ),
-    },
-    {}
-  )
-
-  console.log('[digest]: selectionResult: ', selectionResult)
+  const selectionResult = await selectionChain.invoke({
+    candidates: JSON.stringify(
+      candidates.map((item: ContextualizedItem) => {
+        return {
+          id: item.libraryItem.id,
+          title: item.libraryItem.title,
+          topic: item.context.topic,
+        }
+      })
+    ),
+    preferences: JSON.stringify(
+      preferences.map((item: LibraryItem) => {
+        return { id: item.id, title: item.title }
+      })
+    ),
+  })
 
   const selection = JSON.parse(selectionResult) as SelectionResultItem[]
   console.log('[digest]: selection: ', selection)
@@ -244,6 +242,29 @@ export const createSummarizableDocument = (readable: string): string => {
   return nhm.translate(readable)
 }
 
+const summarize = async (
+  llm: OpenAI,
+  markdown: string
+): Promise<string | undefined> => {
+  const textSplitter = new MarkdownTextSplitter({ chunkSize: 10_000 })
+  const docs = await textSplitter.createDocuments([markdown])
+  const summarize = loadSummarizationChain(llm, {
+    type: 'map_reduce',
+    verbose: true,
+  })
+
+  const response = await summarize.invoke({
+    input_documents: docs,
+  })
+
+  if (typeof response.text !== 'string') {
+    logger.error(`Summarize did not return text`)
+    return undefined
+  }
+
+  return response.text
+}
+
 const contextualize = async (
   llm: OpenAI,
   digestDefinition: DigestDefinition,
@@ -256,6 +277,12 @@ const contextualize = async (
 
   for (const item of items) {
     const markdown = createSummarizableDocument(item.readableContent)
+    // const summary = await summarize(llm, markdown)
+    // if (!summary) {
+    //   console.log('could not summarize document: ', item.title)
+    //   continue
+    // }
+
     const chain = contextualTemplate.pipe(llm)
     const contextStr = await chain.invoke({
       content: markdown,
@@ -306,7 +333,7 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
     )
 
     const llm = new OpenAI({
-      modelName: 'gpt-4',
+      modelName: 'gpt-4-0125-preview',
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
