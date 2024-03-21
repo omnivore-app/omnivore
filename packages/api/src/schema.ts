@@ -3023,6 +3023,42 @@ const schema = gql`
     NOT_FOUND
   }
 
+  union ExportToIntegrationResult =
+      ExportToIntegrationSuccess
+    | ExportToIntegrationError
+
+  type ExportToIntegrationSuccess {
+    task: Task!
+  }
+
+  type Task {
+    id: ID!
+    name: String!
+    state: TaskState!
+    createdAt: Date!
+    runningTime: Int # in milliseconds
+    cancellable: Boolean
+    progress: Float
+    failedReason: String
+  }
+
+  enum TaskState {
+    PENDING
+    RUNNING
+    SUCCEEDED
+    FAILED
+    CANCELLED
+  }
+
+  type ExportToIntegrationError {
+    errorCodes: [ExportToIntegrationErrorCode!]!
+  }
+
+  enum ExportToIntegrationErrorCode {
+    UNAUTHORIZED
+    FAILED_TO_CREATE_TASK
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3131,6 +3167,7 @@ const schema = gql`
       arguments: JSON # additional arguments for the action
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
+    exportToIntegration(integrationId: ID!): ExportToIntegrationResult!
     setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
     updateSubscription(
       input: UpdateSubscriptionInput!

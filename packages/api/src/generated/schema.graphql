@@ -794,6 +794,21 @@ type EmptyTrashSuccess {
   success: Boolean
 }
 
+type ExportToIntegrationError {
+  errorCodes: [ExportToIntegrationErrorCode!]!
+}
+
+enum ExportToIntegrationErrorCode {
+  FAILED_TO_CREATE_TASK
+  UNAUTHORIZED
+}
+
+union ExportToIntegrationResult = ExportToIntegrationError | ExportToIntegrationSuccess
+
+type ExportToIntegrationSuccess {
+  task: Task!
+}
+
 type Feature {
   createdAt: Date!
   expiresAt: Date
@@ -1422,6 +1437,7 @@ type Mutation {
   deleteWebhook(id: ID!): DeleteWebhookResult!
   editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
   emptyTrash: EmptyTrashResult!
+  exportToIntegration(integrationId: ID!): ExportToIntegrationResult!
   fetchContent(id: ID!): FetchContentResult!
   generateApiKey(input: GenerateApiKeyInput!): GenerateApiKeyResult!
   googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2515,6 +2531,25 @@ type SyncUpdatedItemEdge {
   itemID: ID!
   node: SearchItem
   updateReason: UpdateReason!
+}
+
+type Task {
+  cancellable: Boolean
+  createdAt: Date!
+  failedReason: String
+  id: ID!
+  name: String!
+  progress: Float
+  runningTime: Int
+  state: TaskState!
+}
+
+enum TaskState {
+  CANCELLED
+  FAILED
+  PENDING
+  RUNNING
+  SUCCEEDED
 }
 
 type TypeaheadSearchError {

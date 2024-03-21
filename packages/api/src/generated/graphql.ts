@@ -892,6 +892,23 @@ export type EmptyTrashSuccess = {
   success?: Maybe<Scalars['Boolean']>;
 };
 
+export type ExportToIntegrationError = {
+  __typename?: 'ExportToIntegrationError';
+  errorCodes: Array<ExportToIntegrationErrorCode>;
+};
+
+export enum ExportToIntegrationErrorCode {
+  FailedToCreateTask = 'FAILED_TO_CREATE_TASK',
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ExportToIntegrationResult = ExportToIntegrationError | ExportToIntegrationSuccess;
+
+export type ExportToIntegrationSuccess = {
+  __typename?: 'ExportToIntegrationSuccess';
+  task: Task;
+};
+
 export type Feature = {
   __typename?: 'Feature';
   createdAt: Scalars['Date'];
@@ -1582,6 +1599,7 @@ export type Mutation = {
   deleteWebhook: DeleteWebhookResult;
   editDiscoverFeed: EditDiscoverFeedResult;
   emptyTrash: EmptyTrashResult;
+  exportToIntegration: ExportToIntegrationResult;
   fetchContent: FetchContentResult;
   generateApiKey: GenerateApiKeyResult;
   googleLogin: LoginResult;
@@ -1734,6 +1752,11 @@ export type MutationDeleteWebhookArgs = {
 
 export type MutationEditDiscoverFeedArgs = {
   input: EditDiscoverFeedInput;
+};
+
+
+export type MutationExportToIntegrationArgs = {
+  integrationId: Scalars['ID'];
 };
 
 
@@ -3183,6 +3206,26 @@ export type SyncUpdatedItemEdge = {
   updateReason: UpdateReason;
 };
 
+export type Task = {
+  __typename?: 'Task';
+  cancellable?: Maybe<Scalars['Boolean']>;
+  createdAt: Scalars['Date'];
+  failedReason?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  progress?: Maybe<Scalars['Float']>;
+  runningTime?: Maybe<Scalars['Int']>;
+  state: TaskState;
+};
+
+export enum TaskState {
+  Cancelled = 'CANCELLED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Running = 'RUNNING',
+  Succeeded = 'SUCCEEDED'
+}
+
 export type TypeaheadSearchError = {
   __typename?: 'TypeaheadSearchError';
   errorCodes: Array<TypeaheadSearchErrorCode>;
@@ -4014,6 +4057,10 @@ export type ResolversTypes = {
   EmptyTrashErrorCode: EmptyTrashErrorCode;
   EmptyTrashResult: ResolversTypes['EmptyTrashError'] | ResolversTypes['EmptyTrashSuccess'];
   EmptyTrashSuccess: ResolverTypeWrapper<EmptyTrashSuccess>;
+  ExportToIntegrationError: ResolverTypeWrapper<ExportToIntegrationError>;
+  ExportToIntegrationErrorCode: ExportToIntegrationErrorCode;
+  ExportToIntegrationResult: ResolversTypes['ExportToIntegrationError'] | ResolversTypes['ExportToIntegrationSuccess'];
+  ExportToIntegrationSuccess: ResolverTypeWrapper<ExportToIntegrationSuccess>;
   Feature: ResolverTypeWrapper<Feature>;
   Feed: ResolverTypeWrapper<Feed>;
   FeedArticle: ResolverTypeWrapper<FeedArticle>;
@@ -4323,6 +4370,8 @@ export type ResolversTypes = {
   SubscriptionsResult: ResolversTypes['SubscriptionsError'] | ResolversTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: ResolverTypeWrapper<SubscriptionsSuccess>;
   SyncUpdatedItemEdge: ResolverTypeWrapper<SyncUpdatedItemEdge>;
+  Task: ResolverTypeWrapper<Task>;
+  TaskState: TaskState;
   TypeaheadSearchError: ResolverTypeWrapper<TypeaheadSearchError>;
   TypeaheadSearchErrorCode: TypeaheadSearchErrorCode;
   TypeaheadSearchItem: ResolverTypeWrapper<TypeaheadSearchItem>;
@@ -4564,6 +4613,9 @@ export type ResolversParentTypes = {
   EmptyTrashError: EmptyTrashError;
   EmptyTrashResult: ResolversParentTypes['EmptyTrashError'] | ResolversParentTypes['EmptyTrashSuccess'];
   EmptyTrashSuccess: EmptyTrashSuccess;
+  ExportToIntegrationError: ExportToIntegrationError;
+  ExportToIntegrationResult: ResolversParentTypes['ExportToIntegrationError'] | ResolversParentTypes['ExportToIntegrationSuccess'];
+  ExportToIntegrationSuccess: ExportToIntegrationSuccess;
   Feature: Feature;
   Feed: Feed;
   FeedArticle: FeedArticle;
@@ -4804,6 +4856,7 @@ export type ResolversParentTypes = {
   SubscriptionsResult: ResolversParentTypes['SubscriptionsError'] | ResolversParentTypes['SubscriptionsSuccess'];
   SubscriptionsSuccess: SubscriptionsSuccess;
   SyncUpdatedItemEdge: SyncUpdatedItemEdge;
+  Task: Task;
   TypeaheadSearchError: TypeaheadSearchError;
   TypeaheadSearchItem: TypeaheadSearchItem;
   TypeaheadSearchResult: ResolversParentTypes['TypeaheadSearchError'] | ResolversParentTypes['TypeaheadSearchSuccess'];
@@ -5502,6 +5555,20 @@ export type EmptyTrashSuccessResolvers<ContextType = ResolverContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ExportToIntegrationErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ExportToIntegrationError'] = ResolversParentTypes['ExportToIntegrationError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ExportToIntegrationErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ExportToIntegrationResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ExportToIntegrationResult'] = ResolversParentTypes['ExportToIntegrationResult']> = {
+  __resolveType: TypeResolveFn<'ExportToIntegrationError' | 'ExportToIntegrationSuccess', ParentType, ContextType>;
+};
+
+export type ExportToIntegrationSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ExportToIntegrationSuccess'] = ResolversParentTypes['ExportToIntegrationSuccess']> = {
+  task?: Resolver<ResolversTypes['Task'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type FeatureResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = {
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   expiresAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
@@ -6037,6 +6104,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookResult'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   editDiscoverFeed?: Resolver<ResolversTypes['EditDiscoverFeedResult'], ParentType, ContextType, RequireFields<MutationEditDiscoverFeedArgs, 'input'>>;
   emptyTrash?: Resolver<ResolversTypes['EmptyTrashResult'], ParentType, ContextType>;
+  exportToIntegration?: Resolver<ResolversTypes['ExportToIntegrationResult'], ParentType, ContextType, RequireFields<MutationExportToIntegrationArgs, 'integrationId'>>;
   fetchContent?: Resolver<ResolversTypes['FetchContentResult'], ParentType, ContextType, RequireFields<MutationFetchContentArgs, 'id'>>;
   generateApiKey?: Resolver<ResolversTypes['GenerateApiKeyResult'], ParentType, ContextType, RequireFields<MutationGenerateApiKeyArgs, 'input'>>;
   googleLogin?: Resolver<ResolversTypes['LoginResult'], ParentType, ContextType, RequireFields<MutationGoogleLoginArgs, 'input'>>;
@@ -6788,6 +6856,18 @@ export type SyncUpdatedItemEdgeResolvers<ContextType = ResolverContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TaskResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Task'] = ResolversParentTypes['Task']> = {
+  cancellable?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  failedReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  progress?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  runningTime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['TaskState'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TypeaheadSearchErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['TypeaheadSearchError'] = ResolversParentTypes['TypeaheadSearchError']> = {
   errorCodes?: Resolver<Array<ResolversTypes['TypeaheadSearchErrorCode']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -7272,6 +7352,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   EmptyTrashError?: EmptyTrashErrorResolvers<ContextType>;
   EmptyTrashResult?: EmptyTrashResultResolvers<ContextType>;
   EmptyTrashSuccess?: EmptyTrashSuccessResolvers<ContextType>;
+  ExportToIntegrationError?: ExportToIntegrationErrorResolvers<ContextType>;
+  ExportToIntegrationResult?: ExportToIntegrationResultResolvers<ContextType>;
+  ExportToIntegrationSuccess?: ExportToIntegrationSuccessResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   Feed?: FeedResolvers<ContextType>;
   FeedArticle?: FeedArticleResolvers<ContextType>;
@@ -7473,6 +7556,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   SubscriptionsResult?: SubscriptionsResultResolvers<ContextType>;
   SubscriptionsSuccess?: SubscriptionsSuccessResolvers<ContextType>;
   SyncUpdatedItemEdge?: SyncUpdatedItemEdgeResolvers<ContextType>;
+  Task?: TaskResolvers<ContextType>;
   TypeaheadSearchError?: TypeaheadSearchErrorResolvers<ContextType>;
   TypeaheadSearchItem?: TypeaheadSearchItemResolvers<ContextType>;
   TypeaheadSearchResult?: TypeaheadSearchResultResolvers<ContextType>;

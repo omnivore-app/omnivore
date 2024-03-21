@@ -9,6 +9,9 @@ import {
   DeleteIntegrationError,
   DeleteIntegrationErrorCode,
   DeleteIntegrationSuccess,
+  ExportToIntegrationError,
+  ExportToIntegrationErrorCode,
+  ExportToIntegrationSuccess,
   ImportFromIntegrationError,
   ImportFromIntegrationErrorCode,
   ImportFromIntegrationSuccess,
@@ -18,12 +21,14 @@ import {
   IntegrationsSuccess,
   IntegrationSuccess,
   MutationDeleteIntegrationArgs,
+  MutationExportToIntegrationArgs,
   MutationImportFromIntegrationArgs,
   MutationSetIntegrationArgs,
   QueryIntegrationArgs,
   SetIntegrationError,
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
+  TaskState,
 } from '../../generated/graphql'
 import { createIntegrationToken } from '../../routers/auth/jwt_helpers'
 import {
@@ -38,6 +43,7 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
+  enqueueExportToIntegration,
   enqueueImportFromIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
@@ -214,5 +220,54 @@ export const importFromIntegrationResolver = authorized<
 
   return {
     success: true,
+  }
+})
+
+export const exportToIntegrationResolver = authorized<
+  ExportToIntegrationSuccess,
+  ExportToIntegrationError,
+  MutationExportToIntegrationArgs
+>(async (_, { integrationId }, { uid, log }) => {
+  const integration = await findIntegration({ id: integrationId }, uid)
+
+  if (!integration) {
+    log.error('integration not found', integrationId)
+
+    return {
+      errorCodes: [ExportToIntegrationErrorCode.Unauthorized],
+    }
+  }
+
+  // create a job to export all the items
+  const job = await enqueueExportToIntegration(integration.id, uid)
+  if (!job || !job.id) {
+    log.error('failed to create task', integrationId)
+
+    return {
+      errorCodes: [ExportToIntegrationErrorCode.FailedToCreateTask],
+    }
+  }
+
+  // update task name in integration
+  await updateIntegration(integration.id, { taskName: job.id }, uid)
+
+  analytics.capture({
+    distinctId: uid,
+    event: 'integration_export',
+    properties: {
+      integrationId,
+    },
+  })
+
+  return {
+    task: {
+      id: job.id,
+      name: job.name,
+      state: TaskState.Pending,
+      createdAt: new Date(job.timestamp),
+      progress: 0,
+      runningTime: 0,
+      cancellable: true,
+    },
   }
 })
