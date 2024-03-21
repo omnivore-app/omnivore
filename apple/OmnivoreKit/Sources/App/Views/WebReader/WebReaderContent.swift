@@ -60,6 +60,10 @@ struct WebReaderContent {
             body {
               -webkit-text-size-adjust: 100%;
             }
+            .is-sticky {
+              right: 15px !important;
+              bottom: 40px !important;
+            }
           </style>
       </head>
       <body>
