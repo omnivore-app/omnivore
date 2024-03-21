@@ -13,7 +13,7 @@ export interface Task {
 
 interface ExportToIntegrationDataResponseData {
   exportToIntegration: {
-    Task: Task
+    task: Task
     errorCodes?: string[]
   }
 }
@@ -26,7 +26,7 @@ export async function exportToIntegrationMutation(integrationId: string) {
           errorCodes
         }
         ... on ExportToIntegrationSuccess {
-          Task {
+          task {
             id
           }
         }
@@ -41,5 +41,5 @@ export async function exportToIntegrationMutation(integrationId: string) {
     throw error
   }
 
-  return output.exportToIntegration.Task
+  return output.exportToIntegration.task
 }
