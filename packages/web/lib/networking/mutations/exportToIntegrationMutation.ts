@@ -1,9 +1,17 @@
 import { gql } from 'graphql-request'
 import { gqlFetcher } from '../networkHelpers'
 
+export enum TaskState {
+  Cancelled = 'CANCELLED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Running = 'RUNNING',
+  Succeeded = 'SUCCEEDED'
+}
+
 export interface Task {
   id: string
-  state: string
+  state: TaskState
   createdAt: Date
   name: string
   runningTime: number

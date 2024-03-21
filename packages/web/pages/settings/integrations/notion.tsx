@@ -12,15 +12,20 @@ import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
 import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
-import { exportToIntegrationMutation } from '../../../lib/networking/mutations/exportToIntegrationMutation'
+import {
+  exportToIntegrationMutation,
+  Task,
+  TaskState,
+} from '../../../lib/networking/mutations/exportToIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
+import { apiFetcher } from '../../../lib/networking/networkHelpers'
 import { useGetIntegrationQuery } from '../../../lib/networking/queries/useGetIntegrationQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
@@ -40,6 +45,7 @@ export default function Notion(): JSX.Element {
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     form.setFieldsValue({
@@ -93,7 +99,23 @@ export default function Notion(): JSX.Element {
   const exportToNotion = async () => {
     try {
       const task = await exportToIntegrationMutation(notion.id)
-      console.log('task', task)
+      // long polling to check the status of the task in every 10 seconds
+      setExporting(true)
+      const interval = setInterval(async () => {
+        const updatedTask = (await apiFetcher(`/api/tasks/${task.id}`)) as Task
+        if (updatedTask.state === TaskState.Succeeded) {
+          clearInterval(interval)
+          setExporting(false)
+          showSuccessToast('Exported to Notion successfully.')
+          return
+        }
+        if (updatedTask.state === TaskState.Failed) {
+          clearInterval(interval)
+          setExporting(false)
+          messageApi.error('There was an error exporting to Notion.')
+          return
+        }
+      }, 10000)
       showSuccessToast('Exporting to Notion...')
     } catch (error) {
       messageApi.error('There was an error exporting to Notion.')
@@ -193,8 +215,12 @@ export default function Notion(): JSX.Element {
               </Form.Item>
             </Form>
 
-            <Button type="primary" onClick={exportToNotion}>
-              Export most recent items to Notion
+            <Button
+              type="primary"
+              onClick={exportToNotion}
+              disabled={exporting}
+            >
+              {exporting ? 'Exporting' : 'Export most recent items to Notion'}
             </Button>
           </div>
         </VStack>
