@@ -21,7 +21,7 @@ export enum RuleActionType {
 export enum RuleEventType {
   PageCreated = 'PAGE_CREATED',
   PageUpdated = 'PAGE_UPDATED',
-  LabelCreated = 'PAGE_CREATED',
+  LabelCreated = 'LABEL_CREATED',
   HighlightCreated = 'HIGHLIGHT_CREATED',
 }
 

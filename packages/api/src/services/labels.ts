@@ -146,7 +146,7 @@ export const saveLabelsInLibraryItem = async (
     // create pubsub event
     await pubsub.entityCreated<UpdateItemEvent>(
       EntityType.LABEL,
-      { id: libraryItemId, labels },
+      { id: libraryItemId, labels, userId },
       userId,
       libraryItemId
     )
@@ -217,7 +217,7 @@ export const saveLabelsInHighlight = async (
   // create pubsub event
   await pubsub.entityCreated<UpdateItemEvent>(
     EntityType.LABEL,
-    { id: libraryItemId, highlights: [{ id: highlightId, labels }] },
+    { id: libraryItemId, highlights: [{ id: highlightId, labels }], userId },
     userId,
     libraryItemId
   )

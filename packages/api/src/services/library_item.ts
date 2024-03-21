@@ -15,7 +15,7 @@ import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
-import { createPubSubClient, EntityType } from '../pubsub'
+import { BaseEntityEvent, createPubSubClient, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
@@ -37,10 +37,13 @@ type IgnoredFields =
   | 'links'
   | 'textContentHash'
 export type ItemEvent = CreateItemEvent | UpdateItemEvent
-export type CreateItemEvent = Omit<DeepPartial<LibraryItem>, IgnoredFields>
-export type UpdateItemEvent = Omit<
-  QueryDeepPartialEntity<LibraryItem>,
-  IgnoredFields
+export type CreateItemEvent = Merge<
+  Omit<DeepPartial<LibraryItem>, IgnoredFields>,
+  BaseEntityEvent
+>
+export type UpdateItemEvent = Merge<
+  Omit<QueryDeepPartialEntity<LibraryItem>, IgnoredFields>,
+  BaseEntityEvent
 >
 
 export class RequiresSearchQueryError extends Error {
@@ -841,7 +844,7 @@ export const softDeleteLibraryItem = async (
     userId
   )
 
-  await pubsub.entityDeleted(EntityType.PAGE, id, userId)
+  await pubsub.entityDeleted(EntityType.ITEM, id, userId)
 
   return deletedLibraryItem
 }
@@ -883,13 +886,8 @@ export const updateLibraryItem = async (
   if (libraryItem.state === LibraryItemState.Succeeded) {
     // send create event if the item was created
     await pubsub.entityCreated<CreateItemEvent>(
-      EntityType.PAGE,
-      {
-        ...updatedLibraryItem,
-        originalContent: undefined,
-        readableContent: undefined,
-        feedContent: undefined,
-      },
+      EntityType.ITEM,
+      { ...updatedLibraryItem, userId },
       userId,
       id
     )
@@ -898,13 +896,8 @@ export const updateLibraryItem = async (
   }
 
   await pubsub.entityUpdated<UpdateItemEvent>(
-    EntityType.PAGE,
-    {
-      ...libraryItem,
-      originalContent: undefined,
-      readableContent: undefined,
-      feedContent: undefined,
-    },
+    EntityType.ITEM,
+    { ...libraryItem, id, userId },
     userId,
     id
   )
@@ -966,8 +959,8 @@ export const updateLibraryItemReadingProgress = async (
 
   const updatedItem = result[0][0]
   await pubsub.entityUpdated<UpdateItemEvent>(
-    EntityType.PAGE,
-    updatedItem,
+    EntityType.ITEM,
+    { ...updatedItem, id, userId },
     userId,
     id
   )
@@ -1067,13 +1060,8 @@ export const createOrUpdateLibraryItem = async (
   }
 
   await pubsub.entityCreated<CreateItemEvent>(
-    EntityType.PAGE,
-    {
-      ...newLibraryItem,
-      originalContent: undefined,
-      readableContent: undefined,
-      feedContent: undefined,
-    },
+    EntityType.ITEM,
+    { ...newLibraryItem, userId },
     userId,
     newLibraryItem.id
   )
