@@ -1,5 +1,5 @@
 import { IntegrationType } from '../../entity/integration'
-import { findIntegration } from '../../services/integrations'
+import { findIntegration, updateIntegration } from '../../services/integrations'
 import { findRecentLibraryItems } from '../../services/library_item'
 import { findActiveUser } from '../../services/user'
 import { enqueueExportItem } from '../../utils/createTask'
@@ -39,8 +39,8 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
     return
   }
 
-  const maxItems = 1000
-  const limit = 100
+  const maxItems = 100
+  const limit = 10
   let offset = 0
   // get max 1000 most recent items from the database
   while (offset < maxItems) {
@@ -72,4 +72,12 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
       integrationId,
     })
   }
+
+  logger.info('exported all items', {
+    userId,
+    integrationId,
+  })
+
+  // clear task name in integration
+  await updateIntegration(integration.id, { taskName: null }, userId)
 }

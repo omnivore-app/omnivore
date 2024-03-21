@@ -13,7 +13,7 @@ import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
 import { Beta } from '../../../components/templates/Beta'
@@ -46,7 +46,7 @@ export default function Notion(): JSX.Element {
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()
-  const [exporting, setExporting] = useState(false)
+  const [exporting, setExporting] = useState(!!notion.taskName)
 
   useEffect(() => {
     form.setFieldsValue({
@@ -97,7 +97,12 @@ export default function Notion(): JSX.Element {
     form.setFieldsValue({ properties: value.map((v) => v.toString()) })
   }
 
-  const exportToNotion = async () => {
+  const exportToNotion = useCallback(async () => {
+    if (exporting) {
+      messageApi.warning('Exporting process is already running.')
+      return
+    }
+
     try {
       const task = await exportToIntegrationMutation(notion.id)
       // long polling to check the status of the task in every 10 seconds
@@ -121,7 +126,7 @@ export default function Notion(): JSX.Element {
     } catch (error) {
       messageApi.error('There was an error exporting to Notion.')
     }
-  }
+  }, [exporting, messageApi, notion.id])
 
   return (
     <>
@@ -170,6 +175,7 @@ export default function Notion(): JSX.Element {
                 <Form.Item<FieldType>
                   label="Notion Page Id"
                   name="parentPageId"
+                  help="The id of the Notion page where the items will be exported to. You can find it in the URL of the page."
                   rules={[
                     {
                       required: true,
@@ -192,6 +198,7 @@ export default function Notion(): JSX.Element {
                   label="Automatic Sync"
                   name="enabled"
                   valuePropName="checked"
+                  help="Once connected all new items will be exported to Notion"
                 >
                   <Switch />
                 </Form.Item>
@@ -222,7 +229,7 @@ export default function Notion(): JSX.Element {
                 onClick={exportToNotion}
                 disabled={exporting}
               >
-                {exporting ? 'Exporting' : 'Export most recent items to Notion'}
+                {exporting ? 'Exporting' : 'Export last 100 items'}
               </Button>
             </Spin>
           </div>

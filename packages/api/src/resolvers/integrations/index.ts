@@ -93,6 +93,11 @@ export const setIntegrationResolver = authorized<
   // save integration
   const integration = await saveIntegration(integrationToSave, uid)
 
+  if (integration.name.toLowerCase() === 'readwise') {
+    // create a task to export all the items for readwise temporarily
+    await enqueueExportToIntegration(integration.id, uid)
+  }
+
   analytics.capture({
     distinctId: uid,
     event: 'integration_set',
