@@ -19,6 +19,7 @@ import { readStringFromStorage } from '../utils/uploads'
 import { NodeHtmlMarkdown } from 'node-html-markdown'
 import { MarkdownTextSplitter } from 'langchain/text_splitter'
 import { loadSummarizationChain } from 'langchain/chains'
+import { JsonOutputParser } from '@langchain/core/output_parsers'
 
 export interface BuildDigestJobData {
   userId: string
@@ -283,20 +284,25 @@ const contextualize = async (
     //   continue
     // }
 
-    const chain = contextualTemplate.pipe(llm)
-    const contextStr = await chain.invoke({
-      content: markdown,
-      topics: JSON.stringify(digestDefinition.topics),
-    })
+    try {
+      const outputParser = new JsonOutputParser()
+      const chain = contextualTemplate.pipe(llm).pipe(outputParser)
+      const contextStr = await chain.invoke({
+        content: markdown,
+        topics: JSON.stringify(digestDefinition.topics),
+      })
 
-    console.log(`[digest]: contextualize result:`, {
-      title: item.title,
-      context: contextStr,
-    })
-    result.push({
-      libraryItem: item,
-      context: JSON.parse(contextStr) as ItemContext,
-    })
+      console.log(`[digest]: contextualize result:`, {
+        title: item.title,
+        context: contextStr,
+      })
+      result.push({
+        libraryItem: item,
+        context: contextStr as ItemContext,
+      })
+    } catch (error) {
+      console.log(`error contextualizing: ${item.title}`, { error })
+    }
   }
 
   return result
@@ -346,7 +352,15 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
     )
 
     console.log('contextualizedData: ', {
-      contextualizeData: contextualizedItems,
+      contextualizeData: JSON.stringify(
+        contextualizedItems.map((item) => {
+          return {
+            title: item.libraryItem.title,
+            topic: item.context.topic,
+            introduction: item.context.introduction,
+          }
+        })
+      ),
     })
 
     const selection = await getSelection(
@@ -394,7 +408,7 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       await createOrUpdateLibraryItem(libraryItemToSave, jobData.userId)
     }
 
-    // console.log('[digest]: INTRODUCTION RESULT: ', articleHTML)
+    console.log('[digest]: INTRODUCTION RESULT: ', articleHTML)
   } catch (err) {
     console.log('error creating summary: ', err)
   }
