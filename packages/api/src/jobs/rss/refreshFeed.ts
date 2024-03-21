@@ -361,6 +361,7 @@ const createItemWithFeedContent = async (
         clientRequestId: '',
         author: item.creator,
         previewImage,
+        labels: [{ name: 'RSS' }],
       },
       user
     )
