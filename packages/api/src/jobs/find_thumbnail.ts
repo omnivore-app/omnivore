@@ -161,7 +161,9 @@ export const findThumbnail = async (data: Data) => {
       {
         thumbnail,
       },
-      userId
+      userId,
+      undefined,
+      true
     )
     logger.info(`thumbnail updated: ${thumbnail}`)
   }
