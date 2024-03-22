@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { LibraryItem } from '../../entity/library_item'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
+import { ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 interface ReadwiseHighlight {
@@ -66,7 +66,7 @@ export class ReadwiseClient implements IntegrationClient {
     }
   }
 
-  export = async (items: LibraryItem[]): Promise<boolean> => {
+  export = async (items: ItemEvent[]): Promise<boolean> => {
     let result = true
 
     const highlights = items.flatMap(this._itemToReadwiseHighlight)
@@ -83,9 +83,7 @@ export class ReadwiseClient implements IntegrationClient {
     throw new Error('Method not implemented.')
   }
 
-  private _itemToReadwiseHighlight = (
-    item: LibraryItem
-  ): ReadwiseHighlight[] => {
+  private _itemToReadwiseHighlight = (item: ItemEvent): ReadwiseHighlight[] => {
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
     return item.highlights
       ?.map((highlight) => {
@@ -98,8 +96,10 @@ export class ReadwiseClient implements IntegrationClient {
           text: highlight.quote,
           title: item.title,
           author: item.author || undefined,
-          highlight_url: getHighlightUrl(item.slug, highlight.id),
-          highlighted_at: new Date(highlight.createdAt).toISOString(),
+          highlight_url: item.slug
+            ? getHighlightUrl(item.slug, highlight.id)
+            : undefined,
+          highlighted_at: (highlight.createdAt as Date).toISOString(),
           category,
           image_url: item.thumbnail || undefined,
           location_type: 'order',

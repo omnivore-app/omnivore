@@ -4,7 +4,6 @@ import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
-  enqueueExportItem,
   enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
 } from './utils/createTask'
@@ -58,11 +57,6 @@ export const createPubSubClient = (): PubsubClient => {
         data,
         userId,
       })
-      // queue export item job
-      await enqueueExportItem({
-        userId,
-        libraryItemIds: [data.id],
-      })
 
       if (type === EntityType.ITEM) {
         // if (await findGrantedFeatureByName(FeatureName.AISummaries, userId)) {
@@ -92,14 +86,8 @@ export const createPubSubClient = (): PubsubClient => {
       // queue trigger rule job
       await enqueueTriggerRuleJob({
         userId,
-        ruleEventType: RuleEventType.PageUpdated,
+        ruleEventType: `${type.toUpperCase()}_UPDATED` as RuleEventType,
         data,
-      })
-
-      // queue export item job
-      await enqueueExportItem({
-        userId,
-        libraryItemIds: [data.id],
       })
     },
     entityDeleted: async (

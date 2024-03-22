@@ -1,8 +1,14 @@
 import { LiqeQuery } from '@omnivore/liqe'
 import axios from 'axios'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
+import { IntegrationType } from '../entity/integration'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
+import {
+  findIntegrations,
+  getIntegrationClient,
+  updateIntegration,
+} from '../services/integrations'
 import { addLabelsToLibraryItem } from '../services/labels'
 import {
   filterItemEvents,
@@ -107,6 +113,67 @@ const sendToWebhook = async (obj: RuleActionObj) => {
   })
 }
 
+const exportItem = async (obj: RuleActionObj) => {
+  const userId = obj.userId
+  const integrations = await findIntegrations(userId, {
+    enabled: true,
+    type: IntegrationType.Export,
+  })
+
+  if (integrations.length <= 0) {
+    return
+  }
+
+  await Promise.all(
+    integrations.map(async (integration) => {
+      try {
+        const logObject = {
+          userId,
+          integrationId: integration.id,
+        }
+        logger.info('exporting item...', logObject)
+
+        const client = getIntegrationClient(
+          integration.name,
+          integration.token,
+          integration
+        )
+
+        const synced = await client.export([obj.data])
+        if (!synced) {
+          logger.error('failed to export item', logObject)
+          return false
+        }
+
+        const syncedAt = new Date()
+        logger.info('updating integration...', {
+          ...logObject,
+          syncedAt,
+        })
+
+        // update integration syncedAt if successful
+        const updated = await updateIntegration(
+          integration.id,
+          {
+            syncedAt,
+          },
+          userId
+        )
+        logger.info('integration updated', {
+          ...logObject,
+          updated,
+        })
+      } catch (error) {
+        logger.error('failed to export item', {
+          userId,
+          integrationId: integration.id,
+          error,
+        })
+      }
+    })
+  )
+}
+
 const getRuleAction = (
   actionType: RuleActionType
 ): RuleActionFunc | undefined => {
@@ -123,6 +190,8 @@ const getRuleAction = (
       return sendNotification
     case RuleActionType.Webhook:
       return sendToWebhook
+    case RuleActionType.Export:
+      return exportItem
     default:
       logger.error('Unknown rule action type', actionType)
       return undefined

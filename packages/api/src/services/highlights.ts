@@ -5,16 +5,20 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { homePageURL } from '../env'
-import { createPubSubClient, EntityType } from '../pubsub'
+import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
+import { Merge } from '../util'
 import { enqueueUpdateHighlight } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
 import { ItemEvent } from './library_item'
 
 const columnToDelete = ['user', 'sharedAt'] as const
 type ColumnToDeleteType = typeof columnToDelete[number]
-export type HighlightEvent = Omit<DeepPartial<Highlight>, ColumnToDeleteType>
+export type HighlightEvent = Merge<
+  Omit<DeepPartial<Highlight>, ColumnToDeleteType>,
+  EntityEvent
+>
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
@@ -51,6 +55,7 @@ export const createHighlight = async (
         where: { id: newHighlight.id },
         relations: {
           user: true,
+          libraryItem: true,
         },
       })
     },
@@ -61,7 +66,11 @@ export const createHighlight = async (
   const cleanData = deepDelete(newHighlight, columnToDelete)
   await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [cleanData] },
+    {
+      id: libraryItemId,
+      slug: newHighlight.libraryItem.slug,
+      highlights: [cleanData],
+    },
     userId
   )
 
@@ -102,13 +111,18 @@ export const mergeHighlights = async (
       where: { id: newHighlight.id },
       relations: {
         user: true,
+        libraryItem: true,
       },
     })
   })
 
   await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [newHighlight] },
+    {
+      id: libraryItemId,
+      slug: newHighlight.libraryItem.slug,
+      highlights: [newHighlight],
+    },
     userId
   )
 
@@ -142,7 +156,11 @@ export const updateHighlight = async (
   const libraryItemId = updatedHighlight.libraryItem.id
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [highlight] } as ItemEvent,
+    {
+      id: libraryItemId,
+      slug: updatedHighlight.libraryItem.slug,
+      highlights: [highlight],
+    } as ItemEvent,
     userId
   )
 
