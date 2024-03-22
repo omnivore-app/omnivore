@@ -11,7 +11,7 @@ import {
 import { buildLogger } from './utils/logger'
 import { isYouTubeVideoURL } from './utils/youtube'
 
-export type BaseEntityEvent = { id: string; userId: string }
+export type EntityEvent = { id: string }
 
 const logger = buildLogger('pubsub')
 
@@ -47,23 +47,21 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    entityCreated: async <T extends BaseEntityEvent>(
+    entityCreated: async <T extends EntityEvent>(
       type: EntityType,
       data: T,
-      userId: string,
-      libraryItemId: string
+      userId: string
     ): Promise<void> => {
       // queue trigger rule job
       await enqueueTriggerRuleJob({
         ruleEventType: `${type.toUpperCase()}_CREATED` as RuleEventType,
         data,
         userId,
-        libraryItemId,
       })
       // queue export item job
       await enqueueExportItem({
         userId,
-        libraryItemIds: [libraryItemId],
+        libraryItemIds: [data.id],
       })
 
       if (type === EntityType.ITEM) {
@@ -81,29 +79,27 @@ export const createPubSubClient = (): PubsubClient => {
         if (isItemWithURL(data) && isYouTubeVideoURL(data['originalUrl'])) {
           await enqueueProcessYouTubeVideo({
             userId,
-            libraryItemId,
+            libraryItemId: data.id,
           })
         }
       }
     },
-    entityUpdated: async <T extends BaseEntityEvent>(
+    entityUpdated: async <T extends EntityEvent>(
       type: EntityType,
       data: T,
-      userId: string,
-      libraryItemId: string
+      userId: string
     ): Promise<void> => {
       // queue trigger rule job
       await enqueueTriggerRuleJob({
         userId,
         ruleEventType: RuleEventType.PageUpdated,
-        libraryItemId,
         data,
       })
 
       // queue export item job
       await enqueueExportItem({
         userId,
-        libraryItemIds: [libraryItemId],
+        libraryItemIds: [data.id],
       })
     },
     entityDeleted: async (
@@ -144,17 +140,15 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  entityCreated: <T extends BaseEntityEvent>(
+  entityCreated: <T extends EntityEvent>(
     type: EntityType,
     data: T,
-    userId: string,
-    libraryItemId: string
+    userId: string
   ) => Promise<void>
-  entityUpdated: <T extends BaseEntityEvent>(
+  entityUpdated: <T extends EntityEvent>(
     type: EntityType,
     data: T,
-    userId: string,
-    libraryItemId: string
+    userId: string
   ) => Promise<void>
   entityDeleted: (type: EntityType, id: string, userId: string) => Promise<void>
   reportSubmitted(

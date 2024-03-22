@@ -18,14 +18,12 @@ import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 
 export interface TriggerRuleJobData {
-  libraryItemId: string
   userId: string
   ruleEventType: RuleEventType
   data: ItemEvent
 }
 
 interface RuleActionObj {
-  libraryItemId: string
   userId: string
   action: RuleAction
   data: ItemEvent | LibraryItem
@@ -39,21 +37,16 @@ const readingProgressDataSource = new ReadingProgressDataSource()
 const addLabels = async (obj: RuleActionObj) => {
   const labelIds = obj.action.params
 
-  return addLabelsToLibraryItem(
-    labelIds,
-    obj.libraryItemId,
-    obj.userId,
-    'system'
-  )
+  return addLabelsToLibraryItem(labelIds, obj.data.id, obj.userId, 'system')
 }
 
 const deleteLibraryItem = async (obj: RuleActionObj) => {
-  return softDeleteLibraryItem(obj.libraryItemId, obj.userId)
+  return softDeleteLibraryItem(obj.data.id, obj.userId)
 }
 
 const archivePage = async (obj: RuleActionObj) => {
   return updateLibraryItem(
-    obj.libraryItemId,
+    obj.data.id,
     { archivedAt: new Date(), state: LibraryItemState.Archived },
     obj.userId,
     undefined,
@@ -64,7 +57,7 @@ const archivePage = async (obj: RuleActionObj) => {
 const markPageAsRead = async (obj: RuleActionObj) => {
   return readingProgressDataSource.updateReadingProgress(
     obj.userId,
-    obj.libraryItemId,
+    obj.data.id,
     {
       readingProgressPercent: 100,
       readingProgressTopPercent: 100,
@@ -82,7 +75,7 @@ const sendNotification = async (obj: RuleActionObj) => {
   }
   const data = {
     folder: item.folder?.toString() || 'inbox',
-    libraryItemId: obj.libraryItemId,
+    libraryItemId: obj.data.id,
   }
 
   return sendPushNotifications(obj.userId, message, 'rule', data)
@@ -93,7 +86,9 @@ const sendToWebhook = async (obj: RuleActionObj) => {
 
   const data = {
     event: obj.ruleEventType,
-    data: obj.data,
+    item: obj.data,
+    userId: obj.userId,
+    timestamp: Date.now(),
   }
 
   logger.info(`triggering webhook: ${url}`)
@@ -129,7 +124,6 @@ const getRuleAction = (
 }
 
 const triggerActions = async (
-  libraryItemId: string,
   userId: string,
   rules: Rule[],
   data: ItemEvent,
@@ -184,7 +178,6 @@ const triggerActions = async (
       }
 
       const actionObj: RuleActionObj = {
-        libraryItemId,
         userId,
         action,
         data: results[0],
@@ -203,7 +196,7 @@ const triggerActions = async (
 }
 
 export const triggerRule = async (jobData: TriggerRuleJobData) => {
-  const { userId, ruleEventType, data, libraryItemId } = jobData
+  const { userId, ruleEventType, data } = jobData
 
   // get rules by calling api
   const rules = await findEnabledRules(userId, ruleEventType)
@@ -212,7 +205,7 @@ export const triggerRule = async (jobData: TriggerRuleJobData) => {
     return false
   }
 
-  await triggerActions(libraryItemId, userId, rules, data, ruleEventType)
+  await triggerActions(userId, rules, data, ruleEventType)
 
   return true
 }

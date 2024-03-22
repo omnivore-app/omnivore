@@ -6,11 +6,14 @@ import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
+import { deepDelete } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { findHighlightById } from './highlights'
 import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
-export type LabelEvent = Omit<DeepPartial<Label>, 'description' | 'createdAt'>
+const columnToDelete = ['description', 'createdAt'] as const
+type ColumnToDeleteType = typeof columnToDelete[number]
+export type LabelEvent = Omit<DeepPartial<Label>, ColumnToDeleteType>
 
 // const batchGetLabelsFromLinkIds = async (
 //   linkIds: readonly string[]
@@ -138,9 +141,11 @@ export const saveLabelsInLibraryItem = async (
     // create pubsub event
     await pubsub.entityCreated<ItemEvent>(
       EntityType.LABEL,
-      { id: libraryItemId, labels, userId },
-      userId,
-      libraryItemId
+      {
+        id: libraryItemId,
+        labels: labels.map((l) => deepDelete(l, columnToDelete)),
+      },
+      userId
     )
   }
 
@@ -209,9 +214,16 @@ export const saveLabelsInHighlight = async (
   // create pubsub event
   await pubsub.entityCreated<ItemEvent>(
     EntityType.LABEL,
-    { id: libraryItemId, highlights: [{ id: highlightId, labels }], userId },
-    userId,
-    libraryItemId
+    {
+      id: libraryItemId,
+      highlights: [
+        {
+          id: highlightId,
+          labels: labels.map((l) => deepDelete(l, columnToDelete)),
+        },
+      ],
+    },
+    userId
   )
 
   // update labels in library item

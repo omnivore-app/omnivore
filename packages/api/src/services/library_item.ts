@@ -15,7 +15,7 @@ import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
-import { BaseEntityEvent, createPubSubClient, EntityType } from '../pubsub'
+import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
@@ -24,27 +24,29 @@ import {
   queryBuilderToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { Merge } from '../util'
-import { setRecentlySavedItemInRedis } from '../utils/helpers'
+import { Merge, PickTuple } from '../util'
+import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
-type IgnoredFields =
-  | 'user'
-  | 'uploadFile'
-  | 'previewContentType'
-  | 'links'
-  | 'textContentHash'
+const columnToDelete = [
+  'user',
+  'uploadFile',
+  'previewContentType',
+  'links',
+  'textContentHash',
+] as const
+type ColumnToDeleteType = typeof columnToDelete[number]
 type ItemBaseEvent = Merge<
-  Omit<DeepPartial<LibraryItem>, IgnoredFields>,
+  Omit<DeepPartial<LibraryItem>, ColumnToDeleteType>,
   {
     labels?: LabelEvent[]
     highlights?: HighlightEvent[]
   }
 >
-export type ItemEvent = Merge<ItemBaseEvent, BaseEntityEvent>
+export type ItemEvent = Merge<ItemBaseEvent, EntityEvent>
 
 export class RequiresSearchQueryError extends Error {
   constructor() {
@@ -884,22 +886,17 @@ export const updateLibraryItem = async (
   }
 
   if (libraryItem.state === LibraryItemState.Succeeded) {
+    const cleanedData = deepDelete(updatedLibraryItem, columnToDelete)
     // send create event if the item was created
-    await pubsub.entityCreated<ItemEvent>(
-      EntityType.ITEM,
-      { ...updatedLibraryItem, userId },
-      userId,
-      id
-    )
+    await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, cleanedData, userId)
 
     return updatedLibraryItem
   }
 
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.ITEM,
-    { ...libraryItem, id, userId } as ItemEvent,
-    userId,
-    id
+    { ...libraryItem, id } as ItemEvent,
+    userId
   )
 
   return updatedLibraryItem
@@ -958,12 +955,7 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<ItemEvent>(
-    EntityType.ITEM,
-    { ...updatedItem, id, userId },
-    userId,
-    id
-  )
+  await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
 
   return updatedItem
 }
@@ -1059,12 +1051,8 @@ export const createOrUpdateLibraryItem = async (
     return newLibraryItem
   }
 
-  await pubsub.entityCreated<ItemEvent>(
-    EntityType.ITEM,
-    { ...newLibraryItem, userId },
-    userId,
-    newLibraryItem.id
-  )
+  const cleanedData = deepDelete(newLibraryItem, columnToDelete)
+  await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, cleanedData, userId)
 
   return newLibraryItem
 }
@@ -1346,7 +1334,8 @@ export const filterItemEvents = (
       subscription: /^subscription(s)?$/i,
     }
 
-    const matchingKeyword = Object.keys(keywordRegexMap).find((keyword) =>
+    const keys = Object.keys(keywordRegexMap)
+    const matchingKeyword = keys.find((keyword) =>
       value.match(keywordRegexMap[keyword])
     )
 
@@ -1354,7 +1343,9 @@ export const filterItemEvents = (
       throw new Error(`Unexpected keyword: ${value}`)
     }
 
-    const eventValue = event[matchingKeyword as keyof ItemEvent]
+    const eventValue = (event as PickTuple<ItemEvent, typeof keys>)[
+      matchingKeyword
+    ]
 
     return !eventValue || (Array.isArray(eventValue) && eventValue.length === 0)
   }
@@ -1484,8 +1475,10 @@ export const filterItemEvents = (
 
         const start = startDate ?? new Date(0)
         const end = endDate ?? new Date()
-        const key = `${field.name.toLowerCase()}At` as keyof ItemEvent
-        const eventValue = event[key] as Date
+        const key = `${field.name.toLowerCase()}At`
+        const eventValue = event[
+          key as 'readAt' | 'updatedAt' | 'publishedAt'
+        ] as Date
 
         return eventValue >= start && eventValue <= end
       }
