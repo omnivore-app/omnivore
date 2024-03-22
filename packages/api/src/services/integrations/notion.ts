@@ -65,7 +65,7 @@ interface NotionPage {
       url: string
     }
     'Omnivore ID': {
-      unique_id: string
+      url: string
     }
     'Omnivore URL'?: {
       url: string
@@ -232,7 +232,7 @@ export class NotionClient implements IntegrationClient {
             }
           : undefined,
         'Omnivore ID': {
-          unique_id: item.id,
+          url: item.id,
         },
         'Omnivore URL': item.slug
           ? {
@@ -276,7 +276,10 @@ export class NotionClient implements IntegrationClient {
                       text: {
                         content: highlight.quote || '',
                         link: {
-                          url: getHighlightUrl(item.slug!, highlight.id),
+                          url: getHighlightUrl(
+                            item.slug || item.id,
+                            highlight.id
+                          ),
                         },
                       },
                       annotations: {
@@ -373,7 +376,7 @@ export class NotionClient implements IntegrationClient {
             url: {},
           },
           'Omnivore ID': {
-            unique_id: {},
+            url: {},
           },
           'Omnivore URL': {
             url: {},
@@ -409,9 +412,7 @@ export class NotionClient implements IntegrationClient {
           settings,
           this.integrationData?.syncedAt
         )
-        const id = notionPage.properties['Omnivore ID'].unique_id
-
-        const existingPage = await this.findPage(id, databaseId)
+        const existingPage = await this.findPage(item.id, databaseId)
         if (existingPage) {
           // update the page
           await this.client.pages.update({

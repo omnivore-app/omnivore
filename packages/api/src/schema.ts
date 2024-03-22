@@ -2167,6 +2167,7 @@ const schema = gql`
     MARK_AS_READ
     SEND_NOTIFICATION
     WEBHOOK
+    EXPORT
   }
 
   type RulesError {

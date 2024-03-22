@@ -132,6 +132,8 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
       params = form.getFieldValue('labels')
     } else if (actionType == RuleActionType.Webhook) {
       params = [form.getFieldValue('url')]
+    } else if (actionType == RuleActionType.Export) {
+      params = form.getFieldValue('integrations')
     }
 
     if (props.rule) {
@@ -227,6 +229,25 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
             ]}
           >
             <Input />
+          </Form.Item>
+        )}
+
+        {actionType == RuleActionType.Export && (
+          <Form.Item
+            label="Integrations"
+            name="integrations"
+            rules={[
+              { required: true, message: 'Please choose at least one integration' },
+            ]}
+          >
+            <Select mode="multiple">
+              <Select.Option key="notion" value="notion">
+                Notion
+              </Select.Option>
+              <Select.Option key="readwise" value="readwise">
+                Readwise
+              </Select.Option>
+            </Select>
           </Form.Item>
         )}
       </Form>

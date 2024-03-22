@@ -1,5 +1,6 @@
 import { LiqeQuery } from '@omnivore/liqe'
 import axios from 'axios'
+import { Any } from 'typeorm'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
 import { IntegrationType } from '../entity/integration'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
@@ -115,7 +116,9 @@ const sendToWebhook = async (obj: RuleActionObj) => {
 
 const exportItem = async (obj: RuleActionObj) => {
   const userId = obj.userId
+  const integrationNames = obj.action.params
   const integrations = await findIntegrations(userId, {
+    name: Any(integrationNames.map((param) => param.toUpperCase())),
     enabled: true,
     type: IntegrationType.Export,
   })

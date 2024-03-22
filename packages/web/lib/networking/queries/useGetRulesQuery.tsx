@@ -14,6 +14,7 @@ export enum RuleActionType {
   Delete = 'DELETE',
   SendNotification = 'SEND_NOTIFICATION',
   Webhook = 'WEBHOOK',
+  Export = 'EXPORT',
 }
 
 export enum RuleEventType {
