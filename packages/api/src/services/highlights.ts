@@ -68,9 +68,8 @@ export const createHighlight = async (
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      slug: newHighlight.libraryItem.slug,
-      originalUrl: newHighlight.libraryItem.originalUrl,
-      thumbnail: newHighlight.libraryItem.thumbnail,
+      originalUrl: newHighlight.libraryItem.originalUrl, // for Readwise
+      thumbnail: newHighlight.libraryItem.thumbnail, // for Readwise
       highlights: [cleanData],
     },
     userId
@@ -122,7 +121,6 @@ export const mergeHighlights = async (
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      slug: newHighlight.libraryItem.slug,
       originalUrl: newHighlight.libraryItem.originalUrl,
       thumbnail: newHighlight.libraryItem.thumbnail,
       highlights: [newHighlight],
