@@ -1,4 +1,5 @@
-import { LibraryItem, LibraryItemState } from '../../entity/library_item'
+import { LibraryItemState } from '../../entity/library_item'
+import { ItemEvent } from '../library_item'
 
 export interface RetrievedData {
   url: string
@@ -26,5 +27,5 @@ export interface IntegrationClient {
 
   auth(state: string): Promise<string>
 
-  export(items: LibraryItem[]): Promise<boolean>
+  export(items: ItemEvent[]): Promise<boolean>
 }

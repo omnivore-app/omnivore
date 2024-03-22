@@ -16,6 +16,7 @@ export enum RuleActionType {
   MarkAsRead = 'MARK_AS_READ',
   SendNotification = 'SEND_NOTIFICATION',
   Webhook = 'WEBHOOK',
+  Export = 'EXPORT',
 }
 
 export enum RuleEventType {

@@ -2,9 +2,15 @@ import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel, LabelSource } from '../entity/entity_label'
 import { Label } from '../entity/label'
-import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
+import {
+  createPubSubClient,
+  EntityEvent,
+  EntityType,
+  PubsubClient,
+} from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
+import { Merge } from '../util'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -13,7 +19,10 @@ import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
 const columnToDelete = ['description', 'createdAt'] as const
 type ColumnToDeleteType = typeof columnToDelete[number]
-export type LabelEvent = Omit<DeepPartial<Label>, ColumnToDeleteType>
+export type LabelEvent = Merge<
+  Omit<DeepPartial<Label>, ColumnToDeleteType>,
+  EntityEvent
+>
 
 // const batchGetLabelsFromLinkIds = async (
 //   linkIds: readonly string[]
