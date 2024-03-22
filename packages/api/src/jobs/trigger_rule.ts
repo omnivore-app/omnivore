@@ -129,13 +129,14 @@ const exportItem = async (obj: RuleActionObj) => {
 
   await Promise.all(
     integrations.map(async (integration) => {
-      try {
-        const logObject = {
-          userId,
-          integrationId: integration.id,
-        }
-        logger.info('exporting item...', logObject)
+      const logObject = {
+        userId,
+        integrationId: integration.id,
+        name: integration.name,
+      }
+      logger.info('exporting item...', logObject)
 
+      try {
         const client = getIntegrationClient(
           integration.name,
           integration.token,
@@ -168,8 +169,7 @@ const exportItem = async (obj: RuleActionObj) => {
         })
       } catch (error) {
         logger.error('failed to export item', {
-          userId,
-          integrationId: integration.id,
+          ...logObject,
           error,
         })
       }
