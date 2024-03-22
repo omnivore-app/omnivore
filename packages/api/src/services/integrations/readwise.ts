@@ -101,14 +101,14 @@ export class ReadwiseClient implements IntegrationClient {
               text: highlight.quote,
               title: item.title,
               author: item.author || undefined,
-              highlight_url: getHighlightUrl(item.slug as string, highlight.id),
+              highlight_url: getHighlightUrl(item.id, highlight.id),
               highlighted_at: highlight.createdAt as string | undefined,
               category,
               image_url: item.thumbnail || undefined,
               location_type: 'order',
               note: highlight.annotation || undefined,
               source_type: 'omnivore',
-              source_url: item.originalUrl as string,
+              source_url: item.originalUrl,
             }
           })
       : []
