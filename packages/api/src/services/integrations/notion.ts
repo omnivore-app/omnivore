@@ -184,6 +184,11 @@ export class NotionClient implements IntegrationClient {
     settings: Settings,
     lastSync?: Date | null
   ): NotionPage => {
+    // logger.info('itemToNotionPage', {
+    //   highlights: item.highlights,
+    //   settings,
+    //   lastSync,
+    // })
     return {
       parent: {
         database_id: settings.parentDatabaseId,
