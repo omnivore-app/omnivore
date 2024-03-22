@@ -185,6 +185,11 @@ export class NotionClient implements IntegrationClient {
     settings: Settings,
     lastSync?: Date | null
   ): NotionPage => {
+    // logger.info('itemToNotionPage', {
+    //   highlights: item.highlights,
+    //   settings,
+    //   lastSync,
+    // })
     return {
       parent: {
         database_id: settings.parentDatabaseId,
@@ -413,7 +418,7 @@ export class NotionClient implements IntegrationClient {
           this.integrationData?.syncedAt
         )
         const existingPage = await this.findPage(item.id, databaseId)
-        console.log('notionPage', notionPage)
+        logger.info('notionPage', notionPage)
         if (existingPage) {
           // update the page
           await this.client.pages.update({
@@ -433,7 +438,7 @@ export class NotionClient implements IntegrationClient {
         }
 
         // create the page
-        return await this.createPage(notionPage)
+        return this.createPage(notionPage)
       })
     )
 

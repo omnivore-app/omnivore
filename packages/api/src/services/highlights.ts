@@ -13,7 +13,7 @@ import { enqueueUpdateHighlight } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
 import { ItemEvent } from './library_item'
 
-const columnToDelete = ['user', 'sharedAt'] as const
+const columnToDelete = ['user', 'sharedAt', 'libraryItem'] as const
 type ColumnToDeleteType = typeof columnToDelete[number]
 export type HighlightEvent = Merge<
   Omit<DeepPartial<Highlight>, ColumnToDeleteType>,

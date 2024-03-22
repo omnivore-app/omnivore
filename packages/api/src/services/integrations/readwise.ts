@@ -96,21 +96,23 @@ export class ReadwiseClient implements IntegrationClient {
       ? item.highlights
           // filter out highlights that are not of type highlight or have no quote
           .filter(isHighlight)
-          .map((highlight) => ({
-            text: highlight.quote,
-            title: item.title,
-            author: item.author || undefined,
-            highlight_url: item.slug
-              ? getHighlightUrl(item.slug, highlight.id)
-              : undefined,
-            highlighted_at: (highlight.createdAt as Date).toISOString(),
-            category,
-            image_url: item.thumbnail || undefined,
-            location_type: 'order',
-            note: highlight.annotation || undefined,
-            source_type: 'omnivore',
-            source_url: item.originalUrl,
-          }))
+          .map((highlight) => {
+            return {
+              text: highlight.quote,
+              title: item.title,
+              author: item.author || undefined,
+              highlight_url: item.slug
+                ? getHighlightUrl(item.slug, highlight.id)
+                : undefined,
+              highlighted_at: highlight.createdAt as string | undefined,
+              category,
+              image_url: item.thumbnail || undefined,
+              location_type: 'order',
+              note: highlight.annotation || undefined,
+              source_type: 'omnivore',
+              source_url: item.originalUrl,
+            }
+          })
       : []
   }
 
