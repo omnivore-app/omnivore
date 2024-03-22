@@ -241,10 +241,10 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
             ]}
           >
             <Select mode="multiple">
-              <Select.Option key="notion" value="notion">
+              <Select.Option key="Notion" value="NOTION">
                 Notion
               </Select.Option>
-              <Select.Option key="readwise" value="readwise">
+              <Select.Option key="Readwise" value="READWISE">
                 Readwise
               </Select.Option>
             </Select>
@@ -302,7 +302,7 @@ export default function Rules(): JSX.Element {
           })?.name ?? 'unknown'
         )
       }
-      return ''
+      return param
     },
     [labels]
   )
