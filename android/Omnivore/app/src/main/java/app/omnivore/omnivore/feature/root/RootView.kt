@@ -28,6 +28,7 @@ import app.omnivore.omnivore.feature.auth.WelcomeScreen
 import app.omnivore.omnivore.feature.components.LabelsViewModel
 import app.omnivore.omnivore.feature.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.feature.library.LibraryView
+import app.omnivore.omnivore.feature.library.LibraryViewModel
 import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
 import app.omnivore.omnivore.feature.save.SaveViewModel
@@ -44,6 +45,7 @@ fun RootView(
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
+    libraryViewModel: LibraryViewModel // Make sure this parameter is present
 ) {
     val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -69,7 +71,8 @@ fun RootView(
                     labelsViewModel = labelsViewModel,
                     saveViewModel = saveViewModel,
                     editInfoViewModel = editInfoViewModel,
-                    snackbarHostState = snackbarHostState
+                    snackbarHostState = snackbarHostState,
+                    libraryViewModel = libraryViewModel
 
                 )
             } else {
@@ -93,7 +96,8 @@ fun PrimaryNavigator(
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    libraryViewModel: LibraryViewModel // to pass the scroll commands to the library view
 ) {
     val navController = rememberNavController()
 
@@ -107,6 +111,7 @@ fun PrimaryNavigator(
                 labelsViewModel = labelsViewModel,
                 saveViewModel = saveViewModel,
                 editInfoViewModel = editInfoViewModel,
+                viewModel = libraryViewModel,
             )
         }
 

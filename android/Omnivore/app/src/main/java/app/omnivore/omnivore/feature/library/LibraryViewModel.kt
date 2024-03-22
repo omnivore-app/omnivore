@@ -39,24 +39,51 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.time.Instant
 import javax.inject.Inject
+import android.view.KeyEvent
+import android.util.Log
+import androidx.compose.runtime.State
+
+
+
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
+
+
     private val networker: Networker,
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository,
     private val resourceProvider: ResourceProvider,
     private val libraryRepository: LibraryRepository,
-) : ViewModel(), SavedItemViewModel {
-
+) : ViewModel(), SavedItemViewModel  {
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
     private var cursor: String? = null
     private var librarySearchCursor: String? = null
 
+    //scroll triggers received from main activity/rootview
+    private val _scrollUp = mutableStateOf(false)
+    val scrollUp: State<Boolean> = _scrollUp
+
+    private val _scrollDown = mutableStateOf(false)
+    val scrollDown: State<Boolean> = _scrollDown
+
+    fun triggerScrollUp() {
+        _scrollUp.value = true
+    }
+    fun triggerScrollDown() {
+        _scrollDown.value = true
+    }
+    fun resetScrollTriggers() {
+        _scrollUp.value = false
+        _scrollDown.value = false
+    }
+
     var snackbarMessage by mutableStateOf<String?>(null)
         private set
+
 
     private val _libraryQuery = MutableStateFlow(
         LibraryQuery(
@@ -85,7 +112,9 @@ class LibraryViewModel @Inject constructor(
 
     init {
         loadSavedItems()
+
     }
+
 
     private fun loadSavedItems() {
         viewModelScope.launch {
@@ -466,3 +495,4 @@ sealed interface LibraryUiState {
 enum class SavedItemAction {
     Delete, Archive, Unarchive, EditLabels, EditInfo, MarkRead, MarkUnread
 }
+

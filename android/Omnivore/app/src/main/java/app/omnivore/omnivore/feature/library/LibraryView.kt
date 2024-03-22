@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -73,8 +74,23 @@ import app.omnivore.omnivore.navigation.Routes
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
+
+import android.view.*
+import android.widget.Toast
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.scrollBy
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.focus.focusRequester
+
+import java.util.*
+
 @Composable
-internal fun LibraryView(
+fun LibraryView(
+
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
@@ -300,8 +316,59 @@ fun LibraryViewContent(
     modifier: Modifier,
     uiState: LibraryUiState
 ) {
+
     val context = LocalContext.current
+
+    //scroll logic
+    val scrollUp = libraryViewModel.scrollUp.value
+    val scrollDown = libraryViewModel.scrollDown.value
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+
+    LaunchedEffect(scrollUp, scrollDown, uiState) {
+        val itemsCount = (uiState as? LibraryUiState.Success)?.items?.size ?: 0
+        if (itemsCount > 0) {
+            val firstVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
+            val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val visibleItemsCount = lastVisibleItemIndex - firstVisibleItemIndex
+
+            Log.d("ScrollingLogic", "scrollUp: $scrollUp")
+            Log.d("ScrollingLogic", "scrollDown: $scrollDown")
+            Log.d("ScrollingLogic", "firstVisibleItemIndex: $firstVisibleItemIndex")
+            Log.d("ScrollingLogic", "lastVisibleItemIndex: $lastVisibleItemIndex")
+            Log.d("ScrollingLogic", "visibleItemsCount: $visibleItemsCount")
+
+            val scrollAmount = when {
+                scrollUp -> -visibleItemsCount
+                scrollDown -> visibleItemsCount
+                else -> 0
+            }
+
+            val targetIndex = (firstVisibleItemIndex + scrollAmount).coerceIn(0 until itemsCount)
+            Log.d("ScrollingLogic", "targetIndex: $targetIndex")
+
+            coroutineScope.launch {
+                listState.scrollToItem(targetIndex)
+                Log.d("ScrollingLogic", "Scrolled to index: $targetIndex")
+                libraryViewModel.resetScrollTriggers()
+            }
+
+            val updatedFirstVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
+            val updatedLastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            if (!(scrollUp || scrollDown)) {
+                val message =
+                    "$updatedFirstVisibleItemIndex - $updatedLastVisibleItemIndex out of $itemsCount"
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+
+        } else {
+            Log.d("ScrollingLogic", "List is empty, no scrolling performed")
+        }
+    }
+
+
+
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = libraryViewModel.isRefreshing,
@@ -309,6 +376,8 @@ fun LibraryViewContent(
     )
 
     val selectedItem: SavedItemWithLabelsAndHighlights? by libraryViewModel.actionsMenuItemLiveData.observeAsState()
+
+
 
     Box(
         modifier = Modifier
@@ -323,6 +392,9 @@ fun LibraryViewContent(
             modifier = modifier
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
+
+
+
         ) {
             item {
                 LibraryFilterBar(libraryViewModel)
@@ -447,6 +519,7 @@ fun LibraryViewContent(
             if ((uiState as LibraryUiState.Success).items.isEmpty()) {
                 Log.d("sync", "loading with load func")
                 libraryViewModel.initialLoad()
+
             } else {
                 Log.d("sync", "loading with search api")
                 libraryViewModel.loadUsingSearchAPI()

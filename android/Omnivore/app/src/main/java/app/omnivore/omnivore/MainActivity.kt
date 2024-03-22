@@ -17,6 +17,7 @@ import app.omnivore.omnivore.feature.auth.LoginViewModel
 import app.omnivore.omnivore.feature.components.LabelsViewModel
 import app.omnivore.omnivore.feature.editinfo.EditInfoViewModel
 import app.omnivore.omnivore.feature.library.SearchViewModel
+import app.omnivore.omnivore.feature.library.LibraryViewModel
 import app.omnivore.omnivore.feature.root.RootView
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
@@ -26,10 +27,34 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import android.util.Log
+import android.view.KeyEvent
+import android.widget.Toast
 
-@OptIn(DelicateCoroutinesApi::class)
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+    @OptIn(DelicateCoroutinesApi::class)
+    @AndroidEntryPoint
+    class MainActivity : ComponentActivity() {
+
+        private val libraryViewModel: LibraryViewModel by viewModels()
+        // Detect page turning in main activity and pass it to library view model
+        override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+            when (keyCode) {
+                KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                    // Handle volume down press
+                    //Toast.makeText(applicationContext, "Volume Down Key Pressed", Toast.LENGTH_SHORT).show()
+                    libraryViewModel.triggerScrollDown()
+                    return true
+                }
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    // Handle volume up press
+                    //Toast.makeText(applicationContext, "Volume Up Key Pressed", Toast.LENGTH_SHORT).show()
+                    libraryViewModel.triggerScrollUp()
+                    return true
+                }
+                // Add more key handling as needed
+            }
+            return super.onKeyDown(keyCode, event)
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
 
         installSplashScreen()
@@ -59,6 +84,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val libraryViewModel: LibraryViewModel by viewModels()
 
             OmnivoreTheme {
                 Box(
@@ -70,7 +96,8 @@ class MainActivity : ComponentActivity() {
                         searchViewModel,
                         labelsViewModel,
                         saveViewModel,
-                        editInfoViewModel
+                        editInfoViewModel,
+                        libraryViewModel // Passing the ViewModel instance here
                     )
                 }
             }
