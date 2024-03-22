@@ -6,7 +6,7 @@ import express from 'express'
 import { userRepository } from '../repository/user'
 import { getClaimsByToken } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
-import { getAISummary } from '../services/ai-summaries'
+import { getAISummary } from '../services/ai'
 
 export function aiSummariesRouter() {
   const router = express.Router()

@@ -53,6 +53,10 @@ import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_positi
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
 import { BUILD_DIGEST_JOB_NAME, buildDigest } from './jobs/build_digest'
+import {
+  ADD_AI_CONTENT_FEATURES_JOB_NAME,
+  addAIContentFeatures,
+} from './jobs/ai/ai-attributes'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -160,6 +164,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return exportAllItems(job.data)
         case BUILD_DIGEST_JOB_NAME:
           return buildDigest(job.data)
+        case ADD_AI_CONTENT_FEATURES_JOB_NAME:
+          return addAIContentFeatures(job.data)
         default:
           logger.warn(`[queue-processor] unhandled job: ${job.name}`)
       }
@@ -186,17 +192,6 @@ const setupCronJobs = async () => {
       },
     }
   )
-
-  // // // TEMP: for testing locally
-  // await queue.add(
-  //   BUILD_DIGEST_JOB_NAME,
-  //   {
-  //     userId: 'a03a7396-909b-11ed-9075-c3f3cf07eed9',
-  //   },
-  //   {
-  //     priority: 1,
-  //   }
-  // )
 }
 
 const main = async () => {

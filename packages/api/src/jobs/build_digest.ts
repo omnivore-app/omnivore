@@ -22,6 +22,9 @@ import { loadSummarizationChain } from 'langchain/chains'
 import { JsonOutputParser } from '@langchain/core/output_parsers'
 import { highlightRepository } from '../repository/highlight'
 import { authTrx } from '../repository'
+import YAML from 'yaml'
+import { ContentFeatures } from '../entity/content_features'
+import { AIPrompts, findOrCreateAIContentFeatures } from '../services/ai'
 
 export interface BuildDigestJobData {
   userId: string
@@ -29,17 +32,24 @@ export interface BuildDigestJobData {
 
 export const BUILD_DIGEST_JOB_NAME = 'build-digest-job'
 
+interface PropertyScore {
+  name: string
+  weight: number
+}
+
 interface Selector {
   query: string
   count: number
   reason: string
 }
 
-interface DigestDefinition {
+export interface DigestDefinition extends AIPrompts {
   name: string
   preferenceSelectors: Selector[]
   candidateSelectors: Selector[]
   fastMatchAttributes: string[]
+
+  attributesPrompt: string
 
   selectionPrompt: string
   assemblePrompt: string
@@ -49,15 +59,10 @@ interface DigestDefinition {
   contextualizeItemsPrompt: string
 }
 
-interface ItemContext {
-  topic: string
-  //  summary: string
-  introduction: string
-}
-
 type ContextualizedItem = {
   libraryItem: LibraryItem
-  context: ItemContext
+  contentFeatures?: ContentFeatures
+  score?: number
 }
 
 interface SelectionResultItem {
@@ -74,7 +79,7 @@ interface SelectedLibraryItem {
   url: string
 }
 
-const fetchDigestDefinition = async (): Promise<
+export const fetchDigestDefinition = async (): Promise<
   DigestDefinition | undefined
 > => {
   const bucketName = env.fileUpload.gcsUploadBucket
@@ -82,9 +87,9 @@ const fetchDigestDefinition = async (): Promise<
   try {
     const str = await readStringFromStorage(
       bucketName,
-      `digest-builders/simple-001.json`
+      `digest-builders/simple-002.yml`
     )
-    return JSON.parse(str) as DigestDefinition
+    return YAML.parse(str) as DigestDefinition
   } catch (err) {
     logger.info(`unable to digest definition`, { error: err })
   }
@@ -160,50 +165,50 @@ const isContextualLibraryItem = (
   return !!item
 }
 
-const getSelection = async (
-  llm: OpenAI,
-  digestDefinition: DigestDefinition,
-  preferences: LibraryItem[],
-  candidates: ContextualizedItem[]
-): Promise<ContextualizedItem[]> => {
-  const selectionTemplate = PromptTemplate.fromTemplate(
-    digestDefinition.selectionPrompt
-  )
-  const outputParser = new JsonOutputParser()
-  const selectionChain = selectionTemplate.pipe(llm).pipe(outputParser)
-  const selectionResult = await selectionChain.invoke({
-    candidates: JSON.stringify(
-      candidates.map((item: ContextualizedItem) => {
-        return {
-          id: item.libraryItem.id,
-          title: item.libraryItem.title,
-          topic: item.context.topic,
-        }
-      })
-    ),
-    preferences: JSON.stringify(
-      preferences.map((item: LibraryItem) => {
-        return { id: item.id, title: item.title }
-      })
-    ),
-  })
+// const getSelection = async (
+//   llm: OpenAI,
+//   digestDefinition: DigestDefinition,
+//   preferences: LibraryItem[],
+//   candidates: ContextualizedItem[]
+// ): Promise<ContextualizedItem[]> => {
+//   const selectionTemplate = PromptTemplate.fromTemplate(
+//     digestDefinition.selectionPrompt
+//   )
+//   const outputParser = new JsonOutputParser()
+//   const selectionChain = selectionTemplate.pipe(llm).pipe(outputParser)
+//   const selectionResult = await selectionChain.invoke({
+//     candidates: JSON.stringify(
+//       candidates.map((item: ContextualizedItem) => {
+//         return {
+//           id: item.libraryItem.id,
+//           title: item.libraryItem.title,
+//           topic: item.context.topic,
+//         }
+//       })
+//     ),
+//     preferences: JSON.stringify(
+//       preferences.map((item: LibraryItem) => {
+//         return { id: item.id, title: item.title }
+//       })
+//     ),
+//   })
 
-  const selection = selectionResult as SelectionResultItem[]
-  console.log('[digest]: selection: ', selection)
+//   const selection = selectionResult as SelectionResultItem[]
+//   console.log('[digest]: selection: ', selection)
 
-  return selection
-    .map((item) => {
-      const selected = candidates.find((candidate) => {
-        return candidate.libraryItem.id == item.id
-      })
-      if (!selected) {
-        console.log('[digest]:  missing library item: ', item)
-        return undefined
-      }
-      return selected
-    })
-    .filter(isContextualLibraryItem)
-}
+//   return selection
+//     .map((item) => {
+//       const selected = candidates.find((candidate) => {
+//         return candidate.libraryItem.id == item.id
+//       })
+//       if (!selected) {
+//         console.log('[digest]:  missing library item: ', item)
+//         return undefined
+//       }
+//       return selected
+//     })
+//     .filter(isContextualLibraryItem)
+// }
 
 const assemble = async (
   llm: OpenAI,
@@ -212,15 +217,20 @@ const assemble = async (
 ): Promise<string | undefined> => {
   let markdown = ''
 
+  const topics = {}
+
   for (const topic of digestDefinition.topics) {
-    const matches = contextualizedData.filter(
-      (item) => item.context.topic == topic
-    )
+    const matches = contextualizedData.filter((item) => {
+      return (
+        item.contentFeatures?.teaser && item.contentFeatures?.topic == topic
+      )
+    })
+
     if (matches.length > 0) {
       markdown += '## ' + topic + '\n\n'
       for (const item of matches) {
         markdown += `### [${item.libraryItem.title}](${env.client.url}/me/${item.libraryItem.slug})\n\n`
-        markdown += item.context.introduction
+        markdown += item.contentFeatures?.teaser
         markdown += '\n\n'
       }
     }
@@ -269,46 +279,20 @@ const summarize = async (
   return response.text
 }
 
-const contextualize = async (
-  llm: OpenAI,
-  digestDefinition: DigestDefinition,
-  items: LibraryItem[]
-): Promise<ContextualizedItem[]> => {
-  const result: ContextualizedItem[] = []
-  const contextualTemplate = PromptTemplate.fromTemplate(
-    digestDefinition.contextualizeItemsPrompt
-  )
+function getPropertyIfExists(obj: any, propName: string): string | undefined {
+  return obj.hasOwnProperty(propName) ? obj[propName] : undefined
+}
 
-  for (const item of items) {
-    const markdown = createSummarizableDocument(item.readableContent)
-    // const summary = await summarize(llm, markdown)
-    // if (!summary) {
-    //   console.log('could not summarize document: ', item.title)
-    //   continue
-    // }
+function selectRandomItems<T>(array: T[], count: number): T[] {
+  const shuffledArray = array.slice()
 
-    try {
-      const outputParser = new JsonOutputParser()
-      const chain = contextualTemplate.pipe(llm).pipe(outputParser)
-      const contextStr = await chain.invoke({
-        content: markdown,
-        topics: JSON.stringify(digestDefinition.topics),
-      })
-
-      console.log(`[digest]: contextualize result:`, {
-        title: item.title,
-        context: contextStr,
-      })
-      result.push({
-        libraryItem: item,
-        context: contextStr as ItemContext,
-      })
-    } catch (error) {
-      console.log(`error contextualizing: ${item.title}`, { error })
-    }
+  // Fisher-Yates shuffle algorithm
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]
   }
 
-  return result
+  return shuffledArray.slice(0, count)
 }
 
 // const selectRandomHighlights = async (
@@ -337,6 +321,7 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       logger.warn('[digest] no digest definition found')
       return
     }
+    console.log('DIGEST DEFINITIONM: ', digestDefinition)
 
     const candidates = await createCandidatesList(
       digestDefinition,
@@ -347,20 +332,6 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       jobData.userId
     )
 
-    // const highlights = await selectRandomHighlights(jobData.userId)
-
-    // console.log('highlights: ', highlights)
-
-    console.log(
-      '[digest]: preferences: ',
-      preferences.map((item: LibraryItem) => item.title)
-    )
-
-    console.log(
-      '[digest]: candidates: ',
-      candidates.map((item: LibraryItem) => `${item.id}: ${item.title}`)
-    )
-
     const llm = new OpenAI({
       modelName: 'gpt-4-0125-preview',
       configuration: {
@@ -368,32 +339,59 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
       },
     })
 
-    const contextualizedItems = await contextualize(
-      llm,
-      digestDefinition,
-      candidates
-    )
-
-    console.log('contextualizedData: ', {
-      contextualizeData: JSON.stringify(
-        contextualizedItems.map((item) => {
-          return {
-            title: item.libraryItem.title,
-            topic: item.context.topic,
-            introduction: item.context.introduction,
-          }
+    let selected = []
+    const selectedLibraryItems = selectRandomItems(preferences, 12)
+    for (const item of selectedLibraryItems) {
+      const contentFeatures = await findOrCreateAIContentFeatures(
+        llm,
+        digestDefinition,
+        jobData.userId,
+        item.id
+      )
+      if (contentFeatures) {
+        selected.push({
+          libraryItem: item,
+          contentFeatures,
         })
-      ),
-    })
+      }
+    }
 
-    const selection = await getSelection(
-      llm,
-      digestDefinition,
-      preferences,
-      contextualizedItems
-    )
+    // console.log(
+    //   '[digest]: preferences: ',
+    //   preferences.map((item: LibraryItem) => item.title)
+    // )
 
-    const articleHTML = await assemble(llm, digestDefinition, selection)
+    // console.log(
+    //   '[digest]: candidates: ',
+    //   candidates.map((item: LibraryItem) => `${item.id}: ${item.title}`)
+    // )
+
+    // const contextualizedItems = await contextualize(
+    //   llm,
+    //   digestDefinition,
+    //   candidates
+    // )
+
+    // console.log('contextualizedData: ', {
+    //   contextualizeData: JSON.stringify(
+    //     contextualizedItems.map((item) => {
+    //       return {
+    //         title: item.libraryItem.title,
+    //         topic: item.context.topic,
+    //         introduction: item.context.introduction,
+    //       }
+    //     })
+    //   ),
+    // })
+
+    // const selection = await getSelection(
+    //   llm,
+    //   digestDefinition,
+    //   preferences,
+    //   contextualizedItems
+    // )
+
+    const articleHTML = await assemble(llm, digestDefinition, selected)
     if (articleHTML) {
       const preparedDocument = {
         document: articleHTML,
@@ -406,7 +404,7 @@ export const buildDigest = async (jobData: BuildDigestJobData) => {
         day: 'numeric',
       }).format(new Date())
 
-      const title = `Your Omnivore Daily Digest for ${formattedDate}`
+      const title = `Omnivore Daily Digest for ${formattedDate}`
       const originalURL = `https://omnivore.app/me/digest?q=${uuid()}`
       const updatedContent = await parsePreparedContent(
         originalURL,
