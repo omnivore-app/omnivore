@@ -13,8 +13,6 @@ import { CreateLabelInput, labelRepository } from '../repository/label'
 import { Merge } from '../util'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
-import { logger } from '../utils/logger'
-import { findHighlightById } from './highlights'
 import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
 const columnToDelete = ['description', 'createdAt'] as const
@@ -213,30 +211,30 @@ export const saveLabelsInHighlight = async (
     )
   })
 
-  const highlight = await findHighlightById(highlightId, userId)
-  if (!highlight) {
-    logger.error('Highlight not found', { highlightId, userId })
-    return
-  }
+  // const highlight = await findHighlightById(highlightId, userId)
+  // if (!highlight) {
+  //   logger.error('Highlight not found', { highlightId, userId })
+  //   return
+  // }
 
-  const libraryItemId = highlight.libraryItemId
-  // create pubsub event
-  await pubsub.entityCreated<ItemEvent>(
-    EntityType.LABEL,
-    {
-      id: libraryItemId,
-      highlights: [
-        {
-          id: highlightId,
-          labels: labels.map((l) => deepDelete(l, columnToDelete)),
-        },
-      ],
-    },
-    userId
-  )
+  // const libraryItemId = highlight.libraryItemId
+  // // create pubsub event
+  // await pubsub.entityCreated<ItemEvent>(
+  //   EntityType.LABEL,
+  //   {
+  //     id: libraryItemId,
+  //     highlights: [
+  //       {
+  //         id: highlightId,
+  //         labels: labels.map((l) => deepDelete(l, columnToDelete)),
+  //       },
+  //     ],
+  //   },
+  //   userId
+  // )
 
-  // update labels in library item
-  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  // // update labels in library item
+  // await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const findLabelsByIds = async (
