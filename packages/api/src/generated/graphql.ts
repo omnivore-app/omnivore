@@ -2501,6 +2501,7 @@ export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
+  Export = 'EXPORT',
   MarkAsRead = 'MARK_AS_READ',
   SendNotification = 'SEND_NOTIFICATION',
   Webhook = 'WEBHOOK'

@@ -64,7 +64,7 @@ interface NotionPage {
       url: string
     }
     'Omnivore ID': {
-      unique_id: string
+      url: string
     }
     'Omnivore URL'?: {
       url: string
@@ -231,7 +231,7 @@ export class NotionClient implements IntegrationClient {
             }
           : undefined,
         'Omnivore ID': {
-          unique_id: item.id,
+          url: item.id,
         },
         'Omnivore URL': item.slug
           ? {
@@ -275,7 +275,10 @@ export class NotionClient implements IntegrationClient {
                       text: {
                         content: highlight.quote || '',
                         link: {
-                          url: getHighlightUrl(item.slug!, highlight.id),
+                          url: getHighlightUrl(
+                            item.slug || item.id,
+                            highlight.id
+                          ),
                         },
                       },
                       annotations: {
