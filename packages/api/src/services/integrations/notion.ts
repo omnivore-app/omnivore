@@ -184,11 +184,6 @@ export class NotionClient implements IntegrationClient {
     settings: Settings,
     lastSync?: Date | null
   ): NotionPage => {
-    // logger.info('itemToNotionPage', {
-    //   highlights: item.highlights,
-    //   settings,
-    //   lastSync,
-    // })
     return {
       parent: {
         database_id: settings.parentDatabaseId,
@@ -246,21 +241,21 @@ export class NotionClient implements IntegrationClient {
         'Saved At': item.savedAt
           ? {
               date: {
-                start: (item.savedAt as Date).toISOString(),
+                start: item.savedAt as string,
               },
             }
           : undefined,
         'Last Updated': item.updatedAt
           ? {
               date: {
-                start: (item.updatedAt as Date).toISOString(),
+                start: item.updatedAt as string,
               },
             }
           : undefined,
         Tags: item.labels
           ? {
               multi_select: item.labels.map((label) => ({
-                name: label.name || '',
+                name: label.name as string,
               })),
             }
           : undefined,
