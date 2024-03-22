@@ -104,7 +104,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
               const value = Object.values(RuleEventType)[index]
               return (
                 <Select.Option key={key} value={value}>
-                  {key}
+                  {key === 'LABEL_CREATED' ? 'LABEL_ATTACHED' : key}
                 </Select.Option>
               )
             })}

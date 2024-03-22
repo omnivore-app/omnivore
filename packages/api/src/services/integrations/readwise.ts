@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { HighlightType } from '../../entity/highlight'
 import { logger } from '../../utils/logger'
-import { getHighlightUrl } from '../highlights'
+import { getHighlightUrl, HighlightEvent } from '../highlights'
 import { ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
@@ -84,31 +85,33 @@ export class ReadwiseClient implements IntegrationClient {
   }
 
   private _itemToReadwiseHighlight = (item: ItemEvent): ReadwiseHighlight[] => {
-    const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
-    return item.highlights
-      ?.map((highlight) => {
-        // filter out highlights that are not of type highlight or have no quote
-        if (highlight.highlightType !== 'HIGHLIGHT' || !highlight.quote) {
-          return undefined
-        }
+    const isHighlight = (
+      highlight: HighlightEvent
+    ): highlight is HighlightEvent & { quote: string } =>
+      highlight.highlightType === HighlightType.Highlight && !!highlight.quote
 
-        return {
-          text: highlight.quote,
-          title: item.title,
-          author: item.author || undefined,
-          highlight_url: item.slug
-            ? getHighlightUrl(item.slug, highlight.id)
-            : undefined,
-          highlighted_at: (highlight.createdAt as Date).toISOString(),
-          category,
-          image_url: item.thumbnail || undefined,
-          location_type: 'order',
-          note: highlight.annotation || undefined,
-          source_type: 'omnivore',
-          source_url: item.originalUrl,
-        }
-      })
-      .filter((highlight) => highlight !== undefined) as ReadwiseHighlight[]
+    const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
+
+    return item.highlights
+      ? item.highlights
+          // filter out highlights that are not of type highlight or have no quote
+          .filter(isHighlight)
+          .map((highlight) => ({
+            text: highlight.quote,
+            title: item.title,
+            author: item.author || undefined,
+            highlight_url: item.slug
+              ? getHighlightUrl(item.slug, highlight.id)
+              : undefined,
+            highlighted_at: (highlight.createdAt as Date).toISOString(),
+            category,
+            image_url: item.thumbnail || undefined,
+            location_type: 'order',
+            note: highlight.annotation || undefined,
+            source_type: 'omnivore',
+            source_url: item.originalUrl,
+          }))
+      : []
   }
 
   private _syncWithReadwise = async (

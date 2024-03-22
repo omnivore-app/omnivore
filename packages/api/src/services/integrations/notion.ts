@@ -413,6 +413,7 @@ export class NotionClient implements IntegrationClient {
           this.integrationData?.syncedAt
         )
         const existingPage = await this.findPage(item.id, databaseId)
+        console.log('notionPage', notionPage)
         if (existingPage) {
           // update the page
           await this.client.pages.update({
@@ -432,7 +433,7 @@ export class NotionClient implements IntegrationClient {
         }
 
         // create the page
-        return this.createPage(notionPage)
+        return await this.createPage(notionPage)
       })
     )
 
