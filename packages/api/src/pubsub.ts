@@ -115,10 +115,10 @@ export const createPubSubClient = (): PubsubClient => {
 }
 
 export enum EntityType {
-  ITEM = 'page',
-  HIGHLIGHT = 'highlight',
-  LABEL = 'label',
-  RSS_FEED = 'feed',
+  ITEM = 'PAGE',
+  HIGHLIGHT = 'HIGHLIGHT',
+  LABEL = 'LABEL',
+  RSS_FEED = 'FEED',
 }
 
 export interface PubsubClient {

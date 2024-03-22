@@ -63,10 +63,7 @@ interface NotionPage {
     'Original URL'?: {
       url: string
     }
-    'Omnivore ID': {
-      url: string
-    }
-    'Omnivore URL'?: {
+    'Omnivore URL': {
       url: string
     }
     'Saved At'?: {
@@ -230,14 +227,9 @@ export class NotionClient implements IntegrationClient {
               url: item.originalUrl,
             }
           : undefined,
-        'Omnivore ID': {
-          url: item.id,
+        'Omnivore URL': {
+          url: `${env.client.url}/me/${item.id}`,
         },
-        'Omnivore URL': item.slug
-          ? {
-              url: `${env.client.url}/me/${item.slug}`,
-            }
-          : undefined,
         'Saved At': item.savedAt
           ? {
               date: {
@@ -312,14 +304,14 @@ export class NotionClient implements IntegrationClient {
     await this.client.pages.create(page)
   }
 
-  private findPage = async (id: string, databaseId: string) => {
+  private findPage = async (url: string, databaseId: string) => {
     const response = await this.client.databases.query({
       database_id: databaseId,
       page_size: 1,
       filter: {
-        property: 'Omnivore ID',
+        property: 'Omnivore URL',
         url: {
-          equals: id,
+          equals: url,
         },
       },
     })

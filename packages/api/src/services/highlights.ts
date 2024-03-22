@@ -69,6 +69,8 @@ export const createHighlight = async (
     {
       id: libraryItemId,
       slug: newHighlight.libraryItem.slug,
+      originalUrl: newHighlight.libraryItem.originalUrl,
+      thumbnail: newHighlight.libraryItem.thumbnail,
       highlights: [cleanData],
     },
     userId
@@ -121,6 +123,8 @@ export const mergeHighlights = async (
     {
       id: libraryItemId,
       slug: newHighlight.libraryItem.slug,
+      originalUrl: newHighlight.libraryItem.originalUrl,
+      thumbnail: newHighlight.libraryItem.thumbnail,
       highlights: [newHighlight],
     },
     userId
@@ -154,15 +158,15 @@ export const updateHighlight = async (
   })
 
   const libraryItemId = updatedHighlight.libraryItem.id
-  await pubsub.entityUpdated<ItemEvent>(
-    EntityType.HIGHLIGHT,
-    {
-      id: libraryItemId,
-      slug: updatedHighlight.libraryItem.slug,
-      highlights: [highlight],
-    } as ItemEvent,
-    userId
-  )
+  // await pubsub.entityUpdated<ItemEvent>(
+  //   EntityType.HIGHLIGHT,
+  //   {
+  //     id: libraryItemId,
+  //     slug: updatedHighlight.libraryItem.slug,
+  //     highlights: [highlight],
+  //   } as ItemEvent,
+  //   userId
+  // )
 
   await enqueueUpdateHighlight({
     libraryItemId,
