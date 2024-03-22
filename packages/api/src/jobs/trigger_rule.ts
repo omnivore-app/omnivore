@@ -84,8 +84,14 @@ const sendNotification = async (obj: RuleActionObj) => {
 const sendToWebhook = async (obj: RuleActionObj) => {
   const [url] = obj.action.params
 
+  let event = obj.ruleEventType.toString()
+  // rename LABEL_CREATED to LABEL_ATTACHED
+  if (obj.ruleEventType === RuleEventType.LabelCreated) {
+    event = 'LABEL_ATTACHED'
+  }
+
   const data = {
-    event: obj.ruleEventType,
+    event,
     item: obj.data,
     userId: obj.userId,
     timestamp: Date.now(),
