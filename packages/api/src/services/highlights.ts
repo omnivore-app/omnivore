@@ -9,12 +9,12 @@ import { createPubSubClient, EntityType } from '../pubsub'
 import { authTrx } from '../repository'
 import { highlightRepository } from '../repository/highlight'
 import { enqueueUpdateHighlight } from '../utils/createTask'
+import { deepDelete } from '../utils/helpers'
 import { ItemEvent } from './library_item'
 
-export type HighlightEvent = Omit<
-  DeepPartial<Highlight>,
-  'user' | 'userId' | 'sharedAt'
->
+const columnToDelete = ['user', 'sharedAt'] as const
+type ColumnToDeleteType = typeof columnToDelete[number]
+export type HighlightEvent = Omit<DeepPartial<Highlight>, ColumnToDeleteType>
 
 export const getHighlightLocation = (patch: string): number | undefined => {
   const dmp = new diff_match_patch()
@@ -58,11 +58,11 @@ export const createHighlight = async (
     userId
   )
 
+  const cleanData = deepDelete(newHighlight, columnToDelete)
   await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [newHighlight], userId },
-    userId,
-    libraryItemId
+    { id: libraryItemId, highlights: [cleanData] },
+    userId
   )
 
   await enqueueUpdateHighlight({
@@ -108,9 +108,8 @@ export const mergeHighlights = async (
 
   await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [newHighlight], userId },
-    userId,
-    libraryItemId
+    { id: libraryItemId, highlights: [newHighlight] },
+    userId
   )
 
   await enqueueUpdateHighlight({
@@ -143,9 +142,8 @@ export const updateHighlight = async (
   const libraryItemId = updatedHighlight.libraryItem.id
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.HIGHLIGHT,
-    { id: libraryItemId, highlights: [highlight], userId } as ItemEvent,
-    userId,
-    libraryItemId
+    { id: libraryItemId, highlights: [highlight] } as ItemEvent,
+    userId
   )
 
   await enqueueUpdateHighlight({
