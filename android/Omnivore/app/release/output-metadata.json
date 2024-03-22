@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "app.omnivore.omnivore",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 194001,
+      "versionName": "0.195.0",
+      "outputFile": "app-release.apk"
+    }
+  ],
+  "elementType": "File"
+}
