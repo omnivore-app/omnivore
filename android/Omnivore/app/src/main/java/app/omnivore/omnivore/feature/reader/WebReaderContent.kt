@@ -100,7 +100,7 @@ data class WebReaderContent(
         width: 50px;
         transform: translateY(250px) !important;
         background-color: transparent !important;
-        color: #555555 !important; 
+        color: #7f7f7f !important; 
         padding: 5px !important;
         cursor: pointer !important;
         z-index: 1000 !important; 
@@ -119,7 +119,7 @@ data class WebReaderContent(
         width: 50px;
         transform: translateY(250px) !important;
         background-color: transparent !important; 
-        color: #555555 !important; 
+        color: #7f7f7f !important; 
         padding: 5px !important;
         cursor: pointer !important;
         z-index: 1000 !important; 
@@ -134,7 +134,7 @@ data class WebReaderContent(
         bottom: 10px !important;
         right: 10px !important;
         padding: 5px !important;
-        color: #555555 !important;
+        color: #7f7f7f !important;
         z-index: 1000 !important; 
         font-size: 0.7rem !important; 
       }
