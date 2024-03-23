@@ -22,6 +22,7 @@ export enum RuleEventType {
   PAGE_UPDATED = 'PAGE_UPDATED',
   LABEL_CREATED = 'LABEL_CREATED',
   HIGHLIGHT_CREATED = 'HIGHLIGHT_CREATED',
+  HIGHLIGHT_UPDATED = 'HIGHLIGHT_UPDATED',
 }
 
 export interface Rule {
@@ -47,7 +48,8 @@ interface RulesQueryResponseData {
 }
 
 interface RulesData {
-  rules: unknown
+  rules: Rule[]
+  errorCodes?: string[]
 }
 
 export function useGetRulesQuery(): RulesQueryResponse {
@@ -78,27 +80,27 @@ export function useGetRulesQuery(): RulesQueryResponse {
   `
 
   const { data, mutate, isValidating } = useSWR(query, publicGqlFetcher)
-
-  try {
-    if (data) {
-      const result = data as RulesQueryResponseData
-      const rules = result.rules.rules as Rule[]
-
-      return {
-        isValidating,
-        rules: rules ?? [],
-        revalidate: () => {
-          mutate()
-        },
-      }
+  if (!data) {
+    return {
+      isValidating: false,
+      rules: [],
+      revalidate: () => {
+        mutate()
+      },
     }
-  } catch (error) {
-    console.log('error', error)
   }
+
+  const result = data as RulesQueryResponseData
+  const error = result.rules.errorCodes?.find(() => true)
+  if (error) {
+    throw error
+  }
+
   return {
-    isValidating: false,
-    rules: [],
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    revalidate: () => {},
+    isValidating,
+    rules: result.rules.rules,
+    revalidate: () => {
+      mutate()
+    },
   }
 }

@@ -165,7 +165,15 @@ export const updateHighlight = async (
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      highlights: [highlight],
+      highlights: [
+        {
+          ...highlight,
+          id: highlightId,
+          updatedAt: new Date(),
+          quote: updatedHighlight.quote,
+          highlightType: updatedHighlight.highlightType,
+        },
+      ],
     } as ItemEvent,
     userId
   )

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { HighlightType } from '../../entity/highlight'
 import { logger } from '../../utils/logger'
-import { getHighlightUrl, HighlightEvent } from '../highlights'
+import { getHighlightUrl } from '../highlights'
 import { ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
@@ -71,6 +71,7 @@ export class ReadwiseClient implements IntegrationClient {
     let result = true
 
     const highlights = items.flatMap(this._itemToReadwiseHighlight)
+    logger.info(`Exporting ${highlights.length} highlights to Readwise`)
 
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
@@ -85,20 +86,17 @@ export class ReadwiseClient implements IntegrationClient {
   }
 
   private _itemToReadwiseHighlight = (item: ItemEvent): ReadwiseHighlight[] => {
-    const isHighlight = (
-      highlight: HighlightEvent
-    ): highlight is HighlightEvent & { quote: string } =>
-      highlight.highlightType === HighlightType.Highlight && !!highlight.quote
-
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
 
     return item.highlights
       ? item.highlights
           // filter out highlights that are not of type highlight or have no quote
-          .filter(isHighlight)
+          .filter(
+            (highlight) => highlight.highlightType === HighlightType.Highlight
+          )
           .map((highlight) => {
             return {
-              text: highlight.quote,
+              text: highlight.quote || '',
               title: item.title,
               author: item.author || undefined,
               highlight_url: getHighlightUrl(item.id, highlight.id),
