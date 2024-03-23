@@ -6,4 +6,3 @@ Dockerfile
 .dockerignore
 *.yaml
 .secrets*.yaml
-test

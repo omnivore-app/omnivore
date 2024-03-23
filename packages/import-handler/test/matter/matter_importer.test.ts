@@ -17,7 +17,7 @@ describe('Load a simple _matter_history file', () => {
   it('should find the URL of each row', async () => {
     const urls: URL[] = []
     const stream = fs.createReadStream('./test/matter/data/_matter_history.csv')
-    const stub = await stubImportCtx()
+    const stub = stubImportCtx()
     stub.urlHandler = (ctx: ImportContext, url): Promise<void> => {
       urls.push(url)
       return Promise.resolve()
@@ -38,7 +38,7 @@ describe('Load archive file', () => {
   it('should find the URL of each row', async () => {
     const urls: URL[] = []
     const stream = fs.createReadStream('./test/matter/data/Archive.zip')
-    const stub = await stubImportCtx()
+    const stub = stubImportCtx()
     stub.contentHandler = (
       ctx: ImportContext,
       url: URL,
