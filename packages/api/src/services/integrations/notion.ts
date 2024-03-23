@@ -1,6 +1,7 @@
 import { Client } from '@notionhq/client'
 import axios from 'axios'
 import { updateIntegration } from '.'
+import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
 import { env } from '../../env'
 import { Merge } from '../../util'
@@ -258,8 +259,9 @@ export class NotionClient implements IntegrationClient {
           ? item.highlights
               .filter(
                 (highlight) =>
-                  !lastSync ||
-                  new Date(highlight.updatedAt as string) > lastSync // only new highlights
+                  highlight.highlightType === HighlightType.Highlight &&
+                  (!lastSync ||
+                    new Date(highlight.updatedAt as string) > lastSync) // only new highlights
               )
               .map((highlight) => ({
                 paragraph: {
