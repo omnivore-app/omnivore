@@ -1,12 +1,11 @@
-import { authorized } from '../../utils/gql-utils'
+import { appDataSource } from '../../data_source'
 import {
   DeleteDiscoverFeedError,
   DeleteDiscoverFeedErrorCode,
   DeleteDiscoverFeedSuccess,
   MutationDeleteDiscoverFeedArgs,
 } from '../../generated/graphql'
-import { appDataSource } from '../../data_source'
-import { QueryRunner } from 'typeorm'
+import { authorized } from '../../utils/gql-utils'
 
 export const deleteDiscoverFeedsResolver = authorized<
   DeleteDiscoverFeedSuccess,
@@ -14,12 +13,8 @@ export const deleteDiscoverFeedsResolver = authorized<
   MutationDeleteDiscoverFeedArgs
 >(async (_, { input: { feedId } }, { uid, log }) => {
   try {
-    const queryRunner = (await appDataSource
-      .createQueryRunner()
-      .connect()) as QueryRunner
-
     // Ensure that it actually exists for the user.
-    const feeds = (await queryRunner.query(
+    const feeds = (await appDataSource.query(
       `SELECT * FROM omnivore.discover_feed_subscription sub
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
       [uid, feedId]
@@ -36,13 +31,12 @@ export const deleteDiscoverFeedsResolver = authorized<
       }
     }
 
-    await queryRunner.query(
+    await appDataSource.query(
       `DELETE FROM omnivore.discover_feed_subscription sub
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
       [uid, feedId]
     )
 
-    await queryRunner.release()
     return {
       __typename: 'DeleteDiscoverFeedSuccess',
       id: feedId,

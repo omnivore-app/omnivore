@@ -1,15 +1,14 @@
-import { authorized } from '../../../utils/gql-utils'
+import { appDataSource } from '../../../data_source'
+import { LibraryItemState } from '../../../entity/library_item'
 import {
   DeleteDiscoverArticleError,
   DeleteDiscoverArticleErrorCode,
   DeleteDiscoverArticleSuccess,
   MutationDeleteDiscoverArticleArgs,
 } from '../../../generated/graphql'
-import { appDataSource } from '../../../data_source'
-import { QueryRunner } from 'typeorm'
 import { userRepository } from '../../../repository/user'
 import { updateLibraryItem } from '../../../services/library_item'
-import { LibraryItemState } from '../../../entity/library_item'
+import { authorized } from '../../../utils/gql-utils'
 
 export const deleteDiscoverArticleResolver = authorized<
   DeleteDiscoverArticleSuccess,
@@ -17,10 +16,6 @@ export const deleteDiscoverArticleResolver = authorized<
   MutationDeleteDiscoverArticleArgs
 >(async (_, { input: { discoverArticleId } }, { uid, log, pubsub }) => {
   try {
-    const queryRunner = (await appDataSource
-      .createQueryRunner()
-      .connect()) as QueryRunner
-
     const user = await userRepository.findById(uid)
     if (!user) {
       return {
@@ -29,7 +24,7 @@ export const deleteDiscoverArticleResolver = authorized<
       }
     }
 
-    const { rows: discoverArticles } = (await queryRunner.query(
+    const { rows: discoverArticles } = (await appDataSource.query(
       `SELECT article_save_id FROM omnivore.discover_feed_save_link WHERE discover_article_id=$1 and user_id=$2`,
       [discoverArticleId, uid]
     )) as {
@@ -43,7 +38,7 @@ export const deleteDiscoverArticleResolver = authorized<
       }
     }
 
-    await queryRunner.query(
+    await appDataSource.query(
       `UPDATE omnivore.discover_feed_save_link set deleted = true WHERE discover_article_id=$1 and user_id=$2`,
       [discoverArticleId, uid]
     )
@@ -57,8 +52,6 @@ export const deleteDiscoverArticleResolver = authorized<
       uid,
       pubsub
     )
-
-    await queryRunner.release()
 
     return {
       __typename: 'DeleteDiscoverArticleSuccess',

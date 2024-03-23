@@ -4,7 +4,6 @@
 /* eslint-disable @typescript-eslint/require-await */
 import axios from 'axios'
 import { XMLParser } from 'fast-xml-parser'
-import { QueryRunner } from 'typeorm'
 import { v4 } from 'uuid'
 import { appDataSource } from '../../data_source'
 import {
@@ -14,7 +13,6 @@ import {
   DiscoverFeed,
   MutationAddDiscoverFeedArgs,
 } from '../../generated/graphql'
-import { EntityType } from '../../pubsub'
 import { authorized } from '../../utils/gql-utils'
 import { RSS_PARSER_CONFIG } from '../../utils/parser'
 
@@ -63,25 +61,23 @@ const extractRssData = (
 })
 
 const handleExistingSubscription = async (
-  queryRunner: QueryRunner,
   feed: DiscoverFeed,
   userId: string
 ): Promise<AddDiscoverFeedSuccess | AddDiscoverFeedError> => {
   // Add to existing, otherwise conflict.
-  const existingSubscription = await queryRunner.query(
+  const existingSubscription = await appDataSource.query(
     'SELECT * FROM omnivore.discover_feed_subscription WHERE user_id = $1 and feed_id = $2',
     [userId, feed.id]
   )
 
   if (existingSubscription.rows > 1) {
-    await queryRunner.release()
     return {
       __typename: 'AddDiscoverFeedError',
       errorCodes: [AddDiscoverFeedErrorCode.Conflict],
     }
   }
 
-  const addSubscription = await queryRunner.query(
+  await appDataSource.query(
     'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($1, $2)',
     [feed.id, userId]
   )
@@ -93,7 +89,6 @@ const handleExistingSubscription = async (
 }
 
 const addNewSubscription = async (
-  queryRunner: QueryRunner,
   url: string,
   userId: string
 ): Promise<AddDiscoverFeedSuccess | AddDiscoverFeedError> => {
@@ -135,7 +130,7 @@ const addNewSubscription = async (
   }
 
   const discoverFeedId = v4()
-  await queryRunner.query(
+  await appDataSource.query(
     'INSERT INTO omnivore.discover_feed(id, title, link, image, type, description) VALUES($1, $2, $3, $4, $5, $6)',
     [
       discoverFeedId,
@@ -147,12 +142,11 @@ const addNewSubscription = async (
     ]
   )
 
-  await queryRunner.query(
+  await appDataSource.query(
     'INSERT INTO omnivore.discover_feed_subscription(feed_id, user_id) VALUES($2, $1)',
     [userId, discoverFeedId]
   )
 
-  await queryRunner.release()
   return {
     __typename: 'AddDiscoverFeedSuccess',
     feed: { ...feed, id: discoverFeedId } as DiscoverFeed,
@@ -165,24 +159,16 @@ export const addDiscoverFeedResolver = authorized<
   MutationAddDiscoverFeedArgs
 >(async (_, { input: { url } }, { uid, log, pubsub }) => {
   try {
-    const queryRunner = (await appDataSource
-      .createQueryRunner()
-      .connect()) as QueryRunner
-
-    const existingFeed = (await queryRunner.query(
+    const existingFeed = (await appDataSource.query(
       'SELECT id from omnivore.discover_feed where link = $1',
       [url]
     )) as DiscoverFeedRows
 
     if (existingFeed.rows.length > 0) {
-      return await handleExistingSubscription(
-        queryRunner,
-        existingFeed.rows[0],
-        uid
-      )
+      return await handleExistingSubscription(existingFeed.rows[0], uid)
     }
 
-    const result = await addNewSubscription(queryRunner, url, uid)
+    const result = await addNewSubscription(url, uid)
     // TODO: Add pubsub for new feed
     // if (result.__typename == 'AddDiscoverFeedSuccess') {
     //   await pubsub.entityCreated(

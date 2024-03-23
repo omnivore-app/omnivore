@@ -1,12 +1,11 @@
-import { authorized } from '../../utils/gql-utils'
+import { appDataSource } from '../../data_source'
 import {
   EditDiscoverFeedError,
   EditDiscoverFeedErrorCode,
   EditDiscoverFeedSuccess,
   MutationEditDiscoverFeedArgs,
 } from '../../generated/graphql'
-import { appDataSource } from '../../data_source'
-import { QueryRunner } from 'typeorm'
+import { authorized } from '../../utils/gql-utils'
 
 export const editDiscoverFeedsResolver = authorized<
   EditDiscoverFeedSuccess,
@@ -14,12 +13,8 @@ export const editDiscoverFeedsResolver = authorized<
   MutationEditDiscoverFeedArgs
 >(async (_, { input: { feedId, name } }, { uid, log }) => {
   try {
-    const queryRunner = (await appDataSource
-      .createQueryRunner()
-      .connect()) as QueryRunner
-
     // Ensure that it actually exists for the user.
-    const feeds = (await queryRunner.query(
+    const feeds = (await appDataSource.query(
       `SELECT * FROM omnivore.discover_feed_subscription sub
       WHERE sub.user_id = $1 and sub.feed_id = $2`,
       [uid, feedId]
@@ -36,13 +31,12 @@ export const editDiscoverFeedsResolver = authorized<
       }
     }
 
-    await queryRunner.query(
+    await appDataSource.query(
       `UPDATE omnivore.discover_feed_subscription SET visible_name = $1
       WHERE user_id = $2 and feed_id = $3`,
       [name, uid, feedId]
     )
 
-    await queryRunner.release()
     return {
       __typename: 'EditDiscoverFeedSuccess',
       id: feedId,

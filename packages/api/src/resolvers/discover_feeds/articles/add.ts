@@ -1,4 +1,5 @@
-import { authorized } from '../../../utils/gql-utils'
+import { v4 } from 'uuid'
+import { appDataSource } from '../../../data_source'
 import {
   InputMaybe,
   MutationSaveDiscoverArticleArgs,
@@ -7,11 +8,9 @@ import {
   SaveDiscoverArticleSuccess,
   SaveSuccess,
 } from '../../../generated/graphql'
-import { appDataSource } from '../../../data_source'
-import { QueryRunner } from 'typeorm'
 import { userRepository } from '../../../repository/user'
 import { saveUrl } from '../../../services/save_url'
-import { v4 } from 'uuid'
+import { authorized } from '../../../utils/gql-utils'
 
 export const saveDiscoverArticleResolver = authorized<
   SaveDiscoverArticleSuccess,
@@ -24,10 +23,6 @@ export const saveDiscoverArticleResolver = authorized<
     { uid, log }
   ) => {
     try {
-      const queryRunner = (await appDataSource
-        .createQueryRunner()
-        .connect()) as QueryRunner
-
       const user = await userRepository.findById(uid)
       if (!user) {
         return {
@@ -36,7 +31,7 @@ export const saveDiscoverArticleResolver = authorized<
         }
       }
 
-      const { rows: discoverArticles } = (await queryRunner.query(
+      const { rows: discoverArticles } = (await appDataSource.query(
         `SELECT url FROM omnivore.discover_feed_articles WHERE id=$1`,
         [discoverArticleId]
       )) as {
@@ -73,12 +68,10 @@ export const saveDiscoverArticleResolver = authorized<
 
       const saveSuccess = savedArticle as SaveSuccess
 
-      await queryRunner.query(
+      await appDataSource.query(
         `insert into omnivore.discover_feed_save_link (discover_article_id, user_id, article_save_id, article_save_url) VALUES ($1, $2, $3, $4) ON CONFLICT ON CONSTRAINT user_discover_feed_link DO UPDATE SET (article_save_id, article_save_url, deleted) = ($3, $4, false);`,
         [discoverArticleId, uid, saveSuccess.clientRequestId, saveSuccess.url]
       )
-
-      await queryRunner.release()
 
       return {
         __typename: 'SaveDiscoverArticleSuccess',

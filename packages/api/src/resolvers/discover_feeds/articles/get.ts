@@ -1,12 +1,11 @@
-import { authorized } from '../../../utils/gql-utils'
-import {
-  GetDiscoverFeedArticleSuccess,
-  GetDiscoverFeedArticleError,
-  QueryGetDiscoverFeedArticlesArgs,
-  GetDiscoverFeedArticleErrorCode,
-} from '../../../generated/graphql'
 import { appDataSource } from '../../../data_source'
-import { QueryRunner } from 'typeorm'
+import {
+  GetDiscoverFeedArticleError,
+  GetDiscoverFeedArticleErrorCode,
+  GetDiscoverFeedArticleSuccess,
+  QueryGetDiscoverFeedArticlesArgs,
+} from '../../../generated/graphql'
+import { authorized } from '../../../utils/gql-utils'
 
 const COMMUNITY_FEED_ID = '8217d320-aa5a-11ee-bbfe-a7cde356f524'
 
@@ -28,7 +27,6 @@ type DiscoverFeedArticleDBRows = {
 }
 
 const getPopularTopics = (
-  queryRunner: QueryRunner,
   uid: string,
   after: string,
   amt: number,
@@ -38,10 +36,10 @@ const getPopularTopics = (
   if (feedId) {
     params.push(feedId)
   }
-  return queryRunner.query(
+  return appDataSource.query(
     `
       SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0) as popularity_score, article_save_id, article_save_url
-      FROM omnivore.omnivore.discover_feed_articles 
+      FROM omnivore.discover_feed_articles 
       LEFT JOIN (SELECT discover_article_id as article_id, count(*) as count FROM omnivore.discover_feed_save_link group by discover_article_id) sl on id=sl.article_id
       LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE COALESCE(sl.count / (EXTRACT(EPOCH FROM (NOW() - published_at)) / 3600 / 24), 0)  > 0.0
@@ -56,7 +54,6 @@ const getPopularTopics = (
 }
 
 const getAllTopics = (
-  queryRunner: QueryRunner,
   uid: string,
   after: string,
   amt: number,
@@ -66,10 +63,10 @@ const getAllTopics = (
   if (feedId) {
     params.push(feedId)
   }
-  return queryRunner.query(
+  return appDataSource.query(
     `
       SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, article_save_id, article_save_url
-      FROM omnivore.omnivore.discover_feed_articles 
+      FROM omnivore.discover_feed_articles 
       LEFT JOIN (SELECT discover_article_id, article_save_id, article_save_url FROM omnivore.discover_feed_save_link WHERE user_id=$1 and deleted = false) su on id=su.discover_article_id
       WHERE (feed_id in (SELECT feed_id FROM omnivore.discover_feed_subscription WHERE user_id = $1) OR feed_id = '${COMMUNITY_FEED_ID}') 
       ${feedId != null ? `AND feed_id = $4` : ''}
@@ -81,7 +78,6 @@ const getAllTopics = (
 }
 
 const getTopicInformation = (
-  queryRunner: QueryRunner,
   discoverTopicId: string,
   uid: string,
   after: string,
@@ -92,7 +88,7 @@ const getTopicInformation = (
   if (feedId) {
     params.push(feedId)
   }
-  return queryRunner.query(
+  return appDataSource.query(
     `SELECT id, title, feed_id as feed, slug, description, url, author, image, published_at, article_save_id, article_save_url 
      FROM omnivore.discover_feed_articles
      INNER JOIN (SELECT discover_feed_article_id FROM omnivore.discover_feed_article_topic_link WHERE discover_topic_name=$2) topic on topic.discover_feed_article_id=id
@@ -115,11 +111,7 @@ export const getDiscoverFeedArticlesResolver = authorized<
     const startCursor: string = after || ''
     const firstAmnt = Math.min(first || 10, 100) // limit to 100 items
 
-    const queryRunner = (await appDataSource
-      .createQueryRunner()
-      .connect()) as QueryRunner
-
-    const { rows: topics } = (await queryRunner.query(
+    const { rows: topics } = (await appDataSource.query(
       `SELECT * FROM "omnivore"."discover_topics" WHERE "name" = $1`,
       [discoverTopicId]
     )) as { rows: unknown[] }
@@ -134,7 +126,6 @@ export const getDiscoverFeedArticlesResolver = authorized<
     let discoverArticles: DiscoverFeedArticleDBRows = { rows: [] }
     if (discoverTopicId === 'Popular') {
       discoverArticles = await getPopularTopics(
-        queryRunner,
         uid,
         startCursor,
         firstAmnt,
@@ -142,7 +133,6 @@ export const getDiscoverFeedArticlesResolver = authorized<
       )
     } else if (discoverTopicId === 'All') {
       discoverArticles = await getAllTopics(
-        queryRunner,
         uid,
         startCursor,
         firstAmnt,
@@ -150,7 +140,6 @@ export const getDiscoverFeedArticlesResolver = authorized<
       )
     } else {
       discoverArticles = await getTopicInformation(
-        queryRunner,
         discoverTopicId,
         uid,
         startCursor,
@@ -158,8 +147,6 @@ export const getDiscoverFeedArticlesResolver = authorized<
         feedId ?? null
       )
     }
-
-    await queryRunner.release()
 
     return {
       __typename: 'GetDiscoverFeedArticleSuccess',
