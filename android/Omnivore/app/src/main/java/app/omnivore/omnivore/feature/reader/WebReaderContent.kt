@@ -75,22 +75,28 @@ data class WebReaderContent(
     />
     <style>
       @import url("$highlightCssFilePath");
-// set up CSS for horizontal scrolling
       body {
         overflow-y: hidden !important; /* Disable horizontal scrolling */
         overflow-x: hidden !important; /* Disable horizontal scrolling */
+        height: 100vh !important;
+
       }
       .container {
         overflow-x: auto;
-        overflow-y: hidden;
         display: inline-block;
         height: 100vh !important;
-        padding-top: 48px;
-        padding-bottom: 10px;
+        padding-top: 20px;
+        padding-bottom: 50px;
         column-width: 100vw;
         column-gap: 0px;
-        bottom: 0px !important;
+        bottom: 0px;
       }
+       img {
+        max-height: 80vh; 
+        max-width: 100%; 
+        height: auto; 
+        width: auto; 
+}
 
       #scrollButtonForward {
         position: fixed !important;
@@ -139,12 +145,7 @@ data class WebReaderContent(
         font-size: 0.7rem !important; 
       }
       
-      img {
-        max-height: 80vh; 
-        max-width: 100%; 
-        height: auto; 
-        width: auto; 
-}
+
     </style>
   </head>
 // Elements for scrolling
