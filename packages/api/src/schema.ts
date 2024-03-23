@@ -2184,6 +2184,7 @@ const schema = gql`
     PAGE_UPDATED
     LABEL_CREATED
     HIGHLIGHT_CREATED
+    HIGHLIGHT_UPDATED
   }
 
   input SetRuleInput {

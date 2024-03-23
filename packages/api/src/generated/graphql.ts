@@ -2509,6 +2509,7 @@ export enum RuleActionType {
 
 export enum RuleEventType {
   HighlightCreated = 'HIGHLIGHT_CREATED',
+  HighlightUpdated = 'HIGHLIGHT_UPDATED',
   LabelCreated = 'LABEL_CREATED',
   PageCreated = 'PAGE_CREATED',
   PageUpdated = 'PAGE_UPDATED'
