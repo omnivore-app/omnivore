@@ -24,6 +24,7 @@ export enum RuleEventType {
   PageUpdated = 'PAGE_UPDATED',
   LabelCreated = 'LABEL_CREATED',
   HighlightCreated = 'HIGHLIGHT_CREATED',
+  HighlightUpdated = 'HIGHLIGHT_UPDATED',
 }
 
 export interface RuleAction {

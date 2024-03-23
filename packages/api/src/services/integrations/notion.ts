@@ -258,7 +258,7 @@ export class NotionClient implements IntegrationClient {
               .filter(
                 (highlight) =>
                   !lastSync ||
-                  (highlight.updatedAt && highlight.updatedAt > lastSync) // only new highlights
+                  new Date(highlight.updatedAt as string) > lastSync // only new highlights
               )
               .map((highlight) => ({
                 paragraph: {

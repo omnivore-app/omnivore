@@ -102,7 +102,9 @@ export class ReadwiseClient implements IntegrationClient {
               title: item.title,
               author: item.author || undefined,
               highlight_url: getHighlightUrl(item.id, highlight.id),
-              highlighted_at: highlight.createdAt as string | undefined,
+              highlighted_at: highlight.createdAt
+                ? new Date(highlight.createdAt as string).toISOString()
+                : undefined,
               category,
               image_url: item.thumbnail || undefined,
               location_type: 'order',
