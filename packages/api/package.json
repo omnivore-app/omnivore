@@ -6,12 +6,12 @@
     "build": "tsc",
     "dev": "ts-node-dev --debounce 100 --respawn --transpile-only src/server.ts",
     "dev_qp": "ts-node-dev --debounce 100 --respawn --transpile-only src/queue-processor.ts",
-    "start": "node dist/server.js",
-    "start_queue_processor": "node dist/queue-processor.js",
+    "start": "node dist/src/server.js",
+    "start_queue_processor": "node dist/src/queue-processor.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
     "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
     "test:typecheck": "tsc --noEmit",
-    "test": "nyc mocha -r ts-node/register --config mocha-config.json --timeout 10000"
+    "test": "nyc mocha -r ts-node/register --config mocha-config.json"
   },
   "dependencies": {
     "@bmatei/apollo-prometheus-exporter": "^3.0.0",
@@ -116,7 +116,6 @@
     "youtubei": "1.3.7"
   },
   "devDependencies": {
-    "@babel/register": "^7.14.5",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/addressparser": "^1.0.1",
     "@types/analytics-node": "^3.1.7",
