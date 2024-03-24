@@ -1,5 +1,4 @@
 import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
-// import 'antd/dist/antd.dark.css'
 import 'antd/dist/antd.compact.css'
 import { useCallback, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
@@ -8,13 +7,14 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
 import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
+import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import {
   Rule,
   RuleAction,
   RuleActionType,
   RuleEventType,
-  useGetRulesQuery,
+  useGetRulesQuery
 } from '../../lib/networking/queries/useGetRulesQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -124,6 +124,13 @@ type CreateActionModalProps = {
 const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
   const [form] = Form.useForm()
   const { labels } = useGetLabelsQuery()
+  const { integrations } = useGetIntegrationsQuery()
+
+  const integrationOptions = ['Notion', 'Readwise']
+
+  const isIntegrationEnabled = (integration: string): boolean => {
+    return integrations.some((i) => i.name.toUpperCase() === integration.toUpperCase())
+  }
 
   const onOk = async (values: any) => {
     const actionType = form.getFieldValue('actionType') as RuleActionType
@@ -236,17 +243,39 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
           <Form.Item
             label="Integrations"
             name="integrations"
+            hasFeedback
             rules={[
-              { required: true, message: 'Please choose at least one integration' },
+              {
+                required: true,
+                message: 'Please choose at least one integration',
+              },
+              {
+                validator: (_, value: string[]) => {
+                  value.forEach((v) => {
+                    if (!isIntegrationEnabled(v)) {
+                      return Promise.reject(`Integration ${v} is not enabled`)
+                    }
+                  })
+
+                  return Promise.resolve()
+                },
+              },
             ]}
           >
             <Select mode="multiple">
-              <Select.Option key="Notion" value="NOTION">
-                Notion
-              </Select.Option>
-              <Select.Option key="Readwise" value="READWISE">
-                Readwise
-              </Select.Option>
+              {integrationOptions.map((integration) => {
+                return (
+                  <Select.Option key={integration} value={integration}>
+                    {isIntegrationEnabled(integration) ? (
+                      integration
+                    ) : (
+                      <Button type="link" href="/settings/integrations">
+                        Connect to {integration}
+                      </Button>
+                    )}
+                  </Select.Option>
+                )
+              })}
             </Select>
           </Form.Item>
         )}
@@ -259,8 +288,9 @@ export default function Rules(): JSX.Element {
   const { rules, revalidate } = useGetRulesQuery()
   const { labels } = useGetLabelsQuery()
   const [isCreateRuleModalOpen, setIsCreateRuleModalOpen] = useState(false)
-  const [createActionRule, setCreateActionRule] =
-    useState<Rule | undefined>(undefined)
+  const [createActionRule, setCreateActionRule] = useState<Rule | undefined>(
+    undefined
+  )
 
   const dataSource = useMemo(() => {
     return rules.map((rule: Rule) => {
