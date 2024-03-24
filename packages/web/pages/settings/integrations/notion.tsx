@@ -1,15 +1,5 @@
-import {
-  Button,
-  Checkbox,
-  Form,
-  FormProps,
-  Input,
-  message,
-  Space,
-  Spin,
-} from 'antd'
+import { Button, Form, FormProps, Input, message, Space, Spin } from 'antd'
 import 'antd/dist/antd.compact.css'
-import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
@@ -89,13 +79,18 @@ export default function Notion(): JSX.Element {
     console.log('Failed:', errorInfo)
   }
 
-  const onDataChange = (value: Array<CheckboxValueType>) => {
-    form.setFieldsValue({ properties: value.map((v) => v.toString()) })
-  }
+  // const onDataChange = (value: Array<CheckboxValueType>) => {
+  //   form.setFieldsValue({ properties: value.map((v) => v.toString()) })
+  // }
 
   const exportToNotion = useCallback(async () => {
     if (exporting) {
       messageApi.warning('Exporting process is already running.')
+      return
+    }
+
+    if (!notion.settings?.parentPageId) {
+      messageApi.error('Please set the Notion page id first.')
       return
     }
 
@@ -122,7 +117,7 @@ export default function Notion(): JSX.Element {
     } catch (error) {
       messageApi.error('There was an error exporting to Notion.')
     }
-  }, [exporting, messageApi, notion.id])
+  }, [exporting, messageApi, notion])
 
   return (
     <>
@@ -189,16 +184,19 @@ export default function Notion(): JSX.Element {
                   <Input disabled />
                 </Form.Item>
 
-                <Form.Item<FieldType>
+                {/* <Form.Item<FieldType>
                   label="Properties to Export"
                   name="properties"
                 >
                   <Checkbox.Group onChange={onDataChange}>
                     <Checkbox value="highlights">Highlights</Checkbox>
                   </Checkbox.Group>
-                </Form.Item>
+                </Form.Item> */}
 
-                <Form.Item>
+                <Form.Item
+                  wrapperCol={{ offset: 6 }}
+                  style={{ marginTop: '30px' }}
+                >
                   <Space>
                     <Button type="primary" htmlType="submit">
                       Save

@@ -2,7 +2,7 @@ import axios from 'axios'
 import { HighlightType } from '../../entity/highlight'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
-import { ItemEvent } from '../library_item'
+import { getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 interface ReadwiseHighlight {
@@ -71,7 +71,6 @@ export class ReadwiseClient implements IntegrationClient {
     let result = true
 
     const highlights = items.flatMap(this._itemToReadwiseHighlight)
-    logger.info(`Exporting ${highlights.length} highlights to Readwise`)
 
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
@@ -108,7 +107,7 @@ export class ReadwiseClient implements IntegrationClient {
               location_type: 'order',
               note: highlight.annotation || undefined,
               source_type: 'omnivore',
-              source_url: item.originalUrl,
+              source_url: getItemUrl(item.id),
             }
           })
       : []

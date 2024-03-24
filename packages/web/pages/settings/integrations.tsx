@@ -1,8 +1,8 @@
 import { styled } from '@stitches/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { DownloadSimple, Eye, Link, Spinner } from 'phosphor-react'
-import { useEffect, useMemo, useState } from 'react'
+import { DownloadSimple, Link, Spinner } from 'phosphor-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
@@ -29,7 +29,6 @@ import {
   useGetIntegrationsQuery,
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 // Styles
 const Header = styled(Box, {
@@ -78,7 +77,7 @@ export default function Integrations(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
 
   const { integrations, revalidate } = useGetIntegrationsQuery()
-  const { webhooks } = useGetWebhooksQuery()
+  // const { webhooks } = useGetWebhooksQuery()
 
   const [integrationsArray, setIntegrationsArray] = useState(
     Array<integrationsCard>()
@@ -91,29 +90,38 @@ export default function Integrations(): JSX.Element {
   const pocketConnected = useMemo(() => {
     return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
   }, [integrations])
-  const isConnected = (name: string) => {
-    return integrations.find((i) => i.name == name)?.enabled
-  }
+  const isConnected = useCallback(
+    (name: string) => {
+      return integrations.find((i) => i.name == name)?.enabled
+    },
+    [integrations]
+  )
 
-  const deleteIntegration = async (id: string) => {
-    try {
-      await deleteIntegrationMutation(id)
-      revalidate()
-      showSuccessToast('Integration Removed')
-    } catch (err) {
-      showErrorToast('Error: ' + err)
-    }
-  }
+  const deleteIntegration = useCallback(
+    async (id: string) => {
+      try {
+        await deleteIntegrationMutation(id)
+        revalidate()
+        showSuccessToast('Integration Removed')
+      } catch (err) {
+        showErrorToast('Error: ' + err)
+      }
+    },
+    [revalidate]
+  )
 
-  const importFromIntegration = async (id: string) => {
-    try {
-      await importFromIntegrationMutation(id)
-      revalidate()
-      showSuccessToast('Import started')
-    } catch (err) {
-      showErrorToast('Error: ' + err)
-    }
-  }
+  const importFromIntegration = useCallback(
+    async (id: string) => {
+      try {
+        await importFromIntegrationMutation(id)
+        revalidate()
+        showSuccessToast('Import started')
+      } catch (err) {
+        showErrorToast('Error: ' + err)
+      }
+    },
+    [revalidate]
+  )
 
   const redirectToIntegration = (
     name: string,
@@ -178,7 +186,7 @@ export default function Integrations(): JSX.Element {
           token,
           name: 'NOTION',
           type: 'EXPORT',
-          enabled: false,
+          enabled: true,
         })
 
         showSuccessToast('Connected with Notion.')
@@ -201,7 +209,7 @@ export default function Integrations(): JSX.Element {
     if (router.query.code) {
       connectWithNotion()
     }
-  }, [router])
+  }, [importFromIntegration, pocketConnected, revalidate, router])
 
   useEffect(() => {
     const integrationsArray = [
@@ -269,17 +277,17 @@ export default function Integrations(): JSX.Element {
           ],
         },
       },
-      {
-        icon: '/static/icons/webhooks.svg',
-        title: 'Webhooks',
-        subText: `${webhooks.length} Webhooks`,
-        button: {
-          text: 'View Webhooks',
-          icon: <Eye size={16} weight={'bold'} />,
-          style: 'ctaWhite',
-          action: () => router.push('/settings/webhooks'),
-        },
-      },
+      // {
+      //   icon: '/static/icons/webhooks.svg',
+      //   title: 'Webhooks',
+      //   subText: `${webhooks.length} Webhooks`,
+      //   button: {
+      //     text: 'View Webhooks',
+      //     icon: <Eye size={16} weight={'bold'} />,
+      //     style: 'ctaWhite',
+      //     action: () => router.push('/settings/webhooks'),
+      //   },
+      // },
       {
         icon: '/static/icons/readwise.svg',
         title: 'Readwise',
@@ -317,7 +325,14 @@ export default function Integrations(): JSX.Element {
       })
 
     setIntegrationsArray(integrationsArray)
-  }, [pocketConnected, readwiseConnected, webhooks, integrations])
+  }, [
+    pocketConnected,
+    readwiseConnected,
+    integrations,
+    isConnected,
+    router,
+    deleteIntegration,
+  ])
 
   return (
     <SettingsLayout>

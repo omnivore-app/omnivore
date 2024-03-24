@@ -14,6 +14,7 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
 import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
@@ -137,6 +138,8 @@ interface Select {
 }
 
 const readingProgressDataSource = new ReadingProgressDataSource()
+
+export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
 
 const markItemAsRead = async (libraryItemId: string, userId: string) => {
   return await readingProgressDataSource.updateReadingProgress(

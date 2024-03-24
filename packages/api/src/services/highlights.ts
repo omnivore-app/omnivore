@@ -165,6 +165,10 @@ export const updateHighlight = async (
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
+      originalUrl: updatedHighlight.libraryItem.originalUrl,
+      title: updatedHighlight.libraryItem.title,
+      author: updatedHighlight.libraryItem.author,
+      thumbnail: updatedHighlight.libraryItem.thumbnail,
       highlights: [
         {
           ...highlight,
