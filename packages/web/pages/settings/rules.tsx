@@ -30,7 +30,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
 
   const onOk = async (values: any) => {
     const name = form.getFieldValue('name')
-    const filter = form.getFieldValue('filter') || 'in:all'
+    const filter = form.getFieldValue('filter') || 'in:all' // default to all
     const eventTypes = form.getFieldValue('eventTypes')
     try {
       await setRuleMutation({
@@ -129,7 +129,9 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
   const integrationOptions = ['Notion', 'Readwise']
 
   const isIntegrationEnabled = (integration: string): boolean => {
-    return integrations.some((i) => i.name.toUpperCase() === integration.toUpperCase())
+    return integrations.some(
+      (i) => i.name.toUpperCase() === integration.toUpperCase()
+    )
   }
 
   const onOk = async (values: any) => {
@@ -144,6 +146,12 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     }
 
     if (props.rule) {
+      // prevent adding duplicate actions
+      if (props.rule.actions.some((a) => a.type === actionType)) {
+        showErrorToast('Action already exists in the rule.')
+        return
+      }
+
       await setRuleMutation({
         id: props.rule.id,
         name: props.rule.name,
