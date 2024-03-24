@@ -6,7 +6,7 @@ import { env } from '../../env'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
-import { ItemEvent } from '../library_item'
+import { getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -229,7 +229,7 @@ export class NotionClient implements IntegrationClient {
             }
           : undefined,
         'Omnivore URL': {
-          url: `${env.client.url}/me/${item.id}`,
+          url: getItemUrl(item.id),
         },
         'Saved At': item.savedAt
           ? {
@@ -253,52 +253,51 @@ export class NotionClient implements IntegrationClient {
             }
           : undefined,
       },
-      children:
-        settings.properties?.includes('highlights') && item.highlights
-          ? item.highlights
-              .filter(
-                (highlight) =>
-                  highlight.highlightType === HighlightType.Highlight &&
-                  (!lastSync ||
-                    new Date(highlight.updatedAt as string) > lastSync) // only new highlights
-              )
-              .map((highlight) => ({
-                paragraph: {
-                  rich_text: [
-                    {
-                      text: {
-                        content: highlight.quote || '',
-                        link: {
-                          url: getHighlightUrl(
-                            item.slug || item.id,
-                            highlight.id
-                          ),
-                        },
-                      },
-                      annotations: {
-                        code: true,
-                        color: highlight.color as AnnotationColor,
+      children: item.highlights
+        ? item.highlights
+            .filter(
+              (highlight) =>
+                highlight.highlightType === HighlightType.Highlight &&
+                (!lastSync ||
+                  new Date(highlight.updatedAt as string) > lastSync) // only new highlights
+            )
+            .map((highlight) => ({
+              paragraph: {
+                rich_text: [
+                  {
+                    text: {
+                      content: highlight.quote || '',
+                      link: {
+                        url: getHighlightUrl(
+                          item.slug || item.id,
+                          highlight.id
+                        ),
                       },
                     },
-                  ],
-                  children: highlight.annotation
-                    ? [
-                        {
-                          paragraph: {
-                            rich_text: [
-                              {
-                                text: {
-                                  content: highlight.annotation || '',
-                                },
+                    annotations: {
+                      code: true,
+                      color: highlight.color as AnnotationColor,
+                    },
+                  },
+                ],
+                children: highlight.annotation
+                  ? [
+                      {
+                        paragraph: {
+                          rich_text: [
+                            {
+                              text: {
+                                content: highlight.annotation || '',
                               },
-                            ],
-                          },
+                            },
+                          ],
                         },
-                      ]
-                    : undefined,
-                },
-              }))
-          : undefined,
+                      },
+                    ]
+                  : undefined,
+              },
+            }))
+        : undefined,
     }
   }
 

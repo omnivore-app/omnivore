@@ -4,8 +4,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node-dev --debounce 100 --respawn --transpile-only src/server.ts",
-    "dev_qp": "ts-node-dev --debounce 100 --respawn --transpile-only src/queue-processor.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev_qp": "ts-node-dev --respawn --transpile-only src/queue-processor.ts",
     "start": "node dist/src/server.js",
     "start_queue_processor": "node dist/src/queue-processor.js",
     "lint": "eslint src --ext ts,js,tsx,jsx",
