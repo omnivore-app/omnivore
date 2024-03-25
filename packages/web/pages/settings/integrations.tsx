@@ -159,7 +159,7 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
       } finally {
-        router.replace('/settings/integrations')
+        router.push('/settings/integrations')
       }
     }
 
@@ -183,7 +183,7 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
 
-        router.replace('/settings/integrations')
+        router.push('/settings/integrations')
       }
     }
 
@@ -200,7 +200,7 @@ export default function Integrations(): JSX.Element {
     if (router.query.code && !getIntegration('NOTION')) {
       connectWithNotion()
     }
-  }, [importFromIntegration, getIntegration, revalidate, router])
+  }, [importFromIntegration, getIntegration, router])
 
   useEffect(() => {
     const pocket = getIntegration('POCKET')
