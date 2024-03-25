@@ -41,13 +41,13 @@ export default function Notion(): JSX.Element {
     })
   }, [form, notion])
 
-  const deleteNotion = async () => {
+  const deleteNotion = useCallback(async () => {
     await deleteIntegrationMutation(notion.id)
     showSuccessToast('Notion integration disconnected successfully.')
 
     revalidate()
     router.push('/settings/integrations')
-  }
+  }, [notion.id, router])
 
   const updateNotion = async (values: FieldType) => {
     await setIntegrationMutation({
