@@ -76,6 +76,7 @@ type integrationsCard = {
 export default function Integrations(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
 
+
   const { integrations, revalidate } = useGetIntegrationsQuery()
   // const { webhooks } = useGetWebhooksQuery()
 
@@ -94,25 +95,24 @@ export default function Integrations(): JSX.Element {
   const deleteIntegration = useCallback(async (id: string) => {
     try {
       await deleteIntegrationMutation(id)
+      revalidate()
       showSuccessToast('Integration Removed')
     } catch (err) {
       showErrorToast('Error: ' + err)
     }
   }, [])
 
-  const importFromIntegration = useCallback(
-    async (id: string) => {
-      try {
-        await importFromIntegrationMutation(id)
-        showSuccessToast('Import started')
-      } catch (err) {
-        showErrorToast('Error: ' + err)
-      }
-    },
-    []
-  )
+  const importFromIntegration = async (id: string) => {
+    try {
+      await importFromIntegrationMutation(id)
+      revalidate()
+      showSuccessToast('Import started')
+    } catch (err) {
+      showErrorToast('Error: ' + err)
+    }
+  }
 
-  const redirectToIntegration = (
+  const redirectToIntegration = useCallback((
     name: string,
     importItemState?: ImportItemState
   ) => {
@@ -130,18 +130,20 @@ export default function Integrations(): JSX.Element {
     document.body.appendChild(form)
 
     form.submit()
-  }
+  }, [])
 
   const isImporting = (integration: Integration | undefined) => {
     return !!integration && !!integration.taskName
   }
 
   useEffect(() => {
-    const connectToPocket = async () => {
+    const connectToPocket = async (
+      token: string,
+      importItemState: ImportItemState
+    ) => {
+      router.push('/settings/integrations')
+
       try {
-        // get the token from query string
-        const token = router.query.pocketToken as string
-        const importItemState = router.query.state as ImportItemState
         const result = await setIntegrationMutation({
           token,
           name: 'POCKET',
@@ -150,7 +152,9 @@ export default function Integrations(): JSX.Element {
           importItemState,
         })
 
+        revalidate()
         showSuccessToast('Connected with Pocket.')
+
         // start the import
         await importFromIntegration(result.id)
       } catch (err) {
@@ -158,17 +162,15 @@ export default function Integrations(): JSX.Element {
           'There was an error connecting to Pocket. Please try again.',
           { duration: 5000 }
         )
-      } finally {
-        router.push('/settings/integrations')
       }
     }
 
-    const connectWithNotion = async () => {
+    const connectWithNotion = async (code: string) => {
+      router.push('/settings/integrations')
+
       try {
-        // get the token from query string
-        const token = router.query.code as string
         await setIntegrationMutation({
-          token,
+          token: code,
           name: 'NOTION',
           type: 'EXPORT',
           enabled: true,
@@ -182,8 +184,6 @@ export default function Integrations(): JSX.Element {
           'There was an error connecting to Notion. Please try again.',
           { duration: 5000 }
         )
-
-        router.push('/settings/integrations')
       }
     }
 
@@ -194,13 +194,20 @@ export default function Integrations(): JSX.Element {
       router.query.state &&
       !getIntegration('POCKET')
     ) {
-      connectToPocket()
+      // get the token from query string
+      const { pocketToken, state } = router.query as {
+        pocketToken: string
+        state: ImportItemState
+      }
+      connectToPocket(pocketToken, state)
     }
 
     if (router.query.code && !getIntegration('NOTION')) {
-      connectWithNotion()
+      // get the code from query string
+      const code = router.query.code as string
+      connectWithNotion(code)
     }
-  }, [importFromIntegration, getIntegration, router])
+  }, [getIntegration, router])
 
   useEffect(() => {
     const pocket = getIntegration('POCKET')
@@ -252,7 +259,7 @@ export default function Integrations(): JSX.Element {
           action: () => {
             pocket
               ? deleteIntegration(pocket.id)
-              : redirectToIntegration('pocket', ImportItemState.Unarchived)
+              : redirectToIntegration('POCKET', ImportItemState.Unarchived)
           },
           disabled: isImporting(pocket),
           isDropdown: !pocket,
@@ -260,13 +267,13 @@ export default function Integrations(): JSX.Element {
             {
               text: 'Import All',
               action: () => {
-                redirectToIntegration('pocket', ImportItemState.All)
+                redirectToIntegration('POCKET', ImportItemState.All)
               },
             },
             {
               text: 'Import Unarchived',
               action: () => {
-                redirectToIntegration('pocket', ImportItemState.Unarchived)
+                redirectToIntegration('POCKET', ImportItemState.Unarchived)
               },
             },
           ],
@@ -336,7 +343,7 @@ export default function Integrations(): JSX.Element {
       })
 
     setIntegrationsArray(integrationsArray)
-  }, [deleteIntegration, getIntegration, router])
+  }, [getIntegration, router])
 
   return (
     <SettingsLayout>
