@@ -2,18 +2,18 @@ import { styled } from '@stitches/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { DownloadSimple, Link, Spinner } from 'phosphor-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
   Dropdown,
-  DropdownOption,
+  DropdownOption
 } from '../../components/elements/DropdownElements'
 import {
   Box,
   HStack,
   SpanBox,
-  VStack,
+  VStack
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
@@ -22,11 +22,11 @@ import { deleteIntegrationMutation } from '../../lib/networking/mutations/delete
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 import {
   ImportItemState,
-  setIntegrationMutation,
+  setIntegrationMutation
 } from '../../lib/networking/mutations/setIntegrationMutation'
 import {
   Integration,
-  useGetIntegrationsQuery,
+  useGetIntegrationsQuery
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -84,43 +84,32 @@ export default function Integrations(): JSX.Element {
   )
   const router = useRouter()
 
-  const readwiseConnected = useMemo(() => {
-    return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
-  }, [integrations])
-  const pocketConnected = useMemo(() => {
-    return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
-  }, [integrations])
-  const isConnected = useCallback(
+  const getIntegration = useCallback(
     (name: string) => {
-      return integrations.find((i) => i.name == name)?.enabled
+      return integrations.find((i) => i.name === name)
     },
     [integrations]
   )
 
-  const deleteIntegration = useCallback(
-    async (id: string) => {
-      try {
-        await deleteIntegrationMutation(id)
-        revalidate()
-        showSuccessToast('Integration Removed')
-      } catch (err) {
-        showErrorToast('Error: ' + err)
-      }
-    },
-    [revalidate]
-  )
+  const deleteIntegration = useCallback(async (id: string) => {
+    try {
+      await deleteIntegrationMutation(id)
+      showSuccessToast('Integration Removed')
+    } catch (err) {
+      showErrorToast('Error: ' + err)
+    }
+  }, [])
 
   const importFromIntegration = useCallback(
     async (id: string) => {
       try {
         await importFromIntegrationMutation(id)
-        revalidate()
         showSuccessToast('Import started')
       } catch (err) {
         showErrorToast('Error: ' + err)
       }
     },
-    [revalidate]
+    []
   )
 
   const redirectToIntegration = (
@@ -160,21 +149,17 @@ export default function Integrations(): JSX.Element {
           enabled: true,
           importItemState,
         })
-        if (result) {
-          revalidate()
-          showSuccessToast('Connected with Pocket.')
-          // start the import
-          await importFromIntegration(result.id)
-        } else {
-          showErrorToast('There was an error connecting to Pocket.')
-        }
+
+        showSuccessToast('Connected with Pocket.')
+        // start the import
+        await importFromIntegration(result.id)
       } catch (err) {
         showErrorToast(
           'There was an error connecting to Pocket. Please try again.',
           { duration: 5000 }
         )
       } finally {
-        router.push('/settings/integrations')
+        router.replace('/settings/integrations')
       }
     }
 
@@ -198,20 +183,30 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
 
-        router.push('/settings/integrations')
+        router.replace('/settings/integrations')
       }
     }
 
     if (!router.isReady) return
-    if (router.query.pocketToken && router.query.state && !pocketConnected) {
+
+    if (
+      router.query.pocketToken &&
+      router.query.state &&
+      !getIntegration('POCKET')
+    ) {
       connectToPocket()
     }
-    if (router.query.code) {
+
+    if (router.query.code && !getIntegration('NOTION')) {
       connectWithNotion()
     }
-  }, [importFromIntegration, pocketConnected, revalidate, router])
+  }, [importFromIntegration, getIntegration, revalidate, router])
 
   useEffect(() => {
+    const pocket = getIntegration('POCKET')
+    const readwise = getIntegration('READWISE')
+    const notion = getIntegration('NOTION')
+
     const integrationsArray = [
       {
         icon: '/static/icons/logseq.svg',
@@ -247,20 +242,20 @@ export default function Integrations(): JSX.Element {
         subText:
           'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import.',
         button: {
-          text: pocketConnected ? 'Disconnect' : 'Import',
-          icon: isImporting(pocketConnected) ? (
+          text: pocket ? 'Disconnect' : 'Import',
+          icon: isImporting(pocket) ? (
             <Spinner size={16} />
           ) : (
             <Link size={16} weight={'bold'} />
           ),
-          style: pocketConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          style: pocket ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            pocketConnected
-              ? deleteIntegration(pocketConnected.id)
+            pocket
+              ? deleteIntegration(pocket.id)
               : redirectToIntegration('pocket', ImportItemState.Unarchived)
           },
-          disabled: isImporting(pocketConnected),
-          isDropdown: !pocketConnected,
+          disabled: isImporting(pocket),
+          isDropdown: !pocket,
           dropdownOptions: [
             {
               text: 'Import All',
@@ -275,6 +270,22 @@ export default function Integrations(): JSX.Element {
               },
             },
           ],
+        },
+      },
+      {
+        icon: '/static/icons/notion.png',
+        title: 'Notion',
+        subText:
+          'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
+        button: {
+          text: notion ? 'Settings' : 'Connect',
+          icon: <Link size={16} weight={'bold'} />,
+          style: notion ? 'ctaWhite' : 'ctaDarkYellow',
+          action: () => {
+            notion
+              ? router.push('/settings/integrations/notion')
+              : redirectToIntegration('NOTION')
+          },
         },
       },
       // {
@@ -294,12 +305,12 @@ export default function Integrations(): JSX.Element {
         subText:
           'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
         button: {
-          text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
+          text: readwise ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
-          style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          style: readwise ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            readwiseConnected
-              ? deleteIntegration(readwiseConnected.id)
+            readwise
+              ? deleteIntegration(readwise.id)
               : router.push('/settings/integrations/readwise')
           },
         },
@@ -325,14 +336,7 @@ export default function Integrations(): JSX.Element {
       })
 
     setIntegrationsArray(integrationsArray)
-  }, [
-    pocketConnected,
-    readwiseConnected,
-    integrations,
-    isConnected,
-    router,
-    deleteIntegration,
-  ])
+  }, [deleteIntegration, getIntegration, router])
 
   return (
     <SettingsLayout>
