@@ -52,6 +52,11 @@ import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
+import { BUILD_DIGEST_JOB_NAME, buildDigest } from './jobs/build_digest'
+import {
+  ADD_AI_CONTENT_FEATURES_JOB_NAME,
+  addAIContentFeatures,
+} from './jobs/ai/ai-attributes'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -157,6 +162,10 @@ export const createWorker = (connection: ConnectionOptions) =>
           return processYouTubeTranscript(job.data)
         case EXPORT_ALL_ITEMS_JOB_NAME:
           return exportAllItems(job.data)
+        case BUILD_DIGEST_JOB_NAME:
+          return buildDigest(job.data)
+        case ADD_AI_CONTENT_FEATURES_JOB_NAME:
+          return addAIContentFeatures(job.data)
         default:
           logger.warn(`[queue-processor] unhandled job: ${job.name}`)
       }

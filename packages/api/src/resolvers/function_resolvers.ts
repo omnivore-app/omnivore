@@ -22,8 +22,7 @@ import {
   SearchItem,
   User,
 } from '../generated/graphql'
-import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures } from '../services/features'
+import { getAISummary } from '../services/ai'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
@@ -154,6 +153,7 @@ import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
+import { findUserFeatures } from '../services/features'
 
 /* eslint-disable @typescript-eslint/naming-convention */
 type ResultResolveType = {

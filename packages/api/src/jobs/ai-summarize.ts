@@ -7,7 +7,7 @@ import { libraryItemRepository } from '../repository/library_item'
 import { htmlToMarkdown } from '../utils/parser'
 import { AISummary } from '../entity/AISummary'
 import { LibraryItemState } from '../entity/library_item'
-import { getAISummary } from '../services/ai-summaries'
+import { getAISummary } from '../services/ai'
 
 export interface AISummarizeJobData {
   userId: string
