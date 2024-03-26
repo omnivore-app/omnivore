@@ -157,7 +157,6 @@ export default function Notion(): JSX.Element {
               height={75}
             />
             <Header>Notion integration settings</Header>
-            <Beta />
           </HStack>
 
           <div style={{ width: '100%', marginTop: '40px' }}>
