@@ -136,6 +136,9 @@ struct ProfileView: View {
 
       #if os(iOS)
         Section {
+          NavigationLink(destination: ReaderSettingsView()) {
+            Text(LocalText.readerSettingsGeneric)
+          }
           NavigationLink(destination: PushNotificationSettingsView()) {
             Text(LocalText.pushNotificationsGeneric)
           }
