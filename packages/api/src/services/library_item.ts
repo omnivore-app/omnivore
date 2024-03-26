@@ -889,7 +889,11 @@ export const updateLibraryItem = async (
 
   await pubsub.entityUpdated<UpdateItemEvent>(
     EntityType.PAGE,
-    libraryItem,
+    {
+      ...libraryItem,
+      originalContent: undefined,
+      readableContent: undefined,
+    },
     userId,
     id
   )
