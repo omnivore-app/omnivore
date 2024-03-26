@@ -43,6 +43,12 @@ export type UpdateItemEvent = Omit<
   IgnoredFields
 >
 
+export class RequiresSearchQueryError extends Error {
+  constructor() {
+    super('Requires a search query')
+  }
+}
+
 enum ReadFilter {
   ALL = 'all',
   READ = 'read',
@@ -869,7 +875,11 @@ export const updateLibraryItem = async (
     // send create event if the item was created
     await pubsub.entityCreated<CreateItemEvent>(
       EntityType.PAGE,
-      updatedLibraryItem,
+      {
+        ...updatedLibraryItem,
+        originalContent: undefined,
+        readableContent: undefined,
+      },
       userId,
       id
     )
@@ -879,7 +889,11 @@ export const updateLibraryItem = async (
 
   await pubsub.entityUpdated<UpdateItemEvent>(
     EntityType.PAGE,
-    libraryItem,
+    {
+      ...libraryItem,
+      originalContent: undefined,
+      readableContent: undefined,
+    },
     userId,
     id
   )
@@ -1043,7 +1057,11 @@ export const createOrUpdateLibraryItem = async (
 
   await pubsub.entityCreated<CreateItemEvent>(
     EntityType.PAGE,
-    newLibraryItem,
+    {
+      ...newLibraryItem,
+      originalContent: undefined,
+      readableContent: undefined,
+    },
     userId,
     newLibraryItem.id
   )
@@ -1320,7 +1338,7 @@ export const findLibraryItemIdsByLabelId = async (
 export const filterItemEvents = (
   ast: LiqeQuery,
   events: readonly ItemEvent[]
-): readonly ItemEvent[] => {
+): ItemEvent[] => {
   const testNo = (value: string, event: ItemEvent) => {
     const keywordRegexMap: Record<string, RegExp> = {
       highlightAnnotations: /^highlight(s)?$/i,
@@ -1353,28 +1371,10 @@ export const filterItemEvents = (
       throw new Error('Expected a literal expression.')
     }
 
-    const lowercasedValue = expression.value?.toString().toLowerCase()
+    const lowercasedValue = expression.value?.toString()?.toLowerCase()
 
     if (field.type === 'ImplicitField') {
-      if (!lowercasedValue) {
-        return true
-      }
-
-      const textFields = [
-        'author',
-        'title',
-        'description',
-        'note',
-        'siteName',
-        'readableContent',
-        'originalUrl',
-      ]
-      const text = textFields
-        .map((field) => event[field as keyof ItemEvent])
-        .join(' ')
-
-      // TODO: Implement full text search
-      return text.match(new RegExp(lowercasedValue, 'i'))
+      throw new RequiresSearchQueryError()
     }
 
     if (!lowercasedValue) {
@@ -1422,7 +1422,7 @@ export const filterItemEvents = (
         }
       }
       case 'type': {
-        return event.itemType?.toString().toLowerCase() === lowercasedValue
+        return event.itemType?.toString()?.toLowerCase() === lowercasedValue
       }
       case 'label': {
         const labels = event.labelNames as string[] | undefined
@@ -1495,7 +1495,7 @@ export const filterItemEvents = (
         // get camel case column name
         const key = camelCase(columnName) as 'subscription' | 'itemLanguage'
 
-        return event[key]?.toString().toLowerCase() === lowercasedValue
+        return event[key]?.toString()?.toLowerCase() === lowercasedValue
       }
       // match filters
       case 'author':
@@ -1512,7 +1512,7 @@ export const filterItemEvents = (
           | 'siteName'
 
         // TODO: Implement full text search
-        return event[key]?.toString().match(new RegExp(lowercasedValue, 'i'))
+        return event[key]?.toString()?.match(new RegExp(lowercasedValue, 'i'))
       }
       case 'includes': {
         const ids = lowercasedValue.split(',')
