@@ -2152,6 +2152,7 @@ const schema = gql`
     createdAt: Date!
     updatedAt: Date
     eventTypes: [RuleEventType!]!
+    failedAt: Date
   }
 
   type RuleAction {
@@ -2684,6 +2685,112 @@ const schema = gql`
     email: String!
   }
 
+  # Query: GetDiscoverTopic
+  union GetDiscoverTopicResults =
+      GetDiscoverTopicSuccess
+    | GetDiscoverTopicError
+
+  enum GetDiscoverTopicErrorCode {
+    UNAUTHORIZED
+  }
+
+  type GetDiscoverTopicError {
+    errorCodes: [GetDiscoverTopicErrorCode!]!
+  }
+
+  type GetDiscoverTopicSuccess {
+    discoverTopics: [DiscoverTopic!]
+  }
+
+  type DiscoverTopic {
+    name: String!
+    description: String!
+  }
+
+  # Query: GetDiscoverFeedArticle
+  union GetDiscoverFeedArticleResults =
+      GetDiscoverFeedArticleSuccess
+    | GetDiscoverFeedArticleError
+
+  enum GetDiscoverFeedArticleErrorCode {
+    UNAUTHORIZED
+    NOT_FOUND
+    BAD_REQUEST
+  }
+
+  type GetDiscoverFeedArticleError {
+    errorCodes: [GetDiscoverFeedArticleErrorCode!]!
+  }
+
+  type GetDiscoverFeedArticleSuccess {
+    discoverArticles: [DiscoverFeedArticle]
+    pageInfo: PageInfo!
+  }
+
+  type DiscoverFeedArticle {
+    id: ID!
+    feed: String!
+    title: String!
+    url: String!
+    image: String
+    publishedDate: Date
+    description: String!
+    siteName: String
+    slug: String!
+    author: String
+    savedLinkUrl: String
+    savedId: String
+  }
+
+  # Mutation: SaveDiscoverArticle
+  input SaveDiscoverArticleInput {
+    discoverArticleId: ID!
+    locale: String
+    timezone: String
+  }
+
+  union SaveDiscoverArticleResult =
+      SaveDiscoverArticleSuccess
+    | SaveDiscoverArticleError
+
+  type SaveDiscoverArticleSuccess {
+    url: String!
+    saveId: String!
+  }
+
+  type SaveDiscoverArticleError {
+    errorCodes: [SaveDiscoverArticleErrorCode!]!
+  }
+
+  enum SaveDiscoverArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  # Mutation: DeleteDiscoverArticle
+  input DeleteDiscoverArticleInput {
+    discoverArticleId: ID!
+  }
+
+  union DeleteDiscoverArticleResult =
+      DeleteDiscoverArticleSuccess
+    | DeleteDiscoverArticleError
+
+  type DeleteDiscoverArticleSuccess {
+    id: ID!
+  }
+
+  type DeleteDiscoverArticleError {
+    errorCodes: [DeleteDiscoverArticleErrorCode!]!
+  }
+
+  enum DeleteDiscoverArticleErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
   input FeedsInput {
     after: String
     first: Int
@@ -2813,6 +2920,146 @@ const schema = gql`
     UNAUTHORIZED
   }
 
+  type DiscoverFeed {
+    id: ID!
+    title: String!
+    link: String!
+    description: String
+    image: String
+    type: String!
+    visibleName: String
+  }
+
+  union DiscoverFeedResult = DiscoverFeedSuccess | DiscoverFeedError
+
+  type DiscoverFeedSuccess {
+    feeds: [DiscoverFeed]!
+  }
+
+  type DiscoverFeedError {
+    errorCodes: [DiscoverFeedErrorCode!]!
+  }
+
+  enum DiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+  }
+
+  input AddDiscoverFeedInput {
+    url: String!
+  }
+
+  union AddDiscoverFeedResult = AddDiscoverFeedSuccess | AddDiscoverFeedError
+
+  type AddDiscoverFeedSuccess {
+    feed: DiscoverFeed!
+  }
+
+  type AddDiscoverFeedError {
+    errorCodes: [AddDiscoverFeedErrorCode!]!
+  }
+
+  enum AddDiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    CONFLICT
+    NOT_FOUND
+  }
+
+  union DeleteDiscoverFeedResult =
+      DeleteDiscoverFeedSuccess
+    | DeleteDiscoverFeedError
+
+  type DeleteDiscoverFeedSuccess {
+    id: String!
+  }
+
+  type DeleteDiscoverFeedError {
+    errorCodes: [DeleteDiscoverFeedErrorCode!]!
+  }
+
+  enum DeleteDiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    CONFLICT
+    NOT_FOUND
+  }
+
+  input DeleteDiscoverFeedInput {
+    feedId: ID!
+  }
+
+  union EditDiscoverFeedResult = EditDiscoverFeedSuccess | EditDiscoverFeedError
+
+  type EditDiscoverFeedSuccess {
+    id: ID!
+  }
+
+  type EditDiscoverFeedError {
+    errorCodes: [EditDiscoverFeedErrorCode!]!
+  }
+
+  enum EditDiscoverFeedErrorCode {
+    UNAUTHORIZED
+    BAD_REQUEST
+    NOT_FOUND
+  }
+
+  input EditDiscoverFeedInput {
+    feedId: ID!
+    name: String!
+  }
+
+  union IntegrationResult = IntegrationSuccess | IntegrationError
+
+  type IntegrationSuccess {
+    integration: Integration!
+  }
+
+  type IntegrationError {
+    errorCodes: [IntegrationErrorCode!]!
+  }
+
+  enum IntegrationErrorCode {
+    NOT_FOUND
+  }
+
+  union ExportToIntegrationResult =
+      ExportToIntegrationSuccess
+    | ExportToIntegrationError
+
+  type ExportToIntegrationSuccess {
+    task: Task!
+  }
+
+  type Task {
+    id: ID!
+    name: String!
+    state: TaskState!
+    createdAt: Date!
+    runningTime: Int # in milliseconds
+    cancellable: Boolean
+    progress: Float
+    failedReason: String
+  }
+
+  enum TaskState {
+    PENDING
+    RUNNING
+    SUCCEEDED
+    FAILED
+    CANCELLED
+  }
+
+  type ExportToIntegrationError {
+    errorCodes: [ExportToIntegrationErrorCode!]!
+  }
+
+  enum ExportToIntegrationErrorCode {
+    UNAUTHORIZED
+    FAILED_TO_CREATE_TASK
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -2880,6 +3127,12 @@ const schema = gql`
     unsubscribe(name: String!, subscriptionId: ID): UnsubscribeResult!
     subscribe(input: SubscribeInput!): SubscribeResult!
     addPopularRead(name: String!): AddPopularReadResult!
+    saveDiscoverArticle(
+      input: SaveDiscoverArticleInput!
+    ): SaveDiscoverArticleResult!
+    deleteDiscoverArticle(
+      input: DeleteDiscoverArticleInput!
+    ): DeleteDiscoverArticleResult!
     setWebhook(input: SetWebhookInput!): SetWebhookResult!
     deleteWebhook(id: ID!): DeleteWebhookResult!
     revokeApiKey(id: ID!): RevokeApiKeyResult!
@@ -2915,6 +3168,7 @@ const schema = gql`
       arguments: JSON # additional arguments for the action
     ): BulkActionResult!
     importFromIntegration(integrationId: ID!): ImportFromIntegrationResult!
+    exportToIntegration(integrationId: ID!): ExportToIntegrationResult!
     setFavoriteArticle(id: ID!): SetFavoriteArticleResult!
     updateSubscription(
       input: UpdateSubscriptionInput!
@@ -2924,6 +3178,11 @@ const schema = gql`
     updateNewsletterEmail(
       input: UpdateNewsletterEmailInput!
     ): UpdateNewsletterEmailResult!
+    addDiscoverFeed(input: AddDiscoverFeedInput!): AddDiscoverFeedResult!
+    deleteDiscoverFeed(
+      input: DeleteDiscoverFeedInput!
+    ): DeleteDiscoverFeedResult!
+    editDiscoverFeed(input: EditDiscoverFeedInput!): EditDiscoverFeedResult!
     emptyTrash: EmptyTrashResult!
   }
 
@@ -2961,6 +3220,13 @@ const schema = gql`
       includeContent: Boolean
       format: String
     ): SearchResult!
+    getDiscoverFeedArticles(
+      discoverTopicId: String!
+      feedId: ID
+      after: String
+      first: Int
+    ): GetDiscoverFeedArticleResults!
+    discoverTopics: GetDiscoverTopicResults!
     subscriptions(
       sort: SortParams
       type: SubscriptionType
@@ -2977,6 +3243,7 @@ const schema = gql`
       sort: SortParams
       folder: String
     ): UpdatesSinceResult!
+    integration(name: String!): IntegrationResult!
     integrations: IntegrationsResult!
     recentSearches: RecentSearchesResult!
     rules(enabled: Boolean): RulesResult!
@@ -2985,6 +3252,7 @@ const schema = gql`
     groups: GroupsResult!
     recentEmails: RecentEmailsResult!
     feeds(input: FeedsInput!): FeedsResult!
+    discoverFeeds: DiscoverFeedResult!
     scanFeeds(input: ScanFeedsInput!): ScanFeedsResult!
   }
 `

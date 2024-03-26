@@ -323,7 +323,7 @@ public struct ShareExtensionView: View {
         #endif
         Spacer()
         Button(action: {
-          extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+          viewModel.dismissExtension(extensionContext: extensionContext)
         }, label: {
           Text("Dismiss")
           #if os(iOS)

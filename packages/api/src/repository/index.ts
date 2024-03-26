@@ -1,23 +1,28 @@
 import * as httpContext from 'express-http-context2'
-import { DatabaseError } from 'pg'
 import {
   EntityManager,
   EntityTarget,
+  ObjectLiteral,
   QueryBuilder,
   QueryFailedError,
   Repository,
 } from 'typeorm'
+import { DatabaseError } from 'pg'
 import { appDataSource } from '../data_source'
 import { Claims } from '../resolvers/types'
 import { SetClaimsRole } from '../utils/dictionary'
 
-export const getColumns = <T>(repository: Repository<T>): (keyof T)[] => {
+export const getColumns = <T extends ObjectLiteral>(
+  repository: Repository<T>
+): (keyof T)[] => {
   return repository.metadata.columns.map(
     (col) => col.propertyName
   ) as (keyof T)[]
 }
 
-export const getColumnsDbName = <T>(repository: Repository<T>): string[] => {
+export const getColumnsDbName = <T extends ObjectLiteral>(
+  repository: Repository<T>
+): string[] => {
   return repository.metadata.columns.map((col) => col.databaseName)
 }
 
@@ -53,11 +58,15 @@ export const authTrx = async <T>(
   })
 }
 
-export const getRepository = <T>(entity: EntityTarget<T>) => {
+export const getRepository = <T extends ObjectLiteral>(
+  entity: EntityTarget<T>
+) => {
   return appDataSource.getRepository(entity)
 }
 
-export const queryBuilderToRawSql = <T>(q: QueryBuilder<T>): string => {
+export const queryBuilderToRawSql = <T extends ObjectLiteral>(
+  q: QueryBuilder<T>
+): string => {
   const queryAndParams = q.getQueryAndParameters()
   let sql = queryAndParams[0]
   const params = queryAndParams[1]

@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useMemo, useRef } from 'react'
 import { StyledText } from '../../elements/StyledText'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
-import { Circle, X } from 'phosphor-react'
+import { Circle, NewspaperClipping, X } from 'phosphor-react'
 import {
   Subscription,
   SubscriptionType,

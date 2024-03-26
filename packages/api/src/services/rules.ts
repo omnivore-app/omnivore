@@ -1,4 +1,4 @@
-import { ArrayContains, ILike } from 'typeorm'
+import { ArrayContains, ILike, IsNull, Not } from 'typeorm'
 import { Rule, RuleAction, RuleEventType } from '../entity/rule'
 import { authTrx, getRepository } from '../repository'
 
@@ -62,5 +62,17 @@ export const findEnabledRules = async (
     user: { id: userId },
     enabled: true,
     eventTypes: ArrayContains([eventType]),
+    failedAt: IsNull(), // only rules that have not failed
   })
+}
+
+export const markRuleAsFailed = async (id: string, userId: string) => {
+  return authTrx(
+    (t) =>
+      t.getRepository(Rule).update(id, {
+        failedAt: new Date(),
+      }),
+    undefined,
+    userId
+  )
 }

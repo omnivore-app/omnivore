@@ -1,6 +1,5 @@
 import CoreData
 import Foundation
-import Models
 import Utils
 
 public struct PDFItem {

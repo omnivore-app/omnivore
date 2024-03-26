@@ -1,0 +1,22 @@
+{
+  "name": "@omnivore/discord",
+  "version": "1.0.0",
+  "description": "A Discord Bot to extract features to add to Community Picks",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --files src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext ts,js,tsx,jsx",
+    "lint:fix": "eslint src --fix --ext ts,js,tsx,jsx",
+    "test:typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.0.0",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "typescript": "^5.4.2",
+    "typescript-eslint": "^7.1.1"
+  },
+  "author": "",
+  "license": "ISC"
+}

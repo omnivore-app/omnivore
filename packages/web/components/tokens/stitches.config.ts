@@ -140,6 +140,8 @@ export const { styled, css, theme, getCssText, globalCss, keyframes, config } =
         highlightText: '#3D3D3D',
         error: '#FA5E4A',
 
+        discover: '#7274d5',
+
         // Brand Colors
         omnivoreRed: '#FA5E4A;',
         omnivoreGray: '#3D3D3D',

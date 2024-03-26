@@ -38,6 +38,12 @@ public class ShareExtensionViewModel: ObservableObject {
     extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
   }
 
+  public func dismissExtension(extensionContext: NSExtensionContext?) {
+    if let extensionContext = extensionContext {
+      extensionContext.completeRequest(returningItems: [], completionHandler: nil)
+    }
+  }
+
   func savePage(extensionContext: NSExtensionContext?) {
     if let extensionContext = extensionContext {
       save(extensionContext)

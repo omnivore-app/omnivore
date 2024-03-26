@@ -6,28 +6,32 @@ import {
   Input,
   message,
   Space,
-  Switch,
+  Spin,
 } from 'antd'
 import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
-import { Beta } from '../../../components/templates/Beta'
 import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
+import {
+  exportToIntegrationMutation,
+  Task,
+  TaskState,
+} from '../../../lib/networking/mutations/exportToIntegrationMutation'
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
-import { useGetIntegrationsQuery } from '../../../lib/networking/queries/useGetIntegrationsQuery'
+import { apiFetcher } from '../../../lib/networking/networkHelpers'
+import { useGetIntegrationQuery } from '../../../lib/networking/queries/useGetIntegrationQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type FieldType = {
   parentPageId?: string
   parentDatabaseId?: string
-  enabled: boolean
   properties?: string[]
 }
 
@@ -35,28 +39,21 @@ export default function Notion(): JSX.Element {
   applyStoredTheme()
 
   const router = useRouter()
-  const { integrations, revalidate } = useGetIntegrationsQuery()
-  const notion = useMemo(() => {
-    return integrations.find((i) => i.name == 'NOTION' && i.type == 'EXPORT')
-  }, [integrations])
+  const { integration: notion, revalidate } = useGetIntegrationQuery('notion')
 
   const [form] = Form.useForm<FieldType>()
   const [messageApi, contextHolder] = message.useMessage()
+  const [exporting, setExporting] = useState(!!notion.taskName)
 
   useEffect(() => {
     form.setFieldsValue({
-      parentPageId: notion?.settings?.parentPageId,
-      parentDatabaseId: notion?.settings?.parentDatabaseId,
-      enabled: notion?.enabled,
-      properties: notion?.settings?.properties,
+      parentPageId: notion.settings?.parentPageId,
+      parentDatabaseId: notion.settings?.parentDatabaseId,
+      properties: notion.settings?.properties,
     })
   }, [form, notion])
 
   const deleteNotion = async () => {
-    if (!notion) {
-      throw new Error('Notion integration not found')
-    }
-
     await deleteIntegrationMutation(notion.id)
     showSuccessToast('Notion integration disconnected successfully.')
 
@@ -65,16 +62,12 @@ export default function Notion(): JSX.Element {
   }
 
   const updateNotion = async (values: FieldType) => {
-    if (!notion) {
-      throw new Error('Notion integration not found')
-    }
-
     await setIntegrationMutation({
       id: notion.id,
       name: notion.name,
       type: notion.type,
       token: notion.token,
-      enabled: values.enabled,
+      enabled: true,
       settings: values,
     })
   }
@@ -100,18 +93,54 @@ export default function Notion(): JSX.Element {
     form.setFieldsValue({ properties: value.map((v) => v.toString()) })
   }
 
+  const exportToNotion = useCallback(async () => {
+    if (exporting) {
+      messageApi.warning('Exporting process is already running.')
+      return
+    }
+
+    try {
+      const task = await exportToIntegrationMutation(notion.id)
+      // long polling to check the status of the task in every 10 seconds
+      setExporting(true)
+      const interval = setInterval(async () => {
+        const updatedTask = (await apiFetcher(`/api/tasks/${task.id}`)) as Task
+        if (updatedTask.state === TaskState.Succeeded) {
+          clearInterval(interval)
+          setExporting(false)
+          messageApi.success('Exported to Notion successfully.')
+          return
+        }
+        if (updatedTask.state === TaskState.Failed) {
+          clearInterval(interval)
+          setExporting(false)
+          messageApi.error('There was an error exporting to Notion.')
+          return
+        }
+      }, 10000)
+      messageApi.info('Exporting to Notion...')
+    } catch (error) {
+      messageApi.error('There was an error exporting to Notion.')
+    }
+  }, [exporting, messageApi, notion.id])
+
   return (
     <>
       {contextHolder}
       <PageMetaData title="Notion" path="/integrations/notion" />
       <SettingsLayout>
         <VStack
+          distribution="start"
+          alignment="start"
           css={{
             margin: '0 auto',
             width: '80%',
+            height: '500px',
           }}
         >
           <HStack
+            alignment="start"
+            distribution="start"
             css={{
               width: '100%',
               pb: '$2',
@@ -126,11 +155,10 @@ export default function Notion(): JSX.Element {
               height={75}
             />
             <Header>Notion integration settings</Header>
-            <Beta />
           </HStack>
 
-          {notion && (
-            <div style={{ width: '100%', marginTop: '40px' }}>
+          <div style={{ width: '100%', marginTop: '40px' }}>
+            <Spin spinning={exporting} tip="Exporting" size="large">
               <Form
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 8 }}
@@ -142,6 +170,7 @@ export default function Notion(): JSX.Element {
                 <Form.Item<FieldType>
                   label="Notion Page Id"
                   name="parentPageId"
+                  help="The id of the Notion page where the items will be exported to. You can find it in the URL of the page."
                   rules={[
                     {
                       required: true,
@@ -158,14 +187,6 @@ export default function Notion(): JSX.Element {
                   hidden
                 >
                   <Input disabled />
-                </Form.Item>
-
-                <Form.Item<FieldType>
-                  label="Automatic Sync"
-                  name="enabled"
-                  valuePropName="checked"
-                >
-                  <Switch />
                 </Form.Item>
 
                 <Form.Item<FieldType>
@@ -188,8 +209,16 @@ export default function Notion(): JSX.Element {
                   </Space>
                 </Form.Item>
               </Form>
-            </div>
-          )}
+
+              <Button
+                type="primary"
+                onClick={exportToNotion}
+                disabled={exporting}
+              >
+                {exporting ? 'Exporting' : 'Export last 100 items'}
+              </Button>
+            </Spin>
+          </div>
         </VStack>
       </SettingsLayout>
     </>

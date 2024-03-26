@@ -385,7 +385,10 @@
     func playerContent(_: LinkedItemAudioProperties) -> some View {
       ZStack {
         WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showSnackbar) {
-          OperationToast(operationMessage: $snackbarMessage, showOperationToast: $showSnackbar, operationStatus: $operationStatus)
+          OperationToast(
+            operationMessage: $snackbarMessage,
+            showOperationToast: $showSnackbar,
+            operationStatus: $operationStatus)
             .offset(y: -90)
         } label: {
           EmptyView()

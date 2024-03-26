@@ -388,6 +388,11 @@ export const processYouTubeVideo = async (
       duration = video.duration
     }
 
+    if (video.uploadDate && !Number.isNaN(Date.parse(video.uploadDate))) {
+      needsUpdate = true
+      libraryItem.publishedAt = new Date(video.uploadDate)
+    }
+
     if (
       await findFeatureByName(FeatureName.YouTubeTranscripts, jobData.userId)
     ) {

@@ -48,12 +48,14 @@ export const isRefreshFeedRequest = (data: any): data is RefreshFeedRequest => {
 
 // link can be a string or an object
 type RssFeedItemLink = string | { $: { rel?: string; href: string } }
+type RssFeedItemAuthor = string | { name: string }
 type RssFeed = Parser.Output<{
   published?: string
   updated?: string
   created?: string
   link?: RssFeedItemLink
   links?: RssFeedItemLink[]
+  author?: RssFeedItemAuthor
 }> & {
   lastBuildDate?: string
   'syn:updatePeriod'?: string
@@ -359,6 +361,7 @@ const createItemWithFeedContent = async (
         clientRequestId: '',
         author: item.creator,
         previewImage,
+        labels: [{ name: 'RSS' }],
       },
       user
     )
@@ -386,6 +389,7 @@ const parser = new Parser({
       'created',
       ['media:content', 'media:content', { keepArray: true }],
       ['media:thumbnail'],
+      'author',
     ],
     feed: [
       'lastBuildDate',
@@ -473,6 +477,14 @@ const getLink = (
   return url
 }
 
+// get author
+const getAuthor = (author: RssFeedItemAuthor) => {
+  if (typeof author === 'string') {
+    return author
+  }
+  return author.name
+}
+
 const processSubscription = async (
   fetchContentTasks: Map<string, FetchContentTask>,
   subscriptionId: string,
@@ -536,10 +548,13 @@ const processSubscription = async (
         throw new Error('Invalid feed item link')
       }
 
+      const creator = item.creator || (item.author && getAuthor(item.author))
+
       const feedItem = {
         ...item,
         isoDate,
         link,
+        creator,
       }
 
       const publishedAt = feedItem.isoDate

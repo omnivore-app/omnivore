@@ -1,4 +1,3 @@
-
 import Foundation
 
 func cardShouldHideUrl(_ url: String?) -> Bool {
