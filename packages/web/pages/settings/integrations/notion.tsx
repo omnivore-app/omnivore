@@ -34,7 +34,6 @@ import { showSuccessToast } from '../../../lib/toastHelpers'
 type FieldType = {
   parentPageId?: string
   parentDatabaseId?: string
-  enabled: boolean
   properties?: string[]
 }
 
@@ -52,7 +51,6 @@ export default function Notion(): JSX.Element {
     form.setFieldsValue({
       parentPageId: notion.settings?.parentPageId,
       parentDatabaseId: notion.settings?.parentDatabaseId,
-      enabled: notion.enabled,
       properties: notion.settings?.properties,
     })
   }, [form, notion])
@@ -71,7 +69,7 @@ export default function Notion(): JSX.Element {
       name: notion.name,
       type: notion.type,
       token: notion.token,
-      enabled: values.enabled,
+      enabled: true,
       settings: values,
     })
   }
@@ -192,15 +190,6 @@ export default function Notion(): JSX.Element {
                   hidden
                 >
                   <Input disabled />
-                </Form.Item>
-
-                <Form.Item<FieldType>
-                  label="Automatic Sync"
-                  name="enabled"
-                  valuePropName="checked"
-                  help="Once connected all new items will be exported to Notion"
-                >
-                  <Switch />
                 </Form.Item>
 
                 <Form.Item<FieldType>
