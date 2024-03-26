@@ -43,6 +43,12 @@ export type UpdateItemEvent = Omit<
   IgnoredFields
 >
 
+export class RequiresSearchQueryError extends Error {
+  constructor() {
+    super('Requires a search query')
+  }
+}
+
 enum ReadFilter {
   ALL = 'all',
   READ = 'read',
@@ -1328,7 +1334,7 @@ export const findLibraryItemIdsByLabelId = async (
 export const filterItemEvents = (
   ast: LiqeQuery,
   events: readonly ItemEvent[]
-): readonly ItemEvent[] => {
+): ItemEvent[] => {
   const testNo = (value: string, event: ItemEvent) => {
     const keywordRegexMap: Record<string, RegExp> = {
       highlightAnnotations: /^highlight(s)?$/i,
@@ -1364,25 +1370,7 @@ export const filterItemEvents = (
     const lowercasedValue = expression.value?.toString().toLowerCase()
 
     if (field.type === 'ImplicitField') {
-      if (!lowercasedValue) {
-        return true
-      }
-
-      const textFields = [
-        'author',
-        'title',
-        'description',
-        'note',
-        'siteName',
-        'readableContent',
-        'originalUrl',
-      ]
-      const text = textFields
-        .map((field) => event[field as keyof ItemEvent])
-        .join(' ')
-
-      // TODO: Implement full text search
-      return text.match(new RegExp(lowercasedValue, 'i'))
+      throw new RequiresSearchQueryError()
     }
 
     if (!lowercasedValue) {
