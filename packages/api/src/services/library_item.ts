@@ -869,7 +869,11 @@ export const updateLibraryItem = async (
     // send create event if the item was created
     await pubsub.entityCreated<CreateItemEvent>(
       EntityType.PAGE,
-      updatedLibraryItem,
+      {
+        ...updatedLibraryItem,
+        originalContent: undefined,
+        readableContent: undefined,
+      },
       userId,
       id
     )
@@ -1043,7 +1047,11 @@ export const createOrUpdateLibraryItem = async (
 
   await pubsub.entityCreated<CreateItemEvent>(
     EntityType.PAGE,
-    newLibraryItem,
+    {
+      ...newLibraryItem,
+      originalContent: undefined,
+      readableContent: undefined,
+    },
     userId,
     newLibraryItem.id
   )
