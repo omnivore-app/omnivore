@@ -125,8 +125,8 @@ export function Article(props: ArticleProps): JSX.Element {
       if (youtubePlayer) {
         if (window.scrollY > 400) {
           if (!youtubePlaceholder) {
-            var rect = youtubePlayer.getBoundingClientRect()
-            var placeholder = document.createElement('div')
+            const rect = youtubePlayer.getBoundingClientRect()
+            const placeholder = document.createElement('div')
             placeholder.setAttribute('id', YOUTUBE_PLACEHOLDER_ID)
             placeholder.style.width = rect.width + 'px'
             placeholder.style.height = rect.height + 'px'
