@@ -61,8 +61,8 @@ struct WebReaderContent {
               -webkit-text-size-adjust: 100%;
             }
             .is-sticky {
-              right: 15px !important;
-              bottom: 40px !important;
+              right: 20px !important;
+              bottom: 60px !important;
             }
           </style>
       </head>
