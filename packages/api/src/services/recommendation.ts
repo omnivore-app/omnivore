@@ -41,6 +41,7 @@ export const addRecommendation = async (
         uploadFile: item.uploadFile,
         wordCount: item.wordCount,
         publishedAt: item.publishedAt,
+        recommenderNames: item.recommenderNames,
       }
 
       recommendedItem = await createOrUpdateLibraryItem(newItem, userId)

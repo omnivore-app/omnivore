@@ -665,3 +665,9 @@
       transform: none;
   }
 }
+
+.youtubeplaceholder {
+  border: 2px dashed #aaa;
+  box-sizing: border-box;
+}
+
