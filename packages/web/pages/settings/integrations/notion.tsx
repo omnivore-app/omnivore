@@ -7,7 +7,6 @@ import {
   message,
   Space,
   Spin,
-  Switch,
 } from 'antd'
 import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
@@ -16,7 +15,6 @@ import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
-import { Beta } from '../../../components/templates/Beta'
 import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
