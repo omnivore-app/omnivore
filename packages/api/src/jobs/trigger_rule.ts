@@ -128,10 +128,9 @@ const triggerActions = async (
     } catch (error) {
       if (error instanceof RequiresSearchQueryError) {
         logger.info('Failed to filter items by metadata, running search query')
-        // failed to filter items by metadata, run search query
         const searchResult = await searchLibraryItems(
           {
-            query: `includes: ${libraryItemId} AND (${rule.filter})`,
+            query: `includes:${libraryItemId} AND (${rule.filter})`,
             size: 1,
           },
           userId
