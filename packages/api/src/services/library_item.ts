@@ -1371,7 +1371,7 @@ export const filterItemEvents = (
       throw new Error('Expected a literal expression.')
     }
 
-    const lowercasedValue = expression.value?.toString().toLowerCase()
+    const lowercasedValue = expression.value?.toString()?.toLowerCase()
 
     if (field.type === 'ImplicitField') {
       throw new RequiresSearchQueryError()
@@ -1422,7 +1422,7 @@ export const filterItemEvents = (
         }
       }
       case 'type': {
-        return event.itemType?.toString().toLowerCase() === lowercasedValue
+        return event.itemType?.toString()?.toLowerCase() === lowercasedValue
       }
       case 'label': {
         const labels = event.labelNames as string[] | undefined
@@ -1495,7 +1495,7 @@ export const filterItemEvents = (
         // get camel case column name
         const key = camelCase(columnName) as 'subscription' | 'itemLanguage'
 
-        return event[key]?.toString().toLowerCase() === lowercasedValue
+        return event[key]?.toString()?.toLowerCase() === lowercasedValue
       }
       // match filters
       case 'author':
@@ -1512,7 +1512,7 @@ export const filterItemEvents = (
           | 'siteName'
 
         // TODO: Implement full text search
-        return event[key]?.toString().match(new RegExp(lowercasedValue, 'i'))
+        return event[key]?.toString()?.match(new RegExp(lowercasedValue, 'i'))
       }
       case 'includes': {
         const ids = lowercasedValue.split(',')
