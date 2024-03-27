@@ -15,10 +15,10 @@ import { bulkEnqueueUpdateLabels } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
 import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
-const columnToDelete = ['description', 'createdAt'] as const
-type ColumnToDeleteType = typeof columnToDelete[number]
+const columnsToDelete = ['description', 'createdAt'] as const
+type ColumnsToDeleteType = typeof columnsToDelete[number]
 export type LabelEvent = Merge<
-  Omit<DeepPartial<Label>, ColumnToDeleteType>,
+  Omit<DeepPartial<Label>, ColumnsToDeleteType>,
   EntityEvent
 >
 
@@ -150,7 +150,7 @@ export const saveLabelsInLibraryItem = async (
       EntityType.LABEL,
       {
         id: libraryItemId,
-        labels: labels.map((l) => deepDelete(l, columnToDelete)),
+        labels: labels.map((l) => deepDelete(l, columnsToDelete)),
       },
       userId
     )

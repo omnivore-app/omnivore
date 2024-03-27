@@ -279,22 +279,7 @@ export default function Integrations(): JSX.Element {
           ],
         },
       },
-      {
-        icon: '/static/icons/notion.png',
-        title: 'Notion',
-        subText:
-          'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
-        button: {
-          text: notion ? 'Settings' : 'Connect',
-          icon: <Link size={16} weight={'bold'} />,
-          style: notion ? 'ctaWhite' : 'ctaDarkYellow',
-          action: () => {
-            notion
-              ? router.push('/settings/integrations/notion')
-              : redirectToIntegration('NOTION')
-          },
-        },
-      },
+
       // {
       //   icon: '/static/icons/webhooks.svg',
       //   title: 'Webhooks',
@@ -331,11 +316,11 @@ export default function Integrations(): JSX.Element {
         subText:
           'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
         button: {
-          text: isConnected('NOTION') ? 'Settings' : 'Connect',
+          text: notion ? 'Settings' : 'Connect',
           icon: <Link size={16} weight={'bold'} />,
-          style: isConnected('NOTION') ? 'ctaWhite' : 'ctaDarkYellow',
+          style: notion ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            isConnected('NOTION')
+            notion
               ? router.push('/settings/integrations/notion')
               : redirectToIntegration('NOTION')
           },
