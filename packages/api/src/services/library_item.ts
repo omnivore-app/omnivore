@@ -1433,7 +1433,9 @@ export const filterItemEvents = (
         return labelsToTest.some((label) => {
           const hasWildcard = label.includes('*')
           if (hasWildcard) {
-            return labels?.some((l) => l.match(new RegExp(label, 'i')))
+            return labels?.some(
+              (l) => l.match(new RegExp(label.replace('*', '.*'), 'i')) // match wildcard
+            )
           }
 
           return labels?.some((l) => l.toLowerCase() === label)
