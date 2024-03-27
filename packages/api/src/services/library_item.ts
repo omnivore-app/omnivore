@@ -1528,16 +1528,17 @@ export const filterItemEvents = (
         return event.id && ids.includes(event.id.toString())
       }
       case 'recommendedby': {
-        if (lowercasedValue === '*') {
-          // select all if * is provided
-          return event.recommenderNames && event.recommenderNames.length > 0
+        if (!event.recommenderNames) {
+          return false
         }
 
-        return (
-          event.recommenderNames &&
-          (event.recommenderNames as string[]).some(
-            (name) => name.toLowerCase() === lowercasedValue
-          )
+        if (lowercasedValue === '*') {
+          // select all if * is provided
+          return event.recommenderNames.length > 0
+        }
+
+        return (event.recommenderNames as string[]).some(
+          (name) => name.toLowerCase() === lowercasedValue
         )
       }
       case 'no':
