@@ -98,42 +98,6 @@ data class WebReaderContent(
         width: auto; 
 }
 
-      #scrollButtonForward {
-        position: fixed !important;
-        bottom: 50% !important;
-        right: 0 !important;
-        height: 500px !important;
-        width: 50px;
-        transform: translateY(250px) !important;
-        background-color: transparent !important;
-        color: #7f7f7f !important; 
-        padding: 5px !important;
-        cursor: pointer !important;
-        z-index: 1000 !important; 
-        font-size: 40px !important; 
-        display: flex !important;
-        justify-content: right !important;
-        align-items: center !important;
-      }
-      
-
-      #scrollButtonBack {
-        position: fixed !important;
-        bottom: 50% !important;
-        left: 0 !important;
-        height: 500px !important;
-        width: 50px;
-        transform: translateY(250px) !important;
-        background-color: transparent !important; 
-        color: #7f7f7f !important; 
-        padding: 5px !important;
-        cursor: pointer !important;
-        z-index: 1000 !important; 
-        font-size: 40px !important; 
-        display: flex !important;
-        justify-content: left !important;
-        align-items: center !important;
-      }
 
       #pagination {
         position: fixed !important;
@@ -148,9 +112,8 @@ data class WebReaderContent(
 
     </style>
   </head>
-// Elements for scrolling
-  <div id="scrollButtonForward" onclick="scrollForward()">»</div>
-  <div id="scrollButtonBack" onclick="scrollBack()">«</div>
+
+
   <div id="pagination"></div>
 
   <body>
@@ -250,8 +213,47 @@ data class WebReaderContent(
     
     
     
+// Short tap handling
+let tapStartTime; 
+
+// Tap handling 
+function handleTap(e) {
+
+  // Get tap duration
+  const tapDuration = new Date().getTime() - tapStartTime;
+
+  // Only handle short taps
+  if(tapDuration > 100) return; 
+
+  // Get tap position
+  const tapX = e.changedTouches[0].clientX;
+
+  // Check horizontal position
+  if(tapX < document.body.clientWidth / 2) {
+    // Handle left side tap
+    scrollBack();
+
+  } else {
+    // Handle right side tap
+    scrollForward();
+  
+  }
+
+}
+
+// Add passive tap listener
+document.addEventListener('touchend', handleTap, {passive: true});
+
+// Update start time on touch start
+document.addEventListener('touchstart', e => {
+  tapStartTime = new Date().getTime();
+}); 
+
+// Keep existing swipe code as is
+
+
     
-          // Touch gestures for scrolling
+          // Swipe gestures for scrolling
           let touchStartX = null;
           let touchStartY = null;
     
