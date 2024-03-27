@@ -9,6 +9,7 @@ import {
   createOrUpdateLibraryItem,
   CreateOrUpdateLibraryItemArgs,
   findLibraryItemByUrl,
+  updateLibraryItem,
 } from './library_item'
 
 export const addRecommendation = async (
@@ -41,7 +42,7 @@ export const addRecommendation = async (
         uploadFile: item.uploadFile,
         wordCount: item.wordCount,
         publishedAt: item.publishedAt,
-        recommenderNames: item.recommenderNames,
+        recommenderNames: [recommendation.group?.name],
       }
 
       recommendedItem = await createOrUpdateLibraryItem(newItem, userId)
@@ -66,6 +67,15 @@ export const addRecommendation = async (
       if (highlights) {
         await createHighlights(highlights, userId)
       }
+    } else {
+      // update the item
+      await updateLibraryItem(
+        recommendedItem.id,
+        {
+          recommenderNames: [recommendation.group?.name],
+        },
+        userId
+      )
     }
 
     await createRecommendation(
