@@ -470,7 +470,7 @@ export const processYouTubeTranscript = async (
     const youtube = new YouTubeClient()
     const video = await youtube.getVideo(jobData.videoId)
     if (!video) {
-      logger.warn('no video found for youtube url', {
+      logger.warning('no video found for youtube url', {
         url: libraryItem.originalUrl,
       })
       return
