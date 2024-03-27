@@ -126,7 +126,7 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
   const { labels } = useGetLabelsQuery()
   const { integrations } = useGetIntegrationsQuery()
 
-  const integrationOptions = ['Notion', 'Readwise']
+  const integrationOptions = ['NOTION', 'READWISE']
 
   const isIntegrationEnabled = (integration: string): boolean => {
     return integrations.some(
