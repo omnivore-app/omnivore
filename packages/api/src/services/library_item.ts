@@ -879,6 +879,7 @@ export const updateLibraryItem = async (
         ...updatedLibraryItem,
         originalContent: undefined,
         readableContent: undefined,
+        feedContent: undefined,
       },
       userId,
       id
@@ -893,6 +894,7 @@ export const updateLibraryItem = async (
       ...libraryItem,
       originalContent: undefined,
       readableContent: undefined,
+      feedContent: undefined,
     },
     userId,
     id
@@ -1061,6 +1063,7 @@ export const createOrUpdateLibraryItem = async (
       ...newLibraryItem,
       originalContent: undefined,
       readableContent: undefined,
+      feedContent: undefined,
     },
     userId,
     newLibraryItem.id
