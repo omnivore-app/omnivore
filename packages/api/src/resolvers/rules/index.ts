@@ -7,7 +7,6 @@ import {
   MutationSetRuleArgs,
   QueryRulesArgs,
   RulesError,
-  RulesErrorCode,
   RulesSuccess,
   SetRuleError,
   SetRuleErrorCode,
@@ -21,28 +20,26 @@ export const setRuleResolver = authorized<
   SetRuleSuccess,
   SetRuleError,
   MutationSetRuleArgs
->(async (_, { input }, { authTrx, uid, log }) => {
+>(async (_, { input }, { authTrx, uid }) => {
   try {
     // validate filter
     parseSearchQuery(input.filter)
-
-    const rule = await authTrx((t) =>
-      t.getRepository(Rule).save({
-        ...input,
-        id: input.id || undefined,
-        user: { id: uid },
-      })
-    )
-
-    return {
-      rule,
-    }
   } catch (error) {
-    log.error('Error setting rules', error)
-
     return {
       errorCodes: [SetRuleErrorCode.BadRequest],
     }
+  }
+
+  const rule = await authTrx((t) =>
+    t.getRepository(Rule).save({
+      ...input,
+      id: input.id || undefined,
+      user: { id: uid },
+    })
+  )
+
+  return {
+    rule,
   }
 })
 
@@ -50,24 +47,16 @@ export const rulesResolver = authorized<
   RulesSuccess,
   RulesError,
   QueryRulesArgs
->(async (_, { enabled }, { authTrx, log, uid }) => {
-  try {
-    const rules = await authTrx((t) =>
-      t.getRepository(Rule).findBy({
-        user: { id: uid },
-        enabled: enabled === null ? undefined : enabled,
-      })
-    )
+>(async (_, { enabled }, { authTrx, uid }) => {
+  const rules = await authTrx((t) =>
+    t.getRepository(Rule).findBy({
+      user: { id: uid },
+      enabled: enabled === null ? undefined : enabled,
+    })
+  )
 
-    return {
-      rules,
-    }
-  } catch (error) {
-    log.error('Error getting rules', error)
-
-    return {
-      errorCodes: [RulesErrorCode.BadRequest],
-    }
+  return {
+    rules,
   }
 })
 
