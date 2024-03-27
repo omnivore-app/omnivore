@@ -5,5 +5,13 @@
   },
   "rules": {
     "@typescript-eslint/no-unsafe-argument": 0
-  }
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-unsafe-member-access": 0
+      }
+    }
+  ]
 }

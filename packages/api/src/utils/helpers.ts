@@ -367,7 +367,10 @@ export const cleanUrl = (url: string) => {
   })
 }
 
-export const deepDelete = <T, K extends keyof T>(obj: T, keys: K[]) => {
+export const deepDelete = <T, K extends keyof T>(
+  obj: T,
+  keys: readonly K[]
+) => {
   // make a copy of the object
   const copy = { ...obj }
 

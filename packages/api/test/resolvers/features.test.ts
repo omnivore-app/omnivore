@@ -5,8 +5,12 @@ import sinon, { SinonFakeTimers } from 'sinon'
 import { User } from '../../src/entity/user'
 import { env } from '../../src/env'
 import { userRepository } from '../../src/repository/user'
-import { createFeature, createFeatures, deleteFeature } from '../../src/services/features'
-import { deleteUser } from '../../src/services/user'
+import {
+  createFeature,
+  createFeatures,
+  deleteFeature,
+} from '../../src/services/features'
+import { deleteUser, deleteUsers } from '../../src/services/user'
 import { createTestUser } from '../db'
 import { graphqlRequest, request } from '../util'
 
@@ -21,7 +25,7 @@ describe('features resolvers', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: loginUser.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
   })
 
   after(async () => {
@@ -124,7 +128,7 @@ describe('features resolvers', () => {
 
       after(async () => {
         // reset opt-in users
-        Promise.all(users.map((user) => deleteUser(user.id)))
+        await deleteUsers(users.map((user) => user.id))
         // reset feature
         await deleteFeature({ name: featureName })
       })

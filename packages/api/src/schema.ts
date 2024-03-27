@@ -2166,6 +2166,8 @@ const schema = gql`
     DELETE
     MARK_AS_READ
     SEND_NOTIFICATION
+    WEBHOOK
+    EXPORT
   }
 
   type RulesError {
@@ -2180,6 +2182,9 @@ const schema = gql`
   enum RuleEventType {
     PAGE_CREATED
     PAGE_UPDATED
+    LABEL_CREATED
+    HIGHLIGHT_CREATED
+    HIGHLIGHT_UPDATED
   }
 
   input SetRuleInput {
