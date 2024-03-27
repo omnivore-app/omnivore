@@ -223,7 +223,7 @@ export const addTranscriptPlaceholdReadableContent = async (
 async function readStringFromStorage(
   bucketName: string,
   fileName: string
-): Promise<string> {
+): Promise<string | undefined> {
   try {
     const storage = env.fileUpload?.gcsUploadSAKeyFilePath
       ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
@@ -247,12 +247,11 @@ async function readStringFromStorage(
       .file(fileName)
       .download()
     const fileContent = fileContentResponse[0].toString()
-
-    console.log(`File '${fileName}' downloaded successfully as string.`)
     return fileContent
   } catch (error) {
-    console.error('Error downloading file:', error)
-    throw error
+    // This isn't a catastrophic error it just means the file doesn't exist
+    logger.info('Error downloading file:', error)
+    return undefined
   }
 }
 
@@ -284,11 +283,11 @@ const writeStringToStorage = async (
         .on('error', reject)
     })
 
-    console.log(
+    logger.info(
       `File '${fileName}' uploaded successfully to bucket '${bucketName}'.`
     )
   } catch (error) {
-    console.error('Error uploading file:', error)
+    logger.error('Error uploading file:', error)
     throw error
   }
 }
@@ -334,6 +333,7 @@ const cacheYouTubeTranscript = async (
 export const processYouTubeVideo = async (
   jobData: ProcessYouTubeVideoJobData
 ) => {
+  let videoURL: URL | undefined
   try {
     const libraryItem = await authTrx(
       async (tx) =>
@@ -356,11 +356,11 @@ export const processYouTubeVideo = async (
       return
     }
 
-    const u = new URL(libraryItem.originalUrl)
-    const videoId = u.searchParams.get('v')
+    videoURL = new URL(libraryItem.originalUrl)
+    const videoId = videoURL.searchParams.get('v')
 
     if (!videoId) {
-      console.warn('no video id for supplied youtube url', {
+      logger.warn('no video id for supplied youtube url', {
         url: libraryItem.originalUrl,
       })
       return
@@ -370,7 +370,7 @@ export const processYouTubeVideo = async (
     const youtube = new YouTubeClient()
     const video = await youtube.getVideo(videoId)
     if (!video) {
-      console.warn('no video found for youtube url', {
+      logger.warn('no video found for youtube url', {
         url: libraryItem.originalUrl,
       })
       return
@@ -427,11 +427,11 @@ export const processYouTubeVideo = async (
         jobData.userId
       )
       if (!updated) {
-        console.warn('could not updated library item')
+        logger.warn('could not updated library item')
       }
     }
   } catch (err) {
-    console.warn('error creating summary: ', err)
+    logger.warn('error getting youtube metadata: ', { err, jobData, videoURL })
   }
 }
 
@@ -517,10 +517,10 @@ export const processYouTubeTranscript = async (
         jobData.userId
       )
       if (!updated) {
-        console.warn('could not updated library item')
+        logger.warn('could not updated library item')
       }
     }
   } catch (err) {
-    console.warn('error creating summary: ', err)
+    logger.warn('error getting youtube transcript: ', { err, jobData })
   }
 }
