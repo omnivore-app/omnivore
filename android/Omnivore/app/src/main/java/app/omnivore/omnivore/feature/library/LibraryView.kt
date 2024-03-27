@@ -326,7 +326,7 @@ fun LibraryViewContent(
     val coroutineScope = rememberCoroutineScope()
 
 
-    LaunchedEffect(scrollUp, scrollDown, uiState) {
+    LaunchedEffect(scrollUp, scrollDown) {
         val itemsCount = (uiState as? LibraryUiState.Success)?.items?.size ?: 0
         if (itemsCount > 0) {
             val firstVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
@@ -357,6 +357,8 @@ fun LibraryViewContent(
             val updatedFirstVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
             val updatedLastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             if (!(scrollUp || scrollDown)) {
+                Toast.makeText(context, "", Toast.LENGTH_SHORT).cancel()
+
                 val message =
                     "$updatedFirstVisibleItemIndex - $updatedLastVisibleItemIndex out of $itemsCount"
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
