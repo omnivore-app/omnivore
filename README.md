@@ -1,4 +1,33 @@
-# Omnivore
+# Omnivore eInk
+This is a fork of the android app of omnivore to work better on eInk devices and everyone who likes even less distraction (scrolling) while reading.
+
+These features are currently added:
+
+
+in article view (Webreader): 
+- pagination / splitting of text into pages
+- tap and swipe gestures to jump to next page
+- current / total pages index
+- update of reading progress to database
+- retrieval of reading status and jump to acording page
+- physical volume buttons to scroll
+
+in library view:
+- volume buttons to "scroll" by number of displayed items
+- toast message: index "showing X - XX out of XXX" items
+
+Bonus:
+- fullscreen / hide status bar
+
+todo:
+- provide toggle to turn pagination on and off in reading prefs
+- figure where such a toggle would be for the library scrolling
+- gestures for library view as an alternative to the volume buttons.
+- merge with official code base
+- toggle for fullscreen
+
+------------------------------------------------------
+
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/omnivore-app/omnivore/Run%20tests)](https://github.com/omnivore-app/omnivore/actions/workflows/run-tests.yaml)
 [![Discord](https://img.shields.io/discord/844965259462311966?label=Join%20our%20Discord)](https://discord.gg/h2z5rppzz9)
