@@ -7,7 +7,6 @@ import {
   message,
   Space,
   Spin,
-  Switch,
 } from 'antd'
 import 'antd/dist/antd.compact.css'
 import { CheckboxValueType } from 'antd/lib/checkbox/Group'
@@ -16,7 +15,6 @@ import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
 import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { PageMetaData } from '../../../components/patterns/PageMetaData'
-import { Beta } from '../../../components/templates/Beta'
 import { Header } from '../../../components/templates/settings/SettingsTable'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { deleteIntegrationMutation } from '../../../lib/networking/mutations/deleteIntegrationMutation'
@@ -34,7 +32,6 @@ import { showSuccessToast } from '../../../lib/toastHelpers'
 type FieldType = {
   parentPageId?: string
   parentDatabaseId?: string
-  enabled: boolean
   properties?: string[]
 }
 
@@ -52,7 +49,6 @@ export default function Notion(): JSX.Element {
     form.setFieldsValue({
       parentPageId: notion.settings?.parentPageId,
       parentDatabaseId: notion.settings?.parentDatabaseId,
-      enabled: notion.enabled,
       properties: notion.settings?.properties,
     })
   }, [form, notion])
@@ -71,7 +67,7 @@ export default function Notion(): JSX.Element {
       name: notion.name,
       type: notion.type,
       token: notion.token,
-      enabled: values.enabled,
+      enabled: true,
       settings: values,
     })
   }
@@ -159,7 +155,6 @@ export default function Notion(): JSX.Element {
               height={75}
             />
             <Header>Notion integration settings</Header>
-            <Beta />
           </HStack>
 
           <div style={{ width: '100%', marginTop: '40px' }}>
@@ -192,15 +187,6 @@ export default function Notion(): JSX.Element {
                   hidden
                 >
                   <Input disabled />
-                </Form.Item>
-
-                <Form.Item<FieldType>
-                  label="Automatic Sync"
-                  name="enabled"
-                  valuePropName="checked"
-                  help="Once connected all new items will be exported to Notion"
-                >
-                  <Switch />
                 </Form.Item>
 
                 <Form.Item<FieldType>

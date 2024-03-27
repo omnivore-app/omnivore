@@ -1,10 +1,13 @@
+import { LiqeQuery } from '@omnivore/liqe'
 import { ReadingProgressDataSource } from '../datasources/reading_progress_data_source'
-import { LibraryItemState } from '../entity/library_item'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
 import { Rule, RuleAction, RuleActionType, RuleEventType } from '../entity/rule'
 import { addLabelsToLibraryItem } from '../services/labels'
 import {
   filterItemEvents,
   ItemEvent,
+  RequiresSearchQueryError,
+  searchLibraryItems,
   softDeleteLibraryItem,
   updateLibraryItem,
 } from '../services/library_item'
@@ -24,7 +27,7 @@ interface RuleActionObj {
   libraryItemId: string
   userId: string
   action: RuleAction
-  data: ItemEvent
+  data: ItemEvent | LibraryItem
 }
 type RuleActionFunc = (obj: RuleActionObj) => Promise<unknown>
 
@@ -107,23 +110,41 @@ const triggerActions = async (
   const actionPromises: Promise<unknown>[] = []
 
   for (const rule of rules) {
-    let filteredData: ItemEvent
+    let ast: LiqeQuery
+    let results: (ItemEvent | LibraryItem)[]
 
     try {
-      const ast = parseSearchQuery(rule.filter)
-      // filter library item by rule filter
-      const results = filterItemEvents(ast, [data])
-      if (results.length === 0) {
-        logger.info(`No items found for rule ${rule.id}`)
-        continue
-      }
-
-      filteredData = results[0]
+      ast = parseSearchQuery(rule.filter)
     } catch (error) {
-      // failed to search for library items, mark rule as failed
       logger.error('Error parsing filter in rules', error)
       await markRuleAsFailed(rule.id, userId)
 
+      continue
+    }
+
+    // filter library item by metadata
+    try {
+      results = filterItemEvents(ast, [data])
+    } catch (error) {
+      if (error instanceof RequiresSearchQueryError) {
+        logger.info('Failed to filter items by metadata, running search query')
+        const searchResult = await searchLibraryItems(
+          {
+            query: `includes:${libraryItemId} AND (${rule.filter})`,
+            size: 1,
+          },
+          userId
+        )
+        results = searchResult.libraryItems
+      } else {
+        logger.error('Error filtering item events', error)
+        await markRuleAsFailed(rule.id, userId)
+
+        continue
+      }
+    }
+    if (results.length === 0) {
+      logger.info(`No items found for rule ${rule.id}`)
       continue
     }
 
@@ -133,7 +154,7 @@ const triggerActions = async (
         libraryItemId,
         userId,
         action,
-        data: filteredData,
+        data: results[0],
       }
 
       actionPromises.push(actionFunc(actionObj))

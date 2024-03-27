@@ -1,29 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Spinner } from 'phosphor-react'
+import { useCallback, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../../components/elements/Button'
-import {
-  Box,
-  HStack,
-  SpanBox,
-  VStack,
-} from '../../../components/elements/LayoutPrimitives'
+import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
-import { styled, theme } from '../../../components/tokens/stitches.config'
-import { updateEmailMutation } from '../../../lib/networking/mutations/updateEmailMutation'
-import { updateUserMutation } from '../../../lib/networking/mutations/updateUserMutation'
-import { updateUserProfileMutation } from '../../../lib/networking/mutations/updateUserProfileMutation'
-import { useGetLibraryItemsQuery } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
+import { styled } from '../../../components/tokens/stitches.config'
+import { optInFeature } from '../../../lib/networking/mutations/optIntoFeatureMutation'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
-import { useValidateUsernameQuery } from '../../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../../lib/toastHelpers'
-import { ConfirmationModal } from '../../../components/patterns/ConfirmationModal'
-import { ProgressBar } from '../../../components/elements/ProgressBar'
-import { emptyTrashMutation } from '../../../lib/networking/mutations/emptyTrashMutation'
-import { ProgressIndicator } from '@radix-ui/react-progress'
-import { Spinner } from 'phosphor-react'
-import { optInFeature } from '../../../lib/networking/mutations/optIntoFeatureMutation'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -60,6 +46,10 @@ export default function Account(): JSX.Element {
     return (
       (viewerData?.me?.features.indexOf('youtube-transcripts') ?? -1) !== -1
     )
+  }, [viewerData])
+
+  const hasNotion = useMemo(() => {
+    return (viewerData?.me?.features.indexOf('notion') ?? -1) !== -1
   }, [viewerData])
 
   applyStoredTheme()
@@ -121,7 +111,8 @@ export default function Account(): JSX.Element {
                   )
                 })}
 
-                {!hasYouTube /* || !hasAISummaries || !hasDigest */ && (
+                {(!hasYouTube ||
+                  !hasNotion) /* || !hasAISummaries || !hasDigest */ && (
                   <StyledLabel css={{ mt: '25px' }}>
                     Available beta features
                   </StyledLabel>
@@ -146,6 +137,31 @@ export default function Account(): JSX.Element {
                         style="ctaDarkYellow"
                         onClick={(event) => {
                           requestFeatureAccess('youtube-transcripts')
+                          event.preventDefault()
+                        }}
+                      >
+                        Request feature
+                      </Button>
+                    </VStack>
+                  )}
+
+                  {!hasNotion && (
+                    <VStack
+                      alignment="start"
+                      distribution="start"
+                      css={{ width: '100%' }}
+                    >
+                      <StyledText
+                        style="footnote"
+                        css={{ display: 'flex', gap: '5px' }}
+                      >
+                        - Notion integration: Export your items and highlights
+                        to Notion.
+                      </StyledText>
+                      <Button
+                        style="ctaDarkYellow"
+                        onClick={(event) => {
+                          requestFeatureAccess('notion')
                           event.preventDefault()
                         }}
                       >

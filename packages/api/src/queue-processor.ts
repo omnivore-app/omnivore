@@ -158,7 +158,7 @@ export const createWorker = (connection: ConnectionOptions) =>
         case EXPORT_ALL_ITEMS_JOB_NAME:
           return exportAllItems(job.data)
         default:
-          logger.warn(`[queue-processor] unhandled job: ${job.name}`)
+          logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }
     },
     {

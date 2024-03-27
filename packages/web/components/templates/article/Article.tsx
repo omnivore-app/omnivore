@@ -119,12 +119,24 @@ export function Article(props: ArticleProps): JSX.Element {
     const youtubePlayer = document.getElementById('_omnivore_youtube_video')
 
     const updateScroll = () => {
-      console.log('scroll y: ', window.scrollY, youtubePlayer)
+      const YOUTUBE_PLACEHOLDER_ID = 'omnivore-youtube-placeholder'
+      const youtubePlaceholder = document.getElementById(YOUTUBE_PLACEHOLDER_ID)
 
       if (youtubePlayer) {
-        if (window.scrollY > 200) {
+        if (window.scrollY > 400) {
+          if (!youtubePlaceholder) {
+            const rect = youtubePlayer.getBoundingClientRect()
+            const placeholder = document.createElement('div')
+            placeholder.setAttribute('id', YOUTUBE_PLACEHOLDER_ID)
+            placeholder.style.width = rect.width + 'px'
+            placeholder.style.height = rect.height + 'px'
+            youtubePlayer.parentNode?.insertBefore(placeholder, youtubePlayer)
+          }
           youtubePlayer.classList.add('is-sticky')
         } else {
+          if (youtubePlaceholder) {
+            youtubePlayer.parentNode?.removeChild(youtubePlaceholder)
+          }
           youtubePlayer.classList.remove('is-sticky')
         }
       }

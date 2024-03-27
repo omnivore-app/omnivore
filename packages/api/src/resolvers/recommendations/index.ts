@@ -171,7 +171,7 @@ export const recommendResolver = authorized<
               member.user.id,
               item.id,
               {
-                group: { id: group.id },
+                group: { id: group.id, name: group.name },
                 note: input.note,
                 recommender: { id: uid },
                 createdAt: new Date(),
@@ -278,11 +278,11 @@ export const recommendHighlightsResolver = authorized<
                 member.user.id,
                 item.id,
                 {
-                  id: group.id,
                   note: input.note,
                   recommender: { id: uid },
                   createdAt: new Date(),
                   libraryItem: { id: item.id },
+                  group: { id: group.id, name: group.name },
                 },
                 auth,
                 input.highlightIds
