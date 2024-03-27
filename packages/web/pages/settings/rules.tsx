@@ -377,7 +377,7 @@ export default function Rules(): JSX.Element {
           {row.actions.map((action: RuleAction, index: number) => {
             const color = action.type.length > 5 ? 'geekblue' : 'green'
             return (
-              <Tag color={color} key={index}>
+              <Tag color={color} key={index} style={{ whiteSpace: 'unset' }}>
                 {action.type}(
                 {action.params.map((param: string, index: number) => {
                   const paramString = stringForActionParam(action.type, param)

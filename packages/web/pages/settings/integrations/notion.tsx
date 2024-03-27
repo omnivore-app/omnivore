@@ -16,7 +16,6 @@ import {
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
 import { apiFetcher } from '../../../lib/networking/networkHelpers'
 import { useGetIntegrationQuery } from '../../../lib/networking/queries/useGetIntegrationQuery'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type FieldType = {
@@ -26,8 +25,6 @@ type FieldType = {
 }
 
 export default function Notion(): JSX.Element {
-  applyStoredTheme()
-
   const router = useRouter()
   const { integration: notion, revalidate } = useGetIntegrationQuery('notion')
 
