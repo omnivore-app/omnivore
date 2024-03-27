@@ -23,6 +23,8 @@ struct LibraryTabView: View {
 
   @State var isEditMode: EditMode = .inactive
   @State var showExpandedAudioPlayer = false
+  @State var presentPushContainer = true
+  @State var pushLinkRequest: String?
 
   private let syncManager = LibrarySyncManager()
 
@@ -77,12 +79,33 @@ struct LibraryTabView: View {
   var body: some View {
     VStack(spacing: 0) {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
-        OperationToast(operationMessage: $operationMessage, 
+        OperationToast(operationMessage: $operationMessage,
                        showOperationToast: $showOperationToast,
                        operationStatus: $operationStatus)
       } label: {
         EmptyView()
       }.buttonStyle(.plain)
+
+      if let pushLinkRequest = pushLinkRequest {
+        PresentationLink(
+          transition: PresentationLinkTransition.slide(
+            options: PresentationLinkTransition.SlideTransitionOptions(
+              edge: .trailing,
+              options: PresentationLinkTransition.Options(
+                modalPresentationCapturesStatusBarAppearance: true,
+                preferredPresentationBackgroundColor: ThemeManager.currentBgColor
+              ))),
+          isPresented: $presentPushContainer,
+          destination: {
+            WebReaderLoadingContainer(requestID: pushLinkRequest)
+              .background(ThemeManager.currentBgColor)
+              .environmentObject(dataService)
+              .environmentObject(audioController)
+          }, label: {
+            EmptyView()
+          }
+        )
+      }
 
       TabView(selection: $selectedTab) {
         if !hideFollowingTab {
@@ -145,15 +168,9 @@ struct LibraryTabView: View {
       }
     }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushLibraryItem"))) { notification in
-      guard let folder = notification.userInfo?["libraryItemId"] as? String else { return }
       guard let libraryItemId = notification.userInfo?["libraryItemId"] as? String else { return }
-      if folder == "following" {
-        selectedTab = "following"
-        followingViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
-      } else {
-        selectedTab = "inbox"
-        inboxViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: libraryItemId))
-      }
+      pushLinkRequest = libraryItemId
+      presentPushContainer = true
     }
     .onOpenURL { url in
       inboxViewModel.linkRequest = nil

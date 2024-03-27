@@ -201,4 +201,5 @@ public enum LocalText {
   public static let dismissButton = localText(key: "dismissButton")
   public static let errorNetwork = localText(key: "errorNetwork")
   public static let documentationGeneric = localText(key: "documentationGeneric")
+  public static let readerSettingsGeneric = localText(key: "readerSettingsGeneric")  
 }

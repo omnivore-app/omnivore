@@ -35,6 +35,7 @@ public enum UserDefaultKey: String {
   case hideFeatureSection
   case hideSystemLabels
   case justifyText
+  case openExternalLinksIn
   case prefersHideStatusBarInReader
   case visibleShareExtensionTab
 }
