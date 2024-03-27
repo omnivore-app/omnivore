@@ -360,7 +360,7 @@ export const processYouTubeVideo = async (
     const videoId = videoURL.searchParams.get('v')
 
     if (!videoId) {
-      logger.warn('no video id for supplied youtube url', {
+      logger.warning('no video id for supplied youtube url', {
         url: libraryItem.originalUrl,
       })
       return
@@ -370,7 +370,7 @@ export const processYouTubeVideo = async (
     const youtube = new YouTubeClient()
     const video = await youtube.getVideo(videoId)
     if (!video) {
-      logger.warn('no video found for youtube url', {
+      logger.warning('no video found for youtube url', {
         url: libraryItem.originalUrl,
       })
       return
@@ -427,11 +427,15 @@ export const processYouTubeVideo = async (
         jobData.userId
       )
       if (!updated) {
-        logger.warn('could not updated library item')
+        logger.warning('could not updated library item')
       }
     }
   } catch (err) {
-    logger.warn('error getting youtube metadata: ', { err, jobData, videoURL })
+    logger.warning('error getting youtube metadata: ', {
+      err,
+      jobData,
+      videoURL,
+    })
   }
 }
 
@@ -470,7 +474,7 @@ export const processYouTubeTranscript = async (
     const youtube = new YouTubeClient()
     const video = await youtube.getVideo(jobData.videoId)
     if (!video) {
-      logger.warn('no video found for youtube url', {
+      logger.warning('no video found for youtube url', {
         url: libraryItem.originalUrl,
       })
       return
@@ -517,10 +521,10 @@ export const processYouTubeTranscript = async (
         jobData.userId
       )
       if (!updated) {
-        logger.warn('could not updated library item')
+        logger.warning('could not updated library item')
       }
     }
   } catch (err) {
-    logger.warn('error getting youtube transcript: ', { err, jobData })
+    logger.warning('error getting youtube transcript: ', { err, jobData })
   }
 }
