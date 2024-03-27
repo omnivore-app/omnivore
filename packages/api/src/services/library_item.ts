@@ -32,16 +32,19 @@ import { parseSearchQuery } from '../utils/search'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
-const columnToDelete = [
+const columnsToDelete = [
   'user',
   'uploadFile',
   'previewContentType',
   'links',
   'textContentHash',
+  'readableContent',
+  'originalContent',
+  'feedContent',
 ] as const
-type ColumnToDeleteType = typeof columnToDelete[number]
+type ColumnsToDeleteType = typeof columnsToDelete[number]
 type ItemBaseEvent = Merge<
-  Omit<DeepPartial<LibraryItem>, ColumnToDeleteType>,
+  Omit<DeepPartial<LibraryItem>, ColumnsToDeleteType>,
   {
     labels?: LabelEvent[]
     highlights?: HighlightEvent[]
@@ -889,17 +892,18 @@ export const updateLibraryItem = async (
   }
 
   if (libraryItem.state === LibraryItemState.Succeeded) {
-    const cleanedData = deepDelete(updatedLibraryItem, columnToDelete)
+    const data = deepDelete(updatedLibraryItem, columnsToDelete)
     // send create event if the item was created
-    await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, cleanedData, userId)
+    await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
     return updatedLibraryItem
   }
 
+  const data = deepDelete(libraryItem, columnsToDelete)
   await pubsub.entityUpdated<ItemEvent>(
     EntityType.ITEM,
     {
-      ...libraryItem,
+      ...data,
       id,
     } as ItemEvent,
     userId
@@ -1057,8 +1061,8 @@ export const createOrUpdateLibraryItem = async (
     return newLibraryItem
   }
 
-  const cleanedData = deepDelete(newLibraryItem, columnToDelete)
-  await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, cleanedData, userId)
+  const data = deepDelete(newLibraryItem, columnsToDelete)
+  await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
   return newLibraryItem
 }
@@ -1575,7 +1579,7 @@ export const filterItemEvents = (
         }
       }
       default:
-        throw new Error(`Unexpected field: ${field.name}`)
+        throw new RequiresSearchQueryError()
     }
   }
 

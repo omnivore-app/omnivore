@@ -13,10 +13,10 @@ import { enqueueUpdateHighlight } from '../utils/createTask'
 import { deepDelete } from '../utils/helpers'
 import { ItemEvent } from './library_item'
 
-const columnToDelete = ['user', 'sharedAt', 'libraryItem'] as const
-type ColumnToDeleteType = typeof columnToDelete[number]
+const columnsToDelete = ['user', 'sharedAt', 'libraryItem'] as const
+type ColumnsToDeleteType = typeof columnsToDelete[number]
 export type HighlightEvent = Merge<
-  Omit<DeepPartial<Highlight>, ColumnToDeleteType>,
+  Omit<DeepPartial<Highlight>, ColumnsToDeleteType>,
   EntityEvent
 >
 
@@ -63,12 +63,12 @@ export const createHighlight = async (
     userId
   )
 
-  const cleanData = deepDelete(newHighlight, columnToDelete)
+  const data = deepDelete(newHighlight, columnsToDelete)
   await pubsub.entityCreated<ItemEvent>(
     EntityType.HIGHLIGHT,
     {
       id: libraryItemId,
-      highlights: [cleanData],
+      highlights: [data],
       // for Readwise
       originalUrl: newHighlight.libraryItem.originalUrl,
       title: newHighlight.libraryItem.title,
