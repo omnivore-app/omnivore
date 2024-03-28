@@ -7,7 +7,7 @@ import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
-const MAX_YOUTUBE_TRANSCRIPT_USERS = 100
+const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
 const MAX_NOTION_USERS = 1000
 
 export enum FeatureName {
