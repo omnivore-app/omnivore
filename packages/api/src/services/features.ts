@@ -8,6 +8,7 @@ import { logger } from '../utils/logger'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 100
+const MAX_NOTION_USERS = 1000
 
 export enum FeatureName {
   AISummaries = 'ai-summaries',
@@ -38,7 +39,7 @@ export const optInFeature = async (
         MAX_YOUTUBE_TRANSCRIPT_USERS
       )
     case FeatureName.Notion:
-      return optInLimitedFeature(FeatureName.Notion, uid, 1)
+      return optInLimitedFeature(FeatureName.Notion, uid, MAX_NOTION_USERS)
     default:
       return undefined
   }
