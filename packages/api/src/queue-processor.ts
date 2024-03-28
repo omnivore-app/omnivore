@@ -215,7 +215,6 @@ const main = async () => {
     let output = ''
     const metrics: JobType[] = ['active', 'failed', 'completed', 'prioritized']
     const counts = await queue.getJobCounts(...metrics)
-    console.log('counts: ', counts)
 
     metrics.forEach((metric, idx) => {
       output += `# TYPE omnivore_queue_messages_${metric} gauge\n`
@@ -240,6 +239,18 @@ const main = async () => {
         output += `# TYPE omnivore_read_position_messages gauge\n`
         output += `omnivore_read_position_messages{} ${batch.length}\n`
       }
+    }
+
+    // Export the age of the oldest prioritized job in the queue
+    const oldestJobs = await queue.getJobs(['prioritized'], 0, 1, true)
+    if (oldestJobs.length > 0) {
+      const currentTime = Date.now()
+      const ageInSeconds = (currentTime - oldestJobs[0].timestamp) / 1000
+      output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
+      output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${ageInSeconds}\n`
+    } else {
+      output += `# TYPE omnivore_queue_messages_oldest_job_age_seconds gauge\n`
+      output += `omnivore_queue_messages_oldest_job_age_seconds{queue="${QUEUE_NAME}"} ${0}\n`
     }
 
     res.status(200).setHeader('Content-Type', 'text/plain').send(output)
