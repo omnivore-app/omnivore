@@ -3,7 +3,6 @@ import express from 'express'
 import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
-import { FeatureName, findFeatureByName } from './services/features'
 import {
   enqueueExportItem,
   enqueueProcessYouTubeVideo,
@@ -87,12 +86,12 @@ export const createPubSubClient = (): PubsubClient => {
       })
 
       if (type === EntityType.PAGE) {
-        if (await findFeatureByName(FeatureName.AISummaries, userId)) {
-          // await enqueueAISummarizeJob({
-          //   userId,
-          //   libraryItemId,
-          // })
-        }
+        // if (await findGrantedFeatureByName(FeatureName.AISummaries, userId)) {
+        // await enqueueAISummarizeJob({
+        //   userId,
+        //   libraryItemId,
+        // })
+        // }
 
         const isYoutubeVideo = (data: any): data is { originalUrl: string } => {
           return 'originalUrl' in data
