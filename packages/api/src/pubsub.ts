@@ -86,22 +86,24 @@ export const createPubSubClient = (): PubsubClient => {
         data,
       })
 
-      if (await findFeatureByName(FeatureName.AISummaries, userId)) {
-        // await enqueueAISummarizeJob({
-        //   userId,
-        //   libraryItemId,
-        // })
-      }
+      if (type === EntityType.PAGE) {
+        if (await findFeatureByName(FeatureName.AISummaries, userId)) {
+          // await enqueueAISummarizeJob({
+          //   userId,
+          //   libraryItemId,
+          // })
+        }
 
-      const isYoutubeVideo = (data: any): data is { originalUrl: string } => {
-        return 'originalUrl' in data
-      }
+        const isYoutubeVideo = (data: any): data is { originalUrl: string } => {
+          return 'originalUrl' in data
+        }
 
-      if (isYoutubeVideo(data) && isYouTubeVideoURL(data['originalUrl'])) {
-        await enqueueProcessYouTubeVideo({
-          userId,
-          libraryItemId,
-        })
+        if (isYoutubeVideo(data) && isYouTubeVideoURL(data['originalUrl'])) {
+          await enqueueProcessYouTubeVideo({
+            userId,
+            libraryItemId,
+          })
+        }
       }
     },
     entityUpdated: async <T extends Record<string, any>>(
