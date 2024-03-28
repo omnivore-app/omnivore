@@ -156,7 +156,9 @@ export const cacheUser = async (user: User) => {
   try {
     await redisDataSource.redisClient?.set(
       `user:${user.id}`,
-      JSON.stringify(user)
+      JSON.stringify(user),
+      'EX',
+      60 * 60 * 24 // 24 hours
     )
   } catch (error) {
     logger.error('Failed to cache user', error)
