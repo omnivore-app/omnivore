@@ -1,21 +1,19 @@
-import { logger } from '../utils/logger'
+import { Storage } from '@google-cloud/storage'
+import { PromptTemplate } from '@langchain/core/prompts'
+import { OpenAI } from '@langchain/openai'
+import { parseHTML } from 'linkedom'
+import showdown from 'showdown'
+import * as stream from 'stream'
+import { Chapter, Client as YouTubeClient } from 'youtubei'
+import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { env } from '../env'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { LibraryItem, LibraryItemState } from '../entity/library_item'
-
-import { Chapter, Client as YouTubeClient } from 'youtubei'
-import showdown from 'showdown'
-import { parseHTML } from 'linkedom'
-import { parsePreparedContent } from '../utils/parser'
-import { OpenAI } from '@langchain/openai'
-import { PromptTemplate } from '@langchain/core/prompts'
+import { FeatureName, findGrantedFeatureByName } from '../services/features'
 import { enqueueProcessYouTubeTranscript } from '../utils/createTask'
-import { env } from '../env'
-import * as stream from 'stream'
-
-import { Storage } from '@google-cloud/storage'
 import { stringToHash } from '../utils/helpers'
-import { FeatureName, findFeatureByName } from '../services/features'
+import { logger } from '../utils/logger'
+import { parsePreparedContent } from '../utils/parser'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -394,7 +392,10 @@ export const processYouTubeVideo = async (
     }
 
     if (
-      await findFeatureByName(FeatureName.YouTubeTranscripts, jobData.userId)
+      await findGrantedFeatureByName(
+        FeatureName.YouTubeTranscripts,
+        jobData.userId
+      )
     ) {
       if ('getTranscript' in video && duration > 0 && duration < 1801) {
         // If the video has a transcript available, put a placehold in and

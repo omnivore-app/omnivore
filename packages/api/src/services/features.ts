@@ -132,13 +132,14 @@ export const findUserFeatures = async (userId: string): Promise<string[]> => {
   ).map((feature) => feature.name)
 }
 
-export const findFeatureByName = async (
+export const findGrantedFeatureByName = async (
   name: FeatureName,
   userId: string
 ): Promise<Feature | null> => {
-  return await getRepository(Feature).findOneBy({
+  return getRepository(Feature).findOneBy({
     name,
     user: { id: userId },
+    grantedAt: Not(IsNull()),
   })
 }
 
