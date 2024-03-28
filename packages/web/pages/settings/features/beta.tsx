@@ -44,11 +44,13 @@ export default function Account(): JSX.Element {
   )
 
   const hasYouTube = useMemo(() => {
-    return userHasFeature(viewerData?.me, 'youtube-transcripts')
+    return viewerData?.me?.featureList?.some(
+      (f) => f.name === 'youtube-transcripts'
+    )
   }, [viewerData])
 
   const hasNotion = useMemo(() => {
-    return userHasFeature(viewerData?.me, 'notion')
+    return viewerData?.me?.featureList?.some((f) => f.name === 'notion')
   }, [viewerData])
 
   applyStoredTheme()
@@ -88,7 +90,7 @@ export default function Account(): JSX.Element {
             <StyledLabel>Enabled beta features</StyledLabel>
             {!showSpinner ? (
               <>
-                {viewerData?.me?.features.map((feature) => {
+                {viewerData?.me?.featureList.map((feature) => {
                   return (
                     <StyledText
                       key={`feature-${feature}`}
@@ -102,10 +104,14 @@ export default function Account(): JSX.Element {
                     >
                       <input
                         type="checkbox"
-                        checked={true}
+                        checked={userHasFeature(viewerData?.me, feature.name)}
                         disabled={true}
                       ></input>
-                      {feature}
+                      {`${feature.name}${
+                        userHasFeature(viewerData?.me, feature.name)
+                          ? ''
+                          : ' - Requested'
+                      }`}
                     </StyledText>
                   )
                 })}

@@ -37,7 +37,11 @@ export async function optInFeature(
       input,
     })
     const output = data as Response | undefined
-    if (!output || !output.optInFeature.feature) {
+    if (
+      !output ||
+      !output.optInFeature.feature ||
+      !output.optInFeature.feature.grantedAt
+    ) {
       return false
     }
     return true
