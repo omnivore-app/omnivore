@@ -42,11 +42,11 @@ import {
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
 import { sendVerificationEmail } from '../../services/send_emails'
-import { softDeleteUser } from '../../services/user'
+import { cacheUser, getCachedUser, softDeleteUser } from '../../services/user'
+import { authorized } from '../../utils/gql-utils'
 import { userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
 import { WithDataSourcesContext } from '../types'
-import { authorized } from '../../utils/gql-utils'
 
 export const updateUserResolver = authorized<
   UpdateUserSuccess,
@@ -82,6 +82,8 @@ export const updateUserResolver = authorized<
       },
     })
   )
+
+  await cacheUser(updatedUser)
 
   return { user: userDataToUser(updatedUser) }
 })
@@ -139,6 +141,8 @@ export const updateUserProfileResolver = authorized<
       },
     })
   )
+
+  await cacheUser(updatedUser)
 
   return { user: userDataToUser(updatedUser) }
 })
@@ -255,9 +259,14 @@ export const getMeUserResolver: ResolverFn<
       return undefined
     }
 
-    const user = await userRepository.findById(claims.uid)
+    let user = await getCachedUser(claims.uid)
     if (!user) {
-      return undefined
+      user = await userRepository.findById(claims.uid)
+      if (!user) {
+        return undefined
+      }
+
+      await cacheUser(user)
     }
 
     return userDataToUser(user)
@@ -271,7 +280,7 @@ export const getUserResolver: ResolverFn<
   unknown,
   WithDataSourcesContext,
   QueryUserArgs
-> = async (_obj, { userId: id, username }, { uid }) => {
+> = async (_obj, { userId: id, username }) => {
   if (!(id || username)) {
     return { errorCodes: [UserErrorCode.BadRequest] }
   }
