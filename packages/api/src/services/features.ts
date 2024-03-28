@@ -7,7 +7,8 @@ import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
 const MAX_ULTRA_REALISTIC_USERS = 1500
-const MAX_YOUTUBE_TRANSCRIPT_USERS = 100
+const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
+const MAX_NOTION_USERS = 1000
 
 export enum FeatureName {
   AISummaries = 'ai-summaries',
@@ -38,7 +39,7 @@ export const optInFeature = async (
         MAX_YOUTUBE_TRANSCRIPT_USERS
       )
     case FeatureName.Notion:
-      return optInLimitedFeature(FeatureName.Notion, uid, 1)
+      return optInLimitedFeature(FeatureName.Notion, uid, MAX_NOTION_USERS)
     default:
       return undefined
   }
@@ -121,23 +122,20 @@ export const signFeatureToken = (
   )
 }
 
-export const findUserFeatures = async (userId: string): Promise<string[]> => {
-  return (
-    await getRepository(Feature).find({
-      where: {
-        user: { id: userId },
-      },
-    })
-  ).map((feature) => feature.name)
+export const findUserFeatures = async (userId: string) => {
+  return getRepository(Feature).findBy({
+    user: { id: userId },
+  })
 }
 
-export const findFeatureByName = async (
+export const findGrantedFeatureByName = async (
   name: FeatureName,
   userId: string
 ): Promise<Feature | null> => {
-  return await getRepository(Feature).findOneBy({
+  return getRepository(Feature).findOneBy({
     name,
     user: { id: userId },
+    grantedAt: Not(IsNull()),
   })
 }
 

@@ -47,7 +47,7 @@ export const componentsForCachedReadingPositionKey = (
       libraryItemID,
     }
   } catch (error) {
-    logger.log('exception getting cache key components', { cacheKey, error })
+    logger.error('exception getting cache key components', { cacheKey, error })
   }
   return undefined
 }

@@ -879,6 +879,7 @@ export const updateLibraryItem = async (
         ...updatedLibraryItem,
         originalContent: undefined,
         readableContent: undefined,
+        feedContent: undefined,
       },
       userId,
       id
@@ -893,6 +894,7 @@ export const updateLibraryItem = async (
       ...libraryItem,
       originalContent: undefined,
       readableContent: undefined,
+      feedContent: undefined,
     },
     userId,
     id
@@ -1061,6 +1063,7 @@ export const createOrUpdateLibraryItem = async (
       ...newLibraryItem,
       originalContent: undefined,
       readableContent: undefined,
+      feedContent: undefined,
     },
     userId,
     newLibraryItem.id
@@ -1430,7 +1433,9 @@ export const filterItemEvents = (
         return labelsToTest.some((label) => {
           const hasWildcard = label.includes('*')
           if (hasWildcard) {
-            return labels?.some((l) => l.match(new RegExp(label, 'i')))
+            return labels?.some(
+              (l) => l.match(new RegExp(label.replace('*', '.*'), 'i')) // match wildcard
+            )
           }
 
           return labels?.some((l) => l.toLowerCase() === label)
@@ -1523,16 +1528,17 @@ export const filterItemEvents = (
         return event.id && ids.includes(event.id.toString())
       }
       case 'recommendedby': {
-        if (lowercasedValue === '*') {
-          // select all if * is provided
-          return event.recommenderNames && event.recommenderNames.length > 0
+        if (!event.recommenderNames) {
+          return false
         }
 
-        return (
-          event.recommenderNames &&
-          (event.recommenderNames as string[]).some(
-            (name) => name.toLowerCase() === lowercasedValue
-          )
+        if (lowercasedValue === '*') {
+          // select all if * is provided
+          return event.recommenderNames.length > 0
+        }
+
+        return (event.recommenderNames as string[]).some(
+          (name) => name.toLowerCase() === lowercasedValue
         )
       }
       case 'no':

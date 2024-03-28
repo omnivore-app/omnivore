@@ -6,6 +6,7 @@ import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { styled } from '../../../components/tokens/stitches.config'
+import { userHasFeature } from '../../../lib/featureFlag'
 import { optInFeature } from '../../../lib/networking/mutations/optIntoFeatureMutation'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
@@ -43,13 +44,13 @@ export default function Account(): JSX.Element {
   )
 
   const hasYouTube = useMemo(() => {
-    return (
-      (viewerData?.me?.features.indexOf('youtube-transcripts') ?? -1) !== -1
+    return viewerData?.me?.featureList?.some(
+      (f) => f.name === 'youtube-transcripts'
     )
   }, [viewerData])
 
   const hasNotion = useMemo(() => {
-    return (viewerData?.me?.features.indexOf('notion') ?? -1) !== -1
+    return viewerData?.me?.featureList?.some((f) => f.name === 'notion')
   }, [viewerData])
 
   applyStoredTheme()
@@ -89,7 +90,7 @@ export default function Account(): JSX.Element {
             <StyledLabel>Enabled beta features</StyledLabel>
             {!showSpinner ? (
               <>
-                {viewerData?.me?.features.map((feature) => {
+                {viewerData?.me?.featureList.map((feature) => {
                   return (
                     <StyledText
                       key={`feature-${feature}`}
@@ -103,10 +104,14 @@ export default function Account(): JSX.Element {
                     >
                       <input
                         type="checkbox"
-                        checked={true}
+                        checked={userHasFeature(viewerData?.me, feature.name)}
                         disabled={true}
                       ></input>
-                      {feature}
+                      {`${feature.name}${
+                        userHasFeature(viewerData?.me, feature.name)
+                          ? ''
+                          : ' - Requested'
+                      }`}
                     </StyledText>
                   )
                 })}

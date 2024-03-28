@@ -102,37 +102,52 @@ const flairIconForLabel = (label: Label): JSX.Element | undefined => {
   switch (label.name.toLocaleLowerCase()) {
     case 'favorite':
       return (
-        <SpanBox title="Favorite">
+        <FlairIcon title="Favorite">
           <FavoriteFlairIcon />
-        </SpanBox>
+        </FlairIcon>
       )
     case 'pinned':
       return (
-        <SpanBox title="Pinned">
+        <FlairIcon title="Pinned">
           <PinnedFlairIcon />
-        </SpanBox>
+        </FlairIcon>
       )
     case 'recommended':
       return (
-        <SpanBox title="Recommended">
+        <FlairIcon title="Recommended">
           <RecommendedFlairIcon />
-        </SpanBox>
+        </FlairIcon>
       )
     case 'newsletter':
       return (
-        <SpanBox title="Newsletter">
+        <FlairIcon title="Newsletter">
           <NewsletterFlairIcon />
-        </SpanBox>
+        </FlairIcon>
       )
     case 'rss':
     case 'feed':
       return (
-        <SpanBox title="Feed">
+        <FlairIcon title="Feed">
           <FeedFlairIcon />
-        </SpanBox>
+        </FlairIcon>
       )
   }
   return undefined
+}
+
+type FlairIconProps = {
+  title: string
+  children: React.ReactNode
+}
+
+export function FlairIcon(
+  props: FlairIconProps
+): JSX.Element {
+  return (
+    <SpanBox title={props.title} css={{ lineHeight: '1' }}>
+      {props.children}
+    </SpanBox>
+  )
 }
 
 export const siteName = (
@@ -171,7 +186,7 @@ export function LibraryItemMetadata(
   }, [props.item.highlights])
 
   return (
-    <HStack css={{ gap: '5px' }}>
+    <HStack css={{ gap: '5px', alignItems: 'center' }}>
       {props.item.labels?.map((label) => {
         return flairIconForLabel(label)
       })}

@@ -1,16 +1,17 @@
 import { gql } from 'graphql-request'
+import { Feature, featureFragment } from '../fragments/featureFragment'
 import { gqlFetcher } from '../networkHelpers'
 
 export interface OptInFeatureInput {
   name: string
 }
 
-export interface OptInFeatureSuccess {
-  feature: { id: string }
+export interface OptInFeatureResponse {
+  feature?: Feature
 }
 
 interface Response {
-  optInFeature: OptInFeatureSuccess
+  optInFeature: OptInFeatureResponse
 }
 
 export async function optInFeature(
@@ -21,7 +22,7 @@ export async function optInFeature(
       optInFeature(input: $input) {
         ... on OptInFeatureSuccess {
           feature {
-            id
+            ...FeatureFields
           }
         }
         ... on OptInFeatureError {
@@ -29,6 +30,7 @@ export async function optInFeature(
         }
       }
     }
+    ${featureFragment}
   `
   try {
     const data = await gqlFetcher(mutation, {
@@ -37,8 +39,8 @@ export async function optInFeature(
     const output = data as Response | undefined
     if (
       !output ||
-      !output.optInFeature ||
-      'errorCodes' in output?.optInFeature
+      !output.optInFeature.feature ||
+      !output.optInFeature.feature.grantedAt
     ) {
       return false
     }

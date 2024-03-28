@@ -259,7 +259,7 @@ export const createLabelAndRuleForGroup = async (
       },
     ],
     // add a condition to check if the page is created
-    filter: `event:created recommendedBy:"${groupName}"`,
+    filter: `recommendedBy:"${groupName}"`,
   })
 
   await Promise.all([addLabelPromise, sendNotificationPromise])
