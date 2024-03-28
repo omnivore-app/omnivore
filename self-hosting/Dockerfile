@@ -1,4 +1,4 @@
-FROM node:18.16-alpine as builder
+FROM node:18.16.1-alpine as builder
 
 WORKDIR /app
 
@@ -18,6 +18,7 @@ COPY /packages/content-handler/package.json ./packages/content-handler/package.j
 COPY /packages/db/package.json ./packages/db/package.json
 COPY /packages/liqe/package.json ./packages/liqe/package.json
 
+RUN yarn upgrade @npmcli/run-script@6.0.2   # https://github.com/omnivore-app/omnivore/issues/2640
 RUN yarn install --pure-lockfile
 
 COPY /packages/readabilityjs ./packages/readabilityjs
@@ -36,7 +37,7 @@ RUN rm -rf /app/packages/api/node_modules
 RUN rm -rf /app/node_modules
 RUN yarn install --pure-lockfile --production
 
-FROM node:18.16-alpine as runner
+FROM node:18.16.1-alpine as runner
 
 WORKDIR /app
 
