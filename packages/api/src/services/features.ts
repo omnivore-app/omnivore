@@ -3,6 +3,7 @@ import { DeepPartial, FindOptionsWhere, IsNull, Not } from 'typeorm'
 import { appDataSource } from '../data_source'
 import { Feature } from '../entity/feature'
 import { env } from '../env'
+import { redisDataSource } from '../redis_data_source'
 import { getRepository } from '../repository'
 import { logger } from '../utils/logger'
 
@@ -94,10 +95,15 @@ const optInLimitedFeature = async (
     }
 
     logger.info('opt-in record updated', result.generatedMaps)
+
+    await deleteCachedFeatures(uid)
+
     return { ...optInRecord, ...(result.generatedMaps[0] as Feature) }
   }
 
   logger.info('opted in', { uid, feature: optedInFeatures[0] })
+
+  await deleteCachedFeatures(uid)
 
   return optedInFeatures[0]
 }
@@ -151,4 +157,50 @@ export const createFeature = async (feature: DeepPartial<Feature>) => {
 
 export const createFeatures = async (features: DeepPartial<Feature>[]) => {
   return getRepository(Feature).save(features)
+}
+
+export const cacheFeatures = async (userId: string, features: Feature[]) => {
+  logger.info(`Caching features: ${userId}`)
+
+  try {
+    await redisDataSource.redisClient?.set(
+      `features:${userId}`,
+      JSON.stringify(features),
+      'EX',
+      60 * 60 * 24 // 24 hours
+    )
+  } catch (error) {
+    logger.error('Failed to cache features', error)
+  }
+}
+
+export const getCachedFeatures = async (
+  userId: string
+): Promise<Feature[] | null> => {
+  logger.info(`Getting features from cache: ${userId}`)
+
+  try {
+    const features = await redisDataSource.redisClient?.get(
+      `features:${userId}`
+    )
+    if (features) {
+      logger.info(`Found features from cache: ${userId}`)
+
+      return JSON.parse(features) as Feature[]
+    }
+  } catch (error) {
+    logger.error('Failed to get cached features', error)
+  }
+
+  return null
+}
+
+export const deleteCachedFeatures = async (userId: string) => {
+  logger.info(`Deleting cached features: ${userId}`)
+
+  try {
+    await redisDataSource.redisClient?.del(`features:${userId}`)
+  } catch (error) {
+    logger.error('Failed to delete cached features', error)
+  }
 }
