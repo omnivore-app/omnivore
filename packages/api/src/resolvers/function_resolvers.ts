@@ -376,7 +376,18 @@ export const functionResolvers = {
       if (!ctx.claims?.uid) {
         return undefined
       }
-      return findUserFeatures(ctx.claims.uid)
+      const userFeatures = await findUserFeatures(ctx.claims.uid)
+      return userFeatures.map((feature) => feature.name)
+    },
+    async featureList(
+      _: User,
+      __: Record<string, unknown>,
+      ctx: WithDataSourcesContext
+    ) {
+      if (!ctx.uid) {
+        return undefined
+      }
+      return findUserFeatures(ctx.uid)
     },
   },
   Article: {

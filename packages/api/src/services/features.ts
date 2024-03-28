@@ -122,14 +122,12 @@ export const signFeatureToken = (
   )
 }
 
-export const findUserFeatures = async (userId: string): Promise<string[]> => {
-  return (
-    await getRepository(Feature).find({
-      where: {
-        user: { id: userId },
-      },
-    })
-  ).map((feature) => feature.name)
+export const findUserFeatures = async (userId: string) => {
+  return getRepository(Feature).find({
+    where: {
+      user: { id: userId },
+    },
+  })
 }
 
 export const findGrantedFeatureByName = async (
