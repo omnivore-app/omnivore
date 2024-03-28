@@ -23,7 +23,11 @@ import {
   User,
 } from '../generated/graphql'
 import { getAISummary } from '../services/ai-summaries'
-import { findUserFeatures } from '../services/features'
+import {
+  cacheFeatures,
+  findUserFeatures,
+  getCachedFeatures,
+} from '../services/features'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
 import { findRecommendationsByLibraryItemId } from '../services/recommendation'
@@ -377,7 +381,14 @@ export const functionResolvers = {
         return undefined
       }
 
-      return findUserFeatures(ctx.claims.uid)
+      let features = await getCachedFeatures(ctx.claims.uid)
+      if (!features) {
+        features = await findUserFeatures(ctx.claims.uid)
+
+        await cacheFeatures(ctx.claims.uid, features)
+      }
+
+      return features
     },
     async features(
       user: User,
@@ -388,7 +399,14 @@ export const functionResolvers = {
         return undefined
       }
 
-      return (await findUserFeatures(ctx.claims.uid)).map((f) => f.name)
+      let features = await getCachedFeatures(ctx.claims.uid)
+      if (!features) {
+        features = await findUserFeatures(ctx.claims.uid)
+
+        await cacheFeatures(ctx.claims.uid, features)
+      }
+
+      return features.map((f) => f.name)
     },
   },
   Article: {
