@@ -89,7 +89,7 @@ const schema = gql`
     source: String
     intercomHash: String
     features: [String]
-    featureList: [Feature]
+    featureList: [Feature!]
   }
 
   type Profile {

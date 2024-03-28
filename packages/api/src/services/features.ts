@@ -123,10 +123,8 @@ export const signFeatureToken = (
 }
 
 export const findUserFeatures = async (userId: string) => {
-  return getRepository(Feature).find({
-    where: {
-      user: { id: userId },
-    },
+  return getRepository(Feature).findBy({
+    user: { id: userId },
   })
 }
 

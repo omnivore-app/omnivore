@@ -6,6 +6,7 @@ import { HStack, VStack } from '../../../components/elements/LayoutPrimitives'
 import { StyledText } from '../../../components/elements/StyledText'
 import { SettingsLayout } from '../../../components/templates/SettingsLayout'
 import { styled } from '../../../components/tokens/stitches.config'
+import { userHasFeature } from '../../../lib/featureFlag'
 import { optInFeature } from '../../../lib/networking/mutations/optIntoFeatureMutation'
 import { useGetViewerQuery } from '../../../lib/networking/queries/useGetViewerQuery'
 import { applyStoredTheme } from '../../../lib/themeUpdater'
@@ -43,13 +44,11 @@ export default function Account(): JSX.Element {
   )
 
   const hasYouTube = useMemo(() => {
-    return (
-      (viewerData?.me?.features.indexOf('youtube-transcripts') ?? -1) !== -1
-    )
+    return userHasFeature(viewerData?.me, 'youtube-transcripts')
   }, [viewerData])
 
   const hasNotion = useMemo(() => {
-    return (viewerData?.me?.features.indexOf('notion') ?? -1) !== -1
+    return userHasFeature(viewerData?.me, 'notion')
   }, [viewerData])
 
   applyStoredTheme()

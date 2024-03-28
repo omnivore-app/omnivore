@@ -7,5 +7,10 @@ export const userHasFeature = (
   if (!user) {
     return false
   }
-  return user.features.includes(feature)
+  return user.featureList.some(
+    (f) =>
+      f.name === feature &&
+      f.grantedAt &&
+      (!f.expiresAt || new Date(f.expiresAt) > new Date())
+  )
 }
