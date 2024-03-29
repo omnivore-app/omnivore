@@ -25,7 +25,8 @@
   func checkPushNotificationsStatus() {
     UNUserNotificationCenter.current().getNotificationSettings { settings in
       DispatchQueue.main.async {
-        self.desiredNotificationsEnabled = settings.alertSetting == UNNotificationSetting.enabled
+        let desired = UserDefaults.standard.bool(forKey: UserDefaultKey.notificationsEnabled.rawValue)
+        self.desiredNotificationsEnabled = desired && settings.alertSetting == UNNotificationSetting.enabled
       }
     }
   }
