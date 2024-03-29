@@ -107,32 +107,11 @@ export const createTranscriptHTML = async (
        {transcriptData}`
     )
     const chain = promptTemplate.pipe(llm)
+    const result = await chain.invoke({
+      transcriptData: transcript.map((item) => item.text).join(' '),
+    })
 
-    let transcriptChunkLength = 0
-    let transcriptChunk: TranscriptProperties[] = []
-    for (const item of transcript) {
-      if (transcriptChunkLength + item.text.length > 8000) {
-        const result = await chain.invoke({
-          transcriptData: transcriptChunk.map((item) => item.text).join(' '),
-        })
-
-        transcriptMarkdown += result
-
-        transcriptChunk = []
-        transcriptChunkLength = 0
-      }
-
-      transcriptChunk.push(item)
-      transcriptChunkLength += item.text.length
-    }
-
-    if (transcriptChunk.length > 0) {
-      const result = await chain.invoke({
-        transcriptData: transcriptChunk.map((item) => item.text).join(' '),
-      })
-
-      transcriptMarkdown += result
-    }
+    transcriptMarkdown = result
   }
 
   // If the LLM didn't give us enough data fallback to the raw template
@@ -364,6 +343,8 @@ export const processYouTubeVideo = async (
       return
     }
 
+    console.log('fetching video id: ', videoId)
+
     let needsUpdate = false
     const youtube = new YouTubeClient()
     const video = await youtube.getVideo(videoId)
@@ -432,6 +413,7 @@ export const processYouTubeVideo = async (
       }
     }
   } catch (err) {
+    console.log('error: ', err)
     logger.warning('error getting youtube metadata: ', {
       err,
       jobData,
