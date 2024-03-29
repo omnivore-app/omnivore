@@ -45,6 +45,8 @@ data class ArticleContent(
     }
 }
 
+
+
 data class WebReaderContent(
     val preferences: WebPreferences,
     val item: SavedItem,
@@ -86,7 +88,7 @@ data class WebReaderContent(
         display: inline-block;
         height: 100vh !important;
         padding-top: 20px;
-        padding-bottom: 50px;
+        padding-bottom: 20px;
         column-width: 100vw;
         column-gap: 0px;
         bottom: 0px;
@@ -126,34 +128,43 @@ data class WebReaderContent(
         const container = document.getElementById("root");
         const paginationElement = document.getElementById("pagination");
         const initialReadingProgress = ${item.readingProgress}; // This should be a numeric value
-        let currentPage = 1; // Define currentPage in the global scope
+        let currentPage; // Define currentPage in the global scope
+        let initialPage; // Define initialPage in the global scope
+        let totalPages; // Define totalPages in the global scope
+        let averagedScrollingWidth;
+        let currentScrollPosition = container.scrollLeft;
+        let totalWidth;
+
+        
+        function calculatePagination() {
+          const containerWidth = container.offsetWidth;
+          totalWidth = container.scrollWidth - containerWidth;
+          console.log("totalWidth:", totalWidth);
+          currentScrollPosition = container.scrollLeft;
+          totalPages = Math.round((totalWidth + containerWidth) / containerWidth);
+          averagedScrollingWidth = (totalWidth + window.innerWidth) / totalPages;
+          console.log("averagedScrollingWidth:", averagedScrollingWidth);
+          currentPage = Math.round((container.scrollLeft + averagedScrollingWidth) / averagedScrollingWidth);
+          paginationElement.textContent = currentPage + "/" + totalPages;
+         }
         
         function scrollToInitialPage() {
-          const containerWidth = container.offsetWidth;
-          const totalWidth = container.scrollWidth - containerWidth;
-          const totalPages = Math.ceil((totalWidth + containerWidth) / containerWidth);
+        
           // Calculate the initial page based on the initialReadingProgress
-          const initialPage = Math.ceil((initialReadingProgress / 100) * totalPages);
+          initialPage = Math.ceil((initialReadingProgress / 100) * totalPages);
           // Scroll to the initial page
-          container.scrollLeft = (initialPage - 1) * containerWidth;
-          // Set the currentPage to the initialPage
-          currentPage = initialPage;
-          // Update the pagination indicator
-          paginationElement.textContent = currentPage + "/" + totalPages;
+          container.scrollLeft = (initialPage - 1) * averagedScrollingWidth;
+          calculatePagination()
+          setToolbar(false);
         }
         
-        function calculateAndLogReadingProgressWithDelay() {
-          setTimeout(() => {
+        function calculateAndLogReadingProgress() {
             // Calculate the reading progress from the leftmost position
-            const currentScrollPosition = container.scrollLeft;
-            const containerWidth = container.offsetWidth;
-            const totalWidth = container.scrollWidth - containerWidth;
-            const totalPages = Math.ceil((totalWidth + containerWidth) / containerWidth);
-            currentPage = Math.ceil((currentScrollPosition + containerWidth) / containerWidth);
+            currentScrollPosition = container.scrollLeft;
             const newReadingProgress = Math.round((currentScrollPosition / totalWidth) * 100);
+            console.log("currentScrollPosition:", container.scrollLeft);
             console.log("readingProgressDB:", ${item.readingProgress});
             console.log("Local Reading Progress:", newReadingProgress);
-            console.log("Page:",currentPage,"of",totalPages);
             
             function updateReadingProgressOnAndroid(articleId, readingProgressPercent, readingProgressTopPercent, readingAnchorIndex) {
                 // Check if the Android interface is available
@@ -185,27 +196,68 @@ data class WebReaderContent(
         
         updateReadingProgressOnAndroid("${item.savedItemId}", newReadingProgress,0,0); 
         
-        // Update the pagination indicator
-        paginationElement.textContent = currentPage + "/" + totalPages;
-          }, 200); // Adjust the timeout duration as needed
         }
         
-        function scrollForward() {
-          // Call the reading progress function
-          calculateAndLogReadingProgressWithDelay();
-          container.scrollLeft += window.innerWidth;
-        }
+function scrollForward() {
+    calculatePagination();
+    // Check if the user is already at the rightmost position
+    if (container.scrollLeft < totalWidth - averagedScrollingWidth) {
+        // Scroll forward
+       
+        container.scrollLeft += averagedScrollingWidth;
+        console.log("scrolling by:", averagedScrollingWidth);
+        calculatePagination();
+
+        setToolbar(false);
+    } else {
+        // Set the toolbar when trying to scroll beyond the rightmost position
+        setToolbar(true);
+    }
+    calculateAndLogReadingProgress();
+}
+
+function scrollBack() {
+ calculatePagination();
+    // Check if the user is already at the leftmost position
+    if (container.scrollLeft > 0) {
+        // Scroll back
+        container.scrollLeft -= averagedScrollingWidth;
+        calculatePagination();
+
+        setToolbar(currentPage === 1);
+        // Set the toolbar based on the new page position
         
-        function scrollBack() {
-          // Call the reading progress function
-          calculateAndLogReadingProgressWithDelay();
-          container.scrollLeft -= window.innerWidth;
-        }
-        
+    } else {
+        // Set the toolbar when trying to scroll beyond the leftmost position
+        setToolbar(true);
+    }
+    calculateAndLogReadingProgress();
+}
+
+function setToolbar(showToolbar) {
+  // Show or hide the toolbar based on the boolean input and page position
+    if (showToolbar || currentPage === 1) {
+        updateToolbarHeightFromJS(100);
+    } else {
+        updateToolbarHeightFromJS(0);
+    }
+}
+
+
+
+          function updateToolbarHeightFromJS(height) {
+    if (typeof ToolbarHeightInterface !== 'undefined') {
+        ToolbarHeightInterface.updateToolbarHeight(height);
+    }
+}     
+     
         // Initial call to set up pagination and scroll to the initial page
         document.addEventListener("DOMContentLoaded", function() {
+          calculatePagination()
           scrollToInitialPage();
-          calculateAndLogReadingProgressWithDelay();
+          //calculateAndLogReadingProgress();
+
+          
 //todo: get language from the article object
           console.log("slug:", "${item.slug}");
           console.log("Language:", "${item.language}"); 
@@ -223,21 +275,27 @@ function handleTap(e) {
   const tapDuration = new Date().getTime() - tapStartTime;
 
   // Only handle short taps
-  if(tapDuration > 100) return; 
+  if(tapDuration > 200) return; 
 
   // Get tap position
   const tapX = e.changedTouches[0].clientX;
+  const tapY = e.changedTouches[0].clientY;
 
+
+// Check vertical position
+if (tapY < document.body.clientHeight * 0.2) {
+  // Tap is in the top 10% of the screen
+setToolbar(true);
+} else {
   // Check horizontal position
-  if(tapX < document.body.clientWidth / 2) {
+  if (tapX < document.body.clientWidth / 2) {
     // Handle left side tap
     scrollBack();
-
   } else {
     // Handle right side tap
     scrollForward();
-  
   }
+}
 
 }
 
@@ -249,7 +307,6 @@ document.addEventListener('touchstart', e => {
   tapStartTime = new Date().getTime();
 }); 
 
-// Keep existing swipe code as is
 
 
     
@@ -303,7 +360,7 @@ document.addEventListener('touchstart', e => {
             },
             false
           );
-    </script>
+              </script>
 
     <script type="text/javascript">
       window.omnivoreEnv = {

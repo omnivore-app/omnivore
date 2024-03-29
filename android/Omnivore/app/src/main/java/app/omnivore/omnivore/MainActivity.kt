@@ -55,12 +55,14 @@ import android.widget.Toast
             }
             return super.onKeyDown(keyCode, event)
         }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        //window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
 
 
         val loginViewModel: LoginViewModel by viewModels()

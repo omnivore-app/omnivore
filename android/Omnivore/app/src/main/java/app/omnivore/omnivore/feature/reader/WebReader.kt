@@ -38,6 +38,9 @@ fun WebReader(
             UUID.randomUUID()
         )
     val isDarkMode = isSystemInDarkTheme()
+    //val isFullscreen by webReaderViewModel.isFullscreenLiveData.observeAsState(false)
+
+
 
     WebView.setWebContentsDebuggingEnabled(true)
 
@@ -46,6 +49,13 @@ fun WebReader(
         AndroidView(factory = {
             OmnivoreWebView(it).apply {
                 systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+//                systemUiVisibility = if (isFullscreen) {
+//                    View.SYSTEM_UI_FLAG_FULLSCREEN
+//                    Log.d("Fullscreen Webreader",  isFullscreen.toString())
+//                } else {
+//                    View.SYSTEM_UI_FLAG_VISIBLE
+//                }
+
                 viewModel = webReaderViewModel
 
                 layoutParams = ViewGroup.LayoutParams(
@@ -119,6 +129,8 @@ fun WebReader(
                         return handled ?: super.shouldOverrideUrlLoading(view, request)
                     }
                 }
+                val toolbarHeightInterface = ToolbarHeightInterface(webReaderViewModel)
+                addJavascriptInterface(toolbarHeightInterface, "ToolbarHeightInterface")
 
                 val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
                     webReaderViewModel.hasTappedExistingHighlight = false
@@ -183,7 +195,6 @@ fun WebReader(
                                 // Trigger the scrollContent function for scroll forward
                                 val script = "scrollForward();"
                                 evaluateJavascript(script, null)
-                                systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
                                 return@setOnKeyListener true
                             }
                         }
@@ -362,6 +373,13 @@ class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
     @JavascriptInterface
     fun handleIdentifiableMessage(actionID: String, jsonString: String) {
         messageHandler(actionID, jsonString)
+    }
+}
+
+class ToolbarHeightInterface(private val viewModel: WebReaderViewModel) {
+    @JavascriptInterface
+    fun updateToolbarHeight(height: Float) {
+        viewModel.currentToolbarHeightLiveData.postValue(height)
     }
 }
 
