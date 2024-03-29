@@ -343,8 +343,6 @@ export const processYouTubeVideo = async (
       return
     }
 
-    console.log('fetching video id: ', videoId)
-
     let needsUpdate = false
     const youtube = new YouTubeClient()
     const video = await youtube.getVideo(videoId)
@@ -413,7 +411,6 @@ export const processYouTubeVideo = async (
       }
     }
   } catch (err) {
-    console.log('error: ', err)
     logger.warning('error getting youtube metadata: ', {
       err,
       jobData,
