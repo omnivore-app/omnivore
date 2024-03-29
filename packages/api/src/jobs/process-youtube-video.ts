@@ -96,7 +96,7 @@ export const createTranscriptHTML = async (
     }
 
     const llm = new OpenAI({
-      modelName: 'gpt-4',
+      modelName: 'gpt-4-0125-preview',
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
