@@ -96,7 +96,7 @@ export const createTranscriptHTML = async (
     }
 
     const llm = new OpenAI({
-      modelName: 'gpt-4',
+      modelName: 'gpt-4-0125-preview',
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
@@ -107,32 +107,11 @@ export const createTranscriptHTML = async (
        {transcriptData}`
     )
     const chain = promptTemplate.pipe(llm)
+    const result = await chain.invoke({
+      transcriptData: transcript.map((item) => item.text).join(' '),
+    })
 
-    let transcriptChunkLength = 0
-    let transcriptChunk: TranscriptProperties[] = []
-    for (const item of transcript) {
-      if (transcriptChunkLength + item.text.length > 8000) {
-        const result = await chain.invoke({
-          transcriptData: transcriptChunk.map((item) => item.text).join(' '),
-        })
-
-        transcriptMarkdown += result
-
-        transcriptChunk = []
-        transcriptChunkLength = 0
-      }
-
-      transcriptChunk.push(item)
-      transcriptChunkLength += item.text.length
-    }
-
-    if (transcriptChunk.length > 0) {
-      const result = await chain.invoke({
-        transcriptData: transcriptChunk.map((item) => item.text).join(' '),
-      })
-
-      transcriptMarkdown += result
-    }
+    transcriptMarkdown = result
   }
 
   // If the LLM didn't give us enough data fallback to the raw template
