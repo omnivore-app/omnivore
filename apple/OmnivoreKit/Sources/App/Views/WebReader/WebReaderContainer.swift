@@ -405,10 +405,14 @@ struct WebReaderContainerView: View {
             anchorIndex: Int(item.readingProgressAnchor),
             force: false
           )
-          Task {
-            await audioController.preload(itemIDs: [item.unwrappedID])
-          }
           viewModel.trackReadEvent(item: item)
+
+          // Wait 1.5s while loading the reader before attempting to preload the speech file
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            Task {
+              await audioController.preload(itemIDs: [item.unwrappedID])
+            }
+          }
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
                             titleVisibility: .visible) {

@@ -18,6 +18,7 @@ import Views
     guard let objectID = try? await dataService.loadItemContentUsingRequestID(username: username,
                                                                               requestID: requestID)
     else {
+      errorMessage = "Item is no longer available"
       return
     }
     item = dataService.viewContext.object(with: objectID) as? Models.LibraryItem
@@ -71,7 +72,19 @@ public struct WebReaderLoadingContainer: View {
           .onAppear { viewModel.trackReadEvent() }
       }
     } else if let errorMessage = viewModel.errorMessage {
-      Text(errorMessage)
+      NavigationView {
+        VStack(spacing: 15) {
+          Text(errorMessage)
+          Button(action: {
+            dismiss()
+          }, label: {
+            Text("Dismiss")
+          })
+        }
+      }
+#if os(iOS)
+  .navigationViewStyle(.stack)
+#endif
     } else {
       ProgressView()
         .task {
