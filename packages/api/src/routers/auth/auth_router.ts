@@ -47,6 +47,7 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
 
 export interface SignupRequest {
   email: string
@@ -55,6 +56,7 @@ export interface SignupRequest {
   username: string
   bio?: string
   pictureUrl?: string
+  recaptchaToken?: string
 }
 
 const signToken = promisify(jwt.sign)
@@ -499,7 +501,24 @@ export function authRouter() {
           `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
         )
       }
-      const { email, password, name, username, bio, pictureUrl } = req.body
+      const {
+        email,
+        password,
+        name,
+        username,
+        bio,
+        pictureUrl,
+        recaptchaToken,
+      } = req.body
+
+      if (recaptchaToken) {
+        const verified = await verifyChallengeRecaptcha(recaptchaToken)
+        if (!verified) {
+          return res.redirect(
+            `${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`
+          )
+        }
+      }
 
       function isURLPresent(input: string): boolean {
         const urlRegex = /(https?:\/\/[^\s]+)/g
