@@ -1,6 +1,8 @@
 import { env } from '../env'
 import { generateVerificationToken } from '../utils/auth'
+import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
+import mailjet from 'node-mailjet'
 
 export const sendConfirmationEmail = async (user: {
   id: string
@@ -16,12 +18,53 @@ export const sendConfirmationEmail = async (user: {
     link,
   }
 
+  if (process.env.USE_MAILJET) {
+    return sendWithMailJet(user.email, link)
+  }
+
   return sendEmail({
     from: env.sender.message,
     to: user.email,
     templateId: env.sendgrid.confirmationTemplateId,
     dynamicTemplateData,
   })
+}
+
+const sendWithMailJet = async (
+  email: string,
+  link: string
+): Promise<boolean> => {
+  if (!process.env.MAILJET_API_KEY || !process.env.MAILGET_SECRET_KEY) {
+    return false
+  }
+
+  const client = mailjet.apiConnect(
+    process.env.MAILJET_API_KEY,
+    process.env.MAILGET_SECRET_KEY
+  )
+
+  try {
+    const request = await client.post('send', { version: 'v3.1' }).request({
+      Messages: [
+        {
+          From: {
+            Email: 'no-reply@omnivore.app',
+          },
+          To: [
+            {
+              Email: email,
+              Name: 'Omnivore',
+            },
+          ],
+          Subject: 'Your Omnivore verification link',
+          TextPart: `Your Omnivore verification link ${link}`,
+        },
+      ],
+    })
+  } catch (err) {
+    logger.error('error sending with mailjet', { err })
+  }
+  return true
 }
 
 export const sendVerificationEmail = async (user: {
