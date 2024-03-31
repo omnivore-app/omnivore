@@ -128,11 +128,6 @@ data class WebReaderContent(
             font-size: 0.7rem !important; 
         }
 
-        #buttonWrapperPlaceholder { 
-        background-color: transparent; 
-        padding: 20px;
-        height: 80px;
-        }
         
 #buttonWrapper {
     display: none;
@@ -206,7 +201,6 @@ data class WebReaderContent(
         </div>
 
     </div>
-                 <div id="buttonWrapperPlaceholder"></div>
 
 
     </div>
