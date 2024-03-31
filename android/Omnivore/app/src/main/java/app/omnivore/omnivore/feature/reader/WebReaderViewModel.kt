@@ -86,6 +86,7 @@ class WebReaderViewModel @Inject constructor(
     var lastJavascriptActionLoopUUID: UUID = UUID.randomUUID()
     var javascriptDispatchQueue: MutableList<String> = mutableListOf()
     var maxToolbarHeightPx = 0.0f
+    //val isFullscreenLiveData = MutableLiveData(false)
 
     val webReaderParamsLiveData = MutableLiveData<WebReaderParams?>(null)
     var annotation: String? = null
@@ -119,6 +120,8 @@ class WebReaderViewModel @Inject constructor(
             requestID?.let { loadItemUsingRequestID(it) }
         }
     }
+
+
 
     fun showNavBar() {
         onScrollChange(maxToolbarHeightPx)
@@ -309,13 +312,18 @@ class WebReaderViewModel @Inject constructor(
                 viewModelScope.launch {
                     dataService.deleteSavedItem(itemID)
                     popToLibraryView()
+                    Log.d("sync", "Item deleted: $itemID") // Log message added
+
                 }
             }
+
 
             SavedItemAction.Archive -> {
                 viewModelScope.launch {
                     dataService.archiveSavedItem(itemID)
                     popToLibraryView()
+                    Log.d("sync", "Item archived: $itemID") // Log message added
+
                 }
             }
 
@@ -335,7 +343,8 @@ class WebReaderViewModel @Inject constructor(
             }
 
             SavedItemAction.MarkRead -> {
-                // TODO
+                popToLibraryView()
+                // TODO find better way to just close the webreader
             }
 
             SavedItemAction.MarkUnread -> {
@@ -554,6 +563,12 @@ class WebReaderViewModel @Inject constructor(
             "var event = new Event('updateJustifyText');event.justifyText = $justifyText;document.dispatchEvent(event);"
         enqueueScript(script)
     }
+
+//    fun updateFullscreen(fullscreenView: Boolean) {
+//        isFullscreenLiveData.value = fullscreenView
+//
+//        Log.d("fullscreen", fullscreenView.toString())
+//        }
 
     fun applyWebFont(font: WebFont) {
         runBlocking {

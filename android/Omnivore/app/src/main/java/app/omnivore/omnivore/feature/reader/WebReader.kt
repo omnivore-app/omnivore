@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.viewinterop.AndroidView
 import app.omnivore.omnivore.R
+import app.omnivore.omnivore.feature.library.SavedItemAction
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +58,12 @@ fun WebReader(
 //                }
 
                 viewModel = webReaderViewModel
+
+                // Add the WebAppInterface with a reference to handleSavedItemAction
+                addJavascriptInterface(WebAppInterface(context) { itemID, action ->
+                    // Assuming you have access to the viewModel here, otherwise, you need to find a way to access it
+                    viewModel?.handleSavedItemAction(itemID, action)
+                }, "AndroidItemAction")
 
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
@@ -134,6 +141,7 @@ fun WebReader(
 
                 val javascriptInterface = AndroidWebKitMessenger { actionID, json ->
                     webReaderViewModel.hasTappedExistingHighlight = false
+
 
                     when (actionID) {
                         "userTap" -> {
@@ -376,6 +384,25 @@ class AndroidWebKitMessenger(val messageHandler: (String, String) -> Unit) {
     }
 }
 
+
+
+class WebAppInterface(private val context: Context, private val actionHandler: (String, SavedItemAction) -> Unit) {
+    @JavascriptInterface
+    fun performItemAction(itemID: String, action: String) {
+        Log.d("WebAppInterface", "Action received: $action")
+        try {
+            val savedItemAction = SavedItemAction.values().first { it.name.equals(action, ignoreCase = true) }
+            actionHandler(itemID, savedItemAction)
+        } catch (e: NoSuchElementException) {
+            // Handle the case where the action string does not match any enum value
+            Log.e("WebAppInterface", "Unknown action: $action", e)
+        }
+    }
+
+}
+
+
+
 class ToolbarHeightInterface(private val viewModel: WebReaderViewModel) {
     @JavascriptInterface
     fun updateToolbarHeight(height: Float) {
@@ -388,4 +415,5 @@ data class TapCoordinates(
 )
 
 data class HighlightQuote(val quote: String?)
+
 
