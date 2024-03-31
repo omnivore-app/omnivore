@@ -63,6 +63,7 @@ const sendWithMailJet = async (
     })
   } catch (err) {
     logger.error('error sending with mailjet', { err })
+    return false
   }
   return true
 }
