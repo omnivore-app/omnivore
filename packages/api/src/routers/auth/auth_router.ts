@@ -500,6 +500,17 @@ export function authRouter() {
         )
       }
       const { email, password, name, username, bio, pictureUrl } = req.body
+
+      function isURLPresent(input: string): boolean {
+        const urlRegex = /(https?:\/\/[^\s]+)/g
+        return urlRegex.test(input)
+      }
+
+      if (isURLPresent(email) || isURLPresent(name) || isURLPresent(username)) {
+        res.redirect(`${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`)
+        return
+      }
+
       // trim whitespace in email address
       const trimmedEmail = email.trim()
       try {
