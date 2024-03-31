@@ -14,6 +14,7 @@ import { enqueueProcessYouTubeTranscript } from '../utils/createTask'
 import { stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
+import { videoIdFromYouTubeUrl } from '../utils/youtube'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -334,7 +335,7 @@ export const processYouTubeVideo = async (
     }
 
     videoURL = new URL(libraryItem.originalUrl)
-    const videoId = videoURL.searchParams.get('v')
+    const videoId = videoIdFromYouTubeUrl(libraryItem.originalUrl)
 
     if (!videoId) {
       logger.warning('no video id for supplied youtube url', {
