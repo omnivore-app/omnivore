@@ -10,22 +10,11 @@ import {
   enqueueWebhookJob,
 } from './utils/createTask'
 import { buildLogger } from './utils/logger'
+import { isYouTubeVideoURL } from './utils/youtube'
 
 const logger = buildLogger('pubsub')
 
 const client = new PubSub()
-
-const isYouTubeVideoURL = (url: string | undefined): boolean => {
-  if (!url) {
-    return false
-  }
-  const u = new URL(url)
-  if (!u.host.endsWith('youtube.com') && !u.host.endsWith('youtu.be')) {
-    return false
-  }
-  const videoId = u.searchParams.get('v')
-  return videoId != null
-}
 
 export const createPubSubClient = (): PubsubClient => {
   const publish = (topicName: string, msg: Buffer): Promise<void> => {
@@ -93,11 +82,11 @@ export const createPubSubClient = (): PubsubClient => {
         // })
         // }
 
-        const isYoutubeVideo = (data: any): data is { originalUrl: string } => {
+        const isItemWithURL = (data: any): data is { originalUrl: string } => {
           return 'originalUrl' in data
         }
 
-        if (isYoutubeVideo(data) && isYouTubeVideoURL(data['originalUrl'])) {
+        if (isItemWithURL(data) && isYouTubeVideoURL(data['originalUrl'])) {
           await enqueueProcessYouTubeVideo({
             userId,
             libraryItemId,
