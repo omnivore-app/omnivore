@@ -511,7 +511,7 @@ export function authRouter() {
         recaptchaToken,
       } = req.body
 
-      if (recaptchaToken) {
+      if (recaptchaToken && process.env.RECAPTCHA_CHALLENGE_SECRET_KEY) {
         const verified = await verifyChallengeRecaptcha(recaptchaToken)
         if (!verified) {
           return res.redirect(

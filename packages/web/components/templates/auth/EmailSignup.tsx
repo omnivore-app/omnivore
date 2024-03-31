@@ -180,16 +180,24 @@ export function EmailSignup(): JSX.Element {
 
           <SignUpForm />
 
-          <Recaptcha
-            setRecaptchaToken={(token) => {
-              if (recaptchaTokenRef.current) {
-                recaptchaTokenRef.current.value = token
-              } else {
-                console.log('error updating recaptcha token')
-              }
-            }}
-          />
-          <input ref={recaptchaTokenRef} type="hidden" name="recaptchaToken" />
+          {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SECRET_KEY && (
+            <>
+              <Recaptcha
+                setRecaptchaToken={(token) => {
+                  if (recaptchaTokenRef.current) {
+                    recaptchaTokenRef.current.value = token
+                  } else {
+                    console.log('error updating recaptcha token')
+                  }
+                }}
+              />
+              <input
+                ref={recaptchaTokenRef}
+                type="hidden"
+                name="recaptchaToken"
+              />
+            </>
+          )}
 
           {errorMessage && (
             <StyledText style="error">{errorMessage}</StyledText>
