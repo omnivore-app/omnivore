@@ -47,6 +47,7 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
+import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
 
 export interface SignupRequest {
   email: string
@@ -55,6 +56,7 @@ export interface SignupRequest {
   username: string
   bio?: string
   pictureUrl?: string
+  recaptchaToken?: string
 }
 
 const signToken = promisify(jwt.sign)
@@ -64,20 +66,28 @@ const cookieParams = {
   maxAge: 365 * 24 * 60 * 60 * 1000,
 }
 
+const isURLPresent = (input: string): boolean => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  return urlRegex.test(input)
+}
+
 export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
   return (
     'email' in obj &&
     obj.email.trim().length > 0 &&
     obj.email.trim().length < 512 && // email must not be empty
+    !isURLPresent(obj.email) &&
     'password' in obj &&
     obj.password.length >= 8 &&
     obj.password.trim().length < 512 && // password must be at least 8 characters
     'name' in obj &&
     obj.name.trim().length > 0 &&
     obj.name.trim().length < 512 && // name must not be empty
+    !isURLPresent(obj.name) &&
     'username' in obj &&
     obj.username.trim().length > 0 &&
-    obj.username.trim().length < 512 // username must not be empty
+    obj.username.trim().length < 512 && // username must not be empty
+    !isURLPresent(obj.username)
   )
 }
 
@@ -499,16 +509,27 @@ export function authRouter() {
           `${env.client.url}/auth/email-signup?errorCodes=INVALID_CREDENTIALS`
         )
       }
-      const { email, password, name, username, bio, pictureUrl } = req.body
+      const {
+        email,
+        password,
+        name,
+        username,
+        bio,
+        pictureUrl,
+        recaptchaToken,
+      } = req.body
 
-      function isURLPresent(input: string): boolean {
-        const urlRegex = /(https?:\/\/[^\s]+)/g
-        return urlRegex.test(input)
-      }
+      if (recaptchaToken && process.env.RECAPTCHA_CHALLENGE_SECRET_KEY) {
+        const verified = await verifyChallengeRecaptcha(recaptchaToken)
+        console.log('recaptcha result: ', recaptchaToken, verified)
+        // temporarily do not fail here so we can deploy this in stages
+        // just log the verification
 
-      if (isURLPresent(email) || isURLPresent(name) || isURLPresent(username)) {
-        res.redirect(`${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`)
-        return
+        // if (!verified) {
+        //   return res.redirect(
+        //     `${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`
+        //   )
+        // }
       }
 
       // trim whitespace in email address
