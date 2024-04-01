@@ -6,12 +6,14 @@ import { getClaimsByToken, getTokenByRequest, isSystemRequest } from './auth'
 
 // use the redis store if we have a redis connection
 const redisClient = redisDataSource.redisClient
-const store = redisClient
-  ? new RedisStore({
-      // @ts-expect-error - Known issue: the `call` function is not present in @types/ioredis
-      sendCommand: (...args: string[]) => redisClient.call(...args),
-    })
-  : new MemoryStore()
+const getStore = (prefix?: string) =>
+  redisClient
+    ? new RedisStore({
+        sendCommand: (command: string, ...args: string[]) =>
+          redisClient.call(command, ...args) as never,
+        prefix,
+      })
+    : new MemoryStore()
 
 const configs: Partial<Options> = {
   windowMs: 60 * 1000, // 1 minute
@@ -19,7 +21,7 @@ const configs: Partial<Options> = {
   // skip preflight requests and test requests and system requests
   skip: (req) =>
     req.method === 'OPTIONS' || env.dev.isLocal || isSystemRequest(req),
-  store,
+  store: getStore('rate-limit'),
 }
 
 export const apiLimiter = rateLimit({
@@ -38,10 +40,14 @@ export const apiLimiter = rateLimit({
   keyGenerator: (req) => {
     return getTokenByRequest(req) || req.ip
   },
+  store: getStore('api-rate-limit'),
 })
 
 // 5 RPM for auth requests
-export const authLimiter = rateLimit(configs)
+export const authLimiter = rateLimit({
+  ...configs,
+  store: getStore('auth-rate-limit'),
+})
 
 // The hourly limiter is used on the create account,
 // and reset password endpoints
@@ -49,4 +55,5 @@ export const authLimiter = rateLimit(configs)
 export const hourlyLimiter = rateLimit({
   ...configs,
   windowMs: 60 * 60 * 1000,
+  store: getStore('hourly-rate-limit'),
 })
