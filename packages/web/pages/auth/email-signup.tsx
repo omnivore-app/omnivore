@@ -9,7 +9,7 @@ export default function EmailRegistrationPage(): JSX.Element {
       <GoogleReCaptchaProvider
         type="v2-checkbox"
         isEnterprise={true}
-        siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SECRET_KEY ?? ''}
+        siteKey={process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY ?? ''}
       >
         <PageMetaData
           title="Sign up with Email - Omnivore"

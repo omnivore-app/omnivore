@@ -180,7 +180,7 @@ export function EmailSignup(): JSX.Element {
 
           <SignUpForm />
 
-          {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SECRET_KEY && (
+          {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY && (
             <>
               <Recaptcha
                 setRecaptchaToken={(token) => {
