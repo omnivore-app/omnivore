@@ -521,12 +521,15 @@ export function authRouter() {
 
       if (recaptchaToken && process.env.RECAPTCHA_CHALLENGE_SECRET_KEY) {
         const verified = await verifyChallengeRecaptcha(recaptchaToken)
-        console.log('recaptcha result: ', verified)
-        if (!verified) {
-          return res.redirect(
-            `${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`
-          )
-        }
+        console.log('recaptcha result: ', recaptchaToken, verified)
+        // temporarily do not fail here so we can deploy this in stages
+        // just log the verification
+
+        // if (!verified) {
+        //   return res.redirect(
+        //     `${env.client.url}/auth/email-signup?errorCodes=UNKNOWN`
+        //   )
+        // }
       }
 
       // trim whitespace in email address
