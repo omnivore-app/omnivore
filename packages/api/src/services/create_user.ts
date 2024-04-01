@@ -142,9 +142,7 @@ export const createUser = async (input: {
   })
 
   if (input.pendingConfirmation) {
-    if (!(await sendConfirmationEmail(user))) {
-      return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
-    }
+    await sendConfirmationEmail(user)
   }
 
   return [user, profile]
