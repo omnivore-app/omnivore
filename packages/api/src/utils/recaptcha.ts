@@ -1,19 +1,19 @@
 import axios from 'axios'
 
 type RecaptchaResponse = {
-  success: Boolean
+  success: boolean
   hostname: string
   score?: number
   action?: string
 }
 
-const isRecaptchaResponse = (data: any): data is RecaptchaResponse => {
+export const isRecaptchaResponse = (data: any): data is RecaptchaResponse => {
   return 'success' in data && 'hostname' in data
 }
 
 export const verifyChallengeRecaptcha = async (
   token: string
-): Promise<Boolean> => {
+): Promise<boolean> => {
   if (!process.env.RECAPTCHA_CHALLENGE_SECRET_KEY) {
     return false
   }
@@ -26,17 +26,12 @@ export const verifyChallengeRecaptcha = async (
 
   try {
     const response = await axios.post(url, params)
-    console.log('recaptcha response: ', response)
+    console.log('recaptcha response: ', response.data)
 
-    if (!response.data || !response.data.success) {
-      throw new Error('Failed to verify reCAPTCHA')
+    if (isRecaptchaResponse(response.data)) {
+      return response.data.success
     }
-
-    const json = response.data
-    if (!isRecaptchaResponse(json)) {
-      return false
-    }
-    return json.success
+    return false
   } catch (error) {
     console.error('Error verifying reCAPTCHA:', error)
     return false
