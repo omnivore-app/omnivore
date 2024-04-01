@@ -10,9 +10,10 @@ import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import promBundle from 'express-prom-bundle'
-import rateLimit from 'express-rate-limit'
+import rateLimit, { MemoryStore } from 'express-rate-limit'
 import { createServer, Server } from 'http'
 import * as prom from 'prom-client'
+import { RedisStore } from 'rate-limit-redis'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
@@ -72,6 +73,15 @@ export const createApp = (): {
   // set to true if behind a reverse proxy/load balancer
   app.set('trust proxy', env.server.trustProxy)
 
+  // use the redis store if we have a redis connection
+  const redisClient = redisDataSource.redisClient
+  const store = redisClient
+    ? new RedisStore({
+        // @ts-expect-error - Known issue: the `call` function is not present in @types/ioredis
+        sendCommand: (...args: string[]) => redisClient.call(...args),
+      })
+    : new MemoryStore()
+
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minute
     max: async (req) => {
@@ -91,6 +101,7 @@ export const createApp = (): {
     // skip preflight requests and test requests and system requests
     skip: (req) =>
       req.method === 'OPTIONS' || env.dev.isLocal || isSystemRequest(req),
+    store,
   })
 
   // Apply the rate limiting middleware to API calls only
@@ -115,6 +126,7 @@ export const createApp = (): {
     max: 5,
     // skip preflight requests and test requests
     skip: (req) => req.method === 'OPTIONS' || env.dev.isLocal,
+    store,
   })
 
   app.use('/api/auth', authLimiter, authRouter())

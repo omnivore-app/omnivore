@@ -95,6 +95,7 @@
     "posthog-node": "^3.6.3",
     "private-ip": "^2.3.3",
     "prom-client": "^15.1.0",
+    "rate-limit-redis": "^4.2.0",
     "redis": "^4.6.13",
     "rss-parser": "^3.13.0",
     "sanitize-html": "^2.3.2",
