@@ -10,10 +10,8 @@ import cookieParser from 'cookie-parser'
 import express, { Express } from 'express'
 import * as httpContext from 'express-http-context2'
 import promBundle from 'express-prom-bundle'
-import rateLimit, { MemoryStore } from 'express-rate-limit'
 import { createServer, Server } from 'http'
 import * as prom from 'prom-client'
-import { RedisStore } from 'rate-limit-redis'
 import { config, loggers } from 'winston'
 import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
@@ -43,13 +41,9 @@ import { textToSpeechRouter } from './routers/text_to_speech'
 import { userRouter } from './routers/user_router'
 import { sentryConfig } from './sentry'
 import { analytics } from './utils/analytics'
-import {
-  getClaimsByToken,
-  getTokenByRequest,
-  isSystemRequest,
-} from './utils/auth'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
+import { apiLimiter, authLimiter } from './utils/rate_limit'
 
 const PORT = process.env.PORT || 4000
 
@@ -73,37 +67,6 @@ export const createApp = (): {
   // set to true if behind a reverse proxy/load balancer
   app.set('trust proxy', env.server.trustProxy)
 
-  // use the redis store if we have a redis connection
-  const redisClient = redisDataSource.redisClient
-  const store = redisClient
-    ? new RedisStore({
-        // @ts-expect-error - Known issue: the `call` function is not present in @types/ioredis
-        sendCommand: (...args: string[]) => redisClient.call(...args),
-      })
-    : new MemoryStore()
-
-  const apiLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: async (req) => {
-      // 100 RPM for an authenticated request, 15 for a non-authenticated request
-      const token = getTokenByRequest(req)
-      try {
-        const claims = await getClaimsByToken(token)
-        return claims ? 60 : 15
-      } catch (e) {
-        console.log('non-authenticated request')
-        return 15
-      }
-    },
-    keyGenerator: (req) => {
-      return getTokenByRequest(req) || req.ip
-    },
-    // skip preflight requests and test requests and system requests
-    skip: (req) =>
-      req.method === 'OPTIONS' || env.dev.isLocal || isSystemRequest(req),
-    store,
-  })
-
   // Apply the rate limiting middleware to API calls only
   app.use('/api/', apiLimiter)
 
@@ -119,15 +82,6 @@ export const createApp = (): {
 
   // respond healthy to auto-scaler.
   app.get('/_ah/health', (req, res) => res.sendStatus(200))
-
-  // 5 RPM for auth requests
-  const authLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 5,
-    // skip preflight requests and test requests
-    skip: (req) => req.method === 'OPTIONS' || env.dev.isLocal,
-    store,
-  })
 
   app.use('/api/auth', authLimiter, authRouter())
   app.use('/api/mobile-auth', authLimiter, mobileAuthRouter())

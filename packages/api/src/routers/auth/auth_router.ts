@@ -11,7 +11,6 @@ import axios from 'axios'
 import cors from 'cors'
 import type { Request, Response } from 'express'
 import express from 'express'
-import rateLimit from 'express-rate-limit'
 import * as jwt from 'jsonwebtoken'
 import url from 'url'
 import { promisify } from 'util'
@@ -36,6 +35,8 @@ import {
 } from '../../utils/auth'
 import { corsConfig } from '../../utils/corsConfig'
 import { logger } from '../../utils/logger'
+import { hourlyLimiter } from '../../utils/rate_limit'
+import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
 import { createSsoToken, ssoRedirectURL } from '../../utils/sso'
 import { handleAppleWebAuth } from './apple_auth'
 import type { AuthProvider } from './auth_types'
@@ -47,7 +48,6 @@ import {
 } from './google_auth'
 import { createWebAuthToken } from './jwt_helpers'
 import { createMobileAccountCreationResponse } from './mobile/account_creation'
-import { verifyChallengeRecaptcha } from '../../utils/recaptcha'
 
 export interface SignupRequest {
   email: string
@@ -90,15 +90,6 @@ export const isValidSignupRequest = (obj: any): obj is SignupRequest => {
     !isURLPresent(obj.username)
   )
 }
-
-// The hourly limiter is used on the create account,
-// and reset password endpoints
-// this limits users to five operations per an hour
-const hourlyLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 5,
-  skip: (req) => env.dev.isLocal,
-})
 
 export function authRouter() {
   const router = express.Router()
