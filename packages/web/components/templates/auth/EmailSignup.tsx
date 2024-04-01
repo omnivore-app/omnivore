@@ -127,7 +127,7 @@ const SignUpForm = (): JSX.Element => {
 }
 
 type RecaptchaProps = {
-  setRecaptchaToken: (string) => void
+  setRecaptchaToken: (token: string) => void
 }
 
 const Recaptcha = (props: RecaptchaProps): JSX.Element => {
