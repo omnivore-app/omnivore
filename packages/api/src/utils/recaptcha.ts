@@ -8,12 +8,7 @@ type RecaptchaResponse = {
 }
 
 const isRecaptchaResponse = (data: any): data is RecaptchaResponse => {
-  return (
-    'success' in data &&
-    'hostname' in data &&
-    'score' in data &&
-    'action' in data
-  )
+  return 'success' in data && 'hostname' in data
 }
 
 export const verifyChallengeRecaptcha = async (
