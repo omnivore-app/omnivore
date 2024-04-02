@@ -25,7 +25,7 @@ export class Prompt {
   template!: string
 
   @Column('text', { array: true, nullable: true })
-  variables!: string
+  variables!: string[]
 }
 
 @Entity({ name: 'ai_task_requests' })
