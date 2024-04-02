@@ -1,21 +1,21 @@
-import { AISummary } from '../entity/AISummary'
+import { AITaskResult } from '../entity/ai_result'
 import { authTrx } from '../repository'
 
-export const getAISummary = async (data: {
+export const getAIResult = async (data: {
   userId: string
   idx: string
   libraryItemId: string
-}): Promise<AISummary | undefined> => {
+}): Promise<AITaskResult | undefined> => {
   const aiSummary = await authTrx(
     async (t) => {
-      const repo = t.getRepository(AISummary)
+      const repo = t.getRepository(AITaskResult)
       if (data.idx == 'latest') {
         return repo.findOne({
           where: {
             user: { id: data.userId },
             libraryItem: { id: data.libraryItemId },
           },
-          order: { createdAt: 'DESC' },
+          order: { generatedAt: 'DESC' },
         })
       } else {
         return repo.findOne({

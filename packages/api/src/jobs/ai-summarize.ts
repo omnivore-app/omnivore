@@ -5,9 +5,9 @@ import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { htmlToMarkdown } from '../utils/parser'
-import { AISummary } from '../entity/AISummary'
+import { AITaskResult } from '../entity/ai_result'
 import { LibraryItemState } from '../entity/library_item'
-import { getAISummary } from '../services/ai-summaries'
+import { getAIResult } from '../services/ai-summaries'
 
 export interface AISummarizeJobData {
   userId: string
@@ -36,7 +36,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
       return
     }
 
-    const existingSummary = await getAISummary({
+    const existingSummary = await getAIResult({
       userId: jobData.userId,
       idx: 'latest',
       libraryItemId: jobData.libraryItemId,
@@ -76,7 +76,7 @@ export const aiSummarize = async (jobData: AISummarizeJobData) => {
     const summary = response.text
     const _ = await authTrx(
       async (t) => {
-        return t.getRepository(AISummary).save({
+        return t.getRepository(AITaskResult).save({
           user: { id: jobData.userId },
           libraryItem: { id: jobData.libraryItemId },
           title: libraryItem.title,

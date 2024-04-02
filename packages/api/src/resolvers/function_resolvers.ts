@@ -22,7 +22,7 @@ import {
   SearchItem,
   User,
 } from '../generated/graphql'
-import { getAISummary } from '../services/ai-summaries'
+import { getAIResult } from '../services/ai-summaries'
 import { findUserFeatures } from '../services/features'
 import { findHighlightsByLibraryItemId } from '../services/highlights'
 import { findLabelsByLibraryItemId } from '../services/labels'
@@ -531,12 +531,12 @@ export const functionResolvers = {
     },
     async aiSummary(item: SearchItem, _: unknown, ctx: WithDataSourcesContext) {
       return (
-        await getAISummary({
+        await getAIResult({
           userId: ctx.uid,
           libraryItemId: item.id,
           idx: 'latest',
         })
-      )?.summary
+      )?.resultText
     },
     async highlights(
       item: {
