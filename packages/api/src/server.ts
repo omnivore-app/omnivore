@@ -17,7 +17,6 @@ import { makeApolloServer } from './apollo'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { redisDataSource } from './redis_data_source'
-import { aiSummariesRouter } from './routers/ai_summary_router'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
@@ -44,6 +43,7 @@ import { analytics } from './utils/analytics'
 import { corsConfig } from './utils/corsConfig'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiLimiter, authLimiter } from './utils/rate_limit'
+import { aiTaskRouter } from './routers/ai_task_router'
 
 const PORT = process.env.PORT || 4000
 
@@ -88,7 +88,7 @@ export const createApp = (): {
   app.use('/api/page', pageRouter())
   app.use('/api/user', userRouter())
   app.use('/api/article', articleRouter())
-  app.use('/api/ai-summary', aiSummariesRouter())
+  app.use('/api/ai-task', aiTaskRouter())
   app.use('/api/text-to-speech', textToSpeechRouter())
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())
