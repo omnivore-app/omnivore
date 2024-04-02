@@ -1,7 +1,7 @@
 import mailjet from 'node-mailjet'
 import { env } from '../env'
 import { generateVerificationToken } from '../utils/auth'
-import { enqueueSendConfirmationEmail } from '../utils/createTask'
+import { enqueueConfirmationEmail } from '../utils/createTask'
 import { logger } from '../utils/logger'
 import { sendEmail } from '../utils/sendEmail'
 
@@ -19,7 +19,7 @@ export const sendConfirmationEmail = async (user: {
     link,
   }
 
-  await enqueueSendConfirmationEmail({
+  await enqueueConfirmationEmail({
     emailAddress: user.email,
     link,
     templateData: dynamicTemplateData,

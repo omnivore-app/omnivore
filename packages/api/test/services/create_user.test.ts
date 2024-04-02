@@ -1,14 +1,15 @@
-import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+import { Job } from 'bullmq'
 import chai, { expect } from 'chai'
 import 'mocha'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Filter } from '../../src/entity/filter'
 import { StatusType, User } from '../../src/entity/user'
+import { SendConfirmationEmailData } from '../../src/jobs/send_email'
 import { authTrx, getRepository } from '../../src/repository'
 import { findProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
-import * as util from '../../src/utils/sendEmail'
+import * as createTask from '../../src/utils/createTask'
 import {
   createTestUser,
   createUserWithoutProfile,
@@ -95,11 +96,17 @@ describe('create user', () => {
 
   context('create a user with pending confirmation', () => {
     const name = 'pendingUser'
-    let fake: (msg: MailDataRequired) => Promise<boolean>
+    let fake: (
+      jobData: SendConfirmationEmailData
+    ) => Promise<Job<any, any, string> | undefined>
 
     context('when email sends successfully', () => {
       beforeEach(() => {
-        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+        fake = sinon.replace(
+          createTask,
+          'enqueueConfirmationEmail',
+          sinon.fake()
+        )
       })
 
       afterEach(async () => {
@@ -119,23 +126,6 @@ describe('create user', () => {
         await createTestUser(name, undefined, undefined, true)
 
         expect(fake).to.have.been.calledOnce
-      })
-    })
-
-    context('when failed to send email', () => {
-      before(() => {
-        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
-      })
-
-      after(async () => {
-        sinon.restore()
-        const user = await getRepository(User).findOneBy({ name })
-        await deleteUser(user!.id)
-      })
-
-      it('rejects with error', async () => {
-        return expect(createTestUser(name, undefined, undefined, true)).to.be
-          .rejected
       })
     })
   })

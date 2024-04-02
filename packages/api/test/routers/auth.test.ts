@@ -1,11 +1,14 @@
 import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
+import { Job } from 'bullmq'
 import chai, { expect } from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
 import { StatusType, User } from '../../src/entity/user'
+import { SendConfirmationEmailData } from '../../src/jobs/send_email'
 import { getRepository } from '../../src/repository'
 import { userRepository } from '../../src/repository/user'
+import { isValidSignupRequest } from '../../src/routers/auth/auth_router'
 import { AuthProvider } from '../../src/routers/auth/auth_types'
 import { createPendingUserToken } from '../../src/routers/auth/jwt_helpers'
 import { searchLibraryItems } from '../../src/services/library_item'
@@ -15,10 +18,10 @@ import {
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
+import * as createTask from '../../src/utils/createTask'
 import * as util from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
-import { isValidSignupRequest } from '../../src/routers/auth/auth_router'
 
 chai.use(sinonChai)
 
@@ -47,8 +50,6 @@ describe('auth router', () => {
     let name: string
 
     context('when inputs are valid and user not exists', () => {
-      let fake: (msg: MailDataRequired) => Promise<boolean>
-
       before(() => {
         password = validPassword
         username = 'Some_username'
@@ -62,14 +63,6 @@ describe('auth router', () => {
       })
 
       context('when confirmation email sent', () => {
-        beforeEach(() => {
-          fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
-        })
-
-        afterEach(() => {
-          sinon.restore()
-        })
-
         it('redirects to verify email', async () => {
           const res = await signupRequest(
             email,
@@ -88,28 +81,6 @@ describe('auth router', () => {
 
           expect(user?.status).to.eql(StatusType.Pending)
           expect(user?.name).to.eql(name)
-        })
-      })
-
-      context('when confirmation email not sent', () => {
-        before(() => {
-          fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
-        })
-
-        after(() => {
-          sinon.restore()
-        })
-
-        it('redirects to sign up page with error code INVALID_EMAIL', async () => {
-          const res = await signupRequest(
-            email,
-            password,
-            name,
-            username
-          ).expect(302)
-          expect(res.header.location).to.endWith(
-            '/email-signup?errorCodes=INVALID_EMAIL'
-          )
         })
       })
     })
@@ -214,10 +185,16 @@ describe('auth router', () => {
     })
 
     context('when user is not confirmed', async () => {
-      let fake: (msg: MailDataRequired) => Promise<boolean>
+      let fake: (
+        jobData: SendConfirmationEmailData
+      ) => Promise<Job<any, any, string> | undefined>
 
       beforeEach(async () => {
-        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+        fake = sinon.replace(
+          createTask,
+          'enqueueConfirmationEmail',
+          sinon.fake()
+        )
         await updateUser(user.id, { status: StatusType.Pending })
         email = user.email
         password = correctPassword

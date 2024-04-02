@@ -844,7 +844,7 @@ export const enqueueExportItem = async (jobData: ExportItemJobData) => {
   })
 }
 
-export const enqueueSendConfirmationEmail = async (
+export const enqueueConfirmationEmail = async (
   jobData: SendConfirmationEmailData
 ) => {
   const queue = await getBackendQueue()
