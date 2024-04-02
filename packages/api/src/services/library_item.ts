@@ -1503,21 +1503,21 @@ export const filterItemEvents = (
         return event[key]?.toString()?.toLowerCase() === lowercasedValue
       }
       // match filters
+      case 'note':
+        throw new RequiresSearchQueryError()
       case 'author':
       case 'title':
-      case 'description':
-      case 'note':
-      case 'site': {
-        const columnName = getColumnName(field.name)
-        const key = camelCase(columnName) as
-          | 'author'
-          | 'title'
-          | 'description'
-          | 'note'
-          | 'siteName'
+      case 'description': {
+        const key = field.name as 'author' | 'title' | 'description'
 
-        // TODO: Implement full text search
-        return event[key]?.toString()?.match(new RegExp(lowercasedValue, 'i'))
+        return event[key]?.toString()?.toLowerCase().includes(lowercasedValue)
+      }
+      case 'site': {
+        const keys = ['siteName', 'originalUrl'] as const
+
+        return keys.some((key) => {
+          return event[key]?.toString()?.toLowerCase().includes(lowercasedValue)
+        })
       }
       case 'includes': {
         const ids = lowercasedValue.split(',')
@@ -1579,7 +1579,7 @@ export const filterItemEvents = (
         }
       }
       default:
-        return false
+        throw new Error(`Unexpected field: ${field.name}`)
     }
   }
 
