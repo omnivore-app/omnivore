@@ -1,4 +1,4 @@
-import { AITaskResult } from '../entity/ai_result'
+import { AITaskResult } from '../entity/ai_tasks'
 import { authTrx } from '../repository'
 
 export const getAIResult = async (data: {

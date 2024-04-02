@@ -5,7 +5,7 @@ import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { htmlToMarkdown } from '../utils/parser'
-import { AITaskResult } from '../entity/ai_result'
+import { AITaskResult } from '../entity/ai_tasks'
 import { LibraryItemState } from '../entity/library_item'
 import { getAIResult } from '../services/ai-summaries'
 
