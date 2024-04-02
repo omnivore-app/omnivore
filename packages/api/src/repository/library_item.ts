@@ -105,3 +105,7 @@ export const libraryItemRepository = appDataSource
       ) as Promise<LibraryItem[]>
     },
   })
+
+export const metadataColumnsInItem = getColumns(libraryItemRepository).filter(
+  (column) => column !== 'readableContent' && column !== 'originalContent'
+)

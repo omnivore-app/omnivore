@@ -23,7 +23,10 @@ import {
   getRepository,
   queryBuilderToRawSql,
 } from '../repository'
-import { libraryItemRepository } from '../repository/library_item'
+import {
+  libraryItemRepository,
+  metadataColumnsInItem,
+} from '../repository/library_item'
 import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -720,10 +723,13 @@ export const findRecentLibraryItems = async (
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.state = :state', {
-          state: LibraryItemState.Succeeded,
-        })
+        .select(metadataColumnsInItem.map((column) => `library_item.${column}`))
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .where(
+          'library_item.user_id = :userId AND library_item.state = :state',
+          { userId, state: LibraryItemState.Succeeded }
+        )
         .orderBy('library_item.saved_at', 'DESC', 'NULLS LAST')
         .take(limit)
         .skip(offset)
