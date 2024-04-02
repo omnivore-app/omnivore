@@ -23,10 +23,7 @@ import {
   getRepository,
   queryBuilderToRawSql,
 } from '../repository'
-import {
-  libraryItemRepository,
-  metadataColumnsInItem,
-} from '../repository/library_item'
+import { libraryItemRepository } from '../repository/library_item'
 import { Merge } from '../util'
 import { setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
@@ -719,11 +716,17 @@ export const findRecentLibraryItems = async (
   limit = 1000,
   offset?: number
 ) => {
+  const selectColumns = getColumns(libraryItemRepository)
+    .filter(
+      (column) => column !== 'readableContent' && column !== 'originalContent'
+    )
+    .map((column) => `library_item.${column}`)
+
   return authTrx(
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .select(metadataColumnsInItem.map((column) => `library_item.${column}`))
+        .select(selectColumns)
         .leftJoinAndSelect('library_item.labels', 'labels')
         .leftJoinAndSelect('library_item.highlights', 'highlights')
         .where(
