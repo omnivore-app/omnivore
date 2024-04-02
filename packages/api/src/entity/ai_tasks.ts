@@ -2,11 +2,31 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm'
 import { User } from './user'
 import { LibraryItem } from './library_item'
+
+@Entity({ name: 'ai_prompts' })
+export class Prompt {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @Column({ type: 'text', name: 'name', nullable: false, unique: true })
+  name!: string
+
+  @Column({ type: 'text', name: 'display_text', nullable: false })
+  displayText!: string
+
+  @Column({ type: 'text', name: 'template', nullable: false })
+  template!: string
+
+  @Column('text', { array: true, nullable: true })
+  variables!: string
+}
 
 @Entity({ name: 'ai_task_requests' })
 export class AITaskRequest {
@@ -14,13 +34,16 @@ export class AITaskRequest {
   id!: string
 
   @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
   user!: User
 
-  @ManyToOne(() => LibraryItem)
+  @ManyToOne(() => LibraryItem, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'library_item_id' })
   libraryItem!: LibraryItem
 
-  @Column({ type: 'text', name: 'prompt_name', nullable: false })
-  promptName!: string
+  @OneToOne(() => Prompt)
+  @JoinColumn({ name: 'prompt_name', referencedColumnName: 'name' })
+  prompt!: Prompt
 
   @Column({ type: 'text', name: 'extra_text', nullable: true })
   extraText!: string
@@ -43,9 +66,6 @@ export class AITaskResult {
 
   @ManyToOne(() => User)
   user!: User
-
-  @ManyToOne(() => LibraryItem)
-  libraryItem!: LibraryItem
 
   @Column({ type: 'text', name: 'result_text', nullable: false })
   resultText!: string

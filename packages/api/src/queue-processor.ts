@@ -15,7 +15,7 @@ import express, { Express } from 'express'
 import { appDataSource } from './data_source'
 import { env } from './env'
 import { TaskState } from './generated/graphql'
-import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
+import { performAITask, AI_TASK_JOB_NAME } from './jobs/ai-summarize'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
@@ -149,8 +149,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return callWebhook(job.data)
         case EXPORT_ITEM_JOB_NAME:
           return exportItem(job.data)
-        case AI_SUMMARIZE_JOB_NAME:
-          return aiSummarize(job.data)
+        case AI_TASK_JOB_NAME:
+          return performAITask(job.data)
         case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
           return processYouTubeVideo(job.data)
         case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:

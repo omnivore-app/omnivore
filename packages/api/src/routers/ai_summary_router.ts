@@ -77,7 +77,7 @@ export function aiSummariesRouter() {
     // }
     const uid = 'a03a7396-909b-11ed-9075-c3f3cf07eed9'
     const libraryItemId = '6d028a14-ef5d-11ee-87f4-b365da03b5e1'
-    const promptName = 'explain-text-001'
+    const promptName = 'explain-001'
     const extraText = ''
 
     const aiTaskResult = await authTrx(
@@ -109,7 +109,7 @@ export function aiSummariesRouter() {
           where: {
             user: { id: uid },
             libraryItem: { id: libraryItemId },
-            promptName,
+            prompt: { name: promptName },
             extraText,
           },
         })
@@ -121,7 +121,7 @@ export function aiSummariesRouter() {
         return await t.getRepository(AITaskRequest).save({
           libraryItem: { id: libraryItemId },
           user: { id: uid },
-          promptName,
+          prompt: { name: promptName },
           extraText,
         })
       },
