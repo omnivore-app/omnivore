@@ -15,7 +15,7 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
-import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
+import { AITaskJobData, AI_TASK_JOB_NAME } from '../jobs/ai-summarize'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
@@ -70,9 +70,9 @@ export const getJobPriority = (jobName: string): number => {
     case UPDATE_HIGHLIGHT_JOB:
     case SYNC_READ_POSITIONS_JOB_NAME:
       return 1
+    case AI_TASK_JOB_NAME:
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
-    case AI_SUMMARIZE_JOB_NAME:
     case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
       return 5
     case BULK_ACTION_JOB_NAME:
@@ -715,14 +715,14 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
   })
 }
 
-export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
+export const enqueueAITaskJob = async (data: AITaskJobData) => {
   const queue = await getBackendQueue()
   if (!queue) {
     return undefined
   }
 
-  return queue.add(AI_SUMMARIZE_JOB_NAME, data, {
-    priority: getJobPriority(AI_SUMMARIZE_JOB_NAME),
+  return queue.add(AI_TASK_JOB_NAME, data, {
+    priority: getJobPriority(AI_TASK_JOB_NAME),
     attempts: 3,
   })
 }
