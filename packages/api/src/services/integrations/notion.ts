@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client'
 import axios from 'axios'
-import { findIntegrationByName, updateIntegration } from '.'
+import { updateIntegration } from '.'
 import { Integration } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
