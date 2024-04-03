@@ -98,11 +98,11 @@ typealias OperationStatusHandler = (_: OperationStatus) -> Void
     }
   }
 
-  func updateSubscription(dataService: DataService, subscription: Subscription, folder: String? = nil, fetchContent: Bool? = nil) async {
+  func updateSubscription(dataService: DataService, subscription: Subscription, folder: String? = nil, fetchContentType: FetchContentType? = nil) async {
     operationMessage = "Updating subscription..."
     operationStatus = .isPerforming
     do {
-      try await dataService.updateSubscription(subscription.subscriptionID, folder: folder, fetchContent: fetchContent)
+      try await dataService.updateSubscription(subscription.subscriptionID, folder: folder, fetchContentType: fetchContentType)
       operationMessage = "Subscription updated"
       operationStatus = .success
     } catch {
@@ -240,23 +240,27 @@ struct SubscriptionsView: View {
     #endif
   }
 
+  private var emptyView: some View {
+    VStack(alignment: .center, spacing: 20) {
+      Text("You don't have any Feed items.")
+        .font(Font.system(size: 18, weight: .bold))
+
+      Text("Add an RSS/Atom feed")
+        .foregroundColor(Color.blue)
+        .onTapGesture {
+          showAddFeedView = true
+        }
+    }
+    .frame(minHeight: 80)
+    .frame(maxWidth: .infinity)
+    .padding()
+  }
+
   private var innerBody: some View {
-    Group {
+    List {
       Section("Feeds") {
         if viewModel.feeds.count <= 0, !viewModel.isLoading {
-          VStack(alignment: .center, spacing: 20) {
-            Text("You don't have any Feed items.")
-              .font(Font.system(size: 18, weight: .bold))
-
-            Text("Add an RSS/Atom feed")
-              .foregroundColor(Color.blue)
-              .onTapGesture {
-                showAddFeedView = true
-              }
-          }
-          .frame(minHeight: 80)
-          .frame(maxWidth: .infinity)
-          .padding()
+          emptyView
         } else {
           ForEach(viewModel.feeds, id: \.subscriptionID) { subscription in
             PresentationLink(transition: UIDevice.isIPad ? .popover : .sheet(detents: [.medium])) {
@@ -264,7 +268,7 @@ struct SubscriptionsView: View {
                 subscription: subscription,
                 viewModel: viewModel,
                 dataService: dataService,
-                prefetchContent: subscription.fetchContent,
+                fetchContentType: subscription.fetchContentType,
                 folderSelection: subscription.folder,
                 unsubscribe: { _ in
                   viewModel.operationStatus = .isPerforming
@@ -273,7 +277,7 @@ struct SubscriptionsView: View {
                     await viewModel.cancelSubscription(dataService: dataService, subscription: subscription)
                   }
                 }
-              )
+              ).background(Color.systemBackground)
             } label: {
               SubscriptionCell(subscription: subscription)
             }
@@ -296,7 +300,7 @@ struct SubscriptionsView: View {
                 subscription: subscription,
                 viewModel: viewModel,
                 dataService: dataService,
-                prefetchContent: subscription.fetchContent,
+                fetchContentType: subscription.fetchContentType,
                 folderSelection: subscription.folder,
                 unsubscribe: { _ in
                   viewModel.operationStatus = .isPerforming
@@ -389,7 +393,7 @@ struct SubscriptionSettingsView: View {
   let viewModel: SubscriptionsViewModel
   let dataService: DataService
 
-  @State var prefetchContent = false
+  @State var fetchContentType: FetchContentType
   @State var deleteConfirmationShown = false
   @State var showDeleteCompleted = false
   @State var folderSelection: String = ""
@@ -428,6 +432,28 @@ struct SubscriptionSettingsView: View {
     return nil
   }
 
+  var fetchContentRow: some View {
+    Picker(selection: $fetchContentType, content: {
+      Text("Always").tag(FetchContentType.always)
+      Text("Never").tag(FetchContentType.never)
+      Text("When empty").tag(FetchContentType.whenEmpty)
+    }, label: { Text("Fetch link") })
+    .pickerStyle(MenuPickerStyle())
+    .onChange(of: fetchContentType) { newValue in
+      Task {
+        viewModel.showOperationToast = true
+        await viewModel.updateSubscription(
+          dataService: dataService,
+          subscription: subscription,
+          fetchContentType: newValue
+        )
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+          viewModel.showOperationToast = false
+        }
+      }
+    }
+  }
+
   var folderRow: some View {
     HStack {
       Picker("Destination Folder", selection: $folderSelection) {
@@ -439,19 +465,6 @@ struct SubscriptionSettingsView: View {
         Task {
           viewModel.showOperationToast = true
           await viewModel.updateSubscription(dataService: dataService, subscription: subscription, folder: newValue)
-          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
-            viewModel.showOperationToast = false
-          }
-        }
-      }
-      .onChange(of: prefetchContent) { newValue in
-        Task {
-          viewModel.showOperationToast = true
-          await viewModel.updateSubscription(
-            dataService: dataService,
-            subscription: subscription,
-            fetchContent: newValue
-          )
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
             viewModel.showOperationToast = false
           }
@@ -526,6 +539,25 @@ struct SubscriptionSettingsView: View {
       }
     }
   }
+//  
+//  var notificationRuleRow: some View {
+//    HStack {
+//      Text("Add Labels")
+//      Spacer()
+//      if isLoadingRule || viewModel.rules != nil {
+//        Button(action: { showLabelsSelector = true }, label: {
+//          if let ruleLabels = ruleLabels {
+//            let labelNames = ruleLabels.map(\.unwrappedName)
+//            Text("[\(labelNames.joined(separator: ","))]")
+//          } else {
+//            Text("Create Rule")
+//          }
+//        }).tint(Color.blue)
+//      } else {
+//        ProgressView()
+//      }
+//    }
+//  }
 
   var body: some View {
     VStack {
@@ -551,12 +583,10 @@ struct SubscriptionSettingsView: View {
         .padding(.horizontal, 15)
 
       List {
-//        if subscription.type != .newsletter {
-//          Toggle(isOn: $prefetchContent, label: { Text("Prefetch Content:") })
-//            .onAppear {
-//              prefetchContent = subscription.fetchContent
-//            }
-//        }
+        if subscription.type != .newsletter {
+          fetchContentRow
+        }
+
         folderRow
         labelRuleRow
 

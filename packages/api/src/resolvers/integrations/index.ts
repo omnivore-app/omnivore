@@ -9,22 +9,31 @@ import {
   DeleteIntegrationError,
   DeleteIntegrationErrorCode,
   DeleteIntegrationSuccess,
+  ExportToIntegrationError,
+  ExportToIntegrationErrorCode,
+  ExportToIntegrationSuccess,
   ImportFromIntegrationError,
   ImportFromIntegrationErrorCode,
   ImportFromIntegrationSuccess,
+  IntegrationError,
+  IntegrationErrorCode,
   IntegrationsError,
-  IntegrationsErrorCode,
   IntegrationsSuccess,
+  IntegrationSuccess,
   MutationDeleteIntegrationArgs,
+  MutationExportToIntegrationArgs,
   MutationImportFromIntegrationArgs,
   MutationSetIntegrationArgs,
+  QueryIntegrationArgs,
   SetIntegrationError,
   SetIntegrationErrorCode,
   SetIntegrationSuccess,
+  TaskState,
 } from '../../generated/graphql'
 import { createIntegrationToken } from '../../routers/auth/jwt_helpers'
 import {
   findIntegration,
+  findIntegrationByName,
   findIntegrations,
   getIntegrationClient,
   removeIntegration,
@@ -34,7 +43,7 @@ import {
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
-  enqueueExportAllItems,
+  enqueueExportToIntegration,
   enqueueImportFromIntegration,
 } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
@@ -43,117 +52,94 @@ export const setIntegrationResolver = authorized<
   SetIntegrationSuccess,
   SetIntegrationError,
   MutationSetIntegrationArgs
->(async (_, { input }, { uid, log }) => {
-  try {
-    const integrationToSave: DeepPartial<Integration> = {
-      ...input,
-      user: { id: uid },
-      id: input.id || undefined,
-      type: input.type || IntegrationType.Export,
-      syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
-      importItemState:
-        input.type === IntegrationType.Import
-          ? input.importItemState || ImportItemState.Unarchived // default to unarchived
-          : undefined,
-    }
-    if (input.id) {
-      // Update
-      const existingIntegration = await findIntegration({ id: input.id }, uid)
-      if (!existingIntegration) {
-        return {
-          errorCodes: [SetIntegrationErrorCode.NotFound],
-        }
+>(async (_, { input }, { uid }) => {
+  const integrationToSave: DeepPartial<Integration> = {
+    ...input,
+    user: { id: uid },
+    id: input.id || undefined,
+    type: input.type || IntegrationType.Export,
+    syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
+    importItemState:
+      input.type === IntegrationType.Import
+        ? input.importItemState || ImportItemState.Unarchived // default to unarchived
+        : undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    settings: input.settings,
+  }
+  if (input.id) {
+    // Update
+    const existingIntegration = await findIntegration({ id: input.id }, uid)
+    if (!existingIntegration) {
+      return {
+        errorCodes: [SetIntegrationErrorCode.NotFound],
       }
+    }
 
-      integrationToSave.id = existingIntegration.id
-      integrationToSave.taskName = existingIntegration.taskName
-    } else {
-      // Create
-      const integrationService = getIntegrationClient(input.name)
-      // authorize and get access token
-      const token = await integrationService.accessToken(input.token)
-      if (!token) {
-        return {
-          errorCodes: [SetIntegrationErrorCode.InvalidToken],
-        }
+    integrationToSave.id = existingIntegration.id
+    integrationToSave.taskName = existingIntegration.taskName
+  } else {
+    // Create
+    const integrationService = getIntegrationClient(input.name, input.token)
+    // authorize and get access token
+    const token = await integrationService.accessToken()
+    if (!token) {
+      return {
+        errorCodes: [SetIntegrationErrorCode.InvalidToken],
       }
-      integrationToSave.token = token
     }
+    integrationToSave.token = token
+  }
 
-    // save integration
-    const integration = await saveIntegration(integrationToSave, uid)
+  // save integration
+  const integration = await saveIntegration(integrationToSave, uid)
 
-    if (integrationToSave.type === IntegrationType.Export && !input.id) {
-      const authToken = await createIntegrationToken({
-        uid,
-        token: integration.token,
-      })
-      if (!authToken) {
-        log.error('failed to create auth token', {
-          integrationId: integration.id,
-        })
-        return {
-          errorCodes: [SetIntegrationErrorCode.BadRequest],
-        }
-      }
+  if (integration.name.toLowerCase() === 'readwise') {
+    // create a task to export all the items for readwise temporarily
+    await enqueueExportToIntegration(integration.id, uid)
+  }
 
-      // create a task to sync all the pages if new integration or enable integration (export type)
-      await enqueueExportAllItems(integration.id, uid)
-    } else if (integrationToSave.taskName) {
-      // delete the task if disable integration and task exists
-      const result = await deleteTask(integrationToSave.taskName)
-      if (result) {
-        log.info('task deleted', integrationToSave.taskName)
-      }
+  analytics.capture({
+    distinctId: uid,
+    event: 'integration_set',
+    properties: {
+      id: integrationToSave.id,
+      env: env.server.apiEnv,
+    },
+  })
 
-      // update task name in integration
-      await updateIntegration(
-        integration.id,
-        {
-          taskName: null,
-        },
-        uid
-      )
-      integration.taskName = null
-    }
-
-    analytics.capture({
-      distinctId: uid,
-      event: 'integration_set',
-      properties: {
-        id: integrationToSave.id,
-        env: env.server.apiEnv,
-      },
-    })
-
-    return {
-      integration,
-    }
-  } catch (error) {
-    log.error(error)
-
-    return {
-      errorCodes: [SetIntegrationErrorCode.BadRequest],
-    }
+  return {
+    integration,
   }
 })
 
 export const integrationsResolver = authorized<
   IntegrationsSuccess,
   IntegrationsError
->(async (_, __, { uid, log }) => {
-  try {
-    const integrations = await findIntegrations(uid)
+>(async (_, __, { uid }) => {
+  const integrations = await findIntegrations(uid)
+
+  return {
+    integrations,
+  }
+})
+
+export const integrationResolver = authorized<
+  IntegrationSuccess,
+  IntegrationError,
+  QueryIntegrationArgs
+>(async (_, { name }, { uid, log }) => {
+  const integration = await findIntegrationByName(name, uid)
+
+  if (!integration) {
+    log.error('integration not found', name)
 
     return {
-      integrations,
+      errorCodes: [IntegrationErrorCode.NotFound],
     }
-  } catch (error) {
-    log.error(error)
+  }
 
-    return {
-      errorCodes: [IntegrationsErrorCode.BadRequest],
-    }
+  return {
+    integration,
   }
 })
 
@@ -164,42 +150,34 @@ export const deleteIntegrationResolver = authorized<
 >(async (_, { id }, { claims: { uid }, log }) => {
   log.info('deleteIntegrationResolver')
 
-  try {
-    const integration = await findIntegration({ id }, uid)
+  const integration = await findIntegration({ id }, uid)
 
-    if (!integration) {
-      return {
-        errorCodes: [DeleteIntegrationErrorCode.NotFound],
-      }
-    }
-
-    if (integration.taskName) {
-      // delete the task if task exists
-      await deleteTask(integration.taskName)
-      log.info('task deleted', integration.taskName)
-    }
-
-    const deletedIntegration = await removeIntegration(integration, uid)
-    deletedIntegration.id = id
-
-    analytics.capture({
-      distinctId: uid,
-      event: 'integration_delete',
-      properties: {
-        integrationId: deletedIntegration.id,
-        env: env.server.apiEnv,
-      },
-    })
-
+  if (!integration) {
     return {
-      integration,
+      errorCodes: [DeleteIntegrationErrorCode.NotFound],
     }
-  } catch (error) {
-    log.error(error)
+  }
 
-    return {
-      errorCodes: [DeleteIntegrationErrorCode.BadRequest],
-    }
+  if (integration.taskName) {
+    // delete the task if task exists
+    await deleteTask(integration.taskName)
+    log.info('task deleted', integration.taskName)
+  }
+
+  const deletedIntegration = await removeIntegration(integration, uid)
+  deletedIntegration.id = id
+
+  analytics.capture({
+    distinctId: uid,
+    event: 'integration_delete',
+    properties: {
+      integrationId: deletedIntegration.id,
+      env: env.server.apiEnv,
+    },
+  })
+
+  return {
+    integration,
   }
 })
 
@@ -208,52 +186,93 @@ export const importFromIntegrationResolver = authorized<
   ImportFromIntegrationError,
   MutationImportFromIntegrationArgs
 >(async (_, { integrationId }, { claims: { uid }, log }) => {
-  try {
-    const integration = await findIntegration({ id: integrationId }, uid)
+  const integration = await findIntegration({ id: integrationId }, uid)
 
-    if (!integration) {
-      return {
-        errorCodes: [ImportFromIntegrationErrorCode.Unauthorized],
-      }
-    }
-
-    const authToken = await createIntegrationToken({
-      uid: integration.user.id,
-      token: integration.token,
-    })
-    if (!authToken) {
-      return {
-        errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
-      }
-    }
-
-    // create a task to import all the pages
-    const taskName = await enqueueImportFromIntegration(
-      integration.id,
-      integration.name,
-      integration.syncedAt?.getTime() || 0,
-      authToken,
-      integration.importItemState || ImportItemState.Unarchived
-    )
-    // update task name in integration
-    await updateIntegration(integration.id, { taskName }, uid)
-
-    analytics.capture({
-      distinctId: uid,
-      event: 'integration_import',
-      properties: {
-        integrationId,
-      },
-    })
-
+  if (!integration) {
     return {
-      success: true,
+      errorCodes: [ImportFromIntegrationErrorCode.Unauthorized],
     }
-  } catch (error) {
-    log.error(error)
+  }
 
+  const authToken = await createIntegrationToken({
+    uid: integration.user.id,
+    token: integration.token,
+  })
+  if (!authToken) {
     return {
       errorCodes: [ImportFromIntegrationErrorCode.BadRequest],
     }
+  }
+
+  // create a task to import all the pages
+  const taskName = await enqueueImportFromIntegration(
+    integration.id,
+    integration.name,
+    integration.syncedAt?.getTime() || 0,
+    authToken,
+    integration.importItemState || ImportItemState.Unarchived
+  )
+  // update task name in integration
+  await updateIntegration(integration.id, { taskName }, uid)
+
+  analytics.capture({
+    distinctId: uid,
+    event: 'integration_import',
+    properties: {
+      integrationId,
+    },
+  })
+
+  return {
+    success: true,
+  }
+})
+
+export const exportToIntegrationResolver = authorized<
+  ExportToIntegrationSuccess,
+  ExportToIntegrationError,
+  MutationExportToIntegrationArgs
+>(async (_, { integrationId }, { uid, log }) => {
+  const integration = await findIntegration({ id: integrationId }, uid)
+
+  if (!integration) {
+    log.error('integration not found', integrationId)
+
+    return {
+      errorCodes: [ExportToIntegrationErrorCode.Unauthorized],
+    }
+  }
+
+  // create a job to export all the items
+  const job = await enqueueExportToIntegration(integration.id, uid)
+  if (!job || !job.id) {
+    log.error('failed to create task', integrationId)
+
+    return {
+      errorCodes: [ExportToIntegrationErrorCode.FailedToCreateTask],
+    }
+  }
+
+  // update task name in integration
+  await updateIntegration(integration.id, { taskName: job.id }, uid)
+
+  analytics.capture({
+    distinctId: uid,
+    event: 'integration_export',
+    properties: {
+      integrationId,
+    },
+  })
+
+  return {
+    task: {
+      id: job.id,
+      name: job.name,
+      state: TaskState.Pending,
+      createdAt: new Date(job.timestamp),
+      progress: 0,
+      runningTime: 0,
+      cancellable: true,
+    },
   }
 })

@@ -17,6 +17,7 @@ import {
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
+import { userHasFeature } from '../../lib/featureFlag'
 import { deleteIntegrationMutation } from '../../lib/networking/mutations/deleteIntegrationMutation'
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 import {
@@ -27,8 +28,8 @@ import {
   Integration,
   useGetIntegrationsQuery,
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
+import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
-import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 // Styles
 const Header = styled(Box, {
@@ -74,7 +75,8 @@ type integrationsCard = {
   }
 }
 export default function Integrations(): JSX.Element {
-  applyStoredTheme()
+  const { viewerData } = useGetViewerQuery()
+
   const { integrations, revalidate } = useGetIntegrationsQuery()
   const { webhooks } = useGetWebhooksQuery()
 
@@ -89,6 +91,9 @@ export default function Integrations(): JSX.Element {
   const pocketConnected = useMemo(() => {
     return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
   }, [integrations])
+  const isConnected = (name: string) => {
+    return integrations.find((i) => i.name == name)?.enabled
+  }
 
   const deleteIntegration = async (id: string) => {
     try {
@@ -110,17 +115,23 @@ export default function Integrations(): JSX.Element {
     }
   }
 
-  const redirectToPocket = (importItemState: ImportItemState) => {
+  const redirectToIntegration = (
+    name: string,
+    importItemState?: ImportItemState
+  ) => {
     // create a form and submit it to the backend
     const form = document.createElement('form')
     form.method = 'POST'
-    form.action = `${fetchEndpoint}/integration/pocket/auth`
-    const input = document.createElement('input')
-    input.type = 'hidden'
-    input.name = 'state'
-    input.value = importItemState
-    form.appendChild(input)
+    form.action = `${fetchEndpoint}/integration/${name.toLowerCase()}/auth`
+    if (importItemState) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = 'state'
+      input.value = importItemState
+      form.appendChild(input)
+    }
     document.body.appendChild(form)
+
     form.submit()
   }
 
@@ -155,17 +166,45 @@ export default function Integrations(): JSX.Element {
           { duration: 5000 }
         )
       } finally {
-        router.replace('/settings/integrations')
+        router.push('/settings/integrations')
       }
     }
+
+    const connectWithNotion = async () => {
+      try {
+        // get the token from query string
+        const token = router.query.code as string
+        await setIntegrationMutation({
+          token,
+          name: 'NOTION',
+          type: 'EXPORT',
+          enabled: false,
+        })
+
+        showSuccessToast('Connected with Notion.')
+
+        router.push('/settings/integrations/notion')
+      } catch (err) {
+        showErrorToast(
+          'There was an error connecting to Notion. Please try again.',
+          { duration: 5000 }
+        )
+
+        router.push('/settings/integrations')
+      }
+    }
+
     if (!router.isReady) return
     if (router.query.pocketToken && router.query.state && !pocketConnected) {
       connectToPocket()
     }
+    if (router.query.code) {
+      connectWithNotion()
+    }
   }, [router])
 
   useEffect(() => {
-    setIntegrationsArray([
+    const integrationsArray = [
       {
         icon: '/static/icons/logseq.svg',
         title: 'Logseq',
@@ -210,7 +249,7 @@ export default function Integrations(): JSX.Element {
           action: () => {
             pocketConnected
               ? deleteIntegration(pocketConnected.id)
-              : redirectToPocket(ImportItemState.Unarchived)
+              : redirectToIntegration('pocket', ImportItemState.Unarchived)
           },
           disabled: isImporting(pocketConnected),
           isDropdown: !pocketConnected,
@@ -218,13 +257,13 @@ export default function Integrations(): JSX.Element {
             {
               text: 'Import All',
               action: () => {
-                redirectToPocket(ImportItemState.All)
+                redirectToIntegration('pocket', ImportItemState.All)
               },
             },
             {
               text: 'Import Unarchived',
               action: () => {
-                redirectToPocket(ImportItemState.Unarchived)
+                redirectToIntegration('pocket', ImportItemState.Unarchived)
               },
             },
           ],
@@ -257,8 +296,28 @@ export default function Integrations(): JSX.Element {
           },
         },
       },
-    ])
-  }, [pocketConnected, readwiseConnected, webhooks])
+    ]
+
+    userHasFeature(viewerData?.me, 'notion') &&
+      integrationsArray.push({
+        icon: '/static/icons/notion.png',
+        title: 'Notion',
+        subText:
+          'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
+        button: {
+          text: isConnected('NOTION') ? 'Settings' : 'Connect',
+          icon: <Link size={16} weight={'bold'} />,
+          style: isConnected('NOTION') ? 'ctaWhite' : 'ctaDarkYellow',
+          action: () => {
+            isConnected('NOTION')
+              ? router.push('/settings/integrations/notion')
+              : redirectToIntegration('NOTION')
+          },
+        },
+      })
+
+    setIntegrationsArray(integrationsArray)
+  }, [pocketConnected, readwiseConnected, webhooks, integrations])
 
   return (
     <SettingsLayout>

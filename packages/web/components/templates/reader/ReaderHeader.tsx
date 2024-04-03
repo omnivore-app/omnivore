@@ -43,7 +43,6 @@ type ReaderHeaderProps = {
 
 export function ReaderHeader(props: ReaderHeaderProps): JSX.Element {
   const scrollDirection = useScrollDirection()
-
   return (
     <>
       <VStack

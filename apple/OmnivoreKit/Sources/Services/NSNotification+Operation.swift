@@ -3,8 +3,7 @@ import Foundation
 import Models
 
 public extension NSNotification {
-  static let PushJSONArticle = Notification.Name("PushJSONArticle")
-  static let PushReaderItem = Notification.Name("PushReaderItem")
+  static let PushLibraryItem = Notification.Name("PushLibraryItem")
   static let SnackBar = Notification.Name("SnackBar")
   static let OperationFailure = Notification.Name("OperationFailure")
   static let ReaderSettingsChanged = Notification.Name("ReaderSettingsChanged")
@@ -19,11 +18,7 @@ public extension NSNotification {
   }
 
   static var pushFeedItemPublisher: NotificationCenter.Publisher {
-    NotificationCenter.default.publisher(for: PushJSONArticle)
-  }
-
-  static var pushReaderItemPublisher: NotificationCenter.Publisher {
-    NotificationCenter.default.publisher(for: PushReaderItem)
+    NotificationCenter.default.publisher(for: PushLibraryItem)
   }
 
   static var snackBarPublisher: NotificationCenter.Publisher {
@@ -61,19 +56,14 @@ public extension NSNotification {
     return nil
   }
 
-  static func pushJSONArticle(article: JSONArticle) {
+  static func pushLibraryItem(folder: String?, libraryItemId: String) {
     NotificationCenter.default.post(
-      name: NSNotification.PushJSONArticle,
+      name: NSNotification.PushLibraryItem,
       object: nil,
-      userInfo: ["article": article]
-    )
-  }
-
-  static func pushReaderItem(objectID: NSManagedObjectID) {
-    NotificationCenter.default.post(
-      name: NSNotification.PushReaderItem,
-      object: nil,
-      userInfo: ["objectID": objectID]
+      userInfo: [
+        "folder": folder ?? "inbox",
+        "libraryItemId": libraryItemId
+      ]
     )
   }
 

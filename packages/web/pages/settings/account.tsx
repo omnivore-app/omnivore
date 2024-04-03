@@ -6,9 +6,13 @@ import {
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
+import { ProgressBar } from '../../components/elements/ProgressBar'
 import { StyledText } from '../../components/elements/StyledText'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { styled, theme } from '../../components/tokens/stitches.config'
+import { userHasFeature } from '../../lib/featureFlag'
+import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMutation'
 import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
@@ -17,8 +21,6 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { ProgressBar } from '../../components/elements/ProgressBar'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -197,6 +199,18 @@ export default function Account(): JSX.Element {
       setEmailUpdating(false)
     })()
   }, [email])
+
+  const emptyTrash = useCallback(() => {
+    ;(async () => {
+      showSuccessToast('Emptying trash')
+      const result = await emptyTrashMutation()
+      if (result) {
+        showSuccessToast('Emptied trash')
+      } else {
+        showErrorToast('Error emptying trash')
+      }
+    })()
+  }, [])
 
   applyStoredTheme()
 
@@ -396,10 +410,66 @@ export default function Account(): JSX.Element {
                 <StyledText style="footnote" css={{ mt: '0px' }}>
                   {`${libraryCount} of ${ACCOUNT_LIMIT} library items used.`}
                 </StyledText>
-                <StyledText style="footnote" css={{ m: '0px' }}>
+                <StyledText style="footnote" css={{ m: '0px', mb: '10px' }}>
                   NOTE: this is a soft limit, if you are approaching or have
                   exceeded this limit please contact support to have your limit
                   raised.
+                </StyledText>
+                <Button
+                  style="ctaDarkYellow"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    emptyTrash()
+                  }}
+                >
+                  Empty trash
+                </Button>
+              </>
+            )}
+            {/* <Button style="ctaDarkYellow">Upgrade</Button> */}
+          </VStack>
+
+          <VStack
+            css={{
+              padding: '24px',
+              width: '100%',
+              height: '100%',
+              bg: '$grayBg',
+              gap: '10px',
+              borderRadius: '5px',
+            }}
+          >
+            <StyledLabel>Beta features</StyledLabel>
+            {!isValidating && (
+              <>
+                {viewerData?.me?.featureList.map((feature) => {
+                  return (
+                    <StyledText
+                      key={`feature-${feature.name}`}
+                      style="footnote"
+                      css={{ display: 'flex', gap: '5px' }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={userHasFeature(viewerData?.me, feature.name)}
+                        disabled={true}
+                      ></input>
+                      {`${feature.name}${
+                        userHasFeature(viewerData?.me, feature.name)
+                          ? ''
+                          : ' - Requested'
+                      }`}
+                    </StyledText>
+                  )
+                })}
+                <StyledText
+                  style="footnote"
+                  css={{ display: 'flex', gap: '5px' }}
+                >
+                  To learn more about beta features available,{' '}
+                  <a href="https://discord.gg/h2z5rppzz9">
+                    join the Omnivore Discord
+                  </a>
                 </StyledText>
               </>
             )}

@@ -73,7 +73,12 @@ enum LoadingBarStyle {
       self.linkIsActive = true
     }
   }
-  
+
+  func pushLinkedRequest(request: LinkRequest) {
+    self.linkRequest = request
+    self.presentWebContainer = true
+  }
+
   private var filterState: FetcherFilterState? {
     if let appliedFilter = appliedFilter {
       return FetcherFilterState(
@@ -245,8 +250,7 @@ enum LoadingBarStyle {
   }
 
   func setLinkArchived(dataService: DataService, objectID: NSManagedObjectID, archived: Bool) {
-    dataService.archiveLink(objectID: objectID, archived: archived)
-    snackbar(archived ? "Link archived" : "Link unarchived")
+    archiveLibraryItemAction(dataService: dataService, objectID: objectID, archived: archived)
   }
 
   func removeLibraryItem(dataService: DataService, objectID: NSManagedObjectID) {

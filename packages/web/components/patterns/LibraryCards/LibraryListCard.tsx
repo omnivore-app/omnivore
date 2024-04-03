@@ -102,7 +102,7 @@ export function LibraryListCard(props: LinkedItemCardProps): JSX.Element {
         }
       }}
     >
-      {!isTouchScreenDevice() && (
+      {!isTouchScreenDevice() && props.multiSelectMode == 'off' && (
         <Box
           ref={refs.setFloating}
           style={{ ...floatingStyles, zIndex: 3 }}

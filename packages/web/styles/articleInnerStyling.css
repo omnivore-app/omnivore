@@ -86,7 +86,7 @@
   font-size: 1.43em !important;
 }
 .article-inner-css h3 {
-  font-size: 1.25em !important;
+  font-size: 1.0em !important;
 }
 .article-inner-css h4,
 .article-inner-css h5,
@@ -610,3 +610,64 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+
+.is-sticky {
+  position: fixed;
+  right: 5px;
+  bottom: 5px;
+  top: auto;
+  left: auto;
+  z-index: 10;
+  max-width: 400px;
+  max-height: 222px;
+  width: 400px;
+  height: 222px;
+  animation-name: fadeInUp;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  -webkit-animation-name: fadeInUp;
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-fill-mode: both;
+  overflow: hidden;
+  box-shadow: 0px 4px 4px rgba(33, 33, 33, 0.1) !important;
+}
+
+@media (max-width: 600px) {
+  .is-sticky {
+    max-width: 200px;
+    max-height: 110px;
+  }
+}
+
+
+@keyframes fadeInUp {
+  0% {
+      opacity: 0;
+      -webkit-transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, 100%, 0);
+  }
+  100% {
+      opacity: 1;
+      -webkit-transform: none;
+      transform: none;
+  }
+}
+
+@-webkit-keyframes fadeInUp {
+  0% {
+      opacity: 0;
+      -webkit-transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, 100%, 0);
+  }
+  100% {
+      opacity: 1;
+      -webkit-transform: none;
+      transform: none;
+  }
+}
+
+.youtubeplaceholder {
+  border: 2px dashed #aaa;
+  box-sizing: border-box;
+}
+

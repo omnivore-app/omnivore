@@ -23,6 +23,8 @@ struct LibraryTabView: View {
 
   @State var isEditMode: EditMode = .inactive
   @State var showExpandedAudioPlayer = false
+  @State var presentPushContainer = true
+  @State var pushLinkRequest: String?
 
   private let syncManager = LibrarySyncManager()
 
@@ -77,12 +79,33 @@ struct LibraryTabView: View {
   var body: some View {
     VStack(spacing: 0) {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
-        OperationToast(operationMessage: $operationMessage, 
+        OperationToast(operationMessage: $operationMessage,
                        showOperationToast: $showOperationToast,
                        operationStatus: $operationStatus)
       } label: {
         EmptyView()
       }.buttonStyle(.plain)
+
+      if let pushLinkRequest = pushLinkRequest {
+        PresentationLink(
+          transition: PresentationLinkTransition.slide(
+            options: PresentationLinkTransition.SlideTransitionOptions(
+              edge: .trailing,
+              options: PresentationLinkTransition.Options(
+                modalPresentationCapturesStatusBarAppearance: true,
+                preferredPresentationBackgroundColor: ThemeManager.currentBgColor
+              ))),
+          isPresented: $presentPushContainer,
+          destination: {
+            WebReaderLoadingContainer(requestID: pushLinkRequest)
+              .background(ThemeManager.currentBgColor)
+              .environmentObject(dataService)
+              .environmentObject(audioController)
+          }, label: {
+            EmptyView()
+          }
+        )
+      }
 
       TabView(selection: $selectedTab) {
         if !hideFollowingTab {
@@ -144,6 +167,11 @@ struct LibraryTabView: View {
         await syncManager.syncUpdates(dataService: dataService)
       }
     }
+    .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PushLibraryItem"))) { notification in
+      guard let libraryItemId = notification.userInfo?["libraryItemId"] as? String else { return }
+      pushLinkRequest = libraryItemId
+      presentPushContainer = true
+    }
     .onOpenURL { url in
       inboxViewModel.linkRequest = nil
 
@@ -162,10 +190,7 @@ struct LibraryTabView: View {
         case let .webAppLinkRequest(requestID):
 
           DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-            withoutAnimation {
-              inboxViewModel.linkRequest = LinkRequest(id: UUID(), serverID: requestID)
-              inboxViewModel.presentWebContainer = true
-            }
+            inboxViewModel.pushLinkedRequest(request: LinkRequest(id: UUID(), serverID: requestID))
           }
         }
       }

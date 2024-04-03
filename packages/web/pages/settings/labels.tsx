@@ -20,7 +20,6 @@ import { StyledText } from '../../components/elements/StyledText'
 import { ArrowClockwise, DotsThree, PencilSimple, Trash } from 'phosphor-react'
 import { GenericTableCardProps } from '../../utils/settings-page/labels/types'
 import { labelColorObjects } from '../../utils/settings-page/labels/labelColorObjects'
-import { TooltipWrapped } from '../../components/elements/Tooltip'
 import { LabelColorDropdown } from '../../components/elements/LabelColorDropdown'
 import {
   Dropdown,
@@ -146,8 +145,9 @@ export default function LabelsPage(): JSX.Element {
   const [descriptionInputText, setDescriptionInputText] = useState<string>('')
   const [isCreateMode, setIsCreateMode] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(0)
-  const [confirmRemoveLabelId, setConfirmRemoveLabelId] =
-    useState<string | null>(null)
+  const [confirmRemoveLabelId, setConfirmRemoveLabelId] = useState<
+    string | null
+  >(null)
   const [showLabelPageHelp, setShowLabelPageHelp] = usePersistedState<boolean>({
     key: `--settings-labels-show-help`,
     initialValue: true,
@@ -655,30 +655,23 @@ function GenericTableCard(
             />
           )}
           {showInput && (
-            <TooltipWrapped
-              tooltipSide={'top'}
-              tooltipContent="Random Color"
-              arrowStyles={{ fill: '#F9D354' }}
-              style={{ backgroundColor: '#F9D354', color: 'black' }}
-            >
-              <Box css={{ py: 4 }}>
-                <IconButton
-                  style="ctaWhite"
-                  css={{
-                    mr: '$1',
-                    width: 40,
-                    height: 40,
-                    background: '$labelButtonsBg',
-                  }}
-                  onClick={() => handleGenerateRandomColor(label?.id)}
-                  disabled={
-                    !(isCreateMode && !label) && !(editingLabelId === label?.id)
-                  }
-                >
-                  <ArrowClockwise size={16} color={iconColor} />
-                </IconButton>
-              </Box>
-            </TooltipWrapped>
+            <Box title="Random color" css={{ py: 4 }}>
+              <IconButton
+                style="ctaWhite"
+                css={{
+                  mr: '$1',
+                  width: 40,
+                  height: 40,
+                  background: '$labelButtonsBg',
+                }}
+                onClick={() => handleGenerateRandomColor(label?.id)}
+                disabled={
+                  !(isCreateMode && !label) && !(editingLabelId === label?.id)
+                }
+              >
+                <ArrowClockwise size={16} color={iconColor} />
+              </IconButton>
+            </Box>
           )}
           {!showInput && (
             <Box css={{ marginLeft: 'auto', '@md': { display: 'none' } }}>

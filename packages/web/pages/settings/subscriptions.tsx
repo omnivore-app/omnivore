@@ -120,6 +120,9 @@ export default function SubscriptionsPage(): JSX.Element {
             onAccept={async () => {
               await onUnsubscribe(confirmUnsubscribeSubscription)
               setConfirmUnsubscribeSubscription(null)
+              setTimeout(() => {
+                document.body.style.removeProperty('pointer-events')
+              }, 200)
             }}
             onOpenChange={() => setConfirmUnsubscribeSubscription(null)}
           />

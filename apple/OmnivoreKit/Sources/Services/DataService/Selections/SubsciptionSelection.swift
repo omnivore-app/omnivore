@@ -11,7 +11,7 @@ let subscriptionSelection = Selection.Subscription {
     name: try $0.name(),
     type: try SubscriptionType.from($0.type()),
     folder: try $0.folder(),
-    fetchContent: try $0.fetchContent(),
+    fetchContentType: try FetchContentType.from($0.fetchContentType()),
     newsletterEmailAddress: try $0.newsletterEmail(),
     status: try SubscriptionStatus.make(from: $0.status()),
     unsubscribeHttpUrl: try $0.unsubscribeHttpUrl(),
@@ -42,6 +42,29 @@ extension SubscriptionType {
       return .feed
     case .newsletter:
       return .newsletter
+    }
+  }
+}
+
+extension FetchContentType {
+  static func from(_ other: Enums.FetchContentType) -> FetchContentType {
+    switch other {
+    case .always:
+      return .always
+    case .never:
+      return .never
+    case .whenEmpty:
+      return .whenEmpty
+    }
+  }
+  func toGQLType() -> Enums.FetchContentType {
+    switch self {
+    case .always:
+      return .always
+    case .never:
+      return .never
+    case .whenEmpty:
+      return .whenEmpty
     }
   }
 }

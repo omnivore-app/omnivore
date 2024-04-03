@@ -31,8 +31,9 @@ export function SetLabelsModal(props: SetLabelsModalProps): JSX.Element {
   const availableLabels = useGetLabelsQuery()
   const [tabCount, setTabCount] = useState(-1)
   const [tabStartValue, setTabStartValue] = useState('')
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
   const errorTimeoutRef = useRef<NodeJS.Timeout | undefined>()
   const [highlightLastLabel, setHighlightLastLabel] = useState(false)
 

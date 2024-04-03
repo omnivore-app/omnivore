@@ -1,4 +1,4 @@
-import { VStack } from '../../elements/LayoutPrimitives'
+import { Box, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
 import { ErrorSlothIcon } from '../../elements/icons/ErrorSlothIcon'
 import { DEFAULT_HEADER_HEIGHT } from './HeaderSpacer'
@@ -13,6 +13,7 @@ export const FetchItemsError = (): JSX.Element => {
         width: '100%',
         height: '100%',
         pb: '100px',
+        px: '30px',
         minHeight: `calc(100vh - ${DEFAULT_HEADER_HEIGHT})`,
       }}
     >
@@ -30,16 +31,15 @@ export const FetchItemsError = (): JSX.Element => {
       >
         Something has gone wrong.
       </StyledText>
-      <StyledText
+      <SpanBox
         css={{
-          display: 'flex',
           marginBlockStart: '0px',
           marginBlockEnd: '0px',
           fontSize: '15px',
           lineHeight: '125%',
           fontFamily: '$inter',
           color: '$thTextSubtle2',
-          whiteSpace: 'nowrap',
+          textAlign: 'center',
         }}
       >
         We have encountered unexpected problems.{' '}
@@ -50,7 +50,7 @@ export const FetchItemsError = (): JSX.Element => {
         >
           Get help
         </a>
-      </StyledText>
+      </SpanBox>
     </VStack>
   )
 }

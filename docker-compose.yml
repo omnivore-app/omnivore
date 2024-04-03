@@ -15,6 +15,8 @@ services:
       retries: 3
     expose:
       - 5432
+    ports:
+      - "5432:5432"
 
   migrate:
     build:

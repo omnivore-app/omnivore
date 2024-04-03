@@ -58,6 +58,8 @@ export const libraryItemRepository = appDataSource
     },
 
     createByPopularRead(name: string, userId: string) {
+      // set read_at to now and reading_progress_bottom_percent to 2
+      // so the items show up in continue reading section
       return this.query(
         `
         INSERT INTO omnivore.library_item (
@@ -73,7 +75,9 @@ export const libraryItemRepository = appDataSource
           published_at,
           site_name,
           user_id,
-          word_count
+          word_count,
+          read_at,
+          reading_progress_bottom_percent
         ) 
         SELECT
           slug,
@@ -88,7 +92,9 @@ export const libraryItemRepository = appDataSource
           published_at,
           site_name,
           $2,
-          word_count
+          word_count,
+          NOW(),
+          2
         FROM
           omnivore.popular_read
         WHERE

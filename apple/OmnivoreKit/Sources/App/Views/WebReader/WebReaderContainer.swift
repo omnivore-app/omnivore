@@ -405,25 +405,37 @@ struct WebReaderContainerView: View {
             anchorIndex: Int(item.readingProgressAnchor),
             force: false
           )
-          Task {
-            await audioController.preload(itemIDs: [item.unwrappedID])
-          }
           viewModel.trackReadEvent(item: item)
+
+          // Wait 1.5s while loading the reader before attempting to preload the speech file
+          DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1500)) {
+            Task {
+              await audioController.preload(itemIDs: [item.unwrappedID])
+            }
+          }
         }
         .confirmationDialog(linkToOpen?.absoluteString ?? "", isPresented: $displayLinkSheet,
                             titleVisibility: .visible) {
           Button(action: {
             if let linkToOpen = linkToOpen {
-              safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
+              if UserDefaults.standard.string(forKey: UserDefaultKey.openExternalLinksIn.rawValue) == OpenLinkIn.systemBrowser.rawValue, UIApplication.shared.canOpenURL(linkToOpen) {
+                UIApplication.shared.open(linkToOpen)
+              } else {
+                safariWebLink = SafariWebLink(id: UUID(), url: linkToOpen)
+              }
             }
           }, label: { Text(LocalText.genericOpen) })
           Button(action: {
-            #if os(iOS)
-              UIPasteboard.general.string = item.unwrappedPageURLString
-            #else
-              //            Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
-            #endif
-            Snackbar.show(message: "Link copied", dismissAfter: 2000)
+            if let linkToOpen = linkToOpen?.absoluteString {
+#if os(iOS)
+              UIPasteboard.general.string = linkToOpen
+#else
+              // Pasteboard.general.string = item.unwrappedPageURLString TODO: fix for mac
+#endif
+              Snackbar.show(message: "Link copied", dismissAfter: 2000)
+            } else {
+              Snackbar.show(message: "Error copying link", dismissAfter: 2000)
+            }
           }, label: { Text(LocalText.readerCopyLink) })
           Button(action: {
             if let linkToOpen = linkToOpen {

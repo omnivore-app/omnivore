@@ -58,7 +58,7 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
       />
       <DropdownOption
         onSelect={() => props.actionHandler('editTitle')}
-        title="Edit metadata"
+        title="Edit info"
       />
       {props.item.readingProgressPercent < 98 ? (
         <DropdownOption
@@ -81,14 +81,14 @@ export function CardMenu(props: CardMenuProps): JSX.Element {
         }}
         title="Remove"
       />
-      {!!props.item.subscription && (
+      {/* {!!props.item.subscription && (
         <DropdownOption
           onSelect={() => {
             props.actionHandler('unsubscribe')
           }}
           title="Unsubscribe"
         />
-      )}
+      )} */}
     </Dropdown>
   )
 }

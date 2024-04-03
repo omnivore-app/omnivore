@@ -21,6 +21,7 @@ import {
   updateSubscriptionMutation,
 } from '../../../lib/networking/mutations/updateSubscriptionMutation'
 import {
+  FetchContentType,
   SubscriptionStatus,
   SubscriptionType,
   useGetSubscriptionsQuery,
@@ -99,6 +100,23 @@ export default function Rss(): JSX.Element {
     revalidate()
   }
 
+  const updateFetchContent = async (
+    id: string,
+    fetchContent: FetchContentType
+  ): Promise<void> => {
+    const result = await updateSubscriptionMutation({
+      id,
+      fetchContentType: fetchContent,
+    })
+
+    if (result) {
+      showSuccessToast(`Updated feed fetch rule`)
+    } else {
+      showErrorToast(`Error updating feed fetch rule`)
+    }
+    revalidate()
+  }
+
   applyStoredTheme()
 
   return (
@@ -113,7 +131,7 @@ export default function Rss(): JSX.Element {
       suggestionInfo={{
         title: 'Add RSS and Atom feeds to your Omnivore account',
         message:
-          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every hour, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
+          'When you add a new feed the last 24hrs of items, or at least one item will be added to your account. Feeds will be checked for updates every four hours, and new items will be added to your Following. You can also add feeds to your Library by checking the box below.',
         docs: 'https://docs.omnivore.app/using/feeds.html',
         key: '--settings-feeds-show-help',
         CTAText: 'Add a feed',
@@ -222,6 +240,31 @@ export default function Rss(): JSX.Element {
                         subscription.mostRecentItemDate
                       )}`}
                   </SpanBox>
+                  <select
+                    tabIndex={-1}
+                    onChange={(event) => {
+                      ;(async () => {
+                        updateFetchContent(
+                          subscription.id,
+                          event.target.value as FetchContentType
+                        )
+                      })()
+                    }}
+                    defaultValue={subscription.fetchContentType}
+                    style={{
+                      padding: '5px',
+                      marginTop: '5px',
+                      borderRadius: '6px',
+                      minWidth: '196px',
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                    }}
+                  >
+                    <option value="ALWAYS">Fetch link: Always</option>
+                    <option value="NEVER">Fetch link: Never</option>
+                    <option value="WHEN_EMPTY">Fetch link: When empty</option>
+                  </select>
                 </VStack>
               }
               onClick={() => {

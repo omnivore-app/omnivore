@@ -298,10 +298,16 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
       case #selector(setLabels(_:)): return true
+
       case Selector(("_lookup:")): return (currentMenu == .defaultMenu)
       case Selector(("_define:")): return (currentMenu == .defaultMenu)
       case Selector(("_translate:")): return (currentMenu == .defaultMenu)
       case Selector(("_findSelected:")): return (currentMenu == .defaultMenu)
+
+      case Selector(("lookup:")): return (currentMenu == .defaultMenu)
+      case Selector(("define:")): return (currentMenu == .defaultMenu)
+      case Selector(("translate:")): return (currentMenu == .defaultMenu)
+      case Selector(("findSelected:")): return (currentMenu == .defaultMenu)
       default: return false
       }
     }
@@ -371,6 +377,14 @@ public final class OmnivoreWebView: WKWebView {
 
         let items: [UIMenuElement]
         if currentMenu == .defaultMenu {
+          let autoHighlightEnabled = UserDefaults.standard.value(forKey: UserDefaultKey.enableHighlightOnRelease.rawValue)
+          if let autoHighlightEnabled = autoHighlightEnabled as? Bool, autoHighlightEnabled  {
+            builder.remove(menu: .standardEdit)
+            builder.remove(menu: .lookup)
+            builder.remove(menu: .find)
+            super.buildMenu(with: builder)
+            return
+          }
           let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
           items = [highlight, annotate]
         } else {
@@ -380,7 +394,7 @@ public final class OmnivoreWebView: WKWebView {
         }
 
         let omnivore = UIMenu(title: "", options: .displayInline, children: items)
-        builder.insertSibling(omnivore, beforeMenu: .lookup)
+        builder.insertSibling(omnivore, afterMenu: .standardEdit)
       }
 
       super.buildMenu(with: builder)

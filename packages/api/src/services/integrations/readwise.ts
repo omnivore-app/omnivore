@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { LibraryItem } from '../../entity/library_item'
-import { highlightUrl, wait } from '../../utils/helpers'
 import { logger } from '../../utils/logger'
+import { getHighlightUrl } from '../highlights'
 import { IntegrationClient } from './integration'
 
 interface ReadwiseHighlight {
@@ -33,17 +33,29 @@ interface ReadwiseHighlight {
 
 export class ReadwiseClient implements IntegrationClient {
   name = 'READWISE'
-  apiUrl = 'https://readwise.io/api/v2'
+  token: string
 
-  accessToken = async (token: string): Promise<string | null> => {
-    const authUrl = `${this.apiUrl}/auth`
+  _headers = {
+    'Content-Type': 'application/json',
+  }
+  _axios = axios.create({
+    baseURL: 'https://readwise.io/api/v2',
+    timeout: 5000, // 5 seconds
+  })
+
+  constructor(token: string) {
+    this.token = token
+  }
+
+  accessToken = async (): Promise<string | null> => {
     try {
-      const response = await axios.get(authUrl, {
+      const response = await this._axios.get('/auth', {
         headers: {
-          Authorization: `Token ${token}`,
+          ...this._headers,
+          Authorization: `Token ${this.token}`,
         },
       })
-      return response.status === 204 ? token : null
+      return response.status === 204 ? this.token : null
     } catch (error) {
       if (axios.isAxiosError(error)) {
         logger.error(error.response)
@@ -54,20 +66,26 @@ export class ReadwiseClient implements IntegrationClient {
     }
   }
 
-  export = async (token: string, items: LibraryItem[]): Promise<boolean> => {
+  export = async (items: LibraryItem[]): Promise<boolean> => {
     let result = true
 
-    const highlights = items.flatMap(this.itemToReadwiseHighlight)
+    const highlights = items.flatMap(this._itemToReadwiseHighlight)
 
     // If there are no highlights, we will skip the sync
     if (highlights.length > 0) {
-      result = await this.syncWithReadwise(token, highlights)
+      result = await this._syncWithReadwise(highlights)
     }
 
     return result
   }
 
-  itemToReadwiseHighlight = (item: LibraryItem): ReadwiseHighlight[] => {
+  auth = () => {
+    throw new Error('Method not implemented.')
+  }
+
+  private _itemToReadwiseHighlight = (
+    item: LibraryItem
+  ): ReadwiseHighlight[] => {
     const category = item.siteName === 'Twitter' ? 'tweets' : 'articles'
     return item.highlights
       ?.map((highlight) => {
@@ -80,7 +98,7 @@ export class ReadwiseClient implements IntegrationClient {
           text: highlight.quote,
           title: item.title,
           author: item.author || undefined,
-          highlight_url: highlightUrl(item.slug, highlight.id),
+          highlight_url: getHighlightUrl(item.slug, highlight.id),
           highlighted_at: new Date(highlight.createdAt).toISOString(),
           category,
           image_url: item.thumbnail || undefined,
@@ -93,42 +111,21 @@ export class ReadwiseClient implements IntegrationClient {
       .filter((highlight) => highlight !== undefined) as ReadwiseHighlight[]
   }
 
-  syncWithReadwise = async (
-    token: string,
-    highlights: ReadwiseHighlight[],
-    retryCount = 0
+  private _syncWithReadwise = async (
+    highlights: ReadwiseHighlight[]
   ): Promise<boolean> => {
-    const url = `${this.apiUrl}/highlights`
-    try {
-      const response = await axios.post(
-        url,
-        {
-          highlights,
+    const response = await this._axios.post(
+      '/highlights',
+      {
+        highlights,
+      },
+      {
+        headers: {
+          ...this._headers,
+          Authorization: `Token ${this.token}`,
         },
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            'Content-Type': 'application/json',
-          },
-          timeout: 5000, // 5 seconds
-        }
-      )
-      return response.status === 200
-    } catch (error) {
-      console.error(error)
-
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 429 && retryCount < 3) {
-          console.log('Readwise API rate limit exceeded, retrying...')
-          // wait for Retry-After seconds in the header if rate limited
-          // max retry count is 3
-          const retryAfter = error.response?.headers['retry-after'] || '10' // default to 10 seconds
-          await wait(parseInt(retryAfter, 10) * 1000)
-          return this.syncWithReadwise(token, highlights, retryCount + 1)
-        }
       }
-
-      return false
-    }
+    )
+    return response.status === 200
   }
 }

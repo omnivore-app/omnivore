@@ -7,7 +7,14 @@ import {
   ScrollOffsetChangeset,
   useScrollWatcher,
 } from '../../../lib/hooks/useScrollWatcher'
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { isDarkTheme } from '../../../lib/themeUpdater'
 import { ArticleMutations } from '../../../lib/articleActions'
 import { Lightbox, SlideImage } from 'yet-another-react-lightbox'
@@ -18,6 +25,7 @@ import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Counter from 'yet-another-react-lightbox/plugins/counter'
 
 import loadjs from 'loadjs'
+import { LinkHoverBar } from '../../patterns/LinkHoverBar'
 
 export type ArticleProps = {
   articleId: string
@@ -28,6 +36,16 @@ export type ArticleProps = {
   highlightHref: MutableRefObject<string | null>
   articleMutations: ArticleMutations
   isAppleAppEmbed: boolean
+}
+
+type PageCoordinates = {
+  pageX: number
+  pageY: number
+}
+
+type LinkHoverData = {
+  href: string
+  pageCoordinate: PageCoordinates
 }
 
 export function Article(props: ArticleProps): JSX.Element {
@@ -49,6 +67,9 @@ export function Article(props: ArticleProps): JSX.Element {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageSrcs, setImageSrcs] = useState<SlideImage[]>([])
   const [lightboxIndex, setlightBoxIndex] = useState(0)
+  const [linkHoverData, setlinkHoverData] = useState<
+    LinkHoverData | undefined
+  >()
 
   useEffect(() => {
     ;(async () => {
@@ -93,6 +114,40 @@ export function Article(props: ArticleProps): JSX.Element {
       setReadingProgress(bottomProgress * 100)
     }
   }, 2500)
+
+  useEffect(() => {
+    const youtubePlayer = document.getElementById('_omnivore_youtube_video')
+
+    const updateScroll = () => {
+      const YOUTUBE_PLACEHOLDER_ID = 'omnivore-youtube-placeholder'
+      const youtubePlaceholder = document.getElementById(YOUTUBE_PLACEHOLDER_ID)
+
+      if (youtubePlayer) {
+        if (window.scrollY > 400) {
+          if (!youtubePlaceholder) {
+            const rect = youtubePlayer.getBoundingClientRect()
+            const placeholder = document.createElement('div')
+            placeholder.setAttribute('id', YOUTUBE_PLACEHOLDER_ID)
+            placeholder.style.width = rect.width + 'px'
+            placeholder.style.height = rect.height + 'px'
+            youtubePlayer.parentNode?.insertBefore(placeholder, youtubePlayer)
+          }
+          youtubePlayer.classList.add('is-sticky')
+        } else {
+          if (youtubePlaceholder) {
+            youtubePlayer.parentNode?.removeChild(youtubePlaceholder)
+          }
+          youtubePlayer.classList.remove('is-sticky')
+        }
+      }
+    }
+    if (youtubePlayer) {
+      window.addEventListener('scroll', updateScroll)
+    }
+    return () => {
+      window.removeEventListener('scroll', updateScroll) // clean up
+    }
+  }, [props])
 
   // Scroll to initial anchor position
   useEffect(() => {
@@ -267,6 +322,41 @@ export function Article(props: ArticleProps): JSX.Element {
     }
   }, [props])
 
+  // const linkMouseOver = useCallback(
+  //   (event: Event) => {
+  //     const element = event.target as HTMLLinkElement
+
+  //     setlinkHoverData({
+  //       href: element.href,
+  //       pageCoordinate: {
+  //         pageX: element.offsetLeft,
+  //         pageY: element.offsetTop - 45,
+  //       },
+  //     })
+  //   },
+  //   [props]
+  // )
+
+  // const linkMouseOut = useCallback(
+  //   (event: Event) => {
+  //     console.log('mouse out link', event.target)
+  //     setlinkHoverData(undefined)
+  //   },
+  //   [props]
+  // )
+
+  useEffect(() => {
+    const embeddedLinks = Array.from(
+      document.querySelectorAll('a[data-omnivore-anchor-idx]')
+    )
+
+    embeddedLinks.forEach((link: Element) => {
+      link.setAttribute('target', '_blank')
+      // link.addEventListener('mouseover', linkMouseOver)
+      // link.addEventListener('mouseout', linkMouseOut)
+    })
+  }, [props.content])
+
   return (
     <>
       {!props.isAppleAppEmbed && (
@@ -306,6 +396,16 @@ export function Article(props: ArticleProps): JSX.Element {
           }}
         />
       </SpanBox>
+      {linkHoverData && (
+        <>
+          <LinkHoverBar
+            anchorCoordinates={linkHoverData.pageCoordinate}
+            handleButtonClick={() => {
+              console.log('saved link hover: ', linkHoverData)
+            }}
+          />
+        </>
+      )}
     </>
   )
 }

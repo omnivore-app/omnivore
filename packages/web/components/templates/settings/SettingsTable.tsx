@@ -6,10 +6,17 @@ import { MoreOptionsIcon } from '../../elements/images/MoreOptionsIcon'
 import { InfoLink } from '../../elements/InfoLink'
 import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { StyledText } from '../../elements/StyledText'
-import { theme } from '../../tokens/stitches.config'
+import { styled, theme } from '../../tokens/stitches.config'
 import { SettingsLayout } from '../SettingsLayout'
 import { usePersistedState } from '../../../lib/hooks/usePersistedState'
 import { FeatureHelpBox } from '../../elements/FeatureHelpBox'
+
+// Styles
+export const Header = styled(Box, {
+  color: '$utilityTextDefault',
+  fontSize: 'x-large',
+  margin: '20px',
+})
 
 type SettingsTableProps = {
   pageId: string

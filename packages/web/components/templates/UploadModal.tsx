@@ -284,9 +284,8 @@ export function UploadModal(props: UploadModalProps): JSX.Element {
           minWidth: '650px',
           minHeight: '430px',
         }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
       >
         <VStack distribution="start">

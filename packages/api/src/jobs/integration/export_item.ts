@@ -37,19 +37,23 @@ export const exportItem = async (jobData: ExportItemJobData) => {
 
   await Promise.all(
     integrations.map(async (integration) => {
-      const logObject = {
-        userId,
-        integrationId: integration.id,
-      }
-      logger.info('exporting item...', logObject)
-
       try {
-        const client = getIntegrationClient(integration.name)
+        const logObject = {
+          userId,
+          integrationId: integration.id,
+        }
+        logger.info('exporting item...', logObject)
 
-        const synced = await client.export(integration.token, libraryItems)
+        const client = getIntegrationClient(
+          integration.name,
+          integration.token,
+          integration
+        )
+
+        const synced = await client.export(libraryItems)
         if (!synced) {
           logger.error('failed to export item', logObject)
-          return Promise.resolve(false)
+          return false
         }
 
         const syncedAt = new Date()
@@ -70,12 +74,15 @@ export const exportItem = async (jobData: ExportItemJobData) => {
           ...logObject,
           updated,
         })
-
-        return Promise.resolve(true)
-      } catch (err) {
-        logger.error('export with integration failed', err)
-        return Promise.resolve(false)
+      } catch (error) {
+        logger.error('failed to export item', {
+          userId,
+          integrationId: integration.id,
+          error,
+        })
       }
     })
   )
+
+  return true
 }

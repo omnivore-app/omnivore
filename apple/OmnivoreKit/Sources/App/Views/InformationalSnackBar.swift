@@ -12,7 +12,7 @@ struct InformationalSnackbar: View {
           Text(message)
         }
           Spacer()
-          
+
         if let undoAction = self.undoAction {
           Button(action: {
             undoAction()

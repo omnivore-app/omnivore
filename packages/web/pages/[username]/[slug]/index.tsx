@@ -345,7 +345,7 @@ export default function Home(): JSX.Element {
         id: 'mark_read',
         section: 'Article',
         name: 'Mark current item as read',
-        shortcut: ['m', 'r'],
+        shortcut: ['-'],
         perform: () => {
           document.dispatchEvent(new Event('mark-read'))
         },
@@ -565,6 +565,9 @@ export default function Home(): JSX.Element {
               highContrastText={readerSettings.highContrastText ?? undefined}
               highlightOnRelease={
                 readerSettings.highlightOnRelease ?? undefined
+              }
+              textDirection={
+                article.directionality ?? readerSettings.textDirection
               }
               articleMutations={{
                 createHighlightMutation,

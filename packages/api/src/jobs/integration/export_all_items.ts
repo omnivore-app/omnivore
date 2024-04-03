@@ -1,8 +1,11 @@
 import { IntegrationType } from '../../entity/integration'
-import { findIntegration } from '../../services/integrations'
+import {
+  findIntegration,
+  getIntegrationClient,
+  updateIntegration,
+} from '../../services/integrations'
 import { findRecentLibraryItems } from '../../services/library_item'
 import { findActiveUser } from '../../services/user'
-import { enqueueExportItem } from '../../utils/createTask'
 import { logger } from '../../utils/logger'
 
 export interface ExportAllItemsJobData {
@@ -39,17 +42,23 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
     return
   }
 
-  const maxItems = 1000
-  const limit = 100
+  const client = getIntegrationClient(
+    integration.name,
+    integration.token,
+    integration
+  )
+
+  const maxItems = 100
+  const limit = 10
   let offset = 0
-  // get max 1000 most recent items from the database
+  // get max 100 most recent items from the database
   while (offset < maxItems) {
     const libraryItems = await findRecentLibraryItems(userId, limit, offset)
     if (libraryItems.length === 0) {
       logger.info('no library items found', {
         userId,
       })
-      return
+      break
     }
 
     logger.info('enqueuing export item...', {
@@ -58,18 +67,44 @@ export const exportAllItems = async (jobData: ExportAllItemsJobData) => {
       integrationId,
     })
 
-    await enqueueExportItem({
-      userId,
-      libraryItemIds: libraryItems.map((item) => item.id),
-      integrationId,
+    const synced = await client.export(libraryItems)
+    if (!synced) {
+      logger.error('failed to export item', jobData)
+      continue
+    }
+
+    const syncedAt = new Date()
+    logger.info('updating integration...', {
+      ...jobData,
+      syncedAt,
+    })
+
+    // update integration syncedAt if successful
+    const updated = await updateIntegration(
+      integration.id,
+      {
+        syncedAt,
+      },
+      userId
+    )
+    logger.info('integration updated', {
+      ...jobData,
+      updated,
     })
 
     offset += libraryItems.length
 
     logger.info('exported items', {
-      userId,
+      ...jobData,
       offset,
-      integrationId,
     })
   }
+
+  logger.info('exported all items', {
+    ...jobData,
+    offset,
+  })
+
+  // clear task name in integration
+  await updateIntegration(integration.id, { taskName: null }, userId)
 }

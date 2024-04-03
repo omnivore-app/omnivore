@@ -108,9 +108,8 @@ const ViewRecentEmailModal = (
           width: '100%',
           maxWidth: '650px',
         }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
       >
         <VStack distribution="start" css={{ height: '100%' }}>
@@ -152,11 +151,13 @@ const ViewRecentEmailModal = (
 
 export default function RecentEmails(): JSX.Element {
   const { recentEmails, revalidate, isValidating } = useGetRecentEmailsQuery()
-  const [viewingEmailText, setViewingEmailText] =
-    useState<RecentEmail | undefined>(undefined)
+  const [viewingEmailText, setViewingEmailText] = useState<
+    RecentEmail | undefined
+  >(undefined)
 
-  const [viewingEmailHtml, setViewingEmailHtml] =
-    useState<RecentEmail | undefined>(undefined)
+  const [viewingEmailHtml, setViewingEmailHtml] = useState<
+    RecentEmail | undefined
+  >(undefined)
 
   applyStoredTheme()
 

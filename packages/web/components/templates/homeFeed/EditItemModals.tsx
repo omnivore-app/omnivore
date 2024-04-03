@@ -217,7 +217,6 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
       defaultOpen
       modal={true}
       onOpenChange={() => {
-        console.log('props.onOpenChange')
         props.onOpenChange(false)
       }}
       css={{}}
@@ -225,9 +224,8 @@ function EditItemModal(props: EditItemModalProps): JSX.Element {
       <ModalOverlay />
       <ModalContent
         css={{ bg: '$grayBg', p: '20px', maxWidth: '480px' }}
-        onInteractOutside={() => {
-          // remove focus from modal
-          ;(document.activeElement as HTMLElement).blur()
+        onInteractOutside={(event) => {
+          event.preventDefault()
         }}
         onEscapeKeyDown={(event) => {
           props.onOpenChange(false)

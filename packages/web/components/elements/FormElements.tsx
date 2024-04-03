@@ -36,9 +36,13 @@ export const FormInput = styled('input', {
   textIndent: '8px',
   marginBottom: '2px',
   height: '38px',
+  pl: '10px',
   color: '$grayTextContrast',
   '&:focus': {
     outline: 'none',
+  },
+  '@mdDown': {
+    pl: '5px',
   },
 })
 

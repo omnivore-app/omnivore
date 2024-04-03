@@ -5,24 +5,27 @@ import { IntegrationClient } from './integration'
 
 export class PocketClient implements IntegrationClient {
   name = 'POCKET'
-  apiUrl = 'https://getpocket.com/v3'
-  headers = {
-    'Content-Type': 'application/json',
-    'X-Accept': 'application/json',
+  token: string
+  _axios = axios.create({
+    baseURL: 'https://getpocket.com/v3',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Accept': 'application/json',
+    },
+    timeout: 5000, // 5 seconds
+  })
+
+  constructor(token: string) {
+    this.token = token
   }
 
-  accessToken = async (token: string): Promise<string | null> => {
-    const url = `${this.apiUrl}/oauth/authorize`
+  accessToken = async (): Promise<string | null> => {
     try {
-      const response = await axios.post<{ access_token: string }>(
-        url,
+      const response = await this._axios.post<{ access_token: string }>(
+        '/oauth/authorize',
         {
           consumer_key: env.pocket.consumerKey,
-          code: token,
-        },
-        {
-          headers: this.headers,
-          timeout: 5000, // 5 seconds
+          code: this.token,
         }
       )
       return response.data.access_token
@@ -36,7 +39,26 @@ export class PocketClient implements IntegrationClient {
     }
   }
 
-  export = async (): Promise<boolean> => {
-    return Promise.resolve(false)
+  export = () => {
+    throw new Error('Method not implemented.')
+  }
+
+  async auth(state: string) {
+    const consumerKey = env.pocket.consumerKey
+    const redirectUri = `${env.client.url}/settings/integrations`
+
+    // make a POST request to Pocket to get a request token
+    const response = await this._axios.post<{ code: string }>(
+      '/oauth/request',
+      {
+        consumer_key: consumerKey,
+        redirect_uri: redirectUri,
+      }
+    )
+    const { code } = response.data
+
+    return `https://getpocket.com/auth/authorize?request_token=${code}&redirect_uri=${redirectUri}${encodeURIComponent(
+      `?pocketToken=${code}&state=${state}`
+    )}`
   }
 }

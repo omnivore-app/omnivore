@@ -5,7 +5,6 @@ import type { AppProps } from 'next/app'
 import { IdProvider } from '@radix-ui/react-id'
 import { NextRouter, useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { TooltipProvider } from '../components/elements/Tooltip'
 import TopBarProgress from 'react-topbar-progress-indicator'
 import {
   KBarProvider,
@@ -66,7 +65,7 @@ const generateActions = (router: NextRouter) => {
   return defaultActions
 }
 
-function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
+export function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
   const router = useRouter()
 
   useEffect(() => {
@@ -90,9 +89,7 @@ function OmnivoreApp({ Component, pageProps }: AppProps): JSX.Element {
         </KBarPositioner>
       </KBarPortal>
       <IdProvider>
-        <TooltipProvider delayDuration={200}>
-          <Component {...pageProps} />
-        </TooltipProvider>
+        <Component {...pageProps} />
       </IdProvider>
     </KBarProvider>
   )

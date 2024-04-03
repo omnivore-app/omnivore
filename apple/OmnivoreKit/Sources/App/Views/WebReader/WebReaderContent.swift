@@ -56,6 +56,15 @@ struct WebReaderContent {
           <style>
             @import url("highlight\(isDark ? "-dark" : "").css");
           </style>
+          <style>
+            body {
+              -webkit-text-size-adjust: 100%;
+            }
+            .is-sticky {
+              right: 20px !important;
+              bottom: 60px !important;
+            }
+          </style>
       </head>
       <body>
         <div id="root" />

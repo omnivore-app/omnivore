@@ -229,8 +229,8 @@ export const subscribeResolver = authorized<
         ...existingSubscription,
         fetchContentType: input.fetchContentType
           ? (input.fetchContentType as FetchContentType)
-          : undefined,
-        folder: input.folder ?? undefined,
+          : existingSubscription.fetchContentType,
+        folder: input.folder ?? existingSubscription.folder,
         isPrivate: input.isPrivate,
         status: SubscriptionStatus.Active,
       })

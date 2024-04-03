@@ -55,7 +55,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
     let userInfo = notification.request.content.userInfo
     UIApplication.shared.applicationIconBadgeNumber = 0
-    print(userInfo) // extract data sent along with PN
+    print("push data", userInfo) // extract data sent along with PN
     completionHandler([[.banner, .sound]])
   }
 
@@ -68,12 +68,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
     let userInfo = response.notification.request.content.userInfo
 
-    if let linkData = userInfo["link"] as? String {
-      guard let jsonData = Data(base64Encoded: linkData) else { return }
-
-      if let article = try? JSONDecoder().decode(JSONArticle.self, from: jsonData) {
-        NSNotification.pushJSONArticle(article: article)
-      }
+    if let libraryItemId = userInfo["libraryItemId"] as? String {
+      NSNotification.pushLibraryItem(folder: userInfo["folder"] as? String, libraryItemId: libraryItemId)
     }
 
     completionHandler()

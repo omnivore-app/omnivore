@@ -95,10 +95,12 @@ export type LibraryItemNode = {
   state: State
   pageType: PageType
   siteName?: string
+  siteIcon?: string
   subscription?: string
   readAt?: string
   savedAt?: string
   wordsCount?: number
+  aiSummary?: string
   recommendations?: Recommendation[]
   highlights?: Highlight[]
 }
@@ -183,6 +185,7 @@ export function useGetLibraryItemsQuery({
               annotation
               state
               siteName
+              siteIcon
               subscription
               readAt
               savedAt
@@ -410,27 +413,27 @@ export function useGetLibraryItemsQuery({
           readingProgressAnchorIndex: 0,
         })
         break
-      case 'unsubscribe':
-        if (!!item.node.subscription) {
-          updateData({
-            cursor: item.cursor,
-            node: {
-              ...item.node,
-              subscription: undefined,
-            },
-          })
-          unsubscribeMutation(item.node.subscription).then((res) => {
-            if (res) {
-              showSuccessToast('Unsubscribed successfully', {
-                position: 'bottom-right',
-              })
-            } else {
-              showErrorToast('Error unsubscribing', {
-                position: 'bottom-right',
-              })
-            }
-          })
-        }
+      // case 'unsubscribe':
+      //   if (!!item.node.subscription) {
+      //     updateData({
+      //       cursor: item.cursor,
+      //       node: {
+      //         ...item.node,
+      //         subscription: undefined,
+      //       },
+      //     })
+      //     unsubscribeMutation(item.node.subscription).then((res) => {
+      //       if (res) {
+      //         showSuccessToast('Unsubscribed successfully', {
+      //           position: 'bottom-right',
+      //         })
+      //       } else {
+      //         showErrorToast('Error unsubscribing', {
+      //           position: 'bottom-right',
+      //         })
+      //       }
+      //     })
+      //   }
       case 'update-item':
         updateData(item)
         break

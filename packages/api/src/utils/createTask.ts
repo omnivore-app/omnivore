@@ -15,6 +15,7 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
+import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
@@ -23,6 +24,12 @@ import {
   ExportItemJobData,
   EXPORT_ITEM_JOB_NAME,
 } from '../jobs/integration/export_item'
+import {
+  ProcessYouTubeTranscriptJobData,
+  ProcessYouTubeVideoJobData,
+  PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME,
+  PROCESS_YOUTUBE_VIDEO_JOB_NAME,
+} from '../jobs/process-youtube-video'
 import {
   queueRSSRefreshFeedJob,
   REFRESH_ALL_FEEDS_JOB_NAME,
@@ -65,17 +72,22 @@ export const getJobPriority = (jobName: string): number => {
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
-    case EXPORT_ITEM_JOB_NAME:
+    case AI_SUMMARIZE_JOB_NAME:
+    case PROCESS_YOUTUBE_VIDEO_JOB_NAME:
       return 5
     case BULK_ACTION_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_high`:
       return 10
+    case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+      return 20
     case `${REFRESH_FEED_JOB_NAME}_low`:
+    case EXPORT_ITEM_JOB_NAME:
       return 50
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
     case THUMBNAIL_JOB:
       return 100
+
     default:
       logger.error(`unknown job name: ${jobName}`)
       return 1
@@ -120,9 +132,18 @@ const createHttpTaskWithToken = async ({
 > => {
   // If there is no Google Cloud Project Id exposed, it means that we are in local environment
   if (env.dev.isLocal || !project) {
-    logger.error(
-      'error: attempting to create a cloud task but not running in google cloud.'
-    )
+    setTimeout(() => {
+      axios
+        .post(taskHandlerUrl, payload, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...requestHeaders,
+          },
+        })
+        .catch((error) => {
+          logError(error)
+        })
+    })
     return null
   }
 
@@ -582,7 +603,7 @@ export const enqueueImportFromIntegration = async (
   return createdTasks[0].name
 }
 
-export const enqueueExportAllItems = async (
+export const enqueueExportToIntegration = async (
   integrationId: string,
   userId: string
 ) => {
@@ -694,6 +715,48 @@ export const enqueueWebhookJob = async (data: CallWebhookJobData) => {
   })
 }
 
+export const enqueueAISummarizeJob = async (data: AISummarizeJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(AI_SUMMARIZE_JOB_NAME, data, {
+    priority: getJobPriority(AI_SUMMARIZE_JOB_NAME),
+    attempts: 3,
+  })
+}
+
+export const enqueueProcessYouTubeVideo = async (
+  data: ProcessYouTubeVideoJobData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(PROCESS_YOUTUBE_VIDEO_JOB_NAME, data, {
+    priority: getJobPriority(PROCESS_YOUTUBE_VIDEO_JOB_NAME),
+    attempts: 3,
+    delay: 2000,
+  })
+}
+
+export const enqueueProcessYouTubeTranscript = async (
+  data: ProcessYouTubeTranscriptJobData
+) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME, data, {
+    priority: getJobPriority(PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME),
+    attempts: 3,
+    delay: 2000,
+  })
+}
+
 export const bulkEnqueueUpdateLabels = async (data: UpdateLabelsData[]) => {
   const queue = await getBackendQueue()
   if (!queue) {
@@ -767,8 +830,12 @@ export const enqueueExportItem = async (jobData: ExportItemJobData) => {
   }
 
   return queue.add(EXPORT_ITEM_JOB_NAME, jobData, {
-    attempts: 1,
+    attempts: 3,
     priority: getJobPriority(EXPORT_ITEM_JOB_NAME),
+    backoff: {
+      type: 'exponential',
+      delay: 10000, // 10 seconds
+    },
   })
 }
 

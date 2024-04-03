@@ -8,13 +8,18 @@ import Views
   import UIKit
 
   @objc(ShareExtensionViewController)
-  final class ShareExtensionViewController: UIViewController {
+  final class ShareExtensionViewController: UIViewController, UIGestureRecognizerDelegate {
     let labelsViewModel = LabelsViewModel()
     let viewModel = ShareExtensionViewModel()
 
     override func viewDidLoad() {
       super.viewDidLoad()
-      view.backgroundColor = .clear
+      view.backgroundColor = UIColor(white: 1.0, alpha: 0.001)
+      view.isUserInteractionEnabled = true
+
+      let dismissGesture = UITapGestureRecognizer(target: self, action: #selector(self.viewTapped(_:)))
+      dismissGesture.delegate = self
+      view.addGestureRecognizer(dismissGesture)
 
       if !viewModel.services.authenticator.isLoggedIn,
          !viewModel.services.dataService.appEnvironment.environmentConfigured
@@ -58,6 +63,14 @@ import Views
         ),
         heightRatio: 0.60
       )
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+      return touch.view == gestureRecognizer.view
+    }
+
+    @objc func viewTapped(_ panGesture: UIGestureRecognizer) {
+      viewModel.dismissExtension(extensionContext: extensionContext)
     }
 
     func openSheet(_ rootView: AnyView) {

@@ -18,6 +18,7 @@ import {
 import * as util from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
+import { isValidSignupRequest } from '../../src/routers/auth/auth_router'
 
 chai.use(sinonChai)
 
@@ -591,7 +592,7 @@ describe('auth router', () => {
         await deleteUser(user.id)
       })
 
-      it('adds popular reads to the library', async () => {
+      it('adds popular reads to the continue reading section', async () => {
         const pendingUserToken = await createPendingUserToken({
           sourceUserId,
           email,
@@ -608,7 +609,7 @@ describe('auth router', () => {
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
         const { count } = await searchLibraryItems(
-          { query: 'in:all' },
+          { query: 'in:inbox sort:read-desc is:reading' },
           user.id
         )
 
@@ -631,13 +632,60 @@ describe('auth router', () => {
           'ios'
         ).expect(200)
         const user = await userRepository.findOneByOrFail({ name })
-        const { count } = await searchLibraryItems(
-          { query: 'in:all' },
-          user.id
-        )
+        const { count } = await searchLibraryItems({ query: 'in:all' }, user.id)
 
         expect(count).to.eql(4)
       })
     })
+  })
+})
+
+describe('isValidSignupRequest', () => {
+  it('returns true for normal looking requests', async () => {
+    const result = isValidSignupRequest({
+      email: 'email@omnivore.app',
+      password: 'superDuperPassword',
+      name: "The User's Name",
+      username: 'foouser',
+    })
+    expect(result).to.be.true
+  })
+  it('returns false for requests w/missing info', async () => {
+    let result = isValidSignupRequest({
+      password: 'superDuperPassword',
+      name: "The User's Name",
+      username: 'foouser',
+    })
+    expect(result).to.be.false
+
+    result = isValidSignupRequest({
+      email: 'email@omnivore.app',
+      name: "The User's Name",
+      username: 'foouser',
+    })
+    expect(result).to.be.false
+
+    result = isValidSignupRequest({
+      email: 'email@omnivore.app',
+      password: 'superDuperPassword',
+      username: 'foouser',
+    })
+    expect(result).to.be.false
+
+    result = isValidSignupRequest({
+      email: 'email@omnivore.app',
+      password: 'superDuperPassword',
+      name: "The User's Name",
+    })
+    expect(result).to.be.false
+  })
+
+  it('returns false for requests w/malicious info', async () => {
+    let result = isValidSignupRequest({
+      password: 'superDuperPassword',
+      name: "You've won a cake sign up here: https://foo.bar",
+      username: 'foouser',
+    })
+    expect(result).to.be.false
   })
 })

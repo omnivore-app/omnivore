@@ -1,4 +1,7 @@
-import { ArticleAttributes } from '../../../lib/networking/queries/useGetArticleQuery'
+import {
+  ArticleAttributes,
+  TextDirection,
+} from '../../../lib/networking/queries/useGetArticleQuery'
 import { Article } from './../../../components/templates/article/Article'
 import { Box, HStack, SpanBox, VStack } from './../../elements/LayoutPrimitives'
 import { StyledText } from './../../elements/StyledText'
@@ -19,6 +22,8 @@ import { Label } from '../../../lib/networking/fragments/labelFragment'
 import { Recommendation } from '../../../lib/networking/queries/useGetLibraryItemsQuery'
 import { Avatar } from '../../elements/Avatar'
 import { UserBasicData } from '../../../lib/networking/queries/useGetViewerQuery'
+import { AISummary } from './AISummary'
+import { userHasFeature } from '../../../lib/featureFlag'
 
 type ArticleContainerProps = {
   viewer: UserBasicData
@@ -36,6 +41,7 @@ type ArticleContainerProps = {
   showHighlightsModal: boolean
   highlightOnRelease?: boolean
   justifyText?: boolean
+  textDirection?: TextDirection
   setShowHighlightsModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -136,6 +142,9 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   const highlightHref = useRef(
     window.location.hash ? window.location.hash.split('#')[1] : null
   )
+  const [textDirection, setTextDirection] = useState(
+    props.textDirection ?? 'LTR'
+  )
 
   const updateFontSize = useCallback(
     (newFontSize: number) => {
@@ -169,6 +178,14 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     const updateHighlightMode = (event: UpdateHighlightModeEvent) => {
       const isEnabled = event.enableHighlightOnRelease === 'on'
       setHighlightOnRelease(isEnabled)
+    }
+
+    interface UpdateTextDirectionEvent extends Event {
+      textDirection: TextDirection
+    }
+
+    const handleUpdateTextDirection = (event: UpdateTextDirectionEvent) => {
+      setTextDirection(event.textDirection)
     }
 
     interface UpdateMaxWidthPercentageEvent extends Event {
@@ -331,12 +348,22 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
     return isJustified ? 'justify' : 'start'
   }
 
+  const appliedFont = (name: string | undefined | null) => {
+    if (name === 'System Default') {
+      return 'unset'
+    }
+    return name
+  }
+
   const styles = {
     fontSize,
     margin: props.margin ?? 360,
     maxWidthPercentage: maxWidthPercentageOverride ?? props.maxWidthPercentage,
     lineHeight: lineHeightOverride ?? props.lineHeight ?? 150,
-    fontFamily: fontFamilyOverride ?? props.fontFamily ?? 'inter',
+    fontFamily:
+      appliedFont(fontFamilyOverride) ??
+      appliedFont(props.fontFamily) ??
+      'inter',
     readerFontColor:
       highContrastTextOverride != undefined
         ? textColorValue(highContrastTextOverride)
@@ -365,6 +392,7 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
   return (
     <>
       <Box
+        dir={textDirection}
         id="article-container"
         css={{
           padding: 30,
@@ -444,6 +472,16 @@ export function ArticleContainer(props: ArticleContainerProps): JSX.Element {
               recommendationsWithNotes={recommendationsWithNotes}
             />
           )}
+          {/* {userHasFeature(props.viewer, 'ai-summaries') && (
+            <AISummary
+              libraryItemId={props.article.id}
+              idx="latest"
+              fontFamily={styles.fontFamily}
+              fontSize={styles.fontSize}
+              lineHeight={styles.lineHeight}
+              readerFontColor={styles.readerFontColor}
+            />
+          )} */}
         </VStack>
         <Article
           articleId={props.article.id}

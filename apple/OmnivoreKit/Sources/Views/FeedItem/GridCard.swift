@@ -11,12 +11,14 @@ public enum GridCardAction {
 }
 
 public struct GridCard: View {
-  let item: LibraryItemData
+  @ObservedObject var item: Models.LibraryItem
+  let savedAtStr: String
 
   public init(
-    item: LibraryItemData
+    item: Models.LibraryItem
   ) {
     self.item = item
+    self.savedAtStr = savedDateString(item.savedAt)
   }
 
   var imageBox: some View {
@@ -67,7 +69,7 @@ public struct GridCard: View {
   var fallbackImage: some View {
     GeometryReader { geo in
       HStack {
-        Text(item.title)
+        Text(item.title ?? "")
           .font(fallbackFont)
           .frame(alignment: .center)
           .multilineTextAlignment(.leading)
@@ -198,6 +200,10 @@ public struct GridCard: View {
         $0.icon
       }
 
+      Text(savedAtStr)
+        .font(.footnote)
+        .foregroundColor(Color.themeLibraryItemSubtle)
++
       Text("\(estimatedReadingTime)")
         .font(.caption2).fontWeight(.medium)
         .foregroundColor(Color.themeLibraryItemSubtle)
@@ -232,7 +238,7 @@ public struct GridCard: View {
               .dynamicTypeSize(.xSmall ... .medium)
               .padding(.horizontal, 15)
 
-            Text(item.title)
+            Text(item.title ?? "")
               .lineLimit(2)
               .font(.appHeadline)
               .foregroundColor(.appGrayTextContrast)
@@ -246,7 +252,7 @@ public struct GridCard: View {
 
           // Link description and image
           HStack(alignment: .top) {
-            Text(item.descriptionText ?? item.title)
+            Text(item.descriptionText ?? item.title ?? "")
               .font(.appSubheadline)
               .foregroundColor(.appGrayTextContrast)
               .lineLimit(2)

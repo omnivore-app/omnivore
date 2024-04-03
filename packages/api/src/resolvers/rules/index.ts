@@ -15,6 +15,7 @@ import {
 } from '../../generated/graphql'
 import { deleteRule } from '../../services/rules'
 import { authorized } from '../../utils/gql-utils'
+import { parseSearchQuery } from '../../utils/search'
 
 export const setRuleResolver = authorized<
   SetRuleSuccess,
@@ -22,6 +23,9 @@ export const setRuleResolver = authorized<
   MutationSetRuleArgs
 >(async (_, { input }, { authTrx, uid, log }) => {
   try {
+    // validate filter
+    parseSearchQuery(input.filter)
+
     const rule = await authTrx((t) =>
       t.getRepository(Rule).save({
         ...input,

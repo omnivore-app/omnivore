@@ -222,17 +222,6 @@ describe('Integrations resolvers', () => {
               expect(res.body.data.setIntegration.integration.enabled).to.be
                 .false
             })
-
-            it('deletes cloud task', async () => {
-              const res = await graphqlRequest(
-                query(integrationId, integrationName, token, enabled),
-                authToken
-              )
-              const integration = await findIntegration({
-                id: res.body.data.setIntegration.integration.id,
-              }, loginUser.id)
-              expect(integration?.taskName).to.be.null
-            })
           })
 
           context('when enable is true', () => {
@@ -412,6 +401,57 @@ describe('Integrations resolvers', () => {
           'UNAUTHORIZED',
         ])
       })
+    })
+  })
+
+  describe('integration API', () => {
+    const query = `
+      query Integration ($name: String!) {
+        integration(name: $name) {
+          ... on IntegrationSuccess {
+            integration {
+              id
+              type
+              enabled
+            }
+          }
+          ... on IntegrationError {
+            errorCodes
+          }
+        }
+      }
+    `
+
+    let existingIntegration: Integration
+
+    before(async () => {
+      existingIntegration = await saveIntegration(
+        {
+          user: { id: loginUser.id },
+          name: 'READWISE',
+          token: 'fakeToken',
+        },
+        loginUser.id
+      )
+    })
+
+    after(async () => {
+      await deleteIntegrations(loginUser.id, [existingIntegration.id])
+    })
+
+    it('returns the integration', async () => {
+      const res = await graphqlRequest(query, authToken, {
+        name: existingIntegration.name,
+      })
+      expect(res.body.data.integration.integration.id).to.equal(
+        existingIntegration.id
+      )
+      expect(res.body.data.integration.integration.type).to.equal(
+        existingIntegration.type
+      )
+      expect(res.body.data.integration.integration.enabled).to.equal(
+        existingIntegration.enabled
+      )
     })
   })
 })

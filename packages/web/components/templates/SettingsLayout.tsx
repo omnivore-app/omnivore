@@ -1,5 +1,4 @@
 import { Box, HStack, VStack } from '../elements/LayoutPrimitives'
-import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
 import { navigationCommands } from '../../lib/keyboardShortcuts/navigationShortcuts'
 import { useKeyboardShortcuts } from '../../lib/keyboardShortcuts/useKeyboardShortcuts'
 import { useRouter } from 'next/router'
@@ -12,6 +11,7 @@ import { DEFAULT_HEADER_HEIGHT } from './homeFeed/HeaderSpacer'
 import { logout } from '../../lib/logout'
 import { SettingsMenu } from './navMenu/SettingsMenu'
 import { SettingsDropdown } from './navMenu/SettingsDropdown'
+import { useVerifyAuth } from '../../lib/hooks/useVerifyAuth'
 
 type SettingsLayoutProps = {
   title?: string
@@ -19,7 +19,8 @@ type SettingsLayoutProps = {
 }
 
 export function SettingsLayout(props: SettingsLayoutProps): JSX.Element {
-  const { viewerData } = useGetViewerQuery()
+  useVerifyAuth()
+
   const router = useRouter()
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false)
   const [showKeyboardCommandsModal, setShowKeyboardCommandsModal] =

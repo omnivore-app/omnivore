@@ -12,6 +12,7 @@ import { NotebookIcon } from '../../elements/icons/NotebookIcon'
 import { TrashIcon } from '../../elements/icons/TrashIcon'
 import { LabelIcon } from '../../elements/icons/LabelIcon'
 import { UnarchiveIcon } from '../../elements/icons/UnarchiveIcon'
+import { BrowserIcon } from '../../elements/icons/BrowserIcon'
 
 type LibraryHoverActionsProps = {
   viewer: UserBasicData
@@ -31,7 +32,7 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
         overflow: 'clip',
 
         height: '33px',
-        width: '184px',
+        width: '200px',
         bg: '$thBackground',
         display: 'flex',
 
@@ -48,6 +49,9 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           boxShadow:
             '0 1px 3px 0 rgba(0, 0, 0, 0.1),0 1px 2px 0 rgba(0, 0, 0, 0.06);',
         },
+      }}
+      onClick={(event) => {
+        event.stopPropagation()
       }}
     >
       <Button
@@ -120,7 +124,10 @@ export const LibraryHoverActions = (props: LibraryHoverActionsProps) => {
           event.stopPropagation()
         }}
       >
-        <Share size={21} color={theme.colors.thNotebookSubtle.toString()} />
+        <BrowserIcon
+          size={21}
+          color={theme.colors.thNotebookSubtle.toString()}
+        />
       </Button>
       <CardMenu
         item={props.item}

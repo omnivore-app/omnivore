@@ -4,7 +4,7 @@ import Models
 import SwiftGraphQL
 
 public extension DataService {
-  func updateSubscription(_ subscriptionID: String, folder: String? = nil, fetchContent: Bool? = nil) async throws {
+  func updateSubscription(_ subscriptionID: String, folder: String? = nil, fetchContentType: FetchContentType? = nil) async throws {
     enum MutationResult {
       case success(subscriptionID: String)
       case error(errorMessage: String)
@@ -20,7 +20,7 @@ public extension DataService {
     let mutation = Selection.Mutation {
       try $0.updateSubscription(
         input: InputObjects.UpdateSubscriptionInput(
-          fetchContent: OptionalArgument(fetchContent),
+          fetchContentType: OptionalArgument(fetchContentType?.toGQLType()),
           folder: OptionalArgument(folder),
           id: subscriptionID
         ),

@@ -171,7 +171,7 @@
 "labelsGeneric" = "Labels";
 "emailsGeneric" = "Emails";
 "subscriptionsGeneric" = "Subscriptions";
-"textToSpeechGeneric" = "Text to Speech";
+"textToSpeechGeneric" = "Text to speech";
 "privacyPolicyGeneric" = "Privacy Policy";
 "termsAndConditionsGeneric" = "Terms and Conditions";
 "feedbackGeneric" = "Feedback";
@@ -196,7 +196,8 @@
 "clubsGeneric" = "Clubs";
 "filterGeneric" = "Filters";
 "errorGeneric" = "Something went wrong, please try again.";
-"pushNotificationsGeneric" = "Push Notifications";
+"readerSettingsGeneric" = "Reader settings";
+"pushNotificationsGeneric" = "Push notifications";
 "dismissButton" = "Dismiss";
 "errorNetwork" = "We are having trouble connecting to the internet.";
 "documentationGeneric" = "Documentation";

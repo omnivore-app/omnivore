@@ -2,20 +2,25 @@ import { DeepPartial, FindOptionsWhere } from 'typeorm'
 import { Integration } from '../../entity/integration'
 import { authTrx } from '../../repository'
 import { IntegrationClient } from './integration'
+import { NotionClient } from './notion'
 import { PocketClient } from './pocket'
 import { ReadwiseClient } from './readwise'
 
-const integrations: IntegrationClient[] = [
-  new ReadwiseClient(),
-  new PocketClient(),
-]
-
-export const getIntegrationClient = (name: string): IntegrationClient => {
-  const service = integrations.find((s) => s.name === name)
-  if (!service) {
-    throw new Error(`Integration client not found: ${name}`)
+export const getIntegrationClient = (
+  name: string,
+  token: string,
+  integrationData?: Integration
+): IntegrationClient => {
+  switch (name.toLowerCase()) {
+    case 'readwise':
+      return new ReadwiseClient(token)
+    case 'pocket':
+      return new PocketClient(token)
+    case 'notion':
+      return new NotionClient(token, integrationData)
+    default:
+      throw new Error(`Integration client not found: ${name}`)
   }
-  return service
 }
 
 export const deleteIntegrations = async (
@@ -55,6 +60,22 @@ export const findIntegration = async (
   )
 }
 
+export const findIntegrationByName = async (name: string, userId: string) => {
+  return authTrx(
+    async (t) =>
+      t
+        .getRepository(Integration)
+        .createQueryBuilder()
+        .where({
+          user: { id: userId },
+        })
+        .andWhere('LOWER(name) = LOWER(:name)', { name }) // case insensitive
+        .getOne(),
+    undefined,
+    userId
+  )
+}
+
 export const findIntegrations = async (
   userId: string,
   where?: FindOptionsWhere<Integration> | FindOptionsWhere<Integration>[]
@@ -75,7 +96,11 @@ export const saveIntegration = async (
   userId: string
 ) => {
   return authTrx(
-    async (t) => t.getRepository(Integration).save(integration),
+    async (t) => {
+      const repo = t.getRepository(Integration)
+      const newIntegration = await repo.save(integration)
+      return repo.findOneByOrFail({ id: newIntegration.id })
+    },
     undefined,
     userId
   )
