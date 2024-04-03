@@ -510,7 +510,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
   const checkboxRef = useRef<HTMLInputElement | null>(null)
   const state = useMemo(() => {
     const term = props.searchTerm ?? ''
-    if (term.indexOf(`label:\"${props.label.name}\"`) >= 0) {
+    if (term.indexOf(`label:\"${escapeQuotes(props.label.name)}\"`) >= 0) {
       return 'on'
     }
     return 'off'
@@ -560,7 +560,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
             props.applySearchQuery(query.trim())
           } else {
             props.applySearchQuery(
-              `${query.trim()} label:\"${props.label.name}\"`
+              `${query.trim()} label:\"${escapeQuotes(props.label.name)}\"`
             )
           }
         }}
@@ -579,16 +579,14 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
           type="checkbox"
           checked={state === 'on'}
           onChange={(e) => {
+            const escapedName = escapeQuotes(props.label.name)
             if (e.target.checked) {
               props.applySearchQuery(
-                `${props.searchTerm ?? ''} label:\"${props.label.name}\"`
+                `${props.searchTerm ?? ''} label:\"${escapedName}\"`
               )
             } else {
               const query =
-                props.searchTerm?.replace(
-                  `label:\"${props.label.name}\"`,
-                  ''
-                ) ?? ''
+                props.searchTerm?.replace(`label:\"${escapedName}\"`, '') ?? ''
               props.applySearchQuery(query)
             }
           }}

@@ -357,7 +357,7 @@ const AvailableItems = (props: ListProps): JSX.Element => {
                 type: 'label',
                 label: label,
                 name: label.name,
-                filter: `label:\"${label.name}\"`,
+                filter: `label:\"${escapeQuotes(label.name)}\"`,
               }
               props.dispatchList({
                 item,
