@@ -85,10 +85,15 @@ data class WebReaderContent(
         width: 100%;
         height: 100%;
         background-color: white;
+        //background-color: var(--colors-readerBg) !important;
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 9999; /* Ensure it's above other content */ 
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+        font-size: 1rem !important;
+        z-index: 9999;
+        line-height: 1.6;
       }   
       
       body {
@@ -103,7 +108,8 @@ data class WebReaderContent(
         display: inline-block;
         height: 100vh !important;
         padding-top: 52px;
-        padding-bottom: 20px;
+        padding-bottom: 36px;
+        margin-bottom: 36px;
         column-width: 100vw;
         column-gap: 0px;
         bottom: 0px;
