@@ -1,36 +1,37 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react"
-import { StyledText } from '../../elements/StyledText'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { Button } from '../../elements/Button'
+import { useRegisterActions } from 'kbar'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { Circle, DotsThree, MagnifyingGlass, X } from 'phosphor-react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
+import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
+import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
 import {
   Subscription,
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { theme } from '../../tokens/stitches.config'
-import { useRegisterActions } from 'kbar'
-import { LogoBox } from '../../elements/LogoBox'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
-import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
-import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
-import Link from 'next/link'
-import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
-import { NavMenuFooter } from './Footer'
+import { Shortcut } from '../../../pages/settings/shortcuts'
+import { escapeQuotes } from '../../../utils/helper'
+import { Button } from '../../elements/Button'
+import { CoverImage } from '../../elements/CoverImage'
+import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
+import { DiscoverIcon } from '../../elements/icons/DiscoverIcon'
 import { FollowingIcon } from '../../elements/icons/FollowingIcon'
+import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
 import { HomeIcon } from '../../elements/icons/HomeIcon'
 import { LibraryIcon } from '../../elements/icons/LibraryIcon'
-import { HighlightsIcon } from '../../elements/icons/HighlightsIcon'
-import { CoverImage } from '../../elements/CoverImage'
-import { Shortcut } from '../../../pages/settings/shortcuts'
-import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
 import { NewsletterIcon } from '../../elements/icons/NewsletterIcon'
-import { Dropdown, DropdownOption } from '../../elements/DropdownElements'
-import { useRouter } from 'next/router'
-import { DiscoverIcon } from "../../elements/icons/DiscoverIcon"
+import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
+import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { LogoBox } from '../../elements/LogoBox'
+import { OutlinedLabelChip } from '../../elements/OutlinedLabelChip'
+import { StyledText } from '../../elements/StyledText'
+import { theme } from '../../tokens/stitches.config'
+import { NavMenuFooter } from './Footer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
 
@@ -221,7 +222,7 @@ const LibraryNav = (props: LibraryFilterMenuProps): JSX.Element => {
       <NavRedirectButton
         {...props}
         text="Discover"
-        redirectLocation={"/discover"}
+        redirectLocation={'/discover'}
         icon={<DiscoverIcon color={theme.colors.discover.toString()} />}
       />
     </VStack>
@@ -545,7 +546,7 @@ function Subscriptions(
         name: name,
         keywords: '*' + name,
         perform: () => {
-          props.applySearchQuery(`subscription:\"${name}\"`)
+          props.applySearchQuery(`subscription:\"${escapeQuotes(name)}\"`)
         },
       }
     }),
@@ -581,7 +582,9 @@ function Subscriptions(
                 return (
                   <FilterButton
                     key={item.id}
-                    filterTerm={`in:inbox subscription:\"${item.name}\"`}
+                    filterTerm={`in:inbox subscription:\"${escapeQuotes(
+                      item.name
+                    )}\"`}
                     text={item.name}
                     {...props}
                   />
@@ -735,7 +738,7 @@ type NavButtonRedirectProps = {
 }
 
 function NavRedirectButton(props: NavButtonRedirectProps): JSX.Element {
-  const [selected, setSelected] = useState(false);
+  const [selected, setSelected] = useState(false)
   const router = useRouter()
 
   useEffect(() => {

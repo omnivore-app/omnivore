@@ -1,24 +1,25 @@
+import { useRegisterActions } from 'kbar'
+import Link from 'next/link'
+import { Circle, X } from 'phosphor-react'
 import { ReactNode, useEffect, useMemo, useRef } from 'react'
-import { StyledText } from '../../elements/StyledText'
-import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
-import { Button } from '../../elements/Button'
-import { Circle, NewspaperClipping, X } from 'phosphor-react'
+import { usePersistedState } from '../../../lib/hooks/usePersistedState'
+import { Label } from '../../../lib/networking/fragments/labelFragment'
+import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
+import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
+import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
 import {
   Subscription,
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../../lib/networking/queries/useGetSubscriptionsQuery'
-import { useGetLabelsQuery } from '../../../lib/networking/queries/useGetLabelsQuery'
-import { Label } from '../../../lib/networking/fragments/labelFragment'
-import { theme } from '../../tokens/stitches.config'
-import { useRegisterActions } from 'kbar'
-import { LogoBox } from '../../elements/LogoBox'
-import { usePersistedState } from '../../../lib/hooks/usePersistedState'
-import { useGetSavedSearchQuery } from '../../../lib/networking/queries/useGetSavedSearchQuery'
-import { SavedSearch } from '../../../lib/networking/fragments/savedSearchFragment'
+import { escapeQuotes } from '../../../utils/helper'
+import { Button } from '../../elements/Button'
 import { ToggleCaretDownIcon } from '../../elements/icons/ToggleCaretDownIcon'
-import Link from 'next/link'
 import { ToggleCaretRightIcon } from '../../elements/icons/ToggleCaretRightIcon'
+import { Box, HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
+import { LogoBox } from '../../elements/LogoBox'
+import { StyledText } from '../../elements/StyledText'
+import { theme } from '../../tokens/stitches.config'
 import { NavMenuFooter } from './Footer'
 
 export const LIBRARY_LEFT_MENU_WIDTH = '275px'
@@ -255,7 +256,7 @@ function Subscriptions(
         name: name,
         keywords: '*' + name,
         perform: () => {
-          props.applySearchQuery(`subscription:\"${name}\"`)
+          props.applySearchQuery(`subscription:\"${escapeQuotes(name)}\"`)
         },
       }
     }),
@@ -291,7 +292,9 @@ function Subscriptions(
                 return (
                   <FilterButton
                     key={item.id}
-                    filterTerm={`in:inbox subscription:\"${item.name}\"`}
+                    filterTerm={`in:inbox subscription:\"${escapeQuotes(
+                      item.name
+                    )}\"`}
                     text={item.name}
                     {...props}
                   />
