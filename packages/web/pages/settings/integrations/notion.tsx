@@ -30,7 +30,7 @@ import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type FieldType = {
-  parentPageId?: string
+  // parentPageId?: string
   parentDatabaseId?: string
   properties?: string[]
 }
@@ -47,7 +47,7 @@ export default function Notion(): JSX.Element {
 
   useEffect(() => {
     form.setFieldsValue({
-      parentPageId: notion.settings?.parentPageId,
+      // parentPageId: notion.settings?.parentPageId,
       parentDatabaseId: notion.settings?.parentDatabaseId,
       properties: notion.settings?.properties,
     })
@@ -167,7 +167,7 @@ export default function Notion(): JSX.Element {
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
               >
-                <Form.Item<FieldType>
+                {/* <Form.Item<FieldType>
                   label="Notion Page Id"
                   name="parentPageId"
                   help="The id of the Notion page where the items will be exported to. You can find it in the URL of the page."
@@ -179,14 +179,20 @@ export default function Notion(): JSX.Element {
                   ]}
                 >
                   <Input />
-                </Form.Item>
+                </Form.Item> */}
 
                 <Form.Item<FieldType>
-                  label="Notion Database Id"
+                  label="Notion Database ID"
                   name="parentDatabaseId"
-                  hidden
+                  help="The ID of the Notion database where the items will be exported to. You can find it in the URL of the database."
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please input your Notion Database ID!',
+                    },
+                  ]}
                 >
-                  <Input disabled />
+                  <Input />
                 </Form.Item>
 
                 <Form.Item<FieldType>
