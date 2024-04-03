@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger'
 import { loadSummarizationChain } from 'langchain/chains'
-import { ChatOpenAI } from '@langchain/openai'
+import { ChatOpenAI, OpenAI } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
@@ -8,6 +8,7 @@ import { htmlToMarkdown } from '../utils/parser'
 import { AITaskRequest, AITaskResult } from '../entity/ai_tasks'
 import { LibraryItemState } from '../entity/library_item'
 import { getAIResult } from '../services/ai-summaries'
+import { PromptTemplate } from '@langchain/core/prompts'
 
 export interface AITaskJobData {
   userId: string
@@ -40,51 +41,33 @@ export const performAITask = async (jobData: AITaskJobData) => {
       return
     }
 
-    console.log('got aiTaskRequest', aiTaskRequest)
+    const document = htmlToMarkdown(aiTaskRequest.libraryItem.readableContent)
 
-    // if (!libraryItem || libraryItem.state !== LibraryItemState.Succeeded) {
-    //   logger.info(
-    //     `Not ready to summarize library item job state: ${
-    //       libraryItem?.state ?? 'null'
-    //     }`
-    //   )
-    //   return
-    // }
-    // const existingSummary = await getAIResult({
-    //   userId: jobData.userId,
-    //   idx: 'latest',
-    //   libraryItemId: jobData.libraryItemId,
-    // })
-    // if (existingSummary) {
-    //   logger.info(
-    //     `Library item already has a summary: ${jobData.libraryItemId}`
-    //   )
-    //   return
-    // }
-    const llm = new ChatOpenAI({
+    console.log('text: ', document)
+
+    const promptTemplate = PromptTemplate.fromTemplate(
+      `Write a concise summary of the following. The summary should be less than 512 characters.
+
+       {text}`
+    )
+
+    const llm = new OpenAI({
+      modelName: 'gpt-4-0125-preview',
       configuration: {
         apiKey: process.env.OPENAI_API_KEY,
       },
     })
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 2000,
+    const chain = promptTemplate.pipe(llm)
+    const result = await chain.invoke({
+      text: document,
     })
-    const document = htmlToMarkdown(aiTaskRequest.libraryItem.readableContent)
-    console.log('will summarize document: ', document)
+    console.log('RESULT: ', result)
 
-    const docs = await textSplitter.createDocuments([document])
-    const chain = loadSummarizationChain(llm, {
-      type: 'map_reduce', // you can choose from map_reduce, stuff or refine
-      verbose: true, // to view the steps in the console
-    })
-    const response = await chain.call({
-      input_documents: docs,
-    })
-    if (typeof response.text !== 'string') {
+    if (typeof result !== 'string') {
       logger.error(`AI summary did not return text`)
       return
     }
-    const summary = response.text
+    const summary = result
     const _ = await authTrx(
       async (t) => {
         return t.getRepository(AITaskResult).save({
