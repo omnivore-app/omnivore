@@ -1,31 +1,39 @@
-import { styled } from '@stitches/react'
-import { CheckSquare, Square } from 'phosphor-react'
-import { ReactNode, useCallback, useEffect, useMemo, useReducer } from 'react'
-import { Toaster } from 'react-hot-toast'
-import { Button } from '../../components/elements/Button'
-import { CoverImage } from '../../components/elements/CoverImage'
-import { DragIcon } from '../../components/elements/icons/DragIcon'
-import { LabelChip } from '../../components/elements/LabelChip'
 import {
-  Box,
-  HStack,
-  Separator,
-  SpanBox,
-  VStack,
-} from '../../components/elements/LayoutPrimitives'
-import { StyledText } from '../../components/elements/StyledText'
-import { SettingsLayout } from '../../components/templates/SettingsLayout'
-import { usePersistedState } from '../../lib/hooks/usePersistedState'
-import { Label } from '../../lib/networking/fragments/labelFragment'
-import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react'
+import { applyStoredTheme } from '../../lib/themeUpdater'
+
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import { useGetSavedSearchQuery } from '../../lib/networking/queries/useGetSavedSearchQuery'
+import { SettingsLayout } from '../../components/templates/SettingsLayout'
+import { Toaster } from 'react-hot-toast'
+import {
+  Box,
+  VStack,
+  HStack,
+  SpanBox,
+  Separator,
+} from '../../components/elements/LayoutPrimitives'
+import { LabelChip } from '../../components/elements/LabelChip'
+import { StyledText } from '../../components/elements/StyledText'
 import {
   Subscription,
   SubscriptionType,
   useGetSubscriptionsQuery,
 } from '../../lib/networking/queries/useGetSubscriptionsQuery'
-import { applyStoredTheme } from '../../lib/themeUpdater'
+import { DragIcon } from '../../components/elements/icons/DragIcon'
+import { CoverImage } from '../../components/elements/CoverImage'
+import { Label } from '../../lib/networking/fragments/labelFragment'
+import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { CheckSquare, Square } from 'phosphor-react'
+import { Button } from '../../components/elements/Button'
+import { styled } from '@stitches/react'
+import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { escapeQuotes } from '../../utils/helper'
 type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
