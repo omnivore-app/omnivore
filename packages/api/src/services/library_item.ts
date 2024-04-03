@@ -716,14 +716,23 @@ export const findRecentLibraryItems = async (
   limit = 1000,
   offset?: number
 ) => {
+  const selectColumns = getColumns(libraryItemRepository)
+    .filter(
+      (column) => column !== 'readableContent' && column !== 'originalContent'
+    )
+    .map((column) => `library_item.${column}`)
+
   return authTrx(
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
-        .where('library_item.user_id = :userId', { userId })
-        .andWhere('library_item.state = :state', {
-          state: LibraryItemState.Succeeded,
-        })
+        .select(selectColumns)
+        .leftJoinAndSelect('library_item.labels', 'labels')
+        .leftJoinAndSelect('library_item.highlights', 'highlights')
+        .where(
+          'library_item.user_id = :userId AND library_item.state = :state',
+          { userId, state: LibraryItemState.Succeeded }
+        )
         .orderBy('library_item.saved_at', 'DESC', 'NULLS LAST')
         .take(limit)
         .skip(offset)
