@@ -149,16 +149,24 @@ let tapStartTime;
 
 // Tap handling
 function handleTap(e) {
-
+       // e.preventDefault();
+       // e.stopPropagation();
     // Get tap duration
     const tapDuration = new Date().getTime() - tapStartTime;
 
     // Only handle short taps
-    if (tapDuration > 250) return;
+    if (tapDuration > 100) return;
 
     // Get tap position
     const tapX = e.changedTouches[0].clientX;
     const tapY = e.changedTouches[0].clientY;
+
+        const target = document.elementFromPoint(tapX, tapY);
+        if (target && (target.tagName === 'A' || target.tagName === 'BUTTON' || target.getAttribute('role') === 'button')) {
+            // A link, button, or an element with role="button" was clicked, do nothing
+            return;
+        }
+
 
 
     // Check vertical position
@@ -168,6 +176,7 @@ function handleTap(e) {
         console.log("tap in top 10% of screen");
     } else {
         // Check horizontal position
+        setTimeout(() => {
         if (tapX < document.body.clientWidth / 2) {
             // Handle left side tap
             scrollBack();
@@ -175,6 +184,8 @@ function handleTap(e) {
             // Handle right side tap
             scrollForward();
         }
+       }, 20); // Adjust the timeout duration as needed
+
     }
 
 }
