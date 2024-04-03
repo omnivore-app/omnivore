@@ -104,6 +104,10 @@ export const sendPasswordResetEmail = async (user: {
     link,
   }
 
+  if (process.env.USE_MAILJET) {
+    return sendWithMailJet(user.email, link)
+  }
+
   return sendEmail({
     from: env.sender.message,
     to: user.email,
