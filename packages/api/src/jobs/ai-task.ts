@@ -1,14 +1,13 @@
 import { logger } from '../utils/logger'
+import { BaseLanguageModel } from '@langchain/core/language_models/base'
 import { loadSummarizationChain } from 'langchain/chains'
 import { ChatOpenAI, OpenAI } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { authTrx } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
 import { htmlToMarkdown } from '../utils/parser'
-import { AITaskRequest, AITaskResult } from '../entity/ai_tasks'
-import { LibraryItemState } from '../entity/library_item'
-import { getAIResult } from '../services/ai-summaries'
 import { PromptTemplate } from '@langchain/core/prompts'
+import { AITaskRequest, AITaskResult, Prompt } from '../entity/ai_tasks'
 
 export interface AITaskJobData {
   userId: string
@@ -16,6 +15,16 @@ export interface AITaskJobData {
 }
 
 export const AI_TASK_JOB_NAME = 'ai-task-job'
+
+const modelForPrompt = (prompt: Prompt): BaseLanguageModel => {
+  // For now just use the OpenAI model
+  return new OpenAI({
+    modelName: 'gpt-4-0125-preview',
+    configuration: {
+      apiKey: process.env.OPENAI_API_KEY,
+    },
+  })
+}
 
 export const performAITask = async (jobData: AITaskJobData) => {
   try {
@@ -43,24 +52,25 @@ export const performAITask = async (jobData: AITaskJobData) => {
 
     const document = htmlToMarkdown(aiTaskRequest.libraryItem.readableContent)
 
-    console.log('text: ', document)
-
+    const llm = modelForPrompt(aiTaskRequest.prompt)
     const promptTemplate = PromptTemplate.fromTemplate(
-      `Write a concise summary of the following. The summary should be less than 512 characters.
-
-       {text}`
+      aiTaskRequest.prompt.template
     )
 
-    const llm = new OpenAI({
-      modelName: 'gpt-4-0125-preview',
-      configuration: {
-        apiKey: process.env.OPENAI_API_KEY,
-      },
+    const formattedTemplate = await promptTemplate.format({
+      document: document,
+      text: aiTaskRequest.extraText,
+      title: aiTaskRequest.libraryItem.title,
     })
+    console.log('executing formatted template: ', formattedTemplate)
+
     const chain = promptTemplate.pipe(llm)
     const result = await chain.invoke({
-      text: document,
+      document: document,
+      text: aiTaskRequest.extraText,
+      // title: aiTaskRequest.libraryItem.title,
     })
+
     console.log('RESULT: ', result)
 
     if (typeof result !== 'string') {

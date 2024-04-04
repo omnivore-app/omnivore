@@ -32,6 +32,8 @@ export function aiTaskRouter() {
     const promptName = req.body.promptName
     const extraText = req.body.extraText
 
+    console.log('making ai task request', libraryItemId, promptName, extraText)
+
     if (!libraryItemId || !promptName) {
       res.status(400).send('missing params')
       return
@@ -54,6 +56,8 @@ export function aiTaskRouter() {
       undefined,
       uid
     )
+
+    console.log('found existingTaskRequest', existingTaskRequest)
 
     // Check to see if there is already a request
     if (existingTaskRequest) {

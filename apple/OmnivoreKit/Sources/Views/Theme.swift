@@ -31,6 +31,22 @@ public enum Theme: String, CaseIterable {
     }
   }
 
+  public var fgColor: Color {
+    let prefersHighContrastText = UserDefaults.standard.bool(forKey: UserDefaultKey.prefersHighContrastWebFont.rawValue)
+    switch self {
+    case .system:
+      return Color.isDarkMode ? .white : .black
+    case .light:
+      return .black
+    case .dark:
+      return Color.white
+    case .sepia:
+      return prefersHighContrastText ? Color.black : (Color(hex: "#5F4B32") ?? Color.black)
+    case .apollo:
+      return prefersHighContrastText ? Color.white : (Color(hex: "#F3F3F3") ?? Color.white)
+    }
+  }
+
   public var toolbarColor: Color {
     ThemeManager.currentTheme.isDark ? Color.themeDarkWhiteGray : Color.themeMiddleGray
   }
@@ -96,6 +112,10 @@ public enum ThemeManager {
 
   public static var currentBgColor: Color {
     currentTheme.bgColor
+  }
+
+  public static var currentFgColor: Color {
+    currentTheme.fgColor
   }
 
   public static var currentHighlightColor: Color {

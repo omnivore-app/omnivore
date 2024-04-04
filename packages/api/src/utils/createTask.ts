@@ -15,7 +15,7 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
-import { AITaskJobData, AI_TASK_JOB_NAME } from '../jobs/ai-summarize'
+import { AITaskJobData, AI_TASK_JOB_NAME } from '../jobs/ai-task'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'

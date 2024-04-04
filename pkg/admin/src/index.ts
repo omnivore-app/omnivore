@@ -5,7 +5,6 @@ import {
   registerDatabase,
   AdminUser,
   User,
-  UserArticle,
   UserProfile,
   ReceivedEmail,
   Group,
@@ -16,6 +15,7 @@ import {
   Recommendation,
   GroupMembership,
   Features,
+  Prompts,
 } from './db'
 import { compare, hashSync } from 'bcryptjs'
 const readYamlFile = require('read-yaml-file')
@@ -40,7 +40,6 @@ const ADMIN_USER_EMAIL =
         },
       },
       { resource: UserProfile, options: { parent: { name: 'Users' } } },
-      { resource: UserArticle, options: { parent: { name: 'Users' } } },
       { resource: ReceivedEmail, options: { parent: { name: 'Users' } } },
       { resource: Group, options: { parent: { name: 'Users' } } },
       { resource: Subscription, options: { parent: { name: 'Users' } } },
@@ -52,6 +51,10 @@ const ADMIN_USER_EMAIL =
       { resource: Recommendation, options: { parent: { name: 'Users' } } },
       { resource: GroupMembership, options: { parent: { name: 'Users' } } },
       { resource: Features, options: { parent: { name: 'Users' } } },
+      {
+        resource: Prompts,
+        options: { properties: { template: { type: 'textarea' } } },
+      },
     ],
   })
 

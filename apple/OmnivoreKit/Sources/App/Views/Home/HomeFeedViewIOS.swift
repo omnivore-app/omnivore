@@ -191,6 +191,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State var isListScrolled = false
     @State var listTitle = ""
     @State var showExpandedAudioPlayer = false
+    @State var showLibraryDigest = false
 
     @Binding var isEditMode: EditMode
 
@@ -316,6 +317,11 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         )
       }
+      .fullScreenCover(isPresented: $showLibraryDigest) {
+        if #available(iOS 17.0, *) {
+          LibraryDigestView(dataService: dataService, items: Array(viewModel.fetcher.items))
+        }
+      }
       .toolbar {
         toolbarItems
       }
@@ -382,6 +388,15 @@ struct AnimatingCellHeight: AnimatableModifier {
               if isEditMode == .active {
                 Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
               } else {
+//                
+//                if #available(iOS 17.0, *) {
+//                  Button(
+//                    action: { showLibraryDigest = true },
+//                    label: { Image(systemName: "sparkles") }
+//                  )
+//                  .buttonStyle(.plain)
+//                  .padding(.trailing, 4)
+//                }
                 if prefersListLayout {
                   Button(
                     action: { isEditMode = isEditMode == .active ? .inactive : .active },

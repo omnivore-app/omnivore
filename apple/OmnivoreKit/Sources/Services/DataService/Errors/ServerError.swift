@@ -10,6 +10,7 @@ public enum ServerError: String, Error {
   case unauthenticated
   case timeout
   case unknown
+  case stillProcessing
   case pendingEmailVerification
 }
 
@@ -22,6 +23,8 @@ extension ServerError {
     case 401?, 403?:
       self = .unauthenticated
       return
+    case 202:
+      self = .stillProcessing
     default:
       break
     }

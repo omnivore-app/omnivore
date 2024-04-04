@@ -29,6 +29,10 @@ DROP TABLE IF EXISTS omnivore.ai_prompts;
 CREATE TABLE omnivore.ai_prompts (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v1mc(),
     name TEXT UNIQUE NOT NULL,
+
+    model TEXT NOT NULL,
+    model_name TEXT NOT NULL,
+
     display_text TEXT  NOT NULL,
     template TEXT NOT NULL,
     variables TEXT[],
@@ -64,11 +68,26 @@ GRANT SELECT, INSERT, UPDATE ON omnivore.ai_task_results TO omnivore_user;
 GRANT SELECT ON omnivore.ai_prompts TO omnivore_user;
 
 -- placeholder while we are still debugging 
-INSERT INTO omnivore.ai_prompts (name, display_text, template, variables)
-VALUES ('summarize-001', 
-        'Summarize', 
-        'Summarize the following document
-        Document: 
-        {document}', '{document}');
+INSERT INTO omnivore.ai_prompts (name, model, model_name, display_text, template, variables)
+VALUES ('preview-document-001',
+        'openai',
+        'gpt-4-0125-preview',
+        'Preview',
+        '', '{title, document}');
+
+INSERT INTO omnivore.ai_prompts (name, model, model_name, display_text, template, variables)
+VALUES ('summarize-document-001',
+        'openai',
+        'gpt-4-0125-preview',
+        'Summarize',
+        '', '{title, document}');
+
+INSERT INTO omnivore.ai_prompts (name, model, model_name, display_text, template, variables)
+VALUES ('explain-text-001',
+        'openai',
+        'gpt-4-0125-preview',
+        'Explain',
+        '', '{title, document, extraText}');
+
 
 COMMIT;

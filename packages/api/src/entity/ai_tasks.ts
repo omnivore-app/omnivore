@@ -18,6 +18,12 @@ export class Prompt {
   @Column({ type: 'text', name: 'name', nullable: false, unique: true })
   name!: string
 
+  @Column({ type: 'text', nullable: false })
+  model!: string
+
+  @Column({ type: 'text', name: 'model_name', nullable: false })
+  modelName!: string
+
   @Column({ type: 'text', name: 'display_text', nullable: false })
   displayText!: string
 
