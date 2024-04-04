@@ -4,13 +4,13 @@ import { RuleEventType } from './entity/rule'
 import { env } from './env'
 import { ReportType } from './generated/graphql'
 import {
-  enqueueExportItem,
   enqueueProcessYouTubeVideo,
   enqueueTriggerRuleJob,
-  enqueueWebhookJob,
 } from './utils/createTask'
 import { buildLogger } from './utils/logger'
 import { isYouTubeVideoURL } from './utils/youtube'
+
+export type EntityEvent = { id: string }
 
 const logger = buildLogger('pubsub')
 
@@ -46,35 +46,19 @@ export const createPubSubClient = (): PubsubClient => {
         Buffer.from(JSON.stringify({ userId, email, name, username }))
       )
     },
-    entityCreated: async <T extends Record<string, any>>(
+    entityCreated: async <T extends EntityEvent>(
       type: EntityType,
       data: T,
-      userId: string,
-      libraryItemId: string
+      userId: string
     ): Promise<void> => {
       // queue trigger rule job
-      if (type === EntityType.PAGE) {
-        await enqueueTriggerRuleJob({
-          userId,
-          ruleEventType: RuleEventType.PageCreated,
-          libraryItemId,
-          data,
-        })
-      }
-      // queue export item job
-      await enqueueExportItem({
-        userId,
-        libraryItemIds: [libraryItemId],
-      })
-
-      await enqueueWebhookJob({
-        userId,
-        type,
-        action: 'created',
+      await enqueueTriggerRuleJob({
+        ruleEventType: `${type.toUpperCase()}_CREATED` as RuleEventType,
         data,
+        userId,
       })
 
-      if (type === EntityType.PAGE) {
+      if (type === EntityType.ITEM) {
         // if (await findGrantedFeatureByName(FeatureName.AISummaries, userId)) {
         // await enqueueAISummarizeJob({
         //   userId,
@@ -89,36 +73,20 @@ export const createPubSubClient = (): PubsubClient => {
         if (isItemWithURL(data) && isYouTubeVideoURL(data['originalUrl'])) {
           await enqueueProcessYouTubeVideo({
             userId,
-            libraryItemId,
+            libraryItemId: data.id,
           })
         }
       }
     },
-    entityUpdated: async <T extends Record<string, any>>(
+    entityUpdated: async <T extends EntityEvent>(
       type: EntityType,
       data: T,
-      userId: string,
-      libraryItemId: string
+      userId: string
     ): Promise<void> => {
       // queue trigger rule job
-      if (type === EntityType.PAGE) {
-        await enqueueTriggerRuleJob({
-          userId,
-          ruleEventType: RuleEventType.PageUpdated,
-          libraryItemId,
-          data,
-        })
-      }
-      // queue export item job
-      await enqueueExportItem({
+      await enqueueTriggerRuleJob({
         userId,
-        libraryItemIds: [libraryItemId],
-      })
-
-      await enqueueWebhookJob({
-        userId,
-        type,
-        action: 'updated',
+        ruleEventType: `${type.toUpperCase()}_UPDATED` as RuleEventType,
         data,
       })
     },
@@ -147,10 +115,10 @@ export const createPubSubClient = (): PubsubClient => {
 }
 
 export enum EntityType {
-  PAGE = 'page',
-  HIGHLIGHT = 'highlight',
-  LABEL = 'label',
-  RSS_FEED = 'feed',
+  ITEM = 'PAGE',
+  HIGHLIGHT = 'HIGHLIGHT',
+  LABEL = 'LABEL',
+  RSS_FEED = 'FEED',
 }
 
 export interface PubsubClient {
@@ -160,17 +128,15 @@ export interface PubsubClient {
     name: string,
     username: string
   ) => Promise<void>
-  entityCreated: <T extends Record<string, any>>(
+  entityCreated: <T extends EntityEvent>(
     type: EntityType,
     data: T,
-    userId: string,
-    libraryItemId: string
+    userId: string
   ) => Promise<void>
-  entityUpdated: <T extends Record<string, any>>(
+  entityUpdated: <T extends EntityEvent>(
     type: EntityType,
     data: T,
-    userId: string,
-    libraryItemId: string
+    userId: string
   ) => Promise<void>
   entityDeleted: (type: EntityType, id: string, userId: string) => Promise<void>
   reportSubmitted(

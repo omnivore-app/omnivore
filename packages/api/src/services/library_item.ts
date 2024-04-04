@@ -14,8 +14,9 @@ import { EntityLabel } from '../entity/entity_label'
 import { Highlight } from '../entity/highlight'
 import { Label } from '../entity/label'
 import { LibraryItem, LibraryItemState } from '../entity/library_item'
+import { env } from '../env'
 import { BulkActionType, InputMaybe, SortParams } from '../generated/graphql'
-import { createPubSubClient, EntityType } from '../pubsub'
+import { createPubSubClient, EntityEvent, EntityType } from '../pubsub'
 import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
@@ -24,24 +25,32 @@ import {
   queryBuilderToRawSql,
 } from '../repository'
 import { libraryItemRepository } from '../repository/library_item'
-import { Merge } from '../util'
-import { setRecentlySavedItemInRedis } from '../utils/helpers'
+import { Merge, PickTuple } from '../util'
+import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { addLabelsToLibraryItem } from './labels'
+import { HighlightEvent } from './highlights'
+import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
-type IgnoredFields =
-  | 'user'
-  | 'uploadFile'
-  | 'previewContentType'
-  | 'links'
-  | 'textContentHash'
-export type ItemEvent = CreateItemEvent | UpdateItemEvent
-export type CreateItemEvent = Omit<DeepPartial<LibraryItem>, IgnoredFields>
-export type UpdateItemEvent = Omit<
-  QueryDeepPartialEntity<LibraryItem>,
-  IgnoredFields
+const columnsToDelete = [
+  'user',
+  'uploadFile',
+  'previewContentType',
+  'links',
+  'textContentHash',
+  'readableContent',
+  'originalContent',
+  'feedContent',
+] as const
+type ColumnsToDeleteType = typeof columnsToDelete[number]
+type ItemBaseEvent = Merge<
+  Omit<DeepPartial<LibraryItem>, ColumnsToDeleteType>,
+  {
+    labels?: LabelEvent[]
+    highlights?: HighlightEvent[]
+  }
 >
+export type ItemEvent = Merge<ItemBaseEvent, EntityEvent>
 
 export class RequiresSearchQueryError extends Error {
   constructor() {
@@ -132,6 +141,8 @@ interface Select {
 }
 
 const readingProgressDataSource = new ReadingProgressDataSource()
+
+export const getItemUrl = (id: string) => `${env.client.url}/me/${id}`
 
 const markItemAsRead = async (libraryItemId: string, userId: string) => {
   return await readingProgressDataSource.updateReadingProgress(
@@ -733,7 +744,7 @@ export const findRecentLibraryItems = async (
           'library_item.user_id = :userId AND library_item.state = :state',
           { userId, state: LibraryItemState.Succeeded }
         )
-        .orderBy('library_item.saved_at', 'DESC', 'NULLS LAST')
+        .orderBy('library_item.savedAt', 'DESC', 'NULLS LAST')
         .take(limit)
         .skip(offset)
         .getMany(),
@@ -841,7 +852,7 @@ export const softDeleteLibraryItem = async (
     userId
   )
 
-  await pubsub.entityDeleted(EntityType.PAGE, id, userId)
+  await pubsub.entityDeleted(EntityType.ITEM, id, userId)
 
   return deletedLibraryItem
 }
@@ -881,32 +892,21 @@ export const updateLibraryItem = async (
   }
 
   if (libraryItem.state === LibraryItemState.Succeeded) {
+    const data = deepDelete(updatedLibraryItem, columnsToDelete)
     // send create event if the item was created
-    await pubsub.entityCreated<CreateItemEvent>(
-      EntityType.PAGE,
-      {
-        ...updatedLibraryItem,
-        originalContent: undefined,
-        readableContent: undefined,
-        feedContent: undefined,
-      },
-      userId,
-      id
-    )
+    await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
     return updatedLibraryItem
   }
 
-  await pubsub.entityUpdated<UpdateItemEvent>(
-    EntityType.PAGE,
+  const data = deepDelete(libraryItem, columnsToDelete)
+  await pubsub.entityUpdated<ItemEvent>(
+    EntityType.ITEM,
     {
-      ...libraryItem,
-      originalContent: undefined,
-      readableContent: undefined,
-      feedContent: undefined,
-    },
-    userId,
-    id
+      ...data,
+      id,
+    } as ItemEvent,
+    userId
   )
 
   return updatedLibraryItem
@@ -965,12 +965,7 @@ export const updateLibraryItemReadingProgress = async (
   }
 
   const updatedItem = result[0][0]
-  await pubsub.entityUpdated<UpdateItemEvent>(
-    EntityType.PAGE,
-    updatedItem,
-    userId,
-    id
-  )
+  await pubsub.entityUpdated<ItemEvent>(EntityType.ITEM, updatedItem, userId)
 
   return updatedItem
 }
@@ -1066,17 +1061,8 @@ export const createOrUpdateLibraryItem = async (
     return newLibraryItem
   }
 
-  await pubsub.entityCreated<CreateItemEvent>(
-    EntityType.PAGE,
-    {
-      ...newLibraryItem,
-      originalContent: undefined,
-      readableContent: undefined,
-      feedContent: undefined,
-    },
-    userId,
-    newLibraryItem.id
-  )
+  const data = deepDelete(newLibraryItem, columnsToDelete)
+  await pubsub.entityCreated<ItemEvent>(EntityType.ITEM, data, userId)
 
   return newLibraryItem
 }
@@ -1358,7 +1344,8 @@ export const filterItemEvents = (
       subscription: /^subscription(s)?$/i,
     }
 
-    const matchingKeyword = Object.keys(keywordRegexMap).find((keyword) =>
+    const keys = Object.keys(keywordRegexMap)
+    const matchingKeyword = keys.find((keyword) =>
       value.match(keywordRegexMap[keyword])
     )
 
@@ -1366,7 +1353,9 @@ export const filterItemEvents = (
       throw new Error(`Unexpected keyword: ${value}`)
     }
 
-    const eventValue = event[matchingKeyword as keyof ItemEvent]
+    const eventValue = (event as PickTuple<ItemEvent, typeof keys>)[
+      matchingKeyword
+    ]
 
     return !eventValue || (Array.isArray(eventValue) && eventValue.length === 0)
   }
@@ -1434,7 +1423,7 @@ export const filterItemEvents = (
         }
       }
       case 'type': {
-        return event.itemType?.toString()?.toLowerCase() === lowercasedValue
+        return event.itemType?.toLowerCase() === lowercasedValue
       }
       case 'label': {
         const labels = event.labelNames as string[] | undefined
@@ -1496,8 +1485,10 @@ export const filterItemEvents = (
 
         const start = startDate ?? new Date(0)
         const end = endDate ?? new Date()
-        const key = `${field.name.toLowerCase()}At` as keyof ItemEvent
-        const eventValue = event[key] as Date
+        const key = `${field.name.toLowerCase()}At`
+        const eventValue = event[
+          key as 'readAt' | 'updatedAt' | 'publishedAt'
+        ] as Date
 
         return eventValue >= start && eventValue <= end
       }
@@ -1509,7 +1500,7 @@ export const filterItemEvents = (
         // get camel case column name
         const key = camelCase(columnName) as 'subscription' | 'itemLanguage'
 
-        return event[key]?.toString()?.toLowerCase() === lowercasedValue
+        return event[key]?.toLowerCase() === lowercasedValue
       }
       // match filters
       case 'note':
@@ -1525,7 +1516,7 @@ export const filterItemEvents = (
         const keys = ['siteName', 'originalUrl'] as const
 
         return keys.some((key) => {
-          return event[key]?.toString()?.toLowerCase().includes(lowercasedValue)
+          return event[key]?.toLowerCase().includes(lowercasedValue)
         })
       }
       case 'includes': {
@@ -1534,7 +1525,7 @@ export const filterItemEvents = (
           throw new Error('Expected ids')
         }
 
-        return event.id && ids.includes(event.id.toString())
+        return event.id && ids.includes(event.id)
       }
       case 'recommendedby': {
         if (!event.recommenderNames) {
@@ -1588,7 +1579,7 @@ export const filterItemEvents = (
         }
       }
       default:
-        throw new Error(`Unexpected field: ${field.name}`)
+        throw new RequiresSearchQueryError()
     }
   }
 

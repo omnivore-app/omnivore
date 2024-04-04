@@ -1,11 +1,12 @@
 import { Client } from '@notionhq/client'
 import axios from 'axios'
+import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
-import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
+import { getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -44,7 +45,7 @@ interface NotionPage {
     }
   }
   properties: {
-    Title: {
+    Title?: {
       title: [
         {
           text: {
@@ -53,25 +54,25 @@ interface NotionPage {
         }
       ]
     }
-    Author: {
+    Author?: {
       rich_text: Array<{
         text: {
           content: string
         }
       }>
     }
-    'Original URL': {
+    'Original URL'?: {
       url: string
     }
     'Omnivore URL': {
       url: string
     }
-    'Saved At': {
+    'Saved At'?: {
       date: {
         start: string
       }
     }
-    'Last Updated': {
+    'Last Updated'?: {
       date: {
         start: string
       }
@@ -177,7 +178,7 @@ export class NotionClient implements IntegrationClient {
   }
 
   private itemToNotionPage = (
-    item: LibraryItem,
+    item: ItemEvent,
     settings: Settings,
     lastSync?: Date | null
   ): NotionPage => {
@@ -200,88 +201,103 @@ export class NotionClient implements IntegrationClient {
           }
         : undefined,
       properties: {
-        Title: {
-          title: [
-            {
-              text: {
-                content: item.title,
-              },
-            },
-          ],
-        },
-        Author: {
-          rich_text: [
-            {
-              text: {
-                content: item.author || 'unknown',
-              },
-            },
-          ],
-        },
-        'Original URL': {
-          url: item.originalUrl,
-        },
+        Title: item.title
+          ? {
+              title: [
+                {
+                  text: {
+                    content: item.title,
+                  },
+                },
+              ],
+            }
+          : undefined,
+        Author: item.author
+          ? {
+              rich_text: [
+                {
+                  text: {
+                    content: item.author,
+                  },
+                },
+              ],
+            }
+          : undefined,
+        'Original URL': item.originalUrl
+          ? {
+              url: item.originalUrl,
+            }
+          : undefined,
         'Omnivore URL': {
-          url: `${env.client.url}/me/${item.slug}`,
+          url: getItemUrl(item.id),
         },
-        'Saved At': {
-          date: {
-            start: item.createdAt.toISOString(),
-          },
-        },
-        'Last Updated': {
-          date: {
-            start: item.updatedAt.toISOString(),
-          },
-        },
+        'Saved At': item.savedAt
+          ? {
+              date: {
+                start: item.savedAt as string,
+              },
+            }
+          : undefined,
+        'Last Updated': item.updatedAt
+          ? {
+              date: {
+                start: item.updatedAt as string,
+              },
+            }
+          : undefined,
         Tags: item.labels
           ? {
               multi_select: item.labels.map((label) => ({
-                name: label.name,
+                name: label.name as string,
               })),
             }
           : undefined,
       },
-      children:
-        settings.properties?.includes('highlights') && item.highlights
-          ? item.highlights
-              .filter(
-                (highlight) => !lastSync || highlight.updatedAt > lastSync // only new highlights
-              )
-              .map((highlight) => ({
-                paragraph: {
-                  rich_text: [
-                    {
-                      text: {
-                        content: highlight.quote || '',
-                        link: {
-                          url: getHighlightUrl(item.slug, highlight.id),
-                        },
-                      },
-                      annotations: {
-                        code: true,
-                        color: highlight.color as AnnotationColor,
+      children: item.highlights
+        ? item.highlights
+            .filter(
+              (highlight) =>
+                highlight.highlightType === HighlightType.Highlight &&
+                (!lastSync ||
+                  new Date(highlight.updatedAt as string) > lastSync) // only new highlights
+            )
+            .map((highlight) => ({
+              paragraph: {
+                rich_text: [
+                  {
+                    text: {
+                      content: highlight.quote || '',
+                      link: {
+                        url: getHighlightUrl(
+                          item.slug || item.id,
+                          highlight.id
+                        ),
                       },
                     },
-                  ],
-                  children: highlight.annotation
-                    ? [
-                        {
-                          paragraph: {
-                            rich_text: [
-                              {
-                                text: {
-                                  content: highlight.annotation || '',
-                                },
+                    annotations: {
+                      code: true,
+                      color: highlight.color as AnnotationColor,
+                    },
+                  },
+                ],
+                children: highlight.annotation
+                  ? [
+                      {
+                        paragraph: {
+                          rich_text: [
+                            {
+                              text: {
+                                content: highlight.annotation || '',
                               },
-                            ],
-                          },
+                            },
+                          ],
                         },
-                      ]
-                    : undefined,
-                },
-              }))
-          : undefined,
+                      },
+                    ]
+                  : undefined,
+              },
+            }))
+        : undefined,
     }
   }
 
@@ -307,7 +323,7 @@ export class NotionClient implements IntegrationClient {
     return null
   }
 
-  export = async (items: LibraryItem[]): Promise<boolean> => {
+  export = async (items: ItemEvent[]): Promise<boolean> => {
     const settings = this.integrationData?.settings
     if (!this.integrationData || !settings) {
       logger.error('Notion integration data not found')
@@ -350,7 +366,7 @@ export class NotionClient implements IntegrationClient {
           }
 
           // create the page
-          return this.createPage(notionPage)
+          return await this.createPage(notionPage)
         } catch (error) {
           logger.error(error)
           return false
