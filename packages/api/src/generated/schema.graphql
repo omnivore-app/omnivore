@@ -1454,6 +1454,7 @@ type Mutation {
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
+  replyToEmail(recentEmailId: ID!, reply: String!): ReplyToEmailResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -1809,6 +1810,20 @@ union ReminderResult = ReminderError | ReminderSuccess
 
 type ReminderSuccess {
   reminder: Reminder!
+}
+
+type ReplyToEmailError {
+  errorCodes: [ReplyToEmailErrorCode!]!
+}
+
+enum ReplyToEmailErrorCode {
+  UNAUTHORIZED
+}
+
+union ReplyToEmailResult = ReplyToEmailError | ReplyToEmailSuccess
+
+type ReplyToEmailSuccess {
+  success: Boolean!
 }
 
 input ReportItemInput {

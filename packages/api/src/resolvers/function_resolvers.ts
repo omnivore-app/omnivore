@@ -150,7 +150,11 @@ import {
   webhookResolver,
   webhooksResolver,
 } from './index'
-import { markEmailAsItemResolver, recentEmailsResolver } from './recent_emails'
+import {
+  markEmailAsItemResolver,
+  recentEmailsResolver,
+  replyToEmailResolver,
+} from './recent_emails'
 import { recentSearchesResolver } from './recent_searches'
 import { WithDataSourcesContext } from './types'
 import { updateEmailResolver } from './user'
@@ -316,6 +320,7 @@ export const functionResolvers = {
     emptyTrash: emptyTrashResolver,
     fetchContent: fetchContentResolver,
     exportToIntegration: exportToIntegrationResolver,
+    replyToEmail: replyToEmailResolver,
   },
   Query: {
     me: getMeUserResolver,
@@ -680,4 +685,5 @@ export const functionResolvers = {
   ...resultResolveTypeResolver('FetchContent'),
   ...resultResolveTypeResolver('Integration'),
   ...resultResolveTypeResolver('ExportToIntegration'),
+  ...resultResolveTypeResolver('ReplyToEmail'),
 }

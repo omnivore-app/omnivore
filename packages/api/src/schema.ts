@@ -3066,6 +3066,20 @@ const schema = gql`
     FAILED_TO_CREATE_TASK
   }
 
+  union ReplyToEmailResult = ReplyToEmailSuccess | ReplyToEmailError
+
+  type ReplyToEmailSuccess {
+    success: Boolean!
+  }
+
+  type ReplyToEmailError {
+    errorCodes: [ReplyToEmailErrorCode!]!
+  }
+
+  enum ReplyToEmailErrorCode {
+    UNAUTHORIZED
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3165,6 +3179,7 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
+    replyToEmail(recentEmailId: ID!, reply: String!): ReplyToEmailResult!
     bulkAction(
       query: String!
       action: BulkActionType!

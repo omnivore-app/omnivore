@@ -1616,6 +1616,7 @@ export type Mutation = {
   optInFeature: OptInFeatureResult;
   recommend: RecommendResult;
   recommendHighlights: RecommendHighlightsResult;
+  replyToEmail: ReplyToEmailResult;
   reportItem: ReportItemResult;
   revokeApiKey: RevokeApiKeyResult;
   saveArticleReadingProgress: SaveArticleReadingProgressResult;
@@ -1833,6 +1834,12 @@ export type MutationRecommendArgs = {
 
 export type MutationRecommendHighlightsArgs = {
   input: RecommendHighlightsInput;
+};
+
+
+export type MutationReplyToEmailArgs = {
+  recentEmailId: Scalars['ID'];
+  reply: Scalars['String'];
 };
 
 
@@ -2428,6 +2435,22 @@ export type ReminderResult = ReminderError | ReminderSuccess;
 export type ReminderSuccess = {
   __typename?: 'ReminderSuccess';
   reminder: Reminder;
+};
+
+export type ReplyToEmailError = {
+  __typename?: 'ReplyToEmailError';
+  errorCodes: Array<ReplyToEmailErrorCode>;
+};
+
+export enum ReplyToEmailErrorCode {
+  Unauthorized = 'UNAUTHORIZED'
+}
+
+export type ReplyToEmailResult = ReplyToEmailError | ReplyToEmailSuccess;
+
+export type ReplyToEmailSuccess = {
+  __typename?: 'ReplyToEmailSuccess';
+  success: Scalars['Boolean'];
 };
 
 export type ReportItemInput = {
@@ -4245,6 +4268,10 @@ export type ResolversTypes = {
   ReminderErrorCode: ReminderErrorCode;
   ReminderResult: ResolversTypes['ReminderError'] | ResolversTypes['ReminderSuccess'];
   ReminderSuccess: ResolverTypeWrapper<ReminderSuccess>;
+  ReplyToEmailError: ResolverTypeWrapper<ReplyToEmailError>;
+  ReplyToEmailErrorCode: ReplyToEmailErrorCode;
+  ReplyToEmailResult: ResolversTypes['ReplyToEmailError'] | ResolversTypes['ReplyToEmailSuccess'];
+  ReplyToEmailSuccess: ResolverTypeWrapper<ReplyToEmailSuccess>;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ResolverTypeWrapper<ReportItemResult>;
   ReportType: ReportType;
@@ -4763,6 +4790,9 @@ export type ResolversParentTypes = {
   ReminderError: ReminderError;
   ReminderResult: ResolversParentTypes['ReminderError'] | ResolversParentTypes['ReminderSuccess'];
   ReminderSuccess: ReminderSuccess;
+  ReplyToEmailError: ReplyToEmailError;
+  ReplyToEmailResult: ResolversParentTypes['ReplyToEmailError'] | ResolversParentTypes['ReplyToEmailSuccess'];
+  ReplyToEmailSuccess: ReplyToEmailSuccess;
   ReportItemInput: ReportItemInput;
   ReportItemResult: ReportItemResult;
   RevokeApiKeyError: RevokeApiKeyError;
@@ -6128,6 +6158,7 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   optInFeature?: Resolver<ResolversTypes['OptInFeatureResult'], ParentType, ContextType, RequireFields<MutationOptInFeatureArgs, 'input'>>;
   recommend?: Resolver<ResolversTypes['RecommendResult'], ParentType, ContextType, RequireFields<MutationRecommendArgs, 'input'>>;
   recommendHighlights?: Resolver<ResolversTypes['RecommendHighlightsResult'], ParentType, ContextType, RequireFields<MutationRecommendHighlightsArgs, 'input'>>;
+  replyToEmail?: Resolver<ResolversTypes['ReplyToEmailResult'], ParentType, ContextType, RequireFields<MutationReplyToEmailArgs, 'recentEmailId' | 'reply'>>;
   reportItem?: Resolver<ResolversTypes['ReportItemResult'], ParentType, ContextType, RequireFields<MutationReportItemArgs, 'input'>>;
   revokeApiKey?: Resolver<ResolversTypes['RevokeApiKeyResult'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   saveArticleReadingProgress?: Resolver<ResolversTypes['SaveArticleReadingProgressResult'], ParentType, ContextType, RequireFields<MutationSaveArticleReadingProgressArgs, 'input'>>;
@@ -6414,6 +6445,20 @@ export type ReminderResultResolvers<ContextType = ResolverContext, ParentType ex
 
 export type ReminderSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReminderSuccess'] = ResolversParentTypes['ReminderSuccess']> = {
   reminder?: Resolver<ResolversTypes['Reminder'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ReplyToEmailErrorResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReplyToEmailError'] = ResolversParentTypes['ReplyToEmailError']> = {
+  errorCodes?: Resolver<Array<ResolversTypes['ReplyToEmailErrorCode']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ReplyToEmailResultResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReplyToEmailResult'] = ResolversParentTypes['ReplyToEmailResult']> = {
+  __resolveType: TypeResolveFn<'ReplyToEmailError' | 'ReplyToEmailSuccess', ParentType, ContextType>;
+};
+
+export type ReplyToEmailSuccessResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['ReplyToEmailSuccess'] = ResolversParentTypes['ReplyToEmailSuccess']> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -7488,6 +7533,9 @@ export type Resolvers<ContextType = ResolverContext> = {
   ReminderError?: ReminderErrorResolvers<ContextType>;
   ReminderResult?: ReminderResultResolvers<ContextType>;
   ReminderSuccess?: ReminderSuccessResolvers<ContextType>;
+  ReplyToEmailError?: ReplyToEmailErrorResolvers<ContextType>;
+  ReplyToEmailResult?: ReplyToEmailResultResolvers<ContextType>;
+  ReplyToEmailSuccess?: ReplyToEmailSuccessResolvers<ContextType>;
   ReportItemResult?: ReportItemResultResolvers<ContextType>;
   RevokeApiKeyError?: RevokeApiKeyErrorResolvers<ContextType>;
   RevokeApiKeyResult?: RevokeApiKeyResultResolvers<ContextType>;
