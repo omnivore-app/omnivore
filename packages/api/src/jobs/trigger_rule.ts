@@ -91,17 +91,32 @@ const sendNotification = async (obj: RuleActionObj) => {
 const sendToWebhook = async (obj: RuleActionObj) => {
   const [url] = obj.action.params
 
-  let event = obj.ruleEventType.toString()
-  // rename LABEL_CREATED to LABEL_ATTACHED
-  if (obj.ruleEventType === RuleEventType.LabelCreated) {
-    event = 'LABEL_ATTACHED'
+  const [type, action] = obj.ruleEventType.toString().toLowerCase().split('_')
+
+  // use old event format for the compatibility with the old webhooks
+  let event
+  if (type === 'page') {
+    event = obj.data
+  } else if (type === 'label') {
+    event = {
+      labels: obj.data.labels,
+      pageId: obj.data.id,
+    }
+  } else {
+    if (!obj.data.highlights) {
+      return
+    }
+
+    event = {
+      ...obj.data.highlights[0],
+      pageId: obj.data.id,
+    }
   }
 
   const data = {
-    event,
-    item: obj.data,
+    action,
     userId: obj.userId,
-    timestamp: Date.now(),
+    [type]: event,
   }
 
   logger.info(`triggering webhook: ${url}`)
