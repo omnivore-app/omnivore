@@ -1,6 +1,5 @@
 import { Client } from '@notionhq/client'
 import axios from 'axios'
-import { updateIntegration } from '.'
 import { Integration } from '../../entity/integration'
 import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
@@ -111,7 +110,7 @@ type Property = 'highlights'
 interface Settings {
   parentPageId: string
   parentDatabaseId: string
-  properties: Property[]
+  properties?: Property[]
 }
 
 export class NotionClient implements IntegrationClient {
@@ -244,7 +243,7 @@ export class NotionClient implements IntegrationClient {
           : undefined,
       },
       children:
-        settings.properties.includes('highlights') && item.highlights
+        settings.properties?.includes('highlights') && item.highlights
           ? item.highlights
               .filter(
                 (highlight) => !lastSync || highlight.updatedAt > lastSync // only new highlights
@@ -315,103 +314,92 @@ export class NotionClient implements IntegrationClient {
       return false
     }
 
-    const pageId = settings.parentPageId
-    if (!pageId) {
-      logger.error('Notion parent page id not found')
-      return false
-    }
-
-    let databaseId = settings.parentDatabaseId
+    const databaseId = settings.parentDatabaseId
     if (!databaseId) {
-      // create a database for the items
-      const database = await this.client.databases.create({
-        parent: {
-          page_id: pageId,
-        },
-        title: [
-          {
-            text: {
-              content: 'Library',
-            },
-          },
-        ],
-        description: [
-          {
-            text: {
-              content: 'Library of saved items from Omnivore',
-            },
-          },
-        ],
-        properties: {
-          Title: {
-            title: {},
-          },
-          Author: {
-            rich_text: {},
-          },
-          'Original URL': {
-            url: {},
-          },
-          'Omnivore URL': {
-            url: {},
-          },
-          'Saved At': {
-            date: {},
-          },
-          'Last Updated': {
-            date: {},
-          },
-          Tags: {
-            multi_select: {},
-          },
-        },
-      })
-
-      // save the database id
-      databaseId = database.id
-      settings.parentDatabaseId = databaseId
-      await updateIntegration(
-        this.integrationData.id,
-        {
-          settings,
-        },
-        this.integrationData.user.id
-      )
+      logger.error('Notion database id not found')
+      return false
     }
 
     await Promise.all(
       items.map(async (item) => {
-        const notionPage = this.itemToNotionPage(
-          item,
-          settings,
-          this.integrationData?.syncedAt
-        )
-        const url = notionPage.properties['Omnivore URL'].url
+        try {
+          const notionPage = this.itemToNotionPage(
+            item,
+            settings,
+            this.integrationData?.syncedAt
+          )
+          const url = notionPage.properties['Omnivore URL'].url
 
-        const existingPage = await this.findPage(url, databaseId)
-        if (existingPage) {
-          // update the page
-          await this.client.pages.update({
-            page_id: existingPage.id,
-            properties: notionPage.properties,
-          })
-
-          // append the children incrementally
-          if (notionPage.children && notionPage.children.length > 0) {
-            await this.client.blocks.children.append({
-              block_id: existingPage.id,
-              children: notionPage.children,
+          const existingPage = await this.findPage(url, databaseId)
+          if (existingPage) {
+            // update the page
+            await this.client.pages.update({
+              page_id: existingPage.id,
+              properties: notionPage.properties,
             })
+
+            // append the children incrementally
+            if (notionPage.children && notionPage.children.length > 0) {
+              await this.client.blocks.children.append({
+                block_id: existingPage.id,
+                children: notionPage.children,
+              })
+            }
+
+            return
           }
 
-          return
+          // create the page
+          return this.createPage(notionPage)
+        } catch (error) {
+          logger.error(error)
+          return false
         }
-
-        // create the page
-        return this.createPage(notionPage)
       })
     )
 
     return true
+  }
+
+  private findDatabase = async (databaseId: string) => {
+    return this.client.databases.retrieve({
+      database_id: databaseId,
+    })
+  }
+
+  updateDatabase = async (databaseId: string) => {
+    const database = await this.findDatabase(databaseId)
+    // find the title property and update it
+    const titleProperty = Object.entries(database.properties).find(
+      ([, property]) => property.type === 'title'
+    )
+    const title = titleProperty ? titleProperty[0] : 'Name'
+
+    await this.client.databases.update({
+      database_id: database.id,
+      properties: {
+        [title]: {
+          name: 'Title',
+        },
+        Author: {
+          rich_text: {},
+        },
+        'Original URL': {
+          url: {},
+        },
+        'Omnivore URL': {
+          url: {},
+        },
+        'Saved At': {
+          date: {},
+        },
+        'Last Updated': {
+          date: {},
+        },
+        Tags: {
+          multi_select: {},
+        },
+      },
+    })
   }
 }

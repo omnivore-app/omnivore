@@ -40,6 +40,7 @@ import {
   saveIntegration,
   updateIntegration,
 } from '../../services/integrations'
+import { NotionClient } from '../../services/integrations/notion'
 import { analytics } from '../../utils/analytics'
 import {
   deleteTask,
@@ -57,15 +58,14 @@ export const setIntegrationResolver = authorized<
     ...input,
     user: { id: uid },
     id: input.id || undefined,
-    type: input.type || IntegrationType.Export,
+    type: input.type || undefined,
     syncedAt: input.syncedAt ? new Date(input.syncedAt) : undefined,
     importItemState:
       input.type === IntegrationType.Import
         ? input.importItemState || ImportItemState.Unarchived // default to unarchived
         : undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    settings: input.settings,
   }
+
   if (input.id) {
     // Update
     const existingIntegration = await findIntegration({ id: input.id }, uid)
@@ -96,6 +96,22 @@ export const setIntegrationResolver = authorized<
   if (integration.name.toLowerCase() === 'readwise') {
     // create a task to export all the items for readwise temporarily
     await enqueueExportToIntegration(integration.id, uid)
+  } else if (
+    integration.name.toLowerCase() === 'notion' &&
+    integration.settings
+  ) {
+    const settings = integration.settings as { parentDatabaseId?: string }
+    if (settings.parentDatabaseId) {
+      // update notion database properties
+      const notion = new NotionClient(integration.token, integration)
+      try {
+        await notion.updateDatabase(settings.parentDatabaseId)
+      } catch (error) {
+        return {
+          errorCodes: [SetIntegrationErrorCode.BadRequest],
+        }
+      }
+    }
   }
 
   analytics.capture({
