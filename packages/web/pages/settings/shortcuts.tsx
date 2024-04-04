@@ -34,7 +34,7 @@ import { CheckSquare, Square } from 'phosphor-react'
 import { Button } from '../../components/elements/Button'
 import { styled } from '@stitches/react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
-
+import { escapeQuotes } from '../../utils/helper'
 type ListAction = 'RESET' | 'ADD_ITEM' | 'REMOVE_ITEM'
 
 const SHORTCUTS_KEY = 'library-shortcuts'
@@ -365,7 +365,7 @@ const AvailableItems = (props: ListProps): JSX.Element => {
                 type: 'label',
                 label: label,
                 name: label.name,
-                filter: `label:\"${label.name}\"`,
+                filter: `label:\"${escapeQuotes(label.name)}\"`,
               }
               props.dispatchList({
                 item,
@@ -416,7 +416,7 @@ const AvailableItems = (props: ListProps): JSX.Element => {
                     : 'feed',
                 filter:
                   subscription.type == SubscriptionType.NEWSLETTER
-                    ? `subscription:\"${subscription.name}\"`
+                    ? `subscription:\"${escapeQuotes(subscription.name)}\"`
                     : `rss:\"${subscription.url}\"`,
               }
               props.dispatchList({
