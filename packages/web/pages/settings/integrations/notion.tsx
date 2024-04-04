@@ -30,8 +30,7 @@ import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type FieldType = {
-  // parentPageId?: string
-  parentDatabaseId?: string
+  parentDatabaseId: string
   properties?: string[]
 }
 
@@ -47,7 +46,6 @@ export default function Notion(): JSX.Element {
 
   useEffect(() => {
     form.setFieldsValue({
-      // parentPageId: notion.settings?.parentPageId,
       parentDatabaseId: notion.settings?.parentDatabaseId,
       properties: notion.settings?.properties,
     })
@@ -71,6 +69,28 @@ export default function Notion(): JSX.Element {
       settings: values,
     })
   }
+
+  const normalizeDatabaseId = useCallback(
+    (value: string) => {
+      // check if database id is in UUIDv4 format
+      const uuidRegex =
+        /^[0-9a-fA-F]{8}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{12}$/
+      if (uuidRegex.test(value)) {
+        return value
+      }
+
+      // extract the database id from the URL
+      // https://www.notion.so/ec460c235baa4da5bb412971a12e9dbe?v=8f4e324c0b584b67b8b7cfe9a2f996d7 -> ec460c235baa4da5bb412971a12e9dbe
+      const urlRegex = /https:\/\/www.notion.so\/([a-f0-9]{32})\?*/
+      const match = value.match(urlRegex)
+      if (!match || match.length < 2) {
+        messageApi.error('Invalid Notion Database ID.')
+        return value
+      }
+      return match[1]
+    },
+    [messageApi]
+  )
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
@@ -167,28 +187,34 @@ export default function Notion(): JSX.Element {
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
               >
-                {/* <Form.Item<FieldType>
-                  label="Notion Page Id"
-                  name="parentPageId"
-                  help="The id of the Notion page where the items will be exported to. You can find it in the URL of the page."
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input your Notion Page Id!',
-                    },
-                  ]}
-                >
-                  <Input />
-                </Form.Item> */}
-
                 <Form.Item<FieldType>
                   label="Notion Database ID"
                   name="parentDatabaseId"
                   help="The ID of the Notion database where the items will be exported to. You can find it in the URL of the database."
+                  normalize={normalizeDatabaseId}
                   rules={[
                     {
                       required: true,
                       message: 'Please input your Notion Database ID!',
+                    },
+                    {
+                      validator: (_, value) => {
+                        // check if database id is in UUIDv4 format
+                        const uuidRegex = /^[0-9a-fA-F]{8}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{12}$/
+                        if (uuidRegex.test(value)) {
+                          return Promise.resolve()
+                        }
+                        // extract the database id from the URL
+                        const urlRegex =
+                          /https:\/\/www.notion.so\/([a-f0-9]{32})\?*/
+                        const match = value.match(urlRegex)
+                        if (match && match.length >= 2) {
+                          return Promise.resolve()
+                        }
+                        return Promise.reject(
+                          new Error('Invalid Notion Database ID.')
+                        )
+                      },
                     },
                   ]}
                 >
