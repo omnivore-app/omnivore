@@ -102,11 +102,6 @@ export default function Notion(): JSX.Element {
       return
     }
 
-    if (!notion.settings?.parentPageId) {
-      messageApi.error('Please set the Notion page id first.')
-      return
-    }
-
     try {
       const task = await exportToIntegrationMutation(notion.id)
       // long polling to check the status of the task in every 10 seconds

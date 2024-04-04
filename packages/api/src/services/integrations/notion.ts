@@ -366,7 +366,7 @@ export class NotionClient implements IntegrationClient {
           }
 
           // create the page
-          return this.createPage(notionPage)
+          return await this.createPage(notionPage)
         } catch (error) {
           logger.error(error)
           return false

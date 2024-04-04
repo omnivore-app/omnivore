@@ -744,7 +744,7 @@ export const findRecentLibraryItems = async (
           'library_item.user_id = :userId AND library_item.state = :state',
           { userId, state: LibraryItemState.Succeeded }
         )
-        .orderBy('library_item.saved_at', 'DESC', 'NULLS LAST')
+        .orderBy('library_item.savedAt', 'DESC', 'NULLS LAST')
         .take(limit)
         .skip(offset)
         .getMany(),
