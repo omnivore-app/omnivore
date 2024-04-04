@@ -82,6 +82,10 @@ export const sendVerificationEmail = async (user: {
     link,
   }
 
+  if (process.env.USE_MAILJET) {
+    return sendWithMailJet(user.email, link)
+  }
+
   return sendEmail({
     from: env.sender.message,
     to: user.email,
@@ -102,6 +106,10 @@ export const sendPasswordResetEmail = async (user: {
   const dynamicTemplateData = {
     name: user.name,
     link,
+  }
+
+  if (process.env.USE_MAILJET) {
+    return sendWithMailJet(user.email, link)
   }
 
   return sendEmail({

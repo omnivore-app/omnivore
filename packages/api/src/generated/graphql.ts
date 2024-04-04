@@ -2501,11 +2501,16 @@ export enum RuleActionType {
   AddLabel = 'ADD_LABEL',
   Archive = 'ARCHIVE',
   Delete = 'DELETE',
+  Export = 'EXPORT',
   MarkAsRead = 'MARK_AS_READ',
-  SendNotification = 'SEND_NOTIFICATION'
+  SendNotification = 'SEND_NOTIFICATION',
+  Webhook = 'WEBHOOK'
 }
 
 export enum RuleEventType {
+  HighlightCreated = 'HIGHLIGHT_CREATED',
+  HighlightUpdated = 'HIGHLIGHT_UPDATED',
+  LabelCreated = 'LABEL_CREATED',
   PageCreated = 'PAGE_CREATED',
   PageUpdated = 'PAGE_UPDATED'
 }

@@ -21,6 +21,7 @@ import { Label } from '../../lib/networking/fragments/labelFragment'
 import { CheckSquare, Circle, Square } from 'phosphor-react'
 import { SavedSearch } from '../../lib/networking/fragments/savedSearchFragment'
 import { usePersistedState } from '../../lib/hooks/usePersistedState'
+import { escapeQuotes } from '../../utils/helper'
 
 export type PinnedSearch = {
   type: 'saved-search' | 'label'
@@ -282,7 +283,7 @@ function LabelButton(props: LabelButtonProps): JSX.Element {
         type: 'label',
         itemId: props.label.id,
         name: props.label.name,
-        search: `label:\"${props.label.name}\"`,
+        search: `label:\"${escapeQuotes(props.label.name)}\"`,
       }}
       listAction={props.listAction}
     >

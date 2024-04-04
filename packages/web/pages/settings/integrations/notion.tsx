@@ -1,15 +1,5 @@
-import {
-  Button,
-  Checkbox,
-  Form,
-  FormProps,
-  Input,
-  message,
-  Space,
-  Spin,
-} from 'antd'
+import { Button, Form, FormProps, Input, message, Space, Spin } from 'antd'
 import 'antd/dist/antd.compact.css'
-import { CheckboxValueType } from 'antd/lib/checkbox/Group'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
@@ -26,18 +16,14 @@ import {
 import { setIntegrationMutation } from '../../../lib/networking/mutations/setIntegrationMutation'
 import { apiFetcher } from '../../../lib/networking/networkHelpers'
 import { useGetIntegrationQuery } from '../../../lib/networking/queries/useGetIntegrationQuery'
-import { applyStoredTheme } from '../../../lib/themeUpdater'
 import { showSuccessToast } from '../../../lib/toastHelpers'
 
 type FieldType = {
-  parentPageId?: string
-  parentDatabaseId?: string
+  parentDatabaseId: string
   properties?: string[]
 }
 
 export default function Notion(): JSX.Element {
-  applyStoredTheme()
-
   const router = useRouter()
   const { integration: notion, revalidate } = useGetIntegrationQuery('notion')
 
@@ -47,19 +33,18 @@ export default function Notion(): JSX.Element {
 
   useEffect(() => {
     form.setFieldsValue({
-      parentPageId: notion.settings?.parentPageId,
       parentDatabaseId: notion.settings?.parentDatabaseId,
       properties: notion.settings?.properties,
     })
   }, [form, notion])
 
-  const deleteNotion = async () => {
+  const deleteNotion = useCallback(async () => {
     await deleteIntegrationMutation(notion.id)
     showSuccessToast('Notion integration disconnected successfully.')
 
     revalidate()
     router.push('/settings/integrations')
-  }
+  }, [notion.id, router])
 
   const updateNotion = async (values: FieldType) => {
     await setIntegrationMutation({
@@ -71,6 +56,28 @@ export default function Notion(): JSX.Element {
       settings: values,
     })
   }
+
+  const normalizeDatabaseId = useCallback(
+    (value: string) => {
+      // check if database id is in UUIDv4 format
+      const uuidRegex =
+        /^[0-9a-fA-F]{8}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{12}$/
+      if (uuidRegex.test(value)) {
+        return value
+      }
+
+      // extract the database id from the URL
+      // https://www.notion.so/ec460c235baa4da5bb412971a12e9dbe?v=8f4e324c0b584b67b8b7cfe9a2f996d7 -> ec460c235baa4da5bb412971a12e9dbe
+      const urlRegex = /https:\/\/www.notion.so\/([a-f0-9]{32})\?*/
+      const match = value.match(urlRegex)
+      if (!match || match.length < 2) {
+        messageApi.error('Invalid Notion Database ID.')
+        return value
+      }
+      return match[1]
+    },
+    [messageApi]
+  )
 
   const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
     try {
@@ -87,10 +94,6 @@ export default function Notion(): JSX.Element {
     errorInfo
   ) => {
     console.log('Failed:', errorInfo)
-  }
-
-  const onDataChange = (value: Array<CheckboxValueType>) => {
-    form.setFieldsValue({ properties: value.map((v) => v.toString()) })
   }
 
   const exportToNotion = useCallback(async () => {
@@ -122,7 +125,7 @@ export default function Notion(): JSX.Element {
     } catch (error) {
       messageApi.error('There was an error exporting to Notion.')
     }
-  }, [exporting, messageApi, notion.id])
+  }, [exporting, messageApi, notion])
 
   return (
     <>
@@ -168,37 +171,43 @@ export default function Notion(): JSX.Element {
                 onFinishFailed={onFinishFailed}
               >
                 <Form.Item<FieldType>
-                  label="Notion Page Id"
-                  name="parentPageId"
-                  help="The id of the Notion page where the items will be exported to. You can find it in the URL of the page."
+                  label="Notion Database ID"
+                  name="parentDatabaseId"
+                  help="The ID of the Notion database where the items will be exported to. You can find it in the URL of the database."
+                  normalize={normalizeDatabaseId}
                   rules={[
                     {
                       required: true,
-                      message: 'Please input your Notion Page Id!',
+                      message: 'Please input your Notion Database ID!',
+                    },
+                    {
+                      validator: (_, value) => {
+                        // check if database id is in UUIDv4 format
+                        const uuidRegex = /^[0-9a-fA-F]{8}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{4}[0-9a-fA-F]{12}$/
+                        if (uuidRegex.test(value)) {
+                          return Promise.resolve()
+                        }
+                        // extract the database id from the URL
+                        const urlRegex =
+                          /https:\/\/www.notion.so\/([a-f0-9]{32})\?*/
+                        const match = value.match(urlRegex)
+                        if (match && match.length >= 2) {
+                          return Promise.resolve()
+                        }
+                        return Promise.reject(
+                          new Error('Invalid Notion Database ID.')
+                        )
+                      },
                     },
                   ]}
                 >
                   <Input />
                 </Form.Item>
 
-                <Form.Item<FieldType>
-                  label="Notion Database Id"
-                  name="parentDatabaseId"
-                  hidden
+                <Form.Item
+                  wrapperCol={{ offset: 6 }}
+                  style={{ marginTop: '30px' }}
                 >
-                  <Input disabled />
-                </Form.Item>
-
-                <Form.Item<FieldType>
-                  label="Properties to Export"
-                  name="properties"
-                >
-                  <Checkbox.Group onChange={onDataChange}>
-                    <Checkbox value="highlights">Highlights</Checkbox>
-                  </Checkbox.Group>
-                </Form.Item>
-
-                <Form.Item>
                   <Space>
                     <Button type="primary" htmlType="submit">
                       Save
