@@ -369,26 +369,17 @@ export class NotionClient implements IntegrationClient {
 
   updateDatabase = async (databaseId: string) => {
     const database = await this.findDatabase(databaseId)
+    // find the title property and update it
+    const titleProperty = Object.entries(database.properties).find(
+      ([, property]) => property.type === 'title'
+    )
+    const title = titleProperty ? titleProperty[0] : 'Name'
 
     await this.client.databases.update({
       database_id: database.id,
-      title: [
-        {
-          text: {
-            content: 'Library',
-          },
-        },
-      ],
-      description: [
-        {
-          text: {
-            content: 'Library of saved items from Omnivore',
-          },
-        },
-      ],
       properties: {
-        Title: {
-          title: {},
+        [title]: {
+          name: 'Title',
         },
         Author: {
           rich_text: {},

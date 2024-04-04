@@ -96,7 +96,10 @@ export const setIntegrationResolver = authorized<
   if (integration.name.toLowerCase() === 'readwise') {
     // create a task to export all the items for readwise temporarily
     await enqueueExportToIntegration(integration.id, uid)
-  } else if (integration.name.toLowerCase() === 'notion') {
+  } else if (
+    integration.name.toLowerCase() === 'notion' &&
+    integration.settings
+  ) {
     const settings = integration.settings as { parentDatabaseId?: string }
     if (settings.parentDatabaseId) {
       // update notion database properties
