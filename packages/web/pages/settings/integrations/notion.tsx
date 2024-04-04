@@ -96,10 +96,6 @@ export default function Notion(): JSX.Element {
     console.log('Failed:', errorInfo)
   }
 
-  // const onDataChange = (value: Array<CheckboxValueType>) => {
-  //   form.setFieldsValue({ properties: value.map((v) => v.toString()) })
-  // }
-
   const exportToNotion = useCallback(async () => {
     if (exporting) {
       messageApi.warning('Exporting process is already running.')
@@ -211,14 +207,6 @@ export default function Notion(): JSX.Element {
                   ]}
                 >
                   <Input />
-                </Form.Item>
-
-                <Form.Item<FieldType>
-                  label="Notion Database Id"
-                  name="parentDatabaseId"
-                  hidden
-                >
-                  <Input disabled />
                 </Form.Item>
 
                 <Form.Item
