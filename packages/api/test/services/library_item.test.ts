@@ -5,10 +5,11 @@ import { parseSearchQuery } from '../../src/utils/search'
 
 describe('filterItemEvents', () => {
   it('returns events if there are quotation marks in the subscription name', () => {
-    const query = 'subscription:"Best \\\"Omnivore\\\""'
+    const query = 'subscription:"Best \\"Omnivore\\""'
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         subscription: 'Best "Omnivore"',
       },
     ]
@@ -21,6 +22,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         subscription: 'Substack',
       },
     ]
@@ -33,6 +35,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         siteName: 'YouTube',
       },
     ]
@@ -45,6 +48,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         siteName: 'Der Standard',
       },
     ]
@@ -57,6 +61,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         siteName: 'Stack Overflow',
         originalUrl: 'https://stackoverflow.com/questions/123',
       },
@@ -70,6 +75,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         siteName: 'Stack Overflow',
         originalUrl: 'https://stackoverflow.com/questions/123',
       },
@@ -83,6 +89,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         labelNames: ['foo'],
       },
     ]
@@ -91,10 +98,11 @@ describe('filterItemEvents', () => {
   })
 
   it('returns events if labels contain quotation marks', () => {
-    const query = 'label:"foo \\\"bar\\\""'
+    const query = 'label:"foo \\"bar\\""'
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         labelNames: ['foo "bar"'],
       },
     ]
@@ -107,6 +115,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         labelNames: ['foo bar'],
       },
     ]
@@ -119,6 +128,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         labelNames: ['foo'],
       },
     ]
@@ -131,6 +141,7 @@ describe('filterItemEvents', () => {
     const ast = parseSearchQuery(query)
     const events = [
       {
+        id: '1',
         labelNames: ['foo', 'bar'],
       },
     ]
