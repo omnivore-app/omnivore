@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Filter } from '../../src/entity/filter'
 import { StatusType, User } from '../../src/entity/user'
-import { SendTemplatedEmailData } from '../../src/jobs/send_email'
+import { SendEmailJobData } from '../../src/jobs/send_email'
 import { authTrx, getRepository } from '../../src/repository'
 import { findProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
@@ -97,16 +97,12 @@ describe('create user', () => {
   context('create a user with pending confirmation', () => {
     const name = 'pendingUser'
     let fake: (
-      jobData: SendTemplatedEmailData
+      jobData: SendEmailJobData
     ) => Promise<Job<any, any, string> | undefined>
 
     context('when email sends successfully', () => {
       beforeEach(() => {
-        fake = sinon.replace(
-          createTask,
-          'enqueueConfirmationEmail',
-          sinon.fake()
-        )
+        fake = sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
       })
 
       afterEach(async () => {

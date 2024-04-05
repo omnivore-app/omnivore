@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import supertest from 'supertest'
 import { StatusType, User } from '../../src/entity/user'
-import { SendConfirmationEmailData } from '../../src/jobs/send_email'
+import { SendEmailJobData } from '../../src/jobs/send_email'
 import { getRepository } from '../../src/repository'
 import { userRepository } from '../../src/repository/user'
 import { isValidSignupRequest } from '../../src/routers/auth/auth_router'
@@ -184,17 +184,13 @@ describe('auth router', () => {
       })
     })
 
-    context('when user is not confirmed', async () => {
+    context('when user is not confirmed', () => {
       let fake: (
-        jobData: SendConfirmationEmailData
+        jobData: SendEmailJobData
       ) => Promise<Job<any, any, string> | undefined>
 
       beforeEach(async () => {
-        fake = sinon.replace(
-          createTask,
-          'enqueueConfirmationEmail',
-          sinon.fake()
-        )
+        fake = sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
         await updateUser(user.id, { status: StatusType.Pending })
         email = user.email
         password = correctPassword
@@ -231,7 +227,7 @@ describe('auth router', () => {
       })
     })
 
-    context('when user has no password stored in db', async () => {
+    context('when user has no password stored in db', () => {
       before(async () => {
         await updateUser(user.id, { password: '' })
         email = user.email
@@ -476,7 +472,7 @@ describe('auth router', () => {
     })
 
     context('when token is valid', () => {
-      before(async () => {
+      before(() => {
         token = generateVerificationToken({ id: user.id })
       })
 
@@ -494,8 +490,8 @@ describe('auth router', () => {
           const updatedUser = await getRepository(User).findOneBy({
             id: user?.id,
           })
-          expect(await comparePassword(password, updatedUser?.password!)).to.be
-            .true
+          const newPassword = updatedUser?.password || ''
+          expect(await comparePassword(password, newPassword)).to.be.true
         })
       })
 
@@ -557,12 +553,12 @@ describe('auth router', () => {
     }
 
     context('when inputs are valid and user not exists', () => {
-      let name = 'test_user'
-      let username = 'test_user'
-      let sourceUserId = 'test_source_user_id'
-      let email = 'test_user@omnivore.app'
-      let bio = 'test_bio'
-      let provider: AuthProvider = 'EMAIL'
+      const name = 'test_user'
+      const username = 'test_user'
+      const sourceUserId = 'test_source_user_id'
+      const email = 'test_user@omnivore.app'
+      const bio = 'test_bio'
+      const provider: AuthProvider = 'EMAIL'
 
       afterEach(async () => {
         const user = await userRepository.findOneByOrFail({ name })
@@ -618,7 +614,7 @@ describe('auth router', () => {
 })
 
 describe('isValidSignupRequest', () => {
-  it('returns true for normal looking requests', async () => {
+  it('returns true for normal looking requests', () => {
     const result = isValidSignupRequest({
       email: 'email@omnivore.app',
       password: 'superDuperPassword',
@@ -627,7 +623,7 @@ describe('isValidSignupRequest', () => {
     })
     expect(result).to.be.true
   })
-  it('returns false for requests w/missing info', async () => {
+  it('returns false for requests w/missing info', () => {
     let result = isValidSignupRequest({
       password: 'superDuperPassword',
       name: "The User's Name",
@@ -657,8 +653,8 @@ describe('isValidSignupRequest', () => {
     expect(result).to.be.false
   })
 
-  it('returns false for requests w/malicious info', async () => {
-    let result = isValidSignupRequest({
+  it('returns false for requests w/malicious info', () => {
+    const result = isValidSignupRequest({
       password: 'superDuperPassword',
       name: "You've won a cake sign up here: https://foo.bar",
       username: 'foouser',
