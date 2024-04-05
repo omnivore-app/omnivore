@@ -193,13 +193,11 @@ describe('Labels API', () => {
   })
 
   describe('Delete label', () => {
-    let query: string
     let labelId: string
 
-    beforeEach(() => {
-      query = `
-        mutation {
-          deleteLabel(id: "${labelId}") {
+    const query = `
+        mutation DeleteLabel($labelId: ID!){
+          deleteLabel(id: $labelId) {
             ... on DeleteLabelSuccess {
               label {
                 id
@@ -212,10 +210,25 @@ describe('Labels API', () => {
           }
         }
       `
-    })
 
     context('when label exists', () => {
       let toDeleteLabel: Label
+
+      context('when label is internal', () => {
+        before(async () => {
+          toDeleteLabel = await createLabel('rss', '#ffffff', user.id)
+          labelId = toDeleteLabel.id
+        })
+
+        it('should delete label', async () => {
+          await graphqlRequest(query, authToken, {
+            labelId,
+          }).expect(200)
+
+          const label = await findLabelById(labelId, user.id)
+          expect(label).not.exist
+        })
+      })
 
       context('when label is not used', () => {
         before(async () => {
@@ -228,7 +241,9 @@ describe('Labels API', () => {
         })
 
         it('should delete label', async () => {
-          await graphqlRequest(query, authToken).expect(200)
+          await graphqlRequest(query, authToken, {
+            labelId,
+          }).expect(200)
           const label = await findLabelById(labelId, user.id)
           expect(label).not.exist
         })
@@ -248,7 +263,9 @@ describe('Labels API', () => {
         })
 
         it('should update page', async () => {
-          await graphqlRequest(query, authToken).expect(200)
+          await graphqlRequest(query, authToken, {
+            labelId,
+          }).expect(200)
 
           const updatedItem = await findLibraryItemById(item.id, user.id)
           expect(updatedItem?.labels).not.deep.include(toDeleteLabel)
@@ -283,7 +300,9 @@ describe('Labels API', () => {
         })
 
         it('should update highlight', async () => {
-          await graphqlRequest(query, authToken).expect(200)
+          await graphqlRequest(query, authToken, {
+            labelId,
+          }).expect(200)
 
           const updatedHighlight = await findHighlightById(highlightId, user.id)
           expect(updatedHighlight?.labels).not.deep.include(toDeleteLabel)
@@ -297,7 +316,9 @@ describe('Labels API', () => {
       })
 
       it('should return error code NOT_FOUND', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
+        const res = await graphqlRequest(query, authToken, {
+          labelId,
+        }).expect(200)
 
         expect(res.body.data.deleteLabel.errorCodes).to.eql(['NOT_FOUND'])
       })
