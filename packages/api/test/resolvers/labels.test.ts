@@ -35,7 +35,7 @@ describe('Labels API', () => {
     const res = await request
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
   })
 
   after(async () => {
@@ -109,18 +109,9 @@ describe('Labels API', () => {
   })
 
   describe('Create label', () => {
-    let query: string
-    let name: string
-
-    beforeEach(() => {
-      query = `
-        mutation {
-          createLabel(
-            input: {
-              color: "#ffffff"
-              name: "${name}"
-            }
-          ) {
+    const query = `
+        mutation CreateLabel($input: CreateLabelInput!) {
+          createLabel(input: $input) {
             ... on CreateLabelSuccess {
               label {
                 id
@@ -133,12 +124,9 @@ describe('Labels API', () => {
           }
         }
       `
-    })
 
     context('when name not exists', () => {
-      before(() => {
-        name = 'label3'
-      })
+      const name = 'label3'
 
       after(async () => {
         // clean up
@@ -146,7 +134,9 @@ describe('Labels API', () => {
       })
 
       it('should create label', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
+        const res = await graphqlRequest(query, authToken, {
+          input: { name },
+        }).expect(200)
         const label = await findLabelById(
           res.body.data.createLabel.label.id,
           user.id
@@ -160,17 +150,30 @@ describe('Labels API', () => {
 
       before(async () => {
         existingLabel = await createLabel('label3', '#ffffff', user.id)
-        name = existingLabel.name
       })
 
       after(async () => {
         await deleteLabels({ id: existingLabel.id }, user.id)
       })
 
-      it('should return error code BAD_REQUEST', async () => {
-        const res = await graphqlRequest(query, authToken).expect(200)
+      it('should return error code LABEL_ALREADY_EXISTS', async () => {
+        const res = await graphqlRequest(query, authToken, {
+          input: { name: existingLabel.name },
+        }).expect(200)
 
-        expect(res.body.data.createLabel.errorCodes).to.eql(['BAD_REQUEST'])
+        expect(res.body.data.createLabel.errorCodes).to.eql([
+          'LABEL_ALREADY_EXISTS',
+        ])
+      })
+
+      it('returns error code LABEL_ALREADY_EXISTS if case-insensitive label name exists', async () => {
+        const name = existingLabel.name.toUpperCase()
+        const res = await graphqlRequest(query, authToken, {
+          input: { name },
+        }).expect(200)
+        expect(res.body.data.createLabel.errorCodes).to.eql([
+          'LABEL_ALREADY_EXISTS',
+        ])
       })
     })
 
@@ -334,10 +337,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      await deleteLabels(
-        { user: { id: user.id } },
-        user.id
-      )
+      await deleteLabels({ user: { id: user.id } }, user.id)
       await deleteLibraryItemById(item.id)
     })
 
@@ -464,7 +464,7 @@ describe('Labels API', () => {
       })
 
       after(async () => {
-        await deleteLabels( { id: toUpdateLabel.id }, user.id)
+        await deleteLabels({ id: toUpdateLabel.id }, user.id)
       })
 
       it('should return the updated label', async () => {
@@ -538,10 +538,7 @@ describe('Labels API', () => {
 
     after(async () => {
       // clean up
-      await deleteLabels(
-        { user: { id: user.id } },
-        user.id
-      )
+      await deleteLabels({ user: { id: user.id } }, user.id)
       await deleteLibraryItemById(item.id)
     })
 
@@ -588,7 +585,9 @@ describe('Labels API', () => {
       it('should set labels for highlight', async () => {
         const res = await graphqlRequest(query, authToken).expect(200)
         expect(
-          res.body.data.setLabelsForHighlight.labels.map((l: any) => l.id)
+          (res.body.data.setLabelsForHighlight.labels as Label[]).map(
+            (l) => l.id
+          )
         ).to.eql(labelIds)
       })
     })
@@ -652,7 +651,7 @@ describe('Labels API', () => {
       `
     let labelId: string
     let afterLabelId: string
-    let labels: Label[] = []
+    const labels: Label[] = []
 
     before(async () => {
       //  create testing labels
@@ -671,7 +670,7 @@ describe('Labels API', () => {
     })
 
     context('when label exists', () => {
-      before(async () => {
+      before(() => {
         labelId = labels[1].id
         afterLabelId = labels[4].id
       })
