@@ -2,6 +2,7 @@ import { Notification } from 'firebase-admin/messaging'
 import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { Profile } from '../entity/profile'
 import { StatusType, User } from '../entity/user'
+import { redisDataSource } from '../redis_data_source'
 import { authTrx, getRepository, queryBuilderToRawSql } from '../repository'
 import { userRepository } from '../repository/user'
 import { SetClaimsRole } from '../utils/dictionary'
@@ -149,4 +150,36 @@ export const sendPushNotifications = async (
   }
 
   return sendMulticastPushNotifications(userId, message, notificationType)
+}
+
+export const cacheUser = async (user: User) => {
+  logger.info(`Caching user: ${user.id}`)
+
+  try {
+    await redisDataSource.redisClient?.set(
+      `user:${user.id}`,
+      JSON.stringify(user),
+      'EX',
+      60 * 60 * 24 // 24 hours
+    )
+  } catch (error) {
+    logger.error('Failed to cache user', error)
+  }
+}
+
+export const getCachedUser = async (userId: string): Promise<User | null> => {
+  logger.info(`Getting user from cache: ${userId}`)
+
+  try {
+    const user = await redisDataSource.redisClient?.get(`user:${userId}`)
+    if (user) {
+      logger.info(`Found user from cache: ${userId}`)
+
+      return JSON.parse(user) as User
+    }
+  } catch (error) {
+    logger.error('Failed to get cached user', error)
+  }
+
+  return null
 }
