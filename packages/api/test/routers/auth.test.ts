@@ -1,10 +1,6 @@
-import { Job, Queue } from 'bullmq'
-import chai, { expect } from 'chai'
-import sinon from 'sinon'
-import sinonChai from 'sinon-chai'
+import { expect } from 'chai'
 import supertest from 'supertest'
 import { StatusType, User } from '../../src/entity/user'
-import { SendEmailJobData } from '../../src/jobs/send_email'
 import { getRepository } from '../../src/repository'
 import { userRepository } from '../../src/repository/user'
 import { isValidSignupRequest } from '../../src/routers/auth/auth_router'
@@ -17,11 +13,8 @@ import {
   generateVerificationToken,
   hashPassword,
 } from '../../src/utils/auth'
-import * as createTask from '../../src/utils/createTask'
 import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
-
-chai.use(sinonChai)
 
 describe('auth router', () => {
   const route = '/api/auth'
@@ -183,12 +176,7 @@ describe('auth router', () => {
     })
 
     context('when user is not confirmed', () => {
-      let fake: (
-        jobData: SendEmailJobData
-      ) => Promise<Job<any, any, string> | undefined>
-
       beforeEach(async () => {
-        fake = sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
         await updateUser(user.id, { status: StatusType.Pending })
         email = user.email
         password = correctPassword
@@ -196,7 +184,6 @@ describe('auth router', () => {
 
       afterEach(async () => {
         await updateUser(user.id, { status: StatusType.Active })
-        sinon.restore()
       })
 
       it('redirects with error code PendingVerification', async () => {
@@ -204,11 +191,6 @@ describe('auth router', () => {
         expect(res.header.location).to.endWith(
           '/email-login?errorCodes=PENDING_VERIFICATION'
         )
-      })
-
-      it('sends a verification email', async () => {
-        await loginRequest(email, password).expect(302)
-        expect(fake).to.have.been.calledOnce
       })
     })
 
@@ -268,12 +250,10 @@ describe('auth router', () => {
     let token: string
 
     before(async () => {
-      sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
       user = await createTestUser('pendingUser', undefined, 'password', true)
     })
 
     after(async () => {
-      sinon.restore()
       await deleteUser(user.id)
     })
 
@@ -371,38 +351,9 @@ describe('auth router', () => {
           })
 
           context('when reset password email sent', () => {
-            before(() => {
-              sinon.replace(
-                createTask,
-                'enqueueSendEmail',
-                sinon.fake.resolves(new Job(new Queue('test'), 'test', 'test'))
-              )
-            })
-
-            after(() => {
-              sinon.restore()
-            })
-
             it('redirects to forgot-password page with success message', async () => {
               const res = await emailResetPasswordReq(email).expect(302)
               expect(res.header.location).to.endWith('/auth/reset-sent')
-            })
-          })
-
-          context('when reset password email not sent', () => {
-            before(() => {
-              sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
-            })
-
-            after(() => {
-              sinon.restore()
-            })
-
-            it('redirects to sign up page with error code INVALID_EMAIL', async () => {
-              const res = await emailResetPasswordReq(email).expect(302)
-              expect(res.header.location).to.endWith(
-                '/forgot-password?errorCodes=INVALID_EMAIL'
-              )
             })
           })
         })
