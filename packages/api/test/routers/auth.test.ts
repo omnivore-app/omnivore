@@ -1,4 +1,4 @@
-import { Job } from 'bullmq'
+import { Job, Queue } from 'bullmq'
 import chai, { expect } from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
@@ -372,7 +372,11 @@ describe('auth router', () => {
 
           context('when reset password email sent', () => {
             before(() => {
-              sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
+              sinon.replace(
+                createTask,
+                'enqueueSendEmail',
+                sinon.fake.resolves(new Job(new Queue('test'), 'test', 'test'))
+              )
             })
 
             after(() => {
@@ -424,6 +428,19 @@ describe('auth router', () => {
           const res = await emailResetPasswordReq(email).expect(302)
           expect(res.header.location).to.endWith('/auth/reset-sent')
         })
+      })
+    })
+
+    context('when email is empty', () => {
+      before(() => {
+        email = ''
+      })
+
+      it('redirects to forgot-password page with error code INVALID_EMAIL', async () => {
+        const res = await emailResetPasswordReq(email).expect(302)
+        expect(res.header.location).to.endWith(
+          '/forgot-password?errorCodes=INVALID_EMAIL'
+        )
       })
     })
   })
