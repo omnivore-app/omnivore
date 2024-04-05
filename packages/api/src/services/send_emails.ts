@@ -14,7 +14,6 @@ export const sendNewAccountVerificationEmail = async (user: {
   const link = `${env.client.url}/auth/confirm-email/${token}`
   // send email
   const dynamicTemplateData = {
-    name: user.name,
     link,
   }
 
@@ -75,7 +74,6 @@ export const sendAccountChangeEmail = async (user: {
   const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
-    name: user.name,
     link,
   }
 
@@ -98,7 +96,6 @@ export const sendPasswordResetEmail = async (user: {
   const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
-    name: user.name,
     link,
   }
 
