@@ -36,10 +36,7 @@ import {
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
-import {
-  sendConfirmationEmail,
-  SEND_CONFIRMATION_EMAIL_JOB,
-} from './jobs/send_email'
+import { sendEmailJob, SEND_EMAIL_JOB } from './jobs/send_email'
 import {
   syncReadPositionsJob,
   SYNC_READ_POSITIONS_JOB_NAME,
@@ -161,8 +158,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return processYouTubeTranscript(job.data)
         case EXPORT_ALL_ITEMS_JOB_NAME:
           return exportAllItems(job.data)
-        case SEND_CONFIRMATION_EMAIL_JOB:
-          return sendConfirmationEmail(job.data)
+        case SEND_EMAIL_JOB:
+          return sendEmailJob(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

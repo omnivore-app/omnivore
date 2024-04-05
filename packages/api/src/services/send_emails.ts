@@ -1,15 +1,14 @@
 import mailjet from 'node-mailjet'
 import { env } from '../env'
 import { generateVerificationToken } from '../utils/auth'
-import { enqueueConfirmationEmail } from '../utils/createTask'
+import { enqueueSendEmail } from '../utils/createTask'
 import { logger } from '../utils/logger'
-import { sendEmail } from '../utils/sendEmail'
 
-export const sendConfirmationEmail = async (user: {
+export const sendNewAccountVerificationEmail = async (user: {
   id: string
   name: string
   email: string
-}) => {
+}): Promise<boolean> => {
   // generate confirmation link
   const token = generateVerificationToken({ id: user.id })
   const link = `${env.client.url}/auth/confirm-email/${token}`
@@ -19,11 +18,13 @@ export const sendConfirmationEmail = async (user: {
     link,
   }
 
-  await enqueueConfirmationEmail({
+  const result = await enqueueSendEmail({
     emailAddress: user.email,
-    link,
-    templateData: dynamicTemplateData,
+    dynamicTemplateData: dynamicTemplateData,
+    templateId: env.sendgrid.confirmationTemplateId,
   })
+
+  return !!result
 }
 
 export const sendWithMailJet = async (
@@ -64,7 +65,7 @@ export const sendWithMailJet = async (
   return true
 }
 
-export const sendVerificationEmail = async (user: {
+export const sendAccountChangeEmail = async (user: {
   id: string
   name: string
   email: string
@@ -78,16 +79,13 @@ export const sendVerificationEmail = async (user: {
     link,
   }
 
-  if (process.env.USE_MAILJET) {
-    return sendWithMailJet(user.email, link)
-  }
-
-  return sendEmail({
-    from: env.sender.message,
-    to: user.email,
+  const result = await enqueueSendEmail({
+    emailAddress: user.email,
+    dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.verificationTemplateId,
-    dynamicTemplateData,
   })
+
+  return !!result
 }
 
 export const sendPasswordResetEmail = async (user: {
@@ -104,14 +102,11 @@ export const sendPasswordResetEmail = async (user: {
     link,
   }
 
-  if (process.env.USE_MAILJET) {
-    return sendWithMailJet(user.email, link)
-  }
-
-  return sendEmail({
-    from: env.sender.message,
-    to: user.email,
+  const result = await enqueueSendEmail({
+    emailAddress: user.email,
+    dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.resetPasswordTemplateId,
-    dynamicTemplateData,
   })
+
+  return !!result
 }

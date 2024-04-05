@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import { Filter } from '../../src/entity/filter'
 import { StatusType, User } from '../../src/entity/user'
-import { SendConfirmationEmailData } from '../../src/jobs/send_email'
+import { SendTemplatedEmailData } from '../../src/jobs/send_email'
 import { authTrx, getRepository } from '../../src/repository'
 import { findProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
@@ -97,7 +97,7 @@ describe('create user', () => {
   context('create a user with pending confirmation', () => {
     const name = 'pendingUser'
     let fake: (
-      jobData: SendConfirmationEmailData
+      jobData: SendTemplatedEmailData
     ) => Promise<Job<any, any, string> | undefined>
 
     context('when email sends successfully', () => {
