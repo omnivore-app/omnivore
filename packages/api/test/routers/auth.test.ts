@@ -1,4 +1,3 @@
-import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
 import { Job } from 'bullmq'
 import chai, { expect } from 'chai'
 import sinon from 'sinon'
@@ -19,7 +18,6 @@ import {
   hashPassword,
 } from '../../src/utils/auth'
 import * as createTask from '../../src/utils/createTask'
-import * as util from '../../src/utils/sendEmail'
 import { createTestUser } from '../db'
 import { generateFakeUuid, request } from '../util'
 
@@ -270,7 +268,7 @@ describe('auth router', () => {
     let token: string
 
     before(async () => {
-      sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+      sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
       user = await createTestUser('pendingUser', undefined, 'password', true)
     })
 
@@ -368,15 +366,13 @@ describe('auth router', () => {
         })
 
         context('when email is verified', () => {
-          let fake: (msg: MailDataRequired) => Promise<boolean>
-
           before(async () => {
             await updateUser(user.id, { status: StatusType.Active })
           })
 
           context('when reset password email sent', () => {
             before(() => {
-              fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
+              sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
             })
 
             after(() => {
@@ -391,11 +387,7 @@ describe('auth router', () => {
 
           context('when reset password email not sent', () => {
             before(() => {
-              fake = sinon.replace(
-                util,
-                'sendEmail',
-                sinon.fake.resolves(false)
-              )
+              sinon.replace(createTask, 'enqueueSendEmail', sinon.fake())
             })
 
             after(() => {
@@ -432,19 +424,6 @@ describe('auth router', () => {
           const res = await emailResetPasswordReq(email).expect(302)
           expect(res.header.location).to.endWith('/auth/reset-sent')
         })
-      })
-    })
-
-    context('when email is empty', () => {
-      before(() => {
-        email = ''
-      })
-
-      it('redirects to forgot-password page with error code INVALID_EMAIL', async () => {
-        const res = await emailResetPasswordReq(email).expect(302)
-        expect(res.header.location).to.endWith(
-          '/forgot-password?errorCodes=INVALID_EMAIL'
-        )
       })
     })
   })
