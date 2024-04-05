@@ -229,10 +229,17 @@ export default function Rss(): JSX.Element {
                   }}
                 >
                   <SpanBox>{`URL: ${subscription.url}`}</SpanBox>
-                  <SpanBox>{`Last refreshed: ${
-                    subscription.lastFetchedAt
-                      ? formattedDateTime(subscription.lastFetchedAt)
-                      : 'Never'
+                  {/* show failed timestamp instead of last refreshed timestamp if the feed failed to refresh */}
+                  <SpanBox>{`${
+                    subscription.failedAt
+                      ? `Failed to refresh: ${formattedDateTime(
+                          subscription.failedAt
+                        )}`
+                      : `Last refreshed: ${
+                          subscription.lastFetchedAt
+                            ? formattedDateTime(subscription.lastFetchedAt)
+                            : 'Never'
+                        }`
                   }`}</SpanBox>
                   <SpanBox>
                     {subscription.mostRecentItemDate &&

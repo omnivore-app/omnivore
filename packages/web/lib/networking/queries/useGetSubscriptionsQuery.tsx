@@ -30,6 +30,7 @@ export type Subscription = {
   updatedAt: string
   lastFetchedAt?: string
   mostRecentItemDate?: string
+  failedAt?: string
 
   fetchContentType?: FetchContentType
 }
@@ -74,6 +75,7 @@ export function useGetSubscriptionsQuery(
             lastFetchedAt
             fetchContentType
             mostRecentItemDate
+            failedAt
           }
         }
         ... on SubscriptionsError {
