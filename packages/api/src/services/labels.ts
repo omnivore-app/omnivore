@@ -148,6 +148,7 @@ export const saveLabelsInLibraryItem = async (
       {
         id: libraryItemId,
         labels: labels.map((l) => deepDelete(l, columnsToDelete)),
+        labelNames: labels.map((l) => l.name),
       },
       userId
     )
