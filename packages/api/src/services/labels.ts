@@ -41,21 +41,18 @@ export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
   userId: string
 ): Promise<Label[]> => {
-  // create labels if not exist
-  await authTrx(
-    async (tx) =>
-      tx.withRepository(labelRepository).createLabels(labels, userId),
-    undefined,
-    userId
-  )
-
-  // find labels
   return authTrx(
-    async (tx) =>
-      tx.withRepository(labelRepository).findByNames(
-        labels.map((l) => l.name),
-        userId
-      ),
+    async (tx) => {
+      const repo = tx.withRepository(labelRepository)
+      // create labels if not exist
+      await repo.createLabels(labels, userId)
+
+      // find labels by names
+      return repo.findBy({
+        name: In(labels.map((l) => l.name)),
+        user: { id: userId },
+      })
+    },
     undefined,
     userId
   )
@@ -151,6 +148,7 @@ export const saveLabelsInLibraryItem = async (
       {
         id: libraryItemId,
         labels: labels.map((l) => deepDelete(l, columnsToDelete)),
+        labelNames: labels.map((l) => l.name),
       },
       userId
     )

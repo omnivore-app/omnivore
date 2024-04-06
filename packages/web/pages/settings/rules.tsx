@@ -25,6 +25,14 @@ type CreateRuleModalProps = {
   revalidate: () => void
 }
 
+const eventTypeObj = {
+  PAGE_CREATED: 'PAGE_CREATED',
+  PAGE_UPDATED: 'PAGE_UPDATED',
+  HIGHLIGHT_CREATED: 'HIGHLIGHT_CREATED',
+  HIGHLIGHT_UPDATED: 'HIGHLIGHT_UPDATED',
+  LABEL_CREATED: 'LABEL_ATTACHED',
+}
+
 const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
   const [form] = Form.useForm()
 
@@ -104,7 +112,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
               const value = Object.values(RuleEventType)[index]
               return (
                 <Select.Option key={key} value={value}>
-                  {key === 'LABEL_CREATED' ? 'LABEL_ATTACHED' : key}
+                  {eventTypeObj[value]}
                 </Select.Option>
               )
             })}
@@ -363,7 +371,7 @@ export default function Rules(): JSX.Element {
           {row.eventTypes.map((eventType: RuleEventType, index: number) => {
             return (
               <Tag color={'geekblue'} key={index}>
-                {eventType}
+                {eventTypeObj[eventType]}
               </Tag>
             )
           })}
