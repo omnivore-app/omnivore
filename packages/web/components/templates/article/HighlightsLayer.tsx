@@ -32,6 +32,7 @@ import { NotebookContent } from './Notebook'
 import { NotebookHeader } from './NotebookHeader'
 import useGetWindowDimensions from '../../../lib/hooks/useGetWindowDimensions'
 import { ConfirmationModal } from '../../patterns/ConfirmationModal'
+import { Resizable } from 're-resizable'
 
 type HighlightsLayerProps = {
   viewer: UserBasicData
@@ -850,7 +851,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
       <SlidingPane
         className="sliding-pane-class"
         isOpen={props.showHighlightsModal}
-        width={windowDimensions.width < 600 ? '100%' : '420px'}
+        width="fit-content"
         hideHeader={true}
         from="right"
         overlayClassName="slide-panel-overlay"
@@ -858,7 +859,31 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
           props.setShowHighlightsModal(false)
         }}
       >
-        <>
+        <Resizable
+          onResize={(_e, _direction, ref) => {
+            if (parseInt(ref.style.width) < 210) {
+              props.setShowHighlightsModal(false)
+            }
+          }}
+          defaultSize={{
+            width: windowDimensions.width < 600 ? '100%' : '420px',
+            height: '100%',
+          }}
+          enable={
+            windowDimensions.width < 600
+              ? false
+              : {
+                  top: false,
+                  right: false,
+                  bottom: false,
+                  left: true,
+                  topRight: false,
+                  bottomRight: false,
+                  bottomLeft: false,
+                  topLeft: false,
+                }
+          }
+        >
           <NotebookHeader
             viewer={props.viewer}
             item={props.item}
@@ -887,7 +912,7 @@ export function HighlightsLayer(props: HighlightsLayerProps): JSX.Element {
               )
             }}
           />
-        </>
+        </Resizable>
       </SlidingPane>
     </>
   )
