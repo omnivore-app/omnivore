@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature
+package app.omnivore.omnivore.feature.reader
 
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput

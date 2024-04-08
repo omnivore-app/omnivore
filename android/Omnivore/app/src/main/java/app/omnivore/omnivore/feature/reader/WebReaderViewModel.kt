@@ -34,7 +34,6 @@ import app.omnivore.omnivore.core.network.saveUrl
 import app.omnivore.omnivore.core.network.savedItem
 import app.omnivore.omnivore.feature.components.HighlightColor
 import app.omnivore.omnivore.feature.library.SavedItemAction
-import app.omnivore.omnivore.feature.setSavedItemLabels
 import app.omnivore.omnivore.graphql.generated.type.CreateLabelInput
 import app.omnivore.omnivore.utils.DatastoreKeys
 import com.apollographql.apollo3.api.Optional.Companion.presentIfNotNull
@@ -464,7 +463,7 @@ class WebReaderViewModel @Inject constructor(
         val storedThemePreference =
             datastoreRepo.getString(DatastoreKeys.preferredTheme) ?: "System"
         val storedWebFont =
-            WebFont.values().firstOrNull { it.rawValue == storedFontFamily } ?: WebFont.values()
+            WebFont.entries.firstOrNull { it.rawValue == storedFontFamily } ?: WebFont.entries
                 .first()
 
         val prefersHighContrastFont =

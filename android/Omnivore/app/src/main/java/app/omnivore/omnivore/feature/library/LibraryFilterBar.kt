@@ -33,11 +33,13 @@ import app.omnivore.omnivore.feature.components.LabelChipColors
 
 @Composable
 fun LibraryFilterBar(
+    isFollowingScreen: Boolean,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
+
     var isSavedItemFilterMenuExpanded by remember { mutableStateOf(false) }
     val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(
-        SavedItemFilter.INBOX
+        if (isFollowingScreen) SavedItemFilter.FOLLOWING else SavedItemFilter.INBOX
     )
     val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())
 
@@ -58,7 +60,9 @@ fun LibraryFilterBar(
         ) {
             item {
                 AssistChip(onClick = { isSavedItemFilterMenuExpanded = true },
-                    label = { Text(activeSavedItemFilter.displayText) },
+                    label = { Text(
+                        activeSavedItemFilter.displayText
+                    ) },
                     trailingIcon = {
                         Icon(
                             Icons.Default.ArrowDropDown,
@@ -113,9 +117,12 @@ fun LibraryFilterBar(
             }
         }
 
-        SavedItemFilterContextMenu(isExpanded = isSavedItemFilterMenuExpanded,
+        SavedItemFilterContextMenu(
+            isFollowingScreen = isFollowingScreen,
+            isExpanded = isSavedItemFilterMenuExpanded,
             onDismiss = { isSavedItemFilterMenuExpanded = false },
-            actionHandler = { viewModel.updateSavedItemFilter(it) })
+            actionHandler = { viewModel.updateSavedItemFilter(it) }
+        )
 
         SavedItemSortFilterContextMenu(isExpanded = isSavedItemSortFilterMenuExpanded,
             onDismiss = { isSavedItemSortFilterMenuExpanded = false },

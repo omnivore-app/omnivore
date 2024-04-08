@@ -23,7 +23,7 @@ interface SavedItemDao {
     fun getUnSynced(): List<SavedItem>
 
     @Query("SELECT * FROM savedItem WHERE slug = :slug")
-    fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
+    suspend fun getSavedItemWithLabelsAndHighlights(slug: String): SavedItemWithLabelsAndHighlights?
 
     @Query("DELETE FROM savedItem WHERE savedItemId = :itemID")
     fun deleteById(itemID: String)

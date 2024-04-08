@@ -21,7 +21,6 @@ import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.Icon
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
@@ -33,6 +32,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.feature.components.AddLinkSheetContent
 import app.omnivore.omnivore.feature.components.LabelsSelectionSheetContent
@@ -147,6 +146,7 @@ internal fun LibraryView(
         when (uiState) {
             is LibraryUiState.Success -> {
                 LibraryViewContent(
+                    isFollowingScreen = currentTopLevelDestination == TopLevelDestination.FOLLOWING,
                     viewModel,
                     paddingValues = paddingValues,
                     uiState = uiState
@@ -189,9 +189,9 @@ fun LabelBottomSheet(
     ) {
 
         val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
-        val labels: List<SavedItemLabel> by libraryViewModel.savedItemLabelsLiveData.observeAsState(
-            listOf()
-        )
+        
+        val labels by libraryViewModel.labelsState.collectAsStateWithLifecycle()
+
         if (currentSavedItemData != null) {
             LabelsSelectionSheetContent(
                 labels = labels,
@@ -302,6 +302,7 @@ fun EditBottomSheet(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryViewContent(
+    isFollowingScreen: Boolean,
     libraryViewModel: LibraryViewModel,
     paddingValues: PaddingValues,
     uiState: LibraryUiState
@@ -328,7 +329,7 @@ fun LibraryViewContent(
             .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
         Column {
-            LibraryFilterBar()
+            LibraryFilterBar(isFollowingScreen)
             HorizontalDivider()
             LazyColumn(
                 state = listState,

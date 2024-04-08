@@ -1,6 +1,15 @@
 package app.omnivore.omnivore.core.database.entities
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Insert
+import androidx.room.Junction
+import androidx.room.OnConflictStrategy
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Relation
 import app.omnivore.omnivore.core.data.model.ServerSyncStatus
 import com.google.gson.annotations.SerializedName
 
@@ -86,26 +95,4 @@ data class SavedItemWithLabelsAndHighlights(
   override fun hashCode(): Int {
     return savedItem.savedItemId.hashCode()
   }
-}
-
-@Dao
-interface HighlightDao {
-  @Query("SELECT * FROM highlight WHERE serverSyncStatus != 0")
-  fun getUnSynced(): List<Highlight>
-
-  @Insert(onConflict = OnConflictStrategy.REPLACE)
-  fun insertAll(items: List<Highlight>)
-
-  @Query("DELETE FROM highlight WHERE highlightId = :highlightId")
-  fun deleteById(highlightId: String)
-
-  @Query("SELECT * FROM highlight WHERE highlightId = :highlightId")
-  fun findById(highlightId: String): Highlight?
-
-  // Server sync status is passed in here to work around Room compile-time query rules, but should always be NEEDS_UPDATE
-  @Query("UPDATE highlight SET annotation = :note, serverSyncStatus = :serverSyncStatus WHERE highlightId = :highlightId")
-  fun updateNote(highlightId: String, note: String, serverSyncStatus: Int = ServerSyncStatus.NEEDS_UPDATE.rawValue)
-
-  @Update
-  fun update(highlight: Highlight)
 }
