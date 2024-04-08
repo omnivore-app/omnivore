@@ -470,3 +470,34 @@ export class Prompts extends BaseEntity {
   @Column('text', { array: true, nullable: true })
   variables!: string[]
 }
+
+@Entity({ name: 'labels' })
+export class Label extends BaseEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
+
+  @Column('text')
+  name!: string
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user!: User
+
+  @Column('text')
+  color!: string
+
+  @Column('text', { nullable: true })
+  description?: string | null
+
+  @Column('integer', { default: 0 })
+  position!: number
+
+  @Column('boolean', { default: false })
+  internal!: boolean
+
+  @Column({ type: 'timestamp', name: 'created_at' })
+  createdAt!: Date
+
+  @Column({ type: 'timestamp', name: 'updated_at' })
+  updatedAt!: Date
+}
