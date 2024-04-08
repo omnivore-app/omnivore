@@ -127,7 +127,8 @@ export const replyToEmailResolver = authorized<
   ReplyToEmailError,
   MutationReplyToEmailArgs
 >(async (_, { recentEmailId }, { uid, log }) => {
-  const recentEmail = await getRepository(ReceivedEmail).findOneBy({
+  const repo = getRepository(ReceivedEmail)
+  const recentEmail = await repo.findOneBy({
     id: recentEmailId,
     user: { id: uid },
   })
@@ -140,12 +141,17 @@ export const replyToEmailResolver = authorized<
     }
   }
 
+  const reply = 'Okay'
+
   const result = await sendEmail({
     to: recentEmail.replyTo || recentEmail.from, // send to the reply-to address if it exists or the from address
     subject: 'Re: ' + recentEmail.subject,
-    text: 'Okay',
+    text: reply,
     from: recentEmail.to,
   })
+
+  // update received email reply
+  await repo.update(recentEmailId, { reply })
 
   return {
     success: result,
