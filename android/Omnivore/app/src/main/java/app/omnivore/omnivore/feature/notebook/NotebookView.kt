@@ -181,7 +181,6 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
                     )
                 }
             ) { paddingValues ->
-
                 TextField(
                     modifier = Modifier
                         .padding(top = paddingValues.calculateTopPadding())
@@ -196,8 +195,6 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     )
-
-                ),
                 )
             }
         }
