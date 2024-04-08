@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings
+package app.omnivore.omnivore.feature.profile
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults

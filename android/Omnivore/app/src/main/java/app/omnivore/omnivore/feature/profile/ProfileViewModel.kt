@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings
+package app.omnivore.omnivore.feature.profile
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+class ProfileViewModel @Inject constructor(
     private val networker: Networker,
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository

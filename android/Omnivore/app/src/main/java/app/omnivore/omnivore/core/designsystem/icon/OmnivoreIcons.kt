@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.core.designsystem
+package app.omnivore.omnivore.core.designsystem.icon
 
 import app.omnivore.omnivore.R
 

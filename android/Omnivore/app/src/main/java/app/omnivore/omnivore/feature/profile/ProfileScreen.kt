@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.settings
+package app.omnivore.omnivore.feature.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -8,11 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,16 +37,7 @@ internal fun SettingsScreen(
 ) {
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text(stringResource(R.string.settings_view_title)) },
-            navigationIcon = {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = null
-                    )
-                }
-
-            },
+            title = { Text(stringResource(R.string.profile_view_title)) },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background
             ),
@@ -80,14 +67,14 @@ fun SettingsViewContent(
     ) {
 
         item {
-            SettingRow(title = stringResource(R.string.settings_view_setting_row_manage_account)) {
+            SettingRow(title = stringResource(R.string.about_manage_account)) {
                 navController.navigate(Routes.Account.route)
             }
         }
 
         item {
             SettingRow(
-                title = stringResource(R.string.settings_view_setting_row_logout)
+                title = stringResource(R.string.about_logout)
             ) {
                 showLogoutDialog.value = true
             }

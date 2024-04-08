@@ -57,7 +57,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-
             OmnivoreTheme {
                 Box(
                     modifier = Modifier

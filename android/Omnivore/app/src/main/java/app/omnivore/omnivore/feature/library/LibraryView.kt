@@ -73,6 +73,7 @@ import app.omnivore.omnivore.feature.save.SaveState
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.navigation.Routes
+import app.omnivore.omnivore.navigation.TopLevelDestination
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -131,13 +132,15 @@ internal fun LibraryView(
         }
     }
 
+    val currentTopLevelDestination = TopLevelDestination.entries.find { it.route == navController.currentDestination?.route }
+
     Scaffold(
         topBar = {
             LibraryNavigationBar(
+                currentDestination = currentTopLevelDestination,
                 savedItemViewModel = viewModel,
                 onSearchClicked = { navController.navigate(Routes.Search.route) },
-                onAddLinkClicked = { showAddLinkBottomSheet(viewModel) },
-                onSettingsIconClick = { navController.navigate(Routes.Settings.route) }
+                onAddLinkClicked = { showAddLinkBottomSheet(viewModel) }
             )
         },
     ) { paddingValues ->
