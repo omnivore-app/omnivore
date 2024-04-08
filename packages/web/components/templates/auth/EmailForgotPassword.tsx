@@ -1,19 +1,22 @@
 import { SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText } from '../../elements/StyledText'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
 import { useRouter } from 'next/router'
 import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
+import { Recaptcha } from '../../elements/Recaptcha'
 
 export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
+  const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -62,6 +65,25 @@ export function EmailForgotPassword(): JSX.Element {
             />
           </SpanBox>
         </VStack>
+
+        {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY && (
+          <>
+            <Recaptcha
+              setRecaptchaToken={(token) => {
+                if (recaptchaTokenRef.current) {
+                  recaptchaTokenRef.current.value = token
+                } else {
+                  console.log('error updating recaptcha token')
+                }
+              }}
+            />
+            <input
+              ref={recaptchaTokenRef}
+              type="hidden"
+              name="recaptchaToken"
+            />
+          </>
+        )}
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
         <Button type="submit" style="ctaDarkYellow" css={{ my: '$2' }}>
