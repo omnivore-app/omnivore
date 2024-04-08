@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { StatusType } from '../../../entity/user'
 import { userRepository } from '../../../repository/user'
-import { sendConfirmationEmail } from '../../../services/send_emails'
+import { sendNewAccountVerificationEmail } from '../../../services/send_emails'
 import { comparePassword } from '../../../utils/auth'
 import { logger } from '../../../utils/logger'
 import { decodeAppleToken } from '../apple_auth'
@@ -56,7 +56,7 @@ export async function createMobileEmailSignInResponse(
     }
 
     if (user.status === StatusType.Pending && user.email) {
-      await sendConfirmationEmail({
+      await sendNewAccountVerificationEmail({
         id: user.id,
         email: user.email,
         name: user.name,

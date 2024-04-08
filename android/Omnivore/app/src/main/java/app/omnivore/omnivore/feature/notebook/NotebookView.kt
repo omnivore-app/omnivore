@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -42,6 +43,7 @@ import app.omnivore.omnivore.core.database.entities.Highlight
 import app.omnivore.omnivore.feature.theme.OmnivoreTheme
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 
 
 fun notebookMD(notes: List<Highlight>, highlights: List<Highlight>): String {
@@ -179,12 +181,15 @@ fun EditNoteModal(initialValue: String?, onDismiss: (save: Boolean, text: String
                     )
                 }
             ) { paddingValues ->
-
                 TextField(
                     modifier = Modifier
                         .padding(top = paddingValues.calculateTopPadding())
                         .focusRequester(focusRequester)
                         .fillMaxSize(),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        autoCorrect = true,
+                        capitalization = KeyboardCapitalization.Sentences
+                    ),
                     value = annotation.value, onValueChange = { annotation.value = it },
                     colors = TextFieldDefaults.textFieldColors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
