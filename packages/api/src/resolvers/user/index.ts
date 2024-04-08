@@ -41,7 +41,7 @@ import {
 } from '../../generated/graphql'
 import { userRepository } from '../../repository/user'
 import { createUser } from '../../services/create_user'
-import { sendVerificationEmail } from '../../services/send_emails'
+import { sendAccountChangeEmail } from '../../services/send_emails'
 import { softDeleteUser } from '../../services/user'
 import { userDataToUser } from '../../utils/helpers'
 import { validateUsername } from '../../utils/usernamePolicy'
@@ -358,7 +358,7 @@ export const updateEmailResolver = authorized<
       return { email }
     }
 
-    const result = await sendVerificationEmail({
+    const result = await sendAccountChangeEmail({
       id: user.id,
       name: user.name,
       email,

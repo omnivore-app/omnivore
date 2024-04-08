@@ -23,7 +23,7 @@ import { userRepository } from '../../repository/user'
 import { isErrorWithCode } from '../../resolvers'
 import { createUser } from '../../services/create_user'
 import {
-  sendConfirmationEmail,
+  sendNewAccountVerificationEmail,
   sendPasswordResetEmail,
 } from '../../services/send_emails'
 import { analytics } from '../../utils/analytics'
@@ -440,7 +440,7 @@ export function authRouter() {
         }
 
         if (user.status === StatusType.Pending && user.email) {
-          await sendConfirmationEmail({
+          await sendNewAccountVerificationEmail({
             id: user.id,
             email: user.email,
             name: user.name,

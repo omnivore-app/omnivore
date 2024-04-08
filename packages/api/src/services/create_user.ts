@@ -16,7 +16,7 @@ import { IntercomClient } from '../utils/intercom'
 import { logger } from '../utils/logger'
 import { validateUsername } from '../utils/usernamePolicy'
 import { addPopularReadsForNewUser } from './popular_reads'
-import { sendConfirmationEmail } from './send_emails'
+import { sendNewAccountVerificationEmail } from './send_emails'
 
 export const MAX_RECORDS_LIMIT = 1000
 
@@ -142,7 +142,7 @@ export const createUser = async (input: {
   })
 
   if (input.pendingConfirmation) {
-    if (!(await sendConfirmationEmail(user))) {
+    if (!(await sendNewAccountVerificationEmail(user))) {
       return Promise.reject({ errorCode: SignupErrorCode.InvalidEmail })
     }
   }

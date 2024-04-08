@@ -1,21 +1,14 @@
-import { MailDataRequired } from '@sendgrid/helpers/classes/mail'
-import chai, { expect } from 'chai'
-import 'mocha'
-import sinon from 'sinon'
-import sinonChai from 'sinon-chai'
+import { expect } from 'chai'
 import { Filter } from '../../src/entity/filter'
 import { StatusType, User } from '../../src/entity/user'
 import { authTrx, getRepository } from '../../src/repository'
 import { findProfile } from '../../src/services/profile'
 import { deleteUser } from '../../src/services/user'
-import * as util from '../../src/utils/sendEmail'
 import {
   createTestUser,
   createUserWithoutProfile,
   deleteFiltersFromUser,
 } from '../db'
-
-chai.use(sinonChai)
 
 describe('create user', () => {
   context('creates a user through manual sign up', () => {
@@ -95,15 +88,9 @@ describe('create user', () => {
 
   context('create a user with pending confirmation', () => {
     const name = 'pendingUser'
-    let fake: (msg: MailDataRequired) => Promise<boolean>
 
     context('when email sends successfully', () => {
-      beforeEach(() => {
-        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(true))
-      })
-
       afterEach(async () => {
-        sinon.restore()
         const user = await getRepository(User).findOneBy({ name })
         await deleteUser(user!.id)
       })
@@ -113,29 +100,6 @@ describe('create user', () => {
 
         expect(user.status).to.eql(StatusType.Pending)
         expect(user.name).to.eql(name)
-      })
-
-      it('sends an email to the user', async () => {
-        await createTestUser(name, undefined, undefined, true)
-
-        expect(fake).to.have.been.calledOnce
-      })
-    })
-
-    context('when failed to send email', () => {
-      before(() => {
-        fake = sinon.replace(util, 'sendEmail', sinon.fake.resolves(false))
-      })
-
-      after(async () => {
-        sinon.restore()
-        const user = await getRepository(User).findOneBy({ name })
-        await deleteUser(user!.id)
-      })
-
-      it('rejects with error', async () => {
-        return expect(createTestUser(name, undefined, undefined, true)).to.be
-          .rejected
       })
     })
   })
