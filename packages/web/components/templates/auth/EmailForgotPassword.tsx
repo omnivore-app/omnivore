@@ -10,6 +10,31 @@ import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import { Recaptcha } from '../../elements/Recaptcha'
 
+const ForgotPasswordForm = (): JSX.Element => {
+  const [email, setEmail] = useState<string | undefined>()
+
+  return (
+    <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+      <SpanBox css={{ width: '100%' }}>
+        <FormLabel>Email</FormLabel>
+        <BorderedFormInput
+          key="email"
+          type="email"
+          name="email"
+          value={email}
+          placeholder="Email"
+          autoFocus={true}
+          css={{ bg: 'white', color: 'black' }}
+          onChange={(e) => {
+            e.preventDefault()
+            setEmail(e.target.value)
+          }}
+        />
+      </SpanBox>
+    </VStack>
+  )
+}
+
 export function EmailForgotPassword(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
@@ -45,26 +70,8 @@ export function EmailForgotPassword(): JSX.Element {
         <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
           Reset your password
         </StyledText>
-        <VStack
-          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
-        >
-          <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Email</FormLabel>
-            <BorderedFormInput
-              key="email"
-              type="email"
-              name="email"
-              value={email}
-              placeholder="Email"
-              autoFocus={true}
-              css={{ bg: 'white', color: 'black' }}
-              onChange={(e) => {
-                e.preventDefault()
-                setEmail(e.target.value)
-              }}
-            />
-          </SpanBox>
-        </VStack>
+
+        <ForgotPasswordForm />
 
         {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY && (
           <>
