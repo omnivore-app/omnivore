@@ -1,7 +1,7 @@
 import { HStack, SpanBox, VStack } from '../../elements/LayoutPrimitives'
 import { Button } from '../../elements/Button'
 import { StyledText, StyledTextSpan } from '../../elements/StyledText'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BorderedFormInput, FormLabel } from '../../elements/FormElements'
 import { fetchEndpoint } from '../../../lib/appConfig'
 import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation'
@@ -9,13 +9,16 @@ import { useRouter } from 'next/router'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
 import { formatMessage } from '../../../locales/en/messages'
 import Link from 'next/link'
+import { Recaptcha } from '../../elements/Recaptcha'
 
 export function EmailLogin(): JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState<string | undefined>(undefined)
   const [password, setPassword] = useState<string | undefined>(undefined)
-  const [errorMessage, setErrorMessage] =
-    useState<string | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  )
+  const recaptchaTokenRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -77,6 +80,25 @@ export function EmailLogin(): JSX.Element {
             />
           </SpanBox>
         </VStack>
+
+        {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY && (
+          <>
+            <Recaptcha
+              setRecaptchaToken={(token) => {
+                if (recaptchaTokenRef.current) {
+                  recaptchaTokenRef.current.value = token
+                } else {
+                  console.log('error updating recaptcha token')
+                }
+              }}
+            />
+            <input
+              ref={recaptchaTokenRef}
+              type="hidden"
+              name="recaptchaToken"
+            />
+          </>
+        )}
 
         {errorMessage && <StyledText style="error">{errorMessage}</StyledText>}
 
@@ -148,5 +170,5 @@ export function EmailLogin(): JSX.Element {
         </StyledText>
       </VStack>
     </form>
-  );
+  )
 }
