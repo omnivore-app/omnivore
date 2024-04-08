@@ -62,18 +62,18 @@ fun RootView(
     val snackbarHostState = remember { SnackbarHostState() }
     val navController = rememberNavController()
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            if (navController.currentBackStackEntryAsState().value?.destination?.route in TopLevelDestination.entries.map { it.route }) {
-                OmnivoreBottomBar(
-                    navController,
-                    TopLevelDestination.entries,
-                    navController.currentBackStackEntryAsState().value?.destination
-                )
-            }
+    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {
+        if (
+            navController.currentBackStackEntryAsState().value?.destination?.route in
+            TopLevelDestination.entries.map { it.route }
+        ) {
+            OmnivoreBottomBar(
+                navController,
+                TopLevelDestination.entries,
+                navController.currentBackStackEntryAsState().value?.destination
+            )
         }
-    ) { padding ->
+    }) { padding ->
         Box(
             modifier = if (!hasAuthToken) Modifier.background(Color(0xFFFCEBA8)) else Modifier
                 .fillMaxSize()
@@ -84,7 +84,7 @@ fun RootView(
                         WindowInsetsSides.Horizontal,
                     ),
                 )
-        ){
+        ) {
             if (hasAuthToken) {
                 PrimaryNavigator(
                     navController = navController,
@@ -122,8 +122,7 @@ fun PrimaryNavigator(
 ) {
 
     NavHost(
-        navController = navController,
-        startDestination = Routes.Inbox.route
+        navController = navController, startDestination = Routes.Inbox.route
     ) {
         composable(Routes.Inbox.route) {
             LibraryView(
@@ -151,8 +150,7 @@ fun PrimaryNavigator(
 
         composable(Routes.Settings.route) {
             SettingsScreen(
-                loginViewModel = loginViewModel,
-                navController = navController
+                loginViewModel = loginViewModel, navController = navController
             )
         }
 
@@ -190,7 +188,7 @@ private fun OmnivoreBottomBar(
     currentDestination: NavDestination?
 ) {
 
-    NavigationBar (
+    NavigationBar(
         containerColor = MaterialTheme.colorScheme.background
     ) {
         destinations.forEach { screen ->
@@ -199,8 +197,12 @@ private fun OmnivoreBottomBar(
             } else {
                 ImageVector.vectorResource(id = screen.unselectedIcon)
             }
-            NavigationBarItem(
-                icon = { Icon(icon, contentDescription = stringResource(id = screen.iconTextId)) },
+            NavigationBarItem(icon = {
+                Icon(
+                    icon,
+                    contentDescription = stringResource(id = screen.iconTextId)
+                )
+            },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
                     navController.navigate(screen.route) {
@@ -216,8 +218,7 @@ private fun OmnivoreBottomBar(
                         // Restore state when reselecting a previously selected item
                         restoreState = true
                     }
-                }
-            )
+                })
         }
     }
 }
