@@ -8,7 +8,8 @@ export const saveReceivedEmail = async (
   text: string,
   html: string,
   userId: string,
-  type: 'article' | 'non-article' = 'non-article'
+  type: 'article' | 'non-article' = 'non-article',
+  replyTo?: string
 ): Promise<ReceivedEmail> => {
   return authTrx(
     (t) =>
@@ -20,6 +21,7 @@ export const saveReceivedEmail = async (
         html,
         type,
         user: { id: userId },
+        replyTo,
       }),
     undefined,
     userId

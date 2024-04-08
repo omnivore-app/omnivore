@@ -2547,6 +2547,8 @@ const schema = gql`
     type: String!
     text: String!
     html: String
+    replyTo: String
+    reply: String
     createdAt: Date!
   }
 

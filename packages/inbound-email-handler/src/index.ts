@@ -120,6 +120,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // original sender email address
       const from = parsed['from']
+      const replyTo = parsed['reply-to']
       const subject = parsed['subject']
       const html = parsed['html']
       const text = parsed['text']
@@ -140,6 +141,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         subject,
         html,
         text,
+        replyTo,
       })
 
       try {
