@@ -21,5 +21,7 @@ object DatabaseModule {
         context,
         OmnivoreDatabase::class.java,
         "omnivore-database",
-    ).build()
+    )
+    .fallbackToDestructiveMigration()
+    .build()
 }
