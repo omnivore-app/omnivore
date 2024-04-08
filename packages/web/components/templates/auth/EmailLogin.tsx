@@ -11,10 +11,47 @@ import { formatMessage } from '../../../locales/en/messages'
 import Link from 'next/link'
 import { Recaptcha } from '../../elements/Recaptcha'
 
+const LoginForm = (): JSX.Element => {
+  const [email, setEmail] = useState<string | undefined>()
+  const [password, setPassword] = useState<string | undefined>()
+
+  return (
+    <VStack css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}>
+      <SpanBox css={{ width: '100%' }}>
+        <FormLabel>Email</FormLabel>
+        <BorderedFormInput
+          autoFocus={true}
+          key="email"
+          type="email"
+          name="email"
+          value={email}
+          placeholder="Email"
+          css={{ backgroundColor: 'white', color: 'black' }}
+          onChange={(e) => {
+            e.preventDefault()
+            setEmail(e.target.value)
+          }}
+        />
+      </SpanBox>
+
+      <SpanBox css={{ width: '100%' }}>
+        <FormLabel>Password</FormLabel>
+        <BorderedFormInput
+          key="password"
+          type="password"
+          name="password"
+          value={password}
+          placeholder="Password"
+          css={{ bg: 'white', color: 'black' }}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </SpanBox>
+    </VStack>
+  )
+}
+
 export function EmailLogin(): JSX.Element {
   const router = useRouter()
-  const [email, setEmail] = useState<string | undefined>(undefined)
-  const [password, setPassword] = useState<string | undefined>(undefined)
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   )
@@ -47,39 +84,8 @@ export function EmailLogin(): JSX.Element {
         <StyledText style="subHeadline" css={{ color: '$omnivoreGray' }}>
           Login
         </StyledText>
-        <VStack
-          css={{ width: '100%', minWidth: '320px', gap: '16px', pb: '16px' }}
-        >
-          <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Email</FormLabel>
-            <BorderedFormInput
-              autoFocus={true}
-              key="email"
-              type="email"
-              name="email"
-              value={email}
-              placeholder="Email"
-              css={{ backgroundColor: 'white', color: 'black' }}
-              onChange={(e) => {
-                e.preventDefault()
-                setEmail(e.target.value)
-              }}
-            />
-          </SpanBox>
 
-          <SpanBox css={{ width: '100%' }}>
-            <FormLabel>Password</FormLabel>
-            <BorderedFormInput
-              key="password"
-              type="password"
-              name="password"
-              value={password}
-              placeholder="Password"
-              css={{ bg: 'white', color: 'black' }}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </SpanBox>
-        </VStack>
+        <LoginForm />
 
         {process.env.NEXT_PUBLIC_RECAPTCHA_CHALLENGE_SITE_KEY && (
           <>
