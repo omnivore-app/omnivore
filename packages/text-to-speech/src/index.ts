@@ -232,8 +232,10 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     let claim: Claim
     try {
-      jwt.verify(token, process.env.JWT_SECRET)
-      claim = jwt.decode(token) as Claim
+      // ignore expiration for now and verify function will also decode the token
+      claim = jwt.verify(token, process.env.JWT_SECRET, {
+        ignoreExpiration: true,
+      }) as Claim
     } catch (e) {
       console.error('Authentication error:', e)
       return res.status(401).send({ errorCode: 'UNAUTHENTICATED' })
