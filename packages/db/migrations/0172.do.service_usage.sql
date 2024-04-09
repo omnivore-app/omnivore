@@ -28,9 +28,11 @@ CREATE TABLE omnivore.service_usage (
 
 CREATE INDEX ON omnivore.service_usage (user_id);
 
-CREATE POLICY create_service_usage on omnivore.service_usage
-    FOR INSERT TO omnivore_user
-    WITH CHECK (true);
+ALTER TABLE omnivore.service_usage ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY service_usage_policy on omnivore.service_usage
+    USING (user_id = omnivore.get_current_user_id())
+    WITH CHECK (user_id = omnivore.get_current_user_id());
 
 GRANT SELECT, INSERT ON omnivore.service_usage TO omnivore_user;
 

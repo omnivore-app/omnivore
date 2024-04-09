@@ -29,6 +29,7 @@ import { logger } from './utils/logger'
 import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
 import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 import { ApolloServerPlugin } from 'apollo-server-plugin-base'
+import { countDailyServiceUsage } from './services/service_usage'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -115,10 +116,25 @@ export function makeApolloServer(app: Express): ApolloServer {
 
   // enforce usage limits for the API
   const usageLimitPlugin = (): ApolloServerPlugin<RequestContext> => {
+    // TODO: load the limit from the DB into memory when the server starts
+    // hardcode the limit for now
+    const MAX_SENT_EMAIL_PER_DAY = 3
+
     return {
       async requestDidStart(contextValue) {
         // get graphql query from the request
-        console.log(contextValue)
+        const query = contextValue.request.query
+        // get the user id from the claims
+        const userId = contextValue.context.claims?.uid
+        const action = 'replyToEmail'
+        if (userId && query?.includes(action)) {
+          // get the user's email sent count from the DB
+          const emailSentCount = await countDailyServiceUsage(userId, action)
+          if (emailSentCount >= MAX_SENT_EMAIL_PER_DAY) {
+            // if the user has reached the limit, throw an error
+            throw new Error('You have reached the daily email limit')
+          }
+        }
       },
     }
   }
