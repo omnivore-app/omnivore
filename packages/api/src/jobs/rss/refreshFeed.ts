@@ -192,22 +192,40 @@ export const fetchAndChecksum = async (url: string) => {
 
 const parseFeed = async (url: string, content: string) => {
   try {
-    // check if url is a telegram channel
-    const telegramRegex = /https:\/\/t\.me\/([a-zA-Z0-9_]+)/
+    // check if url is a telegram channel or preview
+    const telegramRegex = /t\.me\/([^/]+)/
     const telegramMatch = url.match(telegramRegex)
     if (telegramMatch) {
+      let channel = telegramMatch[1]
+      if (channel.startsWith('s/')) {
+        channel = channel.slice(2)
+      } else {
+        // open the preview page to get the data
+        const fetchResult = await fetchAndChecksum(`https://t.me/s/${channel}`)
+        if (!fetchResult) {
+          return null
+        }
+
+        content = fetchResult.content
+      }
+
       const dom = parseHTML(content).document
-      const title = dom.querySelector('meta[property="og:title"]')
+      const title =
+        dom
+          .querySelector('meta[property="og:title"]')
+          ?.getAttribute('content') || dom.title
       // post has attribute data-post
       const posts = dom.querySelectorAll('[data-post]')
       const items = Array.from(posts)
         .map((post) => {
-          const id = post.getAttribute('data-post')
+          const id = post.getAttribute('data-post')?.split('/')[1]
           if (!id) {
             return null
           }
 
-          const url = `https://t.me/${telegramMatch[1]}/${id}`
+          const url = `https://t.me/s/${channel}/${id}`
+          const content = post.outerHTML
+
           // find the <time> element
           const time = post.querySelector('time')
           const dateTime = time?.getAttribute('datetime') || undefined
@@ -215,12 +233,16 @@ const parseFeed = async (url: string, content: string) => {
           return {
             link: url,
             isoDate: dateTime,
+            title: `${title} - ${id}`,
+            creator: title,
+            content,
+            links: [url],
           }
         })
         .filter((item) => !!item) as RssFeedItem[]
 
       return {
-        title: title?.getAttribute('content') || dom.title,
+        title,
         items,
       }
     }
