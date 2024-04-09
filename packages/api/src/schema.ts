@@ -3082,6 +3082,13 @@ const schema = gql`
     UNAUTHORIZED
   }
 
+  enum AllowedReply {
+    YES
+    OKAY
+    CONFIRM
+    SUBSCRIBE
+  }
+
   # Mutations
   type Mutation {
     googleLogin(input: GoogleLoginInput!): LoginResult!
@@ -3181,7 +3188,7 @@ const schema = gql`
       contentType: String!
     ): UploadImportFileResult!
     markEmailAsItem(recentEmailId: ID!): MarkEmailAsItemResult!
-    replyToEmail(recentEmailId: ID!, reply: String!): ReplyToEmailResult!
+    replyToEmail(recentEmailId: ID!, reply: AllowedReply!): ReplyToEmailResult!
     bulkAction(
       query: String!
       action: BulkActionType!

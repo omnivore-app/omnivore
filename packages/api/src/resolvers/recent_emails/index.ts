@@ -127,7 +127,7 @@ export const replyToEmailResolver = authorized<
   ReplyToEmailSuccess,
   ReplyToEmailError,
   MutationReplyToEmailArgs
->(async (_, { recentEmailId }, { uid, log }) => {
+>(async (_, { recentEmailId, reply }, { uid, log }) => {
   const repo = getRepository(ReceivedEmail)
   const recentEmail = await repo.findOneBy({
     id: recentEmailId,
@@ -142,8 +142,6 @@ export const replyToEmailResolver = authorized<
     }
   }
 
-  const reply = 'Okay'
-
   const result = await enqueueSendEmail({
     to: recentEmail.replyTo || recentEmail.from, // send to the reply-to address if it exists or the from address
     subject: 'Re: ' + recentEmail.subject,
@@ -151,10 +149,14 @@ export const replyToEmailResolver = authorized<
     from: recentEmail.to,
   })
 
-  // update received email reply
-  await repo.update(recentEmailId, { reply })
+  const success = !!result
+
+  if (success) {
+    // update received email reply
+    await repo.update(recentEmailId, { reply })
+  }
 
   return {
-    success: !!result,
+    success,
   }
 })

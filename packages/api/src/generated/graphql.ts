@@ -58,6 +58,13 @@ export type AddPopularReadSuccess = {
   pageId: Scalars['String'];
 };
 
+export enum AllowedReply {
+  Confirm = 'CONFIRM',
+  Okay = 'OKAY',
+  Subscribe = 'SUBSCRIBE',
+  Yes = 'YES'
+}
+
 export type ApiKey = {
   __typename?: 'ApiKey';
   createdAt: Scalars['Date'];
@@ -1839,7 +1846,7 @@ export type MutationRecommendHighlightsArgs = {
 
 export type MutationReplyToEmailArgs = {
   recentEmailId: Scalars['ID'];
-  reply: Scalars['String'];
+  reply: AllowedReply;
 };
 
 
@@ -2282,6 +2289,8 @@ export type RecentEmail = {
   from: Scalars['String'];
   html?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  reply?: Maybe<Scalars['String']>;
+  replyTo?: Maybe<Scalars['String']>;
   subject: Scalars['String'];
   text: Scalars['String'];
   to: Scalars['String'];
@@ -3931,6 +3940,7 @@ export type ResolversTypes = {
   AddPopularReadErrorCode: AddPopularReadErrorCode;
   AddPopularReadResult: ResolversTypes['AddPopularReadError'] | ResolversTypes['AddPopularReadSuccess'];
   AddPopularReadSuccess: ResolverTypeWrapper<AddPopularReadSuccess>;
+  AllowedReply: AllowedReply;
   ApiKey: ResolverTypeWrapper<ApiKey>;
   ApiKeysError: ResolverTypeWrapper<ApiKeysError>;
   ApiKeysErrorCode: ApiKeysErrorCode;
@@ -6324,6 +6334,8 @@ export type RecentEmailResolvers<ContextType = ResolverContext, ParentType exten
   from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   html?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reply?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  replyTo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   to?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

@@ -37,6 +37,13 @@ type AddPopularReadSuccess {
   pageId: String!
 }
 
+enum AllowedReply {
+  CONFIRM
+  OKAY
+  SUBSCRIBE
+  YES
+}
+
 type ApiKey {
   createdAt: Date!
   expiresAt: Date!
@@ -1454,7 +1461,7 @@ type Mutation {
   optInFeature(input: OptInFeatureInput!): OptInFeatureResult!
   recommend(input: RecommendInput!): RecommendResult!
   recommendHighlights(input: RecommendHighlightsInput!): RecommendHighlightsResult!
-  replyToEmail(recentEmailId: ID!, reply: String!): ReplyToEmailResult!
+  replyToEmail(recentEmailId: ID!, reply: AllowedReply!): ReplyToEmailResult!
   reportItem(input: ReportItemInput!): ReportItemResult!
   revokeApiKey(id: ID!): RevokeApiKeyResult!
   saveArticleReadingProgress(input: SaveArticleReadingProgressInput!): SaveArticleReadingProgressResult!
@@ -1672,6 +1679,8 @@ type RecentEmail {
   from: String!
   html: String
   id: ID!
+  reply: String
+  replyTo: String
   subject: String!
   text: String!
   to: String!
