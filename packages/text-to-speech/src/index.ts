@@ -232,6 +232,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
 
     let claim: Claim
     try {
+      // ignore expiration for now and verify function will also decode the token
       claim = jwt.verify(token, process.env.JWT_SECRET, {
         ignoreExpiration: true,
       }) as Claim
