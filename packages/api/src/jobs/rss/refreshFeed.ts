@@ -511,7 +511,7 @@ const processSubscription = async (
 
   // fetch feed
   let itemCount = 0,
-    failedAt: Date | undefined
+    failedAt: Date | null = null
 
   const feedLastBuildDate = feed.lastBuildDate
   logger.info(`Feed last build date ${feedLastBuildDate || 'N/A'}`)
