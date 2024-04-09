@@ -20,3 +20,12 @@ export const countDailyServiceUsage = async (
     })
   )
 }
+
+export const createServiceUsage = async (userId: string, action: string) => {
+  return authTrx((tx) =>
+    tx.withRepository(repo).save({
+      user: { id: userId },
+      action,
+    })
+  )
+}

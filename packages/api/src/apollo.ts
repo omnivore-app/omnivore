@@ -29,7 +29,10 @@ import { logger } from './utils/logger'
 import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
 import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
 import { ApolloServerPlugin } from 'apollo-server-plugin-base'
-import { countDailyServiceUsage } from './services/service_usage'
+import {
+  countDailyServiceUsage,
+  createServiceUsage,
+} from './services/service_usage'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -134,6 +137,21 @@ export function makeApolloServer(app: Express): ApolloServer {
             // if the user has reached the limit, throw an error
             throw new Error('You have reached the daily email limit')
           }
+        }
+
+        return {
+          // track usage of the API
+          async willSendResponse(requestContext) {
+            // if the request was successful, increment the user's email sent count
+            if (
+              userId &&
+              query?.includes(action) &&
+              !requestContext.response.errors &&
+              !requestContext.response.data?.replyToEmail?.errorCodes
+            ) {
+              await createServiceUsage(userId, action)
+            }
+          },
         }
       },
     }
