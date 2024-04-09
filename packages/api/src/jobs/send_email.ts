@@ -9,7 +9,8 @@ export const SEND_EMAIL_JOB = 'send-email'
 type ContentType = { html: string } | { text: string } | { templateId: string }
 export type SendEmailJobData = Merge<
   {
-    emailAddress: string
+    to: string
+    from?: string
     subject?: string
     html?: string
     text?: string
@@ -21,7 +22,7 @@ export type SendEmailJobData = Merge<
 
 export const sendEmailJob = async (data: SendEmailJobData) => {
   if (process.env.USE_MAILJET && data.dynamicTemplateData) {
-    return sendWithMailJet(data.emailAddress, data.dynamicTemplateData.link)
+    return sendWithMailJet(data.to, data.dynamicTemplateData.link)
   }
 
   if (!data.html && !data.text && !data.templateId) {
@@ -31,7 +32,6 @@ export const sendEmailJob = async (data: SendEmailJobData) => {
 
   return sendEmail({
     ...data,
-    from: env.sender.message,
-    to: data.emailAddress,
+    from: data.from || env.sender.message,
   })
 }

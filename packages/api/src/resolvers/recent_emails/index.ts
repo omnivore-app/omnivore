@@ -17,6 +17,7 @@ import {
 import { getRepository } from '../../repository'
 import { updateReceivedEmail } from '../../services/received_emails'
 import { saveNewsletter } from '../../services/save_newsletter_email'
+import { enqueueSendEmail } from '../../utils/createTask'
 import { authorized } from '../../utils/gql-utils'
 import { generateUniqueUrl, parseEmailAddress } from '../../utils/parser'
 import { sendEmail } from '../../utils/sendEmail'
@@ -143,7 +144,7 @@ export const replyToEmailResolver = authorized<
 
   const reply = 'Okay'
 
-  const result = await sendEmail({
+  const result = await enqueueSendEmail({
     to: recentEmail.replyTo || recentEmail.from, // send to the reply-to address if it exists or the from address
     subject: 'Re: ' + recentEmail.subject,
     text: reply,
@@ -154,6 +155,6 @@ export const replyToEmailResolver = authorized<
   await repo.update(recentEmailId, { reply })
 
   return {
-    success: result,
+    success: !!result,
   }
 })
