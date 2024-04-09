@@ -11679,6 +11679,7 @@ caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001251, caniuse-lite@^1.0.300012
   version "1.0.30001600"
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001600.tgz"
   integrity sha512-+2S9/2JFhYmYaDpZvo0lKkfvuKIglrx68MwOBqMGHhQsNkLjB5xtc/TGoEPs+MxjSyN/72qer2g97nzR641mOQ==
+
 capital-case@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/capital-case/-/capital-case-1.0.4.tgz#9d130292353c9249f6b00fa5852bee38a717e669"
@@ -25920,10 +25921,10 @@ psl@^1.1.28, psl@^1.1.33:
   resolved "https://registry.yarnpkg.com/psl/-/psl-1.8.0.tgz#9326f8bcfb013adcc005fdff056acce020e51c24"
   integrity sha512-RIdOzyoavK+hA18OGGWDqUTsCLhtA7IcZ/6NCs4fFJaHBDab+pDDmDIByWFRQJq2Cd7r1OoQxBGKOaztq+hjIQ==
 
-pspdfkit@^2023.4.6:
-  version "2023.4.6"
-  resolved "https://registry.yarnpkg.com/pspdfkit/-/pspdfkit-2023.4.6.tgz#ebe4fc69433b670d4e201d41e290fdaa730529a8"
-  integrity sha512-ZDE3zyE1WRw+VAwoEWvEqJic0apC6IXMVPLBV1Cw6ghr7uCEMD9PjO5A2X0UvqptKX6jTT8cl9feKw4Ghn+qyA==
+pspdfkit@^2024.2.0:
+  version "2024.2.0"
+  resolved "https://registry.yarnpkg.com/pspdfkit/-/pspdfkit-2024.2.0.tgz#f6aef16a2e6664b6a09bc9f002ee44cd836c980d"
+  integrity sha512-PFhPpjLXb1ifmUhYDmHdGJRsVsm21zYd0Gfwg0Luat9pxzkqDfOi7nW+OXc8ZCtIsS+Mb0wcMpnvLlFkpaHYKQ==
 
 pstree.remy@^1.1.8:
   version "1.1.8"
@@ -26574,6 +26575,11 @@ rc@^1.2.7, rc@^1.2.8:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
+
+re-resizable@^6.9.11:
+  version "6.9.11"
+  resolved "https://registry.yarnpkg.com/re-resizable/-/re-resizable-6.9.11.tgz#f356e27877f12d926d076ab9ad9ff0b95912b475"
+  integrity sha512-a3hiLWck/NkmyLvGWUuvkAmN1VhwAz4yOhS6FdMTaxCUVN9joIWkT11wsO68coG/iEYuwn+p/7qAmfQzRhiPLQ==
 
 react-color@^2.19.3:
   version "2.19.3"
