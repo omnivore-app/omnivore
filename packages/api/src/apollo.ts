@@ -28,6 +28,7 @@ import { SetClaimsRole } from './utils/dictionary'
 import { logger } from './utils/logger'
 import { ReadingProgressDataSource } from './datasources/reading_progress_data_source'
 import { createPrometheusExporterPlugin } from '@bmatei/apollo-prometheus-exporter'
+import { ApolloServerPlugin } from 'apollo-server-plugin-base'
 
 const signToken = promisify(jwt.sign)
 const pubsub = createPubSubClient()
@@ -112,10 +113,20 @@ export function makeApolloServer(app: Express): ApolloServer {
     },
   })
 
+  // enforce usage limits for the API
+  const usageLimitPlugin = (): ApolloServerPlugin<RequestContext> => {
+    return {
+      async requestDidStart(contextValue) {
+        // get graphql query from the request
+        console.log(contextValue)
+      },
+    }
+  }
+
   const apollo = new ApolloServer({
     schema: schema,
     context: contextFunc,
-    plugins: [promExporter],
+    plugins: [promExporter, usageLimitPlugin],
     formatError: (err) => {
       logger.info('server error', err)
       Sentry.captureException(err)
@@ -124,6 +135,7 @@ export function makeApolloServer(app: Express): ApolloServer {
     },
     introspection: env.dev.isLocal,
     persistedQueries: false,
+    stopOnTerminationSignals: false, // we handle this ourselves
   })
 
   return apollo

@@ -304,8 +304,19 @@ const main = async () => {
 
   const gracefulShutdown = async (signal: string) => {
     console.log(`[queue-processor]: Received ${signal}, closing server...`)
+    await new Promise<void>((resolve) => {
+      server.close((err) => {
+        console.log('[queue-processor]: Express server closed')
+        if (err) {
+          console.log('[queue-processor]: error stopping server', { err })
+        }
+
+        resolve()
+      })
+    })
     await worker.close()
     await redisDataSource.shutdown()
+    await appDataSource.destroy()
     process.exit(0)
   }
 

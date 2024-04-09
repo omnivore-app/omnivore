@@ -47,11 +47,7 @@ import { apiLimiter, authLimiter } from './utils/rate_limit'
 
 const PORT = process.env.PORT || 4000
 
-export const createApp = (): {
-  app: Express
-  apollo: ApolloServer
-  httpServer: Server
-} => {
+export const createApp = (): Express => {
   const app = express()
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -136,10 +132,7 @@ export const createApp = (): {
     res.end(await prom.register.metrics())
   })
 
-  const apollo = makeApolloServer(app)
-  const httpServer = createServer(app)
-
-  return { app, apollo, httpServer }
+  return app
 }
 
 const main = async (): Promise<void> => {
@@ -154,19 +147,17 @@ const main = async (): Promise<void> => {
     await redisDataSource.initialize()
   }
 
-  const { app, apollo, httpServer } = createApp()
-
+  const app = createApp()
+  const apollo = makeApolloServer(app)
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
-  if (!env.dev.isLocal) {
-    const mwLogger = loggers.get('express', { levels: config.syslog.levels })
-    const transport = buildLoggerTransport('express')
-    const mw = await lw.express.makeMiddleware(mwLogger, transport)
-    app.use(mw)
-  }
+  const mwLogger = loggers.get('express', { levels: config.syslog.levels })
+  const transport = buildLoggerTransport('express')
+  const mw = await lw.express.makeMiddleware(mwLogger, transport)
+  app.use(mw)
 
-  const listener = httpServer.listen({ port: PORT }, async () => {
+  const listener = app.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
   })
@@ -181,14 +172,13 @@ const main = async (): Promise<void> => {
   listener.timeout = 640 * 1000 // match headersTimeout
 
   const gracefulShutdown = async (signal: string) => {
+    console.log(`[api]: Received ${signal}, closing server...`)
+    await apollo.stop()
+    console.log('[api]: Apollo server stopped')
+
     console.log('[posthog]: flushing events')
     await analytics.shutdownAsync()
     console.log('[posthog]: events flushed')
-
-    console.log(`[api]: Received ${signal}, closing server...`)
-
-    await apollo.stop()
-    console.log('[api]: Apollo server stopped')
 
     await new Promise<void>((resolve) => {
       listener.close((err) => {
