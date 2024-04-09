@@ -131,9 +131,14 @@ export function makeApolloServer(app: Express): ApolloServer {
         const userId = contextValue.context.claims?.uid
         const action = 'replyToEmail'
         if (userId && query?.includes(action)) {
+          logger.info('checking usage limit for user', { userId, action })
           // get the user's email sent count from the DB
           const emailSentCount = await countDailyServiceUsage(userId, action)
           if (emailSentCount >= MAX_SENT_EMAIL_PER_DAY) {
+            logger.info('user has reached the daily email limit', {
+              userId,
+              action,
+            })
             // if the user has reached the limit, throw an error
             throw new Error('You have reached the daily email limit')
           }
@@ -149,6 +154,10 @@ export function makeApolloServer(app: Express): ApolloServer {
               !requestContext.response.errors &&
               !requestContext.response.data?.replyToEmail?.errorCodes
             ) {
+              logger.info('incrementing usage count for user', {
+                userId,
+                action,
+              })
               await createServiceUsage(userId, action)
             }
           },
