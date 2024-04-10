@@ -147,17 +147,14 @@ data class WebReaderContent(
     right: 0;
     z-index: 1000;
     justify-content: space-between;
-    
+    background-color: var(--colors-readerBg);  
 }
-
-   
 
 
 .buttonContainer {
     width: 33%; 
     display: flex;
     justify-content: center; /* Center button in the container */
-    
 }
 
 
@@ -165,10 +162,11 @@ data class WebReaderContent(
     background: none;
     border: none;
     color: var(--font-color); /* Button text color */
-    font-size: 16px; /* Adjust as needed */
+    background-color: var(--colors-readerBg);
+    font-size: 18px; /* Adjust as needed */
     padding: 10px;
     cursor: pointer;
-    width:100%;
+    width:80%;
 }
 .vertical-line {
     width: 1px; /* thickness of the line */
