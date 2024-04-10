@@ -30,31 +30,45 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import javax.inject.Inject
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
-    @OptIn(DelicateCoroutinesApi::class)
+@OptIn(DelicateCoroutinesApi::class)
     @AndroidEntryPoint
     class MainActivity : ComponentActivity() {
+
+        @Inject
+        lateinit var buttonPressRepository: ButtonPressRepository
 
         private val libraryViewModel: LibraryViewModel by viewModels()
         // Detect page turning in main activity and pass it to library view model
         override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
             when (keyCode) {
                 KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                    // Handle volume down press
-                    //Toast.makeText(applicationContext, "Volume Down Key Pressed", Toast.LENGTH_SHORT).show()
-                    libraryViewModel.triggerScrollDown()
+                    lifecycleScope.launch {
+                        buttonPressRepository.onButtonPressed(ScrollDirection.DOWN)
+                    }
+                    Log.d("MainActivity", "Volume Down pressed")
+
                     return true
                 }
                 KeyEvent.KEYCODE_VOLUME_UP -> {
-                    // Handle volume up press
-                    //Toast.makeText(applicationContext, "Volume Up Key Pressed", Toast.LENGTH_SHORT).show()
-                    libraryViewModel.triggerScrollUp()
+                    lifecycleScope.launch {
+                        buttonPressRepository.onButtonPressed(ScrollDirection.UP)
+                    }
+                    Log.d("MainActivity", "Volume Up pressed")
                     return true
                 }
                 // Add more key handling as needed
             }
             return super.onKeyDown(keyCode, event)
         }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +113,6 @@ import android.widget.Toast
                         labelsViewModel,
                         saveViewModel,
                         editInfoViewModel,
-                        libraryViewModel // Passing the ViewModel instance here
                     )
                 }
             }
@@ -113,5 +126,19 @@ import android.widget.Toast
             rootView.setPadding(0, 0, 0, imeHeight)
             insets
         }
+    }
+}
+
+enum class ScrollDirection {
+    UP, DOWN
+}
+
+class ButtonPressRepository @Inject constructor() {
+    private val _buttonPressEvent = MutableSharedFlow<ScrollDirection>()
+    val buttonPressEvent: SharedFlow<ScrollDirection> = _buttonPressEvent
+
+    suspend fun onButtonPressed(direction: ScrollDirection) {
+        _buttonPressEvent.emit(direction)
+        Log.d("ButtonPress", "Button pressed: $direction")
     }
 }

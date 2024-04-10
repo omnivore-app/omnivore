@@ -1,6 +1,7 @@
 package app.omnivore.omnivore.di
 
 import android.content.Context
+import app.omnivore.omnivore.ButtonPressRepository
 import app.omnivore.omnivore.core.analytics.EventTracker
 import app.omnivore.omnivore.core.data.DataService
 import app.omnivore.omnivore.core.database.OmnivoreDatabase
@@ -38,5 +39,9 @@ object AppModule {
       networker: Networker,
       omnivoreDatabase: OmnivoreDatabase
   ) = DataService(networker, omnivoreDatabase)
+
+  @Singleton
+  @Provides
+  fun provideButtonPressRepository(): ButtonPressRepository = ButtonPressRepository()
 
 }
