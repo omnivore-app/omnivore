@@ -8,6 +8,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,16 +28,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Unarchive
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,8 +54,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,26 +73,16 @@ import app.omnivore.omnivore.feature.save.SaveState
 import app.omnivore.omnivore.feature.save.SaveViewModel
 import app.omnivore.omnivore.feature.savedItemViews.SavedItemCard
 import app.omnivore.omnivore.navigation.Routes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-
-
-import android.view.*
 import android.widget.Toast
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.scrollBy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.focus.focusRequester
-
-import java.util.*
 
 @Composable
-fun LibraryView(
-
+internal fun LibraryView(
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
@@ -157,8 +149,7 @@ fun LibraryView(
             is LibraryUiState.Success -> {
                 LibraryViewContent(
                     viewModel,
-                    modifier = Modifier
-                        .padding(top = paddingValues.calculateTopPadding()),
+                    paddingValues = paddingValues,
                     uiState = uiState
                 )
             }
@@ -309,20 +300,19 @@ fun EditBottomSheet(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryViewContent(
     libraryViewModel: LibraryViewModel,
-    modifier: Modifier,
+    paddingValues: PaddingValues,
     uiState: LibraryUiState
 ) {
-
     val context = LocalContext.current
+    val listState = rememberLazyListState()
 
-    //scroll logic
+    //scroll logic todo: use collectAsState?
     val scrollUp = libraryViewModel.scrollUp.value
     val scrollDown = libraryViewModel.scrollDown.value
-    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
 
@@ -353,15 +343,29 @@ fun LibraryViewContent(
                 Log.d("ScrollingLogic", "Scrolled to index: $targetIndex")
                 libraryViewModel.resetScrollTriggers()
             }
+            // Trigger refresh if at the top and attempting to scroll up
+            if (firstVisibleItemIndex == 0 && scrollUp) {
+                coroutineScope.launch {
+                    libraryViewModel.refresh()
+                    Log.d("ScrollingLogic", "Triggered refresh due to scroll up at the top")
+                    // Show a Toast message indicating that a refresh is happening
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Refreshing...", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                // Since refresh is triggered, no further scrolling logic should be processed.
+                return@LaunchedEffect
+            }
 
             val updatedFirstVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
             val updatedLastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             if (!(scrollUp || scrollDown)) {
-                Toast.makeText(context, "", Toast.LENGTH_SHORT).cancel()
-
-                val message =
-                    "$updatedFirstVisibleItemIndex - $updatedLastVisibleItemIndex out of $itemsCount"
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "", Toast.LENGTH_SHORT).cancel()
+                withContext(Dispatchers.Main) {
+                    val message =
+                        "$updatedFirstVisibleItemIndex - $updatedLastVisibleItemIndex / $itemsCount"
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
             }
 
         } else {
@@ -370,149 +374,145 @@ fun LibraryViewContent(
     }
 
 
-
-
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = libraryViewModel.isRefreshing,
-        onRefresh = { libraryViewModel.refresh() }
-    )
+    val pullToRefreshState = rememberPullToRefreshState()
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            // fetch something
+            delay(1500)
+            libraryViewModel.refresh()
+            pullToRefreshState.endRefresh()
+        }
+    }
 
     val selectedItem: SavedItemWithLabelsAndHighlights? by libraryViewModel.actionsMenuItemLiveData.observeAsState()
 
-
-
     Box(
         modifier = Modifier
+            .padding(top = paddingValues.calculateTopPadding())
             .fillMaxSize()
-            .pullRefresh(pullRefreshState)
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) {
+        Column {
+            LibraryFilterBar()
+            HorizontalDivider()
+            LazyColumn(
+                state = listState,
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(
+                    items = (uiState as LibraryUiState.Success).items,
+                    key = { item -> item.savedItem.savedItemId }
+                ) { cardDataWithLabels ->
+                    val swipeThreshold = 0.45f
 
-        LazyColumn(
-            state = listState,
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.background)
-                .fillMaxSize()
-
-
-
-        ) {
-            item {
-                LibraryFilterBar(libraryViewModel)
-            }
-            items(
-                items = (uiState as LibraryUiState.Success).items,
-                key = { item -> item.savedItem.savedItemId }
-            ) { cardDataWithLabels ->
-                val swipeThreshold = 0.45f
-
-                val currentThresholdFraction = remember { mutableStateOf(0f) }
-                val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
-                val swipeState = rememberDismissState(
-                    confirmStateChange = {
-                        when(it) {
-                            DismissValue.Default -> {
-                                return@rememberDismissState false
-                            }
-                            DismissValue.DismissedToEnd -> {
-                                if (currentThresholdFraction.value < swipeThreshold) {
+                    val currentThresholdFraction = remember { mutableStateOf(0f) }
+                    val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
+                    val swipeState = rememberDismissState(
+                        confirmStateChange = {
+                            when(it) {
+                                DismissValue.Default -> {
                                     return@rememberDismissState false
                                 }
-                            }
-                            DismissValue.DismissedToStart -> {
-                                if (currentThresholdFraction.value < swipeThreshold) {
-                                    return@rememberDismissState false
+                                DismissValue.DismissedToEnd -> {
+                                    if (currentThresholdFraction.value < swipeThreshold) {
+                                        return@rememberDismissState false
+                                    }
+                                }
+                                DismissValue.DismissedToStart -> {
+                                    if (currentThresholdFraction.value < swipeThreshold) {
+                                        return@rememberDismissState false
+                                    }
                                 }
                             }
-                        }
 
-                        if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
-                            if (currentItem.isArchived) {
-                                libraryViewModel.unarchiveSavedItem(currentItem.savedItemId)
-                            } else {
-                                libraryViewModel.archiveSavedItem(currentItem.savedItemId)
+                            if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
+                                if (currentItem.isArchived) {
+                                    libraryViewModel.unarchiveSavedItem(currentItem.savedItemId)
+                                } else {
+                                    libraryViewModel.archiveSavedItem(currentItem.savedItemId)
+                                }
+                            } else if (it == DismissValue.DismissedToStart) { // Deleting.
+                                libraryViewModel.deleteSavedItem(currentItem.savedItemId)
                             }
-                        } else if (it == DismissValue.DismissedToStart) { // Deleting.
-                            libraryViewModel.deleteSavedItem(currentItem.savedItemId)
-                        }
 
-                        true
-                    }
-                )
-                SwipeToDismiss(
-                    state = swipeState,
-                    directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
-                    dismissThresholds = { FractionalThreshold(swipeThreshold) },
-                    background = {
-                        val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
-                        val color by animateColorAsState(
-                            when (swipeState.targetValue) {
-                                DismissValue.Default -> Color.LightGray
-                                DismissValue.DismissedToEnd -> Color.Green
-                                DismissValue.DismissedToStart -> Color.Red
-                            }, label = "backgroundColor"
-                        )
-                        val alignment = when (direction) {
-                            DismissDirection.StartToEnd -> Alignment.CenterStart
-                            DismissDirection.EndToStart -> Alignment.CenterEnd
+                            true
                         }
-                        val icon = when (direction) {
-                            DismissDirection.StartToEnd -> if (currentItem.isArchived) Icons.Default.Unarchive else Icons.Default.Archive
-                            DismissDirection.EndToStart -> Icons.Default.Delete
-                        }
-                        val scale by animateFloatAsState(
-                            if (swipeState.targetValue == DismissValue.Default) 0.75f else 1f,
-                            label = "scaleAnimation"
-                        )
-
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color)
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = alignment
-                        ) {
-                            currentThresholdFraction.value = swipeState.progress.fraction
-                            Icon(
-                                icon,
-                                contentDescription = null,
-                                modifier = Modifier.scale(scale)
+                    )
+                    SwipeToDismiss(
+                        state = swipeState,
+                        directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
+                        dismissThresholds = { FractionalThreshold(swipeThreshold) },
+                        background = {
+                            val direction = swipeState.dismissDirection ?: return@SwipeToDismiss
+                            val color by animateColorAsState(
+                                when (swipeState.targetValue) {
+                                    DismissValue.Default -> Color.LightGray
+                                    DismissValue.DismissedToEnd -> Color.Green
+                                    DismissValue.DismissedToStart -> Color.Red
+                                }, label = "backgroundColor"
                             )
-                        }
-                    },
-                    dismissContent = {
-                        val selected =
-                            currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
-                        val savedItem = SavedItemWithLabelsAndHighlights(
-                            savedItem = cardDataWithLabels.savedItem,
-                            labels = cardDataWithLabels.labels,
-                            highlights = cardDataWithLabels.highlights
-                        )
-                        SavedItemCard(
-                            selected = selected,
-                            savedItemViewModel = libraryViewModel,
-                            savedItem = savedItem,
-                            onClickHandler = {
-                                libraryViewModel.actionsMenuItemLiveData.postValue(null)
-                                val activityClass =
-                                    if (currentItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
-                                val intent = Intent(context, activityClass)
-                                intent.putExtra("SAVED_ITEM_SLUG", currentItem.slug)
-                                context.startActivity(intent)
-                            },
-                            actionHandler = {
-                                libraryViewModel.handleSavedItemAction(
-                                    currentItem.savedItemId,
-                                    it
+                            val alignment = when (direction) {
+                                DismissDirection.StartToEnd -> Alignment.CenterStart
+                                DismissDirection.EndToStart -> Alignment.CenterEnd
+                            }
+                            val icon = when (direction) {
+                                DismissDirection.StartToEnd -> if (currentItem.isArchived) Icons.Default.Unarchive else Icons.Default.Archive
+                                DismissDirection.EndToStart -> Icons.Default.Delete
+                            }
+                            val scale by animateFloatAsState(
+                                if (swipeState.targetValue == DismissValue.Default) 0.75f else 1f,
+                                label = "scaleAnimation"
+                            )
+
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(color)
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = alignment
+                            ) {
+                                currentThresholdFraction.value = swipeState.progress.fraction
+                                Icon(
+                                    icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.scale(scale)
                                 )
                             }
-                        )
-                    },
-                )
-                when {
-                    swipeState.isDismissed(DismissDirection.EndToStart) -> Reset(state = swipeState)
-                    swipeState.isDismissed(DismissDirection.StartToEnd) -> Reset(state = swipeState)
+                        },
+                        dismissContent = {
+                            val selected =
+                                currentItem.savedItemId == selectedItem?.savedItem?.savedItemId
+                            val savedItem = SavedItemWithLabelsAndHighlights(
+                                savedItem = cardDataWithLabels.savedItem,
+                                labels = cardDataWithLabels.labels,
+                                highlights = cardDataWithLabels.highlights
+                            )
+                            SavedItemCard(
+                                selected = selected,
+                                savedItemViewModel = libraryViewModel,
+                                savedItem = savedItem,
+                                onClickHandler = {
+                                    libraryViewModel.actionsMenuItemLiveData.postValue(null)
+                                    val activityClass =
+                                        if (currentItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
+                                    val intent = Intent(context, activityClass)
+                                    intent.putExtra("SAVED_ITEM_SLUG", currentItem.slug)
+                                    context.startActivity(intent)
+                                },
+                                actionHandler = {
+                                    libraryViewModel.handleSavedItemAction(
+                                        currentItem.savedItemId,
+                                        it
+                                    )
+                                }
+                            )
+                        },
+                    )
+                    when {
+                        swipeState.isDismissed(DismissDirection.EndToStart) -> Reset(state = swipeState)
+                        swipeState.isDismissed(DismissDirection.StartToEnd) -> Reset(state = swipeState)
+                    }
                 }
             }
         }
@@ -521,17 +521,15 @@ fun LibraryViewContent(
             if ((uiState as LibraryUiState.Success).items.isEmpty()) {
                 Log.d("sync", "loading with load func")
                 libraryViewModel.initialLoad()
-
             } else {
                 Log.d("sync", "loading with search api")
                 libraryViewModel.loadUsingSearchAPI()
             }
         }
 
-        PullRefreshIndicator(
-            refreshing = libraryViewModel.isRefreshing,
-            state = pullRefreshState,
-            modifier = Modifier.align(Alignment.TopCenter)
+        PullToRefreshContainer(
+            modifier = Modifier.align(Alignment.TopCenter),
+            state = pullToRefreshState,
         )
 
         // LabelsSelectionSheet(viewModel = libraryViewModel)
@@ -574,3 +572,4 @@ fun InfiniteListHandler(
             }
     }
 }
+

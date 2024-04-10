@@ -45,7 +45,6 @@ fun RootView(
     labelsViewModel: LabelsViewModel,
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
-    libraryViewModel: LibraryViewModel // Make sure this parameter is present
 ) {
     val hasAuthToken: Boolean by loginViewModel.hasAuthTokenLiveData.observeAsState(false)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -72,7 +71,6 @@ fun RootView(
                     saveViewModel = saveViewModel,
                     editInfoViewModel = editInfoViewModel,
                     snackbarHostState = snackbarHostState,
-                    libraryViewModel = libraryViewModel
 
                 )
             } else {
@@ -97,7 +95,6 @@ fun PrimaryNavigator(
     saveViewModel: SaveViewModel,
     editInfoViewModel: EditInfoViewModel,
     snackbarHostState: SnackbarHostState,
-    libraryViewModel: LibraryViewModel // to pass the scroll commands to the library view
 ) {
     val navController = rememberNavController()
 
@@ -111,7 +108,6 @@ fun PrimaryNavigator(
                 labelsViewModel = labelsViewModel,
                 saveViewModel = saveViewModel,
                 editInfoViewModel = editInfoViewModel,
-                viewModel = libraryViewModel,
             )
         }
 

@@ -1,5 +1,6 @@
 package app.omnivore.omnivore.feature.library
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,38 +33,51 @@ import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.*
 import java.time.Instant
 import javax.inject.Inject
-import android.view.KeyEvent
-import android.util.Log
 import androidx.compose.runtime.State
+import app.omnivore.omnivore.ButtonPressRepository
+import app.omnivore.omnivore.ScrollDirection
 
 
-
-
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-
-
     private val networker: Networker,
     private val dataService: DataService,
     private val datastoreRepo: DatastoreRepository,
     private val resourceProvider: ResourceProvider,
     private val libraryRepository: LibraryRepository,
-) : ViewModel(), SavedItemViewModel  {
+    private val buttonPressRepository: ButtonPressRepository
+) : ViewModel(), SavedItemViewModel {
+
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
-    private var cursor: String? = null
     private var librarySearchCursor: String? = null
 
-    //scroll triggers received from main activity/rootview
+
+    init {
+        viewModelScope.launch {
+            buttonPressRepository.buttonPressEvent.collect { direction ->
+                when (direction) {
+                    ScrollDirection.UP -> triggerScrollUp()
+                    ScrollDirection.DOWN -> triggerScrollDown()
+                }
+            }
+        }
+    }
+
     private val _scrollUp = mutableStateOf(false)
     val scrollUp: State<Boolean> = _scrollUp
 
@@ -72,10 +86,14 @@ class LibraryViewModel @Inject constructor(
 
     fun triggerScrollUp() {
         _scrollUp.value = true
+        Log.d("LibraryViewModel", "Scrolling up")
     }
+
     fun triggerScrollDown() {
         _scrollDown.value = true
+        Log.d("LibraryViewModel", "Scrolling down")
     }
+
     fun resetScrollTriggers() {
         _scrollUp.value = false
         _scrollDown.value = false
@@ -83,7 +101,6 @@ class LibraryViewModel @Inject constructor(
 
     var snackbarMessage by mutableStateOf<String?>(null)
         private set
-
 
     private val _libraryQuery = MutableStateFlow(
         LibraryQuery(
@@ -95,8 +112,7 @@ class LibraryViewModel @Inject constructor(
         )
     )
 
-    // Correct way - but not working
-/*    val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
+    val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
         libraryRepository.getSavedItems(query)
     }
         .map(LibraryUiState::Success)
@@ -104,26 +120,8 @@ class LibraryViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = LibraryUiState.Loading
-        )*/
+        )
 
-    // This approach needs to be replaced with the StateFlow above after fixing Room Flow
-    private val _uiState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
-    val uiState: StateFlow<LibraryUiState> = _uiState
-
-    init {
-        loadSavedItems()
-
-    }
-
-
-    private fun loadSavedItems() {
-        viewModelScope.launch {
-            libraryRepository.getSavedItems(_libraryQuery.value)
-                .collect { favoriteNews ->
-                    _uiState.value = LibraryUiState.Success(favoriteNews)
-                }
-        }
-    }
 
     val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
@@ -165,7 +163,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun refresh() {
-        cursor = null
         librarySearchCursor = null
         isRefreshing = true
         load()
@@ -184,7 +181,6 @@ class LibraryViewModel @Inject constructor(
     fun initialLoad() {
         if (getLastSyncTime() == null) {
             hasLoadedInitialFilters = false
-            cursor = null
             librarySearchCursor = null
         }
 
@@ -297,7 +293,6 @@ class LibraryViewModel @Inject constructor(
                 excludedLabels = excludeLabels,
                 allowedContentReaders = allowedContentReaders
             )
-            loadSavedItems()
         }
     }
 
@@ -377,17 +372,13 @@ class LibraryViewModel @Inject constructor(
 
             SavedItemAction.MarkRead -> {
                 viewModelScope.launch {
-                    _uiState.value = LibraryUiState.Success(emptyList())
                     libraryRepository.updateReadingProgress(itemID, 100.0, 0)
-                    loadSavedItems()
                 }
             }
 
             SavedItemAction.MarkUnread -> {
                 viewModelScope.launch {
-                    _uiState.value = LibraryUiState.Success(emptyList())
                     libraryRepository.updateReadingProgress(itemID, 0.0, 0)
-                    loadSavedItems()
                 }
             }
         }
@@ -495,4 +486,3 @@ sealed interface LibraryUiState {
 enum class SavedItemAction {
     Delete, Archive, Unarchive, EditLabels, EditInfo, MarkRead, MarkUnread
 }
-
