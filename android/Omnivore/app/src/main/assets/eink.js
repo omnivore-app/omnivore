@@ -1,7 +1,8 @@
-const container = document.getElementById("root");
+container = document.querySelector('.container');
 const paginationElement = document.getElementById("pagination");
 const initialReadingProgress = window.omnivoreArticle.readingProgressPercent;
 const articleId = window.omnivoreArticle.id;
+const orientation = screen.orientation.type;
 
 let currentPage; // Define currentPage in the global scope
 let initialPage; // Define initialPage in the global scope
@@ -11,14 +12,51 @@ let currentScrollPosition = container.scrollLeft;
 let totalWidth;
 const safetyMargin = 20;
 
+// Initial call to set up pagination and scroll to the initial page
+document.addEventListener("DOMContentLoaded", function() {
+    handleOrientation();
+    calculatePagination()
+    scrollToInitialPage();
+    document.getElementById('preloader').style.display = 'none';
+});
+
+function handleOrientation() {
+
+const articleContainer = document.getElementById('article-container');
+const containerWidth = container.offsetWidth;
+
+console.log(orientation);
+  if(orientation === "landscape-primary" || orientation === "landscape-secondary") {
+    container.style.columnWidth = '50vw';
+    console.log("maxwidth before:", window.maxWidthPercentage);
+    window.maxWidthPercentage = window.maxWidthPercentage*1.1;
+    articleContainer.style.padding = `24px`;
+    articleContainer.style.maxWidth = `${window.maxWidthPercentage}%`;
+    console.log("maxwidth after:", window.maxWidthPercentage);
+    console.log("landscape");
+
+
+  } else {
+    container.style.columnWidth = '100vw';
+    console.log("portrait");
+  }
+}
+
+
+
 function calculatePagination() {
     const containerWidth = container.offsetWidth;
+    oldtotalWidth = container.scrollWidth - containerWidth;
+    console.log("oldtotalWidth:", oldtotalWidth);
     totalWidth = container.scrollWidth - containerWidth;
+
+    //totalWidth = (Math.ceil(container.scrollWidth / containerWidth) * containerWidth)- containerWidth; //this is to make sure that we dont end up with half a page in landscape mode
     console.log("totalWidth:", totalWidth);
+
     currentScrollPosition = container.scrollLeft;
     totalPages = Math.round((totalWidth + containerWidth) / containerWidth);
-    averagedScrollingWidth = Math.ceil(totalWidth + window.innerWidth) / totalPages;
-    //averagedScrollingWidth = containerWidth +1;
+    //averagedScrollingWidth = Math.ceil(totalWidth + containerWidth) / totalPages;
+    averagedScrollingWidth = containerWidth;
 
     console.log("averagedScrollingWidth:", averagedScrollingWidth);
     currentPage = Math.round((container.scrollLeft + averagedScrollingWidth) / averagedScrollingWidth);
@@ -26,8 +64,12 @@ function calculatePagination() {
     checkIfLastPage(currentPage, totalPages);
 }
 
+
+
 function checkIfLastPage(currentPage, totalPages) {
-    if (currentPage === totalPages) {
+const isPortrait = orientation === "portrait-primary" || orientation === "portrait-secondary";
+
+    if (currentPage === totalPages && isPortrait ) {
         document.getElementById('buttonWrapper').style.display = 'flex';
     } else {
         document.getElementById('buttonWrapper').style.display = 'none';
@@ -84,8 +126,6 @@ function calculateAndLogReadingProgress() {
 }
 
 function scrollForward() {
-
-
         if (container.scrollLeft < (totalWidth - safetyMargin) ) {
                nextScrollPosition = (currentPage)*averagedScrollingWidth
                 container.scrollLeft = nextScrollPosition
@@ -97,6 +137,7 @@ function scrollForward() {
                 calculateAndLogReadingProgress();
     } else {
         setToolbar(true);
+        document.getElementById('buttonWrapper').style.display = 'flex';
 }
 
 }
@@ -133,14 +174,6 @@ function updateToolbarHeightFromJS(height) {
         ToolbarHeightInterface.updateToolbarHeight(height);
     }
 }
-
-// Initial call to set up pagination and scroll to the initial page
-document.addEventListener("DOMContentLoaded", function() {
-    calculatePagination()
-    scrollToInitialPage();
-    document.getElementById('preloader').style.display = 'none';
-    //calculateAndLogReadingProgress();
-});
 
 
 
@@ -258,6 +291,9 @@ function performSavedItemAction(actionType) {
   AndroidItemAction.performItemAction(articleId, actionType);
   console.log(`${actionType} JS script`);
 }
+
+
+
 
 
 
