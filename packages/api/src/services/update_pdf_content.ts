@@ -53,6 +53,7 @@ export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
 
   const itemToUpdate: QueryDeepPartialEntity<LibraryItem> = {
     ...msg,
+    // content may not be present if we failed to parse the file
     originalContent: msg.content,
     // This event is fired after the file is fully uploaded,
     // so along with updating content, we mark it as

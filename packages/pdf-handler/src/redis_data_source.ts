@@ -1,4 +1,5 @@
 import Redis, { RedisOptions } from 'ioredis'
+import 'dotenv/config'
 
 export type RedisDataSourceOptions = {
   REDIS_URL?: string
