@@ -1,8 +1,8 @@
-import { env } from '../env'
-import { sendWithMailJet } from '../services/send_emails'
-import { Merge } from '../util'
-import { logger } from '../utils/logger'
-import { sendEmail } from '../utils/sendEmail'
+import { env } from '../../env'
+import { sendWithMailJet } from '../../services/send_emails'
+import { Merge } from '../../util'
+import { logger } from '../../utils/logger'
+import { sendEmail } from '../../utils/sendEmail'
 
 export const SEND_EMAIL_JOB = 'send-email'
 
@@ -16,6 +16,7 @@ export type SendEmailJobData = Merge<
     text?: string
     templateId?: string
     dynamicTemplateData?: Record<string, any>
+    replyTo?: string
   },
   ContentType
 >

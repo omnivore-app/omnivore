@@ -89,7 +89,7 @@ export const markEmailAsItemResolver = authorized<
       title: recentEmail.subject,
       content: recentEmail.html,
       url: generateUniqueUrl(),
-      author: parseEmailAddress(recentEmail.from).name,
+      author: parseEmailAddress(recentEmail.from).name || recentEmail.from,
       receivedEmailId: recentEmail.id,
     },
     newsletterEmail

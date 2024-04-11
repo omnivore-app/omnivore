@@ -83,7 +83,7 @@ export function emailsServiceRouter() {
         const savedNewsletter = await saveNewsletter(
           {
             title: getTitleFromEmailSubject(data.subject),
-            author: parsedFrom.name,
+            author: parsedFrom.name || data.from,
             url: generateUniqueUrl(),
             content: data.html || data.text,
             receivedEmailId: data.receivedEmailId,

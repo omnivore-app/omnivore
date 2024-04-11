@@ -1,12 +1,11 @@
 import addressparser from 'addressparser'
-import { publishMessage } from './index'
+import { EmailJobType, queueEmailJob } from './job'
 
 interface Unsubscribe {
   mailTo?: string
   httpUrl?: string
 }
 
-const GOOGLE_CONFIRMATION_CODE_RECEIVED_TOPIC = 'emailConfirmationCodeReceived'
 const GOOGLE_CONFIRMATION_EMAIL_SENDER_ADDRESS = 'forwarding-noreply@google.com'
 // check unicode parentheses too
 const GOOGLE_CONFIRMATION_CODE_PATTERN = /\d+/u
@@ -41,24 +40,25 @@ export const parseAuthor = (address: string): string => {
 }
 
 export const handleGoogleConfirmationEmail = async (
-  email: string,
+  from: string,
+  to: string,
   subject: string
 ) => {
-  console.log('confirmation email', email, subject)
+  console.log('confirmation email', from, to, subject)
 
   const confirmationCode = getConfirmationCode(subject)
-  if (!email || !confirmationCode) {
+  if (!to || !confirmationCode) {
     console.log(
       'confirmation email error, user email:',
-      email,
+      to,
       'confirmationCode',
       confirmationCode
     )
     throw new Error('invalid confirmation email')
   }
 
-  const message = { emailAddress: email, confirmationCode: confirmationCode }
-  return publishMessage(GOOGLE_CONFIRMATION_CODE_RECEIVED_TOPIC, message)
+  const message = { from, to, confirmationCode, subject }
+  return queueEmailJob(EmailJobType.ConfirmationEmail, message)
 }
 
 export const getConfirmationCode = (subject: string): string | undefined => {
