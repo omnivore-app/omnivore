@@ -81,12 +81,9 @@ export const redisDataSource = new RedisDataSource({
 const gracefulShutdown = async (signal: string) => {
   console.log(`Received ${signal}, shutting down gracefully...`)
 
-  try {
-    await redisDataSource.shutdown()
-    console.log('redis shutdown successfully')
-  } catch (error) {
-    console.error('error while shutting down redis', error)
-  }
+  await redisDataSource.shutdown()
+  console.log('redis shutdown successfully')
+
   process.exit(0)
 }
 
