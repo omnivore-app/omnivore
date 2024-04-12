@@ -56,7 +56,7 @@ export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
     description: msg.description,
     author: msg.author,
     // content may not be present if we failed to parse the file
-    originalContent: msg.content,
+    readableContent: msg.content,
     // This event is fired after the file is fully uploaded,
     // so along with updating content, we mark it as
     // succeeded or failed based on the message state
