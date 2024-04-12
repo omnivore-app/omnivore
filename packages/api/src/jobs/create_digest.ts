@@ -1,6 +1,6 @@
 import { logger } from '../utils/logger'
 
-export const CREATE_DIGEST_JOB = 'CREATE_DIGEST_JOB'
+export const CREATE_DIGEST_JOB = 'create-digest'
 
 export interface CreateDigestJobData {
   userId: string

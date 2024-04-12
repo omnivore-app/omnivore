@@ -96,6 +96,9 @@ export const getBackendQueue = async (): Promise<Queue | undefined> => {
   return backendQueue
 }
 
+export const createJobId = (jobName: string, userId: string) =>
+  `${jobName}_${userId}_${JOB_VERSION}`
+
 export const getJob = async (jobId: string) => {
   const queue = await getBackendQueue()
   if (!queue) {

@@ -49,7 +49,7 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
-import { getBackendQueue, JOB_VERSION } from '../queue-processor'
+import { createJobId, getBackendQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
@@ -867,7 +867,7 @@ export const enqueueCreateDigest = async (
     throw new Error('No queue found')
   }
 
-  const jobId = `create-digest-${data.userId}`
+  const jobId = createJobId(CREATE_DIGEST_JOB, data.userId)
   const job = await queue.add(CREATE_DIGEST_JOB, data, {
     jobId, // dedupe by userId
     removeOnComplete: true,

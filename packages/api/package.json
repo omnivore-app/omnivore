@@ -124,7 +124,7 @@
     "@types/chai-as-promised": "^7.1.5",
     "@types/chai-string": "^1.4.2",
     "@types/cookie": "^0.4.0",
-    "@types/cookie-parser": "^1.4.2",
+    "@types/cookie-parser": "^1.4.7",
     "@types/csv-stringify": "^3.1.0",
     "@types/diff-match-patch": "^1.0.32",
     "@types/dompurify": "^2.0.4",
