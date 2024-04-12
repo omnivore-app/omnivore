@@ -1,11 +1,12 @@
 import { redisDataSource } from '../redis_data_source'
 
 export interface Digest {
-  url: string
-  title: string
-  content: string
-  chapters: Chapter[]
-  urlsToAudio: string[]
+  url?: string
+  title?: string
+  content?: string
+  chapters?: Chapter[]
+  urlsToAudio?: string[]
+  jobState: string
 }
 
 interface Chapter {
@@ -19,7 +20,11 @@ export const getDigest = async (userId: string): Promise<Digest | null> => {
   return digest ? (JSON.parse(digest) as Digest) : null
 }
 
-export const setDigest = async (userId: string, digest: Digest) => {
+export const setDigest = async (
+  userId: string,
+  digest: Digest
+): Promise<string> => {
+  const key = digestKey(userId)
   const result = await redisDataSource.redisClient?.set(
     digestKey(userId),
     JSON.stringify(digest),
@@ -30,4 +35,6 @@ export const setDigest = async (userId: string, digest: Digest) => {
   if (result != 'OK') {
     throw new Error('Failed to set digest')
   }
+
+  return key
 }
