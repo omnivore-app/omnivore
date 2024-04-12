@@ -1,8 +1,6 @@
 import cors from 'cors'
 import express from 'express'
 import { TaskState } from '../generated/graphql'
-import { CREATE_DIGEST_JOB } from '../jobs/create_digest'
-import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
 import { getDigest, setDigest } from '../services/digest'
 import { findActiveUser } from '../services/user'
 import { analytics } from '../utils/analytics'
