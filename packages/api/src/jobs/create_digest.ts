@@ -16,19 +16,17 @@ export const processCreateDigestJob = async (data: CreateDigestJobData) => {
 
   // TODO: create digest
   const digest = {
-    url: 'https://example.com',
-    title: 'Example Digest',
-    jobState: 'completed',
-    content: 'This is an example digest',
+    url: '',
+    title: '',
+    content: '<readable html>',
     chapters: [
-      {
-        title: 'Chapter 1',
-      },
-      {
-        title: 'Chapter 2',
-      },
+      { title: '00:30 - China buying' },
+      { title: '10:20 - Twitter for sale' },
     ],
-    urlsToAudio: ['https://example.com/audio'],
+    urlsToAudio: [
+      'https://storage.google.com/...',
+      'https://api.omnivore.app/api/digest/audio/<id>',
+    ],
   }
 
   // save digest to redis

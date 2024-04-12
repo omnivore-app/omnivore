@@ -3,7 +3,6 @@ import { redisDataSource } from '../redis_data_source'
 export interface Digest {
   url: string
   title: string
-  jobState: string
   content: string
   chapters: Chapter[]
   urlsToAudio: string[]
