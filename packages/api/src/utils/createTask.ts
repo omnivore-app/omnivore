@@ -18,6 +18,11 @@ import {
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
+import {
+  CreateDigestJobData,
+  CreateDigestJobResponse,
+  CREATE_DIGEST_JOB,
+} from '../jobs/create_digest'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
 import { EXPORT_ALL_ITEMS_JOB_NAME } from '../jobs/integration/export_all_items'
 import {
@@ -81,6 +86,7 @@ export const getJobPriority = (jobName: string): number => {
     case `${REFRESH_FEED_JOB_NAME}_high`:
       return 10
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
+    case CREATE_DIGEST_JOB:
       return 20
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
@@ -851,6 +857,30 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
     attempts: 1, // only try once
     priority: getJobPriority(SEND_EMAIL_JOB),
   })
+}
+
+export const enqueueCreateDigest = async (
+  data: CreateDigestJobData
+): Promise<CreateDigestJobResponse> => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    throw new Error('No queue found')
+  }
+
+  const jobId = `create-digest-${data.userId}`
+  const job = await queue.add(CREATE_DIGEST_JOB, data, {
+    jobId, // dedupe by userId
+    removeOnComplete: true,
+    removeOnFail: true,
+    attempts: 3,
+    priority: getJobPriority(CREATE_DIGEST_JOB),
+  })
+
+  logger.info('create digest job enqueued', { jobId: job.id })
+
+  return {
+    jobId,
+  }
 }
 
 export default createHttpTaskWithToken
