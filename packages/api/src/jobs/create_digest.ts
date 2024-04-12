@@ -32,6 +32,9 @@ export const processCreateDigestJob = async (data: CreateDigestJobData) => {
   // save digest to redis
   await setDigest(data.userId, digest)
 
+  // simulate long running task
+  await new Promise((resolve) => setTimeout(resolve, 5000))
+
   logger.info('digest created', digest)
 
   return true

@@ -62,7 +62,7 @@ export function digestRouter() {
       // check if job is already in queue
       // if yes then return 409 conflict
       // else enqueue job
-      const jobId = createJobId(userId, CREATE_DIGEST_JOB)
+      const jobId = createJobId(CREATE_DIGEST_JOB, userId)
       const existingJob = await getJob(jobId)
       if (existingJob) {
         logger.info(`Job already in queue: ${jobId}`)
@@ -110,7 +110,7 @@ export function digestRouter() {
       }
 
       // get job by user id
-      const jobId = createJobId(userId, CREATE_DIGEST_JOB)
+      const jobId = createJobId(CREATE_DIGEST_JOB, userId)
       const job = await getJob(jobId)
       if (job) {
         // if job is in queue then return job state

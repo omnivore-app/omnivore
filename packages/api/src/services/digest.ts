@@ -22,7 +22,9 @@ export const getDigest = async (userId: string): Promise<Digest | null> => {
 export const setDigest = async (userId: string, digest: Digest) => {
   const result = await redisDataSource.redisClient?.set(
     digestKey(userId),
-    JSON.stringify(digest)
+    JSON.stringify(digest),
+    'EX',
+    60 * 60 * 24 // 1 day
   )
 
   if (result != 'OK') {
