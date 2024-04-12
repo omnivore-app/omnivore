@@ -3,26 +3,13 @@ import express from 'express'
 import { TaskState } from '../generated/graphql'
 import { CREATE_DIGEST_JOB } from '../jobs/create_digest'
 import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
-import { redisDataSource } from '../redis_data_source'
+import { getDigest } from '../services/digest'
 import { findActiveUser } from '../services/user'
 import { analytics } from '../utils/analytics'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueCreateDigest } from '../utils/createTask'
 import { logger } from '../utils/logger'
-
-interface Digest {
-  url: string
-  title: string
-  jobState: string
-  content: string
-  chapters: Chapter[]
-  urlsToAudio: string[]
-}
-
-interface Chapter {
-  title: string
-}
 
 interface Feedback {
   digestRating: number
@@ -135,18 +122,15 @@ export function digestRouter() {
       }
 
       // if job is done and removed then get the digest from redis
-      const key = `digest:${userId}`
-      const digest = await redisDataSource.redisClient?.get(key)
+      const digest = await getDigest(userId)
       if (!digest) {
-        logger.info(`Digest not found: ${key}`)
+        logger.info(`Digest not found: ${userId}`)
         return res.sendStatus(404)
       }
 
-      const digestObject = JSON.parse(digest) as Digest
-
       // return digest
       return res.send({
-        ...digestObject,
+        ...digest,
         jobId,
         jobState: TaskState.Succeeded,
       })
