@@ -5,6 +5,7 @@ import { CREATE_DIGEST_JOB } from '../jobs/create_digest'
 import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
 import { findActiveUser } from '../services/user'
+import { analytics } from '../utils/analytics'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueCreateDigest } from '../utils/createTask'
@@ -21,6 +22,24 @@ interface Digest {
 
 interface Chapter {
   title: string
+}
+
+interface Feedback {
+  digestRating: number
+  rankingRating: number
+  summaryRating: number
+  voiceRating: number
+  musicRating: number
+}
+
+const isFeedback = (data: any): data is Feedback => {
+  return (
+    'digestRating' in data &&
+    'rankingRating' in data &&
+    'summaryRating' in data &&
+    'voiceRating' in data &&
+    'musicRating' in data
+  )
 }
 
 export function digestRouter() {
@@ -136,6 +155,61 @@ export function digestRouter() {
       return res.sendStatus(500)
     }
   })
+
+  // v1 version of sending feedback api
+  router.post(
+    '/v1/feedback',
+    cors<express.Request>(corsConfig),
+    async (req, res) => {
+      const token = getTokenByRequest(req)
+
+      let userId: string
+      try {
+        // get claims from token
+        const claims = await getClaimsByToken(token)
+        if (!claims) {
+          logger.info('Token not found')
+          return res.sendStatus(401)
+        }
+
+        // get user by uid from claims
+        userId = claims.uid
+      } catch (error) {
+        logger.info('Error while getting claims from token', error)
+        return res.sendStatus(401)
+      }
+
+      try {
+        const user = await findActiveUser(userId)
+        if (!user) {
+          logger.info(`User not found: ${userId}`)
+          return res.sendStatus(401)
+        }
+
+        // get feedback from request body
+        if (!isFeedback(req.body)) {
+          logger.info('Invalid feedback format')
+          return res.sendStatus(400)
+        }
+
+        const feedback = req.body
+        // send feedback to analytics
+        logger.info(`Sending feedback: ${JSON.stringify(feedback)}`)
+
+        analytics.capture({
+          distinctId: userId,
+          event: 'digest_feedback',
+          properties: feedback,
+        })
+
+        // return success
+        return res.sendStatus(200)
+      } catch (error) {
+        logger.error('Error while saving feedback', error)
+        return res.sendStatus(500)
+      }
+    }
+  )
 
   return router
 }
