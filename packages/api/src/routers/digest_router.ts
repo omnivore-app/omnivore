@@ -13,10 +13,13 @@ import { logger } from '../utils/logger'
 
 interface Feedback {
   digestRating: number
+  rankingModels: string[]
   rankingRating: number
   summaryRating: number
+  summaryModels: string[]
   voiceRating: number
   musicRating: number
+  comment?: string
 }
 
 const isFeedback = (data: any): data is Feedback => {
@@ -60,13 +63,13 @@ export function digestRouter() {
       }
 
       // check if job is already in queue
-      // if yes then return 409 conflict
+      // if yes then return 202 accepted
       // else enqueue job
       const jobId = createJobId(CREATE_DIGEST_JOB, userId)
       const existingJob = await getJob(jobId)
       if (existingJob) {
         logger.info(`Job already in queue: ${jobId}`)
-        return res.sendStatus(409)
+        return res.sendStatus(202)
       }
 
       // enqueue job and return job id
@@ -75,7 +78,7 @@ export function digestRouter() {
       })
 
       // return job id
-      return res.status(200).send(result)
+      return res.status(201).send(result)
     } catch (error) {
       logger.error('Error while enqueuing create digest task', error)
       return res.sendStatus(500)
@@ -177,9 +180,11 @@ export function digestRouter() {
         }
 
         const feedback = req.body
-        // send feedback to analytics
         logger.info(`Sending feedback: ${JSON.stringify(feedback)}`)
 
+        // remove comment from feedback before sending to analytics
+        delete feedback.comment
+        // send feedback to analytics
         analytics.capture({
           distinctId: userId,
           event: 'digest_feedback',
