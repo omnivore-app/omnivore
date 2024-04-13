@@ -191,7 +191,6 @@ export function digestRouter() {
           properties: {
             ...feedback,
             env: env.server.apiEnv,
-            userId,
           },
         })
 
