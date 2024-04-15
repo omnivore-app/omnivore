@@ -18,6 +18,7 @@ import {
 } from '../utils/uploads'
 import { validateUrl } from './create_page_save_request'
 import { createOrUpdateLibraryItem } from './library_item'
+import { v4 as uuid } from 'uuid'
 
 const isFileUrl = (url: string): boolean => {
   const parsedUrl = new URL(url)
@@ -90,8 +91,18 @@ export const uploadFile = async (
     }
   }
 
+  let url = input.url
+
+  const uploadFileId = uuid()
+  const uploadFilePathName = generateUploadFilePathName(uploadFileId, fileName)
+  // If this is a file URL, we swap in a special URL
+  if (isFileUrl(url)) {
+    url = `https://omnivore.app/attachments/${uploadFilePathName}`
+  }
+
   const uploadFileData = await authTrx((t) =>
     t.getRepository(UploadFile).save({
+      id: uploadFileId,
       url: input.url,
       user: { id: uid },
       fileName,
@@ -99,23 +110,10 @@ export const uploadFile = async (
       contentType: input.contentType,
     })
   )
-  const uploadFileId = uploadFileData.id
-  const uploadFilePathName = generateUploadFilePathName(uploadFileId, fileName)
   const uploadSignedUrl = await generateUploadSignedUrl(
     uploadFilePathName,
     input.contentType
   )
-
-  // If this is a file URL, we swap in a special URL
-  const attachmentUrl = `https://omnivore.app/attachments/${uploadFilePathName}`
-  if (isFileUrl(input.url)) {
-    await authTrx(async (tx) => {
-      await tx.getRepository(UploadFile).update(uploadFileId, {
-        url: attachmentUrl,
-        status: UploadFileStatus.Initialized,
-      })
-    })
-  }
 
   const itemType = itemTypeForContentType(input.contentType)
   if (input.createPageEntry) {
@@ -125,7 +123,7 @@ export const uploadFile = async (
     const item = await createOrUpdateLibraryItem(
       {
         id: input.clientRequestId || undefined,
-        originalUrl: isFileUrl(input.url) ? attachmentUrl : input.url,
+        originalUrl: url,
         user: { id: uid },
         title,
         readableContent: '',

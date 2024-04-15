@@ -8,12 +8,15 @@ const queue = new Queue(QUEUE_NAME, {
   connection: redisDataSource.queueRedisClient,
 })
 
+export type State = 'SUCCEEDED' | 'FAILED'
+
 type UpdatePageJobData = {
   fileId: string
-  content: string
+  content?: string
   title?: string
   author?: string
   description?: string
+  state?: State
 }
 
 export const queueUpdatePageJob = async (data: UpdatePageJobData) => {

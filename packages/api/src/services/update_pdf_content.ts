@@ -8,16 +8,17 @@ import { findUploadFileById, setFileUploadComplete } from './upload_file'
 
 export interface UpdateContentMessage {
   fileId: string
-  content: string
+  content?: string
   title?: string
   author?: string
   description?: string
+  state?: LibraryItemState
 }
 
 export const isUpdateContentMessage = (
   data: any
 ): data is UpdateContentMessage => {
-  return 'fileId' in data && 'content' in data
+  return 'fileId' in data
 }
 
 export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
@@ -51,16 +52,16 @@ export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
   }
 
   const itemToUpdate: QueryDeepPartialEntity<LibraryItem> = {
-    originalContent: msg.content,
+    title: msg.title,
+    description: msg.description,
+    author: msg.author,
+    // content may not be present if we failed to parse the file
+    readableContent: msg.content,
+    // This event is fired after the file is fully uploaded,
+    // so along with updating content, we mark it as
+    // succeeded or failed based on the message state
+    state: msg.state || LibraryItemState.Succeeded,
   }
-  if (msg.title) itemToUpdate.title = msg.title
-  if (msg.author) itemToUpdate.author = msg.author
-  if (msg.description) itemToUpdate.description = msg.description
-
-  // This event is fired after the file is fully uploaded,
-  // so along with updating content, we mark it as
-  // succeeded.
-  itemToUpdate.state = LibraryItemState.Succeeded
 
   try {
     const uploadFileData = await setFileUploadComplete(
@@ -80,7 +81,8 @@ export const updateContentForFileItem = async (msg: UpdateContentMessage) => {
   logger.info('Updating library item text', {
     id: libraryItem.id,
     result,
-    content: msg.content.substring(0, 20),
+    content: msg.content?.substring(0, 20),
+    state: msg.state,
   })
 
   return true
