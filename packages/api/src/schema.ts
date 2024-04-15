@@ -88,7 +88,6 @@ const schema = gql`
     email: String
     source: String
     intercomHash: String
-    features: [String]
     featureList: [Feature!]
   }
 
