@@ -2,25 +2,31 @@ import Foundation
 import SwiftUI
 
 struct CustomTabBar: View {
+  let displayTabs: [String]
   @Binding var selectedTab: String
-  let hideFollowingTab: Bool
 
   var body: some View {
     HStack(spacing: 0) {
-      if !hideFollowingTab {
+      if displayTabs.contains("following") {
         TabBarButton(key: "following",
                      image: Image.tabFollowing,
                      selectedTab: $selectedTab,
                      selectionColor: Color(hex: "EE8232"))
       }
-      TabBarButton(key: "digest",
-                   image: Image.tabDigest,
-                   selectedTab: $selectedTab,
-                   selectedImage: Image.tabDigestSelected)
-      TabBarButton(key: "inbox",
-                   image: Image.tabLibrary,
-                   selectedTab: $selectedTab)
-      // TabBarButton(key: "profile", image: Image.tabProfile, selectedTab: $selectedTab)
+      if displayTabs.contains("digest") {
+        TabBarButton(key: "digest",
+                     image: Image.tabDigest,
+                     selectedTab: $selectedTab,
+                     selectedImage: Image.tabDigestSelected)
+      }
+      if displayTabs.contains("inbox") {
+        TabBarButton(key: "inbox",
+                     image: Image.tabLibrary,
+                     selectedTab: $selectedTab)
+      }
+      if displayTabs.contains("profile") {
+        TabBarButton(key: "profile", image: Image.tabProfile, selectedTab: $selectedTab)
+      }
     }
     .padding(.top, 10)
     .padding(.bottom, 10)

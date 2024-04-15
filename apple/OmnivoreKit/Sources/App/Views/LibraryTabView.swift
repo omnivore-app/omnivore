@@ -21,6 +21,9 @@ struct LibraryTabView: View {
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
 
+  @AppStorage("LibraryTabView::digestEnabled") var digestEnabled = false
+  @AppStorage("LibraryTabView::hasCheckedForDigestFeature") var hasCheckedForDigestFeature = false
+
   @State var isEditMode: EditMode = .inactive
   @State var showExpandedAudioPlayer = false
   @State var presentPushContainer = true
@@ -76,6 +79,28 @@ struct LibraryTabView: View {
   @State var operationStatus: OperationStatus = .none
   @State var operationMessage: String?
 
+  var showDigest: Bool {
+    if digestEnabled, #available(iOS 17.0, *) {
+      return true
+    }
+    return false
+  }
+
+  var displayTabs: [String] {
+    var res = [String]()
+    if !hideFollowingTab {
+      res.append("following")
+    }
+    if showDigest {
+      res.append("digest")
+    }
+    res.append("inbox")
+    if !showDigest {
+      res.append("profile")
+    }
+    return res
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
@@ -116,24 +141,29 @@ struct LibraryTabView: View {
           }.tag("following")
         }
 
-        if #available(iOS 17.0, *) {
+        if showDigest, #available(iOS 17.0, *) {
           NavigationView {
             LibraryDigestView(dataService: dataService)
               .navigationBarTitleDisplayMode(.inline)
               .navigationViewStyle(.stack)
           }.tag("digest")
+          NavigationView {
+            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("inbox")
         } else {
           NavigationView {
             HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
               .navigationBarTitleDisplayMode(.inline)
               .navigationViewStyle(.stack)
           }.tag("inbox")
+          NavigationView {
+            ProfileView()
+              .navigationViewStyle(.stack)
+          }.tag("profile")
         }
 
-        NavigationView {
-          ProfileView()
-            .navigationViewStyle(.stack)
-        }.tag("profile")
       }
       if let audioProperties = audioController.itemAudioProperties {
         MiniPlayerViewer(itemAudioProperties: audioProperties)
@@ -146,7 +176,9 @@ struct LibraryTabView: View {
           .frame(maxWidth: .infinity)
       }
       if isEditMode != .active {
-        CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
+        CustomTabBar(
+          displayTabs: displayTabs,
+          selectedTab: $selectedTab)
           .padding(0)
       }
     }
@@ -203,6 +235,20 @@ struct LibraryTabView: View {
         }
       }
       selectedTab = "inbox"
+    }
+    .task {
+      do {
+        if let viewer = try await dataService.fetchViewer() {
+          digestEnabled = viewer.digestEnabled ?? false
+          if !hasCheckedForDigestFeature {
+            hasCheckedForDigestFeature = true
+            selectedTab = "digest"
+          }
+        }
+      } catch {
+        print("ERROR FETCHING VIEWER: ", error)
+        print("")
+      }
     }
   }
 }
