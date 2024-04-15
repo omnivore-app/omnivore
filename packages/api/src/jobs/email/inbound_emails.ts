@@ -250,6 +250,7 @@ export const saveAttachmentJob = async (data: EmailJobData) => {
     (tx) =>
       tx.getRepository(UploadFile).save({
         ...uploadFile,
+        url: '', // no url for email attachments
         status: UploadFileStatus.Completed,
         user: { id: user.id },
       }),
