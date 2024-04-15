@@ -81,6 +81,7 @@ export interface BackendEnv {
     gcsUploadBucket: string
     gcsUploadSAKeyFilePath: string
     gcsUploadPrivateBucket: string
+    dailyUploadLimit: number
   }
   sender: {
     message: string
@@ -144,6 +145,7 @@ const nullableEnvVars = [
   'POSTHOG_API_KEY',
   'TWITTER_BEARER_TOKEN',
   'GCS_UPLOAD_PRIVATE_BUCKET',
+  'GCS_UPLOAD_DAILY_LIMIT',
   'SENDER_MESSAGE',
   'SENDER_FEEDBACK',
   'SENDER_GENERAL',
@@ -275,6 +277,9 @@ export function getEnv(): BackendEnv {
     gcsUploadBucket: parse('GCS_UPLOAD_BUCKET'),
     gcsUploadSAKeyFilePath: parse('GCS_UPLOAD_SA_KEY_FILE_PATH'),
     gcsUploadPrivateBucket: parse('GCS_UPLOAD_PRIVATE_BUCKET'),
+    dailyUploadLimit: parse('GCS_UPLOAD_DAILY_LIMIT')
+      ? parseInt(parse('GCS_UPLOAD_DAILY_LIMIT'), 10)
+      : 30, // default to 30
   }
   const sender = {
     message: parse('SENDER_MESSAGE'),
