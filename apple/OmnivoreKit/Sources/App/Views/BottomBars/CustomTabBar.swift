@@ -8,10 +8,19 @@ struct CustomTabBar: View {
   var body: some View {
     HStack(spacing: 0) {
       if !hideFollowingTab {
-        TabBarButton(key: "following", image: Image.tabFollowing, selectedTab: $selectedTab)
+        TabBarButton(key: "following",
+                     image: Image.tabFollowing,
+                     selectedTab: $selectedTab,
+                     selectionColor: Color(hex: "EE8232"))
       }
-      TabBarButton(key: "inbox", image: Image.tabLibrary, selectedTab: $selectedTab)
-      TabBarButton(key: "profile", image: Image.tabProfile, selectedTab: $selectedTab)
+      TabBarButton(key: "digest",
+                   image: Image.tabDigest,
+                   selectedTab: $selectedTab,
+                   selectedImage: Image.tabDigestSelected)
+      TabBarButton(key: "inbox",
+                   image: Image.tabLibrary,
+                   selectedTab: $selectedTab)
+      // TabBarButton(key: "profile", image: Image.tabProfile, selectedTab: $selectedTab)
     }
     .padding(.top, 10)
     .padding(.bottom, 10)
@@ -23,6 +32,8 @@ struct TabBarButton: View {
   let key: String
   let image: Image
   @Binding var selectedTab: String
+  var selectedImage: Image?
+  var selectionColor: Color?
 
   var body: some View {
     Button(action: {
@@ -31,13 +42,20 @@ struct TabBarButton: View {
       }
       selectedTab = key
     }, label: {
-      image
-        .resizable()
-        .renderingMode(.template)
-        .aspectRatio(contentMode: .fit)
+     tabImage
         .frame(width: 28, height: 28)
-        .foregroundColor(selectedTab == key ? Color.blue : Color.themeTabButtonColor)
         .frame(maxWidth: .infinity)
     }).buttonStyle(.plain)
+  }
+  
+  var tabImage: some View {
+    if let selectedImage = selectedImage, selectedTab == key {
+      return AnyView(selectedImage
+        .resizable()
+        .aspectRatio(contentMode: .fit))
+    } else {
+      return AnyView(image
+        .foregroundColor(selectedTab == key ? selectionColor ?? Color.blue  : Color.themeTabButtonColor))
+    }
   }
 }

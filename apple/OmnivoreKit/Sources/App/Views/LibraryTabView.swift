@@ -116,11 +116,19 @@ struct LibraryTabView: View {
           }.tag("following")
         }
 
-        NavigationView {
-          HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationViewStyle(.stack)
-        }.tag("inbox")
+        if #available(iOS 17.0, *) {
+          NavigationView {
+            LibraryDigestView(dataService: dataService)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("digest")
+        } else {
+          NavigationView {
+            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("inbox")
+        }
 
         NavigationView {
           ProfileView()

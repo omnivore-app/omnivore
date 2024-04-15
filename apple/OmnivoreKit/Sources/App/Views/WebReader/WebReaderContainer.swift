@@ -41,6 +41,8 @@ struct WebReaderContainerView: View {
   @State var displayLinkSheet = false
   @State var linkToOpen: URL?
 
+  @State var showExplainSheet = false
+
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
   @Environment(\.openURL) var openURL
@@ -90,6 +92,11 @@ struct WebReaderContainerView: View {
       showBottomBar = navBarVisible
       showNavBarActionID = UUID()
     }
+  }
+
+  private func explainHandler(text: String) {
+    viewModel.explainText = String(text)
+    showExplainSheet = true
   }
 
   private func handleHighlightAction(message: WKScriptMessage) {
@@ -271,6 +278,13 @@ struct WebReaderContainerView: View {
         Spacer()
       #endif
 
+//      Button(
+//        action: { showExplainSheet = true },
+//        label: { Image(systemName: "sparkles") }
+//      )
+//      .buttonStyle(.plain)
+//      .padding(.trailing, 4)
+
       Button(
         action: { showLabelsModal = true },
         label: {
@@ -378,6 +392,7 @@ struct WebReaderContainerView: View {
             #endif
           },
           tapHandler: tapHandler,
+          explainHandler: explainHandler,
           scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityUpdater: { visible in
@@ -484,6 +499,20 @@ struct WebReaderContainerView: View {
           }
           .formSheet(isPresented: $showOpenArchiveSheet) {
             OpenArchiveTodayView(item: item)
+          }
+          .formSheet(isPresented: $showExplainSheet) {
+            ExplainView(
+              viewModel: ExplainViewModel(
+                dataService: dataService,
+                item: self.item,
+                promptName: "explain-text-001",
+                extraText: viewModel.explainText
+              ),
+              dismissAction: {
+                viewModel.explainText = nil
+                showExplainSheet = false
+              }
+            )
           }
         #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
@@ -633,7 +662,6 @@ struct WebReaderContainerView: View {
       try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
     }
     .onDisappear {
-      // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
@@ -674,7 +702,7 @@ struct WebReaderContainerView: View {
     shareActionID = UUID()
   }
   
-  func print() {
+  func printReader() {
     shareActionID = UUID()
   }
 

@@ -21,6 +21,8 @@ struct SafariWebLink: Identifiable {
   @Published var showOperationToast: Bool = false
   @Published var operationStatus: OperationStatus = .none
 
+  @Published var explainText: String?
+
   func hasOriginalUrl(_ item: Models.LibraryItem) -> Bool {
     if let pageURLString = item.pageURLString, let host = URL(string: pageURLString)?.host {
       if host == "omnivore.app" {
