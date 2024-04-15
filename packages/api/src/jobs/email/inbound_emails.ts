@@ -94,7 +94,7 @@ export const forwardEmailJob = async (data: EmailJobData) => {
     )
   ) {
     logger.info('handling as article')
-    const savedNewsletter = await saveNewsletter(
+    return saveNewsletter(
       {
         title: getTitleFromEmailSubject(subject),
         author: parsedFrom.name || from,
@@ -105,15 +105,6 @@ export const forwardEmailJob = async (data: EmailJobData) => {
       },
       newsletterEmail
     )
-    if (!savedNewsletter) {
-      logger.error('Failed to save email', { from, to, subject })
-      return false
-    }
-
-    // update received email type
-    await updateReceivedEmail(receivedEmailId, 'article', user.id)
-
-    return true
   }
 
   analytics.capture({
@@ -166,7 +157,7 @@ export const saveNewsletterJob = async (data: EmailJobData) => {
     text,
     html,
     user.id,
-    'article',
+    'non-article', // default to non-article
     replyTo
   )
 
@@ -177,6 +168,11 @@ export const saveNewsletterJob = async (data: EmailJobData) => {
       receivedEmailId,
       newsletterEmail.user.id
     )
+
+    if (result) {
+      // update received email type
+      await updateReceivedEmail(receivedEmailId, 'article', user.id)
+    }
 
     return result
   }
@@ -205,7 +201,7 @@ export const saveNewsletterJob = async (data: EmailJobData) => {
   }
 
   // save newsletter instead
-  const result = await saveNewsletter(
+  return saveNewsletter(
     {
       email: newsletterEmail.address,
       content,
@@ -219,8 +215,6 @@ export const saveNewsletterJob = async (data: EmailJobData) => {
     },
     newsletterEmail
   )
-
-  return result
 }
 
 export const saveAttachmentJob = async (data: EmailJobData) => {
@@ -235,14 +229,14 @@ export const saveAttachmentJob = async (data: EmailJobData) => {
   }
 
   const user = newsletterEmail.user
-  await saveReceivedEmail(
+  const receivedEmail = await saveReceivedEmail(
     from,
     to,
     subject,
     text,
     html,
     user.id,
-    'article',
+    'non-article',
     replyTo
   )
 
@@ -292,6 +286,9 @@ export const saveAttachmentJob = async (data: EmailJobData) => {
   }
 
   await createOrUpdateLibraryItem(itemToCreate, user.id)
+
+  // update received email type
+  await updateReceivedEmail(receivedEmail.id, 'article', user.id)
 
   return true
 }
