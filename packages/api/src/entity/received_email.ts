@@ -34,6 +34,12 @@ export class ReceivedEmail {
   html!: string
 
   @Column('text')
+  replyTo?: string
+
+  @Column('text')
+  reply?: string
+
+  @Column('text')
   type!: 'article' | 'non-article'
 
   @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })

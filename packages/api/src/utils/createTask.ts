@@ -35,7 +35,7 @@ import {
   REFRESH_ALL_FEEDS_JOB_NAME,
   REFRESH_FEED_JOB_NAME,
 } from '../jobs/rss/refreshAllFeeds'
-import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/send_email'
+import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/email/send_email'
 import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/sync_read_positions'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import {

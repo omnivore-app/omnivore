@@ -2,91 +2,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
-import { PubSub } from '@google-cloud/pubsub'
-import { handleNewsletter } from '@omnivore/content-handler'
-import { generateUniqueUrl } from '@omnivore/content-handler/build/src/content-handler'
 import * as Sentry from '@sentry/serverless'
-import axios from 'axios'
-import * as jwt from 'jsonwebtoken'
 import parseHeaders from 'parse-headers'
 import * as multipart from 'parse-multipart-data'
 import rfc2047 from 'rfc2047'
-import { Converter } from 'showdown'
-import { promisify } from 'util'
 import { Attachment, handleAttachments, isAttachment } from './attachment'
+import { EmailJobType, queueEmailJob } from './job'
 import {
   handleGoogleConfirmationEmail,
   isGoogleConfirmationEmail,
   isSubscriptionConfirmationEmail,
-  parseAuthor,
   parseUnsubscribe,
 } from './newsletter'
-
-interface SaveReceivedEmailResponse {
-  id: string
-}
 
 interface Envelope {
   to: string[]
   from: string
 }
 
-const signToken = promisify(jwt.sign)
-
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
   tracesSampleRate: 0,
 })
-
-const NEWSLETTER_EMAIL_RECEIVED_TOPIC = 'newsletterEmailReceived'
-const NON_NEWSLETTER_EMAIL_TOPIC = 'nonNewsletterEmailReceived'
-const pubsub = new PubSub()
-const converter = new Converter()
-
-export const plainTextToHtml = (text: string): string => {
-  return converter.makeHtml(text)
-}
-
-export const publishMessage = async (
-  topic: string,
-  message: any
-): Promise<string | undefined> => {
-  return pubsub
-    .topic(topic)
-    .publishMessage({ json: message })
-    .catch((err) => {
-      console.log('error publishing message:', err)
-      return undefined
-    })
-}
-
-const saveReceivedEmail = async (
-  email: string,
-  data: any
-): Promise<SaveReceivedEmailResponse> => {
-  if (process.env.JWT_SECRET === undefined) {
-    throw new Error('JWT_SECRET is not defined')
-  }
-  const auth = await signToken(email, process.env.JWT_SECRET)
-
-  if (process.env.INTERNAL_SVC_ENDPOINT === undefined) {
-    throw new Error('REST_BACKEND_ENDPOINT is not defined')
-  }
-
-  const response = await axios.post(
-    `${process.env.INTERNAL_SVC_ENDPOINT}svc/pubsub/emails/save`,
-    data,
-    {
-      headers: {
-        Authorization: `${auth as string}`,
-        'Content-Type': 'application/json',
-      },
-    }
-  )
-
-  return response.data as SaveReceivedEmailResponse
-}
 
 export const parsedTo = (parsed: Record<string, string>): string => {
   // envelope to contains the real recipient email address
@@ -120,6 +57,7 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
 
       // original sender email address
       const from = parsed['from']
+      const replyTo = parsed['reply-to']
       const subject = parsed['subject']
       const html = parsed['html']
       const text = parsed['text']
@@ -134,96 +72,77 @@ export const inboundEmailHandler = Sentry.GCPFunction.wrapHttpFunction(
         ? parseUnsubscribe(unSubHeader)
         : undefined
 
-      const { id: receivedEmailId } = await saveReceivedEmail(to, {
-        from,
-        to,
-        subject,
-        html,
-        text,
-      })
-
       try {
         // check if it is a subscription or google confirmation email
         const isGoogleConfirmation = isGoogleConfirmationEmail(from, subject)
         if (isGoogleConfirmation || isSubscriptionConfirmationEmail(subject)) {
           console.debug('handleConfirmation', from, subject)
           // we need to parse the confirmation code from the email
-          isGoogleConfirmation &&
-            (await handleGoogleConfirmationEmail(to, subject))
-          // queue non-newsletter emails
-          await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
-            json: {
-              from,
-              to,
-              subject,
-              html,
-              text,
-              unsubMailTo: unsubscribe?.mailTo,
-              unsubHttpUrl: unsubscribe?.httpUrl,
-              forwardedFrom,
-              receivedEmailId,
-            },
+          if (isGoogleConfirmation) {
+            await handleGoogleConfirmationEmail(from, to, subject)
+          }
+
+          // forward emails
+          await queueEmailJob(EmailJobType.ForwardEmail, {
+            from,
+            to,
+            subject,
+            html,
+            text,
+            headers,
+            forwardedFrom,
+            replyTo,
           })
           return res.send('ok')
         }
         if (attachments.length > 0) {
           console.debug('handle attachments', from, to, subject)
           // save the attachments as articles
-          await handleAttachments(to, subject, attachments, receivedEmailId)
+          await handleAttachments(from, to, subject, attachments)
           return res.send('ok')
         }
 
-        // convert text to html if html is not available
-        const content = html || plainTextToHtml(text)
-
         // all other emails are considered newsletters
-        const newsletterMessage = await handleNewsletter({
+        // queue newsletter emails
+        await queueEmailJob(EmailJobType.SaveNewsletter, {
           from,
           to,
           subject,
-          html: content,
+          html,
+          text,
           headers,
+          unsubMailTo: unsubscribe?.mailTo,
+          unsubHttpUrl: unsubscribe?.httpUrl,
+          forwardedFrom,
+          replyTo,
         })
 
-        // queue newsletter emails
-        await pubsub.topic(NEWSLETTER_EMAIL_RECEIVED_TOPIC).publishMessage({
-          json: {
-            email: to,
-            content,
-            url: generateUniqueUrl(),
-            title: subject,
-            author: parseAuthor(from),
-            unsubMailTo: unsubscribe?.mailTo,
-            unsubHttpUrl: unsubscribe?.httpUrl,
-            receivedEmailId,
-            ...newsletterMessage,
-          },
-        })
         res.send('newsletter received')
       } catch (error) {
-        console.log(
+        console.error(
           'error handling emails, will forward.',
           from,
           to,
           subject,
           error
         )
-        // queue error emails
-        await pubsub.topic(NON_NEWSLETTER_EMAIL_TOPIC).publishMessage({
-          json: {
-            from,
-            to,
-            subject,
-            html,
-            text,
-            forwardedFrom,
-            receivedEmailId,
-          },
+
+        // fallback to forward the email
+        await queueEmailJob(EmailJobType.ForwardEmail, {
+          from,
+          to,
+          subject,
+          html,
+          text,
+          headers,
+          forwardedFrom,
+          replyTo,
         })
+
         res.send('ok')
       }
     } catch (e) {
-      console.log(e)
+      console.error(e)
       res.send(e)
     }
   }

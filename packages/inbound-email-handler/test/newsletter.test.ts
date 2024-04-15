@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import 'mocha'
 import parseHeaders from 'parse-headers'
 import rfc2047 from 'rfc2047'
-import { parsedTo, plainTextToHtml } from '../src'
+import { parsedTo } from '../src'
 import {
   getConfirmationCode,
   isGoogleConfirmationEmail,
@@ -136,31 +136,5 @@ describe('decode and parse headers', () => {
       'x-newsletter':
         'https://archives.internationalintrigue.io/p/sudan-ceasefires-collapse-fighting-intensifies',
     })
-  })
-})
-
-describe('plainTextToHtml', () => {
-  it('converts text to html', () => {
-    const text =
-      'DEVOPS WEEKLY\r\n' +
-      'ISSUE #665 - 24th September 2023\r\n' +
-      '\r\n' +
-      'A few posts on CI tooling this week, along with a good introduction to developer portals/platforms and other topics.\r\n' +
-      '\r\n' +
-      'StackHawk sponsors Devops Weekly\r\n' +
-      '============================\r\n' +
-      '\r\n' +
-      'Experience automated security testing without the hassle of connecting your own app or configuring an environment! Follow the Tutorial to try out StackHawk and explore a world where security becomes an accelerator, not a blocker\r\n' +
-      '\r\n' +
-      'https://sthwk.com/tutorial\r\n' +
-      '\r\n'
-    expect(plainTextToHtml(text)).to.eql(
-      `<p>DEVOPS WEEKLY
-ISSUE #665 - 24th September 2023</p>
-<p>A few posts on CI tooling this week, along with a good introduction to developer portals/platforms and other topics.</p>
-<h1 id="stackhawksponsorsdevopsweekly">StackHawk sponsors Devops Weekly</h1>
-<p>Experience automated security testing without the hassle of connecting your own app or configuring an environment! Follow the Tutorial to try out StackHawk and explore a world where security becomes an accelerator, not a blocker</p>
-<p>https://sthwk.com/tutorial</p>`
-    )
   })
 })

@@ -2,5 +2,13 @@
   "extends": "../../.eslintrc",
   "parserOptions": {
     "project": "tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-floating-promises": [
+      "error",
+      {
+        "ignoreIIFE": true
+      }
+    ]
   }
 }

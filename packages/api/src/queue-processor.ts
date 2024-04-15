@@ -36,7 +36,7 @@ import {
 import { refreshAllFeeds } from './jobs/rss/refreshAllFeeds'
 import { refreshFeed } from './jobs/rss/refreshFeed'
 import { savePageJob } from './jobs/save_page'
-import { sendEmailJob, SEND_EMAIL_JOB } from './jobs/send_email'
+import { sendEmailJob, SEND_EMAIL_JOB } from './jobs/email/send_email'
 import {
   syncReadPositionsJob,
   SYNC_READ_POSITIONS_JOB_NAME,
@@ -53,6 +53,16 @@ import { redisDataSource } from './redis_data_source'
 import { CACHED_READING_POSITION_PREFIX } from './services/cached_reading_position'
 import { getJobPriority } from './utils/createTask'
 import { logger } from './utils/logger'
+import {
+  confirmEmailJob,
+  CONFIRM_EMAIL_JOB,
+  forwardEmailJob,
+  FORWARD_EMAIL_JOB,
+  saveAttachmentJob,
+  saveNewsletterJob,
+  SAVE_ATTACHMENT_JOB,
+  SAVE_NEWSLETTER_JOB,
+} from './jobs/email/inbound_emails'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
 export const JOB_VERSION = 'v001'
@@ -160,6 +170,14 @@ export const createWorker = (connection: ConnectionOptions) =>
           return exportAllItems(job.data)
         case SEND_EMAIL_JOB:
           return sendEmailJob(job.data)
+        case CONFIRM_EMAIL_JOB:
+          return confirmEmailJob(job.data)
+        case SAVE_ATTACHMENT_JOB:
+          return saveAttachmentJob(job.data)
+        case SAVE_NEWSLETTER_JOB:
+          return saveNewsletterJob(job.data)
+        case FORWARD_EMAIL_JOB:
+          return forwardEmailJob(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }
@@ -304,8 +322,19 @@ const main = async () => {
 
   const gracefulShutdown = async (signal: string) => {
     console.log(`[queue-processor]: Received ${signal}, closing server...`)
+    await new Promise<void>((resolve) => {
+      server.close((err) => {
+        console.log('[queue-processor]: Express server closed')
+        if (err) {
+          console.log('[queue-processor]: error stopping server', { err })
+        }
+
+        resolve()
+      })
+    })
     await worker.close()
     await redisDataSource.shutdown()
+    await appDataSource.destroy()
     process.exit(0)
   }
 
