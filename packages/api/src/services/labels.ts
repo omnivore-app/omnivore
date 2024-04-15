@@ -2,23 +2,25 @@ import { DeepPartial, FindOptionsWhere, In } from 'typeorm'
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity'
 import { EntityLabel, LabelSource } from '../entity/entity_label'
 import { Label } from '../entity/label'
-import { createPubSubClient, EntityType, PubsubClient } from '../pubsub'
+import {
+  createPubSubClient,
+  EntityEvent,
+  EntityType,
+  PubsubClient,
+} from '../pubsub'
 import { authTrx } from '../repository'
 import { CreateLabelInput, labelRepository } from '../repository/label'
+import { Merge } from '../util'
 import { bulkEnqueueUpdateLabels } from '../utils/createTask'
-import { logger } from '../utils/logger'
-import { findHighlightById } from './highlights'
-import { findLibraryItemIdsByLabelId } from './library_item'
+import { deepDelete } from '../utils/helpers'
+import { findLibraryItemIdsByLabelId, ItemEvent } from './library_item'
 
-type AddLabelsToLibraryItemEvent = {
-  pageId: string
-  labels: DeepPartial<Label>[]
-  source?: LabelSource
-}
-type AddLabelsToHighlightEvent = {
-  highlightId: string
-  labels: DeepPartial<Label>[]
-}
+const columnsToDelete = ['description', 'createdAt'] as const
+type ColumnsToDeleteType = typeof columnsToDelete[number]
+export type LabelEvent = Merge<
+  Omit<DeepPartial<Label>, ColumnsToDeleteType>,
+  EntityEvent
+>
 
 // const batchGetLabelsFromLinkIds = async (
 //   linkIds: readonly string[]
@@ -39,21 +41,18 @@ export const findOrCreateLabels = async (
   labels: CreateLabelInput[],
   userId: string
 ): Promise<Label[]> => {
-  // create labels if not exist
-  await authTrx(
-    async (tx) =>
-      tx.withRepository(labelRepository).createLabels(labels, userId),
-    undefined,
-    userId
-  )
-
-  // find labels
   return authTrx(
-    async (tx) =>
-      tx.withRepository(labelRepository).findByNames(
-        labels.map((l) => l.name),
-        userId
-      ),
+    async (tx) => {
+      const repo = tx.withRepository(labelRepository)
+      // create labels if not exist
+      await repo.createLabels(labels, userId)
+
+      // find labels by names
+      return repo.findBy({
+        name: In(labels.map((l) => l.name)),
+        user: { id: userId },
+      })
+    },
     undefined,
     userId
   )
@@ -144,11 +143,14 @@ export const saveLabelsInLibraryItem = async (
 
   if (source === 'user') {
     // create pubsub event
-    await pubsub.entityCreated<AddLabelsToLibraryItemEvent>(
+    await pubsub.entityCreated<ItemEvent>(
       EntityType.LABEL,
-      { pageId: libraryItemId, labels, source },
-      userId,
-      libraryItemId
+      {
+        id: libraryItemId,
+        labels: labels.map((l) => deepDelete(l, columnsToDelete)),
+        labelNames: labels.map((l) => l.name),
+      },
+      userId
     )
   }
 
@@ -207,23 +209,30 @@ export const saveLabelsInHighlight = async (
     )
   })
 
-  const highlight = await findHighlightById(highlightId, userId)
-  if (!highlight) {
-    logger.error('Highlight not found', { highlightId, userId })
-    return
-  }
+  // const highlight = await findHighlightById(highlightId, userId)
+  // if (!highlight) {
+  //   logger.error('Highlight not found', { highlightId, userId })
+  //   return
+  // }
 
-  const libraryItemId = highlight.libraryItemId
-  // create pubsub event
-  await pubsub.entityCreated<AddLabelsToHighlightEvent>(
-    EntityType.LABEL,
-    { highlightId, labels },
-    userId,
-    libraryItemId
-  )
+  // const libraryItemId = highlight.libraryItemId
+  // // create pubsub event
+  // await pubsub.entityCreated<ItemEvent>(
+  //   EntityType.LABEL,
+  //   {
+  //     id: libraryItemId,
+  //     highlights: [
+  //       {
+  //         id: highlightId,
+  //         labels: labels.map((l) => deepDelete(l, columnToDelete)),
+  //       },
+  //     ],
+  //   },
+  //   userId
+  // )
 
-  // update labels in library item
-  await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
+  // // update labels in library item
+  // await bulkEnqueueUpdateLabels([{ libraryItemId, userId }])
 }
 
 export const findLabelsByIds = async (

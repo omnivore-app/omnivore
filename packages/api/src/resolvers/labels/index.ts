@@ -89,29 +89,29 @@ export const createLabelResolver = authorized<
   CreateLabelSuccess,
   CreateLabelError,
   MutationCreateLabelArgs
->(async (_, { input }, { authTrx, log, uid }) => {
-  try {
-    const label = await authTrx(async (tx) => {
-      return tx.withRepository(labelRepository).createLabel(input, uid)
-    })
-
-    analytics.capture({
-      distinctId: uid,
-      event: 'label_created',
-      properties: {
-        ...input,
-        env: env.server.apiEnv,
-      },
-    })
-
+>(async (_, { input }, { authTrx, uid }) => {
+  const existingLabel = await labelRepository.findByName(input.name)
+  if (existingLabel) {
     return {
-      label,
+      errorCodes: [CreateLabelErrorCode.LabelAlreadyExists],
     }
-  } catch (error) {
-    log.error('createLabelResolver', error)
-    return {
-      errorCodes: [CreateLabelErrorCode.BadRequest],
-    }
+  }
+
+  const label = await authTrx(async (tx) =>
+    tx.withRepository(labelRepository).createLabel(input, uid)
+  )
+
+  analytics.capture({
+    distinctId: uid,
+    event: 'label_created',
+    properties: {
+      ...input,
+      env: env.server.apiEnv,
+    },
+  })
+
+  return {
+    label,
   }
 })
 

@@ -1,10 +1,10 @@
+import mailjet from 'node-mailjet'
 import { env } from '../env'
 import { generateVerificationToken } from '../utils/auth'
+import { enqueueSendEmail } from '../utils/createTask'
 import { logger } from '../utils/logger'
-import { sendEmail } from '../utils/sendEmail'
-import mailjet from 'node-mailjet'
 
-export const sendConfirmationEmail = async (user: {
+export const sendNewAccountVerificationEmail = async (user: {
   id: string
   name: string
   email: string
@@ -14,23 +14,19 @@ export const sendConfirmationEmail = async (user: {
   const link = `${env.client.url}/auth/confirm-email/${token}`
   // send email
   const dynamicTemplateData = {
-    name: user.name,
     link,
   }
 
-  if (process.env.USE_MAILJET) {
-    return sendWithMailJet(user.email, link)
-  }
-
-  return sendEmail({
-    from: env.sender.message,
-    to: user.email,
+  const result = await enqueueSendEmail({
+    emailAddress: user.email,
+    dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.confirmationTemplateId,
-    dynamicTemplateData,
   })
+
+  return !!result
 }
 
-const sendWithMailJet = async (
+export const sendWithMailJet = async (
   email: string,
   link: string
 ): Promise<boolean> => {
@@ -68,7 +64,7 @@ const sendWithMailJet = async (
   return true
 }
 
-export const sendVerificationEmail = async (user: {
+export const sendAccountChangeEmail = async (user: {
   id: string
   name: string
   email: string
@@ -78,16 +74,16 @@ export const sendVerificationEmail = async (user: {
   const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
-    name: user.name,
     link,
   }
 
-  return sendEmail({
-    from: env.sender.message,
-    to: user.email,
+  const result = await enqueueSendEmail({
+    emailAddress: user.email,
+    dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.verificationTemplateId,
-    dynamicTemplateData,
   })
+
+  return !!result
 }
 
 export const sendPasswordResetEmail = async (user: {
@@ -100,14 +96,14 @@ export const sendPasswordResetEmail = async (user: {
   const link = `${env.client.url}/auth/reset-password/${token}`
   // send email
   const dynamicTemplateData = {
-    name: user.name,
     link,
   }
 
-  return sendEmail({
-    from: env.sender.message,
-    to: user.email,
+  const result = await enqueueSendEmail({
+    emailAddress: user.email,
+    dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.resetPasswordTemplateId,
-    dynamicTemplateData,
   })
+
+  return !!result
 }

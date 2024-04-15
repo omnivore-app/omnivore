@@ -35,6 +35,7 @@ import {
   REFRESH_ALL_FEEDS_JOB_NAME,
   REFRESH_FEED_JOB_NAME,
 } from '../jobs/rss/refreshAllFeeds'
+import { SendEmailJobData, SEND_EMAIL_JOB } from '../jobs/send_email'
 import { SYNC_READ_POSITIONS_JOB_NAME } from '../jobs/sync_read_positions'
 import { TriggerRuleJobData, TRIGGER_RULE_JOB_NAME } from '../jobs/trigger_rule'
 import {
@@ -69,6 +70,7 @@ export const getJobPriority = (jobName: string): number => {
     case UPDATE_LABELS_JOB:
     case UPDATE_HIGHLIGHT_JOB:
     case SYNC_READ_POSITIONS_JOB_NAME:
+    case SEND_EMAIL_JOB:
       return 1
     case TRIGGER_RULE_JOB_NAME:
     case CALL_WEBHOOK_JOB_NAME:
@@ -836,6 +838,18 @@ export const enqueueExportItem = async (jobData: ExportItemJobData) => {
       type: 'exponential',
       delay: 10000, // 10 seconds
     },
+  })
+}
+
+export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    return undefined
+  }
+
+  return queue.add(SEND_EMAIL_JOB, jobData, {
+    attempts: 1, // only try once
+    priority: getJobPriority(SEND_EMAIL_JOB),
   })
 }
 

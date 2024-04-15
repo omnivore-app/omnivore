@@ -64,7 +64,9 @@ export const findUsersById = async (ids: string[]): Promise<User[]> => {
   return userRepository.findBy({ id: In(ids) })
 }
 
-export const deleteUsers = async (criteria: FindOptionsWhere<User>) => {
+export const deleteUsers = async (
+  criteria: FindOptionsWhere<User> | string[]
+) => {
   return authTrx(
     async (t) => t.getRepository(User).delete(criteria),
     undefined,

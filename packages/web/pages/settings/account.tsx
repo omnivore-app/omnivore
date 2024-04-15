@@ -6,9 +6,13 @@ import {
   SpanBox,
   VStack,
 } from '../../components/elements/LayoutPrimitives'
+import { ProgressBar } from '../../components/elements/ProgressBar'
 import { StyledText } from '../../components/elements/StyledText'
+import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { styled, theme } from '../../components/tokens/stitches.config'
+import { userHasFeature } from '../../lib/featureFlag'
+import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMutation'
 import { updateEmailMutation } from '../../lib/networking/mutations/updateEmailMutation'
 import { updateUserMutation } from '../../lib/networking/mutations/updateUserMutation'
 import { updateUserProfileMutation } from '../../lib/networking/mutations/updateUserProfileMutation'
@@ -17,9 +21,6 @@ import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuer
 import { useValidateUsernameQuery } from '../../lib/networking/queries/useValidateUsernameQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
-import { ConfirmationModal } from '../../components/patterns/ConfirmationModal'
-import { ProgressBar } from '../../components/elements/ProgressBar'
-import { emptyTrashMutation } from '../../lib/networking/mutations/emptyTrashMutation'
 
 const ACCOUNT_LIMIT = 50_000
 
@@ -441,19 +442,23 @@ export default function Account(): JSX.Element {
             <StyledLabel>Beta features</StyledLabel>
             {!isValidating && (
               <>
-                {viewerData?.me?.features.map((feature) => {
+                {viewerData?.me?.featureList.map((feature) => {
                   return (
                     <StyledText
-                      key={`feature-${feature}`}
+                      key={`feature-${feature.name}`}
                       style="footnote"
                       css={{ display: 'flex', gap: '5px' }}
                     >
                       <input
                         type="checkbox"
-                        checked={true}
+                        checked={userHasFeature(viewerData?.me, feature.name)}
                         disabled={true}
                       ></input>
-                      {feature}
+                      {`${feature.name}${
+                        userHasFeature(viewerData?.me, feature.name)
+                          ? ''
+                          : ' - Requested'
+                      }`}
                     </StyledText>
                   )
                 })}

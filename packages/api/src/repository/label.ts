@@ -82,7 +82,8 @@ export const labelRepository = appDataSource.getRepository(Label).extend({
   },
 
   deleteById(id: string) {
-    return this.delete({ id, internal: false })
+    // internal labels can be deleted but it will be recreated when next feed/newsletter saved
+    return this.delete({ id })
   },
 
   updateLabel(id: string, label: QueryDeepPartialEntity<Label>) {

@@ -12,8 +12,8 @@ chai.use(chaiString)
 describe('Test csv importer', () => {
   let stub: ImportContext
 
-  beforeEach(async () => {
-    stub = await stubImportCtx()
+  beforeEach(() => {
+    stub = stubImportCtx()
   })
 
   afterEach(async () => {

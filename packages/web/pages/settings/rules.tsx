@@ -1,5 +1,4 @@
 import { Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd'
-// import 'antd/dist/antd.dark.css'
 import 'antd/dist/antd.compact.css'
 import { useCallback, useMemo, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
@@ -8,13 +7,14 @@ import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { Label } from '../../lib/networking/fragments/labelFragment'
 import { deleteRuleMutation } from '../../lib/networking/mutations/deleteRuleMutation'
 import { setRuleMutation } from '../../lib/networking/mutations/setRuleMutation'
+import { useGetIntegrationsQuery } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetLabelsQuery } from '../../lib/networking/queries/useGetLabelsQuery'
 import {
   Rule,
   RuleAction,
   RuleActionType,
   RuleEventType,
-  useGetRulesQuery,
+  useGetRulesQuery
 } from '../../lib/networking/queries/useGetRulesQuery'
 import { applyStoredTheme } from '../../lib/themeUpdater'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
@@ -25,12 +25,20 @@ type CreateRuleModalProps = {
   revalidate: () => void
 }
 
+const eventTypeObj = {
+  PAGE_CREATED: 'PAGE_CREATED',
+  PAGE_UPDATED: 'PAGE_UPDATED',
+  HIGHLIGHT_CREATED: 'HIGHLIGHT_CREATED',
+  HIGHLIGHT_UPDATED: 'HIGHLIGHT_UPDATED',
+  LABEL_CREATED: 'LABEL_ATTACHED',
+}
+
 const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
   const [form] = Form.useForm()
 
   const onOk = async (values: any) => {
     const name = form.getFieldValue('name')
-    const filter = form.getFieldValue('filter')
+    const filter = form.getFieldValue('filter') || 'in:all' // default to all
     const eventTypes = form.getFieldValue('eventTypes')
     try {
       await setRuleMutation({
@@ -81,11 +89,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label="Filter"
-          name="filter"
-          rules={[{ required: true, message: 'Please enter the rule filter' }]}
-        >
+        <Form.Item label="Filter" name="filter">
           <Input />
         </Form.Item>
 
@@ -108,7 +112,7 @@ const CreateRuleModal = (props: CreateRuleModalProps): JSX.Element => {
               const value = Object.values(RuleEventType)[index]
               return (
                 <Select.Option key={key} value={value}>
-                  {key}
+                  {eventTypeObj[value]}
                 </Select.Option>
               )
             })}
@@ -128,12 +132,34 @@ type CreateActionModalProps = {
 const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
   const [form] = Form.useForm()
   const { labels } = useGetLabelsQuery()
+  const { integrations } = useGetIntegrationsQuery()
+
+  const integrationOptions = ['NOTION', 'READWISE']
+
+  const isIntegrationEnabled = (integration: string): boolean => {
+    return integrations.some(
+      (i) => i.name.toUpperCase() === integration.toUpperCase()
+    )
+  }
 
   const onOk = async (values: any) => {
     const actionType = form.getFieldValue('actionType') as RuleActionType
-    const params =
-      actionType == RuleActionType.AddLabel ? form.getFieldValue('labels') : []
+    let params = []
+    if (actionType == RuleActionType.AddLabel) {
+      params = form.getFieldValue('labels')
+    } else if (actionType == RuleActionType.Webhook) {
+      params = [form.getFieldValue('url')]
+    } else if (actionType == RuleActionType.Export) {
+      params = form.getFieldValue('integrations')
+    }
+
     if (props.rule) {
+      // prevent adding duplicate actions
+      if (props.rule.actions.some((a) => a.type === actionType)) {
+        showErrorToast('Action already exists in the rule.')
+        return
+      }
+
       await setRuleMutation({
         id: props.rule.id,
         name: props.rule.name,
@@ -155,8 +181,9 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
     }
   }
 
-  const [actionType, setActionType] =
-    useState<RuleActionType | undefined>(undefined)
+  const [actionType, setActionType] = useState<RuleActionType | undefined>(
+    undefined
+  )
 
   return (
     <Modal
@@ -215,6 +242,59 @@ const CreateActionModal = (props: CreateActionModalProps): JSX.Element => {
             </Select>
           </Form.Item>
         )}
+
+        {actionType == RuleActionType.Webhook && (
+          <Form.Item
+            label="URL"
+            name="url"
+            rules={[
+              { required: true, message: 'Please key in your webhook url' },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        )}
+
+        {actionType == RuleActionType.Export && (
+          <Form.Item
+            label="Integrations"
+            name="integrations"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: 'Please choose at least one integration',
+              },
+              {
+                validator: (_, value: string[]) => {
+                  value.forEach((v) => {
+                    if (!isIntegrationEnabled(v)) {
+                      return Promise.reject(`Integration ${v} is not enabled`)
+                    }
+                  })
+
+                  return Promise.resolve()
+                },
+              },
+            ]}
+          >
+            <Select mode="multiple">
+              {integrationOptions.map((integration) => {
+                return (
+                  <Select.Option key={integration} value={integration}>
+                    {isIntegrationEnabled(integration) ? (
+                      integration
+                    ) : (
+                      <Button type="link" href="/settings/integrations">
+                        Connect to {integration}
+                      </Button>
+                    )}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </Form.Item>
+        )}
       </Form>
     </Modal>
   )
@@ -224,8 +304,9 @@ export default function Rules(): JSX.Element {
   const { rules, revalidate } = useGetRulesQuery()
   const { labels } = useGetLabelsQuery()
   const [isCreateRuleModalOpen, setIsCreateRuleModalOpen] = useState(false)
-  const [createActionRule, setCreateActionRule] =
-    useState<Rule | undefined>(undefined)
+  const [createActionRule, setCreateActionRule] = useState<Rule | undefined>(
+    undefined
+  )
 
   const dataSource = useMemo(() => {
     return rules.map((rule: Rule) => {
@@ -267,7 +348,7 @@ export default function Rules(): JSX.Element {
           })?.name ?? 'unknown'
         )
       }
-      return ''
+      return param
     },
     [labels]
   )
@@ -290,7 +371,7 @@ export default function Rules(): JSX.Element {
           {row.eventTypes.map((eventType: RuleEventType, index: number) => {
             return (
               <Tag color={'geekblue'} key={index}>
-                {eventType}
+                {eventTypeObj[eventType]}
               </Tag>
             )
           })}
@@ -304,7 +385,7 @@ export default function Rules(): JSX.Element {
           {row.actions.map((action: RuleAction, index: number) => {
             const color = action.type.length > 5 ? 'geekblue' : 'green'
             return (
-              <Tag color={color} key={index}>
+              <Tag color={color} key={index} style={{ whiteSpace: 'unset' }}>
                 {action.type}(
                 {action.params.map((param: string, index: number) => {
                   const paramString = stringForActionParam(action.type, param)

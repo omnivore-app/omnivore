@@ -32,16 +32,22 @@ import com.apollographql.apollo3.api.Optional
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val networker: Networker,
@@ -52,7 +58,6 @@ class LibraryViewModel @Inject constructor(
 ) : ViewModel(), SavedItemViewModel {
 
     private val contentRequestChannel = Channel<String>(capacity = Channel.UNLIMITED)
-    private var cursor: String? = null
     private var librarySearchCursor: String? = null
 
     var snackbarMessage by mutableStateOf<String?>(null)
@@ -68,8 +73,7 @@ class LibraryViewModel @Inject constructor(
         )
     )
 
-    // Correct way - but not working
-/*    val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
+    val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
         libraryRepository.getSavedItems(query)
     }
         .map(LibraryUiState::Success)
@@ -77,24 +81,8 @@ class LibraryViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.Lazily,
             initialValue = LibraryUiState.Loading
-        )*/
+        )
 
-    // This approach needs to be replaced with the StateFlow above after fixing Room Flow
-    private val _uiState = MutableStateFlow<LibraryUiState>(LibraryUiState.Loading)
-    val uiState: StateFlow<LibraryUiState> = _uiState
-
-    init {
-        loadSavedItems()
-    }
-
-    private fun loadSavedItems() {
-        viewModelScope.launch {
-            libraryRepository.getSavedItems(_libraryQuery.value)
-                .collect { favoriteNews ->
-                    _uiState.value = LibraryUiState.Success(favoriteNews)
-                }
-        }
-    }
 
     val appliedFilterLiveData = MutableLiveData(SavedItemFilter.INBOX)
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
@@ -136,7 +124,6 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun refresh() {
-        cursor = null
         librarySearchCursor = null
         isRefreshing = true
         load()
@@ -155,7 +142,6 @@ class LibraryViewModel @Inject constructor(
     fun initialLoad() {
         if (getLastSyncTime() == null) {
             hasLoadedInitialFilters = false
-            cursor = null
             librarySearchCursor = null
         }
 
@@ -268,7 +254,6 @@ class LibraryViewModel @Inject constructor(
                 excludedLabels = excludeLabels,
                 allowedContentReaders = allowedContentReaders
             )
-            loadSavedItems()
         }
     }
 
@@ -348,17 +333,13 @@ class LibraryViewModel @Inject constructor(
 
             SavedItemAction.MarkRead -> {
                 viewModelScope.launch {
-                    _uiState.value = LibraryUiState.Success(emptyList())
                     libraryRepository.updateReadingProgress(itemID, 100.0, 0)
-                    loadSavedItems()
                 }
             }
 
             SavedItemAction.MarkUnread -> {
                 viewModelScope.launch {
-                    _uiState.value = LibraryUiState.Success(emptyList())
                     libraryRepository.updateReadingProgress(itemID, 0.0, 0)
-                    loadSavedItems()
                 }
             }
         }

@@ -1,12 +1,12 @@
 import { Client } from '@notionhq/client'
 import axios from 'axios'
-import { updateIntegration } from '.'
+import { HighlightType } from '../../entity/highlight'
 import { Integration } from '../../entity/integration'
-import { LibraryItem } from '../../entity/library_item'
 import { env } from '../../env'
 import { Merge } from '../../util'
 import { logger } from '../../utils/logger'
 import { getHighlightUrl } from '../highlights'
+import { getItemUrl, ItemEvent } from '../library_item'
 import { IntegrationClient } from './integration'
 
 type AnnotationColor =
@@ -45,7 +45,7 @@ interface NotionPage {
     }
   }
   properties: {
-    Title: {
+    Title?: {
       title: [
         {
           text: {
@@ -54,25 +54,25 @@ interface NotionPage {
         }
       ]
     }
-    Author: {
+    Author?: {
       rich_text: Array<{
         text: {
           content: string
         }
       }>
     }
-    'Original URL': {
+    'Original URL'?: {
       url: string
     }
     'Omnivore URL': {
       url: string
     }
-    'Saved At': {
+    'Saved At'?: {
       date: {
         start: string
       }
     }
-    'Last Updated': {
+    'Last Updated'?: {
       date: {
         start: string
       }
@@ -111,7 +111,7 @@ type Property = 'highlights'
 interface Settings {
   parentPageId: string
   parentDatabaseId: string
-  properties: Property[]
+  properties?: Property[]
 }
 
 export class NotionClient implements IntegrationClient {
@@ -178,7 +178,7 @@ export class NotionClient implements IntegrationClient {
   }
 
   private itemToNotionPage = (
-    item: LibraryItem,
+    item: ItemEvent,
     settings: Settings,
     lastSync?: Date | null
   ): NotionPage => {
@@ -201,88 +201,103 @@ export class NotionClient implements IntegrationClient {
           }
         : undefined,
       properties: {
-        Title: {
-          title: [
-            {
-              text: {
-                content: item.title,
-              },
-            },
-          ],
-        },
-        Author: {
-          rich_text: [
-            {
-              text: {
-                content: item.author || 'unknown',
-              },
-            },
-          ],
-        },
-        'Original URL': {
-          url: item.originalUrl,
-        },
+        Title: item.title
+          ? {
+              title: [
+                {
+                  text: {
+                    content: item.title,
+                  },
+                },
+              ],
+            }
+          : undefined,
+        Author: item.author
+          ? {
+              rich_text: [
+                {
+                  text: {
+                    content: item.author,
+                  },
+                },
+              ],
+            }
+          : undefined,
+        'Original URL': item.originalUrl
+          ? {
+              url: item.originalUrl,
+            }
+          : undefined,
         'Omnivore URL': {
-          url: `${env.client.url}/me/${item.slug}`,
+          url: getItemUrl(item.id),
         },
-        'Saved At': {
-          date: {
-            start: item.createdAt.toISOString(),
-          },
-        },
-        'Last Updated': {
-          date: {
-            start: item.updatedAt.toISOString(),
-          },
-        },
+        'Saved At': item.savedAt
+          ? {
+              date: {
+                start: item.savedAt as string,
+              },
+            }
+          : undefined,
+        'Last Updated': item.updatedAt
+          ? {
+              date: {
+                start: item.updatedAt as string,
+              },
+            }
+          : undefined,
         Tags: item.labels
           ? {
               multi_select: item.labels.map((label) => ({
-                name: label.name,
+                name: label.name as string,
               })),
             }
           : undefined,
       },
-      children:
-        settings.properties.includes('highlights') && item.highlights
-          ? item.highlights
-              .filter(
-                (highlight) => !lastSync || highlight.updatedAt > lastSync // only new highlights
-              )
-              .map((highlight) => ({
-                paragraph: {
-                  rich_text: [
-                    {
-                      text: {
-                        content: highlight.quote || '',
-                        link: {
-                          url: getHighlightUrl(item.slug, highlight.id),
-                        },
-                      },
-                      annotations: {
-                        code: true,
-                        color: highlight.color as AnnotationColor,
+      children: item.highlights
+        ? item.highlights
+            .filter(
+              (highlight) =>
+                highlight.highlightType === HighlightType.Highlight &&
+                (!lastSync ||
+                  new Date(highlight.updatedAt as string) > lastSync) // only new highlights
+            )
+            .map((highlight) => ({
+              paragraph: {
+                rich_text: [
+                  {
+                    text: {
+                      content: highlight.quote || '',
+                      link: {
+                        url: getHighlightUrl(
+                          item.slug || item.id,
+                          highlight.id
+                        ),
                       },
                     },
-                  ],
-                  children: highlight.annotation
-                    ? [
-                        {
-                          paragraph: {
-                            rich_text: [
-                              {
-                                text: {
-                                  content: highlight.annotation || '',
-                                },
+                    annotations: {
+                      code: true,
+                      color: highlight.color as AnnotationColor,
+                    },
+                  },
+                ],
+                children: highlight.annotation
+                  ? [
+                      {
+                        paragraph: {
+                          rich_text: [
+                            {
+                              text: {
+                                content: highlight.annotation || '',
                               },
-                            ],
-                          },
+                            },
+                          ],
                         },
-                      ]
-                    : undefined,
-                },
-              }))
-          : undefined,
+                      },
+                    ]
+                  : undefined,
+              },
+            }))
+        : undefined,
     }
   }
 
@@ -308,110 +323,99 @@ export class NotionClient implements IntegrationClient {
     return null
   }
 
-  export = async (items: LibraryItem[]): Promise<boolean> => {
+  export = async (items: ItemEvent[]): Promise<boolean> => {
     const settings = this.integrationData?.settings
     if (!this.integrationData || !settings) {
       logger.error('Notion integration data not found')
       return false
     }
 
-    const pageId = settings.parentPageId
-    if (!pageId) {
-      logger.error('Notion parent page id not found')
-      return false
-    }
-
-    let databaseId = settings.parentDatabaseId
+    const databaseId = settings.parentDatabaseId
     if (!databaseId) {
-      // create a database for the items
-      const database = await this.client.databases.create({
-        parent: {
-          page_id: pageId,
-        },
-        title: [
-          {
-            text: {
-              content: 'Library',
-            },
-          },
-        ],
-        description: [
-          {
-            text: {
-              content: 'Library of saved items from Omnivore',
-            },
-          },
-        ],
-        properties: {
-          Title: {
-            title: {},
-          },
-          Author: {
-            rich_text: {},
-          },
-          'Original URL': {
-            url: {},
-          },
-          'Omnivore URL': {
-            url: {},
-          },
-          'Saved At': {
-            date: {},
-          },
-          'Last Updated': {
-            date: {},
-          },
-          Tags: {
-            multi_select: {},
-          },
-        },
-      })
-
-      // save the database id
-      databaseId = database.id
-      settings.parentDatabaseId = databaseId
-      await updateIntegration(
-        this.integrationData.id,
-        {
-          settings,
-        },
-        this.integrationData.user.id
-      )
+      logger.error('Notion database id not found')
+      return false
     }
 
     await Promise.all(
       items.map(async (item) => {
-        const notionPage = this.itemToNotionPage(
-          item,
-          settings,
-          this.integrationData?.syncedAt
-        )
-        const url = notionPage.properties['Omnivore URL'].url
+        try {
+          const notionPage = this.itemToNotionPage(
+            item,
+            settings,
+            this.integrationData?.syncedAt
+          )
+          const url = notionPage.properties['Omnivore URL'].url
 
-        const existingPage = await this.findPage(url, databaseId)
-        if (existingPage) {
-          // update the page
-          await this.client.pages.update({
-            page_id: existingPage.id,
-            properties: notionPage.properties,
-          })
-
-          // append the children incrementally
-          if (notionPage.children && notionPage.children.length > 0) {
-            await this.client.blocks.children.append({
-              block_id: existingPage.id,
-              children: notionPage.children,
+          const existingPage = await this.findPage(url, databaseId)
+          if (existingPage) {
+            // update the page
+            await this.client.pages.update({
+              page_id: existingPage.id,
+              properties: notionPage.properties,
             })
+
+            // append the children incrementally
+            if (notionPage.children && notionPage.children.length > 0) {
+              await this.client.blocks.children.append({
+                block_id: existingPage.id,
+                children: notionPage.children,
+              })
+            }
+
+            return
           }
 
-          return
+          // create the page
+          return await this.createPage(notionPage)
+        } catch (error) {
+          logger.error(error)
+          return false
         }
-
-        // create the page
-        return this.createPage(notionPage)
       })
     )
 
     return true
+  }
+
+  private findDatabase = async (databaseId: string) => {
+    return this.client.databases.retrieve({
+      database_id: databaseId,
+    })
+  }
+
+  updateDatabase = async (databaseId: string) => {
+    const database = await this.findDatabase(databaseId)
+    // find the title property and update it
+    const titleProperty = Object.entries(database.properties).find(
+      ([, property]) => property.type === 'title'
+    )
+    const title = titleProperty ? titleProperty[0] : 'Name'
+
+    await this.client.databases.update({
+      database_id: database.id,
+      properties: {
+        [title]: {
+          name: 'Title',
+        },
+        Author: {
+          rich_text: {},
+        },
+        'Original URL': {
+          url: {},
+        },
+        'Omnivore URL': {
+          url: {},
+        },
+        'Saved At': {
+          date: {},
+        },
+        'Last Updated': {
+          date: {},
+        },
+        Tags: {
+          multi_select: {},
+        },
+      },
+    })
   }
 }

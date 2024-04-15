@@ -49,7 +49,7 @@ export const updateSubscription = async (
     lastFetchedChecksum: newData.lastFetchedChecksum || undefined,
     status: newData.status || undefined,
     scheduledAt: newData.scheduledAt || undefined,
-    failedAt: newData.failedAt || undefined,
+    failedAt: newData.failedAt,
     autoAddToLibrary: newData.autoAddToLibrary ?? undefined,
     isPrivate: newData.isPrivate ?? undefined,
     fetchContentType: newData.fetchContentType || undefined,

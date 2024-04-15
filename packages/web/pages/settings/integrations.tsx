@@ -1,19 +1,19 @@
 import { styled } from '@stitches/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import { DownloadSimple, Eye, Link, Spinner } from 'phosphor-react'
-import { useEffect, useMemo, useState } from 'react'
+import { DownloadSimple, Link, Spinner } from 'phosphor-react'
+import { useCallback, useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Button } from '../../components/elements/Button'
 import {
   Dropdown,
-  DropdownOption,
+  DropdownOption
 } from '../../components/elements/DropdownElements'
 import {
   Box,
   HStack,
   SpanBox,
-  VStack,
+  VStack
 } from '../../components/elements/LayoutPrimitives'
 import { SettingsLayout } from '../../components/templates/SettingsLayout'
 import { fetchEndpoint } from '../../lib/appConfig'
@@ -22,14 +22,13 @@ import { deleteIntegrationMutation } from '../../lib/networking/mutations/delete
 import { importFromIntegrationMutation } from '../../lib/networking/mutations/importFromIntegrationMutation'
 import {
   ImportItemState,
-  setIntegrationMutation,
+  setIntegrationMutation
 } from '../../lib/networking/mutations/setIntegrationMutation'
 import {
   Integration,
-  useGetIntegrationsQuery,
+  useGetIntegrationsQuery
 } from '../../lib/networking/queries/useGetIntegrationsQuery'
 import { useGetViewerQuery } from '../../lib/networking/queries/useGetViewerQuery'
-import { useGetWebhooksQuery } from '../../lib/networking/queries/useGetWebhooksQuery'
 import { showErrorToast, showSuccessToast } from '../../lib/toastHelpers'
 // Styles
 const Header = styled(Box, {
@@ -77,25 +76,23 @@ type integrationsCard = {
 export default function Integrations(): JSX.Element {
   const { viewerData } = useGetViewerQuery()
 
+
   const { integrations, revalidate } = useGetIntegrationsQuery()
-  const { webhooks } = useGetWebhooksQuery()
+  // const { webhooks } = useGetWebhooksQuery()
 
   const [integrationsArray, setIntegrationsArray] = useState(
     Array<integrationsCard>()
   )
   const router = useRouter()
 
-  const readwiseConnected = useMemo(() => {
-    return integrations.find((i) => i.name == 'READWISE' && i.type == 'EXPORT')
-  }, [integrations])
-  const pocketConnected = useMemo(() => {
-    return integrations.find((i) => i.name == 'POCKET' && i.type == 'IMPORT')
-  }, [integrations])
-  const isConnected = (name: string) => {
-    return integrations.find((i) => i.name == name)?.enabled
-  }
+  const getIntegration = useCallback(
+    (name: string) => {
+      return integrations.find((i) => i.name === name)
+    },
+    [integrations]
+  )
 
-  const deleteIntegration = async (id: string) => {
+  const deleteIntegration = useCallback(async (id: string) => {
     try {
       await deleteIntegrationMutation(id)
       revalidate()
@@ -103,7 +100,7 @@ export default function Integrations(): JSX.Element {
     } catch (err) {
       showErrorToast('Error: ' + err)
     }
-  }
+  }, [])
 
   const importFromIntegration = async (id: string) => {
     try {
@@ -115,7 +112,7 @@ export default function Integrations(): JSX.Element {
     }
   }
 
-  const redirectToIntegration = (
+  const redirectToIntegration = useCallback((
     name: string,
     importItemState?: ImportItemState
   ) => {
@@ -133,18 +130,20 @@ export default function Integrations(): JSX.Element {
     document.body.appendChild(form)
 
     form.submit()
-  }
+  }, [])
 
   const isImporting = (integration: Integration | undefined) => {
     return !!integration && !!integration.taskName
   }
 
   useEffect(() => {
-    const connectToPocket = async () => {
+    const connectToPocket = async (
+      token: string,
+      importItemState: ImportItemState
+    ) => {
+      router.push('/settings/integrations')
+
       try {
-        // get the token from query string
-        const token = router.query.pocketToken as string
-        const importItemState = router.query.state as ImportItemState
         const result = await setIntegrationMutation({
           token,
           name: 'POCKET',
@@ -152,33 +151,29 @@ export default function Integrations(): JSX.Element {
           enabled: true,
           importItemState,
         })
-        if (result) {
-          revalidate()
-          showSuccessToast('Connected with Pocket.')
-          // start the import
-          await importFromIntegration(result.id)
-        } else {
-          showErrorToast('There was an error connecting to Pocket.')
-        }
+
+        revalidate()
+        showSuccessToast('Connected with Pocket.')
+
+        // start the import
+        await importFromIntegration(result.id)
       } catch (err) {
         showErrorToast(
           'There was an error connecting to Pocket. Please try again.',
           { duration: 5000 }
         )
-      } finally {
-        router.push('/settings/integrations')
       }
     }
 
-    const connectWithNotion = async () => {
+    const connectWithNotion = async (code: string) => {
+      router.push('/settings/integrations')
+
       try {
-        // get the token from query string
-        const token = router.query.code as string
         await setIntegrationMutation({
-          token,
+          token: code,
           name: 'NOTION',
           type: 'EXPORT',
-          enabled: false,
+          enabled: true,
         })
 
         showSuccessToast('Connected with Notion.')
@@ -189,21 +184,36 @@ export default function Integrations(): JSX.Element {
           'There was an error connecting to Notion. Please try again.',
           { duration: 5000 }
         )
-
-        router.push('/settings/integrations')
       }
     }
 
     if (!router.isReady) return
-    if (router.query.pocketToken && router.query.state && !pocketConnected) {
-      connectToPocket()
+
+    if (
+      router.query.pocketToken &&
+      router.query.state &&
+      !getIntegration('POCKET')
+    ) {
+      // get the token from query string
+      const { pocketToken, state } = router.query as {
+        pocketToken: string
+        state: ImportItemState
+      }
+      connectToPocket(pocketToken, state)
     }
-    if (router.query.code) {
-      connectWithNotion()
+
+    if (router.query.code && !getIntegration('NOTION')) {
+      // get the code from query string
+      const code = router.query.code as string
+      connectWithNotion(code)
     }
-  }, [router])
+  }, [getIntegration, router])
 
   useEffect(() => {
+    const pocket = getIntegration('POCKET')
+    const readwise = getIntegration('READWISE')
+    const notion = getIntegration('NOTION')
+
     const integrationsArray = [
       {
         icon: '/static/icons/logseq.svg',
@@ -239,59 +249,60 @@ export default function Integrations(): JSX.Element {
         subText:
           'Pocket is a place to save articles, videos, and more. Our Pocket integration allows importing your Pocket library to Omnivore. Once connected we will asyncronously import all your Pocket articles into Omnivore, as this process is resource intensive it can take some time. You will receive an email when the process is completed. Limit 20k articles per import.',
         button: {
-          text: pocketConnected ? 'Disconnect' : 'Import',
-          icon: isImporting(pocketConnected) ? (
+          text: pocket ? 'Disconnect' : 'Import',
+          icon: isImporting(pocket) ? (
             <Spinner size={16} />
           ) : (
             <Link size={16} weight={'bold'} />
           ),
-          style: pocketConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          style: pocket ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            pocketConnected
-              ? deleteIntegration(pocketConnected.id)
-              : redirectToIntegration('pocket', ImportItemState.Unarchived)
+            pocket
+              ? deleteIntegration(pocket.id)
+              : redirectToIntegration('POCKET', ImportItemState.Unarchived)
           },
-          disabled: isImporting(pocketConnected),
-          isDropdown: !pocketConnected,
+          disabled: isImporting(pocket),
+          isDropdown: !pocket,
           dropdownOptions: [
             {
               text: 'Import All',
               action: () => {
-                redirectToIntegration('pocket', ImportItemState.All)
+                redirectToIntegration('POCKET', ImportItemState.All)
               },
             },
             {
               text: 'Import Unarchived',
               action: () => {
-                redirectToIntegration('pocket', ImportItemState.Unarchived)
+                redirectToIntegration('POCKET', ImportItemState.Unarchived)
               },
             },
           ],
         },
       },
-      {
-        icon: '/static/icons/webhooks.svg',
-        title: 'Webhooks',
-        subText: `${webhooks.length} Webhooks`,
-        button: {
-          text: 'View Webhooks',
-          icon: <Eye size={16} weight={'bold'} />,
-          style: 'ctaWhite',
-          action: () => router.push('/settings/webhooks'),
-        },
-      },
+
+      // {
+      //   icon: '/static/icons/webhooks.svg',
+      //   title: 'Webhooks',
+      //   subText: `${webhooks.length} Webhooks`,
+      //   button: {
+      //     text: 'View Webhooks',
+      //     icon: <Eye size={16} weight={'bold'} />,
+      //     style: 'ctaWhite',
+      //     action: () => router.push('/settings/webhooks'),
+      //   },
+      // },
       {
         icon: '/static/icons/readwise.svg',
         title: 'Readwise',
         subText:
           'Readwise makes it easy to revisit and learn from your ebook & article highlights. Use our Readwise integration to sync your highlights from Omnivore to Readwise.',
         button: {
-          text: readwiseConnected ? 'Remove' : 'Connect to Readwise',
+          text: readwise ? 'Remove' : 'Connect to Readwise',
           icon: <Link size={16} weight={'bold'} />,
-          style: readwiseConnected ? 'ctaWhite' : 'ctaDarkYellow',
+          style: readwise ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            readwiseConnected
-              ? deleteIntegration(readwiseConnected.id)
+            readwise
+              ? deleteIntegration(readwise.id)
               : router.push('/settings/integrations/readwise')
           },
         },
@@ -305,11 +316,11 @@ export default function Integrations(): JSX.Element {
         subText:
           'Notion is an all-in-one workspace. Use our Notion integration to sync your Omnivore items to Notion.',
         button: {
-          text: isConnected('NOTION') ? 'Settings' : 'Connect',
+          text: notion ? 'Settings' : 'Connect',
           icon: <Link size={16} weight={'bold'} />,
-          style: isConnected('NOTION') ? 'ctaWhite' : 'ctaDarkYellow',
+          style: notion ? 'ctaWhite' : 'ctaDarkYellow',
           action: () => {
-            isConnected('NOTION')
+            notion
               ? router.push('/settings/integrations/notion')
               : redirectToIntegration('NOTION')
           },
@@ -317,7 +328,7 @@ export default function Integrations(): JSX.Element {
       })
 
     setIntegrationsArray(integrationsArray)
-  }, [pocketConnected, readwiseConnected, webhooks, integrations])
+  }, [getIntegration, router])
 
   return (
     <SettingsLayout>
