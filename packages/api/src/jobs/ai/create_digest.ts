@@ -318,9 +318,12 @@ const generateSpeechFiles = (rankedItems: RankedItem[]): SpeechFile[] => {
   })
 
   const speechFiles = rankedItems.map((item) => {
-    const html = `<div id="readability-page-1">${converter.makeHtml(
-      item.summary
-    )}</div>`
+    const html = `
+    <div id="readability-content">
+      <div id="readability-page-1">
+        ${converter.makeHtml(item.summary)}
+      </div>
+    </div>`
     return htmlToSpeechFile({
       content: html,
       options: {},
