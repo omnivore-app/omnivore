@@ -373,6 +373,17 @@ export const functionResolvers = {
       }
       return undefined
     },
+    async features(
+      _: User,
+      __: Record<string, unknown>,
+      ctx: WithDataSourcesContext
+    ) {
+      if (!ctx.claims?.uid) {
+        return undefined
+      }
+
+      return []
+    },
     async featureList(
       _: User,
       __: Record<string, unknown>,
