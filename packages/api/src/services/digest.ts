@@ -39,28 +39,30 @@ export const getDigest = async (userId: string): Promise<Digest | null> => {
       content: 'content',
       urlsToAudio: [],
       jobState: 'completed',
-      speechFile: {
-        pageId: '1234',
-        wordCount: 2124,
-        language: 'en-US',
-        defaultVoice: 'en-US-ChristopherNeural',
-        utterances: [
-          {
-            idx: '',
-            text: 'TOP prospect JOINS Canucks - Team SPEAKS OUT on Demko Injury | Canucks News',
-            wordOffset: 0,
-            wordCount: 14,
-            voice: 'en-US-ChristopherNeural',
-          },
-          {
-            idx: '4',
-            text: 'Intro',
-            wordOffset: 14,
-            wordCount: 1,
-            voice: 'en-US-ChristopherNeural',
-          },
-        ],
-      },
+      speechFiles: [
+        {
+          pageId: '1234',
+          wordCount: 2124,
+          language: 'en-US',
+          defaultVoice: 'en-US-ChristopherNeural',
+          utterances: [
+            {
+              idx: '',
+              text: 'TOP prospect JOINS Canucks - Team SPEAKS OUT on Demko Injury | Canucks News',
+              wordOffset: 0,
+              wordCount: 14,
+              voice: 'en-US-ChristopherNeural',
+            },
+            {
+              idx: '4',
+              text: 'Intro',
+              wordOffset: 14,
+              wordCount: 1,
+              voice: 'en-US-ChristopherNeural',
+            },
+          ],
+        },
+      ],
     })
   )
 
