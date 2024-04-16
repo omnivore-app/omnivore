@@ -133,7 +133,7 @@ struct WebReaderContainerView: View {
 
   #if os(iOS)
     var audioNavbarItem: some View {
-      if !audioController.playbackError, audioController.isLoadingItem(itemID: item.unwrappedID) {
+      if audioController.isLoadingItem(audioController.itemAudioProperties) {
         return AnyView(ProgressView()
           .padding(.horizontal))
       } else {
@@ -500,20 +500,6 @@ struct WebReaderContainerView: View {
           .formSheet(isPresented: $showOpenArchiveSheet) {
             OpenArchiveTodayView(item: item)
           }
-          .formSheet(isPresented: $showExplainSheet) {
-            ExplainView(
-              viewModel: ExplainViewModel(
-                dataService: dataService,
-                item: self.item,
-                promptName: "explain-text-001",
-                extraText: viewModel.explainText
-              ),
-              dismissAction: {
-                viewModel.explainText = nil
-                showExplainSheet = false
-              }
-            )
-          }
         #endif
         .sheet(isPresented: $showHighlightAnnotationModal) {
           NavigationView {
@@ -629,8 +615,8 @@ struct WebReaderContainerView: View {
             .offset(y: navBarVisible ? 0 : -150)
 
           Spacer()
-          if let audioProperties = audioController.itemAudioProperties {
-            MiniPlayerViewer(itemAudioProperties: audioProperties)
+          if audioController.itemAudioProperties != nil {
+            MiniPlayerViewer()
               .padding(.top, 10)
               .padding(.bottom, showBottomBar ? 10 : 40)
               .background(Color.themeTabBarColor)

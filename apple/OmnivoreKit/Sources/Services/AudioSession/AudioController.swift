@@ -33,7 +33,7 @@
     @Published public var currentAudioIndex: Int = 0
     @Published public var readText: String = ""
     @Published public var unreadText: String = ""
-    @Published public var itemAudioProperties: LinkedItemAudioProperties?
+    @Published public var itemAudioProperties: AudioItemProperties?
 
     @Published public var timeElapsed: TimeInterval = 0
     @Published public var duration: TimeInterval = 0
@@ -72,7 +72,7 @@
       observer = nil
     }
 
-    public func play(itemAudioProperties: LinkedItemAudioProperties) {
+    public func play(itemAudioProperties: AudioItemProperties) {
       stop()
 
       playbackError = false
@@ -539,11 +539,14 @@
       state == .playing
     }
 
-    public func isLoadingItem(itemID: String) -> Bool {
+    public func isLoadingItem(_ audioItem: AudioItemProperties?) -> Bool {
       if state == .reachedEnd {
         return false
       }
-      return itemAudioProperties?.itemID == itemID && isLoading
+      if audioItem?.itemID == nil {
+        return false
+      }
+      return itemAudioProperties?.itemID == audioItem?.itemID && isLoading
     }
 
     public func isPlayingItem(itemID: String) -> Bool {
@@ -860,8 +863,19 @@
       }
       return ""
     }
-
+    
     func downloadSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
+      switch(self.itemAudioProperties?.audioItemType) {
+      case .digest:
+        return try await downloadDigestItemSpeechFile(itemID: itemID, priority: priority)
+      case .libraryItem:
+        return try await downloadLibraryItemSpeechFile(itemID: itemID, priority: priority)
+      case .none:
+        return nil
+      }
+    }
+
+    func downloadLibraryItemSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
       let decoder = JSONDecoder()
       let speechFileUrl = pathForSpeechFile(itemID: itemID)
 
@@ -905,6 +919,60 @@
         } catch {
           print("error writing file", error)
         }
+      }
+
+      return nil
+    }
+
+    func downloadDigestItemSpeechFile(itemID: String, priority: DownloadPriority) async throws -> SpeechDocument? {
+      let decoder = JSONDecoder()
+      let speechFileUrl = URL.om_documentsDirectory.appendingPathComponent("digest").appendingPathComponent("speech-\(currentVoice).json")
+
+      if FileManager.default.fileExists(atPath: speechFileUrl.path) {
+        let data = try Data(contentsOf: speechFileUrl)
+        document = try decoder.decode(SpeechDocument.self, from: data)
+        // If we can't load it from disk we make the API call
+        if let document = document {
+          return document
+        }
+      }
+
+      let path = "/api/digest/v1/"
+      guard let url = URL(string: path, relativeTo: dataService.appEnvironment.serverBaseURL) else {
+        throw BasicError.message(messageText: "Invalid audio URL")
+      }
+
+      var request = URLRequest(url: url)
+      request.httpMethod = "GET"
+      for (header, value) in dataService.networker.defaultHeaders {
+        request.setValue(value, forHTTPHeaderField: header)
+      }
+
+      let result: (Data, URLResponse)? = try? await URLSession.shared.data(for: request)
+      guard let httpResponse = result?.1 as? HTTPURLResponse, 200 ..< 300 ~= httpResponse.statusCode else {
+        throw BasicError.message(messageText: "audioFetch failed. no response or bad status code.")
+      }
+
+      guard let data = result?.0 else {
+        throw BasicError.message(messageText: "audioFetch failed. no data received.")
+      }
+
+      let str = String(decoding: data, as: UTF8.self)
+      print("result digest file: ", str)
+
+      do {
+        let digest = try JSONDecoder().decode(DigestResult.self, from: data)
+        let directory = URL.om_documentsDirectory.appendingPathComponent("digest")
+         // do {
+            try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try data.write(to: speechFileUrl)
+            return digest.speechFile
+//          } catch {
+//            print("error writing file", error)
+//          }
+        // }
+      } catch {
+        print("error with digest file", error)
       }
 
       return nil

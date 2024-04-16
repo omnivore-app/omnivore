@@ -204,6 +204,9 @@ struct AnimatingCellHeight: AnimatableModifier {
     @ObservedObject var viewModel: HomeFeedViewModel
     @State private var selection = Set<String>()
 
+    @AppStorage("LibraryList::digestEnabled") var digestEnabled = false
+    @AppStorage("LibraryList::hasCheckedForDigestFeature") var hasCheckedForDigestFeature = false
+
     init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
       _isEditMode = isEditMode
@@ -225,7 +228,7 @@ struct AnimatingCellHeight: AnimatableModifier {
     }
 
     var body: some View {
-      ZStack {        
+      ZStack {
         HomeFeedView(
           listTitle: $listTitle,
           isListScrolled: $isListScrolled,
@@ -265,8 +268,8 @@ struct AnimatingCellHeight: AnimatableModifier {
           VStack(spacing: 0) {
             Spacer()
 
-            if let audioProperties = audioController.itemAudioProperties {
-              MiniPlayerViewer(itemAudioProperties: audioProperties)
+            if audioController.itemAudioProperties != nil {
+              MiniPlayerViewer()
                 .padding(.top, 10)
                 .padding(.bottom, 20)
                 .background(Color.themeTabBarColor)
@@ -317,6 +320,15 @@ struct AnimatingCellHeight: AnimatableModifier {
           }
         )
       }
+      .fullScreenCover(isPresented: $showLibraryDigest) {
+        if #available(iOS 17.0, *) {
+          NavigationView {
+            FullScreenDigestView(dataService: dataService, audioController: audioController)
+          }
+        } else {
+          Text("Sorry digest is only available on iOS 17 and above")
+        }
+      }
       .toolbar {
         toolbarItems
       }
@@ -337,6 +349,20 @@ struct AnimatingCellHeight: AnimatableModifier {
         // initial help view
         if viewModel.currentFolder == "following", viewModel.fetcher.items.count > 0 {
           viewModel.stopUsingFollowingPrimer = true
+        }
+      }
+      .task {
+        do {
+          if let viewer = try await dataService.fetchViewer() {
+            digestEnabled = viewer.digestEnabled ?? false
+            if !hasCheckedForDigestFeature {
+              hasCheckedForDigestFeature = true
+              // selectedTab = "digest"
+            }
+          }
+        } catch {
+          print("ERROR FETCHING VIEWER: ", error)
+          print("")
         }
       }
       .environment(\.editMode, self.$isEditMode)
@@ -383,15 +409,14 @@ struct AnimatingCellHeight: AnimatableModifier {
               if isEditMode == .active {
                 Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
               } else {
-                
-//                if #available(iOS 17.0, *) {
-//                  Button(
-//                    action: { showLibraryDigest = true },
-//                    label: { Image(systemName: "sparkles") }
-//                  )
-//                  .buttonStyle(.plain)
-//                  .padding(.trailing, 4)
-//                }
+                if #available(iOS 17.0, *) {
+                  Button(
+                    action: { showLibraryDigest = true },
+                    label: { Image.tabDigestSelected }
+                  )
+                  .buttonStyle(.plain)
+                  .padding(.trailing, 4)
+                }
                 if prefersListLayout {
                   Button(
                     action: { isEditMode = isEditMode == .active ? .inactive : .active },
@@ -481,12 +506,12 @@ struct AnimatingCellHeight: AnimatableModifier {
     let showFeatureCards: Bool
     var slideTransition: PresentationLinkTransition {
       PresentationLinkTransition.slide(
-        options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
-                                                                   options:
-                                                                    PresentationLinkTransition.Options(
-                                                                      modalPresentationCapturesStatusBarAppearance: true
-                                                                    )
-                                                                  ))
+        options: PresentationLinkTransition.SlideTransitionOptions(
+          edge: .trailing,
+          options: PresentationLinkTransition.Options(
+            modalPresentationCapturesStatusBarAppearance: true
+          )
+        ))
     }
 
     var body: some View {
@@ -494,12 +519,12 @@ struct AnimatingCellHeight: AnimatableModifier {
         if let linkRequest = viewModel.linkRequest, viewModel.currentListConfig?.hasReadNowSection ?? false {
           PresentationLink(
             transition: PresentationLinkTransition.slide(
-              options: PresentationLinkTransition.SlideTransitionOptions(edge: .trailing,
-                                                                         options:
-                                                                         PresentationLinkTransition.Options(
-                                                                           modalPresentationCapturesStatusBarAppearance: true,
-                                                                           preferredPresentationBackgroundColor: ThemeManager.currentBgColor
-                                                                         ))),
+              options: PresentationLinkTransition.SlideTransitionOptions(
+                edge: .trailing,
+                options: PresentationLinkTransition.Options(
+                  modalPresentationCapturesStatusBarAppearance: true,
+                  preferredPresentationBackgroundColor: ThemeManager.currentBgColor
+                ))),
             isPresented: $viewModel.presentWebContainer,
             destination: {
               WebReaderLoadingContainer(requestID: linkRequest.serverID)

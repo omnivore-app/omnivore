@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Jackson Harper on 6/29/23.
-//
-
 import Foundation
 import Models
 import Services
@@ -20,9 +13,6 @@ struct LibraryTabView: View {
 
   @AppStorage("LibraryTabView::hideFollowingTab") var hideFollowingTab = false
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
-
-  @AppStorage("LibraryTabView::digestEnabled") var digestEnabled = false
-  @AppStorage("LibraryTabView::hasCheckedForDigestFeature") var hasCheckedForDigestFeature = false
 
   @State var isEditMode: EditMode = .inactive
   @State var showExpandedAudioPlayer = false
@@ -78,6 +68,8 @@ struct LibraryTabView: View {
   @State var showOperationToast = false
   @State var operationStatus: OperationStatus = .none
   @State var operationMessage: String?
+
+  @State var digestEnabled = false
 
   var showDigest: Bool {
     if digestEnabled, #available(iOS 17.0, *) {
@@ -143,7 +135,7 @@ struct LibraryTabView: View {
 
         if showDigest, #available(iOS 17.0, *) {
           NavigationView {
-            LibraryDigestView(dataService: dataService)
+            DigestView(dataService: dataService)
               .navigationBarTitleDisplayMode(.inline)
               .navigationViewStyle(.stack)
           }.tag("digest")
@@ -165,8 +157,8 @@ struct LibraryTabView: View {
         }
 
       }
-      if let audioProperties = audioController.itemAudioProperties {
-        MiniPlayerViewer(itemAudioProperties: audioProperties)
+      if audioController.itemAudioProperties != nil {
+        MiniPlayerViewer()
           .onTapGesture {
             showExpandedAudioPlayer = true
           }
@@ -235,20 +227,6 @@ struct LibraryTabView: View {
         }
       }
       selectedTab = "inbox"
-    }
-    .task {
-      do {
-        if let viewer = try await dataService.fetchViewer() {
-          digestEnabled = viewer.digestEnabled ?? false
-          if !hasCheckedForDigestFeature {
-            hasCheckedForDigestFeature = true
-            selectedTab = "digest"
-          }
-        }
-      } catch {
-        print("ERROR FETCHING VIEWER: ", error)
-        print("")
-      }
     }
   }
 }
