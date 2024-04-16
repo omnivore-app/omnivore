@@ -1,8 +1,11 @@
 import { logger } from '../../utils/logger'
+import { v4 as uuid } from 'uuid'
+
 import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { LibraryItem } from '../../entity/library_item'
 import { CreateDigestJobData } from '../../services/digest'
+import { htmlToSsmlItems } from '@omnivore/text-to-speech-handler'
 
 const USER_PROFILE_PROMPT =
   'Create a user profile based on the supplied titles\n\ntitles:\n{titles}'
@@ -145,8 +148,53 @@ const summarizeItems = async (
   return rankedCandidates
 }
 
+// TODO: we can use something more sophisticated to generate titles
+const generateTitle = (selections: RankedItem[]): Promise<string> => {
+  return Promise.resolve(
+    'Omnivore digest: ' +
+      selections.map((item) => item.libraryItem.title).join(',')
+  )
+}
+
 // TODO: write the digest to redis here
-const writeDigest = (userId: string, selections: RankedItem[]) => {}
+// export interface Digest {
+//   jobState: string
+
+//   url?: string
+//   title?: string
+//   content?: string
+//   chapters?: Chapter[]
+
+//   urlsToAudio?: string[]
+//   speechFiles?: SpeechFile[]
+// }
+// export interface SpeechFile {
+//  wordCount: number;
+//  language: string;
+//  defaultVoice: string;
+//  utterances: Utterance[];
+//}
+const writeDigest = async (userId: string, selections: RankedItem[]) => {
+  const title = await generateTitle(selections)
+  const speechFiles = selections.map((selection) => {
+    // convert the summary item to a SpeechFile here
+    return {
+      wordCount: 0,
+      language: 'en',
+      defaultVoice: 'Josh',
+      utterances: [],
+    }
+  })
+  const digest = {
+    id: uuid(),
+    title: title,
+    content: 'content',
+    urlsToAudio: [],
+    jobState: 'completed',
+    speechFiles: speechFiles,
+  }
+  // write to redis
+}
 
 export const CreateDigestJob = async (jobData: CreateDigestJobData) => {
   try {
@@ -160,8 +208,8 @@ export const CreateDigestJob = async (jobData: CreateDigestJobData) => {
     // TODO: we should have a QA step here that does some
     // basic checks to make sure the summaries are good.
 
-    writeDigest(jobData.userId, summaries)
+    await writeDigest(jobData.userId, summaries)
   } catch (err) {
-    console.log('error creating summary: ', err)
+    console.log('error creating digest: ', err)
   }
 }

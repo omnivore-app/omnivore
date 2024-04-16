@@ -12,14 +12,15 @@ export interface CreateDigestJobResponse {
 }
 
 export interface Digest {
+  jobState: string
+
   url?: string
   title?: string
   content?: string
   chapters?: Chapter[]
-  urlsToAudio?: string[]
-  jobState: string
 
-  speechFile: SpeechFile
+  urlsToAudio?: string[]
+  speechFiles?: SpeechFile[]
 }
 
 interface Chapter {
