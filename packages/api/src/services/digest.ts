@@ -30,7 +30,9 @@ export const writeDigest = async (userId: string, digest: Digest) => {
   // write to redis
   const result = await redisDataSource.redisClient?.set(
     digestKey(userId),
-    JSON.stringify(digest)
+    JSON.stringify(digest),
+    'EX',
+    60 * 60 * 24 * 7 // 1 week
   )
 
   if (!result) {

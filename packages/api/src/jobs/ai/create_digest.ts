@@ -14,6 +14,13 @@ import { JsonOutputParser } from '@langchain/core/output_parsers'
 import showdown from 'showdown'
 import { Digest, writeDigest } from '../../services/digest'
 
+export interface CreateDigestJobData {
+  userId: string
+}
+
+export interface CreateDigestJobResponse {
+  jobId: string
+}
 interface Selector {
   query: string
   count: number
@@ -37,12 +44,16 @@ interface DigestDefinition {
   zeroShot: ZeroShotDefinition
 }
 
-export interface CreateDigestJobData {
-  userId: string
+interface RankedItem {
+  topic: string
+  summary: string
+  libraryItem: LibraryItem
 }
 
-export interface CreateDigestJobResponse {
-  jobId: string
+interface RankedTitle {
+  topic: string
+  id: string
+  title: string
 }
 
 export const CREATE_DIGEST_JOB = 'create-digest'
@@ -178,16 +189,10 @@ const findOrCreateUserProfile = async (userId: string): Promise<string> => {
   const preferences = await getPreferencesList(userId)
   const profile = await createUserProfile(preferences)
 
-  // write to redis here
-  await redisDataSource.redisClient?.set(key, profile)
+  // write to redis here and ttl is 1 week
+  await redisDataSource.redisClient?.set(key, profile, 'EX', 60 * 60 * 24 * 7)
 
   return profile
-}
-
-type RankedItem = {
-  topic: string
-  summary: string
-  libraryItem: LibraryItem
 }
 
 // Uses OpenAI to rank all the titles based on the user profiles
@@ -210,10 +215,31 @@ const rankCandidates = async (
   const chain = contextualTemplate.pipe(llm).pipe(outputParser)
   const contextStr = await chain.invoke({
     userProfile,
-    titles: JSON.stringify(candidates.map((item) => item.title)),
+    titles: JSON.stringify(
+      candidates.map((item) => ({
+        id: item.id,
+        title: item.title,
+      }))
+    ),
   })
 
-  return contextStr as RankedItem[]
+  logger.info('contextStr: ', contextStr)
+  // convert the json output to an array of ranked candidates
+  const rankedCandidate = contextStr as RankedTitle[]
+
+  // map the ranked titles to the library items based on id
+  const rankedItems = rankedCandidate
+    .map((item) => {
+      const libraryItem = candidates.find((t) => t.id === item.id)
+      return {
+        topic: item.topic,
+        libraryItem,
+        summary: '',
+      }
+    })
+    .filter((item) => item.libraryItem !== undefined) as RankedItem[]
+
+  return rankedItems
 }
 
 // Does some grouping by topic while trying to maintain ranking
@@ -292,7 +318,9 @@ const generateSpeechFiles = (rankedItems: RankedItem[]): SpeechFile[] => {
   })
 
   const speechFiles = rankedItems.map((item) => {
-    const html = converter.makeHtml(item.summary)
+    const html = `<div id="readability-page-1">${converter.makeHtml(
+      item.summary
+    )}</div>`
     return htmlToSpeechFile({
       content: html,
       options: {},
