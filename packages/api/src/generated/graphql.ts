@@ -3734,6 +3734,7 @@ export type User = {
   __typename?: 'User';
   email?: Maybe<Scalars['String']>;
   featureList?: Maybe<Array<Feature>>;
+  features?: Maybe<Array<Maybe<Scalars['String']>>>;
   followersCount?: Maybe<Scalars['Int']>;
   friendsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -7202,6 +7203,7 @@ export type UploadImportFileSuccessResolvers<ContextType = ResolverContext, Pare
 export type UserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   featureList?: Resolver<Maybe<Array<ResolversTypes['Feature']>>, ParentType, ContextType>;
+  features?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
   followersCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   friendsCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
