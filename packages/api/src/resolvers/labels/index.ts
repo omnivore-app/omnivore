@@ -90,7 +90,7 @@ export const createLabelResolver = authorized<
   CreateLabelError,
   MutationCreateLabelArgs
 >(async (_, { input }, { authTrx, uid }) => {
-  const existingLabel = await labelRepository.findByName(input.name)
+  const existingLabel = await labelRepository.findByName(input.name, uid)
   if (existingLabel) {
     return {
       errorCodes: [CreateLabelErrorCode.LabelAlreadyExists],

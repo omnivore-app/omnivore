@@ -46,9 +46,12 @@ export const labelRepository = appDataSource.getRepository(Label).extend({
     return this.findOneBy({ id })
   },
 
-  findByName(name: string) {
+  findByName(name: string, userId: string) {
     return this.createQueryBuilder()
-      .where('LOWER(name) = LOWER(:name)', { name }) // case insensitive
+      .where('user_id = :userId AND LOWER(name) = LOWER(:name)', {
+        name,
+        userId,
+      }) // case insensitive
       .getOne()
   },
 
