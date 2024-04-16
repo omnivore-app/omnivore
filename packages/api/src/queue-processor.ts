@@ -16,6 +16,7 @@ import { appDataSource } from './data_source'
 import { env } from './env'
 import { TaskState } from './generated/graphql'
 import { aiSummarize, AI_SUMMARIZE_JOB_NAME } from './jobs/ai-summarize'
+import { createDigestJob, CREATE_DIGEST_JOB } from './jobs/ai/create_digest'
 import { bulkAction, BULK_ACTION_JOB_NAME } from './jobs/bulk_action'
 import { callWebhook, CALL_WEBHOOK_JOB_NAME } from './jobs/call_webhook'
 import { findThumbnail, THUMBNAIL_JOB } from './jobs/find_thumbnail'
@@ -65,7 +66,6 @@ import {
 } from './jobs/email/inbound_emails'
 
 export const QUEUE_NAME = 'omnivore-backend-queue'
-export const LONG_RUNNING_QUEUE_NAME = 'omnivore-backend-long-running-queue'
 export const JOB_VERSION = 'v001'
 
 export const getBackendQueue = async (
@@ -180,6 +180,8 @@ export const createWorker = (connection: ConnectionOptions) =>
           return saveNewsletterJob(job.data)
         case FORWARD_EMAIL_JOB:
           return forwardEmailJob(job.data)
+        case CREATE_DIGEST_JOB:
+          return createDigestJob(job.data)
         default:
           logger.warning(`[queue-processor] unhandled job: ${job.name}`)
       }

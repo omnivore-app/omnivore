@@ -16,6 +16,11 @@ import {
   CreateLabelInput,
 } from '../generated/graphql'
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
+import {
+  CreateDigestJobData,
+  CreateDigestJobResponse,
+  CREATE_DIGEST_JOB,
+} from '../jobs/ai/create_digest'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
@@ -44,18 +49,8 @@ import {
   UPDATE_HIGHLIGHT_JOB,
   UPDATE_LABELS_JOB,
 } from '../jobs/update_db'
-import {
-  createJobId,
-  getBackendQueue,
-  JOB_VERSION,
-  LONG_RUNNING_QUEUE_NAME,
-} from '../queue-processor'
+import { createJobId, getBackendQueue, JOB_VERSION } from '../queue-processor'
 import { redisDataSource } from '../redis_data_source'
-import {
-  CreateDigestJobData,
-  CreateDigestJobResponse,
-  CREATE_DIGEST_JOB,
-} from '../services/digest'
 import { signFeatureToken } from '../services/features'
 import { OmnivoreAuthorizationHeader } from './auth'
 import { CreateTaskError } from './errors'
@@ -93,6 +88,7 @@ export const getJobPriority = (jobName: string): number => {
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
+    case CREATE_DIGEST_JOB:
       return 50
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
@@ -865,7 +861,7 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
 export const enqueueCreateDigest = async (
   data: CreateDigestJobData
 ): Promise<CreateDigestJobResponse> => {
-  const queue = await getBackendQueue(LONG_RUNNING_QUEUE_NAME)
+  const queue = await getBackendQueue()
   if (!queue) {
     throw new Error('No queue found')
   }
@@ -876,6 +872,7 @@ export const enqueueCreateDigest = async (
     removeOnComplete: true,
     removeOnFail: true,
     attempts: 3,
+    priority: getJobPriority(CREATE_DIGEST_JOB),
   })
 
   logger.info('create digest job enqueued', { jobId: job.id })

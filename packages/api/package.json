@@ -113,6 +113,7 @@
     "voca": "^1.4.0",
     "winston": "^3.3.3",
     "word-counting": "^1.1.4",
+    "yaml": "^2.4.1",
     "youtubei": "1.4.0"
   },
   "devDependencies": {

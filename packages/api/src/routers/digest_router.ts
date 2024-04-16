@@ -1,13 +1,9 @@
 import cors from 'cors'
 import express from 'express'
 import { env } from '../env'
-import {
-  createJobId,
-  getJob,
-  jobStateToTaskState,
-  LONG_RUNNING_QUEUE_NAME,
-} from '../queue-processor'
-import { CREATE_DIGEST_JOB, getDigest } from '../services/digest'
+import { CREATE_DIGEST_JOB } from '../jobs/ai/create_digest'
+import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
+import { getDigest } from '../services/digest'
 import { findActiveUser } from '../services/user'
 import { analytics } from '../utils/analytics'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
@@ -70,7 +66,7 @@ export function digestRouter() {
       // if yes then return 202 accepted
       // else enqueue job
       const jobId = createJobId(CREATE_DIGEST_JOB, userId)
-      const existingJob = await getJob(jobId, LONG_RUNNING_QUEUE_NAME)
+      const existingJob = await getJob(jobId)
       if (existingJob) {
         logger.info(`Job already in queue: ${jobId}`)
         return res.sendStatus(202)
@@ -118,7 +114,7 @@ export function digestRouter() {
 
       // get job by user id
       const jobId = createJobId(CREATE_DIGEST_JOB, userId)
-      const job = await getJob(jobId, LONG_RUNNING_QUEUE_NAME)
+      const job = await getJob(jobId)
       if (job) {
         // if job is in queue then return job state
         const jobState = await job.getState()
