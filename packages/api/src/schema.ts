@@ -89,7 +89,8 @@ const schema = gql`
     source: String
     intercomHash: String
     featureList: [Feature!]
-    features: [Feature!]
+    features: [String!]
+      @deprecated(reason: "features has been replaced with featureList")
   }
 
   type Profile {
