@@ -22,6 +22,7 @@ import { TaskState } from '../../generated/graphql'
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
 export interface CreateDigestJobData {
+  id: string
   userId: string
   voices?: string[]
   language?: string
@@ -30,6 +31,7 @@ export interface CreateDigestJobData {
 
 export interface CreateDigestJobResponse {
   jobId: string
+  jobState: TaskState
 }
 interface Selector {
   query: string
@@ -385,7 +387,7 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
   })
   const title = generateTitle(summaries)
   const digest: Digest = {
-    id: uuid(),
+    id: jobData.id,
     title,
     content: generateContent(summaries),
     urlsToAudio: [],

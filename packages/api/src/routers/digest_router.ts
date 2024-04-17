@@ -1,11 +1,8 @@
 import cors from 'cors'
 import express from 'express'
 import { env } from '../env'
-import {
-  CreateDigestJobSchedule,
-  CREATE_DIGEST_JOB,
-} from '../jobs/ai/create_digest'
-import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
+import { TaskState } from '../generated/graphql'
+import { CreateDigestJobSchedule } from '../jobs/ai/create_digest'
 import { getDigest } from '../services/digest'
 import { FeatureName, findGrantedFeatureByName } from '../services/features'
 import { findActiveUser } from '../services/user'
@@ -14,6 +11,7 @@ import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueCreateDigest } from '../utils/createTask'
 import { logger } from '../utils/logger'
+import { v4 as uuid } from 'uuid'
 
 interface Feedback {
   digestRating: number
@@ -82,21 +80,21 @@ export function digestRouter() {
         return res.sendStatus(403)
       }
 
-      // check if job is already in queue
+      const data = req.body as CreateDigestRequest
+
+      // check if job is running
       // if yes then return 202 accepted
       // else enqueue job
-      const jobId = createJobId(CREATE_DIGEST_JOB, userId)
-      const existingJob = await getJob(jobId)
-      if (existingJob) {
-        logger.info(`Job already in queue: ${jobId}`)
+      const digest = await getDigest(userId)
+      if (digest?.jobState === TaskState.Running) {
+        logger.info(`Digest job is running: ${userId}`)
         return res.sendStatus(202)
       }
-
-      const data = req.body as CreateDigestRequest
 
       // enqueue job and return job id
       const result = await enqueueCreateDigest(
         {
+          id: uuid(), // generate job id
           userId,
           ...data,
         },
@@ -147,26 +145,22 @@ export function digestRouter() {
         return res.sendStatus(403)
       }
 
-      // get job by user id
-      const jobId = createJobId(CREATE_DIGEST_JOB, userId)
-      const job = await getJob(jobId)
-      if (job) {
-        // if job is in queue then return job state
-        const jobState = await job.getState()
-        return res.send({
-          jobId: job.id,
-          jobState: jobStateToTaskState(jobState),
-        })
-      }
-
-      // if job is done and removed then get the digest from redis
+      // get the digest from redis
       const digest = await getDigest(userId)
       if (!digest) {
         logger.info(`Digest not found: ${userId}`)
         return res.sendStatus(404)
       }
 
-      // return digest
+      if (digest.jobState === TaskState.Running) {
+        // if job is running then return job state
+        return res.send({
+          jobId: digest.id,
+          jobState: digest.jobState,
+        })
+      }
+
+      // if job is done then return the digest
       return res.send(digest)
     } catch (error) {
       logger.error('Error while getting digest', error)

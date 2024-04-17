@@ -14,10 +14,10 @@ interface Chapter {
 export interface Digest {
   id: string
   jobState: TaskState
-  createdAt: Date
-  description: string
-  byline: string
 
+  createdAt?: Date
+  description?: string
+  byline?: string
   url?: string
   title?: string
   content?: string
