@@ -362,11 +362,17 @@ const generateTitle = (summaries: RankedItem[]): string =>
 // TODO: generate description based on the summaries
 const generateDescription = (summaries: RankedItem[]): string => 'description'
 
-// TODO: generate content based on the summaries
-const generateContent = (summaries: RankedItem[]): string => 'content'
+// generate content based on the summaries
+const generateContent = (summaries: RankedItem[]): string =>
+  summaries
+    .map((summary) => `## ${summary.libraryItem.title}\n ${summary.summary}`)
+    .join('\n\n')
 
 const generateByline = (summaries: RankedItem[]): string =>
-  summaries.map((item) => item.libraryItem.author).join(',')
+  summaries
+    .filter((summary) => !!summary.libraryItem.author)
+    .map((item) => item.libraryItem.author)
+    .join(',')
 
 export const createDigestJob = async (jobData: CreateDigestJobData) => {
   digestDefinition = await fetchDigestDefinition()
