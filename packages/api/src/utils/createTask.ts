@@ -878,7 +878,8 @@ export const enqueueCreateDigest = async (
     repeat: schedule
       ? {
           immediately: true, // run immediately
-          pattern: schedule === 'daily' ? '0 0 * * *' : '0 0 * * 7', // every day at midnight or every Sunday at midnight
+          pattern: schedule === 'daily' ? '0 13 * * *' : '0 13 * * 7', // every day or every Sunday at 1PM
+          utc: true,
         }
       : undefined,
   })
