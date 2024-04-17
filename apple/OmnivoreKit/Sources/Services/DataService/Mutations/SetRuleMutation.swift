@@ -15,6 +15,8 @@ public enum RuleActionType {
   case delete
   case markAsRead
   case sendNotification
+  case export
+  case webhook
 
   static func from(_ other: Enums.RuleActionType) -> RuleActionType {
     switch other {
@@ -28,6 +30,10 @@ public enum RuleActionType {
       return .sendNotification
     case .delete:
       return .delete
+    case Enums.RuleActionType.export:
+      return .export
+    case Enums.RuleActionType.webhook:
+      return .webhook
     }
   }
 }

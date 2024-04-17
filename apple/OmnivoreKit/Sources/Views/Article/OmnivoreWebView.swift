@@ -23,6 +23,7 @@ public final class OmnivoreWebView: WKWebView {
   #endif
 
   public var tapHandler: (() -> Void)?
+  public var explainHandler: ((String) -> Void)?
 
   private var currentMenu: ContextMenu = .defaultMenu
 
@@ -298,6 +299,7 @@ public final class OmnivoreWebView: WKWebView {
       case #selector(removeSelection): return true
       case #selector(copy(_:)): return true
       case #selector(setLabels(_:)): return true
+      case #selector(explainSelection): return true
 
       case Selector(("_lookup:")): return (currentMenu == .defaultMenu)
       case Selector(("_define:")): return (currentMenu == .defaultMenu)
@@ -332,6 +334,18 @@ public final class OmnivoreWebView: WKWebView {
         showInReaderSnackbar("Error creating highlight")
       }
       hideMenu()
+    }
+
+    @objc private func explainSelection() {
+      Task {
+        let selection = try? await self.evaluateJavaScript("window.getSelection().toString()")
+        if let selection = selection as? String, let explainHandler = explainHandler {
+          print("Explaining \(selection)")
+          explainHandler(selection)
+        } else {
+          showInReaderSnackbar("Error getting text to explain")
+        }
+      }
     }
 
     @objc private func shareSelection() {
@@ -386,7 +400,8 @@ public final class OmnivoreWebView: WKWebView {
             return
           }
           let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
-          items = [highlight, annotate]
+          // let explain = UICommand(title: "Explain", action: #selector(explainSelection))
+          items = [highlight, /* explain, */ annotate]
         } else {
           let remove = UICommand(title: "Remove", action: #selector(removeSelection))
           let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))

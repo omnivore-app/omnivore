@@ -52,7 +52,7 @@ import Transmission
       return AnyView(splitView)
     #endif
   }
-  
+
   func startTimer(amount: Int) {
     self.snackbarTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(amount / 1000), repeats: false) { _ in
       DispatchQueue.main.async {

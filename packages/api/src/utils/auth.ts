@@ -124,8 +124,7 @@ export const getTokenByRequest = (req: express.Request): string | undefined => {
   return (
     req.header(OmnivoreAuthorizationHeader) ||
     req.headers.authorization ||
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (req.cookies?.auth as string)
+    (req.cookies.auth as string | undefined)
   )
 }
 

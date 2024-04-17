@@ -20,7 +20,7 @@ struct UtteranceRequest: Codable {
   let isOpenAIVoice: Bool
 }
 
-struct Utterance: Decodable {
+public struct Utterance: Decodable {
   public let idx: String
   public let text: String
   public let voice: String?
@@ -39,7 +39,7 @@ struct Utterance: Decodable {
   }
 }
 
-struct SpeechDocument: Decodable {
+public struct SpeechDocument: Decodable {
   static let averageWPM: Double = 195
 
   public let pageId: String

@@ -14,8 +14,15 @@ import { env } from '../env'
 import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
+  TaskState,
 } from '../generated/graphql'
 import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
+import {
+  CreateDigestJobData,
+  CreateDigestJobResponse,
+  CreateDigestJobSchedule,
+  CREATE_DIGEST_JOB,
+} from '../jobs/ai/create_digest'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
 import { CallWebhookJobData, CALL_WEBHOOK_JOB_NAME } from '../jobs/call_webhook'
 import { THUMBNAIL_JOB } from '../jobs/find_thumbnail'
@@ -52,6 +59,7 @@ import { CreateTaskError } from './errors'
 import { stringToHash } from './helpers'
 import { logger } from './logger'
 import View = google.cloud.tasks.v2.Task.View
+import { writeDigest } from '../services/digest'
 
 // Instantiates a client.
 const client = new CloudTasksClient()
@@ -81,9 +89,9 @@ export const getJobPriority = (jobName: string): number => {
     case `${REFRESH_FEED_JOB_NAME}_high`:
       return 10
     case PROCESS_YOUTUBE_TRANSCRIPT_JOB_NAME:
-      return 20
     case `${REFRESH_FEED_JOB_NAME}_low`:
     case EXPORT_ITEM_JOB_NAME:
+    case CREATE_DIGEST_JOB:
       return 50
     case EXPORT_ALL_ITEMS_JOB_NAME:
     case REFRESH_ALL_FEEDS_JOB_NAME:
@@ -851,6 +859,46 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
     attempts: 1, // only try once
     priority: getJobPriority(SEND_EMAIL_JOB),
   })
+}
+
+export const enqueueCreateDigest = async (
+  data: CreateDigestJobData,
+  schedule?: CreateDigestJobSchedule
+): Promise<CreateDigestJobResponse> => {
+  const queue = await getBackendQueue()
+  if (!queue) {
+    throw new Error('No queue found')
+  }
+
+  const job = await queue.add(CREATE_DIGEST_JOB, data, {
+    jobId: data.id, // dedupe by job id
+    removeOnComplete: true,
+    removeOnFail: true,
+    attempts: 3,
+    priority: getJobPriority(CREATE_DIGEST_JOB),
+    repeat: schedule
+      ? {
+          immediately: true, // run immediately
+          pattern: schedule === 'daily' ? '0 13 * * *' : '0 13 * * 7', // every day or every Sunday at 1PM
+          utc: true,
+        }
+      : undefined,
+  })
+
+  logger.info('create digest job enqueued', { jobId: job.id })
+
+  const digest = {
+    id: data.id,
+    jobState: TaskState.Running,
+  }
+
+  // update digest job state in redis
+  await writeDigest(data.userId, digest)
+
+  return {
+    jobId: digest.id,
+    jobState: digest.jobState,
+  }
 }
 
 export default createHttpTaskWithToken

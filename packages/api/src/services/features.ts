@@ -9,12 +9,14 @@ import { logger } from '../utils/logger'
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
 const MAX_NOTION_USERS = 1000
+const MAX_AIDIGEST_USERS = 5
 
 export enum FeatureName {
   AISummaries = 'ai-summaries',
   YouTubeTranscripts = 'youtube-transcripts',
   UltraRealisticVoice = 'ultra-realistic-voice',
   Notion = 'notion',
+  AIDigest = 'ai-digest',
 }
 
 export const getFeatureName = (name: string): FeatureName | undefined => {
@@ -40,6 +42,8 @@ export const optInFeature = async (
       )
     case FeatureName.Notion:
       return optInLimitedFeature(FeatureName.Notion, uid, MAX_NOTION_USERS)
+    case FeatureName.AIDigest:
+      return optInLimitedFeature(FeatureName.AIDigest, uid, MAX_AIDIGEST_USERS)
     default:
       return undefined
   }
