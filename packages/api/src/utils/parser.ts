@@ -703,6 +703,10 @@ export const htmlToMarkdown = (html: string) => {
   return nhm.translate(/* html */ html)
 }
 
+export const markdownToHtml = (markdown: string) => {
+  return nhm.translate(/* markdown */ markdown)
+}
+
 export const getDistillerResult = async (
   uid: string,
   html: string

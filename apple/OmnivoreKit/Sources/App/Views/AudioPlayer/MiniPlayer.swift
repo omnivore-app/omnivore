@@ -23,14 +23,14 @@
     public var body: some View {
       ZStack(alignment: .center) {
         presentingView
-        if let itemAudioProperties = self.audioController.itemAudioProperties {
+        if self.audioController.itemAudioProperties != nil {
           ZStack(alignment: .bottom) {
             Color.systemBackground.edgesIgnoringSafeArea(.bottom)
               .frame(height: expanded ? 0 : 110, alignment: .bottom)
 
             VStack {
               Spacer(minLength: 0)
-              MiniPlayerViewer(itemAudioProperties: itemAudioProperties)
+              MiniPlayerViewer()
             }
           }
         }

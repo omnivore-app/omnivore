@@ -41,6 +41,8 @@ struct WebReaderContainerView: View {
   @State var displayLinkSheet = false
   @State var linkToOpen: URL?
 
+  @State var showExplainSheet = false
+
   @EnvironmentObject var dataService: DataService
   @EnvironmentObject var audioController: AudioController
   @Environment(\.openURL) var openURL
@@ -92,6 +94,11 @@ struct WebReaderContainerView: View {
     }
   }
 
+  private func explainHandler(text: String) {
+    viewModel.explainText = String(text)
+    showExplainSheet = true
+  }
+
   private func handleHighlightAction(message: WKScriptMessage) {
     guard let messageBody = message.body as? [String: String] else { return }
     guard let actionID = messageBody["actionID"] else { return }
@@ -126,7 +133,7 @@ struct WebReaderContainerView: View {
 
   #if os(iOS)
     var audioNavbarItem: some View {
-      if !audioController.playbackError, audioController.isLoadingItem(itemID: item.unwrappedID) {
+      if audioController.isLoadingItem(audioController.itemAudioProperties) {
         return AnyView(ProgressView()
           .padding(.horizontal))
       } else {
@@ -271,6 +278,13 @@ struct WebReaderContainerView: View {
         Spacer()
       #endif
 
+//      Button(
+//        action: { showExplainSheet = true },
+//        label: { Image(systemName: "sparkles") }
+//      )
+//      .buttonStyle(.plain)
+//      .padding(.trailing, 4)
+
       Button(
         action: { showLabelsModal = true },
         label: {
@@ -378,6 +392,7 @@ struct WebReaderContainerView: View {
             #endif
           },
           tapHandler: tapHandler,
+          explainHandler: explainHandler,
           scrollPercentHandler: scrollPercentHandler,
           webViewActionHandler: webViewActionHandler,
           navBarVisibilityUpdater: { visible in
@@ -600,8 +615,8 @@ struct WebReaderContainerView: View {
             .offset(y: navBarVisible ? 0 : -150)
 
           Spacer()
-          if let audioProperties = audioController.itemAudioProperties {
-            MiniPlayerViewer(itemAudioProperties: audioProperties)
+          if audioController.itemAudioProperties != nil {
+            MiniPlayerViewer()
               .padding(.top, 10)
               .padding(.bottom, showBottomBar ? 10 : 40)
               .background(Color.themeTabBarColor)
@@ -633,7 +648,6 @@ struct WebReaderContainerView: View {
       try? WebViewManager.shared().dispatchEvent(.saveReadPosition)
     }
     .onDisappear {
-      // WebViewManager.shared().loadHTMLString("<html></html>", baseURL: nil)
       WebViewManager.shared().loadHTMLString(WebReaderContent.emptyContent(isDark: Color.isDarkMode), baseURL: nil)
     }
     .onReceive(NotificationCenter.default.publisher(for: Notification.Name("PopToRoot"))) { _ in
@@ -674,7 +688,7 @@ struct WebReaderContainerView: View {
     shareActionID = UUID()
   }
   
-  func print() {
+  func printReader() {
     shareActionID = UUID()
   }
 

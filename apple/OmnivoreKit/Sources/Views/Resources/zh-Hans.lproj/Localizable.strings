@@ -198,6 +198,7 @@
 "clubsGeneric" = "阅读俱乐部";
 "filterGeneric" = "特色功能";
 "errorGeneric" = "哦！出现了小问题，请您重试。";
+"readerSettingsGeneric" = "阅读设置";
 "pushNotificationsGeneric" = "推送通知";
 "dismissButton" = "返回或撤销";
 "errorNetwork" = "我们在连接到互联网时遇到问题。";

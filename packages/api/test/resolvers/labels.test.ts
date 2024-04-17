@@ -145,7 +145,7 @@ describe('Labels API', () => {
       })
     })
 
-    context('when name exists', () => {
+    context('when name exists in the user library', () => {
       let existingLabel: Label
 
       before(async () => {
@@ -174,6 +174,32 @@ describe('Labels API', () => {
         expect(res.body.data.createLabel.errorCodes).to.eql([
           'LABEL_ALREADY_EXISTS',
         ])
+      })
+    })
+
+    context('when name exists in the other user library', () => {
+      let existingLabel: Label
+      let otherUser: User
+
+      before(async () => {
+        otherUser = await createTestUser('otherUser')
+        existingLabel = await createLabel('label3', '#ffffff', otherUser.id)
+      })
+
+      after(async () => {
+        // delete other user will also delete the label
+        await deleteUser(otherUser.id)
+      })
+
+      it('creates the label', async () => {
+        const res = await graphqlRequest(query, authToken, {
+          input: { name: existingLabel.name },
+        }).expect(200)
+        const label = await findLabelById(
+          res.body.data.createLabel.label.id,
+          user.id
+        )
+        expect(label).to.exist
       })
     })
 

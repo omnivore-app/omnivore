@@ -75,7 +75,7 @@ extension LoginError {
       return .unauthorized
     case .unknown:
       return .unknown
-    case .pendingEmailVerification:
+    case .pendingEmailVerification, .stillProcessing:
       return .pendingEmailVerification
     }
   }

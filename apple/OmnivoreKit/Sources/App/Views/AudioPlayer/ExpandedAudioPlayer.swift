@@ -45,7 +45,7 @@
       if audioController.playbackError {
         return AnyView(Color.clear)
       }
-      if let itemID = audioController.itemAudioProperties?.itemID, audioController.isLoadingItem(itemID: itemID) {
+      if audioController.isLoadingItem(audioController.itemAudioProperties) {
         return AnyView(ProgressView())
       } else {
         return AnyView(Button(
@@ -98,11 +98,11 @@
           }
         ).padding(.trailing, 5)
 
-        if !(audioController.itemAudioProperties?.isArchived ?? false) {
+        if !((audioController.itemAudioProperties as? LinkedItemAudioProperties)?.isArchived ?? false) {
           Button(
             action: { performArchive() },
             label: {
-              if audioController.itemAudioProperties?.isArchived ?? false {
+              if (audioController.itemAudioProperties as? LinkedItemAudioProperties)?.isArchived ?? false {
                 Image
                   .toolbarUnarchive
                   .foregroundColor(Color.toolbarItemForeground)
@@ -130,20 +130,20 @@
       }
     }
 
-    func performViewArticle() {
-      if let objectID = audioController.itemAudioProperties?.objectID {
-        viewArticle(objectID)
-      }
-    }
+//    func performViewArticle() {
+//      if let objectID = audioController.itemAudioProperties?.objectID {
+//        viewArticle(objectID)
+//      }
+//    }
 
     func performDelete() {
-      if let objectID = audioController.itemAudioProperties?.objectID {
+      if let objectID = (audioController.itemAudioProperties as? LinkedItemAudioProperties)?.objectID {
         delete(objectID)
       }
     }
 
     func performArchive() {
-      if let objectID = audioController.itemAudioProperties?.objectID {
+      if let objectID = (audioController.itemAudioProperties as? LinkedItemAudioProperties)?.objectID {
         archive(objectID)
       }
     }
@@ -467,7 +467,7 @@
     }
 
     public var innerBody: some View {
-      if let itemAudioProperties = self.audioController.itemAudioProperties {
+      if let itemAudioProperties = self.audioController.itemAudioProperties as? LinkedItemAudioProperties {
         return AnyView(
           playerContent(itemAudioProperties)
             .tint(.appGrayTextContrast)

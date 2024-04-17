@@ -9,6 +9,9 @@ public extension Image {
 
   static var tabFollowing: Image { Image("_tab_following", bundle: .module).renderingMode(.template) }
   static var tabLibrary: Image { Image("_tab_library", bundle: .module).renderingMode(.template) }
+  static var tabDigest: Image { Image("_tab_digest", bundle: .module).renderingMode(.template) }
+  static var tabDigestSelected: Image { Image("_tab_digest_selected", bundle: .module) }
+
   static var tabSearch: Image { Image("_tab_search", bundle: .module).renderingMode(.template) }
   static var tabHighlights: Image { Image("_tab_highlights", bundle: .module).renderingMode(.template) }
   static var tabProfile: Image { Image("_tab_profile", bundle: .module).renderingMode(.template) }
@@ -49,4 +52,7 @@ public extension Image {
   static var flairNewsletter: Image { Image("flair-newsletter", bundle: .module) }
   static var flairPinned: Image { Image("flair-pinned", bundle: .module) }
   static var flairRecommended: Image { Image("flair-recommended", bundle: .module) }
+  
+  static var doubleChevronUp: Image { Image("double_chevron_up", bundle: .module) }
+
 }
