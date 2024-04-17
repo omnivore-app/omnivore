@@ -7,6 +7,7 @@ import {
 } from '../jobs/ai/create_digest'
 import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
 import { getDigest } from '../services/digest'
+import { FeatureName, findGrantedFeatureByName } from '../services/features'
 import { findActiveUser } from '../services/user'
 import { analytics } from '../utils/analytics'
 import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
@@ -72,6 +73,15 @@ export function digestRouter() {
         return res.sendStatus(401)
       }
 
+      const feature = await findGrantedFeatureByName(
+        FeatureName.AIDigest,
+        userId
+      )
+      if (!feature) {
+        logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+        return res.sendStatus(403)
+      }
+
       // check if job is already in queue
       // if yes then return 202 accepted
       // else enqueue job
@@ -126,6 +136,15 @@ export function digestRouter() {
       if (!user) {
         logger.info(`User not found: ${userId}`)
         return res.sendStatus(401)
+      }
+
+      const feature = await findGrantedFeatureByName(
+        FeatureName.AIDigest,
+        userId
+      )
+      if (!feature) {
+        logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+        return res.sendStatus(403)
       }
 
       // get job by user id
@@ -183,6 +202,15 @@ export function digestRouter() {
         if (!user) {
           logger.info(`User not found: ${userId}`)
           return res.sendStatus(401)
+        }
+
+        const feature = await findGrantedFeatureByName(
+          FeatureName.AIDigest,
+          userId
+        )
+        if (!feature) {
+          logger.info(`${FeatureName.AIDigest} not granted: ${userId}`)
+          return res.sendStatus(403)
         }
 
         // get feedback from request body
