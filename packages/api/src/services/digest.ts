@@ -5,11 +5,9 @@ import { TaskState } from '../generated/graphql'
 
 interface Chapter {
   title: string
-}
-
-interface LibraryItem {
   id: string
   url: string
+  wordCount: number
   thumbnail?: string
 }
 
@@ -26,7 +24,6 @@ export interface Digest {
 
   urlsToAudio?: string[]
   speechFiles?: SpeechFile[]
-  libraryItems?: LibraryItem[]
 }
 
 const digestKey = (userId: string) => `digest:${userId}`

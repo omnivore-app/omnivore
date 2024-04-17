@@ -19,6 +19,7 @@ import { AISummarizeJobData, AI_SUMMARIZE_JOB_NAME } from '../jobs/ai-summarize'
 import {
   CreateDigestJobData,
   CreateDigestJobResponse,
+  CreateDigestJobSchedule,
   CREATE_DIGEST_JOB,
 } from '../jobs/ai/create_digest'
 import { BulkActionData, BULK_ACTION_JOB_NAME } from '../jobs/bulk_action'
@@ -859,7 +860,8 @@ export const enqueueSendEmail = async (jobData: SendEmailJobData) => {
 }
 
 export const enqueueCreateDigest = async (
-  data: CreateDigestJobData
+  data: CreateDigestJobData,
+  schedule?: CreateDigestJobSchedule
 ): Promise<CreateDigestJobResponse> => {
   const queue = await getBackendQueue()
   if (!queue) {
@@ -873,6 +875,12 @@ export const enqueueCreateDigest = async (
     removeOnFail: true,
     attempts: 3,
     priority: getJobPriority(CREATE_DIGEST_JOB),
+    repeat: schedule
+      ? {
+          immediately: true, // run immediately
+          pattern: schedule === 'daily' ? '0 0 * * *' : '0 0 * * 7', // every day at midnight or every Sunday at midnight
+        }
+      : undefined,
   })
 
   logger.info('create digest job enqueued', { jobId: job.id })

@@ -1,7 +1,10 @@
 import cors from 'cors'
 import express from 'express'
 import { env } from '../env'
-import { CREATE_DIGEST_JOB } from '../jobs/ai/create_digest'
+import {
+  CreateDigestJobSchedule,
+  CREATE_DIGEST_JOB,
+} from '../jobs/ai/create_digest'
 import { createJobId, getJob, jobStateToTaskState } from '../queue-processor'
 import { getDigest } from '../services/digest'
 import { findActiveUser } from '../services/user'
@@ -30,6 +33,13 @@ const isFeedback = (data: any): data is Feedback => {
     'voiceRating' in data &&
     'musicRating' in data
   )
+}
+
+interface CreateDigestRequest {
+  voices?: string[]
+  language?: string
+  rate?: string
+  schedule?: CreateDigestJobSchedule
 }
 
 export function digestRouter() {
@@ -72,10 +82,16 @@ export function digestRouter() {
         return res.sendStatus(202)
       }
 
+      const data = req.body as CreateDigestRequest
+
       // enqueue job and return job id
-      const result = await enqueueCreateDigest({
-        userId,
-      })
+      const result = await enqueueCreateDigest(
+        {
+          userId,
+          ...data,
+        },
+        data.schedule
+      )
 
       // return job id
       return res.status(201).send(result)

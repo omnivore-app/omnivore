@@ -4,7 +4,11 @@ import { v4 as uuid } from 'uuid'
 import { OpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { LibraryItem } from '../../entity/library_item'
-import { htmlToSpeechFile, SpeechFile } from '@omnivore/text-to-speech-handler'
+import {
+  htmlToSpeechFile,
+  SpeechFile,
+  SSMLOptions,
+} from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
 import { searchLibraryItems } from '../../services/library_item'
 import { redisDataSource } from '../../redis_data_source'
@@ -15,8 +19,13 @@ import showdown from 'showdown'
 import { Digest, writeDigest } from '../../services/digest'
 import { TaskState } from '../../generated/graphql'
 
+export type CreateDigestJobSchedule = 'daily' | 'weekly'
+
 export interface CreateDigestJobData {
   userId: string
+  voices?: string[]
+  language?: string
+  rate?: string
 }
 
 export interface CreateDigestJobResponse {
@@ -312,7 +321,10 @@ const summarizeItems = async (
 }
 
 // generate speech files from the summaries
-const generateSpeechFiles = (rankedItems: RankedItem[]): SpeechFile[] => {
+const generateSpeechFiles = (
+  rankedItems: RankedItem[],
+  options: SSMLOptions
+): SpeechFile[] => {
   // convert the summaries from markdown to HTML
   const converter = new showdown.Converter({
     backslashEscapesHTMLTags: true,
@@ -327,7 +339,7 @@ const generateSpeechFiles = (rankedItems: RankedItem[]): SpeechFile[] => {
     </div>`
     return htmlToSpeechFile({
       content: html,
-      options: {},
+      options,
     })
   })
 
@@ -363,7 +375,11 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
 
   const filteredSummaries = filterSummaries(summaries)
 
-  const speechFiles = generateSpeechFiles(filteredSummaries)
+  const speechFiles = generateSpeechFiles(filteredSummaries, {
+    ...jobData,
+    primaryVoice: jobData.voices?.[0],
+    secondaryVoice: jobData.voices?.[1],
+  })
   const title = generateTitle(summaries)
   const digest: Digest = {
     id: uuid(),
@@ -372,10 +388,12 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
     urlsToAudio: [],
     jobState: TaskState.Succeeded,
     speechFiles,
-    libraryItems: filteredSummaries.map((item) => ({
+    chapters: filteredSummaries.map((item, index) => ({
+      title: item.libraryItem.title,
       id: item.libraryItem.id,
       url: item.libraryItem.originalUrl,
       thumbnail: item.libraryItem.thumbnail ?? undefined,
+      wordCount: speechFiles[index].wordCount,
     })),
     createdAt: new Date(),
     description: generateDescription(summaries),
