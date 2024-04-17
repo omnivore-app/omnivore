@@ -1,7 +1,7 @@
 [versions]
 accompanistSystemUiController = "0.34.0"
 accompanistFlowLayout = "0.32.0"
-androidGradlePlugin = "8.2.2"
+androidGradlePlugin = "8.3.2"
 androidxActivity = "1.8.2"
 androidxAppCompat = "1.6.1"
 androidxComposeBom = "2024.04.00"
