@@ -13,6 +13,7 @@ import yaml from 'yaml'
 import { JsonOutputParser } from '@langchain/core/output_parsers'
 import showdown from 'showdown'
 import { Digest, writeDigest } from '../../services/digest'
+import { TaskState } from '../../generated/graphql'
 
 export interface CreateDigestJobData {
   userId: string
@@ -344,6 +345,12 @@ const generateTitle = (selections: RankedItem[]): string =>
   'Omnivore digest: ' +
   selections.map((item) => item.libraryItem.title).join(',')
 
+// TODO: generate description based on the summaries
+const generateDescription = (selections: RankedItem[]): string => 'description'
+
+// TODO: generate content based on the summaries
+const generateContent = (selections: RankedItem[]): string => 'content'
+
 export const createDigestJob = async (jobData: CreateDigestJobData) => {
   digestDefinition = await fetchDigestDefinition()
 
@@ -361,9 +368,9 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
   const digest: Digest = {
     id: uuid(),
     title,
-    content: 'content',
+    content: generateContent(summaries),
     urlsToAudio: [],
-    jobState: 'completed',
+    jobState: TaskState.Succeeded,
     speechFiles,
     libraryItems: filteredSummaries.map((item) => ({
       id: item.libraryItem.id,
@@ -371,6 +378,7 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
       thumbnail: item.libraryItem.thumbnail ?? undefined,
     })),
     createdAt: new Date(),
+    description: generateDescription(summaries),
   }
 
   await writeDigest(jobData.userId, digest)

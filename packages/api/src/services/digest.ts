@@ -1,6 +1,7 @@
 import { redisDataSource } from '../redis_data_source'
 import { SpeechFile } from '@omnivore/text-to-speech-handler'
 import { logger } from '../utils/logger'
+import { TaskState } from '../generated/graphql'
 
 interface Chapter {
   title: string
@@ -14,8 +15,9 @@ interface LibraryItem {
 
 export interface Digest {
   id: string
-  jobState: string
+  jobState: TaskState
   createdAt: Date
+  description: string
 
   url?: string
   title?: string
