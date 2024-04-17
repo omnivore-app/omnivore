@@ -365,6 +365,12 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
     urlsToAudio: [],
     jobState: 'completed',
     speechFiles,
+    libraryItems: filteredSummaries.map((item) => ({
+      id: item.libraryItem.id,
+      url: item.libraryItem.originalUrl,
+      thumbnail: item.libraryItem.thumbnail ?? undefined,
+    })),
+    createdAt: new Date(),
   }
 
   await writeDigest(jobData.userId, digest)

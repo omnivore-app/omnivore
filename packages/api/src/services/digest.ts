@@ -2,9 +2,20 @@ import { redisDataSource } from '../redis_data_source'
 import { SpeechFile } from '@omnivore/text-to-speech-handler'
 import { logger } from '../utils/logger'
 
+interface Chapter {
+  title: string
+}
+
+interface LibraryItem {
+  id: string
+  url: string
+  thumbnail?: string
+}
+
 export interface Digest {
   id: string
   jobState: string
+  createdAt: Date
 
   url?: string
   title?: string
@@ -13,10 +24,7 @@ export interface Digest {
 
   urlsToAudio?: string[]
   speechFiles?: SpeechFile[]
-}
-
-interface Chapter {
-  title: string
+  libraryItems?: LibraryItem[]
 }
 
 const digestKey = (userId: string) => `digest:${userId}`
