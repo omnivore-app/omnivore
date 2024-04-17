@@ -1,4 +1,4 @@
-package app.omnivore.omnivore.feature.library
+package app.omnivore.omnivore.feature.following
 
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -13,6 +13,11 @@ import app.omnivore.omnivore.core.data.repository.LibraryRepository
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.core.datastore.DatastoreRepository
+import app.omnivore.omnivore.feature.library.LibraryBottomSheetState
+import app.omnivore.omnivore.feature.library.SavedItemAction
+import app.omnivore.omnivore.feature.library.SavedItemFilter
+import app.omnivore.omnivore.feature.library.SavedItemSortFilter
+import app.omnivore.omnivore.feature.library.SavedItemViewModel
 import app.omnivore.omnivore.utils.DatastoreKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,7 +39,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class LibraryViewModel @Inject constructor(
+class FollowingViewModel @Inject constructor(
     private val datastoreRepo: DatastoreRepository,
     private val libraryRepository: LibraryRepository,
     @ApplicationContext private val applicationContext: Context
@@ -56,15 +61,17 @@ class LibraryViewModel @Inject constructor(
         )
     )
 
-    val uiState: StateFlow<LibraryUiState> = _libraryQuery.flatMapLatest { query ->
+    val uiState: StateFlow<FollowingUiState> = _libraryQuery.flatMapLatest { query ->
         libraryRepository.getSavedItems(query)
-    }.map(LibraryUiState::Success).stateIn(
+    }.map(FollowingUiState::Success).stateIn(
         scope = viewModelScope,
         started = SharingStarted.Lazily,
-        initialValue = LibraryUiState.Loading
+        initialValue = FollowingUiState.Loading
     )
 
-    val appliedFilterLiveData = MutableLiveData<SavedItemFilter>()
+    val appliedFilterLiveData = MutableLiveData<SavedItemFilter>(
+        SavedItemFilter.FOLLOWING
+    )
     val appliedSortFilterLiveData = MutableLiveData(SavedItemSortFilter.NEWEST)
     val bottomSheetState = MutableLiveData(LibraryBottomSheetState.HIDDEN)
     val currentItem = mutableStateOf<String?>(null)
@@ -76,6 +83,7 @@ class LibraryViewModel @Inject constructor(
     val activeLabels = MutableStateFlow<List<SavedItemLabel>>(listOf())
 
     override val actionsMenuItemLiveData = MutableLiveData<SavedItemWithLabelsAndHighlights?>(null)
+
 
     private fun loadInitialFilterValues() {
         syncLabels()
@@ -201,7 +209,7 @@ class LibraryViewModel @Inject constructor(
                 SavedItemFilter.FOLLOWING -> listOf("Newsletter", "RSS")
                 SavedItemFilter.NEWSLETTERS -> listOf("Newsletter")
                 SavedItemFilter.FEEDS -> listOf("RSS")
-                else -> activeLabels.value.map { it.name }
+                else -> listOf("Newsletter", "RSS")//activeLabels.value.map { it.name }
             }
 
             activeLabels.value.let { it ->
@@ -270,7 +278,7 @@ class LibraryViewModel @Inject constructor(
             datastoreRepo.putString(DatastoreKeys.libraryLastSyncTimestamp, startTime)
         }
     }
-
+    
     override fun handleSavedItemAction(itemId: String, action: SavedItemAction) {
         when (action) {
             SavedItemAction.Delete -> {
@@ -328,10 +336,10 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    fun updateSavedItemLabels(savedItemId: String, labels: List<SavedItemLabel>) {
+    fun updateSavedItemLabels(savedItemID: String, labels: List<SavedItemLabel>) {
         viewModelScope.launch {
             val result = libraryRepository.setSavedItemLabels(
-                itemId = savedItemId, labels = labels
+                itemId = savedItemID, labels = labels
             )
             snackbarMessage = if (result) {
                 applicationContext.getString(R.string.library_view_model_snackbar_success)
@@ -350,8 +358,9 @@ class LibraryViewModel @Inject constructor(
 
     fun currentSavedItemUnderEdit(): SavedItemWithLabelsAndHighlights? {
         currentItem.value?.let { itemID ->
-            return (uiState.value as LibraryUiState.Success).items.first { it.savedItem.savedItemId == itemID }
+            return (uiState.value as FollowingUiState.Success).items.first { it.savedItem.savedItemId == itemID }
         }
+
         return null
     }
 
@@ -370,16 +379,12 @@ class LibraryViewModel @Inject constructor(
     }
 }
 
-sealed interface LibraryUiState {
-    data object Loading : LibraryUiState
+sealed interface FollowingUiState {
+    data object Loading : FollowingUiState
 
     data class Success(
         val items: List<SavedItemWithLabelsAndHighlights>,
-    ) : LibraryUiState
+    ) : FollowingUiState
 
-    data object Error : LibraryUiState
-}
-
-enum class SavedItemAction {
-    Delete, Archive, Unarchive, EditLabels, EditInfo, MarkRead, MarkUnread
+    data object Error : FollowingUiState
 }

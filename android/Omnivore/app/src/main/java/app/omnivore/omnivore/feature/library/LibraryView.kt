@@ -21,14 +21,12 @@ import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material.rememberDismissState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -36,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -60,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.core.database.entities.SavedItemWithLabelsAndHighlights
 import app.omnivore.omnivore.feature.components.AddLinkSheetContent
 import app.omnivore.omnivore.feature.components.LabelsSelectionSheetContent
@@ -85,8 +85,7 @@ internal fun LibraryView(
     navController: NavHostController,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
-    val scaffoldState: ScaffoldState = rememberScaffoldState()
-
+    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -97,10 +96,13 @@ internal fun LibraryView(
 
     viewModel.snackbarMessage?.let {
         coroutineScope.launch {
-            scaffoldState.snackbarHostState.showSnackbar(it)
+            snackbarHostState.showSnackbar(it)
             viewModel.clearSnackbarMessage()
         }
     }
+
+    val labels by viewModel.labelsState.collectAsStateWithLifecycle()
+    val activeLabels by viewModel.activeLabels.collectAsStateWithLifecycle()
 
     when (showBottomSheet) {
         LibraryBottomSheetState.ADD_LINK -> {
@@ -111,17 +113,28 @@ internal fun LibraryView(
 
         LibraryBottomSheetState.LABEL -> {
             LabelBottomSheet(
-                viewModel,
-                labelsViewModel
-            ) {
-                viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
-            }
+                deleteCurrentItem = { viewModel.currentItem.value = null },
+                labels = labels,
+                currentSavedItemData = viewModel.currentSavedItemUnderEdit(),
+                labelsViewModel,
+                { viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN },
+                { labelName, hexColorValue ->
+                    viewModel.createNewSavedItemLabel(labelName, hexColorValue)
+                },
+                { savedItemId, labels ->
+                    viewModel.updateSavedItemLabels(savedItemId, labels)
+                },
+                activeLabels,
+                { viewModel.updateAppliedLabels(it) }
+            )
         }
 
         LibraryBottomSheetState.EDIT -> {
             EditBottomSheet(
                 editInfoViewModel,
-                viewModel
+                deleteCurrentItem = { viewModel.currentItem.value = null },
+                { viewModel.refresh() },
+                viewModel.currentSavedItemUnderEdit()
             ) {
                 viewModel.bottomSheetState.value = LibraryBottomSheetState.HIDDEN
             }
@@ -132,6 +145,7 @@ internal fun LibraryView(
     }
 
     val currentTopLevelDestination = TopLevelDestination.entries.find { it.route == navController.currentDestination?.route }
+    val selectedItem: SavedItemWithLabelsAndHighlights? by viewModel.actionsMenuItemLiveData.observeAsState()
 
     Scaffold(
         topBar = {
@@ -139,7 +153,9 @@ internal fun LibraryView(
                 currentDestination = currentTopLevelDestination,
                 savedItemViewModel = viewModel,
                 onSearchClicked = { navController.navigate(Routes.Search.route) },
-                onAddLinkClicked = { showAddLinkBottomSheet(viewModel) }
+                onAddLinkClicked = {
+                    viewModel.bottomSheetState.value = LibraryBottomSheetState.ADD_LINK
+                }
             )
         },
     ) { paddingValues ->
@@ -147,9 +163,20 @@ internal fun LibraryView(
             is LibraryUiState.Success -> {
                 LibraryViewContent(
                     isFollowingScreen = currentTopLevelDestination == TopLevelDestination.FOLLOWING,
-                    viewModel,
+                    { viewModel.actionsMenuItemLiveData.postValue(null) },
+                    savedItemViewModel = viewModel,
+                    refresh = { viewModel.refresh() },
+                    onUnarchive = { viewModel.unarchiveSavedItem(it) },
+                    onArchive = { viewModel.archiveSavedItem(it) },
+                    onDelete = { viewModel.deleteSavedItem(it) },
                     paddingValues = paddingValues,
-                    uiState = uiState
+                    items = (uiState as LibraryUiState.Success).items,
+                    selectedItem = selectedItem,
+                    onSavedItemAction = { id, action ->
+                        viewModel.handleSavedItemAction(id, action)
+                    },
+                    { viewModel.loadUsingSearchAPI() },
+                    { viewModel.initialLoad() }
                 )
             }
             is LibraryUiState.Loading -> {
@@ -169,16 +196,18 @@ internal fun LibraryView(
     }
 }
 
-fun showAddLinkBottomSheet(libraryViewModel: LibraryViewModel) {
-    libraryViewModel.bottomSheetState.value = LibraryBottomSheetState.ADD_LINK
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LabelBottomSheet(
-    libraryViewModel: LibraryViewModel,
+    deleteCurrentItem: () -> Unit,
+    labels: List<SavedItemLabel>,
+    currentSavedItemData: SavedItemWithLabelsAndHighlights?,
     labelsViewModel: LabelsViewModel,
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
+    createNewSavedItemLabel: (String, String) -> Unit,
+    updateSavedItemLabels: (String, List<SavedItemLabel>) -> Unit,
+    activeLabels: List<SavedItemLabel>,
+    updateAppliedLabels: (List<SavedItemLabel>) -> Unit
 ) {
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },
@@ -188,48 +217,41 @@ fun LabelBottomSheet(
         ),
     ) {
 
-        val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
-        
-        val labels by libraryViewModel.labelsState.collectAsStateWithLifecycle()
-
         if (currentSavedItemData != null) {
             LabelsSelectionSheetContent(
                 labels = labels,
                 labelsViewModel = labelsViewModel,
                 initialSelectedLabels = currentSavedItemData.labels,
                 onCancel = {
-                    libraryViewModel.currentItem.value = null
+                    deleteCurrentItem()
                     onDismiss()
                 },
                 isLibraryMode = false,
                 onSave = {
                     if (it != labels) {
-                        libraryViewModel.updateSavedItemLabels(
-                            savedItemID = currentSavedItemData.savedItem.savedItemId,
-                            labels = it
-                        )
+                        updateSavedItemLabels(currentSavedItemData.savedItem.savedItemId, it)
                     }
-                    libraryViewModel.currentItem.value = null
+                    deleteCurrentItem()
                     onDismiss()
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
-                    libraryViewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+                    createNewSavedItemLabel(newLabelName, labelHexValue)
                 }
             )
         } else { // Is used in library mode
             LabelsSelectionSheetContent(
                 labels = labels,
                 labelsViewModel = labelsViewModel,
-                initialSelectedLabels = libraryViewModel.activeLabelsLiveData.value ?: listOf(),
+                initialSelectedLabels = activeLabels,
                 onCancel = { onDismiss() },
                 isLibraryMode = true,
                 onSave = {
-                    libraryViewModel.updateAppliedLabels(it)
-                    libraryViewModel.currentItem.value = null
+                    updateAppliedLabels(it)
+                    deleteCurrentItem()
                     onDismiss()
                 },
                 onCreateLabel = { newLabelName, labelHexValue ->
-                    libraryViewModel.createNewSavedItemLabel(newLabelName, labelHexValue)
+                    createNewSavedItemLabel(newLabelName, labelHexValue)
                 }
             )
         }
@@ -268,7 +290,9 @@ fun AddLinkBottomSheet(
 @Composable
 fun EditBottomSheet(
     editInfoViewModel: EditInfoViewModel,
-    libraryViewModel: LibraryViewModel,
+    deleteCurrentItem: () -> Unit,
+    refresh: () -> Unit,
+    currentSavedItemUnderEdit: SavedItemWithLabelsAndHighlights?,
     onDismiss: () -> Unit = {}
 ) {
     ModalBottomSheet(
@@ -278,20 +302,19 @@ fun EditBottomSheet(
             skipPartiallyExpanded = true
         ),
     ) {
-        val currentSavedItemData = libraryViewModel.currentSavedItemUnderEdit()
         EditInfoSheetContent(
-            savedItemId = currentSavedItemData?.savedItem?.savedItemId,
-            title = currentSavedItemData?.savedItem?.title,
-            author = currentSavedItemData?.savedItem?.author,
-            description = currentSavedItemData?.savedItem?.descriptionText,
+            savedItemId = currentSavedItemUnderEdit?.savedItem?.savedItemId,
+            title = currentSavedItemUnderEdit?.savedItem?.title,
+            author = currentSavedItemUnderEdit?.savedItem?.author,
+            description = currentSavedItemUnderEdit?.savedItem?.descriptionText,
             viewModel = editInfoViewModel,
             onCancel = {
-                libraryViewModel.currentItem.value = null
+                deleteCurrentItem()
                 onDismiss()
             },
             onUpdated = {
-                libraryViewModel.currentItem.value = null
-                libraryViewModel.refresh()
+                deleteCurrentItem()
+                refresh()
                 onDismiss()
             }
         )
@@ -303,9 +326,18 @@ fun EditBottomSheet(
 @Composable
 fun LibraryViewContent(
     isFollowingScreen: Boolean,
-    libraryViewModel: LibraryViewModel,
+    selectItem: () -> Unit,
+    savedItemViewModel: SavedItemViewModel,
+    refresh: () -> Unit,
+    onUnarchive: (String) -> Unit,
+    onArchive: (String) -> Unit,
+    onDelete: (String) -> Unit,
     paddingValues: PaddingValues,
-    uiState: LibraryUiState
+    items: List<SavedItemWithLabelsAndHighlights>,
+    selectedItem: SavedItemWithLabelsAndHighlights?,
+    onSavedItemAction: (String, SavedItemAction) -> Unit,
+    loadUsingSearchAPI: () -> Unit,
+    initialLoad: () -> Unit
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -315,12 +347,10 @@ fun LibraryViewContent(
         LaunchedEffect(true) {
             // fetch something
             delay(1500)
-            libraryViewModel.refresh()
+            refresh()
             pullToRefreshState.endRefresh()
         }
     }
-
-    val selectedItem: SavedItemWithLabelsAndHighlights? by libraryViewModel.actionsMenuItemLiveData.observeAsState()
 
     Box(
         modifier = Modifier
@@ -337,11 +367,10 @@ fun LibraryViewContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(
-                    items = (uiState as LibraryUiState.Success).items,
+                    items = items,
                     key = { item -> item.savedItem.savedItemId }
                 ) { cardDataWithLabels ->
                     val swipeThreshold = 0.45f
-
                     val currentThresholdFraction = remember { mutableStateOf(0f) }
                     val currentItem by rememberUpdatedState(cardDataWithLabels.savedItem)
                     val swipeState = rememberDismissState(
@@ -364,12 +393,12 @@ fun LibraryViewContent(
 
                             if (it == DismissValue.DismissedToEnd) { // Archiving/UnArchiving.
                                 if (currentItem.isArchived) {
-                                    libraryViewModel.unarchiveSavedItem(currentItem.savedItemId)
+                                    onUnarchive(currentItem.savedItemId)
                                 } else {
-                                    libraryViewModel.archiveSavedItem(currentItem.savedItemId)
+                                    onArchive(currentItem.savedItemId)
                                 }
                             } else if (it == DismissValue.DismissedToStart) { // Deleting.
-                                libraryViewModel.deleteSavedItem(currentItem.savedItemId)
+                                onDelete(currentItem.savedItemId)
                             }
 
                             true
@@ -426,10 +455,10 @@ fun LibraryViewContent(
                             )
                             SavedItemCard(
                                 selected = selected,
-                                savedItemViewModel = libraryViewModel,
+                                savedItemViewModel = savedItemViewModel,
                                 savedItem = savedItem,
                                 onClickHandler = {
-                                    libraryViewModel.actionsMenuItemLiveData.postValue(null)
+                                    selectItem()
                                     val activityClass =
                                         if (currentItem.contentReader == "PDF") PDFReaderActivity::class.java else WebReaderLoadingContainerActivity::class.java
                                     val intent = Intent(context, activityClass)
@@ -437,7 +466,7 @@ fun LibraryViewContent(
                                     context.startActivity(intent)
                                 },
                                 actionHandler = {
-                                    libraryViewModel.handleSavedItemAction(
+                                    onSavedItemAction(
                                         currentItem.savedItemId,
                                         it
                                     )
@@ -454,12 +483,12 @@ fun LibraryViewContent(
         }
 
         InfiniteListHandler(listState = listState) {
-            if ((uiState as LibraryUiState.Success).items.isEmpty()) {
+            if (items.isEmpty()) {
                 Log.d("sync", "loading with load func")
-                libraryViewModel.initialLoad()
+                initialLoad()
             } else {
                 Log.d("sync", "loading with search api")
-                libraryViewModel.loadUsingSearchAPI()
+                loadUsingSearchAPI()
             }
         }
 
@@ -467,8 +496,6 @@ fun LibraryViewContent(
             modifier = Modifier.align(Alignment.TopCenter),
             state = pullToRefreshState,
         )
-
-        // LabelsSelectionSheet(viewModel = libraryViewModel)
     }
 }
 

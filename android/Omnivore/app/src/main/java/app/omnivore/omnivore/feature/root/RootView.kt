@@ -39,6 +39,7 @@ import app.omnivore.omnivore.feature.auth.LoginViewModel
 import app.omnivore.omnivore.feature.auth.WelcomeScreen
 import app.omnivore.omnivore.feature.components.LabelsViewModel
 import app.omnivore.omnivore.feature.editinfo.EditInfoViewModel
+import app.omnivore.omnivore.feature.following.FollowingScreen
 import app.omnivore.omnivore.feature.library.LibraryView
 import app.omnivore.omnivore.feature.library.SearchView
 import app.omnivore.omnivore.feature.library.SearchViewModel
@@ -134,7 +135,7 @@ fun PrimaryNavigator(
         }
 
         composable(Routes.Following.route) {
-            LibraryView(
+            FollowingScreen(
                 navController = navController,
                 labelsViewModel = labelsViewModel,
                 saveViewModel = saveViewModel,

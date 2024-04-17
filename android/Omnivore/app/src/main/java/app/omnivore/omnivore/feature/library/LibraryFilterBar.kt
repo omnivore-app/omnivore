@@ -27,6 +27,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.omnivore.omnivore.R
 import app.omnivore.omnivore.core.database.entities.SavedItemLabel
 import app.omnivore.omnivore.feature.components.LabelChipColors
@@ -41,7 +42,7 @@ fun LibraryFilterBar(
     val activeSavedItemFilter: SavedItemFilter by viewModel.appliedFilterLiveData.observeAsState(
         if (isFollowingScreen) SavedItemFilter.FOLLOWING else SavedItemFilter.INBOX
     )
-    val activeLabels: List<SavedItemLabel> by viewModel.activeLabelsLiveData.observeAsState(listOf())
+    val activeLabels: List<SavedItemLabel> by viewModel.activeLabels.collectAsStateWithLifecycle()
 
     var isSavedItemSortFilterMenuExpanded by remember { mutableStateOf(false) }
     val activeSavedItemSortFilter: SavedItemSortFilter by viewModel.appliedSortFilterLiveData.observeAsState(
@@ -97,7 +98,7 @@ fun LibraryFilterBar(
                 val chipColors = LabelChipColors.fromHex(label.color)
 
                 AssistChip(onClick = {
-                    viewModel.updateAppliedLabels((viewModel.activeLabelsLiveData.value
+                    viewModel.updateAppliedLabels((viewModel.activeLabels.value
                         ?: listOf()).filter { it.savedItemLabelId != label.savedItemLabelId })
                 },
                     label = { Text(label.name) },
