@@ -359,19 +359,24 @@ const generateSpeechFiles = (
   return speechFiles
 }
 
-// TODO: we should have a QA step here that does some
+// we should have a QA step here that does some
 // basic checks to make sure the summaries are good.
 const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
   return summaries.filter((item) => item.summary.length > 100)
 }
 
-// TODO: we can use something more sophisticated to generate titles
+// we can use something more sophisticated to generate titles
 const generateTitle = (summaries: RankedItem[]): string =>
   'Omnivore digest: ' +
-  summaries.map((item) => item.libraryItem.title).join(',')
+  summaries.map((item) => item.libraryItem.title).join(', ')
 
-// TODO: generate description based on the summaries
-const generateDescription = (summaries: RankedItem[]): string => 'description'
+// generate description based on the summaries
+const generateDescription = (summaries: RankedItem[]): string =>
+  `We selected ${
+    summaries.length
+  } articles from your last 24 hours of saved items, covering ${summaries
+    .map((summary) => summary.topic)
+    .join(', ')}.`
 
 // generate content based on the summaries
 const generateContent = (summaries: RankedItem[]): string =>
@@ -383,7 +388,7 @@ const generateByline = (summaries: RankedItem[]): string =>
   summaries
     .filter((summary) => !!summary.libraryItem.author)
     .map((item) => item.libraryItem.author)
-    .join(',')
+    .join(', ')
 
 export const createDigestJob = async (jobData: CreateDigestJobData) => {
   digestDefinition = await fetchDigestDefinition()

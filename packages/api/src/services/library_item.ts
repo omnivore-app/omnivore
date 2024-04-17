@@ -21,7 +21,6 @@ import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
   getColumns,
-  getColumnsDbName,
   getRepository,
   queryBuilderToRawSql,
 } from '../repository'
@@ -626,9 +625,9 @@ export const buildQuery = (
   userId: string
 ) => {
   // select all columns except content
-  const selects: Select[] = getColumnsDbName(libraryItemRepository)
+  const selects: Select[] = getColumns(libraryItemRepository)
     .filter(
-      (select) => select !== 'readable_content' && select !== 'original_content'
+      (select) => select !== 'readableContent' && select !== 'originalContent'
     )
     .map((column) => ({ column: `library_item.${column}` }))
 
@@ -660,7 +659,7 @@ export const buildQuery = (
   })
 
   if (args.includeContent) {
-    queryBuilder.addSelect('library_item.readable_content')
+    queryBuilder.addSelect('library_item.readableContent')
   }
 
   if (!args.includePending) {
@@ -761,8 +760,8 @@ export const findRecentLibraryItems = async (
 }
 
 export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
-  const selectColumns = getColumnsDbName(libraryItemRepository)
-    .filter((column) => column !== 'original_content')
+  const selectColumns = getColumns(libraryItemRepository)
+    .filter((column) => column !== 'originalContent')
     .map((column) => `library_item.${column}`)
   return authTrx(
     async (tx) =>
