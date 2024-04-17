@@ -385,7 +385,7 @@ const generateDescription = (
 // generate content based on the summaries
 const generateContent = (summaries: RankedItem[]): string =>
   summaries
-    .map((summary) => `## ${summary.libraryItem.title}\n ${summary.summary}`)
+    .map((summary) => `### ${summary.libraryItem.title}\n ${summary.summary}`)
     .join('\n\n')
 
 const generateByline = (summaries: RankedItem[]): string =>
