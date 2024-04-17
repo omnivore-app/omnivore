@@ -141,6 +141,7 @@ const getCandidatesList = async (
   //   reason: "most recent 100 items saved over 500 words
 
   if (libraryItemIds) {
+    logger.info('Using libraryItemIds')
     return findLibraryItemsByIds(libraryItemIds, userId)
   }
 
@@ -299,7 +300,7 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
 
   logger.info('finalSelections: ', finalSelections)
 
-  return finalSelections
+  return { finalSelections, rankedTopics }
 }
 
 const summarizeItems = async (
@@ -371,12 +372,15 @@ const generateTitle = (summaries: RankedItem[]): string =>
   summaries.map((item) => item.libraryItem.title).join(', ')
 
 // generate description based on the summaries
-const generateDescription = (summaries: RankedItem[]): string =>
+const generateDescription = (
+  summaries: RankedItem[],
+  rankedTopics: string[]
+): string =>
   `We selected ${
     summaries.length
-  } articles from your last 24 hours of saved items, covering ${summaries
-    .map((summary) => summary.topic)
-    .join(', ')}.`
+  } articles from your last 24 hours of saved items, covering ${rankedTopics.join(
+    ', '
+  )}.`
 
 // generate content based on the summaries
 const generateContent = (summaries: RankedItem[]): string =>
@@ -393,12 +397,16 @@ const generateByline = (summaries: RankedItem[]): string =>
 export const createDigestJob = async (jobData: CreateDigestJobData) => {
   digestDefinition = await fetchDigestDefinition()
 
-  const candidates = await getCandidatesList(jobData.userId)
+  const candidates = await getCandidatesList(
+    jobData.userId,
+    jobData.libraryItemIds
+  )
   const userProfile = await findOrCreateUserProfile(jobData.userId)
   const rankedCandidates = await rankCandidates(candidates, userProfile)
-  const selections = chooseRankedSelections(rankedCandidates)
+  const { finalSelections, rankedTopics } =
+    chooseRankedSelections(rankedCandidates)
 
-  const summaries = await summarizeItems(selections)
+  const summaries = await summarizeItems(finalSelections)
 
   const filteredSummaries = filterSummaries(summaries)
 
@@ -423,7 +431,7 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
       wordCount: speechFiles[index].wordCount,
     })),
     createdAt: new Date(),
-    description: generateDescription(summaries),
+    description: generateDescription(summaries, rankedTopics),
     byline: generateByline(summaries),
   }
 
