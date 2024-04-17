@@ -39,6 +39,7 @@ interface CreateDigestRequest {
   language?: string
   rate?: string
   schedule?: CreateDigestJobSchedule
+  libraryItemIds?: string[]
 }
 
 export function digestRouter() {

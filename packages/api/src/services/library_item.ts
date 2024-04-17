@@ -21,6 +21,7 @@ import { redisDataSource } from '../redis_data_source'
 import {
   authTrx,
   getColumns,
+  getColumnsDbName,
   getRepository,
   queryBuilderToRawSql,
 } from '../repository'
@@ -625,13 +626,11 @@ export const buildQuery = (
   userId: string
 ) => {
   // select all columns except content
-  const selects: Select[] = getColumns(libraryItemRepository)
-    .map((column) => ({ column: `library_item.${column}` }))
+  const selects: Select[] = getColumnsDbName(libraryItemRepository)
     .filter(
-      (select) =>
-        select.column !== 'library_item.readableContent' &&
-        select.column !== 'library_item.originalContent'
+      (select) => select !== 'readable_content' && select !== 'original_content'
     )
+    .map((column) => ({ column: `library_item.${column}` }))
 
   const parameters: ObjectLiteral[] = []
   const orders: Sort[] = []
@@ -652,9 +651,17 @@ export const buildQuery = (
   queryBuilder.where('library_item.user_id = :userId', { userId })
 
   // add select
-  selects.forEach((select) => {
+  selects.forEach((select, index) => {
+    if (index === 0) {
+      queryBuilder.select(select.column, select.alias)
+    }
+
     queryBuilder.addSelect(select.column, select.alias)
   })
+
+  if (args.includeContent) {
+    queryBuilder.addSelect('library_item.readable_content')
+  }
 
   if (!args.includePending) {
     queryBuilder.andWhere("library_item.state <> 'PROCESSING'")
@@ -754,18 +761,14 @@ export const findRecentLibraryItems = async (
 }
 
 export const findLibraryItemsByIds = async (ids: string[], userId: string) => {
-  const selectColumns = getColumns(libraryItemRepository)
-    .filter(
-      (column) => column !== 'readableContent' && column !== 'originalContent'
-    )
+  const selectColumns = getColumnsDbName(libraryItemRepository)
+    .filter((column) => column !== 'original_content')
     .map((column) => `library_item.${column}`)
   return authTrx(
     async (tx) =>
       tx
         .createQueryBuilder(LibraryItem, 'library_item')
         .select(selectColumns)
-        .leftJoinAndSelect('library_item.labels', 'labels')
-        .leftJoinAndSelect('library_item.highlights', 'highlights')
         .where('library_item.id IN (:...ids)', { ids })
         .getMany(),
     undefined,

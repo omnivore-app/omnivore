@@ -10,7 +10,10 @@ import {
   SSMLOptions,
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
-import { searchLibraryItems } from '../../services/library_item'
+import {
+  findLibraryItemsByIds,
+  searchLibraryItems,
+} from '../../services/library_item'
 import { redisDataSource } from '../../redis_data_source'
 import { htmlToMarkdown } from '../../utils/parser'
 import yaml from 'yaml'
@@ -27,6 +30,7 @@ export interface CreateDigestJobData {
   voices?: string[]
   language?: string
   rate?: string
+  libraryItemIds?: string[]
 }
 
 export interface CreateDigestJobResponse {
@@ -125,13 +129,20 @@ const getPreferencesList = async (userId: string): Promise<LibraryItem[]> => {
 }
 
 // Makes multiple DB queries and combines the results
-const getCandidatesList = async (userId: string): Promise<LibraryItem[]> => {
+const getCandidatesList = async (
+  userId: string,
+  libraryItemIds?: string[]
+): Promise<LibraryItem[]> => {
   // use the queries from the digest definitions to lookup preferences
   // There should be a list of multiple queries we use. For now we can
   // hardcode these queries:
   // - query: "in:all is:unread saved:last24hrs sort:saved-desc wordsCount:>=500"
   //   count: 100
   //   reason: "most recent 100 items saved over 500 words
+
+  if (libraryItemIds) {
+    return findLibraryItemsByIds(libraryItemIds, userId)
+  }
 
   const candidates = await Promise.all(
     digestDefinition.candidateSelectors.map(async (selector) => {
