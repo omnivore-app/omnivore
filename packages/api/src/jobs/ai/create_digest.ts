@@ -353,15 +353,18 @@ const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
 }
 
 // TODO: we can use something more sophisticated to generate titles
-const generateTitle = (selections: RankedItem[]): string =>
+const generateTitle = (summaries: RankedItem[]): string =>
   'Omnivore digest: ' +
-  selections.map((item) => item.libraryItem.title).join(',')
+  summaries.map((item) => item.libraryItem.title).join(',')
 
 // TODO: generate description based on the summaries
-const generateDescription = (selections: RankedItem[]): string => 'description'
+const generateDescription = (summaries: RankedItem[]): string => 'description'
 
 // TODO: generate content based on the summaries
-const generateContent = (selections: RankedItem[]): string => 'content'
+const generateContent = (summaries: RankedItem[]): string => 'content'
+
+const generateByline = (summaries: RankedItem[]): string =>
+  summaries.map((item) => item.libraryItem.author).join(',')
 
 export const createDigestJob = async (jobData: CreateDigestJobData) => {
   digestDefinition = await fetchDigestDefinition()
@@ -397,6 +400,7 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
     })),
     createdAt: new Date(),
     description: generateDescription(summaries),
+    byline: generateByline(summaries),
   }
 
   await writeDigest(jobData.userId, digest)

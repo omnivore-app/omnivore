@@ -16,6 +16,7 @@ export interface Digest {
   jobState: TaskState
   createdAt: Date
   description: string
+  byline: string
 
   url?: string
   title?: string
