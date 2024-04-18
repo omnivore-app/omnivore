@@ -872,25 +872,40 @@ export const enqueueCreateDigest = async (
     throw new Error('No queue found')
   }
 
+  // enqueue create digest job immediately
   const jobId = `${CREATE_DIGEST_JOB}_${data.userId}`
+  const job = await queue.add(CREATE_DIGEST_JOB, data, {
+    jobId, // dedupe by job id
+    removeOnComplete: true,
+    removeOnFail: true,
+    attempts: 1,
+    priority: getJobPriority(CREATE_DIGEST_JOB),
+  })
 
-  let repeatOptions
+  if (!job || !job.id) {
+    logger.error('Error while enqueuing create digest job', data)
+    throw new Error('Error while enqueuing create digest job')
+  }
+
+  logger.info('create digest job enqueued', { jobId })
+
+  const digest = {
+    id: data.id,
+    jobState: TaskState.Running,
+  }
+
+  // update digest job state in redis
+  await writeDigest(data.userId, digest)
 
   if (schedule) {
-    const pattern = getCronPattern(schedule)
-    repeatOptions = {
-      immediately: true, // run immediately
-      pattern,
-    }
-
     await Promise.all(
       Object.keys(CRON_PATTERNS).map(async (key) => {
         // remove existing repeated job if any
         const isDeleted = await queue.removeRepeatable(
           CREATE_DIGEST_JOB,
           {
-            immediately: true, // run immediately
             pattern: CRON_PATTERNS[key as keyof typeof CRON_PATTERNS],
+            tz: 'UTC',
           },
           jobId
         )
@@ -900,31 +915,25 @@ export const enqueueCreateDigest = async (
         }
       })
     )
+
+    // schedule repeated job
+    const job = await queue.add(CREATE_DIGEST_JOB, data, {
+      attempts: 1,
+      priority: getJobPriority(CREATE_DIGEST_JOB),
+      repeat: {
+        pattern: getCronPattern(schedule),
+        jobId,
+        tz: 'UTC',
+      },
+    })
+
+    if (!job || !job.id) {
+      logger.error('Error while scheduling create digest job', data)
+      throw new Error('Error while scheduling create digest job')
+    }
+
+    logger.info('create digest job scheduled', { jobId, schedule })
   }
-
-  const job = await queue.add(CREATE_DIGEST_JOB, data, {
-    jobId, // dedupe by job id
-    removeOnComplete: true,
-    removeOnFail: true,
-    attempts: 1,
-    priority: getJobPriority(CREATE_DIGEST_JOB),
-    repeat: repeatOptions,
-  })
-
-  if (!job || !job.id) {
-    logger.error('Error while enqueuing create digest job', data)
-    throw new Error('Error while enqueuing create digest job')
-  }
-
-  logger.info('create digest job enqueued', { jobId, schedule })
-
-  const digest = {
-    id: data.id,
-    jobState: TaskState.Running,
-  }
-
-  // update digest job state in redis
-  await writeDigest(data.userId, digest)
 
   return {
     jobId: digest.id,
