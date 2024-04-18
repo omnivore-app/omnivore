@@ -23,6 +23,7 @@ export interface Digest {
   content?: string
   chapters?: Chapter[]
 
+  urlsToAudio?: string[]
   speechFiles?: SpeechFile[]
 }
 

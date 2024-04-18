@@ -482,6 +482,7 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
       createdAt: new Date(),
       description: generateDescription(summaries, rankedTopics),
       byline: generateByline(summaries),
+      urlsToAudio: [],
     }
 
     await writeDigest(jobData.userId, digest)
