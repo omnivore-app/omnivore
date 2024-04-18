@@ -10,19 +10,17 @@ import { logoutMutation } from '../../../lib/networking/mutations/logoutMutation
 import { useRouter } from 'next/router'
 import { formatMessage } from '../../../locales/en/messages'
 import { parseErrorCodes } from '../../../lib/queryParamParser'
-import {
-  GoogleReCaptchaProvider,
-  GoogleReCaptchaCheckbox,
-} from '@google-recaptcha/react'
 import Link from 'next/link'
+import { Recaptcha } from '../../elements/Recaptcha'
 
 const SignUpForm = (): JSX.Element => {
   const [email, setEmail] = useState<string | undefined>()
   const [password, setPassword] = useState<string | undefined>()
   const [fullname, setFullname] = useState<string | undefined>()
   const [username, setUsername] = useState<string | undefined>()
-  const [debouncedUsername, setDebouncedUsername] =
-    useState<string | undefined>()
+  const [debouncedUsername, setDebouncedUsername] = useState<
+    string | undefined
+  >()
 
   const { isUsernameValid, usernameErrorMessage } = useValidateUsernameQuery({
     username: debouncedUsername ?? '',
@@ -123,24 +121,6 @@ const SignUpForm = (): JSX.Element => {
         </StyledText>
       )}
     </VStack>
-  )
-}
-
-type RecaptchaProps = {
-  setRecaptchaToken: (token: string) => void
-}
-
-const Recaptcha = (props: RecaptchaProps): JSX.Element => {
-  return (
-    <>
-      <GoogleReCaptchaCheckbox
-        key="recaptcha"
-        onChange={(token) => {
-          console.log('recaptcha: ', token)
-          props.setRecaptchaToken(token)
-        }}
-      />
-    </>
   )
 }
 
