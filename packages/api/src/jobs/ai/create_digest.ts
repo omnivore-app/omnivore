@@ -179,6 +179,14 @@ const getCandidatesList = async (
 
   if (dedupedCandidates.length === 0) {
     logger.info('No new candidates found')
+
+    if (existingCandidateIds) {
+      // reuse the existing candidates
+      const existingIds = existingCandidateIds.split(',')
+      return findLibraryItemsByIds(existingIds, userId)
+    }
+
+    // return empty array if no existing candidates
     return []
   }
 
@@ -303,7 +311,6 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
   }
 
   logger.info('rankedTopics: ', rankedTopics)
-  logger.info('finalSelections: ', selected)
 
   const finalSelections = []
 
@@ -312,7 +319,10 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
     finalSelections.push(...matches)
   }
 
-  logger.info('finalSelections: ', finalSelections)
+  logger.info(
+    'finalSelections: ',
+    finalSelections.map((item) => item.libraryItem.title)
+  )
 
   return { finalSelections, rankedTopics }
 }
