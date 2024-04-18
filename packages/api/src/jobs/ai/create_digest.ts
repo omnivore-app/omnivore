@@ -17,8 +17,10 @@ import {
   findLibraryItemsByIds,
   searchLibraryItems,
 } from '../../services/library_item'
+import { findDeviceTokensByUserId } from '../../services/user_device_tokens'
 import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
+import { sendMulticastPushNotifications } from '../../utils/sendNotification'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -490,5 +492,19 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
       id: jobData.id,
       jobState: TaskState.Failed,
     })
+  } finally {
+    // send notification
+    const tokens = await findDeviceTokensByUserId(jobData.userId)
+    if (tokens.length > 0) {
+      const message = {
+        notification: {
+          title: 'Digest ready',
+          body: 'Your digest is ready to listen',
+        },
+        tokens: tokens.map((token) => token.token),
+      }
+
+      await sendMulticastPushNotifications(jobData.userId, message, 'reminder')
+    }
   }
 }
