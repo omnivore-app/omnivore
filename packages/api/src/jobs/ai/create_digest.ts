@@ -1,26 +1,24 @@
-import { logger } from '../../utils/logger'
-import { v4 as uuid } from 'uuid'
-
-import { OpenAI } from '@langchain/openai'
+import { JsonOutputParser } from '@langchain/core/output_parsers'
 import { PromptTemplate } from '@langchain/core/prompts'
-import { LibraryItem } from '../../entity/library_item'
+import { OpenAI } from '@langchain/openai'
 import {
   htmlToSpeechFile,
   SpeechFile,
   SSMLOptions,
 } from '@omnivore/text-to-speech-handler'
 import axios from 'axios'
+import showdown from 'showdown'
+import yaml from 'yaml'
+import { LibraryItem } from '../../entity/library_item'
+import { TaskState } from '../../generated/graphql'
+import { redisDataSource } from '../../redis_data_source'
+import { Digest, writeDigest } from '../../services/digest'
 import {
   findLibraryItemsByIds,
   searchLibraryItems,
 } from '../../services/library_item'
-import { redisDataSource } from '../../redis_data_source'
+import { logger } from '../../utils/logger'
 import { htmlToMarkdown } from '../../utils/parser'
-import yaml from 'yaml'
-import { JsonOutputParser } from '@langchain/core/output_parsers'
-import showdown from 'showdown'
-import { Digest, writeDigest } from '../../services/digest'
-import { TaskState } from '../../generated/graphql'
 
 export type CreateDigestJobSchedule = 'daily' | 'weekly'
 
@@ -131,7 +129,7 @@ const getPreferencesList = async (userId: string): Promise<LibraryItem[]> => {
 // Makes multiple DB queries and combines the results
 const getCandidatesList = async (
   userId: string,
-  libraryItemIds?: string[]
+  selectedLibraryItemIds?: string[]
 ): Promise<LibraryItem[]> => {
   // use the queries from the digest definitions to lookup preferences
   // There should be a list of multiple queries we use. For now we can
@@ -140,10 +138,15 @@ const getCandidatesList = async (
   //   count: 100
   //   reason: "most recent 100 items saved over 500 words
 
-  if (libraryItemIds) {
-    logger.info('Using libraryItemIds')
-    return findLibraryItemsByIds(libraryItemIds, userId)
+  if (selectedLibraryItemIds) {
+    return findLibraryItemsByIds(selectedLibraryItemIds, userId)
   }
+
+  // get the existing candidate ids from cache
+  const key = `digest:existingCandidateIds:${userId}`
+  const existingCandidateIds = await redisDataSource.redisClient?.get(key)
+
+  logger.info('existingCandidateIds: ', { existingCandidateIds })
 
   const candidates = await Promise.all(
     digestDefinition.candidateSelectors.map(async (selector) => {
@@ -151,7 +154,9 @@ const getCandidatesList = async (
       const results = await searchLibraryItems(
         {
           includeContent: true,
-          query: selector.query,
+          query: existingCandidateIds
+            ? `(${selector.query}) -includes:${existingCandidateIds}` // exclude the existing candidates
+            : selector.query,
           size: selector.count,
         },
         userId
@@ -171,6 +176,15 @@ const getCandidatesList = async (
       ...item,
       readableContent: htmlToMarkdown(item.readableContent),
     })) // convert the html content to markdown
+
+  if (dedupedCandidates.length === 0) {
+    logger.info('No new candidates found')
+    return []
+  }
+
+  // store the ids in cache
+  const candidateIds = dedupedCandidates.map((item) => item.id).join(',')
+  await redisDataSource.redisClient?.set(key, candidateIds)
 
   return dedupedCandidates
 }
@@ -203,7 +217,7 @@ const createUserProfile = async (
 // it to redis
 const findOrCreateUserProfile = async (userId: string): Promise<string> => {
   // check redis for user profile, return if found
-  const key = `userProfile:${userId}`
+  const key = `digest:userProfile:${userId}`
   const existingProfile = await redisDataSource.redisClient?.get(key)
   if (existingProfile) {
     return existingProfile
@@ -376,11 +390,8 @@ const generateDescription = (
   summaries: RankedItem[],
   rankedTopics: string[]
 ): string =>
-  `We selected ${
-    summaries.length
-  } articles from your last 24 hours of saved items, covering ${rankedTopics.join(
-    ', '
-  )}.`
+  `We selected ${summaries.length} articles from your last 24 hours of saved items` +
+  (rankedTopics.length ? `, covering ${rankedTopics.join(', ')}.` : '.')
 
 // generate content based on the summaries
 const generateContent = (summaries: RankedItem[]): string =>
@@ -401,6 +412,15 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
     jobData.userId,
     jobData.libraryItemIds
   )
+  if (candidates.length === 0) {
+    logger.info('No candidates found')
+    return writeDigest(jobData.userId, {
+      id: jobData.id,
+      jobState: TaskState.Succeeded,
+      title: 'No articles found',
+    })
+  }
+
   const userProfile = await findOrCreateUserProfile(jobData.userId)
   const rankedCandidates = await rankCandidates(candidates, userProfile)
   const { finalSelections, rankedTopics } =
