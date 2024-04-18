@@ -74,10 +74,10 @@ interface RankedTitle {
 
 export const CREATE_DIGEST_JOB = 'create-digest'
 export const CRON_PATTERNS = {
-  // every day at 1PM UTC
-  daily: '0 13 * * *',
-  // every Sunday at 1PM UTC
-  weekly: '0 13 * * 7',
+  // every day at 10:30 UTC
+  daily: '0 30 10 * * *',
+  // every Sunday at 10:30 UTC
+  weekly: '0 30 10 * * 7',
 }
 
 let digestDefinition: DigestDefinition
