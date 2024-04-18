@@ -440,7 +440,6 @@ export const createDigestJob = async (jobData: CreateDigestJobData) => {
     id: jobData.id,
     title,
     content: generateContent(summaries),
-    urlsToAudio: [],
     jobState: TaskState.Succeeded,
     speechFiles,
     chapters: filteredSummaries.map((item, index) => ({
