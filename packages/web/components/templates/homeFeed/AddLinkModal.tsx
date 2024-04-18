@@ -262,6 +262,7 @@ const UploadOPMLTab = (): JSX.Element => {
         description="Drag OPML file to add feeds"
         accept={{
           'text/csv': ['.csv'],
+          'text/opml': ['.opml', '.xml'],
           'application/zip': ['.zip'],
           'application/pdf': ['.pdf'],
           'application/epub+zip': ['.epub'],
@@ -433,6 +434,9 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
     ) {
       contentType = 'text/csv'
     }
+    if (file.name.endsWith('.xml') || file.name.endsWith('.opml')) {
+      contentType = 'text/opml'
+    }
     switch (contentType) {
       case 'text/csv': {
         let urlCount = 0
@@ -482,6 +486,16 @@ const UploadPad = (props: UploadPadProps): JSX.Element => {
       case 'application/zip': {
         const result = await uploadImportFileRequestMutation(
           UploadImportFileType.MATTER,
+          contentType
+        )
+        return {
+          uploadSignedUrl: result?.uploadSignedUrl,
+        }
+      }
+      case 'text/opml':
+      case 'text/xml': {
+        const result = await uploadImportFileRequestMutation(
+          UploadImportFileType.OPML,
           contentType
         )
         return {
@@ -791,7 +805,7 @@ const TabBar = (props: TabBarProps) => {
       >
         Feed
       </Button>
-      {/* <Button
+      <Button
         style={props.selectedTab == 'opml' ? 'tabSelected' : 'tab'}
         onClick={(event) => {
           props.setSelectedTab('opml')
@@ -799,7 +813,7 @@ const TabBar = (props: TabBarProps) => {
         }}
       >
         OPML
-      </Button> */}
+      </Button>
       <Button
         style={props.selectedTab == 'import' ? 'tabSelected' : 'tab'}
         onClick={(event) => {

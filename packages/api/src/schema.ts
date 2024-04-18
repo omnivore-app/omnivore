@@ -2506,6 +2506,7 @@ const schema = gql`
     URL_LIST
     POCKET
     MATTER
+    OPML
   }
 
   enum UploadImportFileErrorCode {

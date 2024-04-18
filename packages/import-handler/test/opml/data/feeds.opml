@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+                <opml version="2.0">
+                    <head>
+                        <title>OPML Feeds</title>
+                    </head>
+                    <body>
+                        <outline text="https://hnrss.org/newest" title="https://hnrss.org/newest" type="rss" xmlUrl="https://hnrss.org/newest" htmlUrl="https://hnrss.org/newest" />
+                        <outline text="https://google.com" title="https://google.com" type="rss" xmlUrl="https://google.com" htmlUrl="https://google.com" />
+                    </body>
+                </opml>

@@ -17,7 +17,7 @@ import {
 } from '../../utils/uploads'
 
 const MAX_DAILY_UPLOADS = 1
-const VALID_CONTENT_TYPES = ['text/csv', 'application/zip']
+const VALID_CONTENT_TYPES = ['text/csv', 'application/zip', 'text/opml']
 
 const extensionForContentType = (contentType: string) => {
   switch (contentType) {
@@ -25,6 +25,9 @@ const extensionForContentType = (contentType: string) => {
       return 'csv'
     case 'application/zip':
       return 'zip'
+    case 'text/opml':
+    case 'text/xml':
+      return 'opml'
   }
   return '.unknown'
 }
