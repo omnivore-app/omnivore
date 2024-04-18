@@ -11,6 +11,7 @@ struct WebReader: PlatformViewRepresentable {
   let articleContent: ArticleContent
   let openLinkAction: (URL) -> Void
   let tapHandler: () -> Void
+  let explainHandler: ((String) -> Void)?
   let scrollPercentHandler: (Int) -> Void
   let webViewActionHandler: (WKScriptMessage, WKScriptMessageReplyHandler?) -> Void
   let navBarVisibilityUpdater: (Bool) -> Void
@@ -51,6 +52,7 @@ struct WebReader: PlatformViewRepresentable {
     let contentController = WKUserContentController()
 
     webView.tapHandler = tapHandler
+    webView.explainHandler = explainHandler
     webView.navigationDelegate = context.coordinator
     webView.configuration.userContentController = contentController
     webView.configuration.userContentController.removeAllScriptMessageHandlers()

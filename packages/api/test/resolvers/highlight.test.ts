@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import * as chai from 'chai'
 import { expect } from 'chai'
 import chaiString from 'chai-string'
 import 'mocha'
-import { Highlight } from '../../src/entity/highlight'
 import { User } from '../../src/entity/user'
-import { getRepository } from '../../src/repository'
 import {
   createHighlight,
   deleteHighlightById,
@@ -157,7 +156,7 @@ describe('Highlights API', () => {
       .post('/local/debug/fake-user-login')
       .send({ fakeEmail: user.email })
 
-    authToken = res.body.authToken
+    authToken = res.body.authToken as string
     itemId = (await createTestLibraryItem(user.id)).id
   })
 

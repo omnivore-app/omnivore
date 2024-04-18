@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Jackson Harper on 6/29/23.
-//
-
 import Foundation
 import Models
 import Services
@@ -76,6 +69,30 @@ struct LibraryTabView: View {
   @State var operationStatus: OperationStatus = .none
   @State var operationMessage: String?
 
+  @State var digestEnabled = false
+
+  var showDigest: Bool {
+    if digestEnabled, #available(iOS 17.0, *) {
+      return true
+    }
+    return false
+  }
+
+  var displayTabs: [String] {
+    var res = [String]()
+    if !hideFollowingTab {
+      res.append("following")
+    }
+    if showDigest {
+      res.append("digest")
+    }
+    res.append("inbox")
+    if !showDigest {
+      res.append("profile")
+    }
+    return res
+  }
+
   var body: some View {
     VStack(spacing: 0) {
       WindowLink(level: .alert, transition: .move(edge: .bottom), isPresented: $showOperationToast) {
@@ -116,19 +133,32 @@ struct LibraryTabView: View {
           }.tag("following")
         }
 
-        NavigationView {
-          HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationViewStyle(.stack)
-        }.tag("inbox")
+        if showDigest, #available(iOS 17.0, *) {
+          NavigationView {
+            DigestView(dataService: dataService)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("digest")
+          NavigationView {
+            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("inbox")
+        } else {
+          NavigationView {
+            HomeFeedContainerView(viewModel: inboxViewModel, isEditMode: $isEditMode)
+              .navigationBarTitleDisplayMode(.inline)
+              .navigationViewStyle(.stack)
+          }.tag("inbox")
+          NavigationView {
+            ProfileView()
+              .navigationViewStyle(.stack)
+          }.tag("profile")
+        }
 
-        NavigationView {
-          ProfileView()
-            .navigationViewStyle(.stack)
-        }.tag("profile")
       }
-      if let audioProperties = audioController.itemAudioProperties {
-        MiniPlayerViewer(itemAudioProperties: audioProperties)
+      if audioController.itemAudioProperties != nil {
+        MiniPlayerViewer()
           .onTapGesture {
             showExpandedAudioPlayer = true
           }
@@ -138,7 +168,9 @@ struct LibraryTabView: View {
           .frame(maxWidth: .infinity)
       }
       if isEditMode != .active {
-        CustomTabBar(selectedTab: $selectedTab, hideFollowingTab: hideFollowingTab)
+        CustomTabBar(
+          displayTabs: displayTabs,
+          selectedTab: $selectedTab)
           .padding(0)
       }
     }

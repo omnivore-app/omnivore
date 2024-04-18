@@ -27,8 +27,7 @@ public struct LinkedItemSyncResult {
               hasMore: Bool,
               mostRecentUpdatedAt: Date?,
               oldestUpdatedAt: Date?,
-              isEmpty: Bool)
-  {
+              isEmpty: Bool) {
     self.updatedItemIDs = updatedItemIDs
     self.cursor = cursor
     self.hasMore = hasMore
@@ -38,7 +37,41 @@ public struct LinkedItemSyncResult {
   }
 }
 
-public struct LinkedItemAudioProperties {
+public enum AudioItemType {
+  case digest
+  case libraryItem
+}
+
+public protocol AudioItemProperties {
+  var audioItemType: AudioItemType {
+    get
+  }
+  var itemID: String {
+    get
+  }
+  var title: String {
+    get
+  }
+  var byline: String? {
+    get
+  }
+  var imageURL: URL? {
+    get
+  }
+  var language: String? {
+    get
+  }
+  var startIndex: Int {
+    get
+  }
+  var startOffset: Double {
+    get
+  }
+}
+
+public struct LinkedItemAudioProperties: AudioItemProperties {
+  public let audioItemType = AudioItemType.libraryItem
+
   public let itemID: String
   public let objectID: NSManagedObjectID
   public let title: String

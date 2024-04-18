@@ -21,6 +21,7 @@ import { aiSummariesRouter } from './routers/ai_summary_router'
 import { articleRouter } from './routers/article_router'
 import { authRouter } from './routers/auth/auth_router'
 import { mobileAuthRouter } from './routers/auth/mobile/mobile_auth_router'
+import { digestRouter } from './routers/digest_router'
 import { integrationRouter } from './routers/integration_router'
 import { localDebugRouter } from './routers/local_debug_router'
 import { notificationRouter } from './routers/notification_router'
@@ -47,11 +48,7 @@ import { apiLimiter, authLimiter } from './utils/rate_limit'
 
 const PORT = process.env.PORT || 4000
 
-export const createApp = (): {
-  app: Express
-  apollo: ApolloServer
-  httpServer: Server
-} => {
+export const createApp = (): Express => {
   const app = express()
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -93,6 +90,7 @@ export const createApp = (): {
   app.use('/api/notification', notificationRouter())
   app.use('/api/integration', integrationRouter())
   app.use('/api/tasks', taskRouter())
+  app.use('/api/digest', digestRouter())
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())
   app.use('/svc/pubsub/newsletters', newsletterServiceRouter())
@@ -136,10 +134,7 @@ export const createApp = (): {
     res.end(await prom.register.metrics())
   })
 
-  const apollo = makeApolloServer(app)
-  const httpServer = createServer(app)
-
-  return { app, apollo, httpServer }
+  return app
 }
 
 const main = async (): Promise<void> => {
@@ -154,19 +149,17 @@ const main = async (): Promise<void> => {
     await redisDataSource.initialize()
   }
 
-  const { app, apollo, httpServer } = createApp()
-
+  const app = createApp()
+  const apollo = makeApolloServer(app)
   await apollo.start()
   apollo.applyMiddleware({ app, path: '/api/graphql', cors: corsConfig })
 
-  if (!env.dev.isLocal) {
-    const mwLogger = loggers.get('express', { levels: config.syslog.levels })
-    const transport = buildLoggerTransport('express')
-    const mw = await lw.express.makeMiddleware(mwLogger, transport)
-    app.use(mw)
-  }
+  const mwLogger = loggers.get('express', { levels: config.syslog.levels })
+  const transport = buildLoggerTransport('express')
+  const mw = await lw.express.makeMiddleware(mwLogger, transport)
+  app.use(mw)
 
-  const listener = httpServer.listen({ port: PORT }, async () => {
+  const listener = app.listen({ port: PORT }, async () => {
     const logger = buildLogger('app.dispatch')
     logger.notice(`🚀 Server ready at ${apollo.graphqlPath}`)
   })
@@ -181,14 +174,13 @@ const main = async (): Promise<void> => {
   listener.timeout = 640 * 1000 // match headersTimeout
 
   const gracefulShutdown = async (signal: string) => {
+    console.log(`[api]: Received ${signal}, closing server...`)
+    await apollo.stop()
+    console.log('[api]: Apollo server stopped')
+
     console.log('[posthog]: flushing events')
     await analytics.shutdownAsync()
     console.log('[posthog]: events flushed')
-
-    console.log(`[api]: Received ${signal}, closing server...`)
-
-    await apollo.stop()
-    console.log('[api]: Apollo server stopped')
 
     await new Promise<void>((resolve) => {
       listener.close((err) => {

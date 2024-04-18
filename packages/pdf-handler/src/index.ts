@@ -1,7 +1,7 @@
 import { GetSignedUrlConfig, Storage } from '@google-cloud/storage'
 import * as Sentry from '@sentry/serverless'
 import { parsePdf } from './pdf'
-import { queueUpdatePageJob } from './job'
+import { queueUpdatePageJob, State } from './job'
 
 Sentry.GCPFunction.init({
   dsn: process.env.SENTRY_DSN,
@@ -50,10 +50,11 @@ const getDocumentUrl = async (
 
 export const updatePageContent = async (
   fileId: string,
-  content: string,
+  content?: string,
   title?: string,
   author?: string,
-  description?: string
+  description?: string,
+  state?: State
 ): Promise<string | undefined> => {
   const job = await queueUpdatePageJob({
     fileId,
@@ -61,6 +62,7 @@ export const updatePageContent = async (
     title,
     author,
     description,
+    state,
   })
   return job.id
 }
@@ -86,45 +88,68 @@ export const pdfHandler = Sentry.GCPFunction.wrapHttpFunction(
     if ('message' in req.body && 'data' in req.body.message) {
       const pubSubMessage = req.body.message.data as string
       const data = getStorageEventData(pubSubMessage)
-      if (data) {
-        try {
-          if (shouldHandle(data)) {
-            console.log('handling pdf data', data)
-
-            const url = await getDocumentUrl(data)
-            console.log('PDF url: ', url)
-            if (!url) {
-              console.log('Could not fetch PDF', data.bucket, data.name)
-              return res.status(404).send('Could not fetch PDF')
-            }
-
-            const parsed = await parsePdf(url)
-            const result = await updatePageContent(
-              data.name,
-              parsed.content,
-              parsed.title,
-              parsed.author,
-              parsed.description
-            )
-            console.log(
-              'publish result',
-              result,
-              'title',
-              parsed.title,
-              'author',
-              parsed.author
-            )
-          } else {
-            console.log('not handling pdf data', data)
-          }
-        } catch (err) {
-          console.log('error handling event', { err, data })
-          return res.status(500).send('Error handling event')
-        }
+      if (!data) {
+        console.log('no data found in pubsub message')
+        return res.send('ok')
       }
-    } else {
-      console.log('no pubsub message')
+
+      if (!shouldHandle(data)) {
+        console.log('not handling pdf data', data)
+        return res.send('ok')
+      }
+
+      console.log('handling pdf data', data)
+
+      let content,
+        title,
+        author,
+        description,
+        state: State = 'SUCCEEDED' // Default to succeeded even if we fail to parse
+
+      try {
+        const url = await getDocumentUrl(data)
+        console.log('PDF url: ', url)
+        if (!url) {
+          console.log('Could not fetch PDF', data.bucket, data.name)
+          // If we can't fetch the PDF, mark it as failed
+          state = 'FAILED'
+
+          return res.status(404).send('Could not fetch PDF')
+        }
+
+        // Parse the PDF to update the content and metadata
+        const parsed = await parsePdf(url)
+        content = parsed.content
+        title = parsed.title
+        author = parsed.author
+        description = parsed.description
+      } catch (err) {
+        console.log('error parsing pdf', { err, data })
+
+        return res.status(500).send('Error parsing pdf')
+      } finally {
+        // Always update the state, even if we fail to parse
+        const result = await updatePageContent(
+          data.name,
+          content,
+          title,
+          author,
+          description,
+          state
+        )
+        console.log(
+          'publish result',
+          result,
+          'title',
+          title,
+          'author',
+          author,
+          'state',
+          state
+        )
+      }
     }
+
     res.send('ok')
   }
 )

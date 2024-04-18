@@ -13,8 +13,6 @@
 
     @State var expanded = true
 
-    let itemAudioProperties: LinkedItemAudioProperties
-
     var playPauseButtonImage: String {
       switch audioController.state {
       case .playing:
@@ -32,7 +30,7 @@
       if audioController.playbackError {
         return AnyView(Color.clear)
       }
-      if let itemID = audioController.itemAudioProperties?.itemID, audioController.isLoadingItem(itemID: itemID) {
+      if audioController.isLoadingItem(audioController.itemAudioProperties) {
         return AnyView(ProgressView())
       } else {
         return AnyView(Button(
@@ -84,8 +82,8 @@
       .buttonStyle(PlainButtonStyle())
     }
 
-    func artwork(_ itemAudioProperties: LinkedItemAudioProperties, forDimensions dim: Double) -> some View {
-      if let imageURL = itemAudioProperties.imageURL {
+    func artwork(_ itemAudioProperties: AudioItemProperties?, forDimensions dim: Double) -> some View {
+      if let imageURL = itemAudioProperties?.imageURL {
         return AnyView(AsyncImage(url: imageURL) { phase in
           if let image = phase.image {
             image
@@ -125,9 +123,9 @@
             Text("There was an error playing back your audio.").foregroundColor(Color.red).font(.footnote)
             Spacer(minLength: 0)
           } else {
-            artwork(itemAudioProperties, forDimensions: 50)
+            artwork(audioController.itemAudioProperties, forDimensions: 50)
 
-            Text(itemAudioProperties.title)
+            Text(audioController.itemAudioProperties?.title ?? "")
               .font(Font.system(size: 17, weight: .medium))
               .fixedSize(horizontal: false, vertical: true)
               .lineLimit(2)

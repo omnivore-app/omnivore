@@ -81,7 +81,7 @@ export const mergeHighlightResolver = authorized<
   MergeHighlightSuccess,
   MergeHighlightError,
   MutationMergeHighlightArgs
->(async (_, { input }, { log, pubsub, uid }) => {
+>(async (_, { input }, { authTrx, log, pubsub, uid }) => {
   const { overlapHighlightIdList, ...newHighlightInput } = input
 
   /* Compute merged annotation form the order of highlights appearing on page */
@@ -90,9 +90,10 @@ export const mergeHighlightResolver = authorized<
   const mergedColors: string[] = []
 
   try {
-    const existingHighlights = await highlightRepository.findByLibraryItemId(
-      input.articleId,
-      uid
+    const existingHighlights = await authTrx((tx) =>
+      tx
+        .withRepository(highlightRepository)
+        .findByLibraryItemId(input.articleId, uid)
     )
 
     existingHighlights.forEach((highlight) => {

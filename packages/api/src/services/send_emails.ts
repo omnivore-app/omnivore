@@ -18,7 +18,7 @@ export const sendNewAccountVerificationEmail = async (user: {
   }
 
   const result = await enqueueSendEmail({
-    emailAddress: user.email,
+    to: user.email,
     dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.confirmationTemplateId,
   })
@@ -78,7 +78,7 @@ export const sendAccountChangeEmail = async (user: {
   }
 
   const result = await enqueueSendEmail({
-    emailAddress: user.email,
+    to: user.email,
     dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.verificationTemplateId,
   })
@@ -100,7 +100,7 @@ export const sendPasswordResetEmail = async (user: {
   }
 
   const result = await enqueueSendEmail({
-    emailAddress: user.email,
+    to: user.email,
     dynamicTemplateData: dynamicTemplateData,
     templateId: env.sendgrid.resetPasswordTemplateId,
   })

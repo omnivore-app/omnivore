@@ -17,7 +17,9 @@ public extension DataService {
         profileImageURL: try $0.profile(
           selection: .init { try $0.pictureUrl() }
         ),
-        intercomHash: try $0.intercomHash()
+        intercomHash: try $0.intercomHash(),
+        digestEnabled: true // (try $0.featureList(selection: featureSelection.list.nullable)?
+              // .filter { $0.enabled && $0.name == "digest" } ?? []).count > 0
       )
     }
 
@@ -65,6 +67,7 @@ public struct ViewerInternal {
   public let name: String
   public let profileImageURL: String?
   public let intercomHash: String?
+  public let digestEnabled: Bool?
 
   func persist(context: NSManagedObjectContext) throws {
     try context.performAndWait {
@@ -73,6 +76,7 @@ public struct ViewerInternal {
       viewer.username = username
       viewer.name = name
       viewer.profileImageURL = profileImageURL
+      viewer.digestEnabled = digestEnabled ?? false
 
       do {
         try context.save()
