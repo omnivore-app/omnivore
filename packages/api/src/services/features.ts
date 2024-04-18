@@ -9,7 +9,7 @@ import { logger } from '../utils/logger'
 const MAX_ULTRA_REALISTIC_USERS = 1500
 const MAX_YOUTUBE_TRANSCRIPT_USERS = 500
 const MAX_NOTION_USERS = 1000
-const MAX_AIDIGEST_USERS = 5
+const MAX_AIDIGEST_USERS = 10
 
 export enum FeatureName {
   AISummaries = 'ai-summaries',
