@@ -71,8 +71,17 @@ interface RankedTitle {
 }
 
 export const CREATE_DIGEST_JOB = 'create-digest'
+export const CRON_PATTERNS = {
+  // every day at 1PM UTC
+  daily: '0 13 * * *',
+  // every Sunday at 1PM UTC
+  weekly: '0 13 * * 7',
+}
 
 let digestDefinition: DigestDefinition
+
+export const getCronPattern = (schedule: CreateDigestJobSchedule) =>
+  CRON_PATTERNS[schedule]
 
 const fetchDigestDefinition = async (): Promise<DigestDefinition> => {
   const promptFileUrl = process.env.PROMPT_FILE_URL
@@ -289,7 +298,7 @@ const rankCandidates = async (
 }
 
 const filterTopics = (rankedTopics: string[]) =>
-  rankedTopics.filter((topic) => topic.length > 0)
+  rankedTopics.filter((topic) => topic?.length > 0)
 
 // Does some grouping by topic while trying to maintain ranking
 // adds some basic topic diversity
@@ -424,53 +433,62 @@ const generateByline = (summaries: RankedItem[]): string =>
     .join(', ')
 
 export const createDigestJob = async (jobData: CreateDigestJobData) => {
-  digestDefinition = await fetchDigestDefinition()
+  try {
+    digestDefinition = await fetchDigestDefinition()
 
-  const candidates = await getCandidatesList(
-    jobData.userId,
-    jobData.libraryItemIds
-  )
-  if (candidates.length === 0) {
-    logger.info('No candidates found')
-    return writeDigest(jobData.userId, {
+    const candidates = await getCandidatesList(
+      jobData.userId,
+      jobData.libraryItemIds
+    )
+    if (candidates.length === 0) {
+      logger.info('No candidates found')
+      return writeDigest(jobData.userId, {
+        id: jobData.id,
+        jobState: TaskState.Succeeded,
+        title: 'No articles found',
+      })
+    }
+
+    const userProfile = await findOrCreateUserProfile(jobData.userId)
+    const rankedCandidates = await rankCandidates(candidates, userProfile)
+    const { finalSelections, rankedTopics } =
+      chooseRankedSelections(rankedCandidates)
+
+    const summaries = await summarizeItems(finalSelections)
+
+    const filteredSummaries = filterSummaries(summaries)
+
+    const speechFiles = generateSpeechFiles(filteredSummaries, {
+      ...jobData,
+      primaryVoice: jobData.voices?.[0],
+      secondaryVoice: jobData.voices?.[1],
+    })
+    const title = generateTitle(summaries)
+    const digest: Digest = {
       id: jobData.id,
+      title,
+      content: generateContent(summaries),
       jobState: TaskState.Succeeded,
-      title: 'No articles found',
+      speechFiles,
+      chapters: filteredSummaries.map((item, index) => ({
+        title: item.libraryItem.title,
+        id: item.libraryItem.id,
+        url: item.libraryItem.originalUrl,
+        thumbnail: item.libraryItem.thumbnail ?? undefined,
+        wordCount: speechFiles[index].wordCount,
+      })),
+      createdAt: new Date(),
+      description: generateDescription(summaries, rankedTopics),
+      byline: generateByline(summaries),
+    }
+
+    await writeDigest(jobData.userId, digest)
+  } catch (error) {
+    logger.error('createDigestJob error', error)
+
+    await writeDigest(jobData.userId, {
+      id: jobData.id,
+      jobState: TaskState.Failed,
     })
   }
-
-  const userProfile = await findOrCreateUserProfile(jobData.userId)
-  const rankedCandidates = await rankCandidates(candidates, userProfile)
-  const { finalSelections, rankedTopics } =
-    chooseRankedSelections(rankedCandidates)
-
-  const summaries = await summarizeItems(finalSelections)
-
-  const filteredSummaries = filterSummaries(summaries)
-
-  const speechFiles = generateSpeechFiles(filteredSummaries, {
-    ...jobData,
-    primaryVoice: jobData.voices?.[0],
-    secondaryVoice: jobData.voices?.[1],
-  })
-  const title = generateTitle(summaries)
-  const digest: Digest = {
-    id: jobData.id,
-    title,
-    content: generateContent(summaries),
-    jobState: TaskState.Succeeded,
-    speechFiles,
-    chapters: filteredSummaries.map((item, index) => ({
-      title: item.libraryItem.title,
-      id: item.libraryItem.id,
-      url: item.libraryItem.originalUrl,
-      thumbnail: item.libraryItem.thumbnail ?? undefined,
-      wordCount: speechFiles[index].wordCount,
-    })),
-    createdAt: new Date(),
-    description: generateDescription(summaries, rankedTopics),
-    byline: generateByline(summaries),
-  }
-
-  await writeDigest(jobData.userId, digest)
 }
