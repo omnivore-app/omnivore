@@ -143,7 +143,7 @@ const getCandidatesList = async (
   }
 
   // get the existing candidate ids from cache
-  const key = `digest:existingCandidateIds:${userId}`
+  const key = `digest:${userId}:existingCandidateIds`
   const existingCandidateIds = await redisDataSource.redisClient?.get(key)
 
   logger.info('existingCandidateIds: ', { existingCandidateIds })
@@ -225,7 +225,7 @@ const createUserProfile = async (
 // it to redis
 const findOrCreateUserProfile = async (userId: string): Promise<string> => {
   // check redis for user profile, return if found
-  const key = `digest:userProfile:${userId}`
+  const key = `digest:${userId}:userProfile`
   const existingProfile = await redisDataSource.redisClient?.get(key)
   if (existingProfile) {
     return existingProfile
@@ -288,6 +288,9 @@ const rankCandidates = async (
   return rankedItems
 }
 
+const filterTopics = (rankedTopics: string[]) =>
+  rankedTopics.filter((topic) => topic.length > 0)
+
 // Does some grouping by topic while trying to maintain ranking
 // adds some basic topic diversity
 const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
@@ -324,7 +327,10 @@ const chooseRankedSelections = (rankedCandidates: RankedItem[]) => {
     finalSelections.map((item) => item.libraryItem.title)
   )
 
-  return { finalSelections, rankedTopics }
+  return {
+    finalSelections,
+    rankedTopics: filterTopics(rankedTopics),
+  }
 }
 
 const summarizeItems = async (
@@ -387,7 +393,9 @@ const generateSpeechFiles = (
 // we should have a QA step here that does some
 // basic checks to make sure the summaries are good.
 const filterSummaries = (summaries: RankedItem[]): RankedItem[] => {
-  return summaries.filter((item) => item.summary.length > 100)
+  return summaries.filter(
+    (item) => item.summary.length < item.libraryItem.readableContent.length
+  )
 }
 
 // we can use something more sophisticated to generate titles
