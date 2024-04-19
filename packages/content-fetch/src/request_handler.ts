@@ -1,8 +1,9 @@
+import { Storage } from '@google-cloud/storage'
 import { fetchContent } from '@omnivore/puppeteer-parse'
+import crypto from 'crypto'
 import { RequestHandler } from 'express'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
-import { redisDataSource } from './redis_data_source'
 
 interface User {
   id: string
@@ -47,20 +48,20 @@ interface LogRecord {
   totalTime?: number
 }
 
-interface FetchResult {
-  finalUrl: string
-  title?: string
-  content?: string
-  contentType?: string
+const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
+  ? new Storage({ keyFilename: process.env.GCS_UPLOAD_SA_KEY_FILE_PATH })
+  : new Storage()
+const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
+
+export const uploadToBucket = async (filename: string, data: string) => {
+  await storage
+    .bucket(bucketName)
+    .file(`originalContent/${filename}`)
+    .save(data, { public: false, timeout: 30000 })
 }
 
-export const cacheFetchResult = async (fetchResult: FetchResult) => {
-  // cache the fetch result for 24 hours
-  const ttl = 24 * 60 * 60
-  const key = `fetch-result:${fetchResult.finalUrl}`
-  const value = JSON.stringify(fetchResult)
-  return redisDataSource.cacheClient.set(key, value, 'EX', ttl, 'NX')
-}
+const hash = (content: string) =>
+  crypto.createHash('md5').update(content).digest('hex')
 
 export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   const functionStartTime = Date.now()
@@ -114,6 +115,15 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   try {
     const fetchResult = await fetchContent(url, locale, timezone)
     const finalUrl = fetchResult.finalUrl
+    let contentHash: string | undefined
+
+    const content = fetchResult.content
+    if (content) {
+      // hash content to use as key
+      contentHash = hash(content)
+      await uploadToBucket(contentHash, content)
+      console.log('content uploaded to bucket', contentHash)
+    }
 
     const savePageJobs = users.map((user) => ({
       userId: user.id,
@@ -130,14 +140,14 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
         savedAt,
         publishedAt,
         taskId,
+        title: fetchResult.title,
+        contentType: fetchResult.contentType,
+        contentHash,
       },
       isRss: !!rssFeedUrl,
       isImport: !!taskId,
       priority,
     }))
-
-    const cacheResult = await cacheFetchResult(fetchResult)
-    console.log('cacheFetchResult result', cacheResult)
 
     const jobs = await queueSavePageJob(savePageJobs)
     console.log('save-page jobs queued', jobs.length)

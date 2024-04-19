@@ -6,13 +6,13 @@ import {
   ArticleSavingRequestStatus,
   CreateLabelInput,
 } from '../generated/graphql'
-import { redisDataSource } from '../redis_data_source'
 import { userRepository } from '../repository/user'
 import { saveFile } from '../services/save_file'
 import { savePage } from '../services/save_page'
 import { uploadFile } from '../services/upload_file'
 import { logError, logger } from '../utils/logger'
 import { downloadFromUrl, uploadToSignedUrl } from '../utils/uploads'
+import { downloadStringFromBucket } from '../utils/uploads'
 
 const signToken = promisify(jwt.sign)
 
@@ -27,6 +27,9 @@ interface Data {
   url: string
   finalUrl: string
   articleSavingRequestId: string
+  title: string
+  contentType: string
+
   state?: string
   labels?: CreateLabelInput[]
   source: string
@@ -35,6 +38,7 @@ interface Data {
   savedAt?: string
   publishedAt?: string
   taskId?: string
+  contentHash?: string
 }
 
 interface FetchResult {
@@ -120,32 +124,6 @@ const sendImportStatusUpdate = async (
   }
 }
 
-const getCachedFetchResult = async (url: string) => {
-  const key = `fetch-result:${url}`
-  if (!redisDataSource.redisClient || !redisDataSource.workerRedisClient) {
-    throw new Error('redis client is not initialized')
-  }
-
-  let result = await redisDataSource.redisClient.get(key)
-  if (!result) {
-    logger.debug(`fetch result is not cached in cache redis ${url}`)
-    // fallback to worker redis client if the result is not found
-    result = await redisDataSource.workerRedisClient.get(key)
-    if (!result) {
-      throw new Error('fetch result is not cached')
-    }
-  }
-
-  const fetchResult = JSON.parse(result) as unknown
-  if (!isFetchResult(fetchResult)) {
-    throw new Error('fetch result is not valid')
-  }
-
-  logger.info('fetch result is cached', url)
-
-  return fetchResult
-}
-
 export const savePageJob = async (data: Data, attemptsMade: number) => {
   const {
     userId,
@@ -159,6 +137,9 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     taskId,
     url,
     finalUrl,
+    title,
+    contentType,
+    contentHash,
   } = data
   let isImported,
     isSaved,
@@ -170,11 +151,6 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       url,
       finalUrl,
     })
-
-    // get the fetch result from cache
-    const fetchedResult = await getCachedFetchResult(finalUrl)
-    const { title, contentType } = fetchedResult
-    let content = fetchedResult.content
 
     const user = await userRepository.findById(userId)
     if (!user) {
@@ -218,11 +194,24 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
       return true
     }
 
-    if (!content) {
-      logger.info(`content is not fetched: ${finalUrl}`)
+    let originalContent
+    if (!contentHash) {
+      logger.info(`content is not uploaded: ${finalUrl}`)
       // set the state to failed if we don't have content
-      content = 'Failed to fetch content'
+      originalContent = 'Failed to fetch content'
       state = ArticleSavingRequestStatus.Failed
+    } else {
+      // download content from the bucket
+      const downloaded = await downloadStringFromBucket(
+        `originalContent/${contentHash}`
+      )
+      if (!downloaded) {
+        logger.error('error while downloading content from bucket')
+        originalContent = 'Failed to fetch content'
+        state = ArticleSavingRequestStatus.Failed
+      } else {
+        originalContent = downloaded
+      }
     }
 
     // for non-pdf content, we need to save the page
@@ -231,7 +220,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         url: finalUrl,
         clientRequestId: articleSavingRequestId,
         title,
-        originalContent: content,
+        originalContent,
         state: state ? (state as ArticleSavingRequestStatus) : undefined,
         labels: labels,
         rssFeedUrl,
