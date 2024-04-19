@@ -786,6 +786,7 @@ export const updatesSinceResolver = authorized<
       size: size + 1, // fetch one more item to get next cursor
       includeDeleted: true,
       query,
+      includeContent: true, // by default include content for offline use for now
     },
     uid
   )

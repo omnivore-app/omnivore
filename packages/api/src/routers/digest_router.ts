@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express from 'express'
+import { v4 as uuid } from 'uuid'
 import { env } from '../env'
 import { TaskState } from '../generated/graphql'
 import { CreateDigestJobSchedule } from '../jobs/ai/create_digest'
@@ -11,7 +12,6 @@ import { getClaimsByToken, getTokenByRequest } from '../utils/auth'
 import { corsConfig } from '../utils/corsConfig'
 import { enqueueCreateDigest } from '../utils/createTask'
 import { logger } from '../utils/logger'
-import { v4 as uuid } from 'uuid'
 
 interface Feedback {
   digestRating: number
@@ -153,15 +153,11 @@ export function digestRouter() {
         return res.sendStatus(404)
       }
 
-      if (digest.jobState === TaskState.Running) {
-        // if job is running then return job state
-        return res.send({
-          jobId: digest.id,
-          jobState: digest.jobState,
-        })
+      if (digest.jobState === TaskState.Failed) {
+        logger.error(`Digest job failed: ${userId}`)
+        return res.sendStatus(500)
       }
 
-      // if job is done then return the digest
       return res.send(digest)
     } catch (error) {
       logger.error('Error while getting digest', error)
