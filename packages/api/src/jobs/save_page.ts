@@ -38,18 +38,7 @@ interface Data {
   savedAt?: string
   publishedAt?: string
   taskId?: string
-  contentHash?: string
-}
-
-interface FetchResult {
-  finalUrl: string
-  title?: string
-  content?: string
-  contentType?: string
-}
-
-const isFetchResult = (obj: unknown): obj is FetchResult => {
-  return typeof obj === 'object' && obj !== null && 'finalUrl' in obj
+  urlHash?: string
 }
 
 const uploadPdf = async (
@@ -139,7 +128,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     finalUrl,
     title,
     contentType,
-    contentHash,
+    urlHash,
   } = data
   let isImported,
     isSaved,
@@ -195,7 +184,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     }
 
     let originalContent
-    if (!contentHash) {
+    if (!urlHash) {
       logger.info(`content is not uploaded: ${finalUrl}`)
       // set the state to failed if we don't have content
       originalContent = 'Failed to fetch content'
@@ -203,7 +192,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
     } else {
       // download content from the bucket
       const downloaded = await downloadStringFromBucket(
-        `originalContent/${contentHash}`
+        `originalContent/${urlHash}`
       )
       if (!downloaded) {
         logger.error('error while downloading content from bucket')
