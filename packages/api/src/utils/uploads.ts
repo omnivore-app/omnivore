@@ -158,16 +158,16 @@ export const downloadStringFromBucket = async (
   filePath: string
 ): Promise<string | null> => {
   try {
-    const bucket = storage.bucket(bucketName)
+    const file = storage.bucket(bucketName).file(filePath)
 
-    const [exists] = await bucket.file(filePath).exists()
+    const [exists] = await file.exists()
     if (!exists) {
       logger.error(`File not found: ${filePath}`)
       return null
     }
 
     // Download the file contents as a string
-    const [data] = await bucket.file(filePath).download()
+    const [data] = await file.download()
     return data.toString()
   } catch (error) {
     logger.info('Error downloading file:', error)

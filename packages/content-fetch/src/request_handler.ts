@@ -54,10 +54,17 @@ const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
 const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
 
 export const uploadToBucket = async (filename: string, data: string) => {
-  await storage
-    .bucket(bucketName)
-    .file(`originalContent/${filename}`)
-    .save(data, { public: false, timeout: 30000 })
+  const file = storage.bucket(bucketName).file(`originalContent/${filename}`)
+
+  // check if the file already exists
+  const [exists] = await file.exists()
+
+  if (exists) {
+    console.log('file already exists', filename)
+    return
+  }
+
+  await file.save(data, { public: false, timeout: 30000 })
 }
 
 const hash = (content: string) =>
