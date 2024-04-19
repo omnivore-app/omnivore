@@ -286,7 +286,8 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
       // find audio data in cache
       const cacheResult = await redisClient.get(cacheKey)
       if (cacheResult) {
-        console.log('Cache hit')
+        console.debug('Cache hit', cacheKey)
+
         const { audioDataString, speechMarks }: CacheResult =
           JSON.parse(cacheResult)
         res.send({
@@ -296,59 +297,66 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         })
         return
       }
-      console.log('Cache miss')
 
-      const bucket = process.env.GCS_UPLOAD_BUCKET
-      if (!bucket) {
-        throw new Error('GCS_UPLOAD_BUCKET not set')
+      console.debug('Cache miss', cacheKey)
+
+      // const bucket = process.env.GCS_UPLOAD_BUCKET
+      // if (!bucket) {
+      //   throw new Error('GCS_UPLOAD_BUCKET not set')
+      // }
+
+      // // audio file to be saved in GCS
+      // const audioFileName = `speech/${cacheKey}.mp3`
+      // const speechMarksFileName = `speech/${cacheKey}.json`
+      // const audioFile = createGCSFile(bucket, audioFileName)
+      // const speechMarksFile = createGCSFile(bucket, speechMarksFileName)
+
+      // let audioData: Buffer | undefined
+      // let speechMarks: SpeechMark[] = []
+      // // check if audio file already exists
+      // const [exists] = await audioFile.exists()
+      // if (exists) {
+      //   console.debug('Audio file already exists')
+      //   ;[audioData] = await audioFile.download()
+      //   const [speechMarksExists] = await speechMarksFile.exists()
+      //   if (speechMarksExists) {
+      //     speechMarks = JSON.parse(
+      //       (await speechMarksFile.download()).toString()
+      //     )
+      //   }
+      // } else {
+
+      // audio file does not exist, synthesize text to speech
+      const input: TextToSpeechInput = {
+        ...utteranceInput,
+        textType: 'ssml',
+        key: cacheKey,
       }
 
-      // audio file to be saved in GCS
-      const audioFileName = `speech/${cacheKey}.mp3`
-      const speechMarksFileName = `speech/${cacheKey}.json`
-      const audioFile = createGCSFile(bucket, audioFileName)
-      const speechMarksFile = createGCSFile(bucket, speechMarksFileName)
+      console.debug('Synthesizing text to speech', cacheKey)
 
-      let audioData: Buffer | undefined
-      let speechMarks: SpeechMark[] = []
-      // check if audio file already exists
-      const [exists] = await audioFile.exists()
-      if (exists) {
-        console.debug('Audio file already exists')
-        ;[audioData] = await audioFile.download()
-        const [speechMarksExists] = await speechMarksFile.exists()
-        if (speechMarksExists) {
-          speechMarks = JSON.parse(
-            (await speechMarksFile.download()).toString()
-          )
-        }
-      } else {
-        // audio file does not exist, synthesize text to speech
-        const input: TextToSpeechInput = {
-          ...utteranceInput,
-          textType: 'ssml',
-          key: cacheKey,
-        }
-        // synthesize text to speech if cache miss
-        const output = await synthesizeTextToSpeech(input)
-        audioData = output.audioData
-        speechMarks = output.speechMarks
-        if (!audioData || audioData.length === 0) {
-          return res.send({
-            idx: utteranceInput.idx,
-            audioData: '',
-            speechMarks: [],
-          })
-        }
-
-        console.debug('saving audio file')
-        // upload audio data to GCS
-        await audioFile.save(audioData)
-        // upload speech marks to GCS
-        if (speechMarks.length > 0) {
-          await speechMarksFile.save(JSON.stringify(speechMarks))
-        }
+      // synthesize text to speech if cache miss
+      const output = await synthesizeTextToSpeech(input)
+      const audioData = output.audioData
+      const speechMarks = output.speechMarks
+      if (!audioData || audioData.length === 0) {
+        return res.send({
+          idx: utteranceInput.idx,
+          audioData: '',
+          speechMarks: [],
+        })
       }
+
+      console.debug('Synthesize text to speech completed', cacheKey)
+
+      // console.debug('saving audio file')
+      // // upload audio data to GCS
+      // await audioFile.save(audioData)
+      // // upload speech marks to GCS
+      // if (speechMarks.length > 0) {
+      //   await speechMarksFile.save(JSON.stringify(speechMarks))
+      // }
+      // }
 
       const audioDataString = audioData.toString('hex')
       // save audio data to cache for 72 hours for mainly the newsletters
@@ -359,7 +367,7 @@ export const textToSpeechStreamingHandler = Sentry.GCPFunction.wrapHttpFunction(
         3600 * 72,
         'NX'
       )
-      console.log('Cache saved')
+      console.debug('Cache saved', cacheKey)
 
       // update character count
       await updateCharacterCountInRedis(redisClient, claim.uid, characterCount)
