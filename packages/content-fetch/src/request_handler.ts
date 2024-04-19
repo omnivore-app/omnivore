@@ -126,7 +126,7 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
 
     const content = fetchResult.content
     if (content) {
-      // hash content to use as key
+      // hash final to use as key
       urlHash = hash(finalUrl)
       await uploadToBucket(urlHash, content)
       console.log('content uploaded to bucket', urlHash)
