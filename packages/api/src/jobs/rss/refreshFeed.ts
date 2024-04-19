@@ -160,8 +160,12 @@ const getThumbnail = (item: RssFeedItem) => {
     return item['media:thumbnail'].$.url
   }
 
-  return item['media:content']?.find((media) => media.$.medium === 'image')?.$
-    .url
+  if (item['media:content']) {
+    return item['media:content'].find((media) => media.$?.medium === 'image')?.$
+      .url
+  }
+
+  return undefined
 }
 
 export const fetchAndChecksum = async (url: string) => {
