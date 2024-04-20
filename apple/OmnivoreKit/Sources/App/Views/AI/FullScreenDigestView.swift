@@ -39,7 +39,7 @@ struct DigestAudioItem: AudioItemProperties {
 @available(iOS 17.0, *)
 @MainActor
 struct FullScreenDigestView: View {
-  let viewModel: DigestViewModel = DigestViewModel()
+  let viewModel: FullScreenDigestViewModel = FullScreenDigestViewModel()
   let dataService: DataService
   let audioController: AudioController
 

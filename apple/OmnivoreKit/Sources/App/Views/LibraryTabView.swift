@@ -135,7 +135,7 @@ struct LibraryTabView: View {
 
         if showDigest, #available(iOS 17.0, *) {
           NavigationView {
-            DigestView(dataService: dataService)
+            FullScreenDigestView(dataService: dataService, audioController: audioController)
               .navigationBarTitleDisplayMode(.inline)
               .navigationViewStyle(.stack)
           }.tag("digest")
