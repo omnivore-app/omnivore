@@ -122,15 +122,28 @@ export const contentFetchRequestHandler: RequestHandler = async (req, res) => {
   try {
     const fetchResult = await fetchContent(url, locale, timezone)
     const finalUrl = fetchResult.finalUrl
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
     let urlHash: string | undefined
 
     const content = fetchResult.content
     if (content) {
+<<<<<<< Updated upstream
       // hash final to use as key
+=======
+      // hash final url to use as key
+>>>>>>> Stashed changes
       urlHash = hash(finalUrl)
       await uploadToBucket(urlHash, content)
       console.log('content uploaded to bucket', urlHash)
     }
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
     const savePageJobs = users.map((user) => ({
       userId: user.id,
