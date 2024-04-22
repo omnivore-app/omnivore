@@ -15,6 +15,7 @@ struct LibraryTabView: View {
   @AppStorage(UserDefaultKey.lastSelectedTabItem.rawValue) var selectedTab = "inbox"
 
   @State var isEditMode: EditMode = .inactive
+  @State var showLibraryDigest = false
   @State var showExpandedAudioPlayer = false
   @State var presentPushContainer = true
   @State var pushLinkRequest: String?
@@ -160,7 +161,11 @@ struct LibraryTabView: View {
       if audioController.itemAudioProperties != nil {
         MiniPlayerViewer()
           .onTapGesture {
-            showExpandedAudioPlayer = true
+            if audioController.itemAudioProperties?.audioItemType == .digest {
+              showLibraryDigest = true
+            } else {
+              showExpandedAudioPlayer = true
+            }
           }
           .padding(0)
         Color(hex: "#3D3D3D")
@@ -192,6 +197,15 @@ struct LibraryTabView: View {
           }
         }
       )
+    }
+    .fullScreenCover(isPresented: $showLibraryDigest) {
+      if #available(iOS 17.0, *) {
+        NavigationView {
+          FullScreenDigestView(dataService: dataService, audioController: audioController)
+        }
+      } else {
+        Text("Sorry digest is only available on iOS 17 and above")
+      }
     }
     .navigationBarHidden(true)
     .onReceive(NSNotification.performSyncPublisher) { _ in

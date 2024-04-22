@@ -8,12 +8,16 @@
   import Views
 
   public struct MiniPlayerViewer: View {
+    var showStopButton = true
     @EnvironmentObject var audioController: AudioController
     @Environment(\.colorScheme) private var colorScheme: ColorScheme
 
     @State var expanded = true
 
     var playPauseButtonImage: String {
+#if targetEnvironment(simulator)
+      return "play.circle"
+#endif
       switch audioController.state {
       case .playing:
         return "pause.circle"
@@ -27,6 +31,17 @@
     }
 
     var playPauseButtonItem: some View {
+#if targetEnvironment(simulator)
+      return AnyView(Button(
+        action: {},
+        label: {
+          Image(systemName: playPauseButtonImage)
+            .resizable(resizingMode: Image.ResizingMode.stretch)
+            .aspectRatio(contentMode: .fit)
+            .font(Font.title.weight(.light))
+        }
+      ).buttonStyle(.plain))
+#endif
       if audioController.playbackError {
         return AnyView(Color.clear)
       }
@@ -138,9 +153,11 @@
               .frame(width: 40, height: 40)
               .foregroundColor(.themeAudioPlayerGray)
           }
-          stopButton
-            .frame(width: 40, height: 40)
-            .foregroundColor(.themeAudioPlayerGray)
+          if showStopButton {
+            stopButton
+              .frame(width: 40, height: 40)
+              .foregroundColor(.themeAudioPlayerGray)
+          }
         }
         .padding(.vertical, 5)
         .padding(.horizontal, 15)

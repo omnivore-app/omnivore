@@ -17,6 +17,7 @@ export enum FeatureName {
   UltraRealisticVoice = 'ultra-realistic-voice',
   Notion = 'notion',
   AIDigest = 'ai-digest',
+  Explain = 'explain',
 }
 
 export const getFeatureName = (name: string): FeatureName | undefined => {

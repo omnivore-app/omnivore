@@ -1,123 +1,271 @@
 import SwiftUI
 import Models
 import Services
+import Views
+import MarkdownUI
+import Utils
 
+@MainActor
 public class FullScreenDigestViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var digest: DigestResult?
+  @AppStorage(UserDefaultKey.lastVisitedDigestId.rawValue) var lastVisitedDigestId = ""
 
-  func load(dataService: DataService) async {
-    isLoading = true
-    if digest == nil {
-      do {
-        digest = try await dataService.getLatestDigest(timeoutInterval: 10)
-      } catch {
-        print("ERROR WITH DIGEST: ", error)
-      }
+  func load(dataService: DataService, audioController: AudioController) async {
+    if let digest = dataService.loadStoredDigest() {
+      self.digest = digest
+    } else {
+      isLoading = true
     }
+    do {
+      if let digest = try await dataService.getLatestDigest(timeoutInterval: 10) {
+        self.digest = digest
+        lastVisitedDigestId = digest.id
+
+        if let playingDigest = audioController.itemAudioProperties as? DigestAudioItem, playingDigest.digest.id == digest.id {
+          // Don't think we need to do anything here
+        } else {
+          audioController.play(itemAudioProperties: DigestAudioItem(digest: digest))
+          audioController.pause()
+        }
+      }
+    } catch {
+      print("ERROR WITH DIGEST: ", error)
+    }
+
     isLoading = false
   }
-}
 
-struct DigestAudioItem: AudioItemProperties {
-  let audioItemType = Models.AudioItemType.digest
-  
-  var itemID = ""
-  
-  var title = "TITLE"
-  
-  var byline: String? = "byline"
-  
-  var imageURL: URL? = nil
-  
-  var language: String?
-  
-  var startIndex: Int = 0
-  var startOffset: Double = 0.0
+  func refreshDigest(dataService: DataService) async {
+    do {
+      try await dataService.refreshDigest()
+    } catch {
+      print("ERROR WITH DIGEST: ", error)
+    }
+  }
 }
 
 @available(iOS 17.0, *)
 @MainActor
 struct FullScreenDigestView: View {
-  let viewModel: DigestViewModel = DigestViewModel()
+  @StateObject var viewModel = FullScreenDigestViewModel()
   let dataService: DataService
   let audioController: AudioController
 
   @Environment(\.dismiss) private var dismiss
-
-  let textBody = "In a significant political turn, the SOTU response faces unexpected collapse, " +
-  "marking a stark contrast to Trump's latest downturn, alongside an unprecedented " +
-  "surge in Biden's fundraising efforts as of 3/11/24, according to the TDPS Podcast. " +
-  "The analysis provides insights into the shifting dynamics of political support and " +
-  "the potential implications for future electoral strategies. Based on the information " +
-  "you provided, the video seems to discuss a recent event where former President " +
-  "Donald Trump made a controversial statement that shocked even his own audience. " +
-  "The video likely covers Trump's response to the State of the Union (SOTU) address " +
-  "and how it received negative feedback, possibly leading to a decline in his support " +
-  "or approval ratings. Additionally, it appears that the video touches upon a surge " +
-  "in fundraising for President Joe Biden's administration around March 11, 2024."
 
   public init(dataService: DataService, audioController: AudioController) {
     self.dataService = dataService
     self.audioController = audioController
   }
 
-  var body: some View {
-    // ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
-    Group {
-      if viewModel.isLoading {
-        ProgressView()
-      } else {
-        itemBody
-          .task {
-            await viewModel.load(dataService: dataService)
-          }.onAppear {
-            self.audioController.play(itemAudioProperties: DigestAudioItem())
-          }
-      }
-    }            .navigationTitle("Omnivore digest")
-      .navigationBarTitleDisplayMode(.inline)
+  var titleBlock: some View {
+    HStack {
+      Text("Omnivore Digest")
+        .font(Font.system(size: 18, weight: .semibold))
+      Image.tabDigestSelected
+      Spacer()
+      closeButton
+    }
+    .padding(.top, 20)
+    .padding(.horizontal, 20)
+  }
 
-//      HStack(alignment: .top) {
-//        Spacer()
-//        closeButton
-//      }
-//      .padding(20)
-    // }
+  var createdString: String {
+    if let createdAt = viewModel.digest?.createdAt,
+        let date = DateFormatter.formatterISO8601.date(from: createdAt) {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateStyle = .medium
+      dateFormatter.timeStyle = .medium
+      dateFormatter.locale = Locale(identifier: "en_US")
+
+      return "Created " + dateFormatter.string(from: date)
+    }
+    return ""
+  }
+
+  var body: some View {
+    VStack {
+      titleBlock
+
+      Group {
+        if viewModel.isLoading {
+          VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+          }
+        } else {
+          itemBody
+        }
+      }
+      .edgesIgnoringSafeArea(.bottom)
+
+     }.task {
+       await viewModel.load(dataService: dataService, audioController: audioController)
+     }
   }
 
   var closeButton: some View {
     Button(action: {
       dismiss()
     }, label: {
-      ZStack {
-        Circle()
-          .foregroundColor(Color.appGrayText)
-          .frame(width: 36, height: 36)
-          .opacity(0.1)
-
-        Image(systemName: "xmark")
-          .font(.appCallout)
-          .frame(width: 36, height: 36)
-      }
+      Text("Close")
+        .foregroundColor(Color.blue)
     })
     .buttonStyle(.plain)
+  }
+
+  func getChapterData(digest: DigestResult) -> [String:(time: String, start: Int, end: Int)] {
+    let speed = 1.0
+    var chapterData: [String:(time: String, start: Int, end: Int)] = [:]
+    var currentAudioIndex = 0
+    var currentWordCount = 0.0
+
+    for (index, speechFile) in digest.speechFiles.enumerated() {
+      let chapter = digest.chapters[index]
+      let duration = currentWordCount / SpeechDocument.averageWPM / speed * 60.0
+
+      chapterData[chapter.id] = (
+        time: formatTimeInterval(duration) ?? "00:00",
+        start: Int(currentAudioIndex),
+        end: currentAudioIndex + Int(speechFile.utterances.count)
+      )
+      currentAudioIndex += Int(speechFile.utterances.count)
+      currentWordCount += chapter.wordCount
+    }
+    return chapterData
+  }
+
+  func formatTimeInterval(_ time: TimeInterval) -> String? {
+    let componentFormatter = DateComponentsFormatter()
+    componentFormatter.unitsStyle = .positional
+    componentFormatter.allowedUnits = time >= 3600 ? [.second, .minute, .hour] : [.second, .minute]
+    componentFormatter.zeroFormattingBehavior = .pad
+    return componentFormatter.string(from: time)
   }
 
   @available(iOS 17.0, *)
   var itemBody: some View {
     VStack {
-      ScrollView(.vertical) {
-        VStack(spacing: 20) {
-          Text("SOTU response collapses, Trump hits new low, Biden fundraising explodes 3/11/24 TDPS Podcast")
-            .font(.title)
-          Text(textBody)
-            .font(.body)
+      ScrollView {
+        VStack(alignment: .leading, spacing: 20) {
+          HStack {
+            Image.coloredSmallOmnivoreLogo
+              .resizable()
+              .frame(width: 20, height: 20)
+            Text("Omnivore.app")
+              .font(Font.system(size: 14))
+              .foregroundColor(Color.themeLibraryItemSubtle)
+            Spacer()
+          }
+          if let digest = viewModel.digest {
+            Text(digest.title)
+              .font(Font.system(size: 17, weight: .semibold))
+              .lineSpacing(5)
+              .lineLimit(3)
+            Text(createdString)
+              .font(Font.system(size: 12))
+              .foregroundColor(Color(hex: "#898989"))
+              .lineLimit(1)
+            Text(digest.description)
+              .font(Font.system(size: 14))
+              .lineSpacing(/*@START_MENU_TOKEN@*/10.0/*@END_MENU_TOKEN@*/)
+              .foregroundColor(Color.themeLibraryItemSubtle)
+              .lineLimit(6)
+          } else {
+            Text("We're building you a new digest")
+              .font(Font.system(size: 17, weight: .semibold))
+              .lineLimit(3)
+            ProgressView()
+          }
         }
-      }
-      // .scrollTargetBehavior(.paging)
-      // .ignoresSafeArea()
-      MiniPlayerViewer()
+        .padding(15)
+        .background(Color.themeLabelBackground.opacity(0.6))
+        .cornerRadius(5)
+
+        if let digest = viewModel.digest {
+          VStack(alignment: .leading, spacing: 10) {
+            Text("Chapters")
+              .font(Font.system(size: 17, weight: .semibold))
+              .frame(maxWidth: .infinity, alignment: .leading)
+              .padding(0)
+            let chapterData = getChapterData(digest: digest)
+            ForEach(digest.chapters, id: \.id) { chapter in
+              if let startTime = chapterData[chapter.id]?.time, let skipIndex = chapterData[chapter.id]?.start {
+                let currentChapter = audioController.currentAudioIndex >= (chapterData[chapter.id]?.start ?? 0) &&
+                                     audioController.currentAudioIndex  < (chapterData[chapter.id]?.end ?? 0)
+                ChapterView(
+                  startTime: startTime,
+                  skipIndex: skipIndex,
+                  chapter: chapter
+                )
+                .onTapGesture {
+                  audioController.seek(toIdx: skipIndex)
+                }
+                .background(
+                  currentChapter ? Color.themeLabelBackground.opacity(0.6) : Color.clear
+                )
+                .cornerRadius(5)
+              }
+            }
+          }
+          .padding(.top, 20)
+        }
+
+        if let digest = viewModel.digest {
+          Text("Transcript")
+            .font(Font.system(size: 17, weight: .semibold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 20)
+
+          VStack {
+            Markdown(digest.content)
+              .foregroundColor(Color.appGrayTextContrast)
+          }
+          .padding(15)
+          .background(Color.themeLabelBackground.opacity(0.6))
+          .cornerRadius(5)
+        }
+
+        Spacer(minLength: 60)
+
+        if viewModel.digest != nil {
+          Text("Rate today's digest")
+            .font(Font.system(size: 17, weight: .semibold))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 15)
+            .padding(.horizontal, 15)
+
+          RatingWidget()
+          Spacer(minLength: 60)
+        }
+        
+        VStack(alignment: .leading, spacing: 20) {
+          Text("If you didn't like today's digest or would like another one you can create another one. The process takes a few minutes")
+          Button(action: {
+            Task {
+              await viewModel.refreshDigest(dataService: dataService)
+            }
+          }, label: {
+            Text("Create new digest")
+              .font(Font.system(size: 13, weight: .medium))
+              .padding(.horizontal, 8)
+              .padding(.vertical, 5)
+              .tint(Color.blue)
+              .background(Color.themeLabelBackground)
+              .cornerRadius(5)
+          })
+        }
+        .padding(15)
+        .background(Color.themeLabelBackground.opacity(0.6))
+        .cornerRadius(5)
+
+      }.contentMargins(10, for: .scrollContent)
+
+      Spacer()
+
+      MiniPlayerViewer(showStopButton: false)
         .padding(.top, 10)
         .padding(.bottom, 40)
         .background(Color.themeTabBarColor)
@@ -125,6 +273,50 @@ struct FullScreenDigestView: View {
           // showExpandedAudioPlayer = true
         }
     }
+  }
+}
+
+struct ChapterView: View {
+  let startTime: String
+  let skipIndex: Int
+  let chapter: DigestChapter
+
+  var body: some View {
+    HStack(spacing: 15) {
+      if let thumbnail = chapter.thumbnail, let thumbnailURL = URL(string: thumbnail) {
+        AsyncImage(url: thumbnailURL) { image in
+          image
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 90, height: 50)
+            .clipped()
+        } placeholder: {
+          Rectangle()
+            .foregroundColor(.gray)
+            .frame(width: 90, height: 50)
+        }
+        .cornerRadius(8)
+      } else {
+        Rectangle()
+          .foregroundColor(.gray)
+          .frame(width: 90, height: 50)
+          .cornerRadius(8)
+      }
+      VStack(alignment: .leading) {
+        (Text(startTime)
+          .foregroundColor(.blue)
+          .font(.caption)
+
+                +
+        Text(" - " + chapter.title)
+          .foregroundColor(.primary)
+          .font(.caption))
+        .lineLimit(2)
+      }
+      Spacer()
+    }
+    .padding(.leading, 4)
+    .padding(.vertical, 15)
   }
 }
 
@@ -145,24 +337,6 @@ public class PreviewItemViewModel: ObservableObject {
   }
 
   func loadResult() async {
-//    isLoading = true
-//    let taskId = try? await dataService.createAITask(
-//      extraText: extraText,
-//      libraryItemId: item?.id ?? "",
-//      promptName: "summarize-001"
-//    )
-//
-//    if let taskId = taskId {
-//      do {
-//        let fetchedText = try await dataService.pollAITask(jobId: taskId, timeoutInterval: 30)
-//        resultText = fetchedText
-//      } catch {
-//        print("ERROR WITH RESULT TEXT: ", error)
-//      }
-//    } else {
-//      print("NO TASK ID: ", taskId)
-//    }
-//    isLoading = false
   }
 }
 
@@ -200,7 +374,7 @@ struct PreviewItemView: View {
           .foregroundColor(Color(hex: "898989"))
           .frame(maxWidth: .infinity, alignment: .topLeading)
 
-        Color(hex: "2A2A2A")
+        Color.themeLabelBackground
           .frame(height: 1)
           .frame(maxWidth: .infinity, alignment: .center)
           .padding(.vertical, 20)
@@ -296,7 +470,7 @@ struct RatingWidget: View {
             }
         }
         .padding()
-        .background(Color(hex: "313131"))
+        .background(Color.themeLabelBackground.opacity(0.6))
         .cornerRadius(8)
         // .shadow(radius: 3)
     }

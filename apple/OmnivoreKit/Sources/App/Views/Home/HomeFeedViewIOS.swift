@@ -205,7 +205,6 @@ struct AnimatingCellHeight: AnimatableModifier {
     @State private var selection = Set<String>()
 
     @AppStorage("LibraryList::digestEnabled") var digestEnabled = false
-    @AppStorage("LibraryList::hasCheckedForDigestFeature") var hasCheckedForDigestFeature = false
 
     init(viewModel: HomeFeedViewModel, isEditMode: Binding<EditMode>) {
       _viewModel = ObservedObject(wrappedValue: viewModel)
@@ -274,7 +273,11 @@ struct AnimatingCellHeight: AnimatableModifier {
                 .padding(.bottom, 20)
                 .background(Color.themeTabBarColor)
                 .onTapGesture {
-                  showExpandedAudioPlayer = true
+                  if audioController.itemAudioProperties?.audioItemType == .digest {
+                    showLibraryDigest = true
+                  } else {
+                    showExpandedAudioPlayer = true
+                  }
                 }
             }
           }
@@ -353,11 +356,16 @@ struct AnimatingCellHeight: AnimatableModifier {
       }
       .task {
         do {
-          if let viewer = try await dataService.fetchViewer() {
-            digestEnabled = viewer.digestEnabled ?? false
-            if !hasCheckedForDigestFeature {
-              hasCheckedForDigestFeature = true
-              // selectedTab = "digest"
+          // If the user doesn't have digest enabled, try updating their features
+          // to see if they have it.
+          if !digestEnabled {
+            if let viewer = try await dataService.fetchViewer() {
+              digestEnabled = viewer.hasFeatureGranted("ai-digest")
+            }
+          }
+          if digestEnabled {
+            Task {
+              await viewModel.checkForDigestUpdate(dataService: dataService)
             }
           }
         } catch {
@@ -409,10 +417,10 @@ struct AnimatingCellHeight: AnimatableModifier {
               if isEditMode == .active {
                 Button(action: { isEditMode = .inactive }, label: { Text("Cancel") })
               } else {
-                if #available(iOS 17.0, *) {
+                if #available(iOS 17.0, *), digestEnabled {
                   Button(
                     action: { showLibraryDigest = true },
-                    label: { Image.tabDigestSelected }
+                    label: { viewModel.digestIsUnread ? Image.tabDigestSelected : Image.tabDigest }
                   )
                   .buttonStyle(.plain)
                   .padding(.trailing, 4)

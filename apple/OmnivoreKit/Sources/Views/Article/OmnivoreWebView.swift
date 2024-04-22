@@ -400,8 +400,8 @@ public final class OmnivoreWebView: WKWebView {
             return
           }
           let highlight = UICommand(title: LocalText.genericHighlight, action: #selector(highlightSelection))
-          // let explain = UICommand(title: "Explain", action: #selector(explainSelection))
-          items = [highlight, /* explain, */ annotate]
+          let explain = UICommand(title: "Explain", action: #selector(explainSelection))
+          items = [highlight,  explain, annotate]
         } else {
           let remove = UICommand(title: "Remove", action: #selector(removeSelection))
           let setLabels = UICommand(title: LocalText.labelsGeneric, action: #selector(setLabels))
