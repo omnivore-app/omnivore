@@ -113,7 +113,8 @@ export const saveEmail = async (
       folder: input.folder,
       labelNames: labels.map((label) => label.name),
       itemLanguage: parseResult.parsedContent?.language,
-      directionality: parseResult.parsedContent?.dir as DirectionalityType,
+      directionality:
+        (parseResult.parsedContent?.dir as DirectionalityType) || undefined,
     },
     input.userId
   )
